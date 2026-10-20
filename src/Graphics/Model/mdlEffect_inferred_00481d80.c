@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
@@ -25,9 +26,9 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void func_00481f30(u8 *arg0, s32 arg1);
-extern u8 *func_00482230(s32 *arg0);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex);
+extern u8 *mdlEffectLoadTrackResource(s32 *source);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
@@ -54,43 +55,47 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00481d80-00481e30 */
 
-extern void func_00481f30(u8 *arg0, s32 arg1);
-extern u8 *func_00482230(s32 *arg0);
+extern void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex);
+extern u8 *mdlEffectLoadTrackResource(s32 *source);
+/* Resolves a track resource, allocates its 0x14-byte track states, and initializes playback. */
+/* Resolves a track resource and allocates initialized playback states with a 0x14-byte stride. */
 // FUN_00481D80
-u8 *func_00481d80(s32 arg0) {
-    s32 temp_17;
-    u8 *temp_2;
-    u8 *var_16;
+u8 *mdlEffectCreateTrackInstance(s32 source) {
+    s32 allocationSize;
+    u8 *instance;
+    u8 *tracks;
 
-    var_16 = NULL;
-    if (arg0 != 0) {
-        var_16 = func_00482230((s32 *)(u32)arg0);
+    tracks = NULL;
+    if (source != 0) {
+        tracks = mdlEffectLoadTrackResource((s32 *)(u32)source);
     }
-    temp_17 = (*(s32 *)(var_16 + 8) * 0x14) + 0x18;
+    allocationSize = (((MdlEffectTrackResource *)tracks)->trackCount * 0x14) + 0x18;
     chkmemAllocSiteTag(D_007132F0, 0x72);
-    temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
-    *(u8 **)(temp_2 + 0) = var_16;
-    *(u8 **)(temp_2 + 0x10) = temp_2 + 0x18;
-    func_00481f30(temp_2, 0);
-    *(s16 *)(temp_2 + 0x14) = 1;
-    return temp_2;
+    instance = (u8 *)jtbl_008873E8[0](allocationSize, 0x40000);
+    ((MdlEffectTrackInstance *)instance)->resource = (MdlEffectTrackResource *)tracks;
+    ((MdlEffectTrackInstance *)instance)->tracks = (MdlEffectTrack *)(instance + 0x18);
+    mdlEffectSelectResourceEntry(instance, 0);
+    ((MdlEffectTrackInstance *)instance)->active = 1;
+    return instance;
 }
 
+/* Shares the source track resource and creates an independently initialized playback instance. */
+/* Increments the shared track resource reference count and allocates independent playback state. */
 // FUN_00481E30
-u8 *func_00481e30(u8 **arg0) {
-    s32 temp_17;
-    u8 *temp_16;
-    u8 *temp_2;
+u8 *mdlEffectShareTrackInstance(u8 **source) {
+    s32 allocationSize;
+    u8 *tracks;
+    u8 *instance;
 
-    temp_16 = *arg0;
-    *(s32 *)(temp_16 + 0x10) = *(s32 *)(temp_16 + 0x10) + 1;
-    temp_17 = (*(s32 *)(temp_16 + 8) * 0x14) + 0x18;
+    tracks = *source;
+    ((MdlEffectTrackResource *)tracks)->references = ((MdlEffectTrackResource *)tracks)->references + 1;
+    allocationSize = (((MdlEffectTrackResource *)tracks)->trackCount * 0x14) + 0x18;
     chkmemAllocSiteTag(D_007132F0, 0x8E);
-    temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
-    *(u8 **)(temp_2 + 0) = temp_16;
-    *(u8 **)(temp_2 + 0x10) = temp_2 + 0x18;
-    func_00481f30(temp_2, 0);
-    *(s16 *)(temp_2 + 0x14) = 1;
-    return temp_2;
+    instance = (u8 *)jtbl_008873E8[0](allocationSize, 0x40000);
+    ((MdlEffectTrackInstance *)instance)->resource = (MdlEffectTrackResource *)tracks;
+    ((MdlEffectTrackInstance *)instance)->tracks = (MdlEffectTrack *)(instance + 0x18);
+    mdlEffectSelectResourceEntry(instance, 0);
+    ((MdlEffectTrackInstance *)instance)->active = 1;
+    return instance;
 }
 

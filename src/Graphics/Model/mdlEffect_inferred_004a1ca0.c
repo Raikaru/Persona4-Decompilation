@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -59,8 +60,8 @@ extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
 extern void func_003c22f0();
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -81,34 +82,35 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 /* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
 /* measured: func_004a1ca0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Reset each wind entry age to -1 and initialize its material color from the global tint. */
 // FUN_004A1CA0
-void func_004a1ca0(u8 *arg0)
+void mdlEffectResetWindEntries(u8 *instance)
 {
-    u8 *p5;
-    u8 *p7;
+    u8 *work;
+    u8 *entry;
     u32 count;
     u32 i;
-    u8 *p11;
-    u8 *p13;
+    u8 *model;
+    u8 *material;
 
-    p5 = *(u8 **)(arg0 + 0x3C);
-    p7 = *(u8 **)p5;
-    count = *(u32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    work = ((MdlEffectVectorInstance *)instance)->child;
+    entry = *(u8 **)work;
+    count = ((MdlEffectWindParameters *)((MdlEffectVectorInstance *)instance)->parameters)->meshCount;
     i = 0;
     while (i < count) {
-        p11 = *(u8 **)(p5 + 4);
+        model = ((MdlEffectWindWork *)work)->geometry;
         if (iGpffffbb64.c3 != 0xFF) {
-            p13 = *(u8 **)(*(u8 **)(p11 + 0x54) + (i & 0xFFFF) * 4);
-            *(PolygonWindColor *)(p13 + 4) = iGpffffbb64;
+            material = ((u8 **)((MdlEffectMultipartGeometry *)model)->materials)[((i & 0xFFFF) * 4) / sizeof(u8 *)];
+            *(PolygonWindColor *)&((RpMaterial *)material)->color = iGpffffbb64;
         } else {
             iGpffffbb64.c3 = 0xFE;
-            p13 = *(u8 **)(*(u8 **)(p11 + 0x54) + (i & 0xFFFF) * 4);
-            *(PolygonWindColor *)(p13 + 4) = iGpffffbb64;
+            material = ((u8 **)((MdlEffectMultipartGeometry *)model)->materials)[((i & 0xFFFF) * 4) / sizeof(u8 *)];
+            *(PolygonWindColor *)&((RpMaterial *)material)->color = iGpffffbb64;
             iGpffffbb64.c3 = 0xFF;
         }
-        *(s32 *)p7 = -1;
+        *(s32 *)entry = -1;
         i++;
-        p7 += 0x30;
+        entry += 0x30;
     }
 }
 
@@ -117,8 +119,9 @@ void func_004a1ca0(u8 *arg0)
    replication strides. The 4-byte color assignment preserves retail's
    load-all/store-all byte copy. Separate loop locals keep the saved-register
    allocation exact. */
+/* Build fade-in/out vertex color rows and width coordinates, then replicate them for every mesh. */
 // FUN_004A1D70
-void func_004a1d70(u8 *arg0, u8 *arg1)
+void mdlEffectBuildWindFadeRows(u8 *instance, u8 *parameters)
 {
     u32 meshCount;
     u8 *geometry;
@@ -139,19 +142,21 @@ void func_004a1d70(u8 *arg0, u8 *arg1)
     u32 copies;
     u16 *model;
 
-    meshCount = *(u32 *)(arg1 + 0x38);
+    meshCount = ((MdlEffectWindParameters *)parameters)->meshCount;
     if (meshCount != 0) {
-        geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        geometry = (u8 *)((RpAtomic *)((MdlEffectMultipartGeometry *)*(u8 **)(instance + 4))->model)->geometry;
         RpGeometryLock((RpGeometry *)geometry, 0xFF8);
-        geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
-        colorsBase = *(u8 **)(geometry + 0x30);
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        geometry = (u8 *)((RpAtomic *)((MdlEffectMultipartGeometry *)*(u8 **)(instance + 4))->model)->geometry;
+        colorsBase = (u8 *)((RpGeometry *)geometry)->colors;
         colors = colorsBase;
-        verticesBase = *(u8 **)(geometry + 0x34);
+        verticesBase = (u8 *)((RpGeometry *)geometry)->texCoords[0];
         vertices = verticesBase;
-        step = *(f32 *)(arg1 + 0x90) / 3.0f;
-        frames = *(s32 *)(arg1 + 0x8C);
-        fadeIn = (s32)(*(f32 *)(arg1 + 0x78) * (f32)frames);
-        fadeOut = (s32)(*(f32 *)(arg1 + 0x7C) * (f32)frames);
+        step = ((MdlEffectWindParameters *)parameters)->width / 3.0f;
+        frames = ((MdlEffectWindParameters *)parameters)->duration;
+        fadeIn = (s32)(((MdlEffectWindParameters *)parameters)->fadeIn * (f32)frames);
+        fadeOut = (s32)(((MdlEffectWindParameters *)parameters)->fadeOut * (f32)frames);
         pointCount = frames + 1;
         wordCount = pointCount * 4;
         i = 0;
@@ -163,15 +168,17 @@ void func_004a1d70(u8 *arg0, u8 *arg1)
             } else {
                 opacity = 1.0f;
             }
-            *(u32 *)(colors + 0) = 0xFFFFFF;
+            ((u32 *)colors)[0] = 0xFFFFFF;
+            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
             *(u32 *)(colors + 4) = ((u32)(opacity * 255.0f) << 24) | 0xFFFFFF;
-            *(PolygonWindColor *)(colors + 8) = *(PolygonWindColor *)(colors + 4);
-            *(u32 *)(colors + 12) = 0xFFFFFF;
+            ((PolygonWindColor *)colors)[2] = ((PolygonWindColor *)colors)[1];
+            ((u32 *)colors)[3] = 0xFFFFFF;
             colors += 0x10;
+            /* The first texture coordinate is initialized through its integer zero bit pattern; retain that representation. */
             *(u32 *)(vertices + 0) = 0;
-            *(f32 *)(vertices + 8) = step;
-            *(f32 *)(vertices + 0x10) = step * 2.0f;
-            *(f32 *)(vertices + 0x18) = step * 3.0f;
+            ((f32 *)vertices)[2] = step;
+            ((f32 *)vertices)[4] = step * 2.0f;
+            ((f32 *)vertices)[6] = step * 3.0f;
             vertices += 0x20;
             i += 1;
         }
@@ -185,11 +192,11 @@ void func_004a1d70(u8 *arg0, u8 *arg1)
             vertices += vertexBytes;
             copies += 1;
         }
-        model = *(u16 **)(arg0 + 4);
-        geometry = *(u8 **)(*(u8 **)((u8 *)model + 0x10) + 0x18);
+        model = (u16 *)((MdlEffectWindWork *)instance)->geometry;
+        geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)(u8 *)model)->atomic)->geometry;
         func_003c22f0(geometry);
         if ((*model & 4) != 0) {
-            *(u16 *)(geometry + 0xC) |= 1;
+            ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
 }

@@ -19,34 +19,34 @@ typedef struct
     f32 first;
     s32 pad;
     f32 second;
-} F2_0017;
+} FldIconProjection;
 
 extern void *memset(void *dst, s32 value, s32 size);
 extern u8 D_007F1740[];
 extern u8 D_005F1950[];
 extern u8 D_005F1A60[];
 extern u8 D_005F1A64[];
-void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
-                    s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
-extern s32 FldPlayerIconUpdate(u8 *arg0);
+void FldSmapTileQueueQuad(u8 *, u8 *, s32, s32, s32,
+                    s32, s32, f32, f32, f32);
+extern s32 FldPlayerIconUpdate(u8 *);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern f32 sinf(f32 arg0);
-extern u8 *resourceFindByName(char *arg0);
+extern f32 sinf(f32);
+extern u8 *resourceFindByName(char *);
 extern char D_005E5850[];
 extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
 extern u8 *kwlnGetCamera(void);
-extern void *mdlGetMatrix(void *arg0);
-extern void func_003e42a0(void *dst, void *src, u8 *arg2);
+extern void *mdlGetMatrix(void *);
+extern void func_003e42a0(void *dst, void *src, u8 *);
 extern u8 D_007EFA00[];
 extern void sprintf(void *dst, const void *src);
 extern s32 func_003ef6d0(void);
-extern s32 func_003ef650(s32 arg0, void *arg1);
-extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
-                           f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6,
-                           void *arg7, s32 arg8,
-                           f32 arg9, f32 arg10, f32 arg11,
-                           s32 arg12, void *arg13, f32 arg14);
+extern s32 func_003ef650(s32, void *);
+extern void FldRc_QueueScreenQuad(u8 *, u8 *,
+                           f32, f32, f32, f32, f32,
+                           void *, s32,
+                           f32, f32, f32,
+                           s32, void *, f32);
 extern u8 D_005F1970[];
 extern u8 D_005F1974[];
 extern u8 D_005F1978[];
@@ -74,13 +74,26 @@ extern s32 D_005F1934[];
    0x001026B0 and is not merged with it. */
 
 #include "rw_types_internal.h"
+#include "sdktask.h"
+/* Partial layout: field widths and offsets are established by the accesses below. */
+typedef struct {
+    s32 state;
+    s32 active; /* +0x4 */
+    union { s32 integer; u32 word; } texture; /* +0x8 */
+    union { s16 shortValue; u16 halfword; } x; /* +0xC */
+    union { s16 shortValue; u16 halfword; } y; /* +0xE */
+    u16 frame; /* +0x10 */
+} FldPlayerIconWork;
+
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 /* 764/768 bytes; fourteen resolved relocations; four zero alignment bytes.
  * Preserve unsigned frame updates and the three ordered sprite draws. */
 // FUN_0017CD60
-s32 FldPlayerIconUpdate(u8 *arg0)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Initialize or draw the three player-icon sprites with a repeating fifteen-frame sine animation. */
+s32 FldPlayerIconUpdate(u8 *task)
 {
     u8 *work;
     f32 easing;
@@ -91,7 +104,7 @@ s32 FldPlayerIconUpdate(u8 *arg0)
     f32 x;
     f32 y;
 
-    work = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(task + 0x38);
     if (*(s32 *)(work + 4) == 0) {
         return 0;
     }
@@ -143,7 +156,8 @@ done:
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // FUN_0017D060
-void FldPlayerIconDestroy(u8 *arg0)
+/* The player-icon task owns no separately released resources. */
+void FldPlayerIconDestroy(u8 *task)
 {
 }
 #pragma pop
@@ -152,10 +166,11 @@ void FldPlayerIconDestroy(u8 *arg0)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // FUN_0017D070
-s32 FldPlayerIconTaskCreate(u8 *arg0)
+/* Clear the fixed player-icon work block and register its child task. */
+s32 FldPlayerIconTaskCreate(u8 *task)
 {
     memset(D_007F1740, 0, 0x20);
-    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1950), 0x12, 0, 0, FldPlayerIconUpdate, FldPlayerIconDestroy, (u8 *)(D_007F1740));
+    return (s32)kwlnTaskCreateChild((void *)(task), (const void *)(D_005F1950), 0x12, 0, 0, FldPlayerIconUpdate, FldPlayerIconDestroy, (u8 *)(D_007F1740));
 }
 #pragma pop
 
@@ -163,9 +178,10 @@ s32 FldPlayerIconTaskCreate(u8 *arg0)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // FUN_0017D0F0
-void FldPlayerIconSetActive(u8 *arg0, s32 arg1)
+/* Enable or disable player-icon drawing in the task work block. */
+void FldPlayerIconSetActive(u8 *task, s32 active)
 {
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 4) = arg1;
+    ((FldPlayerIconWork *)((SdkTask *)task)->work)->active = active;
 }
 #pragma pop
 
@@ -173,29 +189,31 @@ void FldPlayerIconSetActive(u8 *arg0, s32 arg1)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // FUN_0017D100
-void FldPlayerIconUpdatePos(u8 *arg0)
+/* Project the player model and choose one of three fixed icon positions from its horizontal screen region. */
+/* Raw access: The X/Y globals name separate components of interleaved 8-byte position records; retain each component symbol in the indexed loads. */
+void FldPlayerIconUpdatePos(u8 *task)
 {
-    F2_0017 sp30;
-    f32 temp_f1;
-    s32 temp_17;
-    s32 temp_4;
-    s32 var_3;
-    u8 *temp_16;
+    FldIconProjection projectedPosition;
+    f32 screenX;
+    s32 cameraMatrix;
+    s32 positionOffset;
+    s32 screenRegion;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_17 = (s32)(kwlnGetCamera() + 0x20);
-    func_003e42a0(&sp30, (u8 *)mdlGetMatrix(*(u8 **)D_007EFA00) + 0x30, (u8 *)temp_17);
-    temp_f1 = 640.0f * (sp30.first / sp30.second);
-    if (temp_f1 <= 100.0f) {
-        var_3 = 0;
-    } else if (temp_f1 < 540.0f) {
-        var_3 = 1;
+    work = ((SdkTask *)task)->work;
+    cameraMatrix = (s32)(kwlnGetCamera() + 0x20);
+    func_003e42a0(&projectedPosition, (u8 *)mdlGetMatrix(*(u8 **)D_007EFA00) + 0x30, (u8 *)cameraMatrix);
+    screenX = 640.0f * (projectedPosition.first / projectedPosition.second);
+    if (screenX <= 100.0f) {
+        screenRegion = 0;
+    } else if (screenX < 540.0f) {
+        screenRegion = 1;
     } else {
-        var_3 = 2;
+        screenRegion = 2;
     }
-    temp_4 = var_3 * 8;
-    *(s16 *)(temp_16 + 0xC) = *(s32 *)((u8 *)D_005F1930 + temp_4);
-    *(s16 *)(temp_16 + 0xE) = *(s32 *)((u8 *)D_005F1934 + temp_4);
+    positionOffset = screenRegion * 8;
+    ((FldPlayerIconWork *)work)->x.shortValue = *(s32 *)((u8 *)D_005F1930 + positionOffset);
+    ((FldPlayerIconWork *)work)->y.shortValue = *(s32 *)((u8 *)D_005F1934 + positionOffset);
 }
 #pragma pop
 
@@ -203,16 +221,18 @@ void FldPlayerIconUpdatePos(u8 *arg0)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // FUN_0017D1F0
-void FldSmapTileQueueByType(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
-                   f32 arg5, f32 arg6, f32 arg7, s32 arg4)
+/* Read the tile dimensions for its type and queue a quad, including the one-pixel size expansion. */
+/* Raw access: The size globals name separate components of interleaved 8-byte records; keep their distinct native relocation symbols. */
+void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
+                   f32 x, f32 y, f32 depth, s32 flags)
 {
-    s32 temp_3;
+    s32 sizeOffset;
 
-    temp_3 = arg2 * 8;
-    FldSmapTileQueueQuad(arg0, arg1, arg2, arg3,
-                  *(s32 *)(D_005F1A60 + temp_3) + 1,
-                  *(s32 *)(D_005F1A64 + temp_3) + 1, arg4,
-                  arg5, arg6, arg7);
+    sizeOffset = tileType * 8;
+    FldSmapTileQueueQuad(queue, context, tileType, variant,
+                  *(s32 *)(D_005F1A60 + sizeOffset) + 1,
+                  *(s32 *)(D_005F1A64 + sizeOffset) + 1, flags,
+                  x, y, depth);
 }
 #pragma pop
 
@@ -221,54 +241,56 @@ void FldSmapTileQueueByType(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
 #pragma opt_loop_invariants off
 #pragma optimization_level 1
 // FUN_0017D240
-void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
-                   s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9)
+/* Resolve the variant texture name and queue a tile with the type-specific UV tuple. */
+/* Raw access: The four UV globals are interior aliases of 16-byte tuples; the draw API also consumes the first-component pointer, so retain the component-relative addressing. */
+void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
+                   s32 height, s32 flags, f32 x, f32 y, f32 depth)
 {
     struct {
         u8 data[0x10];
         u8 tail[0x10];
-    } spA0;
-    u8 *local_0;
-    u8 *local_1;
-    s32 local_2;
-    s32 local_6;
-    s32 local_5;
-    s32 local_4;
-    f32 temp_f24;
-    f32 temp_f23;
-    f32 temp_f22;
-    f32 temp_f21 = (f32)arg4;
-    f32 temp_f20 = (f32)arg5;
-    f32 *temp_9;
-    s32 temp_2;
-    s32 temp_1;
-    s32 temp_18;
-    local_0 = arg0;
-    local_1 = arg1;
-    local_2 = arg2;
-    temp_f24 = arg7;
-    temp_f23 = arg8;
-    temp_f22 = arg9;
-    local_6 = arg4;
-    local_5 = arg5;
-    local_4 = arg6;
-    if (arg3 == 0) {
-        sprintf(spA0.data, D_005F1AE0);
+    } textureName;
+    u8 *drawQueue;
+    u8 *drawContext;
+    s32 drawType;
+    s32 drawWidth;
+    s32 drawHeight;
+    s32 drawFlags;
+    f32 drawX;
+    f32 drawY;
+    f32 drawDepth;
+    f32 quadWidth = (f32)width;
+    f32 quadHeight = (f32)height;
+    f32 *uvData;
+    s32 texture;
+    s32 dictionary;
+    s32 uvOffset;
+    drawQueue = queue;
+    drawContext = context;
+    drawType = tileType;
+    drawX = x;
+    drawY = y;
+    drawDepth = depth;
+    drawWidth = width;
+    drawHeight = height;
+    drawFlags = flags;
+    if (variant == 0) {
+        sprintf(textureName.data, D_005F1AE0);
     } else {
-        sprintf(spA0.data, D_005F1B00);
+        sprintf(textureName.data, D_005F1B00);
     }
-    temp_18 = local_2 * 0x10;
-    temp_f21 = (f32)local_6;
-    temp_f20 = (f32)local_5;
-    temp_1 = func_003ef6d0();
-    temp_2 = func_003ef650(temp_1, spA0.data);
-    FldRc_QueueScreenQuad(local_0, local_1,
-                  temp_f24, temp_f23, temp_f22, temp_f21, temp_f20,
-                  (void *)&iGpffff9f54, temp_2,
-                  *(f32 *)(temp_9 = (f32 *)(D_005F1970 + temp_18)),
-                  *(f32 *)(D_005F1974 + temp_18),
-                  *(f32 *)(D_005F1978 + temp_18),
-                  local_4, temp_9,
-                  *(f32 *)(D_005F197C + temp_18));
+    uvOffset = drawType * 0x10;
+    quadWidth = (f32)drawWidth;
+    quadHeight = (f32)drawHeight;
+    dictionary = func_003ef6d0();
+    texture = func_003ef650(dictionary, textureName.data);
+    FldRc_QueueScreenQuad(drawQueue, drawContext,
+                  drawX, drawY, drawDepth, quadWidth, quadHeight,
+                  (void *)&iGpffff9f54, texture,
+                  *(f32 *)(uvData = (f32 *)(D_005F1970 + uvOffset)),
+                  *(f32 *)(D_005F1974 + uvOffset),
+                  *(f32 *)(D_005F1978 + uvOffset),
+                  drawFlags, uvData,
+                  *(f32 *)(D_005F197C + uvOffset));
 }
 #pragma pop

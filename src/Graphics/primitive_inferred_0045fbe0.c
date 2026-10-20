@@ -3,6 +3,7 @@
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
+#include "rw_camera_internal.h"
 extern f32 fGpffff81f0;
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
@@ -50,16 +51,7 @@ typedef struct {
 #include "rw_types_internal.h"
 typedef RwV3d Code45Vec3;
 
-typedef struct RwMatrixTag {
-    Code45Vec3 right;
-    u32 flags;
-    Code45Vec3 up;
-    u32 pad1;
-    Code45Vec3 at;
-    u32 pad2;
-    Code45Vec3 pos;
-    u32 pad3;
-} Code45Matrix;
+typedef RwMatrixTag Code45Matrix;
 
 typedef struct RwSphere {
     Code45Vec3 center;
@@ -236,9 +228,9 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 0045fbe0-0045fbe0 */
 
-extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_0045b430(void);
-extern void PrimDrawFlatTriangle(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
+extern void mdlRenderInitializeBuffers(void);
+extern void PrimDrawFlatTriangle(volatile u8 *color, void *positions, s32 preserveState, f32 depth);
 extern s32 kwlnGetCamera(void);
 #pragma push
 #pragma pop
@@ -256,6 +248,7 @@ extern s32 kwlnGetCamera(void);
 #pragma pop
 /* Honest plain-C best is the 1-word common-off body, still MISMATCH. */
 /* measured: restores propagation after PrimDrawFlatTriangle. */
+/* Frustum-test a world-space circle, transform twenty samples, and close the line strip with its first vertex. */
 // FUN_0045FBE0
 void primCircleLine3D(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState)
 {
@@ -293,9 +286,9 @@ void primCircleLine3D(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32
         const void *view;
         farDepth = D_008872FC_abs[0];
         depthScale = D_008872F8_abs[0];
-        farPlane = *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x84);
-        nearPlane = *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
-        view = (u8 *)(u32)kwlnGetCamera() + 0x20;
+        farPlane = ((RwCamera *)(u32)kwlnGetCamera())->farPlane;
+        nearPlane = ((RwCamera *)(u32)kwlnGetCamera())->nearPlane;
+        view = ((RwCamera *)(u32)kwlnGetCamera())->viewMatrix;
         if (sourceMatrix != NULL) {
             const s32 (*source)[2];
             s32 (*destination)[2];

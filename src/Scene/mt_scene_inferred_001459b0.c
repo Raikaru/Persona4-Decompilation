@@ -6,11 +6,13 @@
 #include "type.h"
 #include "effect_update_internal.h"
 #include "scene_event_internal.h"
+#include "scene_resource_internal.h"
 #include "model_matrix_internal.h"
 #include "field_light_internal.h"
 #include "resrc_manager_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "rw/plcore/barenderstate.h"
+#include "scene_task_internal.h"
 
 /* RenderWare sky2/rwcore.h:5683-5747. The compact GS state values are
    carried as pointers; the same entry point also accepts real pointers. */
@@ -104,18 +106,18 @@ extern f32 fGpffff8110;
 
 
 
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
-extern u8 *resrcMngCreateRes(s32 arg0, s32 arg1);
-extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
-extern void Vpad_BuildRotatedQuad(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
+extern u8 *resrcMngCreateRes(s32 resManager, s32 resTypeId);
+extern u8 *resrcMngFindResById(u8 *manager, u16 resourceId);
+extern void Vpad_BuildRotatedQuad(u8 *vertices, const u8 *translation, f32 width, f32 depth, f32 angle);
 extern u8 *func_003e0f80(void);
 extern void memcpy(void *dest, const void *src, s32 size);
 extern void resrcMngDestroyRes();
-extern void FldResource_Destroy(void *arg0);
-extern void MT_Scene_SpawnIconTask(void *arg0);
-extern void func_003bbb60(s32 arg0);
-extern void func_003e0f40(s32 arg0);
+extern void FldResource_Destroy(void *resource);
+extern void MT_Scene_SpawnIconTask(void *effectHandle);
+extern void func_003bbb60(s32);
+extern void func_003e0f40(s32);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -129,8 +131,8 @@ extern u8 D_005EF870[];
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern void mdlEffectDestroy(s32 arg0);
-extern void mdlDestroyModelObject(s32 arg0);
+extern void mdlEffectDestroy(s32 model);
+extern void mdlDestroyModelObject(s32 model);
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
@@ -153,28 +155,23 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
-extern s32 mdlEffectCreateFromResource(s32 arg0);
-extern void func_004b1250(void *object, f32 *position);
-extern void mdlEffectSetUniformScale(s32 arg0, f32 arg1);
+extern s32 mdlEffectCreateFromResource(s32 resource);
+extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
+extern void mdlEffectSetUniformScale(s32 effect, f32 scale);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline u8 *p4_e740_add(s32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 p4_0014_recip(f32 value)
-{
-    return 1.0f / value;
-}
+
+
 typedef struct {
     u8 b0;
     u8 b1;
@@ -214,10 +211,7 @@ extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
-static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
+
 
 
 
@@ -278,426 +272,442 @@ extern f32 D_008872F8[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001459b0-00146a10 */
 
 // FUN_001459B0
-s32 MT_Scene_CreateObjectRes(u16 arg0, s32 arg1, s8 arg2) {
-    f32 sp[3];
-    s32 temp_16;
-    s32 temp_4;
-    u8 *temp_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+/* ResrcRecord effect slots 140/144 remain raw: typed members grew the matched body from 272 to 284 bytes across effect calls. */
+s32 MT_Scene_CreateObjectRes(u16 resourceId, s32 model, s8 drawMode) {
+    f32 initialPosition[3];
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
 
-    temp_16 = ((arg0 & 0xFFFF & 0x3FF) | 0x1800) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x1800) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    if (arg1 == 0) {
+    if (model == 0) {
         func_00440b68(&D_005EF870);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_16);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x144) = mdlEffectCreateFromResource(arg1);
-    *(s8 *)(temp_2 + 0x140) = arg2;
-    sp[0] = 100.0f;
-    sp[1] = 0.0f;
-    sp[2] = 0.0f;
-    func_004b1250(*(void **)(temp_2 + 0x144), sp);
-    mdlEffectSetUniformScale(*(s32 *)(temp_2 + 0x144), 1.5f);
-    return temp_16;
+    *(s32 *)(resource + 0x144) = mdlEffectCreateFromResource(model);
+    *(s8 *)(resource + 0x140) = drawMode;
+    initialPosition[0] = 100.0f;
+    initialPosition[1] = 0.0f;
+    initialPosition[2] = 0.0f;
+    mdlEffectSetChildPositionVec(*(void **)(resource + 0x144), initialPosition);
+    mdlEffectSetUniformScale(*(s32 *)(resource + 0x144), 1.5f);
+    return resourceTypeId;
 }
 
 // FUN_00145AC0
-s32 MT_Scene_CreateModelFldRes(u16 arg0, s32 arg1) {
-    s8 sp30[0xC];
-    s32 temp_17;
-    s32 temp_4;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreateModelFldRes(u16 resourceId, s32 model) {
+    s8 zeroPosition[0xC];
+    s32 resourceTypeId;
+    s32 manager;
     s8 *clear;
-    s32 var_2;
-    u8 *temp_2;
+    s32 remainingBytes;
+    u8 *resource;
 
-    clear = sp30;
-    var_2 = 0xC;
+    clear = zeroPosition;
+    remainingBytes = 0xC;
     if (clear != NULL) {
         do {
             *clear = 0;
             clear++;
-            var_2--;
-        } while (var_2 != 0);
+            remainingBytes--;
+        } while (remainingBytes != 0);
     }
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x2800) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x2800) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    if (arg1 == 0) {
+    if (model == 0) {
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x144) = arg1;
-    *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
-    return temp_17;
+    *(s32 *)&((ResrcRecord *)resource)->slotHandle[1] = model;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    return resourceTypeId;
 }
 
 // FUN_00145BA0
-s32 MT_Scene_CreateRes11(u16 arg0, s32 arg1) {
-    s8 sp30[0xC];
-    s32 temp_17;
-    s32 temp_4;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreateRes11(u16 resourceId, s32 model) {
+    s8 zeroPosition[0xC];
+    s32 resourceTypeId;
+    s32 manager;
     s8 *clear;
-    s32 var_2;
-    u8 *temp_2;
+    s32 remainingBytes;
+    u8 *resource;
 
-    clear = sp30;
-    var_2 = 0xC;
+    clear = zeroPosition;
+    remainingBytes = 0xC;
     if (clear != NULL) {
         do {
             *clear = 0;
             clear++;
-            var_2--;
-        } while (var_2 != 0);
+            remainingBytes--;
+        } while (remainingBytes != 0);
     }
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x2C00) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x2C00) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    if (arg1 == 0) {
+    if (model == 0) {
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x144) = arg1;
-    *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
-    return temp_17;
+    *(s32 *)&((ResrcRecord *)resource)->slotHandle[1] = model;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    return resourceTypeId;
 }
 
 // FUN_00145C80
-s32 MT_Scene_CreateFldRes(u16 arg0, s32 arg1) {
-    s8 sp30[0xC];
-    s32 temp_17;
-    s32 temp_4;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreateFldRes(u16 resourceId, s32 model) {
+    s8 zeroPosition[0xC];
+    s32 resourceTypeId;
+    s32 manager;
     s8 *clear;
-    s32 var_2;
-    u8 *temp_2;
+    s32 remainingBytes;
+    u8 *resource;
 
-    clear = sp30;
-    var_2 = 0xC;
+    clear = zeroPosition;
+    remainingBytes = 0xC;
     if (clear != NULL) {
         do {
             *clear = 0;
             clear++;
-            var_2--;
-        } while (var_2 != 0);
+            remainingBytes--;
+        } while (remainingBytes != 0);
     }
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x3000) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x3000) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    if (arg1 == 0) {
+    if (model == 0) {
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x1A0) = arg1;
-    *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
-    return temp_17;
+    ((ResrcRecord *)resource)->handle1A0 = model;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    return resourceTypeId;
 }
 
 // FUN_00145D60
-s32 MT_Scene_CreateFldHitLight(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, FieldRgba8 arg2) {
-    s32 temp_17;
-    s32 temp_4;
-    u8 *temp_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreateFldHitLight(u16 resourceId, f32 *position, f32 width, f32 height, f32 angle, FieldRgba8 rgba) {
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
     SVec3 point;
     Rgba8_0014 color;
 
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x3400) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x3400) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    point = *(SVec3 *)arg1;
-    *(SVec3 *)(temp_2 + 0x144) = point;
-    *(f32 *)(temp_2 + 0x150) = fparg0;
-    *(f32 *)(temp_2 + 0x154) = fparg1;
-    *(f32 *)(temp_2 + 0x158) = fparg2;
-    color = arg2;
-    *(Rgba8_0014 *)(temp_2 + 0x140) = color;
-    Vpad_BuildRotatedQuad(temp_2 + 0x15C, (const u8 *)arg1, fparg0, fparg1, fparg2);
-    *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
-    return temp_17;
+    point = *(SVec3 *)position;
+    *(SVec3 *)&((SceneQuadResource *)resource)->center = point;
+    ((SceneQuadResource *)resource)->width = width;
+    ((SceneQuadResource *)resource)->height = height;
+    ((SceneQuadResource *)resource)->angle = angle;
+    color = rgba;
+    *(Rgba8_0014 *)&((SceneQuadResource *)resource)->color = color;
+    Vpad_BuildRotatedQuad(resource + 0x15C, (const u8 *)position, width, height, angle);
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    return resourceTypeId;
 }
 
 // FUN_00145E90
-s32 MT_Scene_CreateRes21Light(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, FieldRgba8 arg2) {
-    s32 temp_17;
-    s32 temp_4;
-    u8 *temp_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreateRes21Light(u16 resourceId, f32 *position, f32 width, f32 height, f32 angle, FieldRgba8 rgba) {
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
     SVec3 point;
     Rgba8_0014 color;
 
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x5400) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x5400) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    point = *(SVec3 *)arg1;
-    *(SVec3 *)(temp_2 + 0x144) = point;
-    *(f32 *)(temp_2 + 0x150) = fparg0;
-    *(f32 *)(temp_2 + 0x154) = fparg1;
-    *(f32 *)(temp_2 + 0x158) = fparg2;
-    color = arg2;
-    *(Rgba8_0014 *)(temp_2 + 0x140) = color;
-    Vpad_BuildRotatedQuad(temp_2 + 0x15C, (const u8 *)arg1, fparg0, fparg1, fparg2);
-    *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
-    return temp_17;
+    point = *(SVec3 *)position;
+    *(SVec3 *)&((SceneQuadResource *)resource)->center = point;
+    ((SceneQuadResource *)resource)->width = width;
+    ((SceneQuadResource *)resource)->height = height;
+    ((SceneQuadResource *)resource)->angle = angle;
+    color = rgba;
+    *(Rgba8_0014 *)&((SceneQuadResource *)resource)->color = color;
+    Vpad_BuildRotatedQuad(resource + 0x15C, (const u8 *)position, width, height, angle);
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    return resourceTypeId;
 }
 
 // FUN_00145FC0
-s32 MT_Scene_CreatePointRes14(u16 arg0, f32 *arg1, f32 fparg0) {
-    s32 temp_17;
-    s32 temp_4;
-    u8 *temp_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreatePointRes14(u16 resourceId, f32 *position, f32 radius) {
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
     SVec3 point;
 
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x3800) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x3800) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    point = *(SVec3 *)arg1;
-    *(SVec3 *)(temp_2 + 0x140) = point;
-    *(f32 *)(temp_2 + 0x14C) = fparg0;
-    *(s32 *)(temp_2 + 0x28) |= 8;
-    return temp_17;
+    point = *(SVec3 *)position;
+    *(SVec3 *)&((ScenePointResource *)resource)->point = point;
+    ((ScenePointResource *)resource)->radius = radius;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    return resourceTypeId;
 }
 
 // FUN_00146080
-s32 MT_Scene_CreatePointRes15(u16 arg0, f32 *arg1, f32 fparg0) {
-    s32 temp_17;
-    s32 temp_4;
-    u8 *temp_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreatePointRes15(u16 resourceId, f32 *position, f32 radius) {
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
     SVec3 point;
 
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x3C00) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x3C00) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    point = *(SVec3 *)arg1;
-    *(SVec3 *)(temp_2 + 0x140) = point;
-    *(f32 *)(temp_2 + 0x14C) = fparg0;
-    *(s32 *)(temp_2 + 0x28) |= 8;
-    return temp_17;
+    point = *(SVec3 *)position;
+    *(SVec3 *)&((ScenePointResource *)resource)->point = point;
+    ((ScenePointResource *)resource)->radius = radius;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    return resourceTypeId;
 }
 
 // FUN_00146140
-s32 MT_Scene_CreatePointRes16(u16 arg0, f32 *arg1, f32 fparg0) {
-    s32 temp_17;
-    s32 temp_4;
-    u8 *temp_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreatePointRes16(u16 resourceId, f32 *position, f32 radius) {
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
     SVec3 point;
 
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x4000) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x4000) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    point = *(SVec3 *)arg1;
-    *(SVec3 *)(temp_2 + 0x140) = point;
-    *(f32 *)(temp_2 + 0x14C) = fparg0;
-    *(s32 *)(temp_2 + 0x28) |= 8;
-    return temp_17;
+    point = *(SVec3 *)position;
+    *(SVec3 *)&((ScenePointResource *)resource)->point = point;
+    ((ScenePointResource *)resource)->radius = radius;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    return resourceTypeId;
 }
 
 // FUN_00146200
-s32 MT_Scene_CreatePointRes17(u16 arg0, f32 *arg1, f32 fparg0) {
-    s32 temp_17;
-    s32 temp_4;
-    u8 *temp_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreatePointRes17(u16 resourceId, f32 *position, f32 radius) {
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
     SVec3 point;
 
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x4400) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x4400) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    point = *(SVec3 *)arg1;
-    *(SVec3 *)(temp_2 + 0x140) = point;
-    *(f32 *)(temp_2 + 0x14C) = fparg0;
-    *(s32 *)(temp_2 + 0x28) |= 8;
-    return temp_17;
+    point = *(SVec3 *)position;
+    *(SVec3 *)&((ScenePointResource *)resource)->point = point;
+    ((ScenePointResource *)resource)->radius = radius;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    return resourceTypeId;
 }
 
 // FUN_001462C0
-s32 MT_Scene_CreatePointRes18(u16 arg0, f32 *arg1, f32 fparg0) {
-    s32 temp_17;
-    s32 temp_4;
-    u8 *temp_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreatePointRes18(u16 resourceId, f32 *position, f32 radius) {
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
     SVec3 point;
 
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x4800) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x4800) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    point = *(SVec3 *)arg1;
-    *(SVec3 *)(temp_2 + 0x140) = point;
-    *(f32 *)(temp_2 + 0x14C) = fparg0;
-    *(s32 *)(temp_2 + 0x28) |= 8;
-    return temp_17;
+    point = *(SVec3 *)position;
+    *(SVec3 *)&((ScenePointResource *)resource)->point = point;
+    ((ScenePointResource *)resource)->radius = radius;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    return resourceTypeId;
 }
 
 // FUN_00146380
-s32 MT_Scene_CreatePointRes19(u16 arg0, f32 *arg1, f32 fparg0) {
-    s32 temp_17;
-    s32 temp_4;
-    u8 *temp_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+s32 MT_Scene_CreatePointRes19(u16 resourceId, f32 *position, f32 radius) {
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
     SVec3 point;
 
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x4C00) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x4C00) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    point = *(SVec3 *)arg1;
-    *(SVec3 *)(temp_2 + 0x140) = point;
-    *(f32 *)(temp_2 + 0x14C) = fparg0;
-    *(s32 *)(temp_2 + 0x28) |= 8;
-    return temp_17;
+    point = *(SVec3 *)position;
+    *(SVec3 *)&((ScenePointResource *)resource)->point = point;
+    ((ScenePointResource *)resource)->radius = radius;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    return resourceTypeId;
 }
 
 // FUN_00146440
-s32 MT_Scene_CreateCameraRes(u16 arg0, s32 arg1, f32 fparg0, u8 *arg2, u8 *arg3, u8 *arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6) {
-    s32 temp_22;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_4;
-    u8 *temp_2;
-    u8 *var_19;
-    u8 *var_20;
-    u8 *var_5;
-    u8 *var_5_2;
-    s32 var_4;
-    s32 var_4_2;
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+/* SceneCaptureCameraResource documents this tail; typed members changed b210 matrix-copy lifetimes (234 differing bytes). */
+s32 MT_Scene_CreateCameraRes(u16 resourceId, s32 cameraKind, f32 cameraValue, u8 *firstMatrixInput, u8 *secondMatrixInput, u8 *position, f32 nearValue, f32 farValue, s32 parameters, s32 data) {
+    s32 resourceTypeId;
+    s32 secondWord;
+    s32 secondMatrixWord;
+    s32 firstWord;
+    s32 firstMatrixWord;
+    s32 manager;
+    u8 *resource;
+    u8 *secondMatrix;
+    u8 *firstMatrix;
+    u8 *outputWords;
+    u8 *secondOutputWords;
+    s32 remainingPairs;
+    s32 secondRemainingPairs;
     SVec3 point;
 
-    temp_22 = ((arg0 & 0xFFFF & 0x3FF) | 0x5000) & 0xFFFF;
-    var_20 = arg2;
-    var_19 = arg3;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x5000) & 0xFFFF;
+    firstMatrix = firstMatrixInput;
+    secondMatrix = secondMatrixInput;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_22);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x140) = arg1;
-    *(f32 *)(temp_2 + 0x144) = fparg0;
-    *(u8 **)(temp_2 + 0x148) = func_003e0f80();
-    if (var_20 != NULL) {
-        var_5 = *(u8 **)(temp_2 + 0x148);
-        var_4 = 8;
+    *(s32 *)(resource + 0x140) = cameraKind;
+    *(f32 *)(resource + 0x144) = cameraValue;
+    *(u8 **)(resource + 0x148) = func_003e0f80();
+    if (firstMatrix != NULL) {
+        outputWords = *(u8 **)(resource + 0x148);
+        remainingPairs = 8;
         do {
-            temp_3 = *(s32 *)(var_20 + 0);
-            temp_2_2 = *(s32 *)(var_20 + 4);
-            var_20 += 8;
-            var_4 -= 1;
-            *(s32 *)(var_5 + 0) = temp_3;
-            *(s32 *)(var_5 + 4) = temp_2_2;
-            var_5 += 8;
-        } while (var_4 > 0);
+            firstWord = *(s32 *)(firstMatrix + 0);
+            secondWord = *(s32 *)(firstMatrix + 4);
+            firstMatrix += 8;
+            remainingPairs -= 1;
+            *(s32 *)(outputWords + 0) = firstWord;
+            *(s32 *)(outputWords + 4) = secondWord;
+            outputWords += 8;
+        } while (remainingPairs > 0);
     }
-    *(u8 **)(temp_2 + 0x14C) = func_003e0f80();
-    if (var_19 != NULL) {
-        var_5_2 = *(u8 **)(temp_2 + 0x14C);
-        var_4_2 = 8;
+    *(u8 **)(resource + 0x14C) = func_003e0f80();
+    if (secondMatrix != NULL) {
+        secondOutputWords = *(u8 **)(resource + 0x14C);
+        secondRemainingPairs = 8;
         do {
-            temp_3_2 = *(s32 *)(var_19 + 0);
-            temp_2_3 = *(s32 *)(var_19 + 4);
-            var_19 += 8;
-            var_4_2 -= 1;
-            *(s32 *)(var_5_2 + 0) = temp_3_2;
-            *(s32 *)(var_5_2 + 4) = temp_2_3;
-            var_5_2 += 8;
-        } while (var_4_2 > 0);
+            firstMatrixWord = *(s32 *)(secondMatrix + 0);
+            secondMatrixWord = *(s32 *)(secondMatrix + 4);
+            secondMatrix += 8;
+            secondRemainingPairs -= 1;
+            *(s32 *)(secondOutputWords + 0) = firstMatrixWord;
+            *(s32 *)(secondOutputWords + 4) = secondMatrixWord;
+            secondOutputWords += 8;
+        } while (secondRemainingPairs > 0);
     }
-    if (arg4 != NULL) {
-        point = *(SVec3 *)arg4;
-        *(SVec3 *)(temp_2 + 0x150) = point;
+    if (position != NULL) {
+        point = *(SVec3 *)position;
+        *(SVec3 *)(resource + 0x150) = point;
     }
-    *(f32 *)(temp_2 + 0x15C) = fparg1;
-    *(f32 *)(temp_2 + 0x160) = fparg2;
-    if (arg5 != 0) {
-        memcpy(temp_2 + 0x164, (const void *)arg5, 0x20);
+    *(f32 *)(resource + 0x15C) = nearValue;
+    *(f32 *)(resource + 0x160) = farValue;
+    if (parameters != 0) {
+        memcpy(resource + 0x164, (const void *)parameters, 0x20);
     }
-    if (arg6 != 0) {
-        memcpy(temp_2 + 0x184, (const void *)arg6, 0x180);
+    if (data != 0) {
+        memcpy(resource + 0x184, (const void *)data, 0x180);
     }
-    *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
-    return temp_22;
+    *(s32 *)(resource + 0x28) = *(s32 *)(resource + 0x28) | 8;
+    return resourceTypeId;
 }
 
 /* measured: O1 probe for 00146630 register allocation and short tail. */
 /* measured: schedule-off probe for 46630 branch delay slots. */
 // FUN_00146630
+/* Release the resource-kind-specific owned handles before unlinking and freeing the record. */
 void MT_Scene_DestroyRes(u16 resTypeId) {
     s32 slotValue;
     s32 resourceKind;
@@ -723,7 +733,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
     void **slotHandleAddr;
     ResrcRecord *resourceRecord;
 
-    resourceOwner = *(u8 **)(iGpffff9db0 + 8);
+    resourceOwner = *(u8 * *)&((SceneContext *)iGpffff9db0)->manager.handle;
     if (resourceOwner == NULL) {
         func_00440b68(&D_005EF820);
         return;
@@ -744,8 +754,8 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
             resourceRecord->modelHandle164 = NULL;
             slotValue = 0;
             while (slotValue < 2) {
-                slotAddr = (u8 *)resourceRecord + slotValue * 4;
-                slotHandleAddr = (void **)(slotAddr + 0x140);
+                slotAddr = (u8 *)&resourceRecord->slotHandle[slotValue];
+                slotHandleAddr = (void **)slotAddr;
                 slotHandle = *slotHandleAddr;
                 if (slotHandle != NULL) {
                     mdlEffectDestroy((s32)slotHandle);
@@ -784,8 +794,8 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
             resourceRecord->modelHandle164 = NULL;
             slotIndex = 0;
             while (slotIndex < 2) {
-                slotAddrB = (u8 *)resourceRecord + slotIndex * 4;
-                slotHandleAddr = (void **)(slotAddrB + 0x140);
+                slotAddrB = (u8 *)&resourceRecord->slotHandle[slotIndex];
+                slotHandleAddr = (void **)slotAddrB;
                 slotHandleB = *slotHandleAddr;
                 if (slotHandleB != NULL) {
                     mdlEffectDestroy((s32)slotHandleB);
@@ -877,13 +887,14 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
    four 12-byte initializer vectors and a four-byte zero suffix.
    See Resource_transform_00146a10_20260922_worker1.md. */
 // FUN_00146A10
+/* SceneUpdateResource and ResrcRecord prove these offsets; typed aggregate/handle accesses changed 216 bytes of the matched b210 transform body. */
 void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput)
 {
     extern u8 D_005EF9D0[];
     extern u8 D_005EF9F0[];
     typedef struct Model Model;
     extern void mdlScale(Model *model, const RwV3d *scale, s32 combineOp);
-    extern void func_004b12e0(s32 effect, u8 *matrix);
+    extern void mdlEffectSetMatrixPose(s32 effect, u8 *matrix);
     RwV3d axisY = {0.0f, 1.0f, 0.0f};
     RwV3d axisX = {1.0f, 0.0f, 0.0f};
     RwV3d axisZ = {0.0f, 0.0f, 1.0f};
@@ -965,7 +976,7 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 outputWords[1] = second;
                 outputWords = outputWords + 2;
             } while (remainingPairs > 0);
-            func_004b12e0(*(s32 *)(resource + 0x144), (u8 *)effectMatrix);
+            mdlEffectSetMatrixPose(*(s32 *)(resource + 0x144), (u8 *)effectMatrix);
             return;
         case 10:
             modelHandle = *(s32 *)(resource + 0x144);

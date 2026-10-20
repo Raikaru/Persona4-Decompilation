@@ -1,3 +1,5 @@
+#include "sdktask.h"
+#include "fcl_object_internal.h"
 #include "btl_action_internal.h"
 #include "list_item_internal.h"
 #include "fcl_color.h"
@@ -16,8 +18,28 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 {
     return right * left;
 }
+/* Digit slots retain the shared FclObject prefix at +0x100. The digit
+ * variant interprets its resource tail as a floating glyph rectangle instead
+ * of the generic resource/index/mode words. Every slot advances 0x220 bytes. */
+typedef struct NmMesDigitGlyph { f32 x, y, width, height; } NmMesDigitGlyph;
+typedef union NmMesDigitDraw {
+    FclObject object;
+    s16 layer;
+    struct {
+        u8 pad00[0xF4];
+        NmMesDigitGlyph glyph;
+    } region;
+} NmMesDigitDraw;
+typedef struct NmMesDigitSlot {
+    u8 pad00[0x100];
+    NmMesDigitDraw draw;
+    FclBoundsPacket bounds;
+    u8 pad214[0xC];
+} NmMesDigitSlot;
+typedef char NmMesDigitSlotSize[sizeof(NmMesDigitSlot) == 0x220 ? 1 : -1];
+
 extern void nmMesWindowClearSlotTable(void);
-extern void nmMesWindowInitRecord(s32 *arg0);
+extern void nmMesWindowInitRecord(s32 *recordAddress);
 
 
 
@@ -77,7 +99,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002ba080-002baa50 */
 
-extern void func_002b5120(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 static inline s32 fclDigitIsZero(const s16 *value)
 {
     return *value == 0;
@@ -108,6 +130,8 @@ static inline s32 fclDigitIsZero(const s16 *value)
 /* measured: func_002ba080 MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
 // Intent: shows the two-digit number on row `row`: the entrance animation when mode is 0, otherwise a retrace of the existing sprite.
+/* measured: later task+0x38 loads stay raw; typing them retains the work-field
+ * address across the entrance callback and spills secondIndex (1372B vs 1360B). */
 // FUN_002BA080
 void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
                    FclDrawColor color, s32 duration, s32 delay, f32 depth,
@@ -116,8 +140,8 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
     typedef struct {
         u32 word;
     } DigitStoredWord __attribute__((packed));
-    extern void fclSpriteStartEntrance(u8 *draw, FclVec2 position, u32 color0, u32 color1, u8 alpha0,
-                              u8 alpha1, f32 height, f32 depth, s32 duration, s32 delay, s8 mode,
+    extern void fclSpriteStartEntrance(u8 *animation, FclVec2 position, u32 startColor, u32 endColor, u8 startAlpha,
+                              u8 endAlpha, f32 height, f32 depth, s32 duration, s32 delay, s8 outgoing,
                               s8 reverse);
     FclBoundsPacket bounds;
     FclBoundsBytes firstBounds, secondBounds;
@@ -149,41 +173,41 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
         f32 glyphHeight, glyphWidth, glyphY, glyphX;
 
         digit = D_0063F1F0 + ((s32)ones * 0x10);
-        glyphHeight = *(f32 *)(digit + 12);
-        glyphWidth = *(f32 *)(digit + 8);
-        glyphY = *(f32 *)(digit + 4);
-        slot = *(u8 **)(task + 0x38);
+        glyphHeight = ((NmMesDigitGlyph *)digit)->height;
+        glyphWidth = ((NmMesDigitGlyph *)digit)->width;
+        glyphY = ((NmMesDigitGlyph *)digit)->y;
+        slot = ((SdkTask *)task)->work;
         offset = (s32)firstIndex * 0x220;
-        glyphX = *(f32 *)digit;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F4) = glyphX;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
+        glyphX = ((NmMesDigitGlyph *)digit)->x;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.x = glyphX;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.y = glyphY;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.width = glyphWidth;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.height = glyphHeight;
         firstBounds = bounds.representation;
-        slot = *(u8 **)(task + 0x38);
+        slot = ((SdkTask *)task)->work;
         firstColor = color;
         slot += offset;
-        *(FclVec2 *)(slot + 0x12C) = origin;
-        *(f32 *)(slot + 0x1A0) = 1.0f;
-        *(f32 *)(slot + 0x194) = 1.0f;
-        *(u8 *)(slot + 0x162) = ((u8 *)&firstColor)[3];
-        *(FclDrawColor *)(slot + 0x179) = color;
-        *(s32 *)(slot + 0x1C4) = 0;
-        *(f32 *)(slot + 0x108) = depth;
-        *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
-        ((FclBoundsPacket *)(slot + 0x204))->representation = firstBounds;
-        *(s16 *)(slot + 0x100) = layer;
-        slot = *(u8 **)(task + 0x38) + offset + 0x104;
+        ((NmMesDigitSlot *)slot)->draw.object.anchorPosition = origin;
+        ((NmMesDigitSlot *)slot)->draw.object.scale = 1.0f;
+        ((NmMesDigitSlot *)slot)->draw.object.scaleX = 1.0f;
+        ((NmMesDigitSlot *)slot)->draw.object.alpha = ((u8 *)&firstColor)[3];
+        ((NmMesDigitSlot *)slot)->draw.object.color = color;
+        ((NmMesDigitSlot *)slot)->draw.object.tweenValue = 0.0f;
+        ((NmMesDigitSlot *)slot)->draw.object.anchorValue = depth;
+        ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags | 1;
+        ((NmMesDigitSlot *)slot)->bounds.representation = firstBounds;
+        ((NmMesDigitSlot *)slot)->draw.layer = layer;
+        slot = ((SdkTask *)task)->work + offset + 0x104;
         fclSpriteStartEntrance(slot, origin, *(u32 *)&color, *(u32 *)((u32)&color), 0,
                       ((u8 *)&color)[3], (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
     } else {
-        u8 *draw = *(u8 **)(task + 0x38) + (s32)firstIndex * 0x220 + 0x104;
+        u8 *draw = ((SdkTask *)task)->work + (s32)firstIndex * 0x220 + 0x104;
 
-        if ((*(s16 *)draw & 1) == 1) {
-            fclSpriteStartEntrance(draw, *(FclVec2 *)(draw + 0x28),
-                          ((const DigitStoredWord *)(draw + 0x75))->word,
-                          ((const DigitStoredWord *)((u32)draw + 0x75))->word,
-                          *(u8 *)(draw + 0x5E), 0, (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
+        if ((((FclObject *)(draw - 4))->spriteFlags & 1) == 1) {
+            fclSpriteStartEntrance(draw, ((FclObject *)(draw - 4))->anchorPosition,
+                          ((const DigitStoredWord *)(&((FclObject *)(draw - 4))->color))->word,
+                          ((const DigitStoredWord *)(&((FclObject *)((u32)draw - 4))->color))->word,
+                          ((FclObject *)(draw - 4))->alpha, 0, (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
         }
     }
     if (flag == 0) {
@@ -192,16 +216,16 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
             f32 glyphHeight, glyphWidth, glyphY, glyphX;
 
             digit = D_0063F1F0 + ((s32)tens * 0x10);
-            glyphHeight = *(f32 *)(digit + 12);
-            glyphWidth = *(f32 *)(digit + 8);
-            glyphY = *(f32 *)(digit + 4);
+            glyphHeight = ((NmMesDigitGlyph *)digit)->height;
+            glyphWidth = ((NmMesDigitGlyph *)digit)->width;
+            glyphY = ((NmMesDigitGlyph *)digit)->y;
             slot = *(u8 **)(task + 0x38);
             offset = (s32)secondIndex * 0x220;
-            glyphX = *(f32 *)digit;
-            *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F4) = glyphX;
-            *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
-            *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
-            *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
+            glyphX = ((NmMesDigitGlyph *)digit)->x;
+            ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.x = glyphX;
+            ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.y = glyphY;
+            ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.width = glyphWidth;
+            ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.height = glyphHeight;
             {
                 f32 shiftX = origin.x - 18.0f;
 
@@ -218,16 +242,16 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
             slot = *(u8 **)(task + 0x38);
             secondColor = color;
             slot += offset;
-            *(FclVec2 *)(slot + 0x12C) = secondPosition;
-            *(f32 *)(slot + 0x1A0) = 1.0f;
-            *(f32 *)(slot + 0x194) = 1.0f;
-            *(u8 *)(slot + 0x162) = ((u8 *)&secondColor)[3];
-            *(FclDrawColor *)(slot + 0x179) = color;
-            *(s32 *)(slot + 0x1C4) = 0;
-            *(f32 *)(slot + 0x108) = depth;
-            *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
-            ((FclBoundsPacket *)(slot + 0x204))->representation = secondBounds;
-            *(s16 *)(slot + 0x100) = layer;
+            ((NmMesDigitSlot *)slot)->draw.object.anchorPosition = secondPosition;
+            ((NmMesDigitSlot *)slot)->draw.object.scale = 1.0f;
+            ((NmMesDigitSlot *)slot)->draw.object.scaleX = 1.0f;
+            ((NmMesDigitSlot *)slot)->draw.object.alpha = ((u8 *)&secondColor)[3];
+            ((NmMesDigitSlot *)slot)->draw.object.color = color;
+            ((NmMesDigitSlot *)slot)->draw.object.tweenValue = 0.0f;
+            ((NmMesDigitSlot *)slot)->draw.object.anchorValue = depth;
+            ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags | 1;
+            ((NmMesDigitSlot *)slot)->bounds.representation = secondBounds;
+            ((NmMesDigitSlot *)slot)->draw.layer = layer;
             {
                 u8 *draw = *(u8 **)(task + 0x38) + offset + 0x104;
 
@@ -239,11 +263,11 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
     } else {
         u8 *draw = *(u8 **)(task + 0x38) + (s32)secondIndex * 0x220 + 0x104;
 
-        if ((*(s16 *)draw & 1) == 1) {
-            retrace = fclMakeVec2(origin.x - 18.0f, *(f32 *)(draw + 0x2C));
+        if ((((FclObject *)(draw - 4))->spriteFlags & 1) == 1) {
+            retrace = fclMakeVec2(origin.x - 18.0f, ((FclObject *)(draw - 4))->anchorPosition.y);
             fclSpriteStartEntrance(draw, retrace,
-                          ((const DigitStoredWord *)(draw + 0x75))->word,
-                          ((const DigitStoredWord *)((u32)draw + 0x75))->word, *(u8 *)(draw + 0x5E), 0,
+                          ((const DigitStoredWord *)(&((FclObject *)(draw - 4))->color))->word,
+                          ((const DigitStoredWord *)(&((FclObject *)((u32)draw - 4))->color))->word, ((FclObject *)(draw - 4))->alpha, 0,
                           (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
         }
     }
@@ -257,6 +281,8 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
 /* measured: func_002ba5d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // Intent: sets the two-digit number on row `row` without an entrance animation; the tens digit is hidden for values below 10 except 0.
+/* measured: later task+0x38 loads stay raw; the typed form extends the
+ * work-field address lifetime across the position constructor and loses MATCH. */
 // FUN_002BA5D0
 void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
                     FclDrawColor color, f32 depth, s64 layer)
@@ -289,49 +315,49 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
         f32 glyphHeight, glyphWidth, glyphY, glyphX;
 
         digit = D_0063F1F0 + ((s32)ones * 0x10);
-        glyphHeight = *(f32 *)(digit + 12);
-        glyphWidth = *(f32 *)(digit + 8);
-        glyphY = *(f32 *)(digit + 4);
-        slot = *(u8 **)(task + 0x38);
+        glyphHeight = ((NmMesDigitGlyph *)digit)->height;
+        glyphWidth = ((NmMesDigitGlyph *)digit)->width;
+        glyphY = ((NmMesDigitGlyph *)digit)->y;
+        slot = ((SdkTask *)task)->work;
         offset = (s32)firstIndex * 0x220;
-        glyphX = *(f32 *)digit;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F4) = glyphX;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
+        glyphX = ((NmMesDigitGlyph *)digit)->x;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.x = glyphX;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.y = glyphY;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.width = glyphWidth;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.height = glyphHeight;
         firstBounds = bounds.representation;
-        slot = *(u8 **)(task + 0x38);
+        slot = ((SdkTask *)task)->work;
         firstColor = color;
         slot += offset;
-        *(FclVec2 *)(slot + 0x12C) = origin;
-        *(f32 *)(slot + 0x1A0) = 1.0f;
-        *(f32 *)(slot + 0x194) = 1.0f;
-        *(u8 *)(slot + 0x162) = ((u8 *)&firstColor)[3];
-        *(FclDrawColor *)(slot + 0x179) = color;
-        *(s32 *)(slot + 0x1C4) = 0;
-        *(f32 *)(slot + 0x108) = depth;
-        *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
-        ((FclBoundsPacket *)(slot + 0x204))->representation = firstBounds;
-        *(s16 *)(slot + 0x100) = layer;
-        *(s16 *)(*(u8 **)(task + 0x38) + offset + 0x104) = 0;
-        slot = *(u8 **)(task + 0x38) + offset;
-        *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
+        ((NmMesDigitSlot *)slot)->draw.object.anchorPosition = origin;
+        ((NmMesDigitSlot *)slot)->draw.object.scale = 1.0f;
+        ((NmMesDigitSlot *)slot)->draw.object.scaleX = 1.0f;
+        ((NmMesDigitSlot *)slot)->draw.object.alpha = ((u8 *)&firstColor)[3];
+        ((NmMesDigitSlot *)slot)->draw.object.color = color;
+        ((NmMesDigitSlot *)slot)->draw.object.tweenValue = 0.0f;
+        ((NmMesDigitSlot *)slot)->draw.object.anchorValue = depth;
+        ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags | 1;
+        ((NmMesDigitSlot *)slot)->bounds.representation = firstBounds;
+        ((NmMesDigitSlot *)slot)->draw.layer = layer;
+        ((NmMesDigitSlot *)(((SdkTask *)task)->work + offset))->draw.object.spriteFlags = 0;
+        slot = ((SdkTask *)task)->work + offset;
+        ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags | 1;
     }
     if ((value >= 10) || (value == 0)) {
         u8 *digit; u8 *slot; s32 offset;
         f32 glyphHeight, glyphWidth, glyphY, glyphX;
 
         digit = D_0063F1F0 + ((s32)tens * 0x10);
-        glyphHeight = *(f32 *)(digit + 12);
-        glyphWidth = *(f32 *)(digit + 8);
-        glyphY = *(f32 *)(digit + 4);
+        glyphHeight = ((NmMesDigitGlyph *)digit)->height;
+        glyphWidth = ((NmMesDigitGlyph *)digit)->width;
+        glyphY = ((NmMesDigitGlyph *)digit)->y;
         slot = *(u8 **)(task + 0x38);
         offset = (s32)secondIndex * 0x220;
-        glyphX = *(f32 *)digit;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F4) = glyphX;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
-        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
+        glyphX = ((NmMesDigitGlyph *)digit)->x;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.x = glyphX;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.y = glyphY;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.width = glyphWidth;
+        ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.height = glyphHeight;
         shifted = fclMakeVec2(origin.x - 18.0f, origin.y);
         {
             f32 pointX, pointY;
@@ -344,24 +370,24 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
         slot = *(u8 **)(task + 0x38);
         secondColor = color;
         slot += offset;
-        *(FclVec2 *)(slot + 0x12C) = secondPosition;
-        *(f32 *)(slot + 0x1A0) = 1.0f;
-        *(f32 *)(slot + 0x194) = 1.0f;
-        *(u8 *)(slot + 0x162) = ((u8 *)&secondColor)[3];
-        *(FclDrawColor *)(slot + 0x179) = color;
-        *(s32 *)(slot + 0x1C4) = 0;
-        *(f32 *)(slot + 0x108) = depth;
-        *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
-        ((FclBoundsPacket *)(slot + 0x204))->representation = secondBounds;
-        *(s16 *)(slot + 0x100) = layer;
-        *(s16 *)(*(u8 **)(task + 0x38) + offset + 0x104) = 0;
+        ((NmMesDigitSlot *)slot)->draw.object.anchorPosition = secondPosition;
+        ((NmMesDigitSlot *)slot)->draw.object.scale = 1.0f;
+        ((NmMesDigitSlot *)slot)->draw.object.scaleX = 1.0f;
+        ((NmMesDigitSlot *)slot)->draw.object.alpha = ((u8 *)&secondColor)[3];
+        ((NmMesDigitSlot *)slot)->draw.object.color = color;
+        ((NmMesDigitSlot *)slot)->draw.object.tweenValue = 0.0f;
+        ((NmMesDigitSlot *)slot)->draw.object.anchorValue = depth;
+        ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags | 1;
+        ((NmMesDigitSlot *)slot)->bounds.representation = secondBounds;
+        ((NmMesDigitSlot *)slot)->draw.layer = layer;
+        ((NmMesDigitSlot *)(*(u8 **)(task + 0x38) + offset))->draw.object.spriteFlags = 0;
         slot = *(u8 **)(task + 0x38) + offset;
-        *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
+        ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags | 1;
     } else {
         u8 *slot; s32 offset;
         offset = (s32)secondIndex * 0x220;
         slot = *(u8 **)(task + 0x38) + offset;
-        *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) & ~1;
+        ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags & ~1;
     }
 }
 
@@ -370,39 +396,39 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
 /* measured: func_002ba970 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-// Intent: sets the colour and alpha of both digit sprites on row `arg1`.
+// Intent: sets the colour and alpha of both digit sprites on row `row`.
 // FUN_002BA970
-void nmMesWindowSetNumberColor(u8 *arg0, s16 arg1, FclDrawColor color)
+void nmMesWindowSetNumberColor(u8 *task, s16 row, FclDrawColor color)
 {
-    s32 first;
-    s32 second;
-    u8 *p;
+    s32 firstOffset;
+    s32 secondOffset;
+    u8 *slot;
     u8 r, g, b, a;
     s32 index;
     u8 alpha;
 
-    index = arg1 * 2;
-    first = (s16)index * 0x220;
-    p = *(u8 **)(arg0 + 0x38) + first;
+    index = row * 2;
+    firstOffset = (s16)index * 0x220;
+    slot = ((SdkTask *)task)->work + firstOffset;
     r = ((u8 *)&color)[0];
     g = ((u8 *)&color)[1];
     b = ((u8 *)&color)[2];
     a = ((u8 *)&color)[3];
-    p[0x179] = r;
-    p[0x17A] = g;
-    p[0x17B] = b;
-    p[0x17C] = a;
-    second = (s16)(index + 1) * 0x220;
-    p = *(u8 **)(arg0 + 0x38) + second;
-    p[0x179] = r;
-    p[0x17A] = g;
-    p[0x17B] = b;
-    p[0x17C] = a;
-    p = *(u8 **)(arg0 + 0x38) + first;
+    ((NmMesDigitSlot *)slot)->draw.object.color.c0 = r;
+    ((NmMesDigitSlot *)slot)->draw.object.color.c1 = g;
+    ((NmMesDigitSlot *)slot)->draw.object.color.c2 = b;
+    ((NmMesDigitSlot *)slot)->draw.object.color.c3 = a;
+    secondOffset = (s16)(index + 1) * 0x220;
+    slot = ((SdkTask *)task)->work + secondOffset;
+    ((NmMesDigitSlot *)slot)->draw.object.color.c0 = r;
+    ((NmMesDigitSlot *)slot)->draw.object.color.c1 = g;
+    ((NmMesDigitSlot *)slot)->draw.object.color.c2 = b;
+    ((NmMesDigitSlot *)slot)->draw.object.color.c3 = a;
+    slot = ((SdkTask *)task)->work + firstOffset;
     alpha = ((u8 *)&color)[3];
-    p[0x162] = alpha;
-    p = *(u8 **)(arg0 + 0x38) + second;
-    p[0x162] = alpha;
+    ((NmMesDigitSlot *)slot)->draw.object.alpha = alpha;
+    slot = ((SdkTask *)task)->work + secondOffset;
+    ((NmMesDigitSlot *)slot)->draw.object.alpha = alpha;
 }
 
 // Intent: resets the current message record and clears the slot table.
@@ -417,14 +443,14 @@ void nmMesWindowResetRecords(void)
 // FUN_002BAA50
 void nmMesWindowClearSlotTable(void)
 {
-    s32 i;
-    u8 **t;
+    s32 slotIndex;
+    u8 **slots;
 
-    i = 0;
-    t = D_00882F40;
-    while (i < 5) {
-        t[i] = NULL;
-        i++;
+    slotIndex = 0;
+    slots = D_00882F40;
+    while (slotIndex < 5) {
+        slots[slotIndex] = NULL;
+        slotIndex++;
     }
 }
 

@@ -63,8 +63,8 @@ extern u8 D_00624B22[];
 
 
 
-extern s32 func_00122520(s32 arg0, s32 arg1);
-extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
+extern s32 fadeBeginTransition(s32 mode, s32 duration);
+extern void H_Fade_SetCustomColor(s32 r, s32 g, s32 b);
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
@@ -94,11 +94,11 @@ extern u8 D_00624FA0[];
 
 
 
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001fc280-001fc280 */
 
-extern s32 func_001f0ff0(u32 arg0);
+extern s32 func_001f0ff0(u32);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
@@ -122,10 +122,11 @@ extern s32 func_001f0ff0(u32 arg0);
 #pragma pop
 #pragma push
 #pragma pop
+/* Selects the custom white fade and disables the normal radial overlay. */
 // FUN_001FC280
 void hFadeSetCustomWhite(void) {
     iGpffffb469 = 1;
-    func_00122520(1, 1);
+    fadeBeginTransition(1, 1);
     H_Fade_SetCustomColor(0xFF, 0xFF, 0xFF);
 }
 

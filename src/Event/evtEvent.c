@@ -5,12 +5,12 @@
 #include "include_asm.h"
 extern s32 evtFindTask();
 
-void kwlnTaskDestroyWithHierarchy(s32 arg0);
+void kwlnTaskDestroyWithHierarchy(s32 task);
 extern u32 kwlnTaskGetWork(void *task);
 extern void (*jtbl_008873EC[])(void *);
-void evtMemAccount(s32 arg0, s32 arg1);
+void evtMemAccount(s32 slot, s32 byteCount);
 
-s32 kwlnTaskGetTaskByName(void *arg0);
+s32 kwlnTaskGetTaskByName(void *name);
 extern s32 D_0063C2F8[];
 extern void kAssertFail(u8 *file, s32 line);
 extern u8 D_0063C2C8[];
@@ -26,7 +26,7 @@ extern s32 evtLoaderIsIdle(s32);
 extern void evtResetEventScene(s32, s32 *);
 extern void evtUpdateSceneLights(s32 *);
 extern void evtMessageWindowUpdate(s32 *);
-void evtUpdateNodeWaitFlags(u8 *arg0);
+void evtUpdateNodeWaitFlags(u8 *eventWork);
 extern s32 taskRecordIsDone(s32);
 extern s32 fadeStatus(void);
 extern s32 evtScriptLoadIsReady(s32);
@@ -34,18 +34,18 @@ extern void evtRefreshNodeResources(u8 *);
 extern void func_00440b68(void *);
 extern u8 D_0063C2E0[];
 s32 evtNodeTaskUpdate(u8 *task);
-void func_002853c0(void);
+void evtLookupTask(void);
 
 
 
 // Returns the work block of the event's task, or 0 when the event has no task yet [inferred].
 // FUN_00285480
-s32 evtGetEventTaskWork(u8 *arg0)
+s32 evtGetEventTaskWork(u8 *event)
 {
-    EvtEventTask *task = (EvtEventTask *)arg0;
+    EvtEventTask *task = (EvtEventTask *)event;
     s32 handle;
 
-    if (arg0 == 0) {
+    if (event == 0) {
         kAssertFail(D_0063C2C8, 0x2E);
     }
     handle = task->eventTask;
@@ -57,26 +57,26 @@ s32 evtGetEventTaskWork(u8 *arg0)
 
 // Clears the event's wait flags once the thing each one waits on is done, then refreshes its resources when the busy state changes [inferred].
 // FUN_002854E0
-void evtUpdateNodeWaitFlags(u8 *arg0)
+void evtUpdateNodeWaitFlags(u8 *eventWork)
 {
-    EvtEventWork *work = (EvtEventWork *)arg0;
-    s32 temp_4_4;
-    s32 var_4;
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 temp_4_3;
+    EvtEventWork *work = (EvtEventWork *)eventWork;
+    s32 waitFlags;
+    s32 busy;
+    s32 firstWaitTask;
+    s32 secondWaitTask;
+    s32 thirdWaitTask;
 
-    if (arg0 != NULL) {
+    if (eventWork != NULL) {
         if ((work->waitFlags & 0x20) && (evtMessageWindowIsDone(work->messageWindow) == 1)) {
             work->waitFlags &= ~0x20;
         }
-        if ((work->waitFlags & 0x200) && ((temp_4 = work->waitTask[0], temp_4 != 0) || (taskRecordIsDone(temp_4) != 0))) {
+        if ((work->waitFlags & 0x200) && ((firstWaitTask = work->waitTask[0], firstWaitTask != 0) || (taskRecordIsDone(firstWaitTask) != 0))) {
             work->waitFlags &= ~0x200;
         }
-        if ((work->waitFlags & 0x400) && ((temp_4_2 = work->waitTask[1], temp_4_2 != 0) || (taskRecordIsDone(temp_4_2) != 0))) {
+        if ((work->waitFlags & 0x400) && ((secondWaitTask = work->waitTask[1], secondWaitTask != 0) || (taskRecordIsDone(secondWaitTask) != 0))) {
             work->waitFlags &= ~0x400;
         }
-        if ((work->waitFlags & 0x800) && ((temp_4_3 = work->waitTask[2], temp_4_3 != 0) || (taskRecordIsDone(temp_4_3) != 0))) {
+        if ((work->waitFlags & 0x800) && ((thirdWaitTask = work->waitTask[2], thirdWaitTask != 0) || (taskRecordIsDone(thirdWaitTask) != 0))) {
             work->waitFlags &= ~0x800;
         }
         if ((work->waitFlags & 0x2000) && (fadeStatus() != 1)) {
@@ -89,15 +89,15 @@ void evtUpdateNodeWaitFlags(u8 *arg0)
         if ((work->waitFlags & 0x80000) && (evtScriptLoadIsReady(work->scriptLoad) != 0)) {
             work->waitFlags &= 0xFFF7FFFF;
         }
-        temp_4_4 = work->waitFlags;
-        if ((temp_4_4 & 1) || (temp_4_4 & 0x20) || (temp_4_4 & 0x200) || (temp_4_4 & 0x400) || (temp_4_4 & 0x800) || (temp_4_4 & 0x1000) || (temp_4_4 & 0x2000) || (temp_4_4 & 0x80000) || (temp_4_4 & 0x4000) || (temp_4_4 & 0x100000)) {
-            var_4 = 1;
+        waitFlags = work->waitFlags;
+        if ((waitFlags & 1) || (waitFlags & 0x20) || (waitFlags & 0x200) || (waitFlags & 0x400) || (waitFlags & 0x800) || (waitFlags & 0x1000) || (waitFlags & 0x2000) || (waitFlags & 0x80000) || (waitFlags & 0x4000) || (waitFlags & 0x100000)) {
+            busy = 1;
         } else {
-            var_4 = 0;
+            busy = 0;
         }
-        if (work->busy != var_4) {
-            work->busy = var_4;
-            evtRefreshNodeResources(arg0);
+        if (work->busy != busy) {
+            work->busy = busy;
+            evtRefreshNodeResources(eventWork);
             func_00440b68(&D_0063C2E0);
         }
     }
@@ -105,82 +105,82 @@ void evtUpdateNodeWaitFlags(u8 *arg0)
 
 // Steps the event's frame counter (unless it is busy); returns 1 once the counter reaches its limit [inferred].
 // FUN_00285760
-s32 evtStepEventFrame(u8 *arg0)
+s32 evtStepEventFrame(u8 *eventWork)
 {
-    EvtEventWork *work = (EvtEventWork *)arg0;
-    s32 var_5;
-    s32 var_2;
+    EvtEventWork *work = (EvtEventWork *)eventWork;
+    s32 frame;
+    s32 finished;
 
-    var_5 = work->frame;
-    var_2 = 0;
+    frame = work->frame;
+    finished = 0;
     if (work->busy == 0) {
-        if (var_5 >= work->frameLimit) {
-            var_2 = 1;
+        if (frame >= work->frameLimit) {
+            finished = 1;
         } else {
-            var_5 += 1;
+            frame += 1;
         }
     }
     if (work->resetRequested != 0) {
-        var_5 = work->resetFrame;
+        frame = work->resetFrame;
         work->resetRequested = 0;
     }
-    work->frame = var_5;
-    return var_2;
+    work->frame = frame;
+    return finished;
 }
 
 // Event task update: runs the event's wait checks, then steps its frame counter while it is not busy [inferred].
 // FUN_002857C0
 s32 evtNodeTaskUpdate(u8 *task)
 {
-    EvtEventTask *temp_2;
-    EvtEventWork *temp_2_2;
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 temp_4_3;
-    s32 var_2;
+    EvtEventTask *taskWork;
+    EvtEventWork *eventWork;
+    s32 eventTask;
+    s32 state;
+    s32 frame;
+    s32 finished;
 
-    temp_2 = (EvtEventTask *)kwlnTaskGetWork(task);
-    if (temp_2 == NULL) {
+    taskWork = (EvtEventTask *)kwlnTaskGetWork(task);
+    if (taskWork == NULL) {
         kAssertFail(D_0063C2C8, 0x2E);
     }
-    temp_4 = temp_2->eventTask;
-    if (temp_4 != 0) {
-        kwlnTaskGetWork((void *)temp_4);
+    eventTask = taskWork->eventTask;
+    if (eventTask != 0) {
+        kwlnTaskGetWork((void *)eventTask);
     }
-    temp_4_2 = temp_2->state;
-    switch (temp_4_2) {
+    state = taskWork->state;
+    switch (state) {
     case 0:
-        temp_2->state = 5;
+        taskWork->state = 5;
         /* fallthrough */
     case 5:
-        if (evtLoaderIsIdle(temp_2->eventTask) != 0) {
-            temp_2->state = 3;
+        if (evtLoaderIsIdle(taskWork->eventTask) != 0) {
+            taskWork->state = 3;
         }
         goto done;
     case 3:
-        temp_2->state = 4;
+        taskWork->state = 4;
         /* fallthrough */
     case 4:
-        temp_2_2 = (EvtEventWork *)kwlnTaskGetWork((void *)temp_2->eventTask);
-        temp_2_2->waitFlags &= ~1;
-        temp_4_3 = temp_2_2->frame;
-        if (temp_4_3 != temp_2_2->lastFrame) {
-            evtResetEventScene(temp_4_3, (s32 *)temp_2_2);
+        eventWork = (EvtEventWork *)kwlnTaskGetWork((void *)taskWork->eventTask);
+        eventWork->waitFlags &= ~1;
+        frame = eventWork->frame;
+        if (frame != eventWork->lastFrame) {
+            evtResetEventScene(frame, (s32 *)eventWork);
         }
-        temp_2_2->lastFrame = temp_2_2->frame;
-        evtUpdateSceneLights((s32 *)temp_2_2);
-        if ((temp_2_2->sceneSource != 0) && (evtMessageWindowIsOpen((u32 *)temp_2_2->messageWindow) != 0)) {
-            evtMessageWindowUpdate((s32 *)temp_2_2->messageWindow);
+        eventWork->lastFrame = eventWork->frame;
+        evtUpdateSceneLights((s32 *)eventWork);
+        if ((eventWork->sceneSource != 0) && (evtMessageWindowIsOpen((u32 *)eventWork->messageWindow) != 0)) {
+            evtMessageWindowUpdate((s32 *)eventWork->messageWindow);
         }
-        evtUpdateNodeWaitFlags((u8 *)temp_2_2);
-        if (temp_2_2->frame >= temp_2_2->frameLimit) {
-            var_2 = 1;
+        evtUpdateNodeWaitFlags((u8 *)eventWork);
+        if (eventWork->frame >= eventWork->frameLimit) {
+            finished = 1;
         } else {
-            evtStepEventFrame((u8 *)temp_2_2);
-            var_2 = 0;
+            evtStepEventFrame((u8 *)eventWork);
+            finished = 0;
         }
-        if (var_2 != 0) {
-            temp_2->state = 6;
+        if (finished != 0) {
+            taskWork->state = 6;
         }
         goto done;
     case 6:
@@ -193,11 +193,11 @@ s32 evtNodeTaskUpdate(u8 *task)
 // Event task destroy: destroys the event's task hierarchy, frees its work block and releases the account [inferred].
 // FUN_00285980
 void evtNodeTaskDestroy(u8 *task) {
-    EvtEventTask *temp_2;
+    EvtEventTask *taskWork;
 
-    temp_2 = (EvtEventTask *)kwlnTaskGetWork(task);
-    kwlnTaskDestroyWithHierarchy(temp_2->eventTask);
-    jtbl_008873EC[0](temp_2);
+    taskWork = (EvtEventTask *)kwlnTaskGetWork(task);
+    kwlnTaskDestroyWithHierarchy(taskWork->eventTask);
+    jtbl_008873EC[0](taskWork);
     evtMemAccount(0, -0x60);
 }
 
@@ -205,30 +205,30 @@ void evtNodeTaskDestroy(u8 *task) {
 
 // Creates the event task (0x60-byte work block) for the given event id and major/minor numbers, and returns the task handle [inferred].
 // FUN_002859E0
-s32 evtCreateEventTask(s32 arg0, s32 arg1)
+s32 evtCreateEventTask(s32 majorId, s32 minorId)
 {
-    s32 temp_17;
-    EvtEventTask *temp_16;
-    s32 temp_2;
+    s32 task;
+    EvtEventTask *taskWork;
+    s32 eventTask;
 
     chkmemAllocSiteTag(&D_00748340, 0x52);
-    temp_16 = D_008873F4[0](1, 0x60, 0x40000);
+    taskWork = D_008873F4[0](1, 0x60, 0x40000);
     evtMemAccount(0, 0x60);
-    memset(temp_16, 0, 0x60);
+    memset(taskWork, 0, 0x60);
     // Task name D_0063C2F8 is "evtEvent" (retail string at VA 0x63C2F8), priority 0xF, with evtNodeTaskUpdate and evtNodeTaskDestroy.
-    temp_17 = (s32)kwlnTaskCreate((const void *)(&D_0063C2F8), 0xF, 0, 0, evtNodeTaskUpdate, evtNodeTaskDestroy, (u8 *)(temp_16));
-    temp_2 = evtStart(0, 0);
-    temp_16->eventTask = temp_2;
-    evtSetId(temp_2, arg0, arg1, 0);
-    evtRequestLoad(temp_16->eventTask);
-    temp_16->state = 0;
-    return temp_17;
+    task = (s32)kwlnTaskCreate((const void *)(&D_0063C2F8), 0xF, 0, 0, evtNodeTaskUpdate, evtNodeTaskDestroy, (u8 *)(taskWork));
+    eventTask = evtStart(0, 0);
+    taskWork->eventTask = eventTask;
+    evtSetId(eventTask, majorId, minorId, 0);
+    evtRequestLoad(taskWork->eventTask);
+    taskWork->state = 0;
+    return task;
 }
 // Makes sure the event task exists, creating it through func_002853c0 when it is missing [inferred].
 // FUN_00285AF0
 void evtEnsureEventTask(void) {
     if (kwlnTaskGetTaskByName(D_0063C2F8) == 0) {
-        func_002853c0();
+        evtLookupTask();
     }
 }
 
@@ -250,33 +250,35 @@ s32 evtGetEventFrame(void) {
    308 is the retail-only tail padding. Comparison polarity, >=/< /> forms,
    u32 loads, and loop declaration reorder were ruled out. obj 308B/window
    320B, nd 2. Committed at nd 2. */
-// Intent: Returns the arg1-th kind-3 entry of the node list whose resource id is 0x384..0x386 (ordinal among those matches), or NULL when there is none [inferred]
+// Intent: Returns the requested ordinal kind-3 entry of the node list whose resource id is 0x384..0x386 (ordinal among those matches), or NULL when there is none [inferred]
 // FUN_00285B80
-u8 *evtFindSlotEntry(u8 *arg0, s32 arg1)
+u8 *evtFindSlotEntry(u8 *eventWork, s32 ordinal)
 {
+  /* measured: typed count/next conditions retain field addresses across the assert and lose MATCH; keep those raw reads. */
+  /* The repeated masks and zero-product test are the existing matching control-flow shape, not simplified here. */
   s32 line;
   s32 count;
   s32 i;
   s32 matched;
-  u8 *entry_base;
+  u8 *entryBase;
   u8 *p;
   u32 j;
   u16 flags;
-  u8 *arg_base;
-  int is_target;
-  s32 *count_ptr;
+  u8 *eventBase;
+  int isTarget;
+  s32 *countPtr;
   s32 kind;
   p = (void *) 0;
-  count_ptr = (s32 *) (arg0 + 0x48);
+  countPtr = &((EvtEventWork *)eventWork)->nodeCount;
   matched = 0;
-  i = *count_ptr;
-  arg_base = arg0;
-  entry_base = arg_base;
+  i = *countPtr;
+  eventBase = eventWork;
+  entryBase = eventBase;
   count = i;
   i = 0;
   goto outer_check;
   process_entry:
-  if (((u32) (*((s32 *) (entry_base + 0x48)))) > ((u32) i))
+  if (((u32) (*((s32 *) (entryBase + 0x48)))) > ((u32) i))
   {
     goto traverse;
   }
@@ -284,7 +286,7 @@ u8 *evtFindSlotEntry(u8 *arg0, s32 arg1)
   p = (void *) 0;
   goto classify;
   traverse:
-  p = *(u8 **) (arg_base + 0x4C);
+  p = (u8 *)((EvtEventWork *)eventBase)->nodeList;
 
   j = 0;
   goto inner_check;
@@ -295,7 +297,7 @@ u8 *evtFindSlotEntry(u8 *arg0, s32 arg1)
     kAssertFail(D_0063C2C8, line);
   }
 
-  p = *((u8 **) (p + 0x90));
+  p = (u8 *)((EvtNode *)p)->next;
   j += 1;
   inner_check:
   if (j < ((u32) i))
@@ -305,15 +307,15 @@ u8 *evtFindSlotEntry(u8 *arg0, s32 arg1)
 
   goto classify;
   classify:
-  flags = *((u16 *) (p + 0xC));
+  flags = ((EvtNode *)p)->flags;
 
   kind = ((s32) (flags & 0xFFC00)) >> 10;
   if ((((((((((((kind == ((unsigned char) 3)) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF)
   {
     if (((flags & 0x3FF) >= 0x384) && ((flags & 0x3FF) < 0x387))
     {
-      is_target = (((((((((matched == arg1) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF;
-      if ((((is_target & 0xFFFF) & 0xFFFF) & 0xFFFF) != (((*((u8 **) (p + 0x90))) == ((void *) 0)) * 0))
+      isTarget = (((((((((matched == ordinal) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF;
+      if ((((isTarget & 0xFFFF) & 0xFFFF) & 0xFFFF) != (((*((u8 **) (p + 0x90))) == ((void *) 0)) * 0))
       {
         return p;
       }

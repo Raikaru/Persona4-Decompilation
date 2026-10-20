@@ -11,7 +11,7 @@ extern s32 D_00764BB8;
 extern void *D_00764BAC;
 extern s32 D_00764BB4;
 extern s32 D_00764BA4;
-extern s32 func_00464670(s32 *command, s32 *result, s32 *error);
+extern s32 memcardPollCommand(s32 *command, s32 *result, s32 *error);
 extern s32 sceMc2GetInfoAsync(s32 socket, s32 *status);
 extern void sprintf(void *dst, const void *fmt, ...);
 extern s32 func_00431d78(s32 socket, const char *name, void *result);

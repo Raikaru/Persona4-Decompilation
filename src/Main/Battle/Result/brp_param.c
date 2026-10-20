@@ -14,7 +14,7 @@ void brpParamFree(u8 *allocation)
 // FUN_0038F5C0
 u32 brpParamGetEntry(const u32 *work, u32 index)
 {
-    return *(const u32 *)(index * sizeof(u32) + work[2]);
+    return ((const u32 *)work[2])[index];
 }
 
 // FUN_0038F5E0
@@ -30,9 +30,9 @@ u32 brpParamReadWord1(const u32 *work)
 }
 
 // FUN_0038F600
-void brpParamSetCurrent(u8 *arg0)
+void brpParamSetCurrent(u8 *work)
 {
-    *(s32 *)(arg0 + 0) = 0;
-    *(s32 *)(arg0 + 4) = 0;
-    D_007246AC = arg0;
+    ((s32 *)work)[0] = 0;
+    ((s32 *)work)[1] = 0;
+    D_007246AC = work;
 }

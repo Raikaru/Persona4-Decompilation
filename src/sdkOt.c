@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "sdk_ot_state_api.h"
+#include "sdk_ot_node.h"
 
 extern void kAssertFail(u8 *file, s32 line);
 extern u8 *iGpffffba98;   /* gp - 0x4568 = 0x00764b88 */
@@ -12,6 +13,7 @@ extern void movieNativeSkyStateEnter(void);
 
 
 // Intent: Append a node to the tail of an ordering-table list [inferred]
+/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00460AC0
 void PrimAppendNode(u8 *list, u8 *node)
 {
@@ -21,15 +23,15 @@ void PrimAppendNode(u8 *list, u8 *node)
     if (list == 0) {
         kAssertFail(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if ((u8 *)((OtPrimitiveNode *)list)->tail != 0) {
+        tail = (u8 *)((OtPrimitiveNode *)list)->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if ((u8 *)((OtPrimitiveNode *)tail)->tail != 0) {
         kAssertFail(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
+    if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
+        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
         *(u8 **)(list + 4) = node;
     }
@@ -37,8 +39,9 @@ void PrimAppendNode(u8 *list, u8 *node)
 
 
 // Intent: Queue a state-set node (command 2) carrying a state and a value [inferred]
+/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00460B60
-u8 *PrimQueueStateSet(u8 *list, s32 arg1, s32 arg2)
+u8 *PrimQueueStateSet(u8 *list, s32 stateId, s32 stateValue)
 {
     u8 *node;
     u8 *tail;
@@ -48,22 +51,22 @@ u8 *PrimQueueStateSet(u8 *list, s32 arg1, s32 arg2)
     if (node == 0) {
         kAssertFail(&iGpffffaf70, 0xDD);
     }
-    *(u16 *)(node + 0x18) = 2;
-    *(u32 *)(node + 0x1C) = arg1;
-    *(u32 *)(node + 0x20) = arg2;
+    ((OtPrimitiveNode *)node)->command = 2;
+    ((OtPrimitiveNode *)node)->primitive = stateId;
+    ((OtPrimitiveNode *)node)->vertices = (void *)stateValue;
     tail = list;
     if (list == 0) {
         kAssertFail(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if ((u8 *)((OtPrimitiveNode *)list)->tail != 0) {
+        tail = (u8 *)((OtPrimitiveNode *)list)->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if ((u8 *)((OtPrimitiveNode *)tail)->tail != 0) {
         kAssertFail(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
+    if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
+        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
         *(u8 **)(list + 4) = node;
     }
@@ -72,8 +75,9 @@ u8 *PrimQueueStateSet(u8 *list, s32 arg1, s32 arg2)
 
 
 // Intent: Queue a state-set node (command 3) carrying a state and a value; same as PrimQueueStateSet with command 3 [inferred]
+/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00460C70
-u8 *PrimQueueStateSetAlt(u8 *list, s32 arg1, s32 arg2)
+u8 *PrimQueueStateSetAlt(u8 *list, s32 stateId, s32 stateValue)
 {
     u8 *node;
     u8 *tail;
@@ -83,22 +87,22 @@ u8 *PrimQueueStateSetAlt(u8 *list, s32 arg1, s32 arg2)
     if (node == 0) {
         kAssertFail(&iGpffffaf70, 0xE7);
     }
-    *(u16 *)(node + 0x18) = 3;
-    *(u32 *)(node + 0x1C) = arg1;
-    *(u32 *)(node + 0x20) = arg2;
+    ((OtPrimitiveNode *)node)->command = 3;
+    ((OtPrimitiveNode *)node)->primitive = stateId;
+    ((OtPrimitiveNode *)node)->vertices = (void *)stateValue;
     tail = list;
     if (list == 0) {
         kAssertFail(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if ((u8 *)((OtPrimitiveNode *)list)->tail != 0) {
+        tail = (u8 *)((OtPrimitiveNode *)list)->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if ((u8 *)((OtPrimitiveNode *)tail)->tail != 0) {
         kAssertFail(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
+    if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
+        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
         *(u8 **)(list + 4) = node;
     }
@@ -106,8 +110,10 @@ u8 *PrimQueueStateSetAlt(u8 *list, s32 arg1, s32 arg2)
 }
 
 
+/* Queues a command-four draw-object payload; y_misc stores the returned draw node. */
+/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00460D80
-u8 *func_00460d80(u8 *list, s32 arg1)
+u8 *sdkOtQueueDrawObject(u8 *list, s32 stateId)
 {
     u8 *node;
     u8 *tail;
@@ -117,21 +123,21 @@ u8 *func_00460d80(u8 *list, s32 arg1)
     if (node == 0) {
         kAssertFail(&iGpffffaf70, 0xF1);
     }
-    *(u16 *)(node + 0x18) = 4;
-    *(u32 *)(node + 0x1C) = arg1;
+    ((OtPrimitiveNode *)node)->command = 4;
+    ((OtPrimitiveNode *)node)->primitive = stateId;
     tail = list;
     if (list == 0) {
         kAssertFail(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if ((u8 *)((OtPrimitiveNode *)list)->tail != 0) {
+        tail = (u8 *)((OtPrimitiveNode *)list)->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if ((u8 *)((OtPrimitiveNode *)tail)->tail != 0) {
         kAssertFail(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
+    if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
+        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
         *(u8 **)(list + 4) = node;
     }
@@ -139,8 +145,10 @@ u8 *func_00460d80(u8 *list, s32 arg1)
 }
 
 
+/* Queues a command-six clump payload used by field resource clump drawing. */
+/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00460E80
-u8 *func_00460e80(u8 *list, s32 arg1)
+u8 *sdkOtQueueClump(u8 *list, s32 stateId)
 {
     u8 *node;
     u8 *tail;
@@ -150,21 +158,21 @@ u8 *func_00460e80(u8 *list, s32 arg1)
     if (node == 0) {
         kAssertFail(&iGpffffaf70, 0x106);
     }
-    *(u16 *)(node + 0x18) = 6;
-    *(u32 *)(node + 0x1C) = arg1;
+    ((OtPrimitiveNode *)node)->command = 6;
+    ((OtPrimitiveNode *)node)->primitive = stateId;
     tail = list;
     if (list == 0) {
         kAssertFail(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if ((u8 *)((OtPrimitiveNode *)list)->tail != 0) {
+        tail = (u8 *)((OtPrimitiveNode *)list)->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if ((u8 *)((OtPrimitiveNode *)tail)->tail != 0) {
         kAssertFail(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
+    if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
+        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
         *(u8 **)(list + 4) = node;
     }
@@ -172,8 +180,10 @@ u8 *func_00460e80(u8 *list, s32 arg1)
 }
 
 
+/* Queues the command-seven clump payload used by FldResource_QueueDrawCallbacksPrimary. */
+/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00460F80
-u8 *func_00460f80(u8 *list, s32 arg1)
+u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 stateId)
 {
     u8 *node;
     u8 *tail;
@@ -183,21 +193,21 @@ u8 *func_00460f80(u8 *list, s32 arg1)
     if (node == 0) {
         kAssertFail(&iGpffffaf70, 0x111);
     }
-    *(u16 *)(node + 0x18) = 7;
-    *(u32 *)(node + 0x1C) = arg1;
+    ((OtPrimitiveNode *)node)->command = 7;
+    ((OtPrimitiveNode *)node)->primitive = stateId;
     tail = list;
     if (list == 0) {
         kAssertFail(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if ((u8 *)((OtPrimitiveNode *)list)->tail != 0) {
+        tail = (u8 *)((OtPrimitiveNode *)list)->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if ((u8 *)((OtPrimitiveNode *)tail)->tail != 0) {
         kAssertFail(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
+    if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
+        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
         *(u8 **)(list + 4) = node;
     }
@@ -205,8 +215,10 @@ u8 *func_00460f80(u8 *list, s32 arg1)
 }
 
 
+/* Queues the command-eight clump payload used by FldResource_QueueDrawCallbacksSecondary. */
+/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00461080
-u8 *func_00461080(u8 *list, s32 arg1)
+u8 *sdkOtQueueClumpSecondaryPass(u8 *list, s32 stateId)
 {
     u8 *node;
     u8 *tail;
@@ -216,21 +228,21 @@ u8 *func_00461080(u8 *list, s32 arg1)
     if (node == 0) {
         kAssertFail(&iGpffffaf70, 0x11C);
     }
-    *(u16 *)(node + 0x18) = 8;
-    *(u32 *)(node + 0x1C) = arg1;
+    ((OtPrimitiveNode *)node)->command = 8;
+    ((OtPrimitiveNode *)node)->primitive = stateId;
     tail = list;
     if (list == 0) {
         kAssertFail(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if ((u8 *)((OtPrimitiveNode *)list)->tail != 0) {
+        tail = (u8 *)((OtPrimitiveNode *)list)->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if ((u8 *)((OtPrimitiveNode *)tail)->tail != 0) {
         kAssertFail(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
+    if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
+        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
         *(u8 **)(list + 4) = node;
     }
@@ -239,8 +251,9 @@ u8 *func_00461080(u8 *list, s32 arg1)
 
 
 // Intent: Queue a node (command 9) whose callback is the sky-state entry routine [inferred]
+/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00461180
-u8 *PrimQueueSkyStateEnter(u8 *list, s32 arg1)
+u8 *PrimQueueSkyStateEnter(u8 *list, s32 stateId)
 {
     u8 *node;
     u8 *tail;
@@ -250,23 +263,23 @@ u8 *PrimQueueSkyStateEnter(u8 *list, s32 arg1)
     if (node == 0) {
         kAssertFail(&iGpffffaf70, 0x127);
     }
-    *(u16 *)(node + 0x18) = 9;
-    *(u32 *)(node + 0x1C) = arg1;
+    ((OtPrimitiveNode *)node)->command = 9;
+    ((OtPrimitiveNode *)node)->primitive = stateId;
     *(u32 *)(node + 0x8) = (u32)movieNativeSkyStateEnter;
-    *(u32 *)(node + 0x10) = 0;
+    ((OtPrimitiveNode *)node)->callbackData = 0;
     tail = list;
     if (list == 0) {
         kAssertFail(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if ((u8 *)((OtPrimitiveNode *)list)->tail != 0) {
+        tail = (u8 *)((OtPrimitiveNode *)list)->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if ((u8 *)((OtPrimitiveNode *)tail)->tail != 0) {
         kAssertFail(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
+    if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
+        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
         *(u8 **)(list + 4) = node;
     }
@@ -274,8 +287,10 @@ u8 *PrimQueueSkyStateEnter(u8 *list, s32 arg1)
 }
 
 
+/* Queues the command-ten world payload selected by the field resource world path. */
+/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00461290
-u8 *func_00461290(u8 *list, s32 arg1)
+u8 *sdkOtQueueWorld(u8 *list, s32 stateId)
 {
     u8 *node;
     u8 *tail;
@@ -285,21 +300,21 @@ u8 *func_00461290(u8 *list, s32 arg1)
     if (node == 0) {
         kAssertFail(&iGpffffaf70, 0x131);
     }
-    *(u16 *)(node + 0x18) = 0xA;
-    *(u32 *)(node + 0x1C) = arg1;
+    ((OtPrimitiveNode *)node)->command = 0xA;
+    ((OtPrimitiveNode *)node)->primitive = stateId;
     tail = list;
     if (list == 0) {
         kAssertFail(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if ((u8 *)((OtPrimitiveNode *)list)->tail != 0) {
+        tail = (u8 *)((OtPrimitiveNode *)list)->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if ((u8 *)((OtPrimitiveNode *)tail)->tail != 0) {
         kAssertFail(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
+    if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
+        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
         *(u8 **)(list + 4) = node;
     }
@@ -307,22 +322,6 @@ u8 *func_00461290(u8 *list, s32 arg1)
 }
 
 
-typedef struct OtPrimitiveNode OtPrimitiveNode;
-struct OtPrimitiveNode {
-    OtPrimitiveNode *next;
-    OtPrimitiveNode *tail;
-    void (*callback)(void *, void *);
-    u32 reserved0C;
-    void *callbackData;
-    u32 reserved14;
-    u16 command;
-    u16 reserved1A;
-    s32 primitive;
-    void *vertices;
-    s32 count;
-    u32 reserved28[2];
-};
-typedef char OtPrimitiveNodeSize[(sizeof(OtPrimitiveNode) == 0x30) ? 1 : -1];
 
 /* The vertex buffer is a pointer, matching all source callers. The complete
  * 0x30-byte node and late list view preserve the existing 284 native bytes.

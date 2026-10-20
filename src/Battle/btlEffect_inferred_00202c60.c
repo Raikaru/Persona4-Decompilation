@@ -12,41 +12,34 @@ typedef struct BtlPacket BtlPacket;
 #include "btl_panel_internal.h"
 #include "fr_font_internal.h"
 #include "datPersona_internal.h"
+#include "btl_ui_task_internal.h"
+#include "btl_action_internal.h"
+#include "rw_camera_internal.h"
+#include "datCalc_internal.h"
+#include "btl_hud_internal.h"
 
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
-extern s32 cmmCommunityForArcana(s16 arg0);
-extern u16 cmmCommunityRecordValue(s32 arg0);
-extern void btlSelectionResetSubList(u8 *arg0, u8 *arg1);
-extern u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1);
+extern s32 cmmCommunityForArcana(s16 arcanaValue);
+extern u16 cmmCommunityRecordValue(s32 communityId);
+extern void btlSelectionResetSubList(u8 *selection, u8 *panel);
+extern u16 btlSelectionConfirmSubList(u8 *selection, u8 *panel);
 extern void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState);
-extern void func_00209f90(void);
-extern void func_0020a5c0(void);
+extern void btlSelectionDrawSubList(void);
+extern void btlSelectionEndSubList(void);
 extern void btlSelectionUpdateWindow();
 
-extern u32 datGetFlag(s32 arg0);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datGetFlag(s32 bit);
 
 extern void memset(void *destination, s32 value, u32 size);
-extern void btlSelectionSetRepeat(u8 *arg0, s16 *arg1);
-extern u32 datGetItemNameId(s16 arg0);
-extern s32 func_001eb860(void);
+extern void btlSelectionSetRepeat(u8 *selection, s16 *repeatMasks);
+extern u32 datGetItemNameId(s16 itemId);
+extern s32 btlTargetCanControlDamagePhase(void);
 
-typedef struct {
-    u8 pad0[2];
-    s16 field2;
-    s16 field4;
-    s16 field6;
-    s16 field8;
-} P4_00202D20;
-static inline f32 func_0020_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
+static inline u8 *btlSelectionAddByteOffset(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -55,28 +48,28 @@ static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
 extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
-extern s32 datPersonaGetLevel(u8 *arg0);
-extern u16 frFontSetFlagBits(s16 arg0);
-extern u16 frFontClearFlagBits(u16 arg0);
+extern s32 datPersonaGetLevel(u8 *persona);
+extern u16 frFontSetFlagBits(s16 bits);
+extern u16 frFontClearFlagBits(u16 bits);
 
-extern u32 btlFormationCurrentEntry(void *arg0);
-extern void shdPersonaFinishPhase(u8 *arg0);
-extern s32 shdPersonaIsTransitioning(u8 *arg0);
-extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
-extern void shdPersonaStartSlideIn(u8 *arg0);
-extern void shdPersonaBeginClose(u8 *arg0);
-extern void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern u32 shdPersonaIsSelectionActive(u8 *arg0);
-extern void shdPersonaBeginSelection(u8 *arg0);
-extern void shdPersonaEndSelection(u8 *arg0, s32 arg1);
-extern void shdPersonaStepSelectionCursor(u8 *arg0);
-extern void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
+extern u32 btlFormationCurrentEntry(void *formation);
+extern void shdPersonaFinishPhase(u8 *task);
+extern s32 shdPersonaIsTransitioning(u8 *task);
+extern void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, s8 cursor);
+extern void shdPersonaStartSlideIn(u8 *task);
+extern void shdPersonaBeginClose(u8 *task);
+extern void shdPersonaBeginDisplayAndEndSelection(u8 *task, s32 category, s32 personaAddress, s8 cursor);
+extern void shdPersonaBeginDisplay(u8 *task, s32 category, s32 personaAddress, s8 cursor);
+extern u32 shdPersonaIsSelectionActive(u8 *task);
+extern void shdPersonaBeginSelection(u8 *task);
+extern void shdPersonaEndSelection(u8 *task, s32 mode);
+extern void shdPersonaStepSelectionCursor(u8 *task);
+extern void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y);
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-extern void btlPanelSetCountdown(s32 arg0, s32 arg1);
-extern void btlPanelStartEntry(s32 arg0, s32 arg1);
+extern void btlPanelSetCountdown(s32 task, s32 duration);
+extern void btlPanelStartEntry(s32 task, s32 text);
 
 
 
@@ -94,20 +87,20 @@ extern u8 D_00625240[];
 extern f32 fGpffff8184;
 extern f32 fGpffff84a4;
 extern f32 fGpffff81a8;
-extern f32 cosf(f32 fparg0);
-extern f32 sinf(f32 fparg0);
-typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
+extern f32 cosf(f32 x);
+extern f32 sinf(f32 x);
+typedef void (*BtlSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
                                     u8 opacity, s32 highlighted, s32 showDetail);
-extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
-                         BattleSelectionDraw drawSelection);
+extern void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
+                         BtlSelectionDraw drawSelection);
 
-extern void btlPanelDrawSkillEntry(u8 *arg0, s32 arg1, f32 fx, f32 fy, u8 arg2, s32 arg3, s32 arg4);
-extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
-                          BattleSelectionDraw callback);
+extern void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y, u8 opacity, s32 highlighted, s32 showDetail);
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY,
+                          BtlSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
-                         u8 opacity, s32 highlighted, s32 show_detail);
+                         u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
-extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
+extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -120,10 +113,10 @@ typedef struct {
     s32 value1;
     s32 value2;
     u8 pad[0xC];
-    Color4 colors;
+    union { Color4 colors; s32 packedColor; };
 } Work4;
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void (*D_00887300[])(u32 arg0, u32 arg1);
+extern void RpSkyRenderStateSet(s32 context, s32 value);
+extern void (*D_00887300[])(u32 context, u32 value);
 extern f32 fGpffff82e0, fGpffff82e4;
 extern f32 D_008872F8[];
 extern f32 D_00626890[][2];
@@ -131,101 +124,197 @@ extern s32 kwlnGetCamera(void);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
-extern void btlUiSetRenderMode(s32 arg0);
+extern void btlUiSetRenderMode(s32 mode);
 extern void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
-extern u16 datCalcUnderlyingSkillId(s64 arg0);
+extern u16 datCalcUnderlyingSkillId(s64 personaSkillId);
 extern void btlSelectionRefreshList(u16 *flags, u8 *work);
 extern s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel);
 extern void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState);
-extern void btlPanelDrawStrip(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend);
+extern void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, s32 extend);
 extern void btlSelectionSaveCursor();
-extern void btlSelectionDrawBar(u8 *unused, u8 *arg1, f32 *arg2);
-extern u8 *btlActionFindByUnit(s32 arg0);
+extern void btlSelectionDrawBar(u8 *unused, u8 *panel, f32 *origin);
+extern u8 *btlActionFindByUnit(s32 unit);
 extern u8 *iGpffffb3ac;
 
 extern s32 D_00881444_abs[];
-extern void btlPanelUpdate(void *arg0);
-extern s32 datCalcIsLowHp(u8 *arg0);
+extern void btlPanelUpdate(void *panel);
 extern f32 fGpffff8478;
 extern f32 fGpffffb478;
-extern void btlSelectionUpdateTransition(u8 *arg0);
+extern void btlSelectionUpdateTransition(u8 *transition);
 extern u8 D_00794810[];
 extern u8 D_00794870[];
 extern u8 D_00794FF0[];
 extern u8 D_00795020[];
 extern u8 D_00795080[];
 
-extern void btlPanelInitWork(u8 *arg0, s32 arg1);
-extern void btlPanelDrawFrame(s32 arg0, u8 *arg1);
-extern void btlSelectionUpdateTransition(u8 *arg0);
-extern void btlPanelDrawBackdropGrid(s32 arg0, u8 *arg1);
-extern void func_0020b5a0(void);
-extern void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1);
-extern void btlSelectionInitTransition(u8 *arg0, s32 arg1);
-extern void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1);
+extern void btlPanelInitWork(u8 *panel, s32 task);
+extern void btlPanelDrawFrame(s32 unused, u8 *panel);
+extern void btlSelectionUpdateTransition(u8 *transition);
+extern void btlPanelDrawBackdropGrid(s32 unused, u8 *panel);
+extern void btlPanelDrawDetail(void);
+extern void btlPanelDrawSkyFrame(s32 unused, u8 *panel);
+extern void btlSelectionInitTransition(u8 *transition, s32 task);
+extern void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition);
 extern u8 D_006253B0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202c60-0020bfd0 */
 
-extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
+extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
 extern void btlUiSetRenderStates(void);
-extern void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
-extern void btlUiSetScale(u8 *arg0, f32 fparg0, f32 fparg1);
-extern void btlUiSetRenderMode(s32 arg0);
-extern void btlUiSetAlpha(u8 *arg0, f32 fparg0);
-extern void btlUiSelectEffect(s32 arg0, u32 arg1);
-extern void btlSelectionDispatchTargetMode(s32 arg0, u8 *arg1, u8 *arg2);
-extern void btlSelectionSwapRowState(u8 *arg0, u8 *arg1);
-typedef struct BattleSelectionInput {
+extern void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y);
+extern void btlUiSetScale(u8 *work, f32 x, f32 y);
+extern void btlUiSetRenderMode(s32 mode);
+extern void btlUiSetAlpha(u8 *work, f32 alpha);
+extern void btlUiSelectEffect(s32 unit, u32 entryId);
+extern void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit);
+extern void btlSelectionSwapRowState(u8 *from, u8 *to);
+typedef struct BtlSelection {
     u16 flags;
     s16 first;
     s16 selected;
     s16 pageSize;
     s16 count;
-    u8 padding[0x22];
+    u8 pad0A[2];
+    void *initialize;            /* 0x0C: callback ABI depends on dispatch phase */
+    void *handleInput;
+    void *draw;
+    void *notify;
+    void *saveCursor;
+    u8 *parent;                 /* 0x20 */
+    u8 *child;
+    u8 *owner;
     u16 previous;
     u16 next;
     u16 previousPage;
     u16 nextPage;
-} BattleSelectionInput;
+} BtlSelection;
 typedef struct {
     s32 (*draw)(s32 primitive, void *vertices, s32 count);
-} BattlePanelPrimitiveDispatch;
+} BtlPanelPrimitiveDispatch;
 extern f32 fGpffff836c;
 extern void shdEnableBlendFlag(void);
 extern void shdDisableBlendFlag(void);
-typedef struct { u8 b0, b1, b2, b3; } BattleSkillIconColor;
+typedef struct { u8 b0, b1, b2, b3; } BtlSkillIconColor;
 extern void ShdSkill_DrawIcon(Vec2f position, f32 scale,
-                          BattleSkillIconColor color, u16 skill, s32 texture);
-extern u32 datCalcSkillCost(u8 *unit, s32 skill);
-extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
-extern u16 datCalcThresholdKind(u8 *unit, s32 skill);
-extern s16 func_00105f00(s16 arg0);
-extern u32 datPersonaNamePart1(s16 arg0);
-extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 mode,
-                         s32 style, s32 flags, s32 handle, s32 index);
-typedef struct BattleRenderDispatch {
+                          BtlSkillIconColor color, u16 skill, s32 texture);
+extern u32 datCalcSkillCost(u8 *unit, s32 skillId);
+extern s32 datCalcThresholdTrigger(u8 *unit, s32 skillId);
+extern u16 datCalcThresholdKind(u8 *unusedUnit, s32 skillId);
+extern s16 datGetUnitAiTactic(s16 unitId);
+extern u32 datPersonaNamePart1(s16 unitId);
+extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex,
+                         s32 effect, s32 flags, s32 handle, s32 recordIndex);
+typedef struct BtlPanelRenderDispatch {
     void (*setState)(u32 state, u32 value);
-} BattleRenderDispatch;
-extern s32 datItemCount(s16 id);
-extern s32 datCalcIsFlaggedPersonaSkill(s32 id);
+} BtlPanelRenderDispatch;
+extern s32 datItemCount(s16 itemId);
+extern s32 datCalcIsFlaggedPersonaSkill(s32 skillId);
 extern u8 *iGpffffb3b8;
 typedef struct {
     s16 id;
     u8 quantity;
     u8 reserved;
-} BattleListItem;
+} BtlPanelItem;
+
+/* Resource slots in BtlUiSprite's opaque +0x5C span, consumed by icon draws. */
+typedef struct BtlPanelIconResources {
+    s32 itemTexture;
+    s32 skillTexture;
+    u8 pad08[8];
+} BtlPanelIconResources;
+
+/* The action's opaque command tail holds the selected item and persona ids. */
+typedef struct BtlPanelActionChoice {
+    u16 item;
+    u8 pad02[2];
+    u16 persona;
+} BtlPanelActionChoice;
+
+/* btlListStart resets this 0x14-byte stack/list state independently of nodes. */
+typedef struct BtlSelectionList {
+    s32 unk00;
+    s32 unk04;
+    u8 *head;
+    u8 *current;
+    u8 *previous;
+} BtlSelectionList;
+
+/* Four saved {first row, selected row} pairs, reached through action+0x3F0. */
+typedef struct BtlSelectionCursorRecord {
+    struct {
+        s16 first;
+        s16 selected;
+    } slots[4];
+} BtlSelectionCursorRecord;
+
+/* btlPanelInitWork clears 0x5B4 bytes; six selection nodes occupy 40..177.
+ * Counter names follow their drawing consumers, not guessed game states. */
 typedef struct {
-    u8 prefix[0x194];
+    u16 state;
+    u16 previousState;
+    s32 flags;
+    s16 outlineFrame;
+    s16 scaleFrame;
+    s16 circleFrame;
+    s16 commandFrame;
+    s16 gridFrame;
+    s16 stripFrame;
+    s16 cursorSlide;
+    s16 listFrame;
+    s16 detailFrame;
+    s16 slideFrame;
+    s16 labelFrame;
+    s16 labelTitleFrame;
+    s16 clipFrame;
+    s16 titleFrame;
+    u8 outlineColor[4];
+    u8 pulseColor[4];
+    BtlSelectionList list;       /* 0x2C */
+    BtlSelection selections[6]; /* 0x40 */
+    u8 *action;                  /* 0x178 */
+    u8 *partyUnits[4];
+    u16 partyCount;
+    u8 pad18E[2];
+    u8 *selectedUnit;
     u16 skills[8];
     u16 skillCount;
-    BattleListItem items[256];
+    BtlPanelItem items[256];
     u16 itemCount;
-} BattleListWork;
-static inline void battleMenuExtendedStrip(BattleRenderDispatch *renderer,
+    u8 *personaTask;
+    s16 personaSlot;
+    u8 pad5AE[2];
+    s32 task;
+} BtlPanelWork;
+
+/* btlSelectionInitTransition clears 0x1C bytes and installs state/task. */
+typedef struct BtlSelectionTransition {
+    u16 flags;
+    u16 state;
+    u16 delay;
+    u8 pad06[2];
+    u8 *action;
+    u8 *previousAction;
+    u8 *targets;
+    u16 skill;
+    u8 pad16[2];
+    s32 task;
+} BtlSelectionTransition;
+
+/* Embedded at BtlUnit+0xA48; the row setters establish all three halfwords. */
+typedef struct BtlSelectionRow {
+    s16 state;
+    s16 counter;
+    s16 idleFrame;
+} BtlSelectionRow;
+
+typedef char BtlSelectionSizeCheck[sizeof(BtlSelection) == 0x34 ? 1 : -1];
+typedef char BtlPanelWorkSizeCheck[sizeof(BtlPanelWork) == 0x5B4 ? 1 : -1];
+typedef char BtlSelectionTransitionSizeCheck[sizeof(BtlSelectionTransition) == 0x1C ? 1 : -1];
+
+static inline void btlPanelDrawExtendedStrip(BtlPanelRenderDispatch *renderer,
                                           f32 x, f32 y, f32 progress)
 {
     void (**setState)(u32, u32);
@@ -235,13 +324,13 @@ static inline void battleMenuExtendedStrip(BattleRenderDispatch *renderer,
     (*setState)(6, 0);
 }
 struct FrFontNode;
-extern u16 func_0010f8c0(s32 arg0);
-extern s32 btlUnitGetDataRowAlt(u8 *arg0);
-extern void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1);
+extern u16 datGetSkillPropertyByte(s32 skillId);
+extern s32 btlUnitGetDataRowAlt(u8 *unit);
+extern void btlEffectSelectNeighbourTarget(u8 *action, u8 *selection);
 extern void btlPanelReleaseText(s32 task);
 extern void btlPanelMarkEntryTimed(s32 task);
-extern void btlPanelSetTarget(u8 *task, s32 arg1);
-extern void btlSelectionSetRowIdle(u8 *arg0);
+extern void btlPanelSetTarget(u8 *task, s32 unit);
+extern void btlSelectionSetRowIdle(u8 *row);
 extern u16 D_008C024E[];
 /* measured: caching D_00887300 in s0 reproduces retail's one-time
    lui/addiu vtable materialization across these callback calls. */
@@ -258,82 +347,82 @@ extern u16 D_008C024E[];
 /* measured: restore conditional rebuilding after callback completion. */
 // Intent: initialise a selection block with its callbacks and owner. [inferred]
 // FUN_00202C60
-void btlSelectionInit(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *arg5, void *arg6, u8 *arg7) {
-    memset(arg0, 0, 0x34);
-    *(s16 *)(arg0 + 6) = arg1;
-    *(s16 *)(arg0 + 8) = arg2;
-    *(void **)(arg0 + 0xC) = arg3;
-    *(void **)(arg0 + 0x10) = arg4;
-    *(void **)(arg0 + 0x14) = arg5;
-    *(void **)(arg0 + 0x1C) = arg6;
-    *(u8 **)(arg0 + 0x28) = arg7;
-    *(u16 *)(arg0 + 0) |= 8;
-    btlSelectionSetRepeat(arg0, NULL);
+void btlSelectionInit(u8 *selection, s16 pageSize, s16 count, void *initialize, void *handleInput, void *draw, void *saveCursor, u8 *owner) {
+    memset(selection, 0, 0x34);
+    ((BtlSelection *)selection)->pageSize = pageSize;
+    ((BtlSelection *)selection)->count = count;
+    ((BtlSelection *)selection)->initialize = initialize;
+    ((BtlSelection *)selection)->handleInput = handleInput;
+    ((BtlSelection *)selection)->draw = draw;
+    ((BtlSelection *)selection)->saveCursor = saveCursor;
+    ((BtlSelection *)selection)->owner = owner;
+    ((BtlSelection *)selection)->flags |= 8;
+    btlSelectionSetRepeat(selection, NULL);
 }
 
 // Intent: recompute the visible selection window (first row and page) from the selected index. [inferred]
 // FUN_00202D20
-void btlSelectionUpdateWindow(u8 *arg0, s64 arg1, s64 arg2)
+void btlSelectionUpdateWindow(u8 *selection, s64 selectedIndex, s64 firstIndex)
 {
-    s32 temp_3;
-    s16 temp_7;
-    s16 temp_8_2;
-    s32 temp_8;
-    s32 temp_9;
-    s64 var_6;
+    s32 lastFirst;
+    s16 pageSize;
+    s16 count;
+    s32 requestedFirst;
+    s32 selected;
+    s64 first;
 
-    var_6 = arg2;
-    temp_8 = (s16)var_6;
-    if ((temp_8 > 0) && (*(s16 *)(arg0 + 8) < (temp_8 + *(s16 *)(arg0 + 6)))) {
-        var_6 = 0;
+    first = firstIndex;
+    requestedFirst = (s16)first;
+    if ((requestedFirst > 0) && (((BtlSelection *)selection)->count < (requestedFirst + ((BtlSelection *)selection)->pageSize))) {
+        first = 0;
     }
-    temp_9 = (s16)arg1;
-    if (*(s16 *)(arg0 + 8) <= temp_9) {
-        *(s16 *)(arg0 + 2) = 0;
-        *(s16 *)(arg0 + 4) = 0;
+    selected = (s16)selectedIndex;
+    if (((BtlSelection *)selection)->count <= selected) {
+        ((BtlSelection *)selection)->first = 0;
+        ((BtlSelection *)selection)->selected = 0;
         return;
     }
-    temp_8_2 = *(s16 *)(arg0 + 8);
-    temp_7 = *(s16 *)(arg0 + 6);
-    if (temp_9 < ((s16)var_6 + temp_7)) {
-        *(s16 *)(arg0 + 2) = (u16)var_6;
-        *(s16 *)(arg0 + 4) = (u16)arg1;
+    count = ((BtlSelection *)selection)->count;
+    pageSize = ((BtlSelection *)selection)->pageSize;
+    if (selected < ((s16)first + pageSize)) {
+        ((BtlSelection *)selection)->first = (u16)first;
+        ((BtlSelection *)selection)->selected = (u16)selectedIndex;
         return;
     }
-    if (temp_9 < (temp_7 - 1)) {
-        *(s16 *)(arg0 + 2) = 0;
-        *(s16 *)(arg0 + 4) = (u16)arg1;
+    if (selected < (pageSize - 1)) {
+        ((BtlSelection *)selection)->first = 0;
+        ((BtlSelection *)selection)->selected = (u16)selectedIndex;
         return;
     }
-    temp_3 = temp_8_2 - temp_7;
-    if (temp_3 < temp_9) {
-        *(s16 *)(arg0 + 2) = temp_3;
-        *(s16 *)(arg0 + 4) = (u16)arg1;
+    lastFirst = count - pageSize;
+    if (lastFirst < selected) {
+        ((BtlSelection *)selection)->first = lastFirst;
+        ((BtlSelection *)selection)->selected = (u16)selectedIndex;
         return;
     }
-    *(s16 *)(arg0 + 2) = (s16)(temp_9 - 1);
-    *(s16 *)(arg0 + 4) = (u16)arg1;
+    ((BtlSelection *)selection)->first = (s16)(selected - 1);
+    ((BtlSelection *)selection)->selected = (u16)selectedIndex;
 }
 
 // Intent: set the key-repeat masks from a table or the default repeat values. [inferred]
 // FUN_00202E00
-void btlSelectionSetRepeat(u8 *arg0, s16 *arg1)
+void btlSelectionSetRepeat(u8 *selection, s16 *repeatMasks)
 {
-    if (arg1 != NULL) {
-        memcpy(arg0 + 0x2C, arg1, 8);
+    if (repeatMasks != NULL) {
+        memcpy(selection + 0x2C, repeatMasks, 8);
         return;
     }
-    *(s16 *)(arg0 + 0x2C) = 0x1000;
-    *(s16 *)(arg0 + 0x2E) = 0x4000;
-    *(u16 *)(arg0 + 0x30) = 0x8000;
-    *(s16 *)(arg0 + 0x32) = 0x2000;
+    ((BtlSelection *)selection)->previous = 0x1000;
+    ((BtlSelection *)selection)->next = 0x4000;
+    ((BtlSelection *)selection)->previousPage = 0x8000;
+    ((BtlSelection *)selection)->nextPage = 0x2000;
 }
 
 // Intent: store the owner pointer of a selection block. [inferred]
 // FUN_00202E60
-void btlSelectionSetOwner(u8 *arg0, void *arg1)
+void btlSelectionSetOwner(u8 *selection, void *callback)
 {
-    *(s32 *)(arg0 + 0x18) = (s32)arg1;
+    ((BtlSelection *)selection)->notify = callback;
 }
 
 #pragma push
@@ -341,17 +430,17 @@ void btlSelectionSetOwner(u8 *arg0, void *arg1)
 #pragma opt_loop_invariants on
 // Intent: read the selection input and return the action code (1 to 4) or 0. [inferred]
 // FUN_00202E70
-s32 btlSelectionReadInput(u8 *arg0)
+s32 btlSelectionReadInput(u8 *input)
 {
     extern u16 D_008C024E[];
     extern u16 D_008C0276[];
     extern u16 D_008C027A[];
-    BattleSelectionInput *selection;
+    BtlSelection *selection;
     s32 count;
     u32 repeat;
     u32 flags;
 
-    selection = (BattleSelectionInput *)arg0;
+    selection = (BtlSelection *)input;
     count = selection->count;
     if (selection->selected >= count) {
         s32 first;
@@ -506,84 +595,87 @@ s32 btlSelectionReadInput(u8 *arg0)
 #pragma pop
 // Intent: start a callback list at the given node and run each node's init callback. [inferred]
 // FUN_00203360
-void btlListStart(u8 *arg0, u8 *arg1) {
-    u8 *temp_16;
-    u8 *var_4;
+void btlListStart(u8 *list, u8 *head) {
+    u8 *next;
+    u8 *node;
 
-    *(s32 *)(arg0 + 0) = 0;
-    *(s32 *)(arg0 + 4) = 0;
-    *(s32 *)(arg0 + 0x10) = 0;
-    *(u8 **)(arg0 + 0xC) = arg1;
-    *(u8 **)(arg0 + 8) = arg1;
-    var_4 = arg1;
-    while (var_4 != NULL) {
-        temp_16 = *(u8 **)(var_4 + 0x24);
-        (*(void (**)(u8 *, s32))(var_4 + 0xC))(var_4, *(s32 *)(var_4 + 0x28));
-        var_4 = temp_16;
+    ((BtlSelectionList *)list)->unk00 = 0;
+    ((BtlSelectionList *)list)->unk04 = 0;
+    ((BtlSelectionList *)list)->previous = 0;
+    ((BtlSelectionList *)list)->current = head;
+    ((BtlSelectionList *)list)->head = head;
+    node = head;
+    while (node != NULL) {
+        next = ((BtlSelection *)node)->child;
+        ((void (*)(u8 *, s32))((BtlSelection *)node)->initialize)(node, (s32)((BtlSelection *)node)->owner);
+        node = next;
     }
 }
 
 // Intent: flush a callback list by running each node's exit callback and clearing the head. [inferred]
 // FUN_002033C0
-void btlListFlush(u8 *arg0) {
-    u8 *temp_16;
-    u8 *var_4;
+/* measured: typing the remaining head read changed eight compared bytes; keep its byte-addressed load. */
+void btlListFlush(u8 *list) {
+    u8 *next;
+    u8 *node;
 
-    var_4 = *(u8 **)(arg0 + 8);
-    while (var_4 != NULL) {
-        temp_16 = *(u8 **)(var_4 + 0x24);
-        (*(void (**)(u8 *, s32))(var_4 + 0x1C))(var_4, *(s32 *)(var_4 + 0x28));
-        var_4 = temp_16;
+    node = *(u8 **)(list + 8); /* measured: access-site field substitution loses MATCH. */
+    while (node != NULL) {
+        next = ((BtlSelection *)node)->child;
+        ((void (*)(u8 *, s32))((BtlSelection *)node)->saveCursor)(node, (s32)((BtlSelection *)node)->owner);
+        node = next;
     }
-    *(u8 **)(arg0 + 8) = NULL;
+    ((BtlSelectionList *)list)->head = NULL;
 }
 
 // Intent: advance the callback list according to the node's result code (stay, push, pop). [inferred]
 // FUN_00203420
-s32 btlListStep(u8 *arg0)
+/* measured: independently typing the remaining list/node links, owner words and callback accesses
+ * lost MATCH; keep those byte aliases alongside the typed fields. */
+s32 btlListStep(u8 *list)
 {
-    u8 *sp4C;
-    u8 *temp_17;
-    s32 temp_16;
-    u8 *temp_4;
+    u8 *next;
+    u8 *current;
+    s32 result;
+    u8 *previous;
 
-    temp_17 = *(u8 **)(arg0 + 0xC);
-    sp4C = *(u8 **)(temp_17 + 0x24);
-    temp_16 = (*(s32 (**)(u8 *, s32, u8 **))(temp_17 + 0x10))(
-        temp_17, *(s32 *)(temp_17 + 0x28), &sp4C) & 0xFFFF;
-    switch (temp_16) {
+    current = ((BtlSelectionList *)list)->current;
+    next = ((BtlSelection *)current)->child;
+    result = ((s32 (*)(u8 *, s32, u8 **))((BtlSelection *)current)->handleInput)(
+        current, *(s32 *)(current + 0x28), &next) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
+    switch (result) {
     case 1:
         break;
     case 2:
-        if (*(u8 **)(temp_17 + 0x20) != NULL) {
-            if (*(void (**)(u8 *, s32))(temp_17 + 0x1C) != NULL) {
-                (*(void (**)(u8 *, s32))(temp_17 + 0x1C))(
-                    temp_17, *(s32 *)(temp_17 + 0x28));
+        if (((BtlSelection *)current)->parent != NULL) {
+            if ((void (*)(u8 *, s32))((BtlSelection *)current)->saveCursor != NULL) {
+                ((void (*)(u8 *, s32))((BtlSelection *)current)->saveCursor)(
+                    current, *(s32 *)(current + 0x28)); /* measured: access-site field substitution loses MATCH. */
             }
-            *(u8 **)(arg0 + 0x10) = *(u8 **)(arg0 + 0xC);
-            *(u8 **)(arg0 + 0xC) = *(u8 **)(temp_17 + 0x20);
-            *(s32 *)(*(u8 **)(temp_17 + 0x20) + 0x24) = 0;
-            temp_4 = *(u8 **)(temp_17 + 0x20);
-            if (*(void (**)(u8 *, s32))(temp_4 + 0xC) != NULL) {
-                (*(void (**)(u8 *, s32))(temp_4 + 0xC))(
-                    temp_4, *(s32 *)(temp_4 + 0x28));
+            ((BtlSelectionList *)list)->previous = *(u8 **)(list + 0xC); /* measured: access-site field substitution loses MATCH. */
+            *(u8 **)(list + 0xC) = *(u8 **)(current + 0x20); /* measured: access-site field substitution loses MATCH. */
+            ((BtlSelection *)(*(u8 **)(current + 0x20)))->child = 0; /* measured: access-site field substitution loses MATCH. */
+            previous = *(u8 **)(current + 0x20); /* measured: access-site field substitution loses MATCH. */
+            if ((void (*)(u8 *, s32))((BtlSelection *)previous)->initialize != NULL) {
+                ((void (*)(u8 *, s32))((BtlSelection *)previous)->initialize)(
+                    previous, (s32)((BtlSelection *)previous)->owner);
             }
         }
         break;
     case 3:
-        if (sp4C != NULL) {
-            if (*(void (**)(u8 *, s32))(temp_17 + 0x1C) != NULL) {
-                (*(void (**)(u8 *, s32))(temp_17 + 0x1C))(
-                    temp_17, *(s32 *)(temp_17 + 0x28));
+        if (next != NULL) {
+            if ((void (*)(u8 *, s32))((BtlSelection *)current)->saveCursor != NULL) {
+                ((void (*)(u8 *, s32))((BtlSelection *)current)->saveCursor)(
+                    current, *(s32 *)(current + 0x28)); /* measured: access-site field substitution loses MATCH. */
             }
-            *(u8 **)(arg0 + 0x10) = *(u8 **)(arg0 + 0xC);
-            *(u8 **)(arg0 + 0xC) = sp4C;
-            *(u8 **)(sp4C + 0x20) = temp_17;
-            *(u8 **)(temp_17 + 0x24) = sp4C;
-            *(s32 *)(sp4C + 0x24) = 0;
-            if (*(void (**)(u8 *, s32))(sp4C + 0xC) != NULL) {
-                (*(void (**)(u8 *, s32))(sp4C + 0xC))(
-                    sp4C, *(s32 *)(sp4C + 0x28));
+            ((BtlSelectionList *)list)->previous = *(u8 **)(list + 0xC); /* measured: access-site field substitution loses MATCH. */
+            *(u8 **)(list + 0xC) = next; /* measured: access-site field substitution loses MATCH. */
+            ((BtlSelection *)next)->parent = current;
+            *(u8 **)(current + 0x24) = next; /* measured: access-site field substitution loses MATCH. */
+            ((BtlSelection *)next)->child = 0;
+            if ((void (*)(u8 *, s32))((BtlSelection *)next)->initialize != NULL) {
+                ((void (*)(u8 *, s32))((BtlSelection *)next)->initialize)(
+                    next, (s32)((BtlSelection *)next)->owner);
             }
         }
         break;
@@ -591,83 +683,87 @@ s32 btlListStep(u8 *arg0)
     case 5:
         break;
     }
-    return temp_16;
+    return result;
 }
 
 // Intent: run each list node's update callback with the list owner. [inferred]
 // FUN_002035A0
-void btlListDispatchUpdate(u8 *arg0) {
-    u8 *var_16;
+/* measured: typing the callback owner word at node+0x28 changed eight compared bytes; retain its
+ * signed address load. */
+void btlListDispatchUpdate(u8 *list) {
+    u8 *node;
 
-    var_16 = *(u8 **)(arg0 + 8);
-    while (var_16 != NULL) {
-        (*(void (**)(u8 *, s32, u8 *))(var_16 + 0x14))(var_16, *(s32 *)(var_16 + 0x28), arg0);
-        var_16 = *(u8 **)(var_16 + 0x24);
+    node = ((BtlSelectionList *)list)->head;
+    while (node != NULL) {
+        ((void (*)(u8 *, s32, u8 *))((BtlSelection *)node)->draw)(node, *(s32 *)(node + 0x28), list); /* measured: access-site field substitution loses MATCH. */
+        node = ((BtlSelection *)node)->child;
     }
 }
 
 // Intent: run each list node's optional callback with the list owner. [inferred]
 // FUN_00203600
-void btlListDispatchNotify(u8 *arg0) {
-    u8 *var_16;
+/* measured: typing the callback owner word at node+0x28 changed eight compared bytes; retain its
+ * signed address load. */
+void btlListDispatchNotify(u8 *list) {
+    u8 *node;
 
-    var_16 = *(u8 **)(arg0 + 8);
-    while (var_16 != NULL) {
-        void (*fn)(u8 *, s32, u8 *) = *(void (**)(u8 *, s32, u8 *))(var_16 + 0x18);
+    node = ((BtlSelectionList *)list)->head;
+    while (node != NULL) {
+        void (*fn)(u8 *, s32, u8 *) = (void (*)(u8 *, s32, u8 *))((BtlSelection *)node)->notify;
         if (fn != NULL) {
-            fn(var_16, *(s32 *)(var_16 + 0x28), arg0);
+            fn(node, *(s32 *)(node + 0x28), list); /* measured: access-site field substitution loses MATCH. */
         }
-        var_16 = *(u8 **)(var_16 + 0x24);
+        node = ((BtlSelection *)node)->child;
     }
 }
 
 /* measured: callback materialisation residual remains. Committed at nd 73. */
 // Intent: initialise the battle panel task state and its selection block. [inferred]
 // FUN_00203670
-void btlPanelInit(s32 unused, s32 arg1)
+void btlPanelInit(s32 unused, s32 actionAddress)
 {
     struct {
         s16 values[2];
         s32 pad;
-    } sp38;
-    s32 temp_4;
+    } repeatMasks;
+    s32 flags;
     s32 mask;
-    u8 *temp_2;
-    u8 *temp_16;
-    u8 *temp_18;
-    temp_2 = (u8 *)kwlnTaskGetWork();
-    temp_16 = temp_2 + 0x9C;
-    *(s32 *)(temp_2 + 0x214) = arg1;
-    *(s16 *)(temp_2 + 0x9C) = 1;
-    *(s16 *)(temp_2 + 0xA4) = 0;
+    u8 *taskWork;
+    u8 *panel;
+    u8 *selection;
+    taskWork = (u8 *)kwlnTaskGetWork();
+    panel = taskWork + 0x9C;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->action = (u8 *)actionAddress;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->state = 1;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->outlineFrame = 0;
     mask = -3;
-    *(s16 *)(temp_2 + 0xA6) = mask;
-    *(s16 *)(temp_2 + 0xA8) = 0;
-    *(s16 *)(temp_2 + 0xAA) = -9;
-    *(s16 *)(temp_2 + 0xAE) = 0;
-    *(s16 *)(temp_2 + 0xB0) = 0;
-    *(s16 *)(temp_2 + 0xBC) = 0;
-    *(s16 *)(temp_2 + 0xBE) = 0;
-    *(s16 *)(temp_2 + 0xB2) = 0;
-    *(s16 *)(temp_2 + 0xB4) = 0;
-    temp_4 = *(s32 *)(temp_2 + 0xA0);
-    temp_4 &= mask;
-    *(s32 *)(temp_2 + 0xA0) = temp_4;
-    temp_4 = temp_4 & 0xFFFFFFFEU;
-    *(s32 *)(temp_2 + 0xA0) = temp_4;
-    btlSelectionInit(temp_16 + 0x40, 8, 8,
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->scaleFrame = mask;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->circleFrame = 0;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->commandFrame = -9;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->stripFrame = 0;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->cursorSlide = 0;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->clipFrame = 0;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->titleFrame = 0;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->listFrame = 0;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->detailFrame = 0;
+    flags = ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags;
+    flags &= mask;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags = flags;
+    flags = flags & 0xFFFFFFFEU;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags = flags;
+    btlSelectionInit(panel + 0x40, 8, 8,
                   (void *)btlSelectionRefreshList, (void *)btlSelectionHandleInput,
-                  (void *)btlSelectionDrawCommands, (void *)btlSelectionSaveCursor, temp_16);
-    temp_18 = temp_16 + 0x40;
-    btlSelectionSetOwner(temp_18, (void *)btlSelectionDrawBar);
-    memset((s16 *)&sp38, 0, 8);
-    sp38.values[0] = 0x1000;
-    sp38.values[1] = 0x4000;
-    btlSelectionSetRepeat(temp_16 + 0x40, (s16 *)&sp38);
-    btlSelectionUpdateWindow(temp_16 + 0x40, 3, 0);
-    btlListStart(temp_16 + 0x2C, temp_16 + 0x40);
-    *(s32 *)(temp_16 + 0x2C) = 0;
-    *(s32 *)(temp_16 + 0x30) = 0;
+                  (void *)btlSelectionDrawCommands, (void *)btlSelectionSaveCursor, panel);
+    selection = panel + 0x40;
+    btlSelectionSetOwner(selection, (void *)btlSelectionDrawBar);
+    memset((s16 *)&repeatMasks, 0, 8);
+    repeatMasks.values[0] = 0x1000;
+    repeatMasks.values[1] = 0x4000;
+    btlSelectionSetRepeat(panel + 0x40, (s16 *)&repeatMasks);
+    btlSelectionUpdateWindow(panel + 0x40, 3, 0);
+    btlListStart(panel + 0x2C, panel + 0x40);
+    ((BtlPanelWork *)panel)->list.unk00 = 0;
+    ((BtlPanelWork *)panel)->list.unk04 = 0;
 }
 
 /* This and the selection helpers take the caller's task explicitly. Retail
@@ -677,33 +773,34 @@ void btlPanelInit(s32 unused, s32 arg1)
 // FUN_002037B0
 void btlPanelSetActive(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
-    u8 *p;
+    u8 *taskWork;
 
-    p = (u8 *)kwlnTaskGetWork((void *)task);
-    *(s16 *)(p + 0x9C) = 1;
+    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->state = 1;
 }
 
 // Intent: return the panel task state. [inferred]
 // FUN_002037E0
 u16 btlPanelGetState(void) {
-    return *(u16 *)((u8 *)kwlnTaskGetWork() + 0x9C);
+    return ((BtlPanelWork *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork())->panel)->state;
 }
 
 /* measured: opt_propagation off probe for 00203810 evaluation order. */
 /* measured: func_00203810 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_00203810
-s32 func_00203810(void)
+/* Return whether the current panel list node is the embedded command-selection node. */
+s32 btlPanelIsCommandSelectionActive(void)
 {
-    u8 *p;
-    u8 *base;
-    s32 field;
+    u8 *taskWork;
+    u8 *selectionAddress;
+    s32 currentAddress;
 
-    p = (u8 *)kwlnTaskGetWork();
-    base = p + 0x9C;
-    field = *(s32 *)(p + 0xD4);
-    base += 0x40;
-    return (s32)(field == (s32)base);
+    taskWork = (u8 *)kwlnTaskGetWork();
+    selectionAddress = taskWork + 0x9C;
+    currentAddress = (s32)((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->list.current;
+    selectionAddress += 0x40;
+    return (s32)(currentAddress == (s32)selectionAddress);
 }
 
 /* measured: close opt_propagation after func_00203810 probe. */
@@ -713,37 +810,39 @@ s32 func_00203810(void)
 // FUN_00203850
 s32 btlPanelIsReady(void)
 {
-    return *(s16 *)((u8 *)kwlnTaskGetWork() + 0xAA) < 2;
+    return ((BtlPanelWork *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork())->panel)->commandFrame < 2;
 }
 
 // FUN_00203880
-void func_00203880(s32 unusedTask, s32 unusedAction)
+/* Empty target-action notification handler; both caller-supplied addresses are unused. */
+void btlPanelOnTargetAction(s32 unusedTask, s32 unusedAction)
 {
 }
 
 // Intent: set the panel task state to closing. [inferred]
 // FUN_00203890
 void btlPanelSetClosing(void) {
-    u8 *p;
+    u8 *taskWork;
 
-    p = (u8 *)kwlnTaskGetWork();
-    *(s16 *)(p + 0x9C) = 4;
+    taskWork = (u8 *)kwlnTaskGetWork();
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->state = 4;
 }
 
 // Intent: reset the panel task state, list and sub-task pointers. [inferred]
 // FUN_002038C0
+/* measured: typing the persona-task clearing store at panel+0x5A8 loses MATCH. */
 void btlPanelReset(s32 task) {
-    u8 *b = (u8 *)kwlnTaskGetWork((void *)task) + 0x9C;
+    u8 *panel = (u8 *)kwlnTaskGetWork((void *)task) + 0x9C;
 
-    *(s32 *)(b + 4) &= ~2;
-    btlListFlush(b + 0x2C);
-    if (*(s32 *)(b + 0x5A8) != 0) {
-        shdPersonaFinishPhase(*(u8 **)(b + 0x5A8));
-        *(s32 *)(b + 0x5A8) = 0;
-        *(s16 *)(b + 0x5AC) = -1;
+    ((BtlPanelWork *)panel)->flags &= ~2;
+    btlListFlush(panel + 0x2C);
+    if (((BtlPanelWork *)panel)->personaTask != 0) {
+        shdPersonaFinishPhase(((BtlPanelWork *)panel)->personaTask);
+        *(s32 *)(panel + 0x5A8) = 0; /* measured: access-site field substitution loses MATCH. */
+        ((BtlPanelWork *)panel)->personaSlot = -1;
     }
-    *(s32 *)(b + 0x178) = 0;
-    *(s16 *)b = 0;
+    ((BtlPanelWork *)panel)->action = 0;
+    *(s16 *)panel = 0;
 }
 
 /* The outline and fill use separate initialization cursors and renderer
@@ -775,7 +874,7 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
     f32 sx3;
     f32 sy3;
     u32 vertex;
-    BattlePanelPrimitiveDispatch *draw;
+    BtlPanelPrimitiveDispatch *draw;
 
     scaleX *= fGpffff8488;
     scaleY *= fGpffff848c;
@@ -784,7 +883,7 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
     sx3 = fGpffff8494 * scaleX;
     sy3 = fGpffff8494 * scaleY;
     base = D_008872F8[0];
-    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+    reciprocal = 1.0f / ((RwCamera *)(u32)kwlnGetCamera())->nearPlane;
     D_00887300[0](1, 0);
     if ((a & 0xFF) == 0xFF) {
         shdEnableBlendFlag();
@@ -841,7 +940,7 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
                 vertex++;
             }
         }
-        draw = (BattlePanelPrimitiveDispatch *)D_00887310;
+        draw = (BtlPanelPrimitiveDispatch *)D_00887310;
         draw->draw(2, hi, vertex);
         vertex = 0;
         {
@@ -1001,7 +1100,7 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
             idx++;
         }
     }
-    draw = (BattlePanelPrimitiveDispatch *)D_00887310;
+    draw = (BtlPanelPrimitiveDispatch *)D_00887310;
     draw->draw(4, lo, 42);
     {
         u32 idx;
@@ -1087,7 +1186,7 @@ void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color
     scaleX *= fGpffff82e0;
     scaleY *= fGpffff82e4;
     transformedDepth = D_008872F8[0] - depth;
-    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+    reciprocal = 1.0f / ((RwCamera *)(u32)kwlnGetCamera())->nearPlane;
     for (initialize = 0; initialize < 81; initialize++) {
         f32 *out = vertices[initialize];
         out[2] = transformedDepth;
@@ -1149,7 +1248,9 @@ void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color
 #pragma opt_propagation off
 // Intent: set up the sky render state and draw the backdrop disc. [inferred]
 // FUN_00204A30
-void btlPanelDrawBackdrop(u8 *arg0, f32 fparg0, f32 fparg1)
+/* The rectangle wrapper consumes integer coordinate bits through its float-word interface; the
+ * RGBA cast likewise passes four packed bytes without numeric conversion. */
+void btlPanelDrawBackdrop(u8 *glyphs, f32 scaleX, f32 scaleY)
 {
     void (**base)(u32, u32);
     Work4 work;
@@ -1172,7 +1273,7 @@ void btlPanelDrawBackdrop(u8 *arg0, f32 fparg0, f32 fparg1)
     work.colors.c1 = 0xFF;
     work.colors.c2 = 0xFF;
     work.colors.c3 = 0x20;
-    btlPanelDrawCircle(arg0, fparg0, fparg1, 100.0f, *(s32 *)(void *)&work.colors);
+    btlPanelDrawCircle(glyphs, scaleX, scaleY, 100.0f, work.packedColor);
     RpSkyRenderStateSet(3, 0x717FB);
     base[0](8, 0);
 }
@@ -1187,7 +1288,7 @@ void btlPanelDrawBackdrop(u8 *arg0, f32 fparg0, f32 fparg1)
 #pragma opt_propagation off
 // Intent: draw a 3 by 5 grid of sprite frames with the given opacity. [inferred]
 // FUN_00204B80
-void btlPanelDrawSpriteGrid(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
+void btlPanelDrawSpriteGrid(u8 *glyphs, f32 unusedScaleX, f32 unusedScaleY, u8 opacity)
 {
     extern u8 D_00764564;
     s16 row;
@@ -1201,8 +1302,8 @@ void btlPanelDrawSpriteGrid(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
         state = D_00887300;
         state[0](6, 1);
     }
-    btlUiSetOrigin(arg0, 36.0f, 19.0f);
-    btlUiSetAlpha(arg0, 50.0f);
+    btlUiSetOrigin(glyphs, 36.0f, 19.0f);
+    btlUiSetAlpha(glyphs, 50.0f);
     btlUiSetRenderMode(2);
     y = 0.0f;
     row = 0;
@@ -1212,7 +1313,7 @@ void btlPanelDrawSpriteGrid(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
         while (column < 5) {
             frame = D_00764564 % 4;
             D_00764564++;
-            btlUiDrawSpriteFaded(arg0, 15, frame, x, y, 255, 255, 255, opacity);
+            btlUiDrawSpriteFaded(glyphs, 15, frame, x, y, 255, 255, 255, opacity);
             x += 126.0f;
             column++;
         }
@@ -1220,7 +1321,7 @@ void btlPanelDrawSpriteGrid(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
         row++;
     }
     btlUiSetRenderMode(0);
-    btlUiSetAlpha(arg0, 0.0f);
+    btlUiSetAlpha(glyphs, 0.0f);
     {
         void (**state)(u32, u32);
         state = D_00887300;
@@ -1235,21 +1336,21 @@ void btlPanelDrawSpriteGrid(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
 void btlPanelClearFlag(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    u8 *temp_2;
+    u8 *taskWork;
 
-    temp_2 = (u8 *)kwlnTaskGetWork((void *)task);
-    *(s16 *)(temp_2 + 0xAC) = 0;
-    *(s32 *)(temp_2 + 0xA0) &= ~1;
+    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->gridFrame = 0;
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags &= ~1;
 }
 
 // Intent: set the active bit of the task's state word. [inferred]
 // FUN_00204D90
 void btlPanelSetFlag(void)
 {
-    u8 *p;
+    u8 *taskWork;
 
-    p = (u8 *)kwlnTaskGetWork();
-    *(s32 *)(p + 0xA0) = *(s32 *)(p + 0xA0) | 0x1;
+    taskWork = (u8 *)kwlnTaskGetWork();
+    ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags = ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags | 0x1;
 }
 
 // Intent: draw a rotated battle-panel strip with an optional transparent extension. [inferred]
@@ -1283,7 +1384,7 @@ void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, 
         initialState = D_00887300;
         initialState[0](1, 0);
     }
-    reciprocal = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
+    reciprocal = 1.0f / ((RwCamera *)(u32)kwlnGetCamera())->nearPlane;
     depth = D_008872F8[0] - depth;
     radians = fGpffff836c * angle;
     cosine = cosf(radians);
@@ -1405,12 +1506,13 @@ void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, 
 #pragma opt_common_subs off
 /* measured: btlPanelDrawSkillEntry MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* measured: direct skill indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
 void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 z, s32 color,
-                              s32 mode, s32 flags, s32 skill);
+    extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth, s32 color,
+                              s32 font, s32 mode, s32 item);
     u8 *glyphs;
     u8 *unit;
     s32 skill;
@@ -1424,11 +1526,11 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
     f32 digitY;
     f32 digitX;
     Vec2f iconPosition;
-    BattleSkillIconColor iconColor;
+    BtlSkillIconColor iconColor;
 
-    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
-    unit = *(u8 **)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64);
-    skill = *(s16 *)(p4_002091f0_add((u32)(slot * 2), work) + 0x194);
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
+    unit = (u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit->datUnit;
+    skill = (s16)((BtlPanelWork *)(btlSelectionAddByteOffset((u32)(slot * 2), work)))->skills[0];
     if (skill >= 0x1B8 || datCalcThresholdTrigger(unit, (u16)skill) != 0) {
         if (highlighted != 0) {
             tone = 0x6E;
@@ -1447,7 +1549,7 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
     iconColor.b2 = tone;
     iconColor.b3 = opacity;
     ShdSkill_DrawIcon(iconPosition, 50.0f, iconColor, (u16)skill,
-                  *(s32 *)(glyphs + 0x60));
+                  ((BtlPanelIconResources *)((BtlUiSprite *)glyphs)->pad5C)->skillTexture);
     frFontSetFlagBits(0x40);
     alpha = opacity & 0xFF;
     textX = 42.0f + x;
@@ -1508,23 +1610,25 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
 #pragma opt_propagation off
 // Intent: draw one entry row (icon, name, digit and optional detail label). [inferred]
 // FUN_002055D0
+/* measured: independently typing the remaining item id/quantity indexing lost MATCH; retain the
+ * shared byte offset and signed quantity load. */
 void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
-                   u8 opacity, s32 highlighted, s32 show_detail)
+                   u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern void datEntryDrawFlagIcon(Vec2f arg0, f32 fparg0, s32 arg1,
-                              s16 arg2, s32 arg3, s32 arg4);
+    extern void datEntryDrawFlagIcon(Vec2f position, f32 depth, s32 packedColor,
+                              s16 itemId, s32 itemTexture, s32 badgeTexture);
     u8 *glyphs;
     u8 tone;
-    s32 off;
+    s32 itemOffset;
     s32 id;
     s32 digit;
-    s32 masked;
+    s32 alpha;
     s32 tens;
     s32 radix;
-    f32 digit_y;
-    f32 digit_x;
-    f32 fx;
+    f32 digitY;
+    f32 digitX;
+    f32 textX;
     const char *name;
     Vec2f pos;
     union {
@@ -1532,9 +1636,9 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
         s32 word;
     } color;
 
-    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
-    off = slot * 4;
-    id = *(s16 *)(p4_002091f0_add((u32)off, work) + 0x1A6);
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
+    itemOffset = slot * 4;
+    id = ((BtlPanelWork *)(btlSelectionAddByteOffset((u32)itemOffset, work)))->items[0].id;
     if (highlighted != 0) {
         tone = 0x1B;
     } else {
@@ -1547,44 +1651,44 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
     color.bytes.c2 = tone;
     color.bytes.c3 = opacity;
     datEntryDrawFlagIcon(pos, 50.0f, color.word, id,
-                  *(s32 *)(glyphs + 0x5C), *(s32 *)(glyphs + 0x60));
+                  ((BtlPanelIconResources *)((BtlUiSprite *)glyphs)->pad5C)->itemTexture, ((BtlPanelIconResources *)((BtlUiSprite *)glyphs)->pad5C)->skillTexture);
     frFontSetFlagBits(0x40);
-    masked = opacity & 0xFF;
-    fx = 42.0f + x;
+    alpha = opacity & 0xFF;
+    textX = 42.0f + x;
     name = (const char *)datGetItemNameId(id);
     {
-        f32 text_y = (2.0f + y) - 1.0f;
+        f32 textY = (2.0f + y) - 1.0f;
         f32 depth = 50.0f;
         u32 high = (u8)tone;
-        frFontExDrawTextWithCharWidth(fx, text_y, depth,
+        frFontExDrawTextWithCharWidth(textX, textY, depth,
                       (high << 24) | (high << 16) |
-                          ((u32)(u8)tone << 8) | masked,
+                          ((u32)(u8)tone << 8) | alpha,
                       0, 1, name, 0, -1);
     }
     frFontClearFlagBits(0x40);
     btlUiDrawSpriteFaded(glyphs, 0xC, 0x47, (374.0f + x) - 97.0f,
                   (157.0f + y) - 145.0f, tone, tone, tone, opacity);
-    digit = *(s8 *)(p4_002091f0_add((u32)off, work) + 0x1A8);
-    digit_y = (155.0f + y) - 145.0f;
-    digit_x = (398.0f + x) - 97.0f;
-    btlUiDrawSpriteFaded(glyphs, 0xC, (digit % 10) + 9, 16.0f + digit_x,
-                  digit_y, tone, tone, tone, opacity);
+    digit = (s8)((BtlPanelWork *)(btlSelectionAddByteOffset((u32)itemOffset, work)))->items[0].quantity;
+    digitY = (155.0f + y) - 145.0f;
+    digitX = (398.0f + x) - 97.0f;
+    btlUiDrawSpriteFaded(glyphs, 0xC, (digit % 10) + 9, 16.0f + digitX,
+                  digitY, tone, tone, tone, opacity);
     radix = 10;
     tens = digit / radix;
     if (tens != 0) {
-        btlUiDrawSpriteFaded(glyphs, 0xC, (tens % radix) + 9, digit_x, digit_y,
+        btlUiDrawSpriteFaded(glyphs, 0xC, (tens % radix) + 9, digitX, digitY,
                       tone, tone, tone, opacity);
     }
-    if (show_detail != 0) {
+    if (showDetail != 0) {
         frFontSetFlagBits(0x40);
         {
             s32 labelX;
             s32 labelY;
             s32 item;
-            labelX = (s32)(10.0f + ((2.0f + fx) - 1.0f));
+            labelX = (s32)(10.0f + ((2.0f + textX) - 1.0f));
             labelY = (s32)(36.0f + y);
             item = (s16)id;
-            func_002bc4b0(0.0f, item, labelX, labelY, masked | ~0xFF, 1, 0);
+            fclMesWindowDrawItemCategory(0.0f, item, labelX, labelY, alpha | ~0xFF, 1, 0);
         }
         frFontClearFlagBits(0x40);
     }
@@ -1610,11 +1714,11 @@ void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
     s32 level;
     s32 tens;
     s32 radix;
-    f32 digit_y;
-    f32 digit_x;
+    f32 digitY;
+    f32 digitX;
     const char *name;
 
-    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
     persona = (u8 *)datPersonaRosterSlot((s16)slot);
     if (slot == (s16)datPersonaGetLeadSlot()) {
         btlUiDrawSpriteFaded(glyphs, 13, 0x2B, -11.0f + x, 6.0f + y,
@@ -1632,25 +1736,25 @@ void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
     btlUiDrawSpriteFaded(glyphs, 13, 0x2A, 33.0f + x, 12.0f + y,
                   tone, tone, tone, opacity);
     level = (u8)datPersonaGetLevel(persona);
-    digit_y = 5.0f + y;
-    digit_x = 63.0f + x;
-    btlUiDrawSpriteFaded(glyphs, 13, level % 10 + 0x1D, 22.0f + digit_x,
-                  digit_y, tone, tone, tone, opacity);
+    digitY = 5.0f + y;
+    digitX = 63.0f + x;
+    btlUiDrawSpriteFaded(glyphs, 13, level % 10 + 0x1D, 22.0f + digitX,
+                  digitY, tone, tone, tone, opacity);
     radix = 10;
     tens = level / radix;
     if (tens != 0) {
-        btlUiDrawSpriteFaded(glyphs, 13, tens % radix + 0x1D, digit_x,
-                      digit_y, tone, tone, tone, opacity);
+        btlUiDrawSpriteFaded(glyphs, 13, tens % radix + 0x1D, digitX,
+                      digitY, tone, tone, tone, opacity);
     }
     frFontSetFlagBits(0x40);
-    name = (const char *)datPersonaGetRow(*(u16 *)(persona + 2));
+    name = (const char *)datPersonaGetRow(((DatPersonaRecord *)persona)->id);
     {
-        f32 text_x = 151.0f + x;
-        f32 text_y = (4.0f + y) - 1.0f;
+        f32 textX = 151.0f + x;
+        f32 textY = (4.0f + y) - 1.0f;
         f32 depth = 50.0f;
         u32 high = (u8)tone;
         frFontExDrawTextWithCharWidth(
-            text_x, text_y, depth,
+            textX, textY, depth,
             (high << 24) | (high << 16) | ((u32)(u8)tone << 8) | (u8)opacity,
             0, 1, name, 0, -1);
     }
@@ -1678,7 +1782,7 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
     u8 tone;
     const char *name;
 
-    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
     if (highlighted != 0) {
         tone = 0x1B;
     } else {
@@ -1686,14 +1790,14 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
     }
     persona = ((u8 **)(work + 0x17C))[slot];
     frFontSetFlagBits(0x40);
-    name = (const char *)datPersonaNamePart1(*(s16 *)(persona + 0xA4));
+    name = (const char *)datPersonaNamePart1((s16)((BtlUnit *)persona)->charId);
     {
-        f32 text_x = 1.0f + x;
-        f32 text_y = (19.0f + y) - 3.0f;
+        f32 textX = 1.0f + x;
+        f32 textY = (19.0f + y) - 3.0f;
         f32 depth = 50.0f;
         u32 high = (u8)tone;
         frFontExDrawText(
-            text_x, text_y, depth,
+            textX, textY, depth,
             (high << 24) | (high << 16) | ((u32)(u8)tone << 8) | (u8)opacity,
             0, 1, name, 0, 0);
     }
@@ -1701,7 +1805,7 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
     btlUiDrawSpriteFaded(glyphs, 9, 0x3C, 155.0f + x,
                   24.0f + y, tone, tone, tone, opacity);
     btlUiDrawSpriteFaded(
-        glyphs, 9, func_00105f00(*(s16 *)(persona + 0xA4)) + 0x3F,
+        glyphs, 9, datGetUnitAiTactic((s16)((BtlUnit *)persona)->charId) + 0x3F,
         178.0f + x, 16.0f + y, tone, tone, tone,
         opacity);
 }
@@ -1715,25 +1819,25 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
 // Intent: draw one list row with its marker sprites and optional text. [inferred]
 // FUN_00205E00
 void btlPanelDrawListRow(u8 *panel, s32 index, f32 x, f32 y,
-                   u8 opacity, s32 selected, s32 draw_text)
+                   u8 opacity, s32 selected, s32 drawText)
 {
     u8 *work;
     u8 color;
-    f32 line_y;
+    f32 lineY;
 
-    work = (u8 *)kwlnTaskGetWork(*(void **)(panel + 0x5B0));
+    work = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
     if (selected != 0) color = 0x1B;
     else color = 0xFF;
-    line_y = 8.0f + y;
-    btlUiDrawSpriteFaded(work, 9, 0x3C, 48.0f + x, line_y, color, color, color, opacity);
-    btlUiDrawSpriteFaded(work, 9, 0x3C, 270.0f + x, line_y, color, color, color, opacity);
+    lineY = 8.0f + y;
+    btlUiDrawSpriteFaded(work, 9, 0x3C, 48.0f + x, lineY, color, color, color, opacity);
+    btlUiDrawSpriteFaded(work, 9, 0x3C, 270.0f + x, lineY, color, color, color, opacity);
     btlUiDrawSpriteFaded(work, 9, (s32)((u32)index + 0x3FU), 71.0f + x, y,
                   color, color, color, opacity);
-    if (draw_text != 0) {
+    if (drawText != 0) {
         frFontSetFlagBits(0x40);
         itfMesWindowDrawEntry(10.0f + (2.0f + (42.0f + x) - 1.0f), 36.0f + y, 0.0f,
                       (s32)(0xFFFFFF00U | (u8)opacity), 1, 0, 0,
-                      *(s32 *)(work + 0x98), index);
+                      ((BtlUiTaskWork *)work)->messageWindow, index);
         frFontClearFlagBits(0x40);
     }
 }
@@ -1746,14 +1850,15 @@ void btlPanelDrawListRow(u8 *panel, s32 index, f32 x, f32 y,
  * order. See docs/probe_archive/Battle_selection_00205ff0_20260923.md. */
 // Intent: draw the battle selection list, rows and highlight, through the render callback. [inferred]
 // FUN_00205FF0
-void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, BattleSelectionDraw callback)
+/* measured: typing the remaining flags read independently lost MATCH; other panel fields remain typed. */
+void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, BtlSelectionDraw callback)
 {
     extern u32 kwlnTaskGetWork(void *task);
     extern f32 fGpffff809c;
     extern f32 fGpffff8198;
-    BattleSelectionInput *list;
-    BattleSelectionDraw drawSelection;
-    BattleRenderDispatch *renderer;
+    BtlSelection *list;
+    BtlSelectionDraw drawSelection;
+    BtlPanelRenderDispatch *renderer;
     u8 *glyphs;
     f32 slideProgress;
     f32 offsetX;
@@ -1788,17 +1893,17 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
         Color4 colors;
     } clip;
 
-    list = (BattleSelectionInput *)selectionState;
+    list = (BtlSelection *)selectionState;
     scaleOrRowY = inputScaleX;
     drawSelection = callback;
-    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(state + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)state)->task);
     showScroll = 1;
     showPrompt = 1;
-    if (*(s32 *)(state + 4) & 4) {
+    if (*(s32 *)(state + 4) & 4) { /* measured: access-site field substitution loses MATCH. */
         f32 raw;
         f32 clamped;
         verticalWork = 4.0f;
-        raw = (f32)*(s16 *)(state + 0x16) / verticalWork;
+        raw = (f32)((BtlPanelWork *)state)->listFrame / verticalWork;
         unitOrScrollX = 1.0f;
         clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
         easingWork = 2.0f;
@@ -1811,7 +1916,7 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
         f32 clamped;
         verticalWork = 4.0f;
         unitOrScrollX = 1.0f;
-        raw = unitOrScrollX - (f32)*(s16 *)(state + 0x16) / verticalWork;
+        raw = unitOrScrollX - (f32)((BtlPanelWork *)state)->listFrame / verticalWork;
         clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
         easingWork = 2.0f;
         slideProgress = unitOrScrollX - ((easingWork * clamped) - (clamped * clamped));
@@ -1831,7 +1936,7 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
         btlUiDrawSpriteFaded(glyphs, 9, 0x18, 261.0f, 410.0f, 0x21, 0x21, 0x21, 0xFF);
         btlUiDrawSpriteFaded(glyphs, 9, 0x2A, 261.0f, 410.0f, 0xFF, 0x7F, 0xE9, 0xFF);
         if (selectionState != state + 0x144) {
-            if (*(s32 *)(state + 4) & 4) {
+            if (((BtlPanelWork *)state)->flags & 4) {
                 btlUiDrawSpriteEntry(glyphs, 9, 0x2B, 283.0f, 410.0f);
             } else {
                 btlUiDrawSpriteEntry(glyphs, 9, 0x2C, 283.0f, 410.0f);
@@ -1843,11 +1948,11 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
     {
         f32 raw;
         f32 clamped;
-        raw = (f32)*(s16 *)(state + 0x20) / verticalWork;
+        raw = (f32)((BtlPanelWork *)state)->clipFrame / verticalWork;
         clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
         clipProgress = unitOrScrollX - ((easingWork * clamped) - (clamped * clamped));
     }
-    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer = (BtlPanelRenderDispatch *)D_00887300;
     renderer->setState(6, 1);
     verticalWork = 70.0f * clipProgress;
     upperEdgeY = 129.0f + offsetY + verticalWork;
@@ -1856,8 +1961,8 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
     verticalWork = (274.0f + offsetY) - verticalWork;
     btlUiDrawSpriteEntry(glyphs, 9, 0x26, horizontalWork, verticalWork);
     if (!(clipProgress <= 0.0f)) {
-        BattleRenderDispatch *clipRenderer;
-        clipRenderer = (BattleRenderDispatch *)D_00887300;
+        BtlPanelRenderDispatch *clipRenderer;
+        clipRenderer = (BtlPanelRenderDispatch *)D_00887300;
         clipRenderer->setState(1, 0);
         clipRenderer->setState(8, 1);
         clip.colors.c0 = 0;
@@ -1885,7 +1990,7 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
     {
         f32 raw;
         f32 clamped;
-        raw = (f32)*(s16 *)(state + 0x22) / 10.0f;
+        raw = (f32)((BtlPanelWork *)state)->titleFrame / 10.0f;
         clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
         clamped = 1.0f - ((easingWork * clamped) - (clamped * clamped));
         {
@@ -1940,17 +2045,17 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
         f32 selectionX;
         f32 selectionY;
         s32 showDetail;
-        if (*(s32 *)(state + 4) & 4) {
+        if (((BtlPanelWork *)state)->flags & 4) {
             f32 raw;
             f32 clamped;
-            raw = (f32)*(s16 *)(state + 0x18) / 7.0f;
+            raw = (f32)((BtlPanelWork *)state)->detailFrame / 7.0f;
             clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
             easingWork = (easingWork * clamped) - (clamped * clamped);
             slideDistance = -410.0f;
         } else {
             f32 raw;
             f32 clamped;
-            raw = 1.0f - (f32)*(s16 *)(state + 0x18) / 7.0f;
+            raw = 1.0f - (f32)((BtlPanelWork *)state)->detailFrame / 7.0f;
             clamped = raw > 1.0f ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
             easingWork = unitOrScrollX - ((easingWork * clamped) - (clamped * clamped));
             slideDistance = -530.0f;
@@ -2031,7 +2136,7 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
 // Intent: draw the selection panel's eased slide-in and its selection list. [inferred]
 // FUN_00206DD0
 void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
-                   BattleSelectionDraw drawSelection)
+                   BtlSelectionDraw drawSelection)
 {
     u8 *glyphs;
     f32 progress;
@@ -2044,12 +2149,12 @@ void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
     f32 row;
     s32 rect[4];
     Color4 color;
-    BattleRenderDispatch *renderer;
+    BtlPanelRenderDispatch *renderer;
 
-    glyphs = (u8 *)kwlnTaskGetWork(*(s32 *)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork(((BtlPanelWork *)work)->task);
     btlUiSetOrigin(glyphs, x, y);
 
-    progress = (f32)(*(s16 *)(work + 0x1A)) / 4.0f;
+    progress = (f32)(((BtlPanelWork *)work)->slideFrame) / 4.0f;
     if (progress > 1.0f) {
         clamped = 1.0f;
     } else if (progress < 0.0f) {
@@ -2063,7 +2168,7 @@ void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
         return;
     }
 
-    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer = (BtlPanelRenderDispatch *)D_00887300;
     renderer->setState(8, 1);
     if (scale < 1.0f) {
         renderer->setState(1, 0);
@@ -2089,11 +2194,11 @@ void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
     btlUiDrawSpriteEntry(glyphs, 9, 0x31, 470.0f, row);
 
     btlUiSetScale(glyphs, 1.0f, 1.0f);
-    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer = (BtlPanelRenderDispatch *)D_00887300;
     renderer->setState(8, 0);
     btlUiSetAlpha(glyphs, 150.0f);
     renderer->setState(6, 1);
-    drawSelection(work, *(s16 *)(selection + 4), 127.0f, 338.0f, 0xFF, 0, 0);
+    drawSelection(work, ((BtlSelection *)selection)->selected, 127.0f, 338.0f, 0xFF, 0, 0);
     renderer->setState(6, 0);
     btlUiSetAlpha(glyphs, 0.0f);
     btlUiDrawSpriteEntry(glyphs, 9, 0x32, 215.0f, 412.0f);
@@ -2105,6 +2210,7 @@ void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
  * Store each accepted signed item ID before its second quantity query. */
 // Intent: refresh the selection's skill and item lists from the unit and persona data. [inferred]
 // FUN_00207140
+/* Saved cursors use the shared action target-block union and four typed cursor records. */
 void btlSelectionRefreshList(u16 *flags, u8 *work)
 {
     u8 *action;
@@ -2117,36 +2223,36 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
     u16 itemSlot;
 
     if (datGetFlag(0x3C) != 0) {
-        action = *(u8 **)(*(u8 **)(work + 0x178) + 0x3F0);
+        action = (u8 *)((BtlAction *)(((BtlPanelWork *)work)->action))->targetBlock.recovery.savedCursors;
         if (action != NULL) {
-            btlSelectionUpdateWindow((u8 *)flags, *(s16 *)(action + 2), *(s16 *)action);
+            btlSelectionUpdateWindow((u8 *)flags, ((BtlSelectionCursorRecord *)action)->slots[0].selected, *(s16 *)action);
         }
     }
     *flags |= 4;
     *flags |= 2;
     skillCount = 0;
-    unit = *(u8 **)(*(u8 **)(work + 0x178) + 0x30);
+    unit = (u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit;
     if (unit[0xA2] == 0) {
-        persona = (u8 *)datPersonaGetRecord(*(u16 *)(unit + 0xA4));
+        persona = (u8 *)datPersonaGetRecord(((BtlUnit *)unit)->charId);
         for (skillSlot = 0; skillSlot < 8; skillSlot++) {
             skill = datPersonaGetSkillAt((DatPersonaRecord *)persona, (s16)skillSlot);
-            if (skill != 0 && skill < 0x1B8 && (*(u8 *)(skill * 0x28 + iGpffffb3b8 + 1) & 2)) {
-                *(u16 *)(work + skillCount * 2 + 0x194) = skill;
+            if (skill != 0 && skill < 0x1B8 && (((DatSkillEntry *)iGpffffb3b8)[skill].flags01 & 2)) {
+                ((BtlPanelWork *)work)->skills[skillCount] = skill;
                 skillCount++;
             }
         }
     }
-    *(u16 *)(work + 0x1A4) = skillCount;
+    ((BtlPanelWork *)work)->skillCount = skillCount;
     itemCount = 0;
     for (itemSlot = 0; itemSlot < 0x100; itemSlot++) {
         if (datItemCount((s16)(itemSlot + 0x300)) != 0 &&
             datCalcIsFlaggedPersonaSkill((u16)(itemSlot + 0x300)) != 0) {
-            ((BattleListWork *)work)->items[itemCount].id = itemSlot + 0x300;
-            ((BattleListWork *)work)->items[itemCount].quantity = datItemCount((s16)(itemSlot + 0x300));
+            ((BtlPanelWork *)work)->items[itemCount].id = itemSlot + 0x300;
+            ((BtlPanelWork *)work)->items[itemCount].quantity = datItemCount((s16)(itemSlot + 0x300));
             itemCount++;
         }
     }
-    *(u16 *)(work + 0x5A6) = itemCount;
+    ((BtlPanelWork *)work)->itemCount = itemCount;
 }
 
 /* 2008/2016 bytes, with eight zero alignment bytes. The callback receives
@@ -2158,36 +2264,38 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
 #pragma opt_loop_invariants on
 // Intent: handle selection input and return the next panel state. [inferred]
 // FUN_00207320
+/* measured: independently typing the remaining task/action, selected-row and panel-counter reads
+ * lost MATCH, including signed skill/item-count reads. Keep those accesses byte-addressed. */
 s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern s32 func_001f0620(u8 *arg0, s64 arg1);
-    extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern s32 btlTargetCheckCommandAvailability(u8 *action, s64 kind);
+    extern s32 btlActionRunTargetCallback(s32 context, u16 argument, s32 option, s32 extra, s32 argumentMode);
     extern s32 datCalcDefaultSkillId(u8 *unit);
-    extern u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern void btlSelectionInit(u8 *arg0, s16 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
-    extern void btlSelectionSetOwner(u8 *arg0, void *arg1);
-    extern void btlUiSelectEffect(s32 arg0, u32 arg1);
-    extern void btlSelectionResetState(u8 *arg0, u8 *arg1);
-    extern u16 btlSelectionHandleSkillInput(u8 *arg0, u8 *arg1);
-    extern void btlSelectionDrawSkillPanel(u8 *arg0, s32 arg1, f32 *arg2);
-    extern void btlSelectionStepAnim(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void btlSelectionSaveCursorSecond(u8 *arg0, u8 *arg1);
-    extern void btlSelectionResetPageState(u8 *arg0, u8 *arg1);
-    extern u16 btlSelectionHandleItemInput(u8 *arg0, u8 *arg1);
-    extern void btlSelectionDrawItemPanel(u8 *arg0, s32 arg1, f32 *arg2);
-    extern void btlSelectionStepItemAnim(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void btlSelectionSaveCursorThird(u8 *arg0, u8 *arg1);
-    extern void btlSelectionResetSubListState(u8 *arg0, u8 *arg1);
-    extern u16 btlSelectionOpenSubList(u8 *arg0, s32 arg1, u8 **arg2);
-    extern void btlSelectionDrawTitle(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void btlSelectionDrawPersonaList(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void btlSelectionSaveCursorFourth(u8 *arg0, u8 *arg1);
-    extern void btlSelectionResetCursorState(u16 *arg0, u8 *arg1);
-    extern u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1);
-    extern void btlSelectionDrawSwapPanel(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void btlSelectionDrawLevelList(s32 arg0, u8 *arg1, f32 *arg2);
-    extern void func_0020ad70(void);
+    extern u8 *shdPersonaTaskCreate(s32 parentTask, s32 priority, s32 state, s32 openDuration, s32 closeDuration);
+    extern void btlSelectionInit(u8 *selection, s16 pageSize, s16 count, void *initialize, void *handleInput, void *draw, void *saveCursor, u8 *owner);
+    extern void btlSelectionSetOwner(u8 *selection, void *callback);
+    extern void btlUiSelectEffect(s32 unit, u32 entryId);
+    extern void btlSelectionResetState(u8 *selection, u8 *panel);
+    extern u16 btlSelectionHandleSkillInput(u8 *selection, u8 *panel);
+    extern void btlSelectionDrawSkillPanel(u8 *selection, s32 panelAddress, f32 *originOrRenderer);
+    extern void btlSelectionStepAnim(u8 *selection, u8 *panel, f32 *origin);
+    extern void btlSelectionSaveCursorSecond(u8 *selection, u8 *panel);
+    extern void btlSelectionResetPageState(u8 *selection, u8 *panel);
+    extern u16 btlSelectionHandleItemInput(u8 *selection, u8 *panel);
+    extern void btlSelectionDrawItemPanel(u8 *selection, s32 panelAddress, f32 *originOrRenderer);
+    extern void btlSelectionStepItemAnim(u8 *selection, u8 *panel, f32 *origin);
+    extern void btlSelectionSaveCursorThird(u8 *selection, u8 *panel);
+    extern void btlSelectionResetSubListState(u8 *selection, u8 *panel);
+    extern u16 btlSelectionOpenSubList(u8 *selection, s32 panelAddress, u8 **nextPanel);
+    extern void btlSelectionDrawTitle(u8 *selection, u8 *panel, f32 *originOrRenderer);
+    extern void btlSelectionDrawPersonaList(u8 *selection, u8 *panel, f32 *origin);
+    extern void btlSelectionSaveCursorFourth(u8 *selection, u8 *panel);
+    extern void btlSelectionResetCursorState(u16 *selection, u8 *panel);
+    extern u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel);
+    extern void btlSelectionDrawSwapPanel(u8 *selection, u8 *panel, f32 *originOrRenderer);
+    extern void btlSelectionDrawLevelList(s32 selection, u8 *panel, f32 *origin);
+    extern void btlSelectionEndSwapList(void);
     u8 *work;
     u8 *panel;
     u8 *action;
@@ -2197,157 +2305,157 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     s32 partyCount;
 
     work = (u8 *)(u32)workAddress;
-    if (*(s16 *)(kwlnTaskGetWork(*(void **)(work + 0x5B0)) + 0xAA) < 2) {
+    if (((BtlPanelWork *)((BtlUiTaskWork *)(u32)kwlnTaskGetWork(*(void **)(work + 0x5B0)))->panel)->commandFrame < 2) { /* measured: access-site field substitution loses MATCH. */
         return 1;
     }
-    if (*(s16 *)(work + 0x14) != 0) {
+    if (*(s16 *)(work + 0x14) != 0) { /* measured: access-site field substitution loses MATCH. */
         return 1;
     }
     input = btlSelectionReadInput(selection) & 0xFFFF;
     if (input == 1) {
-    if (*(s16 *)(selection + 4) != 3) {
+    if (*(s16 *)(selection + 4) != 3) { /* measured: access-site field substitution loses MATCH. */
         sdkSndStartStream(0, 0, 0, 2);
     }
-    *(s16 *)(selection + 4) = 3;
-    *(s16 *)(selection + 2) = 0;
+    ((BtlSelection *)selection)->selected = 3;
+    ((BtlSelection *)selection)->first = 0;
     } else if (input == 4) {
-    if (func_001f0620(*(u8 **)(work + 0x178), 0xA) == 0) {
+    if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 0xA) == 0) { /* measured: access-site field substitution loses MATCH. */
         return 1;
     }
     sdkSndStartStream(0, 0, 0, 3);
-    *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 0xA;
+    ((BtlAction *)*(u8 **)(work + 0x178))->unk_6c = 0xA; /* measured: access-site field substitution loses MATCH. */
     if (datGetFlag(0x38) != 0) {
         subAction = 0x10B;
     } else {
         subAction = 0x110;
     }
-    *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) = subAction;
+    ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6e = subAction;
     return 4;
     } else if (input == 5) {
-    *(s16 *)(work + 0x14) = -3;
+    ((BtlPanelWork *)work)->cursorSlide = -3;
     } else if (input == 6) {
-    *(s16 *)(work + 0x14) = 3;
+    ((BtlPanelWork *)work)->cursorSlide = 3;
     } else if (input == 2) {
-    switch (*(s16 *)(selection + 4)) {
+    switch (((BtlSelection *)selection)->selected) {
     case 3:
-        if (func_001f0620(*(u8 **)(work + 0x178), 1) == 0) {
+        if (btlTargetCheckCommandAvailability(((BtlPanelWork *)work)->action, 1) == 0) {
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
-        *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 1;
-        *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) =
-            datCalcDefaultSkillId(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64));
+        ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6c = 1;
+        ((BtlAction *)*(u8 **)(work + 0x178))->unk_6e = /* measured: access-site field substitution loses MATCH. */
+            datCalcDefaultSkillId((u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit->datUnit);
         break;
     case 4:
-        if (func_001f0620(*(u8 **)(work + 0x178), 2) == 0) {
-            if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64), 8) != 0) {
-                btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x90);
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 2) == 0) { /* measured: access-site field substitution loses MATCH. */
+            if (datCalcChkBadStatus((DatUnit *)((BtlAction *)*(u8 **)(work + 0x178))->unit->datUnit, 8) != 0) { /* measured: access-site field substitution loses MATCH. */
+                btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x90);
             }
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
-        datPersonaGetRecord(*(u16 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA4));
-        btlSelectionInit(work + 0x74, 4, *(s16 *)(work + 0x1A4), btlSelectionResetState,
+        datPersonaGetRecord(((BtlAction *)((BtlPanelWork *)work)->action)->unit->charId);
+        btlSelectionInit(work + 0x74, 4, *(s16 *)(work + 0x1A4), btlSelectionResetState, /* measured: access-site field substitution loses MATCH. */
                       btlSelectionHandleSkillInput, btlSelectionDrawSkillPanel, btlSelectionSaveCursorSecond, work);
         panel = work + 0x74;
         *nextPanel = panel;
         btlSelectionSetOwner(panel, btlSelectionStepAnim);
-        *(s16 *)(work + 0x10) = 0;
-        *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
+        ((BtlPanelWork *)work)->gridFrame = 0;
+        ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 6:
-        if (func_001f0620(*(u8 **)(work + 0x178), 3) == 0 || *(s16 *)(work + 0x5A6) == 0) {
-            if (*(s16 *)(work + 0x5A6) == 0) {
-                btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x92);
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 3) == 0 || *(s16 *)(work + 0x5A6) == 0) { /* measured: access-site field substitution loses MATCH. */
+            if ((s16)((BtlPanelWork *)work)->itemCount == 0) {
+                btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x92);
             }
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
-        btlSelectionInit(work + 0xA8, 4, *(s16 *)(work + 0x5A6), btlSelectionResetPageState, btlSelectionHandleItemInput,
+        btlSelectionInit(work + 0xA8, 4, ((BtlPanelWork *)work)->itemCount, btlSelectionResetPageState, btlSelectionHandleItemInput,
                       btlSelectionDrawItemPanel, btlSelectionSaveCursorThird, work);
         panel = work + 0xA8;
         *nextPanel = panel;
         btlSelectionSetOwner(panel, btlSelectionStepItemAnim);
-        *(s16 *)(work + 0x10) = 0;
-        *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
+        ((BtlPanelWork *)work)->gridFrame = 0;
+        ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 1:
-        if (func_001f0620(*(u8 **)(work + 0x178), 4) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 4) == 0) { /* measured: access-site field substitution loses MATCH. */
             if ((s32)(func_001ef720(1, 0) & 0xFFFF) < 2) {
-                btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x93);
+                btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x93);
             }
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         partyCount = 0;
-        for (unit = *(u8 **)(iGpffffb3ac + 0x17C); unit != NULL; unit = *(u8 **)(unit + 0xA68)) {
-            if (*(u16 *)(unit + 0xA4) != 1) {
-                *(u8 **)(work + (partyCount & 0xFFFF) * 4 + 0x17C) = unit;
+        for (unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[1]; unit != NULL; unit = (u8 *)((BtlUnit *)unit)->prevUnit) {
+            if (((BtlUnit *)unit)->charId != 1) {
+                ((BtlPanelWork *)work)->partyUnits[partyCount & 0xFFFF] = unit;
                 partyCount = (partyCount + 1) & 0xFFFF;
             }
         }
-        *(u16 *)(work + 0x18C) = partyCount;
+        ((BtlPanelWork *)work)->partyCount = partyCount;
         btlSelectionInit(work + 0xDC, 3, (s16)partyCount, btlSelectionResetSubListState, btlSelectionOpenSubList,
                       btlSelectionDrawTitle, btlSelectionSaveCursorFourth, work);
         panel = work + 0xDC;
         *nextPanel = panel;
         btlSelectionSetOwner(panel, btlSelectionDrawPersonaList);
-        *(s16 *)(work + 0x10) = 0;
-        *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
+        ((BtlPanelWork *)work)->gridFrame = 0;
+        ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 5:
-        if (func_001f0620(*(u8 **)(work + 0x178), 5) == 0) {
-            if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64), 8) != 0) {
-                btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x91);
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 5) == 0) { /* measured: access-site field substitution loses MATCH. */
+            if (datCalcChkBadStatus((DatUnit *)((BtlAction *)*(u8 **)(work + 0x178))->unit->datUnit, 8) != 0) { /* measured: access-site field substitution loses MATCH. */
+                btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x91);
             } else {
-                action = *(u8 **)(work + 0x178);
-                if (!(*(u16 *)(action + 0x18) & 0x400)) {
-                    btlUiSelectEffect((s32)(u32)*(u8 **)(action + 0x30), 0x95);
+                action = ((BtlPanelWork *)work)->action;
+                if (!(((BtlAction *)action)->flags & 0x400)) {
+                    btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)action)->unit, 0x95);
                 }
             }
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
-        *(u8 **)(work + 0x5A8) = shdPersonaTaskCreate(*(s32 *)(work + 0x5B0), 0xF, 1, 8, 8);
-        *(s16 *)(work + 0x5AC) = -1;
+        ((BtlPanelWork *)work)->personaTask = shdPersonaTaskCreate(((BtlPanelWork *)work)->task, 0xF, 1, 8, 8);
+        ((BtlPanelWork *)work)->personaSlot = -1;
         btlSelectionInit(work + 0x144, 4, (s16)datPersonaCountValidMembers(), btlSelectionResetCursorState,
-                      btlSelectionHandleSwapInput, btlSelectionDrawSwapPanel, func_0020ad70, work);
+                      btlSelectionHandleSwapInput, btlSelectionDrawSwapPanel, btlSelectionEndSwapList, work);
         panel = work + 0x144;
         *nextPanel = panel;
         btlSelectionSetOwner(panel, btlSelectionDrawLevelList);
-        *(s16 *)(work + 0x10) = 0;
-        *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
+        ((BtlPanelWork *)work)->gridFrame = 0;
+        ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 7:
-        if (func_001f0620(*(u8 **)(work + 0x178), 6) == 0) {
-            btlActionRunTargetCallback((s32)(u32)*(u8 **)(work + 0x178), 5, 0, 0, 2);
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 6) == 0) { /* measured: access-site field substitution loses MATCH. */
+            btlActionRunTargetCallback((s32)(u32)((BtlPanelWork *)work)->action, 5, 0, 0, 2);
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
-        *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 6;
-        *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) = 0;
+        ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6c = 6;
+        ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6e = 0;
         break;
     case 2:
-        if (func_001f0620(*(u8 **)(work + 0x178), 7) == 0) {
+        if (btlTargetCheckCommandAvailability(((BtlPanelWork *)work)->action, 7) == 0) {
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
-        *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 7;
-        *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) = 0;
+        ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6c = 7;
+        ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6e = 0;
         break;
     case 0:
-        if (func_001f0620(*(u8 **)(work + 0x178), 0xA) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 0xA) == 0) { /* measured: access-site field substitution loses MATCH. */
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         sdkSndStartStream(0, 0, 0, 3);
-        *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 0xA;
+        ((BtlAction *)*(u8 **)(work + 0x178))->unk_6c = 0xA; /* measured: access-site field substitution loses MATCH. */
         if (datGetFlag(0x38) != 0) {
             subAction = 0x10B;
         } else {
             subAction = 0x110;
         }
-        *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) = subAction;
+        ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6e = subAction;
         break;
     default:
         break;
@@ -2360,11 +2468,13 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 #pragma pop
 // Intent: draw the growing command circles, enabled command rows and mode hints. [inferred]
 // FUN_00207B00
+/* measured: typing the remaining circle/cursor counter reads independently lost MATCH; their
+ * stores and the other panel fields remain typed. */
 void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern s32 func_001f0620(u8 *selection, s64 work);
-    extern s32 func_001eb860(void);
+    extern s32 btlTargetCheckCommandAvailability(u8 *action, s64 kind);
+    extern s32 btlTargetCanControlDamagePhase(void);
     extern f64 fptodp(f32 value);
     extern f64 func_0044b310(f64 value);
     extern s16 D_00626BD0[];
@@ -2387,7 +2497,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
         Color4 bytes;
         s32 word;
     } color;
-    BattleRenderDispatch *renderer;
+    BtlPanelRenderDispatch *renderer;
     f32 translationX;
     struct {
         Vec2f center;
@@ -2396,10 +2506,10 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
 
     work = (u8 *)(u32)workAddress;
     origin = (f32 *)drawState;
-    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
-    menuFlags = *(u32 *)(iGpffffb3ac + 0xC) & 0x10000;
-    if (*(u8 **)(work + 0x38) != work + 0x40 || *(u16 *)work != 1 || menuFlags != 0) {
-        rotationProgress = (f32)*(s16 *)(work + 0x12) / 6.0f;
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
+    menuFlags = ((BtlBattleState *)iGpffffb3ac)->flags & 0x10000;
+    if (((BtlPanelWork *)work)->list.current != work + 0x40 || *(u16 *)work != 1 || menuFlags != 0) {
+        rotationProgress = (f32)((BtlPanelWork *)work)->stripFrame / 6.0f;
         offsetX = -10.0f;
         offsetY = 28.0f;
         showCommands = 0;
@@ -2410,15 +2520,15 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
     }
     translationX = offsetX;
     btlUiSetOrigin(glyphs, origin[0] + offsetX, origin[1] + offsetY);
-    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer = (BtlPanelRenderDispatch *)D_00887300;
     renderer->setState(8, 1);
     renderer->setState(1, 0);
     {
         f32 outlineGrowth;
         f32 t;
         f32 u;
-        if ((s16)(*(s16 *)(work + 0xC) - 2) < 2) {
-            t = (f32)(s16)(*(s16 *)(work + 0xC) - 2) / 2.0f;
+        if ((s16)(*(s16 *)(work + 0xC) - 2) < 2) { /* measured: access-site field substitution loses MATCH. */
+            t = (f32)(s16)(((BtlPanelWork *)work)->circleFrame - 2) / 2.0f;
             completeProgress = 1.0f;
             if (t > completeProgress) {
                 u = completeProgress;
@@ -2442,10 +2552,10 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
         color.bytes.c3 = 0xFF;
         shdDrawRadialFan(position, 150.0f, color.word, color.word, outlineGrowth * 81.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
     }
-    if (*(s16 *)(work + 0xC) < 2) {
+    if (((BtlPanelWork *)work)->circleFrame < 2) {
         f32 t;
         f32 u;
-        t = (f32)*(s16 *)(work + 0xC) / 2.0f;
+        t = (f32)((BtlPanelWork *)work)->circleFrame / 2.0f;
         if (t > completeProgress) {
             u = completeProgress;
         } else if (t < 0.0f) {
@@ -2470,14 +2580,14 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
         color.bytes.c3 = 0;
         shdDrawRadialFan(position, 150.0f, color.word, color.word, radius + 1.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
     }
-    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer = (BtlPanelRenderDispatch *)D_00887300;
     renderer->setState(8, 0);
     renderer->setState(6, 0);
     btlUiSetAlpha(glyphs, 0.0f);
     if (showCommands != 0) {
         f32 t;
         u8 drawOpacity;
-        t = (f32)*(s16 *)(work + 0xE) / 2.0f;
+        t = (f32)((BtlPanelWork *)work)->commandFrame / 2.0f;
         if (t > completeProgress) {
             circle.progress = completeProgress;
         } else if (t < 0.0f) {
@@ -2494,67 +2604,67 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
             row = 0;
             for (; row < 8; row++, command++) {
                 u8 tone;
-                available = func_001f0620(*(u8 **)(work + 0x178), D_00626BD0[command]);
-                if (available != 0 && (command != 6 || *(s16 *)(work + 0x5A6) > 0)) {
+                available = btlTargetCheckCommandAvailability(((BtlPanelWork *)work)->action, D_00626BD0[command]);
+                if (available != 0 && (command != 6 || (s16)((BtlPanelWork *)work)->itemCount > 0)) {
                     tone = 0x1B;
                 } else {
                     tone = 0x96;
                 }
-                func_0044b310(fptodp((f32)*(s16 *)(work + 0x14) / 3.0f));
+                func_0044b310(fptodp((f32)((BtlPanelWork *)work)->cursorSlide / 3.0f));
                 btlUiDrawSpriteFaded(glyphs, 9, command + 8, 52.0f, rowY - completeProgress, tone, tone, tone, drawOpacity);
                 rowY += 15.0f;
             }
-            selectedCommand = *(s16 *)(selection + 4);
-            renderer = (BattleRenderDispatch *)D_00887300;
+            selectedCommand = ((BtlSelection *)selection)->selected;
+            renderer = (BtlPanelRenderDispatch *)D_00887300;
             renderer->setState(6, 1);
             btlPanelDrawStrip(3, translationX, ((f32)selectedCommand - 3.0f) * 15.0f + offsetY, 110.0f, 0.0f, 0);
             renderer->setState(6, 0);
             if ((u8)opacity == 0xFF) {
-                u8 c1;
-                u8 c2;
-                u8 c3;
-                available = func_001f0620(*(u8 **)(work + 0x178), D_00626BD0[selectedCommand]);
-                if (available != 0 && (selectedCommand != 6 || *(s16 *)(work + 0x5A6) > 0)) {
-                    c1 = 0xFE;
-                    c2 = 0xFF;
-                    c3 = 0x22;
+                u8 red;
+                u8 green;
+                u8 blue;
+                available = btlTargetCheckCommandAvailability(((BtlPanelWork *)work)->action, D_00626BD0[selectedCommand]);
+                if (available != 0 && (selectedCommand != 6 || (s16)((BtlPanelWork *)work)->itemCount > 0)) {
+                    red = 0xFE;
+                    green = 0xFF;
+                    blue = 0x22;
                 } else {
-                    c1 = 0x62;
-                    c2 = 0x62;
-                    c3 = 0x62;
+                    red = 0x62;
+                    green = 0x62;
+                    blue = 0x62;
                 }
-                btlUiDrawSpriteFaded(glyphs, 9, selectedCommand, 33.0f, (f32)selectedCommand * 15.0f + 258.0f, c1, c2, c3, 0xFF);
+                btlUiDrawSpriteFaded(glyphs, 9, selectedCommand, 33.0f, (f32)selectedCommand * 15.0f + 258.0f, red, green, blue, 0xFF);
                 btlUiDrawSpriteEntry(glyphs, 9, selectedCommand + 0x10, 196.0f - translationX, ((f32)0x19B - offsetY) - completeProgress);
             }
         } else {
-            renderer = (BattleRenderDispatch *)D_00887300;
+            renderer = (BtlPanelRenderDispatch *)D_00887300;
             renderer->setState(6, 1);
             btlPanelDrawStrip(3, translationX, offsetY, 110.0f, (completeProgress - circle.progress) * 45.0f, 0);
             renderer->setState(6, 0);
         }
-        if (circle.progress >= completeProgress && menuFlags == 0 && func_001eb860() != 0) {
+        if (circle.progress >= completeProgress && menuFlags == 0 && btlTargetCanControlDamagePhase() != 0) {
             btlUiDrawSpriteFaded(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
             btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 110.0f, 383.0f);
             btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
             btlUiDrawSpriteEntry(glyphs, 9, 0x19, 129.0f, 383.0f);
         }
     } else {
-        BattleRenderDispatch *modeRenderer;
+        BtlPanelRenderDispatch *modeRenderer;
         /* This phase acquires the table independently of earlier circle draws. */
-        modeRenderer = (BattleRenderDispatch *)D_00887300;
-        battleMenuExtendedStrip(modeRenderer, translationX, offsetY, rotationProgress);
+        modeRenderer = (BtlPanelRenderDispatch *)D_00887300;
+        btlPanelDrawExtendedStrip(modeRenderer, translationX, offsetY, rotationProgress);
         if (menuFlags == 0) {
             s32 showHints;
-            if (*(u16 *)work == 2 && *(u16 *)(*(u8 **)(work + 0x178) + 0x6C) == 10) {
+            if (*(u16 *)work == 2 && ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6c == 10) {
                 selectedCommand = 0;
             } else {
-                selectedCommand = *(s16 *)(selection + 4);
+                selectedCommand = ((BtlSelection *)selection)->selected;
             }
             switch (selectedCommand) {
             case 3:
                 btlUiSetOrigin(glyphs, origin[0], origin[1]);
                 btlUiDrawSpriteFaded(glyphs, 9, 0x20, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                renderer = (BattleRenderDispatch *)D_00887300;
+                renderer = (BtlPanelRenderDispatch *)D_00887300;
                 renderer->setState(6, 1);
                 btlUiSetAlpha(glyphs, 120.0f);
                 btlUiDrawSpriteFaded(glyphs, 9, 0x36, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
@@ -2566,7 +2676,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
             case 0:
                 btlUiSetOrigin(glyphs, origin[0], origin[1]);
                 btlUiDrawSpriteFaded(glyphs, 9, 0x1E, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                renderer = (BattleRenderDispatch *)D_00887300;
+                renderer = (BtlPanelRenderDispatch *)D_00887300;
                 renderer->setState(6, 1);
                 btlUiSetAlpha(glyphs, 120.0f);
                 btlUiDrawSpriteFaded(glyphs, 9, 0x34, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
@@ -2581,7 +2691,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
                 btlUiDrawSpriteEntry(glyphs, 9, 0x32, 215.0f - translationX, 412.0f - offsetY);
                 btlUiDrawSpriteEntry(glyphs, 9, 0x33, 193.0f - translationX, 412.0f - offsetY);
                 btlUiDrawSpriteEntry(glyphs, 9, 0x33, 413.0f - translationX, 412.0f - offsetY);
-                if (circle.progress >= completeProgress && menuFlags == 0 && func_001eb860() != 0) {
+                if (circle.progress >= completeProgress && menuFlags == 0 && btlTargetCanControlDamagePhase() != 0) {
                     btlUiDrawSpriteFaded(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                     btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 110.0f, 383.0f);
                     btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
@@ -2590,13 +2700,13 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
             }
         }
     }
-    available = *(s16 *)(work + 0x14);
+    available = *(s16 *)(work + 0x14); /* measured: access-site field substitution loses MATCH. */
     if (available > 0) {
-        *(s16 *)(work + 0x14) = available - 1;
+        ((BtlPanelWork *)work)->cursorSlide = available - 1;
         return;
     }
     if (available < 0) {
-        *(s16 *)(work + 0x14) = available + 1;
+        ((BtlPanelWork *)work)->cursorSlide = available + 1;
     }
 }
 
@@ -2605,26 +2715,26 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
    accumulator seed of the adda.s/madd.s (the old archive passed temp_f4, nd10). */
 // Intent: draw the selection's progress bar, scaled by the eased progress. [inferred]
 // FUN_00208870
-void btlSelectionDrawBar(u8 *unused, u8 *arg1, f32 *arg2)
+void btlSelectionDrawBar(u8 *unused, u8 *panel, f32 *origin)
 {
     s32 values[4];
     Color4 color;
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f3;
-    f32 temp_f4;
+    f32 progress;
+    f32 clamped;
+    f32 eased;
+    f32 top;
 
-    btlUiSetOrigin((u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0)), arg2[0], arg2[1]);
-    temp_f0 = (f32)*(s16 *)(arg1 + 0xE) / 2.0f;
-    if (temp_f0 > 1.0f) {
-        temp_f1 = 1.0f;
-    } else if (temp_f0 < 0.0f) {
-        temp_f1 = 0.0f;
+    btlUiSetOrigin((u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task), origin[0], origin[1]);
+    progress = (f32)((BtlPanelWork *)panel)->commandFrame / 2.0f;
+    if (progress > 1.0f) {
+        clamped = 1.0f;
+    } else if (progress < 0.0f) {
+        clamped = 0.0f;
     } else {
-        temp_f1 = temp_f0;
+        clamped = progress;
     }
-    temp_f3 = temp_f1 * 2.0f - temp_f1 * temp_f1;
-    if (temp_f3 <= 0.0f) {
+    eased = clamped * 2.0f - clamped * clamped;
+    if (eased <= 0.0f) {
         return;
     }
     color.c0 = 0xB4;
@@ -2632,110 +2742,113 @@ void btlSelectionDrawBar(u8 *unused, u8 *arg1, f32 *arg2)
     color.c2 = 0;
     color.c3 = 0xFF;
     values[0] = -10;
-    temp_f4 = (1.0f - temp_f3) * 11.0f + 410.0f;
-    values[1] = (s32)temp_f4;
+    top = (1.0f - eased) * 11.0f + 410.0f;
+    values[1] = (s32)top;
     values[2] = 0x294;
-    values[3] = (s32)(temp_f3 * 22.0f);
+    values[3] = (s32)(eased * 22.0f);
     PrimDrawFlatRectangle((u8 *)&color, (f32 *)values, 0.0f, 0);
 }
 
 // Intent: save the selected row and page to the cursor record when the flag is set. [inferred]
 // FUN_002089E0
-void btlSelectionSaveCursor(u8 *arg0, u8 *arg1)
+/* Saved cursors use the shared target-block union; measured: the parent-action reload still loses MATCH when typed. */
+void btlSelectionSaveCursor(u8 *selection, u8 *panel)
 {
-    s16 *p;
+    s16 *cursor;
 
     if (datGetFlag(60) == 0) {
         return;
     }
-    p = *(s16 **)(*(u8 **)(arg1 + 376) + 1008);
-    if (p == NULL) {
+    cursor = (s16 *)((BtlAction *)(*(u8 **)(panel + 376)))->targetBlock.recovery.savedCursors; /* measured: access-site field substitution loses MATCH. */
+    if (cursor == NULL) {
         return;
     }
-    p[1] = *(s16 *)(arg0 + 4);
-    (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[0] = *(s16 *)(arg0 + 2);
+    cursor[1] = ((BtlSelection *)selection)->selected;
+    ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[0] = ((BtlSelection *)selection)->first;
 }
 
 // Intent: reset the selection flags and cursor state to the top of the list. [inferred]
 // FUN_00208A50
-void btlSelectionResetState(u8 *arg0, u8 *arg1)
+/* Saved cursors use the shared action target-block union and four typed cursor records. */
+void btlSelectionResetState(u8 *selection, u8 *panel)
 {
-    u8 *p;
+    u8 *cursor;
 
     sdkSndStartStream(0, 0, 0, 3);
     if (datGetFlag(0x3C) != 0) {
-        p = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x3F0);
-        if (p != NULL) {
-            btlSelectionUpdateWindow(arg0, *(s16 *)(p + 6), *(s16 *)(p + 4));
+        cursor = (u8 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors;
+        if (cursor != NULL) {
+            btlSelectionUpdateWindow(selection, ((BtlSelectionCursorRecord *)cursor)->slots[1].selected, ((BtlSelectionCursorRecord *)cursor)->slots[1].first);
         }
     }
-    *(u16 *)arg0 |= 1;
-    *(u16 *)arg0 |= 2;
-    *(s16 *)(arg1 + 0x20) = 0;
-    *(s16 *)(arg1 + 0x22) = 0;
-    *(s16 *)(arg1 + 0x16) = 0;
-    *(s16 *)(arg1 + 0x18) = 0;
+    *(u16 *)selection |= 1;
+    *(u16 *)selection |= 2;
+    ((BtlPanelWork *)panel)->clipFrame = 0;
+    ((BtlPanelWork *)panel)->titleFrame = 0;
+    ((BtlPanelWork *)panel)->listFrame = 0;
+    ((BtlPanelWork *)panel)->detailFrame = 0;
 }
 
 /* 500/512 bytes; twelve zero alignment bytes.
  * The shared four-byte record type preserves the flags-table load order. */
 // Intent: handle the skill list input and return the next state (confirm, cancel or toggle). [inferred]
 // FUN_00208B00
-u16 btlSelectionHandleSkillInput(u8 *arg0, u8 *arg1)
+/* measured: direct skill indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
+u16 btlSelectionHandleSkillInput(u8 *selection, u8 *panel)
 {
-    extern s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1);
-    extern s32 func_0023df70(s32 arg0);
-    s32 temp_2;
-    u16 var_16;
-    u16 temp_16;
-    s32 idx2;
+    extern s32 datCalcThresholdTrigger(u8 *unit, s32 skillId);
+    extern s32 datCalcUsesWeaponProperties(s32 skillId);
+    s32 flags;
+    u16 result;
+    u16 skill;
+    s32 skillOffset;
 
-    var_16 = btlSelectionReadInput(arg0) & 0xFFFF;
-    switch (var_16) {
+    result = btlSelectionReadInput(selection) & 0xFFFF;
+    switch (result) {
     case 2:
-        idx2 = (s32)*(s16 *)(arg0 + 4) * 2;
-        temp_16 = *(u16 *)(idx2 + (u32)arg1 + 0x194);
-        if (datCalcThresholdTrigger(*(u8 **)(*(u8 **)(*(u8 **)(arg1 + 0x178) +
-                                           0x30) + 0xA64),
-                          temp_16) == 0) {
-            if ((func_0023df70(temp_16) != 0) &&
-                ((iGpffffb3bc[temp_16 & 0xFFFF].flags & 0x8000) == 0)) {
-                *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 1;
+        skillOffset = (s32)((BtlSelection *)selection)->selected * 2;
+        skill = ((BtlPanelWork *)(skillOffset + (u32)panel))->skills[0];
+        if (datCalcThresholdTrigger((u8 *)((BtlAction *)*(u8 **)(panel + 0x178))->unit->datUnit, /* measured: access-site field substitution loses MATCH. */
+                          
+                          skill) == 0) {
+            if ((datCalcUsesWeaponProperties(skill) != 0) &&
+                ((iGpffffb3bc[skill & 0xFFFF].flags & 0x8000) == 0)) {
+                ((BtlAction *)*(u8 **)(panel + 0x178))->unk_6c = 1; /* measured: access-site field substitution loses MATCH. */
             } else {
-                *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 2;
+                ((BtlAction *)((BtlPanelWork *)panel)->action)->unk_6c = 2;
             }
-            *(u16 *)(*(u8 **)(arg1 + 0x178) + 0x6E) = temp_16;
-            *(s16 *)(arg1 + 0x1A) = 0;
-            var_16 = 4;
+            ((BtlAction *)((BtlPanelWork *)panel)->action)->unk_6e = skill;
+            ((BtlPanelWork *)panel)->slideFrame = 0;
+            result = 4;
         } else {
             sdkSndStartStream(0, 15, 0, 8);
-            var_16 = 1;
+            result = 1;
         }
         break;
     case 3:
-        temp_2 = *(s32 *)(arg1 + 4) ^ 4;
-        *(s32 *)(arg1 + 4) = temp_2;
-        if ((temp_2 & 4) != 0) {
+        flags = ((BtlPanelWork *)panel)->flags ^ 4;
+        ((BtlPanelWork *)panel)->flags = flags;
+        if ((flags & 4) != 0) {
             sdkSndStartStream(1, 13, 2, 23);
         } else {
             sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     case 1:
-        if ((*(s32 *)(arg1 + 4) & 4) != 0) {
+        if ((*(s32 *)(panel + 4) & 4) != 0) { /* measured: access-site field substitution loses MATCH. */
             sdkSndStartStream(0, 0, 0, 2);
-            *(s32 *)(arg1 + 4) &= ~4;
-            var_16 = 1;
+            ((BtlPanelWork *)panel)->flags &= ~4;
+            result = 1;
         } else {
             sdkSndStartStream(0, 0, 0, 4);
-            var_16 = 2;
+            result = 2;
         }
         break;
     default:
-        var_16 = 1;
+        result = 1;
         break;
     }
-    return var_16;
+    return result;
 }
 
 /* 716/720 bytes; eighteen resolved relocations and four zero alignment bytes.
@@ -2743,163 +2856,169 @@ u16 btlSelectionHandleSkillInput(u8 *arg0, u8 *arg1)
  * real input to a pointer here; a pointer parameter swaps two entry moves. */
 // Intent: draw the skill panel and advance its slide-in timer. [inferred]
 // FUN_00208D00
-void btlSelectionDrawSkillPanel(u8 *arg0, s32 arg1, f32 *arg2)
+/* measured: typing the slide-counter read at panel+0x1A independently lost MATCH; its update store remains typed. */
+void btlSelectionDrawSkillPanel(u8 *selection, s32 panelAddress, f32 *originOrRenderer)
 {
-    u8 *state = (u8 *)arg1;
-    u8 *temp;
-    s16 temp_2;
+    u8 *state = (u8 *)panelAddress;
+    u8 *glyphs;
+    s16 slideFrame;
 
-    temp = (u8 *)kwlnTaskGetWork(*(void **)(state + 0x5B0));
-    btlUiSetOrigin(temp, arg2[0], arg2[1]);
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)state)->task);
+    btlUiSetOrigin(glyphs, originOrRenderer[0], originOrRenderer[1]);
     if (*(u16 *)state == 2) {
-        btlUiDrawSpriteFaded(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
-        btlUiDrawSpriteFaded(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlSelectionDrawSlideIn(state, arg0, arg2[0], arg2[1], btlPanelDrawSkillEntry);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlSelectionDrawSlideIn(state, selection, originOrRenderer[0], originOrRenderer[1], btlPanelDrawSkillEntry);
     } else {
-        btlUiDrawSpriteFaded(temp, 9, 0x21, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x21, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
-    arg2 = (f32 *)D_00887300;
-    ((void (**)(u32, u32))arg2)[0](6, 1);
-    btlUiSetAlpha(temp, 120.0f);
-    btlUiDrawSpriteFaded(temp, 9, 0x37, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
-    ((void (**)(u32, u32))arg2)[0](6, 0);
-    btlUiSetAlpha(temp, 0.0f);
-    temp_2 = *(s16 *)(state + 0x1A);
-    if (temp_2 < 4) {
-        *(s16 *)(state + 0x1A) = temp_2 + 1;
+    originOrRenderer = (f32 *)D_00887300;
+    ((void (**)(u32, u32))originOrRenderer)[0](6, 1);
+    btlUiSetAlpha(glyphs, 120.0f);
+    btlUiDrawSpriteFaded(glyphs, 9, 0x37, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    ((void (**)(u32, u32))originOrRenderer)[0](6, 0);
+    btlUiSetAlpha(glyphs, 0.0f);
+    slideFrame = *(s16 *)(state + 0x1A); /* measured: access-site field substitution loses MATCH. */
+    if (slideFrame < 4) {
+        ((BtlPanelWork *)state)->slideFrame = slideFrame + 1;
     }
-    if (func_001eb860() != 0) {
-        btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
-        btlUiDrawSpriteFaded(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
+    if (btlTargetCanControlDamagePhase() != 0) {
+        btlUiDrawSpriteFaded(glyphs, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 100.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
 
 // Intent: advance the selection's animation counters, clamped to their limits. [inferred]
 // FUN_00208FD0
-void btlSelectionStepAnim(u8 *arg0, u8 *arg1, f32 *arg2)
+/* measured: independently typing the remaining +0x16/+0x18/+0x20/+0x22 counter reads lost MATCH;
+ * their update stores remain typed. */
+void btlSelectionStepAnim(u8 *selection, u8 *panel, f32 *origin)
 {
-    s16 temp_3;
-    s16 temp_3_2;
-    s16 temp_3_3;
-    s16 temp_3_4;
-    s16 temp_3_5;
-    s16 temp_3_6;
+    s16 clipFrame;
+    s16 titleFrame;
+    s16 openingListFrame;
+    s16 openingDetailFrame;
+    s16 closingListFrame;
+    s16 closingDetailFrame;
 
-    if (*(u16 *)(arg1 + 2) != 2) {
-        btlSelectionDrawList(arg1, arg0, arg2[0], arg2[1], btlPanelDrawSkillEntry);
+    if (((BtlPanelWork *)panel)->previousState != 2) {
+        btlSelectionDrawList(panel, selection, origin[0], origin[1], btlPanelDrawSkillEntry);
     }
-    temp_3 = *(s16 *)(arg1 + 0x20);
-    if (temp_3 < 4) {
-        *(s16 *)(arg1 + 0x20) = temp_3 + 1;
+    clipFrame = *(s16 *)(panel + 0x20); /* measured: access-site field substitution loses MATCH. */
+    if (clipFrame < 4) {
+        ((BtlPanelWork *)panel)->clipFrame = clipFrame + 1;
     }
-    temp_3_2 = *(s16 *)(arg1 + 0x22);
-    if (temp_3_2 < 0xA) {
-        *(s16 *)(arg1 + 0x22) = temp_3_2 + 1;
+    titleFrame = *(s16 *)(panel + 0x22); /* measured: access-site field substitution loses MATCH. */
+    if (titleFrame < 0xA) {
+        ((BtlPanelWork *)panel)->titleFrame = titleFrame + 1;
     }
-    if ((*(s32 *)(arg1 + 4) & 4) != 0) {
-        temp_3_3 = *(s16 *)(arg1 + 0x16);
-        if (temp_3_3 < 4) {
-            *(s16 *)(arg1 + 0x16) = temp_3_3 + 1;
+    if ((((BtlPanelWork *)panel)->flags & 4) != 0) {
+        openingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
+        if (openingListFrame < 4) {
+            ((BtlPanelWork *)panel)->listFrame = openingListFrame + 1;
         }
-        temp_3_4 = *(s16 *)(arg1 + 0x18);
-        if (temp_3_4 < 7) {
-            *(s16 *)(arg1 + 0x18) = temp_3_4 + 1;
+        openingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
+        if (openingDetailFrame < 7) {
+            ((BtlPanelWork *)panel)->detailFrame = openingDetailFrame + 1;
         }
     } else {
-        temp_3_5 = *(s16 *)(arg1 + 0x16);
-        if (temp_3_5 > 0) {
-            *(s16 *)(arg1 + 0x16) = temp_3_5 - 1;
+        closingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
+        if (closingListFrame > 0) {
+            ((BtlPanelWork *)panel)->listFrame = closingListFrame - 1;
         }
-        temp_3_6 = *(s16 *)(arg1 + 0x18);
-        if (temp_3_6 > 0) {
-            *(s16 *)(arg1 + 0x18) = temp_3_6 - 1;
+        closingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
+        if (closingDetailFrame > 0) {
+            ((BtlPanelWork *)panel)->detailFrame = closingDetailFrame - 1;
         }
     }
 }
 
 // Intent: save the selected row and page to the second cursor slot when the flag is set. [inferred]
 // FUN_002090D0
-void btlSelectionSaveCursorSecond(u8 *arg0, u8 *arg1)
+/* Saved cursors use the shared target-block union; measured: the parent-action reload still loses MATCH when typed. */
+void btlSelectionSaveCursorSecond(u8 *selection, u8 *panel)
 {
-    s16 *p;
+    s16 *cursor;
 
     if (datGetFlag(60) == 0) {
         return;
     }
-    p = *(s16 **)(*(u8 **)(arg1 + 376) + 1008);
-    if (p == NULL) {
+    cursor = (s16 *)((BtlAction *)(*(u8 **)(panel + 376)))->targetBlock.recovery.savedCursors; /* measured: access-site field substitution loses MATCH. */
+    if (cursor == NULL) {
         return;
     }
-    p[3] = *(s16 *)(arg0 + 4);
-    (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[2] = *(s16 *)(arg0 + 2);
+    cursor[3] = ((BtlSelection *)selection)->selected;
+    ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[2] = ((BtlSelection *)selection)->first;
 }
 
 // Intent: reset the selection flags, page window and counters for the list. [inferred]
 // FUN_00209140
-void btlSelectionResetPageState(u8 *arg0, u8 *arg1)
+/* Saved cursors use the shared action target-block union and four typed cursor records. */
+void btlSelectionResetPageState(u8 *selection, u8 *panel)
 {
-    u8 *p;
+    u8 *cursor;
 
     sdkSndStartStream(0, 0, 0, 3);
     if (datGetFlag(0x3C) != 0) {
-        p = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x3F0);
-        if (p != NULL) {
-            btlSelectionUpdateWindow(arg0, *(s16 *)(p + 0xA), *(s16 *)(p + 8));
+        cursor = (u8 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors;
+        if (cursor != NULL) {
+            btlSelectionUpdateWindow(selection, ((BtlSelectionCursorRecord *)cursor)->slots[2].selected, ((BtlSelectionCursorRecord *)cursor)->slots[2].first);
         }
     }
-    *(u16 *)arg0 |= 1;
-    *(u16 *)arg0 |= 2;
-    *(s16 *)(arg1 + 0x20) = 0;
-    *(s16 *)(arg1 + 0x22) = 0;
-    *(s16 *)(arg1 + 0x16) = 0;
-    *(s16 *)(arg1 + 0x18) = 0;
+    *(u16 *)selection |= 1;
+    *(u16 *)selection |= 2;
+    ((BtlPanelWork *)panel)->clipFrame = 0;
+    ((BtlPanelWork *)panel)->titleFrame = 0;
+    ((BtlPanelWork *)panel)->listFrame = 0;
+    ((BtlPanelWork *)panel)->detailFrame = 0;
 }
 
 /* Reconstructed state dispatch and return width; candidate is byte-exact. */
 // Intent: handle the item list input and return the next state. [inferred]
 // FUN_002091F0
-u16 btlSelectionHandleItemInput(u8 *arg0, u8 *arg1)
+/* measured: direct item indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
+u16 btlSelectionHandleItemInput(u8 *selection, u8 *panel)
 {
-    s32 temp_2;
-    u16 value;
+    s32 itemOrFlags;
+    u16 result;
 
-    value = btlSelectionReadInput(arg0) & 0xFFFF;
-    switch (value) {
+    result = btlSelectionReadInput(selection) & 0xFFFF;
+    switch (result) {
     case 2:
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 3;
-        temp_2 = *(s16 *)(p4_002091f0_add((u32)(*(s16 *)(arg0 + 4) * 4), arg1) + 0x1A6);
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x70) = temp_2;
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6E) =
-            datCalcUnderlyingSkillId(*(u16 *)(*(u8 **)(arg1 + 0x178) + 0x70));
-        *(s16 *)(arg1 + 0x1A) = 0;
-        value = 4;
+        ((BtlAction *)((BtlPanelWork *)panel)->action)->unk_6c = 3;
+        itemOrFlags = ((BtlPanelWork *)(btlSelectionAddByteOffset((u32)(((BtlSelection *)selection)->selected * 4), panel)))->items[0].id;
+        ((BtlPanelActionChoice *)((BtlAction *)((BtlPanelWork *)panel)->action)->unk_70)->item = itemOrFlags;
+        ((BtlAction *)*(u8 **)(panel + 0x178))->unk_6e = /* measured: access-site field substitution loses MATCH. */
+            datCalcUnderlyingSkillId(((BtlPanelActionChoice *)((BtlAction *)((BtlPanelWork *)panel)->action)->unk_70)->item);
+        ((BtlPanelWork *)panel)->slideFrame = 0;
+        result = 4;
         break;
     case 3:
-        temp_2 = *(s32 *)(arg1 + 4) ^ 4;
-        *(s32 *)(arg1 + 4) = temp_2;
-        if ((temp_2 & 4) != 0) {
+        itemOrFlags = ((BtlPanelWork *)panel)->flags ^ 4;
+        ((BtlPanelWork *)panel)->flags = itemOrFlags;
+        if ((itemOrFlags & 4) != 0) {
             sdkSndStartStream(1, 0xD, 2, 0x17);
         } else {
             sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     case 1:
-        if ((*(s32 *)(arg1 + 4) & 4) != 0) {
+        if ((*(s32 *)(panel + 4) & 4) != 0) { /* measured: access-site field substitution loses MATCH. */
             sdkSndStartStream(0, 0, 0, 2);
-            *(s32 *)(arg1 + 4) &= ~4;
-            value = 1;
+            ((BtlPanelWork *)panel)->flags &= ~4;
+            result = 1;
         } else {
             sdkSndStartStream(0, 0, 0, 4);
-            value = 2;
+            result = 2;
         }
         break;
     default:
-        value = 1;
+        result = 1;
         break;
     }
-    return value;
+    return result;
 }
 
 /* 716/720 bytes; eighteen resolved relocations and four zero alignment bytes.
@@ -2907,78 +3026,81 @@ u16 btlSelectionHandleItemInput(u8 *arg0, u8 *arg1)
  * input locally; preserve the position and callback-table reloads. */
 // Intent: draw the item panel and advance its slide-in timer. [inferred]
 // FUN_00209370
-void btlSelectionDrawItemPanel(u8 *arg0, s32 arg1, f32 *arg2)
+/* measured: typing the slide-counter read at panel+0x1A independently lost MATCH; its update store remains typed. */
+void btlSelectionDrawItemPanel(u8 *selection, s32 panelAddress, f32 *originOrRenderer)
 {
-    u8 *state = (u8 *)arg1;
-    u8 *temp;
-    s16 temp_2;
+    u8 *state = (u8 *)panelAddress;
+    u8 *glyphs;
+    s16 slideFrame;
 
-    temp = (u8 *)kwlnTaskGetWork(*(void **)(state + 0x5B0));
-    btlUiSetOrigin(temp, arg2[0], arg2[1]);
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)state)->task);
+    btlUiSetOrigin(glyphs, originOrRenderer[0], originOrRenderer[1]);
     if (*(u16 *)state == 2) {
-        btlUiDrawSpriteFaded(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
-        btlUiDrawSpriteFaded(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlSelectionDrawSlideIn(state, arg0, arg2[0], arg2[1], btlPanelDrawEntry);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlSelectionDrawSlideIn(state, selection, originOrRenderer[0], originOrRenderer[1], btlPanelDrawEntry);
     } else {
-        btlUiDrawSpriteFaded(temp, 9, 0x23, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x23, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
-    arg2 = (f32 *)D_00887300;
-    ((void (**)(u32, u32))arg2)[0](6, 1);
-    btlUiSetAlpha(temp, 120.0f);
-    btlUiDrawSpriteFaded(temp, 9, 0x39, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
-    ((void (**)(u32, u32))arg2)[0](6, 0);
-    btlUiSetAlpha(temp, 0.0f);
-    temp_2 = *(s16 *)(state + 0x1A);
-    if (temp_2 < 4) {
-        *(s16 *)(state + 0x1A) = temp_2 + 1;
+    originOrRenderer = (f32 *)D_00887300;
+    ((void (**)(u32, u32))originOrRenderer)[0](6, 1);
+    btlUiSetAlpha(glyphs, 120.0f);
+    btlUiDrawSpriteFaded(glyphs, 9, 0x39, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    ((void (**)(u32, u32))originOrRenderer)[0](6, 0);
+    btlUiSetAlpha(glyphs, 0.0f);
+    slideFrame = *(s16 *)(state + 0x1A); /* measured: access-site field substitution loses MATCH. */
+    if (slideFrame < 4) {
+        ((BtlPanelWork *)state)->slideFrame = slideFrame + 1;
     }
-    if (func_001eb860() != 0) {
-        btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
-        btlUiDrawSpriteFaded(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
+    if (btlTargetCanControlDamagePhase() != 0) {
+        btlUiDrawSpriteFaded(glyphs, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 100.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
 
 // Intent: advance the item list animation counters, clamped to their limits. [inferred]
 // FUN_00209640
-void btlSelectionStepItemAnim(u8 *arg0, u8 *arg1, f32 *arg2)
+/* measured: independently typing the remaining +0x16/+0x18/+0x20/+0x22 counter reads lost MATCH;
+ * their update stores remain typed. */
+void btlSelectionStepItemAnim(u8 *selection, u8 *panel, f32 *origin)
 {
-    s16 temp_3;
-    s16 temp_3_2;
-    s16 temp_3_3;
-    s16 temp_3_4;
-    s16 temp_3_5;
-    s16 temp_3_6;
+    s16 clipFrame;
+    s16 titleFrame;
+    s16 openingListFrame;
+    s16 openingDetailFrame;
+    s16 closingListFrame;
+    s16 closingDetailFrame;
 
-    if (*(u16 *)(arg1 + 2) != 2) {
-        btlSelectionDrawList(arg1, arg0, arg2[0], arg2[1],
+    if (((BtlPanelWork *)panel)->previousState != 2) {
+        btlSelectionDrawList(panel, selection, origin[0], origin[1],
                       btlPanelDrawEntry);
-        temp_3 = *(s16 *)(arg1 + 0x20);
-        if (temp_3 < 4) {
-            *(s16 *)(arg1 + 0x20) = temp_3 + 1;
+        clipFrame = *(s16 *)(panel + 0x20); /* measured: access-site field substitution loses MATCH. */
+        if (clipFrame < 4) {
+            ((BtlPanelWork *)panel)->clipFrame = clipFrame + 1;
         }
-        temp_3_2 = *(s16 *)(arg1 + 0x22);
-        if (temp_3_2 < 0xA) {
-            *(s16 *)(arg1 + 0x22) = temp_3_2 + 1;
+        titleFrame = *(s16 *)(panel + 0x22); /* measured: access-site field substitution loses MATCH. */
+        if (titleFrame < 0xA) {
+            ((BtlPanelWork *)panel)->titleFrame = titleFrame + 1;
         }
-        if ((*(s32 *)(arg1 + 4) & 4) != 0) {
-            temp_3_3 = *(s16 *)(arg1 + 0x16);
-            if (temp_3_3 < 4) {
-                *(s16 *)(arg1 + 0x16) = temp_3_3 + 1;
+        if ((((BtlPanelWork *)panel)->flags & 4) != 0) {
+            openingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
+            if (openingListFrame < 4) {
+                ((BtlPanelWork *)panel)->listFrame = openingListFrame + 1;
             }
-            temp_3_4 = *(s16 *)(arg1 + 0x18);
-            if (temp_3_4 < 7) {
-                *(s16 *)(arg1 + 0x18) = temp_3_4 + 1;
+            openingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
+            if (openingDetailFrame < 7) {
+                ((BtlPanelWork *)panel)->detailFrame = openingDetailFrame + 1;
             }
         } else {
-            temp_3_5 = *(s16 *)(arg1 + 0x16);
-            if (temp_3_5 > 0) {
-                *(s16 *)(arg1 + 0x16) = temp_3_5 - 1;
+            closingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
+            if (closingListFrame > 0) {
+                ((BtlPanelWork *)panel)->listFrame = closingListFrame - 1;
             }
-            temp_3_6 = *(s16 *)(arg1 + 0x18);
-            if (temp_3_6 > 0) {
-                *(s16 *)(arg1 + 0x18) = temp_3_6 - 1;
+            closingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
+            if (closingDetailFrame > 0) {
+                ((BtlPanelWork *)panel)->detailFrame = closingDetailFrame - 1;
             }
         }
     }
@@ -2986,77 +3108,80 @@ void btlSelectionStepItemAnim(u8 *arg0, u8 *arg1, f32 *arg2)
 
 // Intent: save the selected row and page to the third cursor slot when the flag is set. [inferred]
 // FUN_00209740
-void btlSelectionSaveCursorThird(u8 *arg0, u8 *arg1)
+/* Saved cursors use the shared target-block union; measured: the parent-action reload still loses MATCH when typed. */
+void btlSelectionSaveCursorThird(u8 *selection, u8 *panel)
 {
-    s16 *p;
+    s16 *cursor;
 
     if (datGetFlag(60) == 0) {
         return;
     }
-    p = *(s16 **)(*(u8 **)(arg1 + 376) + 1008);
-    if (p == NULL) {
+    cursor = (s16 *)((BtlAction *)(*(u8 **)(panel + 376)))->targetBlock.recovery.savedCursors; /* measured: access-site field substitution loses MATCH. */
+    if (cursor == NULL) {
         return;
     }
-    p[5] = *(s16 *)(arg0 + 4);
-    (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[4] = *(s16 *)(arg0 + 2);
+    cursor[5] = ((BtlSelection *)selection)->selected;
+    ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[4] = ((BtlSelection *)selection)->first;
 }
 
 // Intent: reset the sub-list window and counters when the sub-list is not active. [inferred]
 // FUN_002097B0
-void btlSelectionResetSubListState(u8 *arg0, u8 *arg1)
+/* The shared target-block union and the previous-node comparison now both use matching access-site fields. */
+void btlSelectionResetSubListState(u8 *selection, u8 *panel)
 {
-    u8 *p;
+    u8 *cursor;
 
     if (datGetFlag(0x3C) != 0) {
-        p = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x3F0);
-        if (p != NULL) {
-            btlSelectionUpdateWindow(arg0, *(s16 *)(p + 0xE), *(s16 *)(p + 0xC));
+        cursor = (u8 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors;
+        if (cursor != NULL) {
+            btlSelectionUpdateWindow(selection, ((BtlSelectionCursorRecord *)cursor)->slots[3].selected, ((BtlSelectionCursorRecord *)cursor)->slots[3].first);
         }
     }
-    *(u16 *)arg0 |= 1;
-    *(u16 *)arg0 |= 2;
-    if (*(s32 *)(arg1 + 0x3C) != (s32)(arg1 + 0x110)) {
+    *(u16 *)selection |= 1;
+    *(u16 *)selection |= 2;
+    if ((s32)((BtlPanelWork *)panel)->list.previous != (s32)(panel + 0x110)) {
         sdkSndStartStream(0, 0, 0, 3);
-        *(s16 *)(arg1 + 0x20) = 0;
-        *(s16 *)(arg1 + 0x22) = 0;
-        *(s16 *)(arg1 + 0x16) = 0;
-        *(s16 *)(arg1 + 0x18) = 0;
+        ((BtlPanelWork *)panel)->clipFrame = 0;
+        ((BtlPanelWork *)panel)->titleFrame = 0;
+        ((BtlPanelWork *)panel)->listFrame = 0;
+        ((BtlPanelWork *)panel)->detailFrame = 0;
     }
 }
 
 // Intent: handle the persona sub-list input and open the sub-list selection. [inferred]
 // FUN_00209870
-u16 btlSelectionOpenSubList(u8 *arg0, s32 arg1, u8 **arg2)
+/* measured: direct party-unit indexing changed two compared bytes; the typed byte-offset-helper result matches. */
+u16 btlSelectionOpenSubList(u8 *selection, s32 panelAddress, u8 **nextPanel)
 {
-    u16 temp_4;
-    u16 var_2;
+    u16 input;
+    u16 count;
     u16 result;
     u8 **out;
     u8 *base;
-    u8 *temp_2;
-    u8 *temp_4_2;
+    u8 *unit;
+    u8 *subList;
 
-    out = (u8 **)arg2;
-    base = (u8 *)(u32)arg1;
-    temp_4 = btlSelectionReadInput(arg0) & 0xFFFF;
-    switch (temp_4) {
+    out = (u8 **)nextPanel;
+    base = (u8 *)(u32)panelAddress;
+    input = btlSelectionReadInput(selection) & 0xFFFF;
+    switch (input) {
     case 2:
-        temp_2 = *(u8 **)(p4_002091f0_add(
-            (u32)(*(s16 *)(arg0 + 4) * 4), base) + 0x17C);
-        *(u8 **)(base + 0x190) = temp_2;
-        if ((cmmCommunityRecordValue(cmmCommunityForArcana(*(s16 *)(temp_2 + 0xA4)) &
+        unit = ((BtlPanelWork *)btlSelectionAddByteOffset(
+            (u32)(((BtlSelection *)selection)->selected * 4), base))->partyUnits[0];
+        ((BtlPanelWork *)base)->selectedUnit = unit;
+        if ((cmmCommunityRecordValue(cmmCommunityForArcana((s16)((BtlUnit *)unit)->charId) &
                            0xFFFF) & 0xFFFF) >= 0) {
-            var_2 = 5;
+            count = 5;
         } else {
-            var_2 = 4;
+            count = 4;
         }
-        btlSelectionInit(base + 0x110, 4, (s16)var_2,
+        btlSelectionInit(base + 0x110, 4, (s16)count,
                       (void *)btlSelectionResetSubList, (void *)btlSelectionConfirmSubList,
-                      (void *)func_00209f90, (void *)func_0020a5c0, base);
-        temp_4_2 = base + 0x110;
-        *out = temp_4_2;
-        btlSelectionSetOwner(temp_4_2, (void *)btlSelectionDrawCurrentLabel);
-        *(s32 *)(base + 4) &= ~4;
+                      (void *)btlSelectionDrawSubList, (void *)btlSelectionEndSubList, base);
+        subList = base + 0x110;
+        *out = subList;
+        btlSelectionSetOwner(subList, (void *)btlSelectionDrawCurrentLabel);
+        ((BtlPanelWork *)base)->flags &= ~4;
         return 3;
     case 1:
         sdkSndStartStream(0, 0, 0, 4);
@@ -3072,68 +3197,70 @@ done:
 
 // Intent: draw the title strip for the selection sub-list and advance its timers. [inferred]
 // FUN_002099C0
-void btlSelectionDrawTitle(u8 *arg0, u8 *arg1, f32 *arg2)
+void btlSelectionDrawTitle(u8 *selection, u8 *panel, f32 *originOrRenderer)
 {
-    u8 *temp;
+    u8 *glyphs;
 
-    temp = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
-    btlUiSetOrigin(temp, arg2[0], arg2[1]);
-    btlUiDrawSpriteFaded(temp, 9, 0x1F, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
-    arg2 = (f32 *)D_00887300;
-    ((void (**)(u32, u32))arg2)[0](6, 1);
-    btlUiSetAlpha(temp, 120.0f);
-    btlUiDrawSpriteFaded(temp, 9, 0x35, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
-    ((void (**)(u32, u32))arg2)[0](6, 0);
-    btlUiSetAlpha(temp, 0.0f);
-    if (func_001eb860() != 0) {
-        btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
-        btlUiDrawSpriteFaded(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    btlUiSetOrigin(glyphs, originOrRenderer[0], originOrRenderer[1]);
+    btlUiDrawSpriteFaded(glyphs, 9, 0x1F, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+    originOrRenderer = (f32 *)D_00887300;
+    ((void (**)(u32, u32))originOrRenderer)[0](6, 1);
+    btlUiSetAlpha(glyphs, 120.0f);
+    btlUiDrawSpriteFaded(glyphs, 9, 0x35, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    ((void (**)(u32, u32))originOrRenderer)[0](6, 0);
+    btlUiSetAlpha(glyphs, 0.0f);
+    if (btlTargetCanControlDamagePhase() != 0) {
+        btlUiDrawSpriteFaded(glyphs, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 100.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
 
 // Intent: draw the persona name list when the sub-list is open, and step its counters. [inferred]
 // FUN_00209BC0
-void btlSelectionDrawPersonaList(u8 *arg0, u8 *arg1, f32 *arg2)
+/* measured: independently typing the remaining +0x16/+0x18/+0x20/+0x22 counter reads lost MATCH;
+ * their update stores remain typed. */
+void btlSelectionDrawPersonaList(u8 *selection, u8 *panel, f32 *origin)
 {
-    s16 temp_3;
-    s16 temp_3_2;
-    s16 temp_3_3;
-    s16 temp_3_4;
-    s16 temp_3_5;
-    s16 temp_3_6;
+    s16 clipFrame;
+    s16 titleFrame;
+    s16 openingListFrame;
+    s16 openingDetailFrame;
+    s16 closingListFrame;
+    s16 closingDetailFrame;
 
-    if (*(u8 **)(arg1 + 0x38) == arg1 + 0xDC) {
-        if (*(u16 *)arg1 != 2) {
-            btlSelectionDrawList(arg1, arg0, arg2[0], arg2[1],
+    if (((BtlPanelWork *)panel)->list.current == panel + 0xDC) {
+        if (*(u16 *)panel != 2) {
+            btlSelectionDrawList(panel, selection, origin[0], origin[1],
                           btlPanelDrawPersonaName);
         }
-        temp_3 = *(s16 *)(arg1 + 0x20);
-        if (temp_3 < 4) {
-            *(s16 *)(arg1 + 0x20) = temp_3 + 1;
+        clipFrame = *(s16 *)(panel + 0x20); /* measured: access-site field substitution loses MATCH. */
+        if (clipFrame < 4) {
+            ((BtlPanelWork *)panel)->clipFrame = clipFrame + 1;
         }
-        temp_3_2 = *(s16 *)(arg1 + 0x22);
-        if (temp_3_2 < 0xA) {
-            *(s16 *)(arg1 + 0x22) = temp_3_2 + 1;
+        titleFrame = *(s16 *)(panel + 0x22); /* measured: access-site field substitution loses MATCH. */
+        if (titleFrame < 0xA) {
+            ((BtlPanelWork *)panel)->titleFrame = titleFrame + 1;
         }
-        if ((*(s32 *)(arg1 + 4) & 4) != 0) {
-            temp_3_3 = *(s16 *)(arg1 + 0x16);
-            if (temp_3_3 < 4) {
-                *(s16 *)(arg1 + 0x16) = temp_3_3 + 1;
+        if ((((BtlPanelWork *)panel)->flags & 4) != 0) {
+            openingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
+            if (openingListFrame < 4) {
+                ((BtlPanelWork *)panel)->listFrame = openingListFrame + 1;
             }
-            temp_3_4 = *(s16 *)(arg1 + 0x18);
-            if (temp_3_4 < 7) {
-                *(s16 *)(arg1 + 0x18) = temp_3_4 + 1;
+            openingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
+            if (openingDetailFrame < 7) {
+                ((BtlPanelWork *)panel)->detailFrame = openingDetailFrame + 1;
             }
         } else {
-            temp_3_5 = *(s16 *)(arg1 + 0x16);
-            if (temp_3_5 > 0) {
-                *(s16 *)(arg1 + 0x16) = temp_3_5 - 1;
+            closingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
+            if (closingListFrame > 0) {
+                ((BtlPanelWork *)panel)->listFrame = closingListFrame - 1;
             }
-            temp_3_6 = *(s16 *)(arg1 + 0x18);
-            if (temp_3_6 > 0) {
-                *(s16 *)(arg1 + 0x18) = temp_3_6 - 1;
+            closingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
+            if (closingDetailFrame > 0) {
+                ((BtlPanelWork *)panel)->detailFrame = closingDetailFrame - 1;
             }
         }
     }
@@ -3141,111 +3268,117 @@ void btlSelectionDrawPersonaList(u8 *arg0, u8 *arg1, f32 *arg2)
 
 // Intent: save the selected row and page to the fourth cursor slot when the flag is set. [inferred]
 // FUN_00209CD0
-void btlSelectionSaveCursorFourth(u8 *arg0, u8 *arg1)
+/* Saved cursors use the shared target-block union; measured: the parent-action reload still loses MATCH when typed. */
+void btlSelectionSaveCursorFourth(u8 *selection, u8 *panel)
 {
-    s16 *p;
+    s16 *cursor;
 
     if (datGetFlag(60) == 0) {
         return;
     }
-    p = *(s16 **)(*(u8 **)(arg1 + 376) + 1008);
-    if (p == NULL) {
+    cursor = (s16 *)((BtlAction *)(*(u8 **)(panel + 376)))->targetBlock.recovery.savedCursors; /* measured: access-site field substitution loses MATCH. */
+    if (cursor == NULL) {
         return;
     }
-    p[7] = *(s16 *)(arg0 + 4);
-    (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[6] = *(s16 *)(arg0 + 2);
+    cursor[7] = ((BtlSelection *)selection)->selected;
+    ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[6] = ((BtlSelection *)selection)->first;
 }
 
 // Intent: reset the sub-list cursor fields and window. [inferred]
 // FUN_00209D40
-void btlSelectionResetSubList(u8 *arg0, u8 *arg1)
+void btlSelectionResetSubList(u8 *selection, u8 *panel)
 {
     sdkSndStartStream(0, 0, 0, 3);
-    btlSelectionUpdateWindow(arg0, 0, 0);
-    *(u16 *)arg0 |= 1;
-    *(u16 *)arg0 |= 2;
-    *(s16 *)(arg1 + 0x1C) = 0;
-    *(s16 *)(arg1 + 0x1E) = 0;
+    btlSelectionUpdateWindow(selection, 0, 0);
+    *(u16 *)selection |= 1;
+    *(u16 *)selection |= 2;
+    ((BtlPanelWork *)panel)->labelFrame = 0;
+    ((BtlPanelWork *)panel)->labelTitleFrame = 0;
 }
 
 // Intent: handle the sub-list input, store the chosen value and enqueue its packet. [inferred]
 // FUN_00209DC0
-u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1)
+/* measured: independently typing the remaining selected-row, selected-unit and flags reads lost
+ * MATCH; preserve their byte-addressed loads. */
+u16 btlSelectionConfirmSubList(u8 *selection, u8 *panel)
 {
-    extern s16 func_00105f00(s16 arg0);
-    extern void func_00105e30(s16 arg0, s16 arg1);
-    extern u8 *btlActionFindByUnit(s32 arg0);
-    extern u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3,
-                              s32 arg4);
-    extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-    s16 temp_16;
-    u8 *temp_2;
-    s32 temp_2_2;
-    s32 temp_3;
-    u16 var_16;
+    extern s16 datGetUnitAiTactic(s16 unitId);
+    extern void datSetUnitAiTactic(s16 unitId, s16 value);
+    extern u8 *btlActionFindByUnit(s32 unit);
+    extern u8 *func_001f99c0(u8 *selection, u16 panel, s32 option, s32 flags,
+                              s32 extra);
+    extern s64 btlPacketEnqueue(u8 *context, u32 value);
+    s16 selected;
+    u8 *action;
+    s32 toggledFlags;
+    s32 flags;
+    u16 result;
 
-    var_16 = btlSelectionReadInput(arg0) & 0xFFFF;
-    switch (var_16) {
+    result = btlSelectionReadInput(selection) & 0xFFFF;
+    switch (result) {
     case 2:
-        temp_16 = *(s16 *)(arg0 + 4);
-        if (temp_16 !=
-            func_00105f00(*(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4))) {
-            func_00105e30(
-                *(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4), temp_16);
-            temp_2 = btlActionFindByUnit(*(s32 *)(arg1 + 0x190));
-            if (temp_2 != NULL) {
+        selected = *(s16 *)(selection + 4); /* measured: access-site field substitution loses MATCH. */
+        if (selected !=
+            datGetUnitAiTactic((s16)((BtlUnit *)(*(u8 **)(panel + 0x190)))->charId)) { /* measured: access-site field substitution loses MATCH. */
+            datSetUnitAiTactic(
+                (s16)((BtlUnit *)((BtlPanelWork *)panel)->selectedUnit)->charId, selected);
+            action = btlActionFindByUnit(*(s32 *)(panel + 0x190)); /* measured: access-site field substitution loses MATCH. */
+            if (action != NULL) {
                 btlPacketEnqueue(
-                    func_001f99c0(temp_2, 2, *(s16 *)(arg0 + 4), 0, 0), 1);
+                    func_001f99c0(action, 2, ((BtlSelection *)selection)->selected, 0, 0), 1);
             }
         }
-        *(s32 *)(arg1 + 4) &= ~4;
-        *(s16 *)(arg1 + 0x16) = 0;
-        *(s16 *)(arg1 + 0x18) = 0;
+        ((BtlPanelWork *)panel)->flags &= ~4;
+        ((BtlPanelWork *)panel)->listFrame = 0;
+        ((BtlPanelWork *)panel)->detailFrame = 0;
         sdkSndStartStream(0, 15, 0, 1);
-        var_16 = 2;
+        result = 2;
         break;
     case 1:
-        temp_3 = *(s32 *)(arg1 + 4);
-        if ((temp_3 & 4) != 0) {
-            *(s32 *)(arg1 + 4) = temp_3 & ~4;
-            var_16 = 1 & 0xFFFF;
+        flags = *(s32 *)(panel + 4); /* measured: access-site field substitution loses MATCH. */
+        if ((flags & 4) != 0) {
+            ((BtlPanelWork *)panel)->flags = flags & ~4;
+            result = 1 & 0xFFFF;
         } else {
             sdkSndStartStream(0, 0, 0, 4);
-            var_16 = 2;
+            result = 2;
         }
         break;
     case 3:
-        temp_2_2 = *(s32 *)(arg1 + 4) ^ 4;
-        *(s32 *)(arg1 + 4) = temp_2_2;
-        if ((temp_2_2 & 4) != 0) {
+        toggledFlags = ((BtlPanelWork *)panel)->flags ^ 4;
+        ((BtlPanelWork *)panel)->flags = toggledFlags;
+        if ((toggledFlags & 4) != 0) {
             sdkSndStartStream(1, 13, 2, 23);
         } else {
             sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     default:
-        var_16 = 1 & 0xFFFF;
+        result = 1 & 0xFFFF;
         break;
     }
-    return var_16;
+    return result;
 }
 
 // FUN_00209F90
-void func_00209f90(void)
+/* Empty draw callback for the persona-command sub-list; its notify callback draws the detail. */
+void btlSelectionDrawSubList(void)
 {
 }
 
 // Intent: draw the current character label and advance its bounded panel timers. [inferred]
 // FUN_00209FA0
+/* measured: independently typing the remaining counter and selected-unit reads lost MATCH;
+ * preserve those byte aliases while keeping their update stores typed. */
 void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern s16 func_00105f00(s16 selection);
-    extern u32 datPersonaNamePart1(s16 selection);
+    extern s16 datGetUnitAiTactic(s16 unitId);
+    extern u32 datPersonaNamePart1(s16 unitId);
     extern s32 frFontNodeWidth(struct FrFontNode *node);
-    extern void frFontMoveListTo(s32 node, s32 x, s32 y);
-    extern s32 frFontListKeepOrRelease(s32 node);
-    BattleRenderDispatch *renderer;
+    extern void frFontMoveListTo(s32 list, s32 x, s32 y);
+    extern s32 frFontListKeepOrRelease(s32 list);
+    BtlPanelRenderDispatch *renderer;
     s32 rect[4];
     Color4 color;
     f32 *origin;
@@ -3261,7 +3394,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
     s32 iconFrame;
     origin = (f32 *)drawState;
     work = (u8 *)(u32)workAddress;
-    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
     btlUiSetOrigin(glyphs, origin[0], origin[1]);
     if (*(u16 *)work != 2) {
         btlSelectionDrawList(work, selection, origin[0], origin[1], btlPanelDrawListRow);
@@ -3273,38 +3406,38 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
         s16 openingFrame18;
         s16 closingFrame16;
         s16 closingFrame18;
-        frame20 = *(s16 *)(work + 0x20);
+        frame20 = *(s16 *)(work + 0x20); /* measured: access-site field substitution loses MATCH. */
         if (frame20 < 4) {
-            *(s16 *)(work + 0x20) = frame20 + 1;
+            ((BtlPanelWork *)work)->clipFrame = frame20 + 1;
         }
-        frame22 = *(s16 *)(work + 0x22);
+        frame22 = *(s16 *)(work + 0x22); /* measured: access-site field substitution loses MATCH. */
         if (frame22 < 0xA) {
-            *(s16 *)(work + 0x22) = frame22 + 1;
+            ((BtlPanelWork *)work)->titleFrame = frame22 + 1;
         }
-        if ((*(s32 *)(work + 4) & 4) != 0) {
-            openingFrame16 = *(s16 *)(work + 0x16);
+        if ((((BtlPanelWork *)work)->flags & 4) != 0) {
+            openingFrame16 = *(s16 *)(work + 0x16); /* measured: access-site field substitution loses MATCH. */
             if (openingFrame16 < 4) {
-                *(s16 *)(work + 0x16) = openingFrame16 + 1;
+                ((BtlPanelWork *)work)->listFrame = openingFrame16 + 1;
             }
-            openingFrame18 = *(s16 *)(work + 0x18);
+            openingFrame18 = *(s16 *)(work + 0x18); /* measured: access-site field substitution loses MATCH. */
             if (openingFrame18 < 7) {
-                *(s16 *)(work + 0x18) = openingFrame18 + 1;
+                ((BtlPanelWork *)work)->detailFrame = openingFrame18 + 1;
             }
         } else {
-            closingFrame16 = *(s16 *)(work + 0x16);
+            closingFrame16 = *(s16 *)(work + 0x16); /* measured: access-site field substitution loses MATCH. */
             if (closingFrame16 > 0) {
-                *(s16 *)(work + 0x16) = closingFrame16 - 1;
+                ((BtlPanelWork *)work)->listFrame = closingFrame16 - 1;
             }
-            closingFrame18 = *(s16 *)(work + 0x18);
+            closingFrame18 = *(s16 *)(work + 0x18); /* measured: access-site field substitution loses MATCH. */
             if (closingFrame18 > 0) {
-                *(s16 *)(work + 0x18) = closingFrame18 - 1;
+                ((BtlPanelWork *)work)->detailFrame = closingFrame18 - 1;
             }
         }
     }
     {
         f32 clamped;
         f32 progress;
-        progress = (f32)*(s16 *)(work + 0x1C) / 5.0f;
+        progress = (f32)*(s16 *)(work + 0x1C) / 5.0f; /* measured: access-site field substitution loses MATCH. */
         if (progress > 1.0f) {
             clamped = 1.0f;
         } else if (progress < 0.0f) {
@@ -3317,7 +3450,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
     rowOffset = 36.0f * remaining;
     btlUiDrawSpriteFaded(glyphs, 9, 0x4E, 491.0f, 324.0f + rowOffset, 0xFE, 0xFF, 0x22, 0xFF);
     if (remaining > 0.0f) {
-        renderer = (BattleRenderDispatch *)D_00887300;
+        renderer = (BtlPanelRenderDispatch *)D_00887300;
         renderer->setState(1, 0);
         renderer->setState(8, 1);
         color.c0 = 0;
@@ -3337,14 +3470,14 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
         PrimDrawFlatRectangle((u8 *)&color, (f32 *)rect, 0.0f, 0);
         renderer->setState(8, 0);
     }
-    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer = (BtlPanelRenderDispatch *)D_00887300;
     renderer->setState(6, 1);
     btlUiSetAlpha(glyphs, 50.0f);
     btlUiDrawSpriteFaded(glyphs, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-    iconFrame = (s16)func_00105f00(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4)) + 0x3F;
+    iconFrame = (s16)datGetUnitAiTactic((s16)((BtlUnit *)(*(u8 **)(work + 0x190)))->charId) + 0x3F; /* measured: access-site field substitution loses MATCH. */
     btlUiDrawSpriteFaded(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
     frFontSetFlagBits(0x40);
-    nameAddress = datPersonaNamePart1(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4));
+    nameAddress = datPersonaNamePart1((s16)((BtlUnit *)((BtlPanelWork *)work)->selectedUnit)->charId);
     font = (u8 *)(u32)frFontExCreateText(357.0f, 332.0f, 50.0f, -1, 0, 1, (const char *)nameAddress, 0, NULL);
     nameWidth = frFontNodeWidth((struct FrFontNode *)font);
     {
@@ -3369,7 +3502,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
         f32 eased;
         f32 remainingFraction;
         f32 visibleFraction;
-        progress = (f32)*(s16 *)(work + 0x1E) / 10.0f;
+        progress = (f32)*(s16 *)(work + 0x1E) / 10.0f; /* measured: access-site field substitution loses MATCH. */
         if (progress > 1.0f) {
             clamped = 1.0f;
         } else if (progress < 0.0f) {
@@ -3386,32 +3519,33 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
     {
         s16 frame1c;
         s16 frame1e;
-        frame1c = *(s16 *)(work + 0x1C);
+        frame1c = *(s16 *)(work + 0x1C); /* measured: access-site field substitution loses MATCH. */
         if (frame1c < 5) {
-            *(s16 *)(work + 0x1C) = frame1c + 1;
+            ((BtlPanelWork *)work)->labelFrame = frame1c + 1;
         }
-        frame1e = *(s16 *)(work + 0x1E);
+        frame1e = *(s16 *)(work + 0x1E); /* measured: access-site field substitution loses MATCH. */
         if (frame1e < 0xA) {
-            *(s16 *)(work + 0x1E) = frame1e + 1;
+            ((BtlPanelWork *)work)->labelTitleFrame = frame1e + 1;
         }
     }
 }
 
 // FUN_0020A5C0
-void func_0020a5c0(void)
+/* Empty exit callback for the persona-command sub-list. */
+void btlSelectionEndSubList(void)
 {
 }
 
 // Intent: reset the selection flags and window fields for the cursor state. [inferred]
 // FUN_0020A5D0
-void btlSelectionResetCursorState(u16 *arg0, u8 *arg1) {
+void btlSelectionResetCursorState(u16 *selection, u8 *panel) {
     sdkSndStartStream(0, 0, 0, 3);
-    *arg0 |= 1;
-    *arg0 |= 2;
-    *(s16 *)(arg1 + 0x20) = 0;
-    *(s16 *)(arg1 + 0x22) = 0;
-    *(s16 *)(arg1 + 0x16) = 0;
-    *(s16 *)(arg1 + 0x18) = 0;
+    *selection |= 1;
+    *selection |= 2;
+    ((BtlPanelWork *)panel)->clipFrame = 0;
+    ((BtlPanelWork *)panel)->titleFrame = 0;
+    ((BtlPanelWork *)panel)->listFrame = 0;
+    ((BtlPanelWork *)panel)->detailFrame = 0;
 }
 
 // Intent: handle the swap input for the persona roster and start or finish the swap task. [inferred]
@@ -3419,110 +3553,112 @@ void btlSelectionResetCursorState(u16 *arg0, u8 *arg1) {
 /* measured: 1064/1072 bytes; 35 independently resolved relocations and eight
    zero alignment bytes. Separate stats/task snapshots preserve the retail
    argument-load order without narrowing the persona lookup return type. */
-u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
+/* measured: independently typing the remaining persona-task/slot and selected-row reads lost
+ * MATCH; retain these byte aliases across the display callbacks. */
+u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel)
 {
-    s16 sp48[4];
-    s16 temp_16;
-    u8 *temp_2;
-    u16 var_16;
+    s16 repeatMasks[4];
+    s16 selected;
+    u8 *persona;
+    u16 result;
     u8 *stats;
     u8 *task;
 
-    var_16 = (u16)(btlSelectionReadInput(arg0) & 0xFFFF);
-    switch (var_16) {
+    result = (u16)(btlSelectionReadInput(selection) & 0xFFFF);
+    switch (result) {
     case 2:
-        temp_16 = *(s16 *)(arg0 + 4);
-        if (temp_16 != (s16)datPersonaGetLeadSlot()) {
-            temp_2 = (u8 *)datPersonaRosterSlot(temp_16);
-            *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 5;
-            *(u16 *)(*(u8 **)(arg1 + 0x178) + 0x74) = *(u16 *)((u8 *)temp_2 + 2);
-            shdPersonaFinishPhase(*(u8 **)(arg1 + 0x5A8));
-            *(u8 **)(arg1 + 0x5A8) = NULL;
-            *(s16 *)(arg1 + 0x5AC) = -1;
-            *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
-            *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
-            btlEncounterEntrySetActive(*(u8 **)(arg1 + 0x5B0));
-            var_16 = 4;
+        selected = ((BtlSelection *)selection)->selected;
+        if (selected != (s16)datPersonaGetLeadSlot()) {
+            persona = (u8 *)datPersonaRosterSlot(selected);
+            ((BtlAction *)((BtlPanelWork *)panel)->action)->unk_6c = 5;
+            ((BtlPanelActionChoice *)((BtlAction *)((BtlPanelWork *)panel)->action)->unk_70)->persona = ((DatPersonaRecord *)persona)->id;
+            shdPersonaFinishPhase(*(u8 **)(panel + 0x5A8)); /* measured: access-site field substitution loses MATCH. */
+            ((BtlPanelWork *)panel)->personaTask = NULL;
+            ((BtlPanelWork *)panel)->personaSlot = -1;
+            ((BtlBattleState *)iGpffffb3ac)->flags |= 0x2000;
+            ((BtlBattleState *)iGpffffb3ac)->flags |= 0x20000;
+            btlEncounterEntrySetActive((u8 *)((BtlPanelWork *)panel)->task);
+            result = 4;
         } else {
             sdkSndStartStream(0, 15, 0, 8);
-            var_16 = 1;
+            result = 1;
         }
         break;
 
     case 3:
-        if (*(s16 *)(arg1 + 0x5AC) == -1) {
-            if (shdPersonaIsTransitioning(*(u8 **)(arg1 + 0x5A8)) == 0) {
-                temp_2 = (u8 *)datPersonaRosterSlot(*(s16 *)(arg0 + 4));
-                *(s32 *)(iGpffffb3ac + 0xC) &= ~0x2000;
-                *(s32 *)(iGpffffb3ac + 0xC) &= ~0x20000;
-                stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
-                task = *(u8 **)(arg1 + 0x5A8);
-                shdPersonaSetDisplayState(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
-                shdPersonaStartSlideIn(*(u8 **)(arg1 + 0x5A8));
-                btlEncounterEntryClearActive(*(u8 **)(arg1 + 0x5B0));
-                memset(sp48, 0, 8);
-                sp48[0] = 4;
-                sp48[1] = 8;
-                btlSelectionSetRepeat(arg0, sp48);
-                *(u16 *)arg0 &= ~2;
-                *(u16 *)arg0 &= ~1;
-                *(u16 *)arg0 &= ~8;
-                *(s16 *)(arg1 + 0x5AC) = *(s16 *)(arg0 + 4);
+        if (*(s16 *)(panel + 0x5AC) == -1) { /* measured: access-site field substitution loses MATCH. */
+            if (shdPersonaIsTransitioning(*(u8 **)(panel + 0x5A8)) == 0) { /* measured: access-site field substitution loses MATCH. */
+                persona = (u8 *)datPersonaRosterSlot(*(s16 *)(selection + 4)); /* measured: access-site field substitution loses MATCH. */
+                ((BtlBattleState *)iGpffffb3ac)->flags &= ~0x2000;
+                ((BtlBattleState *)iGpffffb3ac)->flags &= ~0x20000;
+                stats = (u8 *)((BtlAction *)((BtlPanelWork *)panel)->action)->unit;
+                task = *(u8 **)(panel + 0x5A8); /* measured: access-site field substitution loses MATCH. */
+                shdPersonaSetDisplayState(task, ((BtlUnit *)stats)->charId, (u32)persona, 0);
+                shdPersonaStartSlideIn(((BtlPanelWork *)panel)->personaTask);
+                btlEncounterEntryClearActive((u8 *)((BtlPanelWork *)panel)->task);
+                memset(repeatMasks, 0, 8);
+                repeatMasks[0] = 4;
+                repeatMasks[1] = 8;
+                btlSelectionSetRepeat(selection, repeatMasks);
+                *(u16 *)selection &= ~2;
+                *(u16 *)selection &= ~1;
+                *(u16 *)selection &= ~8;
+                ((BtlPanelWork *)panel)->personaSlot = ((BtlSelection *)selection)->selected;
             }
-        } else if (shdPersonaIsSelectionActive(*(u8 **)(arg1 + 0x5A8)) == 0) {
-            shdPersonaBeginSelection(*(u8 **)(arg1 + 0x5A8));
+        } else if (shdPersonaIsSelectionActive(*(u8 **)(panel + 0x5A8)) == 0) { /* measured: access-site field substitution loses MATCH. */
+            shdPersonaBeginSelection(((BtlPanelWork *)panel)->personaTask);
         } else {
-            shdPersonaEndSelection(*(u8 **)(arg1 + 0x5A8), 1);
+            shdPersonaEndSelection(((BtlPanelWork *)panel)->personaTask, 1);
         }
         break;
 
     case 1:
-        if (*(s16 *)(arg1 + 0x5AC) == -1) {
-            shdPersonaFinishPhase(*(u8 **)(arg1 + 0x5A8));
-            *(u8 **)(arg1 + 0x5A8) = NULL;
-            *(s16 *)(arg1 + 0x5AC) = -1;
+        if (*(s16 *)(panel + 0x5AC) == -1) { /* measured: access-site field substitution loses MATCH. */
+            shdPersonaFinishPhase(*(u8 **)(panel + 0x5A8)); /* measured: access-site field substitution loses MATCH. */
+            ((BtlPanelWork *)panel)->personaTask = NULL;
+            ((BtlPanelWork *)panel)->personaSlot = -1;
             sdkSndStartStream(0, 0, 0, 4);
-            var_16 = 2;
-        } else if (shdPersonaIsSelectionActive(*(u8 **)(arg1 + 0x5A8)) == 0) {
-            *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
-            *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
-            shdPersonaBeginClose(*(u8 **)(arg1 + 0x5A8));
-            *(s16 *)(arg1 + 0x5AC) = -1;
-            btlSelectionSetRepeat(arg0, NULL);
-            btlEncounterEntrySetActive(*(u8 **)(arg1 + 0x5B0));
-            *(u16 *)arg0 |= 2;
-            *(u16 *)arg0 |= 1;
-            *(u16 *)arg0 |= 8;
+            result = 2;
+        } else if (shdPersonaIsSelectionActive(*(u8 **)(panel + 0x5A8)) == 0) { /* measured: access-site field substitution loses MATCH. */
+            ((BtlBattleState *)iGpffffb3ac)->flags |= 0x2000;
+            ((BtlBattleState *)iGpffffb3ac)->flags |= 0x20000;
+            shdPersonaBeginClose(((BtlPanelWork *)panel)->personaTask);
+            ((BtlPanelWork *)panel)->personaSlot = -1;
+            btlSelectionSetRepeat(selection, NULL);
+            btlEncounterEntrySetActive((u8 *)((BtlPanelWork *)panel)->task);
+            *(u16 *)selection |= 2;
+            *(u16 *)selection |= 1;
+            *(u16 *)selection |= 8;
             sdkSndStartStream(0, 0, 0, 4);
-            var_16 = 1;
+            result = 1;
         } else {
-            shdPersonaEndSelection(*(u8 **)(arg1 + 0x5A8), 1);
+            shdPersonaEndSelection(((BtlPanelWork *)panel)->personaTask, 1);
         }
         break;
 
     default:
-        if (*(s16 *)(arg1 + 0x5AC) != -1) {
-            if (*(s16 *)(arg1 + 0x5AC) != *(s16 *)(arg0 + 4)) {
-                temp_2 = (u8 *)datPersonaRosterSlot(*(s16 *)(arg0 + 4));
-                if (var_16 == 5) {
-                    stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
-                    task = *(u8 **)(arg1 + 0x5A8);
-                    shdPersonaBeginDisplayAndEndSelection(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
+        if (*(s16 *)(panel + 0x5AC) != -1) { /* measured: access-site field substitution loses MATCH. */
+            if (*(s16 *)(panel + 0x5AC) != *(s16 *)(selection + 4)) { /* measured: access-site field substitution loses MATCH. */
+                persona = (u8 *)datPersonaRosterSlot(*(s16 *)(selection + 4)); /* measured: access-site field substitution loses MATCH. */
+                if (result == 5) {
+                    stats = (u8 *)((BtlAction *)((BtlPanelWork *)panel)->action)->unit;
+                    task = ((BtlPanelWork *)panel)->personaTask;
+                    shdPersonaBeginDisplayAndEndSelection(task, ((BtlUnit *)stats)->charId, (u32)persona, 0);
                 } else {
-                    stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
-                    task = *(u8 **)(arg1 + 0x5A8);
-                    shdPersonaBeginDisplay(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
+                    stats = (u8 *)((BtlAction *)((BtlPanelWork *)panel)->action)->unit;
+                    task = ((BtlPanelWork *)panel)->personaTask;
+                    shdPersonaBeginDisplay(task, ((BtlUnit *)stats)->charId, (u32)persona, 0);
                 }
-                *(s16 *)(arg1 + 0x5AC) = *(s16 *)(arg0 + 4);
-            } else if (shdPersonaIsSelectionActive(*(u8 **)(arg1 + 0x5A8)) != 0) {
-                shdPersonaStepSelectionCursor(*(u8 **)(arg1 + 0x5A8));
+                ((BtlPanelWork *)panel)->personaSlot = ((BtlSelection *)selection)->selected;
+            } else if (shdPersonaIsSelectionActive(*(u8 **)(panel + 0x5A8)) != 0) { /* measured: access-site field substitution loses MATCH. */
+                shdPersonaStepSelectionCursor(((BtlPanelWork *)panel)->personaTask);
             }
         }
-        var_16 = 1;
+        result = 1;
         break;
     }
 
-    return var_16;
+    return result;
 }
 
 /* 508/512 bytes, 13 resolved relocations, four zero alignment bytes.
@@ -3531,83 +3667,86 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
  */
 // Intent: draw the swap panel and advance its slide-in timer. [inferred]
 // FUN_0020AA70
-void btlSelectionDrawSwapPanel(u8 *arg0, u8 *arg1, f32 *arg2)
+void btlSelectionDrawSwapPanel(u8 *selection, u8 *panel, f32 *originOrRenderer)
 {
-    u8 *temp;
+    u8 *glyphs;
 
-    temp = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
-    btlUiSetOrigin(temp, arg2[0], arg2[1]);
-    btlUiDrawSpriteFaded(temp, 9, 0x22, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
-    arg2 = (f32 *)D_00887300;
-    ((void (**)(u32, u32))arg2)[0](6, 1);
-    btlUiSetAlpha(temp, 120.0f);
-    btlUiDrawSpriteFaded(temp, 9, 0x38, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
-    ((void (**)(u32, u32))arg2)[0](6, 0);
-    btlUiSetAlpha(temp, 0.0f);
-    if (func_001eb860() != 0) {
-        btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
-        btlUiDrawSpriteFaded(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    btlUiSetOrigin(glyphs, originOrRenderer[0], originOrRenderer[1]);
+    btlUiDrawSpriteFaded(glyphs, 9, 0x22, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+    originOrRenderer = (f32 *)D_00887300;
+    ((void (**)(u32, u32))originOrRenderer)[0](6, 1);
+    btlUiSetAlpha(glyphs, 120.0f);
+    btlUiDrawSpriteFaded(glyphs, 9, 0x38, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    ((void (**)(u32, u32))originOrRenderer)[0](6, 0);
+    btlUiSetAlpha(glyphs, 0.0f);
+    if (btlTargetCanControlDamagePhase() != 0) {
+        btlUiDrawSpriteFaded(glyphs, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 100.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
 
 // Intent: draw the persona level list and advance its timers. [inferred]
 // FUN_0020AC70
-void btlSelectionDrawLevelList(s32 arg0, u8 *arg1, f32 *arg2)
+/* measured: independently typing the remaining +0x16/+0x18/+0x20/+0x22 counter reads lost MATCH;
+ * their update stores remain typed. */
+void btlSelectionDrawLevelList(s32 selection, u8 *panel, f32 *origin)
 {
-    s16 temp_3;
-    s16 temp_3_2;
-    s16 temp_3_3;
-    s16 temp_3_4;
-    s16 temp_3_5;
-    s16 temp_3_6;
+    s16 clipFrame;
+    s16 titleFrame;
+    s16 openingListFrame;
+    s16 openingDetailFrame;
+    s16 closingListFrame;
+    s16 closingDetailFrame;
 
-    if (*(u16 *)arg1 != 2) {
-        btlSelectionDrawList(arg1, (u8 *)arg0, arg2[0], arg2[1],
+    if (*(u16 *)panel != 2) {
+        btlSelectionDrawList(panel, (u8 *)selection, origin[0], origin[1],
                       btlPanelDrawPersonaLevel);
     }
-    temp_3 = *(s16 *)(arg1 + 0x20);
-    if (temp_3 < 4) {
-        *(s16 *)(arg1 + 0x20) = temp_3 + 1;
+    clipFrame = *(s16 *)(panel + 0x20); /* measured: access-site field substitution loses MATCH. */
+    if (clipFrame < 4) {
+        ((BtlPanelWork *)panel)->clipFrame = clipFrame + 1;
     }
-    temp_3_2 = *(s16 *)(arg1 + 0x22);
-    if (temp_3_2 < 0xA) {
-        *(s16 *)(arg1 + 0x22) = temp_3_2 + 1;
+    titleFrame = *(s16 *)(panel + 0x22); /* measured: access-site field substitution loses MATCH. */
+    if (titleFrame < 0xA) {
+        ((BtlPanelWork *)panel)->titleFrame = titleFrame + 1;
     }
-    if ((*(s32 *)(arg1 + 4) & 4) != 0) {
-        temp_3_3 = *(s16 *)(arg1 + 0x16);
-        if (temp_3_3 < 4) {
-            *(s16 *)(arg1 + 0x16) = temp_3_3 + 1;
+    if ((((BtlPanelWork *)panel)->flags & 4) != 0) {
+        openingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
+        if (openingListFrame < 4) {
+            ((BtlPanelWork *)panel)->listFrame = openingListFrame + 1;
         }
-        temp_3_4 = *(s16 *)(arg1 + 0x18);
-        if (temp_3_4 < 7) {
-            *(s16 *)(arg1 + 0x18) = temp_3_4 + 1;
+        openingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
+        if (openingDetailFrame < 7) {
+            ((BtlPanelWork *)panel)->detailFrame = openingDetailFrame + 1;
         }
     } else {
-        temp_3_5 = *(s16 *)(arg1 + 0x16);
-        if (temp_3_5 > 0) {
-            *(s16 *)(arg1 + 0x16) = temp_3_5 - 1;
+        closingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
+        if (closingListFrame > 0) {
+            ((BtlPanelWork *)panel)->listFrame = closingListFrame - 1;
         }
-        temp_3_6 = *(s16 *)(arg1 + 0x18);
-        if (temp_3_6 > 0) {
-            *(s16 *)(arg1 + 0x18) = temp_3_6 - 1;
+        closingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
+        if (closingDetailFrame > 0) {
+            ((BtlPanelWork *)panel)->detailFrame = closingDetailFrame - 1;
         }
     }
 }
 
 // FUN_0020AD70
-void func_0020ad70(void)
+/* Empty exit callback for the persona-swap selection. */
+void btlSelectionEndSwapList(void)
 {
 }
 
 // Intent: initialise a panel work block, clearing it and setting its task pointer. [inferred]
 // FUN_0020AD80
-void btlPanelInitWork(u8 *arg0, s32 arg1) {
-    memset(arg0, 0, 0x5B4);
-    *(s32 *)(arg0 + 0x5B0) = arg1;
-    *(s16 *)(arg0 + 0) = 0;
-    *(s16 *)(arg0 + 0x5AC) = -1;
+void btlPanelInitWork(u8 *panel, s32 task) {
+    memset(panel, 0, 0x5B4);
+    ((BtlPanelWork *)panel)->task = task;
+    ((BtlPanelWork *)panel)->state = 0;
+    ((BtlPanelWork *)panel)->personaSlot = -1;
 }
 
 /*
@@ -3616,51 +3755,53 @@ void btlPanelInitWork(u8 *arg0, s32 arg1) {
  */
 // Intent: advance the panel's animation counters and low-HP pulse for one frame. [inferred]
 // FUN_0020ADD0
-void btlPanelUpdate(void *arg0)
+/* measured: independently typing the remaining flag and counter reads lost MATCH even with their
+ * stores typed. Preserve the byte-addressed tests. */
+void btlPanelUpdate(void *panel)
 {
-    u8 *state = arg0;
-    if (*(u32 *)(state + 4) & 1) {
-        if (*(s16 *)(state + 0xA) < 11) ++*(s16 *)(state + 0xA);
+    u8 *state = panel;
+    if (*(u32 *)(state + 4) & 1) { /* measured: access-site field substitution loses MATCH. */
+        if (*(s16 *)(state + 0xA) < 11) ++((BtlPanelWork *)state)->scaleFrame; /* measured: access-site field substitution loses MATCH. */
     } else {
-        if (*(s16 *)(state + 8) < 19) ++*(s16 *)(state + 8);
-        if (*(s16 *)(state + 0xA) < 6) ++*(s16 *)(state + 0xA);
-        else if (*(s16 *)(state + 0xA) > 6) --*(s16 *)(state + 0xA);
+        if (*(s16 *)(state + 8) < 19) ++((BtlPanelWork *)state)->outlineFrame; /* measured: access-site field substitution loses MATCH. */
+        if (*(s16 *)(state + 0xA) < 6) ++((BtlPanelWork *)state)->scaleFrame; /* measured: access-site field substitution loses MATCH. */
+        else if (*(s16 *)(state + 0xA) > 6) --((BtlPanelWork *)state)->scaleFrame; /* measured: access-site field substitution loses MATCH. */
     }
-    if (*(s16 *)(state + 0xC) < 4) ++*(s16 *)(state + 0xC);
-    if (*(s16 *)(state + 0xE) < 2) ++*(s16 *)(state + 0xE);
-    else if (!(*(u32 *)(state + 4) & 2)) {
-        *(u32 *)(state + 4) |= 2;
-        *(s16 *)(state + 0x10) = 0;
+    if (*(s16 *)(state + 0xC) < 4) ++((BtlPanelWork *)state)->circleFrame; /* measured: access-site field substitution loses MATCH. */
+    if (*(s16 *)(state + 0xE) < 2) ++((BtlPanelWork *)state)->commandFrame; /* measured: access-site field substitution loses MATCH. */
+    else if (!(*(u32 *)(state + 4) & 2)) { /* measured: access-site field substitution loses MATCH. */
+        ((BtlPanelWork *)state)->flags |= 2;
+        ((BtlPanelWork *)state)->gridFrame = 0;
     }
-    if (*(u16 *)state == 1 && *(s16 *)(state + 8) == 8) {
+    if (*(u16 *)state == 1 && ((BtlPanelWork *)state)->outlineFrame == 8) {
         sdkSndStartStream(1, 15, 2, 26);
     }
-    if (*(u8 **)(state + 0x38) == state + 0x40) {
+    if (((BtlPanelWork *)state)->list.current == state + 0x40) {
         if (*(u16 *)state == 1) {
-            if (*(s16 *)(state + 0x12) > 0) --*(s16 *)(state + 0x12);
+            if (*(s16 *)(state + 0x12) > 0) --((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
         } else {
-            if (*(s16 *)(state + 0x12) < 3) ++*(s16 *)(state + 0x12);
+            if (*(s16 *)(state + 0x12) < 3) ++((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
         }
     } else {
-        if (!(*(u32 *)(state + 4) & 1)) {
-            if (*(s16 *)(state + 0x12) < 3) ++*(s16 *)(state + 0x12);
-            else if (*(s16 *)(state + 0x12) > 3) --*(s16 *)(state + 0x12);
+        if (!(((BtlPanelWork *)state)->flags & 1)) {
+            if (*(s16 *)(state + 0x12) < 3) ++((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
+            else if (*(s16 *)(state + 0x12) > 3) --((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
         } else {
-            if (*(s16 *)(state + 0x12) < 6) ++*(s16 *)(state + 0x12);
+            if (*(s16 *)(state + 0x12) < 6) ++((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
         }
     }
-    *(u16 *)(state + 2) = *(u16 *)state;
-    if (*(u16 *)state == 1 && !(*(u32 *)(iGpffffb3ac + 0xC) & 0x10000)) {
+    ((BtlPanelWork *)state)->previousState = *(u16 *)state;
+    if (*(u16 *)state == 1 && !(((BtlBattleState *)iGpffffb3ac)->flags & 0x10000)) {
         switch (btlListStep(state + 0x2C) & 0xFFFF) {
         case 4: *(u16 *)state = 2; break;
         case 5: *(u16 *)state = 0; break;
         case 0: break;
         }
-        if (*(u8 **)(state + 0x178) != 0 &&
-            *(u8 **)(*(u8 **)(state + 0x178) + 0x30) != 0 &&
-            *(u8 **)(*(u8 **)(*(u8 **)(state + 0x178) + 0x30) + 0xA64) != 0) {
+        if (((BtlPanelWork *)state)->action != 0 &&
+            (u8 *)((BtlAction *)((BtlPanelWork *)state)->action)->unit != 0 &&
+            (u8 *)((BtlAction *)((BtlPanelWork *)state)->action)->unit->datUnit != 0) {
             f32 pulse;
-            if (datCalcIsLowHp(*(u8 **)(*(u8 **)(*(u8 **)(state + 0x178) + 0x30) + 0xA64))) {
+            if (datCalcIsLowHp((DatUnit *)((BtlAction *)((BtlPanelWork *)state)->action)->unit->datUnit)) {
                 pulse = sinf(fGpffff8478 * fGpffffb478);
                 fGpffffb478 += 2.0f;
                 if (!(fGpffffb478 < 180.0f)) fGpffffb478 -= 180.0f;
@@ -3680,55 +3821,55 @@ void btlPanelUpdate(void *arg0)
 
 // Intent: draw the panel frame, scaled outlines and the list dispatch when the panel is active. [inferred]
 // FUN_0020B1A0
-void btlPanelDrawFrame(s32 arg0, u8 *arg1)
+void btlPanelDrawFrame(s32 unused, u8 *panel)
 {
-    extern void btlPanelDrawOutlineFill(u8 *arg0, f32 fparg0, f32 fparg1,
-                              u8 arg1, u8 arg2, u8 arg3, s32 arg4);
-    u8 *temp_2;
-    s16 temp_3;
-    s16 temp_4;
-    f32 temp_f12;
-    f32 temp_f20;
+    extern void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY,
+                              u8 r, u8 g, u8 b, s32 a);
+    u8 *glyphs;
+    s16 frame;
+    s16 growthFrame;
+    f32 progress;
+    f32 scale;
 
-    temp_2 = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
-    if ((*(s32 *)temp_2 & 1) != 0) {
-        if (*(u16 *)arg1 != 0) {
-            if (*(s16 *)(arg1 + 0x5AC) == -1) {
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    if ((*(s32 *)glyphs & 1) != 0) {
+        if (*(u16 *)panel != 0) {
+            if (((BtlPanelWork *)panel)->personaSlot == -1) {
                 btlUiSetRenderStates();
-                temp_f12 = (f32)*(s16 *)(arg1 + 8) / 19.0f;
-                if (temp_f12 < 1.0f) {
-                    temp_f12 = (temp_f12 * 2.0f -
-                                temp_f12 * temp_f12) *
+                progress = (f32)((BtlPanelWork *)panel)->outlineFrame / 19.0f;
+                if (progress < 1.0f) {
+                    progress = (progress * 2.0f -
+                                progress * progress) *
                                1.5f;
                     btlPanelDrawOutlineFill(
-                        temp_2, temp_f12, temp_f12,
-                        *(u8 *)(arg1 + 0x24), *(u8 *)(arg1 + 0x25),
-                        *(u8 *)(arg1 + 0x26), 0x4C);
+                        glyphs, progress, progress,
+                        ((BtlPanelWork *)panel)->outlineColor[0], ((BtlPanelWork *)panel)->outlineColor[1],
+                        ((BtlPanelWork *)panel)->outlineColor[2], 0x4C);
                 }
-                temp_3 = *(s16 *)(arg1 + 0xA);
-                if (temp_3 < 7) {
-                    temp_f12 = (f32)(6 - temp_3) / 6.0f;
-                    if (temp_f12 < 1.0f) {
-                        temp_f20 = 1.0f -
-                                   (temp_f12 * 2.0f -
-                                    temp_f12 * temp_f12);
+                frame = ((BtlPanelWork *)panel)->scaleFrame;
+                if (frame < 7) {
+                    progress = (f32)(6 - frame) / 6.0f;
+                    if (progress < 1.0f) {
+                        scale = 1.0f -
+                                   (progress * 2.0f -
+                                    progress * progress);
                     }
                 } else {
-                    temp_4 = temp_3 - 6;
-                    temp_f12 = (f32)temp_4 / 5.0f;
-                    if (temp_f12 < 1.0f) {
-                        temp_f20 =
-                            (temp_f12 * 2.0f -
-                             temp_f12 * temp_f12) *
+                    growthFrame = frame - 6;
+                    progress = (f32)growthFrame / 5.0f;
+                    if (progress < 1.0f) {
+                        scale =
+                            (progress * 2.0f -
+                             progress * progress) *
                                 0.25f +
                             1.0f;
                     }
                 }
                 btlPanelDrawOutlineFill(
-                    temp_2, temp_f20, temp_f20,
-                    *(u8 *)(arg1 + 0x24), *(u8 *)(arg1 + 0x25),
-                    *(u8 *)(arg1 + 0x26), 0xFF);
-                btlListDispatchUpdate(arg1 + 0x2C);
+                    glyphs, scale, scale,
+                    ((BtlPanelWork *)panel)->outlineColor[0], ((BtlPanelWork *)panel)->outlineColor[1],
+                    ((BtlPanelWork *)panel)->outlineColor[2], 0xFF);
+                btlListDispatchUpdate(panel + 0x2C);
             }
         }
     }
@@ -3736,57 +3877,60 @@ void btlPanelDrawFrame(s32 arg0, u8 *arg1)
 
 // Intent: draw the backdrop, the sprite grid and the notify dispatch when the panel is active. [inferred]
 // FUN_0020B3A0
-void btlPanelDrawBackdropGrid(s32 arg0, u8 *arg1)
+/* measured: independently typing the remaining scale/grid counter reads lost MATCH; their other
+ * accesses remain typed. */
+void btlPanelDrawBackdropGrid(s32 unused, u8 *panel)
 {
-    extern void btlPanelDrawSpriteGrid(u8 *arg0, f32 farg0, f32 farg1, u8 arg1);
+    extern void btlPanelDrawSpriteGrid(u8 *glyphs, f32 unusedScaleX, f32 unusedScaleY, u8 opacity);
     extern u8 D_00626BE0[];
-    u8 *temp_2;
-    s16 temp_3;
-    s16 temp_4;
-    f32 temp_f20;
+    u8 *glyphs;
+    s16 frame;
+    s16 growthFrame;
+    f32 scale;
 
-    temp_2 = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
-    if ((*(s32 *)temp_2 & 1) != 0) {
-        if (*(u16 *)arg1 != 0) {
-            if (*(s16 *)(arg1 + 0x5AC) == -1) {
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    if ((*(s32 *)glyphs & 1) != 0) {
+        if (*(u16 *)panel != 0) {
+            if (((BtlPanelWork *)panel)->personaSlot == -1) {
                 btlUiSetRenderStates();
-                temp_3 = *(s16 *)(arg1 + 0xA);
-                if (temp_3 < 7) {
-                    if (((f32)(6 - temp_3) / 6.0f) < 1.0f) {
-                        temp_f20 = 1.0f -
-                            ((f32)(6 - temp_3) / 6.0f * 2.0f -
-                             (f32)(6 - temp_3) / 6.0f *
-                                 ((f32)(6 - temp_3) / 6.0f));
+                frame = *(s16 *)(panel + 0xA); /* measured: access-site field substitution loses MATCH. */
+                if (frame < 7) {
+                    if (((f32)(6 - frame) / 6.0f) < 1.0f) {
+                        scale = 1.0f -
+                            ((f32)(6 - frame) / 6.0f * 2.0f -
+                             (f32)(6 - frame) / 6.0f *
+                                 ((f32)(6 - frame) / 6.0f));
                     }
                 } else {
-                    temp_4 = temp_3 - 6;
-                    if (((f32)temp_4 / 5.0f) < 1.0f) {
-                        temp_f20 =
-                            ((f32)temp_4 / 5.0f * 2.0f -
-                             (f32)temp_4 / 5.0f *
-                                 ((f32)temp_4 / 5.0f)) *
+                    growthFrame = frame - 6;
+                    if (((f32)growthFrame / 5.0f) < 1.0f) {
+                        scale =
+                            ((f32)growthFrame / 5.0f * 2.0f -
+                             (f32)growthFrame / 5.0f *
+                                 ((f32)growthFrame / 5.0f)) *
                                 0.25f +
                             1.0f;
                     }
                 }
-                btlPanelDrawBackdrop(temp_2, temp_f20, temp_f20);
-                if (((*(s32 *)(arg1 + 4) & 2) != 0) &&
-                    (*(u16 *)arg1 != 2) &&
-                    (*(s16 *)(arg1 + 0xA) < 7)) {
-                    btlPanelDrawSpriteGrid(temp_2, 1.0f, 1.0f,
-                                  D_00626BE0[*(s16 *)(arg1 + 0x10)]);
-                    if ((u32)(s16)(*(s16 *)(arg1 + 0x10) += 1) >= 0x14) {
-                        *(s16 *)(arg1 + 0x10) = 0x13;
+                btlPanelDrawBackdrop(glyphs, scale, scale);
+                if (((((BtlPanelWork *)panel)->flags & 2) != 0) &&
+                    (*(u16 *)panel != 2) &&
+                    (((BtlPanelWork *)panel)->scaleFrame < 7)) {
+                    btlPanelDrawSpriteGrid(glyphs, 1.0f, 1.0f,
+                                  D_00626BE0[*(s16 *)(panel + 0x10)]); /* measured: access-site field substitution loses MATCH. */
+                    if ((u32)(s16)(*(s16 *)(panel + 0x10) += 1) >= 0x14) { /* measured: access-site field substitution loses MATCH. */
+                        ((BtlPanelWork *)panel)->gridFrame = 0x13;
                     }
                 }
-                btlListDispatchNotify(arg1 + 0x2C);
+                btlListDispatchNotify(panel + 0x2C);
             }
         }
     }
 }
 
 // FUN_0020B5A0
-void func_0020b5a0(void)
+/* Empty detail-node render callback registered by the battle UI task. */
+void btlPanelDrawDetail(void)
 {
 }
 
@@ -3795,17 +3939,17 @@ void func_0020b5a0(void)
 #pragma opt_propagation off
 // Intent: set the sky render states and draw the sky frame when the panel is active. [inferred]
 // FUN_0020B5B0
-void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
+void btlPanelDrawSkyFrame(s32 unused, u8 *panel)
 {
-    extern void func_0045c870(u8 *arg0, s32 arg1);
-    u8 *temp_2;
+    extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
+    u8 *glyphs;
     void (**base)(u32, u32);
     u8 work[4];
 
-    temp_2 = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
-    if (((*(u32 *)temp_2 & 1) != 0) &&
-        (*(u16 *)arg1 != 0) &&
-        (*(s16 *)(arg1 + 0x5AC) == -1)) {
+    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    if (((*(u32 *)glyphs & 1) != 0) &&
+        (*(u16 *)panel != 0) &&
+        (((BtlPanelWork *)panel)->personaSlot == -1)) {
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
         base = D_00887300;
@@ -3819,134 +3963,136 @@ void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
         work[1] = 0;
         work[2] = 0;
         work[3] = 0;
-        func_0045c870(work, 0);
+        effMiscDrawScreenColor(work, 0);
     }
 }
 
 /* measured: restore opt_propagation after func_0020b5b0. */
 /* measured: btlSelectionMarkTargets, btlSelectionResetUnitFlags MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
+extern u32 btlEffectCollectGenusMask(u8 *selection);
+extern u16 datGetSkillPropertyByte(s32 skillId);
+extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
+extern s32 datCalcElementBit(s16 element);
+extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
+extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
+extern s32 btlTargetTestUnitFlag(s32 unitId, s32 bitIndex);
+extern void btlSelectionSetRowState(u8 *row, s16 state);
+extern void btlSelectionSetRowIdle(u8 *row);
+
 // Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
 // FUN_0020B6D0
-extern u32 btlEffectCollectGenusMask(u8 *arg0);
-extern u16 func_0010f8c0(s32 arg0);
-extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
-extern s32 datCalcElementBit(s16 arg0);
-extern s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1);
-extern s32 datCalcGetElementAffinity(u8 *arg0, s32 arg1);
-extern s32 func_001f0950(s32 arg0, s32 arg1);
-extern void btlSelectionSetRowState(u8 *arg0, s16 arg1);
-extern void btlSelectionSetRowIdle(u8 *arg0);
-
-void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
+/* measured: independently typing the remaining skill store and action/unit reads lost MATCH; keep
+ * these byte aliases across the status queries. */
+void btlSelectionMarkTargets(s32 task, u8 *action, u8 *targets, s16 skill)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    u16 spD0;
-    u32 spC0;
-    u32 spB0;
-    u32 spA0;
-    u8 *temp_2_3;
-    u8 *temp_2;
-    s32 temp_2_2;
-    s32 var_20;
-    s32 var_23;
-    s32 var_2;
-    s32 var_30;
-    u16 var_19;
-    s32 temp_18;
-    s32 temp_3;
-    u16 temp_16;
-    u8 *temp_16_2;
-    u8 *temp_22;
+    u16 skillId;
+    u32 targetCount;
+    u32 isSpecial;
+    u32 affinity;
+    u8 *transition;
+    u8 *taskWork;
+    s32 elementMask;
+    s32 targetIndex;
+    s32 checkAffinity;
+    s32 lookupId;
+    s32 isEscape;
+    u16 rowState;
+    s32 element;
+    s32 character;
+    u16 skillBits;
+    u8 *unit;
+    u8 *targetAction;
 
-    temp_2 = (u8 *)kwlnTaskGetWork((void *)arg0);
-    temp_2_3 = temp_2 + 0x710;
-    *(s32 *)(temp_2 + 0x718) = (s32)arg1;
-    *(s32 *)(temp_2 + 0x71C) = 0;
-    *(u8 **)(temp_2 + 0x720) = arg2;
-    *(s16 *)(temp_2 + 0x724) = arg3;
-    *(s16 *)(temp_2_3 + 4) = 1;
-    *(u8 *)(arg2 + 0x3C) |= 1;
-    if ((btlEffectCollectGenusMask(arg2) & 0xFFFF) == 1) {
-        *(u16 *)temp_2_3 |= 2;
+    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    transition = taskWork + 0x710;
+    ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->action = action;
+    ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->previousAction = 0;
+    ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->targets = targets;
+    *(s16 *)(taskWork + 0x724) = skill; /* measured: access-site field substitution loses MATCH. */
+    ((BtlSelectionTransition *)transition)->delay = 1;
+    ((BtlTargetSelection *)targets)->flags |= 1;
+    if ((btlEffectCollectGenusMask(targets) & 0xFFFF) == 1) {
+        *(u16 *)transition |= 2;
     } else {
-        *(u16 *)temp_2_3 &= 0xFFFD;
+        *(u16 *)transition &= 0xFFFD;
     }
-    switch (arg3) {
+    switch (skill) {
     case 0x110:
     case 0x10B:
-        var_30 = 1;
+        isEscape = 1;
         break;
     default:
-        var_30 = 0;
+        isEscape = 0;
         break;
     }
-    var_23 = 0;
-    if (arg3 >= 0) {
+    checkAffinity = 0;
+    if (skill >= 0) {
         if (datGetFlag(0x38) != 0) {
-            var_2 = 5;
+            lookupId = 5;
         } else {
-            var_2 = 8;
+            lookupId = 8;
         }
-        if (datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(var_2 & 0xFFFF), 0x10C) != -1) {
-            var_23 = 1;
+        if (datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(lookupId & 0xFFFF), 0x10C) != -1) {
+            checkAffinity = 1;
         }
     }
-    spC0 = *(u16 *)(arg2 + 0x38);
-    temp_16 = (u16)arg3;
-    spB0 = func_0010f8c0(temp_16) & 0xFFFF;
-    var_20 = 0;
-    spD0 = temp_16 & 0xFFFF;
+    targetCount = ((BtlTargetSelection *)targets)->count;
+    skillBits = (u16)skill;
+    isSpecial = datGetSkillPropertyByte(skillBits) & 0xFFFF;
+    targetIndex = 0;
+    skillId = skillBits & 0xFFFF;
     goto loop_condition;
 loop_body:
-    temp_22 = *(u8 **)(arg2 + var_20 * 4);
-    temp_16_2 = *(u8 **)(temp_22 + 0x30);
-    if (var_30 != 0) {
-        var_19 = 3;
+    targetAction = ((BtlTargetSelection *)targets)->entries[targetIndex];
+    unit = (u8 *)((BtlAction *)targetAction)->unit;
+    if (isEscape != 0) {
+        rowState = 3;
     } else {
-        var_19 = 0;
-        temp_18 = (s16)datCalcSkillElement(*(u8 **)(temp_16_2 + 0xA64), spD0);
-        temp_2_2 = datCalcElementBit((s64)(s16)temp_18);
-        if (!(temp_2_2 & 0xE0001)) {
-            if (temp_2_2 & 2) {
-                if ((s8)datCalcGetBuffStatus(*(u8 **)(temp_16_2 + 0xA64), 0x10) > 0) {
-                    var_19 = 1;
+        rowState = 0;
+        element = (s16)datCalcSkillElement((u8 *)((BtlUnit *)unit)->datUnit, skillId);
+        elementMask = datCalcElementBit((s64)(s16)element);
+        if (!(elementMask & 0xE0001)) {
+            if (elementMask & 2) {
+                if ((s8)datCalcGetBuffStatus(*(u8 **)(unit + 0xA64), 0x10) > 0) { /* measured: access-site field substitution loses MATCH. */
+                    rowState = 1;
                 }
-            } else if (!(temp_2_2 & 0x40) &&
-                       (s8)datCalcGetBuffStatus(*(u8 **)(temp_16_2 + 0xA64), 0x11) > 0) {
-                var_19 = 1;
+            } else if (!(elementMask & 0x40) &&
+                       (s8)datCalcGetBuffStatus(*(u8 **)(unit + 0xA64), 0x11) > 0) { /* measured: access-site field substitution loses MATCH. */
+                rowState = 1;
             }
         }
-        if ((var_23 != 0) && !(var_19 & 0xFFFF)) {
-            spA0 = datCalcGetElementAffinity(*(u8 **)(temp_16_2 + 0xA64), temp_18);
-            var_2 = (u16)temp_18;
-            temp_3 = *(u16 *)(temp_16_2 + 0xA4);
-            if (func_001f0950(temp_3, var_2) != 0) {
-                if ((spA0 & 0x02000000) != 0) {
-                    var_19 = 1;
-                } else if ((spA0 & 0x05000000) != 0) {
-                    var_19 = 2;
+        if ((checkAffinity != 0) && !(rowState & 0xFFFF)) {
+            affinity = datCalcGetElementAffinity(*(u8 **)(unit + 0xA64), element); /* measured: access-site field substitution loses MATCH. */
+            lookupId = (u16)element;
+            character = ((BtlUnit *)unit)->charId;
+            if (btlTargetTestUnitFlag(character, lookupId) != 0) {
+                if ((affinity & 0x02000000) != 0) {
+                    rowState = 1;
+                } else if ((affinity & 0x05000000) != 0) {
+                    rowState = 2;
                 }
             }
         }
     }
-    btlSelectionSetRowState(*(u8 **)(temp_22 + 0x30) + 0xA48, (s16)var_19);
-    if (spB0 != 0) {
-        btlSelectionSetRowIdle(*(u8 **)(temp_22 + 0x30) + 0xA48);
+    btlSelectionSetRowState(*(u8 **)(targetAction + 0x30) + 0xA48, (s16)rowState); /* measured: access-site field substitution loses MATCH. */
+    if (isSpecial != 0) {
+        btlSelectionSetRowIdle(*(u8 **)(targetAction + 0x30) + 0xA48); /* measured: access-site field substitution loses MATCH. */
     }
-    var_20 += 1;
+    targetIndex += 1;
 loop_condition:
-    if (var_20 < (s32)spC0) {
+    if (targetIndex < (s32)targetCount) {
         goto loop_body;
     }
-    *(s16 *)(temp_2_3 + 2) = 0;
+    ((BtlSelectionTransition *)transition)->state = 0;
 }
 
 // Intent: return the target mark stored in the selection task. [inferred]
 // FUN_0020BA00
 u16 btlSelectionGetTargetMark(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
-    return *(u16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x712);
+    return ((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->state;
 }
 
 // Intent: clear the target mark stored in the selection task. [inferred]
@@ -3954,7 +4100,7 @@ u16 btlSelectionGetTargetMark(s32 task) {
 void btlSelectionClearTargetMark(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    *(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x712) = 0;
+    ((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->state = 0;
 }
 
 /* Both selection accessors return the formation entry read by 001d8bc0.
@@ -3964,7 +4110,7 @@ void btlSelectionClearTargetMark(s32 task)
 u32 btlSelectionGetFormationEntry(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    return btlFormationCurrentEntry(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
+    return btlFormationCurrentEntry(((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->targets);
 }
 
 // Intent: return the formation entry for the selection task's current target (duplicate of btlSelectionGetFormationEntry). [inferred]
@@ -3972,7 +4118,7 @@ u32 btlSelectionGetFormationEntry(s32 task)
 u32 btlSelectionGetFormationEntryAlt(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    return btlFormationCurrentEntry(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
+    return btlFormationCurrentEntry(((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->targets);
 }
 
 // Intent: clear the buff flag on every party unit and mark the selection task as ready. [inferred]
@@ -3983,131 +4129,134 @@ u32 btlSelectionGetFormationEntryAlt(s32 task)
 #pragma opt_loop_invariants on
 void btlSelectionResetUnitFlags(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
-    u8 *w = (u8 *)kwlnTaskGetWork((void *)task) + 0x710;
+    u8 *transition = (u8 *)kwlnTaskGetWork((void *)task) + 0x710;
     s32 mask = ~0x200;
-    u8 *p = *(u8 **)(D_0076449C + 0x178);
+    u8 *unit = ((BtlBattleState *)D_0076449C)->unitLists[0];
 
-    while (p != NULL) {
-        *(s32 *)(p + 0xA10) &= mask;
-        p = *(u8 **)(p + 0xA6C);
+    while (unit != NULL) {
+        ((BtlPortraitState *)((BtlUnit *)unit)->unk_a10)->flags &= mask;
+        unit = (u8 *)((BtlUnit *)unit)->nextUnit;
     }
-    *(s16 *)(w + 2) = 3;
+    ((BtlSelectionTransition *)transition)->state = 3;
 }
 
 /* measured: closes the hoist bracket opened above and restores the -O2
    baseline for the rest of the file. */
 // Intent: initialise a transition block and record its task. [inferred]
 // FUN_0020BB20
-void btlSelectionInitTransition(u8 *arg0, s32 arg1) {
-    memset(arg0, 0, 0x1C);
-    *(s32 *)(arg0 + 0x18) = arg1;
-    *(s16 *)(arg0 + 2) = 3;
+void btlSelectionInitTransition(u8 *transition, s32 task) {
+    memset(transition, 0, 0x1C);
+    ((BtlSelectionTransition *)transition)->task = task;
+    ((BtlSelectionTransition *)transition)->state = 3;
 }
 
 /* 512/512 bytes; seventeen fully resolved relocations.
  * The transition helpers explicitly forward their task to its work getter. */
 // Intent: advance a selection transition and commit the chosen target. [inferred]
 // FUN_0020BB70
-void btlSelectionUpdateTransition(u8 *arg0)
+/* measured: independently typing the remaining transition, target and selected-action accesses
+ * lost MATCH. Retain their byte-addressed callback-boundary loads/stores. */
+void btlSelectionUpdateTransition(u8 *transition)
 {
     u8 *selected;
-    if (*(u16 *)(arg0 + 2) == 0) {
-        if ((*(u16 *)arg0 & 1) == 0) {
-            if (*(u16 *)(arg0 + 4) > 0) {
-                --*(u16 *)(arg0 + 4);
+    if (*(u16 *)(transition + 2) == 0) { /* measured: access-site field substitution loses MATCH. */
+        if ((*(u16 *)transition & 1) == 0) {
+            if (*(u16 *)(transition + 4) > 0) { /* measured: access-site field substitution loses MATCH. */
+                --((BtlSelectionTransition *)transition)->delay;
             } else if (D_008C024E[0] & 0x20) {
                 sdkSndStartStream(0, 0, 0, 2);
-                btlPanelReleaseText(*(s32 *)(arg0 + 0x18));
-                *(u16 *)(arg0 + 2) = 2;
+                btlPanelReleaseText(((BtlSelectionTransition *)transition)->task);
+                ((BtlSelectionTransition *)transition)->state = 2;
             } else if (D_008C024E[0] & 0x40) {
-                btlPanelReleaseText(*(s32 *)(arg0 + 0x18));
-                *(u16 *)(arg0 + 2) = 1;
+                btlPanelReleaseText(((BtlSelectionTransition *)transition)->task);
+                ((BtlSelectionTransition *)transition)->state = 1;
             } else {
-                btlEffectSelectNeighbourTarget(*(u8 **)(arg0 + 8), *(u8 **)(arg0 + 0x10));
-                if (*(u8 *)(*(u8 **)(arg0 + 0x10) + 0x3C) & 1) {
-                    if ((u16)func_0010f8c0(*(u16 *)(arg0 + 0x14)) == 0) {
-                        selected = (u8 *)btlFormationCurrentEntry(*(u8 **)(arg0 + 0x10));
-                        btlPanelStartEntry(*(s32 *)(arg0 + 0x18), btlUnitGetDataRowAlt(*(u8 **)(selected + 0x30)));
-                        btlPanelSetCountdown(*(s32 *)(arg0 + 0x18), -1);
-                        btlPanelMarkEntryTimed(*(s32 *)(arg0 + 0x18));
-                        btlPanelSetTarget(*(u8 **)(arg0 + 0x18), *(s32 *)(selected + 0x30));
-                        if (*(u8 **)(arg0 + 0xC) == NULL) {
-                            btlSelectionSetRowIdle(*(u8 **)(selected + 0x30) + 0xA48);
-                        } else if (*(u8 **)(arg0 + 0xC) != selected) {
+                btlEffectSelectNeighbourTarget(((BtlSelectionTransition *)transition)->action, *(u8 **)(transition + 0x10)); /* measured: access-site field substitution loses MATCH. */
+                if (((BtlTargetSelection *)(*(u8 **)(transition + 0x10)))->flags & 1) { /* measured: access-site field substitution loses MATCH. */
+                    if ((u16)datGetSkillPropertyByte(((BtlSelectionTransition *)transition)->skill) == 0) {
+                        selected = (u8 *)btlFormationCurrentEntry(((BtlSelectionTransition *)transition)->targets);
+                        btlPanelStartEntry(*(s32 *)(transition + 0x18), btlUnitGetDataRowAlt((u8 *)((BtlAction *)selected)->unit)); /* measured: access-site field substitution loses MATCH. */
+                        btlPanelSetCountdown(*(s32 *)(transition + 0x18), -1); /* measured: access-site field substitution loses MATCH. */
+                        btlPanelMarkEntryTimed(*(s32 *)(transition + 0x18)); /* measured: access-site field substitution loses MATCH. */
+                        btlPanelSetTarget((u8 *)((BtlSelectionTransition *)transition)->task, *(s32 *)(selected + 0x30)); /* measured: access-site field substitution loses MATCH. */
+                        if (*(u8 **)(transition + 0xC) == NULL) { /* measured: access-site field substitution loses MATCH. */
+                            btlSelectionSetRowIdle(*(u8 **)(selected + 0x30) + 0xA48); /* measured: access-site field substitution loses MATCH. */
+                        } else if (*(u8 **)(transition + 0xC) != selected) { /* measured: access-site field substitution loses MATCH. */
                             sdkSndStartStream(0, 0, 0, 0);
-                            btlSelectionSwapRowState(*(u8 **)(*(u8 **)(arg0 + 0xC) + 0x30) + 0xA48, *(u8 **)(selected + 0x30) + 0xA48);
+                            btlSelectionSwapRowState((u8 *)((BtlAction *)(((BtlSelectionTransition *)transition)->previousAction))->unit + 0xA48, *(u8 **)(selected + 0x30) + 0xA48); /* measured: access-site field substitution loses MATCH. */
                         }
-                        *(u8 **)(arg0 + 0xC) = selected;
+                        ((BtlSelectionTransition *)transition)->previousAction = selected;
                     }
-                    *(u8 *)(*(u8 **)(arg0 + 0x10) + 0x3C) &= 0xFE;
+                    ((BtlTargetSelection *)((BtlSelectionTransition *)transition)->targets)->flags &= 0xFE;
                 }
             }
         } else {
-            btlPanelReleaseText(*(s32 *)(arg0 + 0x18));
-            *(u8 *)(*(u8 **)(arg0 + 0x10) + 0x3C) |= 1;
+            btlPanelReleaseText(((BtlSelectionTransition *)transition)->task);
+            ((BtlTargetSelection *)((BtlSelectionTransition *)transition)->targets)->flags |= 1;
         }
     }
 }
 
 // Intent: draw the target frame for each unit in the current selection while the panel is active. [inferred]
 // FUN_0020BD70
-void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1)
+/* measured: independently typing the remaining task/target reads lost MATCH; retain those byte
+ * aliases. Target entry arrays themselves are typed. */
+void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition)
 {
     typedef struct {
         u8 pad[8];
-        f32 sp48[2];
-        f32 sp50[2];
+        f32 screenPosition[2];
+        f32 sphereCenter[2];
     } Frame;
-    extern u32 kwlnTaskGetWork(void *arg0);
+    extern u32 kwlnTaskGetWork(void *task);
     extern void btlUiSetRenderStates(void);
     extern u8 *btlActionGetQueueSecond(void);
-    extern void btlUnitGetAttachedSphereCenter(u8 *arg0, f32 *arg1);
-    extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
-    extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
-    extern void btlUiDrawSpriteFaded(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
-                               f32 fparg1, s32 arg5, s32 arg6, s32 arg7,
-                               s32 arg8);
-    extern void btlUiSetRenderMode(s32 arg0);
-    extern void btlSelectionDispatchTargetMode(s32 arg0, u8 *arg1, u8 *arg2);
+    extern void btlUnitGetAttachedSphereCenter(u8 *context, f32 *value);
+    extern s32 btlTargetFindInRange(f32 *position, f32 *output);
+    extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
+    extern void btlUiDrawSpriteFaded(u8 *work, s32 slot, s32 segment, f32 x,
+                               f32 y, s32 red, s32 green, s32 blue,
+                               s32 opacity);
+    extern void btlUiSetRenderMode(s32 mode);
+    extern void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit);
     Frame frame;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_6;
-    u16 temp_4;
-    s32 temp_16;
-    s32 var_17;
+    u8 *glyphs;
+    u8 *action;
+    u8 *unit;
+    u16 state;
+    s32 targetCount;
+    s32 targetIndex;
 
-    temp_2 = (u8 *)kwlnTaskGetWork(*(u8 **)(arg1 + 0x18));
-    if ((*(u32 *)temp_2 & 1) != 0) {
-        if ((*(u16 *)arg1 & 1) == 0) {
-            temp_4 = *(u16 *)(arg1 + 2);
-            if ((temp_4 != 3) && (*(u16 *)(arg1 + 4) <= 0)) {
+    glyphs = (u8 *)kwlnTaskGetWork(*(u8 **)(transition + 0x18)); /* measured: access-site field substitution loses MATCH. */
+    if ((*(u32 *)glyphs & 1) != 0) {
+        if ((*(u16 *)transition & 1) == 0) {
+            state = ((BtlSelectionTransition *)transition)->state;
+            if ((state != 3) && (((BtlSelectionTransition *)transition)->delay <= 0)) {
                 btlUiSetRenderStates();
-                temp_16 = *(u16 *)(*(u8 **)(arg1 + 0x10) + 0x38);
-                var_17 = 0;
-                while (var_17 < (s32)temp_16) {
-                    temp_6 = *(u8 **)(*(u8 **)(*(u8 **)(arg1 + 0x10) +
-                                              var_17 * 4) +
-                                      0x30);
-                    btlSelectionDispatchTargetMode(*(s32 *)(arg1 + 0x18), temp_6 + 0xA48,
-                                  temp_6);
-                    var_17 += 1;
+                targetCount = ((BtlTargetSelection *)(*(u8 **)(transition + 0x10)))->count; /* measured: access-site field substitution loses MATCH. */
+                targetIndex = 0;
+                while (targetIndex < (s32)targetCount) {
+                    unit = (u8 *)((BtlAction *)((BtlTargetSelection *)
+                        ((BtlSelectionTransition *)transition)->targets)->entries[targetIndex])->unit;
+                    btlSelectionDispatchTargetMode(((BtlSelectionTransition *)transition)->task, unit + 0xA48,
+                                  unit);
+                    targetIndex += 1;
                 }
             }
         } else {
-            temp_2_2 = btlActionGetQueueSecond();
-            if (temp_2_2 != NULL) {
-                btlUnitGetAttachedSphereCenter(*(u8 **)(temp_2_2 + 0x30), frame.sp50);
-                if (btlTargetFindInRange(frame.sp50, frame.sp48) != 0) {
-                    btlUiSetOrigin(temp_2, frame.sp48[0] - 46.0f,
-                                  frame.sp48[1] - 17.0f);
+            action = btlActionGetQueueSecond();
+            if (action != NULL) {
+                btlUnitGetAttachedSphereCenter((u8 *)((BtlAction *)action)->unit, frame.sphereCenter);
+                if (btlTargetFindInRange(frame.sphereCenter, frame.screenPosition) != 0) {
+                    btlUiSetOrigin(glyphs, frame.screenPosition[0] - 46.0f,
+                                  frame.screenPosition[1] - 17.0f);
                     btlUiSetRenderMode(2);
-                    btlUiDrawSpriteFaded(temp_2, 10, 0x51, 0.0f, 0.0f,
+                    btlUiDrawSpriteFaded(glyphs, 10, 0x51, 0.0f, 0.0f,
                                   0x52, 0xF3, 0, 0xFF);
-                    btlUiDrawSpriteFaded(temp_2, 10, 0x52, 84.0f, 0.0f,
+                    btlUiDrawSpriteFaded(glyphs, 10, 0x52, 84.0f, 0.0f,
                                   0x52, 0xF3, 0, 0xFF);
                     btlUiSetRenderMode(0);
-                    btlUiDrawSpriteFaded(temp_2, 10, 0x4F, 14.0f, 2.0f,
+                    btlUiDrawSpriteFaded(glyphs, 10, 0x4F, 14.0f, 2.0f,
                                   0x0D, 0x1B, 0, 0xFF);
                 }
             }
@@ -4119,35 +4268,35 @@ void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1)
 // FUN_0020BF60
 void btlSelectionSetTargetFlag(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
-    u8 *p;
+    u8 *taskWork;
 
-    p = (u8 *)kwlnTaskGetWork((void *)task);
-    *(u16 *)(p + 0x710) |= 1;
+    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->flags |= 1;
 }
 
 // Intent: clear the active bit on the selection task's flag word. [inferred]
 // FUN_0020BF90
 void btlSelectionClearTargetFlag(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
-    u8 *p;
+    u8 *taskWork;
 
-    p = (u8 *)kwlnTaskGetWork((void *)task);
-    *(u16 *)(p + 0x710) &= 0xFFFE;
+    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->flags &= 0xFFFE;
 }
 
 // Intent: set a selection row's state and reset its counter. [inferred]
 // FUN_0020BFC0
-void btlSelectionSetRowState(u8 *arg0, s16 arg1)
+void btlSelectionSetRowState(u8 *row, s16 state)
 {
-    *(s16 *)(arg0 + 0) = arg1;
-    *(s16 *)(arg0 + 2) = 0;
+    ((BtlSelectionRow *)row)->state = state;
+    ((BtlSelectionRow *)row)->counter = 0;
 }
 
 // Intent: reset a selection row's counter and mark it idle. [inferred]
 // FUN_0020BFD0
-void btlSelectionSetRowIdle(u8 *arg0)
+void btlSelectionSetRowIdle(u8 *row)
 {
-    *(s16 *)(arg0 + 4) = 0;
-    *(s16 *)(arg0 + 2) = 1;
+    ((BtlSelectionRow *)row)->idleFrame = 0;
+    ((BtlSelectionRow *)row)->counter = 1;
 }
 

@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
@@ -28,7 +29,7 @@ typedef struct {
     u8 c3;
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
-extern void memcpy(void *arg0, void *arg1, s32 arg2);
+extern void memcpy(void *sourceBytes, void *sequenceId, s32 firstValue);
 
 /* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
    func_004bd628, func_004bd640, func_004bd658, func_004bd670,
@@ -43,19 +44,19 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *sourceBytes, s32 sequenceId);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
-extern void kAssertFail(void *arg0, s32 arg1);
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
-extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
-extern s32 func_00481d80(u16 *arg0);
-extern s32 TnSlotObject(u16 arg0);
-extern void func_003c42b0(s32 arg0, s32 arg1);
-extern s32 TlpCreate(u16 *arg0);
+extern void chkmemAllocSiteTag(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
+extern void *(*jtbl_008873E8[])(u32 sourceBytes, u32 sequenceId);
+extern void memset(void *sourceBytes, s32 sequenceId, s32 firstValue);
+extern void GeometryBlockSetTextureFromHandle(u8 *block, u16 *handle);
+extern s32 mdlEffectCreateTrackInstance(u16 *source);
+extern s32 TnSlotObject(u16 slotIndex);
+extern void func_003c42b0(s32 sourceBytes, s32 sequenceId);
+extern s32 TlpCreate(u16 *desc);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -67,74 +68,78 @@ extern void (*jtbl_008873EC[])(void *);
 /* Source unit: src/promoted/code1_004b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b1680-004b16c0 */
 
+/* Store the sequence request arguments, clear its phase and mark the sequence active. */
 // FUN_004B1680
-void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3)
+void mdlEffectSetSequenceRequest(s32 sequence, s16 sequenceId, s32 firstValue, s32 secondValue)
 {
-    D_00922DA0[0] = arg0;
-    D_00922DA4[0] = arg1;
-    D_00922DA8[0] = arg2;
-    D_00922DAC[0] = arg3;
+    D_00922DA0[0] = sequence;
+    D_00922DA4[0] = sequenceId;
+    D_00922DA8[0] = firstValue;
+    D_00922DAC[0] = secondValue;
     iGpffffbb94 = 0;
     iGpffffbb98 = 1;
 }
 
+/* Allocate a 0xB0-byte screen sprite, copy its parameters and bind geometry and optional texture animation. */
 // FUN_004B16C0
-void *func_004b16c0(void *opaqueSource) {
-    u8 *arg0 = opaqueSource;
-    u16 *temp_2_3;
-    u16 *temp_2_4;
-    u16 temp_4;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_3;
+void *mdlEffectCreateScreenSprite(void *opaqueSource) {
+    u8 *sourceBytes = opaqueSource;
+    u16 *geometry;
+    u16 *textureSource;
+    u16 sourceKind;
+    u8 *instance;
+    u8 *parameters;
+    u8 *colors;
 
     chkmemAllocSiteTag(&iGpffffb118, 0x1A);
-    temp_2 = (u8 *)jtbl_008873E8[0](0xB0, 0x40000);
-    if (temp_2 == NULL) {
+    instance = (u8 *)jtbl_008873E8[0](0xB0, 0x40000);
+    if (instance == NULL) {
         kAssertFail(&iGpffffb118, 0x1B);
     }
-    memset(temp_2, 0, 0xB0);
-    *(s32 *)(temp_2 + 0) = -1;
-    if (arg0 == NULL) {
-        return temp_2;
+    memset(instance, 0, 0xB0);
+    ((MdlEffectScreenSprite *)instance)->packedColor = -1;
+    if (sourceBytes == NULL) {
+        return instance;
     }
-    *(s32 *)(temp_2 + 4) = *(u16 *)(arg0 + 0xC);
-    temp_2_2 = mdlEffectResolveRelPtrA(arg0);
-    if (temp_2_2 == NULL) {
+    ((MdlEffectScreenSprite *)instance)->id = ((EffSourceDescriptor *)sourceBytes)->id;
+    parameters = mdlEffectResolveRelPtrA(sourceBytes);
+    if (parameters == NULL) {
         kAssertFail(&iGpffffb118, 0x2C);
     }
-    memcpy(temp_2 + 0xC, temp_2_2, 0x98);
-    temp_2_3 = (u16 *)GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
-    *(u16 **)(temp_2 + 0xA4) = temp_2_3;
-    *temp_2_3 = *temp_2_3 & 0xFFFB;
-    temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0xA4) + 0x10) + 0x18);
-    temp_3 = *(u8 **)(temp_3 + 0x30);
-    *(s32 *)(temp_3 + 0) = -1;
-    *(s32 *)(temp_3 + 4) = -1;
-    *(s32 *)(temp_3 + 8) = -1;
-    *(s32 *)(temp_3 + 0xC) = -1;
-    temp_2_4 = mdlEffectResolveRelPtrB(arg0);
-    if (temp_2_4 != NULL) {
-        temp_4 = *(u16 *)(arg0 + 0x1C);
-        switch (temp_4) {
+    memcpy(instance + 0xC, parameters, 0x98);
+    geometry = (u16 *)GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
+    /* The constructor stores a halfword-addressable geometry pointer in the byte-shaped shared geometry slot. */
+    *(u16 **)(instance + 0xA4) = geometry;
+    *geometry = *geometry & 0xFFFB;
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)*(u8 **)(instance + 0xA4))->atomic)->geometry;
+    colors = (u8 *)((RpGeometry *)colors)->colors;
+    ((s32 *)colors)[0] = -1;
+    ((s32 *)colors)[1] = -1;
+    ((s32 *)colors)[2] = -1;
+    ((s32 *)colors)[3] = -1;
+    textureSource = mdlEffectResolveRelPtrB(sourceBytes);
+    if (textureSource != NULL) {
+        sourceKind = ((EffSourceDescriptor *)sourceBytes)->kind;
+        switch (sourceKind) {
         case 1:
-            GeometryBlockSetTextureFromHandle(*(u8 **)(temp_2 + 0xA4), temp_2_4);
+            GeometryBlockSetTextureFromHandle(((MdlEffectScreenSprite *)instance)->geometry, textureSource);
             break;
         case 2:
-            *(s32 *)(temp_2 + 0xAC) = func_00481d80(temp_2_4);
+            ((MdlEffectScreenSprite *)instance)->tracks = mdlEffectCreateTrackInstance(textureSource);
             break;
         case 4:
-            func_003c42b0(*(s32 *)(*(u8 **)(temp_2 + 0xA4) + 0x14),
-                          TnSlotObject(*temp_2_4));
+            func_003c42b0((s32)((EffGeometryBlock *)((MdlEffectScreenSprite *)instance)->geometry)->material,
+                          TnSlotObject(*textureSource));
             break;
         case 7:
-            *(s32 *)(temp_2 + 0xA8) = TlpCreate(temp_2_4);
+            ((MdlEffectScreenSprite *)instance)->tlp = TlpCreate(textureSource);
             break;
         default:
             kAssertFail(&iGpffffb118, 0x5C);
             break;
         }
     }
-    return temp_2;
+    return instance;
 }
 

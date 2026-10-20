@@ -45,7 +45,7 @@ extern s32 iGpffffba98;
 extern s32 iGpffffba9c;
 extern u8 D_008E43C0[];
 extern u8 D_008E43E4[];
-extern void *K_Clump_UpdateObjectCb(void *a0, void *a1);
+extern void *K_Clump_UpdateObjectCb(void *object, void *data);
 extern s32 D_00922984[];
 extern s32 D_00922980[];
 extern s32 D_00922988[];
@@ -72,7 +72,7 @@ extern u8 *D_00724C08;
 extern u8 D_007130E8[];
 extern s32 D_00724130;
 
-extern s32 func_004633f0(u8 *task);
+extern s32 hMaestroUpdateServicesTask(u8 *unusedTask);
 struct MovieNativeWork;
 extern u8 D_00712670[];
 extern s32 D_00724BF4;
@@ -103,14 +103,14 @@ extern s32 iGpffffb194;
 extern f32 iGpffffbb20;
 extern f32 iGpffffbb1c;
 extern f32 iGpffffbb24;
-extern void func_0044f720(void);
+extern void sdkDbprtDrawGrid(void);
 extern s32 func_003e23e0(void);
 extern void func_003e82e0();
-extern void func_003e5510(s32 arg0);
+extern void func_003e5510(s32 value);
 extern s32 kwlnGetCamera(void);
-extern void func_00466c60(void);
+extern void sdkWrapPollRequests(void);
 extern void func_0050cd80(void);
-extern void func_00466600(void);
+extern void memcardWakeBackendThread(void);
 extern char D_007127D0[];
 extern char D_00712950[];
 extern char D_008E4900[];
@@ -127,8 +127,8 @@ extern f32 fGpffff84f0;
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
 typedef RwV3d Code46RingPoint;
-extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
-                         u8 *color, f32 *matrix, s32 setStates);
+extern void primCircleLine3D(const Code46RingPoint *center, f32 radius,
+                         u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;
@@ -162,7 +162,7 @@ extern f32 fGpffff81cc;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 004633c0-00463520 */
 
-extern void func_00466600(void);
+extern void memcardWakeBackendThread(void);
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -236,22 +236,24 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 // FUN_004633C0
-void func_004633c0(void *arg0, void *arg1)
+void hMaestroUpdateClumpObjects(void *clump, void *context)
 {
-    RpClumpForAllAtomics(arg0, K_Clump_UpdateObjectCb, arg1);
+    RpClumpForAllAtomics(clump, K_Clump_UpdateObjectCb, context);
 }
 
+/* Run the per-frame services, sample/reset TIMER0, and publish elapsed timing. */
 // FUN_004633F0
-s32 func_004633f0(u8 *unusedTask)
+s32 hMaestroUpdateServicesTask(u8 *unusedTask)
 {
     f32 timerNowF;
     f32 elapsedF;
     s32 elapsedTicks;
     s32 timerNow;
 
-    func_0044f720();
+    sdkDbprtDrawGrid();
     iGpffffba8c = func_003e23e0();
     func_003e82e0(kwlnGetCamera(), 0, 0);
+    /* EE TIMER0 count register; intentionally read and reset as hardware I/O. */
     timerNow = *(s32 *)0x10000000;
     iGpffffb198 = timerNow;
     elapsedTicks = timerNow - iGpffffb194;
@@ -262,14 +264,15 @@ s32 func_004633f0(u8 *unusedTask)
     iGpffffbb24 = 100.0f * ((*(f32 *)&iGpffffbb20) / 520.0f);
     *(s32 *)0x10000000 = 0;
     func_003e5510(0);
-    func_00466600();
-    func_00466c60();
+    memcardWakeBackendThread();
+    sdkWrapPollRequests();
     func_0050cd80();
     return 0;
 }
 
+/* Register the per-frame service task at priority 0x12C. */
 // FUN_00463520
-void func_00463520(void) {
-    kwlnTaskCreate((const void *)(D_00712670), 0x12C, 0, 0, func_004633f0, 0, (u8 *)(0));
+void hMaestroCreateServicesTask(void) {
+    kwlnTaskCreate((const void *)(D_00712670), 0x12C, 0, 0, hMaestroUpdateServicesTask, 0, (u8 *)(0));
 }
 

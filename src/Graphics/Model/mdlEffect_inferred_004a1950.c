@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -57,8 +58,8 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -66,7 +67,7 @@ extern u8 D_00714014[];
 
 
 // lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
-extern u8 *FlashQuadCopyAlloc(u16 arg0, s32 arg1);
+extern u8 *FlashQuadCopyAlloc(u16 input, s32 resource);
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -80,26 +81,31 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 // Allocates a flash quad copy from a record: kind at +0x38 and parameters at +0x40, with the kind's table hooks applied to the result. Unlike FlashQuadCopyAllocFromParent, no relative pointer is resolved.
 // FUN_004A1950
 void *FlashQuadCopyAllocFromRecord(void *source) {
-    u8 *arg0 = (u8 *)source;
+    u8 *sourceBytes = (u8 *)source;
     s32 index;
     s32 stride;
     u8 *result;
-    s32 temp;
+    s32 parameters;
 
-    index = *(s32 *)(arg0 + 0x38);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    index = *(s32 *)(sourceBytes + 0x38);
+    /* The kind table contains both source-record and direct-parameter constructors, so this dispatch slot stays byte-addressed. */
     if (*(s32 *)(D_0071401C + (index * 0x1C)) == 0) {
-        temp = *(s32 *)(arg0 + 0x40);
+        parameters = (s32)((MdlEffectVectorInstance *)sourceBytes)->parameters;
         index = (u16)index;
-        result = FlashQuadCopyAlloc((u16)index, temp);
+        result = FlashQuadCopyAlloc((u16)index, parameters);
         stride = (u16)index * 0x1C;
+        /* The constructor result is stored as an integer handle; the shared instance exposes this slot only as a child pointer. */
         *(s32 *)(result + 0x3C) =
-            (*(s32 (**)(s32, s32))(D_00714014 + stride))(temp, 0);
+            (*(s32 (**)(s32, s32))(D_00714014 + stride))(parameters, 0);
         (*(void (**)(u8 *))(D_00714010 + stride))(result);
     } else {
-        result = FlashQuadCopyAlloc((u16)index, *(s32 *)(arg0 + 0x40));
+        result = FlashQuadCopyAlloc((u16)index, (s32)((MdlEffectVectorInstance *)sourceBytes)->parameters);
+        /* The constructor result is stored as an integer handle; the shared instance exposes this slot only as a child pointer. */
         *(s32 *)(result + 0x3C) =
-            (*(s32 (**)(u8 *))(D_0071401C + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
-        (*(void (**)(u8 *))(D_00714010 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(result);
+            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+            (*(s32 (**)(u8 *))(D_0071401C + (*(s32 *)(sourceBytes + 0x38) * 0x1C)))(sourceBytes);
+        (*(void (**)(u8 *))(D_00714010 + (((MdlEffectVectorInstance *)sourceBytes)->kind.value * 0x1C)))(result);
     }
     return result;
 }

@@ -8,34 +8,62 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "sdktask.h"
+#include "primitive_queue_internal.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
 #include "field_frame_internal.h"
 #include "field_panel_internal.h"
 #include "field_npc_control_internal.h"
 #include "rw_types_internal.h"
+#include "rw_raster_internal.h"
 typedef struct RwTexture RwTexture;
 
 typedef struct RwTexDictionary RwTexDictionary;
 
 #include "scene_event_internal.h"
 extern void mdlEffectEmitTagPair();
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void (*D_00887300[])(s32, s32);
+extern void RpSkyRenderStateSet(s32, s32);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void FldNoiseEmitTagged(void);
 extern void FldNoiseEmitPlain();
 extern void (*jtbl_008873EC[])(void *);
 extern RwTexDictionary *func_003ef6d0(void);
 extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern f32 sinf(f32 arg0);
-extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern f32 sinf(f32);
+extern u8 *PrimQueueDrawPrimitive(void *, s32, void *, s32);
 extern s32 FldNoiseUpdate(u8 *task);
-extern void FldNoiseDestroy(u8 *arg0);
+extern void FldNoiseDestroy(u8 *);
 extern u8 D_005F1DF8[];
 extern u8 D_005F1E08[];
+/* Sky2's complete 0x40-byte vertex record, with its native quadword
+ * alignment. Fields follow rw/sky2/rwplcore.h; unused components stay intact. */
+typedef struct {
+    f32 x, y, z, cameraZ;
+    f32 u, v, reciprocalZ, reservedFog;
+    f32 red, green, blue, alpha;
+    f32 normalX, normalY, normalZ, reservedAlignment;
+} GridDrawVertex __attribute__((aligned(16)));
+
+typedef struct { f32 u, v; } FldNoiseUv;
+
+typedef struct {
+    s32 state;
+    s32 blocked;
+    s32 phases[7][10];
+    GridDrawVertex grid[7][10][4];
+    GridDrawVertex bands[14][1][4];
+    GridDrawVertex overlay[4];
+    f32 uvValues[8];
+    GridDrawVertex cover[4];
+    GridDrawVertex rings[3][66];
+    RwTexture *textures[2];
+    u8 *raster;
+} GridDrawWork;
+
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
@@ -44,7 +72,8 @@ extern u8 D_005F1E08[];
 #pragma vu0_mmi_reg_binding off
 // FUN_001853E0
 #pragma opt_propagation off
-void FldNoiseRenderStateA(u8 *arg0, u8 *arg1)
+/* Install the grid render state and bind the first noise texture raster. */
+void FldNoiseRenderStateA(u8 *task, u8 *work)
 {
     s32 *value;
     void (**base)(s32, s32);
@@ -59,7 +88,7 @@ void FldNoiseRenderStateA(u8 *arg0, u8 *arg1)
     base[0](2, 1);
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x54);
-    value = *(s32 **)(arg1 + 0x88C0);
+    value = (s32 *)((GridDrawWork *)work)->textures[0];
     base[0](1, *value);
 }
 #pragma pop
@@ -72,7 +101,8 @@ void FldNoiseRenderStateA(u8 *arg0, u8 *arg1)
 #pragma vu0_mmi_reg_binding off
 // FUN_001854F0
 #pragma opt_propagation off
-void FldNoiseRenderStateB(u8 *arg0, u8 *arg1)
+/* Install the strip render state, bind the second noise texture raster and emit its tag. */
+void FldNoiseRenderStateB(u8 *task, u8 *work)
 {
     s32 *value;
     void (**base)(s32, s32);
@@ -87,7 +117,7 @@ void FldNoiseRenderStateB(u8 *arg0, u8 *arg1)
     base[0](2, 1);
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x54);
-    value = *(s32 **)(arg1 + 0x88C4);
+    value = (s32 *)((GridDrawWork *)work)->textures[1];
     base[0](1, *value);
     FldNoiseEmitTagged();
 }
@@ -100,6 +130,7 @@ void FldNoiseRenderStateB(u8 *arg0, u8 *arg1)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_00185600
+/* Emit the pending untagged field-noise packet. */
 void FldNoiseFlush(void)
 {
     FldNoiseEmitPlain();
@@ -114,7 +145,9 @@ void FldNoiseFlush(void)
 #pragma vu0_mmi_reg_binding off
 // FUN_00185620
 #pragma opt_propagation off
-void FldNoiseOverlayDraw(u8 *arg0, u8 *arg1)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Install the overlay render state, bind the captured display raster and emit its tag. */
+void FldNoiseOverlayDraw(u8 *task, u8 *work)
 {
     void (**base)(s32, s32);
 
@@ -128,7 +161,7 @@ void FldNoiseOverlayDraw(u8 *arg0, u8 *arg1)
     base[0](2, 3);
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x54);
-    base[0](1, *(s32 *)(arg1 + 0x88C8));
+    base[0](1, *(s32 *)(work + 0x88C8));
     FldNoiseEmitTagged();
 }
 #pragma pop
@@ -141,6 +174,7 @@ void FldNoiseOverlayDraw(u8 *arg0, u8 *arg1)
 #pragma vu0_mmi_reg_binding off
 // FUN_00185730
 #pragma opt_propagation off
+/* Install the untextured ring/cover render state and emit the masked effect tag. */
 void FldNoiseRenderStateSetup(void)
 {
     void (**base)(s32, s32);
@@ -167,34 +201,12 @@ void FldNoiseRenderStateSetup(void)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_00185830
+/* Emit the paired tags used by the ring primitives. */
 void FldNoiseEmitRings(void)
 {
     mdlEffectEmitTagPair();
 }
 #pragma pop
-
-/* Sky2's complete 0x40-byte vertex record, with its native quadword
- * alignment. Fields follow rw/sky2/rwplcore.h; unused components stay intact. */
-typedef struct {
-    f32 x, y, z, cameraZ;
-    f32 u, v, reciprocalZ, reservedFog;
-    f32 red, green, blue, alpha;
-    f32 normalX, normalY, normalZ, reservedAlignment;
-} GridDrawVertex __attribute__((aligned(16)));
-
-typedef struct {
-    s32 state;
-    s32 blocked;
-    s32 phases[7][10];
-    GridDrawVertex grid[7][10][4];
-    GridDrawVertex bands[14][1][4];
-    GridDrawVertex overlay[4];
-    f32 uvValues[8];
-    GridDrawVertex cover[4];
-    GridDrawVertex rings[3][66];
-    RwTexture *textures[2];
-    u8 *raster;
-} GridDrawWork;
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -211,6 +223,7 @@ typedef struct {
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
+/* Raw access: The queue API has a second callback payload at +0x14, beyond the canonical PrimQueueNode header; retain that packet-specific raw store. */
 s32 FldNoiseUpdate(u8 *task)
 {
     extern u8 D_00794930[];
@@ -230,11 +243,11 @@ s32 FldNoiseUpdate(u8 *task)
     extern f32 sinf(f32 angle);
     extern u8 *PrimAllocQueueNode(void);
     extern void PrimAppendNode(u8 *, u8 *);
-    extern u8 *PrimQueueDrawPrimitive(void *task, s32 arg1, void *arg2, s32 arg3);
-    extern void FldNoiseRenderStateA(u8 *task, u8 *arg1);
-    extern void FldNoiseRenderStateB(u8 *task, u8 *arg1);
+    extern u8 *PrimQueueDrawPrimitive(void *task, s32, void *, s32);
+    extern void FldNoiseRenderStateA(u8 *task, u8 *);
+    extern void FldNoiseRenderStateB(u8 *task, u8 *);
     extern void FldNoiseFlush(void);
-    extern void FldNoiseOverlayDraw(u8 *task, u8 *arg1);
+    extern void FldNoiseOverlayDraw(u8 *task, u8 *);
     extern void FldNoiseRenderStateSetup(void);
     extern void FldNoiseEmitRings(void);
     u8 *node;
@@ -250,7 +263,7 @@ s32 FldNoiseUpdate(u8 *task)
     f32 value;
     f32 value2;
 
-    work = *(GridDrawWork **)(task + 0x38);
+    work = (GridDrawWork *)((SdkTask *)task)->work;
     if (work->blocked != 0) {
         return 0;
     }
@@ -483,10 +496,10 @@ s32 FldNoiseUpdate(u8 *task)
         work->overlay[3].green = 255.0f;
         work->overlay[3].blue = 255.0f;
         work->overlay[3].alpha = 96.0f;
-        work->uvValues[2] = (0.5f / (float)*(int *)(work->raster + 0xc));
-        work->uvValues[3] = (0.5f / (float)*(int *)(work->raster + 0x10));
-        work->uvValues[4] = (fGpffff84d8 / (float)*(int *)(work->raster + 0xc));
-        work->uvValues[5] = (fGpffff84dc / (float)*(int *)(work->raster + 0x10));
+        work->uvValues[2] = (0.5f / (float)((RwRaster *)work->raster)->width);
+        work->uvValues[3] = (0.5f / (float)((RwRaster *)work->raster)->height);
+        work->uvValues[4] = (fGpffff84d8 / (float)((RwRaster *)work->raster)->width);
+        work->uvValues[5] = (fGpffff84dc / (float)((RwRaster *)work->raster)->height);
         work->uvValues[1] = iGpffff8424;
         work->overlay[0].u = (work->uvValues[2] + work->uvValues[1]);
         work->overlay[0].v = (work->uvValues[3] + work->uvValues[1]);
@@ -501,30 +514,30 @@ s32 FldNoiseUpdate(u8 *task)
     case 1:
         node = PrimQueueDrawPrimitive(D_00794930,4,work->cover,4);
         *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
-        *(GridDrawWork **)(node + 0x10) = work;
+        ((PrimQueueNode *)node)->argument.data = (u8 *)work;
         node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[2],0x42);
         *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
-        *(GridDrawWork **)(node + 0x10) = work;
+        ((PrimQueueNode *)node)->argument.data = (u8 *)work;
         *(void (**)(void))(node + 0xc) = FldNoiseEmitRings;
         *(GridDrawWork **)(node + 0x14) = work;
         node = PrimQueueDrawPrimitive(D_00794930,4,work->overlay,4);
         *(void (**)(u8 *, u8 *))(node + 8) = FldNoiseOverlayDraw;
-        *(GridDrawWork **)(node + 0x10) = work;
+        ((PrimQueueNode *)node)->argument.data = (u8 *)work;
         callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(void))(callbackNode + 8) = FldNoiseFlush;
-        *(GridDrawWork **)(callbackNode + 0x10) = work;
+        ((PrimQueueNode *)callbackNode)->argument.data = (u8 *)work;
         PrimAppendNode(D_00794930,callbackNode);
         node = PrimQueueDrawPrimitive(D_00794930,4,work->cover,4);
         *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
-        *(GridDrawWork **)(node + 0x10) = work;
+        ((PrimQueueNode *)node)->argument.data = (u8 *)work;
         node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[1],0x42);
         *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
-        *(GridDrawWork **)(node + 0x10) = work;
+        ((PrimQueueNode *)node)->argument.data = (u8 *)work;
         *(void (**)(void))(node + 0xc) = FldNoiseEmitRings;
         *(GridDrawWork **)(node + 0x14) = work;
         callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(u8 *, u8 *))(callbackNode + 8) = FldNoiseRenderStateB;
-        *(GridDrawWork **)(callbackNode + 0x10) = work;
+        ((PrimQueueNode *)callbackNode)->argument.data = (u8 *)work;
         PrimAppendNode(D_00794930,callbackNode);
         for (index = 0; index < 0xe; index = index + 1) {
             for (column = 0; column < 1; column = column + 1) {
@@ -533,7 +546,7 @@ s32 FldNoiseUpdate(u8 *task)
         }
         callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(void))(callbackNode + 8) = FldNoiseFlush;
-        *(GridDrawWork **)(callbackNode + 0x10) = work;
+        ((PrimQueueNode *)callbackNode)->argument.data = (u8 *)work;
         PrimAppendNode(D_00794930,callbackNode);
         node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[0],0x42);
         *(void (**)(void))(node + 0xc) = FldNoiseEmitRings;
@@ -541,7 +554,7 @@ s32 FldNoiseUpdate(u8 *task)
         uGpffffb314 = uGpffffb314 != 0 ^ 1;
         callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(u8 *, u8 *))(callbackNode + 8) = FldNoiseRenderStateA;
-        *(GridDrawWork **)(callbackNode + 0x10) = work;
+        ((PrimQueueNode *)callbackNode)->argument.data = (u8 *)work;
         PrimAppendNode(D_00794930,callbackNode);
         for (index = 0; index < 7; index = index + 1) {
             for (column = 0; column < 10; column = column + 1) {
@@ -553,9 +566,9 @@ s32 FldNoiseUpdate(u8 *task)
                         corner = 0;
                     }
                     work->grid[index][column][vertex].u =
-                        *(f32 *)(D_005F1DA0 + corner * 8);
+                        ((const FldNoiseUv *)D_005F1DA0)[corner].u;
                     work->grid[index][column][vertex].v =
-                        *(f32 *)(D_005F1DA0 + corner * 8 + 4);
+                        ((const FldNoiseUv *)D_005F1DA0)[corner].v;
                     vertex++;
                     corner = corner + 1;
                 }
@@ -582,9 +595,10 @@ s32 FldNoiseUpdate(u8 *task)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_00186610
-void FldNoiseDestroy(u8 *arg0)
+/* Free the dynamically allocated noise work block through the allocator release hook. */
+void FldNoiseDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)((SdkTask *)task)->work);
 }
 #pragma pop
 
@@ -595,10 +609,11 @@ void FldNoiseDestroy(u8 *arg0)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_00186640
-s32 FldNoiseTaskCreate(u8 *arg0)
+/* Allocate the 0x88D0-byte noise work block and create its child task. */
+s32 FldNoiseTaskCreate(u8 *task)
 {
     chkmemAllocSiteTag(&D_005F1DF8, 0x299);
-    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, FldNoiseUpdate, FldNoiseDestroy, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
+    return (s32)kwlnTaskCreateChild((void *)(task), (const void *)(&D_005F1E08), 0xF, 0, 0, FldNoiseUpdate, FldNoiseDestroy, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
 }
 #pragma pop
 

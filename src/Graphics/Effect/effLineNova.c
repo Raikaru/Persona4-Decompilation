@@ -6,14 +6,14 @@
 #include "effect_instance_internal.h"
 #include "include_asm.h"
 
-void GeometryBlockDestroy(void *arg);
+void GeometryBlockDestroy(void *block);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void kAssertFail(u8 *file, s32 line);
-void *TnGetOffset1C(u16 arg0);
-void *TnGetIndexedWord(u16 arg0);
-void PrimAppendNode(void *arg0, void *arg1);
+void *TnGetOffset1C(u16 slotIndex);
+void *TnGetIndexedWord(u16 slotIndex);
+void PrimAppendNode(void *list, void *node);
 void memcpy(void *dst, const void *src, u32 size);
-void LineNovaUpdateVertices(u8 *arg0, u8 *arg1);
+void LineNovaUpdateVertices(u8 *unused, u8 *effect);
 
 extern u8 D_00713310[];
 extern u8 D_00714628[];
@@ -35,6 +35,175 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 
 
+typedef struct LineNovaMaterial {
+    u32 texture;
+    LineNovaColor color;
+} LineNovaMaterial;
+
+/* Linker aliases address descriptor columns at a 0x18-byte stride. */
+typedef struct LineNovaTypeSize {
+    s32 dataBytes;
+    u8 pad04[0x14];
+} LineNovaTypeSize;
+typedef struct LineNovaTypeInitializer {
+    s32 (*initialize)(u8 *parameters);
+    u8 pad04[0x14];
+} LineNovaTypeInitializer;
+typedef struct LineNovaTypeSetup {
+    void (*setup)(u8 *effect);
+    u8 pad04[0x14];
+} LineNovaTypeSetup;
+
+/* Allocations prove the effect (0x30), state (0x10) and particle (8 or 6)
+ * sizes. The two nova modes interpret the configuration tail differently;
+ * unions retain those observed word, halfword and byte representations. */
+typedef struct LineNovaConfiguration {
+    u8 pad00[0x28];
+    u16 resourceId; /* +0x28 */
+    u8 pad2A[0xA];
+    union {
+        s32 signedValue;
+        u32 unsignedValue;
+    } duration; /* +0x34 */
+    union {
+        s32 signedValue;
+        u32 unsignedValue;
+    } particleCount; /* +0x38 */
+    u8 pad3C[0x10];
+    s32 delay; /* +0x4C */
+    u8 pad50[0x4];
+    u32 firstColor; /* +0x54 */
+    u32 secondColor; /* +0x58 */
+    f32 width; /* +0x5C */
+    f32 spread; /* +0x60 */
+    f32 alphaVariation; /* +0x64 */
+    u8 resourceKind; /* +0x68 */
+    u8 pad69[0x13];
+    union {
+        s16 signedHalf[2];
+        u32 unsignedValue;
+        u8 byte[4];
+    } unk7C; /* +0x7C */
+    union {
+        s16 signedHalf[2];
+    } unk80; /* +0x80 */
+    union {
+        f32 scalar;
+        s16 signedHalf[2];
+    } unk84; /* +0x84 */
+    union {
+        f32 scalar;
+        s16 signedHalf[2];
+    } unk88; /* +0x88 */
+    union {
+        s16 signedHalf[2];
+    } unk8C; /* +0x8C */
+    union {
+        s16 signedHalf[2];
+        u8 byte[4];
+    } unk90; /* +0x90 */
+    f32 unk94; /* +0x94 */
+} LineNovaConfiguration;
+
+typedef struct LineNovaState {
+    union {
+        u16 * u16Pointer;
+        u8 * bytes;
+    } particles; /* +0x00 */
+    union {
+        u16 * u16Pointer;
+        u8 * bytes;
+        void * pointer;
+    } geometry; /* +0x04 */
+    union {
+        u8 * bytes;
+        void * pointer;
+    } allocation; /* +0x08 */
+    u8 pad0C[0x4];
+} LineNovaState;
+
+typedef struct LineNovaColors {
+    union {
+        s32 signedValue;
+        u32 unsignedValue;
+    } unk00; /* +0x00 */
+    union {
+        s32 signedValue;
+        u32 unsignedValue;
+    } unk04; /* +0x04 */
+    union {
+        s32 signedValue;
+        u32 unsignedValue;
+    } unk08; /* +0x08 */
+    u32 unk0C; /* +0x0C */
+    u32 unk10; /* +0x10 */
+    u32 unk14; /* +0x14 */
+} LineNovaColors;
+
+typedef struct LineNovaEffect {
+    u8 pad00[0x10];
+    union {
+        s32 signedValue;
+        u32 unsignedValue;
+    } color; /* +0x10 */
+    union {
+        s32 signedValue;
+        u32 unsignedValue;
+    } elapsed; /* +0x14 */
+    s32 kind; /* +0x18 */
+    s32 delay; /* +0x1C */
+    union {
+        s32 signedValue;
+        u8 * bytes;
+    } state; /* +0x20 */
+    union {
+        u8 * bytes;
+        void * pointer;
+    } configuration; /* +0x24 */
+    u8 pad28[0x8];
+} LineNovaEffect;
+
+typedef struct LineNovaParticle {
+    u16 edgePosition;
+    u8 alpha;
+    u8 pad03;
+    union { f32 scalar; u32 bits; } scale;
+} LineNovaParticle;
+
+typedef struct LineNovaGeometry {
+    u16 kind; /* +0x00 */
+    u8 pad02[0xA];
+    u8 * frame; /* +0x0C */
+    u8 * atomic; /* +0x10 */
+    u8 * material; /* +0x14 */
+    s32 nodeNext; /* +0x18 */
+    s32 nodePrevious; /* +0x1C */
+    s32 update; /* +0x20 */
+    u8 pad24[0x4];
+    s32 owner; /* +0x28 */
+    u8 pad2C[0x1C];
+} LineNovaGeometry;
+
+typedef struct LineNovaCameraWindow {
+    f32 x; /* +0x00 */
+    union {
+        const f32 constf32;
+        f32 scalar;
+    } y; /* +0x04 */
+} LineNovaCameraWindow;
+
+typedef struct LineNovaVertexParticle {
+    u16 alpha;
+    u16 verticalPosition;
+    u16 horizontalPosition;
+} LineNovaVertexParticle;
+
+typedef struct LineNovaMatrix {
+    u8 pad00[0x30];
+    f32 xTranslation; /* +0x30 */
+    f32 yTranslation; /* +0x34 */
+} LineNovaMatrix;
+
 /* measured: retail colors the 7 loop-carried temps count2=$a3 v8=$t0 v6=$a2
    v5=$a1 v4=$a0 v3=$v1 i=$t1; mwcc b210 colors count2=$a1 v8=$a3 v6=$a0
    v5=$t1 v4=$v1 v3=$t0 i=$a2 (nd 20, all rows pure register renaming; object
@@ -47,103 +216,105 @@ extern void (*jtbl_008873EC[])(void *ptr);
    rotation floor family. */
 // Creates a line-nova instance: a block for n entries, a geometry copy, then the colour rows.
 // FUN_004B32F0
-u8 *LineNovaCreate(u8 *arg0)
+u8 *LineNovaCreate(u8 *config)
 {
-    s32 n;
-    u8 *r;
-    u16 *p;
-    u32 i;
-    u8 *dst;
-    u32 c0;
-    u32 c1;
-    u32 a0;
-    u32 a1;
-    u32 cnt;
-    n = *(s32 *)(arg0 + 0x38);
+    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 216). */
+    s32 particleCount;
+    u8 *state;
+    u16 *geometryBlock;
+    u32 particleIndex;
+    u8 *colors;
+    u32 firstTransparentColor;
+    u32 firstColor;
+    u32 secondTransparentColor;
+    u32 secondColor;
+    u32 count;
+    particleCount = *(s32 *)(config + 0x38);
     chkmemAllocSiteTag(D_00714628, 0x43);
-    r = (u8 *)(*jtbl_008873E8)(n * 8 + 0x10, 0x40000);
-    if (r == NULL) {
+    state = (u8 *)(*jtbl_008873E8)(particleCount * 8 + 0x10, 0x40000);
+    if (state == NULL) {
         kAssertFail(D_00714628, 0x44);
     }
-    *(u8 **)(r + 0) = r + 0x10;
-    *(u8 **)(r + 8) = r;
-    p = (u16 *)GeometryCreateTableGrid(n & 0xFFFF, 4, 6, D_00713310, 0x48);
-    *(u16 **)(r + 4) = p;
-    *p = *p & 0xFFFE;
-    cnt = *(s32 *)(arg0 + 0x38);
-    dst = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(r + 4) + 0x10) + 0x18) + 0x30);
-    c1 = *(u32 *)(arg0 + 0x54);
-    c0 = c1 & 0xFFFFFF;
-    a1 = *(u32 *)(arg0 + 0x58);
-    a0 = a1 & 0xFFFFFF;
-    i = 0;
-    while (i < cnt) {
-        *(u32 *)(dst + 0x00) = c0;
-        *(u32 *)(dst + 0x04) = c1;
-        *(u32 *)(dst + 0x08) = c0;
-        *(u32 *)(dst + 0x0C) = a0;
-        *(u32 *)(dst + 0x10) = a1;
-        *(u32 *)(dst + 0x14) = a0;
-        i++;
-        dst += 0x18;
+    *(u8 **)(state + 0) = state + 0x10;
+    *(u8 **)(state + 8) = state;
+    geometryBlock = (u16 *)GeometryCreateTableGrid(particleCount & 0xFFFF, 4, 6, D_00713310, 0x48);
+    *(u16 **)(state + 4) = geometryBlock;
+    *geometryBlock = *geometryBlock & 0xFFFE;
+    count = *(s32 *)(config + 0x38);
+    colors = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(state + 4) + 0x10) + 0x18) + 0x30);
+    firstColor = *(u32 *)(config + 0x54);
+    firstTransparentColor = firstColor & 0xFFFFFF;
+    secondColor = *(u32 *)(config + 0x58);
+    secondTransparentColor = secondColor & 0xFFFFFF;
+    particleIndex = 0;
+    while (particleIndex < count) {
+        *(u32 *)(colors + 0x00) = firstTransparentColor;
+        *(u32 *)(colors + 0x04) = firstColor;
+        *(u32 *)(colors + 0x08) = firstTransparentColor;
+        *(u32 *)(colors + 0x0C) = secondTransparentColor;
+        *(u32 *)(colors + 0x10) = secondColor;
+        *(u32 *)(colors + 0x14) = secondTransparentColor;
+        particleIndex++;
+        colors += 0x18;
     }
-    return r;
+    return state;
 }
 
 // Frees a line-nova instance: its geometry handle, then the instance block.
 // FUN_004B3420
-void LineNovaDestroy(u8 *arg0) {
-    GeometryBlockDestroy(*(void **)(arg0 + 4));
-    (*jtbl_008873EC)(*(void **)(arg0 + 8));
+void LineNovaDestroy(u8 *state) {
+    GeometryBlockDestroy(((LineNovaState *)state)->geometry.pointer);
+    (*jtbl_008873EC)(((LineNovaState *)state)->allocation.pointer);
 }
 
 
 // Reseeds the eight-byte particle records: random 16-bit position, alpha byte and scale, then resets the delay from the emitter.
 // FUN_004B3470
-void LineNovaReseedParticles(u8 *arg0) {
-    u8 *p20;
-    u8 *p17;
+void LineNovaReseedParticles(u8 *effect) {
+    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 51). */
+    u8 *state;
+    u8 *config;
     u32 count;
     s32 progress;
     s32 delay;
-    u16 *dst;
-    u32 i;
-    f32 f25;
-    f32 f24;
-    f32 f23;
-    f32 f22;
-    f32 f21;
-    f32 f20;
-    f32 r;
+    u16 *particle;
+    u32 particleIndex;
+    f32 scaleVariation;
+    f32 alphaVariation;
+    f32 minimumScale;
+    f32 minimumAlpha;
+    f32 minimumRandomScale;
+    f32 scaleRange;
+    f32 randomValue;
 
-    p20 = *(u8 **)(arg0 + 0x20);
-    p17 = *(u8 **)(arg0 + 0x24);
-    count = *(u32 *)(p17 + 0x38);
-    progress = *(s32 *)(p17 + 0x34);
-    if (progress >= *(s32 *)(arg0 + 0x14) || progress == 0) {
-        delay = *(s32 *)(arg0 + 0x1C) - 1;
-        *(s32 *)(arg0 + 0x1C) = delay;
+    state = *(u8 **)(effect + 0x20);
+    config = *(u8 **)(effect + 0x24);
+    count = *(u32 *)(config + 0x38);
+    progress = *(s32 *)(config + 0x34);
+    if (progress >= *(s32 *)(effect + 0x14) || progress == 0) {
+        delay = *(s32 *)(effect + 0x1C) - 1;
+        *(s32 *)(effect + 0x1C) = delay;
         if (delay <= 0) {
-            f23 = *(f32 *)(p17 + 0x84) / 100.0f;
-            f25 = *(f32 *)(p17 + 0x88);
-            f24 = *(f32 *)(p17 + 0x64);
-            dst = *(u16 **)p20;
-            i = 0;
-            f22 = 1.0f - f24;
-            f21 = 1.0f - f25;
-            f20 = 1.0f - f23;
-            while (i < count) {
-                r = 65535.0f * effMiscRandFloat(0);
-                *(u16 *)dst = (u16)r;
-                r = 255.0f * (f22 + f24 * effMiscRandFloat(0));
-                *(u8 *)(dst + 1) = (u8)r;
-                r = f21 + f25 * effMiscRandFloat(0);
-                *(f32 *)((u8 *)dst + 4) =
-                    f23 + f20 * (1.0f - r);
-                i++;
-                dst = (u16 *)((u8 *)dst + 8);
+            minimumScale = *(f32 *)(config + 0x84) / 100.0f;
+            scaleVariation = *(f32 *)(config + 0x88);
+            alphaVariation = *(f32 *)(config + 0x64);
+            particle = *(u16 **)state;
+            particleIndex = 0;
+            minimumAlpha = 1.0f - alphaVariation;
+            minimumRandomScale = 1.0f - scaleVariation;
+            scaleRange = 1.0f - minimumScale;
+            while (particleIndex < count) {
+                randomValue = 65535.0f * effMiscRandFloat(0);
+                *(u16 *)particle = (u16)randomValue;
+                randomValue = 255.0f * (minimumAlpha + alphaVariation * effMiscRandFloat(0));
+                *(u8 *)(particle + 1) = (u8)randomValue;
+                randomValue = minimumRandomScale + scaleVariation * effMiscRandFloat(0);
+                *(f32 *)((u8 *)particle + 4) =
+                    minimumScale + scaleRange * (1.0f - randomValue);
+                particleIndex++;
+                particle = (u16 *)((u8 *)particle + 8);
             }
-            delay = *(s32 *)(p17 + 0x4C);
+            delay = *(s32 *)(config + 0x4C);
             switch (delay) {
             case 0:
                 delay = 0x7FFFFFFF;
@@ -151,7 +322,7 @@ void LineNovaReseedParticles(u8 *arg0) {
             default:
                 break;
             }
-            *(s32 *)(arg0 + 0x1C) = delay;
+            *(s32 *)(effect + 0x1C) = delay;
         }
     }
 }
@@ -181,6 +352,7 @@ static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 
 // FUN_004B36B0
 void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
 {
+    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 1103). */
 
     extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
     extern u8 *kwlnGetCamera(void);
@@ -440,28 +612,28 @@ vertices[8] = *(f32 *)D_00713D18;
 
 // Binds the line-nova resource for the kind: looks up the kind's resource handle and stores it in the entry.
 // FUN_004B3D90
-void LineNovaBindResource(u8 *arg0) {
-    u8 *p6;
-    u8 *p16;
-    u32 v5;
-    void *r;
+void LineNovaBindResource(u8 *effect) {
+    u8 *config;
+    u8 *geometryBlock;
+    u32 duration;
+    void *resourceList;
 
-    p6 = *(u8 **)(arg0 + 0x24);
-    p16 = *(u8 **)(*(u8 **)(arg0 + 0x20) + 4);
-    v5 = *(u32 *)(p6 + 0x34);
-    if (v5 >= *(u32 *)(arg0 + 0x14) || v5 == 0) {
-        switch (*(u8 *)(p6 + 0x68)) {
+    config = ((LineNovaEffect *)effect)->configuration.bytes;
+    geometryBlock = ((LineNovaState *)((LineNovaEffect *)effect)->state.bytes)->geometry.bytes;
+    duration = ((LineNovaConfiguration *)config)->duration.unsignedValue;
+    if (duration >= ((LineNovaEffect *)effect)->elapsed.unsignedValue || duration == 0) {
+        switch (((LineNovaConfiguration *)config)->resourceKind) {
         case 0:
-            r = TnGetIndexedWord(*(u16 *)(p6 + 0x28));
-            *(s32 *)(p16 + 0x18) = 0;
-            *(s32 *)(p16 + 0x1C) = 0;
-            PrimAppendNode(r, p16 + 0x18);
+            resourceList = TnGetIndexedWord(((LineNovaConfiguration *)config)->resourceId);
+            ((LineNovaGeometry *)geometryBlock)->nodeNext = 0;
+            ((LineNovaGeometry *)geometryBlock)->nodePrevious = 0;
+            PrimAppendNode(resourceList, geometryBlock + 0x18);
             break;
         default:
-            r = TnGetOffset1C(*(u16 *)(p6 + 0x28));
-            *(s32 *)(p16 + 0x18) = 0;
-            *(s32 *)(p16 + 0x1C) = 0;
-            PrimAppendNode(r, p16 + 0x18);
+            resourceList = TnGetOffset1C(((LineNovaConfiguration *)config)->resourceId);
+            ((LineNovaGeometry *)geometryBlock)->nodeNext = 0;
+            ((LineNovaGeometry *)geometryBlock)->nodePrevious = 0;
+            PrimAppendNode(resourceList, geometryBlock + 0x18);
             break;
         }
     }
@@ -470,142 +642,144 @@ void LineNovaBindResource(u8 *arg0) {
 
 // Writes the line colour into the row and selects the six-byte vertex update as the entry's callback.
 // FUN_004B3E40
-void LineNovaUseVertexUpdate(u8 *arg0) {
-    u8 *p10;
-    u8 *dst;
+void LineNovaUseVertexUpdate(u8 *effect) {
+    u8 *geometryBlock;
+    u8 *material;
 
-    p10 = *(u8 **)(*(u8 **)(arg0 + 0x20) + 4);
+    geometryBlock = ((LineNovaState *)((LineNovaEffect *)effect)->state.bytes)->geometry.bytes;
     if (iGpffffbb64.c3 != 0xFF) {
-        dst = *(u8 **)(p10 + 0x14);
-        *(LineNovaColor *)(dst + 4) = iGpffffbb64;
+        material = ((LineNovaGeometry *)geometryBlock)->material;
+        ((LineNovaMaterial *)material)->color = iGpffffbb64;
     } else {
         iGpffffbb64.c3 = 0xFE;
-        dst = *(u8 **)(p10 + 0x14);
-        *(LineNovaColor *)(dst + 4) = iGpffffbb64;
+        material = ((LineNovaGeometry *)geometryBlock)->material;
+        ((LineNovaMaterial *)material)->color = iGpffffbb64;
         iGpffffbb64.c3 = 0xFF;
     }
-    *(s32 *)(p10 + 0x20) = (s32)LineNovaUpdateVertices;
-    *(s32 *)(p10 + 0x28) = (s32)arg0;
+    ((LineNovaGeometry *)geometryBlock)->update = (s32)LineNovaUpdateVertices;
+    ((LineNovaGeometry *)geometryBlock)->owner = (s32)effect;
 }
 
 
 // Creates a line-nova instance whose colour alpha comes from the source's alpha byte, then fills one colour row per entry.
 // FUN_004B3ED0
-u8 *LineNovaCreateAlpha(u8 *arg0)
+u8 *LineNovaCreateAlpha(u8 *config)
 {
-    f32 temp_f1;
-    f32 temp_f1_2;
-    f32 temp_f2;
-    f32 var_f0;
-    f32 var_f0_2;
-    f32 var_f1;
-    s32 temp_5;
-    s32 temp_5_2;
-    s32 var_5;
-    s32 var_5_2;
-    u16 *temp_2_2;
-    u32 temp_16;
+    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 474). */
+    f32 firstScaledAlpha;
+    f32 secondScaledAlpha;
+    f32 alphaScale;
+    f32 firstAlphaFloat;
+    f32 secondAlphaFloat;
+    f32 sourceAlphaFloat;
+    s32 firstFadedColor;
+    s32 secondFadedColor;
+    s32 firstAlpha;
+    s32 secondAlpha;
+    u16 *geometryBlock;
+    u32 particleCount;
     u32 cnt;
-    u32 temp_4_2;
-    u32 temp_4_3;
-    u32 temp_6;
-    u32 temp_6_2;
-    u32 var_6;
-    u8 temp_4;
-    u8 *temp_2;
-    u8 *var_3;
+    u32 firstSourceAlpha;
+    u32 secondSourceAlpha;
+    u32 firstColor;
+    u32 secondColor;
+    u32 particleIndex;
+    u8 sourceAlpha;
+    u8 *state;
+    u8 *colors;
 
-    temp_16 = *(u32 *)(arg0 + 0x38);
+    particleCount = *(u32 *)(config + 0x38);
     chkmemAllocSiteTag(D_00714628, 0x16D);
-    temp_2 = (u8 *)(*jtbl_008873E8)(temp_16 * 6 + 0x10, 0x40000);
-    if (temp_2 == NULL) {
+    state = (u8 *)(*jtbl_008873E8)(particleCount * 6 + 0x10, 0x40000);
+    if (state == NULL) {
         kAssertFail(D_00714628, 0x16E);
     }
-    *(u8 **)(temp_2 + 0) = temp_2 + 0x10;
-    *(u8 **)(temp_2 + 8) = temp_2;
-    temp_2_2 = (u16 *)GeometryCreateTableGrid(temp_16 & 0xFFFF, 4, 6, D_00713310, 0x48);
-    *(u16 **)(temp_2 + 4) = temp_2_2;
-    *temp_2_2 &= 0xFFFE;
-    cnt = *(u32 *)(arg0 + 0x38);
-    var_3 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x10) + 0x18) + 0x30);
-    temp_4 = *(u8 *)(arg0 + 0x92);
-    var_f1 = (f32)(u32)temp_4;
-    temp_f2 = var_f1 / 255.0f;
-    temp_6 = *(u32 *)(arg0 + 0x54);
-    temp_4_2 = temp_6 >> 0x18;
-    var_f0 = (f32)(u32)temp_4_2;
-    temp_f1 = var_f0 * temp_f2;
-    var_5 = (u32)temp_f1;
-    temp_5 = (temp_6 & 0xFFFFFF) | (var_5 << 24);
-    temp_6_2 = *(u32 *)(arg0 + 0x58);
-    temp_4_3 = temp_6_2 >> 0x18;
-    var_f0_2 = (f32)(u32)temp_4_3;
-    temp_f1_2 = var_f0_2 * temp_f2;
-    var_5_2 = (u32)temp_f1_2;
-    temp_5_2 = (temp_6_2 & 0xFFFFFF) | (var_5_2 << 24);
-    var_6 = 0;
-    while (var_6 < cnt) {
-        *(s32 *)(var_3 + 0) = temp_5_2;
-        *(s32 *)(var_3 + 4) = temp_5;
-        *(s32 *)(var_3 + 8) = temp_5_2;
-        *(u32 *)(var_3 + 0xC) = *(u32 *)(arg0 + 0x58);
-        *(u32 *)(var_3 + 0x10) = *(u32 *)(arg0 + 0x54);
-        *(u32 *)(var_3 + 0x14) = *(u32 *)(arg0 + 0x58);
-        var_6++;
-        var_3 += 0x18;
+    *(u8 **)(state + 0) = state + 0x10;
+    *(u8 **)(state + 8) = state;
+    geometryBlock = (u16 *)GeometryCreateTableGrid(particleCount & 0xFFFF, 4, 6, D_00713310, 0x48);
+    *(u16 **)(state + 4) = geometryBlock;
+    *geometryBlock &= 0xFFFE;
+    cnt = *(u32 *)(config + 0x38);
+    colors = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(state + 4) + 0x10) + 0x18) + 0x30);
+    sourceAlpha = *(u8 *)(config + 0x92);
+    sourceAlphaFloat = (f32)(u32)sourceAlpha;
+    alphaScale = sourceAlphaFloat / 255.0f;
+    firstColor = *(u32 *)(config + 0x54);
+    firstSourceAlpha = firstColor >> 0x18;
+    firstAlphaFloat = (f32)(u32)firstSourceAlpha;
+    firstScaledAlpha = firstAlphaFloat * alphaScale;
+    firstAlpha = (u32)firstScaledAlpha;
+    firstFadedColor = (firstColor & 0xFFFFFF) | (firstAlpha << 24);
+    secondColor = *(u32 *)(config + 0x58);
+    secondSourceAlpha = secondColor >> 0x18;
+    secondAlphaFloat = (f32)(u32)secondSourceAlpha;
+    secondScaledAlpha = secondAlphaFloat * alphaScale;
+    secondAlpha = (u32)secondScaledAlpha;
+    secondFadedColor = (secondColor & 0xFFFFFF) | (secondAlpha << 24);
+    particleIndex = 0;
+    while (particleIndex < cnt) {
+        *(s32 *)(colors + 0) = secondFadedColor;
+        *(s32 *)(colors + 4) = firstFadedColor;
+        *(s32 *)(colors + 8) = secondFadedColor;
+        *(u32 *)(colors + 0xC) = *(u32 *)(config + 0x58);
+        *(u32 *)(colors + 0x10) = *(u32 *)(config + 0x54);
+        *(u32 *)(colors + 0x14) = *(u32 *)(config + 0x58);
+        particleIndex++;
+        colors += 0x18;
     }
-    return temp_2;
+    return state;
 }
 
 // Frees a line-nova instance: same body as LineNovaDestroy.
 // FUN_004B4170
-void LineNovaDestroyAlt(u8 *arg0) {
-    GeometryBlockDestroy(*(void **)(arg0 + 4));
-    (*jtbl_008873EC)(*(void **)(arg0 + 8));
+void LineNovaDestroyAlt(u8 *state) {
+    GeometryBlockDestroy(((LineNovaState *)state)->geometry.pointer);
+    (*jtbl_008873EC)(((LineNovaState *)state)->allocation.pointer);
 }
 
 
 // Reseeds the six-byte vertex records: three random 16-bit components, then resets the delay from the emitter.
 // FUN_004B41C0
-void LineNovaReseedVertices(u8 *arg0) {
-    u8 *p20;
-    u8 *p17;
+void LineNovaReseedVertices(u8 *effect) {
+    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 51). */
+    u8 *state;
+    u8 *config;
     u32 count;
     s32 progress;
     s32 delay;
-    u16 *dst;
-    u32 i;
-    f32 f23;
-    f32 f22;
-    f32 f21;
-    f32 f20;
-    f32 r;
+    u16 *particle;
+    u32 particleIndex;
+    f32 alphaVariation;
+    f32 positionVariation;
+    f32 minimumAlpha;
+    f32 minimumPosition;
+    f32 randomValue;
 
-    p20 = *(u8 **)(arg0 + 0x20);
-    p17 = *(u8 **)(arg0 + 0x24);
-    count = *(u32 *)(p17 + 0x38);
-    progress = *(s32 *)(p17 + 0x34);
-    if (progress >= *(s32 *)(arg0 + 0x14) || progress == 0) {
-        delay = *(s32 *)(arg0 + 0x1C) - 1;
-        *(s32 *)(arg0 + 0x1C) = delay;
+    state = *(u8 **)(effect + 0x20);
+    config = *(u8 **)(effect + 0x24);
+    count = *(u32 *)(config + 0x38);
+    progress = *(s32 *)(config + 0x34);
+    if (progress >= *(s32 *)(effect + 0x14) || progress == 0) {
+        delay = *(s32 *)(effect + 0x1C) - 1;
+        *(s32 *)(effect + 0x1C) = delay;
         if (delay <= 0) {
-            f23 = *(f32 *)(p17 + 0x64);
-            f22 = *(f32 *)(p17 + 0x94);
-            dst = *(u16 **)p20;
-            i = 0;
-            f21 = 1.0f - f23;
-            f20 = 1.0f - f22;
-            while (i < count) {
-                r = 65535.0f * (f21 + f23 * effMiscRandFloat(0));
-                *(u16 *)dst = (u16)r;
-                r = 65535.0f * effMiscRandFloat(0);
-                *(u16 *)(dst + 1) = (u16)r;
-                r = 65535.0f * (f20 + f22 * effMiscRandFloat(0));
-                *(u16 *)(dst + 2) = (u16)r;
-                i++;
-                dst = (u16 *)((u8 *)dst + 6);
+            alphaVariation = *(f32 *)(config + 0x64);
+            positionVariation = *(f32 *)(config + 0x94);
+            particle = *(u16 **)state;
+            particleIndex = 0;
+            minimumAlpha = 1.0f - alphaVariation;
+            minimumPosition = 1.0f - positionVariation;
+            while (particleIndex < count) {
+                randomValue = 65535.0f * (minimumAlpha + alphaVariation * effMiscRandFloat(0));
+                *(u16 *)particle = (u16)randomValue;
+                randomValue = 65535.0f * effMiscRandFloat(0);
+                *(u16 *)(particle + 1) = (u16)randomValue;
+                randomValue = 65535.0f * (minimumPosition + positionVariation * effMiscRandFloat(0));
+                *(u16 *)(particle + 2) = (u16)randomValue;
+                particleIndex++;
+                particle = (u16 *)((u8 *)particle + 6);
             }
-            delay = *(s32 *)(p17 + 0x4C);
+            delay = *(s32 *)(config + 0x4C);
             switch (delay) {
             case 0:
                 delay = 0x7FFFFFFF;
@@ -613,7 +787,7 @@ void LineNovaReseedVertices(u8 *arg0) {
             default:
                 break;
             }
-            *(s32 *)(arg0 + 0x1C) = delay;
+            *(s32 *)(effect + 0x1C) = delay;
         }
     }
 }
@@ -631,6 +805,7 @@ void LineNovaReseedVertices(u8 *arg0) {
 // FUN_004B4430
 void LineNovaUpdateVertices(u8 *unused, u8 *effect)
 {
+    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 1470). */
 
     extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
     extern u8 *kwlnGetCamera(void);
@@ -829,28 +1004,28 @@ vertices[17] = *(f32 *)D_00713D18;
 
 // Binds the line-nova resource for its kind; same body as LineNovaBindResource.
 // FUN_004B4C00
-void LineNovaBindResourceAlt(u8 *arg0) {
-    u8 *p6;
-    u8 *p16;
-    u32 v5;
-    void *r;
+void LineNovaBindResourceAlt(u8 *effect) {
+    u8 *config;
+    u8 *geometryBlock;
+    u32 duration;
+    void *resourceList;
 
-    p6 = *(u8 **)(arg0 + 0x24);
-    p16 = *(u8 **)(*(u8 **)(arg0 + 0x20) + 4);
-    v5 = *(u32 *)(p6 + 0x34);
-    if (v5 >= *(u32 *)(arg0 + 0x14) || v5 == 0) {
-        switch (*(u8 *)(p6 + 0x68)) {
+    config = ((LineNovaEffect *)effect)->configuration.bytes;
+    geometryBlock = ((LineNovaState *)((LineNovaEffect *)effect)->state.bytes)->geometry.bytes;
+    duration = ((LineNovaConfiguration *)config)->duration.unsignedValue;
+    if (duration >= ((LineNovaEffect *)effect)->elapsed.unsignedValue || duration == 0) {
+        switch (((LineNovaConfiguration *)config)->resourceKind) {
         case 0:
-            r = TnGetIndexedWord(*(u16 *)(p6 + 0x28));
-            *(s32 *)(p16 + 0x18) = 0;
-            *(s32 *)(p16 + 0x1C) = 0;
-            PrimAppendNode(r, p16 + 0x18);
+            resourceList = TnGetIndexedWord(((LineNovaConfiguration *)config)->resourceId);
+            ((LineNovaGeometry *)geometryBlock)->nodeNext = 0;
+            ((LineNovaGeometry *)geometryBlock)->nodePrevious = 0;
+            PrimAppendNode(resourceList, geometryBlock + 0x18);
             break;
         default:
-            r = TnGetOffset1C(*(u16 *)(p6 + 0x28));
-            *(s32 *)(p16 + 0x18) = 0;
-            *(s32 *)(p16 + 0x1C) = 0;
-            PrimAppendNode(r, p16 + 0x18);
+            resourceList = TnGetOffset1C(((LineNovaConfiguration *)config)->resourceId);
+            ((LineNovaGeometry *)geometryBlock)->nodeNext = 0;
+            ((LineNovaGeometry *)geometryBlock)->nodePrevious = 0;
+            PrimAppendNode(resourceList, geometryBlock + 0x18);
             break;
         }
     }
@@ -859,46 +1034,46 @@ void LineNovaBindResourceAlt(u8 *arg0) {
 
 // Creates a line-nova kind instance (kind below three): allocates the instance block, copies the kind's parameters and runs its init callback.
 // FUN_004B4CB0
-u8 *LineNovaCreateKindInstance(s32 arg0, u8 *arg1) {
-    u8 *w;
+u8 *LineNovaCreateKindInstance(s32 kind, u8 *parameters) {
+    u8 *effect;
     s32 size;
-    u32 idx;
-    u32 idx2;
+    u32 typeIndex;
+    u32 tableOffset;
 
-    if ((u16)arg0 >= 3) {
+    if ((u16)kind >= 3) {
         kAssertFail(D_00714628, 0x28C);
     }
-    idx = (u16)arg0;
-    size = *(s32 *)(&D_00714664[0] + idx * 0x18);
+    typeIndex = (u16)kind;
+    size = ((LineNovaTypeSize *)D_00714664)[typeIndex].dataBytes;
     chkmemAllocSiteTag(D_00714628, 0x290);
-    w = (u8 *)(*jtbl_008873E8)(size + 0x30, 0x40000);
-    if (w == NULL) {
+    effect = (u8 *)(*jtbl_008873E8)(size + 0x30, 0x40000);
+    if (effect == NULL) {
         kAssertFail(D_00714628, 0x291);
     }
-    *(u8 **)(w + 0x24) = w + 0x30;
-    *(s32 *)(w + 0x14) = 0;
-    *(s32 *)(w + 0x18) = idx;
-    *(s32 *)(w + 0x10) = -1;
-    *(s32 *)(w + 0x1C) = 0;
-    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(w) : "memory");
-    memcpy(*(void **)(w + 0x24), arg1, size);
-    idx2 = (u16)arg0 * 0x18;
-    *(s32 *)(w + 0x20) = (*(s32 (**)(u8 *))(&D_00714654[0] + idx2))(arg1);
-    (*(void (**)(u8 *))(&D_00714650[0] + idx2))(w);
-    return w;
+    ((LineNovaEffect *)effect)->configuration.bytes = effect + 0x30;
+    ((LineNovaEffect *)effect)->elapsed.signedValue = 0;
+    ((LineNovaEffect *)effect)->kind = typeIndex;
+    ((LineNovaEffect *)effect)->color.signedValue = -1;
+    ((LineNovaEffect *)effect)->delay = 0;
+    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(effect) : "memory");
+    memcpy(((LineNovaEffect *)effect)->configuration.pointer, parameters, size);
+    tableOffset = (u16)kind * 0x18;
+    ((LineNovaEffect *)effect)->state.signedValue = ((LineNovaTypeInitializer *)(D_00714654 + tableOffset))->initialize(parameters);
+    ((LineNovaTypeSetup *)(D_00714650 + tableOffset))->setup(effect);
+    return effect;
 }
 // Creates a line-nova kind instance for an object: resolves the object's record (asserts on a missing record), then builds the kind instance.
 // FUN_004B4E10
-void *LineNovaCreateKindInstanceFromObject(void *arg0) {
-    u8 *p;
+void *LineNovaCreateKindInstanceFromObject(void *source) {
+    u8 *effect;
 
-    p = mdlEffectResolveRelPtrA(arg0);
-    if (p == NULL) {
+    effect = mdlEffectResolveRelPtrA(source);
+    if (effect == NULL) {
         kAssertFail(D_00714628, 0x2B3);
     }
-    p = LineNovaCreateKindInstance(*(u16 *)((u8 *)arg0 + 0xC), p);
-    if (p == NULL) {
+    effect = LineNovaCreateKindInstance(((EffSourceDescriptor *)source)->id, effect);
+    if (effect == NULL) {
         kAssertFail(D_00714628, 0x2B5);
     }
-    return p;
+    return effect;
 }

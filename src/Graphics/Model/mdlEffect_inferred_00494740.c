@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
@@ -26,8 +27,8 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 00494740-00494740 */
 
-extern void func_004940d0(u8 *arg0, u16 arg1, Code1_0049Color *arg2);
-extern void func_004941f0(u8 *track, u32 *colors);
+extern void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049Color *color);
+extern void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors);
 static inline u32 track_index(u16 value)
 {
     return value;
@@ -72,8 +73,9 @@ typedef struct TrackVertex
  * relocations resolve to retail. Loop invariants retain the narrowed tail
  * bound. The scalar width expression preserves the cap width and VU input
  * as distinct lifetimes; all vector transfers declare their memory operands. */
+/* Shift center history, expand a tapered ribbon and rebuild its cap from the head tangent. */
 // FUN_00494740
-void func_00494740(u8 *track, u16 trackIndex, u8 *point, f32 width) {
+void mdlEffectAdvanceRibbon(u8 *track, u16 trackIndex, u8 *point, f32 width) {
     extern void mdlEffectAxisAngleBasisVU(f32 angle);
     extern u_long128 D_00713D00;
     extern f32 D_00713D10[4];
@@ -107,13 +109,13 @@ void func_00494740(u8 *track, u16 trackIndex, u8 *point, f32 width) {
     f32 capWidth;
 
     {
-        u8 *t10 = *(u8 **)(track + 0x10);
-        vertexCount = *(u16 *)(t10 + 8);
+        u8 *t10 = (u8 *)((EffTrackRibbons *)track)->ribbon;
+        vertexCount = ((MdlEffectMultipartGeometry *)t10)->vertexCount;
         {
-            u8 *t1 = *(u8 **)(t10 + 0x10);
-            u8 *t2 = *(u8 **)(t1 + 0x18);
-            u8 *t3 = *(u8 **)(t2 + 0x5C);
-            u8 *tab = *(u8 **)(t3 + 0x14);
+            u8 *t1 = ((MdlEffectMultipartGeometry *)t10)->model;
+            u8 *t2 = (u8 *)((RpAtomic *)t1)->geometry;
+            u8 *t3 = (u8 *)((RpGeometry *)t2)->morphTarget;
+            u8 *tab = (u8 *)((RpMorphTarget *)t3)->vertices;
             row = tab + (u32)vertexCount * track_index(trackIndex) * 12;
         }
         previousCenter = row + (vertexCount - 5) * 12;
@@ -122,7 +124,7 @@ void func_00494740(u8 *track, u16 trackIndex, u8 *point, f32 width) {
     shiftedVertex = 3;
     goto shift_check;
 shift_center:
-    *(TrackVertex *)(followingCenter) = *(const TrackVertex *)(previousCenter);
+    ((TrackVertex *)followingCenter)[0] = ((const TrackVertex *)previousCenter)[0];
     previousCenter -= 0x24;
     followingCenter -= 0x24;
     shiftedVertex += 3;
@@ -130,10 +132,10 @@ shift_check:
     if (shiftedVertex < vertexCount) {
         goto shift_center;
     }
-    *(TrackVertex *)(row + 0xc) = *(const TrackVertex *)(point);
+    ((TrackVertex *)row)[1] = ((const TrackVertex *)point)[0];
     rowCount = (s32)vertexCount / 3 - 1;
     lastRow = (u16)rowCount;
-    countSlot = *(u8 **)(track + 0x18) + (track_index(trackIndex) * 2);
+    countSlot = ((EffTrackRibbons *)track)->counts + (track_index(trackIndex) * 2);
     activeRows = *(u16 *)countSlot;
     if ((s32)activeRows <= (s32)lastRow) {
         u32 nv = activeRows + 1;
@@ -171,13 +173,13 @@ shift_check:
             : "=r"(dot) : : "memory");
         rotation = fGpffff8094 * dot;
     }
-    D_00713D10[0] = *(f32 *)(row + 12);
-    D_00713D14[0] = *(f32 *)(row + 16);
-    D_00713D18[0] = *(f32 *)(row + 20);
+    D_00713D10[0] = ((TrackVertex *)row)[1].x;
+    D_00713D14[0] = ((TrackVertex *)row)[1].y;
+    D_00713D18[0] = ((TrackVertex *)row)[1].z;
     __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf12", "memory");
-    D_00713D10[0] = *(f32 *)(row + 48);
-    D_00713D14[0] = *(f32 *)(row + 52);
-    D_00713D18[0] = *(f32 *)(row + 56);
+    D_00713D10[0] = ((TrackVertex *)row)[4].x;
+    D_00713D14[0] = ((TrackVertex *)row)[4].y;
+    D_00713D18[0] = ((TrackVertex *)row)[4].z;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf10", "memory");
     __asm__ volatile(
         "vsub.xyzw $vf10, $vf10, $vf12 \n"
@@ -210,28 +212,28 @@ shift_check:
     }
     __asm__ volatile("sqc2 $vf12, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
     *(f32 *)row = D_00713D10[0];
-    *(f32 *)(row + 4) = D_00713D14[0];
-    *(f32 *)(row + 8) = D_00713D18[0];
+    ((TrackVertex *)row)[0].y = D_00713D14[0];
+    ((TrackVertex *)row)[0].z = D_00713D18[0];
     __asm__ volatile(
         "vsub.xyzw $vf12, $vf12, $vf10 \n"
         "vsub.xyzw $vf12, $vf12, $vf10 \n"
         : : : "$vf12", "memory");
     __asm__ volatile("sqc2 $vf12, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
-    *(f32 *)(row + 24) = D_00713D10[0];
-    *(f32 *)(row + 28) = D_00713D14[0];
-    *(f32 *)(row + 32) = D_00713D18[0];
+    ((TrackVertex *)row)[2].x = D_00713D10[0];
+    ((TrackVertex *)row)[2].y = D_00713D14[0];
+    ((TrackVertex *)row)[2].z = D_00713D18[0];
     fraction = fraction - fractionStep;
     row += 0x24;
     rowIndex++;
     goto ribbon_check;
 ribbon_row:
-    D_00713D10[0] = *(f32 *)(row + 12);
-    D_00713D14[0] = *(f32 *)(row + 16);
-    D_00713D18[0] = *(f32 *)(row + 20);
+    D_00713D10[0] = ((TrackVertex *)row)[1].x;
+    D_00713D14[0] = ((TrackVertex *)row)[1].y;
+    D_00713D18[0] = ((TrackVertex *)row)[1].z;
     __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf12", "memory");
-    D_00713D10[0] = *(f32 *)(row + 48);
-    D_00713D14[0] = *(f32 *)(row + 52);
-    D_00713D18[0] = *(f32 *)(row + 56);
+    D_00713D10[0] = ((TrackVertex *)row)[4].x;
+    D_00713D14[0] = ((TrackVertex *)row)[4].y;
+    D_00713D18[0] = ((TrackVertex *)row)[4].z;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf10", "memory");
     __asm__ volatile(
         "vsub.xyzw $vf10, $vf10, $vf12 \n"
@@ -262,17 +264,17 @@ ribbon_row:
     {
         u8 *dst = row;
         *(f32 *)dst = D_00713D10[0];
-        *(f32 *)(dst + 4) = D_00713D14[0];
-        *(f32 *)(dst + 8) = D_00713D18[0];
+        ((TrackVertex *)dst)[0].y = D_00713D14[0];
+        ((TrackVertex *)dst)[0].z = D_00713D18[0];
     }
     __asm__ volatile(
         "vsub.xyzw $vf12, $vf12, $vf10 \n"
         "vsub.xyzw $vf12, $vf12, $vf10 \n"
         : : : "$vf12", "memory");
     __asm__ volatile("sqc2 $vf12, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
-    *(f32 *)(row + 24) = D_00713D10[0];
-    *(f32 *)(row + 28) = D_00713D14[0];
-    *(f32 *)(row + 32) = D_00713D18[0];
+    ((TrackVertex *)row)[2].x = D_00713D10[0];
+    ((TrackVertex *)row)[2].y = D_00713D14[0];
+    ((TrackVertex *)row)[2].z = D_00713D18[0];
     fraction = fraction - fractionStep;
     row += 0x24;
     rowIndex++;
@@ -281,15 +283,15 @@ ribbon_check:
         goto ribbon_row;
     }
 collapse_tail:
-    *(TrackVertex *)(row) = *(const TrackVertex *)(row + 0xc);
-    *(TrackVertex *)(row + 0x18) = *(const TrackVertex *)(row + 0xc);
+    ((TrackVertex *)row)[0] = ((const TrackVertex *)row)[1];
+    ((TrackVertex *)row)[2] = ((const TrackVertex *)row)[1];
     {
         u8 *nxt = row + 0x24;
         goto tail_check;
 tail_row:
-        *(TrackVertex *)(nxt) = *(const TrackVertex *)(row);
-        *(TrackVertex *)(nxt + 0xc) = *(const TrackVertex *)(row + 0xc);
-        *(TrackVertex *)(nxt + 0x18) = *(const TrackVertex *)(row + 0x18);
+        ((TrackVertex *)nxt)[0] = ((const TrackVertex *)row)[0];
+        ((TrackVertex *)nxt)[1] = ((const TrackVertex *)row)[1];
+        ((TrackVertex *)nxt)[2] = ((const TrackVertex *)row)[2];
         nxt += 0x24;
         rowIndex++;
 tail_check:
@@ -297,16 +299,16 @@ tail_check:
             goto tail_row;
         }
         {
-            u8 *t = *(u8 **)(track + 0x14);
-            u32 c2 = *(u16 *)(t + 8);
-            u8 *t1 = *(u8 **)(t + 0x10);
-            u8 *t2 = *(u8 **)(t1 + 0x18);
-            u8 *t3 = *(u8 **)(t2 + 0x5C);
-            u8 *tab2 = *(u8 **)(t3 + 0x14);
+            u8 *t = (u8 *)((EffTrackRibbons *)track)->cap;
+            u32 c2 = ((MdlEffectMultipartGeometry *)t)->vertexCount;
+            u8 *t1 = ((MdlEffectMultipartGeometry *)t)->model;
+            u8 *t2 = (u8 *)((RpAtomic *)t1)->geometry;
+            u8 *t3 = (u8 *)((RpGeometry *)t2)->morphTarget;
+            u8 *tab2 = (u8 *)((RpMorphTarget *)t3)->vertices;
             cap = tab2 + (u32)c2 * track_index(trackIndex) * 12;
-            *(TrackVertex *)cap = *(const TrackVertex *)(firstRow + 12);
-            *(TrackVertex *)(cap + 0xc) = *(const TrackVertex *)(firstRow);
-            *(TrackVertex *)(cap + 0x54) = *(const TrackVertex *)(firstRow + 0x18);
+            *(TrackVertex *)cap = ((const TrackVertex *)firstRow)[1];
+            ((TrackVertex *)cap)[1] = ((const TrackVertex *)firstRow)[0];
+            ((TrackVertex *)cap)[7] = ((const TrackVertex *)firstRow)[2];
         }
         {
             f32 wide;
@@ -320,9 +322,9 @@ tail_check:
                 __asm__ volatile("qmtc2 %0, $vf2" : : "r"(capLength) : "$vf2", "memory");
                 __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x" : : : "$vf11", "memory");
             }
-            D_00713D10[0] = *(f32 *)(firstRow + 12);
-            D_00713D14[0] = *(f32 *)(firstRow + 16);
-            D_00713D18[0] = *(f32 *)(firstRow + 20);
+            D_00713D10[0] = ((TrackVertex *)firstRow)[1].x;
+            D_00713D14[0] = ((TrackVertex *)firstRow)[1].y;
+            D_00713D18[0] = ((TrackVertex *)firstRow)[1].z;
             __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf12", "memory");
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&headSide), "m"(headSide) : "$vf10", "memory");
             wide = fGpffff80bc * headWidth;
@@ -342,9 +344,9 @@ tail_check:
                     : : : "$vf3", "$vf10", "ACC", "memory");
             }
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
-            *(f32 *)(cap + 24) = D_00713D10[0];
-            *(f32 *)(cap + 28) = D_00713D14[0];
-            *(f32 *)(cap + 32) = D_00713D18[0];
+            ((TrackVertex *)cap)[2].x = D_00713D10[0];
+            ((TrackVertex *)cap)[2].y = D_00713D14[0];
+            ((TrackVertex *)cap)[2].z = D_00713D18[0];
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&headSide), "m"(headSide) : "$vf10", "memory");
             inner = 1.7f * headWidth;
             capWidth = inner;
@@ -363,9 +365,9 @@ tail_check:
                     : : : "$vf3", "$vf10", "ACC", "memory");
             }
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
-            *(f32 *)(cap + 36) = D_00713D10[0];
-            *(f32 *)(cap + 40) = D_00713D14[0];
-            *(f32 *)(cap + 44) = D_00713D18[0];
+            ((TrackVertex *)cap)[3].x = D_00713D10[0];
+            ((TrackVertex *)cap)[3].y = D_00713D14[0];
+            ((TrackVertex *)cap)[3].z = D_00713D18[0];
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&headSide), "m"(headSide) : "$vf10", "memory");
             {
                 __asm__ volatile("qmtc2 %0, $vf2" : : "r"(wide) : "$vf2", "memory");
@@ -384,9 +386,9 @@ tail_check:
                     : : : "$vf3", "$vf10", "ACC", "memory");
             }
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
-            *(f32 *)(cap + 72) = D_00713D10[0];
-            *(f32 *)(cap + 76) = D_00713D14[0];
-            *(f32 *)(cap + 80) = D_00713D18[0];
+            ((TrackVertex *)cap)[6].x = D_00713D10[0];
+            ((TrackVertex *)cap)[6].y = D_00713D14[0];
+            ((TrackVertex *)cap)[6].z = D_00713D18[0];
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&headSide), "m"(headSide) : "$vf10", "memory");
             {
                 f32 t2 = inner;
@@ -406,9 +408,9 @@ tail_check:
                     : : : "$vf3", "$vf10", "ACC", "memory");
             }
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
-            *(f32 *)(cap + 60) = D_00713D10[0];
-            *(f32 *)(cap + 64) = D_00713D14[0];
-            *(f32 *)(cap + 68) = D_00713D18[0];
+            ((TrackVertex *)cap)[5].x = D_00713D10[0];
+            ((TrackVertex *)cap)[5].y = D_00713D14[0];
+            ((TrackVertex *)cap)[5].z = D_00713D18[0];
             {
                 f32 endpoint = fGpffff80cc;
                 __asm__ volatile("qmtc2 %0, $vf2" : : "r"(endpoint) : "$vf2", "memory");
@@ -418,10 +420,10 @@ tail_check:
                     : : : "$vf11", "memory");
             }
             __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
-            *(f32 *)(cap + 48) = D_00713D10[0];
-            *(f32 *)(cap + 52) = D_00713D14[0];
-            *(f32 *)(cap + 56) = D_00713D18[0];
+            ((TrackVertex *)cap)[4].x = D_00713D10[0];
+            ((TrackVertex *)cap)[4].y = D_00713D14[0];
+            ((TrackVertex *)cap)[4].z = D_00713D18[0];
         }
     }
 }
-
+#pragma pop

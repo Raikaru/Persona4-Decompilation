@@ -217,7 +217,7 @@ struct RwError003e {
 /* measured: schedule on is required for COP1 FMA accumulator pipelining in func_003e40b0. */
 #pragma schedule on
 // FUN_003E40B0
-f32 func_003e40b0(f32 *arg0, const f32 *arg1) {
+f32 RwV3dNormalize(f32 *arg0, const f32 *arg1) {
     f32 x = arg1[0];
     f32 length;
     f32 recip;

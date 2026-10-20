@@ -3,21 +3,13 @@
 
 #include "type.h"
 #include "rw_types_internal.h"
+#include "rw_camera_internal.h"
 #include "rw/plcore/barenderstate.h"
 
 typedef RwV3d BtlShuffleVec3;
 
-/* The matrix tags and field layout agree with rw/plcore/bamatrix.h. */
-typedef struct RwMatrixTag {
-    BtlShuffleVec3 right;
-    u32 flags;
-    BtlShuffleVec3 up;
-    u32 pad1;
-    BtlShuffleVec3 at;
-    u32 pad2;
-    BtlShuffleVec3 pos;
-    u32 pad3;
-} BtlShuffleMatrix;
+/* Share the native matrix declaration with camera users. */
+typedef RwMatrixTag BtlShuffleMatrix;
 
 typedef enum RwOpCombineType {
     rwCOMBINEREPLACE = 0,
@@ -68,14 +60,14 @@ typedef s32 (*BtlShuffleRenderPrimitive)(BtlShufflePrimitive primitive,
                                        BtlShuffleSkyVertex *vertices,
                                        s32 count);
 
-void btlShuffleDrawCardSprites(u8 *work, s32 cardIndex, const BtlShuffleVec3 *position,
+void btlShuffleDrawCardSprites(u8 *context, s32 cardIndex, const BtlShuffleVec3 *position,
                   u8 *color, s32 restoreAlpha);
 
 /* The rotation initializer consumes two unsigned 16-bit timing values and
  * explicitly forwards both floating controls to the interpolation state. */
-void btlShuffleCalcSetCurveSample(u8 *state, u16 timing0, u16 timing1,
-                  const BtlShuffleVec3 *axis, f32 start, f32 end);
-void btlShuffleDrawSetCurve(u8 *context, s32 cardIndex, u16 timing0, u16 timing1,
+void btlShuffleCalcSetCurveSample(u8 *state, u16 delay, u16 duration,
+                  const BtlShuffleVec3 *axis, f32 startAngle, f32 endAngle);
+void btlShuffleDrawSetCurve(u8 *context, s32 cardIndex, u16 delay, u16 duration,
                   const BtlShuffleVec3 *axis, f32 start, f32 end);
 
 /* Bits in a shuffle child task's flag word (work[0]), set by btlShuffleTask* helpers. */

@@ -5,6 +5,7 @@
 #include "fr_font_internal.h"
 struct RwMatrixTag;
 #include "rw_types_internal.h"
+#include "psc_model_internal.h"
 typedef struct {
     s32 lo;
     s32 hi;
@@ -26,9 +27,9 @@ typedef struct PersonaWork PersonaWork;
 
 extern u8 *kwlnGetCamera(void);
 extern f32 iGpffff84a4;
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                          f32 z, s32 arg6);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 red, u8 green, u8 blue,
+                          f32 z, s32 setStates);
 extern char D_005E5810[];
 extern char D_005E57F0[];
 extern char D_005E5850[];
@@ -99,7 +100,8 @@ struct PanelTransform;
 #pragma opt_loop_invariants on
 // Intent: Builds a panel's tile vertex list: the camera-facing flip, the 9-row grid of tiles and their colours [inferred]
 // FUN_0036AE90
-void pscModelBuildTileVertices(u8 *arg0, u8 *arg1) {
+/* Typed PscModel/PscTileMesh access changes b210 address lifetimes (1528/1504 bytes); retain their proven byte offsets for MATCH. */
+void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
     extern u8 *func_003e9700(u8 *frame);
     extern struct RwMatrixTag *func_003e0f80(void);
     extern void pscBuildModelMatrix(struct PanelMatrix *output,
@@ -115,15 +117,15 @@ void pscModelBuildTileVertices(u8 *arg0, u8 *arg1) {
     extern RwV3d D_0064E4A0;
     extern RwV3d D_0064E4B0;
     extern RwV3d D_0064E4C0;
-    RwV3d stack130;
-    RwV3d stack120;
-    RwV3d stack110;
-    RwV3d stack100;
-    RwV3d stackF0;
-    RwV3d stackE0;
-    RwV3d stackD0;
-    RwV3d stackC0;
-    RwV3d stackB0;
+    RwV3d lightAxis;
+    RwV3d lightDirection;
+    RwV3d eyeDirection;
+    RwV3d position;
+    RwV3d worldPosition;
+    RwV3d lightPosition;
+    RwV3d modelNormal;
+    RwV3d flipAxis;
+    RwV3d worldNormal;
     s32 inner;
     s32 outer;
     s32 limit;
@@ -145,38 +147,38 @@ void pscModelBuildTileVertices(u8 *arg0, u8 *arg1) {
     f32 af;
     f32 scaled;
 
-    stack130 = D_0064E490;
+    lightAxis = D_0064E490;
     view = kwlnGetCamera();
     mtx = func_003e9700(*(u8 **)(view + 4)) + 0x30;
-    stackD0 = D_0064E4A0;
-    stackC0 = D_0064E4B0;
-    stackB0 = D_0064E4C0;
+    modelNormal = D_0064E4A0;
+    flipAxis = D_0064E4B0;
+    worldNormal = D_0064E4C0;
     cam = func_003e0f80();
     pscBuildModelMatrix((struct PanelMatrix *)cam,
-                  (const struct PanelTransform *)arg1);
-    func_003e4320(&stackD0, &stackD0, cam);
-    stackE0 = *(RwV3d *)(arg0 + 0x994);
-    if (*(u8 **)(arg1 + 0x38) != NULL) {
-        func_003e42a0(&stack100, (RwV3d *)(arg1 + 0x20),
-                      (struct RwMatrixTag *)func_003e9700(*(u8 **)(arg1 + 0x38)));
+                  (const struct PanelTransform *)model);
+    func_003e4320(&modelNormal, &modelNormal, cam);
+    lightPosition = *(RwV3d *)(mesh + 0x994);
+    if (*(u8 **)(model + 0x38) != NULL) {
+        func_003e42a0(&position, (RwV3d *)(model + 0x20),
+                      (struct RwMatrixTag *)func_003e9700(*(u8 **)(model + 0x38)));
     } else {
-        stack100 = *(RwV3d *)(arg1 + 0x20);
+        position = *(RwV3d *)(model + 0x20);
     }
-    dot = stackD0.x * (*(f32 *)mtx - stack100.x) + stackD0.y * (*(f32 *)(mtx + 4) - stack100.y) + stackD0.z * (*(f32 *)(mtx + 8) - stack100.z);
-    *(s32 *)arg0 &= ~1;
+    dot = modelNormal.x * (*(f32 *)mtx - position.x) + modelNormal.y * (*(f32 *)(mtx + 4) - position.y) + modelNormal.z * (*(f32 *)(mtx + 8) - position.z);
+    *(s32 *)mesh &= ~1;
     if (dot < 0.0f) {
-        RwMatrixRotate(cam, &stackC0, 180.0f, 1);
-        *(s32 *)arg0 |= 1;
+        RwMatrixRotate(cam, &flipAxis, 180.0f, 1);
+        *(s32 *)mesh |= 1;
     }
-    rgba = arg1 + 0x40;
-    stack100.x = 0.0f;
-    stack100.y = 0.0f;
-    stack100.z = 100.0f;
-    func_003e42a0(&stack100, &stack100, cam);
-    func_003e4320(&stackB0, &stack130, cam);
-    RwV3dNormalize(&stackB0, &stackB0);
+    rgba = model + 0x40;
+    position.x = 0.0f;
+    position.y = 0.0f;
+    position.z = 100.0f;
+    func_003e42a0(&position, &position, cam);
+    func_003e4320(&worldNormal, &lightAxis, cam);
+    RwV3dNormalize(&worldNormal, &worldNormal);
     {
-        dst = arg0 + 4;
+        dst = mesh + 4;
         for (outer = 0; outer < 9; outer++) {
             even = ~outer & 1;
             if (even != 0) {
@@ -196,44 +198,44 @@ void pscModelBuildTileVertices(u8 *arg0, u8 *arg1) {
                 } else {
                     fx = (f32)inner;
                 }
-                stack100.x = fx - 3.0f;
-                stack100.y = 7.68f * ((f32)outer / 8.0f - 0.5f);
-                stack100.z = 0.0f;
-                func_003e42a0(&stackF0, &stack100, cam);
-                stack110.x = stackF0.x - *(f32 *)mtx;
-                stack110.y = stackF0.y - *(f32 *)(mtx + 4);
-                stack110.z = stackF0.z - *(f32 *)(mtx + 8);
-                RwV3dNormalize(&stack110, &stack110);
-                stack120.x = stackF0.x - stackE0.x;
-                stack120.y = stackF0.y - stackE0.y;
-                stack120.z = stackF0.z - stackE0.z;
-                RwV3dNormalize(&stack120, &stack120);
-                dot2 = stack110.x * stack130.x + stack110.y * stack130.y + stack110.z * stack130.z;
+                position.x = fx - 3.0f;
+                position.y = 7.68f * ((f32)outer / 8.0f - 0.5f);
+                position.z = 0.0f;
+                func_003e42a0(&worldPosition, &position, cam);
+                eyeDirection.x = worldPosition.x - *(f32 *)mtx;
+                eyeDirection.y = worldPosition.y - *(f32 *)(mtx + 4);
+                eyeDirection.z = worldPosition.z - *(f32 *)(mtx + 8);
+                RwV3dNormalize(&eyeDirection, &eyeDirection);
+                lightDirection.x = worldPosition.x - lightPosition.x;
+                lightDirection.y = worldPosition.y - lightPosition.y;
+                lightDirection.z = worldPosition.z - lightPosition.z;
+                RwV3dNormalize(&lightDirection, &lightDirection);
+                dot2 = eyeDirection.x * lightAxis.x + eyeDirection.y * lightAxis.y + eyeDirection.z * lightAxis.z;
                 {
-                    f32 t2 = stack130.x * dot2;
-                    f32 t3 = stack130.y * dot2;
-                    f32 t1 = stack130.z * dot2;
-                    f32 u1 = t1 + (t1 - stack110.z);
-                    f32 u2 = t2 + (t2 - stack110.x);
-                    f32 u3 = t3 + (t3 - stack110.y);
-                    f32 v1 = stack120.x * u2 + stack120.y * u3 + stack120.z * u1;
-                    if (v1 <= 0.0f) {
+                    f32 normalX = lightAxis.x * dot2;
+                    f32 normalY = lightAxis.y * dot2;
+                    f32 normalZ = lightAxis.z * dot2;
+                    f32 reflectedZ = normalZ + (normalZ - eyeDirection.z);
+                    f32 reflectedX = normalX + (normalX - eyeDirection.x);
+                    f32 reflectedY = normalY + (normalY - eyeDirection.y);
+                    f32 specularDot = lightDirection.x * reflectedX + lightDirection.y * reflectedY + lightDirection.z * reflectedZ;
+                    if (specularDot <= 0.0f) {
                         pow6 = 0.0f;
                     } else {
-                        pow6 = v1 * v1 * v1 * v1 * v1 * v1;
+                        pow6 = specularDot * specularDot * specularDot * specularDot * specularDot * specularDot;
                     }
                 }
-                stack120.x = stackE0.x - stackF0.x;
-                stack120.y = stackE0.y - stackF0.y;
-                stack120.z = stackE0.z - stackF0.z;
-                RwV3dNormalize(&stack120, &stack120);
-                dot3 = stack120.x * stackB0.x + stack120.y * stackB0.y + stack120.z * stackB0.z;
+                lightDirection.x = lightPosition.x - worldPosition.x;
+                lightDirection.y = lightPosition.y - worldPosition.y;
+                lightDirection.z = lightPosition.z - worldPosition.z;
+                RwV3dNormalize(&lightDirection, &lightDirection);
+                dot3 = lightDirection.x * worldNormal.x + lightDirection.y * worldNormal.y + lightDirection.z * worldNormal.z;
                 if (dot3 <= 0.0f) {
                     clamped = 0.0f;
                 } else {
                     clamped = dot3;
                 }
-                combined = pow6 * *(f32 *)(arg0 + 0x9A0) + clamped * *(f32 *)(arg0 + 0x9A4);
+                combined = pow6 * *(f32 *)(mesh + 0x9A0) + clamped * *(f32 *)(mesh + 0x9A4);
                 if (!(combined <= 1.0f)) {
                     combined = 1.0f;
                 }
@@ -251,3 +253,4 @@ void pscModelBuildTileVertices(u8 *arg0, u8 *arg1) {
     func_003e0f40(cam);
 }
 
+#pragma pop

@@ -233,7 +233,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00457160-00457160 */
 
-extern u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 *H_Cdvd_CreateFileDevice(s32 slotCount, u8 *buffer, s32 bufferSize, s32 deviceFlags, s32 deviceId);
 #pragma push
 #pragma pop
 #pragma push

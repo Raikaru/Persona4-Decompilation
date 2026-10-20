@@ -14,6 +14,7 @@
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
+#include "btl_camera_internal.h"
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
@@ -33,7 +34,7 @@ extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 
 extern u8 *D_0076449C;
-extern void btlTargetInitSpring(u8 *arg0, f32 fp);
+extern void btlTargetInitSpring(u8 *state, f32 duration);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
 extern u8 D_005F7000[];
@@ -103,9 +104,10 @@ extern f32 fGpffff8108;
 #pragma push
 #pragma pop
 // FUN_001BBE80
-void btlCameraSetSpringDuration(u8 *arg0, f32 fp) {
-    btlTargetInitSpring(arg0 + 0x84, 60.0f * fp / 2.0f);
-    *(u16 *)arg0 &= 0xFFF3;
-    *(u16 *)arg0 |= 2;
+/* Initialize the camera spring duration from seconds and select spring transition mode. */
+void btlCameraSetSpringDuration(u8 *camera, f32 seconds) {
+    btlTargetInitSpring(camera + 0x84, 60.0f * seconds / 2.0f);
+    ((BtlCamera *)camera)->curveFlags &= 0xFFF3;
+    ((BtlCamera *)camera)->curveFlags |= 2;
 }
 

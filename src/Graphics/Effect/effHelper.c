@@ -8,17 +8,34 @@ void kAssertFail(u8 *file, s32 line);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 void *memset(void *dst, s32 value, s32 size);
-u8 *func_004abc50(u8 *base, s32 size);
-s32 mdlLayerIsPresent(s32 res, s32 arg1);
-u32 mdlCountIntUserData(s32 res);
-void mdlEffectDestroyWithNodes(u32 arg);
-void func_004abd60(s32 res);
-void *mdlFindOrCreateModelObject(u32 a, u16 b, u32 c);
-void EffModelInit(s32 res);
+u8 *mdlEffectCreateUniqueModel(u8 *model, s32 size);
+s32 mdlLayerIsPresent(s32 model, s32 layer);
+u32 mdlCountIntUserData(s32 model);
+void mdlEffectDestroyWithNodes(u32 effect);
+void mdlEffectDestroyModel(s32 res);
+void *mdlFindOrCreateModelObject(u32 type, u16 id, u32 flags);
+void EffModelInit(s32 model);
 
 extern u8 D_007144F8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
+
+/* Resource header words consumed by the helper constructor. */
+typedef struct EffHelperSource {
+    u8 pad00[0x0C];
+    u16 id;
+    u8 pad0E[6];
+    s32 dataBytes;
+    u8 pad18[4];
+    u16 kind;
+} EffHelperSource;
+
+/* The model lookup consumes these two halfwords; other model fields are opaque here. */
+typedef struct EffHelperModel {
+    u8 pad00[0xD4];
+    u16 modelId;
+    u16 modelVariant;
+} EffHelperModel;
 
 typedef struct EffHlpData
 {
@@ -44,14 +61,14 @@ void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src);
 
 // Allocates a 0xA4-byte helper work block; with a source, copies its 0x68-byte header, loads the model layer, counts its user data and builds the list when the source kind is 6.
 // FUN_004AD460
-void *EffHelperCreate(void *arg0)
+void *EffHelperCreate(void *source)
 {
     void *(*const *allocSlot)(u32, u32);
     EffHlpWork *work;
-    s32 v20;
-    s32 v;
-    u8 *tex;
-    u32 i;
+    s32 headerBytes;
+    s32 secondaryData;
+    u8 *sourceData;
+    u32 entryIndex;
 
     chkmemAllocSiteTag(D_007144F8, 0x1D);
     allocSlot = jtbl_008873E8;
@@ -64,24 +81,24 @@ void *EffHelperCreate(void *arg0)
     work->alpha = 1.0f;
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(work) : "memory");
     __asm__ volatile ("sqc2 vf0, 16(%0)" : : "r"(work) : "memory");
-    if (arg0 == NULL) {
+    if (source == NULL) {
         return work;
     }
-    tex = mdlEffectResolveRelPtrA(arg0);
-    if (tex == NULL) {
+    sourceData = mdlEffectResolveRelPtrA(source);
+    if (sourceData == NULL) {
         kAssertFail(D_007144F8, 0x2E);
     }
-    switch (*(u16 *)((u8 *)arg0 + 0xC)) {
+    switch (((EffHelperSource *)source)->id) {
     case 0:
-        v20 = 0x70;
-        memcpy((u8 *)work + 0x30, tex, 0x68);
+        headerBytes = 0x70;
+        memcpy(&work->data, sourceData, 0x68);
         break;
     default:
         kAssertFail(D_007144F8, 0x38);
-        v20 = 0;
+        headerBytes = 0;
         break;
     }
-    work->res = (s32)func_004abc50(tex + v20, *(s32 *)((u8 *)arg0 + 0x14) - v20);
+    work->res = (s32)mdlEffectCreateUniqueModel(sourceData + headerBytes, ((EffHelperSource *)source)->dataBytes - headerBytes);
     if (work->res == 0) {
         kAssertFail(D_007144F8, 0x40);
     }
@@ -96,9 +113,9 @@ void *EffHelperCreate(void *arg0)
     if (work->count == 0) {
         return work;
     }
-    v = (s32)mdlEffectResolveRelPtrB(arg0);
-    if (v != 0) {
-        if (*(u16 *)((u8 *)arg0 + 0x1C) != 6) {
+    secondaryData = (s32)mdlEffectResolveRelPtrB(source);
+    if (secondaryData != 0) {
+        if (((EffHelperSource *)source)->kind != 6) {
             kAssertFail(D_007144F8, 0x53);
         }
         {
@@ -110,9 +127,9 @@ void *EffHelperCreate(void *arg0)
             kAssertFail(D_007144F8, 0x58);
         }
         work->list = work->listAlloc;
-        work->list[0] = (u32)mdlEffectBuildFromResource((u8 *)v);
-        for (i = 1; i < work->count; i++) {
-            work->list[i] = (u32)mdlEffectCloneWithNodes((u8 *)work->list[0]);
+        work->list[0] = (u32)mdlEffectBuildFromResource((u8 *)secondaryData);
+        for (entryIndex = 1; entryIndex < work->count; entryIndex++) {
+            work->list[entryIndex] = (u32)mdlEffectCloneWithNodes((u8 *)work->list[0]);
         }
     }
     return work;
@@ -122,29 +139,29 @@ void *EffHelperCreate(void *arg0)
 // FUN_004AD760
 void EffHelperFree(EffHlpWork *work)
 {
-    u32 i;
+    u32 entryIndex;
 
     if (work->res != 0) {
-        func_004abd60(work->res);
+        mdlEffectDestroyModel(work->res);
     }
     if (work->listAlloc != NULL) {
-        for (i = 0; i < work->count; i++) {
-            mdlEffectDestroyWithNodes(work->list[i]);
+        for (entryIndex = 0; entryIndex < work->count; entryIndex++) {
+            mdlEffectDestroyWithNodes(work->list[entryIndex]);
         }
         (*jtbl_008873EC)(work->listAlloc);
     }
     (*jtbl_008873EC)(work);
 }
 
-// Creates a helper from arg0 by copying its 0x68-byte header and rebinding its model.
+// Creates a helper from source by copying its 0x68-byte header and rebinding its model.
 // FUN_004AD810
-void *EffHelperClone(void *arg0)
+void *EffHelperClone(void *source)
 {
     EffHlpWork *work;
 
     work = EffHelperCreate(NULL);
-    memcpy((u8 *)work + 0x30, (u8 *)arg0 + 0x30, 0x68);
-    EffHelperRebindModel(work, (EffHlpWork *)arg0);
+    memcpy(&work->data, &((EffHlpWork *)source)->data, 0x68);
+    EffHelperRebindModel(work, (EffHlpWork *)source);
     return work;
 }
 
@@ -152,16 +169,16 @@ void *EffHelperClone(void *arg0)
 // FUN_004AD880
 void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src)
 {
-    u32 i;
+    u32 entryIndex;
 
     if (src->res == 0) {
         kAssertFail(D_007144F8, 0x9F);
     }
     if (work->res != 0) {
-        func_004abd60(work->res);
+        mdlEffectDestroyModel(work->res);
     }
-    work->res = (s32)mdlFindOrCreateModelObject(*(u16 *)((u8 *)src->res + 0xD4),
-                                   *(u16 *)((u8 *)src->res + 0xD6), 0);
+    work->res = (s32)mdlFindOrCreateModelObject(((EffHelperModel *)src->res)->modelId,
+                                   ((EffHelperModel *)src->res)->modelVariant, 0);
     if (work->res == 0) {
         kAssertFail(D_007144F8, 0xA9);
     }
@@ -176,8 +193,8 @@ void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src)
     work->count = mdlCountIntUserData(work->res);
     if (src->listAlloc != NULL) {
         if (work->listAlloc != NULL) {
-            for (i = 0; i < work->count; i++) {
-                mdlEffectDestroyWithNodes(work->list[i]);
+            for (entryIndex = 0; entryIndex < work->count; entryIndex++) {
+                mdlEffectDestroyWithNodes(work->list[entryIndex]);
             }
             (*jtbl_008873EC)(work->listAlloc);
         }
@@ -190,8 +207,8 @@ void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src)
             kAssertFail(D_007144F8, 0xCC);
         }
         work->list = work->listAlloc;
-        for (i = 0; i < work->count; i++) {
-            work->list[i] = (u32)mdlEffectCloneWithNodes((u8 *)src->list[0]);
+        for (entryIndex = 0; entryIndex < work->count; entryIndex++) {
+            work->list[entryIndex] = (u32)mdlEffectCloneWithNodes((u8 *)src->list[0]);
         }
     }
 }

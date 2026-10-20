@@ -1,5 +1,6 @@
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
+#include "field_scene_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -38,7 +39,7 @@ typedef struct
     u8 alpha;
 } FieldColor_0017;
 extern s32 FldCharacterAnimSelect(void);
-extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
+extern s32 FldRoomIsListed(u16 field, u16 room);
 extern u32 RpRandom(void);
 extern s32 FldStepIndex(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
@@ -62,8 +63,8 @@ extern u8 D_005F1950[];
 extern u8 D_005F1A60[];
 extern u8 D_005F1A64[];
 extern u16 D_008C024E[];
-void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
-                    s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
+void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
+                    s32 height, s32 flags, f32 x, f32 y, f32 depth);
 
 extern f32 iGpffff8304;
 extern char D_005E5850[];
@@ -72,14 +73,14 @@ extern u8 D_00794E70[];
 
 
 
-extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
-                         f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
+extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
+                         f32 opacity, f32 depth, s32 fadeWithDepth, u8 *workData);
 extern u8 D_007EFA00[];
-extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
-                           f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6,
-                           void *arg7, s32 arg8,
-                           f32 arg9, f32 arg10, f32 arg11,
-                           s32 arg12, void *arg13, f32 arg14);
+extern void FldRc_QueueScreenQuad(u8 *, u8 *,
+                           f32, f32, f32, f32, f32,
+                           void *, s32,
+                           f32, f32, f32,
+                           s32, void *, f32);
 extern u8 D_005F1970[];
 extern u8 D_005F1974[];
 extern u8 D_005F1978[];
@@ -127,21 +128,23 @@ extern s32 iGpffffba48;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00170120-00170120 */
 
+/* Select one of idle animations 6..8 for character type 1 in eligible rooms/steps;
+ * otherwise retain animation 1. The preliminary selector call is preserved. */
 // FUN_00170120
-s32 FldPlayerRandomIdleAnimId(s32 arg0)
+s32 FldPlayerRandomIdleAnimId(s32 characterType)
 {
-    u8 *temp_2;
-    u8 *temp_4;
+    u8 *scene;
+    u8 *currentScene;
 
     FldCharacterAnimSelect();
-    if (arg0 != 1)
+    if (characterType != 1)
         return 1;
-    temp_2 = iGpffff9db0;
-    if (FldRoomIsListed(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4)) == 1)
+    scene = iGpffff9db0;
+    if (FldRoomIsListed(((FieldSceneState *)scene)->field.half[0], ((FieldSceneState *)scene)->room.half[0]) == 1)
         return (RpRandom() % 3U) + 6;
-    temp_4 = iGpffff9db0;
-    if ((*(s32 *)(temp_4 + 0) == 0x44) &&
-        (*(s32 *)(temp_4 + 4) == 1))
+    currentScene = iGpffff9db0;
+    if ((((FieldSceneState *)currentScene)->field.value == 0x44) &&
+        (((FieldSceneState *)currentScene)->room.value == 1))
         return (RpRandom() % 3U) + 6;
     if (FldStepIndex() != 0)
         return 1;

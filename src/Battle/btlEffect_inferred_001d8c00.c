@@ -1,3 +1,5 @@
+#include "btl_effect_internal.h"
+#include "btl_action_internal.h"
 #include "rw_types_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
@@ -5,7 +7,6 @@
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
-typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001d7f10_add(s32 left, s32 right)
 {
     return left + right;
@@ -14,7 +15,7 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
 
@@ -26,7 +27,7 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern u8 *(*jtbl_008873E8[])(s32 input, s32 value);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -74,24 +75,26 @@ extern f32 fGpffff8110;
 /* measured: 25 -> 18 -> 11 -> 0. Hoisting retains the live-count bound copies;
  * opt_lifetimes splits the reused gather counters after those bounds. */
 #pragma pop
+/* Find an active, living action whose UID matches the remembered selection key.
+ * Raw offsets retained: The nested unit-to-DatUnit load keeps its original pointer alias type; action/list fields use the shared layout. */
 // FUN_001D8C00
-u8 *btlEffectFindUnitByKey(u8 *arg0)
+u8 *btlEffectFindUnitByKey(u8 *selection)
 {
     u16 flags;
     u8 *data;
     u8 *unit;
 
-    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    unit = ((BtlBattleState *)iGpffffb3ac)->actions;
     while (unit != NULL) {
-        flags = *(u16 *)(unit + 0x1A);
+        flags = ((BtlAction *)unit)->unk_1a;
         if ((flags & 1) != 0 && (flags & 8) != 0) {
-            data = *(u8 **)(*(u8 **)(unit + 0x30) + 0xA64);
+            data = *(u8 **)((u8 *)((BtlAction *)unit)->unit + 0xA64);
             if ((data == NULL || datCalcIsDead(data, 0) == 0) &&
-                *(s64 *)unit == *(s64 *)(arg0 + 0x30)) {
+                *(s64 *)unit == (s64)((BtlTargetSelection *)selection)->key) {
                 return unit;
             }
         }
-        unit = *(u8 **)(unit + 0x450);
+        unit = (u8 *)((BtlAction *)unit)->next;
     }
     return NULL;
 }
@@ -108,7 +111,7 @@ u8 *btlEffectFindUnitByKey(u8 *arg0)
 #pragma push
 /* measured: btlEffectSelectNearestEntry MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 btlEffectSelectNearestEntry(u8 *arg0, u8 *arg1)
+s32 btlEffectSelectNearestEntry(u8 *action, u8 *targets)
 {
     struct BtlUnit;
     struct BtlAction {
@@ -135,11 +138,11 @@ s32 btlEffectSelectNearestEntry(u8 *arg0, u8 *arg1)
     };
     extern void btlUnitGetGridSphereCenter(struct BtlUnit *unit, struct RwV3d *dst);
     extern f32 btlTargetVectorDistance(const struct RwV3d *first, const struct RwV3d *second);
-    struct RwV3d sp60;
-    struct RwV3d sp50;
-    f32 temp_f0;
-    f32 var_f20;
-    struct DistanceSelection *selection = (struct DistanceSelection *)arg1;
+    struct RwV3d origin;
+    struct RwV3d targetPosition;
+    f32 distance;
+    f32 bestDistance;
+    struct DistanceSelection *selection = (struct DistanceSelection *)targets;
     s32 first;
     s32 index;
     selection->selected = 0;
@@ -158,18 +161,18 @@ s32 btlEffectSelectNearestEntry(u8 *arg0, u8 *arg1)
             }
         }
     }
-    if (arg0 == NULL)
+    if (action == NULL)
         goto return_one;
     first = 1;
-    btlUnitGetGridSphereCenter(((struct BtlAction *)arg0)->unit, &sp60);
+    btlUnitGetGridSphereCenter(((struct BtlAction *)action)->unit, &origin);
     index = 0;
     goto distance_test;
 distance_loop:
-    btlUnitGetGridSphereCenter(selection->entries[index & 0xFFFF]->unit, &sp50);
-    temp_f0 = btlTargetVectorDistance(&sp60, &sp50);
-    if ((temp_f0 < var_f20) || (first != 0)) {
+    btlUnitGetGridSphereCenter(selection->entries[index & 0xFFFF]->unit, &targetPosition);
+    distance = btlTargetVectorDistance(&origin, &targetPosition);
+    if ((distance < bestDistance) || (first != 0)) {
         selection->selected = (u16)index;
-        var_f20 = temp_f0;
+        bestDistance = distance;
         first = 0;
     }
     index = (index + 1) & 0xFFFF;
@@ -180,3 +183,5 @@ return_one:
     return 1;
 }
 
+/* Restore the scoped nearest-target loop setting at the end of this unit. */
+#pragma pop

@@ -3,21 +3,22 @@
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "radar_menu_internal.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
 extern u32 RpRandom(void);
 extern s32 nLineIsIdle(void);
 extern void sdkSpriteFreeNode(void *node);
-extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void datEntryDrawRow(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
-extern void datPanelResetCursor(u8 *arg0);
-extern void datPanelDrawByKind(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
-extern s32 datCalcGetLevelById(s32 arg0);
+extern void sdkSpriteDrawAt(void *, f32 , f32 ,
+                          u8 , u8 , u8 , u8 );
+extern void sdkSpriteDrawSized(u8 *, f32 , f32 , f32 ,
+                          u8 , u8 , u8 , u8 , u16 ,
+                          u16 , s16 , f32 , s16 );
+extern void datEntryDrawRow(Vec2f , f32 , u8 , u8 *);
+extern void datPanelResetCursor(u8 *);
+extern void datPanelDrawByKind(Vec2f , f32 , s32 , u8 *, s32 );
+extern s32 datCalcGetLevelById(s32 );
 extern f32 fGpffff82cc; /* gp -0x7d34 */
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
@@ -29,18 +30,19 @@ extern u8 D_0064B308[];
 #pragma opt_loop_invariants on
 // Intent: Shift each of the four slots' positions and alphas into their previous values, highlight the selected slot, and reset the counter at +0x1C [inferred]
 // FUN_001302D0
-void radarPushSlotState(u8 *arg0) {
+/* Raw offsets preserve the measured match: MenuSlotAnimation row pointers changed codegen (nd 122). */
+void radarPushSlotState(u8 *menu) {
     s32 i;
 
     for (i = 0; i < 4; i++) {
-        u8 *q = arg0 + i * 0x30;
+        u8 *q = menu + i * 0x30;
         *(f32 *)(q + 0x1608) = *(f32 *)(q + 0x1618);
         *(f32 *)(q + 0x160c) = *(f32 *)(q + 0x161c);
         *(u8 *)(q + 0x1620) = *(u8 *)(q + 0x1622);
         *(f32 *)(q + 0x16c8) = *(f32 *)(q + 0x16d8);
         *(f32 *)(q + 0x16cc) = *(f32 *)(q + 0x16dc);
         *(u8 *)(q + 0x16e0) = *(u8 *)(q + 0x16e2);
-        if (*(s16 *)(arg0 + 0x26) == i) {
+        if (*(s16 *)(menu + 0x26) == i) {
             *(s32 *)(q + 0x1610) = 0x41c80000;
             *(s32 *)(q + 0x16d0) = 0x41c80000;
         } else {
@@ -48,7 +50,7 @@ void radarPushSlotState(u8 *arg0) {
             *(s32 *)(q + 0x16d0) = 0;
         }
     }
-    *(s16 *)(arg0 + 0x1c) = 0;
+    *(s16 *)(menu + 0x1c) = 0;
 }
 #pragma pop
 
@@ -56,32 +58,33 @@ void radarPushSlotState(u8 *arg0) {
 #pragma opt_loop_invariants off
 // Intent: Reset the indicator's colours and positions, choosing the x offset by comparing the counters at +0x24 and +0x2A [inferred]
 // FUN_00130360
-void radarResetIndicator(u8 *arg0) {
-    f32 f0;
-    f32 f1;
+/* Raw offsets preserve the measured match: RadarMenu access changed codegen (nd 32). */
+void radarResetIndicator(u8 *menu) {
+    f32 indicatorY;
+    f32 baseY;
 
-    *(u32 *)(arg0 + 0x1ab8) = 0x435d0000;
-    *(u32 *)(arg0 + 0x1ac0) = 0x435d0000;
-    *(u32 *)(arg0 + 0x1ac8) = 0x435d0000;
-    *(u8 *)(arg0 + 0x1ad0) = 0xff;
-    *(u8 *)(arg0 + 0x1ad2) = 0xff;
-    *(u8 *)(arg0 + 0x1ad1) = 0;
-    *(u32 *)(arg0 + 0x1af4) = 0;
-    if (*(s16 *)(arg0 + 0x24) > *(s16 *)(arg0 + 0x2a)) {
-        f0 = 21.0f + *(f32 *)(arg0 + 0x149c);
-        *(f32 *)(arg0 + 0x1acc) = f0;
-        *(f32 *)(arg0 + 0x1abc) = f0;
-        *(f32 *)(arg0 + 0x1ac4) = *(f32 *)(arg0 + 0x1acc) - 10.0f;
-        *(u32 *)(arg0 + 0x1aec) = 0xc1200000;
+    *(u32 *)(menu + 0x1ab8) = 0x435d0000;
+    *(u32 *)(menu + 0x1ac0) = 0x435d0000;
+    *(u32 *)(menu + 0x1ac8) = 0x435d0000;
+    *(u8 *)(menu + 0x1ad0) = 0xff;
+    *(u8 *)(menu + 0x1ad2) = 0xff;
+    *(u8 *)(menu + 0x1ad1) = 0;
+    *(u32 *)(menu + 0x1af4) = 0;
+    if (*(s16 *)(menu + 0x24) > *(s16 *)(menu + 0x2a)) {
+        indicatorY = 21.0f + *(f32 *)(menu + 0x149c);
+        *(f32 *)(menu + 0x1acc) = indicatorY;
+        *(f32 *)(menu + 0x1abc) = indicatorY;
+        *(f32 *)(menu + 0x1ac4) = *(f32 *)(menu + 0x1acc) - 10.0f;
+        *(u32 *)(menu + 0x1aec) = 0xc1200000;
     } else {
-        f1 = 21.0f + *(f32 *)(arg0 + 0x158c);
-        f0 = 170.0f + f1;
-        *(f32 *)(arg0 + 0x1acc) = f0;
-        *(f32 *)(arg0 + 0x1abc) = f0;
-        *(f32 *)(arg0 + 0x1ac4) = 10.0f + *(f32 *)(arg0 + 0x1acc);
-        *(u32 *)(arg0 + 0x1aec) = 0x41200000;
+        baseY = 21.0f + *(f32 *)(menu + 0x158c);
+        indicatorY = 170.0f + baseY;
+        *(f32 *)(menu + 0x1acc) = indicatorY;
+        *(f32 *)(menu + 0x1abc) = indicatorY;
+        *(f32 *)(menu + 0x1ac4) = 10.0f + *(f32 *)(menu + 0x1acc);
+        *(u32 *)(menu + 0x1aec) = 0x41200000;
     }
-    *(s16 *)(arg0 + 0x20) = 0;
+    *(s16 *)(menu + 0x20) = 0;
 }
 #pragma pop
 
@@ -90,10 +93,11 @@ void radarResetIndicator(u8 *arg0) {
 #pragma optimization_level 1
 // Intent: Randomize the scatter of each of the twelve entries with probability three in four; the others keep their current alpha [inferred]
 // FUN_00130430
-void radarRandomizeEntries(u8 *arg0)
+/* Raw offsets preserve the measured match: MenuSlotAnimation row pointers changed codegen (nd 182). */
+void radarRandomizeEntries(u8 *menu)
 {
-    f32 f;
-    u32 val;
+    f32 scatterX;
+    u32 columnOffset;
     s32 i;
     u32 random;
     u8 *p;
@@ -101,17 +105,17 @@ void radarRandomizeEntries(u8 *arg0)
 
     for (i = 0; i < 0xC; i++) {
         if (RpRandom() & 3) {
-            p = arg0 + i * 0x30;
-            val = (RpRandom() % 6U) * 0x2C;
-            if (val >= 0) {
-                f = (f32)val;
+            p = menu + i * 0x30;
+            columnOffset = (RpRandom() % 6U) * 0x2C;
+            if (columnOffset >= 0) {
+                scatterX = (f32)columnOffset;
             } else {
-                val = (val >> 1) | (val & 1);
-                f = (f32)(s32)val;
-                f += f;
+                columnOffset = (columnOffset >> 1) | (columnOffset & 1);
+                scatterX = (f32)(s32)columnOffset;
+                scatterX += scatterX;
             }
-            *(f32 *)(p + 0x1880) = f;
-            *(f32 *)(p + 0x1878) = f;
+            *(f32 *)(p + 0x1880) = scatterX;
+            *(f32 *)(p + 0x1878) = scatterX;
             *(u32 *)(p + 0x187C) = 0x43FA0000;
             *(f32 *)(p + 0x188C) = *(f32 *)(p + 0x187C);
             *(s32 *)(p + 0x1884) = 0xC2C80000;
@@ -120,11 +124,11 @@ void radarRandomizeEntries(u8 *arg0)
             *q = random;
             *(s32 *)(p + 0x18A4) = random + 0xA;
         } else {
-            p = arg0 + i * 0x30;
+            p = menu + i * 0x30;
             *(f32 *)(p + 0x187C) = *(f32 *)(p + 0x1884);
         }
     }
-    *(s16 *)(arg0 + 0x1E) = 0;
+    *(s16 *)(menu + 0x1E) = 0;
 }
 #pragma pop
 
@@ -133,24 +137,24 @@ void radarRandomizeEntries(u8 *arg0)
 #pragma optimization_level 2
 // Intent: Free the 51 sprite nodes in the radar sprite table and clear the count at +0x14 [inferred]
 // FUN_00130580
-void radarFreeSpriteNodes(u8 *arg0) {
+void radarFreeSpriteNodes(u8 *menu) {
     s32 i;
-    u8 *p;
-    u8 *q;
-    s32 temp;
+    s32 *handle;
+    RadarSprite *spriteSlot;
+    s32 sprite;
 
     i = 0;
     while (i < 0x33) {
-        q = arg0 + i * 4;
-        p = q + 0x1b18;
-        temp = *(s32 *)(q + 0x1b18);
-        if (temp != 0) {
-            sdkSpriteFreeNode((void *)temp);
-            *(s32 *)p = 0;
+        spriteSlot = &((RadarMenu *)menu)->sprites[i];
+        handle = &spriteSlot->handle;
+        sprite = spriteSlot->handle;
+        if (sprite != 0) {
+            sdkSpriteFreeNode((void *)sprite);
+            *handle = 0;
         }
         i++;
     }
-    *(s32 *)(arg0 + 0x14) = 0;
+    ((RadarMenu *)menu)->flags = 0;
 }
 #pragma pop
 
@@ -159,13 +163,13 @@ void radarFreeSpriteNodes(u8 *arg0) {
 #pragma optimization_level 2
 // Intent: Return 1 when the value at +0x1C is at least the threshold of every one of the 30 entries and the external check passes [inferred]
 // FUN_00130600
-s32 radarEntriesCoverValue(u8 *arg0) {
+s32 radarEntriesCoverValue(u8 *menu) {
     s32 flag = 1;
     s32 i = 0;
-    s32 v = *(s16 *)(arg0 + 0x1c);
+    s32 v = ((RadarMenu *)menu)->entryFrame;
 
     while (i < 0x1e) {
-        if (v < *(s32 *)(arg0 + i * 48 + 0x1304)) {
+        if (v < ((RadarMenu *)menu)->entries[i].endFrame.s) {
             flag = 0;
         }
         i++;
@@ -180,7 +184,7 @@ s32 radarEntriesCoverValue(u8 *arg0) {
 #pragma opt_propagation off
 // Intent: Draw one radar entry row: the panel row with its highlight, the level digits and the icon, at the slot position and fade [inferred]
 // FUN_00130680
-void radarDrawEntryRow(u8 *arg0, s32 arg1)
+void radarDrawEntryRow(u8 *menu, s32 partyIndex)
 {
     typedef struct
     {
@@ -215,16 +219,16 @@ void radarDrawEntryRow(u8 *arg0, s32 arg1)
     Vec2f pos;
     void *spr;
 
-    id = ((s16 *)(arg0 + 0x34))[arg1];
+    id = ((s16 *)(menu + 0x34))[partyIndex];
     dim = 1.0f;
     highlight = 0;
     datPanelResetCursor((u8 *)&param);
     param.mode = 1;
     param.id = id;
-    x = *(f32 *)(arg0 + 4);
-    y = *(f32 *)(arg0 + 8);
-    fade = (f32)*(u8 *)arg0 / 255.0f;
-    if (((*(s32 *)(arg0 + 0x14) & 0x10) != 0 && *(s16 *)(arg0 + 0x26) == arg1) || (*(s32 *)(arg0 + 0x14) & 0x20) != 0) {
+    x = ((RadarMenu *)menu)->x.f;
+    y = ((RadarMenu *)menu)->y.f;
+    fade = (f32)*(u8 *)menu / 255.0f;
+    if (((((RadarMenu *)menu)->flags & 0x10) != 0 && ((RadarMenu *)menu)->selection[2] == partyIndex) || (((RadarMenu *)menu)->flags & 0x20) != 0) {
         highlight = 1;
         param.highlight = highlight;
         color0 = D_0064B2E8;
@@ -237,39 +241,39 @@ void radarDrawEntryRow(u8 *arg0, s32 arg1)
         color2 = D_0064B308;
         dim = fGpffff82cc;
     }
-    pos.x = 67.0f + (x + ((LabelSlot *)(arg0 + 0x16D8))[arg1].x);
-    yoff = 75.0f * (f32)arg1;
-    ty = 24.0f + (y + ((LabelSlot *)(arg0 + 0x16D8))[arg1].y);
+    pos.x = 67.0f + (x + ((LabelSlot *)(menu + 0x16D8))[partyIndex].x);
+    yoff = 75.0f * (f32)partyIndex;
+    ty = 24.0f + (y + ((LabelSlot *)(menu + 0x16D8))[partyIndex].y);
     pos.y = ty + yoff;
-    ty = ((LabelSlot *)(arg0 + 0x16D8))[arg1].alpha;
+    ty = ((LabelSlot *)(menu + 0x16D8))[partyIndex].alpha;
     datPanelDrawByKind(pos, 0.0f, (u8)(ty * fade), (u8 *)&param, 0);
-    alpha = (f32)(arg0 + 0x1622)[arg1 * 0x30] * fade;
-    pos.x = 60.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
-    ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
+    alpha = (f32)(menu + 0x1622)[partyIndex * 0x30] * fade;
+    pos.x = 60.0f + (x + ((f32 *)(menu + 0x1618))[partyIndex * 12]);
+    ty = y + ((f32 *)(menu + 0x161C))[partyIndex * 12];
     pos.y = 21.0f + (ty + yoff);
-    sdkSpriteDrawAt(*(void **)(arg0 + 0x1B90), pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
+    sdkSpriteDrawAt(((RadarMenu *)menu)->sprites[30].object, pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
     if (highlight != 0) {
-        pos.x = 2.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
-        ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
+        pos.x = 2.0f + (x + ((f32 *)(menu + 0x1618))[partyIndex * 12]);
+        ty = y + ((f32 *)(menu + 0x161C))[partyIndex * 12];
         pos.y = 27.0f + (ty + yoff);
-        sdkSpriteDrawAt(*(void **)(arg0 + 0x1B94), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
+        sdkSpriteDrawAt(((RadarMenu *)menu)->sprites[31].object, pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
     }
     n = datCalcGetLevelById(id);
-    pos.x = 43.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
-    ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
+    pos.x = 43.0f + (x + ((f32 *)(menu + 0x1618))[partyIndex * 12]);
+    ty = y + ((f32 *)(menu + 0x161C))[partyIndex * 12];
     pos.y = 25.0f + (ty + yoff);
     if (n < 10) {
         pos.x -= 11.0f;
     }
     while (n > 0) {
-        sdkSpriteDrawAt(*(void **)(arg0 + (n % 10) * 4 + 0x1BA4), pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
+        sdkSpriteDrawAt(((RadarMenu *)menu)->sprites[35 + n % 10].object, pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
         pos.x -= 22.0f;
         n /= 10;
     }
-    pos.x = 37.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
-    ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
+    pos.x = 37.0f + (x + ((f32 *)(menu + 0x1618))[partyIndex * 12]);
+    ty = y + ((f32 *)(menu + 0x161C))[partyIndex * 12];
     pos.y = 53.0f + (ty + yoff);
-    spr = *(void **)(arg0 + 0x1BE0);
+    spr = ((RadarMenu *)menu)->sprites[50].object;
     sdkSpriteDrawAt(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
 }
 #pragma pop
@@ -281,7 +285,7 @@ void radarDrawEntryRow(u8 *arg0, s32 arg1)
 // FUN_00130C30
 /* measured: opt_propagation off probe for radarDrawSpritePair ordering. */
 #pragma opt_propagation off
-void radarDrawSpritePair(u8 *arg0, s64 arg1, s32 arg2)
+void radarDrawSpritePair(u8 *menu, s64 packedPosition, s32 packedColor)
 {
     f32 c0;
     s32 p;
@@ -289,17 +293,17 @@ void radarDrawSpritePair(u8 *arg0, s64 arg1, s32 arg2)
     u8 c2;
     u8 c3;
 
-    p = *(s32 *)(arg0 + 0x1b60);
-    c1 = ((u8 *)&arg2)[3];
-    c2 = ((u8 *)&arg2)[2];
-    c3 = ((u8 *)&arg2)[1];
-    c0 = ((f32 *)&arg1)[1];
+    p = ((RadarMenu *)menu)->sprites[18].handle;
+    c1 = ((u8 *)&packedColor)[3];
+    c2 = ((u8 *)&packedColor)[2];
+    c3 = ((u8 *)&packedColor)[1];
+    c0 = ((f32 *)&packedPosition)[1];
     sdkSpriteDrawAt((void *)p,
-                  ((f32 *)&arg1)[0], c0,
-                  ((u8 *)&arg2)[0], c3, c2, c1);
-    sdkSpriteDrawAt(*(void **)(arg0 + 0x1b64),
-                  340.0f + ((f32 *)&arg1)[0], c0,
-                  ((u8 *)&arg2)[0], c3, c2, c1);
+                  ((f32 *)&packedPosition)[0], c0,
+                  ((u8 *)&packedColor)[0], c3, c2, c1);
+    sdkSpriteDrawAt(((RadarMenu *)menu)->sprites[19].object,
+                  340.0f + ((f32 *)&packedPosition)[0], c0,
+                  ((u8 *)&packedColor)[0], c3, c2, c1);
 }
 #pragma pop
 
@@ -336,7 +340,7 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
     u8 *sprite;
 
     originalY = inputPosition.xy.y;
-    opacityValue = (f32)(u32)*(u8 *)(work + 0);
+    opacityValue = (f32)(u32)((RadarMenu *)work)->opacity;
     opacityScale = opacityValue / 255.0f;
     colors.current.b[0] = 0x14;
     colors.current.b[1] = 0x14;
@@ -344,7 +348,7 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
     scaledAlpha = 204.0f * opacityScale;
     alphaByte = (u8)scaledAlpha;
     colors.current.b[3] = alphaByte;
-    height = (f32)(u32)*(u16 *)(work + 0x15FE);
+    height = (f32)(u32)((RadarMenu *)work)->entries[16].currentScaleY;
     position.xy.x = inputPosition.xy.x - 1.0f;
     inputPosition.xy.y = 24.0f;
     inputPosition.xy.y += originalY;
@@ -354,7 +358,7 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
         u8 alpha;
         u8 blue;
         u8 green;
-        sprite = *(u8 **)(work + 0x1BD4);
+        sprite = ((RadarMenu *)work)->sprites[47].node;
         alpha = colors.current.b[3];
         blue = colors.current.b[2];
         green = colors.current.b[1];
@@ -362,7 +366,7 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
         sdkSpriteDrawSized(sprite, position.xy.x, y, 0.0f,
                       ((u8 *)&colors.current)[0], green, blue, alpha,
                       0x1000, (u16)height, 0, 0.0f, 0);
-        sprite = *(u8 **)(work + 0x1BD8);
+        sprite = ((RadarMenu *)work)->sprites[48].node;
         sdkSpriteDrawSized(sprite, (f32)0x159 + position.xy.x, y, 0.0f,
                       ((u8 *)&colors.current)[0], green, blue, alpha,
                       0x1000, (u16)height, 0, 0.0f, 0);
@@ -370,13 +374,13 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
     {
         f32 x;
         x = 5.0f + inputPosition.xy.x;
-        x += *(f32 *)(work + 0x1858);
+        x += ((RadarMenu *)work)->entries[29].currentX.f;
         position.xy.x = x;
     }
     {
         f32 y;
         y = 34.0f + originalY;
-        y += *(f32 *)(work + 0x185C);
+        y += ((RadarMenu *)work)->entries[29].currentY.f;
         position.xy.y = y;
     }
     colors.current.b[0] = 0x68;
@@ -390,14 +394,14 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
         u8 alpha;
         u8 blue;
         u8 green;
-        sprite = *(u8 **)(work + 0x1BCC);
+        sprite = ((RadarMenu *)work)->sprites[45].node;
         alpha = colors.current.b[3];
         blue = colors.current.b[2];
         green = colors.current.b[1];
         y = position.xy.y;
         sdkSpriteDrawAt(sprite, position.xy.x, y,
                       ((u8 *)&colors.current)[0], green, blue, alpha);
-        sdkSpriteDrawAt(*(void **)(work + 0x1BD0), 330.0f + position.xy.x, y,
+        sdkSpriteDrawAt(((RadarMenu *)work)->sprites[46].object, 330.0f + position.xy.x, y,
                       ((u8 *)&colors.current)[0], green, blue, alpha);
     }
     position.xy.x = inputPosition.xy.x;
@@ -415,14 +419,14 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
         u8 alpha;
         u8 blue;
         u8 green;
-        sprite = *(u8 **)(work + 0x1B60);
+        sprite = ((RadarMenu *)work)->sprites[18].node;
         alpha = colors.copy.b[3];
         blue = colors.copy.b[2];
         green = colors.copy.b[1];
         y = palettePosition.xy.y;
         sdkSpriteDrawAt(sprite, palettePosition.xy.x,
                       y, colors.copy.b[0], green, blue, alpha);
-        sprite = *(u8 **)(work + 0x1B64);
+        sprite = ((RadarMenu *)work)->sprites[19].node;
         sdkSpriteDrawAt(sprite, 340.0f + palettePosition.xy.x,
                       y, colors.copy.b[0], green, blue, alpha);
     }
@@ -431,7 +435,7 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
     position.xy.x = 22.0f + inputPosition.xy.x;
     position.xy.y = 54.0f + originalY;
     labelAlpha = (u8)scaledInputAlpha;
-    func_002bc4b0(0.0f, *entry, (s32)position.xy.x, (s32)position.xy.y,
+    fclMesWindowDrawItemCategory(0.0f, *entry, (s32)position.xy.x, (s32)position.xy.y,
                   (labelAlpha & 0xFF) | ~0xFF, 1, 8);
 }
 #pragma pop

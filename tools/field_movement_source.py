@@ -36,7 +36,7 @@ def movement_definition(source):
         masked.append(''.join('\n' if c == '\n' else ' ' for c in line)
                       if line.lstrip().startswith('#') else line)
     code = ''.join(masked)
-    matches = list(re.finditer(r'\bs32\s+FldEvent_StepMoveToward\s*\(\s*u8\s*\*\s*arg0\s*\)\s*\{', code))
+    matches = list(re.finditer(r'\bs32\s+FldEvent_StepMoveToward\s*\(\s*u8\s*\*\s*[A-Za-z_]\w*\s*\)\s*\{', code))
     if len(matches) != 1:
         raise ValueError('expected exactly one Field movement definition')
     start = matches[0].start()

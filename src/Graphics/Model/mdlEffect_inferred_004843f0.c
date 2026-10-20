@@ -3,6 +3,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
+#include "mdl_effect_resource_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 typedef struct RwV3d
@@ -26,9 +27,9 @@ typedef struct RwMatrix
 } RwMatrix;
 
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void func_003c42b0(void *arg0, s32 arg1);
-extern s32 TnUploadStreamTagged(s32 arg0);
-extern void func_003ef3a0(void *arg0);
+extern void func_003c42b0(void *geometry, s32 stream);
+extern s32 TnUploadStreamTagged(s32 stream);
+extern void func_003ef3a0(void *geometry);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
 extern u8 D_00713488[];
@@ -54,25 +55,28 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 004843f0-004843f0 */
 
+/* Upload a texture stream, assign it to every material, then drop the upload reference. */
 // FUN_004843F0
-void func_004843f0(u8 *arg0, s32 arg1) {
-    u16 var_17;
-    s32 temp_16;
+void mdlEffectUploadGeometryTexture(u8 *geometry, s32 stream) {
+    u16 materialIndex;
+    s32 texture;
     u16 index;
 
-    temp_16 = TnUploadStreamTagged(arg1);
-    var_17 = 0;
+    texture = TnUploadStreamTagged(stream);
+    materialIndex = 0;
     goto loop_004843f0_check;
 loop_004843f0_body:
-    index = (u16)var_17;
+    index = (u16)materialIndex;
     func_003c42b0(
-        *(void **)(*(u8 **)(arg0 + 0x54) + (index * 4)),
-        temp_16);
-    var_17 += 1;
+        ((void **)((MdlEffectMultipartGeometry *)geometry)->materials)[index],
+        texture);
+    materialIndex += 1;
 loop_004843f0_check:
-    if ((u16)var_17 < *(s16 *)(arg0 + 0x48)) {
+    if ((u16)materialIndex < ((MdlEffectMultipartGeometry *)geometry)->partCount.signedValue) {
         goto loop_004843f0_body;
     }
-    func_003ef3a0((void *)temp_16);
+    func_003ef3a0((void *)texture);
 }
+
+
 

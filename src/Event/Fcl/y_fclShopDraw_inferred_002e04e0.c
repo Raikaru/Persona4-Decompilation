@@ -12,56 +12,57 @@
 #include "fr_font_internal.h"
 #include "fcl_object_internal.h"
 #include "datPersona_internal.h"
-typedef FclVec2 f2;
+/* List-manager payload pointer: allocator func_002e1db0 stores allocation +0x28 here. */
+typedef struct NmlistManager {
+    u8 pad00[0x24];
+    u8 *data;
+} NmlistManager;
 
-typedef struct {
-    u8 c0;
-    u8 c1;
-    u8 c2;
-    u8 c3;
-} u4;
-
-extern void fclSpriteStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
+extern void fclSpriteStartPosition(u8 *animation, FclVec2 start, FclVec2 end, u32 mode, s32 duration, s32 delay);
 extern u8 *iGpffffb588;
-extern u8 *func_002e1db0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern u8 *nmListAllocManager(s32 payloadSize, s32 onInsert, s32 onRemove, s32 onUpdate);
 extern s32 fclBankQueueRequest();
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern s32 resourceFindByName(const void *arg0);
+extern s32 resourceFindByName(const void *name);
 extern u8 D_0063FB50[];
 extern u8 D_0063FAA0[];
 extern u8 D_0063FB90[];
 extern u8 D_0063F560[];
+/* Return the sprite-object work carried by the task. */
 // FUN_002E04E0
-u8 *fclObjectGetWork(u8 *arg0)
+u8 *fclObjectGetWork(u8 *task)
 {
-    return *(u8 **)(arg0 + 0x38);
+    return (u8 *)fclObjWork(task);
 }
 
+/* Set a sprite-status bit for operation 0, or clear it for operation 1. */
 // FUN_002E04F0
-void fclObjChangeFlagBit(u8 *arg0, u32 arg1, s8 arg2) {
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    if (arg2 == 0) {
-        *(s16 *)(base + 4) |= (s16)((1 << (arg1 & 0xffff)) & 0xffff);
+void fclObjChangeFlagBit(u8 *task, u32 bitIndex, s8 operation) {
+    u8 *base = (u8 *)fclObjWork(task);
+    if (operation == 0) {
+        ((FclObject *)base)->spriteFlags |= (s16)((1 << (bitIndex & 0xffff)) & 0xffff);
         return;
     }
-    if (arg2 == 1) {
-        *(s16 *)(base + 4) &= (s16)((1 << (arg1 & 0xffff)) ^ 0xffff);
+    if (operation == 1) {
+        ((FclObject *)base)->spriteFlags &= (s16)((1 << (bitIndex & 0xffff)) ^ 0xffff);
         return;
     }
 }
 
+/* Read one status bit; the bit index is narrowed to a halfword. */
 // FUN_002E0570
-s8 fclObjTestFlagBit(u8 *arg0, s32 arg1)
+s8 fclObjTestFlagBit(u8 *task, s32 bitIndex)
 {
     s16 flags;
 
-    flags = *(s16 *)(*(u8 **)(arg0 + 0x38) + 4);
-    return (s8)((flags & ((1 << (arg1 & 0xFFFF)) & 0xFFFF)) >> (arg1 & 0xFFFF));
+    flags = fclObjWork(task)->spriteFlags;
+    return (s8)((flags & ((1 << (bitIndex & 0xFFFF)) & 0xFFFF)) >> (bitIndex & 0xFFFF));
 }
 
+/* Report whether any of sprite status bits 1..4 is active. */
 // FUN_002E05A0
-s8 fclObjHasStatusFlags(u8 *arg0) {
-    s16 flags = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x4);
+s8 fclObjHasStatusFlags(u8 *task) {
+    s16 flags = fclObjWork(task)->spriteFlags;
     if (((s8)((flags & 2) >> 1)) == 0 && ((s8)((flags & 4) >> 2)) == 0 &&
         ((s8)((flags & 8) >> 3)) == 0 && ((s8)((flags & 0x10) >> 4)) == 0) {
         return 0;
@@ -69,17 +70,20 @@ s8 fclObjHasStatusFlags(u8 *arg0) {
     return 1;
 }
 
+/* Start the object sprite position transition with the supplied endpoints. */
 // FUN_002E0620
-void fclObjStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
-    fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
+void fclObjStartPosition(u8 *task, FclVec2 start, FclVec2 end, u32 mode, u32 duration, s16 delay) {
+    fclSpriteStartPosition((u8 *)fclObjWork(task) + 4, start, end, mode, duration, delay);
 }
 
+/* Start the object sprite alpha transition. */
 // FUN_002E0660
-void fclObjStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
+void fclObjStartAlpha(u8 *task, u8 startAlpha, u8 endAlpha, u8 mode, s32 duration, s16 delay)
 {
-    fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
+    fclSpriteStartAlpha((u8 *)fclObjWork(task) + 4, startAlpha, endAlpha, mode, duration, (s16)delay);
 }
 
+/* Apply the same reveal-scale endpoints to both axes. */
 // FUN_002E0690
 /* Parameter order taken from the caller at fclShopSlideInFromRight in
    src/Event/Fcl/y_fclShopDraw.c: b210 emits argument setup in source order, and
@@ -87,171 +91,184 @@ void fclObjStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
    happens when the two floats are arguments 2 and 3.  The EABI assigns integer
    and float arguments to their own register files, so this order compiles to
    the same object as the ints-first spelling (measured: identical bytes). */
-void fclObjStartUniformRevealScale(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
+void fclObjStartUniformRevealScale(u8 *task, f32 startScale, f32 endScale, u32 mode, u32 duration, s64 delay)
 {
-    fclSpriteStartRevealScale(fclObjSprite(arg0), fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
+    fclSpriteStartRevealScale(fclObjSprite(task), startScale, endScale, startScale, endScale, mode, duration, (s16)delay);
 }
 
+/* Start independent X/Y reveal-scale transitions on the object sprite. */
 // FUN_002E06D0
-void fclObjStartRevealScale(u8 *arg0, f32 scale0, f32 scale1, f32 scale2, f32 scale3, u32 arg1, u32 arg2, s64 arg3)
+void fclObjStartRevealScale(u8 *task, f32 startX, f32 endX, f32 startY, f32 endY, u32 mode, u32 duration, s64 delay)
 {
-    fclSpriteStartRevealScale(fclObjSprite(arg0), scale0, scale1, scale2, scale3, arg1, arg2, (s16)arg3);
+    fclSpriteStartRevealScale(fclObjSprite(task), startX, endX, startY, endY, mode, duration, (s16)delay);
 }
 
 #pragma push
 #pragma opt_propagation off
+/* Slide by half the sprite height while fading and revealing vertically; show selects the upward fade-in path. */
 // FUN_002E0700
-void fclObjStartSlideFade(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
-                   s32 arg2, s32 arg3, s64 arg4)
+void fclObjStartSlideFade(u8 *task, s64 spriteId, f32 startScaleY, f32 endScaleY,
+                   s32 duration, s32 delay, s64 show)
 {
-    f2 pos;
-    f2 out1;
-    f2 out2;
-    f2 draw1;
-    f2 draw2;
-    f32 out1_x;
-    f32 out1_y;
-    f32 out2_x;
-    f32 out2_y;
-    f32 pos_x;
-    f32 pos_y;
+    FclVec2 pos;
+    FclVec2 upPosition;
+    FclVec2 downPosition;
+    FclVec2 upTarget;
+    FclVec2 downTarget;
+    f32 upX;
+    f32 upY;
+    f32 downX;
+    f32 downY;
+    f32 positionX;
+    f32 positionY;
     u8 *handle;
-    u8 *temp;
-    extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
-    extern f32 sdkSpriteScaledHeight(u8 *arg0);
+    u8 *work;
+    extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
+    extern f32 sdkSpriteScaledHeight(u8 *sprite);
     u8 *base;
     extern void sdkSpriteFreeNode(void *node);
-    temp = *(u8 **)(arg0 + 0x38);
-    pos_x = *(f32 *)(temp + 0x2C);
-    pos_y = *(f32 *)(temp + 0x30);
-    pos.x = pos_x;
-    pos.y = pos_y;
-    if ((s8)arg4 == 1) {
-        handle = sdkSpriteNewNode(*(u32 *)(temp + 0xF4), (s16)arg1);
-        out1 = fclMakeVec2(pos.x,
+    work = (u8 *)fclObjWork(task);
+    positionX = ((FclObject *)work)->anchorPosition.x;
+    positionY = ((FclObject *)work)->anchorPosition.y;
+    pos.x = positionX;
+    pos.y = positionY;
+    if ((s8)show == 1) {
+        handle = sdkSpriteNewNode(((FclObject *)work)->spriteResource, (s16)spriteId);
+        upPosition = fclMakeVec2(pos.x,
                              pos.y - (sdkSpriteScaledHeight(handle) / 2.0f));
-        out1_x = out1.x;
-        out1_y = out1.y;
-        draw1.x = out1_x;
-        draw1.y = out1_y;
-        arg3 = (s16)arg3;
-        fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, pos, draw1, 0, arg2,
-                       arg3);
+        upX = upPosition.x;
+        upY = upPosition.y;
+        upTarget.x = upX;
+        upTarget.y = upY;
+        delay = (s16)delay;
+        fclSpriteStartPosition((u8 *)fclObjWork(task) + 4, pos, upTarget, 0, duration,
+                       delay);
         sdkSpriteFreeNode(handle);
-        fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, 0, 0xFF, 0, arg2, arg3);
+        fclSpriteStartAlpha((u8 *)fclObjWork(task) + 4, 0, 0xFF, 0, duration, delay);
     } else {
-        handle = sdkSpriteNewNode(*(u32 *)(temp + 0xF4), (s16)arg1);
-        out2 = fclMakeVec2(pos.x,
+        handle = sdkSpriteNewNode(((FclObject *)work)->spriteResource, (s16)spriteId);
+        downPosition = fclMakeVec2(pos.x,
                              pos.y + (sdkSpriteScaledHeight(handle) / 2.0f));
-        out2_x = out2.x;
-        out2_y = out2.y;
-        draw2.x = out2_x;
-        draw2.y = out2_y;
-        arg3 = (s16)arg3;
-        fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, pos, draw2, 0, arg2,
-                       arg3);
+        downX = downPosition.x;
+        downY = downPosition.y;
+        downTarget.x = downX;
+        downTarget.y = downY;
+        delay = (s16)delay;
+        fclSpriteStartPosition((u8 *)fclObjWork(task) + 4, pos, downTarget, 0, duration,
+                       delay);
         sdkSpriteFreeNode(handle);
-        fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, 0xFF, 0, 0, 0,
-                       (s16)((s32)arg3 + arg2));
+        fclSpriteStartAlpha((u8 *)fclObjWork(task) + 4, 0xFF, 0, 0, 0,
+                       (s16)((s32)delay + duration));
     }
-    base = *(u8 **)(arg0 + 0x38);
-    fclSpriteStartRevealScale(base + 4, 1.0f, 1.0f, fparg0, fparg1, 0, arg2, arg3);
+    base = (u8 *)fclObjWork(task);
+    fclSpriteStartRevealScale(base + 4, 1.0f, 1.0f, startScaleY, endScaleY, 0, duration, delay);
 }
 #pragma pop
 
+/* Start the object sprite scalar tween. */
 // FUN_002E0940
-void fclObjStartTween(u8 *arg0, f32 first, f32 second, u8 mode, s32 duration, s64 delay)
+void fclObjStartTween(u8 *task, f32 first, f32 second, u8 mode, s32 duration, s64 delay)
 {
-    fclSpriteStartTween(*(u8 **)(arg0 + 0x38) + 4, mode, duration, delay, first, second);
+    fclSpriteStartTween((u8 *)fclObjWork(task) + 4, mode, duration, delay, first, second);
 }
 
+/* Start the object sprite color transition. */
 // FUN_002E0970
-void fclObjStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s64 arg5)
+void fclObjStartColor(u8 *task, FclDrawColor startColor, FclDrawColor endColor, u8 mode, s16 duration, s64 delay)
 {
-    extern void fclSpriteStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s16 arg5);
-    fclSpriteStartColor(fclObjSprite(arg0), arg1, arg2, arg3, arg4, arg5);
+    extern void fclSpriteStartColor(u8 *animation, FclDrawColor start, FclDrawColor end, u8 mode, s16 duration, s16 delay);
+    fclSpriteStartColor(fclObjSprite(task), startColor, endColor, mode, duration, delay);
 }
 
+/* Enable the hold timer, clear its elapsed frame count and install the new limit. */
 // FUN_002E09B0
-void fclObjSetHoldTimer(u8 *arg0, f32 fparg0, s16 arg1)
+void fclObjSetHoldTimer(u8 *task, f32 timer, s16 limit)
 {
-    FclObject *obj = fclObjWork(arg0);
+    FclObject *obj = fclObjWork(task);
     s16 flags = obj->spriteFlags;
     obj->spriteFlags = flags | 0x80;
     obj->holdFrames = 0;
-    obj->holdTimer = fparg0;
-    obj->holdLimit = arg1;
+    obj->holdTimer = timer;
+    obj->holdLimit = limit;
 }
 
+/* Enable anchor positioning and copy the indexed anchor-table position. */
 // FUN_002E09E0
-void fclObjSetAnchorPosition(u8 *arg0, s32 arg1, f32 fparg0) {
-    FclObject *work = fclObjWork(arg0);
+void fclObjSetAnchorPosition(u8 *task, s32 mode, f32 value) {
+    FclObject *work = fclObjWork(task);
     f32 *entry = (f32 *)(D_0063F560 + work->anchorIndex * 8);
-    f2 out;
+    FclVec2 out;
     work->spriteFlags |= 1;
-    fclObjWork(arg0)->anchorValue = fparg0;
-    fclObjWork(arg0)->anchorMode = arg1;
-    work = fclObjWork(arg0);
+    fclObjWork(task)->anchorValue = value;
+    fclObjWork(task)->anchorMode = mode;
+    work = fclObjWork(task);
     out = fclMakeVec2(entry[0], entry[1]);
     work->anchorPosition = out;
 }
 
+/* Set the anchor position and restore opaque, unit-scale sprite state. */
 // FUN_002E0A60
-void fclObjSetAnchorAlphaFull(u8 *arg0, s32 arg1, f32 fparg0)
+void fclObjSetAnchorAlphaFull(u8 *task, s32 mode, f32 value)
 {
     FclObject *work;
     u8 *entry;
-    f2 out;
+    FclVec2 out;
 
-    work = fclObjWork(arg0);
+    work = fclObjWork(task);
     entry = D_0063F560 + work->anchorIndex * 8;
     work->spriteFlags |= 1;
-    fclObjWork(arg0)->anchorValue = fparg0;
-    fclObjWork(arg0)->anchorMode = arg1;
-    work = fclObjWork(arg0);
-    out = fclMakeVec2(*(f32 *)entry, *(f32 *)(entry + 4));
+    fclObjWork(task)->anchorValue = value;
+    fclObjWork(task)->anchorMode = mode;
+    work = fclObjWork(task);
+    out = fclMakeVec2(((FclVec2 *)entry)->x, ((FclVec2 *)entry)->y);
     work->anchorPosition = out;
-    work = fclObjWork(arg0);
+    work = fclObjWork(task);
     work->alpha = 0xFF;
-    work = fclObjWork(arg0);
+    work = fclObjWork(task);
     *(s32 *)&work->scale = 0x3F800000;
-    *(s32 *)((u8 *)work + 0x94) = 0x3F800000;
-    work = fclObjWork(arg0);
-    *(s8 *)((u8 *)work + 0xCF) = 0;
+    *(s32 *)&work->scaleX = 0x3F800000;
+    work = fclObjWork(task);
+    work->tweenLoop = 0;
+    /* Reset bytes +0xA7/+0x67 have no named fields in the shared object layout. */
     *(s8 *)((u8 *)work + 0xA7) = 0;
     *(s8 *)((u8 *)work + 0x67) = 0;
     work->mode = 0;
 }
 
+/* Queue a sprite from the equipment resource bank at the supplied screen position. */
 // FUN_002E0B20
-void fclDrawEquipSprite(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
-                   s32 arg4, u8 *arg5)
+void fclDrawEquipSprite(s32 spriteId, FclVec2 position, f32 depth, s32 layer, u8 alpha,
+                   s32 flags, u8 *drawContext)
 {
-    sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB50), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
+    sdkSpriteDrawQueued(position.x, position.y, depth, layer, alpha, spriteId & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB50), flags, 0, 0, 0.0f, 1.0f, 1.0f, drawContext);
 }
 
+/* Queue a sprite from the resource bank identified by D_0063FAA0. */
 // FUN_002E0BE0
-void fclDrawResourceSprite(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
-                   s32 arg4, u8 *arg5)
+void fclDrawResourceSprite(s32 spriteId, FclVec2 position, f32 depth, s32 layer, u8 alpha,
+                   s32 flags, u8 *drawContext)
 {
-    sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FAA0), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
+    sdkSpriteDrawQueued(position.x, position.y, depth, layer, alpha, spriteId & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FAA0), flags, 0, 0, 0.0f, 1.0f, 1.0f, drawContext);
 }
 
+/* Queue a sprite from the equipment-help resource bank. */
 // FUN_002E0CA0
-void fclDrawEquipHelpSprite(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
-                   s32 arg4, u8 *arg5)
+void fclDrawEquipHelpSprite(s32 spriteId, FclVec2 position, f32 depth, s32 layer, u8 alpha,
+                   s32 flags, u8 *drawContext)
 {
-    sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB90), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
+    sdkSpriteDrawQueued(position.x, position.y, depth, layer, alpha, spriteId & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB90), flags, 0, 0, 0.0f, 1.0f, 1.0f, drawContext);
 }
 
+/* Create the bank list manager with a 0x30-byte inline payload and return that payload. */
 // FUN_002E0D60
 s32 fclBankManagerCreate(void)
 {
-    u8 *temp = func_002e1db0(0x30, 0, 0, 0);
-    iGpffffb588 = temp;
-    return *(s32 *)(temp + 0x24);
+    u8 *manager = nmListAllocManager(0x30, 0, 0, 0);
+    iGpffffb588 = manager;
+    return (s32)((NmlistManager *)manager)->data;
 }
 
+/* Narrow the bank queue helper result to a signed halfword predicate. */
 // FUN_002E0DA0
 s64 fclBankTryQueueRequest(void)
 {

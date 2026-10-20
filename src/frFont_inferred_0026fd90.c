@@ -2,6 +2,7 @@
 #include "list_item_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "fr_font_objects.h"
 #include "rw/plcore/barenderstate.h"
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
@@ -10,7 +11,7 @@ extern s32 iGpffffa730;
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 MT_SceneManager_TaskUpdate(u8 *task);
+extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
@@ -18,9 +19,9 @@ extern char D_005DC824[];
 extern char D_0063B5D8[];
 extern char D_005DC7D0[];
 extern char D_0063B580[];
-extern void qsort(u32 *arg0, s32 arg1, s32 arg2,
-                           s32 (*arg3)(u8 **arg0, u8 **arg1));
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern void qsort(u32 *value, s32 index, s32 count,
+                           s32 (*flags)(u8 **value, u8 **index));
+extern u8 *(*jtbl_008873E8[])(s32 value, s32 index);
 extern u8 D_0088152F[];
 typedef struct { s32 value[19]; } Code1_00267800ShapeTable;
 extern Code1_00267800ShapeTable D_00638FD0;
@@ -40,10 +41,10 @@ static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
-extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
-                          s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5,
-                          f32 fparg3, f32 fparg4, f32 fparg5);
+extern void PrimDrawContour(f32 x, f32 y, f32 depth,
+                          s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
+                          s32 originX, s32 originY,
+                          f32 rotation, f32 scaleX, f32 scaleY);
 extern char iGpffffa6c4;
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern u8 D_00881530[];
@@ -72,32 +73,32 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
-                           s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
-                           s32 arg5, s32 arg6, s32 arg7,
-                           s32 arg_sp0);
+extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity,
+                           s32 weather, s32 highlight, f32 scaleX, f32 scaleY,
+                           s32 clipLeft, s32 clipWidth, s32 font,
+                           s32 forcedHighlight);
 extern u32 frFontGetMode(void);
 extern void frFontLayoutText(u8 *text, u8 *context);
-extern u32 datGetItemNameId(s16 id);
+extern u32 datGetItemNameId(s16 itemId);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
 extern s32 D_008815B0[];
-extern void frFontUpdateTextWork(u8 *arg0);
+extern void frFontUpdateTextWork(u8 *context);
 extern u8 iGpffffa734;
 
-extern s32 frFontDataEntryClass(s64 arg0);
+extern s32 frFontDataEntryClass(s64 entryId);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026fd90-0026fff0 */
 
 extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
-extern s32 mtSceneUnitDepthCompare(u8 **arg0, u8 **arg1);
+extern s32 mtSceneUnitDepthCompare(u8 **left, u8 **right);
 extern f32 D_007612C4;
-/* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are
+/* Three trail-segment layouts (mode 0/1/2). The 0xC0-byte point tables are
  * struct copies; each loop's i = 0 precedes the invariant scale products,
  * which opt_loop_invariants hoists while the (s16) conversion of the second
  * product stays in the loop as in retail. The closing call's position
  * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
- * colour parameter is declared u32 here (H011): retail converts arg2 for each
+ * colour parameter is declared u32 here (H011): retail converts count for each
  * call and keeps the per-case colour copies in $fp/$s7. */
 #pragma push
 #pragma pop
@@ -144,6 +145,7 @@ extern f32 D_007612C4;
 #pragma pop
 #pragma push
 #pragma pop
+/* Decode the palette, prefix flag and item ID, then append the item name. */
 // FUN_0026FD90
 /* measured: MWCCPS2 b210 -O2, 596B/window 608B, 10 relocations,
  * 12 zero alignment bytes. Ghidra/IDA and retail agree on the three-byte
@@ -154,64 +156,64 @@ extern f32 D_007612C4;
 #pragma opt_common_subs off
 /* measured: func_0026fd90 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-s32 func_0026fd90(s32 arg0, u8 *arg1)
+s32 frFontAppendItemNameCommand(s32 unusedCommand, u8 *context)
 {
-    u8 previous_character;
+    u8 previousPalette;
     s32 first;
     s64 second;
     s32 third;
     s8 glyph[3] __attribute__((aligned(8)));
-    s32 stream_offset;
-    s32 stream_base;
+    s32 streamOffset;
+    s32 streamBase;
     u8 *stream;
     s32 low;
-    s32 high_byte;
-    s32 high_first;
-    s32 high_second;
-    s32 high_third;
-    s32 force_character;
-    stream_offset = *(s32 *)(arg1 + 0x18);
-    stream_base = *(s32 *)(arg1 + 0x10);
-    stream = mtSceneBytePairAt((u8 *)stream_base, (u32)stream_offset);
+    s32 highByte;
+    s32 firstHigh;
+    s32 secondHigh;
+    s32 thirdHigh;
+    s32 forcePalette;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamBase = ((FrFontContext *)context)->stream;
+    stream = mtSceneBytePairAt((u8 *)streamBase, (u32)streamOffset);
     low = (stream[0] - 1) & 0xFF;
-    high_byte = stream[1];
-    if (high_byte == 0xFF) {
-        high_first = 0;
+    highByte = stream[1];
+    if (highByte == 0xFF) {
+        firstHigh = 0;
     } else {
-        high_first = (high_byte - 1) & 0xFF;
+        firstHigh = (highByte - 1) & 0xFF;
     }
-    first = (u16)(s16)(((high_first & 0xFF) << 8) | (low & 0xFF));
+    first = (u16)(s16)(((firstHigh & 0xFF) << 8) | (low & 0xFF));
 
-    stream_offset = *(s32 *)(arg1 + 0x18);
-    stream_base = *(s32 *)(arg1 + 0x10);
-    stream = (u8 *)((u32)stream_offset + (u32)stream_base);
+    streamOffset = ((FrFontContext *)context)->position;
+    streamBase = ((FrFontContext *)context)->stream;
+    stream = (u8 *)((u32)streamOffset + (u32)streamBase);
     low = (stream[2] - 1) & 0xFF;
-    high_byte = stream[3];
-    if (high_byte == 0xFF) {
-        high_second = 0;
+    highByte = stream[3];
+    if (highByte == 0xFF) {
+        secondHigh = 0;
     } else {
-        high_second = (high_byte - 1) & 0xFF;
+        secondHigh = (highByte - 1) & 0xFF;
     }
-    second = (u16)(s16)(((high_second & 0xFF) << 8) | (low & 0xFF));
+    second = (u16)(s16)(((secondHigh & 0xFF) << 8) | (low & 0xFF));
 
-    stream_offset = *(s32 *)(arg1 + 0x18);
-    stream_base = *(s32 *)(arg1 + 0x10);
-    stream = (u8 *)((u32)stream_offset + (u32)stream_base);
+    streamOffset = ((FrFontContext *)context)->position;
+    streamBase = ((FrFontContext *)context)->stream;
+    stream = (u8 *)((u32)streamOffset + (u32)streamBase);
     low = (stream[4] - 1) & 0xFF;
-    high_byte = stream[5];
-    if (high_byte == 0xFF) {
-        high_third = 0;
+    highByte = stream[5];
+    if (highByte == 0xFF) {
+        thirdHigh = 0;
     } else {
-        high_third = (high_byte - 1) & 0xFF;
+        thirdHigh = (highByte - 1) & 0xFF;
     }
-    third = (u16)(s16)(((high_third & 0xFF) << 8) | (low & 0xFF));
+    third = (u16)(s16)(((thirdHigh & 0xFF) << 8) | (low & 0xFF));
 
     if (frFontGetMode() != 0) {
         return 0;
     }
     if ((first & 0xFFFF) != -1) {
-        previous_character = arg1[0xD];
-        arg1[0xD] = first;
+        previousPalette = ((FrFontContext *)context)->palette;
+        ((FrFontContext *)context)->palette = first;
     }
     if ((u16)second != 0) {
         second = (u16)third;
@@ -225,24 +227,24 @@ s32 func_0026fd90(s32 arg0, u8 *arg1)
         case 6:
         case 9:
         case 11:
-            force_character = 1;
+            forcePalette = 1;
             break;
         default:
-            force_character = 0;
+            forcePalette = 0;
             break;
         }
-        if (force_character != 0) {
-            arg1[0xD] = 4;
+        if (forcePalette != 0) {
+            ((FrFontContext *)context)->palette = 4;
         }
         glyph[0] = -0x7D;
         glyph[1] = frFontDataEntryClass(second) + 0xC7;
         glyph[2] = 0;
-        frFontUpdateTextWork(arg1);
-        frFontLayoutText((u8 *)glyph, arg1);
+        frFontUpdateTextWork(context);
+        frFontLayoutText((u8 *)glyph, context);
     }
-    frFontUpdateTextWork(arg1);
-    frFontLayoutText((u8 *)datGetItemNameId((s16)third), arg1);
-    arg1[0xD] = previous_character;
+    frFontUpdateTextWork(context);
+    frFontLayoutText((u8 *)datGetItemNameId((s16)third), context);
+    ((FrFontContext *)context)->palette = previousPalette;
     return 0;
 }
 
@@ -253,51 +255,52 @@ s32 func_0026fd90(s32 arg0, u8 *arg1)
 /* measured: opt_propagation off preserves func_0026fff0 decode scheduling. */
 /* measured: func_0026fff0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Decode an item ID and byte count and update the inventory in normal mode. */
 // FUN_0026FFF0
-s32 func_0026fff0(s32 arg0, u8 *arg1)
+s32 frFontSetItemCountCommand(s32 unusedCommand, u8 *context)
 {
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_4;
-    s32 var_2;
-    s32 var_2_2;
-    s32 temp_3_4;
-    s32 temp_3_5;
-    s32 temp_3_6;
-    s32 temp_3_7;
-    s32 temp_3_2;
-    s32 temp_3_4b;
-    u8 *temp_3;
-    u8 *temp_3_3;
+    s32 itemId;
+    s32 itemCount;
+    s32 lowByte;
+    s32 firstHigh;
+    s32 secondHigh;
+    s32 firstOffset;
+    s32 firstBase;
+    s32 secondOffset;
+    s32 secondBase;
+    s32 firstEncodedHigh;
+    s32 secondEncodedHigh;
+    u8 *firstOperand;
+    u8 *secondOperand;
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_4 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2 = 0;
+    firstOffset = ((FrFontContext *)context)->position;
+    firstBase = ((FrFontContext *)context)->stream;
+    firstOperand = (u8 *)(firstBase + firstOffset);
+    lowByte = (firstOperand[0] - 1) & 0xFF;
+    firstEncodedHigh = firstOperand[1];
+    if ((u8)firstEncodedHigh == 0xFF) {
+        firstHigh = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        firstHigh = (firstEncodedHigh - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    temp_16 = (s32)(s16)((var_2 << 8) | (u8)temp_4);
-    temp_3_6 = *(s32 *)(arg1 + 0x18);
-    temp_3_7 = *(s32 *)(arg1 + 0x10);
-    temp_3_3 = (u8 *)(temp_3_6 + temp_3_7);
-    temp_4 = (temp_3_3[2] - 1) & 0xFF;
-    temp_3_4b = temp_3_3[3];
-    if ((u8)temp_3_4b == 0xFF) {
-        var_2_2 = 0;
+    firstHigh &= 0xFF;
+    itemId = (s32)(s16)((firstHigh << 8) | (u8)lowByte);
+    secondOffset = ((FrFontContext *)context)->position;
+    secondBase = ((FrFontContext *)context)->stream;
+    secondOperand = (u8 *)(secondOffset + secondBase);
+    lowByte = (secondOperand[2] - 1) & 0xFF;
+    secondEncodedHigh = secondOperand[3];
+    if ((u8)secondEncodedHigh == 0xFF) {
+        secondHigh = 0;
     } else {
-        var_2_2 = (temp_3_4b - 1) & 0xFF;
+        secondHigh = (secondEncodedHigh - 1) & 0xFF;
     }
-    var_2_2 &= 0xFF;
-    temp_17 = (s32)(s16)((var_2_2 << 8) | (u8)temp_4);
+    secondHigh &= 0xFF;
+    itemCount = (s32)(s16)((secondHigh << 8) | (u8)lowByte);
     if (frFontGetMode() != 0) {
         return 0;
     }
-    datItemSetCount((s16)temp_16, temp_17 & 0xFF);
+    datItemSetCount((s16)itemId, itemCount & 0xFF);
     return 0;
 }
 

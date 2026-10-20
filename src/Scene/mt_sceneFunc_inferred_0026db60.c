@@ -5,33 +5,35 @@
 #include "rw/plcore/barenderstate.h"
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
+#include "scene_render_internal.h"
+#include "scene_resource_internal.h"
 extern s32 iGpffffb4bc;
 extern s32 iGpffffa730;
 extern void MT_Scene_StopShake();
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 MT_SceneManager_TaskUpdate(u8 *task);
+extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
-extern void MT_Scene_ShakeStopTask(u8 *task);
-extern s32 MT_SceneManager_DrawUpdate(u8 *task);
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void mtSceneDrawSortedUnits(u8 *arg0);
+extern void MT_Scene_ShakeStopTask(u8 *unusedTask);
+extern s32 MT_SceneManager_DrawUpdate(u8 *unusedTask);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
+extern void mtSceneDrawSortedUnits(u8 *resource);
 extern void MT_Scene_UpdateShake(void);
-extern void MT_Scene_UpdateResource(u8 *arg0);
-extern void MT_Scene_UpdateCameraResource(u8 *arg0);
-extern void func_004b11d0(void *arg0, s32 arg1);
+extern void MT_Scene_UpdateResource(u8 *resourceData);
+extern void MT_Scene_UpdateCameraResource(u8 *resource);
+extern void mdlEffectFlushWithTable(void *table, s32 effect);
 extern char D_005DC824[];
 extern char D_0063B5D8[];
 extern char D_005DC7D0[];
 extern char D_0063B580[];
-extern void qsort(u32 *arg0, s32 arg1, s32 arg2,
-                           s32 (*arg3)(u8 **arg0, u8 **arg1));
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+extern void qsort(u32 *, s32, s32,
+                           s32 (*)(u8 **arg0, u8 **arg1));
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
-extern void *memcpy(void *arg0, const void *arg1, u32 arg2);
+extern void *memcpy(void *, const void *, u32);
 extern u8 D_0088152F[];
 typedef struct { s32 value[19]; } Code1_00267800ShapeTable;
 extern Code1_00267800ShapeTable D_00638FD0;
@@ -47,14 +49,11 @@ typedef struct {
     s32 field1C;
     s32 field20;
 } Code1_00263220State;
-static inline f32 mtSceneMulF32(f32 left, f32 right)
-{
-    return left * right;
-}
-extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
-                          s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5,
-                          f32 fparg3, f32 fparg4, f32 fparg5);
+
+extern void PrimDrawContour(f32 x, f32 y, f32 depth,
+                          s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
+                          s32 originX, s32 originY,
+                          f32 rotation, f32 scaleX, f32 scaleY);
 extern char iGpffffa6c4;
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern u8 D_00881530[];
@@ -65,10 +64,7 @@ static inline u32 *rbRingNextNode(s32 offset, u32 *base)
 {
     return (u32 *)((u8 *)base + offset + 8);
 }
-static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
-{
-    return base + index;
-}
+
 
 
 extern u8 D_00637420[];
@@ -83,18 +79,18 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
-                           s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
-                           s32 arg5, s32 arg6, s32 arg7,
-                           s32 arg_sp0);
+extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity,
+                           s32 weather, s32 highlight, f32 scaleX, f32 scaleY,
+                           s32 clipLeft, s32 clipWidth, s32 font,
+                           s32 forcedHighlight);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
 extern s32 D_008815B0[];
 extern u8 iGpffffa734;
-extern f32 RwV3dLength(f32 *arg0);
-extern u8 *func_003e9700(s32 arg0);
+extern f32 RwV3dLength(f32 *);
+extern u8 *func_003e9700(s32);
 extern u8 *kwlnGetCamera(void);
-extern void mdlEffectBuildObjectMatrix(s32 arg0, f32 *arg1);
+extern void mdlEffectBuildObjectMatrix(s32 object, f32 *matrix);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026db60-0026e010 */
 
@@ -147,41 +143,41 @@ extern f32 D_007612C4;
 // FUN_0026DB60
 s32 MT_SceneManager_TaskUpdate(u8 *unusedTask)
 {
-    s32 var_17;
-    u8 *var_16;
-    s32 temp_4;
-    s32 temp_3;
-    u8 *var_2;
+    s32 resourceType;
+    u8 *resource;
+    s32 selected;
+    s32 enabled;
+    u8 *camera;
     MT_Scene_UpdateShake();
-    var_17 = 1;
+    resourceType = 1;
     goto outer_test;
 outer_body:
-    var_16 = MT_Scene_GetResListHead(var_17);
+    resource = MT_Scene_GetResListHead(resourceType);
     goto inner_test;
 inner_body:
-    MT_Scene_UpdateResource(var_16);
-    var_16 = *(u8 **)(var_16 + 0x138);
+    MT_Scene_UpdateResource(resource);
+    resource = *(u8 * *)&((SceneUpdateResource *)resource)->next;
 inner_test:
-    if (var_16 != NULL) {
+    if (resource != NULL) {
         goto inner_body;
     }
-    var_17 += 1;
+    resourceType += 1;
 outer_test:
-    if (var_17 < 0x16) {
+    if (resourceType < 0x16) {
         goto outer_body;
     }
-    var_2 = MT_Scene_GetResListHead(7);
-    temp_3 = 1;
+    camera = MT_Scene_GetResListHead(7);
+    enabled = 1;
     goto second_test;
 second_body:
-    temp_4 = *(s32 *)(var_2 + 0x148);
-    if (temp_4 == temp_3) {
-        MT_Scene_UpdateCameraResource(var_2);
+    selected = ((ResrcRecord *)camera)->cameraRes[0];
+    if (selected == enabled) {
+        MT_Scene_UpdateCameraResource(camera);
         goto second_exit;
     }
-    var_2 = *(u8 **)(var_2 + 0x138);
+    camera = *(u8 * *)&((SceneUpdateResource *)camera)->next;
 second_test:
-    if (var_2 != NULL) {
+    if (camera != NULL) {
         goto second_body;
     }
 second_exit:
@@ -202,78 +198,80 @@ void MT_Scene_ShakeStopTask(u8 *unusedTask)
 /* measured: mtSceneUnitDepthCompare MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0026DC50
-s32 mtSceneUnitDepthCompare(u8 **arg0, u8 **arg1)
+/* Compare effect-resource distances from the active camera, truncating the distance difference to s32. */
+s32 mtSceneUnitDepthCompare(u8 **left, u8 **right)
 {
     struct DC50Frame {
-        f32 v40[3];
+        f32 rightMatrixStart[3];
         u8 pad4C[0x24];
-        f32 v70[3];
+        f32 rightMatrixPosition[3];
         u8 pad7C[4];
-        f32 v80[3];
+        f32 leftMatrixStart[3];
         u8 pad8C[0x24];
-        f32 vB0[3];
+        f32 leftMatrixPosition[3];
         u8 padBC[4];
-        f32 vC0[3];
+        f32 cameraPosition[3];
         u8 padCC[4];
-        f32 vD0[3];
+        f32 rightDelta[3];
         u8 padDC[4];
-        f32 vE0[3];
+        f32 leftDelta[3];
         u8 padEC[4];
     } frame;
-    f32 temp_f20;
-    f32 temp_f2;
-    f32 temp_f1;
-    f32 temp_f0;
-    f32 *temp_B0;
-    f32 *temp_70;
-    f32 temp_c1;
-    f32 temp_c2;
-    u8 *temp_16;
-    u8 *temp_2;
+    f32 leftDistance;
+    f32 cameraY;
+    f32 cameraZ;
+    f32 cameraX;
+    f32 *leftPosition;
+    f32 *rightPosition;
+    f32 savedCameraY;
+    f32 savedCameraZ;
+    u8 *rightResource;
+    u8 *cameraOrResource;
 
-    temp_2 = kwlnGetCamera();
-    temp_2 = func_003e9700(*(s32 *)(temp_2 + 4));
-    temp_f0 = *(f32 *)(temp_2 + 0x30);
-    temp_f2 = *(f32 *)(temp_2 + 0x34);
-    temp_f1 = *(f32 *)(temp_2 + 0x38);
-    frame.vC0[0] = temp_f0;
-    frame.vC0[1] = temp_f2;
-    frame.vC0[2] = temp_f1;
-    temp_16 = *arg1;
-    temp_2 = *arg0;
-    mdlEffectBuildObjectMatrix(*(s32 *)(temp_2 + 0x144), frame.v80);
-    mdlEffectBuildObjectMatrix(*(s32 *)(temp_16 + 0x144), frame.v40);
-    temp_B0 = frame.vB0;
-    temp_70 = frame.v70;
-    frame.vE0[0] = temp_B0[0] - frame.vC0[0];
-    temp_c1 = frame.vC0[1];
-    frame.vE0[1] = temp_B0[1] - temp_c1;
-    temp_c2 = frame.vC0[2];
-    frame.vE0[2] = temp_B0[2] - temp_c2;
-    frame.vD0[0] = temp_70[0] - frame.vC0[0];
-    frame.vD0[1] = temp_70[1] - frame.vC0[1];
-    frame.vD0[2] = temp_70[2] - frame.vC0[2];
-    temp_f20 = RwV3dLength(frame.vE0);
-    return (s32)(temp_f20 - RwV3dLength(frame.vD0));
+    cameraOrResource = kwlnGetCamera();
+    cameraOrResource = func_003e9700(((SceneRenderObject *)cameraOrResource)->frame);
+    cameraX = ((struct RwMatrix *)cameraOrResource)->pos.x;
+    cameraY = ((struct RwMatrix *)cameraOrResource)->pos.y;
+    cameraZ = ((struct RwMatrix *)cameraOrResource)->pos.z;
+    frame.cameraPosition[0] = cameraX;
+    frame.cameraPosition[1] = cameraY;
+    frame.cameraPosition[2] = cameraZ;
+    rightResource = *right;
+    cameraOrResource = *left;
+    mdlEffectBuildObjectMatrix(*(s32 *)&((SceneEffectUpdate *)cameraOrResource)->effect, frame.leftMatrixStart);
+    mdlEffectBuildObjectMatrix(*(s32 *)&((ResrcRecord *)rightResource)->slotHandle[1], frame.rightMatrixStart);
+    leftPosition = frame.leftMatrixPosition;
+    rightPosition = frame.rightMatrixPosition;
+    frame.leftDelta[0] = leftPosition[0] - frame.cameraPosition[0];
+    savedCameraY = frame.cameraPosition[1];
+    frame.leftDelta[1] = leftPosition[1] - savedCameraY;
+    savedCameraZ = frame.cameraPosition[2];
+    frame.leftDelta[2] = leftPosition[2] - savedCameraZ;
+    frame.rightDelta[0] = rightPosition[0] - frame.cameraPosition[0];
+    frame.rightDelta[1] = rightPosition[1] - frame.cameraPosition[1];
+    frame.rightDelta[2] = rightPosition[2] - frame.cameraPosition[2];
+    leftDistance = RwV3dLength(frame.leftDelta);
+    return (s32)(leftDistance - RwV3dLength(frame.rightDelta));
 }
 
 /* measured: closes opt_propagation off probe for mtSceneUnitDepthCompare. */
 // FUN_0026DD60
-void mtSceneDrawSortedUnits(u8 *arg0)
+/* Collect active mode-0 effects, sort them by camera distance, queue them and release the temporary array. */
+void mtSceneDrawSortedUnits(u8 *resource)
 {
-    s32 output_index;
+    s32 outputIndex;
     u32 *result;
     s32 count;
     u8 *base;
     s32 index;
 
     count = 0;
-    base = arg0;
+    base = resource;
     goto loop_7_test;
 loop_7_body:
-    if (*(s32 *)(arg0 + 0x28) & 2) {
-        if (*(s32 *)(arg0 + 0x144) != 0) {
-            switch (*(s8 *)(arg0 + 0x140)) {
+    if (*(s32 *)&((SceneUpdateResource *)resource)->flags & 2) {
+        if (*(s32 *)&((ResrcRecord *)resource)->slotHandle[1] != 0) {
+            switch (*(s8 *)&((ResrcRecord *)resource)->slotHandle[0]) {
             case 0:
                 count += 1;
                 break;
@@ -281,44 +279,44 @@ loop_7_body:
         }
     }
 loop_7_next:
-    arg0 = *(u8 **)(arg0 + 0x138);
+    resource = *(u8 * *)&((SceneUpdateResource *)resource)->next;
 loop_7_test:
-    if (arg0 != NULL) {
+    if (resource != NULL) {
         goto loop_7_body;
     }
     if (count != 0) {
         chkmemAllocSiteTag(D_0063B580, 0x96);
         result = (u32 *)jtbl_008873E8[0](count * 4, 0x40000);
         index = 0;
-        arg0 = base;
+        resource = base;
         goto loop_16_test;
 loop_16_body:
-        if (*(s32 *)(arg0 + 0x28) & 2) {
-            if (*(s32 *)(arg0 + 0x144) != 0) {
-                switch (*(s8 *)(arg0 + 0x140)) {
+        if (*(s32 *)&((SceneUpdateResource *)resource)->flags & 2) {
+            if (*(s32 *)&((ResrcRecord *)resource)->slotHandle[1] != 0) {
+                switch (*(s8 *)&((ResrcRecord *)resource)->slotHandle[0]) {
                 case 0:
-                    result[index] = (u32)arg0;
+                    result[index] = (u32)resource;
                     index += 1;
                     break;
                 }
             }
         }
 loop_16_next:
-        arg0 = *(u8 **)(arg0 + 0x138);
+        resource = *(u8 * *)&((SceneUpdateResource *)resource)->next;
         goto loop_16_test;
 loop_16_test:
-        if (arg0 != NULL) {
+        if (resource != NULL) {
             goto loop_16_body;
         }
         qsort(result, count, 4, mtSceneUnitDepthCompare);
-        output_index = 0;
+        outputIndex = 0;
         goto loop_19_test;
 loop_19_body:
-        func_004b11d0(D_005DC7D0,
-                      *(s32 *)((u8 *)result[output_index] + 0x144));
-        output_index += 1;
+        mdlEffectFlushWithTable(D_005DC7D0,
+                      *(s32 *)&((ResrcRecord *)result[outputIndex])->slotHandle[1]);
+        outputIndex += 1;
 loop_19_test:
-        if (output_index < count) {
+        if (outputIndex < count) {
             goto loop_19_body;
         }
         jtbl_008873EC[0]((u8 *)result);
@@ -329,30 +327,30 @@ loop_19_test:
 // FUN_0026DEE0
 s32 MT_SceneManager_DrawUpdate(u8 *unusedTask)
 {
-    s32 temp_5;
-    s8 temp_3;
-    u8 *var_16;
+    s32 effectHandle;
+    s8 drawMode;
+    u8 *resource;
 
-    var_16 = MT_Scene_GetResListHead(6);
-    mtSceneDrawSortedUnits(var_16);
+    resource = MT_Scene_GetResListHead(6);
+    mtSceneDrawSortedUnits(resource);
     goto loop_test;
 loop_body:
-    if (*(s32 *)(var_16 + 0x28) & 2) {
-        temp_5 = *(s32 *)(var_16 + 0x144);
-        if (temp_5 != 0) {
-            temp_3 = *(s8 *)(var_16 + 0x140);
-            switch (temp_3) {
+    if (*(s32 *)&((SceneUpdateResource *)resource)->flags & 2) {
+        effectHandle = *(s32 *)&((ResrcRecord *)resource)->slotHandle[1];
+        if (effectHandle != 0) {
+            drawMode = *(s8 *)&((ResrcRecord *)resource)->slotHandle[0];
+            switch (drawMode) {
             case 0:
                 break;
             case 1:
-                func_004b11d0(D_005DC824, temp_5);
+                mdlEffectFlushWithTable(D_005DC824, effectHandle);
                 break;
             }
         }
     }
-    var_16 = *(u8 **)(var_16 + 0x138);
+    resource = *(u8 * *)&((SceneUpdateResource *)resource)->next;
 loop_test:
-    if (var_16 != NULL) {
+    if (resource != NULL) {
         goto loop_body;
     }
     return 0;
@@ -362,11 +360,11 @@ loop_test:
 // FUN_0026DF80
 s32 MT_SceneManager_Create(void)
 {
-    s32 temp_2;
+    s32 parentTask;
 
-    temp_2 = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063B5A0), 0x10, 0, 0, MT_SceneManager_TaskUpdate, MT_Scene_ShakeStopTask, (u8 *)(0));
-    (s32)kwlnTaskCreateChild((void *)(temp_2), (const void *)(D_0063B5C0), 0x10, 0, 0, MT_SceneManager_DrawUpdate, 0, (u8 *)(0));
-    return temp_2;
+    parentTask = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063B5A0), 0x10, 0, 0, MT_SceneManager_TaskUpdate, MT_Scene_ShakeStopTask, (u8 *)(0));
+    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063B5C0), 0x10, 0, 0, MT_SceneManager_DrawUpdate, 0, (u8 *)(0));
+    return parentTask;
 }
 
 /* Allocate a header and count+1 linked records, including the wrap record.

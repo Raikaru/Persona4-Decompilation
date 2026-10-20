@@ -472,6 +472,7 @@ u32 scrOpPopLocalFloat(ScrData* scr)
 
 
 // FUN_0029AD20
+/* Advance the program counter without changing the interpreter stack. */
 u32 scrOpNop(ScrData* scr)
 {
     scr->pc++;
@@ -492,7 +493,8 @@ u32 scrOpNop(ScrData* scr)
 // The command runs with sCurrScript = ctx. If it returns 0 the codefunc returns CODEFUNC_YIELD
 // and the same instruction runs again. Otherwise the command's paramCount arguments are popped,
 // and pc advances unless the command already moved it. Returns CODEFUNC_NEXTINSTR.
-u32 scrOpCallCommand(u8 *arg0)
+/* Raw accesses retain MATCH: replacing these proven offsets with fields changed instruction selection. */
+u32 scrOpCallCommand(u8 *context)
 {
     ScrData *ctx;
     s32 groupOffset;   /* byte offset of the group entry: ((cmdId >> 12) & 0xFF) << 3 */
@@ -505,7 +507,7 @@ u32 scrOpCallCommand(u8 *arg0)
     s32 currPc;
     s32 hasFunc;
 
-    ctx = (ScrData *)arg0;
+    ctx = (ScrData *)context;
     cmdId = ctx->instrContent[ctx->pc].opOperand16.sOperand;
     K_ASSERT(cmdId >= 0, 0x175);
     groupOffset = ((cmdId >> 12) & 0xFF) << 3;
@@ -577,6 +579,7 @@ u32 scrOpCallProcedure(ScrData* scr)
 }
 
 // FUN_0029B120
+/* Report an unsupported instruction through the script abort diagnostic, then advance if it returns. */
 u32 scrOpUnsupported(ScrData* scr)
 {
     K_ABORT(D_0063E160, 506);
@@ -845,6 +848,7 @@ void scrBinaryOp(ScrData* scr, u32 type)
 
 
 // FUN_0029BEB0
+/* Apply the interpreter's addition operation and advance to the next instruction. */
 u32 CodeFunc_Add(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_ADD);
@@ -856,6 +860,7 @@ u32 CodeFunc_Add(ScrData* scr)
 
 
 // FUN_0029BEF0
+/* Apply the interpreter's subtraction operation and advance to the next instruction. */
 u32 CodeFunc_Sub(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_SUB);
@@ -879,6 +884,7 @@ u32 CodeFunc_Mul(ScrData* scr)
 
 
 // FUN_0029BF70
+/* Apply the interpreter's division operation and advance to the next instruction. */
 u32 CodeFunc_Div(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_DIV);
@@ -968,6 +974,7 @@ u32 CodeFunc_Not(ScrData* scr)
 
 
 // FUN_0029C550
+/* Apply the interpreter's logical OR operation and advance to the next instruction. */
 u32 CodeFunc_Or(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_OR);
@@ -979,6 +986,7 @@ u32 CodeFunc_Or(ScrData* scr)
 
 
 // FUN_0029C590
+/* Apply the interpreter's logical AND operation and advance to the next instruction. */
 u32 CodeFunc_And(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_AND);
@@ -990,6 +998,7 @@ u32 CodeFunc_And(ScrData* scr)
 
 
 // FUN_0029C5D0
+/* Apply the interpreter's equality operation and advance to the next instruction. */
 u32 CodeFunc_Eq(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_EQ);
@@ -1001,6 +1010,7 @@ u32 CodeFunc_Eq(ScrData* scr)
 
 
 // FUN_0029C610
+/* Apply the interpreter's inequality operation and advance to the next instruction. */
 u32 CodeFunc_Neq(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_NEQ);
@@ -1012,6 +1022,7 @@ u32 CodeFunc_Neq(ScrData* scr)
 
 
 // FUN_0029C650
+/* Apply the interpreter's comparison S operation and advance to the next instruction. */
 u32 CodeFunc_S(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_S);
@@ -1023,6 +1034,7 @@ u32 CodeFunc_S(ScrData* scr)
 
 
 // FUN_0029C690
+/* Apply the interpreter's comparison L operation and advance to the next instruction. */
 u32 CodeFunc_L(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_L);
@@ -1034,6 +1046,7 @@ u32 CodeFunc_L(ScrData* scr)
 
 
 // FUN_0029C6D0
+/* Apply the interpreter's comparison SE operation and advance to the next instruction. */
 u32 CodeFunc_SE(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_SE);
@@ -1045,6 +1058,7 @@ u32 CodeFunc_SE(ScrData* scr)
 
 
 // FUN_0029C710
+/* Apply the interpreter's comparison LE operation and advance to the next instruction. */
 u32 CodeFunc_LE(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_LE);

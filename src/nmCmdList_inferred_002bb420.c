@@ -1,3 +1,4 @@
+#include "nm_message_record.h"
 #include "list_item_internal.h"
 #include "fcl_color.h"
 #include "include_asm.h"
@@ -38,11 +39,11 @@ extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
 extern s32 *nmMesWindowCurrent();
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void itfMesWindowSetState(s32 arg0, s8 arg1);
-extern void itfMesWindowRelease(s32 arg0);
-extern void itfMesWindowClear(s32 arg0, s32 arg1);
-extern void nmMesWindowSetSlotRunning(s64 arg0, s32 arg1);
+extern void (*D_00887300[])(s32 slotIndex, s32 arg1);
+extern void itfMesWindowSetState(s32 handle, s8 state);
+extern void itfMesWindowRelease(s32 handle);
+extern void itfMesWindowClear(s32 handle, s32 clearLabel);
+extern void nmMesWindowSetSlotRunning(s64 slotIndex, s32 running);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -81,7 +82,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bb420-002bb550 */
 
-extern void func_002b5120(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: opt_rebuildconditionals off probe for min/max */
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */
@@ -115,45 +116,45 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
 // Intent: stops, releases and clears the window in slot `arg0`, then marks the slot running again. Returns 1 when restarted.
 // FUN_002BB420
-s32 nmMesWindowRestartSlot(s64 arg0)
+s32 nmMesWindowRestartSlot(s64 slotIndex)
 {
-    s32 temp_4;
-    u8 **temp_17;
-    u8 *temp_2;
+    s32 handle;
+    u8 **slot;
+    u8 *record;
 
-    temp_17 = &D_00882F40[(s8)arg0];
-    temp_2 = *temp_17;
-    if (temp_2 == NULL) {
+    slot = &D_00882F40[(s8)slotIndex];
+    record = *slot;
+    if (record == NULL) {
         return 0;
     }
-    temp_4 = *(s32 *)temp_2;
-    if (temp_4 < 0) {
+    handle = ((NmMesWindowRecord *)record)->handle;
+    if (handle < 0) {
         return 0;
     }
-    itfMesWindowSetState(temp_4, 0);
-    itfMesWindowRelease(*(s32 *)*temp_17);
-    itfMesWindowClear(*(s32 *)*temp_17, 0);
-    nmMesWindowSetSlotRunning(arg0, 1);
-    *(s8 *)(*temp_17 + 4) = 0;
+    itfMesWindowSetState(handle, 0);
+    itfMesWindowRelease(((NmMesWindowRecord *)*slot)->handle);
+    itfMesWindowClear(((NmMesWindowRecord *)*slot)->handle, 0);
+    nmMesWindowSetSlotRunning(slotIndex, 1);
+    ((NmMesWindowRecord *)*slot)->state = 0;
     return 1;
 }
 
 // Intent: releases the current message window, resets its record and tears down the window state.
 // FUN_002BB4E0
 s32 nmMesWindowResetCurrent(void) {
-    s32 *temp_2;
-    s32 temp_4;
+    s32 *record;
+    s32 handle;
 
-    temp_2 = (s32 *)(nmMesWindowCurrent());
-    if (temp_2 == NULL) {
+    record = (s32 *)(nmMesWindowCurrent());
+    if (record == NULL) {
         return 0;
     }
-    temp_4 = (s32)(*(s32 *)((u8 *)(temp_2) + 0));
-    if (temp_4 >= 0) {
-        itfMesWindowReleaseIfActive(temp_4);
-        *(s32 *)((u8 *)(temp_2) + 0) = -1;
-        *(s8 *)((u8 *)(temp_2) + 4) = 0;
-        *(s8 *)((u8 *)(temp_2) + 5) = 0;
+    handle = (s32)(((NmMesWindowRecord *)record)->handle);
+    if (handle >= 0) {
+        itfMesWindowReleaseIfActive(handle);
+        ((NmMesWindowRecord *)record)->handle = -1;
+        ((NmMesWindowRecord *)record)->state = 0;
+        ((NmMesWindowRecord *)record)->paused = 0;
     }
     fclBankCancelPending();
     return 1;
@@ -161,25 +162,25 @@ s32 nmMesWindowResetCurrent(void) {
 
 // Intent: releases the window in slot `arg0`, frees its record and empties the slot. Returns 1 when the slot was live.
 // FUN_002BB550
-s32 nmMesWindowDestroySlot(s64 arg0)
+s32 nmMesWindowDestroySlot(s64 slotIndex)
 {
-    s32 temp_4;
-    u8 **temp_16;
-    u8 *temp_2;
+    s32 handle;
+    u8 **slot;
+    u8 *record;
 
-    temp_16 = D_00882F40 + (s8)arg0;
-    temp_2 = *temp_16;
-    if (temp_2 == NULL) {
+    slot = D_00882F40 + (s8)slotIndex;
+    record = *slot;
+    if (record == NULL) {
         return 0;
     }
-    temp_4 = *(s32 *)(temp_2 + 0);
-    if (temp_4 >= 0) {
-        itfMesWindowReleaseIfActive(temp_4);
-        *(s32 *)(*temp_16 + 0) = -1;
-        *(s8 *)(*temp_16 + 4) = 0;
-        *(s8 *)(*temp_16 + 5) = 0;
-        jtbl_008873EC[0](*temp_16);
-        *temp_16 = NULL;
+    handle = ((NmMesWindowRecord *)record)->handle;
+    if (handle >= 0) {
+        itfMesWindowReleaseIfActive(handle);
+        ((NmMesWindowRecord *)*slot)->handle = -1;
+        ((NmMesWindowRecord *)*slot)->state = 0;
+        ((NmMesWindowRecord *)*slot)->paused = 0;
+        jtbl_008873EC[0](*slot);
+        *slot = NULL;
     }
     fclBankCancelPending();
     return 1;

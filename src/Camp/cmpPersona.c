@@ -14,24 +14,24 @@ struct CmpHead {
 };
 
 s32 nLineIsIdle(void);
-void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
-void datCommunityEntryStep(void* arg0);
+void radarAnimateValue(void*, s32, s32);
+void datCommunityEntryStep(void*);
 u32 RpRandom(void);
 void sdkSpriteFreeNode(void *node);
-void kwlnTaskDestroyWithHierarchy(s32 arg0);
+void kwlnTaskDestroyWithHierarchy(s32);
 void nmMesWindowResetCurrent(void);
-void datScreenWipeInit(s32 arg0, void* arg1, void* arg2);
-void datScreenWipeSetTarget(s32 arg0, void* arg1, void* arg2);
-void datScreenWipeSetColor(s32 arg0, s32 arg1);
-void kAssertFail(void* arg0, s32 arg1);
-void cmpPersonaMenuStepAnimations(u8* arg0);
-void cmpPersonaMenuDraw(u8* arg0);
+void datScreenWipeInit(s32, void*, void*);
+void datScreenWipeSetTarget(s32, void*, void*);
+void datScreenWipeSetColor(s32, s32);
+void kAssertFail(void*, s32);
+void cmpPersonaMenuStepAnimations(u8*);
+void cmpPersonaMenuDraw(u8*);
 extern s32 D_005EB580[];
 extern u8 D_005EB560[];
 extern u8 D_005EB570[];
 extern u8 D_005EB578[];
 extern s16 D_005EB590[];
-extern void shdPersonaLevelUpRoute(u8* arg0);
+extern void shdPersonaLevelUpRoute(u8*);
 extern u8 D_005E9FD0[];
 extern u8 D_005EA2E0[];
 extern u8 D_005EA5F0[];
@@ -44,25 +44,80 @@ struct CmpPair {
     f32 x;
     f32 y;
 };
-void datScreenWipeSetOffset(s32 arg0, CmpPair arg1);
+void datScreenWipeSetOffset(s32, CmpPair );
+
+/* Both 0x14-byte grids have a signed palette index, integer coordinates,
+   and dimensions consumed by cmpGridCellFade. The initializer writes their
+   10x12 and 7x12 shapes; inactive cells have a negative kind. */
+typedef struct {
+    s16 kind;
+    s16 reserved;
+    s32 column, row;
+    s32 columns, rows;
+} CmpPersonaGridEntry;
+
+typedef struct {
+    u8 red, green, blue, alpha;
+} CmpPersonaColor;
+
+/* The transition initializer and copier establish each 0x30-byte record. */
+typedef struct {
+    f32 sourceX, sourceY, targetX, targetY;
+    f32 x, y;
+    u8 sourceAlpha, targetAlpha, alpha, flags;
+    u16 sourceScaleX, targetScaleX, scaleX;
+    u16 sourceScaleY, targetScaleY, scaleY;
+    s32 mode, duration;
+} CmpPersonaMotion;
+
+typedef struct {
+    u8 alpha;
+    u8 pad01[3];
+    f32 x, y;
+    s32 unk0C;
+    s32 background;
+    s32 phase, mode;
+    s32 visible;
+    s16 timer, pulseTimer;
+    s16 partyIds[8];
+    s16 partyCount;
+    s16 rosterSlots[12];
+    s16 personaCount;
+    s16 selected[4];
+    s16 previous[4];
+    s16 footerMode;
+    s16 unk62;
+    CmpPersonaGridEntry primaryGrid[120];
+    CmpPersonaGridEntry secondaryGrid[84];
+    CmpPersonaMotion motion[28];
+    CmpPersonaMotion backgroundCells[36];
+    void *sprites[23];
+    union {void *texture; s32 handle;} footer;
+    u8 *portrait;
+    u8 *model;
+    u8 pad1CBC[8];
+} CmpPersonaWork;
+typedef char CmpPersonaWorkSize[sizeof(CmpPersonaWork) == 0x1CC4 ? 1 : -1];
 
 /* measured: b210 -O2 with loop-invariant optimization. Independent initialization
    counters and per-resource sprite slots retain the retail loop scopes. The
    command-list boundary forwards a native message pointer to itfMesManager. */
+/* Initialize the party and persona grids, transition rows, sprites and portrait/wipe tasks. */
 // FUN_001356D0
 #pragma push
 #pragma opt_loop_invariants on
-void cmpPersonaMenuInit(u8* arg0) {
- extern void cmpPersonaBuildRosterList(u8* arg0);
- extern s16 datBuildMemberIdList(s16* arg0);
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 74 instruction bytes and was reverted. */
+void cmpPersonaMenuInit(u8* work) {
+ extern void cmpPersonaBuildRosterList(u8* work);
+ extern s16 datBuildMemberIdList(s16* ids);
  extern void* memset(void* dst, s32 value, u32 size);
- extern u8* resourceFindByName(char* arg0);
- extern u8* sdkSpriteNewNode(u32 arg0, u32 arg1);
- extern u8 nmMesWindowOpenCurrent(u8* arg0);
- extern u8* datScreenWipeTaskCreate(s32 arg0, u16 arg1);
- extern u8* shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
- extern void shdPersonaSetPersonaId(u8* arg0, s32 arg1);
- extern s32 cmpPersonaSetMode(u8* arg0, s32 arg1);
+ extern u8* resourceFindByName(char* name);
+ extern u8* sdkSpriteNewNode(u32 work, u32);
+ extern u8 nmMesWindowOpenCurrent(u8* message);
+ extern u8* datScreenWipeTaskCreate(s32 work, u16);
+ extern u8* shdPersonaTaskCreate(s32 work, s32, s32, s32, s32);
+ extern void shdPersonaSetPersonaId(u8* work, s32);
+ extern s32 cmpPersonaSetMode(u8* work, s32);
  extern u8 D_005E57F0[];
  extern u8 D_005E5830[];
  extern u8 D_005E5850[];
@@ -76,25 +131,25 @@ void cmpPersonaMenuInit(u8* arg0) {
  u8* p;
  u8* src;
 
- memset(arg0, 0, 0x1CC4);
- *(s32*)(arg0 + 4) = 0;
- *(s32*)(arg0 + 8) = 0;
- *(u8*)arg0 = 0xFF;
- *(s32*)(arg0 + 0x18) = -1;
- *(s16*)(arg0 + 0x20) = 0;
- *(s32*)(arg0 + 0x14) = 0;
+ memset(work, 0, 0x1CC4);
+ *(s32*)(work + 4) = 0;
+ *(s32*)(work + 8) = 0;
+ *(u8*)work = 0xFF;
+ *(s32*)(work + 0x18) = -1;
+ *(s16*)(work + 0x20) = 0;
+ *(s32*)(work + 0x14) = 0;
  {
   s16 i;
   for (i = 0; i < 4; i++) {
-   *(s16*)(arg0 + i * 2 + 0x50) = 0;
-   *(s16*)(arg0 + i * 2 + 0x58) = 0;
+   *(s16*)(work + i * 2 + 0x50) = 0;
+   *(s16*)(work + i * 2 + 0x58) = 0;
   }
  }
  {
   s16 i;
   for (i = 0; i < 28; i++) {
    src = D_005EA2E0 + i * 0x1C;
-   p = arg0 + i * 0x30;
+   p = work + i * 0x30;
    *(f32*)(p + 0x1064) = *(f32*)(src + 0);
    *(f32*)(p + 0x1068) = *(f32*)(src + 4);
    *(u16*)(p + 0x1074) = (u16)*(f32*)(src + 8);
@@ -105,7 +160,7 @@ void cmpPersonaMenuInit(u8* arg0) {
  {
   s16 i;
   for (i = 0; i < 120; i++) {
-   p = arg0 + i * 0x14;
+   p = work + i * 0x14;
    *(s32*)(p + 0x68) = i % 10;
    *(s32*)(p + 0x70) = 10;
    *(s32*)(p + 0x6C) = i / 10;
@@ -115,7 +170,7 @@ void cmpPersonaMenuInit(u8* arg0) {
  {
   s16 i;
   for (i = 0; i < 84; i++) {
-   p = arg0 + i * 0x14;
+   p = work + i * 0x14;
    *(s32*)(p + 0x9C8) = i % 7;
    *(s32*)(p + 0x9D0) = 7;
    *(s32*)(p + 0x9CC) = i / 7;
@@ -125,17 +180,17 @@ void cmpPersonaMenuInit(u8* arg0) {
  {
   s16 i;
   for (i = 0; i < 36; i++) {
-   *(s32*)(arg0 + i * 0x30 + 0x15A4) = 0;
-   *(s32*)(arg0 + i * 0x30 + 0x1594) = 0;
-   *(s32*)(arg0 + i * 0x30 + 0x15A0) = (s32)0xC2C80000;
-   *(s32*)(arg0 + i * 0x30 + 0x1598) = (s32)0xC2C80000;
-   *(s8*)(arg0 + i * 0x30 + 0x15AD) = 0x7F;
-   *(s8*)(arg0 + i * 0x30 + 0x15AC) = 0x7F;
-   *(s32*)(arg0 + i * 0x30 + 0x15BC) = 0;
-   *(s32*)(arg0 + i * 0x30 + 0x15C0) = 10;
+   *(s32*)(work + i * 0x30 + 0x15A4) = 0;
+   *(s32*)(work + i * 0x30 + 0x1594) = 0;
+   *(s32*)(work + i * 0x30 + 0x15A0) = (s32)0xC2C80000;
+   *(s32*)(work + i * 0x30 + 0x1598) = (s32)0xC2C80000;
+   *(s8*)(work + i * 0x30 + 0x15AD) = 0x7F;
+   *(s8*)(work + i * 0x30 + 0x15AC) = 0x7F;
+   *(s32*)(work + i * 0x30 + 0x15BC) = 0;
+   *(s32*)(work + i * 0x30 + 0x15C0) = 10;
   }
  }
- *(s16*)(arg0 + 0x34) = datBuildMemberIdList((s16*)(arg0 + 0x24));
+ *(s16*)(work + 0x34) = datBuildMemberIdList((s16*)(work + 0x24));
  resource0 = resourceFindByName((char*)D_005E5830);
  if (resource0 == 0) {
   kAssertFail(&D_005EB580[0], 0x199);
@@ -144,7 +199,7 @@ void cmpPersonaMenuInit(u8* arg0) {
  if (resource1 == 0) {
   kAssertFail(&D_005EB580[0], 0x19B);
  }
- *(u8**)(arg0 + 0x1CB0) = resource2 = resourceFindByName((char*)D_005E57F0);
+ *(u8**)(work + 0x1CB0) = resource2 = resourceFindByName((char*)D_005E57F0);
  if (resource2 == 0) {
   kAssertFail(&D_005EB580[0], 0x19D);
  }
@@ -152,13 +207,13 @@ void cmpPersonaMenuInit(u8* arg0) {
   s16 i;
   for (i = 0; i < 23; i++) {
    if (i < 6) {
-    slot = (s32*)(arg0 + i * 4 + 0x1C54);
+    slot = (s32*)(work + i * 4 + 0x1C54);
     *slot = (s32)sdkSpriteNewNode((u32)resource0, *(u8*)(D_005E9FB0 + i));
    } else if (i < 9) {
-    slot = (s32*)(arg0 + i * 4 + 0x1C54);
+    slot = (s32*)(work + i * 4 + 0x1C54);
     *slot = (s32)sdkSpriteNewNode((u32)resource2, *(u8*)(D_005E9FB0 + i));
    } else {
-    slot = (s32*)(arg0 + i * 4 + 0x1C54);
+    slot = (s32*)(work + i * 4 + 0x1C54);
     *slot = (s32)sdkSpriteNewNode((u32)resource1, *(u8*)(D_005E9FB0 + i));
    }
    if (*slot == 0) {
@@ -167,122 +222,73 @@ void cmpPersonaMenuInit(u8* arg0) {
   }
  }
  nmMesWindowOpenCurrent(D_0064A790);
- cmpPersonaBuildRosterList(arg0);
- *(s32*)(arg0 + 0x1CB8) = (s32)datScreenWipeTaskCreate(0, 1);
- *(s32*)(arg0 + 0x1CB4) = (s32)shdPersonaTaskCreate(0, 0xC7, 0, 8, 3);
- shdPersonaSetPersonaId(*(u8**)(arg0 + 0x1CB4), 0xB0);
- cmpPersonaSetMode(arg0, 0);
+ cmpPersonaBuildRosterList(work);
+ *(s32*)(work + 0x1CB8) = (s32)datScreenWipeTaskCreate(0, 1);
+ *(s32*)(work + 0x1CB4) = (s32)shdPersonaTaskCreate(0, 0xC7, 0, 8, 3);
+ shdPersonaSetPersonaId(*(u8**)(work + 0x1CB4), 0xB0);
+ cmpPersonaSetMode(work, 0);
 }
 
 #pragma pop
+/* Collect the consecutive active roster slots and record their count. */
 // FUN_00135C10
-void cmpPersonaBuildRosterList(u8* arg0) {
+void cmpPersonaBuildRosterList(u8* work) {
     s16 j = 0;
     s16 i = 0;
     while (j < 0xC) {
         if (datPersonaRosterSlotActive(j) == 0) {
             break;
         }
-        *(s16*)((u8*)arg0 + i * 2 + 0x36) = j;
+        ((CmpPersonaWork *)((u8*)work + i * 2))->rosterSlots[0] = j;
         i++;
         j++;
     }
-    *(s16*)((u8*)arg0 + 0x4E) = i;
+    ((CmpPersonaWork *)((u8*)work))->personaCount = i;
 }
 
 // Advances the menu state from 0 to 1 and reports done; always returns 1 [inferred].
 // FUN_00135CB0
-s32 cmpPersonaStateStep(u8 *arg0) {
-    s32 v = *(s32 *)(arg0 + 0x14);
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 35 instruction bytes and was reverted. */
+s32 cmpPersonaStateStep(u8 *work) {
+    s32 v = *(s32 *)(work + 0x14);
 
     switch (v) {
     case 0:
         v += 1;
-        *(s32 *)(arg0 + 0x14) = v;
+        *(s32 *)(work + 0x14) = v;
         return 1;
     default:
         return 1;
     }
 }
 
+/* Advance row transitions, update grid/background animations and draw the persona menu. */
 // FUN_00135CF0
 /* measured: without opt_common_subs off, mwcc CSEs (u8*)arg0 + 0x20 into a
    callee-saved pointer (nd 40); with it off each access keeps the
    base+offset form like retail (nd 0). */
 #pragma opt_common_subs off
-s32 cmpPersonaMenuUpdate(u8* arg0) {
+s32 cmpPersonaMenuUpdate(u8* work) {
     s32 i;
     s32 result = 1;
     u8* p;
-    s32 v = *(s16*)((u8*)arg0 + 0x20);
+    s32 v = ((CmpPersonaWork *)((u8*)work))->timer;
     if (v < 0x64) {
-        *(s16*)((u8*)arg0 + 0x20) = v + 1;
+        ((CmpPersonaWork *)((u8*)work))->timer = v + 1;
     }
     for (i = 0; i < 0x1C; i++) {
-        p = (u8*)arg0 + i * 0x30;
-        v = *(s16*)((u8*)arg0 + 0x20);
+        p = (u8*)work + i * 0x30;
+        v = ((CmpPersonaWork *)((u8*)work))->timer;
         radarAnimateValue(p + 0x1054, v, 0);
-        if (*(u8*)(p + 0x106E) != 0) {
+        if (((CmpPersonaWork *)p)->motion[0].alpha != 0) {
             result = 0;
         }
     }
-    cmpPersonaMenuStepAnimations(arg0);
-    cmpPersonaMenuDraw(arg0);
+    cmpPersonaMenuStepAnimations(work);
+    cmpPersonaMenuDraw(work);
     return result;
 }
 #pragma opt_common_subs on
-
-/* Both 0x14-byte grids have a signed palette index, integer coordinates,
-   and dimensions consumed by cmpGridCellFade. The initializer writes their
-   10x12 and 7x12 shapes; inactive cells have a negative kind. */
-typedef struct {
-    s16 kind;
-    s16 reserved;
-    s32 column, row;
-    s32 columns, rows;
-} PersonaGridEntry;
-
-typedef struct {
-    u8 red, green, blue, alpha;
-} PersonaMenuColor;
-
-/* The transition initializer and copier establish each 0x30-byte record. */
-typedef struct {
-    f32 sourceX, sourceY, targetX, targetY;
-    f32 x, y;
-    u8 sourceAlpha, targetAlpha, alpha, flags;
-    u16 sourceScaleX, targetScaleX, scaleX;
-    u16 sourceScaleY, targetScaleY, scaleY;
-    s32 mode, duration;
-} PersonaMenuMotion;
-
-typedef struct {
-    u8 alpha;
-    u8 _01[3];
-    f32 x, y;
-    s32 _0c;
-    s32 background;
-    s32 _14[2];
-    s32 visible;
-    s16 timer, pulseTimer;
-    s16 partyIds[8];
-    s16 partyCount;
-    u8 _36[0x18];
-    s16 personaCount;
-    s16 selected[4];
-    s16 previous[4];
-    s16 footerMode;
-    s16 _62;
-    PersonaGridEntry primaryGrid[120];
-    PersonaGridEntry secondaryGrid[84];
-    PersonaMenuMotion motion[28];
-    PersonaMenuMotion backgroundCells[36];
-    void *sprites[23];
-    union {void *texture; s32 handle;} footer;
-    u8 *portrait;
-    u8 *model;
-    u8 _1cbc[8];
-} PersonaMenuView;
 
 /* Draw the persona menu's two colored grids, party rows and portrait pulse.
    Keep the position and complete RGBA snapshots shared between its draw phases.
@@ -297,44 +303,44 @@ typedef struct {
 void cmpPersonaMenuDraw(u8* work)
 {
     extern void sdkRenderStateSetDefault(void);
-    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 background, f32 depth);
+    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 setIndex, f32 depthOffset);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
-    extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 width,
-                              u16 height, s16 angle, f32 scale, s16 mode);
-    extern f32 cmpGridCellFade(u8 *cell, f32 xEdge, f32 yEdge, f32 ceiling);
-    extern void sdkSpriteDrawFooter(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 texture);
+    extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                              u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
+    extern f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount);
+    extern void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
     extern void RpSkyRenderStateSet(s32 state, s32 value);
     extern void datScreenWipeSetAlpha(u8 *task, u8 alpha);
     extern void datScreenWipeDraw(void *task);
-    extern void cmpPersonaDrawRosterRow(u8 *work, s32 index);
-    extern u32 datPersonaNamePart1(s16 character);
-    extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 font, int id, const char *text, int flags,
-                             int extra);
-    extern s32 shdPersonaGetChildTask(u8 *work);
-    extern void shdPersonaDrawSineQuad(u8 *work);
-    extern void shdPersonaDrawSmoothBar(u8 *work);
-    extern void shdPersonaDispCtlSetMode(u8 *work, u8 arg1);
-    extern void shdPersonaDispCtlGetPosition(u8 *work, u8 *arg1);
-    extern s32 shdPersonaDispCtlGetLoadedValue(u8 *work);
+    extern void cmpPersonaDrawRosterRow(u8 *work, s32 rowIndex);
+    extern u32 datPersonaNamePart1(s16 unitId);
+    extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
+                             int unused);
+    extern s32 shdPersonaGetChildTask(u8 *task);
+    extern void shdPersonaDrawSineQuad(u8 *task);
+    extern void shdPersonaDrawSmoothBar(u8 *task);
+    extern void shdPersonaDispCtlSetMode(u8 *work, u8);
+    extern void shdPersonaDispCtlGetPosition(u8 *work, u8 *);
+    extern s32 shdPersonaDispCtlGetLoadedValue(u8 *task);
     extern f32 cosf(f32 angle);
-    extern void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 sourceX, f32 sourceY, f32 width, f32 height,
-                              u8 *texture, s32 mode, s32 flag);
+    extern void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 maskX, f32 maskY, f32 width, f32 height,
+                              u8 *texture, s32 drawMask, s32 blendMode);
     extern void kAssertFail(void *file, s32 line);
-    extern PersonaMenuColor D_005EB540[8];
+    extern CmpPersonaColor D_005EB540[8];
     extern u8 D_0064B2E0[];
     extern u8 D_0064B2E8[];
     extern s32 D_005EB580[];
-    PersonaMenuView *menu;
+    CmpPersonaWork *menu;
     u8 backdropBlue;
     u8 backdropGreen;
     u8 backdropOpacity;
     f32 opacity;
     f32 originX;
     f32 originY;
-    PersonaMenuColor tint;
+    CmpPersonaColor tint;
     Vec2f position;
     u8* rowBase;
-    PersonaMenuColor *cellColor;
+    CmpPersonaColor *cellColor;
     f32 value;
     u8 drawOpacity;
     f32 width;
@@ -342,7 +348,7 @@ void cmpPersonaMenuDraw(u8* work)
     f32 cellFade;
     f32 opaqueOpacity;
 
-    menu = (PersonaMenuView *)work;
+    menu = (CmpPersonaWork *)work;
     sdkRenderStateSetDefault();
     originX = menu->x;
     originY = menu->y;
@@ -358,7 +364,7 @@ void cmpPersonaMenuDraw(u8* work)
         s32 gridIndex;
         void *gridSprite;
         u8 gridAlpha;
-        PersonaGridEntry *gridCell;
+        CmpPersonaGridEntry *gridCell;
         f32 cellY;
         f32 cellX;
         position.x = 227.0f + (originX + menu->motion[22].x);
@@ -370,10 +376,10 @@ void cmpPersonaMenuDraw(u8* work)
            gridCell and node retain the complete 20-byte cell layout. */
         for (gridIndex = 0; gridIndex < 0x78; gridIndex++) {
             rowBase = work + gridIndex * 0x14;
-            gridCell = (PersonaGridEntry *)(rowBase + 0x64);
+            gridCell = (CmpPersonaGridEntry *)(rowBase + 0x64);
             if (gridCell->kind >= 0) {
-                cellX = position.x + (f32)(*(s32*)(rowBase + 0x68) * 44);
-                cellY = position.y + (f32)(*(s32*)(rowBase + 0x6C) * 37);
+                cellX = position.x + (f32)(((CmpPersonaWork *)rowBase)->primaryGrid[0].column * 44);
+                cellY = position.y + (f32)(((CmpPersonaWork *)rowBase)->primaryGrid[0].row * 37);
                 cellFade = cmpGridCellFade((u8 *)gridCell, 0.6f, 0.75f, 1.0f);
                 cellColor = D_005EB540 + gridCell->kind;
                 tint = cellColor[4];
@@ -386,7 +392,7 @@ void cmpPersonaMenuDraw(u8* work)
         s32 nodeIndex;
         u8 nodeBaseAlpha;
         void *nodeSprite;
-        PersonaGridEntry *node;
+        CmpPersonaGridEntry *node;
         f32 cellX;
         f32 cellY;
         position.x = 227.0f + (originX + menu->motion[23].x);
@@ -406,8 +412,8 @@ void cmpPersonaMenuDraw(u8* work)
             backdropGreen = tint.green;
             for (; backgroundIndex < 0x24; backgroundIndex++) {
                 rowBase = work + backgroundIndex * 0x30;
-                sdkSpriteDrawAt(nodeSprite, position.x + *(f32*)(rowBase + 0x15A4),
-                              position.y + *(f32*)(rowBase + 0x15A8), tint.red, backdropGreen, backdropBlue,
+                sdkSpriteDrawAt(nodeSprite, position.x + ((CmpPersonaWork *)rowBase)->backgroundCells[0].x,
+                              position.y + ((CmpPersonaWork *)rowBase)->backgroundCells[0].y, tint.red, backdropGreen, backdropBlue,
                               backdropOpacity);
             }
         }
@@ -422,10 +428,10 @@ void cmpPersonaMenuDraw(u8* work)
         for (; nodeIndex < 0x54; nodeIndex++) {
             u8 cellAlpha;
             rowBase = work + nodeIndex * 0x14;
-            node = (PersonaGridEntry *)(rowBase + 0x9C4);
+            node = (CmpPersonaGridEntry *)(rowBase + 0x9C4);
             if (node->kind >= 0) {
-                cellX = position.x + (f32)(*(s32*)(rowBase + 0x9C8) * 44);
-                cellY = position.y + (f32)(*(s32*)(rowBase + 0x9CC) * 37);
+                cellX = position.x + (f32)(((CmpPersonaWork *)rowBase)->secondaryGrid[0].column * 44);
+                cellY = position.y + (f32)(((CmpPersonaWork *)rowBase)->secondaryGrid[0].row * 37);
                 if (node->kind == 3) {
                     value = opaqueOpacity;
                     cellAlpha = (u8)value;
@@ -454,12 +460,12 @@ void cmpPersonaMenuDraw(u8* work)
         u8 *rowSprite;
         for (rowIndex = 0; rowIndex < menu->partyCount; rowIndex++) {
             rowBase = work + rowIndex * 0x30;
-            position.x = 82.0f + (originX + *(f32*)(rowBase + 0x1304));
-            position.y = 20.0f + (0.0f + (originY + *(f32*)(rowBase + 0x1308)) + 33.0f * (f32)rowIndex);
-            value = (f32)*(u8*)(rowBase + 0x130E) * opacity;
+            position.x = 82.0f + (originX + ((CmpPersonaWork *)rowBase)->motion[14].x);
+            position.y = 20.0f + (0.0f + (originY + ((CmpPersonaWork *)rowBase)->motion[14].y) + 33.0f * (f32)rowIndex);
+            value = (f32)((CmpPersonaWork *)rowBase)->motion[14].alpha * opacity;
             rowAlpha = (u8)value;
-            width = (f32)*(u16*)(rowBase + 0x1314);
-            height = (f32)*(u16*)(rowBase + 0x131A);
+            width = (f32)((CmpPersonaWork *)rowBase)->motion[14].scaleX;
+            height = (f32)((CmpPersonaWork *)rowBase)->motion[14].scaleY;
             rowColor = rowAlpha | ~0xFF;
             if (menu->selected[0] == rowIndex) {
                 rowPalette = D_0064B2E8;
@@ -475,7 +481,7 @@ void cmpPersonaMenuDraw(u8* work)
             sdkSpriteDrawSized(rowSprite, 202.0f + position.x, position.y, 0.0f, rowPalette[0], rowPalette[1],
                           rowPalette[2], rowAlpha, width, height, 0, 0.0f, 0);
             frFontExDrawText(105.0f + position.x, position.y, 0.0f, rowColor, rowStyle, 1,
-                          (const char*)datPersonaNamePart1(*(s16*)(work + rowIndex * 2 + 0x24)), 8, 0);
+                          (const char*)datPersonaNamePart1(((CmpPersonaWork *)(work + rowIndex * 2))->partyIds[0]), 8, 0);
         }
     }
     if ((menu->visible & 0x100) != 0) {
@@ -552,43 +558,47 @@ void cmpPersonaMenuDraw(u8* work)
 }
 #pragma pop
 
+/* Save the previous cursor value and update one of the four selection slots. */
 // FUN_00136FA0
-s32 cmpPersonaSetSelection(s16* arg0, s32 arg1, s32 arg2) {
-    s32 idx = arg1 * 2;
-    s16* p = (s16*)(idx + (s32)arg0);
-    p[0x2C] = p[0x28];
-    p[0x28] = arg2;
+s32 cmpPersonaSetSelection(s16* work, s32 slotIndex, s32 selection) {
+    s32 idx = slotIndex * 2;
+    s16* p = (s16*)(idx + (s32)work);
+    ((CmpPersonaWork *)p)->previous[0] = ((CmpPersonaWork *)p)->selected[0];
+    ((CmpPersonaWork *)p)->selected[0] = selection;
     return 1;
 }
 
+/* Advance portrait/background transitions and both grid groups; clear the pulse flag at frame 25. */
 // FUN_00136FC0
-void cmpPersonaMenuStepAnimations(u8* arg0) {
-    s16 temp_3;
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 206 instruction bytes and was reverted. */
+void cmpPersonaMenuStepAnimations(u8* work) {
+    s16 pulseFrame;
     s32 i;
 
-    temp_3 = *(s16*)(arg0 + 0x22);
-    if (temp_3 < 0x64) {
-        *(s16*)(arg0 + 0x22) = temp_3 + 1;
+    pulseFrame = *(s16*)(work + 0x22);
+    if (pulseFrame < 0x64) {
+        *(s16*)(work + 0x22) = pulseFrame + 1;
     }
-    if (*(s16*)(arg0 + 0x22) == 0x19) {
-        *(s32*)(arg0 + 0x1C) &= ~0x1000;
+    if (*(s16*)(work + 0x22) == 0x19) {
+        *(s32*)(work + 0x1C) &= ~0x1000;
     }
     for (i = 0; i < 0x24; i++) {
-        radarAnimateValue(arg0 + i * 0x30 + 0x1594, *(s16*)(arg0 + 0x22), 0);
+        radarAnimateValue(work + i * 0x30 + 0x1594, *(s16*)(work + 0x22), 0);
     }
     for (i = 0; i < 0x78; i++) {
-        datCommunityEntryStep(arg0 + i * 0x14 + 0x64);
+        datCommunityEntryStep(work + i * 0x14 + 0x64);
     }
     for (i = 0; i < 0x54; i++) {
-        datCommunityEntryStep(arg0 + i * 0x14 + 0x9C4);
+        datCommunityEntryStep(work + i * 0x14 + 0x9C4);
     }
 }
 
 /* measured: opt_propagation off preserves the retail stack-local value-pointer
    address sequence (MATCH); leaving propagation on folds the +0x40 into lh. */
 #pragma opt_propagation off
+/* Mark the 25 table-selected secondary-grid cells with randomized transition delays. */
 // FUN_001370E0
-void cmpPersonaScatterGridCells(u8* arg0) {
+void cmpPersonaScatterGridCells(u8* work) {
     s16 values[0x19];
     s16* src;
     s16* dst;
@@ -613,9 +623,9 @@ void cmpPersonaScatterGridCells(u8* arg0) {
         offset = i * 2;
         value = (s16*)((u8*)&values[0] + offset);
         idx = *value;
-        p = arg0 + idx * 0x14;
-        *(s16*)(p + 0x9C4) = 3;
-        *(s16*)(p + 0x9C6) = (s16)(RpRandom() % 0x19 + 0xF);
+        p = work + idx * 0x14;
+        ((CmpPersonaWork *)p)->secondaryGrid[0].kind = 3;
+        ((CmpPersonaWork *)p)->secondaryGrid[0].reserved = (s16)(RpRandom() % 0x19 + 0xF);
     }
 }
 #pragma opt_propagation on
@@ -629,8 +639,10 @@ void cmpPersonaScatterGridCells(u8* arg0) {
    receives the pointer loaded from 0x1CB4. The switch jump table has case 9
    targeting the default block, so no empty case is needed. */
 #pragma opt_common_subs off
+/* Snapshot current row poses and apply the persona-menu layout, footer and visibility flags. */
 // FUN_001371A0
-s32 cmpPersonaSetMode(u8* arg0, s32 arg1) {
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 579 instruction bytes and was reverted. */
+s32 cmpPersonaSetMode(u8* work, s32 mode) {
     s32 i;
     s32 j;
     u8* table;
@@ -638,69 +650,69 @@ s32 cmpPersonaSetMode(u8* arg0, s32 arg1) {
     u8* dst;
     f32 value;
     table = 0;
-    if (*(s32*)(arg0 + 0x18) == arg1) {
+    if (*(s32*)(work + 0x18) == mode) {
         return 0;
     }
     for (i = 0; i < 0x1C; i++) {
-        dst = arg0 + i * 0x30;
+        dst = work + i * 0x30;
         *(f32*)(dst + 0x1054) = *(f32*)(dst + 0x1064);
         *(f32*)(dst + 0x1058) = *(f32*)(dst + 0x1068);
         *(u16*)(dst + 0x1070) = *(u16*)(dst + 0x1074);
         *(u16*)(dst + 0x1076) = *(u16*)(dst + 0x107A);
         *(u8*)(dst + 0x106C) = *(u8*)(dst + 0x106E);
     }
-    switch (arg1) {
+    switch (mode) {
     case 0:
         table = D_005E9FD0;
-        *(s32*)(arg0 + 0x1C) = 0x243;
-        *(s16*)(arg0 + 0x60) = 0;
+        *(s32*)(work + 0x1C) = 0x243;
+        *(s16*)(work + 0x60) = 0;
         break;
     case 1:
         table = D_005EA2E0;
         break;
     case 2:
         table = D_005EA5F0;
-        *(s32*)(arg0 + 0x1C) = 0xA43;
-        *(s16*)(arg0 + 0x60) = 0;
+        *(s32*)(work + 0x1C) = 0xA43;
+        *(s16*)(work + 0x60) = 0;
         break;
     case 3:
         table = D_005EA900;
-        *(s32*)(arg0 + 0x1C) = 0xFE7;
-        *(s16*)(arg0 + 0x60) = 8;
+        *(s32*)(work + 0x1C) = 0xFE7;
+        *(s16*)(work + 0x60) = 8;
         break;
     case 4:
     case 5:
         table = D_005EAC10;
-        *(s32*)(arg0 + 0x1C) = 0x5A5;
-        *(s16*)(arg0 + 0x60) = 8;
+        *(s32*)(work + 0x1C) = 0x5A5;
+        *(s16*)(work + 0x60) = 8;
         break;
     case 6:
         table = D_005EAF20;
-        *(s32*)(arg0 + 0x1C) = 0x48D;
-        *(s16*)(arg0 + 0x60) = -1;
-        shdPersonaLevelUpRoute(*(u8**)(arg0 + 0x1CB4));
+        *(s32*)(work + 0x1C) = 0x48D;
+        *(s16*)(work + 0x60) = -1;
+        shdPersonaLevelUpRoute(*(u8**)(work + 0x1CB4));
         break;
     case 7:
         table = D_005EAF20;
-        *(s32*)(arg0 + 0x1C) = 9;
+        *(s32*)(work + 0x1C) = 9;
         break;
     case 8:
         table = D_005EB230;
-        *(s32*)(arg0 + 0x1C) = 0xA13;
-        *(s16*)(arg0 + 0x60) = 0xE;
-        shdPersonaLevelUpRoute(*(u8**)(arg0 + 0x1CB4));
+        *(s32*)(work + 0x1C) = 0xA13;
+        *(s16*)(work + 0x60) = 0xE;
+        shdPersonaLevelUpRoute(*(u8**)(work + 0x1CB4));
         break;
     case 10:
-        *(s32*)(arg0 + 0x1C) = 8;
-        *(s16*)(arg0 + 0x60) = -1;
+        *(s32*)(work + 0x1C) = 8;
+        *(s16*)(work + 0x60) = -1;
         break;
     case 11:
-        *(s32*)(arg0 + 0x1C) = 0x5A5;
-        *(s16*)(arg0 + 0x60) = 8;
+        *(s32*)(work + 0x1C) = 0x5A5;
+        *(s16*)(work + 0x60) = 8;
         break;
     case 12:
-        *(s32*)(arg0 + 0x1C) = 0x5A5;
-        *(s16*)(arg0 + 0x60) = 8;
+        *(s32*)(work + 0x1C) = 0x5A5;
+        *(s16*)(work + 0x60) = 8;
         break;
     default:
         kAssertFail(D_005EB580, 0x3BA);
@@ -713,7 +725,7 @@ s32 cmpPersonaSetMode(u8* arg0, s32 arg1) {
     if (table != 0) {
         for (j = 0; j < 0x1C; j++) {
             src = table + j * 0x1C;
-            dst = arg0 + j * 0x30;
+            dst = work + j * 0x30;
             *(f32*)(dst + 0x105C) = *(f32*)(src + 0);
             *(f32*)(dst + 0x1060) = *(f32*)(src + 4);
             value = *(f32*)(src + 8);
@@ -724,8 +736,8 @@ s32 cmpPersonaSetMode(u8* arg0, s32 arg1) {
             *(s32*)(dst + 0x107C) = *(s32*)(src + 0x14);
             *(s32*)(dst + 0x1080) = *(s32*)(src + 0x18);
         }
-    *(s16*)(arg0 + 0x20) = 0;
-    *(s32*)(arg0 + 0x18) = arg1;
+    *(s16*)(work + 0x20) = 0;
+    *(s32*)(work + 0x18) = mode;
     }
     return 1;
 }
@@ -733,69 +745,72 @@ s32 cmpPersonaSetMode(u8* arg0, s32 arg1) {
    func_001371a0's table loop. */
 #pragma opt_loop_invariants off
 
+/* Move nonselected party rows vertically away from the selected row and fade them out. */
 // FUN_001374D0
 /* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000
    constants are rematerialized inside the loop (nd 39); with it they hoist
    to the preheader like retail (nd 0). */
 #pragma opt_loop_invariants on
-void cmpPersonaSetPartyCursor(u8* arg0) {
+void cmpPersonaSetPartyCursor(u8* work) {
     s32 i;
     s16 cur;
     u8* p;
     f32 f;
     for (i = 0; i < 8; i++) {
-        cur = *(s16*)((u8*)arg0 + 0x50);
+        cur = ((CmpPersonaWork *)((u8*)work))->selected[0];
         if (i == cur) {
-            p = (u8*)arg0 + i * 0x30;
-            *(s32*)(p + 0x12FC) = 0x44480000;
-            *(s32*)(p + 0x1300) = 0;
-            *(u8*)(p + 0x130D) = 0xFF;
+            p = (u8*)work + i * 0x30;
+            *(s32 *)&((CmpPersonaWork *)p)->motion[14].targetX = 0x44480000;
+            *(s32 *)&((CmpPersonaWork *)p)->motion[14].targetY = 0;
+            ((CmpPersonaWork *)p)->motion[14].targetAlpha = 0xFF;
         } else {
             f = 200.0f;
             if (i < cur) {
                 f = -f;
             }
-            p = (u8*)arg0 + i * 0x30;
-            *(s32*)(p + 0x12FC) = 0;
-            *(f32*)(p + 0x1300) = f;
-            *(u8*)(p + 0x130D) = 0;
+            p = (u8*)work + i * 0x30;
+            *(s32 *)&((CmpPersonaWork *)p)->motion[14].targetX = 0;
+            ((CmpPersonaWork *)p)->motion[14].targetY = f;
+            ((CmpPersonaWork *)p)->motion[14].targetAlpha = 0;
         }
     }
 }
 /* measured: see annotation above (func_001374d0). */
 #pragma opt_loop_invariants off
 
+/* Snapshot roster row poses and set the selected row's horizontal target offset to 30. */
 // FUN_00137570
 /* measured: without opt_loop_invariants on, mwcc rematerializes the 0x41F00000
    constant inside the loop body (nd 22); with it the lui hoists to the
    preheader like retail (nd 0). */
 #pragma opt_loop_invariants on
-void cmpPersonaResetRosterCursor(u8* arg0) {
+void cmpPersonaResetRosterCursor(u8* work) {
     s32 i;
     u8* p;
     s32 c = 0x41F00000;
     for (i = 0; i < 0xC; i++) {
-        p = (u8*)arg0 + i * 0x30;
-        *(f32*)(p + 0x10B4) = *(f32*)(p + 0x10C4);
-        *(f32*)(p + 0x10B8) = *(f32*)(p + 0x10C8);
-        *(u8*)(p + 0x10CC) = *(u8*)(p + 0x10CE);
-        if (*(s16*)((u8*)arg0 + 0x52) == i) {
-            *(s32*)(p + 0x10BC) = c;
+        p = (u8*)work + i * 0x30;
+        ((CmpPersonaWork *)p)->motion[2].sourceX = ((CmpPersonaWork *)p)->motion[2].x;
+        ((CmpPersonaWork *)p)->motion[2].sourceY = ((CmpPersonaWork *)p)->motion[2].y;
+        ((CmpPersonaWork *)p)->motion[2].sourceAlpha = ((CmpPersonaWork *)p)->motion[2].alpha;
+        if (((CmpPersonaWork *)((u8*)work))->selected[1] == i) {
+            *(s32 *)&((CmpPersonaWork *)p)->motion[2].targetX = c;
         } else {
-            *(s32*)(p + 0x10BC) = 0;
+            *(s32 *)&((CmpPersonaWork *)p)->motion[2].targetX = 0;
         }
     }
-    *(s16*)((u8*)arg0 + 0x20) = 0;
-    *(s32*)((u8*)arg0 + 0x1C) &= ~0x1000;
+    ((CmpPersonaWork *)((u8*)work))->timer = 0;
+    ((CmpPersonaWork *)((u8*)work))->visible &= ~0x1000;
 }
 /* measured: see annotation above (func_00137570). */
 #pragma opt_loop_invariants off
 
 
+/* Randomize background-cell columns and delayed falling transitions, then enable the pulse flag. */
 // FUN_001375F0
 /* measured: probing O1 for retail's extra saved pointer. */
 #pragma optimization_level 1
-void cmpPersonaRandomizeBackgroundCells(u8 *arg0)
+void cmpPersonaRandomizeBackgroundCells(u8 *work)
 {
     f32 f;
     u32 val;
@@ -806,7 +821,7 @@ void cmpPersonaRandomizeBackgroundCells(u8 *arg0)
 
     for (i = 0; i < 0x24; i++) {
         if (RpRandom() & 3) {
-            p = arg0 + i * 0x30;
+            p = work + i * 0x30;
             val = (RpRandom() % 7U) * 0x2C;
             if (val >= 0) {
                 f = (f32)val;
@@ -815,61 +830,64 @@ void cmpPersonaRandomizeBackgroundCells(u8 *arg0)
                 f = (f32)(s32)val;
                 f += f;
             }
-            *(f32 *)(p + 0x159C) = f;
-            *(f32 *)(p + 0x1594) = f;
-            *(u32 *)(p + 0x1598) = 0x43FA0000;
-            *(f32 *)(p + 0x15A8) = *(f32 *)(p + 0x1598);
-            *(s32 *)(p + 0x15A0) = 0xC2C80000;
-            q = (u32 *)(p + 0x15BC);
+            ((CmpPersonaWork *)p)->backgroundCells[0].targetX = f;
+            ((CmpPersonaWork *)p)->backgroundCells[0].sourceX = f;
+            *(u32 *)&((CmpPersonaWork *)p)->backgroundCells[0].sourceY = 0x43FA0000;
+            ((CmpPersonaWork *)p)->backgroundCells[0].y = ((CmpPersonaWork *)p)->backgroundCells[0].sourceY;
+            *(s32 *)&((CmpPersonaWork *)p)->backgroundCells[0].targetY = 0xC2C80000;
+            q = (u32 *)&((CmpPersonaWork *)p)->backgroundCells[0].mode;
             random = RpRandom() % 10U;
             *q = random;
-            *(s32 *)(p + 0x15C0) = random + 0xA;
+            ((CmpPersonaWork *)p)->backgroundCells[0].duration = random + 0xA;
         } else {
-            p = arg0 + i * 0x30;
-            *(f32 *)(p + 0x1598) = *(f32 *)(p + 0x15A0);
+            p = work + i * 0x30;
+            ((CmpPersonaWork *)p)->backgroundCells[0].sourceY = ((CmpPersonaWork *)p)->backgroundCells[0].targetY;
         }
     }
-    *(s16 *)(arg0 + 0x22) = 0;
-    *(s32 *)(arg0 + 0x1C) |= 0x1000;
+    ((CmpPersonaWork *)work)->pulseTimer = 0;
+    ((CmpPersonaWork *)work)->visible |= 0x1000;
 }
 /* measured: closing O1 probe. */
 #pragma optimization_level 2
 
+/* Move nonselected roster rows vertically away from the selected row and fade them out. */
 // FUN_00137740
 /* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000
    constants are rematerialized inside the loop (nd 39); with it they hoist
    to the preheader like retail (nd 0). */
 #pragma opt_loop_invariants on
-void cmpPersonaSetRosterCursorMotion(u8* arg0) {
+void cmpPersonaSetRosterCursorMotion(u8* work) {
     s32 i;
     s16 cur;
     u8* p;
     f32 f;
     for (i = 0; i < 0xC; i++) {
-        cur = *(s16*)((u8*)arg0 + 0x52);
+        cur = ((CmpPersonaWork *)((u8*)work))->selected[1];
         if (i == cur) {
-            p = (u8*)arg0 + i * 0x30;
-            *(s32*)(p + 0x10BC) = 0x44480000;
-            *(s32*)(p + 0x10C0) = 0;
-            *(u8*)(p + 0x10CD) = 0xFF;
+            p = (u8*)work + i * 0x30;
+            *(s32 *)&((CmpPersonaWork *)p)->motion[2].targetX = 0x44480000;
+            *(s32 *)&((CmpPersonaWork *)p)->motion[2].targetY = 0;
+            ((CmpPersonaWork *)p)->motion[2].targetAlpha = 0xFF;
         } else {
             f = 200.0f;
             if (i < cur) {
                 f = -f;
             }
-            p = (u8*)arg0 + i * 0x30;
-            *(s32*)(p + 0x10BC) = 0;
-            *(f32*)(p + 0x10C0) = f;
-            *(u8*)(p + 0x10CD) = 0;
+            p = (u8*)work + i * 0x30;
+            *(s32 *)&((CmpPersonaWork *)p)->motion[2].targetX = 0;
+            ((CmpPersonaWork *)p)->motion[2].targetY = f;
+            ((CmpPersonaWork *)p)->motion[2].targetAlpha = 0;
         }
     }
 }
 /* measured: see annotation above (func_00137740). */
 #pragma opt_loop_invariants off
 
+/* Free menu sprites, destroy the portrait and wipe tasks, and reset the message window. */
 // FUN_001377E0
-void cmpPersonaMenuRelease(u8* arg0) {
-    u8* base = arg0;
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 75 instruction bytes and was reverted. */
+void cmpPersonaMenuRelease(u8* work) {
+    u8* base = work;
     s32 i;
     s32* p;
     for (i = 0; i < 0x17; i++) {
@@ -896,19 +914,19 @@ void cmpPersonaMenuRelease(u8* arg0) {
 typedef struct {
     f32 x;
     f32 y;
-    u8 _08[2];
+    u8 pad08[2];
     u8 alpha;
-    u8 _0b[0x25];
-} CmpPersonaLayoutRow;
+    u8 pad0B[0x25];
+} CmpPersonaRosterRow;
 
 typedef struct {
     u8 alpha;
-    u8 _01[3];
+    u8 pad01[3];
     f32 x;
     f32 y;
-    u8 _0c[0x10B8];
-    CmpPersonaLayoutRow rows[26];
-} CmpPersonaLayoutView;
+    u8 unk0C[0x10B8];
+    CmpPersonaRosterRow rows[26];
+} CmpPersonaRosterLayout;
 
 /* Eight-byte header followed by two 0x3c-byte records, initialized by
    datPanelReset. The word and halfword views cover its actual header fields. */
@@ -918,7 +936,7 @@ typedef union {
     s32 words[0x20];
 } CmpPersonaPanel;
 
-static inline u32 CmpPersonaOffsetAddress(u32 offset, u32 base)
+static inline u32 cmpPersonaOffsetAddress(u32 offset, u32 base)
 {
     return offset + base;
 }
@@ -927,161 +945,163 @@ static inline u32 CmpPersonaOffsetAddress(u32 offset, u32 base)
    alignment bytes. The menu's typed row view preserves the parent-X load
    before the row-address addition. See the recovery archive for controls. */
 // FUN_00137890
-void cmpPersonaDrawRosterRow(u8 *arg0, s32 arg1)
+void cmpPersonaDrawRosterRow(u8 *work, s32 rowIndex)
 {
-    extern void datPanelReset(u8 *panel);
-    extern void shdPersonaFillStatusBlock(u8 *persona, u8 *record, s32 mode);
+    extern void datPanelReset(u8 *panelBytes);
+    extern void shdPersonaFillStatusBlock(u8 *persona, u8 *status, s32 statMode);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,
                             u8 red, u8 green, u8 blue, u8 alpha);
-    extern s32 func_00105330(s32 character);
-    extern void shdPersonaDrawByMode(Vec2f position, u8 alpha, s16 *panel, f32 depth);
+    extern s32 datGetActiveRosterIndex(s32 character);
+    extern void shdPersonaDrawByMode(Vec2f basePosition, u8 alpha, s16 *descriptor, f32 depth);
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E9[];
     extern u8 D_0064B2EA[];
     extern u8 D_0064B2EC[];
     extern u8 D_0064B2ED[];
     extern u8 D_0064B2EE[];
-    CmpPersonaLayoutView *menu;
+    CmpPersonaRosterLayout *menu;
     f32 x;
     f32 y;
-    f32 row_y;
+    f32 rowY;
     f32 opacity;
-    u32 entry_alpha;
-    u32 base_alpha;
+    u32 entryAlpha;
+    u32 baseAlpha;
     u32 alpha;
     u8 spriteOpacity;
     s32 selected;
     u8 red;
     u8 green;
     u8 blue;
-    u8 digit_red;
-    u8 digit_green;
-    u8 digit_blue;
-    u8 sprite_alpha;
+    u8 digitRed;
+    u8 digitGreen;
+    u8 digitBlue;
+    u8 spriteAlpha;
     u8 level;
     CmpPersonaPanel panel;
     Vec2f position;
 
-    if (arg1 < 0 || arg1 >= (datPersonaRosterCapacity() & 0xFFFF)) {
+    if (rowIndex < 0 || rowIndex >= (datPersonaRosterCapacity() & 0xFFFF)) {
         kAssertFail(D_005EB580, 0x478);
     }
-    menu = (CmpPersonaLayoutView *)arg0;
-    x = (menu->x + menu->rows[arg1].x) - 10.0f;
-    y = 0.0f + (menu->y + menu->rows[arg1].y) +
-        30.0f * (f32)arg1;
-    entry_alpha = menu->rows[arg1].alpha;
-    base_alpha = menu->alpha;
-    opacity = (f32)entry_alpha * ((f32)base_alpha / 255.0f);
+    menu = (CmpPersonaRosterLayout *)work;
+    x = (menu->x + menu->rows[rowIndex].x) - 10.0f;
+    y = 0.0f + (menu->y + menu->rows[rowIndex].y) +
+        30.0f * (f32)rowIndex;
+    entryAlpha = menu->rows[rowIndex].alpha;
+    baseAlpha = menu->alpha;
+    opacity = (f32)entryAlpha * ((f32)baseAlpha / 255.0f);
     alpha = spriteOpacity = (u8)opacity;
-    if (arg1 >= *(s16 *)(arg0 + 0x4E)) {
+    if (rowIndex >= ((CmpPersonaWork *)work)->personaCount) {
         position.x = x - 40.0f;
         position.y = y + 21.0f;
-        sdkSpriteDrawAt(*(void **)(arg0 + 0x1C64), position.x, position.y,
+        sdkSpriteDrawAt(((CmpPersonaWork *)work)->sprites[4], position.x, position.y,
                       0xFF, 0xE9, 0x2C, spriteOpacity);
         position.x = x + 89.0f;
         position.y = y + 21.0f;
-        sdkSpriteDrawAt(*(void **)(arg0 + 0x1C68), position.x, position.y,
+        sdkSpriteDrawAt(((CmpPersonaWork *)work)->sprites[5], position.x, position.y,
                       0xFF, 0xE9, 0x2C, spriteOpacity);
     } else {
         datPanelReset(panel.bytes);
-        if (arg1 == *(s16 *)(arg0 + 0x52)) {
+        if (rowIndex == ((CmpPersonaWork *)work)->selected[1]) {
             selected = 1;
             panel.halves[1] = selected;
             red = D_0064B2E8[0];
             green = D_0064B2E9[0];
             blue = D_0064B2EA[0];
-            sprite_alpha = (u8)alpha;
-            digit_red = D_0064B2EC[0];
-            digit_green = D_0064B2ED[0];
-            digit_blue = D_0064B2EE[0];
+            spriteAlpha = (u8)alpha;
+            digitRed = D_0064B2EC[0];
+            digitGreen = D_0064B2ED[0];
+            digitBlue = D_0064B2EE[0];
         } else {
             panel.halves[1] = 0;
             red = 0xFF;
             green = 0xE9;
             blue = 0x2C;
-            sprite_alpha = (u8)alpha;
-            digit_red = 0xF7;
-            digit_green = 0xAF;
-            digit_blue = 0x22;
+            spriteAlpha = (u8)alpha;
+            digitRed = 0xF7;
+            digitGreen = 0xAF;
+            digitBlue = 0x22;
             selected = 0;
         }
         panel.halves[0] = 2;
-        shdPersonaFillStatusBlock((u8 *)datPersonaRosterSlot(*(s16 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 2, (u32)arg0) + 0x36)),
+        shdPersonaFillStatusBlock((u8 *)datPersonaRosterSlot(((CmpPersonaWork *)((u8 *)cmpPersonaOffsetAddress(rowIndex * 2, (u32)work)))->rosterSlots[0]),
                       panel.bytes + 8, 2);
         position.x = x - 40.0f;
         position.y = y + 21.0f;
-        sdkSpriteDrawAt(*(void **)(arg0 + 0x1C5C), position.x, position.y,
-                      red, green, blue, sprite_alpha);
+        sdkSpriteDrawAt(((CmpPersonaWork *)work)->sprites[2], position.x, position.y,
+                      red, green, blue, spriteAlpha);
         position.x = x + 89.0f;
         position.y = y + 21.0f;
-        sdkSpriteDrawAt(*(void **)(arg0 + 0x1C60), position.x, position.y,
-                      red, green, blue, sprite_alpha);
+        sdkSpriteDrawAt(((CmpPersonaWork *)work)->sprites[3], position.x, position.y,
+                      red, green, blue, spriteAlpha);
         level = panel.bytes[12];
         position.x = x + 72.0f;
-        row_y = y + 26.0f;
-        position.y = row_y;
+        rowY = y + 26.0f;
+        position.y = rowY;
         do {
-            sdkSpriteDrawAt(*(void **)(arg0 + (level % 10) * 4 + 0x1C7C),
+            sdkSpriteDrawAt(((CmpPersonaWork *)(work + (level % 10) * 4))->sprites[10],
                           position.x, position.y,
-                          digit_red, digit_green, digit_blue, sprite_alpha);
+                          digitRed, digitGreen, digitBlue, spriteAlpha);
             position.x -= 22.0f;
             level /= 10U;
         } while (level > 0);
         if (selected != 0) {
             position.x = x + 24.0f;
             position.y = y + 33.0f;
-            sdkSpriteDrawAt(*(void **)(arg0 + 0x1CA8), position.x, position.y,
-                          digit_red, digit_green, digit_blue, sprite_alpha);
+            sdkSpriteDrawAt(((CmpPersonaWork *)work)->sprites[21], position.x, position.y,
+                          digitRed, digitGreen, digitBlue, spriteAlpha);
         }
-        if (arg1 == func_00105330(1) && (*(u32 *)(arg0 + 0x1C) & 0x20)) {
+        if (rowIndex == datGetActiveRosterIndex(1) && (*(u32 *)&((CmpPersonaWork *)work)->visible & 0x20)) {
             position.x = 22.0f;
-            position.y = row_y;
-            sdkSpriteDrawAt(*(void **)(arg0 + 0x1CAC), position.x, position.y,
-                          0xFF, 0x85, 0x1F, sprite_alpha);
+            position.y = rowY;
+            sdkSpriteDrawAt(((CmpPersonaWork *)work)->sprites[22], position.x, position.y,
+                          0xFF, 0x85, 0x1F, spriteAlpha);
         }
         position.x = x + 99.0f;
         position.y = y + 20.0f;
         shdPersonaDrawByMode(position, spriteOpacity, panel.halves, 0.0f);
     }
 }
+/* Report whether every row transition reached its end frame and the shared line animation is idle. */
 // FUN_00137DD0
-s32 cmpPersonaRowsSettled(u8* arg0) {
+s32 cmpPersonaRowsSettled(u8* work) {
     s32 result = 1;
     s32 i = 0;
-    s32 cmp = *(s16*)((u8*)arg0 + 0x20);
+    s32 cmp = ((CmpPersonaWork *)((u8*)work))->timer;
     for (; i < 0x1C; i++) {
-        if (cmp < *(s32*)((u8*)arg0 + i * 0x30 + 0x1080)) {
+        if (cmp < ((CmpPersonaWork *)((u8*)work + i * 0x30))->motion[0].duration) {
             result = 0;
         }
     }
     return result & nLineIsIdle();
 }
 
+/* Configure the screen-wipe endpoints, direction, offset and color from its preset table. */
 // FUN_00137E50
-void cmpPersonaStartScreenWipe(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    u8* var_5;
-    u8* var_6;
+void cmpPersonaStartScreenWipe(s32 task, s32 presetOrColor, s32 initialize, s32 reverse) {
+    u8* start;
+    u8* target;
     CmpPair pair;
-    if ((arg1 < 0) || (arg1 > 0)) {
+    if ((presetOrColor < 0) || (presetOrColor > 0)) {
         kAssertFail(&D_005EB580[0], 0x505);
     }
-    if (arg0 == 0) {
+    if (task == 0) {
         kAssertFail(&D_005EB580[0], 0x506);
     }
-    if (arg3 != 0) {
-        var_6 = &D_005EB560[arg1 * 0x1C];
-        var_5 = var_6 + 8;
+    if (reverse != 0) {
+        target = &D_005EB560[presetOrColor * 0x1C];
+        start = target + 8;
     } else {
-        var_5 = &D_005EB560[arg1 * 0x1C];
-        var_6 = var_5 + 8;
+        start = &D_005EB560[presetOrColor * 0x1C];
+        target = start + 8;
     }
-    pair = *(CmpPair*)&D_005EB570[arg1 * 0x1C];
-    arg1 = *(s32*)&D_005EB578[arg1 * 0x1C];
-    if (arg2 != 0) {
-        datScreenWipeInit(arg0, var_5, var_6);
+    pair = *(CmpPair*)&D_005EB570[presetOrColor * 0x1C];
+    presetOrColor = *(s32*)&D_005EB578[presetOrColor * 0x1C];
+    if (initialize != 0) {
+        datScreenWipeInit(task, start, target);
     } else {
-        datScreenWipeSetTarget(arg0, var_6, var_6);
+        datScreenWipeSetTarget(task, target, target);
     }
-    datScreenWipeSetOffset(arg0, pair);
-    datScreenWipeSetColor(arg0, arg1);
+    datScreenWipeSetOffset(task, pair);
+    datScreenWipeSetColor(task, presetOrColor);
 }

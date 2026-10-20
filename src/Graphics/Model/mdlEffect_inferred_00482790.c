@@ -3,6 +3,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
+#include "mdl_effect_resource_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 typedef struct RwV3d
@@ -52,15 +53,18 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00482790-00482790 */
 
+/* Return an uploaded stream handle, checking the resource's stream count. */
 // FUN_00482790
-s32 func_00482790(u8 **arg0, u32 arg1)
+s32 mdlEffectGetStreamHandle(u8 **owner, u32 streamIndex)
 {
-    u8 *temp_16;
+    u8 *resource;
 
-    temp_16 = *arg0;
-    if (*(u32 *)(temp_16 + 0xC) <= arg1) {
+    resource = *owner;
+    if (((MdlEffectTrackResource *)resource)->streamCount <= streamIndex) {
         kAssertFail(D_007132F0, 0x1E9);
     }
-    return *(s32 *)(*(u8 **)(temp_16 + 0x14) + arg1 * 4);
+    return ((s32 *)((MdlEffectTrackResource *)resource)->streams)[streamIndex];
 }
+
+
 

@@ -13,24 +13,30 @@
 extern s32 D_00764384;
 extern u32 D_0076438C;
 extern u8 *iGpffff9db0;
-extern u32 datGetFlag(s32 arg0);
+extern u32 datGetFlag(s32);
 extern void (*jtbl_008873EC[])(void *);
 #include "Kosaka/k_fldFrame_internal.h"
 #include "scene_event_internal.h"
+/* Step record layout (stride 0x84): id +0, month/day/time +2/+4/+6,
+ * calendar masks +8/+9/+A, phase condition +B, five required flag pairs +C,
+ * twelve excluded flags +34, field/room +64/+66. The active location stores
+ * two s32 values at +0/+4. The release handle is at work +0x14.
+ * Typed rewrites below were measured and reverted where they changed codegen. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 // Intent: Release the handle at the work block's +0x14 through the hook table and clear it [inferred]
 // FUN_0015D270
-void FldStepReleaseHandle(u8 *arg0)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+void FldStepReleaseHandle(u8 *work)
 {
-    s32 h;
+    s32 handle;
 
-    h = *(s32 *)(arg0 + 0x14);
-    if (h != 0) {
-        (*jtbl_008873EC)((void *)h);
-        *(s32 *)(arg0 + 0x14) = 0;
+    handle = *(s32 *)(work + 0x14);
+    if (handle != 0) {
+        (*jtbl_008873EC)((void *)handle);
+        *(s32 *)(work + 0x14) = 0;
     }
 }
 #pragma pop
@@ -41,25 +47,25 @@ void FldStepReleaseHandle(u8 *arg0)
 #pragma opt_rebuildconditionals on
 // Intent: Return the step record at the given count of empty records (id 0xFFFF) in the record table [inferred]
 // FUN_0015D2C0
-u16 *FldStepFindEmptySlot(u32 arg0)
+u16 *FldStepFindEmptySlot(u32 emptyIndex)
 {
     u16 *record;
-    u32 i;
+    u32 recordIndex;
     s32 emptyCount;
     u32 recordCount;
     u16 emptyId;
 
     record = (u16 *)D_00764384;
     emptyCount = 0;
-    i = 0;
+    recordIndex = 0;
     recordCount = D_0076438C;
     emptyId = 0xFFFF;
-    while (i < recordCount) {
-        if (emptyCount != arg0) {
+    while (recordIndex < recordCount) {
+        if (emptyCount != emptyIndex) {
             if (*record == emptyId) {
                 emptyCount++;
             }
-            i++;
+            recordIndex++;
             record = (u16 *)((u8 *)record + 0x84);
         } else {
             break;
@@ -73,81 +79,83 @@ u16 *FldStepFindEmptySlot(u32 arg0)
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
+/* Select the last step whose location, calendar masks and flag requirements pass; return NULL if none do. */
 // FUN_0015D310
-u8 *func_0015d310(u16 *arg0)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+u8 *fldStepFindEligibleRecord(u16 *records)
 {
     extern s16 datGetDateIndex(void);
-    extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
+    extern s64 calGetDayEntryByPhase(s32 records, u32);
     extern u8 datGetTimeSlot(void);
-    extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
-    extern s32 calGetWeekdayOfDay(s32 date);
-    extern s32 calHasDayEntry(s32 date);
-    extern u32 clndIsDateInRange(u32 firstMonth, u32 firstDay, u32 lastMonth, u32 lastDay);
+    extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
+    extern s32 calGetWeekdayOfDay(s32 dateIndex);
+    extern s32 calHasDayEntry(s32 day);
+    extern u32 clndIsDateInRange(u32 startMonth, u32 startDay, u32 endMonth, u32 endDay);
     extern u32 datGetFlag(s32 bit);
-    s32 sp8C;
-    s32 sp88;
-    s32 temp_4_3;
-    s32 temp_4_4;
-    s32 temp_4_5;
-    s32 var_18;
-    s32 var_19_2;
-    s32 temp_3_2;
-    s32 temp_3_3;
-    s64 var_2;
-    s64 var_2_2;
-    s32 temp_22;
-    s32 temp_22_2;
-    u16 *var_5;
-    u32 temp_4_2;
-    s32 var_19;
-    s32 var_20;
-    u32 var_17;
-    u32 var_18_2;
-    u32 var_18_3;
-    u32 var_21;
-    u8 temp_3;
-    u8 *temp_20;
-    u8 *temp_4;
+    s32 month;
+    s32 day;
+    s32 excludedFlag;
+    s32 requiredFlag;
+    s32 pairedFlag;
+    s32 endMonth;
+    s32 hasRequirements;
+    s32 firstPhaseParity;
+    s32 secondPhaseParity;
+    s64 firstPhase;
+    s64 secondPhase;
+    s32 firstDate;
+    s32 secondDate;
+    u16 *record;
+    u32 startMonth;
+    s32 endDay;
+    s32 endTimeSlot;
+    u32 recordCount;
+    u32 excludedIndex;
+    u32 requiredIndex;
+    u32 reverseIndex;
+    u8 phaseCondition;
+    u8 *flagPair;
+    u8 *fieldState;
     uintptr_t recordAddress;
 
-    var_5 = arg0;
-    if (arg0 == NULL) {
+    record = records;
+    if (records == NULL) {
         return NULL;
     }
-    var_17 = 0;
+    recordCount = 0;
 loop_3:
-    if (*var_5 != 0xFFFF) {
-        var_17 += 1;
-        var_5 += 0x42;
+    if (*record != 0xFFFF) {
+        recordCount += 1;
+        record += 0x42;
         goto loop_3;
     }
-    recordAddress = (uintptr_t)((u8 *)arg0 + var_17 * 0x84) - 0x84;
-    var_18 = 3;
-    var_19 = 0x1F;
-    var_20 = 0;
-    calSplitDayOfYear((s16)datGetDateIndex(), &sp8C, &sp88);
-    var_21 = 0;
+    recordAddress = (uintptr_t)((u8 *)records + recordCount * 0x84) - 0x84;
+    endMonth = 3;
+    endDay = 0x1F;
+    endTimeSlot = 0;
+    calSplitDayOfYear((s16)datGetDateIndex(), &month, &day);
+    reverseIndex = 0;
     goto loop_test;
 loop_body:
-        temp_4 = iGpffff9db0;
-        if ((*(s32 *)(temp_4 + 0) == *(u16 *)(recordAddress + 0x64)) &&
-            (*(s32 *)(temp_4 + 4) == *(u16 *)(recordAddress + 0x66))) {
-            temp_4_2 = *(u16 *)(recordAddress + 2);
-            if ((temp_4_2 == var_18) &&
-                (*(u16 *)(recordAddress + 4) == var_19) &&
-                (*(u16 *)(recordAddress + 6) == var_20)) {
-                var_18 = 3;
-                var_19 = 0x1F;
-                var_20 = 0;
+        fieldState = iGpffff9db0;
+        if ((*(s32 *)(fieldState + 0) == *(u16 *)(recordAddress + 0x64)) &&
+            (*(s32 *)(fieldState + 4) == *(u16 *)(recordAddress + 0x66))) {
+            startMonth = *(u16 *)(recordAddress + 2);
+            if ((startMonth == endMonth) &&
+                (*(u16 *)(recordAddress + 4) == endDay) &&
+                (*(u16 *)(recordAddress + 6) == endTimeSlot)) {
+                endMonth = 3;
+                endDay = 0x1F;
+                endTimeSlot = 0;
             }
-            if (clndIsDateInRange(temp_4_2, *(u16 *)(recordAddress + 4),
-                             var_18, var_19) == 1) {
-                if ((*(u16 *)(recordAddress + 2) == sp8C) &&
-                    (*(u16 *)(recordAddress + 4) == sp88) &&
-                    ((datGetTimeSlot() & 0xFF) < var_20)) {
-                    var_18 = *(u16 *)(recordAddress + 2);
-                    var_19 = *(u16 *)(recordAddress + 4);
-                    var_20 = *(u16 *)(recordAddress + 6);
+            if (clndIsDateInRange(startMonth, *(u16 *)(recordAddress + 4),
+                             endMonth, endDay) == 1) {
+                if ((*(u16 *)(recordAddress + 2) == month) &&
+                    (*(u16 *)(recordAddress + 4) == day) &&
+                    ((datGetTimeSlot() & 0xFF) < endTimeSlot)) {
+                    endMonth = *(u16 *)(recordAddress + 2);
+                    endDay = *(u16 *)(recordAddress + 4);
+                    endTimeSlot = *(u16 *)(recordAddress + 6);
                     goto block_50;
                 }
                 if (((*(u8 *)(recordAddress + 8) == 0) ||
@@ -159,56 +167,56 @@ loop_body:
                     ((*(u8 *)(recordAddress + 0xA) == 0) ||
                      (*(u8 *)(recordAddress + 0xA) &
                       (1U << (datGetTimeSlot() & 0xFF))))) {
-                    temp_3 = *(u8 *)(recordAddress + 0xB);
-                    if (temp_3 == 1) {
-                        temp_22 = (s16)datGetDateIndex();
-                        var_2 = (s64)(s8)calGetDayEntryByPhase(temp_22,
+                    phaseCondition = *(u8 *)(recordAddress + 0xB);
+                    if (phaseCondition == 1) {
+                        firstDate = (s16)datGetDateIndex();
+                        firstPhase = (s64)(s8)calGetDayEntryByPhase(firstDate,
                                                      datGetTimeSlot() & 0xFF);
-                        temp_3_2 = (s32)var_2 % 2;
-                        if (temp_3_2 != 0) {
+                        firstPhaseParity = (s32)firstPhase % 2;
+                        if (firstPhaseParity != 0) {
                             goto block_50;
                         }
                         goto block_34;
                     }
-                    if (temp_3 == 2) {
-                        temp_22_2 = (s16)datGetDateIndex();
-                        var_2_2 = (s64)(s8)calGetDayEntryByPhase(temp_22_2,
+                    if (phaseCondition == 2) {
+                        secondDate = (s16)datGetDateIndex();
+                        secondPhase = (s64)(s8)calGetDayEntryByPhase(secondDate,
                                                        datGetTimeSlot() & 0xFF);
-                        temp_3_3 = (s32)var_2_2 % 2;
-                        if (temp_3_3 != 0) {
+                        secondPhaseParity = (s32)secondPhase % 2;
+                        if (secondPhaseParity != 0) {
                             goto block_34;
                         }
                         goto block_50;
                     }
 block_34:
-                    for (var_18_2 = 0; var_18_2 < 0xC; var_18_2++) {
-                        temp_4_3 = *(s32 *)(recordAddress + (var_18_2 * 4) + 0x34);
-                        if ((temp_4_3 != -1) &&
-                            (datGetFlag(temp_4_3) == 1)) {
+                    for (excludedIndex = 0; excludedIndex < 0xC; excludedIndex++) {
+                        excludedFlag = *(s32 *)(recordAddress + (excludedIndex * 4) + 0x34);
+                        if ((excludedFlag != -1) &&
+                            (datGetFlag(excludedFlag) == 1)) {
                             break;
                         }
                     }
-                    if (var_18_2 >= 0xC) {
-                        var_19_2 = 0;
-                        for (var_18_3 = 0; var_18_3 < 5; var_18_3++) {
-                            temp_20 = (u8 *)(recordAddress + (var_18_3 * 8));
-                            temp_4_4 = *(s32 *)(temp_20 + 0xC);
-                            if (temp_4_4 == -1) {
+                    if (excludedIndex >= 0xC) {
+                        hasRequirements = 0;
+                        for (requiredIndex = 0; requiredIndex < 5; requiredIndex++) {
+                            flagPair = (u8 *)(recordAddress + (requiredIndex * 8));
+                            requiredFlag = *(s32 *)(flagPair + 0xC);
+                            if (requiredFlag == -1) {
                                 continue;
                             }
-                            var_19_2 = 1;
-                            if (datGetFlag(temp_4_4) != 1) {
+                            hasRequirements = 1;
+                            if (datGetFlag(requiredFlag) != 1) {
                                 continue;
                             }
-                            temp_4_5 = *(s32 *)(temp_20 + 0x10);
-                            if (temp_4_5 != -1) {
-                                if (datGetFlag(temp_4_5) != 1) {
+                            pairedFlag = *(s32 *)(flagPair + 0x10);
+                            if (pairedFlag != -1) {
+                                if (datGetFlag(pairedFlag) != 1) {
                                     continue;
                                 }
                             }
                             break;
                         }
-                        if ((var_18_3 >= 5) && (var_19_2 != 0)) {
+                        if ((requiredIndex >= 5) && (hasRequirements != 0)) {
                             goto block_49;
                         }
                     } else {
@@ -219,21 +227,21 @@ block_34:
                 }
             } else {
 block_49:
-                var_18 = *(u16 *)(recordAddress + 2);
-                var_19 = *(u16 *)(recordAddress + 4);
-                var_20 = *(u16 *)(recordAddress + 6);
+                endMonth = *(u16 *)(recordAddress + 2);
+                endDay = *(u16 *)(recordAddress + 4);
+                endTimeSlot = *(u16 *)(recordAddress + 6);
                 goto block_50;
             }
         } else {
 block_50:
-            var_21 += 1;
+            reverseIndex += 1;
             recordAddress -= 0x84;
 loop_test:
-            if (var_21 < var_17) {
+            if (reverseIndex < recordCount) {
                 goto loop_body;
             }
         }
-    if (var_21 >= var_17) {
+    if (reverseIndex >= recordCount) {
         recordAddress = 0;
     }
     return (u8 *)recordAddress;

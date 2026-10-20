@@ -1,4 +1,5 @@
 #include "type.h"
+#include "rw_camera_internal.h"
 #include "sdk_task_registration.h"
 #include "effect_instance_internal.h"
 #include "include_asm.h"
@@ -11,27 +12,27 @@ extern u8 iGpffffa7a8;
 s32 *kwlnTaskGetWork();
 extern void (*jtbl_008873EC[])(void *);
 
-void chkmemAllocSiteTag(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *file, s32 line);
 void kAssertFail(const void *file, s32 line);
-s32 kwlnTaskIsLinked(s32 buf);
-s32 H_Cdvd_IsFileLoaded(s32 arg0);
-void H_Cdvd_Destroy(s32 arg0);
-s32 strcmp(s32 *arg0, s32 arg1);
-s32 strcpy(s32 *arg0, s32 arg1);
-s32 evtMemAccount(s32 arg0, s32 arg1);
-void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
-s32 H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
-u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
-s32 scrStartProcedureIndex(s32 arg0, u8 *arg1, s32 arg2);
+s32 kwlnTaskIsLinked(s32 target);
+s32 H_Cdvd_IsFileLoaded(s32 cdvd);
+void H_Cdvd_Destroy(s32 cdvd);
+s32 strcmp(s32 *input, s32 secondInput);
+s32 strcpy(s32 *input, s32 secondInput);
+s32 evtMemAccount(s32 slot, s32 byteCount);
+void func_00440b68(const void *input, const void *secondInput, s32 thirdInput);
+s32 H_Cdvd_AcquireDirectory(void *path, s32 flags);
+u8 *H_Cdvd_LookupRequest(void *pathAddress, u32 *slot);
+s32 scrStartProcedureIndex(s32 priority, u8 *header, s32 procedureIndex);
 u8 *kwlnGetColorRgb(void);
 void *kwlnGetCamera(void);
 
-s32 evtTintTaskUpdate(u8 *arg0);
-void evtTintTaskDestroy(u8 *task);
-s32 evtScriptLoadStep(u8 *arg0);
-void evtScriptLoadDestroy(u8 *arg0);
+s32 evtTintTaskUpdate(u8 *unusedTask);
+void evtTintTaskDestroy(u8 *unusedTask);
+s32 evtScriptLoadStep(u8 *unusedTask);
+void evtScriptLoadDestroy(u8 *unusedTask);
 void evtTintTaskKill(void);
-void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
 extern s32 iGpffffba48;
 
 /* Scalars (complete types) address gp-relative; strings/arrays use absolute
@@ -51,9 +52,11 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
+
+
 typedef struct { f32 x, y, z; } SVec3;
 typedef unsigned int EvtU128 __attribute__((mode(TI)));
-u8 *effBlurFilterCreateRefObj(u16 *texture, u16 kind);
+u8 *effBlurFilterCreateRefObj(u16 *object, u16 slot);
 extern u8 D_0063C648[];
 
 typedef struct {
@@ -113,17 +116,17 @@ typedef struct {
 
 // Allocates the blur filter's 0x130-byte state block once, when its slot is empty, and records it in the slot [inferred].
 // FUN_0028D110
-void evtBlurFilterEnsureBlock(s32 *arg0) {
-    s32 *temp_16;
+void evtBlurFilterEnsureBlock(s32 *slot) {
+    s32 *work;
 
-    if (arg0[0x10] != 0) {
+    if (slot[0x10] != 0) {
         return;
     }
     chkmemAllocSiteTag(D_00748340, 0x52);
-    temp_16 = (s32 *)D_008873F4[0](1, 0x130, 0x40000);
+    work = (s32 *)D_008873F4[0](1, 0x130, 0x40000);
     evtMemAccount(0xA, 0x130);
-    arg0[0x10] = (s32)temp_16;
-    if (temp_16 == 0) {
+    slot[0x10] = (s32)work;
+    if (work == 0) {
         kAssertFail(D_0063C638, 0x1068);
     }
 }
@@ -133,29 +136,33 @@ void evtBlurFilterEnsureBlock(s32 *arg0) {
  * preheader, shifting every temp register (nd 18). */
 #pragma opt_loop_invariants on
 
+
+
 // Copies the blur filter's point table (count = 3n+1 entries) into the destination, reversed when arg2 is 1 [inferred].
 // FUN_0028D1B0
-void evtBlurFilterCopyPoints(u8 *arg0, u8 *arg1, s32 arg2) {
-    u8 temp_7;
-    s32 temp_10;
-    s32 var_11;
+/* Point tables are packed 3n+1 triples after a four-byte byte header; preserve the vector-copy access widths. */
+void evtBlurFilterCopyPoints(u8 *source, u8 *destination, s32 reverse) {
+    /* Four-byte headers precede 12-byte positions; typed variable-length tables changed MWCC codegen. */
+    u8 segmentCount;
+    s32 pointCount;
+    s32 pointIndex;
 
-    if (arg0[0] != 0) {
+    if (source[0] != 0) {
         return;
     }
-    temp_7 = arg0[1];
-    temp_10 = temp_7 * 3 + 1;
-    arg1[0] = temp_7;
-    var_11 = 0;
-    while (var_11 < temp_10) {
-        if (arg2 == 1) {
-            s32 off = ((temp_10 - 1) - var_11) * 12;
-            *(SVec3 *)(arg1 + var_11 * 12 + 4) = *(SVec3 *)(arg0 + off + 4);
+    segmentCount = source[1];
+    pointCount = segmentCount * 3 + 1;
+    destination[0] = segmentCount;
+    pointIndex = 0;
+    while (pointIndex < pointCount) {
+        if (reverse == 1) {
+            s32 off = ((pointCount - 1) - pointIndex) * 12;
+            *(SVec3 *)(destination + pointIndex * 12 + 4) = *(SVec3 *)(source + off + 4);
         } else {
-            s32 off = var_11 * 12;
-            *(SVec3 *)(arg1 + off + 4) = *(SVec3 *)(arg0 + off + 4);
+            s32 off = pointIndex * 12;
+            *(SVec3 *)(destination + off + 4) = *(SVec3 *)(source + off + 4);
         }
-        var_11++;
+        pointIndex++;
     }
 }
 /* measured: see annotation above (func_0028d1b0). */
@@ -164,19 +171,19 @@ void evtBlurFilterCopyPoints(u8 *arg0, u8 *arg1, s32 arg2) {
 // Blur filter task update: advances the direct or copied blur filter and bumps its frame counter (same logic as effBlurFilterTaskUpdate).
 // FUN_0028D280
 s32 evtBlurFilterTaskUpdate(u8 *unusedTask) {
-    s32 *temp_2;
-    s32 temp_3;
+    s32 *work;
+    s32 kind;
 
-    temp_2 = kwlnTaskGetWork();
-    temp_3 = temp_2[0];
-    switch (temp_3) {
+    work = kwlnTaskGetWork();
+    kind = work[0];
+    switch (kind) {
     case 0:
-        effBlurFilterDirectAdvanceAndSync((u8 *)temp_2[1]);
-        temp_2[2] = temp_2[2] + 1;
+        effBlurFilterDirectAdvanceAndSync((u8 *)work[1]);
+        work[2] = work[2] + 1;
         break;
     case 1:
-        effBlurFilterCopiedAdvanceAndSync((u8 *)temp_2[1]);
-        temp_2[2] = temp_2[2] + 1;
+        effBlurFilterCopiedAdvanceAndSync((u8 *)work[1]);
+        work[2] = work[2] + 1;
         break;
     }
     return 0;
@@ -185,20 +192,20 @@ s32 evtBlurFilterTaskUpdate(u8 *unusedTask) {
 // Blur filter task destroy: destroys the direct or copied blur filter, then frees the work block (same logic as effBlurFilterTaskDestroy).
 // FUN_0028D310
 void evtBlurFilterTaskDestroy(u8 *unusedTask) {
-    s32 *temp_2;
-    s32 temp_3;
+    s32 *work;
+    s32 kind;
 
-    temp_2 = kwlnTaskGetWork();
-    temp_3 = temp_2[0];
-    switch (temp_3) {
+    work = kwlnTaskGetWork();
+    kind = work[0];
+    switch (kind) {
     case 0:
-        effBlurFilterDirectDestroy((void *)temp_2[1]);
+        effBlurFilterDirectDestroy((void *)work[1]);
         break;
     case 1:
-        effBlurFilterCopiedDestroy((void *)temp_2[1]);
+        effBlurFilterCopiedDestroy((void *)work[1]);
         break;
     }
-    jtbl_008873EC[0](temp_2);
+    jtbl_008873EC[0](work);
 }
 
 
@@ -210,8 +217,10 @@ void evtBlurFilterTaskDestroy(u8 *unusedTask) {
 
 // Intent: Event command blur-filter task for types 1 and 2: builds the filter parameters from the record (mode, colours, alpha, timing) and creates the task under arg0 [inferred]
 // FUN_0028D390
-void evtCreateBlurFilterTask(s32 arg0, s32 type, u8 *arg2)
+/* Only the filter reference slot at +0x28 is known here; the direct/copy filter allocation layout remains opaque. */
+void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
 {
+    /* Packed RGB/options occupy +0x18..0x2B and signed halfwords +0x10/+0x2C..0x36; typed access changed MWCC allocation. */
     EvtFilterFrame frame;
     s32 mode1;
     s32 mode2;
@@ -222,49 +231,49 @@ void evtCreateBlurFilterTask(s32 arg0, s32 type, u8 *arg2)
     switch (type) {
     case 1:
         mode1 = 0;
-        if (arg2[0x1B] & 1) {
+        if (record[0x1B] & 1) {
             mode1 = 1;
-            if (arg2[0x1B] & 2) {
+            if (record[0x1B] & 2) {
                 mode1 = 2;
             }
         }
 
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
 
-            var = (u8 *)&frame.params1;
+            clearCursor = (u8 *)&frame.params1;
             remaining = sizeof(frame.params1);
-            if (var != NULL) {
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
         }
         frame.params1.type = mode1;
-        frame.params1.color0 = (arg2[0x1A] << 16) | 0xFF000000 |
-                               (arg2[0x19] << 8) | arg2[0x18];
-        frame.params1.color1 = (arg2[0x26] << 16) | 0xFF000000 |
-                               (arg2[0x25] << 8) | arg2[0x24];
-        frame.params1.color2 = (arg2[0x1E] << 16) | 0xFF000000 |
-                               (arg2[0x1D] << 8) | arg2[0x1C];
-        frame.params1.alpha0 = (f32)arg2[0x1F] / 100.0f;
-        frame.params1.color3 = (arg2[0x22] << 16) | 0xFF000000 |
-                               (arg2[0x21] << 8) | arg2[0x20];
-        frame.params1.alpha1 = (f32)arg2[0x23] / 100.0f;
-        frame.params1.value24 = arg2[0x27];
-        frame.params1.value28 = arg2[0x1B] >> 4;
-        frame.params1.value2C = (f32)arg2[0x28] / 100.0f;
-        frame.params1.value30 = (f32)arg2[0x29] / 100.0f;
-        frame.params1.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
-        frame.params1.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
-        frame.params1.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
-        frame.params1.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
-        frame.params1.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
-        frame.params1.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
-        frame.params1.valueB8 = *(s16 *)(arg2 + 0x10);
+        frame.params1.color0 = (record[0x1A] << 16) | 0xFF000000 |
+                               (record[0x19] << 8) | record[0x18];
+        frame.params1.color1 = (record[0x26] << 16) | 0xFF000000 |
+                               (record[0x25] << 8) | record[0x24];
+        frame.params1.color2 = (record[0x1E] << 16) | 0xFF000000 |
+                               (record[0x1D] << 8) | record[0x1C];
+        frame.params1.alpha0 = (f32)record[0x1F] / 100.0f;
+        frame.params1.color3 = (record[0x22] << 16) | 0xFF000000 |
+                               (record[0x21] << 8) | record[0x20];
+        frame.params1.alpha1 = (f32)record[0x23] / 100.0f;
+        frame.params1.value24 = record[0x27];
+        frame.params1.value28 = record[0x1B] >> 4;
+        frame.params1.value2C = (f32)record[0x28] / 100.0f;
+        frame.params1.value30 = (f32)record[0x29] / 100.0f;
+        frame.params1.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
+        frame.params1.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
+        frame.params1.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
+        frame.params1.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
+        frame.params1.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
+        frame.params1.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
+        frame.params1.valueB8 = *(s16 *)(record + 0x10);
 
         {
             EvtU128 *source;
@@ -288,15 +297,15 @@ void evtCreateBlurFilterTask(s32 arg0, s32 type, u8 *arg2)
         }
 
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
 
-            var = frame.extra1;
+            clearCursor = frame.extra1;
             remaining = sizeof(frame.extra1);
-            if (var != NULL) {
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
@@ -327,54 +336,54 @@ void evtCreateBlurFilterTask(s32 arg0, s32 type, u8 *arg2)
         task1[0] = 0;
         task1[1] = (s32)effBlurFilterDirectCreate(1, &frame.filter1);
         task1[3] = frame.filter1.params.valueB8;
-        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task1));
+        (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task1));
         break;
 
     case 2:
         mode2 = 0;
-        if (arg2[0x1B] & 1) {
+        if (record[0x1B] & 1) {
             mode2 = 1;
-            if (arg2[0x1B] & 2) {
+            if (record[0x1B] & 2) {
                 mode2 = 2;
             }
         }
 
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
 
-            var = (u8 *)&frame.params2;
+            clearCursor = (u8 *)&frame.params2;
             remaining = sizeof(frame.params2);
-            if (var != NULL) {
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
         }
         frame.params2.type = mode2;
-        frame.params2.color0 = (arg2[0x1A] << 16) | 0xFF000000 |
-                               (arg2[0x19] << 8) | arg2[0x18];
-        frame.params2.color1 = (arg2[0x26] << 16) | 0xFF000000 |
-                               (arg2[0x25] << 8) | arg2[0x24];
-        frame.params2.color2 = (arg2[0x1E] << 16) | 0xFF000000 |
-                               (arg2[0x1D] << 8) | arg2[0x1C];
-        frame.params2.alpha0 = (f32)arg2[0x1F] / 100.0f;
-        frame.params2.color3 = (arg2[0x22] << 16) | 0xFF000000 |
-                               (arg2[0x21] << 8) | arg2[0x20];
-        frame.params2.alpha1 = (f32)arg2[0x23] / 100.0f;
-        frame.params2.value24 = arg2[0x27];
-        frame.params2.value28 = arg2[0x1B] >> 4;
-        frame.params2.value2C = (f32)arg2[0x28] / 100.0f;
-        frame.params2.value30 = (f32)arg2[0x29] / 100.0f;
-        frame.params2.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
-        frame.params2.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
-        frame.params2.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
-        frame.params2.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
-        frame.params2.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
-        frame.params2.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
-        frame.params2.valueB8 = *(s16 *)(arg2 + 0x10);
+        frame.params2.color0 = (record[0x1A] << 16) | 0xFF000000 |
+                               (record[0x19] << 8) | record[0x18];
+        frame.params2.color1 = (record[0x26] << 16) | 0xFF000000 |
+                               (record[0x25] << 8) | record[0x24];
+        frame.params2.color2 = (record[0x1E] << 16) | 0xFF000000 |
+                               (record[0x1D] << 8) | record[0x1C];
+        frame.params2.alpha0 = (f32)record[0x1F] / 100.0f;
+        frame.params2.color3 = (record[0x22] << 16) | 0xFF000000 |
+                               (record[0x21] << 8) | record[0x20];
+        frame.params2.alpha1 = (f32)record[0x23] / 100.0f;
+        frame.params2.value24 = record[0x27];
+        frame.params2.value28 = record[0x1B] >> 4;
+        frame.params2.value2C = (f32)record[0x28] / 100.0f;
+        frame.params2.value30 = (f32)record[0x29] / 100.0f;
+        frame.params2.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
+        frame.params2.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
+        frame.params2.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
+        frame.params2.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
+        frame.params2.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
+        frame.params2.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
+        frame.params2.valueB8 = *(s16 *)(record + 0x10);
 
         {
             EvtU128 *source;
@@ -399,15 +408,15 @@ void evtCreateBlurFilterTask(s32 arg0, s32 type, u8 *arg2)
         frame.filter2.params.active = 1;
 
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
 
-            var = frame.extra2;
+            clearCursor = frame.extra2;
             remaining = sizeof(frame.extra2);
-            if (var != NULL) {
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
@@ -429,7 +438,7 @@ void evtCreateBlurFilterTask(s32 arg0, s32 type, u8 *arg2)
                 destination++;
             } while (blocks > 0);
         }
-        frame.filter1.argument = arg2[0x2A];
+        frame.filter1.argument = record[0x2A];
 
         filter2 = effBlurFilterDirectCreate(2, &frame.filter2);
         *(s32 *)(filter2 + 0x28) =
@@ -443,7 +452,7 @@ void evtCreateBlurFilterTask(s32 arg0, s32 type, u8 *arg2)
             task2[1] = (s32)effBlurFilterDirectCreate(2, &frame.filter2);
         }
         task2[3] = frame.filter2.params.valueB8;
-        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task2));
+        (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task2));
         break;
     }
 }
@@ -460,76 +469,78 @@ void evtCreateBlurFilterTask(s32 arg0, s32 type, u8 *arg2)
 // FUN_0028DC30
 #pragma push
 #pragma opt_lifetimes on
-s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
+/* Only the filter reference slot at +0x28 is known here; the direct/copy filter allocation layout remains opaque. */
+s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
 {
+    /* Packed RGB/options occupy +0x18..0x2B and signed halfwords +0x10/+0x2C..0x36; typed access changed MWCC allocation. */
     extern u8 D_0063C660[];
     typedef struct { EvtFilterParams params; u8 extra[0x28]; } F28;
     typedef struct { EvtFilterParams params; u8 extra[0x2C]; } F2C;
-    F28 f1;
-    F2C f2;
-    F2C f3;
-    F28 f5;
-    u8 s1[0x28];
-    u8 s2[0x2C];
-    u8 s3[0x2C];
-    u8 s5[0x28];
-    EvtFilterParams p1;
-    EvtFilterParams p2;
-    EvtFilterParams p3;
-    EvtFilterParams p5;
-    s32 argSave;
+    F28 typeOneFilter;
+    F2C typeTwoFilter;
+    F2C typeThreeFilter;
+    F28 typeFiveFilter;
+    u8 typeOneExtra[0x28];
+    u8 typeTwoExtra[0x2C];
+    u8 typeThreeExtra[0x2C];
+    u8 typeFiveExtra[0x28];
+    EvtFilterParams typeOneParams;
+    EvtFilterParams typeTwoParams;
+    EvtFilterParams typeThreeParams;
+    EvtFilterParams typeFiveParams;
+    s32 referenceKind;
     s32 mode;
     s32 *task;
-    u8 *tmp;
+    u8 *filter;
 
     switch (type) {
     case 1:
         mode = 0;
-        if (arg2[0x1B] & 1) {
+        if (record[0x1B] & 1) {
             mode = 1;
-            if (arg2[0x1B] & 2) {
+            if (record[0x1B] & 2) {
                 mode = 2;
             }
         }
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
-            var = (u8 *)&p1;
-            remaining = sizeof(p1);
-            if (var != NULL) {
+            clearCursor = (u8 *)&typeOneParams;
+            remaining = sizeof(typeOneParams);
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
         }
-        p1.type = mode;
-        p1.color0 = (arg2[0x1A] << 16) | 0xFF000000 | (arg2[0x19] << 8) | arg2[0x18];
-        p1.color1 = (arg2[0x26] << 16) | 0xFF000000 | (arg2[0x25] << 8) | arg2[0x24];
-        p1.color2 = (arg2[0x1E] << 16) | 0xFF000000 | (arg2[0x1D] << 8) | arg2[0x1C];
-        p1.alpha0 = (f32)arg2[0x1F] / 100.0f;
-        p1.color3 = (arg2[0x22] << 16) | 0xFF000000 | (arg2[0x21] << 8) | arg2[0x20];
-        p1.alpha1 = (f32)arg2[0x23] / 100.0f;
-        p1.value24 = arg2[0x27];
-        p1.value28 = arg2[0x1B] >> 4;
-        p1.value2C = (f32)arg2[0x28] / 100.0f;
-        p1.value30 = (f32)arg2[0x29] / 100.0f;
-        p1.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
-        p1.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
-        p1.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
-        p1.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
-        p1.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
-        p1.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
-        p1.valueB8 = *(s16 *)(arg2 + 0x10);
+        typeOneParams.type = mode;
+        typeOneParams.color0 = (record[0x1A] << 16) | 0xFF000000 | (record[0x19] << 8) | record[0x18];
+        typeOneParams.color1 = (record[0x26] << 16) | 0xFF000000 | (record[0x25] << 8) | record[0x24];
+        typeOneParams.color2 = (record[0x1E] << 16) | 0xFF000000 | (record[0x1D] << 8) | record[0x1C];
+        typeOneParams.alpha0 = (f32)record[0x1F] / 100.0f;
+        typeOneParams.color3 = (record[0x22] << 16) | 0xFF000000 | (record[0x21] << 8) | record[0x20];
+        typeOneParams.alpha1 = (f32)record[0x23] / 100.0f;
+        typeOneParams.value24 = record[0x27];
+        typeOneParams.value28 = record[0x1B] >> 4;
+        typeOneParams.value2C = (f32)record[0x28] / 100.0f;
+        typeOneParams.value30 = (f32)record[0x29] / 100.0f;
+        typeOneParams.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
+        typeOneParams.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
+        typeOneParams.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
+        typeOneParams.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
+        typeOneParams.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
+        typeOneParams.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
+        typeOneParams.valueB8 = *(s16 *)(record + 0x10);
         {
             EvtU128 *source;
             EvtU128 *destination;
             EvtU128 value0;
             EvtU128 value1;
             s32 blocks;
-            source = (EvtU128 *)&p1;
-            destination = (EvtU128 *)&f1.params;
+            source = (EvtU128 *)&typeOneParams;
+            destination = (EvtU128 *)&typeOneFilter.params;
             blocks = 6;
             do {
                 value0 = source[0];
@@ -542,14 +553,14 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
             } while (blocks > 0);
         }
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
-            var = s1;
-            remaining = sizeof(s1);
-            if (var != NULL) {
+            clearCursor = typeOneExtra;
+            remaining = sizeof(typeOneExtra);
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
@@ -560,8 +571,8 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
             u32 value0;
             u32 value1;
             s32 blocks;
-            source = (u32 *)s1;
-            destination = (u32 *)f1.extra;
+            source = (u32 *)typeOneExtra;
+            destination = (u32 *)typeOneFilter.extra;
             blocks = 5;
             do {
                 value0 = source[0];
@@ -576,56 +587,56 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
-        task[1] = (s32)effBlurFilterCopiedCreate(1, &f1.params);
-        task[3] = f1.params.valueB8;
-        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
+        task[1] = (s32)effBlurFilterCopiedCreate(1, &typeOneFilter.params);
+        task[3] = typeOneFilter.params.valueB8;
+        return (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
     case 2:
         mode = 0;
-        if (arg2[0x1B] & 1) {
+        if (record[0x1B] & 1) {
             mode = 1;
-            if (arg2[0x1B] & 2) {
+            if (record[0x1B] & 2) {
                 mode = 2;
             }
         }
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
-            var = (u8 *)&p2;
-            remaining = sizeof(p2);
-            if (var != NULL) {
+            clearCursor = (u8 *)&typeTwoParams;
+            remaining = sizeof(typeTwoParams);
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
         }
-        p2.type = mode;
-        p2.color0 = (arg2[0x1A] << 16) | 0xFF000000 | (arg2[0x19] << 8) | arg2[0x18];
-        p2.color1 = (arg2[0x26] << 16) | 0xFF000000 | (arg2[0x25] << 8) | arg2[0x24];
-        p2.color2 = (arg2[0x1E] << 16) | 0xFF000000 | (arg2[0x1D] << 8) | arg2[0x1C];
-        p2.alpha0 = (f32)arg2[0x1F] / 100.0f;
-        p2.color3 = (arg2[0x22] << 16) | 0xFF000000 | (arg2[0x21] << 8) | arg2[0x20];
-        p2.alpha1 = (f32)arg2[0x23] / 100.0f;
-        p2.value24 = arg2[0x27];
-        p2.value28 = arg2[0x1B] >> 4;
-        p2.value2C = (f32)arg2[0x28] / 100.0f;
-        p2.value30 = (f32)arg2[0x29] / 100.0f;
-        p2.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
-        p2.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
-        p2.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
-        p2.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
-        p2.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
-        p2.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
-        p2.valueB8 = *(s16 *)(arg2 + 0x10);
+        typeTwoParams.type = mode;
+        typeTwoParams.color0 = (record[0x1A] << 16) | 0xFF000000 | (record[0x19] << 8) | record[0x18];
+        typeTwoParams.color1 = (record[0x26] << 16) | 0xFF000000 | (record[0x25] << 8) | record[0x24];
+        typeTwoParams.color2 = (record[0x1E] << 16) | 0xFF000000 | (record[0x1D] << 8) | record[0x1C];
+        typeTwoParams.alpha0 = (f32)record[0x1F] / 100.0f;
+        typeTwoParams.color3 = (record[0x22] << 16) | 0xFF000000 | (record[0x21] << 8) | record[0x20];
+        typeTwoParams.alpha1 = (f32)record[0x23] / 100.0f;
+        typeTwoParams.value24 = record[0x27];
+        typeTwoParams.value28 = record[0x1B] >> 4;
+        typeTwoParams.value2C = (f32)record[0x28] / 100.0f;
+        typeTwoParams.value30 = (f32)record[0x29] / 100.0f;
+        typeTwoParams.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
+        typeTwoParams.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
+        typeTwoParams.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
+        typeTwoParams.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
+        typeTwoParams.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
+        typeTwoParams.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
+        typeTwoParams.valueB8 = *(s16 *)(record + 0x10);
         {
             EvtU128 *source;
             EvtU128 *destination;
             EvtU128 value0;
             EvtU128 value1;
             s32 blocks;
-            source = (EvtU128 *)&p2;
-            destination = (EvtU128 *)&f2.params;
+            source = (EvtU128 *)&typeTwoParams;
+            destination = (EvtU128 *)&typeTwoFilter.params;
             blocks = 6;
             do {
                 value0 = source[0];
@@ -637,16 +648,16 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
                 destination += 2;
             } while (blocks > 0);
         }
-        f2.params.active = 1;
+        typeTwoFilter.params.active = 1;
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
-            var = s2;
-            remaining = sizeof(s2);
-            if (var != NULL) {
+            clearCursor = typeTwoExtra;
+            remaining = sizeof(typeTwoExtra);
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
@@ -656,8 +667,8 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
             u32 *destination;
             u32 value;
             s32 blocks;
-            source = (u32 *)s2;
-            destination = (u32 *)f2.extra;
+            source = (u32 *)typeTwoExtra;
+            destination = (u32 *)typeTwoFilter.extra;
             blocks = 11;
             do {
                 value = *source;
@@ -667,66 +678,66 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
                 destination++;
             } while (blocks > 0);
         }
-        argSave = arg2[0x2A];
-        tmp = effBlurFilterCopiedCreate(2, &f2.params);
-        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&argSave, 4);
+        referenceKind = record[0x2A];
+        filter = effBlurFilterCopiedCreate(2, &typeTwoFilter.params);
+        *(s32 *)(filter + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&referenceKind, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
-        if (tmp != NULL) {
-            task[1] = (s32)tmp;
+        if (filter != NULL) {
+            task[1] = (s32)filter;
         } else {
-            task[1] = (s32)effBlurFilterCopiedCreate(2, &f2.params);
+            task[1] = (s32)effBlurFilterCopiedCreate(2, &typeTwoFilter.params);
         }
-        task[3] = f2.params.valueB8;
-        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
+        task[3] = typeTwoFilter.params.valueB8;
+        return (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
     case 3:
         mode = 0;
-        if (arg2[0x1B] & 1) {
+        if (record[0x1B] & 1) {
             mode = 1;
-            if (arg2[0x1B] & 2) {
+            if (record[0x1B] & 2) {
                 mode = 2;
             }
         }
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
-            var = (u8 *)&p3;
-            remaining = sizeof(p3);
-            if (var != NULL) {
+            clearCursor = (u8 *)&typeThreeParams;
+            remaining = sizeof(typeThreeParams);
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
         }
-        p3.type = mode;
-        p3.color0 = (arg2[0x1A] << 16) | 0xFF000000 | (arg2[0x19] << 8) | arg2[0x18];
-        p3.color1 = (arg2[0x26] << 16) | 0xFF000000 | (arg2[0x25] << 8) | arg2[0x24];
-        p3.color2 = (arg2[0x1E] << 16) | 0xFF000000 | (arg2[0x1D] << 8) | arg2[0x1C];
-        p3.alpha0 = (f32)arg2[0x1F] / 100.0f;
-        p3.color3 = (arg2[0x22] << 16) | 0xFF000000 | (arg2[0x21] << 8) | arg2[0x20];
-        p3.alpha1 = (f32)arg2[0x23] / 100.0f;
-        p3.value24 = arg2[0x27];
-        p3.value28 = arg2[0x1B] >> 4;
-        p3.value2C = (f32)arg2[0x28] / 100.0f;
-        p3.value30 = (f32)arg2[0x29] / 100.0f;
-        p3.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
-        p3.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
-        p3.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
-        p3.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
-        p3.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
-        p3.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
-        p3.valueB8 = *(s16 *)(arg2 + 0x10);
+        typeThreeParams.type = mode;
+        typeThreeParams.color0 = (record[0x1A] << 16) | 0xFF000000 | (record[0x19] << 8) | record[0x18];
+        typeThreeParams.color1 = (record[0x26] << 16) | 0xFF000000 | (record[0x25] << 8) | record[0x24];
+        typeThreeParams.color2 = (record[0x1E] << 16) | 0xFF000000 | (record[0x1D] << 8) | record[0x1C];
+        typeThreeParams.alpha0 = (f32)record[0x1F] / 100.0f;
+        typeThreeParams.color3 = (record[0x22] << 16) | 0xFF000000 | (record[0x21] << 8) | record[0x20];
+        typeThreeParams.alpha1 = (f32)record[0x23] / 100.0f;
+        typeThreeParams.value24 = record[0x27];
+        typeThreeParams.value28 = record[0x1B] >> 4;
+        typeThreeParams.value2C = (f32)record[0x28] / 100.0f;
+        typeThreeParams.value30 = (f32)record[0x29] / 100.0f;
+        typeThreeParams.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
+        typeThreeParams.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
+        typeThreeParams.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
+        typeThreeParams.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
+        typeThreeParams.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
+        typeThreeParams.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
+        typeThreeParams.valueB8 = *(s16 *)(record + 0x10);
         {
             EvtU128 *source;
             EvtU128 *destination;
             EvtU128 value0;
             EvtU128 value1;
             s32 blocks;
-            source = (EvtU128 *)&p3;
-            destination = (EvtU128 *)&f3.params;
+            source = (EvtU128 *)&typeThreeParams;
+            destination = (EvtU128 *)&typeThreeFilter.params;
             blocks = 6;
             do {
                 value0 = source[0];
@@ -738,14 +749,14 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
                 destination += 2;
             } while (blocks > 0);
         }
-        f3.params.active = 1;
+        typeThreeFilter.params.active = 1;
         {
             EvtU128 *source;
             EvtU128 *destination;
             EvtU128 value;
             s32 blocks;
             source = (EvtU128 *)D_0063C660;
-            destination = (EvtU128 *)s3;
+            destination = (EvtU128 *)typeThreeExtra;
             blocks = 2;
             do {
                 value = source[0];
@@ -763,17 +774,18 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
                 *(f32 *)tailDestination = lastValue;
             }
         }
-        *(s32 *)(s3 + 0x00) = arg2[0x2B];
-        *(s32 *)(s3 + 0x04) = *(s16 *)(arg2 + 0x14);
-        *(f32 *)(s3 + 0x08) = (f32)arg2[0x13] / 100.0f;
-        *(s32 *)(s3 + 0x28) = *(s16 *)(arg2 + 0x16);
+        /* This 44-byte template mixes word/float fields; its qword and tail copy shape is measured above. */
+        *(s32 *)(typeThreeExtra + 0x00) = record[0x2B];
+        *(s32 *)(typeThreeExtra + 0x04) = *(s16 *)(record + 0x14);
+        *(f32 *)(typeThreeExtra + 0x08) = (f32)record[0x13] / 100.0f;
+        *(s32 *)(typeThreeExtra + 0x28) = *(s16 *)(record + 0x16);
         {
             u32 *source;
             u32 *destination;
             u32 value;
             s32 blocks;
-            source = (u32 *)s3;
-            destination = (u32 *)f3.extra;
+            source = (u32 *)typeThreeExtra;
+            destination = (u32 *)typeThreeFilter.extra;
             blocks = 11;
             do {
                 value = *source;
@@ -783,66 +795,66 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
                 destination++;
             } while (blocks > 0);
         }
-        argSave = arg2[0x2A];
-        tmp = effBlurFilterCopiedCreate(3, &f3.params);
-        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&argSave, 4);
+        referenceKind = record[0x2A];
+        filter = effBlurFilterCopiedCreate(3, &typeThreeFilter.params);
+        *(s32 *)(filter + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&referenceKind, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
-        if (tmp != NULL) {
-            task[1] = (s32)tmp;
+        if (filter != NULL) {
+            task[1] = (s32)filter;
         } else {
-            task[1] = (s32)effBlurFilterCopiedCreate(3, &f3.params);
+            task[1] = (s32)effBlurFilterCopiedCreate(3, &typeThreeFilter.params);
         }
-        task[3] = f3.params.valueB8;
-        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
+        task[3] = typeThreeFilter.params.valueB8;
+        return (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
     case 5:
         mode = 0;
-        if (arg2[0x1B] & 1) {
+        if (record[0x1B] & 1) {
             mode = 1;
-            if (arg2[0x1B] & 2) {
+            if (record[0x1B] & 2) {
                 mode = 2;
             }
         }
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
-            var = (u8 *)&p5;
-            remaining = sizeof(p5);
-            if (var != NULL) {
+            clearCursor = (u8 *)&typeFiveParams;
+            remaining = sizeof(typeFiveParams);
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
         }
-        p5.type = mode;
-        p5.color0 = (arg2[0x1A] << 16) | 0xFF000000 | (arg2[0x19] << 8) | arg2[0x18];
-        p5.color1 = (arg2[0x26] << 16) | 0xFF000000 | (arg2[0x25] << 8) | arg2[0x24];
-        p5.color2 = (arg2[0x1E] << 16) | 0xFF000000 | (arg2[0x1D] << 8) | arg2[0x1C];
-        p5.alpha0 = (f32)arg2[0x1F] / 100.0f;
-        p5.color3 = (arg2[0x22] << 16) | 0xFF000000 | (arg2[0x21] << 8) | arg2[0x20];
-        p5.alpha1 = (f32)arg2[0x23] / 100.0f;
-        p5.value24 = arg2[0x27];
-        p5.value28 = arg2[0x1B] >> 4;
-        p5.value2C = (f32)arg2[0x28] / 100.0f;
-        p5.value30 = (f32)arg2[0x29] / 100.0f;
-        p5.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
-        p5.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
-        p5.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
-        p5.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
-        p5.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
-        p5.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
-        p5.valueB8 = *(s16 *)(arg2 + 0x10);
+        typeFiveParams.type = mode;
+        typeFiveParams.color0 = (record[0x1A] << 16) | 0xFF000000 | (record[0x19] << 8) | record[0x18];
+        typeFiveParams.color1 = (record[0x26] << 16) | 0xFF000000 | (record[0x25] << 8) | record[0x24];
+        typeFiveParams.color2 = (record[0x1E] << 16) | 0xFF000000 | (record[0x1D] << 8) | record[0x1C];
+        typeFiveParams.alpha0 = (f32)record[0x1F] / 100.0f;
+        typeFiveParams.color3 = (record[0x22] << 16) | 0xFF000000 | (record[0x21] << 8) | record[0x20];
+        typeFiveParams.alpha1 = (f32)record[0x23] / 100.0f;
+        typeFiveParams.value24 = record[0x27];
+        typeFiveParams.value28 = record[0x1B] >> 4;
+        typeFiveParams.value2C = (f32)record[0x28] / 100.0f;
+        typeFiveParams.value30 = (f32)record[0x29] / 100.0f;
+        typeFiveParams.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
+        typeFiveParams.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
+        typeFiveParams.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
+        typeFiveParams.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
+        typeFiveParams.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
+        typeFiveParams.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
+        typeFiveParams.valueB8 = *(s16 *)(record + 0x10);
         {
             EvtU128 *source;
             EvtU128 *destination;
             EvtU128 value0;
             EvtU128 value1;
             s32 blocks;
-            source = (EvtU128 *)&p5;
-            destination = (EvtU128 *)&f5.params;
+            source = (EvtU128 *)&typeFiveParams;
+            destination = (EvtU128 *)&typeFiveFilter.params;
             blocks = 6;
             do {
                 value0 = source[0];
@@ -855,14 +867,14 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
             } while (blocks > 0);
         }
         {
-            u8 *var;
+            u8 *clearCursor;
             s32 remaining;
-            var = s5;
-            remaining = sizeof(s5);
-            if (var != NULL) {
+            clearCursor = typeFiveExtra;
+            remaining = sizeof(typeFiveExtra);
+            if (clearCursor != NULL) {
                 do {
-                    *var = 0;
-                    var++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     remaining--;
                 } while (remaining != 0);
             }
@@ -873,8 +885,8 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
             u32 value0;
             u32 value1;
             s32 blocks;
-            source = (u32 *)s5;
-            destination = (u32 *)f5.extra;
+            source = (u32 *)typeFiveExtra;
+            destination = (u32 *)typeFiveFilter.extra;
             blocks = 5;
             do {
                 value0 = source[0];
@@ -886,28 +898,41 @@ s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
                 destination += 2;
             } while (blocks > 0);
         }
-        argSave = 0;
-        tmp = effBlurFilterCopiedCreate(5, &f5.params);
-        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&argSave, 4);
+        referenceKind = 0;
+        filter = effBlurFilterCopiedCreate(5, &typeFiveFilter.params);
+        *(s32 *)(filter + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&referenceKind, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
-        if (tmp != NULL) {
-            task[1] = (s32)tmp;
+        if (filter != NULL) {
+            task[1] = (s32)filter;
         } else {
-            task[1] = (s32)effBlurFilterCopiedCreate(5, &f5.params);
+            task[1] = (s32)effBlurFilterCopiedCreate(5, &typeFiveFilter.params);
         }
-        task[3] = f5.params.valueB8;
-        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
+        task[3] = typeFiveFilter.params.valueB8;
+        return (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
     }
 }
 
 #pragma pop
 
+/* 0x30-byte tint allocation; the five target words are copied from the command. */
+typedef struct EvtTintWork {
+    s32 frame;
+    s32 flags;
+    s32 targetLight, targetColor;
+    f32 targetFog, targetValue;
+    s32 unk18;
+    s32 startLight, startColor;
+    f32 startFog, startValue;
+    s32 duration;
+} EvtTintWork;
+
 // Tint task update: runs the colour tint step for the task's state each frame [inferred].
 // FUN_0028EE00
-s32 evtTintTaskUpdate(u8 *arg0)
+s32 evtTintTaskUpdate(u8 *unusedTask)
 {
+    /* EvtTintWork proves these word/float offsets; typed members changed retail scheduling. */
     s32 *work;
     f32 progress;
     u32 startColor;
@@ -954,7 +979,7 @@ s32 evtTintTaskUpdate(u8 *arg0)
     b = start + progress * (s32)(end - start);
     kwlnSetColorRgba(r, g, b, 0);
 
-    *(f32 *)((u8 *)kwlnGetCamera() + 0x88) =
+    ((RwCamera *)kwlnGetCamera())->fogPlane =
         *(f32 *)(work + 9) + progress * (*(f32 *)(work + 4) - *(f32 *)(work + 9));
     kwlnGetCamera();
     D_00764B5C =
@@ -976,14 +1001,15 @@ s32 evtTintTaskUpdate(u8 *arg0)
 void evtTintTaskDestroy(u8 *unusedTask)
 {
     extern s32 *kwlnTaskGetWork(void);
-    int iVar1;
+    int work;
 
-    iVar1 = (s32)kwlnTaskGetWork();
-    DAT_008873ec_abs[0](iVar1);
+    work = (s32)kwlnTaskGetWork();
+    DAT_008873ec_abs[0](work);
 }
 // Creates a tint task: copies five words of tint data and takes the colour from the kwln colour record and the camera distance [inferred].
 // FUN_0028F3A0
-void evtCreateTintTask(s32 arg0, s32 *arg1, s32 arg2) {
+/* The five command words mix flags, colors and floats; retain the serialized word-copy cursor and its load/store order. */
+void evtCreateTintTask(s32 parentTask, s32 *parameters, s32 duration) {
     s32 v;
     s32 acc;
     s32 t;
@@ -995,7 +1021,7 @@ void evtCreateTintTask(s32 arg0, s32 *arg1, s32 arg2) {
     evtTintTaskKill();
     chkmemAllocSiteTag(D_0063C638, 0x12E4);
     p = (s32 *)D_008873F4[0](1, 0x30, 0x40000);
-    src = arg1;
+    src = parameters;
     dst = (u8 *)p + 4;
     i = 5;
     do {
@@ -1005,16 +1031,16 @@ void evtCreateTintTask(s32 arg0, s32 *arg1, s32 arg2) {
         *(s32 *)dst = v;
         dst += 4;
     } while (i > 0);
-    p[0xB] = arg2;
-    p[6] = 1;
-    p[7] = ((D_00764B3C << 16) | (D_00764B40 << 8)) | D_00764B44;
+    ((EvtTintWork *)p)->duration = duration;
+    ((EvtTintWork *)p)->unk18 = 1;
+    ((EvtTintWork *)p)->startLight = ((D_00764B3C << 16) | (D_00764B40 << 8)) | D_00764B44;
     acc = kwlnGetColorRgb()[0] << 16;
     acc |= kwlnGetColorRgb()[1] << 8;
     t = kwlnGetColorRgb()[2];
-    p[8] = t | acc;
-    *(f32 *)(p + 9) = *(f32 *)((u8 *)kwlnGetCamera() + 0x88);
-    *(f32 *)(p + 0xA) = D_00764B5C;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763898), 0xF, 0, 0, evtTintTaskUpdate, evtTintTaskDestroy, (u8 *)(p));
+    ((EvtTintWork *)p)->startColor = t | acc;
+    ((EvtTintWork *)p)->startFog = ((RwCamera *)kwlnGetCamera())->fogPlane;
+    ((EvtTintWork *)p)->startValue = D_00764B5C;
+    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(&D_00763898), 0xF, 0, 0, evtTintTaskUpdate, evtTintTaskDestroy, (u8 *)(p));
 }
 
 // Destroys the tint task by name, if it is alive.
@@ -1028,47 +1054,48 @@ void evtTintTaskKill(void) {
 }
 
 // FUN_0028F530
-void func_0028f530(u8 *resource) {
+/* Empty retail hook called for each type-3 NPC resource before its event node is allocated. */
+void evtNpcResourceHook(u8 *resource) {
 }
 
 // Script load task step: loads the script file named by the task, starts its procedure at the requested index, and waits for it to finish [inferred].
 // FUN_0028F540
-s32 evtScriptLoadStep(u8 *arg0) {
-    s32 *p;
-    u32 local_3C;
-    u8 *s1;
+s32 evtScriptLoadStep(u8 *unusedTask) {
+    s32 *work;
+    u32 resourceSize;
+    u8 *scriptData;
 
-    p = kwlnTaskGetWork();
-    switch (p[0]) {
+    work = kwlnTaskGetWork();
+    switch (work[0]) {
     case 0:
-        if (p[0x43] != 0) {
-            H_Cdvd_Destroy(p[0x43]);
-            p[0x43] = 0;
+        if (work[0x43] != 0) {
+            H_Cdvd_Destroy(work[0x43]);
+            work[0x43] = 0;
         }
         func_00440b68(&D_007638A0, D_0063C638, 0x1344);
-        p[0x43] = H_Cdvd_AcquireDirectory(&p[3], 0);
-        p[0] = 1;
+        work[0x43] = H_Cdvd_AcquireDirectory(&work[3], 0);
+        work[0] = 1;
     case 1:
-        if (H_Cdvd_IsFileLoaded(p[0x43]) != 0) {
-            p[0] = 2;
+        if (H_Cdvd_IsFileLoaded(work[0x43]) != 0) {
+            work[0] = 2;
         }
         break;
     case 2:
-        s1 = H_Cdvd_LookupRequest(&p[3], &local_3C);
-        if (p[0x44] != 0) {
+        scriptData = H_Cdvd_LookupRequest(&work[3], &resourceSize);
+        if (work[0x44] != 0) {
             kAssertFail(D_0063C638, 0x134E);
         }
-        p[0x44] = scrStartProcedureIndex(p[2], s1, p[1]);
-        if (p[0x44] == 0) {
+        work[0x44] = scrStartProcedureIndex(work[2], scriptData, work[1]);
+        if (work[0x44] == 0) {
             kAssertFail(D_0063C638, 0x1350);
         }
-        p[0] = 3;
+        work[0] = 3;
     case 3:
-        if (kwlnTaskIsLinked(p[0x44]) != 0) {
+        if (kwlnTaskIsLinked(work[0x44]) != 0) {
             break;
         }
-        p[0x44] = 0;
-        p[0] = 4;
+        work[0x44] = 0;
+        work[0] = 4;
         break;
     case 4:
         break;
@@ -1078,50 +1105,50 @@ s32 evtScriptLoadStep(u8 *arg0) {
 
 // Script load task destroy: destroys the started procedure and the file load, then frees the work block.
 // FUN_0028F6C0
-void evtScriptLoadDestroy(u8 *arg0) {
-    s32 *temp_2;
+void evtScriptLoadDestroy(u8 *unusedTask) {
+    s32 *work;
 
-    temp_2 = kwlnTaskGetWork();
-    if (temp_2[0x44] != 0 && kwlnTaskIsLinked(temp_2[0x44]) != 0) {
-        kwlnTaskDestroyWithHierarchy(temp_2[0x44]);
+    work = kwlnTaskGetWork();
+    if (work[0x44] != 0 && kwlnTaskIsLinked(work[0x44]) != 0) {
+        kwlnTaskDestroyWithHierarchy(work[0x44]);
     }
-    if (temp_2[0x43] != 0) {
-        if (H_Cdvd_IsFileLoaded(temp_2[0x43]) == 0) {
+    if (work[0x43] != 0) {
+        if (H_Cdvd_IsFileLoaded(work[0x43]) == 0) {
             kAssertFail(D_0063C638, 0x1364);
         }
-        H_Cdvd_Destroy(temp_2[0x43]);
+        H_Cdvd_Destroy(work[0x43]);
     }
-    jtbl_008873EC[0](temp_2);
+    jtbl_008873EC[0](work);
 }
 
 // Creates a script load task with its work block in the ready state (state 4) [inferred].
 // FUN_0028F770
-void evtStartScriptLoad(s32 arg0) {
-    s32 *temp_2;
+void evtStartScriptLoad(s32 parentTask) {
+    s32 *work;
 
     chkmemAllocSiteTag(D_0063C638, 0x1370);
-    temp_2 = (s32 *)D_008873F4[0](1, 0x114, 0x40000);
-    temp_2[0] = 4;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0063C690), 0xF, 0, 0, evtScriptLoadStep, evtScriptLoadDestroy, (u8 *)(temp_2));
+    work = (s32 *)D_008873F4[0](1, 0x114, 0x40000);
+    work[0] = 4;
+    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(&D_0063C690), 0xF, 0, 0, evtScriptLoadStep, evtScriptLoadDestroy, (u8 *)(work));
 }
 
 // Script load request: when the task is ready, records the procedure index and file name for the next load and returns 1; otherwise returns 0 [inferred].
 // FUN_0028F800
-s32 evtScriptLoadRequest(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    s32 *temp_2;
+s32 evtScriptLoadRequest(s32 task, s32 procedureKind, s32 filename, s32 procedureIndex) {
+    s32 *work;
 
-    if (kwlnTaskIsLinked(arg0) == 0) {
+    if (kwlnTaskIsLinked(task) == 0) {
         kAssertFail(D_0063C638, 0x137E);
     }
-    temp_2 = kwlnTaskGetWork(arg0);
-    if (temp_2[0] == 4) {
-        temp_2[2] = arg1;
-        temp_2[1] = arg3;
-        if (strcmp(&temp_2[3], arg2) == 0) {
-            temp_2[0] = 2;
+    work = kwlnTaskGetWork(task);
+    if (work[0] == 4) {
+        work[2] = procedureKind;
+        work[1] = procedureIndex;
+        if (strcmp(&work[3], filename) == 0) {
+            work[0] = 2;
         } else {
-            strcpy(&temp_2[3], arg2);
-            temp_2[0] = 0;
+            strcpy(&work[3], filename);
+            work[0] = 0;
         }
         return 1;
     }
@@ -1130,11 +1157,11 @@ s32 evtScriptLoadRequest(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // Returns 1 when the script load task is in the ready state (state 4), else 0 [inferred].
 // FUN_0028F8E0
-s32 evtScriptLoadIsReady(s32 arg0) {
-    if (kwlnTaskIsLinked(arg0) == 0) {
+s32 evtScriptLoadIsReady(s32 task) {
+    if (kwlnTaskIsLinked(task) == 0) {
         kAssertFail(D_0063C638, 0x1393);
     }
-    if (kwlnTaskGetWork(arg0)[0] == 4) {
+    if (kwlnTaskGetWork(task)[0] == 4) {
         return 1;
     }
     return 0;

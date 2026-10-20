@@ -1,3 +1,5 @@
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 #include "list_item_internal.h"
 #include "rw_geometry_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -42,11 +44,11 @@ extern u8 D_005F7000[];
 
 extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void (*D_005F6E20[])(u8 *arg0);
+extern void (*D_005F6E20[])(u8 *);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
-extern void btlTargetClearRecord(u8 *arg0);
+extern void btlTargetClearRecord(u8 *);
 extern s64 btlGetUID(void);
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32);
 extern u32 iGpffffa0b8;
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
@@ -93,168 +95,175 @@ extern f32 fGpffff8108;
 #pragma push
 #pragma pop
 // FUN_001B0930
+/* Allocate and initialize a 0x458-byte action, then link it at the action-list head. */
 u8 *btlActionCreate(void)
 {
-    u32 temp_3;
-    u8 *temp_2;
-    u8 *temp_2_2;
+    u32 actionId;
+    u8 *action;
+    u8 *listHead;
 
     chkmemAllocSiteTag(&D_005F6FE8, 0x3A);
-    temp_2 = (u8 *)(*jtbl_008873E8)(0x458, 0x40000);
-    memset(temp_2, 0, 0x458);
-    btlTargetClearRecord(temp_2 + 0x38);
-    *(s16 *)(temp_2 + 0xE) = 0;
-    *(s16 *)(temp_2 + 0x14) = 8;
-    *(s64 *)temp_2 = btlGetUID();
+    action = (u8 *)(*jtbl_008873E8)(0x458, 0x40000);
+    memset(action, 0, 0x458);
+    btlTargetClearRecord(action + 0x38);
+    *(s16 *)&((BtlAction *)action)->pendingState = 0;
+    *(s16 *)&((BtlAction *)action)->state = 8;
+    *(s64 *)&((BtlAction *)action)->uid = btlGetUID();
     if (iGpffffa0b8 >= 0x0FFFFFFFU) {
         iGpffffa0b8 = 1;
     }
-    temp_3 = iGpffffa0b8;
-    iGpffffa0b8 = temp_3 + 1;
-    *(u32 *)(temp_2 + 8) = temp_3;
-    *(s32 *)(temp_2 + 0x24) = -1;
-    *(s16 *)(temp_2 + 0x36) = (s16)datCalcRandomBelow(0x3C);
-    *(s32 *)(temp_2 + 0x44C) = 0;
-    temp_2_2 = *(u8 **)(iGpffffb3ac + 0x174);
-    if (temp_2_2 != NULL) {
-        *(u8 **)(temp_2_2 + 0x44C) = temp_2;
-        *(u8 **)(temp_2 + 0x450) = *(u8 **)(iGpffffb3ac + 0x174);
+    actionId = iGpffffa0b8;
+    iGpffffa0b8 = actionId + 1;
+    ((BtlAction *)action)->id = actionId;
+    ((BtlAction *)action)->idleWeaponAnimTimer = -1;
+    *(s16 *)&((BtlAction *)action)->unk_34[2] = (s16)datCalcRandomBelow(0x3C);
+    *(s32 *)&((BtlAction *)action)->previous = 0;
+    listHead = ((BtlBattleState *)iGpffffb3ac)->actions;
+    if (listHead != NULL) {
+        *(u8 * *)&((BtlAction *)listHead)->previous = action;
+        *(u8 * *)&((BtlAction *)action)->next = ((BtlBattleState *)iGpffffb3ac)->actions;
     } else {
-        *(u8 **)(temp_2 + 0x450) = NULL;
+        *(u8 * *)&((BtlAction *)action)->next = NULL;
     }
-    *(u8 **)(iGpffffb3ac + 0x174) = temp_2;
-    *(u16 *)(temp_2 + 0x10) = *(u16 *)(temp_2 + 0xC);
-    *(u16 *)(temp_2 + 0xC) = 0;
-    *(s32 *)(temp_2 + 0x1C) = 0;
-    D_005F6E20[0](temp_2);
-    return temp_2;
+    ((BtlBattleState *)iGpffffb3ac)->actions = action;
+    ((BtlAction *)action)->oldState = ((BtlAction *)action)->currState;
+    ((BtlAction *)action)->currState = 0;
+    *(s32 *)&((BtlAction *)action)->stateTimer = 0;
+    D_005F6E20[0](action);
+    return action;
 }
 
 /* measured: compound field decrement preserves retail addiu/sh/andi order; normalized_diff 0 in the 400-byte retail window. */
 // FUN_001B0A60
+/* Apply expired state delays, run enabled updates, and unlink actions marked for release. */
 void btlActionListUpdate(void)
 {
-    u8 *var_18;
-    u16 temp_3;
-    u16 temp_3_3;
-    u16 temp_4;
-    u8 *temp_17;
-    u8 *temp_3_4;
-    u8 *temp_3_5;
-    s32 var_16;
+    /* Typed action/unit/packet fields changed MWCC codegen (428B trial); retain the proven byte offsets for MATCH. */
+    u8 *action;
+    u16 delay;
+    u16 pendingState;
+    u16 flags;
+    u8 *nextAction;
+    u8 *nextNode;
+    u8 *previousNode;
+    s32 updateReady;
     u8 *base;
 
     base = (u8 *)iGpffffb3ac;
-    var_18 = *(u8 **)(base + 0x174);
+    action = *(u8 **)(base + 0x174);
     goto loop_check;
 loop_body:
-    temp_17 = *(u8 **)(var_18 + 0x450);
-    var_16 = 1;
-    if (*(u16 *)(var_18 + 0xE) != 0) {
-        temp_3 = *(u16 *)(var_18 + 0x12);
-        if ((s32)temp_3 > 0) {
-            if ((*(u16 *)(var_18 + 0x12) -= 1) != 0) goto decrement_not_zero;
-            temp_3_3 = *(u16 *)(var_18 + 0xE);
-            *(u16 *)(var_18 + 0x10) = *(u16 *)(var_18 + 0xC);
-            *(u16 *)(var_18 + 0xC) = temp_3_3;
-            *(s32 *)(var_18 + 0x1C) = 0;
-            (*(void (**)(u8 *))((u8 *)D_005F6E20 + temp_3_3 * 0xC))(var_18);
-            *(u16 *)(var_18 + 0xE) = 0;
+    nextAction = *(u8 **)(action + 0x450);
+    updateReady = 1;
+    if (*(u16 *)(action + 0xE) != 0) {
+        delay = *(u16 *)(action + 0x12);
+        if ((s32)delay > 0) {
+            if ((*(u16 *)(action + 0x12) -= 1) != 0) goto decrement_not_zero;
+            pendingState = *(u16 *)(action + 0xE);
+            *(u16 *)(action + 0x10) = *(u16 *)(action + 0xC);
+            *(u16 *)(action + 0xC) = pendingState;
+            *(s32 *)(action + 0x1C) = 0;
+            (*(void (**)(u8 *))((u8 *)D_005F6E20 + pendingState * 0xC))(action);
+            *(u16 *)(action + 0xE) = 0;
             goto decrement_done;
 decrement_not_zero:
-            var_16 = 0;
+            updateReady = 0;
 decrement_done:
             ;
         }
     }
-    if (var_16 != 0) {
-        temp_4 = *(u16 *)(var_18 + 0x1A);
-        if ((temp_4 & 4) == 0) {
-            if ((*(u16 *)(var_18 + 0x18) & 1) != 0) {
-                (*(void (**)(u8 *))((u8 *)D_005F6E20 + *(u16 *)(var_18 + 0xC) * 0xC + 4))(var_18);
-                *(s32 *)(var_18 + 0x1C) += 2;
-            } else if ((temp_4 & 2) != 0) {
-                temp_3_4 = *(u8 **)(var_18 + 0x450);
-                if (temp_3_4 != NULL) {
-                    *(u8 **)(temp_3_4 + 0x44C) = *(u8 **)(var_18 + 0x44C);
+    if (updateReady != 0) {
+        flags = *(u16 *)(action + 0x1A);
+        if ((flags & 4) == 0) {
+            if ((*(u16 *)(action + 0x18) & 1) != 0) {
+                (*(void (**)(u8 *))((u8 *)D_005F6E20 + *(u16 *)(action + 0xC) * 0xC + 4))(action);
+                *(s32 *)(action + 0x1C) += 2;
+            } else if ((flags & 2) != 0) {
+                nextNode = *(u8 **)(action + 0x450);
+                if (nextNode != NULL) {
+                    *(u8 **)(nextNode + 0x44C) = *(u8 **)(action + 0x44C);
                 }
-                temp_3_5 = *(u8 **)(var_18 + 0x44C);
-                if (temp_3_5 != NULL) {
-                    *(u8 **)(temp_3_5 + 0x450) = *(u8 **)(var_18 + 0x450);
+                previousNode = *(u8 **)(action + 0x44C);
+                if (previousNode != NULL) {
+                    *(u8 **)(previousNode + 0x450) = *(u8 **)(action + 0x450);
                 } else {
-                    *(u8 **)(iGpffffb3ac + 0x174) = *(u8 **)(var_18 + 0x450);
+                    *(u8 **)(iGpffffb3ac + 0x174) = *(u8 **)(action + 0x450);
                 }
-                (*jtbl_008873EC)(var_18);
+                (*jtbl_008873EC)(action);
             }
         }
     }
-    var_18 = temp_17;
+    action = nextAction;
 loop_check:
-    if (var_18 != NULL) goto loop_body;
+    if (action != NULL) goto loop_body;
 }
 
 // FUN_001B0BF0
+/* Unlink and free every action while preserving the next pointer across the release callback. */
 void btlActionListDestroyAll(void)
 {
-    u8 *temp_16;
-    u8 *temp_3;
-    u8 *var_4;
+    /* Typed action/unit/packet fields changed MWCC codegen (140B trial); retain the proven byte offsets for MATCH. */
+    u8 *nextAction;
+    u8 *previousAction;
+    u8 *action;
 
-    var_4 = *(u8 **)(iGpffffb3ac + 0x174);
+    action = *(u8 **)(iGpffffb3ac + 0x174);
     goto loop_check;
 loop_body:
-    temp_16 = *(u8 **)(var_4 + 0x450);
-    if (temp_16 != NULL) {
-        *(u8 **)(temp_16 + 0x44C) = *(u8 **)(var_4 + 0x44C);
+    nextAction = *(u8 **)(action + 0x450);
+    if (nextAction != NULL) {
+        *(u8 **)(nextAction + 0x44C) = *(u8 **)(action + 0x44C);
     }
-    temp_3 = *(u8 **)(var_4 + 0x44C);
-    if (temp_3 != NULL) {
-        *(u8 **)(temp_3 + 0x450) = *(u8 **)(var_4 + 0x450);
+    previousAction = *(u8 **)(action + 0x44C);
+    if (previousAction != NULL) {
+        *(u8 **)(previousAction + 0x450) = *(u8 **)(action + 0x450);
     } else {
-        *(u8 **)(iGpffffb3ac + 0x174) = *(u8 **)(var_4 + 0x450);
+        *(u8 **)(iGpffffb3ac + 0x174) = *(u8 **)(action + 0x450);
     }
-    (*jtbl_008873EC)(var_4);
-    var_4 = temp_16;
+    (*jtbl_008873EC)(action);
+    action = nextAction;
 loop_check:
-    if (var_4 != NULL) goto loop_body;
+    if (action != NULL) goto loop_body;
 }
 
 /* measured: returning directly from the compare branch preserves retail's
    bne/branch-to-tail layout; the C object is 60B/64B with nd 0 and only the
    retail alignment nop remains. */
 // FUN_001B0C80
-u8 *btlActionFindByUnit(s32 arg0)
+/* Search the action list for the unit pointer; return NULL when no action owns it. */
+u8 *btlActionFindByUnit(s32 unit)
 {
-    u8 *p;
+    u8 *action;
 
-    p = *(u8 **)(iGpffffb3ac + 0x174);
+    action = ((BtlBattleState *)iGpffffb3ac)->actions;
     goto check;
 loop:
-    if (*(s32 *)(p + 0x30) == arg0) {
-        return p;
+    if (*(s32 *)&((BtlAction *)action)->unit == unit) {
+        return action;
     }
-    p = *(u8 **)(p + 0x450);
+    action = *(u8 * *)&((BtlAction *)action)->next;
 check:
-    if (p != NULL) goto loop;
+    if (action != NULL) goto loop;
     return NULL;
 }
 
 /* measured: 0cc0 shares the pointer-chain branch shape above; only its
    compare-field displacement changes, with nd 0 in a 60B/64B object. */
 // FUN_001B0CC0
-u8 *btlActionFindById(s32 arg0)
+/* Search the action list for its monotonically assigned ID; return NULL when absent. */
+u8 *btlActionFindById(s32 id)
 {
-    u8 *p;
+    u8 *action;
 
-    p = *(u8 **)(iGpffffb3ac + 0x174);
+    action = ((BtlBattleState *)iGpffffb3ac)->actions;
     goto check;
 loop:
-    if (*(s32 *)(p + 8) == arg0) {
-        return p;
+    if (*(s32 *)&((BtlAction *)action)->id == id) {
+        return action;
     }
-    p = *(u8 **)(p + 0x450);
+    action = *(u8 * *)&((BtlAction *)action)->next;
 check:
-    if (p != NULL) goto loop;
+    if (action != NULL) goto loop;
     return NULL;
 }
 

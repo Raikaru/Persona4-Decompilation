@@ -11,53 +11,88 @@
 #include "btl_action_internal.h"
 #include "datPersona_internal.h"
 #include "datUnit_internal.h"
+#include "btl_effect_internal.h"
+#include "dat_skill_entry_internal.h"
+#include "btl_skill_internal.h"
+
+/* Enemy battle-table rows have a proven 0xE8 stride. The two movement
+ * variants interleave their speed selector with an unknown halfword. */
+typedef struct BtlEnemyMovement {
+    u16 speedIndex;
+    u16 unk02;
+} BtlEnemyMovement;
+typedef struct BtlEnemyBattleParameters {
+    u8 pad00[0x18];
+    s16 flags;                  /* 0x18 */
+    u8 pad1A[8];
+    s16 cameraMode;             /* 0x22 */
+    BtlEnemyMovement movement[2]; /* 0x24 */
+    u8 pad2C[0xE8 - 0x2C];
+} BtlEnemyBattleParameters;
+typedef char BtlEnemyBattleParametersSizeCheck[
+    sizeof(BtlEnemyBattleParameters) == 0xE8 ? 1 : -1];
+/* Signed view of the BtlPacket scheduling header used by the action packet chains:
+ * same offsets as BtlPacket's dependencyKind/dependencyUID/uid/actionUID; a packet
+ * with dependencyKind 4 waits for the packet whose uid is dependencyUid. */
+typedef struct BtlPacketTiming {
+    s8 dependencyKind;  /* 0x00: 4 waits for dependencyUid */
+    u8 pad01[7];
+    s64 dependencyUid;  /* 0x08 */
+    u8 pad10[0x37];
+    u8 flags;           /* 0x47 */
+    s16 delay;          /* 0x48 */
+    s16 duration;       /* 0x4A */
+    u8 pad4C[0xC];
+    s64 uid;            /* 0x58 */
+    s64 actionUid;      /* 0x60 */
+} BtlPacketTiming;
 typedef struct BtlPacket BtlPacket;
-extern BtlPacket *btlFormationCreateNamedPacket(u32 formation, const char *text, u16 mode);
-u32 datCalcRandomBelow(u32 bound);
+extern BtlPacket *btlFormationCreateNamedPacket(u32 resource, const char *path, u16 mode);
+u32 datCalcRandomBelow(u32 limit);
 typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
-extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
+extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode);
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
-extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
-static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
+extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument, u32 extraArgument, u32 flags);
+static inline u8 *btlActionCreateTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
 {
     return (u8 *)btlTargetCreateTargetPacket((u32)action, kind, a, b, c);
 }
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
-static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)
+static inline void btlActionSetDelayBytes(u8 *action, s32 state, s32 delay)
 {
     btlActionSetStateWithDelay((BtlAction *)action, (u16)state, (u16)delay);
 }
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
-static inline u8 *actionRotatePacketBytes(u8 *unit, void *rot, s32 flags)
+static inline u8 *btlActionCreateRotatePacketBytes(u8 *unit, void *rot, s32 flags)
 {
     return (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, (const RwV3d *)rot, (u32)flags);
 }
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
-static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
+static inline u8 *btlActionCreateRecoveryPacketBytes(BtlUnit *unit)
 {
     return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
-extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
-static inline void *actionMessagePacketBytes(s32 unit, s32 message)
+extern BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit);
+static inline void *btlActionCreateMessagePacketBytes(s32 unit, s32 message)
 {
     return btlPacketCreateEffectCounter(unit, message);
 }
-extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 cue, s32 unitId, s32 a, s32 b);
+extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 callbackIndex, s32 argument, s32 extraArgument, s32 flags);
 extern void btlUnitGetAnchorPose(u8 *, u8 *, f32 *, f32 *);
 extern f32 btlTargetVectorDistance(const RwV3d *, const RwV3d *);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *, const RwV3d *, f32, u32);
 extern u8 *iGpffffb3cc;
-extern f32 D_005F6D20[];
+extern f32 D_005F6D20[]; /* movement speed table */
 
 void btlActionSetState(BtlAction *action, u16 state);
-u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
-static inline s32 func_001a_add_offset(s32 offset, s32 base)
+u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
+static inline s32 btlActionAddAddressOffset(s32 offset, s32 base)
 {
     return offset + base;
 }
-static inline s32 func_001a_fix_var(s32 value)
+static inline s32 btlActionNormalizeUnitIndex(s32 value)
 {
     if (value == 0) {
         value = -1;
@@ -66,185 +101,179 @@ static inline s32 func_001a_fix_var(s32 value)
 }
 void btlSoundBumpStatusCounters(void);
 
-void btlTargetResolveSelectedSkill(u8 *arg0);
-void func_001eb3b0(u8 *arg0);
-extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
-void btlEffectSelectNearestEntry(void *arg0, void *arg1);
+void btlTargetResolveSelectedSkill(u8 *context);
+void btlTargetResetCommandRecord(u8 *record);
+extern void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u32 sideFlags, u32 filterFlags, u32 statusMask);
+void btlEffectSelectNearestEntry(void *action, void *targets);
 
-s32 btlUnitIsMoving(u8 *arg0);
+s32 btlUnitIsMoving(u8 *unit);
 
 void btlActionFinishPresentation(BtlAction *action);
-void btlAICommandPickAiTarget(void *arg0, s32 arg1);
-BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
-s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
+void btlAICommandPickAiTarget(void *action, s32 value);
+BtlPacket *btlFormationCreateSlotPacket(u16 groupMask, u16 flags);
+s64 btlPacketEnqueue(u8 *context, u32 value);
 
-extern u8 *D_0076449C;
+extern u8 *D_0076449C; /* active battle state */
 extern u8 *iGpffffb3ac;
-extern void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status);
-extern s32 btlSoundSelectCureableStatuses(u8 *arg0);
-extern s32 btlSoundIsStatusCounterHigh(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern void btlAiSelectStatusCommand(u8 *action, u8 *command, u32 status);
+extern s32 btlSoundSelectCureableStatuses(u8 *action);
+extern s32 btlSoundIsStatusCounterHigh(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *action);
 extern void btlSoundCancelPlayback(void);
-extern s32 btlSoundPickResistVoice(u8 *arg0);
+extern s32 btlSoundPickResistVoice(u8 *unit);
 extern void btlSoundStopBank3(void);
-extern void func_001f9a50(s32 arg0, s32 arg1);
-extern void func_001f9a90(void);
-extern void btlEncounterEntryClearMessageFade(s32 arg0);
-extern void btlEncounterEntrySetMessageFade(s32 arg0);
-extern void btlMessageSetup(u8 *arg0, u8 *arg1);
-extern s32 btlMessageIsIdle(s32 arg0);
-extern void btlMessageSetPendingValue(u8 *arg0, s32 arg1);
-extern void btlMessageSetDone(s32 arg0);
-extern void btlMessageSetHidden(s32 arg0);
-extern u8 *btlUnitCreateColorPacket(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
-extern u8 *btlUnitCreateShowPacket(u8 *arg0);
-extern u8 *btlUnitCreateHidePacket(u8 *arg0);
+extern void btlVoicePlayIdCue(s32 context, s32 value);
+extern void btlVoiceFadeOut(void);
+extern void btlEncounterEntryClearMessageFade(s32 task);
+extern void btlEncounterEntrySetMessageFade(s32 task);
+extern void btlMessageSetup(u8 *task, u8 *action);
+extern s32 btlMessageIsIdle(s32 task);
+extern void btlMessageSetPendingValue(u8 *task, s32 value);
+extern void btlMessageSetDone(s32 task);
+extern void btlMessageSetHidden(s32 task);
+extern u8 *btlUnitCreateColorPacket(u8 *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
+extern u8 *btlUnitCreateShowPacket(u8 *unit);
+extern u8 *btlUnitCreateHidePacket(u8 *unit);
 extern u16 btlSelectionGetTargetMark(s32 task);
-extern u32 btlEffectCollectGenusMask(s32 formation);
-extern void btlSelectionResetUnitFlags(s32 arg0);
+extern u32 btlEffectCollectGenusMask(s32 selection);
+extern void btlSelectionResetUnitFlags(s32 task);
 extern u32 btlSelectionGetFormationEntryAlt(s32 task);
 extern u32 btlSelectionGetFormationEntry(s32 task);
-extern s32 btlActionBuffCondition(u8 *arg0, s32 arg1, s32 arg2);
-extern void btlSelectionClearTargetMark(s32 arg0);
-extern void func_00203880(s32 arg0, s32 arg1);
+extern s32 btlActionBuffCondition(u8 *action, s32 skillId, s32 targetMode);
+extern void btlSelectionClearTargetMark(s32 task);
+extern void btlPanelOnTargetAction(s32 unusedTask, s32 unusedAction);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
-u32 func_001deeb0(void *arg0);
+u32 btlEffectHasAiProcedure(void *object);
 void btlAICommandSetUnitAction();
 u32 btlAICommandTryReleaseProc();
 s32 datCalcDefaultSkillId(u8 *unit);
-u32 btlFormationCurrentEntry(void *arg0);
-void btlFormationEntrySetSelected(s32 formation, u64 *unit);
+u32 btlFormationCurrentEntry(void *formation);
+void btlFormationEntrySetSelected(s32 selection, u64 *key);
 
 extern u8 *iGpffffb3b8;
-void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1);
-void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
+void btlEffectSelectTargetByStatus(u8 *action, u8 *selection);
+void btlSelectionMarkTargets(s32 task, u8 *action, u8 *targets, s16 skill);
 extern void btlDamageSetActive(s32 task);
-void btlUnitRequestLookAtOthers(u8 *arg0);
-u8 func_0023e1f0(u8 *unitData);
-extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
-static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
+void btlUnitRequestLookAtOthers(u8 *excludedAction);
+u8 datCalcGetCharacterTableKind(u8 *unit);
+extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u16 flags);
+static inline u8 *btlActionCreateLookAtUnitPacketBytes(u8 *unit, u8 *target, s32 flags)
 {
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
 }
-u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
-extern void btlTargetResetRecordCounter(u8 *arg0);
-extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *target, f32 distance, f32 speed, u32 flags);
-extern BtlPacket *btlFormationCreateWaitPacket(u32 source, u32 target, u16 mode);
+u8 *btlUnitCreateMotionRequestPacket(u8 *unit, u16 value);
+extern void btlTargetResetRecordCounter(u8 *record);
+extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, f32 param, f32 speed, u32 flags);
+extern BtlPacket *btlFormationCreateWaitPacket(u32 actor, u32 target, u16 mode);
 extern f32 fGpffff811c;
-extern u32 datCalcGetBadStatus(s32 arg0);
-extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
-extern void btlTargetClearResultBuffer(u8 *arg0);
-extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *btlPacketCreateHpRatio(u8 *arg0);
+extern u32 datCalcGetBadStatus(s32 unit);
+extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value);
+extern void btlTargetClearResultBuffer(u8 *result);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
+extern u8 *btlPacketCreateHpRatio(u8 *unit);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u8 *btlPacketCreateImmediate(void);
-extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
-BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
+extern BtlPacket *btlFormationCreateReturnPacket(u16 flags);
+BtlPacket *btlMainCreateColorSetPacket(s32 arg);
 BtlPacket *btlEffectCreateReleasePacket(u16 mode);
 u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
-extern s32 datCalcGetElementAffinity(u8 *unit, s32 element);
-u8 *btlSoundLoadPacketNew(const void *data);
-s32 func_001eb860(void);
-extern void btlMessageInstallWindow(s32 task, u8 *arg1);
+extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
+u8 *btlSoundLoadPacketNew(const void *request);
+s32 btlTargetCanControlDamagePhase(void);
+extern void btlMessageInstallWindow(s32 task, u8 *window);
 u8 *btlSoundLoadTaskStart(void);
 extern s32 btlMessageIsActiveAlt2(s32 task);
 extern s32 btlMessageGetResultAlt2(s32 task);
 u8 *btlSoundReleaseTaskStart(void);
 extern void btlMessageRelease(s32 task);
-extern void btlDamageSetSource(u8 *arg0, s32 arg1);
-s32 btlActionCanFollowUpAfterEnemiesDown(u8 *arg0);
+extern void btlDamageSetSource(u8 *task, s32 source);
+s32 btlActionCanFollowUpAfterEnemiesDown(u8 *action);
 s64 *btlActionGetQueueFront(void);
-s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                  s32 (*arg5)(u8 *arg0, s64 arg1));
-s32 btlTargetGetStatusEffectMsgCode(u8 *arg0, u8 *arg1);
-s32 datCalcSkillElement(u8 *arg0, u16 arg1);
+s32 btlEffectFindUnitMatchingCallback(u8 *context, s32 value, s32 mode, s32 flags, s32 options,
+                  s32 (*predicate)(u8 *context, s64 value));
+s32 btlTargetGetStatusEffectMsgCode(u8 *action, u8 *target);
+s32 datCalcSkillElement(u8 *unit, u16 skillId);
 u8 *btlSoundStopTaskStart(void);
-s32 btlAICommandNomalStatusCheck(u8 *arg0, s64 arg1);
-u32 btlCountUnitRecordsById(u32 arg0);
-u8 *btlCutinCreatePacket(u8 *arg0);
-extern void btlMessageStartLong(u8 *arg0, u8 *arg1);
-u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
-u8 *btlPacketAllocZeroed(s32 arg0, s32 arg1);
-u8 *btlEffectCreateFormationPacket(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
+s32 btlAICommandNomalStatusCheck(u8 *action, s64 value);
+u32 btlCountUnitRecordsById(u32 id);
+u8 *btlCutinCreatePacket(u8 *request);
+extern void btlMessageStartLong(u8 *task, u8 *action);
+u8 *btlUnitCreateRotateTowardUnitPacket(u8 *unit, u8 *targetUnit, s32 flags);
+u8 *btlPacketAllocZeroed(s32 callback, s32 data);
+u8 *btlEffectCreateFormationPacket(s32 formation, s32 unit, s32 duration, s64 key, s32 flags);
 extern s32 btlMessageIsActiveAlt(s32 task);
 extern s32 btlMessageGetResultAlt(s32 task);
-u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+u8 *func_001f99c0(u8 *context, u16 value, s32 mode, s32 flags, s32 options);
 u8 *btlCutinCreateEndPacket(void);
 u8 *btlCutinCreateStartPacket(void);
 u8 *btlFormationCreateDefaultPacket(void);
 extern void btlMessageResetAlt(s32 task);
 s16 btlCameraSelectFormationIndex(void);
-s32 btlSideCountNotBad(s32 arg0, s32 arg1);
-u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-s64 datCalcFindStrongBuff(u8 *arg0);
-s32 btlSoundRollStatusCure(u8 *arg0);
+s32 btlSideCountNotBad(s32 sideMask, s32 excludedStatus);
+u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+s64 datCalcFindStrongBuff(u8 *unit);
+s32 btlSoundRollStatusCure(u8 *action);
 s32 btlActionGetCounter420(BtlAction *action);
 
-u8 *btlPacketCreateSpriteTable(u32 arg0, u16 arg1);
-extern void btlUnitInitChild(u8 *arg0, u16 arg1);
-extern s32 datGetFlag(s32 arg0);
-BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
-BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
-extern f32 D_0076144C;
+u8 *btlPacketCreateSpriteTable(u32 sprite, u16 frame);
+extern void btlUnitInitChild(u8 *unit, u16 characterId);
+extern s32 datGetFlag(s32 bit);
+BtlPacket *btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags);
+BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
+extern f32 D_0076144C; /* anchor-return speed multiplier */
 
 /* Source unit: src/promoted/code1_001a.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001a1450-001adb80 */
 
-extern s32 btlActionAnyTargetDownOrHitFlagged(u8 *arg0);
-extern void btlActionGetEffectIndices(BtlAction *action, u16 arg1, u8 *arg2);
+extern s32 btlActionAnyTargetDownOrHitFlagged(u8 *action);
+extern void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices);
 extern void btlActionFinishPresentation(BtlAction *action);
 extern s32 btlActionLinkedUnitIsActive(BtlAction *action);
-static inline void actionCopySelectedTarget(u8 *action, const u16 *index)
+/* Preserve offset-first target copies; canonical action-field rewrites changed TargetUpdate's allocation. */
+static inline void btlActionCopySelectedTarget(u8 *action, const u16 *index)
 {
-    u8 *slot = action + *index * 4;
-    *(u8 **)(slot + 0x38) = *(u8 **)(slot + 0x98);
+    ((BtlAction *)action)->targets[*index] = ((BtlAction *)action)->parameters.candidates[*index];
 }
-static inline u8 *actionSelectionOffset(u32 offset, u8 *base)
+static inline u8 *btlActionGetSelectionAddress(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
 }
-typedef struct ActionRecoveryResourceView {
-    u8 beforeResources[0xD04];
-    u32 resources[0x30];
-} ActionRecoveryResourceView;
-static inline u32 actionRecoveryResourceAt(
-    const ActionRecoveryResourceView *snappedBase, s32 signedSlot)
+static inline u32 btlActionGetFormationResource(
+    const BtlBattleState *snappedBase, s32 signedSlot)
 {
-    return snappedBase->resources[signedSlot];
+    return (u32)snappedBase->formations[signedSlot];
 }
-static inline u8 *actionReadCandidate(u8 *action, const u16 *index)
+/* Candidate slots are action+0x98+i*4; byte origin preserves PursuitUpdate's measured narrow-index reads. */
+static inline u8 *btlActionGetCandidate(u8 *action, const u16 *index)
 {
-    return *(u8 **)(action + 0x98 + *index * 4);
+    return ((BtlAction *)action)->parameters.candidates[*index];
 }
-typedef struct ActionState001a4800 {
-    u8 pad0[0x1A];
-    u16 kind;
-    u8 pad1C[0x290 - 0x1C];
-    u16 flags;
-} ActionState001a4800;
-static inline u8 *btlHitResult_001a59a0(u8 *action, const u16 *index)
+/* Readiness uses battle opening side (+0x1A) and a flag word (+0x290) absent from BtlBattleState. */
+static inline u8 *btlActionGetIndexedHitResult(u8 *action, const u16 *index)
 {
     return action + (u32)*index * 0x20 + 0xF0;
 }
-static inline s16 btlCameraField_001a59a0(u16 unitId, s16 *firstField)
+/* Only the field origin is available: retain the signed halfword in the enemy table's proven 0xE8 stride. */
+static inline s16 btlActionGetStridedCameraField(u16 unitId, s16 *firstField)
 {
     return *(s16 *)((u8 *)firstField + (u16)unitId * 0xE8);
 }
-static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
+static inline s32 btlActionUsesCloseCamera(u8 *unit, s32 noPartner)
 {
-    extern u8 *iGpffffb3bc;
     extern u8 *iGpffffb3cc;
-    u8 *ctx = *(u8 **)(unit + 0xA64);
-    u16 unitId = *(u16 *)(ctx + 2);
+    /* The separate four-byte skill-flag table has no shared record declaration. */
+    /* Raw BtlUnit/DatUnit fields retain AttackUpdate's measured inlined lifetimes. */
+    u8 *ctx = (u8*)((BtlUnit *)unit)->datUnit;
+    u16 unitId = ((DatUnit *)ctx)->id;
     s32 result;
 
-    switch (*(u8 *)(unit + 0xA2)) {
+    switch (((BtlUnit *)unit)->genus) {
     case 0:
         {
-            s32 state = func_0023e1f0(ctx) & 0xFF;
+            s32 state = datCalcGetCharacterTableKind(ctx) & 0xFF;
 
             if (state == 5) {
                 result = 1;
@@ -253,14 +282,14 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
             if (state != 3) {
                 goto fail;
             }
-            if (!(*(u16 *)(iGpffffb3bc + 2) & 0x8000) && noPartner != 0) {
+            if (!(((BtlSkillFlags *)iGpffffb3bc)->flags & 0x8000) && noPartner != 0) {
                 goto fail;
             }
             result = 1;
         }
         break;
     case 1:
-        if (btlCameraField_001a59a0(unitId, (s16 *)(iGpffffb3cc + 0x22)) == 1) {
+        if (btlActionGetStridedCameraField(unitId, (s16 *)(iGpffffb3cc + 0x22)) == 1) {
             result = 1;
         } else {
             goto fail;
@@ -273,31 +302,29 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
     }
     return result;
 }
-static inline s64 btlPacketUID_001a59a0(u8 *packet)
+static inline s64 btlActionGetPacketUid(u8 *packet)
 {
+    /* Typed BtlPacket.uid changed AttackUpdate's cross-call address lifetime. */
     return *(s64 *)(packet + 0x58);
 }
-static inline u8 btlUnitKind_001a59a0(u8 *unit)
+static inline u8 btlActionGetUnitGenus(u8 *unit)
 {
+    /* Byte-origin access avoids changing AttackUpdate's retained field addresses. */
     return unit[0xA2];
 }
-static inline s32 btlEffectDelay_001a7720(s32 frames)
+static inline s32 btlActionAddEffectDelay(s32 frames)
 {
     s32 delay;
     delay = frames + 6;
     return delay;
 }
-static inline u8 *btlHitRow_001a7720(u8 *action, const u16 *index)
+static inline u8 *btlActionGetIndexedHitBase(u8 *action, const u16 *index)
 {
     return action + (*index << 5);
 }
-typedef struct ActionResourcePrefix {
-    u8 beforeResources[0xD04];
-    s32 resources[0x22];
-} ActionResourcePrefix;
-static inline s32 actionResourceAt(ActionResourcePrefix *table, u16 index)
+static inline s32 btlActionGetFormationAddress(BtlBattleState *table, u16 index)
 {
-    return table->resources[index];
+    return (s32)table->formations[index];
 }
 /* measured: loop-invariant probe for 001A0140 preheader materialization. */
 /* measured: close loop-invariant probe for 001A0140. */
@@ -309,14 +336,12 @@ static inline s32 actionResourceAt(ActionResourcePrefix *table, u16 index)
    addu b,a*k); the table base must be copied first so its lw leads the block. */
 /* measured: restore propagation for the rest of the unit. */
 // FUN_001A1450
-void btlActionCommandInit(s64 *arg0)
+/* Prepare command presentation, orient the unit lists, and initialize the command-panel wait state. */
+/* Raw offsets preserve the measured offset-first helper expressions and the unsigned delay halfword absent from BtlAction. */
+void btlActionCommandInit(s64 *action)
 {
-    struct Vec3 {
-        f32 x;
-        f32 y;
-        f32 z;
-    } sp40;
-    struct Vec3 sp30;
+    RwV3d sourceRotation;
+    RwV3d destination;
     u16 actionType;
     u16 actionTypeAfter;
     u8 *rotatePacket;
@@ -329,191 +354,193 @@ void btlActionCommandInit(s64 *arg0)
     u8 *listUnit;
     u8 *listUnit2;
 
-    extern void btlUnitGetGridSphereCenter(u8 *arg0, f32 *arg1);
-    extern s32 btlUnitIsMoving(u8 *arg0);
+    extern void btlUnitGetGridSphereCenter(u8 *unit, f32 *dst);
+    extern s32 btlUnitIsMoving(u8 *unit);
 
-    extern void btlPacketEnqueue(u8 *arg0, s32 arg1);
-    extern void btlPanelInit(s32 arg0, u8 *arg1);
+    extern void btlPacketEnqueue(u8 *context, s32 value);
+    extern void btlPanelInit(s32 unused, u8 *actionAddress);
     extern void btlEncounterEntrySetEmphasis(s32 task);
 
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) &&
-        (*(u16 *)((u8 *)arg0 + 0x1A) & 1) &&
-        (*(u8 **)((u8 *)arg0 + 0x30))[0xA2] == 0) {
-        btlActionSetState((BtlAction *)arg0, 9);
+    if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x1000) &&
+        (((BtlAction *)action)->unk_1a & 1) &&
+        ((BtlAction *)action)->unit->genus == 0) {
+        btlActionSetState((BtlAction *)action, 9);
         return;
     }
-    btlActionFinishPresentation((BtlAction *)arg0);
-    actionType = *(u16 *)((u8 *)arg0 + 0x10);
+    btlActionFinishPresentation((BtlAction *)action);
+    actionType = ((BtlAction *)action)->oldState;
     if ((actionType != 0x25) && (actionType != 4) && (actionType != 6) &&
-        (actionType != 5) && (*(u16 *)(iGpffffb3ac + 0xF4) != 2)) {
+        (actionType != 5) && (((BtlBattleState *)iGpffffb3ac)->camera.state != 2)) {
         btlUnitGetAnchorPose(
-            *(u8 **)((u8 *)arg0 + 0x30), NULL, 0, (f32 *)&sp40);
-        listUnit = *(u8 **)(iGpffffb3ac + 0x17C);
+            (u8 *)((BtlAction *)action)->unit, NULL, 0, (f32 *)&sourceRotation);
+        listUnit = ((BtlBattleState *)iGpffffb3ac)->unitLists[1];
         goto loop_14_test;
 loop_14_body:
-        if (datCalcChkBadStatus((s32)*(u8 **)(listUnit + 0xA64), 0x100) != 0) {
+        if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)listUnit)->datUnit, 0x100) != 0) {
             btlUnitGetGridSphereCenter(
-                *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
-                (f32 *)&sp30);
+                (u8*)((BtlAction *)((BtlBattleState *)iGpffffb3ac)->selectedAction)->unit,
+                (f32 *)&destination);
         } else {
-            sp30 = sp40;
+            destination = sourceRotation;
         }
-        rotatePacket = actionRotatePacketBytes(listUnit, &sp30, 2);
-        *(s64 *)(rotatePacket + 0x60) = *arg0;
+        rotatePacket = btlActionCreateRotatePacketBytes(listUnit, &destination, 2);
+        ((BtlPacket *)rotatePacket)->actionUID = *action;
         btlPacketEnqueue(rotatePacket, 0);
-        listUnit = *(u8 **)(listUnit + 0xA68);
+        listUnit = (u8 *)((BtlUnit *)listUnit)->prevUnit;
 loop_14_test:
         if (listUnit != NULL) {
             goto loop_14_body;
         }
-        listUnit2 = *(u8 **)(iGpffffb3ac + 0x184);
+        listUnit2 = ((BtlBattleState *)iGpffffb3ac)->unitLists[3];
         goto loop_19_test;
 loop_19_body:
         if (btlUnitIsMoving(listUnit2) == 0) {
-            btlUnitGetAnchorPose(listUnit2, NULL, 0, (f32 *)&sp40);
-            rotatePacketB = actionRotatePacketBytes(listUnit2, &sp40, 2);
-            *(s64 *)(rotatePacketB + 0x60) = *arg0;
+            btlUnitGetAnchorPose(listUnit2, NULL, 0, (f32 *)&sourceRotation);
+            rotatePacketB = btlActionCreateRotatePacketBytes(listUnit2, &sourceRotation, 2);
+            ((BtlPacket *)rotatePacketB)->actionUID = *action;
             btlPacketEnqueue(rotatePacketB, 0);
         }
-        listUnit2 = *(u8 **)(listUnit2 + 0xA68);
+        listUnit2 = (u8 *)((BtlUnit *)listUnit2)->prevUnit;
 loop_19_test:
         if (listUnit2 != NULL) {
             goto loop_19_body;
         }
         ambientPacket = (u8 *)btlFormationCreateSlotPacket(3, 0x8001);
-        *(s64 *)(ambientPacket + 0x60) = *arg0;
+        ((BtlPacket *)ambientPacket)->actionUID = *action;
         btlPacketEnqueue(ambientPacket, 0);
-        if (*(u8 *)((u8 *)arg0 + 0x28) == 0) {
-            targetPacket = actionTargetPacketBytes((u8 *)arg0, 0x1D, 0, 0, 0);
-            *(s64 *)(targetPacket + 0x60) = *arg0;
+        if (((BtlAction *)action)->unk_28 == 0) {
+            targetPacket = btlActionCreateTargetPacketBytes((u8 *)action, 0x1D, 0, 0, 0);
+            ((BtlPacket *)targetPacket)->actionUID = *action;
             btlPacketEnqueue(targetPacket, 1);
         }
     }
     {
         u8 *battleUnit;
 
-        battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
-        if (battleUnit[0xA2] == 0) {
-            lookAtPacket = actionLookAtUnit(NULL, battleUnit, 2);
-            *(s64 *)(lookAtPacket + 0x60) = *arg0;
+        battleUnit = (u8 *)((BtlAction *)action)->unit;
+        if (((BtlUnit *)battleUnit)->genus == 0) {
+            lookAtPacket = btlActionCreateLookAtUnitPacketBytes(NULL, battleUnit, 2);
+            ((BtlPacket *)lookAtPacket)->actionUID = *action;
             btlPacketEnqueue(lookAtPacket, 1);
         } else {
             lookAtDeactivatePacket = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 2);
-            *(s64 *)(lookAtDeactivatePacket + 0x60) = *arg0;
+            ((BtlPacket *)lookAtDeactivatePacket)->actionUID = *action;
             btlPacketEnqueue(lookAtDeactivatePacket, 1);
         }
     }
     btlPacketEnqueue(
         (u8 *)btlUnitCreateLookAtDeactivatePacket(
-            (BtlUnit *)*(s32 *)(u8 *)func_001a_add_offset(0x30, (s32)arg0), 0),
+            (BtlUnit *)*(s32 *)(u8 *)btlActionAddAddressOffset(0x30, (s32)action), 0),
         1);
-    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x21);
-    *(s64 *)(cameraPacket + 0x60) = *arg0;
+    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x21);
+    ((BtlPacket *)cameraPacket)->actionUID = *action;
     btlPacketEnqueue(cameraPacket, 0);
-    func_001eb3b0((u8 *)arg0 + 0x38);
-    actionTypeAfter = *(u16 *)(u8 *)func_001a_add_offset(0x10, (s32)arg0);
+    btlTargetResetCommandRecord((u8 *)action + 0x38);
+    actionTypeAfter = *(u16 *)(u8 *)btlActionAddAddressOffset(0x10, (s32)action);
     if ((actionTypeAfter != 0x25) && (actionTypeAfter != 6) && (actionTypeAfter != 5)) {
-        btlPanelInit(*(s32 *)(iGpffffb3ac + 0xDD4), (u8 *)arg0);
-        btlEncounterEntrySetEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlPanelInit(((BtlBattleState *)iGpffffb3ac)->uiTask, (u8 *)action);
+        btlEncounterEntrySetEmphasis(((BtlBattleState *)iGpffffb3ac)->uiTask);
     }
-    btlUnitRequestLookAtOthers((u8 *)arg0);
-    *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
-    *(u16 *)((u8 *)arg0 + 0x41C) = 0;
-    *(s32 *)((u8 *)arg0 + 0x420) = 0;
+    btlUnitRequestLookAtOthers((u8 *)action);
+    ((BtlBattleState *)iGpffffb3ac)->flags |= 0x20000;
+    ((BtlAction *)action)->commandDelay = 0;
+    ((BtlAction *)action)->unk_420 = 0;
 }
 
 /* measured 001a17d0: obj 1192B/window 1200B (-8B, -0.7% inside, 2-instr slack); 0 words via `python3 tools/measure_guarded.py src/promoted/code1_001a.c func_001a17d0`, 0 edits (+28 reloc-only) 298/298 via `python3 tools/fnalign.py src/promoted/code1_001a.c func_001a17d0 --candidate /tmp/candF_f32.c --quiet`; Jal 36 both sides. Switch v4 &0xFFFF reverse 2,0/default (compiler checks 0 first, matching retail layout; was if/else with bne losing andi+beq+b); switch v10 numeric 1,2,3,10 (compiler checks 10,3,2,1, matching retail; was reverse 10,3,2/1 checking 1 first); s32 f (was u16, fixes $a0 vs $v1 + extra andi); tail before check9 (was 9 before tail, fixing 37/37 pure hole/lump exactly equal, 294/297 inside hiding swap, edits 120->0). Production MATCH. */
 // FUN_001A17D0
-void btlActionCommandUpdate(u8 *arg0)
+/* Drive command-panel selection, temporary condition messages, and the ready/automatic transitions. */
+/* Raw action fields retain MATCH: replacing them with BtlAction members changed this state's frame and allocation. */
+void btlActionCommandUpdate(u8 *action)
 {
-    extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
+    extern u8 *btlCameraCreateSetStatePacket(u8 *action, s32 state);
     extern u16 D_008C024C[];
-    s32 v4;
-    u16 t;
-    u16 v10;
-    s32 f;
-    s32 bVar;
-    s16 sVar2;
-    u8 *w;
-    u8 *i;
+    s32 panelState;
+    u16 waitFrames;
+    u16 actionKind;
+    s32 condition;
+    s32 checkCondition;
+    s16 messageId;
+    u8 *cameraPacket;
+    u8 *actionCursor;
 
-    func_0019fc60();
+    btlUnitNoop();
     btlUnitTickIdleAnims();
-    btlDamageSetActive(*(s32 *)(iGpffffb3ac + 0xDD4));
-    if (*(s32 *)(arg0 + 0x420) == 1) {
-        t = *(u16 *)(arg0 + 0x41C);
-        if (t == 0) {
-            btlPanelSetActive(*(s32 *)(iGpffffb3ac + 0xDD4));
-            *(s32 *)(arg0 + 0x420) = 0;
+    btlDamageSetActive(((BtlBattleState *)iGpffffb3ac)->uiTask);
+    if (*(s32 *)(action + 0x420) == 1) {
+        waitFrames = *(u16 *)(action + 0x41C);
+        if (waitFrames == 0) {
+            btlPanelSetActive(((BtlBattleState *)iGpffffb3ac)->uiTask);
+            ((BtlAction *)action)->unk_420 = 0;
         } else {
-            *(u16 *)(arg0 + 0x41C) = t - 1;
+            ((BtlAction *)action)->commandDelay = waitFrames - 1;
         }
         return;
     }
-    v4 = btlPanelGetState(*(s32 *)(iGpffffb3ac + 0xDD4)) & 0xFFFF;
-    if ((D_008C024C[0] & 8) != 0 && (v4 & 0xFFFF) == 1 && (*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) == 0) {
-        if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000) != 0) {
-            if (func_00203810(*(s32 *)(iGpffffb3ac + 0xDD4)) == 1) {
-                if (btlPanelIsReady(*(s32 *)(iGpffffb3ac + 0xDD4)) == 0) {
-                    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x10000) == 0) {
-                        btlSelectionSetTargetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
-                        *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x10000;
-                        btlEncounterEntrySetRetracted(*(s32 *)(iGpffffb3ac + 0xDD4));
-                        btlPanelSetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
-                        w = btlCameraCreateSetStatePacket(arg0, 40);
-                        *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                        btlPacketEnqueue(w, 0);
+    panelState = btlPanelGetState(((BtlBattleState *)iGpffffb3ac)->uiTask) & 0xFFFF;
+    if ((D_008C024C[0] & 8) != 0 && (panelState & 0xFFFF) == 1 && (((BtlBattleState *)iGpffffb3ac)->flags & 0x1000) == 0) {
+        if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x20000) != 0) {
+            if (btlPanelIsCommandSelectionActive(((BtlBattleState *)iGpffffb3ac)->uiTask) == 1) {
+                if (btlPanelIsReady(((BtlBattleState *)iGpffffb3ac)->uiTask) == 0) {
+                    if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x10000) == 0) {
+                        btlSelectionSetTargetFlag(((BtlBattleState *)iGpffffb3ac)->uiTask);
+                        ((BtlBattleState *)iGpffffb3ac)->flags = ((BtlBattleState *)iGpffffb3ac)->flags | 0x10000;
+                        btlEncounterEntrySetRetracted(((BtlBattleState *)iGpffffb3ac)->uiTask);
+                        btlPanelSetFlag(((BtlBattleState *)iGpffffb3ac)->uiTask);
+                        cameraPacket = btlCameraCreateSetStatePacket(action, 40);
+                        ((BtlPacket *)cameraPacket)->actionUID = *(s64 *)action;
+                        btlPacketEnqueue(cameraPacket, 0);
                     }
                     return;
                 }
             }
         }
     } else {
-        if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x10000) != 0) {
-            btlSelectionClearTargetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
-            *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) & ~0x10000;
-            btlEncounterEntryClearRetracted(*(s32 *)(iGpffffb3ac + 0xDD4));
-            btlPanelClearFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
-            w = btlCameraCreateSetStatePacket(arg0, 33);
-            *(s64 *)(w + 0x60) = *(s64 *)arg0;
-            btlPacketEnqueue(w, 0);
+        if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x10000) != 0) {
+            btlSelectionClearTargetFlag(((BtlBattleState *)iGpffffb3ac)->uiTask);
+            ((BtlBattleState *)iGpffffb3ac)->flags = ((BtlBattleState *)iGpffffb3ac)->flags & ~0x10000;
+            btlEncounterEntryClearRetracted(((BtlBattleState *)iGpffffb3ac)->uiTask);
+            btlPanelClearFlag(((BtlBattleState *)iGpffffb3ac)->uiTask);
+            cameraPacket = btlCameraCreateSetStatePacket(action, 33);
+            ((BtlPacket *)cameraPacket)->actionUID = *(s64 *)action;
+            btlPacketEnqueue(cameraPacket, 0);
         }
     }
-    switch (v4 & 0xFFFF) {
+    switch (panelState & 0xFFFF) {
     case 2: {
-        v10 = *(u16 *)(arg0 + 0x6C);
-        switch (v10) {
+        actionKind = ((BtlAction *)action)->unk_6c;
+        switch (actionKind) {
         case 1:
         case 2:
-            f = (u16)btlActionEscapeCondition(arg0, *(u16 *)(arg0 + 0x6E), 0);
-            bVar = 1;
+            condition = (u16)btlActionEscapeCondition(action, ((BtlAction *)action)->unk_6e, 0);
+            checkCondition = 1;
             break;
         case 3:
-            f = (u16)btlActionEscapeCondition(arg0, *(u16 *)(arg0 + 0x6E), 1);
-            bVar = 1;
+            condition = (u16)btlActionEscapeCondition(action, ((BtlAction *)action)->unk_6e, 1);
+            checkCondition = 1;
             break;
         case 10:
-            f = 0;
-            bVar = 1;
+            condition = 0;
+            checkCondition = 1;
             break;
         default:
-            f = 0;
-            bVar = 0;
+            condition = 0;
+            checkCondition = 0;
             break;
         }
-        if (bVar != 0) {
-            sVar2 = btlConditionMessageId(f);
-            if (sVar2 != 0) {
+        if (checkCondition != 0) {
+            messageId = btlConditionMessageId(condition);
+            if (messageId != 0) {
                 sdkSndStartStream(0, 15, 0, 8);
-                btlUiSelectEffect(*(s32 *)(arg0 + 0x30), sVar2);
-                *(u16 *)(arg0 + 0x41C) = 6;
-                *(s32 *)(arg0 + 0x420) = 1;
-                btlPanelSetClosing(*(s32 *)(iGpffffb3ac + 0xDD4));
+                btlUiSelectEffect((s32)((BtlAction *)action)->unit, messageId);
+                ((BtlAction *)action)->commandDelay = 6;
+                ((BtlAction *)action)->unk_420 = 1;
+                btlPanelSetClosing(((BtlBattleState *)iGpffffb3ac)->uiTask);
                 return;
             } else {
-                btlEncounterEntryClearEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
-                btlPanelSetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
-                btlActionSetState((BtlAction *)arg0, 6);
+                btlEncounterEntryClearEmphasis(((BtlBattleState *)iGpffffb3ac)->uiTask);
+                btlPanelSetFlag(((BtlBattleState *)iGpffffb3ac)->uiTask);
+                btlActionSetState((BtlAction *)action, 6);
                 return;
             }
         }
@@ -525,71 +552,73 @@ void btlActionCommandUpdate(u8 *arg0)
         goto check9;
     }
 tail:
-    *(u16 *)(arg0 + 0x18) = *(u16 *)(arg0 + 0x18) | 2;
-    btlDamageClearActive(*(s32 *)(iGpffffb3ac + 0xDD4));
-    btlPanelReleaseText(*(s32 *)(iGpffffb3ac + 0xDD4));
-    btlPanelReset(*(s32 *)(iGpffffb3ac + 0xDD4));
-    btlEncounterEntryClearEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
-    for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
+    ((BtlAction *)action)->flags = ((BtlAction *)action)->flags | 2;
+    btlDamageClearActive(((BtlBattleState *)iGpffffb3ac)->uiTask);
+    btlPanelReleaseText(((BtlBattleState *)iGpffffb3ac)->uiTask);
+    btlPanelReset(((BtlBattleState *)iGpffffb3ac)->uiTask);
+    btlEncounterEntryClearEmphasis(((BtlBattleState *)iGpffffb3ac)->uiTask);
+    for (actionCursor = ((BtlBattleState *)iGpffffb3ac)->actions; actionCursor != 0; actionCursor = (u8*)((BtlAction *)actionCursor)->next) {
     }
-    btlActionSetState((BtlAction *)arg0, 15);
+    btlActionSetState((BtlAction *)action, 15);
     return;
 check9:
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) {
-        btlDamageClearActive(*(s32 *)(iGpffffb3ac + 0xDD4));
-        btlPanelReleaseText(*(s32 *)(iGpffffb3ac + 0xDD4));
-        btlPanelReset(*(s32 *)(iGpffffb3ac + 0xDD4));
-        btlEncounterEntryClearEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
-        for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
+    if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x1000) != 0) {
+        btlDamageClearActive(((BtlBattleState *)iGpffffb3ac)->uiTask);
+        btlPanelReleaseText(((BtlBattleState *)iGpffffb3ac)->uiTask);
+        btlPanelReset(((BtlBattleState *)iGpffffb3ac)->uiTask);
+        btlEncounterEntryClearEmphasis(((BtlBattleState *)iGpffffb3ac)->uiTask);
+        for (actionCursor = ((BtlBattleState *)iGpffffb3ac)->actions; actionCursor != 0; actionCursor = (u8*)((BtlAction *)actionCursor)->next) {
         }
-        btlActionSetState((BtlAction *)arg0, 9);
+        btlActionSetState((BtlAction *)action, 9);
     }
     return;
 }
 
 // FUN_001A1C80
-void btlActionTargetInit(u8 *arg0)
+/* Build selectable targets for the chosen command and initialize their camera and selection marks. */
+/* Raw selection/table offsets retain MATCH; canonical action-field accesses changed this state's frame. */
+void btlActionTargetInit(u8 *action)
 {
     u8 *lookAtUnit;
     s32 unitIndex;
     u8 entryType;
     u8 *packet;
 
-    switch (*(u16 *)(arg0 + 0x6C)) {
+    switch (((BtlAction *)action)->unk_6c) {
     case 4:
-        btlEffectCollectTargetUnits(arg0, arg0 + 0x98, 2, 0, 0);
-        unitIndex = func_001a_fix_var(*(u16 *)(arg0 + 0x6E));
+        btlEffectCollectTargetUnits(action, action + 0x98, 2, 0, 0);
+        unitIndex = btlActionNormalizeUnitIndex(*(u16 *)(action + 0x6E));
         break;
     default:
-        unitIndex = *(u16 *)(arg0 + 0x6E);
-        entryType = *(u8 *)(func_001a_add_offset(unitIndex * 0x28,
-                                               (u32)iGpffffb3b8) + 8);
+        unitIndex = ((BtlAction *)action)->unk_6e;
+        entryType = ((DatSkillEntry *)btlActionAddAddressOffset(unitIndex * 0x28,
+                                               (u32)iGpffffb3b8))->unknown04[4];
         switch (entryType) {
         case 1:
         case 2:
             {
                 extern void btlEffectCollectTargetUnits(
-                    u8 *arg0, u8 *arg1, u8 arg2, u8 arg3, u32 arg4);
+                    u8 *action, u8 *selection, u8 sideFlags, u8 filterFlags, u32 statusMask);
                 btlEffectCollectTargetUnits(
-                    arg0,
-                    arg0 + 0x98,
-                    *(u8 *)(func_001a_add_offset(unitIndex * 0x28,
-                                                  (u32)iGpffffb3b8) + 9),
-                    *(u8 *)(func_001a_add_offset(unitIndex * 0x28,
-                                                  (u32)iGpffffb3b8) + 0xA),
+                    action,
+                    action + 0x98,
+                    ((DatSkillEntry *)btlActionAddAddressOffset(unitIndex * 0x28,
+                                                  (u32)iGpffffb3b8))->unknown04[5],
+                    ((DatSkillEntry *)btlActionAddAddressOffset(unitIndex * 0x28,
+                                                  (u32)iGpffffb3b8))->unknown04[6],
                     0);
             }
             break;
         default:
-            btlSkillClassifyTargets(arg0, arg0 + 0x98, unitIndex & 0xFFFF, 0);
+            btlSkillClassifyTargets(action, action + 0x98, unitIndex & 0xFFFF, 0);
             break;
         }
         break;
     }
 init_1c80:
-    btlEffectSelectNearestEntry(arg0, arg0 + 0x98);
-    entryType = *(u8 *)(func_001a_add_offset(
-        *(u16 *)(arg0 + 0x6E) * 0x28, (u32)iGpffffb3b8) + 8);
+    btlEffectSelectNearestEntry(action, action + 0x98);
+    entryType = ((DatSkillEntry *)btlActionAddAddressOffset(
+        ((BtlAction *)action)->unk_6e * 0x28, (u32)iGpffffb3b8))->unknown04[4];
     switch (entryType) {
     case 1:
     case 2:
@@ -601,34 +630,36 @@ type12_2_1c80:
     lookAtUnit = NULL;
     goto after_type_1c80;
 typeother_2_1c80:
-    btlEffectSelectTargetByStatus(arg0, arg0 + 0x98);
+    btlEffectSelectTargetByStatus(action, action + 0x98);
 after_type_1c80:
     btlSelectionMarkTargets(
-        *(s32 *)(D_0076449C + 0xDD4),
-        arg0,
-        arg0 + 0x98,
+        ((BtlBattleState *)D_0076449C)->uiTask,
+        action,
+        action + 0x98,
         (s64)(s16)unitIndex);
-    packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x22);
-    *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+    packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x22);
+    ((BtlPacket *)packet)->actionUID = *(s64 *)action;
     btlPacketEnqueue(packet, 0);
-    btlDamageSetActive(*(s32 *)(D_0076449C + 0xDD4));
-    btlUnitRequestLookAtOthers(arg0);
+    btlDamageSetActive(((BtlBattleState *)D_0076449C)->uiTask);
+    btlUnitRequestLookAtOthers(action);
     if (lookAtUnit != NULL) {
-        packet = actionLookAtUnit(NULL, *(u8 **)(lookAtUnit + 0x30), 1);
+        packet = btlActionCreateLookAtUnitPacketBytes(NULL, *(u8 **)(lookAtUnit + 0x30), 1);
         btlPacketEnqueue(packet, 1);
-        packet = (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)*(s32 *)(lookAtUnit + 0x30), 0);
+        packet = (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)(s32)((BtlAction *)lookAtUnit)->unit, 0);
         btlPacketEnqueue(packet, 1);
     }
 }
 
 #pragma push
 // FUN_001A1EA0
+/* Accept or cancel target selection, copy the selected action records, and validate the command. */
+/* Raw action/selection offsets retain MATCH; the typed action rewrite changed the frame and register allocation. */
 void btlActionTargetUpdate(u8 *action) {
     extern u16 D_008C024C[];
     extern void btlUnitTickIdleAnims(void);
-    extern void func_0019fc60(void);
+    extern void btlUnitNoop(void);
     extern s32 btlConditionMessageId(s32 condition);
-    extern void btlUiSelectEffect(s32 unit, u32 message);
+    extern void btlUiSelectEffect(s32 unit, u32 entryId);
     extern void btlPanelSetActive(s32 task);
     extern void btlPanelReset(s32 task);
     extern void btlPanelClearFlag(s32 task);
@@ -661,19 +692,19 @@ void btlActionTargetUpdate(u8 *action) {
     u8 *actionCursor;
     u8 *clearCursor;
 
-    func_0019fc60();
+    btlUnitNoop();
     btlUnitTickIdleAnims();
-    selectionState = btlSelectionGetTargetMark((s32)(*(u8**)(iGpffffb3ac + 0xDD4))) & 0xFFFF;
+    selectionState = btlSelectionGetTargetMark((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask)) & 0xFFFF;
     if ((D_008C024C[0] & 8) && !(selectionState & 0xFFFF)) {
-        battleFlags = (*(s32*)(iGpffffb3ac + 0xC));
+        battleFlags = (((BtlBattleState *)iGpffffb3ac)->flags);
         if (battleFlags & 0x20000) {
             if (!(battleFlags & 0x10000) && ((btlEffectCollectGenusMask((s32)(action + 0x98)) & 0xFFFF) != 1)) {
-                btlSelectionSetTargetFlag((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+                btlSelectionSetTargetFlag((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
                 enteredBattle = iGpffffb3ac;
-                (*(s32*)(enteredBattle + 0xC)) = (s32) ((*(s32*)(enteredBattle + 0xC)) | 0x10000);
-                btlEncounterEntrySetRetracted((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+                (((BtlBattleState *)enteredBattle)->flags) = (s32) ((((BtlBattleState *)enteredBattle)->flags) | 0x10000);
+                btlEncounterEntrySetRetracted((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
                 enterCamera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x28);
-                (*(s64*)(enterCamera + 0x60)) = (s64) (*(s64*)action);
+                (((BtlPacket *)enterCamera)->actionUID) = (s64) (*(s64*)action);
                 btlPacketEnqueue(enterCamera, 0U);
             }
             return;
@@ -681,13 +712,13 @@ void btlActionTargetUpdate(u8 *action) {
         goto select_action;
     }
     battle = iGpffffb3ac;
-    if ((*(s32*)(battle + 0xC)) & 0x10000) {
-        btlSelectionClearTargetFlag((s32)(*(u8**)(battle + 0xDD4)));
+    if ((((BtlBattleState *)battle)->flags) & 0x10000) {
+        btlSelectionClearTargetFlag((s32)((u8 *)((BtlBattleState *)battle)->uiTask));
         exitedBattle = iGpffffb3ac;
-        (*(s32*)(exitedBattle + 0xC)) = (s32) ((*(s32*)(exitedBattle + 0xC)) & 0xFFFEFFFF);
-        btlEncounterEntryClearRetracted((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+        (((BtlBattleState *)exitedBattle)->flags) = (s32) ((((BtlBattleState *)exitedBattle)->flags) & 0xFFFEFFFF);
+        btlEncounterEntryClearRetracted((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
         exitCamera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x22);
-        (*(s64*)(exitCamera + 0x60)) = (s64) (*(s64*)action);
+        (((BtlPacket *)exitCamera)->actionUID) = (s64) (*(s64*)action);
         btlPacketEnqueue(exitCamera, 0U);
     }
 select_action:
@@ -695,47 +726,47 @@ select_action:
     switch (selectionMode) {
     case 0:
         selectionBattle = iGpffffb3ac;
-        if ((*(s32*)(selectionBattle + 0xC)) & 0x1000) {
-            btlDamageClearActive((s32)(*(u8**)(selectionBattle + 0xDD4)));
-            btlPanelReleaseText((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            btlEncounterEntryClearEmphasis((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            actionCursor = (*(u8**)(iGpffffb3ac + 0x174));
+        if ((((BtlBattleState *)selectionBattle)->flags) & 0x1000) {
+            btlDamageClearActive((s32)((u8 *)((BtlBattleState *)selectionBattle)->uiTask));
+            btlPanelReleaseText((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            btlSelectionResetUnitFlags((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            btlPanelReset((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            btlEncounterEntryClearEmphasis((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            actionCursor = (((BtlBattleState *)iGpffffb3ac)->actions);
             while (actionCursor != NULL) {
-                actionCursor = *(u8 **)(actionCursor + 0x450);
+                actionCursor = (u8*)((BtlAction *)actionCursor)->next;
             }
             btlActionSetState((BtlAction *)action, 9);
             btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
             return;
         }
-        selectedAction = (u8 *)btlSelectionGetFormationEntryAlt((s32)(*(u8**)(selectionBattle + 0xDD4)));
+        selectedAction = (u8 *)btlSelectionGetFormationEntryAlt((s32)((u8 *)((BtlBattleState *)selectionBattle)->uiTask));
         if (selectedAction != NULL) {
             selectedUnit = (*(u8**)(selectedAction + 0x30));
-            if ((*(u8*)(selectedUnit + 0xA2)) == 1) {
-                btlPacketEnqueue((u8*)actionLookAtUnit(NULL, selectedUnit, 1), 1U);
-                btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(*(BtlUnit **)(selectedAction + 0x30), 0), 1U);
+            if ((((BtlUnit *)(selectedUnit))->genus) == 1) {
+                btlPacketEnqueue((u8*)btlActionCreateLookAtUnitPacketBytes(NULL, selectedUnit, 1), 1U);
+                btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(((BtlAction *)selectedAction)->unit, 0), 1U);
                 return;
             }
         }
         btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 3), 1U);
         return;
     case 1:
-        targetMode = *(u8 *)(actionSelectionOffset(*(u16 *)(action + 0x6E) * 0x28, iGpffffb3b8) + 8);
+        targetMode = ((DatSkillEntry *)btlActionGetSelectionAddress(*(u16 *)(action + 0x6E) * 0x28, iGpffffb3b8))->unknown04[4];
         switch (targetMode) {
         case 1:
         case 2: {
             targetIndex = 0;
-            while ((targetCount = *(u16 *)(action + 0xD0), targetIndex < (s32)targetCount)) {
-                actionCopySelectedTarget(action, &targetIndex);
+            while ((targetCount = ((BtlAction *)action)->unk_d0, targetIndex < (s32)targetCount)) {
+                btlActionCopySelectedTarget(action, &targetIndex);
                 targetIndex++;
             }
-            (*(u16*)(action + 0x6A)) = targetCount;
+            (((BtlAction *)action)->unk_6a) = targetCount;
         } break;
         default: {
-            selectedAddress = (s32)btlSelectionGetFormationEntry((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            (*(u8**)(action + 0x38)) = (u8*)selectedAddress;
-            (*(u16*)(action + 0x6A)) = 1U;
+            selectedAddress = (s32)btlSelectionGetFormationEntry((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            (((BtlAction *)action)->targets[0]) = (u8*)selectedAddress;
+            (((BtlAction *)action)->unk_6a) = 1U;
             btlFormationEntrySetSelected((s32)(action + 0x98), (u64 *)(u32)selectedAddress);
         } break;
         }
@@ -743,10 +774,10 @@ select_action:
         switch (actionKind) {
         case 1:
         case 2:
-            condition = btlActionBuffCondition(action, (s32) (*(u16*)(action + 0x6E)), 0) & 0xFFFF;
+            condition = btlActionBuffCondition(action, (s32) (((BtlAction *)action)->unk_6e), 0) & 0xFFFF;
             break;
         case 3:
-            condition = btlActionBuffCondition(action, (s32) (*(u16*)(action + 0x6E)), 1) & 0xFFFF;
+            condition = btlActionBuffCondition(action, (s32) (((BtlAction *)action)->unk_6e), 1) & 0xFFFF;
             break;
         default:
             condition = 0;
@@ -755,27 +786,27 @@ select_action:
         messageId = (s16)btlConditionMessageId(condition);
         if (messageId != 0) {
             sdkSndStartStream(0, 0xF, 0, 8);
-            btlUiSelectEffect(*(s32 *)(action + 0x30), (u32)messageId);
-            btlSelectionClearTargetMark((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlUiSelectEffect((s32)((BtlAction *)action)->unit, (u32)messageId);
+            btlSelectionClearTargetMark((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
             return;
         }
-        switch (*(u16 *)(action + 0x6C)) {
+        switch (((BtlAction *)action)->unk_6c) {
         case 4: {
-            btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            func_00203880((s32)(*(u8**)(iGpffffb3ac + 0xDD4)), (s32)(*(u8**)(action + 0x38)));
+            btlSelectionResetUnitFlags((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            btlPanelOnTargetAction((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask), (s32)(((BtlAction *)action)->targets[0]));
             btlActionSetState((BtlAction *)action, 5);
             return;
         } break;
         default: {
-            (*(u16*)(action + 0x18)) = (u16) ((*(u16*)(action + 0x18)) | 2);
-            btlDamageClearActive((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            btlPanelReleaseText((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            btlEncounterEntryClearEmphasis((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            clearCursor = (*(u8**)(iGpffffb3ac + 0x174));
+            (((BtlAction *)action)->flags) = (u16) ((((BtlAction *)action)->flags) | 2);
+            btlDamageClearActive((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            btlPanelReleaseText((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            btlSelectionResetUnitFlags((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            btlPanelReset((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            btlEncounterEntryClearEmphasis((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+            clearCursor = (((BtlBattleState *)iGpffffb3ac)->actions);
             while (clearCursor != NULL) {
-                clearCursor = *(u8 **)(clearCursor + 0x450);
+                clearCursor = (u8*)((BtlAction *)clearCursor)->next;
             }
             btlActionSetState((BtlAction *)action, 0xF);
             return;
@@ -783,10 +814,10 @@ select_action:
         }
     case 2:
         btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
-        btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        btlEncounterEntrySetEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
-        btlPanelClearFlag((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        btlPanelSetActive((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+        btlSelectionResetUnitFlags((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+        btlEncounterEntrySetEmphasis(((BtlBattleState *)iGpffffb3ac)->uiTask);
+        btlPanelClearFlag((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
+        btlPanelSetActive((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
         btlActionSetState((BtlAction *)action, 5);
         /* fallthrough */
     case 3:
@@ -796,9 +827,10 @@ select_action:
 
 #pragma pop
 // FUN_001A24A0
+/* Enter the opening phase of the analyze presentation. */
 void btlActionAnalyzeInit(BtlAction *action)
 {
-    *(s32 *)((u8 *)action + 0x41C) = 1;
+    ((BtlAction *)action)->unk_41c = 1;
 }
 
 /* measured: 1564/1568 bytes, 47 resolved relocations, four zero tail bytes.
@@ -808,10 +840,12 @@ void btlActionAnalyzeInit(BtlAction *action)
 #pragma push
 /* measured: func_001a24b0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Hide unrelated actors, browse distinct unit records, and restore presentation when analyze closes. */
+/* Raw action and indexed selection offsets retain MATCH; canonical action fields changed this state's frame. */
 void btlActionAnalyzeUpdate(u8 *action)
 {
     extern u16 D_008C024C[];
-    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
+    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
 
     if (btlCountUnitRecordsById(0x800) != 0) {
         return;
@@ -825,68 +859,68 @@ void btlActionAnalyzeUpdate(u8 *action)
         s16 index;
 
         openingPacket = (u8 *)btlFormationCreateSlotPacket(3, 0xFFF);
-        *(s64 *)(openingPacket + 0x60) = *(s64 *)action;
+        ((BtlPacket *)openingPacket)->actionUID = *(s64 *)action;
         btlPacketEnqueue(openingPacket, 0);
-        iter = *(u8 **)(D_0076449C + 0x174);
+        iter = ((BtlBattleState *)D_0076449C)->actions;
         while (iter != NULL) {
             u8 *packet;
-            if (*(u16 *)(iter + 0x1A) & 1) {
-                if (action == iter || !(*(u16 *)(iter + 0x1A) & 8)) {
-                    packet = btlUnitCreateHidePacket(*(u8 **)(iter + 0x30));
+            if (((BtlAction *)iter)->unk_1a & 1) {
+                if (action == iter || !(((BtlAction *)iter)->unk_1a & 8)) {
+                    packet = btlUnitCreateHidePacket((u8*)((BtlAction *)iter)->unit);
                 } else {
-                    packet = btlUnitCreateColorPacket(*(u8 **)(iter + 0x30), 0xFFFFFF, 8, 0, 4, 0);
+                    packet = btlUnitCreateColorPacket((u8*)((BtlAction *)iter)->unit, 0xFFFFFF, 8, 0, 4, 0);
                 }
-                *(s64 *)(packet + 0x60) = *(s64 *)action;
+                ((BtlPacket *)packet)->actionUID = *(s64 *)action;
                 btlPacketEnqueue(packet, 0);
             }
-            iter = *(u8 **)(iter + 0x450);
+            iter = (u8*)((BtlAction *)iter)->next;
         }
-        selected = *(u8 **)(action + 0x38);
+        selected = ((BtlAction *)action)->targets[0];
         btlEffectCollectTargetUnits(action, action + 0x98, 2, 0, 0);
         hasOther = 0;
         *(u16 *)(action + 0xD2) = *(u16 *)(action + 0xD0);
         index = 0;
-        while ((s16)index < *(u16 *)(action + 0xD0)) {
+        while ((s16)index < ((BtlAction *)action)->unk_d0) {
             u8 **slot = (u8 **)(action + (s16)index * 4 + 0x98);
             if (*slot == selected) {
-                *(u16 *)(action + 0xD2) = index;
+                ((BtlAction *)action)->unk_d2 = index;
             }
-            if (*(u16 *)(*(u8 **)(*slot + 0x30) + 0xA4) !=
-                *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
+            if (((BtlUnit *)((u8*)((BtlAction *)*slot)->unit))->charId !=
+                ((BtlUnit *)((u8*)((BtlAction *)selected)->unit))->charId) {
                 hasOther = 1;
             }
             index++;
         }
-        btlEncounterEntrySetMessageFade(*(s32 *)(D_0076449C + 0xDD4));
-        btlMessageSetup(*(u8 **)(D_0076449C + 0xDD4), selected);
+        btlEncounterEntrySetMessageFade(((BtlBattleState *)D_0076449C)->uiTask);
+        btlMessageSetup((u8 *)((BtlBattleState *)D_0076449C)->uiTask, selected);
         if (hasOther) {
-            btlMessageSetHidden(*(s32 *)(D_0076449C + 0xDD4));
+            btlMessageSetHidden(((BtlBattleState *)D_0076449C)->uiTask);
         }
         btlActionFinishPresentation((BtlAction *)action);
         {
             u8 *cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)selected, 1);
-            *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
+            ((BtlPacket *)cameraPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(cameraPacket, 0);
         }
         btlSoundCancelPlayback();
         btlSoundStopBank3();
-        if (func_001eb860() == 1) {
-            *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
-            btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 0);
+        if (btlTargetCanControlDamagePhase() == 1) {
+            ((BtlBattleState *)D_0076449C)->flags &= ~0x2000;
+            btlDamageSetSource((u8 *)((BtlBattleState *)D_0076449C)->uiTask, 0);
         }
-        *(s32 *)(action + 0x41C) = 2;
+        ((BtlAction *)action)->unk_41c = 2;
         break;
     }
     case 2: {
-        if (btlMessageIsIdle(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
-            u8 *unit = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+        if (btlMessageIsIdle(((BtlBattleState *)D_0076449C)->uiTask) == 0) {
+            u8 *unit = (u8*)((BtlAction *)((BtlAction *)action)->targets[0])->unit;
             if (unit != NULL) {
                 s32 resource = btlSoundPickResistVoice(unit);
                 if (resource >= 0) {
-                    func_001f9a50((u16)resource, 1);
+                    btlVoicePlayIdCue((u16)resource, 1);
                 }
             }
-            *(s32 *)(action + 0x41C) = 3;
+            ((BtlAction *)action)->unk_41c = 3;
         }
         break;
     }
@@ -898,11 +932,11 @@ void btlActionAnalyzeUpdate(u8 *action)
             s32 selectedIndex;
             s16 cursor = (s16)previous;
             if (input & 8) {
-                s32 count = *(u16 *)(action + 0xD0);
+                s32 count = ((BtlAction *)action)->unk_d0;
                 while ((selectedIndex = (s16)cursor) < count) {
-                    u8 *candidate = *(u8 **)(action + selectedIndex * 4 + 0x98);
-                    if (*(u16 *)(*(u8 **)(candidate + 0x30) + 0xA4) !=
-                        *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
+                    u8 *candidate = ((BtlAction *)action)->parameters.candidates[selectedIndex];
+                    if (((BtlUnit *)((u8*)((BtlAction *)candidate)->unit))->charId !=
+                        ((BtlUnit *)((u8*)((BtlAction *)selected)->unit))->charId) {
                         break;
                     }
                     cursor++;
@@ -910,9 +944,9 @@ void btlActionAnalyzeUpdate(u8 *action)
                 if (count == selectedIndex) {
                     cursor = 0;
                     while ((selectedIndex = (s16)cursor) < (u16)previous) {
-                        u8 *candidate = *(u8 **)(action + selectedIndex * 4 + 0x98);
-                        if (*(u16 *)(*(u8 **)(candidate + 0x30) + 0xA4) !=
-                            *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
+                        u8 *candidate = ((BtlAction *)action)->parameters.candidates[selectedIndex];
+                        if (((BtlUnit *)((u8*)((BtlAction *)candidate)->unit))->charId !=
+                            ((BtlUnit *)((u8*)((BtlAction *)selected)->unit))->charId) {
                             break;
                         }
                         cursor++;
@@ -920,19 +954,19 @@ void btlActionAnalyzeUpdate(u8 *action)
                 }
             } else {
                 while ((selectedIndex = (s16)cursor) >= 0) {
-                    u8 *candidate = *(u8 **)(action + selectedIndex * 4 + 0x98);
-                    if (*(u16 *)(*(u8 **)(candidate + 0x30) + 0xA4) !=
-                        *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
+                    u8 *candidate = ((BtlAction *)action)->parameters.candidates[selectedIndex];
+                    if (((BtlUnit *)((u8*)((BtlAction *)candidate)->unit))->charId !=
+                        ((BtlUnit *)((u8*)((BtlAction *)selected)->unit))->charId) {
                         break;
                     }
                     cursor--;
                 }
                 if (selectedIndex < 0) {
-                    cursor = *(u16 *)(action + 0xD0) - 1;
+                    cursor = ((BtlAction *)action)->unk_d0 - 1;
                     while ((selectedIndex = (s16)cursor) > (u16)previous) {
-                        u8 *candidate = *(u8 **)(action + selectedIndex * 4 + 0x98);
-                        if (*(u16 *)(*(u8 **)(candidate + 0x30) + 0xA4) !=
-                            *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
+                        u8 *candidate = ((BtlAction *)action)->parameters.candidates[selectedIndex];
+                        if (((BtlUnit *)((u8*)((BtlAction *)candidate)->unit))->charId !=
+                            ((BtlUnit *)((u8*)((BtlAction *)selected)->unit))->charId) {
                             break;
                         }
                         cursor--;
@@ -941,41 +975,41 @@ void btlActionAnalyzeUpdate(u8 *action)
             }
             if ((u16)previous != selectedIndex) {
                 sdkSndStartStream(0, 0, 0, 5);
-                *(u8 **)(action + 0x38) = *(u8 **)((u8 *)func_001a_add_offset(selectedIndex * 4, (s32)action) + 0x98);
-                *(u16 *)(action + 0xD2) = cursor;
-                btlMessageSetPendingValue(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(action + 0x38));
+                ((BtlAction *)action)->targets[0] = *(u8 **)((u8 *)btlActionAddAddressOffset(selectedIndex * 4, (s32)action) + 0x98);
+                ((BtlAction *)action)->unk_d2 = cursor;
+                btlMessageSetPendingValue((u8 *)((BtlBattleState *)D_0076449C)->uiTask, *(s32 *)(action + 0x38));
             }
         } else if ((input & 0x40) || (input & 0x20)) {
             sdkSndStartStream(0, 0, 0, 4);
-            if (func_001eb860() == 1) {
-                *(s32 *)(D_0076449C + 0xC) |= 0x2000;
-                btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
+            if (btlTargetCanControlDamagePhase() == 1) {
+                ((BtlBattleState *)D_0076449C)->flags |= 0x2000;
+                btlDamageSetSource((u8 *)((BtlBattleState *)D_0076449C)->uiTask, 1);
             }
-            *(s32 *)(action + 0x41C) = 4;
+            ((BtlAction *)action)->unk_41c = 4;
         }
         break;
     }
     case 4: {
         u8 *iter;
         u8 *packet;
-        func_001f9a90();
-        iter = *(u8 **)(D_0076449C + 0x174);
+        btlVoiceFadeOut();
+        iter = ((BtlBattleState *)D_0076449C)->actions;
         while (iter != NULL) {
-            if ((*(u16 *)(iter + 0x1A) & 1) && !(*(u16 *)(iter + 0x1A) & 0x400)) {
+            if ((((BtlAction *)iter)->unk_1a & 1) && !(((BtlAction *)iter)->unk_1a & 0x400)) {
                 if (action == iter) {
-                    packet = btlUnitCreateShowPacket(*(u8 **)(iter + 0x30));
+                    packet = btlUnitCreateShowPacket((u8*)((BtlAction *)iter)->unit);
                 } else {
-                    packet = btlUnitCreateColorPacket(*(u8 **)(iter + 0x30), (u32)-1, 0, 0, 3, 0);
+                    packet = btlUnitCreateColorPacket((u8*)((BtlAction *)iter)->unit, (u32)-1, 0, 0, 3, 0);
                 }
-                *(s64 *)(packet + 0x60) = *(s64 *)action;
+                ((BtlPacket *)packet)->actionUID = *(s64 *)action;
                 btlPacketEnqueue(packet, 0);
             }
-            iter = *(u8 **)(iter + 0x450);
+            iter = (u8*)((BtlAction *)iter)->next;
         }
-        btlEncounterEntryClearMessageFade(*(s32 *)(D_0076449C + 0xDD4));
-        btlMessageSetDone(*(s32 *)(D_0076449C + 0xDD4));
-        btlActionSetState((BtlAction *)action, *(u16 *)(action + 0x14));
-        *(s32 *)(action + 0x41C) = 0;
+        btlEncounterEntryClearMessageFade(((BtlBattleState *)D_0076449C)->uiTask);
+        btlMessageSetDone(((BtlBattleState *)D_0076449C)->uiTask);
+        btlActionSetState((BtlAction *)action, ((BtlAction *)action)->state);
+        ((BtlAction *)action)->unk_41c = 0;
         break;
     }
     }
@@ -983,67 +1017,72 @@ void btlActionAnalyzeUpdate(u8 *action)
 
 #pragma pop
 // FUN_001A2AD0
+/* Reset the command record and redirect eligible party actors to automatic selection. */
 void btlActionAiInit(BtlAction *action) {
-    func_001eb3b0((u8 *)action + 0x38);
-    if ((*(s32 *)(D_0076449C + 0xC) & 0x1000) == 0) {
+    btlTargetResetCommandRecord((u8 *)action + 0x38);
+    if ((((BtlBattleState *)D_0076449C)->flags & 0x1000) == 0) {
         return;
     }
-    if ((*(u16 *)((u8 *)action + 0x1A) & 1) == 0) {
+    if ((((BtlAction *)action)->unk_1a & 1) == 0) {
         return;
     }
-    if (*(*(u8 **)((u8 *)action + 0x30) + 0xA2) != 0) {
+    if (((BtlAction *)action)->unit->genus != 0) {
         return;
     }
     btlActionSetState(action, 9);
 }
 
 // FUN_001A2B50
-void btlActionAiUpdate(u8 *arg0)
+/* Wait for AI selection to finish, mark the action ready, and preserve the accelerated-action flag. */
+void btlActionAiUpdate(u8 *action)
 {
     s32 battleFlags;
 
-    if (func_001deeb0(arg0 + 0x38) == 0) {
-        btlAICommandSetUnitAction(arg0, arg0 + 0x38);
+    if (btlEffectHasAiProcedure(action + 0x38) == 0) {
+        btlAICommandSetUnitAction(action, action + 0x38);
     }
-    if (btlAICommandTryReleaseProc(arg0 + 0x38) != 0) {
-        battleFlags = *(s32 *)(D_0076449C + 0xC);
+    if (btlAICommandTryReleaseProc(action + 0x38) != 0) {
+        battleFlags = ((BtlBattleState *)D_0076449C)->flags;
         if ((battleFlags & 0x1000) &&
             (battleFlags & 0x04000000) &&
-            (*(u8 **)(arg0 + 0x30))[0xA2] == 1) {
-            *(u16 *)(arg0 + 0x18) |= 0x4000;
+            ((BtlAction *)action)->unit->genus == 1) {
+            ((BtlAction *)action)->flags |= 0x4000;
         }
-        *(u16 *)(arg0 + 0x18) |= 2;
-        btlActionSetState((BtlAction *)arg0, 0xF);
+        ((BtlAction *)action)->flags |= 2;
+        btlActionSetState((BtlAction *)action, 0xF);
     }
 }
 
 // FUN_001A2C10
-void btlActionAutoInit(s64 *arg0) {
-    func_001eb3b0((u8 *)arg0 + 0x38);
-    btlSkillClassifyTargets((u8 *)arg0, (u8 *)arg0 + 0x98, 0, 0);
-    btlEffectSelectNearestEntry(NULL, arg0 + 0x13);
+/* Reset the command record and choose an initial classified target. */
+void btlActionAutoInit(s64 *action) {
+    btlTargetResetCommandRecord((u8 *)action + 0x38);
+    btlSkillClassifyTargets((u8 *)action, (u8 *)action + 0x98, 0, 0);
+    btlEffectSelectNearestEntry(NULL, action + 0x13);
 }
 
 // FUN_001A2C70
-void btlActionAutoUpdate(u8 *arg0)
+/* Select the unit default skill and current target, then advance to action readiness. */
+/* Raw selection aliases retain the signed stores and selected-pointer word representation absent from BtlAction. */
+void btlActionAutoUpdate(u8 *action)
 {
     u8 *battleUnit;
 
-    *(s16 *)(arg0 + 0x6C) = 1;
-    *(s16 *)(arg0 + 0x6E) =
-        datCalcDefaultSkillId(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
-    *(s32 *)(arg0 + 0x38) = btlFormationCurrentEntry(arg0 + 0x98);
-    *(s16 *)(arg0 + 0x6A) = 1;
-    btlFormationEntrySetSelected((s32)(arg0 + 0x98), *(u64 **)(arg0 + 0x38));
-    battleUnit = *(u8 **)(arg0 + 0x30);
-    if ((battleUnit[0xA2] == 0) && (*(u16 *)(battleUnit + 0xA4) == 1)) {
-        btlPacketEnqueue(actionTargetPacketBytes(arg0, 1, 0, 0, 0), 1);
+    ((BtlAction *)action)->unk_6c = 1;
+    ((BtlAction *)action)->unk_6e =
+        datCalcDefaultSkillId((u8 *)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit);
+    *(s32 *)(action + 0x38) = btlFormationCurrentEntry(action + 0x98);
+    ((BtlAction *)action)->unk_6a = 1;
+    btlFormationEntrySetSelected((s32)(action + 0x98), (u64*)((BtlAction *)action)->targets[0]);
+    battleUnit = (u8*)((BtlAction *)action)->unit;
+    if ((((BtlUnit *)battleUnit)->genus == 0) && (((BtlUnit *)(battleUnit))->charId == 1)) {
+        btlPacketEnqueue(btlActionCreateTargetPacketBytes(action, 1, 0, 0, 0), 1);
     }
-    if (*(s32 *)(D_0076449C + 0xC) & 0x04000000) {
-        *(u16 *)(arg0 + 0x18) |= 0x4000;
+    if (((BtlBattleState *)D_0076449C)->flags & 0x04000000) {
+        ((BtlAction *)action)->flags |= 0x4000;
     }
-    *(u16 *)(arg0 + 0x18) |= 2;
-    btlActionSetState((BtlAction *)arg0, 0xF);
+    ((BtlAction *)action)->flags |= 2;
+    btlActionSetState((BtlAction *)action, 0xF);
 }
 
 // FUN_001A2D60
@@ -1057,13 +1096,14 @@ void btlActionSupportInit(void)
    conversion plus the explicit signed guard reproduce retail's redundant
    `bltz` range check - the two words an earlier pass could not place -
    and opt_propagation off with opt_common_subs off keep that lowering
-   together with the repeated `*(u8 **)(unit + 0xA64)` loads that retail
+   together with the repeated `(u8*)((BtlUnit *)unit)->datUnit` loads that retail
    reloads rather than folding. */
 // FUN_001A2D70
 #pragma push
 /* measured: func_001a2d70 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-void btlActionSupportUpdate(u8 *arg0) {
+/* Clear the selected buff levels and enqueue their presentation, or choose status recovery/the next state. */
+void btlActionSupportUpdate(u8 *action) {
     extern void btlActionSetState(u8 *, u16);
     extern u8 *btlCameraCreateSetStatePacket(u8 *, u16);
 
@@ -1072,150 +1112,150 @@ void btlActionSupportUpdate(u8 *arg0) {
     u8 *unit;
     u8 *packet;
 
-    void datCalcClearBuffLevel(u8 *arg0, s32 arg1);
+    void datCalcClearBuffLevel(u8 *unit, s32 buffIndex);
 
 
     if (btlCountUnitRecordsById(0x506) == 0) {
-        unit = *(u8 **)((u8 *)arg0 + 0x30);
-        kind = (u8)datCalcFindStrongBuff(*(u8 **)(unit + 0xA64));
+        unit = (u8 *)((BtlAction *)action)->unit;
+        kind = (u8)datCalcFindStrongBuff((u8 *)((BtlUnit *)unit)->datUnit);
         if (kind < 0) {
             goto fallback;
         }
         switch (kind) {
         case 0:
         case 1:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 30;
             } else {
                 state = 31;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 0);
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 1);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 0);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 1);
             break;
         case 2:
         case 4:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 32;
             } else {
                 state = 33;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 4);
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 2);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 4);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 2);
             break;
         case 3:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 34;
             } else {
                 state = 35;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 3);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 3);
             break;
         case 5:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 36;
             } else {
                 state = 37;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 5);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 5);
             break;
         case 6:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 38;
             } else {
                 state = 39;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 6);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 6);
             break;
         case 7:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 40;
             } else {
                 state = 41;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 7);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 7);
             break;
         case 8:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 80;
             } else {
                 state = 81;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 8);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 8);
             break;
         case 9:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 82;
             } else {
                 state = 83;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 9);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 9);
             break;
         case 10:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 84;
             } else {
                 state = 85;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 10);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 10);
             break;
         case 11:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 86;
             } else {
                 state = 87;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 11);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 11);
             break;
         case 12:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 130;
             } else {
                 state = 131;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 12);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 12);
             break;
         case 13:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 132;
             } else {
                 state = 133;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 13);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 13);
             break;
         case 14:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 134;
             } else {
                 state = 135;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 14);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 14);
             break;
         case 15:
-            if (unit[0xA2] == 0) {
+            if (((BtlUnit *)unit)->genus == 0) {
                 state = 136;
             } else {
                 state = 137;
             }
-            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 15);
+            datCalcClearBuffLevel((u8 *)((BtlUnit *)unit)->datUnit, 15);
             break;
         default:
             state = 0;
             break;
         }
         if (state != 0) {
-            btlActionFinishPresentation((BtlAction *)arg0);
-            packet = btlCameraCreateSetStatePacket((u8 *)arg0, 10);
-            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+            btlActionFinishPresentation((BtlAction *)action);
+            packet = btlCameraCreateSetStatePacket((u8 *)action, 10);
+            ((BtlPacket *)packet)->actionUID = *(s64 *)action;
             btlPacketEnqueue(packet, 0);
-            packet = actionMessagePacketBytes(*(s32 *)((u8 *)arg0 + 0x30), (s32)state);
-            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+            packet = btlActionCreateMessagePacketBytes((s32)((BtlAction *)action)->unit, (s32)state);
+            ((BtlPacket *)packet)->actionUID = *(s64 *)action;
             btlPacketEnqueue(packet, 3);
         } else {
 fallback:
-            if (btlSoundRollStatusCure((u8 *)arg0) != 0) {
-                btlActionSetState((u8 *)arg0, 11);
+            if (btlSoundRollStatusCure((u8 *)action) != 0) {
+                btlActionSetState((u8 *)action, 11);
             } else {
-                btlActionSetState((u8 *)arg0, 3);
+                btlActionSetState((u8 *)action, 3);
             }
         }
     }
@@ -1223,11 +1263,12 @@ fallback:
 
 #pragma pop
 // FUN_001A31A0
-void btlActionBadInit(u8 *arg0)
+/* Initialize status-recovery progress after advancing the shared status counters. */
+void btlActionBadInit(u8 *action)
 {
     btlSoundBumpStatusCounters();
-    *(s32 *)(arg0 + 0x41C) = 1;
-    *(s32 *)(arg0 + 0x420) = 0;
+    ((BtlAction *)action)->unk_41c = 1;
+    ((BtlAction *)action)->unk_420 = 0;
 }
 
 #pragma push
@@ -1235,6 +1276,7 @@ void btlActionBadInit(u8 *arg0)
  * remains a 32-bit word through the low20 selector. Camera and animation
  * packets remain alive until their published UIDs have been consumed. */
 // FUN_001A31E0
+/* Raw action/packet offsets retain MATCH; both canonical action fields and typed packet headers changed code generation. */
 void btlActionBadUpdate(BtlAction *actionState)
 {
     u8 *action = (u8 *)actionState;
@@ -1247,32 +1289,32 @@ void btlActionBadUpdate(BtlAction *actionState)
     u16 animationDuration;
     f32 animationSpeed;
     f32 rotation[3];
-    struct { s32 words[8]; } result;
+    LargeBattleHitResult result;
 
     if (btlCountUnitRecordsById(0x506) == 0 && btlCountUnitRecordsById(0x105) == 0) {
         btlActionFinishPresentation((BtlAction *)action);
-        badStatus = datCalcGetBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64));
-        if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x100000) != 0 &&
+        badStatus = datCalcGetBadStatus((s32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit);
+        if (datCalcChkBadStatus((s32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit, 0x100000) != 0 &&
             *(s32 *)(action + 0x420) == 0) {
             allowRecovery = 1;
-            if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 1) != 0 &&
+            if (datCalcChkBadStatus((s32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit, 1) != 0 &&
                 btlSoundIsStatusCounterHigh(action) == 0) {
                 allowRecovery = 0;
             }
             if (allowRecovery != 0) {
                 cameraPacket = (u8 *)btlCameraCreateSetStatePacket(actionState, 0x31);
-                *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
+                ((BtlPacketTiming *)cameraPacket)->actionUid = *(s64 *)action;
                 btlPacketEnqueue(cameraPacket, 0);
-                if (*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) {
+                if (((BtlBattleState *)iGpffffb3ac)->flags & 0x200000) {
                     u8 *packet;
                     btlUnitGetAnchorPose(*(u8 **)(action + 0x30), NULL, NULL, rotation);
-                    packet = (u8 *)btlUnitCreateRotatePacket(*(BtlUnit **)(action + 0x30),
+                    packet = (u8 *)btlUnitCreateRotatePacket(((BtlAction *)action)->unit,
                                                             (const RwV3d *)rotation, 2);
-                    *(s64 *)(packet + 0x60) = *(s64 *)action;
+                    ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                     btlPacketEnqueue(packet, 0);
                 }
                 {
-                    u32 flags = *(u32 *)(iGpffffb3ac + 0xC);
+                    u32 flags = ((BtlBattleState *)iGpffffb3ac)->flags;
                     if ((flags & 0x1000) && (flags & 0x04000000)) {
                         animationSpeed = 1.75f;
                         animationDelay = 12;
@@ -1286,71 +1328,71 @@ void btlActionBadUpdate(BtlAction *actionState)
                 animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 0x30),
                                                                11, 0, animationSpeed, 0);
                 animationPacket[0] = 4;
-                *(s64 *)(animationPacket + 8) = *(s64 *)(cameraPacket + 0x58);
-                *(u16 *)(animationPacket + 0x48) = animationDelay;
-                *(s64 *)(animationPacket + 0x60) = *(s64 *)action;
+                ((BtlPacketTiming *)animationPacket)->dependencyUid = ((BtlPacketTiming *)cameraPacket)->uid;
+                ((BtlPacketTiming *)animationPacket)->delay = animationDelay;
+                ((BtlPacketTiming *)animationPacket)->actionUid = *(s64 *)action;
                 btlPacketEnqueue(animationPacket, 0);
                 {
                     u8 *packet = (u8 *)btlVoiceCreatePacket(actionState, 3, 0, 0, 0);
                     packet[0] = 4;
-                    *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
+                    ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(animationPacket + 0x58);
                     btlPacketEnqueue(packet, 1);
                 }
                 btlTargetClearResultBuffer((u8 *)&result);
-                result.words[3] = 0x100001;
+                result.removedStatus = 0x100001;
                 {
                     u8 *packet = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
                     packet[0] = 4;
-                    *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-                    *(s64 *)(packet + 0x60) = *(s64 *)action;
+                    ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(animationPacket + 0x58);
+                    ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                     btlPacketEnqueue(packet, 1);
                 }
                 {
                     u8 *packet = (u8 *)btlUnitCreateMotionSettlePacket(*(BtlUnit **)(action + 0x30));
                     packet[0] = 4;
-                    *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-                    *(u16 *)(packet + 0x4A) = animationDuration;
-                    *(s64 *)(packet + 0x60) = *(s64 *)action;
+                    ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(animationPacket + 0x58);
+                    ((BtlPacketTiming *)packet)->duration = animationDuration;
+                    ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                     btlPacketEnqueue(packet, 0);
                 }
                 {
                     u8 *packet = (u8 *)btlTargetCreateTargetPacket((u32)action, 0x11, 0, 0, 0);
                     packet[0] = 4;
-                    *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-                    *(s64 *)(packet + 0x60) = *(s64 *)action;
+                    ((BtlPacketTiming *)packet)->dependencyUid = ((BtlPacketTiming *)animationPacket)->uid;
+                    ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                     btlPacketEnqueue(packet, 1);
                 }
-                *(s32 *)(action + 0x41C) = 1;
+                ((BtlAction *)action)->unk_41c = 1;
             } else {
                 {
                     u8 *packet = (u8 *)btlCameraCreateSetStatePacket(actionState, 10);
-                    *(s64 *)(packet + 0x60) = *(s64 *)action;
+                    ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                     btlPacketEnqueue(packet, 0);
                 }
                 {
                     u8 *packet = (u8 *)btlTargetCreateTargetPacket((u32)action, 0x12, 0, 0, 0);
-                    *(s64 *)(packet + 0x60) = *(s64 *)action;
+                    ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                     btlPacketEnqueue(packet, 1);
                 }
                 {
-                    u8 *unit = *(u8 **)(action + 0x30);
+                    u8 *unit = (u8*)((BtlAction *)action)->unit;
                     u8 *packet;
                     s32 message;
-                    if (unit[0xA2] == 0) {
+                    if (((BtlUnit *)unit)->genus == 0) {
                         message = 0x68;
                     } else {
                         message = 0x69;
                     }
                     packet = (u8 *)btlPacketCreateEffectCounter((s32)unit, message);
-                    *(s64 *)(packet + 0x60) = *(s64 *)action;
+                    ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                     btlPacketEnqueue(packet, 3);
                 }
-                *(s32 *)(action + 0x41C) = 0;
+                ((BtlAction *)action)->unk_41c = 0;
             }
             btlPacketEnqueue((u8 *)btlUnitCreateLookAtUnitPacket(NULL, *(BtlUnit **)(action + 0x30), 1), 1);
-            btlPacketEnqueue((u8 *)btlUnitCreateLookAtDeactivatePacket(*(BtlUnit **)(action + 0x30), 0), 1);
-            *(u16 *)(action + 0x18) |= 0x200;
-            *(s32 *)(action + 0x420) = 1;
+            btlPacketEnqueue((u8 *)btlUnitCreateLookAtDeactivatePacket(((BtlAction *)action)->unit, 0), 1);
+            ((BtlAction *)action)->flags |= 0x200;
+            ((BtlAction *)action)->unk_420 = 1;
             return;
         }
         resultFlags = btlSoundSelectCureableStatuses(action);
@@ -1358,46 +1400,46 @@ void btlActionBadUpdate(BtlAction *actionState)
             s32 message;
             {
                 u8 *packet = (u8 *)btlCameraCreateSetStatePacket(actionState, 10);
-                *(s64 *)(packet + 0x60) = *(s64 *)action;
+                ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                 btlPacketEnqueue(packet, 0);
             }
             btlTargetClearResultBuffer((u8 *)&result);
-            result.words[3] = resultFlags;
+            result.removedStatus = resultFlags;
             {
                 u8 *packet = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
-                *(u16 *)(packet + 0x48) = 0x12;
+                ((BtlPacketTiming *)packet)->delay = 0x12;
                 btlPacketEnqueue(packet, 1);
             }
             message = btlSoundPickStatusTalkVoiceB(action);
             if (message > 0) {
-                u8 *packet = (u8 *)btlPacketCreateEffectCounter(*(s32 *)(action + 0x30), message);
-                *(s64 *)(packet + 0x60) = *(s64 *)action;
+                u8 *packet = (u8 *)btlPacketCreateEffectCounter((s32)((BtlAction *)action)->unit, message);
+                ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                 btlPacketEnqueue(packet, 3);
             }
             return;
         }
-        if (*(s32 *)(action + 0x41C) != 0) {
+        if (((BtlAction *)action)->unk_41c != 0) {
             if (badStatus & 0x116) {
                 s32 message;
-                func_001eb4a0(action, action + 0x38, badStatus);
-                *(u16 *)(action + 0x18) |= 2;
+                btlAiSelectStatusCommand(action, action + 0x38, badStatus);
+                ((BtlAction *)action)->flags |= 2;
                 message = btlSoundPickStatusTalkVoiceA(action);
                 if (message > 0) {
                     {
                         u8 *packet = (u8 *)btlCameraCreateSetStatePacket(actionState, 10);
-                        *(s64 *)(packet + 0x60) = *(s64 *)action;
+                        ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                         btlPacketEnqueue(packet, 0);
                     }
                     {
-                        u8 *packet = (u8 *)btlPacketCreateEffectCounter(*(s32 *)(action + 0x30), message);
-                        *(s64 *)(packet + 0x60) = *(s64 *)action;
+                        u8 *packet = (u8 *)btlPacketCreateEffectCounter((s32)((BtlAction *)action)->unit, message);
+                        ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                         btlPacketEnqueue(packet, 3);
                     }
                 }
                 {
                     u8 *packet = (u8 *)btlTargetCreateTargetPacket((u32)action, 0x1E, 0, 0, 0);
-                    *(u16 *)(packet + 0x48) = 0x18;
-                    *(s64 *)(packet + 0x60) = *(s64 *)action;
+                    ((BtlPacketTiming *)packet)->delay = 0x18;
+                    ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
                     btlPacketEnqueue(packet, 1);
                 }
                 btlActionSetState(actionState, 15);
@@ -1406,8 +1448,8 @@ void btlActionBadUpdate(BtlAction *actionState)
             btlActionSetStateWithDelay(actionState, 3, 1);
             return;
         }
-        func_001eb3b0(action + 0x38);
-        *(u16 *)(action + 0x18) &= 0xFFF7;
+        btlTargetResetCommandRecord(action + 0x38);
+        ((BtlAction *)action)->flags &= 0xFFF7;
         if (btlSoundCanReceiveStatus(action) != 0) {
             btlActionSetState(actionState, 27);
             return;
@@ -1421,6 +1463,7 @@ void btlActionBadUpdate(BtlAction *actionState)
 /* The mode is established by the action selector before entering this state.
    Movement and target-animation packets are separate dependency owners. */
 // FUN_001A3840
+/* Raw cooperation/packet offsets retain MATCH; typed packet headers changed the frame and register allocation. */
 void btlActionCooperateInit(register BtlAction *actionState)
 {
     u8 *action;
@@ -1438,14 +1481,12 @@ void btlActionCooperateInit(register BtlAction *actionState)
     u16 afterVoice;
     u16 formationMode;
     u16 displayMode;
-    struct {
-        s32 values[8];
-    } result;
+    LargeBattleHitResult result;
     s32 delayedFrame;
 
     action = (u8 *)actionState;
-    target = *(u8 **)(action + 0x444);
-    mode = *(s16 *)(action + 0x448);
+    target = (u8*)((BtlAction *)action)->cooperation.target;
+    mode = ((BtlAction *)action)->cooperation.mode;
     switch (mode) {
     case 1:
         resultFlags = 0x100001;
@@ -1453,12 +1494,12 @@ void btlActionCooperateInit(register BtlAction *actionState)
         targetAnimation = 28;
         targetFrame = 0;
         {
-            u8 *targetUnit = *(u8 **)(target + 0x30);
-            u8 *sourceUnit = *(u8 **)(action + 0x30);
-            f32 sourceRadius = *(f32 *)(sourceUnit + 0x90);
-            f32 sourceScale = *(f32 *)(sourceUnit + 0x2C);
-            f32 targetRadius = *(f32 *)(targetUnit + 0x90);
-            f32 targetScale = *(f32 *)(targetUnit + 0x2C);
+            u8 *targetUnit = (u8*)((BtlAction *)target)->unit;
+            u8 *sourceUnit = (u8*)((BtlAction *)action)->unit;
+            f32 sourceRadius = ((BtlUnit *)(sourceUnit))->sphereRadius;
+            f32 sourceScale = ((BtlUnit *)(sourceUnit))->scale;
+            f32 targetRadius = ((BtlUnit *)(targetUnit))->sphereRadius;
+            f32 targetScale = ((BtlUnit *)(targetUnit))->scale;
             distance = 50.0f + (sourceRadius * sourceScale + targetRadius * targetScale);
         }
         selectedEffect.slot = -1;
@@ -1466,84 +1507,84 @@ void btlActionCooperateInit(register BtlAction *actionState)
         formationMode = 1;
         beforeVoice = 0;
         afterVoice = 12;
-        *(u16 *)(action + 0x1A) |= 0x800;
+        ((BtlAction *)action)->unk_1a |= 0x800;
         break;
     case 0:
         resultFlags = 30;
         sourceAnimation = 29;
         targetAnimation = 2;
         targetFrame = (u16)btlUnitMotionFrames(*(u8 **)(action + 0x30), 29, 1.0f);
-        distance = 50.0f + btlUnitGetMotionDistance(*(u8 **)(action + 0x30),
-                                        *(u8 **)(target + 0x30), 29);
+        distance = 50.0f + btlUnitGetMotionDistance((u8*)((BtlAction *)action)->unit,
+                                        (u8*)((BtlAction *)target)->unit, 29);
         displayMode = 15;
         selectedEffect.slot = 40;
         formationMode = 0;
         beforeVoice = 10;
         afterVoice = 11;
-        *(u16 *)(action + 0x1A) |= 0x1000;
+        ((BtlAction *)action)->unk_1a |= 0x1000;
         break;
     }
     btlActionFinishPresentation((BtlAction *)action);
     btlTargetResetRecordCounter(action + 0x38);
-    *(u8 **)(action + 0x38) = target;
-    *(s16 *)(action + 0x6A) = 1;
+    ((BtlAction *)action)->targets[0] = target;
+    ((BtlAction *)action)->unk_6a = 1;
     if ((u16)beforeVoice != 0) {
         {
             u8 *packet;
             packet = (u8 *)btlVoiceCreatePacket((BtlAction *)action, beforeVoice,
-                             *(u16 *)(*(u8 **)(target + 0x30) + 0xA4), 0, 0);
-            *(s64 *)(packet + 0x60) = *(s64 *)action;
+                             ((BtlUnit *)((u8*)((BtlAction *)target)->unit))->charId, 0, 0);
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
             btlPacketEnqueue(packet, 1);
         }
     }
-    if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
+    if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x200000) == 0) {
         {
             u8 *packet;
             packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 25);
-            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
             btlPacketEnqueue(packet, 0);
         }
-        movementPacket = (u8 *)btlUnitCreateMoveToUnitPacket(*(BtlUnit **)(action + 0x30),
-                        *(BtlUnit **)(target + 0x30), distance, fGpffff811c, 10);
-        *(s64 *)(movementPacket + 0x60) = *(s64 *)action;
+        movementPacket = (u8 *)btlUnitCreateMoveToUnitPacket(((BtlAction *)action)->unit,
+                        ((BtlAction *)target)->unit, distance, fGpffff811c, 10);
+        ((BtlPacketTiming *)movementPacket)->actionUid = *(s64 *)action;
         btlPacketEnqueue(movementPacket, 0);
     } else {
         movementPacket = btlPacketCreateImmediate();
-        *(s64 *)(movementPacket + 0x60) = *(s64 *)action;
+        ((BtlPacketTiming *)movementPacket)->actionUid = *(s64 *)action;
         btlPacketEnqueue(movementPacket, 0);
     }
     {
         u8 *packet;
         packet = btlPacketCreateSpriteTable(*(u32 *)(action + 0x30), displayMode);
         packet[0] = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
-        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(movementPacket + 0x58);
+        ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
         btlPacketEnqueue(packet, 3);
     }
     {
         u8 *packet;
         packet = (u8 *)btlFormationCreateWaitPacket(*(u32 *)(action + 0x30), *(u32 *)(target + 0x30), formationMode);
         packet[0] = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
-        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(movementPacket + 0x58);
+        ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
         btlPacketEnqueue(packet, 0);
     }
     {
         u8 *packet;
         packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 42);
         packet[0] = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
-        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(movementPacket + 0x58);
+        ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
         btlPacketEnqueue(packet, 0);
     }
     if ((u16)afterVoice != 0) {
         {
             u8 *packet;
             packet = (u8 *)btlVoiceCreatePacket((BtlAction *)action, afterVoice,
-                             *(u16 *)(*(u8 **)(target + 0x30) + 0xA4), 0, 0);
+                             ((BtlUnit *)((u8*)((BtlAction *)target)->unit))->charId, 0, 0);
             packet[0] = 4;
-            *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
-            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            ((BtlPacketTiming *)packet)->dependencyUid = ((BtlPacketTiming *)movementPacket)->uid;
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
             btlPacketEnqueue(packet, 1);
         }
     }
@@ -1552,88 +1593,93 @@ void btlActionCooperateInit(register BtlAction *actionState)
         packet = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 0x30),
                                              (s16)sourceAnimation, 0, 1.0f, 0);
         packet[0] = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
-        *(s64 *)(packet + 0x60) = *(s64 *)action;
-        *(s16 *)(packet + 0x4A) = btlUnitMotionModelFrames(*(u8 **)(action + 0x30), sourceAnimation, 1.0f);
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(movementPacket + 0x58);
+        ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
+        ((BtlPacketTiming *)packet)->duration = btlUnitMotionModelFrames(*(u8 **)(action + 0x30), sourceAnimation, 1.0f);
         btlPacketEnqueue(packet, 0);
     }
-    animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(target + 0x30),
+    animationPacket = (u8 *)btlUnitCreateAnimPacket(((BtlAction *)target)->unit,
                                                   (s16)targetAnimation, 0, 1.0f, 0);
     animationPacket[0] = 4;
-    *(s64 *)(animationPacket + 8) = *(s64 *)(movementPacket + 0x58);
-    *(s64 *)(animationPacket + 0x60) = *(s64 *)action;
+    ((BtlPacketTiming *)animationPacket)->dependencyUid = *(s64 *)(movementPacket + 0x58);
+    ((BtlPacketTiming *)animationPacket)->actionUid = *(s64 *)action;
     delayedFrame = (s16)targetFrame;
-    *(s16 *)(animationPacket + 0x48) = targetFrame;
+    ((BtlPacketTiming *)animationPacket)->delay = targetFrame;
     btlPacketEnqueue(animationPacket, 0);
     if (selectedEffect.slot != -1) {
         {
             u8 *packet;
-            const ActionRecoveryResourceView *resourceBase;
-            resourceBase = (const ActionRecoveryResourceView *)iGpffffb3ac;
-            packet = (u8 *)btlFormationCreatePacket(actionRecoveryResourceAt(resourceBase, selectedEffect.slot),
-                                        *(u32 *)(action + 0x30), *(u32 *)(target + 0x30), 1, 0);
+            const BtlBattleState *resourceBase;
+            resourceBase = (const BtlBattleState *)iGpffffb3ac;
+            packet = (u8 *)btlFormationCreatePacket(btlActionGetFormationResource(resourceBase, selectedEffect.slot),
+                                        (u32)((BtlAction *)action)->unit, *(u32 *)(target + 0x30), 1, 0);
             packet[0] = 4;
-            *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
-            *(s64 *)(packet + 0x60) = *(s64 *)action;
-            *(s16 *)(packet + 0x48) = delayedFrame;
+            ((BtlPacketTiming *)packet)->dependencyUid = ((BtlPacketTiming *)movementPacket)->uid;
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
+            ((BtlPacketTiming *)packet)->delay = delayedFrame;
             btlPacketEnqueue(packet, 2);
         }
     }
     btlTargetClearResultBuffer((u8 *)&result);
-    result.values[3] = resultFlags;
+    result.removedStatus = resultFlags;
     {
         u8 *packet;
         packet = (u8 *)btlTargetCreateDataPacket((s32)target, (s32)target, &result, 1, 1);
         packet[0] = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-        *(s16 *)(packet + 0x48) = delayedFrame;
-        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        ((BtlPacketTiming *)packet)->dependencyUid = ((BtlPacketTiming *)animationPacket)->uid;
+        ((BtlPacketTiming *)packet)->delay = delayedFrame;
+        ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
         btlPacketEnqueue(packet, 1);
     }
 }
 
 #pragma pop
 // FUN_001A3D50
+/* Wait for this action packet chain, clear its cooperation mode, and publish completion flags. */
+/* Raw halfwords cover the cooperation mode and battle-state bits not declared in the shared layouts. */
 void btlActionCooperateUpdate(BtlAction *action)
 {
     if (btlUnitRecordFindByActionUID(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
-        *(s16 *)((u8 *)action + 0x448) = -1;
-        *(s32 *)(D_0076449C + 0xC) |= 0x400000;
-        *(u16 *)(D_0076449C + 0x18) |= 7;
+        ((BtlAction *)action)->cooperation.mode = -1;
+        ((BtlBattleState *)D_0076449C)->flags |= 0x400000;
+        ((BtlBattleState *)D_0076449C)->actionEndFlags |= 7;
         btlActionSetState(action, 0x20);
     }
 }
 
 // FUN_001A3DE0
+/* Expose the action completion counter to the packet wait callback. */
 s32 btlActionGetCounter420(BtlAction *action)
 {
-    return *(s32 *)((u8 *)action + 0x420);
+    return ((BtlAction *)action)->unk_420;
 }
 
 // FUN_001A3DF0
+/* Release linked models and decide whether a follow-up prompt can be offered. */
+/* Raw +0x90 reads the reference action from BtlAction's still-opaque command-record span. */
 void btlActionPursuitMesInit(BtlAction *action)
 {
     s32 status;
     u8 *iter;
-    u8 *temp;
+    u8 *packet;
     s64 *current;
 
-    iter = *(u8 **)(D_0076449C + 0x174);
+    iter = ((BtlBattleState *)D_0076449C)->actions;
     goto loop_test;
 loop_body:
     if (btlActionLinkedUnitIsActive((BtlAction *)iter) != 0) {
-        temp = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(iter + 0x30) + 0xA0C));
-        *(s64 *)(temp + 0x60) = *(s64 *)iter;
-        btlPacketEnqueue(temp, 1);
+        packet = (u8 *)btlUnitCreateModelReleasePacket(((BtlUnit *)((u8 *)((BtlAction *)iter)->unit))->childUnit);
+        ((BtlPacket *)packet)->actionUID = *(s64 *)iter;
+        btlPacketEnqueue(packet, 1);
     }
-    iter = *(u8 **)(iter + 0x450);
+    iter = (u8 *)((BtlAction *)iter)->next;
 loop_test:
     if (iter != NULL) {
         goto loop_body;
     }
     status = 1;
     current = btlActionGetQueueFront();
-    if ((*(u16 *)((u8 *)current + 0x18) & 8) != 0 &&
+    if ((((BtlAction *)current)->flags & 8) != 0 &&
         btlActionCanFollowUpAfterEnemiesDown((u8 *)current) != 0) {
         status = 0;
     }
@@ -1641,110 +1687,109 @@ loop_test:
         status = btlEffectFindUnitMatchingCallback(
             (u8 *)action,
             datCalcSkillElement(
-                *(u8 **)(*(u8 **)((u8 *)action + 0x30) + 0xA64),
-                btlTargetGetStatusEffectMsgCode((u8 *)action, *(u8 **)((u8 *)action + 0x90)) & 0xFFFF) & 0xFFFF,
+                (u8 *)((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->datUnit,
+                btlTargetGetStatusEffectMsgCode((u8 *)action, ((BtlAction *)action)->parameters.supportTarget) & 0xFFFF) & 0xFFFF,
             2, 0x80000, 2, btlAICommandNomalStatusCheck);
     }
     if (status == 0) {
-        temp = btlSoundStopTaskStart();
-        *(s64 *)(temp + 0x60) = *(s64 *)action;
-        btlPacketEnqueue(temp, 1);
+        packet = btlSoundStopTaskStart();
+        ((BtlPacket *)packet)->actionUID = *(s64 *)action;
+        btlPacketEnqueue(packet, 1);
         btlActionSetState(action, 0x20);
         return;
     }
-    if (func_001eb860() == 1) {
-        *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
-        btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 0);
+    if (btlTargetCanControlDamagePhase() == 1) {
+        ((BtlBattleState *)D_0076449C)->flags &= ~0x2000;
+        btlDamageSetSource((u8 *)((BtlBattleState *)D_0076449C)->uiTask, 0);
     }
-    *(s32 *)((u8 *)action + 0x41C) = 0;
-    *(s32 *)((u8 *)action + 0x420) = 0;
+    ((BtlAction *)action)->unk_41c = 0;
+    ((BtlAction *)action)->unk_420 = 0;
 }
 
 // FUN_001A3F90
-void btlActionPursuitMesUpdate(u8 *arg0)
+/* Coordinate the follow-up prompt, cut-in and formation dependencies before dispatching the answer. */
+/* Raw action fields retain MATCH after a typed rewrite; the packet +8 halfword is a tagged dependency ID. */
+void btlActionPursuitMesUpdate(u8 *action)
 {
-    u8 frame[0x10];
-    struct {
-        u8 pad[0x30];
-        s32 field_30;
-    } *partner;
-    s64 *targetUnit;
+    struct { s16 mode; u16 unitId; u8 reserved[12]; } cutin;
+    BtlAction *partner;
+    s64 *queuedAction;
     u16 waitFrames;
     u8 *waitPacket;
     u8 *effectPacket;
 
-    if (*(s32 *)(arg0 + 0x41C) == 0) {
+    if (*(s32 *)(action + 0x41C) == 0) {
         if ((btlCountUnitRecordsById(0xC00) == 0) && (btlCountUnitRecordsById(0xC04) == 0)) {
-            *(s16 *)(frame + 0) = 2;
-            *(u16 *)(frame + 2) =
-                *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
-            btlPacketEnqueue(btlCutinCreatePacket(frame), 1);
-            btlActionFinishPresentation((BtlAction *)arg0);
+            cutin.mode = 2;
+            cutin.unitId =
+                ((BtlUnit *)(*(u8 **)(action + 0x30)))->charId;
+            btlPacketEnqueue(btlCutinCreatePacket((u8 *)&cutin), 1);
+            btlActionFinishPresentation((BtlAction *)action);
             btlPacketEnqueue(btlPacketCreateEndSequence(), 1);
             btlPacketEnqueue(btlSoundLoadTaskStart(), 1);
-            btlMessageStartLong(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
+            btlMessageStartLong((u8 *)((BtlBattleState *)D_0076449C)->uiTask, (u8 *)action);
             btlPacketEnqueue((u8 *)btlFormationCreateSlotPacket(3, 0xFFF), 0);
             partner = (void *)btlActionGetQueueFront();
             btlPacketEnqueue(
-                btlUnitCreateRotateTowardUnitPacket((u8 *)partner->field_30,
-                              *(u8 **)(arg0 + 0x30), 2),
+                btlUnitCreateRotateTowardUnitPacket((u8 *)partner->unit,
+                              *(u8 **)(action + 0x30), 2),
                 0);
             btlPacketEnqueue(
-                btlUnitCreateRotateTowardUnitPacket(*(u8 **)(arg0 + 0x30),
-                              (u8 *)partner->field_30, 2),
+                btlUnitCreateRotateTowardUnitPacket(*(u8 **)(action + 0x30),
+                              (u8 *)partner->unit, 2),
                 0);
             btlPacketEnqueue(
-                (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)partner->field_30, 0),
+                (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)partner->unit, 0),
                 1);
             btlPacketEnqueue(
-                actionLookAtUnit(*(u8 **)(arg0 + 0x30),
-                              (u8 *)partner->field_30, 0),
+                btlActionCreateLookAtUnitPacketBytes(*(u8 **)(action + 0x30),
+                              (u8 *)partner->unit, 0),
                 1);
-            btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x30), 0);
-            waitPacket = btlPacketAllocZeroed((s32)btlActionGetCounter420, (s32)arg0);
+            btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x30), 0);
+            waitPacket = btlPacketAllocZeroed((s32)btlActionGetCounter420, (s32)action);
             btlPacketEnqueue(waitPacket, 1);
             btlPacketEnqueue(
-                btlEffectCreateFormationPacket(*(s32 *)(D_0076449C + 0xD90),
-                              *(s32 *)(arg0 + 0x30), 0,
-                              *(s64 *)(waitPacket + 0x58), 0xC000),
+                btlEffectCreateFormationPacket((s32)((BtlBattleState *)D_0076449C)->formations[35],
+                              (s32)((BtlAction *)action)->unit, 0,
+                              ((BtlPacketTiming *)waitPacket)->uid, 0xC000),
                 2);
-            if (func_001eb860() == 1) {
-                *(s32 *)(D_0076449C + 0xC) |= 0x2000;
-                btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
+            if (btlTargetCanControlDamagePhase() == 1) {
+                ((BtlBattleState *)D_0076449C)->flags |= 0x2000;
+                btlDamageSetSource((u8 *)((BtlBattleState *)D_0076449C)->uiTask, 1);
             }
-            *(s32 *)(arg0 + 0x41C) = 1;
+            ((BtlAction *)action)->unk_41c = 1;
         }
-    } else if (*(s32 *)(arg0 + 0x420) == 0) {
-        if (btlMessageIsActiveAlt(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
-            if (btlMessageGetResultAlt(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
-                btlPacketEnqueue(func_001f99c0((u8 *)arg0, 8, 0, 0, 0), 1);
+    } else if (*(s32 *)(action + 0x420) == 0) {
+        if (btlMessageIsActiveAlt(((BtlBattleState *)D_0076449C)->uiTask) != 0) {
+            if (btlMessageGetResultAlt(((BtlBattleState *)D_0076449C)->uiTask) != 0) {
+                btlPacketEnqueue(func_001f99c0((u8 *)action, 8, 0, 0, 0), 1);
                 effectPacket = btlCutinCreateStartPacket();
-                *(s8 *)(effectPacket + 0) = 0xA;
-                *(s16 *)(effectPacket + 8) = 0xC00;
-                *(s64 *)(effectPacket + 0x60) = *(s64 *)arg0;
+                ((BtlPacketTiming *)effectPacket)->dependencyKind = 0xA;
+                ((BtlPacketCondition *)effectPacket)->value.id = 0xC00;
+                ((BtlPacketTiming *)effectPacket)->actionUid = *(s64 *)action;
                 btlPacketEnqueue(effectPacket, 1);
                 btlPacketEnqueue(btlFormationCreateDefaultPacket(), 1);
             }
             btlPacketEnqueue(btlSoundReleaseTaskStart(), 1);
-            *(s32 *)(arg0 + 0x420) = 1;
-            *(u16 *)(arg0 + 0x424) = 6;
+            ((BtlAction *)action)->unk_420 = 1;
+            ((BtlAction *)action)->pursuitDelay = 6;
         }
     } else {
-        waitFrames = *(u16 *)(arg0 + 0x424);
+        waitFrames = *(u16 *)(action + 0x424);
         if (waitFrames == 0) {
             btlPacketEnqueue((u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3), 1);
-            if (btlMessageGetResultAlt(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
-                targetUnit = btlActionGetQueueFront();
-                btlPacketEnqueue(btlTargetCreateActionPacket((u8 *)targetUnit, 2), 1);
-                *(u16 *)((u8 *)targetUnit + 0x18) |= 0x8000;
-                btlActionSetState((BtlAction *)arg0, 0xE);
+            if (btlMessageGetResultAlt(((BtlBattleState *)D_0076449C)->uiTask) == 0) {
+                queuedAction = btlActionGetQueueFront();
+                btlPacketEnqueue(btlTargetCreateActionPacket((u8 *)queuedAction, 2), 1);
+                ((BtlAction *)queuedAction)->flags |= 0x8000;
+                btlActionSetState((BtlAction *)action, 0xE);
             } else {
-                btlActionSetState((BtlAction *)arg0, 0x20);
+                btlActionSetState((BtlAction *)action, 0x20);
             }
-            btlMessageResetAlt(*(s32 *)(D_0076449C + 0xDD4));
+            btlMessageResetAlt(((BtlBattleState *)D_0076449C)->uiTask);
             return;
         }
-        *(u16 *)(arg0 + 0x424) = waitFrames - 1;
+        ((BtlAction *)action)->pursuitDelay = waitFrames - 1;
     }
 }
 
@@ -1769,10 +1814,11 @@ void btlActionPursuitInit(void)
 /* measured: func_001a43a0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001A43A0
+/* Raw action/unit accesses retain MATCH; separate scalar and unit-member rewrites both changed allocation. */
 void btlActionPursuitUpdate(u8 *action)
 {
-    extern s8 datCalcGetBuffStatus(u8 *action, s32 arg1);
-    extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 kind, s32 id, s32 flags, s32 mode);
+    extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
+    extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 callbackIndex, s32 argument, s32 extraArgument, s32 flags);
     struct {
         s16 element;
         u8 *preferred[12] __attribute__((aligned(16)));
@@ -1793,21 +1839,21 @@ void btlActionPursuitUpdate(u8 *action)
     if (btlCountUnitRecordsById(0xC00) != 0) {
         return;
     }
-    referenceAction = *(u8 **)(action + 0x90);
+    referenceAction = ((BtlAction *)action)->parameters.supportTarget;
     skill = btlTargetGetStatusEffectMsgCode(action, referenceAction);
     targetMode = btlSkillClassifyTargets(action, action + 0x98, skill, 0);
-    rawElement = datCalcSkillElement(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), skill);
+    rawElement = datCalcSkillElement((u8*)((BtlUnit *)((BtlAction *)action)->unit)->datUnit, skill);
     hasReferenceAction = 0;
     otherCount = 0;
     preferredCount = 0;
     scanIndex = 0;
     targets.element = (s16)rawElement;
-    for (; scanIndex < *(u16 *)(action + 0xD0); scanIndex++) {
-        candidate = actionReadCandidate(action, &scanIndex);
-        if (!(*(u16 *)(candidate + 0x1A) & 1)) {
+    for (; scanIndex < ((BtlAction *)action)->unk_d0; scanIndex++) {
+        candidate = btlActionGetCandidate(action, &scanIndex);
+        if (!(((BtlAction *)candidate)->unk_1a & 1)) {
             continue;
         }
-        workspace = *(u8 **)(candidate + 0x30);
+        workspace = (u8*)((BtlAction *)candidate)->unit;
         if (datCalcIsDead(*(s32 *)(workspace + 0xA64), 0) != 0) {
             continue;
         }
@@ -1822,7 +1868,7 @@ void btlActionPursuitUpdate(u8 *action)
                 continue;
             }
         }
-        if (datCalcChkBadStatus(*(s32 *)(workspace + 0xA64), 0x100000) == 0) {
+        if (datCalcChkBadStatus((s32)((BtlUnit *)workspace)->datUnit, 0x100000) == 0) {
             targets.preferred[preferredCount++] = candidate;
         }
         if (referenceAction != candidate) {
@@ -1831,18 +1877,18 @@ void btlActionPursuitUpdate(u8 *action)
             hasReferenceAction = 1;
         }
     }
-    func_001eb3b0(action + 0x38);
-    *(s16 *)(action + 0x6C) = 2;
-    *(u16 *)(action + 0x6E) = skill;
+    btlTargetResetCommandRecord(action + 0x38);
+    ((BtlAction *)action)->unk_6c = 2;
+    ((BtlAction *)action)->unk_6e = skill;
     if (targetMode == 0) {
         if (preferredCount > 0) {
-            *(u8 **)(action + 0x38) = targets.preferred[datCalcRandomBelow(preferredCount)];
+            ((BtlAction *)action)->targets[0] = targets.preferred[datCalcRandomBelow(preferredCount)];
         } else if (hasReferenceAction) {
-            *(u8 **)(action + 0x38) = referenceAction;
+            ((BtlAction *)action)->targets[0] = referenceAction;
         } else {
-            *(u8 **)(action + 0x38) = targets.other[datCalcRandomBelow(otherCount)];
+            ((BtlAction *)action)->targets[0] = targets.other[datCalcRandomBelow(otherCount)];
         }
-        *(u16 *)(action + 0x6A) = 1;
+        ((BtlAction *)action)->unk_6a = 1;
     } else {
         s32 availableCount;
         s32 shuffleLimit;
@@ -1864,11 +1910,11 @@ void btlActionPursuitUpdate(u8 *action)
             }
         }
         if (hasReferenceAction) {
-            *(u8 **)(action + 0x38) = referenceAction;
+            ((BtlAction *)action)->targets[0] = referenceAction;
             *(u16 *)(action + 0x6A) = 1;
             outputStart = 1;
         } else {
-            *(u16 *)(action + 0x6A) = 0;
+            ((BtlAction *)action)->unk_6a = 0;
             outputStart = 0;
         }
         if (availableCount > 1) {
@@ -1890,18 +1936,18 @@ void btlActionPursuitUpdate(u8 *action)
                 *(u8 **)(outputBase + copyIndex * 4 + 0x38) = targets.other[copyIndex];
             }
         }
-        *(u16 *)(action + 0x6A) += otherCount;
+        ((BtlAction *)action)->unk_6a += otherCount;
     }
-    *(u16 *)(action + 0x18) |= 2;
+    ((BtlAction *)action)->flags |= 2;
     task = (u8 *)btlVoiceCreatePacket((BtlAction *)action, 9, 0, 0, 0);
-    *(u64 *)(task + 0x60) = *(u64 *)action;
+    ((BtlPacket *)task)->actionUID = *(u64 *)action;
     btlPacketEnqueue(task, 1);
     workspace = btlCutinCreateEndPacket();
-    *(u64 *)(workspace + 0x60) = *(u64 *)action;
+    ((BtlPacket *)workspace)->actionUID = *(u64 *)action;
     btlPacketEnqueue(workspace, 1);
     task = btlFormationCreateDefaultPacket();
     task[0] = 4;
-    *(u64 *)(task + 8) = *(u64 *)(workspace + 0x58);
+    ((BtlPacketTiming *)task)->dependencyUid = ((BtlPacket *)workspace)->uid;
     btlPacketEnqueue(task, 1);
     btlActionSetState((BtlAction *)action, 0xF);
 }
@@ -1921,47 +1967,49 @@ void btlActionReadyInit(void)
 // FUN_001A4800
 /* Wait for the participating actions before dispatching the selected action
  * type and submitting its target-state and camera packets. */
-void btlActionReadyUpdate(u8 *arg0)
+/* Wait for participating actions, resolve the selected command, and choose its presentation state. */
+/* Raw skill and readiness words lie in opaque shared spans; integer-address helpers preserve measured operand order. */
+void btlActionReadyUpdate(u8 *actionBytes)
 {
-    extern void func_001eb420(u8 *target);
+    extern void btlTargetSavePair(u8 *target);
     extern s32 btlActionSkillReachesTargets(u8 *action);
-    extern void btlActionRollGroupRatio(s32 state);
+    extern void btlActionRollGroupRatio(s32 context);
     extern s32 btlSoundCanReceiveStatus(u8 *action);
-    extern void btlUnitApplyPacketFlags(u8 *action);
+    extern void btlUnitApplyPacketFlags(u8 *packet);
     s32 loopIndex;
     s32 delayFlag;
     s32 actionIndex;
     s32 personaId;
     u16 actionKind;
     u8 *otherAction;
-    ActionState001a4800 *battleState;
+    BtlBattleState *battleState;
     if (((s32)(btlCountUnitRecordsById(0x506)) == (s32)(0)) && ((s32)(btlCountUnitRecordsById(0xC05)) == (s32)(0))) {
         actionIndex = 0;
-        while ((s32)(loopIndex = actionIndex & 0xFFFF) < (s32)(*(u16 *)((u8 *)arg0 + 0x6A))) {
-            otherAction = (u8 *)((*(u8 **)((u8 *)(((s32)(arg0) + ((actionIndex & 0xFFFF) * 4))) + 0x38)));
-            if ((s32)(arg0) == (s32)(otherAction)) {
+        while ((s32)(loopIndex = actionIndex & 0xFFFF) < (s32)(((BtlAction *)actionBytes)->unk_6a)) {
+            otherAction = (u8 *)((((BtlAction *)actionBytes)->targets[actionIndex & 0xFFFF]));
+            if ((s32)(actionBytes) == (s32)(otherAction)) {
                 goto incr;
             }
-            if (!((*(u16 *)((u8 *)(otherAction) + 0x1A)) & 1)) {
+            if (!((((BtlAction *)otherAction)->unk_1a) & 1)) {
                 goto incr;
             }
-            if (((s32)(datCalcIsDead((*(s32 *)((u8 *)((*(s32 *)((u8 *)(otherAction) + 0x30))) + 0xA64)), 0)) != (s32)(0))) {
+            if (((s32)(datCalcIsDead(((s32)((BtlUnit *)((u8 *)(((s32)((BtlAction *)otherAction)->unit))))->datUnit), 0)) != (s32)(0))) {
                 goto incr;
             }
-            if ((*(u16 *)((u8 *)(otherAction) + 0xC)) != 1) {
+            if ((((BtlAction *)otherAction)->currState) != 1) {
                 goto donecheck;
             }
 incr:
             actionIndex = (actionIndex + 1) & 0xFFFF;
         }
 donecheck:
-        if (loopIndex == (*( u16*)((u8 *)(arg0) + 0x6A))) {
-            if (!((*( u16*)((u8 *)(arg0) + 0x18)) & 4)) {
-                func_001eb420(arg0 + 0x38);
+        if (loopIndex == (((BtlAction *)actionBytes)->unk_6a)) {
+            if (!((((BtlAction *)actionBytes)->flags) & 4)) {
+                btlTargetSavePair(actionBytes + 0x38);
             }
-            (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFFD));
+            (((BtlAction *)actionBytes)->flags) = (u16)((u16) ((((BtlAction *)actionBytes)->flags) & 0xFFFD));
             delayFlag = 0;
-            actionKind = (u16)((u16)((*( u16*)((u8 *)(arg0) + 0x6C))));
+            actionKind = (u16)((u16)((((BtlAction *)actionBytes)->unk_6c)));
             switch (actionKind) {
             case 1:
             case 2:
@@ -1969,66 +2017,66 @@ donecheck:
                 delayFlag = 1;
                 /* fallthrough */
             case 9:
-                btlTargetResolveSelectedSkill(arg0);
-                if ((*( u8*)((u8 *)(func_001a_add_offset(*(u16 *)(arg0 + 0x6E) * 0x28, (s32)iGpffffb3b8)) + 0x24)) == 5) {
-                    btlActionSetState((BtlAction *)arg0, 0x20U);
-                } else if ((*( s32*)((u8 *)(arg0) + 0xE8)) == 1) {
-                    btlActionSetState((BtlAction *)arg0, 0x17U);
-                } else if ((s32)(btlActionSkillReachesTargets(arg0)) != (s32)(0)) {
-                    (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFEF));
-                    btlActionSetState((BtlAction *)arg0, 0x10U);
+                btlTargetResolveSelectedSkill(actionBytes);
+                if ((((DatSkillEntry *)btlActionAddAddressOffset(((BtlAction *)actionBytes)->unk_6e * 0x28, (s32)iGpffffb3b8))->kind24) == 5) {
+                    btlActionSetState((BtlAction *)actionBytes, 0x20U);
+                } else if ((((BtlAction *)actionBytes)->targetBlock.message.blocked) == 1) {
+                    btlActionSetState((BtlAction *)actionBytes, 0x17U);
+                } else if ((s32)(btlActionSkillReachesTargets(actionBytes)) != (s32)(0)) {
+                    (((BtlAction *)actionBytes)->flags) = (u16)((u16) ((((BtlAction *)actionBytes)->flags) & 0xFFEF));
+                    btlActionSetState((BtlAction *)actionBytes, 0x10U);
                 } else {
-                    (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) | 0x10));
-                    btlActionSetState((BtlAction *)arg0, 0x11U);
+                    (((BtlAction *)actionBytes)->flags) = (u16)((u16) ((((BtlAction *)actionBytes)->flags) | 0x10));
+                    btlActionSetState((BtlAction *)actionBytes, 0x11U);
                 }
                 break;
             case 7:
             case 8:
             case 11:
-                btlActionSetState((BtlAction *)arg0, 0x19U);
+                btlActionSetState((BtlAction *)actionBytes, 0x19U);
                 break;
             case 6:
-                if ((s32)((*( u8*)((*( u8**)((u8 *)(arg0) + 0x30)) + 0xA2))) == (s32)(0)) {
+                if ((s32)((((BtlUnit *)((u8 *)((BtlAction *)actionBytes)->unit))->genus)) == (s32)(0)) {
                     if ((s32)(datGetFlag(0x38)) != (s32)(0)) {
                         personaId = 5;
                     } else {
                         personaId = 8;
                     }
-                    if (((s32)(datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(personaId & 0xFFFF), 0x114)) != (s32)(-1)) || ((battleState = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (battleState->flags & 2))) {
-                        btlPacketEnqueue(actionTargetPacketBytes(arg0, 8, 0, 0, 3), 1);
-                        btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 8), 0);
-                        actionSetDelayBytes(arg0, 0x1D, 0xC);
+                    if (((s32)(datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(personaId & 0xFFFF), 0x114)) != (s32)(-1)) || ((battleState = (BtlBattleState *)iGpffffb3ac)->openingSide == 1 && (battleState->queueFlags & 2))) {
+                        btlPacketEnqueue(btlActionCreateTargetPacketBytes(actionBytes, 8, 0, 0, 3), 1);
+                        btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 8), 0);
+                        btlActionSetDelayBytes(actionBytes, 0x1D, 0xC);
                     } else {
                         btlActionRollGroupRatio(0);
-                        btlPacketEnqueue(actionTargetPacketBytes(arg0, 3, 0, 0, 2), 1);
-                        btlPacketEnqueue(btlTargetCreateActionPacket(arg0, 0U), 1);
-                        btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 1), 0);
-                        if ((s32)(btlSoundCanReceiveStatus(arg0)) != (s32)(0)) {
-                            actionSetDelayBytes(arg0, 0x1B, 0xC);
+                        btlPacketEnqueue(btlActionCreateTargetPacketBytes(actionBytes, 3, 0, 0, 2), 1);
+                        btlPacketEnqueue(btlTargetCreateActionPacket(actionBytes, 0U), 1);
+                        btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 1), 0);
+                        if ((s32)(btlSoundCanReceiveStatus(actionBytes)) != (s32)(0)) {
+                            btlActionSetDelayBytes(actionBytes, 0x1B, 0xC);
                         } else {
-                            actionSetDelayBytes(arg0, 0x20, 0xC);
+                            btlActionSetDelayBytes(actionBytes, 0x20, 0xC);
                         }
                     }
                 } else {
-                    btlActionSetState((BtlAction *)arg0, 0x1DU);
+                    btlActionSetState((BtlAction *)actionBytes, 0x1DU);
                 }
                 break;
             case 12:
-                btlActionSetState((BtlAction *)arg0, 0x1DU);
+                btlActionSetState((BtlAction *)actionBytes, 0x1DU);
                 break;
             case 5:
-                btlActionSetState((BtlAction *)arg0, 0x1AU);
+                btlActionSetState((BtlAction *)actionBytes, 0x1AU);
                 break;
             case 10:
-                btlActionSetState((BtlAction *)arg0, 7U);
+                btlActionSetState((BtlAction *)actionBytes, 7U);
                 break;
             }
-            if ((delayFlag != 0) && ((s32)(btlActionAnyTargetDownOrHitFlagged(arg0)) != (s32)(0))) {
-                (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) | 8));
+            if ((delayFlag != 0) && ((s32)(btlActionAnyTargetDownOrHitFlagged(actionBytes)) != (s32)(0))) {
+                (((BtlAction *)actionBytes)->flags) = (u16)((u16) ((((BtlAction *)actionBytes)->flags) | 8));
             } else {
-                (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFF7));
+                (((BtlAction *)actionBytes)->flags) = (u16)((u16) ((((BtlAction *)actionBytes)->flags) & 0xFFF7));
             }
-            btlUnitApplyPacketFlags(arg0);
+            btlUnitApplyPacketFlags(actionBytes);
         }
     }
 }
@@ -2047,55 +2095,32 @@ donecheck:
 #pragma opt_lifetimes on
 /* measured: func_001a4c80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
+/* Compute the source approach position and speed, retaining paired-target and encounter restrictions. */
+/* Raw skill/enemy-table fields retain their measured offset-first indexing; shared tables lack these full record layouts. */
 void btlActionMoveTargetInit(u8 *actionBytes)
 {
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
-    extern void btlUnitGetGridSphereCenterTowardTarget(BtlUnit *unit, BtlUnit *target, RwV3d *out);
-    extern void btlUnitGetSlotPose(u8 *subunit, u8 *unit, u8 *target, s32 motion,
-                            f32 *position, f32 *rotation, s32 placement);
-    extern void btlTargetBlendVectors(u8 *rotation, u8 *from, u8 *to);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
+    extern void btlUnitGetGridSphereCenterTowardTarget(BtlUnit *unit, BtlUnit *target, RwV3d *outPosition);
+    extern void btlUnitGetSlotPose(u8 *unit, u8 *anchorUnit, u8 *targetUnit, s32 motion,
+                            f32 *outPosition, f32 *outRotation, s32 slot);
+    extern void btlTargetBlendVectors(u8 *rotation, u8 *first, u8 *second);
     extern f32 RwV3dLength(const RwV3d *vector);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *vector);
-    extern s32 func_00243d80(u8 *unitData);
-    extern s32 btlActionAnyTargetHitRowFlagged(u8 *actionBytes);
-    extern s32 btlActionAnyTargetFlagged(u8 *actionBytes);
+    extern s32 datCalcEnemyHasExtendedFlag(u8 *unit);
+    extern s32 btlActionAnyTargetHitRowFlagged(u8 *action);
+    extern s32 btlActionAnyTargetFlagged(u8 *action);
     extern s32 btlActionHasNoTargetClass(u32 action);
     extern s32 btlEncounterSkipsPresentation(void);
-    extern u8 *iGpffffb3bc;
     extern f32 fGpffff8360;
-    typedef struct UnitView {
-        u8 unknown00[8];
-        f32 y;
-        u8 unknown0C[0x2C - 0x0C];
-        f32 scale;
-        u8 unknown30[0x90 - 0x30];
-        f32 radius;
-        u8 unknown94[0xA2 - 0x94];
-        u8 kind;
-        u8 unknownA3[0xA64 - 0xA3];
-        u8 *data;
-    } UnitView;
-    typedef struct ActionView {
-        s64 uid;
-        u8 unknown08[0x10];
-        u16 flags;
-        u8 unknown1A[0x16];
-        UnitView *unit;
-        u8 unknown34[4];
-        struct ActionView *target;
-        u8 unknown3C[0x30];
-        u16 mode;
-        u16 skill;
-    } ActionView;
     union { RwV3d vector; f32 values[3]; } destination;
     RwV3d awayDirection;
     RwV3d homeOffset;
     RwV3d unitCenter;
     RwV3d targetCenter;
     f32 rotation[4];
-    ActionView *action;
-    UnitView *unit;
-    UnitView *targetUnit;
+    BtlAction *action;
+    BtlUnit *unit;
+    BtlUnit *targetUnit;
     u16 skill;
     s32 skillOffset;
     u8 *subunit;
@@ -2106,13 +2131,13 @@ void btlActionMoveTargetInit(u8 *actionBytes)
     f32 distance;
     f32 speed;
 
-    action = (ActionView *)actionBytes;
-    skill = action->skill;
+    action = (BtlAction *)actionBytes;
+    skill = action->unk_6e;
     skillOffset = skill * 4;
-    if ((*(u16 *)((u32)skillOffset + (u32)iGpffffb3bc + 2) & 0x8000) != 0) {
+    if ((*(u16 *)((u32)skillOffset + (u32)((u8 *)iGpffffb3bc) + 2) & 0x8000) != 0) {
         return;
     }
-    if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x2000) != 0) {
+    if ((((BtlBattleState *)iGpffffb3ac)->battleFlags & 0x2000) != 0) {
         return;
     }
     proceed = 1;
@@ -2121,40 +2146,40 @@ void btlActionMoveTargetInit(u8 *actionBytes)
     {
         u8 *packet;
         packet = (u8 *)btlUnitCreateLookAtUnitPacket(NULL, (BtlUnit *)action->unit, 3);
-        *(s64 *)(packet + 0x60) = action->uid;
+        ((BtlPacket *)packet)->actionUID = action->uid;
         btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
         packet = (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)action->unit, 0);
-        *(s64 *)(packet + 0x60) = action->uid;
+        ((BtlPacket *)packet)->actionUID = action->uid;
         btlPacketEnqueue(packet, 1);
     }
     action->flags |= 0x200;
-    if ((*(u8 *)(iGpffffb3b8 + skill * 0x28) & 2) != 0) {
+    if ((((DatSkillEntry *)(iGpffffb3b8 + skill * 0x28))->flags00 & 2) != 0) {
         s32 pairedTargets;
-        UnitView *predicateUnit;
+        BtlUnit *predicateUnit;
         pairedTargets = btlActionAnyTargetFlagged((u8 *)action);
         predicateUnit = action->unit;
         do {
-            switch (predicateUnit->kind) {
+            switch (predicateUnit->genus) {
             case 0: {
                 u8 *data;
                 u16 unitId;
                 s32 ranged;
                 u32 rangeTable;
                 u32 rangeOffset;
-                data = predicateUnit->data;
-                unitId = *(u16 *)(data + 2);
+                data = ((u8 *)predicateUnit->datUnit);
+                unitId = ((DatUnit *)data)->id;
                 ranged = 1;
-                switch (predicateUnit->kind) {
+                switch (predicateUnit->genus) {
                 case 0:
                     {
                         s32 classification;
-                        classification = func_0023e1f0(data) & 0xFF;
+                        classification = datCalcGetCharacterTableKind(data) & 0xFF;
                         if (classification == 5) {
                             ranged = 1;
-                        } else if (classification == 3 && ((*(u16 *)((u32)skillOffset + (u32)iGpffffb3bc + 2) & 0x8000) != 0 || pairedTargets == 0)) {
+                        } else if (classification == 3 && ((*(u16 *)((u32)skillOffset + (u32)((u8 *)iGpffffb3bc) + 2) & 0x8000) != 0 || pairedTargets == 0)) {
                             ranged = 1;
                         } else {
                             goto range_ineligible;
@@ -2164,7 +2189,7 @@ void btlActionMoveTargetInit(u8 *actionBytes)
                 case 1:
                     rangeTable = (u32)iGpffffb3cc;
                     rangeOffset = (u32)unitId * 0xE8;
-                    if (*(s16 *)(rangeOffset + rangeTable + 0x22) == 1) {
+                    if (((BtlEnemyBattleParameters *)(rangeOffset + rangeTable))->cameraMode == 1) {
                         ranged = 1;
                     } else {
                         goto range_ineligible;
@@ -2176,11 +2201,11 @@ range_ineligible:
                     break;
                 }
                 if (ranged != 0) {
-                    ActionView *rangeTarget;
-                    rangeTarget = action->target;
+                    BtlAction *rangeTarget;
+                    rangeTarget = (*(BtlAction **)action->unk_38);
                     unit = action->unit;
                     targetUnit = rangeTarget->unit;
-                    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0 && unit->kind != targetUnit->kind) {
+                    if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x200000) != 0 && unit->genus != targetUnit->genus) {
                         proceed = 0;
                     } else {
                         btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
@@ -2201,8 +2226,8 @@ range_ineligible:
             {
                 u16 motion;
                 unit = action->unit;
-                if (unit->kind == 0) {
-                    if ((*(u16 *)((u32)skillOffset + (u32)iGpffffb3bc + 2) & 0x8000) != 0) {
+                if (unit->genus == 0) {
+                    if ((*(u16 *)((u32)skillOffset + (u32)((u8 *)iGpffffb3bc) + 2) & 0x8000) != 0) {
                         motion = 7;
                     } else if (pairedTargets != 0) {
                         motion = 5;
@@ -2212,7 +2237,7 @@ range_ineligible:
                 } else {
                     motion = (u16)(btlActionAnyTargetHitRowFlagged((u8 *)action) != 0 ? 0xC : 4);
                 }
-                distance = btlUnitGetMotionDistance((u8 *)action->unit, (u8 *)action->target->unit, motion);
+                distance = btlUnitGetMotionDistance((u8 *)action->unit, (u8 *)(*(BtlAction **)action->unk_38)->unit, motion);
             }
 range_done:
             ;
@@ -2222,34 +2247,34 @@ range_done:
         }
     } else {
         unit = action->unit;
-        switch (unit->kind) {
+        switch (unit->genus) {
         case 0:
             {
                 s32 paired;
                 s32 openingMotion;
-                targetUnit = action->target->unit;
-                subunit = *(u8 **)((u8 *)unit + 0xA0C);
+                targetUnit = (*(BtlAction **)action->unk_38)->unit;
+                subunit = (u8 *)((BtlUnit *)((u8 *)unit))->childUnit;
                 paired = btlActionHasNoTargetClass((u32)action);
                 openingMotion = btlUnitOpeningMotionMode((s32)subunit, (u8 *)unit, (s16)skill, paired) & 0xFFFF;
                 canPosition = btlTargetCanSelectEntry(subunit, (s16)skill, paired);
                 btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
                 btlUnitGetGridSphereCenterTowardTarget((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
                 speed = btlTargetVectorDistance(&unitCenter, &targetCenter);
-                speed = speed - unit->radius * unit->scale;
-                speed = speed - targetUnit->radius * targetUnit->scale;
+                speed = speed - unit->sphereRadius * unit->scale;
+                speed = speed - targetUnit->sphereRadius * targetUnit->scale;
                 if (canPosition == 0 || btlEncounterSkipsPresentation() == 0 || speed < 300.0f || speed - 300.0f < 200.0f) {
                     action->flags |= 0x10;
                     proceed = 0;
                 } else {
-                    speed = speed + unit->radius * unit->scale;
-                    speed = speed + targetUnit->radius * targetUnit->scale;
+                    speed = speed + unit->sphereRadius * unit->scale;
+                    speed = speed + targetUnit->sphereRadius * targetUnit->scale;
                     btlUnitGetSlotPose(subunit, (u8 *)unit, (u8 *)targetUnit, (s16)openingMotion, destination.values, NULL, 2);
                     distance = btlTargetVectorDistance(&destination.vector, &targetCenter);
                     {
                         f32 limit;
                         limit = 300.0f;
-                        limit = limit + unit->radius * unit->scale;
-                        limit = limit + targetUnit->radius * targetUnit->scale;
+                        limit = limit + unit->sphereRadius * unit->scale;
+                        limit = limit + targetUnit->sphereRadius * targetUnit->scale;
                         if (distance < limit) {
                             distance = limit;
                         }
@@ -2270,7 +2295,7 @@ range_done:
             {
                 u16 motion;
                 motion = (u16)(btlActionAnyTargetHitRowFlagged((u8 *)action) != 0 ? 0xC : 4);
-                distance = btlUnitGetMotionDistance((u8 *)action->unit, (u8 *)action->target->unit, motion);
+                distance = btlUnitGetMotionDistance((u8 *)action->unit, (u8 *)(*(BtlAction **)action->unk_38)->unit, motion);
             }
             break;
         }
@@ -2291,10 +2316,10 @@ range_done:
         u8 *packet;
         proceed = 0;
         speedIndex = 2;
-        speedVariant = (u16)(!(*(u8 *)(iGpffffb3b8 + action->skill * 0x28) & 2));
+        speedVariant = (u16)(!(((DatSkillEntry *)(iGpffffb3b8 + action->unk_6e * 0x28))->flags00 & 2));
         unit = action->unit;
-        unitId = *(u16 *)(unit->data + 2);
-        kind = unit->kind;
+        unitId = ((DatUnit *)unit->datUnit)->id;
+        kind = unit->genus;
         switch (kind) {
         case 0:
             break;
@@ -2309,7 +2334,7 @@ range_done:
         speed = D_005F6D20[speedIndex];
         if (reposition == 1) {
             if (inRange == 0) {
-                targetUnit = action->target->unit;
+                targetUnit = (*(BtlAction **)action->unk_38)->unit;
                 btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
                 btlUnitGetGridSphereCenterTowardTarget((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
                 awayDirection.x = unitCenter.x - targetCenter.x;
@@ -2318,8 +2343,8 @@ range_done:
                 RwV3dNormalize(&awayDirection, &awayDirection);
                 {
                     f32 span;
-                    span = unit->radius * unit->scale;
-                    span = span + targetUnit->radius * targetUnit->scale;
+                    span = unit->sphereRadius * unit->scale;
+                    span = span + targetUnit->sphereRadius * targetUnit->scale;
                     span = span + distance;
                     span = span + 50.0f;
                     awayDirection.x = awayDirection.x * span;
@@ -2329,10 +2354,10 @@ range_done:
                 destination.vector.x = targetCenter.x + awayDirection.x;
                 destination.vector.y = targetCenter.y + awayDirection.y;
                 destination.vector.z = targetCenter.z + awayDirection.z;
-                destination.vector.y = unit->y;
+                destination.vector.y = unit->pos.y;
                 btlTargetBlendVectors((u8 *)rotation, (u8 *)destination.values, (u8 *)&targetCenter);
                 packet = btlUnitCreateOverridePacket((u8 *)unit, (u8 *)destination.values, (u8 *)rotation, NULL);
-                *(s64 *)(packet + 0x60) = action->uid;
+                ((BtlPacket *)packet)->actionUID = action->uid;
                 btlPacketEnqueue(packet, 0);
                 speed = speed * fGpffff8360;
                 proceed = proceed | 8;
@@ -2340,20 +2365,20 @@ range_done:
                 speed = speed * 1.25f;
             }
         }
-        if (func_00243d80(action->target->unit->data) == 0) {
+        if (datCalcEnemyHasExtendedFlag(((u8 *)(*(BtlAction **)action->unk_38)->unit->datUnit)) == 0) {
             proceed = proceed | 0x40;
         }
-        packet = (u8 *)btlUnitCreateMoveToUnitPacket((BtlUnit *)action->unit, (BtlUnit *)action->target->unit, distance, speed, proceed);
-        *(s64 *)(packet + 0x60) = action->uid;
+        packet = (u8 *)btlUnitCreateMoveToUnitPacket((BtlUnit *)action->unit, (BtlUnit *)(*(BtlAction **)action->unk_38)->unit, distance, speed, proceed);
+        ((BtlPacket *)packet)->actionUID = action->uid;
         btlPacketEnqueue(packet, 0);
         if (packet != NULL && inRange == 0) {
             if (reposition == 0) {
                 packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x16);
-                *(s64 *)(packet + 0x60) = action->uid;
+                ((BtlPacket *)packet)->actionUID = action->uid;
                 btlPacketEnqueue(packet, 0);
             } else {
                 packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x17);
-                *(s64 *)(packet + 0x60) = action->uid;
+                ((BtlPacket *)packet)->actionUID = action->uid;
                 btlPacketEnqueue(packet, 0);
             }
         }
@@ -2363,11 +2388,12 @@ range_done:
 
 #pragma pop
 // FUN_001A55A0
+/* After source movement stops, dispatch the command to its attack, skill or alternate handler. */
 void btlActionMoveTargetUpdate(BtlAction *action) {
     u16 actionState;
 
-    if (btlUnitIsMoving(*(u8 **)((u8 *)action + 0x30)) == 0) {
-        switch (*(u16 *)((u8 *)action + 0x6C)) {
+    if (btlUnitIsMoving((u8 *)((BtlAction *)action)->unit) == 0) {
+        switch (((BtlAction *)action)->unk_6c) {
         case 1:
             actionState = 0x12;
             break;
@@ -2394,10 +2420,12 @@ void btlActionMoveTargetUpdate(BtlAction *action) {
 /* measured: func_001a5650 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001A5650
-void btlActionMoveHomeInit(s64 *arg0)
+/* Return toward the anchor pose when necessary; otherwise dispatch the selected command immediately. */
+/* Raw table words preserve the measured offset-first speed lookup; the action delay selector is loaded as a halfword. */
+void btlActionMoveHomeInit(s64 *action)
 {
-    RwV3d sp30;
-    u32 source_offset, sum, idx4;
+    RwV3d destination;
+    u32 recordOffset, recordAddress, variantOffset;
     f32 speed, scale;
     u16 slotIndex;
     u16 actionKind;
@@ -2409,14 +2437,14 @@ void btlActionMoveHomeInit(s64 *arg0)
     u8 *battleUnit;
     u8 *movePacket;
     u8 *cameraPacket;
-    u8 *ctx;
+    u8 *tableBase;
     u8 *actionUnit;
 
-    battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
-    ctx = D_0076449C;
-    if ((*(s32 *)(ctx + 0xC) & 0x400000) &&
-        (*(u16 *)(ctx + 0x18) & 2)) {
-        recordIndex = *(u16 *)((u8 *)arg0 + 0x6C);
+    battleUnit = (u8 *)((BtlAction *)action)->unit;
+    tableBase = D_0076449C;
+    if (((s32)((BtlBattleState *)tableBase)->flags & 0x400000) &&
+        (((BtlBattleState *)tableBase)->actionEndFlags & 2)) {
+        recordIndex = ((BtlAction *)action)->unk_6c;
         switch (recordIndex) {
         case 1:
             actionState = 0x12;
@@ -2432,42 +2460,41 @@ void btlActionMoveHomeInit(s64 *arg0)
             actionState = 0;
             break;
         }
-        btlActionSetState((BtlAction *)arg0, actionState);
+        btlActionSetState((BtlAction *)action, actionState);
         return;
     }
-    btlUnitGetAnchorPose(battleUnit, (u8 *)&sp30, NULL, NULL);
-    if (!(btlTargetVectorDistance((RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
-        btlActionFinishPresentation((BtlAction *)arg0);
+    btlUnitGetAnchorPose(battleUnit, (u8 *)&destination, NULL, NULL);
+    if (!(btlTargetVectorDistance((RwV3d *)(battleUnit + 4), &destination) <= 75.0f)) {
+        btlActionFinishPresentation((BtlAction *)action);
         speedIndex = 2;
-        slotIndex = (!(iGpffffb3b8[
-            (*(u16 *)((u8 *)arg0 + 0x6E) * 0x28)] & 2)) & 0xFFFF;
-        actionUnit = *(u8 **)((u8 *)arg0 + 0x30);
-        recordIndex = *(u16 *)(*(u8 **)(actionUnit + 0xA64) + 2);
-        unitMode = *(u8 *)(actionUnit + 0xA2);
+        slotIndex = (!(((DatSkillEntry *)iGpffffb3b8)[((BtlAction *)action)->unk_6e].flags00 & 2)) & 0xFFFF;
+        actionUnit = (u8 *)((BtlAction *)action)->unit;
+        recordIndex = ((DatUnit *)((BtlUnit *)actionUnit)->datUnit)->id;
+        unitMode = ((BtlUnit *)actionUnit)->genus;
         switch (unitMode) {
         case 0:
             break;
         case 1:
-            ctx = iGpffffb3cc;
-            source_offset = recordIndex * 0xE8;
-            sum = source_offset + (u32)ctx;
-            idx4 = slotIndex * 4;
-            speedIndex = *(u16 *)(idx4 + sum + 0x24);
+            tableBase = iGpffffb3cc;
+            recordOffset = recordIndex * 0xE8;
+            recordAddress = recordOffset + (u32)tableBase;
+            variantOffset = slotIndex * 4;
+            speedIndex = *(u16 *)(variantOffset + recordAddress + 0x24);
             break;
         }
         speed = D_005F6D20[speedIndex];
         scale = D_0076144C;
         movePacket = (u8 *)btlUnitCreateMovePacket(
-            (BtlUnit *)actionUnit, &sp30,
+            (BtlUnit *)actionUnit, &destination,
             speed * scale, 0);
-        *(s64 *)(movePacket + 0x60) = *arg0;
+        ((BtlPacket *)movePacket)->actionUID = *action;
         btlPacketEnqueue(movePacket, 1);
-        cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x18);
-        *(s64 *)(cameraPacket + 0x60) = *arg0;
+        cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x18);
+        ((BtlPacket *)cameraPacket)->actionUID = *action;
         btlPacketEnqueue(cameraPacket, 0);
         return;
     }
-    actionKind = *(u16 *)((u8 *)arg0 + 0x6C);
+    actionKind = ((BtlAction *)action)->unk_6c;
     switch (actionKind) {
     case 1:
         nextState = 0x12;
@@ -2483,16 +2510,17 @@ void btlActionMoveHomeInit(s64 *arg0)
         nextState = 0;
         break;
     }
-    btlActionSetState((BtlAction *)arg0, nextState);
+    btlActionSetState((BtlAction *)action, nextState);
 }
 
 #pragma pop
 // FUN_001A58E0
+/* Wait for anchor movement to stop before dispatching the command handler. */
 void btlActionMoveHomeUpdate(BtlAction *action) {
     u16 actionState;
 
-    if (btlUnitIsMoving(*(u8 **)((u8 *)action + 0x30)) == 0) {
-        switch (*(u16 *)((u8 *)action + 0x6C)) {
+    if (btlUnitIsMoving((u8 *)((BtlAction *)action)->unit) == 0) {
+        switch (((BtlAction *)action)->unk_6c) {
         case 1:
             actionState = 0x12;
             break;
@@ -2526,14 +2554,14 @@ void btlActionAttackInit(void)
  * 660: swap sweep.
  * 652: type sweep.
  * 651: type sweep.
- * 646: conversion lever (temp_18:(0, 2)).
- * 642: conversion lever (var_6:(0, 2)).
+ * 646: temporary conversion lever (0, 2).
+ * 642: temporary conversion lever (0, 2).
  * 2026-10-10: 642 -> 614 aligned edits by replacing seven undefined or
  * redundant sign-extension shifts with explicit signed-halfword/byte casts.
  * The local 001d15a0 provider returns s16; measured in battle lane scratch.
  * sdiff struct 413 -> 395: arg0 accessed through a u8 * local; the (u8 *)(s64 *) cast at every use made MWCC CSE and spill field addresses.
  * sdiff struct 395 -> 393: the two close-camera decisions through one inline helper (btlCloseCamera_001a59a0) instead of m2c's switch/goto copies.
- * fnalign 575 -> 545: the 0x13/0x10 selection as a var_2_8 flag test with the 0x13 call first (no goto block_224), as in func_001a7720.
+ * fnalign 575 -> 545: the 0x13/0x10 selection as a flag test with the 0x13 call first (no goto block_224), as in func_001a7720.
  * fnalign 545 -> 527: the tail state switch (cases 1,3,2 and default both set state 0x20) as in the matched-path sibling 001a7720, with the real btlActionSetState(BtlAction *, u16) prototype (retail daddiu per arm, one shared call).
  * fnalign 527 -> 521: btlCloseCamera reads the unit id before the switch, sends every failing path to one shared result = 0 (default arm, goto fail) and tests the 0x8000 flag first (retail polarity).
  * fnalign 521 -> 493: integer-cast +0x30 unit reads at selected sites (b210 does not CSE the address across calls, as retail).
@@ -2577,10 +2605,12 @@ void btlActionAttackInit(void)
 /* measured: func_001a59a0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001A59A0
-void btlActionAttackUpdate(s64 *arg0_) {
-    u8 *arg0 = (u8 *)arg0_;
+/* Build attack animation, repeated-hit, reaction and result packet chains with their frame dependencies. */
+/* Raw action/indexed-row offsets retain MATCH after canonical scalar rewrites; tagged packet sub-gates remain opaque. */
+void btlActionAttackUpdate(s64 *actionWords) {
+    u8 *actionBytes = (u8 *)actionWords;
     u8 *battleUnit;
-    extern s64 btlPacketEnqueue(u8 *packet, u32 mode);
+    extern s64 btlPacketEnqueue(u8 *context, u32 value);
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *btlUnitCreateArcMovePacket();
     extern u8 *btlUnitCreateRotateTowardUnitPacket();
@@ -2588,45 +2618,44 @@ void btlActionAttackUpdate(s64 *arg0_) {
     /* Retail's call at 0x001A6F38 returns the packet in $v0, consumed by
        the +0/+8/+0x60 stores at 0x001A6F48..58. The provider's existing
        void spelling omits that live return; this pointer result is required. */
-    extern u8 *btlCameraCreatePacketCommand(s32 kind, s16 duration, s32 argument, s32 flags);
+    extern u8 *btlCameraCreatePacketCommand(s32 value, s16 option, s32 first, s32 second);
     extern BtlPacket *btlFormationCreateMovePacket(u32 source, u32 target, f32 distance, u16 mode);
     extern u8 *btlFormationCreateWaitPacket();
     extern u8 *btlFormationCreatePacket();
     extern u16 btlTargetGetUnitIndex(BtlTarget *target);
-    extern s32 func_001f08c0();
+    extern s32 btlTargetCheckUnitIdGroup();
     extern void btlTargetClearResultBuffer(u8 *result);
     extern s32 btlActionAnyTargetSpecialHit();
-    extern s32 func_001f0dd0();
-    extern u32 func_001f0f70(u8 *action);
-    extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+    extern s32 btlActionTargetsHaveDamageResult();
+    extern u32 btlActionAnyTargetHasSpecialResult(u8 *action);
+    extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
     extern u8 *btlTargetCreateRecordPacket();
     extern u8 *btlTargetCreateTargetPacket();
     extern s32 btlSoundCanReceiveStatus();
-    extern void btlSoundGetPrimaryVoiceSlots(u8 *unit, s32 hit, s32 paired, s16 *cue, s16 *variant);
-    extern void btlSoundGetSecondaryVoiceSlots(u8 *unit, u32 hit, s32 paired, s16 *cue, s16 *variant);
+    extern void btlSoundGetPrimaryVoiceSlots(u8 *unit, s32 actionKind, s32 special, s16 *bankOut, s16 *slotOut);
+    extern void btlSoundGetSecondaryVoiceSlots(u8 *unit, u32 actionKind, s32 special, s16 *bankOut, s16 *slotOut);
     extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     extern u8 *func_001f99c0(u8 *action, u16 voice, s32 option, s32 argument, s32 flags);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-    extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 unit, u16 skill);
+    extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 sprite, u16 frame);
     extern u8 *btlPacketCreateEffectCounter();
-    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value);
     extern u8 *iGpffffb3ac;
-    extern u8 *iGpffffb3bc;
     extern u8 *iGpffffb3cc;
     extern f32 fGpffff8128;
     extern f32 fGpffff8358;
 
-    typedef struct ActionTargetView {
+    typedef struct BtlAttackTarget {
         u8 prefix[0x30];
         u8 *unit;         /* 0x30 */
         u8 unknown34[0xDC - 0x34];
         u16 effect;       /* 0xDC */
         u16 targetFlags;  /* 0xDE */
-    } ActionTargetView;
-    typedef struct ActionHitRowView {
+    } BtlAttackTarget;
+    typedef struct BtlActionHitCursor {
         u8 actionPrefix[0xF0];
         LargeBattleHitResult result;
-    } ActionHitRowView;
+    } BtlActionHitCursor;
     s16 hitCue;
     s16 hitVariant;
     /* 001a0290 writes both signed halfword effect indices. */
@@ -2672,7 +2701,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     s32 hitCount;
     s32 lastHitIndex;
     s32 hitRowLimit;
-    ActionHitRowView *hitRow;
+    BtlActionHitCursor *hitRow;
     u32 *addedStatus;
     s32 reactionRoll;
     s32 counterUnitId;
@@ -2700,9 +2729,9 @@ void btlActionAttackUpdate(s64 *arg0_) {
     s32 closeCameraResult;
     s32 closeCameraResultB;
     s32 unitIndex;
-    ActionTargetView *targetView;
-    ActionTargetView *focusTarget;
-    ActionTargetView *selectedTarget;
+    BtlAttackTarget *targetView;
+    BtlAttackTarget *focusTarget;
+    BtlAttackTarget *selectedTarget;
     s64 animUid;
     s64 actionUid;
     s32 timingValue16;
@@ -2781,13 +2810,13 @@ void btlActionAttackUpdate(s64 *arg0_) {
     u8 *effectPacketK;
 
     /* hitTimingBase init removed */
-    btlActionFinishPresentation((BtlAction *)arg0);
-    actionUid = (s64)((*(s64 *)(arg0 + (0))));
+    btlActionFinishPresentation((BtlAction *)actionBytes);
+    actionUid = (s64)(((s64)((BtlAction *)actionBytes)->uid));
     hitPacketUid = 0;
-    battleUnit = (u8 *)((*(u8 **)(arg0 + (0x30))));
-    actionFlag = (s32)(s32)(((*(u16 *)(arg0 + (0x18))) & 0x4000) != 0);
+    battleUnit = (u8 *)((*(u8 **)(actionBytes + (0x30))));
+    actionFlag = (s32)(s32)(((*(u16 *)(actionBytes + (0x18))) & 0x4000) != 0);
     actionFlagSaved = actionFlag;
-    hasCounterUnit = (s32)(s32)((*(s64 **)(arg0 + (0x88))) != NULL);
+    hasCounterUnit = (s32)(s32)((*(s64 **)(actionBytes + (0x88))) != NULL);
     if (actionFlag != 0) {
         timeScale = 1.75f;
     } else {
@@ -2801,41 +2830,41 @@ void btlActionAttackUpdate(s64 *arg0_) {
     hasTargetFlags6 = 0;
     counterPending = 0;
     setEffectFlags = 0;
-    btlPacketEnqueue((u8 *)btlEffectCreateSpriteFramePacket((u32)battleUnit, (*(u16 *)(arg0 + (0x6E)))), 3);
-    btlActionGetEffectIndices((BtlAction *)arg0, (*(u16 *)(arg0 + (0x6E))), (u8 *)effectIndices);
-    if ((*(u16 *)(arg0 + (0x6A))) == 1) {
-        rotatePacket = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)(arg0 + (0x30))), (*(u8 **)((u8 *)((*(u8 **)(arg0 + (0x38)))) + (0x30))), 0));
-        (*(s64 *)((u8 *)(rotatePacket) + (0x60))) = actionUid;
+    btlPacketEnqueue((u8 *)btlEffectCreateSpriteFramePacket((u32)battleUnit, (*(u16 *)(actionBytes + (0x6E)))), 3);
+    btlActionGetEffectIndices((BtlAction *)actionBytes, (*(u16 *)(actionBytes + (0x6E))), (u8 *)effectIndices);
+    if ((*(u16 *)(actionBytes + (0x6A))) == 1) {
+        rotatePacket = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)(actionBytes + (0x30))), ((u8*)((BtlAction *)((BtlAction *)actionBytes)->targets[0])->unit), 0));
+        (((BtlPacketTiming *)rotatePacket)->actionUid) = actionUid;
         btlPacketEnqueue(rotatePacket, 0);
     } else {
-        btlUnitGetGroupBounds(btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)) & 0xFFFF, 1, &targetPosition, 0, 0, 1);
-        rotateToPointPacket = (u8 *)(btlUnitCreateRotatePacket((*(BtlUnit **)(arg0 + (0x30))), &targetPosition, 0));
-        (*(s64 *)((u8 *)(rotateToPointPacket) + (0x60))) = actionUid;
+        btlUnitGetGroupBounds(btlTargetGetUnitIndex((BtlTarget *)(actionBytes + 0x38)) & 0xFFFF, 1, &targetPosition, 0, 0, 1);
+        rotateToPointPacket = (u8 *)(btlUnitCreateRotatePacket((((BtlAction *)actionBytes)->unit), &targetPosition, 0));
+        (((BtlPacketTiming *)rotateToPointPacket)->actionUid) = actionUid;
         btlPacketEnqueue(rotateToPointPacket, 0);
     }
     unitIndex = 0;
-    targetCount = (u16)((*(u16 *)(arg0 + (0x6A))));
+    targetCount = (u16)((*(u16 *)(actionBytes + (0x6A))));
     while (((s32)unitIndex & 0xFFFF) < (s32) targetCount) {
-        unitEntry = (u8 *)((*(u8 **)((u8 *)((arg0 + ((unitIndex & 0xFFFF) * 4))) + (0x38))));
+        unitEntry = (u8 *)((((BtlAction *)actionBytes)->targets[unitIndex & 0xFFFF]));
         targetRowIndex = 0;
-        while ((targetRowIndex & 0xFFFF) < (s32) (*(u8 *)((u8 *)(unitEntry) + (0xD9)))) {
+        while ((targetRowIndex & 0xFFFF) < (s32) (((BtlAction *)unitEntry)->targetBlock.hitRowCount)) {
             targetRow = (u8 *)(unitEntry + ((u16)targetRowIndex << 5));
-            if ((*(s32 *)((u8 *)(targetRow) + (0xF8))) & 0x100000) {
+            if (((s32)((BtlAction *)targetRow)->targetBlock.hitRows[0].addedStatus) & 0x100000) {
                 hasStatusFlag = 1;
             }
-            if ((*(u16 *)((u8 *)(targetRow) + (0x10E))) & 4) {
+            if ((((BtlAction *)targetRow)->targetBlock.hitRows[0].flags) & 4) {
                 unitFlag10E = 1;
             }
             targetRowIndex = (targetRowIndex + 1) & 0xFFFF;
         }
-        if ((*(s32 *)((u8 *)(unitEntry) + (0xE0))) != 0) {
+        if ((((BtlAction *)unitEntry)->targetBlock.reactionFlag) != 0) {
             hasReaction = 1;
             reactionUnitCount += 1;
         }
-        if ((*(s32 *)((u8 *)(unitEntry) + (0xE4))) != 0) {
+        if ((((BtlAction *)unitEntry)->targetBlock.specialHitFlag) != 0) {
             hasTargetE4 = 1;
         }
-        if ((*(u16 *)((u8 *)(unitEntry) + (0xDE))) & 6) {
+        if ((((BtlAction *)unitEntry)->targetBlock.targetFlags) & 6) {
             hasTargetFlags6 = 1;
         }
         unitIndex = ((s32)unitIndex + 1) & 0xFFFF;
@@ -2855,10 +2884,10 @@ void btlActionAttackUpdate(s64 *arg0_) {
         actionKind = 4;
         actionVariant = 0;
     }
-    if ((hasStatusFlag == 1) && (actionFlagSaved == 0) && (targetCount == 1) && !((*(s32 *)((u8 *)(iGpffffb3ac) + (0x10))) & 0x2000)) {
+    if ((hasStatusFlag == 1) && (actionFlagSaved == 0) && (targetCount == 1) && !((((BtlBattleState *)iGpffffb3ac)->battleFlags) & 0x2000)) {
         counterPending = 1;
     }
-    if ((btlUnitKind_001a59a0(battleUnit) != 0) || (actionKind == 4) || (actionKind == 0xC)) {
+    if ((btlActionGetUnitGenus(battleUnit) != 0) || (actionKind == 4) || (actionKind == 0xC)) {
         actionDuration = btlUnitMotionFrames(battleUnit, actionKind, timeScale);
     } else {
         actionDuration = btlUnitMotionHitFrames(battleUnit, actionKind, timeScale, 0);
@@ -2878,7 +2907,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
         timingValue = (s16)(timingValue + 8);
     }
     if (hasCounterUnit != 0) {
-        counterDuration = (btlUnitMotionModelFrames((*(u8 **)((u8 *)((*(s64 **)(arg0 + (0x88)))) + (0x30))), 0x1A, 1.0f)) - 4;
+        counterDuration = (btlUnitMotionModelFrames(((u8*)((BtlAction *)((BtlAction *)actionBytes)->parameters.followUp)->unit), 0x1A, 1.0f)) - 4;
         if (actionDuration < counterDuration) {
             earlyDelta = counterDuration - actionDuration;
             lateDelta = 0;
@@ -2893,39 +2922,39 @@ void btlActionAttackUpdate(s64 *arg0_) {
     }
     leadPacket = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)battleUnit, (s16)actionKind, 0, timeScale, actionVariant & 0xFFFF));
     leadPacketSaved = (u8 *)(leadPacket);
-    (*(s16 *)((u8 *)(leadPacket) + (0x48))) = (s16) earlyDelta;
-    (*(s64 *)((u8 *)(leadPacket) + (0x60))) = actionUid;
+    (((BtlPacketTiming *)leadPacket)->delay) = (s16) earlyDelta;
+    (((BtlPacketTiming *)leadPacket)->actionUid) = actionUid;
     btlPacketEnqueue(leadPacket, 0);
-    animUid = *(s64 *)(leadPacket + 0x58);
+    animUid = ((BtlPacketTiming *)leadPacket)->uid;
     if (hasCounterUnit == 0) {
-        if ((*(u16 *)(arg0 + (0x6A))) == 1) {
-            if (btlUnitKind_001a59a0(battleUnit) == 0) {
+        if ((((BtlAction *)actionBytes)->unk_6a) == 1) {
+            if (btlActionGetUnitGenus(battleUnit) == 0) {
                 if (((hasTargetFlags6 == 0) && (hasStatusFlag == 0)) || (actionFlagSaved == 1)) {
-                    closeCameraResult = btlCloseCamera_001a59a0(*(u8 **)(arg0 + 0x30), hasTargetFlags6);
+                    closeCameraResult = btlActionUsesCloseCamera((u8*)((BtlAction *)actionBytes)->unit, hasTargetFlags6);
                     if (closeCameraResult != 0) {
-                        cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
+                        cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(actionBytes, 0xC));
                     } else {
-                        cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xB));
+                        cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(actionBytes, 0xB));
                     }
                 } else {
-                    cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x10));
+                    cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(actionBytes, 0x10));
                 }
             } else if ((hasStatusFlag == 0) || (actionFlagSaved == 1)) {
-                closeCameraResultB = btlCloseCamera_001a59a0(*(u8 **)(arg0 + 0x30), hasTargetFlags6);
+                closeCameraResultB = btlActionUsesCloseCamera((u8*)((BtlAction *)actionBytes)->unit, hasTargetFlags6);
                 if (closeCameraResultB != 0) {
-                    cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
+                    cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(actionBytes, 0xC));
                 } else {
-                    cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xB));
+                    cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(actionBytes, 0xB));
                 }
             } else {
-                cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xD));
+                cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(actionBytes, 0xD));
             }
         } else {
-            cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x2C));
+            cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(actionBytes, 0x2C));
         }
-        (*(s8 *)((u8 *)(cameraPacket) + (0))) = 5;
-        (*(s64 *)((u8 *)(cameraPacket) + (8))) = animUid;
-        (*(s64 *)((u8 *)(cameraPacket) + (0x60))) = actionUid;
+        (((BtlPacketTiming *)cameraPacket)->dependencyKind) = 5;
+        (((BtlPacketTiming *)cameraPacket)->dependencyUid) = animUid;
+        (((BtlPacketTiming *)cameraPacket)->actionUid) = actionUid;
         btlPacketEnqueue(cameraPacket, 0);
     }
     if (unitFlag10E != 0) {
@@ -2935,51 +2964,51 @@ void btlActionAttackUpdate(s64 *arg0_) {
             startDelay = 0;
         }
         animDuration = (s32) (btlUnitMotionFollowFrames(battleUnit, actionKind, timeScale));
-        if (btlUnitKind_001a59a0(battleUnit) == 0) {
-            cameraEventPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xE));
-            (*(s8 *)((u8 *)(cameraEventPacket) + (0))) = 4;
-            (*(s64 *)((u8 *)(cameraEventPacket) + (8))) = (s64) (*(s64 *)((u8 *)(leadPacketSaved) + (0x58)));
-            (*(s16 *)((u8 *)(cameraEventPacket) + (0x48))) = startDelay;
-            (*(s64 *)((u8 *)(cameraEventPacket) + (0x60))) = actionUid;
+        if (btlActionGetUnitGenus(battleUnit) == 0) {
+            cameraEventPacket = (u8 *)(btlCameraCreateSetStatePacket(actionBytes, 0xE));
+            (((BtlPacketTiming *)cameraEventPacket)->dependencyKind) = 4;
+            (((BtlPacketTiming *)cameraEventPacket)->dependencyUid) = (s64) (((BtlPacketTiming *)leadPacketSaved)->uid);
+            (((BtlPacketTiming *)cameraEventPacket)->delay) = startDelay;
+            (((BtlPacketTiming *)cameraEventPacket)->actionUid) = actionUid;
             btlPacketEnqueue(cameraEventPacket, 0);
         }
         cuePacket = (u8 *)(btlSoundCreateChannelCuePacket(0xC, 2, 9));
-        (*(s8 *)((u8 *)(cuePacket) + (0))) = 5;
-        (*(s64 *)((u8 *)(cuePacket) + (8))) = animUid;
+        (((BtlPacketTiming *)cuePacket)->dependencyKind) = 5;
+        (((BtlPacketTiming *)cuePacket)->dependencyUid) = animUid;
         if (animDuration > 8) {
             animDelay = animDuration - 8;
         } else {
             animDelay = 0;
         }
-        (*(s16 *)((u8 *)(cuePacket) + (0x48))) = animDelay;
-        (*(s64 *)((u8 *)(cuePacket) + (0x60))) = actionUid;
+        (((BtlPacketTiming *)cuePacket)->delay) = animDelay;
+        (((BtlPacketTiming *)cuePacket)->actionUid) = actionUid;
         btlPacketEnqueue(cuePacket, 1);
-        effectPacket = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), battleUnit, battleUnit, 1, 0));
-        (*(s8 *)((u8 *)(effectPacket) + (0))) = 5;
-        (*(s64 *)((u8 *)(effectPacket) + (8))) = animUid;
-        (*(s16 *)((u8 *)(effectPacket) + (0x48))) = (s16) animDuration;
-        (*(s64 *)((u8 *)(effectPacket) + (0x60))) = actionUid;
+        effectPacket = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[31]), battleUnit, battleUnit, 1, 0));
+        (((BtlPacketTiming *)effectPacket)->dependencyKind) = 5;
+        (((BtlPacketTiming *)effectPacket)->dependencyUid) = animUid;
+        (((BtlPacketTiming *)effectPacket)->delay) = (s16) animDuration;
+        (((BtlPacketTiming *)effectPacket)->actionUid) = actionUid;
         btlPacketEnqueue(effectPacket, 2);
-        effectPacketB = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD74))), battleUnit, battleUnit, 1, 0));
-        (*(s8 *)((u8 *)(effectPacketB) + (0))) = 5;
-        (*(s64 *)((u8 *)(effectPacketB) + (8))) = animUid;
-        (*(s16 *)((u8 *)(effectPacketB) + (0x48))) = startDelay;
-        (*(s64 *)((u8 *)(effectPacketB) + (0x60))) = actionUid;
+        effectPacketB = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[28]), battleUnit, battleUnit, 1, 0));
+        (((BtlPacketTiming *)effectPacketB)->dependencyKind) = 5;
+        (((BtlPacketTiming *)effectPacketB)->dependencyUid) = animUid;
+        (((BtlPacketTiming *)effectPacketB)->delay) = startDelay;
+        (((BtlPacketTiming *)effectPacketB)->actionUid) = actionUid;
         btlPacketEnqueue(effectPacketB, 2);
         btlTargetClearResultBuffer((u8 *)&result);
         result.addedStatus = 0x100000;
-        resultPacket = (u8 *)(btlTargetCreateDataPacket((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
-        (*(s8 *)((u8 *)(resultPacket) + (0))) = 5;
-        (*(s64 *)((u8 *)(resultPacket) + (8))) = animUid;
+        resultPacket = (u8 *)(btlTargetCreateDataPacket((s32)(actionBytes), (s32)(actionBytes), &result, 1U, 1U));
+        (((BtlPacketTiming *)resultPacket)->dependencyKind) = 5;
+        (((BtlPacketTiming *)resultPacket)->dependencyUid) = animUid;
         scaledBase = (s16)baseDurationSaved;
-        (*(s16 *)((u8 *)(resultPacket) + (0x48))) = (s16) (scaledBase - (scaledBase >> 2));
-        (*(s64 *)((u8 *)(resultPacket) + (0x60))) = actionUid;
+        (((BtlPacketTiming *)resultPacket)->delay) = (s16) (scaledBase - (scaledBase >> 2));
+        (((BtlPacketTiming *)resultPacket)->actionUid) = actionUid;
         btlPacketEnqueue(resultPacket, 1);
-        if ((actionFlagSaved == 0) && ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) == 0)) {
-            reactionPacket = (u8 *)(btlTargetCreateTargetPacket(arg0, 0x19, 0, 0, 0));
-            (*(s8 *)((u8 *)(reactionPacket) + (0))) = 4;
-            (*(s64 *)((u8 *)(reactionPacket) + (8))) = (s64) (*(s64 *)((u8 *)(resultPacket) + (0x58)));
-            (*(s64 *)((u8 *)(reactionPacket) + (0x60))) = actionUid;
+        if ((actionFlagSaved == 0) && ((((BtlUnit *)((u8 *)(((u8*)((BtlAction *)actionBytes)->unit))))->genus) == 0)) {
+            reactionPacket = (u8 *)(btlTargetCreateTargetPacket(actionBytes, 0x19, 0, 0, 0));
+            (((BtlPacketTiming *)reactionPacket)->dependencyKind) = 4;
+            (((BtlPacketTiming *)reactionPacket)->dependencyUid) = (s64) (((BtlPacketTiming *)resultPacket)->uid);
+            (((BtlPacketTiming *)reactionPacket)->actionUid) = actionUid;
             btlPacketEnqueue(reactionPacket, 1);
         }
     }
@@ -2987,13 +3016,13 @@ void btlActionAttackUpdate(s64 *arg0_) {
     timingValue16 = (s16)timingValue;
     timingValueWide = (s32) timingValue16;
     timingValueShifted = timingValue16 + 0xC;
-    while ((targetNumber = (s32) targetIndex) < (s32) (*(u16 *)(arg0 + (0x6A)))) {
-        targetView = (ActionTargetView *)((*(u8 **)((u8 *)((arg0 + ((u32)targetIndex * 4))) + (0x38))));
-        hitRowCount = *(u8 *)((u8 *)targetView + 0xD9);
+    while ((targetNumber = (s32) targetIndex) < (s32) (*(u16 *)(actionBytes + (0x6A)))) {
+        targetView = (BtlAttackTarget *)((((BtlAction *)actionBytes)->targets[targetIndex]));
+        hitRowCount = ((BtlAction *)targetView)->targetBlock.hitRowCount;
         if (actionFlagSaved != 0) {
             targetFlagDA = 1;
         } else {
-            targetFlagDA = (u8)((*(u8 *)((u8 *)(targetView) + (0xDA))));
+            targetFlagDA = (u8)((((BtlAction *)targetView)->targetBlock.hitRepeatCount));
         }
         targetFlagDASaved = targetFlagDA;
         hitTiming = (s32) actionDuration;
@@ -3004,66 +3033,66 @@ void btlActionAttackUpdate(s64 *arg0_) {
         }
         if (hasCounterUnit == 0) {
             rotatePacketTarget = (u8 *)(btlUnitCreateRotateTowardUnitPacket(targetView->unit, battleUnit, 2));
-            (*(s8 *)((u8 *)(rotatePacketTarget) + (0))) = 5;
-            (*(s64 *)((u8 *)(rotatePacketTarget) + (8))) = animUid;
-            (*(s16 *)((u8 *)(rotatePacketTarget) + (0x48))) = hitTimingBase;
-            (*(u8 *)((u8 *)(rotatePacketTarget) + (0x47))) = (u8) ((*(u8 *)((u8 *)(rotatePacketTarget) + (0x47))) & 0xDF);
-            (*(s64 *)((u8 *)(rotatePacketTarget) + (0x60))) = actionUid;
+            (((BtlPacketTiming *)rotatePacketTarget)->dependencyKind) = 5;
+            (((BtlPacketTiming *)rotatePacketTarget)->dependencyUid) = animUid;
+            (((BtlPacketTiming *)rotatePacketTarget)->delay) = hitTimingBase;
+            (((BtlPacketTiming *)rotatePacketTarget)->flags) = (u8) ((((BtlPacketTiming *)rotatePacketTarget)->flags) & 0xDF);
+            (((BtlPacketTiming *)rotatePacketTarget)->actionUid) = actionUid;
             btlPacketEnqueue(rotatePacketTarget, 1);
-            if ((*(s32 *)((u8 *)(targetView) + (0xE4))) != 0) {
-                selectedTarget = (ActionTargetView *)arg0;
+            if ((((BtlAction *)targetView)->targetBlock.specialHitFlag) != 0) {
+                selectedTarget = (BtlAttackTarget *)actionBytes;
             } else {
                 selectedTarget = targetView;
             }
             focusTarget = selectedTarget;
         } else {
-            focusTarget = (ActionTargetView *)((*(u8 **)(arg0 + (0x88))));
+            focusTarget = (BtlAttackTarget *)((((BtlAction *)actionBytes)->parameters.followUp));
             actionPacket = (u8 *)(func_001f99c0((u8 *)focusTarget, 0xD, 0U, 0, 0));
-            (*(s16 *)((u8 *)(actionPacket) + (0x48))) = (s16) lateDelta;
-            (*(s64 *)((u8 *)(actionPacket) + (0x60))) = actionUid;
+            (((BtlPacketTiming *)actionPacket)->delay) = (s16) lateDelta;
+            (((BtlPacketTiming *)actionPacket)->actionUid) = actionUid;
             btlPacketEnqueue(actionPacket, 1);
             rotatePacketFocus = (u8 *)(btlUnitCreateRotateTowardUnitPacket(targetView->unit, battleUnit, 2));
-            (*(s16 *)((u8 *)(rotatePacketFocus) + (0x48))) = (s16) lateDelta;
-            (*(s64 *)((u8 *)(rotatePacketFocus) + (0x60))) = actionUid;
+            (((BtlPacketTiming *)rotatePacketFocus)->delay) = (s16) lateDelta;
+            (((BtlPacketTiming *)rotatePacketFocus)->actionUid) = actionUid;
             btlPacketEnqueue(rotatePacketFocus, 0);
-            cameraPacketFocus = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x11));
-            (*(s16 *)((u8 *)(cameraPacketFocus) + (0x48))) = (s16) lateDelta;
-            (*(s64 *)((u8 *)(cameraPacketFocus) + (0x60))) = actionUid;
-            (*(s16 *)((u8 *)(cameraPacketFocus) + (0x4A))) = (s16) timingValueShifted;
+            cameraPacketFocus = (u8 *)(btlCameraCreateSetStatePacket(actionBytes, 0x11));
+            (((BtlPacketTiming *)cameraPacketFocus)->delay) = (s16) lateDelta;
+            (((BtlPacketTiming *)cameraPacketFocus)->actionUid) = actionUid;
+            (((BtlPacketTiming *)cameraPacketFocus)->duration) = (s16) timingValueShifted;
             btlPacketEnqueue(cameraPacketFocus, 0);
             movePacket = (u8 *)(btlFormationCreateWaitPacket(focusTarget->unit, targetView->unit, 2));
-            (*(s16 *)((u8 *)(movePacket) + (0x48))) = (s16) lateDelta;
-            (*(s64 *)((u8 *)(movePacket) + (0x60))) = actionUid;
+            (((BtlPacketTiming *)movePacket)->delay) = (s16) lateDelta;
+            (((BtlPacketTiming *)movePacket)->actionUid) = actionUid;
             btlPacketEnqueue(movePacket, 0);
             animPacketFocus = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)focusTarget->unit, 0x1A, 0, 1.0f, 0));
-            (*(s16 *)((u8 *)(animPacketFocus) + (0x48))) = (s16) lateDelta;
-            (*(s64 *)((u8 *)(animPacketFocus) + (0x60))) = actionUid;
+            (((BtlPacketTiming *)animPacketFocus)->delay) = (s16) lateDelta;
+            (((BtlPacketTiming *)animPacketFocus)->actionUid) = actionUid;
             btlPacketEnqueue(animPacketFocus, 0);
             animPacketTarget = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)targetView->unit, 0x1A, 0, 1.0f, 2));
-            (*(s16 *)((u8 *)(animPacketTarget) + (0x48))) = (s16) lateDelta;
-            (*(s64 *)((u8 *)(animPacketTarget) + (0x60))) = actionUid;
+            (((BtlPacketTiming *)animPacketTarget)->delay) = (s16) lateDelta;
+            (((BtlPacketTiming *)animPacketTarget)->actionUid) = actionUid;
             btlPacketEnqueue(animPacketTarget, 0);
             setEffectFlags = 1;
         }
-        if (btlUnitKind_001a59a0(battleUnit) == 0) {
-            if ((func_001f08c0(battleUnit) != 0) && (focusUnit = focusTarget->unit, ((*(u8 *)((u8 *)(focusUnit) + (0xA2))) == 1))) {
-                shortRangeFlag = (s32)(((*(s16 *)((u8 *)((((s32)iGpffffb3cc) + ((*(u16 *)((u8 *)(focusUnit) + (0xA4))) * 0xE8))) + (0x18))) & 0x40) != 0) ^ 1;
+        if (btlActionGetUnitGenus(battleUnit) == 0) {
+            if ((btlTargetCheckUnitIdGroup(battleUnit) != 0) && (focusUnit = focusTarget->unit, ((((BtlUnit *)((u8 *)(focusUnit)))->genus) == 1))) {
+                shortRangeFlag = (s32)(((((BtlEnemyBattleParameters *)(((s32)iGpffffb3cc) + ((((BtlUnit *)((u8 *)(focusUnit)))->charId) * 0xE8)))->flags) & 0x40) != 0) ^ 1;
             } else {
                 shortRangeFlag = 0;
             }
         } else {
             shortRangeFlag = 0;
         }
-        if ((counterPending == 1) && (targetNumber == 0) && (btlUnitKind_001a59a0(battleUnit) == 0) && ((*(u16 *)(arg0 + (0x6A))) == 1) && (hasReaction == 0)) {
+        if ((counterPending == 1) && (targetNumber == 0) && (btlActionGetUnitGenus(battleUnit) == 0) && ((((BtlAction *)actionBytes)->unk_6a) == 1) && (hasReaction == 0)) {
             if (shortRangeFlag != 0) {
                 shortRangeDistance = fGpffff8358;
             } else {
                 shortRangeDistance = 400.0f;
             }
             nearMovePacket = (u8 *)(btlFormationCreateMovePacket((u32)battleUnit, *(u32 *)&targetView->unit, shortRangeDistance, 3));
-            (*(s8 *)((u8 *)(nearMovePacket) + (0))) = 5;
-            (*(s64 *)((u8 *)(nearMovePacket) + (8))) = animUid;
-            (*(s64 *)((u8 *)(nearMovePacket) + (0x60))) = actionUid;
+            (((BtlPacketTiming *)nearMovePacket)->dependencyKind) = 5;
+            (((BtlPacketTiming *)nearMovePacket)->dependencyUid) = animUid;
+            (((BtlPacketTiming *)nearMovePacket)->actionUid) = actionUid;
             btlPacketEnqueue(nearMovePacket, 0);
             setEffectFlags = 1;
         }
@@ -3074,7 +3103,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
         hitRowLimit = (s16)hitRowCount;
         while ((hitRowNumber = (s32) hitRowIndex) < hitRowLimit) {
             hitIndexCounter = 0;
-            hitRow = (ActionHitRowView *)((u8 *)targetView + ((u32)hitRowIndex << 5));
+            hitRow = (BtlActionHitCursor *)((u8 *)targetView + ((u32)hitRowIndex << 5));
             while ((s32)(hitIndex = (s32) hitIndexCounter) < hitCount) {
                 rowMotion = hitRow->result.motion;
                 hitMotion = (s32) rowMotion;
@@ -3093,8 +3122,8 @@ void btlActionAttackUpdate(s64 *arg0_) {
                 }
                 hitAnimPacket = (BtlPacket *)(btlUnitCreateAnimPacket((BtlUnit *)focusTarget->unit, (s16)hitMotion, 0, 1.0f, 0));
                 hitAnimPacketSaved = hitAnimPacket;
-                (*(s8 *)((u8 *)(hitAnimPacket) + (0))) = 5;
-                (*(s64 *)((u8 *)(hitAnimPacket) + (8))) = animUid;
+                (((BtlPacketTiming *)hitAnimPacket)->dependencyKind) = 5;
+                (((BtlPacketTiming *)hitAnimPacket)->dependencyUid) = animUid;
                 switch (hitMotion) {
                 case 0x17:
                 case -3:
@@ -3103,241 +3132,241 @@ void btlActionAttackUpdate(s64 *arg0_) {
                     } else {
                         hitDelay = 0;
                     }
-                    (*(s16 *)((u8 *)(hitAnimPacketSaved) + (0x48))) = hitDelay;
+                    (((BtlPacketTiming *)hitAnimPacketSaved)->delay) = hitDelay;
                     break;
                 default:
-                    (*(s16 *)((u8 *)(hitAnimPacketSaved) + (0x48))) = (s16) hitTiming;
+                    (((BtlPacketTiming *)hitAnimPacketSaved)->delay) = (s16) hitTiming;
                     break;
                 }
                 if ((*(s32 *)((u8 *)(u32)(targetView) + (0xE4))) != 0) {
-                    (*(s16 *)((u8 *)(hitAnimPacketSaved) + (0x48))) = (s16) ((*(s16 *)((u8 *)(hitAnimPacketSaved) + (0x48))) + 5);
+                    (((BtlPacketTiming *)hitAnimPacketSaved)->delay) = (s16) ((((BtlPacketTiming *)hitAnimPacketSaved)->delay) + 5);
                     hitTimingBase += 5;
                 }
-                (*(s64 *)((u8 *)(hitAnimPacketSaved) + (0x60))) = actionUid;
+                (((BtlPacketTiming *)hitAnimPacketSaved)->actionUid) = actionUid;
                 btlPacketEnqueue((u8 *)hitAnimPacketSaved, 0);
-                hitPacketUid = *(s64 *)((u8 *)hitAnimPacketSaved + 0x58);
+                hitPacketUid = ((BtlPacketTiming *)hitAnimPacketSaved)->uid;
                 if ((targetView->effect & 4) && (unitFlag10E == 0)) {
                     cuePacketB = (u8 *)(btlSoundCreateChannelCuePacket(0xD, 1, 0xF));
-                    (*(s8 *)((u8 *)(cuePacketB) + (0))) = 5;
-                    (*(s64 *)((u8 *)(cuePacketB) + (8))) = animUid;
-                    (*(s16 *)((u8 *)(cuePacketB) + (0x48))) = (s16) hitTiming;
+                    (((BtlPacketTiming *)cuePacketB)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)cuePacketB)->dependencyUid) = animUid;
+                    (((BtlPacketTiming *)cuePacketB)->delay) = (s16) hitTiming;
                     btlPacketEnqueue(cuePacketB, 1);
                 }
-                if ((*(s32 *)((u8 *)(targetView) + (0xE4))) != 0) {
-                    effectPacketC = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD28))), battleUnit, targetView->unit, 1, 0));
-                    (*(s8 *)((u8 *)(effectPacketC) + (0))) = 5;
-                    (*(s64 *)((u8 *)(effectPacketC) + (8))) = animUid;
-                    (*(s16 *)((u8 *)(effectPacketC) + (0x48))) = (s16) hitTiming;
+                if ((((BtlAction *)targetView)->targetBlock.specialHitFlag) != 0) {
+                    effectPacketC = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[9]), battleUnit, targetView->unit, 1, 0));
+                    (((BtlPacketTiming *)effectPacketC)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)effectPacketC)->dependencyUid) = animUid;
+                    (((BtlPacketTiming *)effectPacketC)->delay) = (s16) hitTiming;
                     btlPacketEnqueue(effectPacketC, 1);
                     cuePacketC = (u8 *)(btlSoundCreateChannelCuePacket(0xD, 2, 0xB));
-                    (*(s8 *)((u8 *)(cuePacketC) + (0))) = 5;
-                    (*(s64 *)((u8 *)(cuePacketC) + (8))) = animUid;
-                    (*(s16 *)((u8 *)(cuePacketC) + (0x48))) = (s16) hitTiming;
+                    (((BtlPacketTiming *)cuePacketC)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)cuePacketC)->dependencyUid) = animUid;
+                    (((BtlPacketTiming *)cuePacketC)->delay) = (s16) hitTiming;
                     btlPacketEnqueue(cuePacketC, 1);
                 }
                 if (targetView->effect == 0x400) {
-                    effectPacketD = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD2C))), battleUnit, focusTarget->unit, 1, 0));
-                    (*(s8 *)((u8 *)(effectPacketD) + (0))) = 5;
-                    (*(s64 *)((u8 *)(effectPacketD) + (8))) = hitPacketUid;
+                    effectPacketD = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[10]), battleUnit, focusTarget->unit, 1, 0));
+                    (((BtlPacketTiming *)effectPacketD)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)effectPacketD)->dependencyUid) = hitPacketUid;
                     btlPacketEnqueue(effectPacketD, 1);
                     cuePacketD = (u8 *)(btlSoundCreateChannelCuePacket(0xC, 2, 0xC));
-                    (*(s8 *)((u8 *)(cuePacketD) + (0))) = 5;
-                    (*(s64 *)((u8 *)(cuePacketD) + (8))) = hitPacketUid;
+                    (((BtlPacketTiming *)cuePacketD)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)cuePacketD)->dependencyUid) = hitPacketUid;
                     btlPacketEnqueue(cuePacketD, 1);
                 }
                 btlSoundGetPrimaryVoiceSlots(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
                 if ((hitCue >= 0) && (hitVariant >= 0)) {
                     cuePacketE = (u8 *)(btlSoundCreateChannelCuePacket(0xD, hitCue, hitVariant));
-                    (*(s8 *)((u8 *)(cuePacketE) + (0))) = 5;
-                    (*(s64 *)((u8 *)(cuePacketE) + (8))) = animUid;
-                    (*(s16 *)((u8 *)(cuePacketE) + (0x48))) = hitTimingBase;
+                    (((BtlPacketTiming *)cuePacketE)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)cuePacketE)->dependencyUid) = animUid;
+                    (((BtlPacketTiming *)cuePacketE)->delay) = hitTimingBase;
                     btlPacketEnqueue(cuePacketE, 1);
                 }
                 if (isPrimaryHit != 0) {
                     if ((targetView->targetFlags & 6) && (actionFlagSaved == 0)) {
                         if (hitIndex != lastHitIndex) {
-                            effectPacketK = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD1C))), battleUnit, focusTarget->unit, 1, 0));
+                            effectPacketK = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[6]), battleUnit, focusTarget->unit, 1, 0));
                         } else {
-                            effectPacketK = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD20))), battleUnit, focusTarget->unit, 1, 0));
+                            effectPacketK = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[7]), battleUnit, focusTarget->unit, 1, 0));
                         }
-                        (*(s8 *)((u8 *)(effectPacketK) + (0))) = 5;
-                        (*(s64 *)((u8 *)(effectPacketK) + (8))) = animUid;
-                        (*(s16 *)((u8 *)(effectPacketK) + (0x48))) = hitTimingBase;
-                        (*(s64 *)((u8 *)(effectPacketK) + (0x60))) = actionUid;
+                        (((BtlPacketTiming *)effectPacketK)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)effectPacketK)->dependencyUid) = animUid;
+                        (((BtlPacketTiming *)effectPacketK)->delay) = hitTimingBase;
+                        (((BtlPacketTiming *)effectPacketK)->actionUid) = actionUid;
                         btlPacketEnqueue(effectPacketK, 2);
                         if (hitIndex == lastHitIndex) {
                             cuePacketF = (u8 *)(btlSoundCreateChannelCuePacket(0xC, 0, 9));
-                            (*(s8 *)((u8 *)(cuePacketF) + (0))) = 5;
-                            (*(s64 *)((u8 *)(cuePacketF) + (8))) = animUid;
-                            (*(s16 *)((u8 *)(cuePacketF) + (0x48))) = hitTimingBase;
+                            (((BtlPacketTiming *)cuePacketF)->dependencyKind) = 5;
+                            (((BtlPacketTiming *)cuePacketF)->dependencyUid) = animUid;
+                            (((BtlPacketTiming *)cuePacketF)->delay) = hitTimingBase;
                             btlPacketEnqueue(cuePacketF, 1);
                         }
                     }
-                    effectPacketE = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[0] * 4))) + (0xD04))), battleUnit, focusTarget->unit, 1, 0));
-                    (*(s8 *)((u8 *)(effectPacketE) + (0))) = 5;
-                    (*(s64 *)((u8 *)(effectPacketE) + (8))) = animUid;
-                    (*(s16 *)((u8 *)(effectPacketE) + (0x48))) = hitTimingBase;
+                    effectPacketE = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[effectIndices[0]]), battleUnit, focusTarget->unit, 1, 0));
+                    (((BtlPacketTiming *)effectPacketE)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)effectPacketE)->dependencyUid) = animUid;
+                    (((BtlPacketTiming *)effectPacketE)->delay) = hitTimingBase;
                     btlPacketEnqueue(effectPacketE, 2);
                     if (effectIndices[1] >= 0) {
-                        effectPacketF = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[1] * 4))) + (0xD04))), battleUnit, focusTarget->unit, 1, 0));
-                        (*(s8 *)((u8 *)(effectPacketF) + (0))) = 5;
-                        (*(s64 *)((u8 *)(effectPacketF) + (8))) = animUid;
-                        (*(s16 *)((u8 *)(effectPacketF) + (0x48))) = hitTimingBase;
+                        effectPacketF = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[effectIndices[1]]), battleUnit, focusTarget->unit, 1, 0));
+                        (((BtlPacketTiming *)effectPacketF)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)effectPacketF)->dependencyUid) = animUid;
+                        (((BtlPacketTiming *)effectPacketF)->delay) = hitTimingBase;
                         btlPacketEnqueue(effectPacketF, 2);
                     }
                     if (actionFlagSaved == 0) {
                         btlSoundGetSecondaryVoiceSlots(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
                         if ((hitCue >= 0) && (hitVariant >= 0)) {
                             cuePacketG = (u8 *)(btlSoundCreateChannelCuePacket(0xA, hitCue, hitVariant));
-                            (*(s8 *)((u8 *)(cuePacketG) + (0))) = 5;
-                            (*(s64 *)((u8 *)(cuePacketG) + (8))) = animUid;
-                            (*(s16 *)((u8 *)(cuePacketG) + (0x48))) = hitTimingBase;
+                            (((BtlPacketTiming *)cuePacketG)->dependencyKind) = 5;
+                            (((BtlPacketTiming *)cuePacketG)->dependencyUid) = animUid;
+                            (((BtlPacketTiming *)cuePacketG)->delay) = hitTimingBase;
                             btlPacketEnqueue(cuePacketG, 1);
                         }
-                        if ((hitIndex == lastHitIndex) && ((*(s32 *)((u8 *)(targetView) + (0xE0))) == 0) && (hitRow->result.addedStatus & 0x7FFFE)) {
+                        if ((hitIndex == lastHitIndex) && ((((BtlAction *)targetView)->targetBlock.reactionFlag) == 0) && (hitRow->result.addedStatus & 0x7FFFE)) {
                             cuePacketH = (u8 *)(btlSoundCreateChannelCuePacket(0xF, 2, 0xF));
-                            (*(s8 *)((u8 *)(cuePacketH) + (0))) = 5;
-                            (*(s64 *)((u8 *)(cuePacketH) + (8))) = animUid;
-                            (*(s16 *)((u8 *)(cuePacketH) + (0x48))) = hitTimingBase;
+                            (((BtlPacketTiming *)cuePacketH)->dependencyKind) = 5;
+                            (((BtlPacketTiming *)cuePacketH)->dependencyUid) = animUid;
+                            (((BtlPacketTiming *)cuePacketH)->delay) = hitTimingBase;
                             btlPacketEnqueue(cuePacketH, 1);
                         }
                     } else {
                         cuePacketI = (u8 *)(btlSoundCreateChannelCuePacket(0xA, 2, 0x14));
-                        (*(s8 *)((u8 *)(cuePacketI) + (0))) = 5;
-                        (*(s64 *)((u8 *)(cuePacketI) + (8))) = animUid;
-                        (*(s16 *)((u8 *)(cuePacketI) + (0x48))) = hitTimingBase;
+                        (((BtlPacketTiming *)cuePacketI)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)cuePacketI)->dependencyUid) = animUid;
+                        (((BtlPacketTiming *)cuePacketI)->delay) = hitTimingBase;
                         btlPacketEnqueue(cuePacketI, 1);
                     }
-                    effectPacketG = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD24))), battleUnit, focusTarget->unit, 1, 0));
-                    (*(s8 *)((u8 *)(effectPacketG) + (0))) = 5;
-                    (*(s64 *)((u8 *)(effectPacketG) + (8))) = animUid;
-                    (*(s16 *)((u8 *)(effectPacketG) + (0x48))) = hitTimingBase;
+                    effectPacketG = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[8]), battleUnit, focusTarget->unit, 1, 0));
+                    (((BtlPacketTiming *)effectPacketG)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)effectPacketG)->dependencyUid) = animUid;
+                    (((BtlPacketTiming *)effectPacketG)->delay) = hitTimingBase;
                     btlPacketEnqueue(effectPacketG, 2);
                 }
                 if (hitIndex != lastHitIndex) {
                     timingDelta = (btlUnitMotionHitFrames(battleUnit, actionKind, timeScale, (hitIndex + 1) & 0xFFFF)) - hitTiming;
                     hitTiming += timingDelta;
                     hitTimingBase += timingDelta;
-                } else if ((counterPending != 0) && ((*(s32 *)((u8 *)(targetView) + (0xE0))) == 0)) {
+                } else if ((counterPending != 0) && ((((BtlAction *)targetView)->targetBlock.reactionFlag) == 0)) {
                     if (shortRangeFlag != 0) {
                         hitEffectIndex = 0x1D;
                     } else {
                         hitEffectIndex = 0x1E;
                     }
                     focusUnitB = (u8 *)(focusTarget->unit);
-                    counterAnimPacket = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)((iGpffffb3ac + (hitEffectIndex * 4))) + (0xD04))), focusUnitB, focusUnitB, 1, 0));
+                    counterAnimPacket = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[hitEffectIndex]), focusUnitB, focusUnitB, 1, 0));
                     counterAnimPacketSaved = (u8 *)(counterAnimPacket);
-                    (*(s8 *)((u8 *)(counterAnimPacket) + (0))) = 5;
-                    (*(s64 *)((u8 *)(counterAnimPacket) + (8))) = hitPacketUid;
-                    (*(s16 *)((u8 *)(counterAnimPacket) + (0x48))) = 1;
-                    (*(s64 *)((u8 *)(counterAnimPacket) + (0x60))) = actionUid;
+                    (((BtlPacketTiming *)counterAnimPacket)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)counterAnimPacket)->dependencyUid) = hitPacketUid;
+                    (((BtlPacketTiming *)counterAnimPacket)->delay) = 1;
+                    (((BtlPacketTiming *)counterAnimPacket)->actionUid) = actionUid;
                     btlPacketEnqueue(counterAnimPacket, 2);
                     if (shortRangeFlag != 0) {
                         focusUnitC = (u8 *)(focusTarget->unit);
-                        effectPacketH = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD84))), focusUnitC, focusUnitC, 1, 0));
-                        (*(s8 *)((u8 *)(effectPacketH) + (0))) = 5;
-                        (*(s64 *)((u8 *)(effectPacketH) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
-                        (*(s64 *)((u8 *)(effectPacketH) + (0x60))) = actionUid;
+                        effectPacketH = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[32]), focusUnitC, focusUnitC, 1, 0));
+                        (((BtlPacketTiming *)effectPacketH)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)effectPacketH)->dependencyUid) = (s64) btlActionGetPacketUid(counterAnimPacketSaved);
+                        (((BtlPacketTiming *)effectPacketH)->actionUid) = actionUid;
                         btlPacketEnqueue(effectPacketH, 2);
                         focusUnitD = (u8 *)(focusTarget->unit);
-                        effectPacketI = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), focusUnitD, focusUnitD, 1, 0));
-                        (*(s8 *)((u8 *)(effectPacketI) + (0))) = 5;
-                        (*(s64 *)((u8 *)(effectPacketI) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
-                        (*(s16 *)((u8 *)(effectPacketI) + (0x48))) = 0x14;
-                        (*(s64 *)((u8 *)(effectPacketI) + (0x60))) = actionUid;
+                        effectPacketI = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[31]), focusUnitD, focusUnitD, 1, 0));
+                        (((BtlPacketTiming *)effectPacketI)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)effectPacketI)->dependencyUid) = (s64) btlActionGetPacketUid(counterAnimPacketSaved);
+                        (((BtlPacketTiming *)effectPacketI)->delay) = 0x14;
+                        (((BtlPacketTiming *)effectPacketI)->actionUid) = actionUid;
                         btlPacketEnqueue(effectPacketI, 2);
                         focusUnitE = (u8 *)(focusTarget->unit);
-                        effectPacketJ = (u8 *)(btlFormationCreatePacket((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), focusUnitE, focusUnitE, 1, 0));
-                        (*(s8 *)((u8 *)(effectPacketJ) + (0))) = 5;
-                        (*(s64 *)((u8 *)(effectPacketJ) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
-                        (*(s16 *)((u8 *)(effectPacketJ) + (0x48))) = 0x1A;
-                        (*(s64 *)((u8 *)(effectPacketJ) + (0x60))) = actionUid;
+                        effectPacketJ = (u8 *)(btlFormationCreatePacket(((s32)((BtlBattleState *)iGpffffb3ac)->formations[31]), focusUnitE, focusUnitE, 1, 0));
+                        (((BtlPacketTiming *)effectPacketJ)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)effectPacketJ)->dependencyUid) = (s64) btlActionGetPacketUid(counterAnimPacketSaved);
+                        (((BtlPacketTiming *)effectPacketJ)->delay) = 0x1A;
+                        (((BtlPacketTiming *)effectPacketJ)->actionUid) = actionUid;
                         btlPacketEnqueue(effectPacketJ, 2);
                     } else {
-                        hitPacket = (u8 *)(btlUnitCreateArcMovePacket(focusTarget->unit, (s16) (*(u16 *)(arg0 + (0x6E))), 0));
-                        (*(s8 *)((u8 *)(hitPacket) + (0))) = 5;
-                        (*(s64 *)((u8 *)(hitPacket) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
-                        (*(s64 *)((u8 *)(hitPacket) + (0x60))) = actionUid;
+                        hitPacket = (u8 *)(btlUnitCreateArcMovePacket(focusTarget->unit, (s16) (((BtlAction *)actionBytes)->unk_6e), 0));
+                        (((BtlPacketTiming *)hitPacket)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)hitPacket)->dependencyUid) = (s64) btlActionGetPacketUid(counterAnimPacketSaved);
+                        (((BtlPacketTiming *)hitPacket)->actionUid) = actionUid;
                         btlPacketEnqueue(hitPacket, 1);
                         shakePacket = (u8 *)(btlCameraCreatePacketCommand(0x14, 0x32, 0, 5));
-                        (*(s8 *)((u8 *)(shakePacket) + (0))) = 5;
-                        (*(s64 *)((u8 *)(shakePacket) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
-                        (*(s64 *)((u8 *)(shakePacket) + (0x60))) = actionUid;
+                        (((BtlPacketTiming *)shakePacket)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)shakePacket)->dependencyUid) = (s64) btlActionGetPacketUid(counterAnimPacketSaved);
+                        (((BtlPacketTiming *)shakePacket)->actionUid) = actionUid;
                         btlPacketEnqueue(shakePacket, 1);
                     }
                 }
                 hitIndexCounter += 1;
             }
-            hitResultPtr = (LargeBattleHitResult *)btlHitResult_001a59a0((u8 *)targetView, &hitRowIndex);
+            hitResultPtr = (LargeBattleHitResult *)btlActionGetIndexedHitResult((u8 *)targetView, &hitRowIndex);
             hitResultSaved = hitResultPtr;
-            resultPacketB = (u8 *)(btlTargetCreateDataPacket((s32)(arg0), (s32)(focusTarget), hitResultPtr, targetView->effect, targetView->targetFlags));
-            (*(s8 *)((u8 *)(resultPacketB) + (0))) = 5;
-            (*(s64 *)((u8 *)(resultPacketB) + (8))) = animUid;
-            (*(s16 *)((u8 *)(resultPacketB) + (0x48))) = hitTimingBase;
-            (*(s64 *)((u8 *)(resultPacketB) + (0x60))) = actionUid;
+            resultPacketB = (u8 *)(btlTargetCreateDataPacket((s32)(actionBytes), (s32)(focusTarget), hitResultPtr, targetView->effect, targetView->targetFlags));
+            (((BtlPacketTiming *)resultPacketB)->dependencyKind) = 5;
+            (((BtlPacketTiming *)resultPacketB)->dependencyUid) = animUid;
+            (((BtlPacketTiming *)resultPacketB)->delay) = hitTimingBase;
+            (((BtlPacketTiming *)resultPacketB)->actionUid) = actionUid;
             btlPacketEnqueue(resultPacketB, 1);
-            statusPacket = (u8 *)(btlPacketCreateHitDisplay((s32)(battleUnit), *(s32 *)&focusTarget->unit, (*(u16 *)(arg0 + (0x6E))), targetView->effect, targetView->targetFlags, 0, 1, hitResultSaved, 0));
-            (*(s8 *)((u8 *)(statusPacket) + (0))) = 5;
-            (*(s64 *)((u8 *)(statusPacket) + (8))) = animUid;
-            (*(s16 *)((u8 *)(statusPacket) + (0x48))) = hitTimingBase;
+            statusPacket = (u8 *)(btlPacketCreateHitDisplay((s32)(battleUnit), *(s32 *)&focusTarget->unit, (((BtlAction *)actionBytes)->unk_6e), targetView->effect, targetView->targetFlags, 0, 1, hitResultSaved, 0));
+            (((BtlPacketTiming *)statusPacket)->dependencyKind) = 5;
+            (((BtlPacketTiming *)statusPacket)->dependencyUid) = animUid;
+            (((BtlPacketTiming *)statusPacket)->delay) = hitTimingBase;
             if (hitTimingBase < timingValueWide) {
                 timingRemaining = timingValueWide - hitTimingBase;
             } else {
                 timingRemaining = 0;
             }
-            (*(s16 *)((u8 *)(statusPacket) + (0x4A))) = timingRemaining;
-            (*(s64 *)((u8 *)(statusPacket) + (0x60))) = actionUid;
+            (((BtlPacketTiming *)statusPacket)->duration) = timingRemaining;
+            (((BtlPacketTiming *)statusPacket)->actionUid) = actionUid;
             btlPacketEnqueue(statusPacket, 3);
             if ((hitRowNumber == 0) && (hitResultSaved->hpDelta != 0)) {
                 statPacket = (u8 *)(btlPacketCreateUnitCounter((s32)(focusTarget->unit), 0, 0));
-                (*(s8 *)((u8 *)(statPacket) + (0))) = 5;
-                (*(s64 *)((u8 *)(statPacket) + (8))) = animUid;
-                (*(s16 *)((u8 *)(statPacket) + (0x48))) = hitTimingBase;
-                (*(u8 *)((u8 *)(statPacket) + (0x47))) = (u8) ((*(u8 *)((u8 *)(statPacket) + (0x47))) & 0xDF);
-                (*(s64 *)((u8 *)(statPacket) + (0x60))) = actionUid;
+                (((BtlPacketTiming *)statPacket)->dependencyKind) = 5;
+                (((BtlPacketTiming *)statPacket)->dependencyUid) = animUid;
+                (((BtlPacketTiming *)statPacket)->delay) = hitTimingBase;
+                (((BtlPacketTiming *)statPacket)->flags) = (u8) ((((BtlPacketTiming *)statPacket)->flags) & 0xDF);
+                (((BtlPacketTiming *)statPacket)->actionUid) = actionUid;
                 btlPacketEnqueue(statPacket, 3);
             }
             /* Retail retains this address and reloads its word at the later branch. */
             addedStatus = &hitRow->result.addedStatus;
-            if ((hitRow->result.addedStatus & 0x100000) && ((*(u8 *)((u8 *)(focusTarget->unit) + (0xA2))) == 1)) {
+            if ((hitRow->result.addedStatus & 0x100000) && ((((BtlUnit *)((u8 *)(focusTarget->unit)))->genus) == 1)) {
                 cuePacketJ = (u8 *)(btlSoundCreateChannelCuePacket(0xD, 2, 8));
-                (*(s8 *)((u8 *)(cuePacketJ) + (0))) = 5;
-                (*(s64 *)((u8 *)(cuePacketJ) + (8))) = animUid;
-                (*(s16 *)((u8 *)(cuePacketJ) + (0x48))) = hitTimingBase;
-                (*(s64 *)((u8 *)(cuePacketJ) + (0x60))) = actionUid;
+                (((BtlPacketTiming *)cuePacketJ)->dependencyKind) = 5;
+                (((BtlPacketTiming *)cuePacketJ)->dependencyUid) = animUid;
+                (((BtlPacketTiming *)cuePacketJ)->delay) = hitTimingBase;
+                (((BtlPacketTiming *)cuePacketJ)->actionUid) = actionUid;
                 btlPacketEnqueue(cuePacketJ, 1);
             }
-            if ((actionFlagSaved == 0) && ((*(u8 *)((u8 *)(focusTarget->unit) + (0xA2))) == 1)) {
+            if ((actionFlagSaved == 0) && ((((BtlUnit *)((u8 *)(focusTarget->unit)))->genus) == 1)) {
                 if (reactionUnitCount > 0) {
-                    if ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) == 0) {
+                    if ((((BtlUnit *)((u8 *)((*(u8 **)(actionBytes + (0x30))))))->genus) == 0) {
                         reactionRoll = btlSideCountNotBad(2, 0x80000) & 0xFFFF;
-                        reactionCueFlag = *(u8 *)(arg0 + 0x28);
+                        reactionCueFlag = ((BtlAction *)actionBytes)->unk_28;
                         if (reactionCueFlag > 0) {
                             goto createReaction;
                         }
                         reactionCueFlag = 1;
-                        if (*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4) == reactionCueFlag) {
+                        if (((BtlUnit *)(*(u8 **)(actionBytes + 0x30)))->charId == reactionCueFlag) {
                             goto createReaction;
                         }
                         reactionCueFlag = datCalcRandomBelow(0x64);
                         if ((u32)reactionCueFlag >= 0x32U) {
                             goto createReaction;
                         }
-                        if ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) != 0) {
+                        if ((((BtlUnit *)((u8 *)(((u8*)((BtlAction *)actionBytes)->unit))))->genus) != 0) {
                             reactionCueFlag = 0;
                         } else {
                             battleStatePtr = (u8 *)(iGpffffb3ac);
-                            if ((*(s16 *)((u8 *)(battleStatePtr) + (0xA70))) != -1) {
+                            if ((((BtlBattleState *)battleStatePtr)->unkA70) != -1) {
                                 reactionRemaining = (s16)(reactionRoll - reactionUnitCount);
                                 if (reactionRemaining <= 0) {
                                     randomRoll = btlSideCountNotBad(2, 0x80000) & 0xFFFF;
                                     battleStatePtrD = (u8 *)(iGpffffb3ac);
-                                    if (((u32) ((s16) (*(s16 *)((u8 *)(battleStatePtrD) + (0xA72))) >> 1) >= randomRoll) && (counterUnitId16 = (*(s16 *)((u8 *)(battleStatePtrD) + (0xA70))), counterUnitId = (s32) counterUnitId16, (counterUnitId16 != (s16)btlCameraSelectFormationIndex()))) {
+                                    if (((u32) ((s16) (((BtlBattleState *)battleStatePtrD)->unkA72) >> 1) >= randomRoll) && (counterUnitId16 = (((BtlBattleState *)battleStatePtrD)->unkA70), counterUnitId = (s32) counterUnitId16, (counterUnitId16 != (s16)btlCameraSelectFormationIndex()))) {
                                         reactionCueFlag = 1;
                                     } else {
                                         goto block_222;
                                     }
-                                } else if (((s16) (*(s16 *)((u8 *)(battleStatePtr) + (0xA72))) >> 1) >= reactionRemaining) {
+                                } else if (((s16) (((BtlBattleState *)battleStatePtr)->unkA72) >> 1) >= reactionRemaining) {
                                     reactionCueFlag = 1;
                                 } else {
                                     goto block_222;
@@ -3349,34 +3378,34 @@ block_222:
                         }
                         if (reactionCueFlag != 0) {
 createReaction:
-                            reactionPacketB = (u8 *)(btlTargetCreateTargetPacket(arg0, 0x13, reactionUnitCount, 0, 0));
-                            (*(s8 *)((u8 *)(reactionPacketB) + (0))) = 4;
-                            (*(s64 *)((u8 *)(reactionPacketB) + (8))) = hitPacketUid;
-                            (*(s64 *)((u8 *)(reactionPacketB) + (0x60))) = actionUid;
+                            reactionPacketB = (u8 *)(btlTargetCreateTargetPacket(actionBytes, 0x13, reactionUnitCount, 0, 0));
+                            (((BtlPacketTiming *)reactionPacketB)->dependencyKind) = 4;
+                            (((BtlPacketTiming *)reactionPacketB)->dependencyUid) = hitPacketUid;
+                            (((BtlPacketTiming *)reactionPacketB)->actionUid) = actionUid;
                             btlPacketEnqueue(reactionPacketB, 1);
                         } else {
-                            actionPacketB = (u8 *)(func_001f99c0(arg0, 0x10, reactionUnitCount, 0, 0));
-                            (*(s8 *)((u8 *)(actionPacketB) + (0))) = 4;
-                            (*(s64 *)((u8 *)(actionPacketB) + (8))) = hitPacketUid;
+                            actionPacketB = (u8 *)(func_001f99c0(actionBytes, 0x10, reactionUnitCount, 0, 0));
+                            (((BtlPacketTiming *)actionPacketB)->dependencyKind) = 4;
+                            (((BtlPacketTiming *)actionPacketB)->dependencyUid) = hitPacketUid;
                             btlPacketEnqueue(actionPacketB, 1);
                         }
                     }
                 } else if (*addedStatus & 0x100000) {
-                    reactionPacketC = (u8 *)(btlTargetCreateTargetPacket(arg0, 0x18, (s32) targetView->targetFlags, 1, 0));
-                    (*(s8 *)((u8 *)(reactionPacketC) + (0))) = 5;
-                    (*(s64 *)((u8 *)(reactionPacketC) + (8))) = hitPacketUid;
-                    (*(s64 *)((u8 *)(reactionPacketC) + (0x60))) = actionUid;
+                    reactionPacketC = (u8 *)(btlTargetCreateTargetPacket(actionBytes, 0x18, (s32) targetView->targetFlags, 1, 0));
+                    (((BtlPacketTiming *)reactionPacketC)->dependencyKind) = 5;
+                    (((BtlPacketTiming *)reactionPacketC)->dependencyUid) = hitPacketUid;
+                    (((BtlPacketTiming *)reactionPacketC)->actionUid) = actionUid;
                     btlPacketEnqueue(reactionPacketC, 1);
                 } else if (reactionUnitCount == 0) {
-                    if (func_001f0dd0((s64 *)arg0, 1) != 0) {
-                        actionPacketC = (u8 *)(func_001f99c0(arg0, 0xF, 0U, 0, 0));
-                        (*(s8 *)((u8 *)(actionPacketC) + (0))) = 5;
-                        (*(s64 *)((u8 *)(actionPacketC) + (8))) = hitPacketUid;
+                    if (btlActionTargetsHaveDamageResult((s64 *)actionBytes, 1) != 0) {
+                        actionPacketC = (u8 *)(func_001f99c0(actionBytes, 0xF, 0U, 0, 0));
+                        (((BtlPacketTiming *)actionPacketC)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)actionPacketC)->dependencyUid) = hitPacketUid;
                         btlPacketEnqueue(actionPacketC, 1);
-                    } else if ((func_001f0f70(arg0) == 1) && (btlActionAnyTargetSpecialHit(arg0) == 0)) {
-                        actionPacketD = (u8 *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
-                        (*(s8 *)((u8 *)(actionPacketD) + (0))) = 5;
-                        (*(s64 *)((u8 *)(actionPacketD) + (8))) = hitPacketUid;
+                    } else if ((btlActionAnyTargetHasSpecialResult(actionBytes) == 1) && (btlActionAnyTargetSpecialHit(actionBytes) == 0)) {
+                        actionPacketD = (u8 *)(func_001f99c0(actionBytes, 0x11, 0U, 0, 0));
+                        (((BtlPacketTiming *)actionPacketD)->dependencyKind) = 5;
+                        (((BtlPacketTiming *)actionPacketD)->dependencyUid) = hitPacketUid;
                         btlPacketEnqueue(actionPacketD, 1);
                     }
                 }
@@ -3384,68 +3413,68 @@ createReaction:
             hitRowIndex += 1;
         }
         unitStatePacket = (u8 *)(btlTargetCreateRecordPacket(targetView));
-        (*(s8 *)((u8 *)(unitStatePacket) + (0))) = 5;
-        (*(s64 *)((u8 *)(unitStatePacket) + (8))) = animUid;
-        (*(s16 *)((u8 *)(unitStatePacket) + (0x48))) = hitTimingBase;
-        (*(s64 *)((u8 *)(unitStatePacket) + (0x60))) = actionUid;
+        (((BtlPacketTiming *)unitStatePacket)->dependencyKind) = 5;
+        (((BtlPacketTiming *)unitStatePacket)->dependencyUid) = animUid;
+        (((BtlPacketTiming *)unitStatePacket)->delay) = hitTimingBase;
+        (((BtlPacketTiming *)unitStatePacket)->actionUid) = actionUid;
         btlPacketEnqueue(unitStatePacket, 1);
-        auxEffectIndex = (s16)((*(s16 *)(arg0 + (0xEC))));
-        if ((auxEffectIndex != 0) && !((*(u8 *)(arg0 + (0xD8))) & 1)) {
-            unitStatePacketB = (u8 *)(btlPacketCreateEffectCounter((*(u8 **)(arg0 + (0x30))), auxEffectIndex));
-            (*(s8 *)((u8 *)(unitStatePacketB) + (0))) = 5;
-            (*(s64 *)((u8 *)(unitStatePacketB) + (8))) = animUid;
-            (*(s16 *)((u8 *)(unitStatePacketB) + (0x48))) = hitTimingBase;
-            (*(u8 *)((u8 *)(unitStatePacketB) + (0x47))) = (u8) ((*(u8 *)((u8 *)(unitStatePacketB) + (0x47))) & 0xDF);
-            (*(s64 *)((u8 *)(unitStatePacketB) + (0x60))) = actionUid;
+        auxEffectIndex = (s16)(((s16)((BtlAction *)actionBytes)->targetBlock.message.messageCode));
+        if ((auxEffectIndex != 0) && !((((BtlAction *)actionBytes)->targetBlock.unk_d8) & 1)) {
+            unitStatePacketB = (u8 *)(btlPacketCreateEffectCounter(((u8*)((BtlAction *)actionBytes)->unit), auxEffectIndex));
+            (((BtlPacketTiming *)unitStatePacketB)->dependencyKind) = 5;
+            (((BtlPacketTiming *)unitStatePacketB)->dependencyUid) = animUid;
+            (((BtlPacketTiming *)unitStatePacketB)->delay) = hitTimingBase;
+            (((BtlPacketTiming *)unitStatePacketB)->flags) = (u8) ((((BtlPacketTiming *)unitStatePacketB)->flags) & 0xDF);
+            (((BtlPacketTiming *)unitStatePacketB)->actionUid) = actionUid;
             btlPacketEnqueue(unitStatePacketB, 3);
         } else {
-            auxEffectIndexTarget = (s16)((*(s16 *)((u8 *)(targetView) + (0xEC))));
+            auxEffectIndexTarget = (s16)(((s16)((BtlAction *)targetView)->targetBlock.message.messageCode));
             if (auxEffectIndexTarget != 0) {
                 unitStatePacketC = (u8 *)(btlPacketCreateEffectCounter(targetView->unit, auxEffectIndexTarget));
-                (*(s8 *)((u8 *)(unitStatePacketC) + (0))) = 5;
-                (*(s64 *)((u8 *)(unitStatePacketC) + (8))) = animUid;
-                (*(s16 *)((u8 *)(unitStatePacketC) + (0x48))) = hitTimingBase;
-                (*(u8 *)((u8 *)(unitStatePacketC) + (0x47))) = (u8) ((*(u8 *)((u8 *)(unitStatePacketC) + (0x47))) & 0xDF);
-                (*(s64 *)((u8 *)(unitStatePacketC) + (0x60))) = actionUid;
+                (((BtlPacketTiming *)unitStatePacketC)->dependencyKind) = 5;
+                (((BtlPacketTiming *)unitStatePacketC)->dependencyUid) = animUid;
+                (((BtlPacketTiming *)unitStatePacketC)->delay) = hitTimingBase;
+                (((BtlPacketTiming *)unitStatePacketC)->flags) = (u8) ((((BtlPacketTiming *)unitStatePacketC)->flags) & 0xDF);
+                (((BtlPacketTiming *)unitStatePacketC)->actionUid) = actionUid;
                 btlPacketEnqueue(unitStatePacketC, 3);
             }
         }
         targetIndex += 1;
     }
-    unitStatePacketD = (u8 *)(btlTargetCreateRecordPacket(arg0));
-    (*(s8 *)((u8 *)(unitStatePacketD) + (0))) = 5;
-    (*(s64 *)((u8 *)(unitStatePacketD) + (8))) = animUid;
-    (*(s16 *)((u8 *)(unitStatePacketD) + (0x48))) = hitTimingBase;
-    (*(s64 *)((u8 *)(unitStatePacketD) + (0x60))) = actionUid;
+    unitStatePacketD = (u8 *)(btlTargetCreateRecordPacket(actionBytes));
+    (((BtlPacketTiming *)unitStatePacketD)->dependencyKind) = 5;
+    (((BtlPacketTiming *)unitStatePacketD)->dependencyUid) = animUid;
+    (((BtlPacketTiming *)unitStatePacketD)->delay) = hitTimingBase;
+    (((BtlPacketTiming *)unitStatePacketD)->actionUid) = actionUid;
     btlPacketEnqueue(unitStatePacketD, 1);
-    if (!((*(u16 *)(arg0 + (0x18))) & 4)) {
-        statePacket = (u8 *)(btlTargetCreateActionPacket(arg0, (*(u8 *)(arg0 + (0xDB)))));
-        (*(s8 *)((u8 *)(statePacket) + (0))) = 5;
-        (*(s64 *)((u8 *)(statePacket) + (8))) = animUid;
-        (*(s16 *)((u8 *)(statePacket) + (0x48))) = hitTimingBase;
-        (*(s64 *)((u8 *)(statePacket) + (0x60))) = actionUid;
+    if (!((((BtlAction *)actionBytes)->flags) & 4)) {
+        statePacket = (u8 *)(btlTargetCreateActionPacket(actionBytes, (((BtlAction *)actionBytes)->targetBlock.resultFlags)));
+        (((BtlPacketTiming *)statePacket)->dependencyKind) = 5;
+        (((BtlPacketTiming *)statePacket)->dependencyUid) = animUid;
+        (((BtlPacketTiming *)statePacket)->delay) = hitTimingBase;
+        (((BtlPacketTiming *)statePacket)->actionUid) = actionUid;
         btlPacketEnqueue(statePacket, 1);
     }
     if (setEffectFlags != 0) {
         battleStatePtrC = (u8 *)(iGpffffb3ac);
-        (*(s32 *)((u8 *)(battleStatePtrC) + (0xC))) = (s32) ((*(s32 *)((u8 *)(battleStatePtrC) + (0xC))) | 0x400000);
+        (((BtlBattleState *)battleStatePtrC)->flags) = (s32) ((((BtlBattleState *)battleStatePtrC)->flags) | 0x400000);
         battleStatePtrB = (u8 *)(iGpffffb3ac);
-        (*(u16 *)((u8 *)(battleStatePtrB) + (0x18))) = (u16) ((*(u16 *)((u8 *)(battleStatePtrB) + (0x18))) | 0xF);
+        (((BtlBattleState *)battleStatePtrB)->actionEndFlags) = (u16) ((((BtlBattleState *)battleStatePtrB)->actionEndFlags) | 0xF);
     }
-    cutinUnit = (u8 *)((*(u8 **)(arg0 + (0x8C))));
+    cutinUnit = (u8 *)((((BtlAction *)actionBytes)->parameters.support));
     if (cutinUnit != NULL) {
         cutin.mode = 3;
-        cutin.unitId = (u16)((*(u16 *)((u8 *)((*(u8 **)((u8 *)(cutinUnit) + (0x30)))) + (0xA4))));
+        cutin.unitId = (u16)((((BtlUnit *)((u8 *)(((u8*)((BtlAction *)cutinUnit)->unit))))->charId));
         btlPacketEnqueue(btlSoundLoadPacketNew(&cutin), 1);
     }
-    if (btlSoundCanReceiveStatus((s64 *)arg0) != 0) {
-        btlActionSetState((BtlAction *)arg0, 0x1BU);
+    if (btlSoundCanReceiveStatus((s64 *)actionBytes) != 0) {
+        btlActionSetState((BtlAction *)actionBytes, 0x1BU);
         return;
     }
     {
         u16 state;
 
-        switch (*(u16 *)(arg0 + 0x6C)) {
+        switch (((BtlAction *)actionBytes)->unk_6c) {
         case 1:
         case 3:
         case 2:
@@ -3455,7 +3484,7 @@ createReaction:
             state = 0x20;
             break;
         }
-        btlActionSetState((BtlAction *)arg0, state);
+        btlActionSetState((BtlAction *)actionBytes, state);
     }
 }
 
@@ -3470,114 +3499,102 @@ void btlActionSkillInit(void)
 /* measured: func_001a7720 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001A7720
-void btlActionSkillUpdate(u8 *arg0) {
+/* Sequence skill presentation, linked-unit effects, per-target results and recovery using packet UIDs. */
+/* Raw action/row offsets retain MATCH after canonical rewrites; extra packet gates use tagged narrow/wide payloads. */
+void btlActionSkillUpdate(u8 *actionBytes) {
 
     extern s32 btlCreateSetFlagsPacket(u32);
-    extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
+    extern s64 btlPacketEnqueue(u8 *context, u32 value);
     extern u8 *btlPacketCreateImmediate(void);
-    extern u8 *btlPacketAllocZeroed(void *arg0, void *arg1);
-    extern s32 btlUnitGetPersonaAlphaColor(u8 *arg0);
+    extern u8 *btlPacketAllocZeroed(void *callback, void *data);
+    extern s32 btlUnitGetPersonaAlphaColor(u8 *context);
     extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
-    extern u8 *btlUnitCreateArcMovePacket(s32 unit, s16 skill, s16 delay);
+    extern u8 *btlUnitCreateArcMovePacket(s32 unitAddress, s16 mode, s16 counter);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
-    extern s32 btlUnitGetMotionState(u8 *arg0);
+    extern s32 btlUnitGetMotionState(u8 *unit);
     extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
     extern BtlPacket *btlUnitCreateModelFramePacket(BtlUnit *unit, s16 value);
     extern BtlPacket *btlUnitCreateMotionSpeedPacket(BtlUnit *unit, u16 value, f32 speed, u16 mode);
-    extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
+    extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 modelId, s16 motion);
     extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
     extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
-    extern void btlActionFinishPresentation(BtlAction *arg0);
-    extern void btlMainSkillColorPairDefaults(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
+    extern void btlActionFinishPresentation(BtlAction *action);
+    extern void btlMainSkillColorPairDefaults(u16 skill, s32 *color, s32 *tint); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern s32 btlMainSkillColorDefault(u16 skill); /* lint: allow H011 -- retail passes the lhu skill unconverted */
-    extern s32 btlMainSkillTintDefault(s32 arg0);
-    extern void btlMainSkillColorPairDefaultsAlt(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
-    extern BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3);
+    extern s32 btlMainSkillTintDefault(s32 skill);
+    extern void btlMainSkillColorPairDefaultsAlt(u16 skill, s32 *color, s32 *tint); /* lint: allow H011 -- retail passes the lhu skill unconverted */
+    extern BtlPacket* btlMainCreateColorLerpPacket(u32 startColor, u32 targetColor, u32 duration);
     extern BtlPacket* btlCreateTimingPacket(u32 value);
-    extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
+    extern BtlPacket *btlMainCreateColorWorkPacket(s32 lightColor, s32 ambientColor, s32 fogColor, u32 duration, u16 flags);
     /* lint: allow H011 -- retail zero-extends the mode with andi 0xffff: this caller saw a u16 parameter. */
     extern BtlPacket *btlMainCreateFadePacket(s32 arg, u16 mode);
-    extern BtlPacket* btlMainCreateTintPacket(u32 param_1, u32 param_2);
+    extern BtlPacket* btlMainCreateTintPacket(u32 targetColor, u32 duration);
     extern BtlPacket* btlMainCreateColorFadePacket(s32 arg);
     extern BtlPacket* btlMainCreateColorSetPacket(s32 arg);
     extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
-    extern u8 *btlCameraCreatePacketCommand(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
+    extern u8 *btlCameraCreatePacketCommand(s32 value, s16 option, s32 first, s32 second);
     extern BtlPacket *btlFormationCreateStepPacket();
-    extern BtlPacket *btlFormationCreateTurnPacket(u32 source, u32 action, u32 target, u16 skill);
-    extern BtlPacket *btlFormationCreateWaitPacket(u32 param_1, u32 param_2, u16 param_3);
-    extern s32 btlFormationAllocWork(u32 param_1);
-    extern void btlFormationSetPlacement(u32 param_1);
-    extern u32 btlFormationGetFlags(s32 param_1);
-    extern BtlPacket *btlFormationCreatePacket(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param_5);
+    extern BtlPacket *btlFormationCreateTurnPacket(u32 actor, u32 targetAction, u32 partnerAction, u16 skill);
+    extern BtlPacket *btlFormationCreateWaitPacket(u32 actor, u32 target, u16 mode);
+    extern s32 btlFormationAllocWork(u32 mode);
+    extern void btlFormationSetPlacement(u32 formation);
+    extern u32 btlFormationGetFlags(s32 record);
+    extern BtlPacket *btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags);
     extern u16 btlTargetGetUnitIndex(BtlTarget *target);
-    extern s32 btlUnitSlotValueOrOne(u16 arg0); /* lint: allow H011 -- retail passes the lhu skill unconverted */
+    extern s32 btlUnitSlotValueOrOne(u16 unitId); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     /* lint: allow H011 -- retail passes these u16 arguments without conversion:
      * this caller saw u16 parameters (the definitions take u32/s32). */
     extern void btlFormationFormatName(u16 value, char *destination); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern BtlPacket *btlMainCreateUnitTintPacket(BtlAction *action, u16 selector, u32 duration); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern void btlTargetClearResultBuffer(u8 *result);
-    extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
-    extern s32 btlActionAnyTargetSpecialHit(u8 *arg0);
-    extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
-    extern s32 func_001f0d30(u8 *arg0);
-    extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
-    extern u32 func_001f0f70(u8 *arg0);
+    extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
+    extern s32 btlActionAnyTargetSpecialHit(u8 *action);
+    extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
+    extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
+    extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
+    extern u32 btlActionAnyTargetHasSpecialResult(u8 *action);
     extern s32 btlActionHasNoTargetClass();
-    extern s32 btlTargetGroupStateMatches(u8 *arg0);
-    extern s32 btlTargetIsSlotAlive(u8 *arg0);
-    extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-    extern u8 * btlTargetCreateRecordPacket(u8 *arg0);
-    extern u8 * btlTargetCreateHitPacket(u8 *arg0);
+    extern s32 btlTargetGroupStateMatches(u8 *context);
+    extern s32 btlTargetIsSlotAlive(u8 *context);
+    extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
+    extern u8 * btlTargetCreateRecordPacket(u8 *action);
+    extern u8 * btlTargetCreateHitPacket(u8 *action);
     extern s32 btlTargetCreateTargetPacket();
-    extern s32 btlSoundCanReceiveStatus(u8 *arg0);
+    extern s32 btlSoundCanReceiveStatus(u8 *action);
     extern BtlPacket* btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     extern BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags);
     extern u8 *btlSoundCreateMarkReadyPacket(u32 value);
     extern u8 *btlSoundCreateClearReadyPacket(u32 value);
     extern s32 func_001f99c0();
-    extern u8 *btlCutinCreatePacket(u8 *data);
+    extern u8 *btlCutinCreatePacket(u8 *request);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern u8 *btlPacketCreateFinishEffect(void);
-    extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 param_1, u16 param_2);
-    extern BtlPacket *btlPacketCreateSpriteStep(u32 action, u16 arg1);
-    extern BtlPacket *btlPacketCreateEffectCounter(s32 arg0, s32 arg1);
-    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
+    extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 sprite, u16 frame);
+    extern BtlPacket *btlPacketCreateSpriteStep(u32 sprite, u16 frame);
+    extern BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit);
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value);
     extern u8 *btlPacketCreateHpRatio(u8 *unit);
-    extern void btlPanelSetValueText(u8 *arg0, s32 arg1);
+    extern void btlPanelSetValueText(u8 *window, s32 value);
     extern s32 btlActionSelectFormationSlot(u8 *action);
-    extern s32 btlActionHasFormationSlot(u8 *action, u8 *handles);
-    extern s32 btlActionMatchesSkill(u8 *arg0, s32 arg1);
+    extern s32 btlActionHasFormationSlot(u8 *action, u8 *slots);
+    extern s32 btlActionMatchesSkill(u8 *action, s32 skillId);
     extern s32 btlUnitApplyPacketEffects(u8 *packet);
-    extern s32 func_0022f8b0(u8 *arg0, s32 arg1);
-    extern s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1);
+    extern s32 btlBossSkillRestoresMotionBeforeHits(u8 *action, s32 skillId);
+    extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
     extern s32 btlBossActionBlocked();
-    extern s32 btlBossSkillAllowed(u8 *arg0);
+    extern s32 btlBossSkillAllowed(u8 *action);
     extern u16 datCalcGetHp(s32 unit);
-    extern s32 func_0023df70(s32 skill);
+    extern s32 datCalcUsesWeaponProperties(s32 skillId);
     /* lint: allow H011 -- the definition is an asm function returning int. */
-    extern int func_0043c6a0(int param_1);
+    extern int func_0043c6a0(int value);
     extern u8 *iGpffffb3ac;
     extern u8 *iGpffffb3b8;
     extern u8 *iGpffffb3cc;
-    extern u8 *iGpffffb3bc;
 
-    /* Every queued battle packet carries this timing header. */
-    typedef struct BtlPacketTiming {
-        s8 queue;           /* 0x00 */
-        u8 pad01[7];
-        s64 startTime;      /* 0x08 */
-        u8 pad10[0x37];
-        u8 flags;           /* 0x47 */
-        s16 delay;          /* 0x48 */
-        s16 duration;       /* 0x4A */
-        u8 pad4C[0xC];
-        s64 endTime;        /* 0x58 */
-        s64 ownerId;        /* 0x60 */
-    } BtlPacketTiming;
     /* Action fields read here; offsets from the retail loads. */
-    typedef struct ActionView7720 {
+    typedef struct BtlSkillAction {
         u8 pad00[0x18];
         u16 flags;          /* 0x18 */
         u16 flags1A;        /* 0x1A */
@@ -3600,18 +3617,12 @@ void btlActionSkillUpdate(u8 *arg0) {
         u8 padDC[0x10];
         s16 fieldEC;        /* 0xEC */
         s16 fieldEE;        /* 0xEE */
-    } ActionView7720;
-    typedef struct UnitPartnerView {
-        u8 unknown00[0x98];
-        u32 flags98;
-        u8 unknown9C[0xA0C - 0x9C];
-        struct UnitPartnerView *partner;
-    } UnitPartnerView;
-    typedef struct ActionHitRowView {
+    } BtlSkillAction;
+    typedef struct BtlActionHitCursor {
         u8 actionPrefix[0xF0];
         LargeBattleHitResult result;
-    } ActionHitRowView;
-    s64 chainTime;
+    } BtlActionHitCursor;
+    s64 chainUid;
     BtlPacketTiming *animPacket;
     s32 cameraFirst;
     s32 cameraSecond;
@@ -3626,16 +3637,16 @@ void btlActionSkillUpdate(u8 *arg0) {
     u8 *spRow;
     u8 *primaryTarget;
     u8 *linkedUnit;
-    BtlPacketTiming *skillSePkt;
-    BtlPacket *followCameraPkt;
-    BtlPacketTiming *formationFxPkt;
-    BtlPacketTiming *sp4C0;
-    BtlPacketTiming *sp4BC;
-    BtlPacketTiming *sp4B8;
+    BtlPacketTiming *skillSoundPacket;
+    BtlPacket *targetRecoveryCameraPacket;
+    BtlPacketTiming *reactionFormationPacket;
+    BtlPacketTiming *reflectedFormationPacket;
+    BtlPacketTiming *followMovementPacket;
+    BtlPacketTiming *impactFormationPacket;
     s32 formationHandle;
-    s64 sceneTime;
-    s64 animEndTime;
-    s64 formationEndTime;
+    s64 sceneUid;
+    s64 animEndUid;
+    s64 formationEndUid;
     s64 cutinEndTime;
     s16 skill;
     s16 cameraState;
@@ -3657,14 +3668,14 @@ void btlActionSkillUpdate(u8 *arg0) {
     s32 actionFlag4000;
     s32 rotateFirst;
     s32 randomFlag;
-    /* 0/1 phase flags; named by their retail stack slot. */
-    s32 sp310;
-    s32 sp30C;
-    s32 sp2F0;
-    s32 sp2E0;
-    s32 sp2D0;
-    s32 sp2C0;
-    s32 sp2B0;
+    /* Independent 0/1 phase decisions remain live across packet callbacks. */
+    s32 endsEncounter;
+    s32 restoreMotionSpeed;
+    s32 settleMotion;
+    s32 sacrificeActor;
+    s32 restoreBeforeHits;
+    s32 skipMotionRecovery;
+    s32 reuseLinkedModel;
     u16 skillKeyCopy;
     s32 skillS32;
     u16 skillU16;
@@ -3682,11 +3693,11 @@ void btlActionSkillUpdate(u8 *arg0) {
     s32 bossCheck;
     s32 hitModeDelay;
     s32 isSkill16;
-    s64 formationEndTime2;
+    s64 formationEndUid2;
     u16 hitDelta;
     s32 hitFlags;
     s32 sameSideTarget;
-    ActionHitRowView *hitRow;
+    BtlActionHitCursor *hitRow;
     s8 *hitMotion;
     s16 *hpTransfer;
     s16 hitDelayS16;
@@ -3735,7 +3746,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     u8 *effectiveAction;
     s32 *targetList;
     s64 actionId;
-    s64 lateChainTime;
+    s64 lateChainUid;
     s32 recoveryBase;
     s16 skillFramesKey;
     s64 side;
@@ -3746,7 +3757,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     s32 motionId;
     s32 statusRemaining;
     s32 motionState;
-    s64 cutinTime;
+    s64 cutinUid;
     s32 blendFrames;
     s32 motionDelay;
     s32 motionIdRaw;
@@ -3758,188 +3769,188 @@ void btlActionSkillUpdate(u8 *arg0) {
     u32 statusTotal2;
     u8 stateBitsCopy;
     s32 hitSide;
-    BtlPacketTiming *animPkt17;
+    BtlPacketTiming *sourceOpeningAnimationPacket;
     u8 *unit;
-    BtlPacketTiming *formationPkt100;
-    BtlPacketTiming *pkt101;
-    u8 *targetUnit103;
-    BtlPacketTiming *pkt104;
-    BtlPacketTiming *pkt105;
-    BtlPacketTiming *rotatePkt106;
-    BtlPacketTiming *pkt107;
-    BtlPacketTiming *pkt109;
-    BtlPacketTiming *rotatePkt10;
-    BtlPacketTiming *pkt110;
-    BtlPacketTiming *pkt111;
-    BtlPacketTiming *pkt112;
-    BtlPacketTiming *pkt113;
-    BtlPacketTiming *pkt114;
-    BtlPacketTiming *pkt115;
-    BtlPacketTiming *pkt116;
-    BtlPacketTiming *soundPkt117;
+    BtlPacketTiming *hitElementFormationPacket;
+    BtlPacketTiming *hitModelFramePacket;
+    u8 *cameraTargetUnit;
+    BtlPacketTiming *impactCameraCommandPacket;
+    BtlPacketTiming *hitMotionSettlePacket;
+    BtlPacketTiming *hitTargetRotationPacket;
+    BtlPacketTiming *applyEffectsPacket;
+    BtlPacketTiming *hitResultPacket;
+    BtlPacketTiming *targetHitPacket;
+    BtlPacketTiming *targetRecordPacket;
+    BtlPacketTiming *sourceRecordPacket;
+    BtlPacketTiming *sourceActionPacket;
+    BtlPacketTiming *sourceEffectCounterPacket;
+    BtlPacketTiming *targetEffectCounterPacket;
+    BtlPacketTiming *followEffectCounterPacket;
+    BtlPacketTiming *targetUnitCounterPacket;
+    BtlPacketTiming *targetDownSoundPacket;
     u8 *hitRowBase;
-    BtlPacketTiming *hitPkt119;
-    BtlPacketTiming *pkt11;
-    BtlPacketTiming *pkt120;
-    BtlPacketTiming *hitPkt121;
-    BtlPacketTiming *pkt122;
-    BtlPacketTiming *pkt123;
-    BtlPacketTiming *pkt124;
-    BtlPacketTiming *pkt125;
-    BtlPacketTiming *pkt126;
-    BtlPacketTiming *pkt127;
-    BtlPacketTiming *pkt128;
-    BtlPacketTiming *pkt129;
-    BtlPacketTiming *pkt12;
-    BtlPacketTiming *pkt130;
-    BtlPacketTiming *hitPkt132;
-    BtlPacketTiming *pkt133;
-    BtlPacketTiming *pkt134;
-    BtlPacketTiming *waitPkt135;
-    BtlPacketTiming *colorPkt136;
-    BtlPacketTiming *formationPkt137;
-    BtlPacketTiming *soundPkt138;
-    BtlPacketTiming *pkt139;
-    u8 *lookAtPkt13;
-    BtlPacketTiming *pkt140;
-    BtlPacketTiming *pkt141;
-    BtlPacketTiming *pkt142;
-    BtlPacketTiming *pkt143;
-    BtlPacketTiming *cameraPkt144;
-    BtlPacketTiming *cameraPkt145;
-    BtlPacketTiming *colorPkt146;
-    BtlPacketTiming *colorPkt147;
-    BtlPacketTiming *effectPkt148;
-    BtlPacketTiming *pkt149;
-    BtlPacketTiming *cutinPkt14;
-    BtlPacketTiming *pkt150;
-    BtlPacketTiming *cutinPkt15;
-    BtlPacketTiming *pkt16;
-    BtlPacketTiming *soundPkt17;
-    BtlPacketTiming *formationPkt18;
-    BtlPacketTiming *pkt19;
-    BtlPacketTiming *pkt20;
-    u8 *linkedMotionPkt;
-    u8 *waitPkt22;
-    BtlPacketTiming *waitPkt23;
-    BtlPacketTiming *effectPkt24;
-    BtlPacketTiming *soundPkt25;
-    BtlPacketTiming *animPkt27;
-    BtlPacketTiming *pkt28;
-    BtlPacketTiming *pkt29;
-    BtlPacketTiming *effectPkt30;
-    BtlPacketTiming *soundPkt31;
-    BtlPacketTiming *effectPkt32;
-    BtlPacketTiming *colorPkt33;
-    BtlPacketTiming *animPkt34;
-    BtlPacketTiming *colorPkt35;
-    BtlPacketTiming *soundPkt36;
-    BtlPacketTiming *cameraPkt37;
-    u8 *lookAtPkt38;
-    BtlPacketTiming *animPkt39;
-    BtlPacketTiming *formationPkt40;
-    BtlPacketTiming *cameraPkt41;
-    BtlPacketTiming *cameraPkt42;
-    BtlPacketTiming *effectPkt43;
-    u8 *lookAtPkt44;
-    BtlPacketTiming *animPkt45;
-    BtlPacketTiming *waitPkt46;
-    BtlPacketTiming *cameraPkt47;
-    BtlPacketTiming *waitPkt48;
-    BtlPacketTiming *formationPkt49;
-    BtlPacketTiming *rotatePkt4;
-    BtlPacketTiming *cameraPkt50;
-    BtlPacketTiming *effectPkt51;
-    BtlPacketTiming *soundPkt52;
-    BtlPacketTiming *effectPkt53;
-    BtlPacketTiming *soundPkt54;
-    BtlPacketTiming *cameraPkt55;
-    BtlPacketTiming *animPkt56;
-    BtlPacketTiming *formationPkt58;
-    BtlPacketTiming *cameraPkt59;
-    BtlPacketTiming *pkt5;
-    BtlPacketTiming *cameraPkt60;
-    BtlPacketTiming *cameraPkt61;
-    BtlPacketTiming *cameraPkt62;
-    BtlPacketTiming *cameraPkt63;
-    BtlPacketTiming *cameraPkt66;
-    BtlPacketTiming *pkt67;
-    BtlPacketTiming *animPkt68;
-    BtlPacketTiming *animPkt69;
-    BtlPacketTiming *pkt6;
-    BtlPacketTiming *cameraPkt70;
-    BtlPacketTiming *formationPkt71;
-    BtlPacketTiming *rotatePkt72;
-    BtlPacketTiming *animPkt73;
-    BtlPacketTiming *rotatePkt74;
-    BtlPacketTiming *waitPkt75;
-    BtlPacketTiming *formationPkt76;
-    BtlPacketTiming *pkt77;
-    BtlPacketTiming *pkt79;
-    u8 *lookAtPkt7;
-    BtlPacketTiming *pkt80;
-    BtlPacketTiming *formationPkt81;
-    BtlPacketTiming *pkt83;
-    BtlPacketTiming *lookAtPkt84;
-    BtlPacketTiming *lookAtPkt85;
-    BtlPacketTiming *pkt86;
-    BtlPacketTiming *pkt87;
-    BtlPacketTiming *colorPkt88;
-    BtlPacketTiming *colorPkt89;
-    u8 *lookAtPkt8;
-    BtlPacketTiming *rotatePkt90;
-    BtlPacketTiming *pkt91;
-    BtlPacketTiming *soundPkt93;
-    BtlPacketTiming *soundPkt94;
-    BtlPacketTiming *animPkt98;
-    BtlPacketTiming *pkt99;
-    u8 *lookAtPkt9;
-    u8 *btlState10_310;
-    u8 *btlState11_311;
-    u8 *btlState12;
-    u8 *btlState18;
-    u8 *actUnit20_320;
-    u8 *btlState3_33;
-    u8 *btlState4;
-    u8 *btlState7_37;
-    u8 *btlState8_38;
-    u8 *btlState9_39;
-    u8 *btlState10_410;
-    u8 *btlState11_411;
-    u8 *targetUnit12;
-    u8 *actUnit16;
-    u8 *btlState17;
-    u8 *actUnit19;
-    u8 *actUnit20_420;
-    u8 *btlState2;
-    u8 *btlState3_43;
-    u8 *btlState5;
-    u8 *btlState6;
-    u8 *btlState7_47;
-    u8 *btlState8_48;
-    u8 *btlState9_49;
-    u8 *actUnit5_5;
-    u8 *targetUnit2;
-    u8 *targetUnit3;
-    u8 *actUnit5_55;
-    BtlPacketTiming *waitPkt2;
-    BtlPacketTiming *animChainPkt;
-    BtlPacketTiming *formationPkt6;
-    BtlPacketTiming *pkt4;
-    BtlPacketTiming *anchorPkt;
-    BtlPacketTiming *formationNamePkt;
-    BtlPacketTiming *pkt10;
-    BtlPacketTiming *soundPkt9;
+    BtlPacketTiming *hitDisplayPacket;
+    BtlPacketTiming *skillSpritePacket;
+    BtlPacketTiming *transferResultPacket;
+    BtlPacketTiming *transferDisplayPacket;
+    BtlPacketTiming *sourceHpRatioPacket;
+    BtlPacketTiming *transferCounterPacket;
+    BtlPacketTiming *followSkillPacket;
+    BtlPacketTiming *reactionVoicePacket;
+    BtlPacketTiming *reactionTargetPacket;
+    BtlPacketTiming *statusTargetPacket;
+    BtlPacketTiming *sameSideVoicePacket;
+    BtlPacketTiming *followUpVoicePacket;
+    BtlPacketTiming *actionSpritePacket;
+    BtlPacketTiming *specialHitVoicePacket;
+    BtlPacketTiming *actorResultDisplayPacket;
+    BtlPacketTiming *actorResultCounterPacket;
+    BtlPacketTiming *actorResultSettlePacket;
+    BtlPacketTiming *actorHideWaitPacket;
+    BtlPacketTiming *actorHidePacket;
+    BtlPacketTiming *actorHideFormationPacket;
+    BtlPacketTiming *actorHideSoundPacket;
+    BtlPacketTiming *recoverySettlePacket;
+    u8 *linkedGroupLookAtStopPacket;
+    BtlPacketTiming *recoveryTimingPacket;
+    BtlPacketTiming *recoveryFadePacket;
+    BtlPacketTiming *recoveryColorFadePacket;
+    BtlPacketTiming *recoveryColorSetPacket;
+    BtlPacketTiming *recoveryCameraPacket;
+    BtlPacketTiming *recoveryGroupCameraPacket;
+    BtlPacketTiming *sourceColorRestorePacket;
+    BtlPacketTiming *linkedFadePacket;
+    BtlPacketTiming *linkedReleaseEffectPacket;
+    BtlPacketTiming *endEncounterFlagsPacket;
+    BtlPacketTiming *cutinStartPacket;
+    BtlPacketTiming *endSequencePacket;
+    BtlPacketTiming *cutinEndPacket;
+    BtlPacketTiming *cutinVoicePacket;
+    BtlPacketTiming *cutinSoundPacket;
+    BtlPacketTiming *openingFormationPacket;
+    BtlPacketTiming *linkedTurnPacket;
+    BtlPacketTiming *cutinModelLoadPacket;
+    u8 *linkedModelLoadPacket;
+    u8 *linkedModelWaitPacket;
+    BtlPacketTiming *linkedEffectWaitPacket;
+    BtlPacketTiming *linkedOpeningEffectPacket;
+    BtlPacketTiming *linkedOpeningSoundPacket;
+    BtlPacketTiming *sourceCastAnimationPacket;
+    BtlPacketTiming *clearUnitSoundFlagPacket;
+    BtlPacketTiming *clearSoundReadyPacket;
+    BtlPacketTiming *linkedCastEffectPacket;
+    BtlPacketTiming *linkedCastSoundPacket;
+    BtlPacketTiming *linkedCastTrailPacket;
+    BtlPacketTiming *sourceDimPacket;
+    BtlPacketTiming *linkedCastAnimationPacket;
+    BtlPacketTiming *linkedAlphaPacket;
+    BtlPacketTiming *linkedCastCuePacket;
+    BtlPacketTiming *linkedHitCameraPacket;
+    u8 *alternateLookAtStopPacket;
+    BtlPacketTiming *alternateCastAnimationPacket;
+    BtlPacketTiming *alternateFormationPacket;
+    BtlPacketTiming *alternateCastCameraPacket;
+    BtlPacketTiming *alternateGroupCameraPacket;
+    BtlPacketTiming *alternateCastEffectPacket;
+    u8 *enemyLookAtStopPacket;
+    BtlPacketTiming *enemyCastAnimationPacket;
+    BtlPacketTiming *enemyMotionWaitPacket;
+    BtlPacketTiming *enemyCastCameraPacket;
+    BtlPacketTiming *enemyCastWaitPacket;
+    BtlPacketTiming *enemyFormationPacket;
+    BtlPacketTiming *selectedTargetRotationPacket;
+    BtlPacketTiming *enemyFormationCameraPacket;
+    BtlPacketTiming *enemyCastEffectPacket;
+    BtlPacketTiming *enemyCastSoundPacket;
+    BtlPacketTiming *sourceOpeningEffectPacket;
+    BtlPacketTiming *sourceOpeningSoundPacket;
+    BtlPacketTiming *sourceOpeningCameraPacket;
+    BtlPacketTiming *sourceActionAnimationPacket;
+    BtlPacketTiming *sourceTargetWaitPacket;
+    BtlPacketTiming *sourceActionCameraPacket;
+    BtlPacketTiming *targetGroupRotationPacket;
+    BtlPacketTiming *skillColorLerpPacket;
+    BtlPacketTiming *skillColorWorkPacket;
+    BtlPacketTiming *skillTintPacket;
+    BtlPacketTiming *sourceTintPacket;
+    BtlPacketTiming *followActionCameraPacket;
+    BtlPacketTiming *followActionVoicePacket;
+    BtlPacketTiming *followActionAnimationPacket;
+    BtlPacketTiming *followTargetAnimationPacket;
+    BtlPacketTiming *encounterRotationPacket;
+    BtlPacketTiming *followFormationCameraPacket;
+    BtlPacketTiming *followTargetWaitPacket;
+    BtlPacketTiming *followTargetRotationPacket;
+    BtlPacketTiming *followTargetRecoveryPacket;
+    BtlPacketTiming *followSourceRotationPacket;
+    BtlPacketTiming *skillNameWaitPacket;
+    BtlPacketTiming *openingSkillFormationPacket;
+    BtlPacketTiming *openingCueQueuePacket;
+    BtlPacketTiming *targetHpRatioPacket;
+    u8 *sourceFocusPacket;
+    BtlPacketTiming *targetCueQueuePacket;
+    BtlPacketTiming *reflectedSkillFormationPacket;
+    BtlPacketTiming *reflectedCueQueuePacket;
+    BtlPacketTiming *targetFocusPacket;
+    BtlPacketTiming *targetLookAtSourcePacket;
+    BtlPacketTiming *targetLookAtStopPacket;
+    BtlPacketTiming *targetGroupLookAtPacket;
+    BtlPacketTiming *linkedHidePacket;
+    BtlPacketTiming *earlyColorRestorePacket;
+    u8 *sourceLookAtStopPacket;
+    BtlPacketTiming *earlyTargetRotationPacket;
+    BtlPacketTiming *earlyFinishEffectPacket;
+    BtlPacketTiming *reflectedSoundPacket;
+    BtlPacketTiming *absorbedSoundPacket;
+    BtlPacketTiming *hitAnimationPacket;
+    BtlPacketTiming *hitArcMovePacket;
+    u8 *groupLookAtStopPacket;
+    u8 *specialStateBattle;
+    u8 *sourceStateBattle;
+    u8 *followStateBattle;
+    u8 *reactionCountBattle;
+    u8 *hiddenSourceUnit;
+    u8 *effectBattle;
+    u8 *linkedStateBattle;
+    u8 *alternateStateBattle;
+    u8 *enemyStateBattle;
+    u8 *acceleratedStateBattle;
+    u8 *sourceFlagsBattle;
+    u8 *followFlagsBattle;
+    u8 *hitTargetUnit;
+    u8 *transferSourceUnit;
+    u8 *reactionBattle;
+    u8 *resultSourceUnit;
+    u8 *hidingSourceUnit;
+    u8 *rotationBattle;
+    u8 *cutinBattle;
+    u8 *linkedFlagsBattle;
+    u8 *alternateFlagsBattle;
+    u8 *enemyFlagsBattle;
+    u8 *acceleratedFlagsBattle;
+    u8 *specialFlagsBattle;
+    u8 *openingSourceUnit;
+    u8 *elementTargetUnit;
+    u8 *impactTargetUnit;
+    u8 *hidingEffectUnit;
+    BtlPacketTiming *openingAnimationPacket;
+    BtlPacketTiming *linkedAnimationPacket;
+    BtlPacketTiming *skillFormationPacket;
+    BtlPacketTiming *actorResultPacket;
+    BtlPacketTiming *openingCameraPacket;
+    BtlPacketTiming *skillNamePacket;
+    BtlPacketTiming *earlyMotionRecoveryPacket;
+    BtlPacketTiming *targetElementCuePacket;
 
-    ActionView7720 *act = (ActionView7720 *)arg0;
+    BtlSkillAction *act = (BtlSkillAction *)actionBytes;
 
     unit = (u8 *)(act->unit);
-    unitSide = (s8)(*(s8 *)(unit + 0xA2));
-    linkedUnit = (u8 *)(*(u8 **)(unit + 0xA0C));
+    unitSide = (s8)((s8)((BtlUnit *)(unit))->genus);
+    linkedUnit = (u8 *)((u8 *)((BtlUnit *)(unit))->childUnit);
     skill = (s16)(act->skill);
     primaryTarget = (u8 *)(act->target);
     actionFlag4000 = (s32)((act->flags & 0x4000)) != (s32)(0);
-    formationEndTime = 0;
+    formationEndUid = 0;
     cutinEndTime = 0;
     crossSideHits = 0;
     statusHits = 0;
@@ -3948,28 +3959,28 @@ void btlActionSkillUpdate(u8 *arg0) {
     baseDelay = 0;
     hasCutin = 0;
     randomFlag = 0;
-    sp310 = 0;
-    sp30C = 0;
-    sp2F0 = 0;
-    sp2E0 = 0;
-    sp2D0 = 0;
-    sp2C0 = 0;
-    sp2B0 = 0;
+    endsEncounter = 0;
+    restoreMotionSpeed = 0;
+    settleMotion = 0;
+    sacrificeActor = 0;
+    restoreBeforeHits = 0;
+    skipMotionRecovery = 0;
+    reuseLinkedModel = 0;
     hasFollowAction = (s32)(s32)(act->followAction) != (s32)(0);
-    noOverride = (s32)(btlTargetIsSlotAlive(arg0)) == (s32)(0);
+    noOverride = (s32)(btlTargetIsSlotAlive(actionBytes)) == (s32)(0);
     windupFrames = 6;
     skillIndex = skill;
-    skillFlag2 = (s32)(s32)((*(iGpffffb3b8 + skillIndex * 0x28) & 2)) != (s32)(0);
+    skillFlag2 = (s32)(s32)((((DatSkillEntry *)iGpffffb3b8)[skillIndex].flags00 & 2)) != (s32)(0);
     altCamera = ((act->flags1A & 0x10) != 0) && skillFlag2 == 0;
     isKind3 = (s32)(s32)(act->kind == 3);
-    rotateFirst = (s32)(btlActionHasNoTargetClass(arg0));
+    rotateFirst = (s32)(btlActionHasNoTargetClass(actionBytes));
     skillSpecial = (s32)(btlTargetIsEntryActive(skill));
     hasCutinPartner = (s32)(s32)(act->cutinPartner) != (s32)(0);
-    formationFxPkt = 0;
-    actionId = *(s64 *)(arg0 + 0);
-    btlActionFinishPresentation((BtlAction *)arg0);
+    reactionFormationPacket = 0;
+    actionId = (s64)((BtlAction *)actionBytes)->uid;
+    btlActionFinishPresentation((BtlAction *)actionBytes);
     side = (s8)unitSide;
-    if ((side == 1) && (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000)) {
+    if ((side == 1) && (((BtlBattleState *)iGpffffb3ac)->flags & 0x200000)) {
         actionFlag4000 = 0;
     }
     if (actionFlag4000 == 0) {
@@ -3978,13 +3989,13 @@ void btlActionSkillUpdate(u8 *arg0) {
         skillKind = (s16)datCalcSkillElement(NULL, (u16)skill);
         switch (skillKind) {                           /* switch 1; irregular */
         case 16:                                    /* switch 1 */
-            formationHandle = (s32)(*(s32 *)(iGpffffb3ac + 0xD9C));
+            formationHandle = (s32)((s32)((BtlBattleState *)iGpffffb3ac)->formations[38]);
             break;
         case 17:                                    /* switch 1 */
-            formationHandle = (s32)(*(s32 *)(iGpffffb3ac + 0xDA0));
+            formationHandle = (s32)((s32)((BtlBattleState *)iGpffffb3ac)->formations[39]);
             break;
         default:                                    /* switch 1 */
-            formationHandle = (s32)(*(s32 *)(iGpffffb3ac + 0xD98));
+            formationHandle = (s32)((s32)((BtlBattleState *)iGpffffb3ac)->formations[37]);
             break;
         }
     }
@@ -3992,89 +4003,89 @@ void btlActionSkillUpdate(u8 *arg0) {
     if (!(flags1ASnapshot & 1)) {
         pendingFollow = 0;
     } else {
-        UnitPartnerView *partner = (*(UnitPartnerView **)(arg0 + 0x30))->partner;
+        BtlUnit *partner = (((BtlAction *)actionBytes)->unit)->childUnit;
         if (!(flags1ASnapshot & 0x10)) {
             pendingFollow = 0;
-        } else if (partner->flags98 & 2) {
+        } else if (partner->flags2 & 2) {
             pendingFollow = 1;
         } else {
             pendingFollow = 0;
         }
     }
     if (pendingFollow != 0) {
-        sp2B0 = 1;
+        reuseLinkedModel = 1;
     }
-    bossCheck = (s32)(s32)(btlBossSkillAllowed(arg0));
+    bossCheck = (s32)(s32)(btlBossSkillAllowed(actionBytes));
     if (side >= 0) {
-        if (sp2B0 != 0) {
+        if (reuseLinkedModel != 0) {
             rotateFlags = 0x1002;
         } else {
             rotateFlags = 0;
         }
         if (rotateFirst != 0) {
-            rotatePkt4 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(act->unit, (*( u8 ** )((u8 *)(act->target) + (0x30))), rotateFlags));
-            rotatePkt4->ownerId = actionId;
-            btlPacketEnqueue((u8 *)rotatePkt4, 0);
+            selectedTargetRotationPacket = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(act->unit, ((u8*)((BtlAction *)act->target)->unit), rotateFlags));
+            selectedTargetRotationPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)selectedTargetRotationPacket, 0);
         } else if (side == 0) {
-            btlUnitGetGroupBounds((u16)btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)), 1, &targetPosition, 0, 0, 1);
-            pkt5 = (BtlPacketTiming *)(btlUnitCreateRotatePacket(*(BtlUnit **)(arg0 + 0x30), &targetPosition, rotateFlags));
-            pkt5->ownerId = actionId;
-            btlPacketEnqueue((u8 *)pkt5, 0);
+            btlUnitGetGroupBounds((u16)btlTargetGetUnitIndex((BtlTarget *)(actionBytes + 0x38)), 1, &targetPosition, 0, 0, 1);
+            targetGroupRotationPacket = (BtlPacketTiming *)(btlUnitCreateRotatePacket(((BtlAction *)actionBytes)->unit, &targetPosition, rotateFlags));
+            targetGroupRotationPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)targetGroupRotationPacket, 0);
         } else {
-            btlState2 = (u8 *)(iGpffffb3ac);
-            if (*(s32 *)(btlState2 + 0xC) & 0x200000) {
-                btlUnitGetGridSphereCenter((*( BtlUnit ** )((u8 *)(*(u8 **)(btlState2 + 0x170)) + (0x30))), &targetPosition);
-                pkt6 = (BtlPacketTiming *)(btlUnitCreateRotatePacket(*(BtlUnit **)(arg0 + 0x30), &targetPosition, rotateFlags));
-                pkt6->ownerId = actionId;
-                btlPacketEnqueue((u8 *)pkt6, 0);
+            rotationBattle = (u8 *)(iGpffffb3ac);
+            if (((BtlBattleState *)rotationBattle)->flags & 0x200000) {
+                btlUnitGetGridSphereCenter((((BtlAction *)((BtlBattleState *)rotationBattle)->selectedAction)->unit), &targetPosition);
+                encounterRotationPacket = (BtlPacketTiming *)(btlUnitCreateRotatePacket(((BtlAction *)actionBytes)->unit, &targetPosition, rotateFlags));
+                encounterRotationPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)encounterRotationPacket, 0);
             }
         }
         if (bossCheck != 0) {
-            lookAtPkt7 = (u8 *)(actionLookAtUnit(0, act->unit, 3));
-            *(s64 *)(lookAtPkt7 + 0x60) = *(s64 *)arg0;
-            btlPacketEnqueue((u8 *)lookAtPkt7, 1);
-            lookAtPkt8 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(act->unit, 0));
-            *(s64 *)(lookAtPkt8 + 0x60) = *(s64 *)arg0;
-            btlPacketEnqueue((u8 *)lookAtPkt8, 1);
+            sourceFocusPacket = (u8 *)(btlActionCreateLookAtUnitPacketBytes(0, act->unit, 3));
+            ((BtlPacket *)sourceFocusPacket)->actionUID = *(s64 *)actionBytes;
+            btlPacketEnqueue((u8 *)sourceFocusPacket, 1);
+            sourceLookAtStopPacket = (u8 *)(btlUnitCreateLookAtDeactivatePacket(act->unit, 0));
+            ((BtlPacket *)sourceLookAtStopPacket)->actionUID = *(s64 *)actionBytes;
+            btlPacketEnqueue((u8 *)sourceLookAtStopPacket, 1);
         } else {
-            lookAtPkt9 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
-            *(s64 *)(lookAtPkt9 + 0x60) = *(s64 *)arg0;
-            btlPacketEnqueue((u8 *)lookAtPkt9, 1);
+            groupLookAtStopPacket = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
+            ((BtlPacket *)groupLookAtStopPacket)->actionUID = *(s64 *)actionBytes;
+            btlPacketEnqueue((u8 *)groupLookAtStopPacket, 1);
         }
         act->flags = (u16) (act->flags | 0x200);
-        rotatePkt10 = (BtlPacketTiming *)(btlTargetCreateHitPacket(arg0));
-        rotatePkt10->ownerId = actionId;
-        btlPacketEnqueue((u8 *)rotatePkt10, 1);
+        targetHitPacket = (BtlPacketTiming *)(btlTargetCreateHitPacket(actionBytes));
+        targetHitPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)targetHitPacket, 1);
     }
     skillFlagsOffset = skillIndex * 4;
-    if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x100) {
+    if ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x100) {
         hitMode = 3;
     } else {
         hitMode = 1;
     }
     hitModeDelay = (s16)hitMode;
     if (isKind3 == 0) {
-        pkt11 = (BtlPacketTiming *)(btlEffectCreateSpriteFramePacket(*(u32 *)(arg0 + 0x30), (u16) skill));
-        pkt11->delay = (s16) hitModeDelay;
-        pkt11->ownerId = actionId;
-        btlPacketEnqueue((u8 *)pkt11, 3);
+        skillSpritePacket = (BtlPacketTiming *)(btlEffectCreateSpriteFramePacket(*(u32 *)(actionBytes + 0x30), (u16) skill));
+        skillSpritePacket->delay = (s16) hitModeDelay;
+        skillSpritePacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)skillSpritePacket, 3);
     } else {
-        pkt12 = (BtlPacketTiming *)(btlPacketCreateSpriteStep(*(u32 *)(arg0 + 0x30), act->field70));
-        pkt12->delay = (s16) hitModeDelay;
-        pkt12->ownerId = actionId;
-        btlPacketEnqueue((u8 *)pkt12, 3);
+        actionSpritePacket = (BtlPacketTiming *)(btlPacketCreateSpriteStep((u32)((BtlAction *)actionBytes)->unit, act->field70));
+        actionSpritePacket->delay = (s16) hitModeDelay;
+        actionSpritePacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)actionSpritePacket, 3);
     }
     if (altCamera == 1) {
         if ((isKind3 == 0) && (noOverride == 0)) {
-            if ((hasCutinPartner == 0) && (sp2B0 == 0)) {
+            if ((hasCutinPartner == 0) && (reuseLinkedModel == 0)) {
                 if (side == 0) {
-                    if (!(act->flags & 0x40) && ((((s32)(btlActionAnyTargetHitRowStatus(arg0)) != (s32)(0)) && (datCalcRandomBelow(0x64U) < 0x14U)) || (*(s32 *)(iGpffffb3ac + 0x10) & 0x1000))) {
+                    if (!(act->flags & 0x40) && ((((s32)(btlActionAnyTargetHitRowStatus(actionBytes)) != (s32)(0)) && (datCalcRandomBelow(0x64U) < 0x14U)) || (((BtlBattleState *)iGpffffb3ac)->battleFlags & 0x1000))) {
                         hasCutin = 1;
                         act->flags = (u16) (act->flags | 0x40);
-                        btlState3_43 = (u8 *)(iGpffffb3ac);
-                        *(s32 *)(btlState3_43 + 0x10) = (s32) (*(s32 *)(btlState3_43 + 0x10) & ~0x1000);
+                        cutinBattle = (u8 *)(iGpffffb3ac);
+                        ((BtlBattleState *)cutinBattle)->battleFlags = (s32) (((BtlBattleState *)cutinBattle)->battleFlags & ~0x1000);
                     }
-                } else if ((side == 1) && (*(s32 *)(iGpffffb3ac + 0x10) & 0x800)) {
+                } else if ((side == 1) && (((BtlBattleState *)iGpffffb3ac)->battleFlags & 0x800)) {
                     flagsSnapshot = (u16)(act->flags);
                     if (!(flagsSnapshot & 0x40)) {
                         hasCutin = 1;
@@ -4084,38 +4095,38 @@ void btlActionSkillUpdate(u8 *arg0) {
             }
             skillU16 = skill;
             isSkill16 = ((s16)datCalcSkillElement(NULL, (u16)skillU16) == 0x10);
-            if ((s32)(btlActionHasFormationSlot(arg0, (u8 *)effectHandles)) == (s32)(0)) {
-                btlState3_33 = (u8 *)(iGpffffb3ac);
-                effectHandles[0] = (*(s32 *)((u8 *)btlState3_33 + 0xD30));
-                effectHandles[1] = (*(s32 *)((u8 *)btlState3_33 + 0xD34));
-                effectHandles[2] = (*(s32 *)((u8 *)btlState3_33 + 0xD38));
+            if ((s32)(btlActionHasFormationSlot(actionBytes, (u8 *)effectHandles)) == (s32)(0)) {
+                effectBattle = (u8 *)(iGpffffb3ac);
+                effectHandles[0] = ((s32)((BtlBattleState *)effectBattle)->formations[11]);
+                effectHandles[1] = ((s32)((BtlBattleState *)effectBattle)->formations[12]);
+                effectHandles[2] = ((s32)((BtlBattleState *)effectBattle)->formations[13]);
             }
-            if (((s32)(btlTargetIsEntryActive(skill)) == (s32)(0)) && ((s32)(btlActionAnyTargetSpecialHit(arg0)) == (s32)(0))) {
-                targetGroup = (s32)((u16)btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)));
+            if (((s32)(btlTargetIsEntryActive(skill)) == (s32)(0)) && ((s32)(btlActionAnyTargetSpecialHit(actionBytes)) == (s32)(0))) {
+                targetGroup = (s32)((u16)btlTargetGetUnitIndex((BtlTarget *)(actionBytes + 0x38)));
                 if ((side == 0) && (((u16)targetGroup) == 2)) {
                     randomFlag = (s32)((effMiscRand(0) & 1)) != (s32)(0);
                 } else if ((side == 1) && (((u16)targetGroup) == 1)) {
                     randomFlag = 1;
                 }
             }
-            if (((s32)(btlUnitSkillBlocked(arg0, linkedUnit)) != (s32)(0)) || (*(s32 *)(iGpffffb3ac + 0x10) & 0x40)) {
+            if (((s32)(btlUnitSkillBlocked(actionBytes, linkedUnit)) != (s32)(0)) || (((BtlBattleState *)iGpffffb3ac)->battleFlags & 0x40)) {
                 randomFlag = 1;
             }
-            if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x4000) {
+            if ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x4000) {
                 randomFlag = 1;
                 baseDelay = 2;
             }
-            if ((side == 0) && (btlTargetGroupStateMatches(arg0) != 0) && (skillIndex != 0xF4)) {
-                sp2D0 = 1;
+            if ((side == 0) && (btlTargetGroupStateMatches(actionBytes) != 0) && (skillIndex != 0xF4)) {
+                restoreBeforeHits = 1;
                 randomFlag = 1;
                 hasCutin = 0;
-                lookAtPkt13 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
-                *(s64 *)(lookAtPkt13 + 0x60) = *(s64 *)arg0;
-                btlPacketEnqueue((u8 *)lookAtPkt13, 1);
-                btlState5 = (u8 *)(iGpffffb3ac);
-                *(s32 *)(btlState5 + 0xC) = (s32) (*(s32 *)(btlState5 + 0xC) | 0x400000);
-                btlState4 = (u8 *)(iGpffffb3ac);
-                *(u16 *)(btlState4 + 0x18) = (u16) (*(u16 *)(btlState4 + 0x18) | 6);
+                linkedGroupLookAtStopPacket = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
+                ((BtlPacket *)linkedGroupLookAtStopPacket)->actionUID = *(s64 *)actionBytes;
+                btlPacketEnqueue((u8 *)linkedGroupLookAtStopPacket, 1);
+                linkedFlagsBattle = (u8 *)(iGpffffb3ac);
+                ((BtlBattleState *)linkedFlagsBattle)->flags = (s32) (((BtlBattleState *)linkedFlagsBattle)->flags | 0x400000);
+                linkedStateBattle = (u8 *)(iGpffffb3ac);
+                ((BtlBattleState *)linkedStateBattle)->actionEndFlags = (u16) (((BtlBattleState *)linkedStateBattle)->actionEndFlags | 6);
             }
             motionState = (s16)btlUnitGetMotionState(act->unit);
             switch (motionState) {
@@ -4132,269 +4143,269 @@ void btlActionSkillUpdate(u8 *arg0) {
             } else if (isSkill16 != 0) {
                 btlPacketEnqueue((u8 *)(btlSoundCreateMarkReadyPacket((u32)act->unit)), 0);
             }
-            if (sp2B0 != 0) {
-                waitPkt2 = (BtlPacketTiming *)(btlPacketCreateImmediate());
+            if (reuseLinkedModel != 0) {
+                openingAnimationPacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
             } else {
-                waitPkt2 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 0xD, (u16)blendFrames, 1.0f, 4));
+                openingAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 0xD, (u16)blendFrames, 1.0f, 4));
             }
-            waitPkt2->ownerId = actionId;
-            btlPacketEnqueue((u8 *)waitPkt2, 0);
-            cutinTime = waitPkt2->endTime;
-            if (sp2B0 == 0) {
+            openingAnimationPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)openingAnimationPacket, 0);
+            cutinUid = openingAnimationPacket->uid;
+            if (reuseLinkedModel == 0) {
                 recoveryFrames = btlUnitMotionModelFrames(act->unit, 0xD, 1.0f);
                 recoveryFrames += (s16)blendFrames;
             } else {
                 recoveryFrames = 0;
             }
-            if (sp2B0 != 0) {
-                anchorPkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
+            if (reuseLinkedModel != 0) {
+                openingCameraPacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
             } else {
                 if (side == 0) {
                     cameraStateB = 0x14;
                 } else {
                     cameraStateB = 0x15;
                 }
-                anchorPkt = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)cameraStateB));
+                openingCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, (u16)cameraStateB));
             }
-            anchorPkt->ownerId = actionId;
-            btlPacketEnqueue((u8 *)anchorPkt, 0);
-            sceneTime = anchorPkt->endTime;
+            openingCameraPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)openingCameraPacket, 0);
+            sceneUid = openingCameraPacket->uid;
             if (hasCutin != 0) {
                 cutin.mode = 4;
-                cutin.unitId = (u16)((*( u16 * )((u8 *)(act->unit) + (0xA4))));
-                cutinPkt14 = (BtlPacketTiming *)(btlCutinCreatePacket((u8 *)&cutin));
-                cutinPkt14->queue = 4;
-                cutinPkt14->startTime = cutinTime;
-                cutinPkt14->ownerId = actionId;
-                btlPacketEnqueue((u8 *)cutinPkt14, 1);
-                cutinPkt15 = (BtlPacketTiming *)btlCutinCreateEndPacket();
-                cutinPkt15->queue = 4;
-                cutinPkt15->startTime = cutinPkt14->endTime;
-                cutinPkt15->ownerId = actionId;
-                btlPacketEnqueue((u8 *)cutinPkt15, 1);
-                pkt16 = (BtlPacketTiming *)(func_001f99c0(arg0, 1, *(u16 *)(linkedUnit + 0xA4), 0, 1));
-                pkt16->queue = 5;
-                pkt16->startTime = cutinPkt15->endTime;
-                pkt16->ownerId = actionId;
-                btlPacketEnqueue((u8 *)pkt16, 1);
-                soundPkt17 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 0xB));
-                soundPkt17->queue = 5;
-                soundPkt17->startTime = cutinPkt15->endTime;
-                soundPkt17->ownerId = *(s64 *)arg0;
-                btlPacketEnqueue((u8 *)soundPkt17, 1);
-                cutinTime = cutinPkt15->endTime;
-                cutinEndTime = cutinTime;
+                cutin.unitId = (u16)((((BtlUnit *)((u8 *)(act->unit)))->charId));
+                cutinStartPacket = (BtlPacketTiming *)(btlCutinCreatePacket((u8 *)&cutin));
+                cutinStartPacket->dependencyKind = 4;
+                cutinStartPacket->dependencyUid = cutinUid;
+                cutinStartPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)cutinStartPacket, 1);
+                cutinEndPacket = (BtlPacketTiming *)btlCutinCreateEndPacket();
+                cutinEndPacket->dependencyKind = 4;
+                cutinEndPacket->dependencyUid = cutinStartPacket->uid;
+                cutinEndPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)cutinEndPacket, 1);
+                cutinVoicePacket = (BtlPacketTiming *)(func_001f99c0(actionBytes, 1, ((BtlUnit *)(linkedUnit))->charId, 0, 1));
+                cutinVoicePacket->dependencyKind = 5;
+                cutinVoicePacket->dependencyUid = cutinEndPacket->uid;
+                cutinVoicePacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)cutinVoicePacket, 1);
+                cutinSoundPacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 0xB));
+                cutinSoundPacket->dependencyKind = 5;
+                cutinSoundPacket->dependencyUid = cutinEndPacket->uid;
+                cutinSoundPacket->actionUid = *(s64 *)actionBytes;
+                btlPacketEnqueue((u8 *)cutinSoundPacket, 1);
+                cutinUid = cutinEndPacket->uid;
+                cutinEndTime = cutinUid;
                 recoveryFrames = 0;
             }
-            formationPkt18 = (BtlPacketTiming *)(btlFormationCreateStepPacket(arg0,(s32)((act->flags & 0x10)) != (s32)(0), 1));
-            formationPkt18->queue = 4;
-            formationPkt18->startTime = cutinTime;
-            formationPkt18->delay = (s16) (recoveryFrames - (recoveryFrames >> 3));
-            formationPkt18->ownerId = actionId;
-            btlPacketEnqueue((u8 *)formationPkt18, 0);
-            formationEndTime = formationPkt18->endTime;
+            openingFormationPacket = (BtlPacketTiming *)(btlFormationCreateStepPacket(actionBytes,(s32)((act->flags & 0x10)) != (s32)(0), 1));
+            openingFormationPacket->dependencyKind = 4;
+            openingFormationPacket->dependencyUid = cutinUid;
+            openingFormationPacket->delay = (s16) (recoveryFrames - (recoveryFrames >> 3));
+            openingFormationPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)openingFormationPacket, 0);
+            formationEndUid = openingFormationPacket->uid;
             if (rotateFirst != 0) {
                 targetList = (s32 *)(act->target);
             } else {
                 targetList = 0;
             }
-            pkt19 = (BtlPacketTiming *)(btlFormationCreateTurnPacket((u32)linkedUnit, (u32)arg0, (u32)targetList, skillU16));
-            pkt19->queue = 5;
-            pkt19->startTime = formationEndTime;
-            pkt19->ownerId = actionId;
-            btlPacketEnqueue((u8 *)pkt19, 0);
-            if (sp2B0 == 0) {
+            linkedTurnPacket = (BtlPacketTiming *)(btlFormationCreateTurnPacket((u32)linkedUnit, (u32)actionBytes, (u32)targetList, skillU16));
+            linkedTurnPacket->dependencyKind = 5;
+            linkedTurnPacket->dependencyUid = formationEndUid;
+            linkedTurnPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)linkedTurnPacket, 0);
+            if (reuseLinkedModel == 0) {
                 if (hasCutin != 0) {
-                    pkt20 = (BtlPacketTiming *)(btlUnitCreateModelLoadPacket((u8 *)linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0x1D));
-                    animChainPkt = (BtlPacketTiming *)((u8 *)pkt20);
-                    pkt20->queue = 5;
-                    pkt20->startTime = cutinEndTime;
-                    (*( s8 * )((u8 *)pkt20 + (0x20))) = 5;
-                    (*( s64 * )((u8 *)pkt20 + (0x28))) = formationEndTime;
+                    cutinModelLoadPacket = (BtlPacketTiming *)(btlUnitCreateModelLoadPacket((u8 *)linkedUnit, ((BtlUnit *)(linkedUnit))->charId, 0x1D));
+                    linkedAnimationPacket = (BtlPacketTiming *)((u8 *)cutinModelLoadPacket);
+                    cutinModelLoadPacket->dependencyKind = 5;
+                    cutinModelLoadPacket->dependencyUid = cutinEndTime;
+                    (((BtlPacket *)cutinModelLoadPacket)->dependencyKind3) = 5;
+                    (((BtlPacket *)cutinModelLoadPacket)->dependencyUID3) = formationEndUid;
                 } else {
-                    linkedMotionPkt = (u8 *)(btlUnitCreateModelLoadPacket((u8 *)linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0xD));
-                    animChainPkt = (BtlPacketTiming *)(linkedMotionPkt);
-                    *(s16 *)(linkedMotionPkt + 0x48) = recoveryFrames;
+                    linkedModelLoadPacket = (u8 *)(btlUnitCreateModelLoadPacket((u8 *)linkedUnit, ((BtlUnit *)(linkedUnit))->charId, 0xD));
+                    linkedAnimationPacket = (BtlPacketTiming *)(linkedModelLoadPacket);
+                    ((BtlPacketTiming *)linkedModelLoadPacket)->delay = recoveryFrames;
                 }
-                animChainPkt->ownerId = actionId;
-                btlPacketEnqueue((u8 *)animChainPkt, 1);
+                linkedAnimationPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)linkedAnimationPacket, 1);
             } else {
-                waitPkt22 = (u8 *)(btlPacketCreateImmediate());
-                animChainPkt = (BtlPacketTiming *)(waitPkt22);
-                *(s16 *)(waitPkt22 + 0x48) = recoveryFrames;
-                btlPacketEnqueue((u8 *)animChainPkt, 0);
+                linkedModelWaitPacket = (u8 *)(btlPacketCreateImmediate());
+                linkedAnimationPacket = (BtlPacketTiming *)(linkedModelWaitPacket);
+                ((BtlPacketTiming *)linkedModelWaitPacket)->delay = recoveryFrames;
+                btlPacketEnqueue((u8 *)linkedAnimationPacket, 0);
             }
-            waitPkt23 = (BtlPacketTiming *)(btlPacketCreateImmediate());
-            waitPkt23->queue = 4;
-            waitPkt23->startTime = animChainPkt->endTime;
-            waitPkt23->delay = 0xC;
-            waitPkt23->ownerId = actionId;
-            btlPacketEnqueue((u8 *)waitPkt23, 1);
-            effectPkt24 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(effectHandles[0], (*(s32 *)(arg0 + 0x30)), 0, (waitPkt23->endTime), 0x100));
-            effectPkt24->ownerId = actionId;
-            btlPacketEnqueue((u8 *)effectPkt24, 2);
-            soundPkt25 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 3));
-            soundPkt25->ownerId = actionId;
-            btlPacketEnqueue((u8 *)soundPkt25, 1);
-            actUnit5_5 = (u8 *)(act->unit);
-            skillFramesKey = (s16)btlUnitOpeningMotionMode(*(s32 *)(actUnit5_5 + 0xA0C), actUnit5_5, skill, rotateFirst);
-            skillFrames = (s32)(btlUnitMotionFrames((*( u8 ** )((u8 *)(act->unit) + (0xA0C))), (u16)skillFramesKey, 1.0f));
+            linkedEffectWaitPacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
+            linkedEffectWaitPacket->dependencyKind = 4;
+            linkedEffectWaitPacket->dependencyUid = linkedAnimationPacket->uid;
+            linkedEffectWaitPacket->delay = 0xC;
+            linkedEffectWaitPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)linkedEffectWaitPacket, 1);
+            linkedOpeningEffectPacket = (BtlPacketTiming *)(btlEffectCreateFormationPacket(effectHandles[0], (*(s32 *)(actionBytes + 0x30)), 0, (linkedEffectWaitPacket->uid), 0x100));
+            linkedOpeningEffectPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)linkedOpeningEffectPacket, 2);
+            linkedOpeningSoundPacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 3));
+            linkedOpeningSoundPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)linkedOpeningSoundPacket, 1);
+            openingSourceUnit = (u8 *)(act->unit);
+            skillFramesKey = (s16)btlUnitOpeningMotionMode((s32)((BtlUnit *)(openingSourceUnit))->childUnit, openingSourceUnit, skill, rotateFirst);
+            skillFrames = (s32)(btlUnitMotionFrames(((u8 *)((BtlUnit *)((u8 *)(act->unit)))->childUnit), (u16)skillFramesKey, 1.0f));
             damageFrames = (s32) skillFrames;
             windupFrames = (u16)(btlUnitGetMotionTableFrames(act->unit, 0x10));
-            chainTime = animChainPkt->endTime;
+            chainUid = linkedAnimationPacket->uid;
             skillEndFrame = skillFrames + 0x12;
             if (baseDelay < skillEndFrame) {
                 timingFrames = skillEndFrame - baseDelay;
             } else {
                 timingFrames = 0;
             }
-            animPkt27 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 0xF, 0, 1.0f, 5));
-            animPkt27->queue = 4;
-            animPkt27->startTime = chainTime;
-            animPkt27->ownerId = actionId;
-            btlPacketEnqueue((u8 *)animPkt27, 0);
+            sourceCastAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 0xF, 0, 1.0f, 5));
+            sourceCastAnimationPacket->dependencyKind = 4;
+            sourceCastAnimationPacket->dependencyUid = chainUid;
+            sourceCastAnimationPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)sourceCastAnimationPacket, 0);
             if (hasCutin != 0) {
-                pkt28 = (BtlPacketTiming *)(btlSoundCreateUnitFlagClearPacket((BtlUnit *)act->unit));
-                pkt28->queue = 4;
-                pkt28->startTime = animPkt27->endTime;
-                pkt28->ownerId = actionId;
-                btlPacketEnqueue((u8 *)pkt28, 0);
+                clearUnitSoundFlagPacket = (BtlPacketTiming *)(btlSoundCreateUnitFlagClearPacket((BtlUnit *)act->unit));
+                clearUnitSoundFlagPacket->dependencyKind = 4;
+                clearUnitSoundFlagPacket->dependencyUid = sourceCastAnimationPacket->uid;
+                clearUnitSoundFlagPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)clearUnitSoundFlagPacket, 0);
             } else if (isSkill16 != 0) {
-                pkt29 = (BtlPacketTiming *)(btlSoundCreateClearReadyPacket((u32)act->unit));
-                pkt29->queue = 4;
-                pkt29->startTime = animPkt27->endTime;
-                pkt29->ownerId = actionId;
-                btlPacketEnqueue((u8 *)pkt29, 0);
+                clearSoundReadyPacket = (BtlPacketTiming *)(btlSoundCreateClearReadyPacket((u32)act->unit));
+                clearSoundReadyPacket->dependencyKind = 4;
+                clearSoundReadyPacket->dependencyUid = sourceCastAnimationPacket->uid;
+                clearSoundReadyPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)clearSoundReadyPacket, 0);
             }
             recoveryBase = (s32)(btlUnitMotionFrames(act->unit, 0xFU, 1.0f));
-            effectPkt30 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(effectHandles[1], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
-            effectPkt30->queue = 4;
-            effectPkt30->startTime = chainTime;
-            effectPkt30->delay = (s16) recoveryBase;
-            effectPkt30->ownerId = actionId;
-            btlPacketEnqueue((u8 *)effectPkt30, 2);
-            soundPkt31 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 4));
-            soundPkt31->queue = 4;
-            soundPkt31->startTime = chainTime;
-            soundPkt31->delay = (s16)recoveryBase + 2;
-            soundPkt31->ownerId = actionId;
-            btlPacketEnqueue((u8 *)soundPkt31, 1);
-            effectPkt32 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(effectHandles[2], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
-            effectPkt32->queue = 4;
-            effectPkt32->startTime = chainTime;
-            effectPkt32->ownerId = actionId;
-            btlPacketEnqueue((u8 *)effectPkt32, 2);
-            colorPkt33 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)act->unit, 0xFF808080, 0, 0xC, 4, 0));
-            colorPkt33->queue = 4;
-            colorPkt33->startTime = chainTime;
-            colorPkt33->ownerId = actionId;
-            btlPacketEnqueue((u8 *)colorPkt33, 1);
-            animPkt34 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)linkedUnit, skillFramesKey, 0, 1.0f, 2));
-            animPacket = (BtlPacketTiming *)(animPkt34);
-            animPkt34->queue = 4;
-            animPkt34->startTime = chainTime;
-            animPkt34->delay = 0xF;
-            animPkt34->ownerId = actionId;
+            linkedCastEffectPacket = (BtlPacketTiming *)(btlEffectCreateFormationPacket(effectHandles[1], (*(s32 *)(actionBytes + 0x30)), 0, 0, 0x100));
+            linkedCastEffectPacket->dependencyKind = 4;
+            linkedCastEffectPacket->dependencyUid = chainUid;
+            linkedCastEffectPacket->delay = (s16) recoveryBase;
+            linkedCastEffectPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)linkedCastEffectPacket, 2);
+            linkedCastSoundPacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 4));
+            linkedCastSoundPacket->dependencyKind = 4;
+            linkedCastSoundPacket->dependencyUid = chainUid;
+            linkedCastSoundPacket->delay = (s16)recoveryBase + 2;
+            linkedCastSoundPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)linkedCastSoundPacket, 1);
+            linkedCastTrailPacket = (BtlPacketTiming *)(btlEffectCreateFormationPacket(effectHandles[2], (*(s32 *)(actionBytes + 0x30)), 0, 0, 0x100));
+            linkedCastTrailPacket->dependencyKind = 4;
+            linkedCastTrailPacket->dependencyUid = chainUid;
+            linkedCastTrailPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)linkedCastTrailPacket, 2);
+            sourceDimPacket = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)act->unit, 0xFF808080, 0, 0xC, 4, 0));
+            sourceDimPacket->dependencyKind = 4;
+            sourceDimPacket->dependencyUid = chainUid;
+            sourceDimPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)sourceDimPacket, 1);
+            linkedCastAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)linkedUnit, skillFramesKey, 0, 1.0f, 2));
+            animPacket = (BtlPacketTiming *)(linkedCastAnimationPacket);
+            linkedCastAnimationPacket->dependencyKind = 4;
+            linkedCastAnimationPacket->dependencyUid = chainUid;
+            linkedCastAnimationPacket->delay = 0xF;
+            linkedCastAnimationPacket->actionUid = actionId;
             btlPacketEnqueue((u8 *)animPacket, 0);
-            colorPkt35 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, (u32)(btlUnitGetPersonaAlphaColor(linkedUnit)), 8, 0, 3, 1));
-            colorPkt35->queue = 4;
-            colorPkt35->startTime = animPacket->endTime;
-            colorPkt35->ownerId = actionId;
-            btlPacketEnqueue((u8 *)colorPkt35, 1);
-            soundPkt36 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xD, 2, 5));
-            soundPkt36->queue = 4;
-            soundPkt36->startTime = animPacket->endTime;
-            soundPkt36->ownerId = actionId;
-            btlPacketEnqueue((u8 *)soundPkt36, 1);
-            if ((randomFlag == 1) && (sp2D0 == 0) && !((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
+            linkedAlphaPacket = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, (u32)(btlUnitGetPersonaAlphaColor(linkedUnit)), 8, 0, 3, 1));
+            linkedAlphaPacket->dependencyKind = 4;
+            linkedAlphaPacket->dependencyUid = animPacket->uid;
+            linkedAlphaPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)linkedAlphaPacket, 1);
+            linkedCastCuePacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xD, 2, 5));
+            linkedCastCuePacket->dependencyKind = 4;
+            linkedCastCuePacket->dependencyUid = animPacket->uid;
+            linkedCastCuePacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)linkedCastCuePacket, 1);
+            if ((randomFlag == 1) && (restoreBeforeHits == 0) && !((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x40)) {
                 if (side == 0) {
                     cameraStateC = 0x19;
                 } else {
                     cameraStateC = 0x1A;
                 }
-                cameraPkt37 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)cameraStateC));
-                cameraPkt37->queue = 4;
-                cameraPkt37->startTime = animPacket->endTime;
+                linkedHitCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, (u16)cameraStateC));
+                linkedHitCameraPacket->dependencyKind = 4;
+                linkedHitCameraPacket->dependencyUid = animPacket->uid;
                 if (damageFrames >= baseDelay) {
                     cameraDelay = damageFrames - baseDelay;
                 } else {
                     cameraDelay = 0;
                 }
-                cameraPkt37->delay = cameraDelay;
-                cameraPkt37->ownerId = actionId;
-                btlPacketEnqueue((u8 *)cameraPkt37, 0);
+                linkedHitCameraPacket->delay = cameraDelay;
+                linkedHitCameraPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)linkedHitCameraPacket, 0);
             }
-            animEndTime = animPacket->endTime;
+            animEndUid = animPacket->uid;
         } else if ((isKind3 == 1) || (noOverride == 1)) {
-            if ((side == 0) && (btlTargetGroupStateMatches(arg0) != 0) && (skillIndex != 0xF4)) {
-                sp2D0 = 1;
+            if ((side == 0) && (btlTargetGroupStateMatches(actionBytes) != 0) && (skillIndex != 0xF4)) {
+                restoreBeforeHits = 1;
                 randomFlag = 1;
-                lookAtPkt38 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
-                *(s64 *)(lookAtPkt38 + 0x60) = *(s64 *)arg0;
-                btlPacketEnqueue((u8 *)lookAtPkt38, 1);
-                btlState6 = (u8 *)(iGpffffb3ac);
-                *(s32 *)(btlState6 + 0xC) = (s32) (*(s32 *)(btlState6 + 0xC) | 0x400000);
-                btlState7_37 = (u8 *)(iGpffffb3ac);
-                *(u16 *)(btlState7_37 + 0x18) = (u16) (*(u16 *)(btlState7_37 + 0x18) | 6);
+                alternateLookAtStopPacket = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
+                ((BtlPacket *)alternateLookAtStopPacket)->actionUID = *(s64 *)actionBytes;
+                btlPacketEnqueue((u8 *)alternateLookAtStopPacket, 1);
+                alternateFlagsBattle = (u8 *)(iGpffffb3ac);
+                ((BtlBattleState *)alternateFlagsBattle)->flags = (s32) (((BtlBattleState *)alternateFlagsBattle)->flags | 0x400000);
+                alternateStateBattle = (u8 *)(iGpffffb3ac);
+                ((BtlBattleState *)alternateStateBattle)->actionEndFlags = (u16) (((BtlBattleState *)alternateStateBattle)->actionEndFlags | 6);
             }
-            animPkt39 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 0x16, 6, 1.0f, 0));
-            animPacket = (BtlPacketTiming *)(animPkt39);
-            animPkt39->ownerId = actionId;
+            alternateCastAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 0x16, 6, 1.0f, 0));
+            animPacket = (BtlPacketTiming *)(alternateCastAnimationPacket);
+            alternateCastAnimationPacket->actionUid = actionId;
             btlPacketEnqueue((u8 *)animPacket, 0);
-            sceneTime = animPacket->endTime;
-            chainTime = 0;
+            sceneUid = animPacket->uid;
+            chainUid = 0;
                     timingFrames = btlUnitMotionFrames(act->unit, 0x16U, 1.0f) + 6;
-            if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
-                if ((s32)(btlActionHasNoTargetClass(arg0)) == (s32)(1)) {
-                    formationPkt40 = (BtlPacketTiming *)(btlFormationCreateStepPacket(arg0, 0, 1));
-                    formationPkt40->queue = 4;
-                    formationPkt40->startTime = animPacket->endTime;
-                    formationPkt40->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)formationPkt40, 0);
+            if (!((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x40)) {
+                if ((s32)(btlActionHasNoTargetClass(actionBytes)) == (s32)(1)) {
+                    alternateFormationPacket = (BtlPacketTiming *)(btlFormationCreateStepPacket(actionBytes, 0, 1));
+                    alternateFormationPacket->dependencyKind = 4;
+                    alternateFormationPacket->dependencyUid = animPacket->uid;
+                    alternateFormationPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)alternateFormationPacket, 0);
                 }
                 if (randomFlag == 0) {
-                    cameraPkt41 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x19));
-                    cameraPkt41->queue = 4;
-                    cameraPkt41->startTime = animPacket->endTime;
-                    cameraPkt41->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)cameraPkt41, 0);
+                    alternateCastCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x19));
+                    alternateCastCameraPacket->dependencyKind = 4;
+                    alternateCastCameraPacket->dependencyUid = animPacket->uid;
+                    alternateCastCameraPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)alternateCastCameraPacket, 0);
                 } else {
-                    cameraPkt42 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1B));
-                    cameraPkt42->queue = 4;
-                    cameraPkt42->startTime = animPacket->endTime;
-                    cameraPkt42->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)cameraPkt42, 0);
+                    alternateGroupCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x1B));
+                    alternateGroupCameraPacket->dependencyKind = 4;
+                    alternateGroupCameraPacket->dependencyUid = animPacket->uid;
+                    alternateGroupCameraPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)alternateGroupCameraPacket, 0);
                 }
             }
             if (noOverride == 0) {
-                effectPkt43 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xD88), (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
-                effectPkt43->queue = 4;
-                effectPkt43->startTime = animPacket->endTime;
-                btlPacketEnqueue((u8 *)effectPkt43, 1);
+                alternateCastEffectPacket = (BtlPacketTiming *)(btlEffectCreateFormationPacket((s32)((BtlBattleState *)iGpffffb3ac)->formations[33], ((s32)((BtlAction *)actionBytes)->unit), btlActionAddEffectDelay(timingFrames), 0, 0x100));
+                alternateCastEffectPacket->dependencyKind = 4;
+                alternateCastEffectPacket->dependencyUid = animPacket->uid;
+                btlPacketEnqueue((u8 *)alternateCastEffectPacket, 1);
             }
         }
     } else if ((altCamera == 0) && (side == 1)) {
-        sp30C = 1;
-        if ((s32)(func_0022f8b0(arg0, skillIndex)) != (s32)(0)) {
-            sp2D0 = 1;
+        restoreMotionSpeed = 1;
+        if ((s32)(btlBossSkillRestoresMotionBeforeHits(actionBytes, skillIndex)) != (s32)(0)) {
+            restoreBeforeHits = 1;
             hasCutin = 0;
-            lookAtPkt44 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
-            *(s64 *)(lookAtPkt44 + 0x60) = *(s64 *)arg0;
-            btlPacketEnqueue((u8 *)lookAtPkt44, 1);
-            btlState7_47 = (u8 *)(iGpffffb3ac);
-            *(s32 *)(btlState7_47 + 0xC) = (s32) (*(s32 *)(btlState7_47 + 0xC) | 0x400000);
-            btlState8_38 = (u8 *)(iGpffffb3ac);
-            *(u16 *)(btlState8_38 + 0x18) = (u16) (*(u16 *)(btlState8_38 + 0x18) | 6);
+            enemyLookAtStopPacket = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
+            ((BtlPacket *)enemyLookAtStopPacket)->actionUID = *(s64 *)actionBytes;
+            btlPacketEnqueue((u8 *)enemyLookAtStopPacket, 1);
+            enemyFlagsBattle = (u8 *)(iGpffffb3ac);
+            ((BtlBattleState *)enemyFlagsBattle)->flags = (s32) (((BtlBattleState *)enemyFlagsBattle)->flags | 0x400000);
+            enemyStateBattle = (u8 *)(iGpffffb3ac);
+            ((BtlBattleState *)enemyStateBattle)->actionEndFlags = (u16) (((BtlBattleState *)enemyStateBattle)->actionEndFlags | 6);
         }
         if (actionFlag4000 == 0) {
             animSpeed = 1.0f;
         } else {
             animSpeed = 2.0f;
-            sp2C0 = 1;
-            btlState8_48 = (u8 *)(iGpffffb3ac);
-            *(s32 *)(btlState8_48 + 0xC) = (s32) (*(s32 *)(btlState8_48 + 0xC) | 0x400000);
-            btlState9_39 = (u8 *)(iGpffffb3ac);
-            *(u16 *)(btlState9_39 + 0x18) = (u16) (*(u16 *)(btlState9_39 + 0x18) | 0x47);
+            skipMotionRecovery = 1;
+            acceleratedFlagsBattle = (u8 *)(iGpffffb3ac);
+            ((BtlBattleState *)acceleratedFlagsBattle)->flags = (s32) (((BtlBattleState *)acceleratedFlagsBattle)->flags | 0x400000);
+            acceleratedStateBattle = (u8 *)(iGpffffb3ac);
+            ((BtlBattleState *)acceleratedStateBattle)->actionEndFlags = (u16) (((BtlBattleState *)acceleratedStateBattle)->actionEndFlags | 0x47);
         }
         if ((skillFlag2 == 1) || ((s32)(btlTargetIsEntryActive(skill)) != (s32)(0))) {
             animMotion = 4;
@@ -4403,291 +4414,291 @@ void btlActionSkillUpdate(u8 *arg0) {
             animMotion = 8;
             animBlend = 3;
         }
-        if ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) == (s32)(1)) {
-            if ((s32)(btlActionMatchesSkill(arg0, skillIndex)) != (s32)(0)) {
+        if ((s32)((((BtlUnit *)((u8 *)(act->unit)))->genus)) == (s32)(1)) {
+            if ((s32)(btlActionMatchesSkill(actionBytes, skillIndex)) != (s32)(0)) {
                 animBlend = 2;
-                sp30C = 0;
-                sp2C0 = 1;
-                btlState9_49 = (u8 *)(iGpffffb3ac);
-                *(s32 *)(btlState9_49 + 0xC) = (s32) (*(s32 *)(btlState9_49 + 0xC) | 0x400000);
-                btlState10_310 = (u8 *)(iGpffffb3ac);
-                *(u16 *)(btlState10_310 + 0x18) = (u16) (*(u16 *)(btlState10_310 + 0x18) | 7);
-            } else if (btlCameraField_001a59a0(*(u16 *)(act->unit + 0xA4), (s16 *)(iGpffffb3cc + 0x18)) & 1) {
+                restoreMotionSpeed = 0;
+                skipMotionRecovery = 1;
+                specialFlagsBattle = (u8 *)(iGpffffb3ac);
+                ((BtlBattleState *)specialFlagsBattle)->flags = (s32) (((BtlBattleState *)specialFlagsBattle)->flags | 0x400000);
+                specialStateBattle = (u8 *)(iGpffffb3ac);
+                ((BtlBattleState *)specialStateBattle)->actionEndFlags = (u16) (((BtlBattleState *)specialStateBattle)->actionEndFlags | 7);
+            } else if (btlActionGetStridedCameraField(((BtlUnit *)(act->unit))->charId, (s16 *)(iGpffffb3cc + 0x18)) & 1) {
                 animBlend = 0;
-                sp2F0 = 1;
-                sp30C = 0;
+                settleMotion = 1;
+                restoreMotionSpeed = 0;
             }
         }
-        if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x100)) {
-            if ((s32)(btlUnitSlotIsOpen(arg0, animMotion)) != (s32)(0)) {
-                animPkt45 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, animMotion, 6, animSpeed, animBlend));
-                animPacket = (BtlPacketTiming *)(animPkt45);
-                animPkt45->ownerId = actionId;
+        if (!((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x100)) {
+            if ((s32)(btlUnitSlotIsOpen(actionBytes, animMotion)) != (s32)(0)) {
+                enemyCastAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, animMotion, 6, animSpeed, animBlend));
+                animPacket = (BtlPacketTiming *)(enemyCastAnimationPacket);
+                enemyCastAnimationPacket->actionUid = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
             } else {
-                waitPkt46 = (BtlPacketTiming *)(btlPacketCreateImmediate());
-                animPacket = (BtlPacketTiming *)(waitPkt46);
-                waitPkt46->ownerId = actionId;
+                enemyMotionWaitPacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
+                animPacket = (BtlPacketTiming *)(enemyMotionWaitPacket);
+                enemyMotionWaitPacket->actionUid = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
             }
-            if ((actionFlag4000 == 0) && ((s32)(btlBossActionBlocked(arg0, skillIndex)) != (s32)(0))) {
-                cameraPkt47 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x15));
-                cameraPkt47->queue = 4;
-                cameraPkt47->startTime = animPacket->endTime;
-                cameraPkt47->ownerId = actionId;
-                btlPacketEnqueue((u8 *)cameraPkt47, 0);
+            if ((actionFlag4000 == 0) && ((s32)(btlBossActionBlocked(actionBytes, skillIndex)) != (s32)(0))) {
+                enemyCastCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x15));
+                enemyCastCameraPacket->dependencyKind = 4;
+                enemyCastCameraPacket->dependencyUid = animPacket->uid;
+                enemyCastCameraPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)enemyCastCameraPacket, 0);
             }
         } else {
-            waitPkt48 = (BtlPacketTiming *)(btlPacketCreateImmediate());
-            animPacket = (BtlPacketTiming *)(waitPkt48);
-            waitPkt48->ownerId = actionId;
+            enemyCastWaitPacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
+            animPacket = (BtlPacketTiming *)(enemyCastWaitPacket);
+            enemyCastWaitPacket->actionUid = actionId;
             btlPacketEnqueue((u8 *)animPacket, 0);
         }
-        sceneTime = animPacket->endTime;
-        chainTime = 0;
+        sceneUid = animPacket->uid;
+        chainUid = 0;
             timingFrames = btlUnitMotionFrames(act->unit, (u16) animMotion, animSpeed) + 6;
-        if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40) && (sp2D0 == 0)) {
-            formationPkt49 = (BtlPacketTiming *)(btlFormationCreateStepPacket(arg0,(s32)((act->flags & 0x10)) != (s32)(0), 1));
-            formationPkt49->queue = 4;
-            formationPkt49->startTime = animPacket->endTime;
+        if (!((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x40) && (restoreBeforeHits == 0)) {
+            enemyFormationPacket = (BtlPacketTiming *)(btlFormationCreateStepPacket(actionBytes,(s32)((act->flags & 0x10)) != (s32)(0), 1));
+            enemyFormationPacket->dependencyKind = 4;
+            enemyFormationPacket->dependencyUid = animPacket->uid;
             if (actionFlag4000 == 0) {
                 if (timingFrames > 0xc) {
                     formationDelay = timingFrames - 0xC;
                 } else {
                     formationDelay = 0;
                 }
-                formationPkt49->delay = formationDelay;
+                enemyFormationPacket->delay = formationDelay;
             }
-            formationPkt49->ownerId = actionId;
-            btlPacketEnqueue((u8 *)formationPkt49, 0);
-            formationEndTime = formationPkt49->endTime;
-            cameraPkt50 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
-            cameraPkt50->queue = 4;
-            cameraPkt50->startTime = formationEndTime;
-            cameraPkt50->ownerId = actionId;
-            btlPacketEnqueue((u8 *)cameraPkt50, 0);
+            enemyFormationPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)enemyFormationPacket, 0);
+            formationEndUid = enemyFormationPacket->uid;
+            enemyFormationCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x1A));
+            enemyFormationCameraPacket->dependencyKind = 4;
+            enemyFormationCameraPacket->dependencyUid = formationEndUid;
+            enemyFormationCameraPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)enemyFormationCameraPacket, 0);
         }
         if ((skillFlag2 == 0) && (noOverride == 0)) {
-            followState = (s32)(btlActionSelectFormationSlot(arg0));
+            followState = (s32)(btlActionSelectFormationSlot(actionBytes));
             if (followState == 0) {
-                followState = *(s32 *)((u8 *)iGpffffb3ac + 0xD40);
+                followState = (s32)((BtlBattleState *)iGpffffb3ac)->formations[15];
             }
-            effectPkt51 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(followState, (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
-            effectPkt51->queue = 4;
-            effectPkt51->startTime = animPacket->endTime;
-            btlPacketEnqueue((u8 *)effectPkt51, 1);
-            soundPkt52 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 7));
-            soundPkt52->queue = 4;
-            soundPkt52->startTime = animPacket->endTime;
-            btlPacketEnqueue((u8 *)soundPkt52, 1);
+            enemyCastEffectPacket = (BtlPacketTiming *)(btlEffectCreateFormationPacket(followState, (*(s32 *)(actionBytes + 0x30)), btlActionAddEffectDelay(timingFrames), 0, 0x100));
+            enemyCastEffectPacket->dependencyKind = 4;
+            enemyCastEffectPacket->dependencyUid = animPacket->uid;
+            btlPacketEnqueue((u8 *)enemyCastEffectPacket, 1);
+            enemyCastSoundPacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 7));
+            enemyCastSoundPacket->dependencyKind = 4;
+            enemyCastSoundPacket->dependencyUid = animPacket->uid;
+            btlPacketEnqueue((u8 *)enemyCastSoundPacket, 1);
         }
     } else if ((altCamera == 0) && (side == 0)) {
-        sp2C0 = 1;
-        effectPkt53 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xDB8), (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
-        effectPkt53->ownerId = actionId;
-        btlPacketEnqueue((u8 *)effectPkt53, 2);
-        animPkt17 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 6, 0, 1.0f, 2));
-        animPkt17->duration = (s16)(btlUnitMotionModelFrames(act->unit, 6, 1.0f));
-        animPkt17->ownerId = actionId;
-        btlPacketEnqueue((u8 *)animPkt17, 0);
-        soundPkt54 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 0x11));
-        soundPkt54->delay = 1;
-        soundPkt54->ownerId = actionId;
-        btlPacketEnqueue((u8 *)soundPkt54, 1);
-        cameraPkt55 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x12));
-        cameraPkt55->ownerId = actionId;
-        btlPacketEnqueue((u8 *)cameraPkt55, 0);
-        animPkt56 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 7, 6, 1.0f, 2));
-        animPacket = (BtlPacketTiming *)(animPkt56);
-        animPkt56->queue = 4;
-        animPkt56->startTime = animPkt17->endTime;
-        animPkt56->ownerId = actionId;
+        skipMotionRecovery = 1;
+        sourceOpeningEffectPacket = (BtlPacketTiming *)(btlEffectCreateFormationPacket((s32)((BtlBattleState *)iGpffffb3ac)->formations[45], ((s32)((BtlAction *)actionBytes)->unit), 0, 0, 0x100));
+        sourceOpeningEffectPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)sourceOpeningEffectPacket, 2);
+        sourceOpeningAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 6, 0, 1.0f, 2));
+        sourceOpeningAnimationPacket->duration = (s16)(btlUnitMotionModelFrames(act->unit, 6, 1.0f));
+        sourceOpeningAnimationPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)sourceOpeningAnimationPacket, 0);
+        sourceOpeningSoundPacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 0x11));
+        sourceOpeningSoundPacket->delay = 1;
+        sourceOpeningSoundPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)sourceOpeningSoundPacket, 1);
+        sourceOpeningCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x12));
+        sourceOpeningCameraPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)sourceOpeningCameraPacket, 0);
+        sourceActionAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 7, 6, 1.0f, 2));
+        animPacket = (BtlPacketTiming *)(sourceActionAnimationPacket);
+        sourceActionAnimationPacket->dependencyKind = 4;
+        sourceActionAnimationPacket->dependencyUid = sourceOpeningAnimationPacket->uid;
+        sourceActionAnimationPacket->actionUid = actionId;
         btlPacketEnqueue((u8 *)animPacket, 0);
-        sceneTime = 0;
-        chainTime = animPacket->endTime;
+        sceneUid = 0;
+        chainUid = animPacket->uid;
         timingFrames = btlUnitMotionFrames(act->unit, 7U, 1.0f) + 6;
         if (act->targetCount == 1) {
             firstTarget = (u8 *)(act->target);
             if ((s32)(firstTarget) != (s32)(0)) {
-                formationPkt58 = (BtlPacketTiming *)(btlFormationCreateWaitPacket((u32)act->unit, (u32)(*(u8 **)(firstTarget + 0x30)), 4));
-                formationPkt58->queue = 4;
-                formationPkt58->startTime = chainTime;
-                formationPkt58->ownerId = actionId;
-                btlPacketEnqueue((u8 *)formationPkt58, 0);
+                sourceTargetWaitPacket = (BtlPacketTiming *)(btlFormationCreateWaitPacket((u32)act->unit, (u32)((u8*)((BtlAction *)firstTarget)->unit), 4));
+                sourceTargetWaitPacket->dependencyKind = 4;
+                sourceTargetWaitPacket->dependencyUid = chainUid;
+                sourceTargetWaitPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)sourceTargetWaitPacket, 0);
             }
         }
-        cameraPkt59 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x13));
-        cameraPkt59->queue = 4;
-        cameraPkt59->startTime = chainTime;
-        cameraPkt59->ownerId = actionId;
-        btlPacketEnqueue((u8 *)cameraPkt59, 0);
-        btlState10_410 = (u8 *)(iGpffffb3ac);
-        *(s32 *)(btlState10_410 + 0xC) = (s32) (*(s32 *)(btlState10_410 + 0xC) | 0x400000);
-        btlState11_311 = (u8 *)(iGpffffb3ac);
-        *(u16 *)(btlState11_311 + 0x18) = (u16) (*(u16 *)(btlState11_311 + 0x18) | 0xF);
+        sourceActionCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x13));
+        sourceActionCameraPacket->dependencyKind = 4;
+        sourceActionCameraPacket->dependencyUid = chainUid;
+        sourceActionCameraPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)sourceActionCameraPacket, 0);
+        sourceFlagsBattle = (u8 *)(iGpffffb3ac);
+        ((BtlBattleState *)sourceFlagsBattle)->flags = (s32) (((BtlBattleState *)sourceFlagsBattle)->flags | 0x400000);
+        sourceStateBattle = (u8 *)(iGpffffb3ac);
+        ((BtlBattleState *)sourceStateBattle)->actionEndFlags = (u16) (((BtlBattleState *)sourceStateBattle)->actionEndFlags | 0xF);
     }
     skillKey = (s16)skill;
     btlMainSkillColorPairDefaults(skillKey, &cameraFirst, &cameraSecond);
-    cameraPkt60 = (BtlPacketTiming *)(btlMainCreateColorLerpPacket(cameraFirst, cameraSecond, 0x10));
-    cameraPkt60->queue = 4;
-    cameraPkt60->startTime = sceneTime;
-    cameraPkt60->ownerId = actionId;
-    btlPacketEnqueue((u8 *)cameraPkt60, 1);
+    skillColorLerpPacket = (BtlPacketTiming *)(btlMainCreateColorLerpPacket(cameraFirst, cameraSecond, 0x10));
+    skillColorLerpPacket->dependencyKind = 4;
+    skillColorLerpPacket->dependencyUid = sceneUid;
+    skillColorLerpPacket->actionUid = actionId;
+    btlPacketEnqueue((u8 *)skillColorLerpPacket, 1);
     cameraKind = (s32)(btlMainSkillColorDefault(skillKey));
     btlMainSkillColorPairDefaultsAlt(skillKey, &cameraFirst, &cameraSecond);
-    cameraPkt61 = (BtlPacketTiming *)(btlMainCreateColorWorkPacket(cameraKind, cameraFirst, cameraSecond, 0x10, ((*(u16 *)((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + 2) & 2) ? 1 : 0)));
-    cameraPkt61->queue = 4;
-    cameraPkt61->startTime = sceneTime;
-    cameraPkt61->ownerId = actionId;
-    btlPacketEnqueue((u8 *)cameraPkt61, 1);
-    cameraPkt62 = (BtlPacketTiming *)(btlMainCreateTintPacket(btlMainSkillTintDefault((u16) skill), 0x10));
-    cameraPkt62->queue = 4;
-    cameraPkt62->startTime = sceneTime;
-    cameraPkt62->ownerId = actionId;
-    btlPacketEnqueue((u8 *)cameraPkt62, 1);
-    cameraPkt63 = (BtlPacketTiming *)(btlMainCreateUnitTintPacket((BtlAction *)arg0, (u16) skill, 8));
-    cameraPkt63->queue = 4;
-    cameraPkt63->startTime = sceneTime;
-    cameraPkt63->ownerId = actionId;
-    btlPacketEnqueue((u8 *)cameraPkt63, 1);
+    skillColorWorkPacket = (BtlPacketTiming *)(btlMainCreateColorWorkPacket(cameraKind, cameraFirst, cameraSecond, 0x10, ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags & 2) ? 1 : 0)));
+    skillColorWorkPacket->dependencyKind = 4;
+    skillColorWorkPacket->dependencyUid = sceneUid;
+    skillColorWorkPacket->actionUid = actionId;
+    btlPacketEnqueue((u8 *)skillColorWorkPacket, 1);
+    skillTintPacket = (BtlPacketTiming *)(btlMainCreateTintPacket(btlMainSkillTintDefault((u16) skill), 0x10));
+    skillTintPacket->dependencyKind = 4;
+    skillTintPacket->dependencyUid = sceneUid;
+    skillTintPacket->actionUid = actionId;
+    btlPacketEnqueue((u8 *)skillTintPacket, 1);
+    sourceTintPacket = (BtlPacketTiming *)(btlMainCreateUnitTintPacket((BtlAction *)actionBytes, (u16) skill, 8));
+    sourceTintPacket->dependencyKind = 4;
+    sourceTintPacket->dependencyUid = sceneUid;
+    sourceTintPacket->actionUid = actionId;
+    btlPacketEnqueue((u8 *)sourceTintPacket, 1);
     if (hasFollowAction != 0) {
         followActionPtr = (u8 *)(act->followAction);
         firstTargetEntry = (u8 *)(act->target);
         primaryTarget = (u8 *)(firstTargetEntry);
-        sp4BC = (BtlPacketTiming *)(btlFormationCreateWaitPacket((u32)(*(u8 **)(followActionPtr + 0x30)), (u32)(*(u8 **)(firstTargetEntry + 0x30)), 2));
-        sp4BC->queue = 4;
-        sp4BC->startTime = chainTime;
-        sp4BC->delay = timingFrames;
-        sp4BC->duration = (s16) ((btlUnitMotionModelFrames((*( u8 ** )((u8 *)((s32 *)(u32)followActionPtr) + (0x30))), 0x1A, 1.0f)) - 1);
-        sp4BC->ownerId = actionId;
-        btlPacketEnqueue((u8 *)sp4BC, 0);
-        cameraPkt66 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1E));
-        cameraPkt66->queue = 4;
-        cameraPkt66->startTime = chainTime;
-        cameraPkt66->delay = timingFrames;
-        cameraPkt66->ownerId = actionId;
-        btlPacketEnqueue((u8 *)cameraPkt66, 0);
-        pkt67 = (BtlPacketTiming *)(func_001f99c0((s32 *)(u32)followActionPtr, 0xD, 0U, 0, 0));
-        pkt67->queue = 4;
-        pkt67->startTime = chainTime;
-        pkt67->delay = timingFrames;
-        pkt67->ownerId = actionId;
-        btlPacketEnqueue((u8 *)pkt67, 1);
-        animPkt68 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(followActionPtr + 0x30), 0x1A, 0, 1.0f, 0));
-        animPkt68->queue = 4;
-        animPkt68->startTime = chainTime;
-        animPkt68->delay = timingFrames;
-        animPkt68->ownerId = actionId;
-        btlPacketEnqueue((u8 *)animPkt68, 0);
-        animPkt69 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(firstTargetEntry + 0x30), 0x1A, 0, 1.0f, 2));
-        animPkt69->queue = 4;
-        animPkt69->startTime = chainTime;
-        animPkt69->delay = timingFrames;
-        animPkt69->ownerId = actionId;
-        btlPacketEnqueue((u8 *)animPkt69, 0);
-        chainTime = sp4BC->endTime;
+        followMovementPacket = (BtlPacketTiming *)(btlFormationCreateWaitPacket((u32)(*(u8 **)(followActionPtr + 0x30)), (u32)(*(u8 **)(firstTargetEntry + 0x30)), 2));
+        followMovementPacket->dependencyKind = 4;
+        followMovementPacket->dependencyUid = chainUid;
+        followMovementPacket->delay = timingFrames;
+        followMovementPacket->duration = (s16) ((btlUnitMotionModelFrames((*( u8 ** )((u8 *)((s32 *)(u32)followActionPtr) + (0x30))), 0x1A, 1.0f)) - 1);
+        followMovementPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followMovementPacket, 0);
+        followActionCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x1E));
+        followActionCameraPacket->dependencyKind = 4;
+        followActionCameraPacket->dependencyUid = chainUid;
+        followActionCameraPacket->delay = timingFrames;
+        followActionCameraPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followActionCameraPacket, 0);
+        followActionVoicePacket = (BtlPacketTiming *)(func_001f99c0((s32 *)(u32)followActionPtr, 0xD, 0U, 0, 0));
+        followActionVoicePacket->dependencyKind = 4;
+        followActionVoicePacket->dependencyUid = chainUid;
+        followActionVoicePacket->delay = timingFrames;
+        followActionVoicePacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followActionVoicePacket, 1);
+        followActionAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(followActionPtr + 0x30), 0x1A, 0, 1.0f, 0));
+        followActionAnimationPacket->dependencyKind = 4;
+        followActionAnimationPacket->dependencyUid = chainUid;
+        followActionAnimationPacket->delay = timingFrames;
+        followActionAnimationPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followActionAnimationPacket, 0);
+        followTargetAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(firstTargetEntry + 0x30), 0x1A, 0, 1.0f, 2));
+        followTargetAnimationPacket->dependencyKind = 4;
+        followTargetAnimationPacket->dependencyUid = chainUid;
+        followTargetAnimationPacket->delay = timingFrames;
+        followTargetAnimationPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followTargetAnimationPacket, 0);
+        chainUid = followMovementPacket->uid;
         timingFrames = 0;
-        cameraPkt70 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
-        cameraPkt70->queue = 4;
-        cameraPkt70->startTime = chainTime;
-        cameraPkt70->delay = 0;
-        cameraPkt70->ownerId = actionId;
-        btlPacketEnqueue((u8 *)cameraPkt70, 0);
-        formationPkt71 = (BtlPacketTiming *)(btlFormationCreateWaitPacket((u32)(*(u8 **)(followActionPtr + 0x30)), (u32)(*(u8 **)(firstTargetEntry + 0x30)), 3));
-        formationPkt71->queue = 4;
-        formationPkt71->startTime = chainTime;
-        formationPkt71->delay = 0;
-        formationPkt71->ownerId = actionId;
-        btlPacketEnqueue((u8 *)formationPkt71, 0);
-        rotatePkt72 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(firstTargetEntry + 0x30), act->unit, 2));
-        rotatePkt72->queue = 4;
-        rotatePkt72->startTime = chainTime;
-        rotatePkt72->delay = 0;
-        rotatePkt72->ownerId = actionId;
-        btlPacketEnqueue((u8 *)rotatePkt72, 1);
-        animPkt73 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(firstTargetEntry + 0x30), 0xA, 0, 1.0f, 1));
-        animPkt73->queue = 4;
-        animPkt73->startTime = chainTime;
-        animPkt73->delay = 0;
-        animPkt73->ownerId = actionId;
-        btlPacketEnqueue((u8 *)animPkt73, 0);
-        rotatePkt74 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(followActionPtr + 0x30), act->unit, 2));
-        rotatePkt74->queue = 4;
-        rotatePkt74->startTime = chainTime;
-        rotatePkt74->delay = 0;
-        rotatePkt74->flags = (u8) (rotatePkt74->flags & 0xDF);
-        rotatePkt74->ownerId = actionId;
-        btlPacketEnqueue((u8 *)rotatePkt74, 1);
-        btlState11_411 = (u8 *)(iGpffffb3ac);
-        *(s32 *)(btlState11_411 + 0xC) = (s32) (*(s32 *)(btlState11_411 + 0xC) | 0x400000);
-        btlState12 = (u8 *)(iGpffffb3ac);
-        *(u16 *)(btlState12 + 0x18) = (u16) (*(u16 *)(btlState12 + 0x18) | 0xF);
+        followFormationCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x1A));
+        followFormationCameraPacket->dependencyKind = 4;
+        followFormationCameraPacket->dependencyUid = chainUid;
+        followFormationCameraPacket->delay = 0;
+        followFormationCameraPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followFormationCameraPacket, 0);
+        followTargetWaitPacket = (BtlPacketTiming *)(btlFormationCreateWaitPacket((u32)(*(u8 **)(followActionPtr + 0x30)), (u32)(*(u8 **)(firstTargetEntry + 0x30)), 3));
+        followTargetWaitPacket->dependencyKind = 4;
+        followTargetWaitPacket->dependencyUid = chainUid;
+        followTargetWaitPacket->delay = 0;
+        followTargetWaitPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followTargetWaitPacket, 0);
+        followTargetRotationPacket = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(firstTargetEntry + 0x30), act->unit, 2));
+        followTargetRotationPacket->dependencyKind = 4;
+        followTargetRotationPacket->dependencyUid = chainUid;
+        followTargetRotationPacket->delay = 0;
+        followTargetRotationPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followTargetRotationPacket, 1);
+        followTargetRecoveryPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(u8*)((BtlAction *)firstTargetEntry)->unit, 0xA, 0, 1.0f, 1));
+        followTargetRecoveryPacket->dependencyKind = 4;
+        followTargetRecoveryPacket->dependencyUid = chainUid;
+        followTargetRecoveryPacket->delay = 0;
+        followTargetRecoveryPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followTargetRecoveryPacket, 0);
+        followSourceRotationPacket = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((u8*)((BtlAction *)followActionPtr)->unit, act->unit, 2));
+        followSourceRotationPacket->dependencyKind = 4;
+        followSourceRotationPacket->dependencyUid = chainUid;
+        followSourceRotationPacket->delay = 0;
+        followSourceRotationPacket->flags = (u8) (followSourceRotationPacket->flags & 0xDF);
+        followSourceRotationPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followSourceRotationPacket, 1);
+        followFlagsBattle = (u8 *)(iGpffffb3ac);
+        ((BtlBattleState *)followFlagsBattle)->flags = (s32) (((BtlBattleState *)followFlagsBattle)->flags | 0x400000);
+        followStateBattle = (u8 *)(iGpffffb3ac);
+        ((BtlBattleState *)followStateBattle)->actionEndFlags = (u16) (((BtlBattleState *)followStateBattle)->actionEndFlags | 0xF);
     }
     btlFormationFormatName(skillKey, formation);
     if (hasCutin != 0) {
-        waitPkt75 = (BtlPacketTiming *)(btlPacketCreateImmediate());
-        waitPkt75->queue = 4;
-        waitPkt75->startTime = chainTime;
-        waitPkt75->delay = timingFrames;
-        btlPacketEnqueue((u8 *)waitPkt75, 1);
+        skillNameWaitPacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
+        skillNameWaitPacket->dependencyKind = 4;
+        skillNameWaitPacket->dependencyUid = chainUid;
+        skillNameWaitPacket->delay = timingFrames;
+        btlPacketEnqueue((u8 *)skillNameWaitPacket, 1);
         if (actionFlag4000 == 0) {
-            formationNamePkt = (BtlPacketTiming *)(btlFormationCreateNamedPacket(formationHandle, formation, 1));
+            skillNamePacket = (BtlPacketTiming *)(btlFormationCreateNamedPacket(formationHandle, formation, 1));
         } else {
-            formationNamePkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
+            skillNamePacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
         }
-        formationNamePkt->queue = 5;
-        formationNamePkt->startTime = cutinEndTime;
-        (*( s8 * )((u8 *)formationNamePkt + (0x20))) = 5;
-        *(s64 *)((u8 *)formationNamePkt + 0x28) = waitPkt75->endTime;
-        formationNamePkt->ownerId = actionId;
-        btlPacketEnqueue((u8 *)formationNamePkt, 1);
+        skillNamePacket->dependencyKind = 5;
+        skillNamePacket->dependencyUid = cutinEndTime;
+        (((BtlPacket *)skillNamePacket)->dependencyKind3) = 5;
+        ((BtlPacket *)skillNamePacket)->dependencyUID3 = skillNameWaitPacket->uid;
+        skillNamePacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)skillNamePacket, 1);
         if (actionFlag4000 == 0) {
-            skillSePkt = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 1));
+            skillSoundPacket = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 1));
         } else {
-            skillSePkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
+            skillSoundPacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
         }
-        skillSePkt->queue = 5;
-        skillSePkt->startTime = cutinEndTime;
-        btlPacketEnqueue((u8 *)skillSePkt, 1);
+        skillSoundPacket->dependencyKind = 5;
+        skillSoundPacket->dependencyUid = cutinEndTime;
+        btlPacketEnqueue((u8 *)skillSoundPacket, 1);
     } else {
         if (actionFlag4000 == 0) {
-            formationNamePkt = (BtlPacketTiming *)(btlFormationCreateNamedPacket(formationHandle, formation, 0));
+            skillNamePacket = (BtlPacketTiming *)(btlFormationCreateNamedPacket(formationHandle, formation, 0));
         } else {
-            formationNamePkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
+            skillNamePacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
         }
-        formationNamePkt->queue = 4;
-        formationNamePkt->startTime = chainTime;
-        formationNamePkt->delay = timingFrames;
-        formationNamePkt->ownerId = actionId;
-        btlPacketEnqueue((u8 *)formationNamePkt, 1);
+        skillNamePacket->dependencyKind = 4;
+        skillNamePacket->dependencyUid = chainUid;
+        skillNamePacket->delay = timingFrames;
+        skillNamePacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)skillNamePacket, 1);
         if (actionFlag4000 == 0) {
-            skillSePkt = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 0));
+            skillSoundPacket = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 0));
         } else {
-            skillSePkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
+            skillSoundPacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
         }
-        skillSePkt->queue = 4;
-        skillSePkt->startTime = formationNamePkt->endTime;
-        btlPacketEnqueue((u8 *)skillSePkt, 1);
+        skillSoundPacket->dependencyKind = 4;
+        skillSoundPacket->dependencyUid = skillNamePacket->uid;
+        btlPacketEnqueue((u8 *)skillSoundPacket, 1);
     }
-    primaryTarget = (act->targetCount == 1) ? ((hasFollowAction != 0) ? (u8 *)(act->followAction) : primaryTarget) : (u8 *)(arg0);
-    formationPkt76 = (BtlPacketTiming *)(btlFormationCreatePacket(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(primaryTarget + 0x30), 0, 0));
-    formationPkt6 = (BtlPacketTiming *)(formationPkt76);
-    formationPkt76->queue = 4;
-    formationPkt76->startTime = formationNamePkt->endTime;
-    (*( s8 * )((u8 *)formationPkt76 + (0x10))) = 4;
-    *(s64 *)((u8 *)formationPkt76 + 0x18) = skillSePkt->endTime;
-    if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80) {
-        formationPkt6->ownerId = actionId;
+    primaryTarget = (act->targetCount == 1) ? ((hasFollowAction != 0) ? (u8 *)(act->followAction) : primaryTarget) : (u8 *)(actionBytes);
+    openingSkillFormationPacket = (BtlPacketTiming *)(btlFormationCreatePacket(formationHandle, *(u32 *)(actionBytes + 0x30), *(u32 *)(primaryTarget + 0x30), 0, 0));
+    skillFormationPacket = (BtlPacketTiming *)(openingSkillFormationPacket);
+    openingSkillFormationPacket->dependencyKind = 4;
+    openingSkillFormationPacket->dependencyUid = skillNamePacket->uid;
+    (((BtlPacket *)openingSkillFormationPacket)->dependencyKind2) = 4;
+    ((BtlPacket *)openingSkillFormationPacket)->dependencyUID2 = skillSoundPacket->uid;
+    if ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x80) {
+        skillFormationPacket->actionUid = actionId;
     }
-    btlPacketEnqueue((u8 *)formationPkt6, 2);
-    formationEndTime2 = formationPkt6->endTime;
+    btlPacketEnqueue((u8 *)skillFormationPacket, 2);
+    formationEndUid2 = skillFormationPacket->uid;
     if (actionFlag4000 == 0) {
-        pkt77 = (BtlPacketTiming *)(btlSoundCreateCueQueuePacket(0));
-        pkt77->queue = 5;
-        pkt77->startTime = formationPkt6->endTime;
-        btlPacketEnqueue((u8 *)pkt77, 1);
+        openingCueQueuePacket = (BtlPacketTiming *)(btlSoundCreateCueQueuePacket(0));
+        openingCueQueuePacket->dependencyKind = 5;
+        openingCueQueuePacket->dependencyUid = skillFormationPacket->uid;
+        btlPacketEnqueue((u8 *)openingCueQueuePacket, 1);
     }
-    followCameraPkt = 0;
+    targetRecoveryCameraPacket = 0;
     cameraState = 0x18;
     hitTimeTotal = 0;
     if (actionFlag4000 != 0) {
@@ -4703,231 +4714,231 @@ void btlActionSkillUpdate(u8 *arg0) {
     while ((targetIndexS32 = (s32)targetIndex) < act->targetCount) {
             /* Per-target signed index, bound once like an inlined helper parameter; retail keeps targetIndexS32 as a word. */
             s32 targetPos = targetIndexS32;
-            targetAction = (u8 *)((*( s32 ** )((u8 *)(((s32)(arg0) + ((u32)targetIndex * 4))) + (0x38))));
+            targetAction = (u8 *)(((s32*)((BtlAction *)actionBytes)->targets[targetIndex]));
             rowHitCount = (u16) *(u8 *)(targetAction + 0xD9);
             hitTimer = 0;
             hitFlags = (s32)(s32)(btlFormationGetFlags((s32)(targetAction) + 0xD8));
             if (hasFollowAction != 0) {
                 effectiveAction = (u8 *)(act->followAction);
-            } else if (*(s32 *)(targetAction + 0xE4) != 0) {
-                effectiveAction = (u8 *)(arg0);
+            } else if (((BtlAction *)targetAction)->targetBlock.specialHitFlag != 0) {
+                effectiveAction = (u8 *)(actionBytes);
             } else {
                 effectiveAction = (u8 *)(targetAction);
             }
             targetHitValue = (s32)(*(s32 *)(targetAction + 0xE0));
-            if ((targetHitValue != 0) && ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) != (s32)((*( u8 * )((u8 *)(*(u8 **)(effectiveAction + 0x30)) + (0xA2)))))) {
+            if ((targetHitValue != 0) && ((s32)((((BtlUnit *)((u8 *)(act->unit)))->genus)) != (s32)((((BtlUnit *)((u8 *)((u8*)((BtlAction *)effectiveAction)->unit)))->genus)))) {
                 crossSideHits += 1;
             }
             if ((*( s32 * )((u8 *)(((s32)(targetAction) + ((u32)rowHitCount << 5))) + (0xD8))) & 0x100000) {
                 statusHits += 1;
-                statusMask |= *(u16 *)(targetAction + 0xDE);
+                statusMask |= ((BtlAction *)targetAction)->targetBlock.targetFlags;
             }
-            targetUnit12 = (u8 *)(*(u8 **)(effectiveAction + 0x30));
-            hitSide = (u8)(*(u8 *)(targetUnit12 + 0xA2));
-            sameSideTarget = (hitSide == 1) ? ((*(s16 *)((u8 *)iGpffffb3cc + *(u16 *)(targetUnit12 + 0xA4) * 0xE8 + 0x18) & 0x40) != 0) ^ 1 : 1;
-            if ((targetHitValue != 0) || (*(s32 *)(targetAction + 0xE4) != 0)) {
+            hitTargetUnit = (u8 *)(*(u8 **)(effectiveAction + 0x30));
+            hitSide = (u8)(((BtlUnit *)(hitTargetUnit))->genus);
+            sameSideTarget = (hitSide == 1) ? ((((BtlEnemyBattleParameters *)(iGpffffb3cc + ((BtlUnit *)(hitTargetUnit))->charId * 0xE8))->flags & 0x40) != 0) ^ 1 : 1;
+            if ((targetHitValue != 0) || (((BtlAction *)targetAction)->targetBlock.specialHitFlag != 0)) {
                 cameraState = 0x1E;
             }
-            pkt79 = (BtlPacketTiming *)(btlPacketCreateHpRatio(targetUnit12));
-            pkt79->ownerId = actionId;
-            btlPacketEnqueue((u8 *)pkt79, 1);
-            if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (*(s32 *)(targetAction + 0xE4) != 1)) {
-                formationPkt6 = (BtlPacketTiming *)(btlFormationCreatePacket(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
-                if ((s32)(followCameraPkt) == (s32)(0)) {
-                    if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x2000)) {
-                        formationPkt6->queue = 4;
-                        formationPkt6->startTime = formationNamePkt->endTime;
-                        (*( s8 * )((u8 *)formationPkt6 + (0x10))) = 4;
-                        *(s64 *)((u8 *)formationPkt6 + 0x18) = skillSePkt->endTime;
+            targetHpRatioPacket = (BtlPacketTiming *)(btlPacketCreateHpRatio(hitTargetUnit));
+            targetHpRatioPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)targetHpRatioPacket, 1);
+            if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (((BtlAction *)targetAction)->targetBlock.specialHitFlag != 1)) {
+                skillFormationPacket = (BtlPacketTiming *)(btlFormationCreatePacket(formationHandle, *(u32 *)(actionBytes + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
+                if ((s32)(targetRecoveryCameraPacket) == (s32)(0)) {
+                    if (!((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x2000)) {
+                        skillFormationPacket->dependencyKind = 4;
+                        skillFormationPacket->dependencyUid = skillNamePacket->uid;
+                        (((BtlPacket *)skillFormationPacket)->dependencyKind2) = 4;
+                        ((BtlPacket *)skillFormationPacket)->dependencyUID2 = skillSoundPacket->uid;
                     } else {
-                        formationPkt6->queue = 4;
-                        formationPkt6->startTime = formationEndTime2;
+                        skillFormationPacket->dependencyKind = 4;
+                        skillFormationPacket->dependencyUid = formationEndUid2;
                     }
-                    (*( u16 * )((u8 *)formationPkt6 + (0x48))) = hitTimeTotal;
+                    (((BtlPacketTiming *)skillFormationPacket)->delay) = hitTimeTotal;
                 } else {
-                    formationPkt6->queue = 4;
-                    formationPkt6->startTime = *(s64 *)((u8 *)followCameraPkt + 0x58);
+                    skillFormationPacket->dependencyKind = 4;
+                    skillFormationPacket->dependencyUid = ((BtlPacket *)(u8 *)targetRecoveryCameraPacket)->uid;
                 }
-                if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80) {
-                    formationPkt6->ownerId = actionId;
+                if ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x80) {
+                    skillFormationPacket->actionUid = actionId;
                 }
-                btlPacketEnqueue((u8 *)formationPkt6, 2);
+                btlPacketEnqueue((u8 *)skillFormationPacket, 2);
                 if (actionFlag4000 == 0) {
-                    pkt80 = (BtlPacketTiming *)(btlSoundCreateCueQueuePacket(1));
-                    pkt80->queue = 5;
-                    pkt80->startTime = formationPkt6->endTime;
-                    btlPacketEnqueue((u8 *)pkt80, 1);
+                    targetCueQueuePacket = (BtlPacketTiming *)(btlSoundCreateCueQueuePacket(1));
+                    targetCueQueuePacket->dependencyKind = 5;
+                    targetCueQueuePacket->dependencyUid = skillFormationPacket->uid;
+                    btlPacketEnqueue((u8 *)targetCueQueuePacket, 1);
                 } else {
                     skillKindRow = (s16)datCalcSkillElement(NULL, skillKeyCopy);
                     switch (skillKindRow) {                /* switch 2; irregular */
                     case 16:                            /* switch 2 */
-                        soundPkt9 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x16));
+                        targetElementCuePacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x16));
                         break;
                     case 17:                            /* switch 2 */
-                        soundPkt9 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x19));
+                        targetElementCuePacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x19));
                         break;
                     default:                            /* switch 2 */
-                        soundPkt9 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x15));
+                        targetElementCuePacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x15));
                         break;
                     }
-                    soundPkt9->queue = 5;
-                    soundPkt9->startTime = formationPkt6->endTime;
-                    btlPacketEnqueue((u8 *)soundPkt9, 1);
+                    targetElementCuePacket->dependencyKind = 5;
+                    targetElementCuePacket->dependencyUid = skillFormationPacket->uid;
+                    btlPacketEnqueue((u8 *)targetElementCuePacket, 1);
                 }
             } else {
-                formationPkt81 = (BtlPacketTiming *)(btlFormationCreatePacket(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0xC00));
-                formationPkt6 = (BtlPacketTiming *)(formationPkt81);
-                formationPkt81->queue = 4;
-                formationPkt81->startTime = formationNamePkt->endTime;
-                (*( s8 * )((u8 *)formationPkt81 + (0x10))) = 4;
-                *(s64 *)((u8 *)formationPkt81 + 0x18) = skillSePkt->endTime;
-                (*( u16 * )((u8 *)formationPkt81 + (0x48))) = hitTimeTotal;
-                if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80) {
-                    formationPkt6->ownerId = actionId;
+                reflectedSkillFormationPacket = (BtlPacketTiming *)(btlFormationCreatePacket(formationHandle, *(u32 *)(actionBytes + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0xC00));
+                skillFormationPacket = (BtlPacketTiming *)(reflectedSkillFormationPacket);
+                reflectedSkillFormationPacket->dependencyKind = 4;
+                reflectedSkillFormationPacket->dependencyUid = skillNamePacket->uid;
+                (((BtlPacket *)reflectedSkillFormationPacket)->dependencyKind2) = 4;
+                ((BtlPacket *)reflectedSkillFormationPacket)->dependencyUID2 = skillSoundPacket->uid;
+                (((BtlPacketTiming *)reflectedSkillFormationPacket)->delay) = hitTimeTotal;
+                if ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x80) {
+                    skillFormationPacket->actionUid = actionId;
                 }
-                btlPacketEnqueue((u8 *)formationPkt6, 2);
-                if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (*(s32 *)(targetAction + 0xE4) == 1) && (targetPos == 0)) {
-                    sp4C0 = (BtlPacketTiming *)(btlFormationCreatePacket(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
-                    sp4C0->queue = 5;
-                    sp4C0->startTime = formationPkt6->endTime;
-                    if ((*(s32 *)(targetAction + 0xE4) != 0) && ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 8)) {
-                        sp4C0->delay = 8;
+                btlPacketEnqueue((u8 *)skillFormationPacket, 2);
+                if ((((BtlAction *)targetAction)->targetBlock.hitOutcome != 0x400) && (*(s32 *)(targetAction + 0xE4) == 1) && (targetPos == 0)) {
+                    reflectedFormationPacket = (BtlPacketTiming *)(btlFormationCreatePacket(formationHandle, *(u32 *)(actionBytes + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
+                    reflectedFormationPacket->dependencyKind = 5;
+                    reflectedFormationPacket->dependencyUid = skillFormationPacket->uid;
+                    if ((((BtlAction *)targetAction)->targetBlock.specialHitFlag != 0) && ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 8)) {
+                        reflectedFormationPacket->delay = 8;
                     }
-                    sp4C0->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)sp4C0, 2);
+                    reflectedFormationPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)reflectedFormationPacket, 2);
                     if (actionFlag4000 == 0) {
-                        pkt83 = (BtlPacketTiming *)(btlSoundCreateCueQueuePacket(1));
-                        pkt83->queue = 5;
-                        pkt83->startTime = sp4C0->endTime;
-                        btlPacketEnqueue((u8 *)pkt83, 1);
+                        reflectedCueQueuePacket = (BtlPacketTiming *)(btlSoundCreateCueQueuePacket(1));
+                        reflectedCueQueuePacket->dependencyKind = 5;
+                        reflectedCueQueuePacket->dependencyUid = reflectedFormationPacket->uid;
+                        btlPacketEnqueue((u8 *)reflectedCueQueuePacket, 1);
                     }
                 }
             }
             if (rotateFirst != 0) {
                 if (bossCheck != 0) {
-                    lookAtPkt84 = (BtlPacketTiming *)(actionLookAtUnit(0, *(u8 **)(effectiveAction + 0x30), 3));
-                    lookAtPkt84->queue = 5;
-                    lookAtPkt84->startTime = formationPkt6->endTime;
-                    lookAtPkt84->ownerId = *(s64 *)arg0;
-                    btlPacketEnqueue((u8 *)lookAtPkt84, 1);
-                    if ((s32)(effectiveAction) != (s32)(arg0)) {
-                        lookAtPkt85 = (BtlPacketTiming *)(actionLookAtUnit(*(u8 **)(effectiveAction + 0x30), act->unit, 0));
-                        lookAtPkt85->queue = 5;
-                        lookAtPkt85->startTime = formationPkt6->endTime;
-                        lookAtPkt85->ownerId = *(s64 *)arg0;
-                        btlPacketEnqueue((u8 *)lookAtPkt85, 1);
+                    targetFocusPacket = (BtlPacketTiming *)(btlActionCreateLookAtUnitPacketBytes(0, *(u8 **)(effectiveAction + 0x30), 3));
+                    targetFocusPacket->dependencyKind = 5;
+                    targetFocusPacket->dependencyUid = skillFormationPacket->uid;
+                    targetFocusPacket->actionUid = *(s64 *)actionBytes;
+                    btlPacketEnqueue((u8 *)targetFocusPacket, 1);
+                    if ((s32)(effectiveAction) != (s32)(actionBytes)) {
+                        targetLookAtSourcePacket = (BtlPacketTiming *)(btlActionCreateLookAtUnitPacketBytes((u8*)((BtlAction *)effectiveAction)->unit, act->unit, 0));
+                        targetLookAtSourcePacket->dependencyKind = 5;
+                        targetLookAtSourcePacket->dependencyUid = skillFormationPacket->uid;
+                        targetLookAtSourcePacket->actionUid = *(s64 *)actionBytes;
+                        btlPacketEnqueue((u8 *)targetLookAtSourcePacket, 1);
                     } else {
-                        pkt86 = (BtlPacketTiming *)(btlUnitCreateLookAtDeactivatePacket(*(u8 **)(effectiveAction + 0x30), 0));
-                        pkt86->queue = 5;
-                        pkt86->startTime = formationPkt6->endTime;
-                        pkt86->ownerId = *(s64 *)arg0;
-                        btlPacketEnqueue((u8 *)pkt86, 1);
+                        targetLookAtStopPacket = (BtlPacketTiming *)(btlUnitCreateLookAtDeactivatePacket((u8*)((BtlAction *)effectiveAction)->unit, 0));
+                        targetLookAtStopPacket->dependencyKind = 5;
+                        targetLookAtStopPacket->dependencyUid = skillFormationPacket->uid;
+                        targetLookAtStopPacket->actionUid = *(s64 *)actionBytes;
+                        btlPacketEnqueue((u8 *)targetLookAtStopPacket, 1);
                     }
                     act->flags = (u16) (act->flags | 0x200);
                 }
             } else if ((targetPos == 0) && (side == 0)) {
-                targetGroup2 = (s32)((u16)btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)));
+                targetGroup2 = (s32)((u16)btlTargetGetUnitIndex((BtlTarget *)(actionBytes + 0x38)));
                 if (targetGroup2 == 2) {
                     btlUnitGetGroupBounds(targetGroup2, 1, &targetPosition, 0, 0, 1);
-                    pkt87 = (BtlPacketTiming *)(btlUnitCreateLookAtPacket(0, &targetPosition, 1));
-                    pkt87->queue = 5;
-                    pkt87->startTime = formationPkt6->endTime;
-                    pkt87->ownerId = *(s64 *)arg0;
-                    btlPacketEnqueue((u8 *)pkt87, 1);
+                    targetGroupLookAtPacket = (BtlPacketTiming *)(btlUnitCreateLookAtPacket(0, &targetPosition, 1));
+                    targetGroupLookAtPacket->dependencyKind = 5;
+                    targetGroupLookAtPacket->dependencyUid = skillFormationPacket->uid;
+                    targetGroupLookAtPacket->actionUid = *(s64 *)actionBytes;
+                    btlPacketEnqueue((u8 *)targetGroupLookAtPacket, 1);
                 }
             }
-            if (sp2D0 == 1) {
-                if ((s32)(followCameraPkt) == (s32)(0)) {
+            if (restoreBeforeHits == 1) {
+                if ((s32)(targetRecoveryCameraPacket) == (s32)(0)) {
                     if ((altCamera == 1) && (isKind3 == 0) && (noOverride == 0)) {
-                        colorPkt88 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, 0, 0, 0, 4, 0));
-                        colorPkt88->queue = 5;
-                        colorPkt88->startTime = formationPkt6->endTime;
-                        colorPkt88->ownerId = actionId;
-                        btlPacketEnqueue((u8 *)colorPkt88, 0);
+                        linkedHidePacket = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, 0, 0, 0, 4, 0));
+                        linkedHidePacket->dependencyKind = 5;
+                        linkedHidePacket->dependencyUid = skillFormationPacket->uid;
+                        linkedHidePacket->actionUid = actionId;
+                        btlPacketEnqueue((u8 *)linkedHidePacket, 0);
                     }
-                    if (sp2C0 == 0) {
-                        if (sp30C == 0) {
-                            pkt10 = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
+                    if (skipMotionRecovery == 0) {
+                        if (restoreMotionSpeed == 0) {
+                            earlyMotionRecoveryPacket = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
                         } else {
                             /* Retail 001a9e5c/001ab480/001ab668 pass 1.0f in $f12. */
-                            pkt10 = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                            earlyMotionRecoveryPacket = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)((u8*)((BtlAction *)actionBytes)->unit), 0, 1.0f, 0));
                         }
-                        pkt10->queue = 5;
-                        pkt10->startTime = formationPkt6->endTime;
-                        pkt10->ownerId = actionId;
-                        btlPacketEnqueue((u8 *)pkt10, 0);
+                        earlyMotionRecoveryPacket->dependencyKind = 5;
+                        earlyMotionRecoveryPacket->dependencyUid = skillFormationPacket->uid;
+                        earlyMotionRecoveryPacket->actionUid = actionId;
+                        btlPacketEnqueue((u8 *)earlyMotionRecoveryPacket, 0);
                     }
-                    colorPkt89 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)act->unit, -1, 0, 0, 3, 0));
-                    colorPkt89->queue = 5;
-                    colorPkt89->startTime = formationPkt6->endTime;
-                    colorPkt89->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)colorPkt89, 1);
+                    earlyColorRestorePacket = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)act->unit, -1, 0, 0, 3, 0));
+                    earlyColorRestorePacket->dependencyKind = 5;
+                    earlyColorRestorePacket->dependencyUid = skillFormationPacket->uid;
+                    earlyColorRestorePacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)earlyColorRestorePacket, 1);
                 }
-                if ((s32)(effectiveAction) != (s32)(arg0)) {
-                    rotatePkt90 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(effectiveAction + 0x30), act->unit, 2));
-                    rotatePkt90->queue = 5;
-                    rotatePkt90->startTime = formationPkt6->endTime;
-                    rotatePkt90->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)rotatePkt90, 0);
+                if ((s32)(effectiveAction) != (s32)(actionBytes)) {
+                    earlyTargetRotationPacket = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((u8*)((BtlAction *)effectiveAction)->unit, act->unit, 2));
+                    earlyTargetRotationPacket->dependencyKind = 5;
+                    earlyTargetRotationPacket->dependencyUid = skillFormationPacket->uid;
+                    earlyTargetRotationPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)earlyTargetRotationPacket, 0);
                 }
-                pkt91 = (BtlPacketTiming *)(btlPacketCreateFinishEffect());
-                pkt91->queue = 5;
-                pkt91->startTime = formationPkt6->endTime;
-                pkt91->ownerId = actionId;
-                btlPacketEnqueue((u8 *)pkt91, 0);
-                followCameraPkt = (BtlPacket *)(btlCameraCreateSetStatePacket((BtlAction *)effectiveAction, 0x1C));
-                (*( s8 * )((u8 *)(followCameraPkt) + (0))) = 5;
-                *(s64 *)((u8 *)followCameraPkt + 8) = formationPkt6->endTime;
-                if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80)) {
-                    (*( s8 * )((u8 *)(followCameraPkt) + (0x20))) = 0xB;
-                    *(s64 *)((u8 *)followCameraPkt + 0x28) = formationPkt6->endTime;
-                    (*( s16 * )((u8 *)(followCameraPkt) + (0x4A))) = 0x12;
+                earlyFinishEffectPacket = (BtlPacketTiming *)(btlPacketCreateFinishEffect());
+                earlyFinishEffectPacket->dependencyKind = 5;
+                earlyFinishEffectPacket->dependencyUid = skillFormationPacket->uid;
+                earlyFinishEffectPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)earlyFinishEffectPacket, 0);
+                targetRecoveryCameraPacket = (BtlPacket *)(btlCameraCreateSetStatePacket((BtlAction *)effectiveAction, 0x1C));
+                (((BtlPacketTiming *)targetRecoveryCameraPacket)->dependencyKind) = 5;
+                ((BtlPacketTiming *)targetRecoveryCameraPacket)->dependencyUid = skillFormationPacket->uid;
+                if (!((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x80)) {
+                    (((BtlPacket *)targetRecoveryCameraPacket)->dependencyKind3) = 0xB;
+                    ((BtlPacket *)targetRecoveryCameraPacket)->dependencyUID3 = skillFormationPacket->uid;
+                    (((BtlPacketTiming *)targetRecoveryCameraPacket)->duration) = 0x12;
                 } else {
-                    (*( s8 * )((u8 *)(followCameraPkt) + (0x20))) = 4;
-                    *(s64 *)((u8 *)followCameraPkt + 0x28) = formationPkt6->endTime;
+                    (((BtlPacket *)targetRecoveryCameraPacket)->dependencyKind3) = 4;
+                    ((BtlPacket *)targetRecoveryCameraPacket)->dependencyUID3 = skillFormationPacket->uid;
                 }
-                (*( s64 * )((u8 *)(followCameraPkt) + (0x60))) = actionId;
-                btlPacketEnqueue((u8 *)followCameraPkt, 0);
+                (((BtlPacketTiming *)targetRecoveryCameraPacket)->actionUid) = actionId;
+                btlPacketEnqueue((u8 *)targetRecoveryCameraPacket, 0);
             }
             if (*(s32 *)(targetAction + 0xE4) != 0) {
-                formationFxPkt = (BtlPacketTiming *)(btlFormationCreatePacket(*(u32 *)(iGpffffb3ac + 0xD28), *(u32 *)(arg0 + 0x30), *(u32 *)(targetAction + 0x30), 1, 0));
-                if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 4) {
-                    formationFxPkt->queue = 0xB;
-                    formationFxPkt->startTime = formationPkt6->endTime;
+                reactionFormationPacket = (BtlPacketTiming *)(btlFormationCreatePacket((u32)((BtlBattleState *)iGpffffb3ac)->formations[9], (u32)((BtlAction *)actionBytes)->unit, *(u32 *)(targetAction + 0x30), 1, 0));
+                if ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 4) {
+                    reactionFormationPacket->dependencyKind = 0xB;
+                    reactionFormationPacket->dependencyUid = skillFormationPacket->uid;
                 } else {
-                    formationFxPkt->queue = 5;
-                    formationFxPkt->startTime = formationEndTime2;
+                    reactionFormationPacket->dependencyKind = 5;
+                    reactionFormationPacket->dependencyUid = formationEndUid2;
                 }
-                btlPacketEnqueue((u8 *)formationFxPkt, 1);
-                soundPkt93 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xD, 2, 0xB));
-                soundPkt93->queue = 5;
-                soundPkt93->startTime = formationFxPkt->endTime;
-                btlPacketEnqueue((u8 *)soundPkt93, 1);
+                btlPacketEnqueue((u8 *)reactionFormationPacket, 1);
+                reflectedSoundPacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xD, 2, 0xB));
+                reflectedSoundPacket->dependencyKind = 5;
+                reflectedSoundPacket->dependencyUid = reactionFormationPacket->uid;
+                btlPacketEnqueue((u8 *)reflectedSoundPacket, 1);
             }
             if (*(u16 *)(targetAction + 0xDC) == 0x400) {
-                formationFxPkt = (BtlPacketTiming *)(btlFormationCreatePacket(*(u32 *)(iGpffffb3ac + 0xD2C), *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, 0));
-                if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 4) {
-                    formationFxPkt->queue = 0xB;
-                    formationFxPkt->startTime = formationPkt6->endTime;
+                reactionFormationPacket = (BtlPacketTiming *)(btlFormationCreatePacket((u32)((BtlBattleState *)iGpffffb3ac)->formations[10], (u32)((BtlAction *)actionBytes)->unit, *(u32 *)(effectiveAction + 0x30), 1, 0));
+                if ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 4) {
+                    reactionFormationPacket->dependencyKind = 0xB;
+                    reactionFormationPacket->dependencyUid = skillFormationPacket->uid;
                 } else {
-                    formationFxPkt->queue = 5;
-                    formationFxPkt->startTime = formationEndTime2;
+                    reactionFormationPacket->dependencyKind = 5;
+                    reactionFormationPacket->dependencyUid = formationEndUid2;
                 }
-                btlPacketEnqueue((u8 *)formationFxPkt, 1);
-                soundPkt94 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0xC));
-                soundPkt94->queue = 5;
-                soundPkt94->startTime = formationFxPkt->endTime;
-                btlPacketEnqueue((u8 *)soundPkt94, 1);
+                btlPacketEnqueue((u8 *)reactionFormationPacket, 1);
+                absorbedSoundPacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0xC));
+                absorbedSoundPacket->dependencyKind = 5;
+                absorbedSoundPacket->dependencyUid = reactionFormationPacket->uid;
+                btlPacketEnqueue((u8 *)absorbedSoundPacket, 1);
                 hitDelay = 0xA;
             }
             hitIndex = 0;
             while ((hitIndexS32 = (s32) hitIndex) < (s32)rowHitCount) {
                 motionSpeed = 1.0f;
-                                hitRow = (ActionHitRowView *)(targetAction + ((u32)hitIndex << 5));
+                                hitRow = (BtlActionHitCursor *)(targetAction + ((u32)hitIndex << 5));
                 /* The two later predicates reload the signed byte after intervening calls. */
                 hitMotion = &hitRow->result.motion;
                 if (hitRow->result.motion == 9) {
-                    motionFrames = (u16)btlUnitMotionFollowFrames(*(u8 **)((u8 *)effectiveAction + 0x30), 9, motionSpeed);
+                    motionFrames = (u16)btlUnitMotionFollowFrames((u8*)((BtlAction *)effectiveAction)->unit, 9, motionSpeed);
                     motionFramesCopy = motionFrames;
                     if (((s32) motionFramesCopy > 0) && ((s32) motionFramesCopy < 0xA)) {
                         motionFramesF = (f32) motionFramesCopy;
@@ -4935,30 +4946,30 @@ void btlActionSkillUpdate(u8 *arg0) {
                         motionFrames = 0xA;
                     }
                 }
-                animPkt98 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(effectiveAction + 0x30), *hitMotion, 0, motionSpeed, 0));
-                animPacket = (BtlPacketTiming *)(animPkt98);
-                animPkt98->queue = 0xB;
-                animPkt98->startTime = formationPkt6->endTime;
-                (*( u16 * )((u8 *)animPkt98 + (0x48))) = hitTimer;
-                if ((*(s32 *)(targetAction + 0xE4) != 0) && ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 8)) {
-                    (*( u16 * )((u8 *)animPacket + (0x48))) = (u16) ((s16) (*( u16 * )((u8 *)animPacket + (0x48))) + 8);
+                hitAnimationPacket = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(effectiveAction + 0x30), *hitMotion, 0, motionSpeed, 0));
+                animPacket = (BtlPacketTiming *)(hitAnimationPacket);
+                hitAnimationPacket->dependencyKind = 0xB;
+                hitAnimationPacket->dependencyUid = skillFormationPacket->uid;
+                (((BtlPacketTiming *)hitAnimationPacket)->delay) = hitTimer;
+                if ((*(s32 *)(targetAction + 0xE4) != 0) && ((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 8)) {
+                    (((BtlPacketTiming *)animPacket)->delay) = (u16) ((s16) (((BtlPacket *)animPacket)->delay) + 8);
                 }
-                animPacket->ownerId = actionId;
+                animPacket->actionUid = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
-                if ((hitIndexS32 == (s32)rowHitCount - 1) && (hitRow->result.addedStatus & 0x100000) && (actionFlag4000 == 0) && (sameSideTarget == 1) && (*(s32 *)(targetAction + 0xE0) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(skillKeyCopy)) == (s32)(0))) {
+                if ((hitIndexS32 == (s32)rowHitCount - 1) && (hitRow->result.addedStatus & 0x100000) && (actionFlag4000 == 0) && (sameSideTarget == 1) && (((BtlAction *)targetAction)->targetBlock.reactionFlag == 0) && (*hitMotion == 9) && ((s32)(datCalcUsesWeaponProperties(skillKeyCopy)) == (s32)(0))) {
                     motionFramesS32 = (s32) motionFrames;
                     if (motionFramesS32 >= 0x19) {
                         motionDelay = 0;
                     } else {
                         motionDelay = 0x19 - motionFramesS32;
                     }
-                    pkt99 = (BtlPacketTiming *)(btlUnitCreateArcMovePacket(*(s32 *)(effectiveAction + 0x30), skill, (s16)motionDelay));
-                    pkt99->queue = 4;
-                    pkt99->startTime = animPacket->endTime;
-                    pkt99->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)pkt99, 0);
+                    hitArcMovePacket = (BtlPacketTiming *)(btlUnitCreateArcMovePacket(*(s32 *)(effectiveAction + 0x30), skill, (s16)motionDelay));
+                    hitArcMovePacket->dependencyKind = 4;
+                    hitArcMovePacket->dependencyUid = animPacket->uid;
+                    hitArcMovePacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)hitArcMovePacket, 0);
                     if (act->targetCount == 1) {
-                        skillKindUnit = (s16)datCalcSkillElement((u8 *)(u32)(*( s64 * )((u8 *)(act->unit) + (0xA64))), skillKeyCopy);
+                        skillKindUnit = (s16)datCalcSkillElement((u8 *)((BtlUnit *)act->unit)->datUnit, skillKeyCopy);
                         switch (skillKindUnit) {            /* switch 3; irregular */
                         case 1:                         /* switch 3 */
                             motionIdRaw = 0x29;
@@ -4978,34 +4989,34 @@ void btlActionSkillUpdate(u8 *arg0) {
                         }
                         motionId = (s16)motionIdRaw;
                         if (motionId != -1) {
-                            targetUnit2 = (u8 *)(*(u8 **)(effectiveAction + 0x30));
-                            formationPkt100 = (BtlPacketTiming *)(btlFormationCreatePacket(*(u32 *)(iGpffffb3ac + motionId * 4 + 0xD04), (u32)targetUnit2, (u32)targetUnit2, 1, 0));
-                            formationPkt100->queue = 4;
-                            formationPkt100->startTime = animPacket->endTime;
-                            formationPkt100->ownerId = actionId;
-                            btlPacketEnqueue((u8 *)formationPkt100, 2);
+                            elementTargetUnit = (u8 *)((u8*)((BtlAction *)effectiveAction)->unit);
+                            hitElementFormationPacket = (BtlPacketTiming *)(btlFormationCreatePacket((u32)((BtlBattleState *)iGpffffb3ac)->formations[motionId], (u32)elementTargetUnit, (u32)elementTargetUnit, 1, 0));
+                            hitElementFormationPacket->dependencyKind = 4;
+                            hitElementFormationPacket->dependencyUid = animPacket->uid;
+                            hitElementFormationPacket->actionUid = actionId;
+                            btlPacketEnqueue((u8 *)hitElementFormationPacket, 2);
                         }
                     }
                     if (motionFramesS32 > 0x19) {
-                        pkt101 = (BtlPacketTiming *)(btlUnitCreateModelFramePacket((BtlUnit *)(*(u8 **)(effectiveAction + 0x30)), (s16)(motionFramesS32 - 0x19)));
-                        pkt101->queue = 4;
-                        pkt101->startTime = animPacket->endTime;
-                        pkt101->ownerId = actionId;
-                        btlPacketEnqueue((u8 *)pkt101, 0);
+                        hitModelFramePacket = (BtlPacketTiming *)(btlUnitCreateModelFramePacket((BtlUnit *)((u8*)((BtlAction *)effectiveAction)->unit), (s16)(motionFramesS32 - 0x19)));
+                        hitModelFramePacket->dependencyKind = 4;
+                        hitModelFramePacket->dependencyUid = animPacket->uid;
+                        hitModelFramePacket->actionUid = actionId;
+                        btlPacketEnqueue((u8 *)hitModelFramePacket, 0);
                     }
-                    targetUnit3 = (u8 *)(*(u8 **)(effectiveAction + 0x30));
-                    sp4B8 = (BtlPacketTiming *)(btlFormationCreatePacket(*(u32 *)(iGpffffb3ac + 0xD80), (u32)targetUnit3, (u32)targetUnit3, 1, 0));
-                    sp4B8->queue = 4;
-                    sp4B8->startTime = animPacket->endTime;
+                    impactTargetUnit = (u8 *)(*(u8 **)(effectiveAction + 0x30));
+                    impactFormationPacket = (BtlPacketTiming *)(btlFormationCreatePacket((u32)((BtlBattleState *)iGpffffb3ac)->formations[31], (u32)impactTargetUnit, (u32)impactTargetUnit, 1, 0));
+                    impactFormationPacket->dependencyKind = 4;
+                    impactFormationPacket->dependencyUid = animPacket->uid;
                     if (motionFramesS32 >= 0x19) {
                         motionFramesS32 = 0x19;
                     }
-                    sp4B8->delay = (s16) motionFramesS32;
-                    sp4B8->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)sp4B8, 2);
-                    targetUnit103 = (u8 *)(*(u8 **)(effectiveAction + 0x30));
-                    targetScale = *(f32 *)(targetUnit103 + 0x2C);
-                    areaScale = ((*(f32 *)(targetUnit103 + 0x90) * targetScale * (*(f32 *)(targetUnit103 + 0x8C) * targetScale)) / (f32) 0x2710);
+                    impactFormationPacket->delay = (s16) motionFramesS32;
+                    impactFormationPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)impactFormationPacket, 2);
+                    cameraTargetUnit = (u8 *)(*(u8 **)(effectiveAction + 0x30));
+                    targetScale = ((BtlUnit *)(cameraTargetUnit))->scale;
+                    areaScale = ((((BtlUnit *)(cameraTargetUnit))->sphereRadius * targetScale * (((BtlUnit *)(cameraTargetUnit))->unk_8c * targetScale)) / (f32) 0x2710);
                     scaleLimit = 2.0f;
                     if (areaScale < scaleLimit) {
                         areaScale = scaleLimit;
@@ -5015,169 +5026,169 @@ void btlActionSkillUpdate(u8 *arg0) {
                             areaScale = scaleLimit;
                         }
                     }
-                    pkt104 = (BtlPacketTiming *)(btlCameraCreatePacketCommand(0x12, (s16)(s32)((80.0f * areaScale) / 5.0f), 0, 6));
-                    pkt104->queue = 5;
-                    pkt104->startTime = sp4B8->endTime;
-                    pkt104->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)pkt104, 1);
-                    pkt105 = (BtlPacketTiming *)(btlUnitCreateMotionSettlePacket((BtlUnit *)(*(u8 **)(effectiveAction + 0x30))));
-                    pkt105->queue = 5;
-                    pkt105->startTime = animPacket->endTime;
-                    pkt105->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)pkt105, 0);
+                    impactCameraCommandPacket = (BtlPacketTiming *)(btlCameraCreatePacketCommand(0x12, (s16)(s32)((80.0f * areaScale) / 5.0f), 0, 6));
+                    impactCameraCommandPacket->dependencyKind = 5;
+                    impactCameraCommandPacket->dependencyUid = impactFormationPacket->uid;
+                    impactCameraCommandPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)impactCameraCommandPacket, 1);
+                    hitMotionSettlePacket = (BtlPacketTiming *)(btlUnitCreateMotionSettlePacket((BtlUnit *)((u8*)((BtlAction *)effectiveAction)->unit)));
+                    hitMotionSettlePacket->dependencyKind = 5;
+                    hitMotionSettlePacket->dependencyUid = animPacket->uid;
+                    hitMotionSettlePacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)hitMotionSettlePacket, 0);
                 }
-                if ((sp2D0 == 0) && ((*hitMotion != -1) || ((s32)((*( u8 * )((u8 *)(*(u8 **)(targetAction + 0x30)) + (0xA2)))) != (s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))))) && ((s32)(datCalcChkBadStatus((s32)(*( u8 ** )((u8 *)(*(u8 **)(targetAction + 0x30)) + (0xA64))), 0x180001)) == (s32)(0))) {
-                    rotatePkt106 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(targetAction + 0x30), act->unit, 2));
-                    if ((*(s32 *)(targetAction + 0xE4) != 0) && ((s32)((u8 *)formationFxPkt) != (s32)(0))) {
-                        rotatePkt106->queue = 5;
-                        rotatePkt106->startTime = formationFxPkt->endTime;
+                if ((restoreBeforeHits == 0) && ((*hitMotion != -1) || ((s32)((((BtlUnit *)((u8 *)((u8*)((BtlAction *)targetAction)->unit)))->genus)) != (s32)((((BtlUnit *)((u8 *)(act->unit)))->genus)))) && ((s32)(datCalcChkBadStatus((s32)((u8 *)((BtlUnit *)((u8 *)(*(u8 **)(targetAction + 0x30))))->datUnit), 0x180001)) == (s32)(0))) {
+                    hitTargetRotationPacket = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((u8*)((BtlAction *)targetAction)->unit, act->unit, 2));
+                    if ((((BtlAction *)targetAction)->targetBlock.specialHitFlag != 0) && ((s32)((u8 *)reactionFormationPacket) != (s32)(0))) {
+                        hitTargetRotationPacket->dependencyKind = 5;
+                        hitTargetRotationPacket->dependencyUid = reactionFormationPacket->uid;
                     } else {
-                        rotatePkt106->queue = 5;
-                        rotatePkt106->startTime = animPacket->endTime;
+                        hitTargetRotationPacket->dependencyKind = 5;
+                        hitTargetRotationPacket->dependencyUid = animPacket->uid;
                     }
-                    rotatePkt106->flags = (u8) (rotatePkt106->flags & 0xDF);
-                    rotatePkt106->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)rotatePkt106, 1);
+                    hitTargetRotationPacket->flags = (u8) (hitTargetRotationPacket->flags & 0xDF);
+                    hitTargetRotationPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)hitTargetRotationPacket, 1);
                 }
-                if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-                    pkt107 = (BtlPacketTiming *)(btlPacketAllocZeroed((void *)btlUnitApplyPacketEffects, (void *)arg0));
-                    pkt107->queue = 5;
-                    pkt107->startTime = animPacket->endTime;
-                    pkt107->delay = hitDelay;
-                    pkt107->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)pkt107, 1);
+                if (((BtlBattleState *)iGpffffb3ac)->flags & 0x200000) {
+                    applyEffectsPacket = (BtlPacketTiming *)(btlPacketAllocZeroed((void *)btlUnitApplyPacketEffects, (void *)actionBytes));
+                    applyEffectsPacket->dependencyKind = 5;
+                    applyEffectsPacket->dependencyUid = animPacket->uid;
+                    applyEffectsPacket->delay = hitDelay;
+                    applyEffectsPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)applyEffectsPacket, 1);
                 }
                 hitResult = (s32 *)&hitRow->result;
                 hitResultPtr = (s32 *)(hitResult);
-                pkt109 = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(arg0), (s32)(effectiveAction), hitResult, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE)));
-                pkt109->queue = 5;
-                pkt109->startTime = animPacket->endTime;
-                pkt109->delay = hitDelay;
-                pkt109->ownerId = actionId;
-                btlPacketEnqueue((u8 *)pkt109, 1);
-                pkt110 = (BtlPacketTiming *)(btlTargetCreateRecordPacket(targetAction));
-                pkt110->queue = 5;
-                pkt110->startTime = animPacket->endTime;
-                pkt110->delay = hitDelay;
-                pkt110->ownerId = actionId;
-                btlPacketEnqueue((u8 *)pkt110, 1);
-                if (((s32)(targetPos) == (s32)((act->targetCount - 1))) && (hitIndexS32 == (s32)((*(u8 *)(targetAction + 0xD9) - 1)))) {
-                    pkt111 = (BtlPacketTiming *)(btlTargetCreateRecordPacket(arg0));
-                    pkt111->queue = 5;
-                    pkt111->startTime = animPacket->endTime;
-                    pkt111->delay = hitDelay;
-                    pkt111->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)pkt111, 1);
+                hitResultPacket = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(actionBytes), (s32)(effectiveAction), hitResult, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE)));
+                hitResultPacket->dependencyKind = 5;
+                hitResultPacket->dependencyUid = animPacket->uid;
+                hitResultPacket->delay = hitDelay;
+                hitResultPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)hitResultPacket, 1);
+                targetRecordPacket = (BtlPacketTiming *)(btlTargetCreateRecordPacket(targetAction));
+                targetRecordPacket->dependencyKind = 5;
+                targetRecordPacket->dependencyUid = animPacket->uid;
+                targetRecordPacket->delay = hitDelay;
+                targetRecordPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)targetRecordPacket, 1);
+                if (((s32)(targetPos) == (s32)((act->targetCount - 1))) && (hitIndexS32 == (s32)((((BtlAction *)targetAction)->targetBlock.hitRowCount - 1)))) {
+                    sourceRecordPacket = (BtlPacketTiming *)(btlTargetCreateRecordPacket(actionBytes));
+                    sourceRecordPacket->dependencyKind = 5;
+                    sourceRecordPacket->dependencyUid = animPacket->uid;
+                    sourceRecordPacket->delay = hitDelay;
+                    sourceRecordPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)sourceRecordPacket, 1);
                 }
                 if ((targetPos == 0) && (hitIndexS32 == 0) && !(act->flags & 4)) {
-                    pkt112 = (BtlPacketTiming *)(btlTargetCreateActionPacket(arg0, act->stateBits));
-                    pkt112->queue = 5;
-                    pkt112->startTime = animPacket->endTime;
-                    pkt112->delay = hitDelay;
-                    pkt112->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)pkt112, 1);
+                    sourceActionPacket = (BtlPacketTiming *)(btlTargetCreateActionPacket(actionBytes, act->stateBits));
+                    sourceActionPacket->dependencyKind = 5;
+                    sourceActionPacket->dependencyUid = animPacket->uid;
+                    sourceActionPacket->delay = hitDelay;
+                    sourceActionPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)sourceActionPacket, 1);
                 }
-                if (hitIndexS32 == (s32)((*(u8 *)(targetAction + 0xD9) - 1))) {
+                if (hitIndexS32 == (s32)((((BtlAction *)targetAction)->targetBlock.hitRowCount - 1))) {
                     if ((act->fieldEC != 0) && !(act->fieldD8 & 1)) {
-                        hitRowWord = (s32)((*( s32 * )((u8 *)(((s32)(arg0) + ((u32)hitIndex << 5))) + (0x104))));
+                        hitRowWord = (s32)((*( s32 * )((u8 *)(((s32)(actionBytes) + ((u32)hitIndex << 5))) + (0x104))));
                         if (hitRowWord != 0) {
-                            btlPanelSetValueText((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitRowWord));
+                            btlPanelSetValueText((u8 *)(((BtlBattleState *)iGpffffb3ac)->messageWindow), func_0043c6a0(hitRowWord));
                         }
-                        pkt113 = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(arg0 + 0x30), act->fieldEC));
-                        pkt113->queue = 5;
-                        pkt113->startTime = animPacket->endTime;
-                        pkt113->flags = (u8) (pkt113->flags & 0xDF);
-                        pkt113->ownerId = actionId;
-                        btlPacketEnqueue((u8 *)pkt113, 3);
+                        sourceEffectCounterPacket = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(actionBytes + 0x30), act->fieldEC));
+                        sourceEffectCounterPacket->dependencyKind = 5;
+                        sourceEffectCounterPacket->dependencyUid = animPacket->uid;
+                        sourceEffectCounterPacket->flags = (u8) (sourceEffectCounterPacket->flags & 0xDF);
+                        sourceEffectCounterPacket->actionUid = actionId;
+                        btlPacketEnqueue((u8 *)sourceEffectCounterPacket, 3);
                     } else {
                         if (*(s16 *)(targetAction + 0xEC) != 0) {
                             hitField14 = hitRow->result.field14;
                             if (hitField14 != 0) {
-                                btlPanelSetValueText((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitField14));
+                                btlPanelSetValueText((u8 *)(((BtlBattleState *)iGpffffb3ac)->messageWindow), func_0043c6a0(hitField14));
                             }
-                            pkt114 = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(targetAction + 0x30), *(s16 *)(targetAction + 0xEC)));
-                            pkt114->queue = 5;
-                            pkt114->startTime = animPacket->endTime;
-                            pkt114->flags = (u8) (pkt114->flags & 0xDF);
-                            pkt114->ownerId = actionId;
-                            btlPacketEnqueue((u8 *)pkt114, 3);
+                            targetEffectCounterPacket = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(targetAction + 0x30), (s16)((BtlAction *)targetAction)->targetBlock.message.messageCode));
+                            targetEffectCounterPacket->dependencyKind = 5;
+                            targetEffectCounterPacket->dependencyUid = animPacket->uid;
+                            targetEffectCounterPacket->flags = (u8) (targetEffectCounterPacket->flags & 0xDF);
+                            targetEffectCounterPacket->actionUid = actionId;
+                            btlPacketEnqueue((u8 *)targetEffectCounterPacket, 3);
                         } else if (hasFollowAction != 0) {
-                            targetFieldEC = (s16)(*(s16 *)(effectiveAction + 0xEC));
+                            targetFieldEC = (s16)((s16)((BtlAction *)effectiveAction)->targetBlock.message.messageCode);
                             if (targetFieldEC != 0) {
-                                pkt115 = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(effectiveAction + 0x30), targetFieldEC));
-                                pkt115->queue = 5;
-                                pkt115->startTime = animPacket->endTime;
-                                pkt115->flags = (u8) (pkt115->flags & 0xDF);
-                                pkt115->ownerId = actionId;
-                                btlPacketEnqueue((u8 *)pkt115, 3);
+                                followEffectCounterPacket = (BtlPacketTiming *)(btlPacketCreateEffectCounter((s32)((BtlAction *)effectiveAction)->unit, targetFieldEC));
+                                followEffectCounterPacket->dependencyKind = 5;
+                                followEffectCounterPacket->dependencyUid = animPacket->uid;
+                                followEffectCounterPacket->flags = (u8) (followEffectCounterPacket->flags & 0xDF);
+                                followEffectCounterPacket->actionUid = actionId;
+                                btlPacketEnqueue((u8 *)followEffectCounterPacket, 3);
                             }
                         }
                     }
                 }
                 if ((s32)(*hitResultPtr) != (s32)(0)) {
-                    pkt116 = (BtlPacketTiming *)(btlPacketCreateUnitCounter((s32)(*(u8 **)(effectiveAction + 0x30)), 0, 0));
-                    pkt116->queue = 5;
-                    pkt116->startTime = animPacket->endTime;
-                    pkt116->delay = hitDelay;
-                    pkt116->flags = (u8) (pkt116->flags & 0xDF);
-                    pkt116->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)pkt116, 3);
+                    targetUnitCounterPacket = (BtlPacketTiming *)(btlPacketCreateUnitCounter((s32)((u8*)((BtlAction *)effectiveAction)->unit), 0, 0));
+                    targetUnitCounterPacket->dependencyKind = 5;
+                    targetUnitCounterPacket->dependencyUid = animPacket->uid;
+                    targetUnitCounterPacket->delay = hitDelay;
+                    targetUnitCounterPacket->flags = (u8) (targetUnitCounterPacket->flags & 0xDF);
+                    targetUnitCounterPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)targetUnitCounterPacket, 3);
                 }
-                if ((hitRow->result.addedStatus & 0x100000) && ((s32)((*( u8 * )((u8 *)(*(u8 **)(effectiveAction + 0x30)) + (0xA2)))) == (s32)(1))) {
-                    soundPkt117 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xD, 2, 8));
-                    soundPkt117->queue = 5;
-                    soundPkt117->startTime = animPacket->endTime;
-                    soundPkt117->delay = hitDelay;
-                    soundPkt117->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)soundPkt117, 1);
+                if ((hitRow->result.addedStatus & 0x100000) && ((s32)((((BtlUnit *)((u8 *)((u8*)((BtlAction *)effectiveAction)->unit)))->genus)) == (s32)(1))) {
+                    targetDownSoundPacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xD, 2, 8));
+                    targetDownSoundPacket->dependencyKind = 5;
+                    targetDownSoundPacket->dependencyUid = animPacket->uid;
+                    targetDownSoundPacket->delay = hitDelay;
+                    targetDownSoundPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)targetDownSoundPacket, 1);
                 }
                 if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x20) {
-                    sp310 = 1;
-                    *(s16 *)(iGpffffb3ac + 0x1C) = 3;
+                    endsEncounter = 1;
+                    ((BtlBattleState *)iGpffffb3ac)->endState = 3;
                 }
                 if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x40) {
-                    sp2E0 = 1;
+                    sacrificeActor = 1;
                 }
-                hitRowBase = btlHitRow_001a7720(targetAction, &hitIndex);
-                hitPkt119 = (BtlPacketTiming *)(btlPacketCreateHitDisplay((s32)(act->unit), (s32)(*(u8 **)(effectiveAction + 0x30)), skillS32, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE), hitIndex, rowHitCount, hitResultPtr, 0));
-                hitPkt119->queue = 5;
-                hitPkt119->startTime = animPacket->endTime;
-                hitPkt119->delay = hitDelay;
-                hitPkt119->flags = (u8) (hitPkt119->flags & 0xDF);
-                hitPkt119->ownerId = actionId;
-                btlPacketEnqueue((u8 *)hitPkt119, 3);
+                hitRowBase = btlActionGetIndexedHitBase(targetAction, &hitIndex);
+                hitDisplayPacket = (BtlPacketTiming *)(btlPacketCreateHitDisplay((s32)(act->unit), (s32)((u8*)((BtlAction *)effectiveAction)->unit), skillS32, ((BtlAction *)targetAction)->targetBlock.hitOutcome, ((BtlAction *)targetAction)->targetBlock.targetFlags, hitIndex, rowHitCount, hitResultPtr, 0));
+                hitDisplayPacket->dependencyKind = 5;
+                hitDisplayPacket->dependencyUid = animPacket->uid;
+                hitDisplayPacket->delay = hitDelay;
+                hitDisplayPacket->flags = (u8) (hitDisplayPacket->flags & 0xDF);
+                hitDisplayPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)hitDisplayPacket, 3);
                 hpTransfer = (s16 *)(hitRowBase + 0x108);
-                if ((*(s16 *)(hitRowBase + 0x108) > 0) || (hitRow->result.spTransfer > 0)) {
+                if ((((BtlAction *)hitRowBase)->targetBlock.hitRows[0].hpTransfer > 0) || (hitRow->result.spTransfer > 0)) {
                     hitDelayS16 = (s16)(hitDelay + 0x2B);
                     btlTargetClearResultBuffer((u8 *)&result);
-                    spRow = btlHitResult_001a59a0(targetAction, &hitIndex);
+                    spRow = btlActionGetIndexedHitResult(targetAction, &hitIndex);
                     result.hpDelta = *hpTransfer;
-                    result.spDelta = (s32) *(s16 *)(spRow + 0x1A);
-                    pkt120 = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
-                    pkt120->queue = 4;
-                    pkt120->startTime = animPacket->endTime;
-                    pkt120->delay = hitDelayS16;
-                    pkt120->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)pkt120, 1);
-                    actUnit16 = (u8 *)(act->unit);
-                    hitPkt121 = (BtlPacketTiming *)(btlPacketCreateHitDisplay((s32)(actUnit16), (s32)(actUnit16), -1, 1U, 1U, hitIndex, rowHitCount, &result, 0));
-                    hitPkt121->queue = 4;
-                    hitPkt121->startTime = animPacket->endTime;
-                    hitPkt121->delay = hitDelayS16;
-                    hitPkt121->ownerId = actionId;
-                    btlPacketEnqueue((u8 *)hitPkt121, 3);
+                    result.spDelta = (s32) ((LargeBattleHitResult *)spRow)->spTransfer;
+                    transferResultPacket = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(actionBytes), (s32)(actionBytes), &result, 1U, 1U));
+                    transferResultPacket->dependencyKind = 4;
+                    transferResultPacket->dependencyUid = animPacket->uid;
+                    transferResultPacket->delay = hitDelayS16;
+                    transferResultPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)transferResultPacket, 1);
+                    transferSourceUnit = (u8 *)(act->unit);
+                    transferDisplayPacket = (BtlPacketTiming *)(btlPacketCreateHitDisplay((s32)(transferSourceUnit), (s32)(transferSourceUnit), -1, 1U, 1U, hitIndex, rowHitCount, &result, 0));
+                    transferDisplayPacket->dependencyKind = 4;
+                    transferDisplayPacket->dependencyUid = animPacket->uid;
+                    transferDisplayPacket->delay = hitDelayS16;
+                    transferDisplayPacket->actionUid = actionId;
+                    btlPacketEnqueue((u8 *)transferDisplayPacket, 3);
                     if (result.hpDelta != 0) {
                         if (hitIndexS32 == 0) {
-                            pkt122 = (BtlPacketTiming *)(btlPacketCreateHpRatio(act->unit));
-                            pkt122->ownerId = actionId;
-                            btlPacketEnqueue((u8 *)pkt122, 1);
+                            sourceHpRatioPacket = (BtlPacketTiming *)(btlPacketCreateHpRatio(act->unit));
+                            sourceHpRatioPacket->actionUid = actionId;
+                            btlPacketEnqueue((u8 *)sourceHpRatioPacket, 1);
                         }
-                        pkt123 = (BtlPacketTiming *)(btlPacketCreateUnitCounter((s32)(act->unit), 0, 0));
-                        pkt123->queue = 4;
-                        pkt123->startTime = animPacket->endTime;
-                        pkt123->delay = hitDelayS16;
-                        pkt123->ownerId = actionId;
-                        btlPacketEnqueue((u8 *)pkt123, 3);
+                        transferCounterPacket = (BtlPacketTiming *)(btlPacketCreateUnitCounter((s32)(act->unit), 0, 0));
+                        transferCounterPacket->dependencyKind = 4;
+                        transferCounterPacket->dependencyUid = animPacket->uid;
+                        transferCounterPacket->delay = hitDelayS16;
+                        transferCounterPacket->actionUid = actionId;
+                        btlPacketEnqueue((u8 *)transferCounterPacket, 3);
                     }
                 }
                 hitTimer += 7;
@@ -5189,34 +5200,34 @@ void btlActionSkillUpdate(u8 *arg0) {
             hitTimeTotal += hitDelta;
             targetIndex += 1;
     }
-    lateChainTime = animPacket->endTime;
+    lateChainUid = animPacket->uid;
     followSkill = (s16)(act->fieldEE);
     if (followSkill != -1) {
-        pkt124 = (BtlPacketTiming *)(btlTargetCreateTargetPacket(arg0, (u16)followSkill, 0, 0, 0));
-        pkt124->queue = 5;
-        pkt124->startTime = lateChainTime;
-        pkt124->delay = (s16) hitWait;
-        pkt124->ownerId = actionId;
-        btlPacketEnqueue((u8 *)pkt124, 1);
+        followSkillPacket = (BtlPacketTiming *)(btlTargetCreateTargetPacket(actionBytes, (u16)followSkill, 0, 0, 0));
+        followSkillPacket->dependencyKind = 5;
+        followSkillPacket->dependencyUid = lateChainUid;
+        followSkillPacket->delay = (s16) hitWait;
+        followSkillPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)followSkillPacket, 1);
     } else if (crossSideHits > 0) {
         if (side == 0) {
             statusTotal = (s32)((u16)btlSideCountNotBad(2, 0x80000));
-            if (*(u8 *)(arg0 + 0x28) <= 0 && *(u16 *)(act->unit + 0xA4) != 1 && datCalcRandomBelow(0x64U) < 0x32U) {
-                if ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) != (s32)(0)) {
+            if (((BtlAction *)actionBytes)->unk_28 <= 0 && ((BtlUnit *)(act->unit))->charId != 1 && datCalcRandomBelow(0x64U) < 0x32U) {
+                if ((s32)((((BtlUnit *)((u8 *)(act->unit)))->genus)) != (s32)(0)) {
                     chanceMiss = 0;
                 } else {
-                    btlState17 = (u8 *)(iGpffffb3ac);
-                    if (*(s16 *)(btlState17 + 0xA70) != -1) {
+                    reactionBattle = (u8 *)(iGpffffb3ac);
+                    if (((BtlBattleState *)reactionBattle)->unkA70 != -1) {
                         statusRemaining = (s16)(statusTotal - crossSideHits);
                         if (statusRemaining <= 0) {
                             statusTotal2 = (u32)((u16)btlSideCountNotBad(2, 0x80000));
-                            btlState18 = (u8 *)(iGpffffb3ac);
-                            if (((u32)(*(s16 *)(btlState18 + 0xA72) >> 1) >= statusTotal2) && (lastActor = *(s16 *)(btlState18 + 0xA70), (lastActor != btlCameraSelectFormationIndex()))) {
+                            reactionCountBattle = (u8 *)(iGpffffb3ac);
+                            if (((u32)(((BtlBattleState *)reactionCountBattle)->unkA72 >> 1) >= statusTotal2) && (lastActor = ((BtlBattleState *)reactionCountBattle)->unkA70, (lastActor != btlCameraSelectFormationIndex()))) {
                                 chanceMiss = 1;
                             } else {
                                 goto block_406;
                             }
-                        } else if ((*(s16 *)(btlState17 + 0xA72) >> 1) >= statusRemaining) {
+                        } else if ((((BtlBattleState *)reactionBattle)->unkA72 >> 1) >= statusRemaining) {
                             chanceMiss = 1;
                         } else {
                             goto block_406;
@@ -5231,154 +5242,154 @@ block_406:
             }
             if (chanceMiss != 0) {
 reactionPacket:
-                pkt126 = (BtlPacketTiming *)(btlTargetCreateTargetPacket(arg0, 0x13, crossSideHits, 0, 0));
-                pkt126->queue = 5;
-                pkt126->startTime = lateChainTime;
-                pkt126->delay = (s16) hitWait;
-                pkt126->ownerId = actionId;
-                btlPacketEnqueue((u8 *)pkt126, 1);
+                reactionTargetPacket = (BtlPacketTiming *)(btlTargetCreateTargetPacket(actionBytes, 0x13, crossSideHits, 0, 0));
+                reactionTargetPacket->dependencyKind = 5;
+                reactionTargetPacket->dependencyUid = lateChainUid;
+                reactionTargetPacket->delay = (s16) hitWait;
+                reactionTargetPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)reactionTargetPacket, 1);
                         } else {
-                pkt125 = (BtlPacketTiming *)(func_001f99c0(arg0, 0x10, crossSideHits, 0, 0));
-                pkt125->queue = 5;
-                pkt125->startTime = lateChainTime;
-                pkt125->delay = (s16) hitWait;
-                btlPacketEnqueue((u8 *)pkt125, 1);
+                reactionVoicePacket = (BtlPacketTiming *)(func_001f99c0(actionBytes, 0x10, crossSideHits, 0, 0));
+                reactionVoicePacket->dependencyKind = 5;
+                reactionVoicePacket->dependencyUid = lateChainUid;
+                reactionVoicePacket->delay = (s16) hitWait;
+                btlPacketEnqueue((u8 *)reactionVoicePacket, 1);
             }
         }
-    } else if ((statusHits > 0) && (stateBitsCopy = act->stateBits, ((stateBitsCopy & 1) != 0)) && !(stateBitsCopy & 2) && ((s64)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) == (s64)(0))) {
-        pkt127 = (BtlPacketTiming *)(btlTargetCreateTargetPacket(arg0, 0x18, (s32) statusMask, statusHits, 0));
-        pkt127->queue = 5;
-        pkt127->startTime = lateChainTime;
-        pkt127->delay = (s16) hitWait;
-        pkt127->ownerId = actionId;
-        btlPacketEnqueue((u8 *)pkt127, 1);
-    } else if ((rotateFirst != 0) && (side == 0) && (btlActionSameGenusTargetsHaveDelta(arg0) != 0) && (func_001f0d30(arg0) == 0)) {
-        pkt128 = (BtlPacketTiming *)(func_001f99c0(act->target, 0x12, 0U, 0, 0));
-        pkt128->queue = 5;
-        pkt128->startTime = lateChainTime;
-        pkt128->delay = (s16) hitWait;
-        btlPacketEnqueue((u8 *)pkt128, 1);
+    } else if ((statusHits > 0) && (stateBitsCopy = act->stateBits, ((stateBitsCopy & 1) != 0)) && !(stateBitsCopy & 2) && ((s64)((((BtlUnit *)((u8 *)(act->unit)))->genus)) == (s64)(0))) {
+        statusTargetPacket = (BtlPacketTiming *)(btlTargetCreateTargetPacket(actionBytes, 0x18, (s32) statusMask, statusHits, 0));
+        statusTargetPacket->dependencyKind = 5;
+        statusTargetPacket->dependencyUid = lateChainUid;
+        statusTargetPacket->delay = (s16) hitWait;
+        statusTargetPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)statusTargetPacket, 1);
+    } else if ((rotateFirst != 0) && (side == 0) && (btlActionSameGenusTargetsHaveDelta(actionBytes) != 0) && (btlActionAnyTargetClearsDeathStatus(actionBytes) == 0)) {
+        sameSideVoicePacket = (BtlPacketTiming *)(func_001f99c0(act->target, 0x12, 0U, 0, 0));
+        sameSideVoicePacket->dependencyKind = 5;
+        sameSideVoicePacket->dependencyUid = lateChainUid;
+        sameSideVoicePacket->delay = (s16) hitWait;
+        btlPacketEnqueue((u8 *)sameSideVoicePacket, 1);
     } else if (crossSideHits == 0) {
-        if ((s32)(func_001f0dd0(arg0, 1)) != (s32)(0)) {
-            pkt129 = (BtlPacketTiming *)(func_001f99c0(arg0, 0xF, 0U, 0, 0));
-            pkt129->queue = 5;
-            pkt129->startTime = lateChainTime;
-            pkt129->delay = (s16) hitWait;
-            btlPacketEnqueue((u8 *)pkt129, 1);
-        } else if (((s32)(func_001f0f70(arg0)) == (s32)(1)) && ((s32)(btlActionAnyTargetSpecialHit(arg0)) == (s32)(0)) && (sp2E0 == 0)) {
-            pkt130 = (BtlPacketTiming *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
-            pkt130->queue = 5;
-            pkt130->startTime = lateChainTime;
-            pkt130->delay = (s16) hitWait;
-            btlPacketEnqueue((u8 *)pkt130, 1);
+        if ((s32)(btlActionTargetsHaveDamageResult(actionBytes, 1)) != (s32)(0)) {
+            followUpVoicePacket = (BtlPacketTiming *)(func_001f99c0(actionBytes, 0xF, 0U, 0, 0));
+            followUpVoicePacket->dependencyKind = 5;
+            followUpVoicePacket->dependencyUid = lateChainUid;
+            followUpVoicePacket->delay = (s16) hitWait;
+            btlPacketEnqueue((u8 *)followUpVoicePacket, 1);
+        } else if (((s32)(btlActionAnyTargetHasSpecialResult(actionBytes)) == (s32)(1)) && ((s32)(btlActionAnyTargetSpecialHit(actionBytes)) == (s32)(0)) && (sacrificeActor == 0)) {
+            specialHitVoicePacket = (BtlPacketTiming *)(func_001f99c0(actionBytes, 0x11, 0U, 0, 0));
+            specialHitVoicePacket->dependencyKind = 5;
+            specialHitVoicePacket->dependencyUid = lateChainUid;
+            specialHitVoicePacket->delay = (s16) hitWait;
+            btlPacketEnqueue((u8 *)specialHitVoicePacket, 1);
         }
     }
-    if (sp2E0 != 0) {
-        if (sp2D0 == 1) {
-            followCameraPkt = (BtlPacket *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1B));
-            (*( s8 * )((u8 *)(followCameraPkt) + (0))) = 0xB;
-            *(s64 *)((u8 *)followCameraPkt + 8) = formationPkt6->endTime;
-            (*( s16 * )((u8 *)(followCameraPkt) + (0x48))) = 0x18;
-            (*( s64 * )((u8 *)(followCameraPkt) + (0x60))) = actionId;
-            btlPacketEnqueue((u8 *)followCameraPkt, 0);
+    if (sacrificeActor != 0) {
+        if (restoreBeforeHits == 1) {
+            targetRecoveryCameraPacket = (BtlPacket *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x1B));
+            (((BtlPacketTiming *)targetRecoveryCameraPacket)->dependencyKind) = 0xB;
+            ((BtlPacketTiming *)targetRecoveryCameraPacket)->dependencyUid = skillFormationPacket->uid;
+            (((BtlPacketTiming *)targetRecoveryCameraPacket)->delay) = 0x18;
+            (((BtlPacketTiming *)targetRecoveryCameraPacket)->actionUid) = actionId;
+            btlPacketEnqueue((u8 *)targetRecoveryCameraPacket, 0);
         }
-        if ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) == (s32)(0)) {
+        if ((s32)((((BtlUnit *)((u8 *)(act->unit)))->genus)) == (s32)(0)) {
             btlTargetClearResultBuffer((u8 *)&result);
-            result.hpDelta = -((s32)(datCalcGetHp((*( s32 * )((u8 *)(act->unit) + (0xA64)))) & 0xFFFF) - 1);
-            pkt4 = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
-            if (sp2D0 == 1) {
-                pkt4->queue = 4;
-                pkt4->startTime = (s64)((s64) (*( s64 * )((u8 *)(followCameraPkt) + (0x58))));
+            result.hpDelta = -((s32)(datCalcGetHp(((s32)((BtlUnit *)((u8 *)(act->unit)))->datUnit)) & 0xFFFF) - 1);
+            actorResultPacket = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(actionBytes), (s32)(actionBytes), &result, 1U, 1U));
+            if (restoreBeforeHits == 1) {
+                actorResultPacket->dependencyKind = 4;
+                actorResultPacket->dependencyUid = (s64)((s64) (((BtlPacketTiming *)targetRecoveryCameraPacket)->uid));
             } else {
-                pkt4->queue = 0xB;
-                pkt4->startTime = (s64)((s64) formationPkt6->endTime);
+                actorResultPacket->dependencyKind = 0xB;
+                actorResultPacket->dependencyUid = (s64)((s64) skillFormationPacket->uid);
             }
-            pkt4->ownerId = actionId;
-            btlPacketEnqueue((u8 *)pkt4, 1);
-            actUnit19 = (u8 *)(act->unit);
-            hitPkt132 = (BtlPacketTiming *)(btlPacketCreateHitDisplay((s32)(actUnit19), (s32)(actUnit19), -1, 0U, 0U, 0U, 1U, &result, 0));
-            hitPkt132->queue = 4;
-            hitPkt132->startTime = (s64)((s64) pkt4->endTime);
-            hitPkt132->flags = (u8) (hitPkt132->flags & 0xDF);
-            hitPkt132->ownerId = actionId;
-            btlPacketEnqueue((u8 *)hitPkt132, 3);
-            pkt133 = (BtlPacketTiming *)(btlPacketCreateUnitCounter((s32)(act->unit), 0, 0));
-            pkt133->queue = 4;
-            pkt133->startTime = (s64)((s64) pkt4->endTime);
-            pkt133->flags = (u8) (pkt133->flags & 0xDF);
-            pkt133->ownerId = actionId;
-            btlPacketEnqueue((u8 *)pkt133, 3);
+            actorResultPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)actorResultPacket, 1);
+            resultSourceUnit = (u8 *)(act->unit);
+            actorResultDisplayPacket = (BtlPacketTiming *)(btlPacketCreateHitDisplay((s32)(resultSourceUnit), (s32)(resultSourceUnit), -1, 0U, 0U, 0U, 1U, &result, 0));
+            actorResultDisplayPacket->dependencyKind = 4;
+            actorResultDisplayPacket->dependencyUid = (s64)((s64) actorResultPacket->uid);
+            actorResultDisplayPacket->flags = (u8) (actorResultDisplayPacket->flags & 0xDF);
+            actorResultDisplayPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)actorResultDisplayPacket, 3);
+            actorResultCounterPacket = (BtlPacketTiming *)(btlPacketCreateUnitCounter((s32)(act->unit), 0, 0));
+            actorResultCounterPacket->dependencyKind = 4;
+            actorResultCounterPacket->dependencyUid = (s64)((s64) actorResultPacket->uid);
+            actorResultCounterPacket->flags = (u8) (actorResultCounterPacket->flags & 0xDF);
+            actorResultCounterPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)actorResultCounterPacket, 3);
         } else {
             btlTargetClearResultBuffer((u8 *)&result);
             result.addedStatus = 0x80000;
-            pkt4 = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
-            if (sp2D0 == 1) {
-                pkt4->queue = 4;
-                pkt4->startTime = (s64)((s64) (*( s64 * )((u8 *)(followCameraPkt) + (0x58))));
+            actorResultPacket = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(actionBytes), (s32)(actionBytes), &result, 1U, 1U));
+            if (restoreBeforeHits == 1) {
+                actorResultPacket->dependencyKind = 4;
+                actorResultPacket->dependencyUid = (s64)((s64) (((BtlPacketTiming *)targetRecoveryCameraPacket)->uid));
             } else {
-                pkt4->queue = 0xB;
-                pkt4->startTime = (s64)((s64) formationPkt6->endTime);
+                actorResultPacket->dependencyKind = 0xB;
+                actorResultPacket->dependencyUid = (s64)((s64) skillFormationPacket->uid);
             }
-            pkt4->ownerId = actionId;
-            btlPacketEnqueue((u8 *)pkt4, 1);
+            actorResultPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)actorResultPacket, 1);
         }
-        if (sp2C0 == 0) {
-            if (sp2F0 == 0) {
-                if (sp30C == 0) {
+        if (skipMotionRecovery == 0) {
+            if (settleMotion == 0) {
+                if (restoreMotionSpeed == 0) {
                     animPacket = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
                 } else {
-                    animPacket = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                    animPacket = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)((u8*)((BtlAction *)actionBytes)->unit), 0, 1.0f, 0));
                 }
-                animPacket->queue = 4;
-                animPacket->startTime = (s64)((s64) pkt4->endTime);
-                animPacket->ownerId = actionId;
+                animPacket->dependencyKind = 4;
+                animPacket->dependencyUid = (s64)((s64) actorResultPacket->uid);
+                animPacket->actionUid = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
             } else {
-                pkt134 = (BtlPacketTiming *)(btlUnitCreateMotionSettlePacket((BtlUnit *)act->unit));
-                animPacket = (BtlPacketTiming *)(pkt134);
-                pkt134->queue = 4;
-                pkt134->startTime = (s64)((s64) pkt4->endTime);
-                pkt134->ownerId = actionId;
+                actorResultSettlePacket = (BtlPacketTiming *)(btlUnitCreateMotionSettlePacket((BtlUnit *)act->unit));
+                animPacket = (BtlPacketTiming *)(actorResultSettlePacket);
+                actorResultSettlePacket->dependencyKind = 4;
+                actorResultSettlePacket->dependencyUid = (s64)((s64) actorResultPacket->uid);
+                actorResultSettlePacket->actionUid = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
             }
         }
-        actUnit20_420 = (u8 *)(act->unit);
-        if (*(s32 *)(actUnit20_420 + 0x9C) & 0x20) {
-            waitPkt135 = (BtlPacketTiming *)(btlPacketCreateImmediate());
-            waitPkt135->queue = 4;
-            waitPkt135->startTime = (s64)((s64) pkt4->endTime);
-            waitPkt135->duration = 0x3C;
-            waitPkt135->ownerId = actionId;
-            btlPacketEnqueue((u8 *)waitPkt135, 1);
+        hidingSourceUnit = (u8 *)(act->unit);
+        if ((s32)((BtlUnit *)hidingSourceUnit)->flags3 & 0x20) {
+            actorHideWaitPacket = (BtlPacketTiming *)(btlPacketCreateImmediate());
+            actorHideWaitPacket->dependencyKind = 4;
+            actorHideWaitPacket->dependencyUid = (s64)((s64) actorResultPacket->uid);
+            actorHideWaitPacket->duration = 0x3C;
+            actorHideWaitPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)actorHideWaitPacket, 1);
         } else {
-            colorPkt136 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)actUnit20_420, 0xFFFFFF, 6, 0, 4, 0));
-            colorPkt136->queue = 4;
-            colorPkt136->startTime = (s64)((s64) pkt4->endTime);
-            colorPkt136->ownerId = actionId;
-            btlPacketEnqueue((u8 *)colorPkt136, 1);
-            actUnit5_55 = (u8 *)(act->unit);
-            formationPkt137 = (BtlPacketTiming *)(btlFormationCreatePacket(*(u32 *)(iGpffffb3ac + 0xD48), (u32)actUnit5_55, (u32)actUnit5_55, 0, 0));
-            formationPkt137->queue = 4;
-            formationPkt137->startTime = (s64)((s64) pkt4->endTime);
-            formationPkt137->ownerId = actionId;
-            btlPacketEnqueue((u8 *)formationPkt137, 2);
-            soundPkt138 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 0xA));
-            soundPkt138->queue = 4;
-            soundPkt138->startTime = (s64)((s64) pkt4->endTime);
-            soundPkt138->ownerId = actionId;
-            btlPacketEnqueue((u8 *)soundPkt138, 1);
-            actUnit20_320 = (u8 *)(act->unit);
-            *(u32 *)(actUnit20_320 + 0x9C) |= 0x100;
+            actorHidePacket = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)hidingSourceUnit, 0xFFFFFF, 6, 0, 4, 0));
+            actorHidePacket->dependencyKind = 4;
+            actorHidePacket->dependencyUid = (s64)((s64) actorResultPacket->uid);
+            actorHidePacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)actorHidePacket, 1);
+            hidingEffectUnit = (u8 *)(act->unit);
+            actorHideFormationPacket = (BtlPacketTiming *)(btlFormationCreatePacket((u32)((BtlBattleState *)iGpffffb3ac)->formations[17], (u32)hidingEffectUnit, (u32)hidingEffectUnit, 0, 0));
+            actorHideFormationPacket->dependencyKind = 4;
+            actorHideFormationPacket->dependencyUid = (s64)((s64) actorResultPacket->uid);
+            actorHideFormationPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)actorHideFormationPacket, 2);
+            actorHideSoundPacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 0xA));
+            actorHideSoundPacket->dependencyKind = 4;
+            actorHideSoundPacket->dependencyUid = (s64)((s64) actorResultPacket->uid);
+            actorHideSoundPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)actorHideSoundPacket, 1);
+            hiddenSourceUnit = (u8 *)(act->unit);
+            ((BtlUnit *)hiddenSourceUnit)->flags3 |= 0x100;
         }
-    } else if (sp2C0 == 0) {
-        if (sp2F0 == 0) {
-            if (sp30C == 0) {
+    } else if (skipMotionRecovery == 0) {
+        if (settleMotion == 0) {
+            if (restoreMotionSpeed == 0) {
                 animPacket = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
             } else {
-                animPacket = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                animPacket = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)((u8*)((BtlAction *)actionBytes)->unit), 0, 1.0f, 0));
             }
-            animPacket->queue = 0xB;
-            animPacket->startTime = formationPkt6->endTime;
+            animPacket->dependencyKind = 0xB;
+            animPacket->dependencyUid = skillFormationPacket->uid;
             if (side == 0) {
                 animPacket->delay = cameraState;
             } else {
@@ -5390,101 +5401,101 @@ reactionPacket:
                 }
                 animPacket->duration = animDuration;
             }
-            animPacket->ownerId = actionId;
+            animPacket->actionUid = actionId;
             btlPacketEnqueue((u8 *)animPacket, 0);
         } else {
-            pkt139 = (BtlPacketTiming *)(btlUnitCreateMotionSettlePacket((BtlUnit *)act->unit));
-            animPacket = (BtlPacketTiming *)(pkt139);
-            pkt139->queue = 0xB;
-            pkt139->startTime = formationPkt6->endTime;
-            pkt139->delay = cameraState;
-            pkt139->ownerId = actionId;
+            recoverySettlePacket = (BtlPacketTiming *)(btlUnitCreateMotionSettlePacket((BtlUnit *)act->unit));
+            animPacket = (BtlPacketTiming *)(recoverySettlePacket);
+            recoverySettlePacket->dependencyKind = 0xB;
+            recoverySettlePacket->dependencyUid = skillFormationPacket->uid;
+            recoverySettlePacket->delay = cameraState;
+            recoverySettlePacket->actionUid = actionId;
             btlPacketEnqueue((u8 *)animPacket, 0);
         }
     }
-    pkt140 = (BtlPacketTiming *)(btlCreateTimingPacket(0x10));
-    pkt140->queue = 4;
-    pkt140->startTime = animPacket->endTime;
-    pkt140->flags = (u8) (pkt140->flags & 0xDF);
-    pkt140->ownerId = actionId;
-    btlPacketEnqueue((u8 *)pkt140, 1);
-    if (sp310 != 0) {
+    recoveryTimingPacket = (BtlPacketTiming *)(btlCreateTimingPacket(0x10));
+    recoveryTimingPacket->dependencyKind = 4;
+    recoveryTimingPacket->dependencyUid = animPacket->uid;
+    recoveryTimingPacket->flags = (u8) (recoveryTimingPacket->flags & 0xDF);
+    recoveryTimingPacket->actionUid = actionId;
+    btlPacketEnqueue((u8 *)recoveryTimingPacket, 1);
+    if (endsEncounter != 0) {
         cameraMode = 2;
     } else {
         cameraMode = 0;
     }
-    pkt141 = (BtlPacketTiming *)(btlMainCreateFadePacket(0x10, (u16)cameraMode));
-    pkt141->queue = 4;
-    pkt141->startTime = animPacket->endTime;
-    pkt141->flags = (u8) (pkt141->flags & 0xDF);
-    pkt141->ownerId = actionId;
-    btlPacketEnqueue((u8 *)pkt141, 1);
-    pkt142 = (BtlPacketTiming *)(btlMainCreateColorFadePacket(0x10));
-    pkt142->queue = 4;
-    pkt142->startTime = animPacket->endTime;
-    pkt142->flags = (u8) (pkt142->flags & 0xDF);
-    pkt142->ownerId = actionId;
-    btlPacketEnqueue((u8 *)pkt142, 1);
-    pkt143 = (BtlPacketTiming *)(btlMainCreateColorSetPacket(8));
-    pkt143->queue = 4;
-    pkt143->startTime = formationPkt6->endTime;
-    pkt143->flags = (u8) (pkt143->flags & 0xDF);
-    pkt143->ownerId = actionId;
-    btlPacketEnqueue((u8 *)pkt143, 0);
+    recoveryFadePacket = (BtlPacketTiming *)(btlMainCreateFadePacket(0x10, (u16)cameraMode));
+    recoveryFadePacket->dependencyKind = 4;
+    recoveryFadePacket->dependencyUid = animPacket->uid;
+    recoveryFadePacket->flags = (u8) (recoveryFadePacket->flags & 0xDF);
+    recoveryFadePacket->actionUid = actionId;
+    btlPacketEnqueue((u8 *)recoveryFadePacket, 1);
+    recoveryColorFadePacket = (BtlPacketTiming *)(btlMainCreateColorFadePacket(0x10));
+    recoveryColorFadePacket->dependencyKind = 4;
+    recoveryColorFadePacket->dependencyUid = animPacket->uid;
+    recoveryColorFadePacket->flags = (u8) (recoveryColorFadePacket->flags & 0xDF);
+    recoveryColorFadePacket->actionUid = actionId;
+    btlPacketEnqueue((u8 *)recoveryColorFadePacket, 1);
+    recoveryColorSetPacket = (BtlPacketTiming *)(btlMainCreateColorSetPacket(8));
+    recoveryColorSetPacket->dependencyKind = 4;
+    recoveryColorSetPacket->dependencyUid = skillFormationPacket->uid;
+    recoveryColorSetPacket->flags = (u8) (recoveryColorSetPacket->flags & 0xDF);
+    recoveryColorSetPacket->actionUid = actionId;
+    btlPacketEnqueue((u8 *)recoveryColorSetPacket, 0);
     if ((altCamera == 1) && (isKind3 == 0) && (noOverride == 0)) {
         if (randomFlag == 0) {
-            if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
+            if (!((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x40)) {
                 if (side == 0) {
                     cameraStateA = 0x19;
                 } else {
                     cameraStateA = 0x1A;
                 }
-                cameraPkt144 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)cameraStateA));
-                cameraPkt144->queue = 5;
-                cameraPkt144->startTime = formationEndTime;
-                cameraPkt144->ownerId = actionId;
-                btlPacketEnqueue((u8 *)cameraPkt144, 0);
+                recoveryCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, (u16)cameraStateA));
+                recoveryCameraPacket->dependencyKind = 5;
+                recoveryCameraPacket->dependencyUid = formationEndUid;
+                recoveryCameraPacket->actionUid = actionId;
+                btlPacketEnqueue((u8 *)recoveryCameraPacket, 0);
             }
         } else {
-            cameraPkt145 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1D));
-            cameraPkt145->queue = 5;
-            cameraPkt145->startTime = formationEndTime;
-            cameraPkt145->ownerId = actionId;
-            btlPacketEnqueue((u8 *)cameraPkt145, 0);
+            recoveryGroupCameraPacket = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)actionBytes, 0x1D));
+            recoveryGroupCameraPacket->dependencyKind = 5;
+            recoveryGroupCameraPacket->dependencyUid = formationEndUid;
+            recoveryGroupCameraPacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)recoveryGroupCameraPacket, 0);
         }
-        if (sp310 == 0) {
-            colorPkt146 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)act->unit, -1, 0, 0xC, 3, 0));
-            colorPkt146->queue = 0xB;
-            colorPkt146->startTime = formationPkt6->endTime;
-            colorPkt146->ownerId = actionId;
-            btlPacketEnqueue((u8 *)colorPkt146, 1);
+        if (endsEncounter == 0) {
+            sourceColorRestorePacket = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)act->unit, -1, 0, 0xC, 3, 0));
+            sourceColorRestorePacket->dependencyKind = 0xB;
+            sourceColorRestorePacket->dependencyUid = skillFormationPacket->uid;
+            sourceColorRestorePacket->actionUid = actionId;
+            btlPacketEnqueue((u8 *)sourceColorRestorePacket, 1);
         }
-        colorPkt147 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, 0xFFFFFF, 8, 0, 4, 0));
-        colorPkt147->queue = 0xB;
-        colorPkt147->startTime = formationPkt6->endTime;
+        linkedFadePacket = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, 0xFFFFFF, 8, 0, 4, 0));
+        linkedFadePacket->dependencyKind = 0xB;
+        linkedFadePacket->dependencyUid = skillFormationPacket->uid;
         colorDelay = (rotateFirst != 0 && skillSpecial != 0) ? 7 : 0xF;
-        colorPkt147->delay = colorDelay;
-        colorPkt147->ownerId = actionId;
-        btlPacketEnqueue((u8 *)colorPkt147, 1);
-        effectPkt148 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xD70), (s32)linkedUnit, damageFrames, 0, 0x2100));
-        effectPkt148->queue = 4;
-        effectPkt148->startTime = animEndTime;
-        effectPkt148->ownerId = actionId;
-        btlPacketEnqueue((u8 *)effectPkt148, 2);
+        linkedFadePacket->delay = colorDelay;
+        linkedFadePacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)linkedFadePacket, 1);
+        linkedReleaseEffectPacket = (BtlPacketTiming *)(btlEffectCreateFormationPacket((s32)((BtlBattleState *)iGpffffb3ac)->formations[27], (s32)linkedUnit, damageFrames, 0, 0x2100));
+        linkedReleaseEffectPacket->dependencyKind = 4;
+        linkedReleaseEffectPacket->dependencyUid = animEndUid;
+        linkedReleaseEffectPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)linkedReleaseEffectPacket, 2);
     }
-    if (sp310 == 1) {
-        pkt149 = (BtlPacketTiming *)(btlCreateSetFlagsPacket(0x80));
-        pkt149->queue = 4;
-        pkt149->startTime = formationPkt6->endTime;
-        pkt149->delay = 0xC;
-        pkt149->ownerId = actionId;
-        btlPacketEnqueue((u8 *)pkt149, 1);
-        pkt150 = (BtlPacketTiming *)(btlPacketCreateEndSequence());
-        pkt150->queue = 4;
-        pkt150->startTime = animPacket->endTime;
-        pkt150->flags = (u8) (pkt150->flags & 0xDF);
-        pkt150->ownerId = actionId;
-        btlPacketEnqueue((u8 *)pkt150, 1);
+    if (endsEncounter == 1) {
+        endEncounterFlagsPacket = (BtlPacketTiming *)(btlCreateSetFlagsPacket(0x80));
+        endEncounterFlagsPacket->dependencyKind = 4;
+        endEncounterFlagsPacket->dependencyUid = skillFormationPacket->uid;
+        endEncounterFlagsPacket->delay = 0xC;
+        endEncounterFlagsPacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)endEncounterFlagsPacket, 1);
+        endSequencePacket = (BtlPacketTiming *)(btlPacketCreateEndSequence());
+        endSequencePacket->dependencyKind = 4;
+        endSequencePacket->dependencyUid = animPacket->uid;
+        endSequencePacket->flags = (u8) (endSequencePacket->flags & 0xDF);
+        endSequencePacket->actionUid = actionId;
+        btlPacketEnqueue((u8 *)endSequencePacket, 1);
     }
     if (actionFlag4000 == 0) {
         btlFormationSetPlacement(formationHandle);
@@ -5493,11 +5504,11 @@ reactionPacket:
         u8 *partner = act->cutinPartner;
 
         cutin.mode = 3;
-        cutin.unitId = *(u16 *)(*(u8 **)(partner + 0x30) + 0xA4);
+        cutin.unitId = ((BtlUnit *)((u8*)((BtlAction *)partner)->unit))->charId;
         btlPacketEnqueue((u8 *)(btlSoundLoadPacketNew((u8 *)&cutin)), 1);
     }
-    if ((s32)(btlSoundCanReceiveStatus(arg0)) != (s32)(0)) {
-        btlActionSetState((BtlAction *)arg0, 0x1B);
+    if ((s32)(btlSoundCanReceiveStatus(actionBytes)) != (s32)(0)) {
+        btlActionSetState((BtlAction *)actionBytes, 0x1B);
         return;
     }
     {
@@ -5513,7 +5524,7 @@ reactionPacket:
             state = 0x20;
             break;
         }
-        btlActionSetState((BtlAction *)arg0, state);
+        btlActionSetState((BtlAction *)actionBytes, state);
     }
 }
 
@@ -5531,344 +5542,336 @@ void btlActionSummonInit(void)
 #pragma push
 /* measured: func_001abbb0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void btlActionSummonUpdate(s64 *arg0)
+/* Play the summon presentation and initialize up to three new encounter actors and their resources. */
+/* Raw packet offsets retain MATCH after both UID and signed-header rewrites changed allocation; encounter +0xC68 is opaque. */
+void btlActionSummonUpdate(s64 *actionBytes)
 {
     typedef struct DatUnit DatUnit;
     typedef struct DatUnitEc DatUnitEc;
-    extern s32 btlFormationAllocWork(u32 arg0);
-    extern void btlFormationSetPlacement(u32 arg0);
-    extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 arg0, u16 arg1);
-    extern u8 *btlTargetCreateHitPacket(u8 *arg0);
-    extern void btlMainSkillColorPairDefaults(u32 arg0, s32 *arg1, s32 *arg2);
-    extern s32 btlMainSkillColorDefault(s32 arg0);
-    extern s32 btlMainSkillTintDefault(s32 arg0);
-    extern void btlMainSkillColorPairDefaultsAlt(u32 arg0, s32 *arg1, s32 *arg2);
-    extern BtlPacket *btlMainCreateColorLerpPacket(u32 arg0, u32 arg1, u32 arg2);
-    extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
-    extern BtlPacket *btlMainCreateTintPacket(u32 arg0, u32 arg1);
-    extern BtlPacket *btlSoundCreateSkillSEPacket(u16 arg0, u16 arg1);
+    extern s32 btlFormationAllocWork(u32 mode);
+    extern void btlFormationSetPlacement(u32 formation);
+    extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 sprite, u16 frame);
+    extern u8 *btlTargetCreateHitPacket(u8 *action);
+    extern void btlMainSkillColorPairDefaults(u32 skill, s32 *color, s32 *tint);
+    extern s32 btlMainSkillColorDefault(s32 skill);
+    extern s32 btlMainSkillTintDefault(s32 skill);
+    extern void btlMainSkillColorPairDefaultsAlt(u32 skill, s32 *color, s32 *tint);
+    extern BtlPacket *btlMainCreateColorLerpPacket(u32 startColor, u32 targetColor, u32 duration);
+    extern BtlPacket *btlMainCreateColorWorkPacket(s32 lightColor, s32 ambientColor, s32 fogColor, u32 duration, u16 flags);
+    extern BtlPacket *btlMainCreateTintPacket(u32 targetColor, u32 duration);
+    extern BtlPacket *btlSoundCreateSkillSEPacket(u16 skillId, u16 flags);
     extern u8 *btlPacketCreateImmediate(void);
-    extern u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2);
-    extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
-    extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
-    extern BtlPacket *btlUnitCreateResourceLoadPacket(BtlUnit *arg0, u16 arg1, u16 arg2);
-    extern BtlPacket *btlCreateTimingPacket(u32 arg0);
-    extern BtlPacket *btlMainCreateFadePacket(s32 arg0, s16 arg1);
-    extern BtlPacket *btlMainCreateColorFadePacket(s32 arg0);
-    extern s32 btlSoundCanReceiveStatus(u8 *arg0);
-    extern u8 *iGpffffb3bc;
-    typedef struct UnitView {
-        u8 unknown00[4];
-        RwV3d pos;
-        u8 unknown10[0x94 - 0x10];
-        s16 value94;
-        s16 value96;
-        u8 unknown98[0xA64 - 0x98];
-        DatUnit *data;
-    } UnitView;
+    extern u8 *btlActionCreateWork(s32 genus, u16 characterId, u16 *unitData);
+    extern void btlUnitInitFromRecord(u8 *unit, s32 characterId);
+    extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 modelId, s16 motion);
+    extern BtlPacket *btlUnitCreateResourceLoadPacket(BtlUnit *unit, u16 id, u16 flags);
+    extern BtlPacket *btlCreateTimingPacket(u32 value);
+    extern BtlPacket *btlMainCreateFadePacket(s32 arg, s16 mode);
+    extern BtlPacket *btlMainCreateColorFadePacket(s32 arg);
+    extern s32 btlSoundCanReceiveStatus(u8 *action);
     /* Unit APIs consume pointers; formation APIs consume their EE word representation. */
-    typedef union UnitReference {
-        UnitView *pointer;
+    typedef union BtlSummonUnitReference {
+        BtlUnit *pointer;
         u32 address;
         s32 signedAddress;
-    } UnitReference;
-    typedef struct ActionView {
-        s64 uid;
+    } BtlSummonUnitReference;
+    typedef struct BtlSummonAction {
+        s64 actionUid;
         u8 unknown08[0x28];
-        UnitReference unitRef;
+        BtlSummonUnitReference unitRef;
         u8 unknown34[0x38];
         u16 mode;
-        s16 aux;
+        s16 skillValue;
         u8 unknown70[6];
         u16 ids[3];
-    } ActionView;
-    s32 outHi;
-    s32 outLo;
-    char workBuf[128];
-    s32 firstDone;
-    s32 off;
-    ActionView *action;
-    s64 uid;
-    s16 auxRaw;
-    u8 *seqPkt;
-    s64 evId;
-    u16 selector;
-    u32 aux;
-    s32 handle;
-    u8 *evPkt;
-    UnitView *unit;
-    s64 seqId;
-    s32 scaleTmp;
-    u8 *holdPkt;
-    u8 *tailPkt;
-    u32 idx;
+    } BtlSummonAction;
+    s32 firstColor;
+    s32 secondColor;
+    char formationName[128];
+    s32 formationStarted;
+    s32 skillFlagsOffset;
+    BtlSummonAction *action;
+    s64 actionUid;
+    s16 skillId;
+    u8 *formationNamePacket;
+    s64 castingUid;
+    u16 skillKey;
+    u32 skillValue;
+    s32 formationHandle;
+    u8 *castingPacket;
+    BtlUnit *unit;
+    s64 sequenceUid;
+    s32 castingFrames;
+    u8 *skillSoundPacket;
+    u8 *lastPacket;
+    u32 summonIndex;
 
-    action = (ActionView *)arg0;
-    auxRaw = action->aux;
-    uid = action->uid;
-    btlActionFinishPresentation((BtlAction *)arg0);
-    handle = btlFormationAllocWork(1);
-    selector = (u16)auxRaw;
-    aux = selector;
+    action = (BtlSummonAction *)actionBytes;
+    skillId = action->skillValue;
+    actionUid = action->actionUid;
+    btlActionFinishPresentation((BtlAction *)actionBytes);
+    formationHandle = btlFormationAllocWork(1);
+    skillKey = (u16)skillId;
+    skillValue = skillKey;
     {
-        u8 *pkt;
-        pkt = (u8 *)btlEffectCreateSpriteFramePacket((u32)action->unitRef.pointer, selector);
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 3);
+        u8 *packet;
+        packet = (u8 *)btlEffectCreateSpriteFramePacket((u32)action->unitRef.pointer, skillKey);
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 3);
     }
     {
-        u8 *pkt;
-        pkt = btlTargetCreateHitPacket((u8 *)action);
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = btlTargetCreateHitPacket((u8 *)action);
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 1);
     }
     {
-        u8 *pkt;
-        pkt = btlTargetCreateActionPacket((u8 *)action, 0);
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = btlTargetCreateActionPacket((u8 *)action, 0);
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 1);
     }
-    evPkt = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)action->unitRef.pointer, 8, 6, 1.0f, 0);
-    *(s64 *)(evPkt + 0x60) = uid;
-    btlPacketEnqueue(evPkt, 0);
+    castingPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)action->unitRef.pointer, 8, 6, 1.0f, 0);
+    ((BtlPacketTiming *)castingPacket)->actionUid = actionUid;
+    btlPacketEnqueue(castingPacket, 0);
     {
-        u8 *pkt;
-        pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x15);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(evPkt + 0x58);
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 0);
+        u8 *packet;
+        packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x15);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(castingPacket + 0x58);
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 0);
     }
-    evId = *(s64 *)(evPkt + 0x58);
-    scaleTmp = btlUnitMotionFrames((u8 *)action->unitRef.pointer, 8, 1.0f);
-    btlMainSkillColorPairDefaults(aux, &outHi, &outLo);
+    castingUid = *(s64 *)(castingPacket + 0x58);
+    castingFrames = btlUnitMotionFrames((u8 *)action->unitRef.pointer, 8, 1.0f);
+    btlMainSkillColorPairDefaults(skillValue, &firstColor, &secondColor);
     {
-        u8 *pkt;
-        pkt = (u8 *)btlMainCreateColorLerpPacket((u32)outHi, (u32)outLo, 0x10);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = evId;
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlMainCreateColorLerpPacket((u32)firstColor, (u32)secondColor, 0x10);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = castingUid;
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 1);
     }
     {
         s32 kind;
-        u8 *pkt;
-        kind = btlMainSkillColorDefault(aux);
-        btlMainSkillColorPairDefaultsAlt(aux, &outHi, &outLo);
-        pkt = (u8 *)btlMainCreateColorWorkPacket(kind, outHi, outLo, 0x10, 0);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = evId;
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        kind = btlMainSkillColorDefault(skillValue);
+        btlMainSkillColorPairDefaultsAlt(skillValue, &firstColor, &secondColor);
+        packet = (u8 *)btlMainCreateColorWorkPacket(kind, firstColor, secondColor, 0x10, 0);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = castingUid;
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 1);
     }
     {
-        u8 *pkt;
-        pkt = (u8 *)btlMainCreateTintPacket(btlMainSkillTintDefault(aux), 0x10);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = evId;
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlMainCreateTintPacket(btlMainSkillTintDefault(skillValue), 0x10);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = castingUid;
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 1);
     }
     {
-        u8 *pkt;
-        pkt = (u8 *)btlMainCreateUnitTintPacket((BtlAction *)action, aux, 0x10);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = evId;
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlMainCreateUnitTintPacket((BtlAction *)action, skillValue, 0x10);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = castingUid;
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 1);
     }
-    btlFormationFormatName(aux, workBuf);
-    seqPkt = (u8 *)btlFormationCreateNamedPacket(handle, workBuf, 0);
-    *seqPkt = 4;
-    *(s64 *)(seqPkt + 8) = 0;
-    *(s16 *)(seqPkt + 0x48) = scaleTmp + 6;
-    *(s64 *)(seqPkt + 0x60) = uid;
-    btlPacketEnqueue(seqPkt, 1);
-    holdPkt = (u8 *)btlSoundCreateSkillSEPacket(selector, 0);
-    *holdPkt = 4;
-    *(s64 *)(holdPkt + 8) = *(s64 *)(seqPkt + 0x58);
-    btlPacketEnqueue(holdPkt, 1);
+    btlFormationFormatName(skillValue, formationName);
+    formationNamePacket = (u8 *)btlFormationCreateNamedPacket(formationHandle, formationName, 0);
+    *formationNamePacket = 4;
+    ((BtlPacketTiming *)formationNamePacket)->dependencyUid = 0;
+    ((BtlPacketTiming *)formationNamePacket)->delay = castingFrames + 6;
+    ((BtlPacketTiming *)formationNamePacket)->actionUid = actionUid;
+    btlPacketEnqueue(formationNamePacket, 1);
+    skillSoundPacket = (u8 *)btlSoundCreateSkillSEPacket(skillKey, 0);
+    *skillSoundPacket = 4;
+    ((BtlPacketTiming *)skillSoundPacket)->dependencyUid = *(s64 *)(formationNamePacket + 0x58);
+    btlPacketEnqueue(skillSoundPacket, 1);
     {
-        u8 *pkt;
-        u8 *next;
-        pkt = (u8 *)btlFormationCreatePacket(handle, action->unitRef.address, action->unitRef.address, 0, 0);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(seqPkt + 0x58);
-        *(pkt + 0x10) = 4;
-        *(s64 *)(pkt + 0x18) = *(s64 *)(holdPkt + 0x58);
-        btlPacketEnqueue(pkt, 2);
-        next = (u8 *)btlSoundCreateCueQueuePacket(0);
-        *next = 5;
-        *(s64 *)(next + 8) = *(s64 *)(pkt + 0x58);
-        btlPacketEnqueue(next, 1);
+        u8 *packet;
+        u8 *nextPacket;
+        packet = (u8 *)btlFormationCreatePacket(formationHandle, action->unitRef.address, action->unitRef.address, 0, 0);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(formationNamePacket + 0x58);
+        *(packet + 0x10) = 4;
+        ((BtlPacket *)packet)->dependencyUID2 = *(s64 *)(skillSoundPacket + 0x58);
+        btlPacketEnqueue(packet, 2);
+        nextPacket = (u8 *)btlSoundCreateCueQueuePacket(0);
+        *nextPacket = 5;
+        ((BtlPacketTiming *)nextPacket)->dependencyUid = ((BtlPacketTiming *)packet)->uid;
+        btlPacketEnqueue(nextPacket, 1);
     }
-    seqId = *(s64 *)(seqPkt + 0x58);
-    tailPkt = btlPacketCreateImmediate();
-    *tailPkt = 4;
-    *(s64 *)(tailPkt + 8) = seqId;
-    *(s16 *)(tailPkt + 0x48) = 0x18;
-    *(s64 *)(tailPkt + 0x60) = uid;
-    btlPacketEnqueue(tailPkt, 1);
-    tailPkt = btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xD40), action->unitRef.signedAddress, 0, *(s64 *)(tailPkt + 0x58), 0x100);
-    *tailPkt = 4;
-    *(s64 *)(tailPkt + 8) = *(s64 *)(evPkt + 0x58);
-    *(s64 *)(tailPkt + 0x60) = uid;
-    btlPacketEnqueue(tailPkt, 1);
+    sequenceUid = ((BtlPacketTiming *)formationNamePacket)->uid;
+    lastPacket = btlPacketCreateImmediate();
+    *lastPacket = 4;
+    ((BtlPacketTiming *)lastPacket)->dependencyUid = sequenceUid;
+    ((BtlPacketTiming *)lastPacket)->delay = 0x18;
+    ((BtlPacketTiming *)lastPacket)->actionUid = actionUid;
+    btlPacketEnqueue(lastPacket, 1);
+    lastPacket = btlEffectCreateFormationPacket((s32)((BtlBattleState *)iGpffffb3ac)->formations[15], action->unitRef.signedAddress, 0, ((BtlPacketTiming *)lastPacket)->uid, 0x100);
+    *lastPacket = 4;
+    ((BtlPacketTiming *)lastPacket)->dependencyUid = *(s64 *)(castingPacket + 0x58);
+    ((BtlPacketTiming *)lastPacket)->actionUid = actionUid;
+    btlPacketEnqueue(lastPacket, 1);
     {
-        u8 *pkt;
-        pkt = (u8 *)btlSoundCreateChannelCuePacket(10, 2, 7);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(evPkt + 0x58);
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlSoundCreateChannelCuePacket(10, 2, 7);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = ((BtlPacketTiming *)castingPacket)->uid;
+        btlPacketEnqueue(packet, 1);
     }
-    firstDone = 0;
-    idx = 0;
-    off = (s32)auxRaw * 4;
-    for (; (u16)idx < 3; idx = (u16)(idx + 1)) {
-        u16 curId;
-        u8 *loopPkt;
-        curId = action->ids[(u16)idx];
-        if (curId == 0) {
+    formationStarted = 0;
+    summonIndex = 0;
+    skillFlagsOffset = (s32)skillId * 4;
+    for (; (u16)summonIndex < 3; summonIndex = (u16)(summonIndex + 1)) {
+        u16 unitId;
+        u8 *summonedAction;
+        unitId = action->ids[(u16)summonIndex];
+        if (unitId == 0) {
             break;
         }
-        loopPkt = btlActionCreateWork(1, curId, NULL);
-        unit = ((UnitReference *)(loopPkt + 0x30))->pointer;
-        unit->data = datUnitAddEncounterUnit(*(DatUnitEc **)(iGpffffb3ac + 0xC68), curId);
-        btlUnitInitFromRecord((u8 *)unit, curId & 0xFFFF);
-        unit->value94 = action->unitRef.pointer->value94;
-        unit->value96 = action->unitRef.pointer->value96;
+        summonedAction = btlActionCreateWork(1, unitId, NULL);
+        unit = ((BtlSummonUnitReference *)(summonedAction + 0x30))->pointer;
+        unit->datUnit = datUnitAddEncounterUnit((DatUnitEc*)((BtlBattleState *)iGpffffb3ac)->encounterRecord, unitId);
+        btlUnitInitFromRecord((u8 *)unit, unitId & 0xFFFF);
+        unit->unk_94 = action->unitRef.pointer->unk_94;
+        unit->unk_96 = action->unitRef.pointer->unk_96;
         unit->pos = action->unitRef.pointer->pos;
-        if (firstDone == 0) {
+        if (formationStarted == 0) {
             {
-                u8 *pkt;
-                pkt = (u8 *)btlFormationCreateReturnPacket(0);
-                *pkt = 4;
-                *(s64 *)(pkt + 8) = seqId;
-                *(s64 *)(pkt + 0x60) = uid;
-                btlPacketEnqueue(pkt, 0);
+                u8 *packet;
+                packet = (u8 *)btlFormationCreateReturnPacket(0);
+                *packet = 4;
+                ((BtlPacketTiming *)packet)->dependencyUid = sequenceUid;
+                ((BtlPacketTiming *)packet)->actionUid = actionUid;
+                btlPacketEnqueue(packet, 0);
             }
             {
-                u8 *pkt;
-                pkt = (u8 *)btlFormationCreateSlotPacket(1, 0xFFF);
-                *pkt = 4;
-                *(s64 *)(pkt + 8) = seqId;
-                *(s64 *)(pkt + 0x60) = uid;
-                btlPacketEnqueue(pkt, 0);
+                u8 *packet;
+                packet = (u8 *)btlFormationCreateSlotPacket(1, 0xFFF);
+                *packet = 4;
+                ((BtlPacketTiming *)packet)->dependencyUid = sequenceUid;
+                ((BtlPacketTiming *)packet)->actionUid = actionUid;
+                btlPacketEnqueue(packet, 0);
             }
-            if ((*(u16 *)((u32)off + (u32)iGpffffb3bc + 2) & 0x40) == 0) {
+            if ((*(u16 *)((u32)skillFlagsOffset + (u32)((u8 *)iGpffffb3bc) + 2) & 0x40) == 0) {
                 {
-                    u8 *pkt;
-                    pkt = (u8 *)btlEffectCreateReleasePacket(5);
-                    *pkt = 4;
-                    *(s64 *)(pkt + 8) = seqId;
-                    *(s64 *)(pkt + 0x60) = uid;
-                    btlPacketEnqueue(pkt, 0);
+                    u8 *packet;
+                    packet = (u8 *)btlEffectCreateReleasePacket(5);
+                    *packet = 4;
+                    ((BtlPacketTiming *)packet)->dependencyUid = sequenceUid;
+                    ((BtlPacketTiming *)packet)->actionUid = actionUid;
+                    btlPacketEnqueue(packet, 0);
                 }
                 {
-                    u8 *pkt;
-                    pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x2D);
-                    *pkt = 4;
-                    *(s64 *)(pkt + 8) = seqId;
-                    *(s64 *)(pkt + 0x60) = uid;
-                    btlPacketEnqueue(pkt, 0);
+                    u8 *packet;
+                    packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x2D);
+                    *packet = 4;
+                    ((BtlPacketTiming *)packet)->dependencyUid = sequenceUid;
+                    ((BtlPacketTiming *)packet)->actionUid = actionUid;
+                    btlPacketEnqueue(packet, 0);
                 }
             }
-            firstDone = 1;
+            formationStarted = 1;
         }
         {
-            u8 *q1;
-            u8 *q2;
-            u8 *q3;
-            q1 = btlUnitCreateModelLoadPacket((u8 *)unit, curId, 0x7E);
-            *q1 = 4;
-            *(s64 *)(q1 + 8) = seqId;
-            *(s64 *)(q1 + 0x60) = uid;
-            btlPacketEnqueue(q1, 1);
-            q2 = (u8 *)btlUnitCreateResourceLoadPacket((BtlUnit *)unit, curId, 0x10);
-            *q2 = 4;
-            *(s64 *)(q2 + 8) = *(s64 *)(q1 + 0x58);
-            btlPacketEnqueue(q2, 1);
-            q3 = (u8 *)btlFormationCreatePacket(handle, action->unitRef.address, ((UnitReference *)(loopPkt + 0x30))->address, 1, 0x100);
-            *q3 = 4;
-            *(s64 *)(q3 + 8) = *(s64 *)(q2 + 0x58);
-            *(q3 + 0x10) = 4;
-            *(s64 *)(q3 + 0x18) = *(s64 *)(holdPkt + 0x58);
-            *(s64 *)(q3 + 0x60) = uid;
-            btlPacketEnqueue(q3, 2);
-            tailPkt = q3;
+            u8 *modelPacket;
+            u8 *resourcePacket;
+            u8 *formationPacket;
+            modelPacket = btlUnitCreateModelLoadPacket((u8 *)unit, unitId, 0x7E);
+            *modelPacket = 4;
+            ((BtlPacketTiming *)modelPacket)->dependencyUid = sequenceUid;
+            ((BtlPacketTiming *)modelPacket)->actionUid = actionUid;
+            btlPacketEnqueue(modelPacket, 1);
+            resourcePacket = (u8 *)btlUnitCreateResourceLoadPacket((BtlUnit *)unit, unitId, 0x10);
+            *resourcePacket = 4;
+            ((BtlPacketTiming *)resourcePacket)->dependencyUid = ((BtlPacketTiming *)modelPacket)->uid;
+            btlPacketEnqueue(resourcePacket, 1);
+            formationPacket = (u8 *)btlFormationCreatePacket(formationHandle, action->unitRef.address, ((BtlSummonUnitReference *)(summonedAction + 0x30))->address, 1, 0x100);
+            *formationPacket = 4;
+            ((BtlPacketTiming *)formationPacket)->dependencyUid = *(s64 *)(resourcePacket + 0x58);
+            *(formationPacket + 0x10) = 4;
+            ((BtlPacket *)formationPacket)->dependencyUID2 = ((BtlPacketTiming *)skillSoundPacket)->uid;
+            ((BtlPacketTiming *)formationPacket)->actionUid = actionUid;
+            btlPacketEnqueue(formationPacket, 2);
+            lastPacket = formationPacket;
             {
-                u8 *q4;
-                q4 = (u8 *)btlSoundCreateCueQueuePacket(1);
-                *q4 = 5;
-                *(s64 *)(q4 + 8) = *(s64 *)(q3 + 0x58);
-                btlPacketEnqueue(q4, 1);
+                u8 *cuePacket;
+                cuePacket = (u8 *)btlSoundCreateCueQueuePacket(1);
+                *cuePacket = 5;
+                ((BtlPacketTiming *)cuePacket)->dependencyUid = *(s64 *)(formationPacket + 0x58);
+                btlPacketEnqueue(cuePacket, 1);
             }
-            if (((u16)idx == 0) && (action->ids[1] == 0)) {
-                u8 *q5;
-                q5 = (u8 *)btlPacketCreateEffectCounter(((UnitReference *)(loopPkt + 0x30))->signedAddress, 0x9F);
-                *q5 = 5;
-                *(s64 *)(q5 + 8) = *(s64 *)(q3 + 0x58);
-                *(s16 *)(q5 + 0x48) = 0x1C;
-                btlPacketEnqueue(q5, 3);
+            if (((u16)summonIndex == 0) && (action->ids[1] == 0)) {
+                u8 *messagePacket;
+                messagePacket = (u8 *)btlPacketCreateEffectCounter(((BtlSummonUnitReference *)(summonedAction + 0x30))->signedAddress, 0x9F);
+                *messagePacket = 5;
+                ((BtlPacketTiming *)messagePacket)->dependencyUid = ((BtlPacketTiming *)formationPacket)->uid;
+                ((BtlPacketTiming *)messagePacket)->delay = 0x1C;
+                btlPacketEnqueue(messagePacket, 3);
             }
             {
-                u8 *q6;
-                q6 = btlUnitCreateColorPacket((u8 *)unit, -1, 0xC, 0, 3, 1);
-                *q6 = 4;
-                *(s64 *)(q6 + 8) = *(s64 *)(q2 + 0x58);
-                *(q6 + 0x10) = 0xB;
-                *(s64 *)(q6 + 0x18) = *(s64 *)(q3 + 0x58);
-                *(s16 *)(q6 + 0x48) = 1;
-                *(s64 *)(q6 + 0x60) = uid;
-                btlPacketEnqueue(q6, 1);
+                u8 *colorPacket;
+                colorPacket = btlUnitCreateColorPacket((u8 *)unit, -1, 0xC, 0, 3, 1);
+                *colorPacket = 4;
+                ((BtlPacketTiming *)colorPacket)->dependencyUid = *(s64 *)(resourcePacket + 0x58);
+                *(colorPacket + 0x10) = 0xB;
+                ((BtlPacket *)colorPacket)->dependencyUID2 = ((BtlPacketTiming *)formationPacket)->uid;
+                ((BtlPacketTiming *)colorPacket)->delay = 1;
+                ((BtlPacketTiming *)colorPacket)->actionUid = actionUid;
+                btlPacketEnqueue(colorPacket, 1);
             }
-            seqId = *(s64 *)(q2 + 0x58);
+            sequenceUid = ((BtlPacketTiming *)resourcePacket)->uid;
         }
     }
     {
-        u8 *pkt;
-        pkt = (u8 *)actionTargetPacketBytes((u8 *)action, 9, 0, 0, 0);
-        *pkt = 0xB;
-        *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlActionCreateTargetPacketBytes((u8 *)action, 9, 0, 0, 0);
+        *packet = 0xB;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(lastPacket + 0x58);
+        btlPacketEnqueue(packet, 1);
     }
     {
-        u8 *pkt;
-        pkt = (u8 *)btlCreateTimingPacket(0x10);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
-        *(pkt + 0x47) &= ~0x20;
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlCreateTimingPacket(0x10);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(lastPacket + 0x58);
+        *(packet + 0x47) &= ~0x20;
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 1);
     }
     {
-        u8 *pkt;
-        pkt = (u8 *)btlMainCreateFadePacket(0x10, 0);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
-        *(pkt + 0x47) &= ~0x20;
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlMainCreateFadePacket(0x10, 0);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(lastPacket + 0x58);
+        *(packet + 0x47) &= ~0x20;
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 1);
     }
     {
-        u8 *pkt;
-        pkt = (u8 *)btlMainCreateColorFadePacket(0x10);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
-        *(pkt + 0x47) &= ~0x20;
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlMainCreateColorFadePacket(0x10);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(lastPacket + 0x58);
+        *(packet + 0x47) &= ~0x20;
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 1);
     }
     {
-        u8 *pkt;
-        pkt = (u8 *)btlMainCreateColorSetPacket(8);
-        *pkt = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
-        *(pkt + 0x47) &= ~0x20;
-        *(s64 *)(pkt + 0x60) = uid;
-        btlPacketEnqueue(pkt, 0);
+        u8 *packet;
+        packet = (u8 *)btlMainCreateColorSetPacket(8);
+        *packet = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = ((BtlPacketTiming *)lastPacket)->uid;
+        *(packet + 0x47) &= ~0x20;
+        ((BtlPacketTiming *)packet)->actionUid = actionUid;
+        btlPacketEnqueue(packet, 0);
     }
-    btlFormationSetPlacement(handle);
+    btlFormationSetPlacement(formationHandle);
     if (btlSoundCanReceiveStatus((u8 *)action) != 0) {
         btlActionSetState((BtlAction *)action, 0x1B);
     } else {
@@ -5889,49 +5892,54 @@ void btlActionSummonUpdate(s64 *arg0)
 
 #pragma pop
 // FUN_001AC500
+/* Select assist targets and establish the formation/camera presentation before readiness. */
 void btlActionAssistInit(BtlAction *action) {
     u8 *resetPacket;
     u8 *cameraPacket;
 
     btlActionFinishPresentation(action);
-    func_001eb3b0((u8 *)action + 0x38);
+    btlTargetResetCommandRecord((u8 *)action + 0x38);
     btlAICommandPickAiTarget(action, 0);
     btlActionFinishPresentation(action);
     resetPacket = (u8 *)btlFormationCreateSlotPacket(3, 0xFFF);
-    *(s64 *)(resetPacket + 0x60) = *(s64 *)action;
+    ((BtlPacket *)resetPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(resetPacket, 0);
     cameraPacket = (u8 *)btlCameraCreateSetStatePacket(action, 0x2C);
-    *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
+    ((BtlPacket *)cameraPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(cameraPacket, 0);
-    *(u16 *)((u8 *)action + 0x18) |= 2;
+    ((BtlAction *)action)->flags |= 2;
 }
 
 // FUN_001AC5B0
+/* Wait for outstanding assist presentation packets, then mark the action ready. */
 void btlActionAssistUpdate(BtlAction *action) {
     if ((btlCountUnitRecordsById(0x506) == 0) && (btlCountUnitRecordsById(0x800) == 0)) {
-        *(u16 *)((u8 *)action + 0x18) = (u16) (*(u16 *)((u8 *)action + 0x18) | 0x100);
+        ((BtlAction *)action)->flags = (u16) (((BtlAction *)action)->flags | 0x100);
         btlActionSetState(action, 0xFU);
     }
 }
 
 // FUN_001AC620
+/* Release active linked-unit models before running the action event callback. */
 void btlActionEventInit(void) {
-    u8 *p = *(u8 **)(D_0076449C + 0x174);
-    u8 *o;
+    u8 *actionCursor = ((BtlBattleState *)D_0076449C)->actions;
+    u8 *releasePacket;
 
-    while (p != NULL) {
-        if (btlActionLinkedUnitIsActive((BtlAction *)p) != 0) {
-            o = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(p + 0x30) + 0xA0C));
-            *(s64 *)(o + 0x60) = *(s64 *)p;
-            btlPacketEnqueue(o, 1);
+    while (actionCursor != NULL) {
+        if (btlActionLinkedUnitIsActive((BtlAction *)actionCursor) != 0) {
+            releasePacket = (u8 *)btlUnitCreateModelReleasePacket(((BtlUnit *)((u8 *)((BtlAction *)actionCursor)->unit))->childUnit);
+            ((BtlPacket *)releasePacket)->actionUID = *(s64 *)actionCursor;
+            btlPacketEnqueue(releasePacket, 1);
         }
-        p = *(u8 **)(p + 0x450);
+        actionCursor = (u8 *)((BtlAction *)actionCursor)->next;
     }
 }
 
 // FUN_001AC6A0
+/* Poll the installed event callback and resume the saved action state when it returns zero. */
+/* Raw +0x440 retains the installed callback's function-pointer type; BtlAction exposes that slot as void *. */
 void btlActionEventUpdate(BtlAction *action) {
-    if ((*(s32 (**)(void))((u8 *)action + 0x440))() == 0) {
+    if (((s32 (*)(void))action->unk_440)() == 0) {
         btlActionSetState(action, *(u16 *)((u8 *)action + 0x43C));
     }
 }
@@ -5942,6 +5950,8 @@ void btlActionErrorInit(void)
 }
 
 // FUN_001AC700
+/* Present the failed action with its unit-specific motion, camera and effect message, then recover. */
+/* Raw action/packet offsets retain MATCH; both action-scalar and signed packet-header rewrites changed instructions. */
 void btlActionErrorUpdate(u8 *action) {
     s64 packetIdentity;
     s32 alternateAction;
@@ -5950,11 +5960,11 @@ void btlActionErrorUpdate(u8 *action) {
     u16 actionKind;
     u8 *animationPacket;
 
-    BtlPacket *btlEffectCreateSpriteFramePacket(u32 action, u16 arg1);
-    BtlPacket *btlPacketCreateSpriteStep(u32 action, u16 arg1);
-    BtlPacket *btlMainCreateFadePacket(s32 action, s16 mode);
+    BtlPacket *btlEffectCreateSpriteFramePacket(u32 sprite, u16 frame);
+    BtlPacket *btlPacketCreateSpriteStep(u32 sprite, u16 frame);
+    BtlPacket *btlMainCreateFadePacket(s32 arg, s16 mode);
     BtlPacket *btlCreateTimingPacket(u32 value);
-    BtlPacket *btlMainCreateColorFadePacket(s32 action);
+    BtlPacket *btlMainCreateColorFadePacket(s32 arg);
 
 
     struct {
@@ -5970,17 +5980,17 @@ void btlActionErrorUpdate(u8 *action) {
     if (alternateAction == 0) {
         u8 *packet;
         packet = (u8 *)btlEffectCreateSpriteFramePacket(*(s32 *)(action + 0x30),
-                               *(u16 *)(action + 0x6E));
-        *(s64 *)(packet + 0x60) = packetIdentity;
+                               ((BtlAction *)action)->unk_6e);
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 3);
     } else {
         u8 *packet;
-        packet = (u8 *)btlPacketCreateSpriteStep(*(s32 *)(action + 0x30),
-                               *(u16 *)(action + 0x70));
-        *(s64 *)(packet + 0x60) = packetIdentity;
+        packet = (u8 *)btlPacketCreateSpriteStep((s32)((BtlAction *)action)->unit,
+                               ((BtlAction *)action)->parameters.item);
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 3);
     }
-    if ((*(u8 **)(action + 0x30))[0xA2] == 0) {
+    if (((BtlUnit *)(*(u8 **)(action + 0x30)))->genus == 0) {
         if (alternateAction == 0) {
             selection.animation = (s64)0xD;
             selection.resource = (s64)0xB;
@@ -5993,7 +6003,7 @@ void btlActionErrorUpdate(u8 *action) {
                                selection.animation, 1.0f);
         speed = 1.0f;
     } else {
-        if (btlTargetIsEntryActive(*(s16 *)(action + 0x6E)) != 0) {
+        if (btlTargetIsEntryActive((s16)((BtlAction *)action)->unk_6e) != 0) {
             animationChoice = 4;
         } else {
             animationChoice = 8;
@@ -6001,92 +6011,92 @@ void btlActionErrorUpdate(u8 *action) {
         selection.animation = (u16)animationChoice;
         selection.resource = (s64)0xF;
         selection.cameraState = 0x15;
-        if (*(u16 *)(action + 0x18) & 0x4000) {
+        if (((BtlAction *)action)->flags & 0x4000) {
             speed = 2.0f;
         } else {
             speed = 1.0f;
         }
-        selection.frames = btlUnitMotionFrames(*(u8 **)(action + 0x30),
+        selection.frames = btlUnitMotionFrames((u8*)((BtlAction *)action)->unit,
                                selection.animation, speed);
     }
     animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 0x30),
                                  (s16)selection.animation, 6, speed, 0);
-    *(s64 *)(animationPacket + 0x60) = packetIdentity;
-    *(s16 *)(animationPacket + 0x4A) = (s16)((selection.frames & 0xFFFF) + 6);
+    ((BtlPacketTiming *)animationPacket)->actionUid = packetIdentity;
+    ((BtlPacketTiming *)animationPacket)->duration = (s16)((selection.frames & 0xFFFF) + 6);
     btlPacketEnqueue(animationPacket, 0);
     {
         u8 *packet;
         packet = btlEffectCreateFormationPacket(
-            actionResourceAt((ActionResourcePrefix *)D_0076449C, (u16)selection.resource),
-            *(s32 *)(action + 0x30), 0,
+            btlActionGetFormationAddress((BtlBattleState *)D_0076449C, (u16)selection.resource),
+            (s32)((BtlAction *)action)->unit, 0,
             *(s64 *)(animationPacket + 0x58), 0x100);
-        *(s64 *)(packet + 0x60) = packetIdentity;
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 2);
     }
     {
         u8 *packet;
         packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, selection.cameraState);
-        *(s64 *)(packet + 0x60) = packetIdentity;
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 0);
     }
     {
         u8 *packet;
-        packet = (u8 *)actionMessagePacketBytes(*(s32 *)(action + 0x30),
-                               *(s16 *)(action + 0xEC));
-        *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-        *(s64 *)(packet + 0x60) = packetIdentity;
+        packet = (u8 *)btlActionCreateMessagePacketBytes(*(s32 *)(action + 0x30),
+                               (s16)((BtlAction *)action)->targetBlock.message.messageCode);
+        ((BtlPacketTiming *)packet)->dependencyKind = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(animationPacket + 0x58);
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 3);
     }
     {
         u8 *packet;
         packet = btlTargetCreateActionPacket(action, 0);
-        *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-        *(s64 *)(packet + 0x60) = packetIdentity;
+        ((BtlPacketTiming *)packet)->dependencyKind = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(animationPacket + 0x58);
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
         packet = (u8 *)btlCreateTimingPacket(0x10);
-        *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-        *(u8 *)(packet + 0x47) &= ~0x20;
-        *(s64 *)(packet + 0x60) = packetIdentity;
+        ((BtlPacketTiming *)packet)->dependencyKind = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(animationPacket + 0x58);
+        ((BtlPacketTiming *)packet)->flags &= ~0x20;
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
         packet = (u8 *)btlMainCreateFadePacket(0x10, 0);
-        *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-        *(u8 *)(packet + 0x47) &= ~0x20;
-        *(s64 *)(packet + 0x60) = packetIdentity;
+        ((BtlPacketTiming *)packet)->dependencyKind = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(animationPacket + 0x58);
+        ((BtlPacketTiming *)packet)->flags &= ~0x20;
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
         packet = (u8 *)btlMainCreateColorFadePacket(0x10);
-        *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-        *(u8 *)(packet + 0x47) &= ~0x20;
-        *(s64 *)(packet + 0x60) = packetIdentity;
+        ((BtlPacketTiming *)packet)->dependencyKind = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(animationPacket + 0x58);
+        ((BtlPacketTiming *)packet)->flags &= ~0x20;
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
         packet = (u8 *)btlMainCreateColorSetPacket(8);
-        *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-        *(u8 *)(packet + 0x47) &= ~0x20;
-        *(s64 *)(packet + 0x60) = packetIdentity;
+        ((BtlPacketTiming *)packet)->dependencyKind = 4;
+        ((BtlPacketTiming *)packet)->dependencyUid = ((BtlPacketTiming *)animationPacket)->uid;
+        ((BtlPacketTiming *)packet)->flags &= ~0x20;
+        ((BtlPacketTiming *)packet)->actionUid = packetIdentity;
         btlPacketEnqueue(packet, 0);
     }
     if (btlSoundCanReceiveStatus(action) != 0) {
         btlActionSetState((BtlAction *)action, 0x1B);
         return;
     }
-    actionKind = *(u16 *)(action + 0x6C);
+    actionKind = ((BtlAction *)action)->unk_6c;
     {
         u16 nextState;
         switch (actionKind) {
@@ -6104,32 +6114,36 @@ void btlActionErrorUpdate(u8 *action) {
 }
 
 // FUN_001ACB10
-void btlActionEndureInit(u8 *arg0)
+/* Apply the selected endurance flag, or restore the saved state when no endurance skill is pending. */
+/* Raw +0x3F4 accesses the endurance-state variant of hit storage; shared layouts do not declare that variant. */
+void btlActionEndureInit(u8 *action)
 {
     u16 skillId;
     u8 *unitStatePtr;
 
-    skillId = *(u16 *)(arg0 + 0x3F4);
+    skillId = *(u16 *)(action + 0x3F4);
     switch (skillId) {
     case 0x20F:
-        unitStatePtr = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
+        unitStatePtr = (u8 *)((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->datUnit;
         *(u16 *)unitStatePtr = *(u16 *)unitStatePtr | 0x400;
         break;
     case 0x210:
-        unitStatePtr = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
+        unitStatePtr = (u8 *)((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->datUnit;
         *(u16 *)unitStatePtr = *(u16 *)unitStatePtr | 0x800;
         break;
     }
-    if (*(u16 *)(arg0 + 0x3F4) == 0) {
-        unitStatePtr = *(u8 **)(arg0 + 0x30);
-        *(s32 *)(unitStatePtr + 0x9C) = *(s32 *)(unitStatePtr + 0x9C) & ~0x10;
-        btlActionSetState((BtlAction *)arg0, *(u16 *)(arg0 + 0x430));
+    if (((BtlAction *)action)->targetBlock.recovery.enduranceSkill == 0) {
+        unitStatePtr = (u8 *)((BtlAction *)action)->unit;
+        ((BtlUnit *)unitStatePtr)->flags3 = (s32)((BtlUnit *)unitStatePtr)->flags3 & ~0x10;
+        btlActionSetState((BtlAction *)action, (u16)((BtlAction *)action)->unk_430);
     }
 }
 
 // FUN_001ACBB0
-void btlActionEndureUpdate(u8 *arg0) {
-    s32 damageResult[8];
+/* Present endurance activation, consume its item when required, and apply the full-HP recovery result. */
+/* Raw endurance/unit offsets retain MATCH; canonical unit accesses changed allocation, and +0x3F4 is state-specific. */
+void btlActionEndureUpdate(u8 *action) {
+    LargeBattleHitResult damageResult;
     s32 value;
     s32 remainingCount;
     s32 prevFlags;
@@ -6148,33 +6162,33 @@ void btlActionEndureUpdate(u8 *arg0) {
     u8 *statPacket;
     u8 *removeFlagsPacket;
 
-    s32 datItemCount(s16 id);
-    u8 *btlCreateRemoveFlagsPacket(s32 arg0);
+    s32 datItemCount(s16 itemId);
+    u8 *btlCreateRemoveFlagsPacket(s32 flags);
     u8 *btlPacketCreateImmediate(void);
-    void btlTargetClearResultBuffer(u8 *arg0);
-    extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+    void btlTargetClearResultBuffer(u8 *result);
+    extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 
-    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
-    void btlActionSetState(u8 *arg0, u16 arg1);
-    u8 *btlPacketCreateHpRatio(u8 *arg0);
-    u32 datCalcGetHp(u8 *arg0);
-    u32 datCalcMaxHp(u8 *arg0);
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value);
+    void btlActionSetState(u8 *action, u16 state);
+    u8 *btlPacketCreateHpRatio(u8 *unit);
+    u32 datCalcGetHp(u8 *unit);
+    u32 datCalcMaxHp(u8 *unit);
 
-    battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
-    *(s32 *)(battleUnit + 0x9C) &= ~0x10;
+    battleUnit = *(u8 **)((u8 *)action + 0x30);
+    ((BtlUnit *)battleUnit)->flags3 &= ~0x10;
     if (btlCountUnitRecordsById(0xFF03) == 0) {
-        prevFlags = *(s32 *)(D_0076449C + 0xC);
+        prevFlags = ((BtlBattleState *)D_0076449C)->flags;
         if (!(prevFlags & 0x80000)) {
-            *(s32 *)(D_0076449C + 0xC) = prevFlags | 0x80000;
+            ((BtlBattleState *)D_0076449C)->flags = prevFlags | 0x80000;
             flagAdded = 1;
         } else {
             flagAdded = 0;
         }
-        skillId = *(u16 *)(arg0 + 0x3F4);
+        skillId = *(u16 *)(action + 0x3F4);
         switch (skillId) {
         case 0x210:
-            if (battleUnit[0xA2] == 0) {
+            if (((BtlUnit *)battleUnit)->genus == 0) {
                 messageIdVariant = 0x3E;
             } else {
                 messageIdVariant = 0x3F;
@@ -6191,7 +6205,7 @@ void btlActionEndureUpdate(u8 *arg0) {
             messageId = 0xB6;
             break;
         default:
-            if (battleUnit[0xA2] == 0) {
+            if (((BtlUnit *)battleUnit)->genus == 0) {
                 messageIdDefault = 0x3C;
             } else {
                 messageIdDefault = 0x3D;
@@ -6200,58 +6214,58 @@ void btlActionEndureUpdate(u8 *arg0) {
             break;
         }
         value = (s16)messageId;
-        messagePacket = actionMessagePacketBytes((s32)*(u8 **)(arg0 + 0x30),
+        messagePacket = btlActionCreateMessagePacketBytes((s32)(u8*)((BtlAction *)action)->unit,
                                  value);
-        *(s16 *)(messagePacket + 0x48) = 8;
-        *(s64 *)(messagePacket + 0x60) = *(s64 *)arg0;
+        ((BtlPacketTiming *)messagePacket)->delay = 8;
+        ((BtlPacket *)messagePacket)->actionUID = *(s64 *)action;
         btlPacketEnqueue(messagePacket, 3);
-        firstPacketTag = *(s64 *)(messagePacket + 0x58);
+        firstPacketTag = ((BtlPacket *)messagePacket)->uid;
         messagePacket = btlPacketCreateImmediate();
-        *(s16 *)(messagePacket + 0x48) = 8;
-        *(s64 *)(messagePacket + 0x60) = *(s64 *)arg0;
+        ((BtlPacketTiming *)messagePacket)->delay = 8;
+        ((BtlPacket *)messagePacket)->actionUID = *(s64 *)action;
         btlPacketEnqueue(messagePacket, 0);
-        secondPacketTag = *(s64 *)(messagePacket + 0x58);
-        if (*(u16 *)(arg0 + 0x3F4) == 0x154) {
+        secondPacketTag = ((BtlPacket *)messagePacket)->uid;
+        if (*(u16 *)(action + 0x3F4) == 0x154) {
             remainingCount = datItemCount(0x340) & 0xFF;
             if (remainingCount > 0) {
                 datItemSetCount(0x340, (remainingCount - 1) & 0xFF);
             }
         }
-        if (*(u16 *)(arg0 + 0x3F4) == 0x210) {
+        if (((BtlAction *)action)->targetBlock.recovery.enduranceSkill == 0x210) {
             btlTargetClearResultBuffer((u8 *)&damageResult);
             value = datCalcMaxHp(*(u8 **)(battleUnit + 0xA64)) & 0xFFFF;
-            damageResult[0] = value - (datCalcGetHp(*(u8 **)(battleUnit + 0xA64)) & 0xFFFF);
-            damagePacket = (u8 *)btlTargetCreateDataPacket((s32)arg0, (s32)arg0,
+            damageResult.hpDelta = value - (datCalcGetHp((u8*)((BtlUnit *)battleUnit)->datUnit) & 0xFFFF);
+            damagePacket = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action,
                                      &damageResult, 1, 1);
-            *(s8 *)(damagePacket + 0) = 4;
-            *(s64 *)(damagePacket + 8) = secondPacketTag;
-            *(s64 *)(damagePacket + 0x60) = *(s64 *)arg0;
+            ((BtlPacketTiming *)damagePacket)->dependencyKind = 4;
+            ((BtlPacketTiming *)damagePacket)->dependencyUid = secondPacketTag;
+            ((BtlPacket *)damagePacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(damagePacket, 1);
             unitPacket = btlPacketCreateHpRatio(battleUnit);
-            *(s8 *)(unitPacket + 0) = 4;
-            *(s64 *)(unitPacket + 8) = secondPacketTag;
-            *(s64 *)(unitPacket + 0x60) = *(s64 *)arg0;
+            ((BtlPacketTiming *)unitPacket)->dependencyKind = 4;
+            ((BtlPacketTiming *)unitPacket)->dependencyUid = secondPacketTag;
+            ((BtlPacket *)unitPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(unitPacket, 1);
             statusPacket = btlPacketCreateHitDisplay((s32)battleUnit, (s32)battleUnit, -1, 0, 0,
                                      0, 1, (u8 *)&damageResult, 0);
-            *(s8 *)(statusPacket + 0) = 4;
-            *(s64 *)(statusPacket + 8) = secondPacketTag;
-            *(s64 *)(statusPacket + 0x60) = *(s64 *)arg0;
+            ((BtlPacketTiming *)statusPacket)->dependencyKind = 4;
+            ((BtlPacketTiming *)statusPacket)->dependencyUid = secondPacketTag;
+            ((BtlPacket *)statusPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(statusPacket, 3);
             statPacket = btlPacketCreateUnitCounter((s32)battleUnit, 0, 0);
-            *(s8 *)(statPacket + 0) = 4;
-            *(s64 *)(statPacket + 8) = secondPacketTag;
-            *(s64 *)(statPacket + 0x60) = *(s64 *)arg0;
+            ((BtlPacketTiming *)statPacket)->dependencyKind = 4;
+            ((BtlPacketTiming *)statPacket)->dependencyUid = secondPacketTag;
+            ((BtlPacket *)statPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(statPacket, 3);
         }
         if (flagAdded != 0) {
             removeFlagsPacket = btlCreateRemoveFlagsPacket(0x80000);
-            *(s8 *)(removeFlagsPacket + 0) = 4;
-            *(s64 *)(removeFlagsPacket + 8) = firstPacketTag;
-            *(s64 *)(removeFlagsPacket + 0x60) = *(s64 *)arg0;
+            ((BtlPacketTiming *)removeFlagsPacket)->dependencyKind = 4;
+            ((BtlPacketTiming *)removeFlagsPacket)->dependencyUid = firstPacketTag;
+            ((BtlPacket *)removeFlagsPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(removeFlagsPacket, 0);
         }
-        btlActionSetState(arg0, *(u16 *)(arg0 + 0x430));
+        btlActionSetState(action, *(u16 *)(action + 0x430));
     }
 }
 
@@ -6262,76 +6276,74 @@ void btlActionWaitInit(void)
 
 // FUN_001ACF50
 u8 *btlPacketCreateImmediate(void);
-s32 btlUnitGetMotionState(u8 *arg0);
+s32 btlUnitGetMotionState(u8 *unit);
 
-void btlTargetClearResultBuffer(u8 *arg0);
-extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-s32 btlSoundCanReceiveStatus(u8 *arg0);
+void btlTargetClearResultBuffer(u8 *result);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
+s32 btlSoundCanReceiveStatus(u8 *action);
 
-void btlActionWaitUpdate(u8 *arg0) {
-    struct {
-        s32 sp30;
-        u8 pad[0x1A];
-        u16 sp4E;
-    } locals;
+/* Present the wait command and its optional recovery/status packet before selecting the next state. */
+/* Raw action/packet offsets retain MATCH; scalar and packet-header rewrites both changed this state's frame. */
+void btlActionWaitUpdate(u8 *action) {
+    LargeBattleHitResult result;
     u16 actionKind;
     u8 *packet;
     u8 *battleUnit;
     void btlActionFinishPresentation();
     u8 *recoveryPacket;
 
-    switch (*(u16 *)(arg0 + 0x6C)) {
+    switch (*(u16 *)(action + 0x6C)) {
     case 7:
         btlActionFinishPresentation();
         packet = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3);
-        *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
         btlPacketEnqueue(packet, 0);
-        if (*(s16 *)(arg0 + 0xEC) != 0) {
-            packet = actionMessagePacketBytes(*(s32 *)(arg0 + 0x30), *(s16 *)(arg0 + 0xEC));
-            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        if (*(s16 *)(action + 0xEC) != 0) {
+            packet = btlActionCreateMessagePacketBytes(*(s32 *)(action + 0x30), (s16)((BtlAction *)action)->targetBlock.message.messageCode);
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
             btlPacketEnqueue(packet, 3);
         } else {
-            battleUnit = *(u8 **)(arg0 + 0x30);
-            if ((*(s32 *)(battleUnit + 0x9C) & 0x4000) != 0) {
-                actionKind = *(u16 *)(arg0 + 0x6C);
+            battleUnit = (u8*)((BtlAction *)action)->unit;
+            if (((s32)((BtlUnit *)battleUnit)->flags3 & 0x4000) != 0) {
+                actionKind = ((BtlAction *)action)->unk_6c;
             } else {
                 actionKind = 8;
             }
             packet = btlPacketCreateSpriteTable((u32)battleUnit, actionKind & 0xFFFF);
-            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
             btlPacketEnqueue(packet, 3);
         }
-        packet = func_001f99c0(arg0, 0x16, 0, 0, 0);
-        *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        packet = func_001f99c0(action, 0x16, 0, 0, 0);
+        ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
         btlPacketEnqueue(packet, 1);
-        if ((*(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) & 0x4000) != 0) {
-            packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x32);
-            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        if (((s32)((BtlUnit *)*(u8 **)(action + 0x30))->flags3 & 0x4000) != 0) {
+            packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x32);
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
             btlPacketEnqueue(packet, 0);
-            if ((s16)btlUnitGetMotionState(*(u8 **)(arg0 + 0x30)) != 0x11) {
-                recoveryPacket = actionRecoveryPacketBytes((BtlUnit *)*(u8 **)(arg0 + 0x30));
-                *(s64 *)(recoveryPacket + 0x60) = *(s64 *)arg0;
+            if ((s16)btlUnitGetMotionState(*(u8 **)(action + 0x30)) != 0x11) {
+                recoveryPacket = btlActionCreateRecoveryPacketBytes((BtlUnit *)(u8*)((BtlAction *)action)->unit);
+                ((BtlPacketTiming *)recoveryPacket)->actionUid = *(s64 *)action;
                 btlPacketEnqueue(recoveryPacket, 0);
             } else {
                 recoveryPacket = btlPacketCreateImmediate();
-                *(s64 *)(recoveryPacket + 0x60) = *(s64 *)arg0;
+                ((BtlPacketTiming *)recoveryPacket)->actionUid = *(s64 *)action;
                 btlPacketEnqueue(recoveryPacket, 0);
             }
-            btlTargetClearResultBuffer((u8 *)&locals.sp30);
-            locals.sp4E |= 0x80;
-            packet = (u8 *)btlTargetCreateDataPacket((s32)arg0, (s32)arg0, &locals.sp30, 1, 1);
-            *(s8 *)(packet + 0) = 4;
-            *(s64 *)(packet + 8) = *(s64 *)(recoveryPacket + 0x58);
-            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+            btlTargetClearResultBuffer((u8 *)&result);
+            result.flags |= 0x80;
+            packet = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
+            ((BtlPacketTiming *)packet)->dependencyKind = 4;
+            ((BtlPacketTiming *)packet)->dependencyUid = *(s64 *)(recoveryPacket + 0x58);
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
             btlPacketEnqueue(packet, 1);
-            packet = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(arg0 + 0x30), 0x18, 6, 1.0f, 1);
-            *(s8 *)(packet + 0) = 4;
-            *(s64 *)(packet + 8) = *(s64 *)(recoveryPacket + 0x58);
-            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+            packet = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)(u8*)((BtlAction *)action)->unit, 0x18, 6, 1.0f, 1);
+            ((BtlPacketTiming *)packet)->dependencyKind = 4;
+            ((BtlPacketTiming *)packet)->dependencyUid = ((BtlPacketTiming *)recoveryPacket)->uid;
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
             btlPacketEnqueue(packet, 0);
         } else {
-            packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0xA);
-            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+            packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0xA);
+            ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
             btlPacketEnqueue(packet, 0);
         }
         break;
@@ -6339,16 +6351,18 @@ void btlActionWaitUpdate(u8 *arg0) {
     case 11:
         break;
     }
-    btlPacketEnqueue(btlTargetCreateActionPacket(arg0, 0), 1);
-    if ((btlSoundCanReceiveStatus(arg0) != 0) && (*(u16 *)(arg0 + 0x6C) != 8)) {
-        btlActionSetState((BtlAction *)arg0, 0x1B);
+    btlPacketEnqueue(btlTargetCreateActionPacket(action, 0), 1);
+    if ((btlSoundCanReceiveStatus(action) != 0) && (((BtlAction *)action)->unk_6c != 8)) {
+        btlActionSetState((BtlAction *)action, 0x1B);
         return;
     }
-    btlActionSetState((BtlAction *)arg0, 0x20);
+    btlActionSetState((BtlAction *)action, 0x20);
 }
 
 // FUN_001AD280
-void btlActionEscapeMesInit(u8 *arg0)
+/* Focus the actors for an escape confirmation prompt and initialize its message phase. */
+/* Raw selected-action pointers and the ten-byte cut-in buffer retain existing provider word/byte boundaries. */
+void btlActionEscapeMesInit(u8 *action)
 {
     s16 cutinParams[8];
     u8 *lookAtPacket;
@@ -6356,75 +6370,77 @@ void btlActionEscapeMesInit(u8 *arg0)
     u8 *cameraPacket;
     u8 *cutinPacket;
 
-    btlActionFinishPresentation((BtlAction *)arg0);
-    lookAtPacket = actionLookAtUnit(
-        *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
-        *(u8 **)(arg0 + 0x30),
+    btlActionFinishPresentation((BtlAction *)action);
+    lookAtPacket = btlActionCreateLookAtUnitPacketBytes(
+        (u8*)((BtlAction *)((BtlBattleState *)D_0076449C)->selectedAction)->unit,
+        *(u8 **)(action + 0x30),
         0);
-    *(s64 *)(lookAtPacket + 0x60) = *(s64 *)arg0;
+    ((BtlPacket *)lookAtPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(lookAtPacket, 1);
-    lookAtPacket = actionLookAtUnit(
-        *(u8 **)(arg0 + 0x30),
-        *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
+    lookAtPacket = btlActionCreateLookAtUnitPacketBytes(
+        (u8*)((BtlAction *)action)->unit,
+        (u8*)((BtlAction *)((BtlBattleState *)D_0076449C)->selectedAction)->unit,
         0);
-    *(s64 *)(lookAtPacket + 0x60) = *(s64 *)arg0;
+    ((BtlPacket *)lookAtPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(lookAtPacket, 1);
-    *(u16 *)(arg0 + 0x18) |= 0x200;
+    ((BtlAction *)action)->flags |= 0x200;
     resetPacket = (u8 *)btlFormationCreateSlotPacket(3, 0xFFF);
-    *(s64 *)(resetPacket + 0x60) = *(s64 *)arg0;
+    ((BtlPacket *)resetPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(resetPacket, 0);
-    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 9);
-    *(s64 *)(cameraPacket + 0x60) = *(s64 *)arg0;
+    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 9);
+    ((BtlPacket *)cameraPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(cameraPacket, 0);
     cutinParams[0] = 5;
     cutinPacket = btlSoundLoadPacketNew((u8 *)&cutinParams[0]);
-    *(s64 *)(cutinPacket + 0x60) = *(s64 *)arg0;
+    ((BtlPacket *)cutinPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(cutinPacket, 1);
-    if (func_001eb860() == 1) {
-        *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
-        btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 0);
+    if (btlTargetCanControlDamagePhase() == 1) {
+        ((BtlBattleState *)D_0076449C)->flags &= ~0x2000;
+        btlDamageSetSource((u8 *)((BtlBattleState *)D_0076449C)->uiTask, 0);
     }
-    *(s32 *)(arg0 + 0x41C) = 0;
+    ((BtlAction *)action)->unk_41c = 0;
 }
 
 // FUN_001AD3E0
-void btlActionEscapeMesUpdate(u8 *arg0)
+/* Wait for presentation completion, obtain the escape answer, and release the prompt resources. */
+/* Raw phase-word accesses retain MATCH; replacing them with BtlAction fields changed this state's frame. */
+void btlActionEscapeMesUpdate(u8 *action)
 {
-    u8 *temp;
+    u8 *packet;
 
-    if (*(s32 *)(arg0 + 0x41C) != 0) {
+    if (*(s32 *)(action + 0x41C) != 0) {
         goto common;
     }
-    if (btlUnitRecordFindByActionUID(*(s64 *)arg0, 0x3FFFFFFFFFFFFFFFLL) != 0) {
+    if (btlUnitRecordFindByActionUID(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) != 0) {
         goto done;
     }
-    btlMessageInstallWindow(*(s32 *)(D_0076449C + 0xDD4), arg0);
-    temp = btlSoundLoadTaskStart();
-    *(s64 *)(temp + 0x60) = *(s64 *)arg0;
-    btlPacketEnqueue(temp, 1);
-    *(s32 *)(arg0 + 0x41C) = 1;
+    btlMessageInstallWindow(((BtlBattleState *)D_0076449C)->uiTask, action);
+    packet = btlSoundLoadTaskStart();
+    ((BtlPacket *)packet)->actionUID = *(s64 *)action;
+    btlPacketEnqueue(packet, 1);
+    ((BtlAction *)action)->unk_41c = 1;
 common:
-    if (btlMessageIsActiveAlt2(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
+    if (btlMessageIsActiveAlt2(((BtlBattleState *)D_0076449C)->uiTask) == 0) {
         goto done;
     }
-    if (func_001eb860() != 1) {
+    if (btlTargetCanControlDamagePhase() != 1) {
         goto after_flag;
     }
-    *(s32 *)(D_0076449C + 0xC) |= 0x2000;
-    btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
+    ((BtlBattleState *)D_0076449C)->flags |= 0x2000;
+    btlDamageSetSource((u8 *)((BtlBattleState *)D_0076449C)->uiTask, 1);
 after_flag:
-    if (btlMessageGetResultAlt2(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
+    if (btlMessageGetResultAlt2(((BtlBattleState *)D_0076449C)->uiTask) != 0) {
         goto alternate;
     }
-    btlActionSetState((BtlAction *)arg0, 0x1D);
+    btlActionSetState((BtlAction *)action, 0x1D);
     goto after_state;
 alternate:
-    btlActionSetState((BtlAction *)arg0, 0x20);
+    btlActionSetState((BtlAction *)action, 0x20);
 after_state:
-    temp = btlSoundReleaseTaskStart();
-    *(s64 *)(temp + 0x60) = *(s64 *)arg0;
-    btlPacketEnqueue(temp, 1);
-    btlMessageRelease(*(s32 *)(D_0076449C + 0xDD4));
+    packet = btlSoundReleaseTaskStart();
+    ((BtlPacket *)packet)->actionUID = *(s64 *)action;
+    btlPacketEnqueue(packet, 1);
+    btlMessageRelease(((BtlBattleState *)D_0076449C)->uiTask);
 done:
     return;
 }
@@ -6437,127 +6453,109 @@ void btlActionEscapeInit(void)
 // FUN_001AD550
 /* measured: func_001ad550 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void btlActionEscapeUpdate(s64 *arg0)
+/* Collect eligible escaping actors and sequence their movement, hiding and encounter-end dependencies. */
+/* Raw packet offsets retain MATCH after signed-header rewriting; escape count and tagged packet gates are opaque. */
+void btlActionEscapeUpdate(s64 *actionBytes)
 {
     #include "rw_types_internal.h"
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *arg0, RwV3d *arg1);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
     extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *quat);
-    extern BtlPacket *btlCreateSetFlagsPacket(u32 arg0);
+    extern BtlPacket *btlCreateSetFlagsPacket(u32 flags);
     extern RwV3d D_0060A100;
     extern f32 fGpffff8218;
-    typedef struct UnitView {
-        u8 unknown00[0xA2];
-        u8 kind;
-        u8 unknownA3;
-        u16 index;
-        u8 unknownA6[0xA64 - 0xA6];
-        s32 data;
-    } UnitView;
-    typedef struct ActionView {
-        s64 uid;
-        u8 unknown08[0x10];
-        u16 flags18;
-        u16 flags1A;
-        u8 unknown1C[0x14];
-        UnitView *unit;
-        u8 unknown34[0x38];
-        u16 mode;
-        u8 unknown6E[0x450 - 0x6E];
-        struct ActionView *next;
-    } ActionView;
-    ActionView *action;
-    RwV3d outE0;
-    RwV3d posD0;
-    RwV3d vecC0;
-    ActionView *collected[12];
+    BtlAction *action;
+    RwV3d escapeDestination;
+    RwV3d sphereCenter;
+    RwV3d escapeOffset;
+    BtlAction *collected[12];
     union {
         RtQuat rotation;
         f32 values[4];
-    } quat80;
-    u8 *first;
-    u8 *stepPkt;
-    ActionView *cur;
-    ActionView *iter;
-    s64 lastId;
-    s32 listed;
-    s32 spread;
+    } facing;
+    u8 *spritePacket;
+    u8 *movementPacket;
+    BtlAction *escapingAction;
+    BtlAction *actionCursor;
+    s64 lastPacketUid;
+    s32 collectedParty;
+    s32 groupEscape;
     u16 count;
-    u16 idx;
+    u16 actionIndex;
 
-    action = (ActionView *)arg0;
-    btlActionFinishPresentation((BtlAction *)arg0);
-    first = btlPacketCreateSpriteTable((u32)action->unit, 6);
-    *(s64 *)(first + 0x60) = action->uid;
-    btlPacketEnqueue(first, 3);
-    listed = 0;
-    spread = 0;
+    action = (BtlAction *)actionBytes;
+    btlActionFinishPresentation((BtlAction *)actionBytes);
+    spritePacket = btlPacketCreateSpriteTable((u32)action->unit, 6);
+    ((BtlPacketTiming *)spritePacket)->actionUid = action->uid;
+    btlPacketEnqueue(spritePacket, 3);
+    collectedParty = 0;
+    groupEscape = 0;
     count = 0;
-    lastId = 0;
-    switch (action->unit->kind) {
+    lastPacketUid = 0;
+    switch (action->unit->genus) {
     case 0:
-        if (action->mode != 0xC) {
-            *(u16 *)(iGpffffb3ac + 0xC5E) = *(u16 *)(iGpffffb3ac + 0xC5E) + 1;
-            spread = 1;
-            for (iter = *(ActionView **)(iGpffffb3ac + 0x174); iter != NULL; iter = iter->next) {
-                if ((iter->flags1A & 1) != 0) {
-                    if (iter->unit->kind == 0) {
-                        if (datCalcIsDead(iter->unit->data, 0) == 0) {
-                            if (datCalcChkBadStatus(iter->unit->data, 0x100001) == 0) {
-                                collected[count] = iter;
+        if (action->unk_6c != 0xC) {
+            ((BtlBattleState *)iGpffffb3ac)->escapeCount = ((BtlBattleState *)iGpffffb3ac)->escapeCount + 1;
+            groupEscape = 1;
+            for (actionCursor = (BtlAction*)((BtlBattleState *)iGpffffb3ac)->actions; actionCursor != NULL; actionCursor = actionCursor->next) {
+                if ((actionCursor->unk_1a & 1) != 0) {
+                    if (actionCursor->unit->genus == 0) {
+                        if (datCalcIsDead((s32)actionCursor->unit->datUnit, 0) == 0) {
+                            if (datCalcChkBadStatus((s32)actionCursor->unit->datUnit, 0x100001) == 0) {
+                                collected[count] = actionCursor;
                                 count++;
                             }
                         }
                     }
                 }
             }
-            listed = 1;
+            collectedParty = 1;
         } else {
             collected[0] = action;
             count = 1;
-            action->flags18 |= 0x20;
-            action->flags1A &= 0xFFF7;
+            action->flags |= 0x20;
+            action->unk_1a &= 0xFFF7;
         }
         break;
     case 1:
         collected[0] = action;
         count = 1;
-        action->flags18 |= 0x20;
-        action->flags1A &= 0xFFF7;
+        action->flags |= 0x20;
+        action->unk_1a &= 0xFFF7;
         break;
     }
-    if (listed == 0) {
+    if (collectedParty == 0) {
         {
             u8 *pkt;
             pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)collected[0], 0xA);
-            *(s64 *)(pkt + 0x60) = action->uid;
+            ((BtlPacketTiming *)pkt)->actionUid = action->uid;
             btlPacketEnqueue(pkt, 0);
         }
     }
-    if (action->unit->kind == 0) {
+    if (action->unit->genus == 0) {
         {
             u8 *pkt;
             pkt = (u8 *)btlSoundCreateCuePacket(0xF, 2, 0);
             *pkt = 5;
-            *(s64 *)(pkt + 8) = *(s64 *)(first + 0x58);
-            *(u16 *)(pkt + 0x48) = 0x1A;
-            *(s64 *)(pkt + 0x60) = action->uid;
+            ((BtlPacketTiming *)pkt)->dependencyUid = *(s64 *)(spritePacket + 0x58);
+            ((BtlPacketTiming *)pkt)->delay = 0x1A;
+            ((BtlPacketTiming *)pkt)->actionUid = action->uid;
             btlPacketEnqueue(pkt, 1);
         }
-        if (action->mode == 0xC) {
+        if (action->unk_6c == 0xC) {
             {
                 u8 *pkt;
-                pkt = actionTargetPacketBytes((u8 *)action, 7, 0, 0, 0);
-                *(s64 *)(pkt + 0x60) = action->uid;
+                pkt = btlActionCreateTargetPacketBytes((u8 *)action, 7, 0, 0, 0);
+                ((BtlPacketTiming *)pkt)->actionUid = action->uid;
                 btlPacketEnqueue(pkt, 1);
             }
-        } else if (spread == 1) {
+        } else if (groupEscape == 1) {
             {
                 u8 *pkt;
                 pkt = btlPacketCreateEndSequence();
                 *pkt = 5;
-                *(s64 *)(pkt + 8) = *(s64 *)(first + 0x58);
-                *(u16 *)(pkt + 0x48) = 0x10;
-                *(s64 *)(pkt + 0x60) = action->uid;
+                ((BtlPacketTiming *)pkt)->dependencyUid = ((BtlPacketTiming *)spritePacket)->uid;
+                ((BtlPacketTiming *)pkt)->delay = 0x10;
+                ((BtlPacketTiming *)pkt)->actionUid = action->uid;
                 btlPacketEnqueue(pkt, 1);
             }
         }
@@ -6566,78 +6564,78 @@ void btlActionEscapeUpdate(s64 *arg0)
             u8 *pkt;
             pkt = (u8 *)btlSoundCreateChannelCuePacket(0xC, 2, 0xF);
             *pkt = 5;
-            *(s64 *)(pkt + 8) = *(s64 *)(first + 0x58);
-            *(u16 *)(pkt + 0x48) = 0x16;
-            *(s64 *)(pkt + 0x60) = action->uid;
+            ((BtlPacketTiming *)pkt)->dependencyUid = ((BtlPacketTiming *)spritePacket)->uid;
+            ((BtlPacketTiming *)pkt)->delay = 0x16;
+            ((BtlPacketTiming *)pkt)->actionUid = action->uid;
             btlPacketEnqueue(pkt, 1);
         }
         {
             u8 *pkt;
-            pkt = actionTargetPacketBytes((u8 *)action, 6, 0, 0, 0);
-            *(u16 *)(pkt + 0x48) = 0xC;
-            *(s64 *)(pkt + 0x60) = action->uid;
+            pkt = btlActionCreateTargetPacketBytes((u8 *)action, 6, 0, 0, 0);
+            ((BtlPacketTiming *)pkt)->delay = 0xC;
+            ((BtlPacketTiming *)pkt)->actionUid = action->uid;
             btlPacketEnqueue(pkt, 1);
         }
     }
-    for (idx = 0; idx < count; idx++) {
-        cur = collected[idx];
-        btlUnitGetSphereWorldCenter((BtlUnit *)cur->unit, &posD0);
-        btlUnitGetAnchorPose((u8 *)cur->unit, NULL, quat80.values, NULL);
-        RtQuatTransformVectors(&vecC0, &D_0060A100, 1, &quat80.rotation);
-        if (action->unit->kind == 0) {
-            vecC0.x = vecC0.x * 500.0f;
-            vecC0.y = vecC0.y * 500.0f;
-            vecC0.z = vecC0.z * 500.0f;
-            outE0.x = posD0.x + vecC0.x;
-            outE0.y = posD0.y + vecC0.y;
-            outE0.z = posD0.z + vecC0.z;
-            stepPkt = (u8 *)btlUnitCreateMovePacket((BtlUnit *)cur->unit, &outE0, 0.5f, 0);
+    for (actionIndex = 0; actionIndex < count; actionIndex++) {
+        escapingAction = collected[actionIndex];
+        btlUnitGetSphereWorldCenter((BtlUnit *)escapingAction->unit, &sphereCenter);
+        btlUnitGetAnchorPose((u8 *)escapingAction->unit, NULL, facing.values, NULL);
+        RtQuatTransformVectors(&escapeOffset, &D_0060A100, 1, &facing.rotation);
+        if (action->unit->genus == 0) {
+            escapeOffset.x = escapeOffset.x * 500.0f;
+            escapeOffset.y = escapeOffset.y * 500.0f;
+            escapeOffset.z = escapeOffset.z * 500.0f;
+            escapeDestination.x = sphereCenter.x + escapeOffset.x;
+            escapeDestination.y = sphereCenter.y + escapeOffset.y;
+            escapeDestination.z = sphereCenter.z + escapeOffset.z;
+            movementPacket = (u8 *)btlUnitCreateMovePacket((BtlUnit *)escapingAction->unit, &escapeDestination, 0.5f, 0);
         } else {
-            if (*(s16 *)(iGpffffb3cc + (u32)cur->unit->index * 0xE8 + 0x22) != 1) {
-                vecC0.x = vecC0.x * 129.6f;
-                vecC0.y = vecC0.y * 129.6f;
-                vecC0.z = vecC0.z * 129.6f;
-                outE0.x = posD0.x + vecC0.x;
-                outE0.y = posD0.y + vecC0.y;
-                outE0.z = posD0.z + vecC0.z;
+            if (((BtlEnemyBattleParameters *)(iGpffffb3cc + escapingAction->unit->charId * 0xE8))->cameraMode != 1) {
+                escapeOffset.x = escapeOffset.x * 129.6f;
+                escapeOffset.y = escapeOffset.y * 129.6f;
+                escapeOffset.z = escapeOffset.z * 129.6f;
+                escapeDestination.x = sphereCenter.x + escapeOffset.x;
+                escapeDestination.y = sphereCenter.y + escapeOffset.y;
+                escapeDestination.z = sphereCenter.z + escapeOffset.z;
             } else {
-                outE0 = posD0;
+                escapeDestination = sphereCenter;
             }
-            stepPkt = (u8 *)btlUnitCreateMovePacket((BtlUnit *)cur->unit, &outE0, fGpffff8218, 4);
+            movementPacket = (u8 *)btlUnitCreateMovePacket((BtlUnit *)escapingAction->unit, &escapeDestination, fGpffff8218, 4);
         }
-        *stepPkt = 5;
-        *(s64 *)(stepPkt + 8) = *(s64 *)(first + 0x58);
-        *(u16 *)(stepPkt + 0x48) = 0x10;
-        *(s64 *)(stepPkt + 0x60) = action->uid;
-        btlPacketEnqueue(stepPkt, 1);
+        *movementPacket = 5;
+        ((BtlPacketTiming *)movementPacket)->dependencyUid = ((BtlPacketTiming *)spritePacket)->uid;
+        ((BtlPacketTiming *)movementPacket)->delay = 0x10;
+        ((BtlPacketTiming *)movementPacket)->actionUid = action->uid;
+        btlPacketEnqueue(movementPacket, 1);
         {
             u8 *pkt;
-            pkt = btlUnitCreateColorPacket((u8 *)cur->unit, 0xFFFFFF, 8, 0, 4, 0);
+            pkt = btlUnitCreateColorPacket((u8 *)escapingAction->unit, 0xFFFFFF, 8, 0, 4, 0);
             *pkt = 5;
-            *(s64 *)(pkt + 8) = *(s64 *)(stepPkt + 0x58);
-            *(u16 *)(pkt + 0x48) = 0xC;
-            *(s64 *)(pkt + 0x60) = action->uid;
+            ((BtlPacketTiming *)pkt)->dependencyUid = ((BtlPacketTiming *)movementPacket)->uid;
+            ((BtlPacketTiming *)pkt)->delay = 0xC;
+            ((BtlPacketTiming *)pkt)->actionUid = action->uid;
             btlPacketEnqueue(pkt, 1);
-            lastId = *(s64 *)(pkt + 0x58);
+            lastPacketUid = ((BtlPacketTiming *)pkt)->uid;
         }
     }
-    if (spread != 0) {
+    if (groupEscape != 0) {
         {
             u8 *pkt;
             pkt = (u8 *)btlCreateSetFlagsPacket(0x80);
             *pkt = 4;
-            *(s64 *)(pkt + 8) = lastId;
+            ((BtlPacketTiming *)pkt)->dependencyUid = lastPacketUid;
             *(pkt + 0x10) = 0xA;
-            *(u16 *)(pkt + 0x18) = 0x801;
-            *(s64 *)(pkt + 0x60) = action->uid;
+            ((BtlPacketCondition *)pkt)[1].value.id = 0x801;
+            ((BtlPacketTiming *)pkt)->actionUid = action->uid;
             btlPacketEnqueue(pkt, 1);
         }
-        *(u16 *)(iGpffffb3ac + 0x1C) = 3;
+        ((BtlBattleState *)iGpffffb3ac)->endState = 3;
     }
     {
         u8 *pkt;
         pkt = btlTargetCreateActionPacket((u8 *)action, 0);
-        *(s64 *)(pkt + 0x60) = action->uid;
+        ((BtlPacketTiming *)pkt)->actionUid = action->uid;
         btlPacketEnqueue(pkt, 1);
     }
     btlActionSetState((BtlAction *)action, 0x20);
@@ -6651,7 +6649,9 @@ void btlActionEscapeUpdate(s64 *arg0)
 /* measured: func_001adb80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001ADB80
-void btlActionPersonaInit(s64 *arg0)
+/* Release the prior linked model, select and initialize the new persona, and queue the change effects. */
+/* Raw action/roster offsets access the state-specific persona selector and pending record absent from shared layouts. */
+void btlActionPersonaInit(s64 *action)
 {
     u16 person;
     u32 unit;
@@ -6668,15 +6668,15 @@ void btlActionPersonaInit(s64 *arg0)
     u8 *battleUnit;
     u8 *linkedUnit;
 
-    actionFlags = *(u16 *)((u8 *)arg0 + 0x1A);
+    actionFlags = ((BtlAction *)action)->unk_1a;
     if ((actionFlags & 1) == 0) {
         needsIntro = 0;
     } else {
-        battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
-        linkedUnit = *(u8 **)(battleUnit + 0xA0C);
+        battleUnit = (u8 *)((BtlAction *)action)->unit;
+        linkedUnit = (u8 *)((BtlUnit *)battleUnit)->childUnit;
         if ((actionFlags & 0x10) == 0) {
             needsIntro = 0;
-        } else if ((*(s32 *)(linkedUnit + 0x98) & 2) != 0) {
+        } else if (((s32)((BtlUnit *)linkedUnit)->flags2 & 2) != 0) {
             needsIntro = 1;
         } else {
             needsIntro = 0;
@@ -6684,53 +6684,54 @@ void btlActionPersonaInit(s64 *arg0)
     }
     if (needsIntro != 0) {
         introPacket = (u8 *)btlUnitCreateModelReleasePacket(
-            *(BtlUnit **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA0C));
-        *(s64 *)(introPacket + 0x60) = *(s64 *)arg0;
+            ((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->childUnit);
+        ((BtlPacket *)introPacket)->actionUID = *(s64 *)action;
         btlPacketEnqueue(introPacket, 1);
     }
-    btlActionFinishPresentation((BtlAction *)arg0);
+    btlActionFinishPresentation((BtlAction *)action);
     actionPacket = btlPacketCreateSpriteTable(
-        *(u32 *)((u8 *)arg0 + 0x30),
-        *(u16 *)((u8 *)arg0 + 0x6C));
-    *(s64 *)(actionPacket + 0x60) = *(s64 *)arg0;
+        (u32)((BtlAction *)action)->unit,
+        ((BtlAction *)action)->unk_6c);
+    ((BtlPacket *)actionPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(actionPacket, 3);
-    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1F);
-    *(s64 *)(cameraPacket + 0x60) = *(s64 *)arg0;
+    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x1F);
+    ((BtlPacket *)cameraPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(cameraPacket, 0);
-    animPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)((u8 *)arg0 + 0x30),
+    animPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)(u8 *)((BtlAction *)action)->unit,
                              0x19, 0, 1.0f, 0);
-    *(s64 *)(animPacket + 0x60) = *(s64 *)arg0;
+    ((BtlPacket *)animPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(animPacket, 0);
-    effectPacket = func_001f99c0((u8 *)arg0, 0x15, 0, 0, 0);
-    *(s64 *)(effectPacket + 0x60) = *(s64 *)arg0;
+    effectPacket = func_001f99c0((u8 *)action, 0x15, 0, 0, 0);
+    ((BtlPacket *)effectPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(effectPacket, 1);
-    if (*(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2) == 0) {
-        datPersonaSelectRosterMemberById(*(u16 *)((u8 *)arg0 + 0x74));
-        person = *(u16 *)((u8 *)arg0 + 0x74);
-        btlUnitInitChild(*(u8 **)((u8 *)arg0 + 0x30), person);
+    if (((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->genus == 0) {
+        datPersonaSelectRosterMemberById(((BtlAction *)action)->parameters.persona);
+        person = ((BtlAction *)action)->parameters.persona;
+        btlUnitInitChild((u8 *)((BtlAction *)action)->unit, person);
         datPersonaRemoveSelectedRosterMember();
         if (datGetFlag(0x3C) != 0) {
-            pendingRecord = *(u8 **)((u8 *)arg0 + 0x3F0);
+            pendingRecord = (u8*)((BtlAction *)action)->targetBlock.recovery.savedCursors;
             if (pendingRecord != NULL) {
-                *(s16 *)(pendingRecord + 6) = 0;
-                *(s16 *)(*(u8 **)((u8 *)arg0 + 0x3F0) + 4) = 0;
+                ((s16 (*)[2])pendingRecord)[1][1] = 0;
+                ((s16 (*)[2])((BtlAction *)action)->targetBlock.recovery.savedCursors)[1][0] = 0;
             }
         }
     }
-    unit = *(u32 *)((u8 *)arg0 + 0x30);
+    unit = (u32)((BtlAction *)action)->unit;
     resultPacket = (u8 *)btlFormationCreatePacket(
-        *(s32 *)(D_0076449C + 0xD3C),
+        (s32)((BtlBattleState *)D_0076449C)->formations[14],
         unit, unit,
         0, 0);
-    *(s16 *)(resultPacket + 0x48) = 0xF;
-    *(s64 *)(resultPacket + 0x60) = *(s64 *)arg0;
+    ((BtlPacketTiming *)resultPacket)->delay = 0xF;
+    ((BtlPacket *)resultPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(resultPacket, 2);
     followPacket = (u8 *)btlSoundCreateChannelCuePacket(0xA, 2, 6);
-    *(s8 *)(followPacket + 0) = 5;
-    *(s64 *)(followPacket + 8) = *(s64 *)(resultPacket + 0x58);
-    *(s64 *)(followPacket + 0x60) = *(s64 *)arg0;
+    ((BtlPacketTiming *)followPacket)->dependencyKind = 5;
+    ((BtlPacketTiming *)followPacket)->dependencyUid = ((BtlPacket *)resultPacket)->uid;
+    ((BtlPacket *)followPacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(followPacket, 1);
-    *(s32 *)(D_0076449C + 0xC) |= 0x400000;
-    *(u16 *)(D_0076449C + 0x18) |= 5;
+    ((BtlBattleState *)D_0076449C)->flags |= 0x400000;
+    ((BtlBattleState *)D_0076449C)->actionEndFlags |= 5;
 }
+#pragma pop
 

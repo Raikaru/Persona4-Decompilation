@@ -4,11 +4,20 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "resrc_manager_internal.h"
 #include "scene_event_internal.h"
 #include "scene_light_override_internal.h"
 #include "evt_internal.h"
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern s32 MT_Scene_GetTotalResInList(s32 arg0);
+/* The defaults lookup follows the shared 0x750-byte light snapshot prefix. */
+typedef struct EvtSceneLightDefaults {
+    SceneLightWork lighting;
+    u8 pad750[0x50];
+    s32 count;
+    u8 **resources;
+} EvtSceneLightDefaults;
+
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
+extern s32 MT_Scene_GetTotalResInList(s32 resType);
 extern void SceneDraw_SetCustomLight(u16 resTypeId, u32 customLight);
 extern void *SceneDraw_GetList5FirstColor(void);
 extern void *SceneDraw_GetList5SecondColor(void);
@@ -16,19 +25,19 @@ extern void *SceneDraw_GetList5Matrix(void);
 extern SceneLightMatrix *RwMatrixRotate(SceneLightMatrix *matrix, const SceneLightAxis *axis, f32 angle, s32 combine);
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
-extern void evtUpdateSceneLight(u8 *arg0, u8 *arg1, u8 *arg2);
+extern void evtUpdateSceneLight(u8 *workBytes, u8 *resource, u8 *defaults);
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
-// Updates the scene lights: runs the per-light update over the light table, then resets the light state [inferred].
+// Update model, NPC and type-12 lights, matching resource IDs against saved defaults.
 // FUN_0028C3F0
-void evtUpdateSceneLights(u8 *arg0)
+void evtUpdateSceneLights(u8 *workBytes)
 {
     u32 nodes[51];
     s32 count;
     s32 i;
     s32 k;
-    s32 table_count;
+    s32 tableCount;
     u8 *node1;
     u8 *node2;
     u8 *node3;
@@ -48,29 +57,29 @@ void evtUpdateSceneLights(u8 *arg0)
         while (node1 != NULL) {
             nodes[i] = (u32)node1;
             i++;
-            node1 = *(u8 **)(node1 + 0x138);
+            node1 = (u8 *)((ResrcRecord *)node1)->next;
         }
         node2 = MT_Scene_GetResListHead(1);
         while (node2 != NULL) {
             nodes[i] = (u32)node2;
             i++;
-            node2 = *(u8 **)(node2 + 0x138);
+            node2 = (u8 *)((ResrcRecord *)node2)->next;
         }
         node3 = MT_Scene_GetResListHead(0xC);
         while (node3 != NULL) {
             nodes[i] = (u32)node3;
             i++;
-            node3 = *(u8 **)(node3 + 0x138);
+            node3 = (u8 *)((ResrcRecord *)node3)->next;
         }
         i = 0;
         while (i < count) {
             slot = &nodes[i];
             node = (u8 *)*slot;
             id = *(u16 *)node;
-            table_count = *(s32 *)(arg0 + 0x7A0);
+            tableCount = ((EvtSceneLightDefaults *)workBytes)->count;
             k = 0;
-            while (k < table_count) {
-                match = *(u8 **)(*(u8 **)(arg0 + 0x7A4) + k * 4);
+            while (k < tableCount) {
+                match = ((EvtSceneLightDefaults *)workBytes)->resources[k];
                 if (*(u16 *)match == id) {
                     t = match;
                     goto found;
@@ -79,7 +88,7 @@ void evtUpdateSceneLights(u8 *arg0)
             }
             t = NULL;
 found:
-            evtUpdateSceneLight(arg0, node, t);
+            evtUpdateSceneLight(workBytes, node, t);
             i++;
         }
     }

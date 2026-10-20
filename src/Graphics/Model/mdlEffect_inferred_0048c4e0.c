@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 #include "type.h"
+#include "mdl_effect_emitter_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
 #include "particle_spawn_internal.h"
@@ -53,9 +54,9 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 0048c4e0-0048c4e0 */
 
-extern f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
-extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-extern void func_0048b340(u8 *arg0, u8 *arg1);
+extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
+extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
+extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
 /* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
  * eight zero alignment bytes. IDA retains the result that Ghidra drops:
  * retail leaves the copied quadword in v0 through return. Preserve that
@@ -96,20 +97,21 @@ extern void func_0048b340(u8 *arg0, u8 *arg1);
  * XYZ scale's complete object representation is described at its declaration.
  * Proof: docs/probe_archive/Motion_scale_0048c4e0_20261005/README.md.
  * Measured scopes preserve scalar operand lifetimes across RNG calls. */
+/* Emit radial-motion particles and integrate speed, acceleration, gravity and keyed appearance. */
 // FUN_0048C4E0
 #pragma push
 /* measured: EffMotionEmitterUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* measured: EffMotionEmitterUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void EffMotionEmitterUpdate(u8 *arg0)
+void EffMotionEmitterUpdate(u8 *emitterData)
 {
-    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
     extern void *memcpy(void *dst, const void *src, u32 size);
-    extern void func_0048b340(u8 *arg0, u8 *arg1);
+    extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
-    EffectVuVector vec130;
+    EffectVuVector direction;
     /* LQC2 reads the complete representation of this aligned XYZ vector.
      * The fourth word is the struct's unspecified tail padding, not a float
      * member. Preserve the hardware load and all four VU result lanes. */
@@ -117,38 +119,39 @@ void EffMotionEmitterUpdate(u8 *arg0)
         f32 lane[3];
     } __attribute__((aligned(16))) MotionScale3;
     typedef char MotionScale3Size[(sizeof(MotionScale3) == 16) ? 1 : -1];
-    MotionScale3 vec120;
-    u_long128 b220buf;
+    MotionScale3 spreadVector;
+    u_long128 previousPosition;
     u32 count;
     u32 flags;
-    u8 *nodes;
-    f32 *out;
-    u8 *config;
-    u8 *const parent = arg0;
-    s32 limitB8;
-    s32 saved20;
-    u8 mode9C;
-    f32 e4val;
-    f32 e0val;
+    u8 *particle;
+    /* measured: angleScale retain array addressing for MATCH. */
+    f32 *state;
+    u8 *parameters;
+    u8 *const emitter = emitterData;
+    s32 lifetime;
+    s32 emissionDuration;
+    u8 angleMode;
+    f32 gravity;
+    f32 acceleration;
     f32 half;
     f32 two;
     f32 one;
     f32 zero;
-    f32 g80;
-    f32 negone;
-    s32 v15;
-    s32 v14;
+    f32 angleScale;
+    f32 negativeOne;
+    s32 spawnBudget;
+    s32 preroll;
     u8 initialPreroll;
-    u32 idx;
-    s32 tmp;
-    f32 ftmp1;
-    f32 ftmp2;
-    s32 node10;
-    s32 c0;
-    s32 c4;
-    s32 nmult;
-    u8 *clear;
-    s32 ci;
+    u32 index;
+    s32 sample;
+    f32 scaledValue;
+    f32 sampleValue;
+    s32 age;
+    s32 trailCount;
+    s32 trailWidth;
+    s32 trailLength;
+    u8 *trail;
+    s32 trailIndex;
     u32 particleIndex;
     f32 speedVariation;
     f32 spreadVariation;
@@ -156,162 +159,162 @@ void EffMotionEmitterUpdate(u8 *arg0)
     f32 angleVariation;
     f32 b;
 
-    count = *(u32 *)(parent + 4);
-    flags = *(u32 *)(parent + 12);
-    nodes = *(u8 **)(parent + 24);
-    out = *(f32 **)(parent + 28);
-    config = *(u8 **)(parent + 32);
-    limitB8 = *(s32 *)(config + 184);
-    if (limitB8 == 0) {
+    count = *(u32 *)(emitter + 4); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    flags = ((MdlEffectEmitter *)emitter)->flags;
+    particle = ((MdlEffectEmitter *)emitter)->particles;
+    state = ((MdlEffectEmitter *)emitter)->state.scalars;
+    parameters = ((MdlEffectEmitter *)emitter)->parameters;
+    lifetime = ((MdlEffectEmitterParameters *)parameters)->lifetime;
+    if (lifetime == 0) {
         return;
     }
-    saved20 = *(s32 *)(config + 32);
-    mode9C = *(u8 *)(config + 156);
-    e4val = *(f32 *)(config + 220);
-    e0val = *(f32 *)(config + 216);
-    vec130.lane[3] = 0.0f;
-    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
-        v14 = 0;
-        v15 = 0;
+    emissionDuration = ((MdlEffectEmitterParameters *)parameters)->emissionDuration;
+    angleMode = ((MdlEffectEmitterParameters *)parameters)->angleMode;
+    gravity = ((MdlEffectMotionParameters *)parameters)->gravity;
+    acceleration = ((MdlEffectMotionParameters *)parameters)->acceleration;
+    direction.lane[3] = 0.0f;
+    if ((emissionDuration != 0) && (((MdlEffectEmitter *)emitter)->ticks >= emissionDuration)) {
+        preroll = 0;
+        spawnBudget = 0;
         goto post_init;
     }
-    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
+    if ((((MdlEffectEmitter *)emitter)->ticks == 0) && (((MdlEffectEmitterParameters *)parameters)->preroll != 0)) {
         initialPreroll = 1;
-        v14 = initialPreroll;
-        if (!(*(f32 *)(config + 40) <= 0.0f)) {
-            f32 prerollScale = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)*(u32 *)(parent + 4);
-            v15 = (s32)(ftmp2 * prerollScale);
+        preroll = initialPreroll;
+        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            f32 prerollScale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
+            sampleValue = (f32)((MdlEffectEmitter *)emitter)->primaryCount.value;
+            spawnBudget = (s32)(sampleValue * prerollScale);
         } else {
-            v15 = *(s32 *)(parent + 4);
+            spawnBudget = ((MdlEffectEmitter *)emitter)->primaryCount.signedValue;
         }
         goto post_init;
     } else {
-        v14 = 0;
-        if (!(*(f32 *)(config + 40) <= 0.0f)) {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            tmp = *(s32 *)(config + 36);
-            ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
+        preroll = 0;
+        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            scaledValue = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
+            sample = ((MdlEffectEmitterParameters *)parameters)->emissionRate.signedValue;
+            sampleValue = (f32)(u32)sample;
+            ((MdlEffectEmitter *)emitter)->emissionAccumulator = ((MdlEffectEmitter *)emitter)->emissionAccumulator + sampleValue * scaledValue;
         } else {
-            tmp = *(s32 *)(config + 36);
-            ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
+            sample = ((MdlEffectEmitterParameters *)parameters)->emissionRate.signedValue;
+            scaledValue = (f32)(u32)sample;
+            ((MdlEffectEmitter *)emitter)->emissionAccumulator = ((MdlEffectEmitter *)emitter)->emissionAccumulator + scaledValue;
         }
-        ftmp1 = *(f32 *)(parent + 20);
-        ftmp1 = fabsf(ftmp1);
-        v15 = (s32)ftmp1;
-        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
+        scaledValue = ((MdlEffectEmitter *)emitter)->emissionAccumulator;
+        scaledValue = fabsf(scaledValue);
+        spawnBudget = (s32)scaledValue;
+        ((MdlEffectEmitter *)emitter)->emissionAccumulator = ((MdlEffectEmitter *)emitter)->emissionAccumulator - (f32)spawnBudget;
         goto post_init;
     }
 post_init:
-    idx = 0;
+    index = 0;
     half = 0.5f;
     two = 2.0f;
     one = 1.0f;
     zero = 0.0f;
-    g80 = fGpffff8080;
-    negone = -1.0f;
+    angleScale = fGpffff8080;
+    negativeOne = -1.0f;
     goto main_check;
 main_body:
-    if (*(s32 *)(nodes + 16) < limitB8) {
+    if (*(s32 *)(particle + 16) < lifetime) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
         goto skip_clear;
     }
-    if (saved20 != 0) {
-        tmp = -2;
+    if (emissionDuration != 0) {
+        sample = -2;
     } else {
-        tmp = -1;
+        sample = -1;
     }
-    *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
-    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
-    nmult = c0 * c4;
-    if (nmult != 0) {
-        particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
-        clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
-        ci = 0;
+    ((SpawnParticle *)particle)->age = sample;
+    trailCount = ((MdlEffectEmitterParameters *)(((MdlEffectEmitter *)emitter)->parameters))->trailCount.signedValue;
+    trailWidth = ((MdlEffectEmitterParameters *)(((MdlEffectEmitter *)emitter)->parameters))->trailWidth;
+    trailLength = trailCount * trailWidth;
+    if (trailLength != 0) {
+        particleIndex = ((u32)particle - (u32)((MdlEffectEmitter *)emitter)->particles) >> 5;
+        trail = ((MdlEffectEmitter *)emitter)->particles + ((((MdlEffectEmitter *)emitter)->primaryCount.value + particleIndex * (u32)trailLength) << 5);
+        trailIndex = 0;
         goto clear_check;
 clear_body:
-        *(s32 *)(clear + 16) = -1;
-        clear += 32;
-        ci += 1;
+        ((SpawnParticle *)trail)->age = -1;
+        trail += 32;
+        trailIndex += 1;
 clear_check:
-        if (ci < nmult) {
+        if (trailIndex < trailLength) {
             goto clear_body;
         }
     }
 skip_clear:
-    node10 = *(s32 *)(nodes + 16);
-    if (node10 == -2) {
+    age = ((SpawnParticle *)particle)->age;
+    if (age == -2) {
         goto next_iter;
     }
-    if (node10 != -1) {
+    if (age != -1) {
         goto else_branch;
     }
-    if (v15 == 0) {
+    if (spawnBudget == 0) {
         goto next_iter;
     }
-    vec130.lane[0] = (effMiscRandFloat(0) - half) * two;
-    vec130.lane[1] = (effMiscRandFloat(0) - half) * two;
-    vec130.lane[2] = (effMiscRandFloat(0) - half) * two;
-    effectVuLoad10(&vec130);
+    direction.lane[0] = (effMiscRandFloat(0) - half) * two;
+    direction.lane[1] = (effMiscRandFloat(0) - half) * two;
+    direction.lane[2] = (effMiscRandFloat(0) - half) * two;
+    effectVuLoad10(&direction);
     spawnVuNormalize10();
-    effectVuStore10(&vec130);
-    out[0] = vec130.lane[0];
-    out[1] = vec130.lane[1];
-    out[2] = vec130.lane[2];
-    speedVariation = *(f32 *)(config + 212);
+    effectVuStore10(&direction);
+    ((MdlEffectMotionState *)state)->direction[0] = direction.lane[0];
+    ((MdlEffectMotionState *)state)->direction[1] = direction.lane[1];
+    ((MdlEffectMotionState *)state)->direction[2] = direction.lane[2];
+    speedVariation = ((MdlEffectMotionParameters *)parameters)->speedVariation;
     b = effMiscRandFloat(0);
-    out[3] = fabsf(*(f32 *)(config + 208) * ((one - speedVariation) + speedVariation * b));
-    spreadVariation = *(f32 *)(config + 204);
+    ((MdlEffectMotionState *)state)->speed = fabsf(*(f32 *)(parameters + 0xD0) * ((one - speedVariation) + speedVariation * b)); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    spreadVariation = ((MdlEffectMotionParameters *)parameters)->spreadVariation;
     b = effMiscRandFloat(0);
-    vec120.lane[0] = *(f32 *)(config + 200) * ((one - spreadVariation) + spreadVariation * b);
-    vec120.lane[1] = vec120.lane[0];
-    vec120.lane[2] = vec120.lane[0];
-    effectVuLoad10(&vec130);
-    if (*(f32 *)(config + 208) < zero) {
+    spreadVector.lane[0] = ((MdlEffectMotionParameters *)parameters)->spread * ((one - spreadVariation) + spreadVariation * b);
+    spreadVector.lane[1] = spreadVector.lane[0];
+    spreadVector.lane[2] = spreadVector.lane[0];
+    effectVuLoad10(&direction);
+    if (((MdlEffectMotionParameters *)parameters)->speed < zero) {
         __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10", "memory");
     }
     if ((flags & 1) != 0) {
         __asm__ volatile("lqc2 $vf11, 0(%0)"
-            : : "r"(&vec120), "m"(*(const u8 (*)[sizeof(vec120)])&vec120)
+            : : "r"(&spreadVector), "m"(*(const u8 (*)[sizeof(spreadVector)])&spreadVector)
             : "$vf11");
         spawnVuMultiply10();
     } else {
         __asm__ volatile("lqc2 $vf11, 0(%0)"
-            : : "r"(&vec120), "m"(*(const u8 (*)[sizeof(vec120)])&vec120)
+            : : "r"(&spreadVector), "m"(*(const u8 (*)[sizeof(spreadVector)])&spreadVector)
             : "$vf11");
         spawnVuMultiply10();
-        effectVuLoad11((const EffectVuVector *)config);
+        effectVuLoad11((const EffectVuVector *)parameters);
         spawnVuAdd10();
     }
-    effectVuStore10((EffectVuVector *)nodes);
-    sizeVariation = *(f32 *)(config + 108);
+    effectVuStore10((EffectVuVector *)particle);
+    sizeVariation = ((MdlEffectEmitterParameters *)parameters)->sizeVariation;
     b = effMiscRandFloat(0);
-    out[4] = (one - sizeVariation) + sizeVariation * b;
-    if (mode9C != 2) {
-        angleVariation = *(f32 *)(config + 152);
+    ((MdlEffectMotionState *)state)->sizeScale = (one - sizeVariation) + sizeVariation * b;
+    if (angleMode != 2) {
+        angleVariation = ((MdlEffectEmitterParameters *)parameters)->angleVariation;
         b = effMiscRandFloat(0);
-        out[6] = (one - angleVariation) + angleVariation * b;
-        if (mode9C == 1) {
+        state[6] = (one - angleVariation) + angleVariation * b;
+        if (angleMode == 1) {
             b = effMiscRandFloat(0);
-            out[5] = g80 * b;
+            ((MdlEffectMotionState *)state)->angleOffset = angleScale * b;
             if ((effMiscRand(0) & 1) != 0) {
-                out[6] = out[6] * negone;
+                ((MdlEffectMotionState *)state)->angleScale = ((MdlEffectMotionState *)state)->angleScale * negativeOne;
             }
         } else {
-            out[5] = zero;
+            ((MdlEffectMotionState *)state)->angleOffset = zero;
         }
     } else {
-        out[5] = zero;
-        out[6] = one;
+        ((MdlEffectMotionState *)state)->angleOffset = zero;
+        ((MdlEffectMotionState *)state)->angleScale = one;
     }
-    *(s32 *)(nodes + 16) = 0;
+    *(s32 *)(particle + 16) = 0; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
     {
-        u_long128 *snapshot = &b220buf;
-        *snapshot = *(u_long128 *)nodes;
+        u_long128 *snapshot = &previousPosition;
+        *snapshot = *(u_long128 *)particle;
     }
-    if (v14 != 0) {
+    if (preroll != 0) {
         f32 prerollElapsed;
         f32 prerollDistance;
         f32 travelled;
@@ -319,77 +322,80 @@ skip_clear:
         f32 accelerationSquaredDistance;
         f32 gravityDistance;
         f32 gravitySquaredDistance;
-        tmp = (u32)effMiscRand(0) % (u32)limitB8;
-        prerollElapsed = (f32)(u32)tmp;
-        effectVuLoad11((const EffectVuVector *)nodes);
-        travelled = out[3] * prerollElapsed;
-        accelerationDistance = e0val * prerollElapsed;
+        sample = (u32)effMiscRand(0) % (u32)lifetime;
+        prerollElapsed = (f32)(u32)sample;
+        effectVuLoad11((const EffectVuVector *)particle);
+        travelled = ((MdlEffectMotionState *)state)->speed * prerollElapsed;
+        accelerationDistance = acceleration * prerollElapsed;
         accelerationSquaredDistance = prerollElapsed * accelerationDistance;
         prerollDistance = travelled + half * accelerationSquaredDistance;
         if (prerollDistance < zero) {
             prerollDistance = zero;
         }
-        vec130.lane[0] = prerollDistance * out[0];
-        vec130.lane[1] = prerollDistance * out[1];
-        vec130.lane[2] = prerollDistance * out[2];
-        gravityDistance = e4val * prerollElapsed;
+        direction.lane[0] = prerollDistance * ((MdlEffectMotionState *)state)->direction[0];
+        direction.lane[1] = prerollDistance * ((MdlEffectMotionState *)state)->direction[1];
+        direction.lane[2] = prerollDistance * ((MdlEffectMotionState *)state)->direction[2];
+        gravityDistance = gravity * prerollElapsed;
         gravitySquaredDistance = prerollElapsed * gravityDistance;
-        vec130.lane[1] = vec130.lane[1] - half * gravitySquaredDistance;
-        effectVuLoad10(&vec130);
+        direction.lane[1] = direction.lane[1] - half * gravitySquaredDistance;
+        effectVuLoad10(&direction);
         spawnVuAdd10();
-        effectVuStore10((EffectVuVector *)nodes);
-        *(s32 *)(nodes + 16) = (s32)prerollElapsed;
+        effectVuStore10((EffectVuVector *)particle);
+        ((SpawnParticle *)particle)->age = (s32)prerollElapsed;
     }
-    mdlEffectSampleKeyState(nodes, config, *(s32 *)(nodes + 16), &b220buf);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
-    if (v14 != 0) {
-        nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
-        if (nmult != 0) {
-            particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
-            clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
-            memcpy(clear, nodes, 32);
-            *(s32 *)(clear + 16) = -1;
+    mdlEffectSampleKeyState(particle, parameters, *(s32 *)(particle + 16), &previousPosition); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    ((SpawnParticle *)particle)->size = ((SpawnParticle *)particle)->size * ((MdlEffectMotionState *)state)->sizeScale;
+    ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle * ((MdlEffectMotionState *)state)->angleScale;
+    ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle + ((MdlEffectMotionState *)state)->angleOffset;
+    if (preroll != 0) {
+        trailLength = ((MdlEffectEmitterParameters *)(((MdlEffectEmitter *)emitter)->parameters))->trailCount.signedValue * ((MdlEffectEmitterParameters *)(((MdlEffectEmitter *)emitter)->parameters))->trailWidth;
+        if (trailLength != 0) {
+            particleIndex = ((u32)particle - (u32)((MdlEffectEmitter *)emitter)->particles) >> 5;
+            trail = ((MdlEffectEmitter *)emitter)->particles + ((((MdlEffectEmitter *)emitter)->primaryCount.value + particleIndex * (u32)trailLength) << 5);
+            memcpy(trail, particle, 32);
+            ((SpawnParticle *)trail)->age = -1;
         }
-        *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
+        ((SpawnParticle *)particle)->age = ((SpawnParticle *)particle)->age + 1;
     }
-    v15 -= 1;
+    spawnBudget -= 1;
     goto next_iter2;
 else_branch:
     {
     f32 liveDistance;
     {
-        u_long128 *snapshot = &b220buf;
-        *snapshot = *(u_long128 *)nodes;
+        u_long128 *snapshot = &previousPosition;
+        *snapshot = *(u_long128 *)particle;
     }
-    effectVuLoad11((const EffectVuVector *)nodes);
-    liveDistance = out[3] + e0val * (f32)node10;
+    effectVuLoad11((const EffectVuVector *)particle);
+    liveDistance = ((MdlEffectMotionState *)state)->speed + acceleration * (f32)age;
     if (liveDistance < zero) {
         liveDistance = zero;
     }
-    vec130.lane[0] = liveDistance * out[0];
-    vec130.lane[1] = liveDistance * out[1];
-    vec130.lane[2] = liveDistance * out[2];
-    vec130.lane[1] = vec130.lane[1] - e4val * (f32)node10;
-    effectVuLoad10(&vec130);
+    direction.lane[0] = liveDistance * ((MdlEffectMotionState *)state)->direction[0];
+    direction.lane[1] = liveDistance * ((MdlEffectMotionState *)state)->direction[1];
+    direction.lane[2] = liveDistance * ((MdlEffectMotionState *)state)->direction[2];
+    direction.lane[1] = direction.lane[1] - gravity * (f32)age;
+    effectVuLoad10(&direction);
     spawnVuAdd10();
-    effectVuStore10((EffectVuVector *)nodes);
-    mdlEffectSampleKeyState(nodes, config, node10, &b220buf);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
-    func_0048b340(parent, nodes);
-    *(s32 *)(nodes + 16) = node10 + 1;
+    effectVuStore10((EffectVuVector *)particle);
+    mdlEffectSampleKeyState(particle, parameters, age, &previousPosition);
+    ((SpawnParticle *)particle)->size = ((SpawnParticle *)particle)->size * ((MdlEffectMotionState *)state)->sizeScale;
+    ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle * ((MdlEffectMotionState *)state)->angleScale;
+    ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle + ((MdlEffectMotionState *)state)->angleOffset;
+    mdlEffectUpdateParticleTrail(emitter, particle);
+    ((SpawnParticle *)particle)->age = age + 1;
     }
 next_iter2:
 next_iter:
-    idx += 1;
-    out += 7;
-    nodes += 32;
+    index += 1;
+    state += 7;
+    particle += 32;
 main_check:
-    if (idx < count) {
+    if (index < count) {
         goto main_body;
     }
 }
 
+
+
+#pragma pop

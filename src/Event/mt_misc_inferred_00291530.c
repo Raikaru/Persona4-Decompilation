@@ -4,13 +4,16 @@
 #include "type.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
+#include "evt_movie_internal.h"
+#include "evt_record_collection_internal.h"
+#include "mdl_attachment_internal.h"
 typedef char *va_list;
 #define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
 #define va_end(ap) ((void)0)
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 mtMiscResourceValue(s32 arg0);
+s32 mtMiscResourceValue(s32 resourceId);
 
 
 extern s32 iGpffffb538;
@@ -29,16 +32,16 @@ static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
-extern void mdlDetachSlotModel(u8 *arg0, s32 arg1, u8 *arg2, s32 arg3);
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, f32 farg0, s32 arg5, s32 arg6,
-                          s32 arg7);
+extern void mdlDetachSlotModel(u8 *eventWork, s32 model, u8 *slotIndex, s32 entryIndex);
+extern u32 yTimeTrackAppendKey(s32 eventWork, s32 model, s32 slotIndex, s32 entryIndex,
+                          s32 matrixIndex, f32, s32, s32,
+                          s32);
 extern f32 fGpffff8204;
-extern void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
-                          f32 farg3, s32 arg1, s32 arg2);
+extern void mtMiscDrawSpriteAt(s32 eventWork, f32, f32, f32,
+                          f32, s32 model, s32 slotIndex);
 extern char D_0063C8F0[];
 extern char D_0063C910[];
-extern void memset(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *eventWork, s32 model, s32 slotIndex);
 extern s32 D_0076462C;
 extern u8 iGpffffa7e8;
 
@@ -55,51 +58,44 @@ extern s32 D_0063E830[];
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured: func_00291530 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void mtMiscCollectType1Records(u8 *arg0)
+void mtMiscCollectType1Records(u8 *eventWork)
 {
-    s32 var_6;
-    s32 var_9;
-    s32 temp_2;
-    s32 temp_6;
+    s32 entryCount;
+    s32 recordIndex;
+    s32 resourceData;
+    s32 value;
     s32 type;
-    u8 *temp_4;
-    u8 *temp_8;
+    u8 *record;
+    u8 *movie;
 
-    *(s32 *)(arg0 + 0x5D8) = 0;
-    temp_8 = *(u8 **)(arg0 + 4);
-    var_9 = 0;
+    ((EvtTypeOneRecords *)(eventWork + 0x5D8))->count = 0;
+    movie = ((EvtEventWork *)eventWork)->sceneSource;
+    recordIndex = 0;
     type = 1;
-    goto loop_test_91530;
-loop_body_91530:
-    temp_4 = *(u8 **)(temp_8 + 0x34);
-    temp_4 = (u8 *)((u32)temp_4 + (var_9 << 5));
-    if (*(s32 *)(temp_4 + 0x18) != type) {
-        goto block_4_91530;
+    for (; recordIndex < ((EvtPolygonMovieWork *)movie)->count38; recordIndex++) {
+        record = ((EvtPolygonMovieWork *)movie)->unk34;
+        record = (u8 *)((u32)record + (recordIndex << 5));
+        if (((EvtResourceRecord *)record)->kind != type) {
+            continue;
+        }
+        entryCount = ((EvtTypeOneRecords *)(eventWork + 0x5D8))->count;
+        if (entryCount >= 10) {
+            break;
+        }
+        resourceData = (s32)((EvtPolygonMovieWork *)movie)->primary + ((EvtResourceRecord *)record)->offset;
+        value = ((EvtResourceRecord *)record)->value;
+        ((EvtTypeOneRecords *)(eventWork + entryCount * 2 + 0x5D8))->ids[0] =
+            (s16)(entryCount + 0x7530);
+        ((EvtTypeOneRecords *)(eventWork + entryCount * 4 + 0x5D8))->data[0] = resourceData;
+        ((EvtTypeOneRecords *)(eventWork + 0x5D8))->values[entryCount] = value;
+        value = ((EvtTypeOneRecords *)(eventWork + 0x5D8))->count;
+        ((EvtTypeOneRecords *)(eventWork + 0x5D8))->count = value + 1;
     }
-    var_6 = *(s32 *)(arg0 + 0x5D8);
-    if (var_6 >= 10) {
-        goto done_91530;
-    }
-    temp_2 = *(s32 *)(temp_8 + 0x10) + *(s32 *)(temp_4 + 0x10);
-    temp_6 = *(s32 *)(temp_4 + 0x14);
-    *(s16 *)(arg0 + var_6 * 2 + 0x604) =
-        (s16)(var_6 + 0x7530);
-    *(s32 *)(arg0 + var_6 * 4 + 0x5DC) = temp_2;
-    *(s32 *)(arg0 + var_6 * 4 + 0x618) = temp_6;
-    temp_6 = *(s32 *)(arg0 + 0x5D8);
-    *(s32 *)(arg0 + 0x5D8) = temp_6 + 1;
-block_4_91530:
-    var_9++;
-loop_test_91530:
-    if (var_9 < *(s32 *)(temp_8 + 0x38)) {
-        goto loop_body_91530;
-    }
-done_91530:
-    func_00440b68(D_0063C8F0, *(s32 *)(arg0 + 0x5D8));
+    func_00440b68(D_0063C8F0, ((EvtTypeOneRecords *)(eventWork + 0x5D8))->count);
 }
 
 /* measured probe: close opt_propagation bracket after func_00291530. */
-// Attaches the model for slot arg2 from the table entry at index arg3. Returns 0
+// Attach the model for slotIndex from the selected collection entry. Return 0
 // when the index is out of range or the matrix copy fails, 1 once attached.
 // FUN_002915F0
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -107,73 +103,73 @@ done_91530:
    address is finished before any argument. The index/five locals must stay
    literal under this pragma or they take a sixth saved register. Attachment
    helpers retain block-scoped u16 parameters for per-call masks. */
-s32 mtMiscAttachSlotModel(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 mtMiscAttachSlotModel(u8 *eventWork, u8 *model, s32 slotIndex, s32 entryIndex, s32 matrixIndex)
 {
-    extern void mdlDetachSlotModel(u8 *arg0, s32 arg1);
-    extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, u8 *arg2);
-    extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
-    extern void mdlAttachSlotModelFromPair(void *arg0, u16 arg1, u32 arg2, u16 arg3, s32 arg4, s32 arg5, u32 arg6);
-    extern void mdlAttachSlotModelFindOrCreate(void *arg0, u16 arg1, u32 arg2, u16 arg3, u32 arg4);
-    extern void mdlSetAttachedSlotValue(u8 *arg0, u16 arg1, s32 arg2);
+    extern void mdlDetachSlotModel(u8 *model, s32 slotIndex);
+    extern s32 mdlCopyIndexedMatrix(u8 *model, s32 index, u8 *destination);
+    extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
+    extern void mdlAttachSlotModelFromPair(void *eventWork, u16 model, u32 slotIndex, u16 entryIndex, s32 matrixIndex, s32, u32);
+    extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slotIndex, u32 type, u16 id, u32 flags);
+    extern void mdlSetAttachedSlotValue(u8 *model, u16 slotIndex, s32 frameId);
     s32 flag;
     u32 lookupType;
     u8 *slot;
     u8 *entry;
     u8 work[0x40];
 
-    if (*(s32 *)(arg0 + 0x5D8) <= arg3) {
+    if (((EvtTypeOneRecords *)(eventWork + 0x5D8))->count <= entryIndex) {
         return 0;
     }
-    if (arg2 >= 3) {
+    if (slotIndex >= 3) {
         return 0;
     }
     flag = 0;
-    slot = code29AddOff(arg2 * 0xC, arg1);
-    if ((*(u8 *)(slot + 0x28C) & 1) &&
-        (*(s32 *)(slot + 0x290) != 0)) {
+    slot = code29AddOff(slotIndex * 0xC, model);
+    if ((((MdlWpnSlot *)(slot + 0x28C))->flags & 1) &&
+        (((MdlWpnSlot *)(slot + 0x28C))->wpnMdl != 0)) {
         flag = 1;
     }
     if (flag == 1) {
-        mdlDetachSlotModel(arg1, arg2 & 0xFFFF);
+        mdlDetachSlotModel(model, slotIndex & 0xFFFF);
     }
-    if (mdlCopyIndexedMatrix(arg1, arg4, work) == 0) {
+    if (mdlCopyIndexedMatrix(model, matrixIndex, work) == 0) {
         return 0;
     }
-    entry = code29AddOff(arg3 * 2, arg0) + 0x604;
+    entry = code29AddOff(entryIndex * 2, eventWork) + 0x604;
     lookupType = 5;
     if (mdlFindModelObject(lookupType, *(u16 *)entry, 0) == 0) {
         u16 weapon;
         u32 idx4;
         u8 *data;
-        idx4 = arg3 * 4;
-        weapon = (u16)arg2;
-        data = (u8 *)(idx4 + (u32)arg0);
-        mdlAttachSlotModelFromPair(arg1, weapon, 5, *(u16 *)entry, *(s32 *)(data + 0x5DC), *(s32 *)(data + 0x618), 1);
+        idx4 = entryIndex * 4;
+        weapon = (u16)slotIndex;
+        data = (u8 *)(idx4 + (u32)eventWork);
+        mdlAttachSlotModelFromPair(model, weapon, 5, *(u16 *)entry, ((EvtTypeOneRecords *)(data + 0x5D8))->data[0], ((EvtTypeOneRecords *)(data + 0x5D8))->values[0], 1);
     } else {
-        mdlAttachSlotModelFindOrCreate(arg1, (u16)arg2, 5, *(u16 *)entry, 0);
+        mdlAttachSlotModelFindOrCreate(model, (u16)slotIndex, 5, *(u16 *)entry, 0);
     }
-    mdlSetAttachedSlotValue(arg1, (u16)arg2, arg4);
+    mdlSetAttachedSlotValue(model, (u16)slotIndex, matrixIndex);
     return 1;
 }
 
 /* measured: restore propagation for the rest of the unit. */
-// Detaches slot arg1 when its attached flag and value are both set; out-of-range
+// Detach slotIndex when its attached flag and value are both set; out-of-range
 // slots and a null owner are ignored.
 // FUN_00291790
-void mtMiscDetachSlotModel(u8 *arg0, s32 arg1)
+void mtMiscDetachSlotModel(u8 *model, s32 slotIndex)
 {
-    s32 var_7;
-    u8 *temp_6;
+    s32 attached;
+    u8 *slot;
 
-    if ((arg1 < 3) && (arg1 >= 0) && (arg0 != 0)) {
-        var_7 = 0;
-        temp_6 = code29AddOff(arg1 * 0xC, arg0);
-        if ((*(u8 *)(temp_6 + 0x28C) & 1) &&
-            (*(s32 *)(temp_6 + 0x290) != 0)) {
-            var_7 = 1;
+    if ((slotIndex < 3) && (slotIndex >= 0) && (model != 0)) {
+        attached = 0;
+        slot = code29AddOff(slotIndex * 0xC, model);
+        if ((((MdlWpnSlot *)(slot + 0x28C))->flags & 1) &&
+            (((MdlWpnSlot *)(slot + 0x28C))->wpnMdl != 0)) {
+            attached = 1;
         }
-        if (var_7 == 1) {
-            mdlDetachSlotModel(arg0, arg1 & 0xFFFF, temp_6, var_7);
+        if (attached == 1) {
+            mdlDetachSlotModel(model, slotIndex & 0xFFFF, slot, attached);
         }
     }
 }
@@ -182,48 +178,41 @@ void mtMiscDetachSlotModel(u8 *arg0, s32 arg1)
 // 0x7918, collected into the block at +0x640, count reported by a debug print.
 // FUN_00291810
 /* measured probe: preserve the retail type constant and close bracket below. */
-void mtMiscCollectType2Records(u8 *arg0)
+void mtMiscCollectType2Records(u8 *eventWork)
 {
-    s32 *temp_16;
-    s32 var_6;
-    s32 var_9;
-    s32 temp_2;
-    s32 temp_6;
+    s32 *type2Records;
+    s32 entryCount;
+    s32 recordIndex;
+    s32 resourceData;
+    s32 value;
     s32 type;
-    u8 *temp_4;
-    u8 *temp_8;
+    u8 *record;
+    u8 *movie;
 
-    temp_16 = (s32 *)(arg0 + 0x640);
-    memset(temp_16, 0, 0x38);
-    temp_8 = *(u8 **)(arg0 + 4);
-    var_9 = 0;
+    type2Records = (s32 *)(eventWork + 0x640);
+    memset(type2Records, 0, 0x38);
+    movie = ((EvtEventWork *)eventWork)->sceneSource;
+    recordIndex = 0;
     type = 2;
-    goto loop_test_91810;
-loop_body_91810:
-    temp_4 = *(u8 **)(temp_8 + 0x34);
-    temp_4 = (u8 *)((u32)temp_4 + (var_9 << 5));
-    if (*(s32 *)(temp_4 + 0x18) != type) {
-        goto block_4_91810;
+    for (; recordIndex < ((EvtPolygonMovieWork *)movie)->count38; recordIndex++) {
+        record = ((EvtPolygonMovieWork *)movie)->unk34;
+        record = (u8 *)((u32)record + (recordIndex << 5));
+        if (((EvtResourceRecord *)record)->kind != type) {
+            continue;
+        }
+        entryCount = ((EvtTypeTwoRecords *)type2Records)->count;
+        if (entryCount >= 5) {
+            break;
+        }
+        resourceData = (s32)((EvtPolygonMovieWork *)movie)->primary + ((EvtResourceRecord *)record)->offset;
+        value = ((EvtResourceRecord *)record)->value;
+        ((EvtTypeTwoRecords *)type2Records)->ids[entryCount] =
+            (s16)(entryCount + 0x7918);
+        ((EvtTypeTwoRecords *)type2Records)->data[entryCount] = resourceData;
+        ((EvtTypeTwoRecords *)type2Records)->values[entryCount] = value;
+        value = ((EvtTypeTwoRecords *)type2Records)->count;
+        ((EvtTypeTwoRecords *)type2Records)->count = value + 1;
     }
-    var_6 = *(s32 *)temp_16;
-    if (var_6 >= 5) {
-        goto done_91810;
-    }
-    temp_2 = *(s32 *)(temp_8 + 0x10) + *(s32 *)(temp_4 + 0x10);
-    temp_6 = *(s32 *)(temp_4 + 0x14);
-    *(s16 *)((u8 *)temp_16 + var_6 * 2 + 0x18) =
-        (s16)(var_6 + 0x7918);
-    *(s32 *)((u8 *)temp_16 + var_6 * 4 + 4) = temp_2;
-    *(s32 *)((u8 *)temp_16 + var_6 * 4 + 0x24) = temp_6;
-    temp_6 = *(s32 *)temp_16;
-    *(s32 *)temp_16 = temp_6 + 1;
-block_4_91810:
-    var_9++;
-loop_test_91810:
-    if (var_9 < *(s32 *)(temp_8 + 0x38)) {
-        goto loop_body_91810;
-    }
-done_91810:
-    func_00440b68(D_0063C910, *(s32 *)temp_16);
+    func_00440b68(D_0063C910, ((EvtTypeTwoRecords *)type2Records)->count);
 }
 

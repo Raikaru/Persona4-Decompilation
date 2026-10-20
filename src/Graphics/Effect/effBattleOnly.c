@@ -28,6 +28,7 @@ typedef struct EffBattleWork
     s32 setupResult;// 0x30
     u8 pad[4];      // 0x34
     u8 *data;       // 0x38
+    u8 pad3C[4];    // 0x3C
 } EffBattleWork;    // 0x40
 
 /* BSS: per-type effect hook table pointer (gp -0x4460) and the "battle
@@ -36,7 +37,7 @@ typedef struct EffBattleWork
 s32 (*D_00764C94)(void);     // 0x00764c94
 EffBattleEntry *D_00764C90;  // 0x00764c90
 
-u8 *EffBattleAllocWork(s32 id, s32 arg1);
+u8 *EffBattleAllocWork(s32 id, s32 initialData);
 
 
 
@@ -47,9 +48,9 @@ u8 *EffBattleAllocWork(s32 id, s32 arg1);
    keys or b210 folds them back into one: `(u16)id` in the check, `(id & 0xFFFF)` for the
    index and the stored id. The reverse assignment of the two spellings scores nd 88 and
    using one spelling for both scores nd 13 or nd 167 - measured. */
-// Allocates a battle effect work block sized from the per-id table, stores the id, and copies arg1's data into it.
+// Allocates a battle effect work block sized from the per-id table, stores the id, and copies initialData's data into it.
 // FUN_004B50F0
-u8 *EffBattleAllocWork(s32 id, s32 arg1)
+u8 *EffBattleAllocWork(s32 id, s32 initialData)
 {
     EffBattleWork *work;
     s32 size;
@@ -71,7 +72,7 @@ u8 *EffBattleAllocWork(s32 id, s32 arg1)
     work->alpha = 1.0f;
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(work) : "memory");
     __asm__ volatile ("sqc2 vf0, 16(%0)" : : "r"(work) : "memory");
-    memcpy(work->data, (const void *)arg1, size);
+    memcpy(work->data, (const void *)initialData, size);
     return (u8 *)work;
 }
 
@@ -83,40 +84,41 @@ u8 *EffBattleAllocWork(s32 id, s32 arg1)
  * Object 316B/window 320B; scoped verify normalized_diff 0. */
 // Creates a battle effect from a source: loads its texture, then when the test callback passes calls the per-id setup and post callbacks from the table.
 // FUN_004B5200
-void *EffBattleCreate(void *arg0)
+void *EffBattleCreate(void *source)
 {
     u8 *tex;
-    s32 value;
-    s32 param;
-    s32 off;
-    u16 id16;
+    s32 secondaryData;
+    s32 setupParameter;
+    s32 entryOffset;
+    u16 secondaryId;
     u16 id;
     u8 *work;
     u8 *base;
 
-    tex = mdlEffectResolveRelPtrA(arg0);
+    tex = mdlEffectResolveRelPtrA(source);
     if (tex == NULL) {
         kAssertFail(D_007146A0, 0x58);
     }
-    value = (s32)mdlEffectResolveRelPtrB(arg0);
-    id16 = *(u16 *)((u8 *)arg0 + 0x1C);
-    param = *(s32 *)((u8 *)arg0 + 0x24);
-    id = *(u16 *)((u8 *)arg0 + 0xC);
+    secondaryData = (s32)mdlEffectResolveRelPtrB(source);
+    secondaryId = ((EffSourceDescriptor *)source)->kind;
+    setupParameter = (s32)((EffSourceDescriptor *)source)->clumpInput;
+    id = ((EffSourceDescriptor *)source)->id;
     work = EffBattleAllocWork(id, (s32)tex);
     if ((*D_00764C94)() != 0) {
-        off = (id & 0xFFFF) * 0x1C;
+        entryOffset = (id & 0xFFFF) * 0x1C;
+        /* Keep the byte cursor: typed table indexing changes the measured callback-load sequence above. */
         base = (u8 *)D_00764C90;
         base += 4;
-        base += off;
+        base += entryOffset;
         {
             s32 (*setup)(void *, u16, s32, s32) =
                 *(s32 (**)(void *, u16, s32, s32))base;
             if (setup != NULL) {
-                *(s32 *)(work + 0x30) = setup(tex, id16, value, param);
+                ((EffBattleWork *)work)->setupResult = setup(tex, secondaryId, secondaryData, setupParameter);
             }
         }
         base = (u8 *)D_00764C90;
-        base += off;
+        base += entryOffset;
         {
             void (*post)(void *) =
                 *(void (**)(void *))base;

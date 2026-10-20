@@ -29,10 +29,10 @@ s32 chkmemAllocate(u32);
 void chkmemFree(u8 *);
 s32 chkmemReallocate(void *, u32);
 s32 chkmemAllocZeroed(s32, s32);
-s32 func_0044f4d0(void);
+s32 chkmemGetCurrentTaskOwner(void);
 // FUN_0044F510
 s32 (**func_0044f510(void))(u32) {
-    D_00763D1C->fn_30 = func_0044f4d0;
+    D_00763D1C->fn_30 = chkmemGetCurrentTaskOwner;
     D_008BE290[0] = chkmemAllocate;
     D_008BE294[0] = chkmemFree;
     D_008BE298[0] = chkmemReallocate;

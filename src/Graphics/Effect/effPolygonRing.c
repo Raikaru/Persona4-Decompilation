@@ -1,4 +1,5 @@
 #include "effect_geometry_internal.h"
+#include "polygon_ring_internal.h"
 #include "rw_geometry_internal.h"
 /* Original translation unit effPolygonRing.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -16,94 +17,99 @@ typedef struct {
     u8 c3;
 } LineNovaColor;
 
-typedef struct RwRGBA
-{
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-} RwRGBA;
+#include "rw_types_internal.h"
+
+/* The simple handle allocation stores one geometry pointer. */
+typedef struct EffRingHandle { u8 *geometry; } EffRingHandle;
+
+/* Four packed colors per 0x10-byte strip row. */
+typedef struct EffRingColorRow {
+    s32 colors[4];
+} EffRingColorRow;
 
 extern void kAssertFail();
 extern u8 D_00713EF0[];
-extern void GeometryBlockDestroy(void *arg0);
+extern void GeometryBlockDestroy(void *block);
 extern void (*jtbl_008873EC[])(void *);
-extern void RingInstanceDestroy(void *arg0);
+extern void RingInstanceDestroy(void *instance);
 
 extern void chkmemAllocSiteTag();
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00713390[];
 extern s32 mdlEffectSamplePackedColor();
-extern void GeometryBlockSetFrameMatrixCombined(void *arg0, void *arg1, void *arg2, void *arg3);
-extern void GeometryBlockBindResource(int arg0, int arg1);
+extern void GeometryBlockSetFrameMatrixCombined(void *geometry, void *position, void *rotation, void *scale);
+extern void GeometryBlockBindResource(s32 block, s32 resourceId);
 extern f32 iGpffff8044;
 extern f32 fGpffff8044;
-extern void RingInstanceStop(void *arg0);
-extern u8 *GeometryCreateStripGrid(u16 copies, void *indices, s32 vertices, s32 flags);
+extern void RingInstanceStop(void *instance);
+extern u8 *GeometryCreateStripGrid(u16 rowCount, void *indices, s32 verticesPerRow, s32 flags);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00713330[];
-extern LineNovaColor iGpffffbb64;
+extern LineNovaColor iGpffffbb64; /* default packed material color */
 extern u_long128 D_00713CE0[];
-extern s32 D_00713F24[];
-extern u32 D_00713F14[];
-extern u32 D_00713F10[];
-extern void RingInstanceUpdateIfActive(void *arg0);
-extern void func_003c22f0(void *arg0);
-extern f32 cosf(f32 arg0);
-extern f32 sinf(f32 arg0);
+extern s32 D_00713F24[]; /* parameter byte counts, six words per kind */
+extern u32 D_00713F14[]; /* kind constructor callbacks, six-word stride */
+extern u32 D_00713F10[]; /* kind initializer callbacks, six-word stride */
+extern void RingInstanceUpdateIfActive(void *instance);
+extern void func_003c22f0(void *geometry);
+extern f32 cosf(f32 angle);
+extern f32 sinf(f32 angle);
 extern f32 fGpffff80d0;
 extern f32 fabsf(f32 x);
 extern f32 D_00713D10[];
 extern f32 D_00713D14[];
 extern f32 D_00713D18[];
-extern void RingInstanceAdvance(u8 *arg0);
+extern void RingInstanceAdvance(u8 *instance);
 
 
 
 // Creates a ring handle: a 4-byte handle plus geometry copies with per-vertex colour rows (minimum three segments).
 // FUN_00498DA0
-u8 *RingCreateHandle(u8 *arg0) {
-    u8 *alloc;
-    u8 *p2;
-    s32 count;
-    s32 v44;
-    s32 v48;
-    s32 v4C;
-    u32 i;
-    u8 *dst;
+u8 *RingCreateHandle(u8 *parameters) {
+    /* Earlier whole-layout probe: normalized_diff 123; remaining raw sites are isolated below. */
+    u8 *handle;
+    u8 *geometry;
+    s32 rowCount;
+    s32 innerColor;
+    s32 middleColor;
+    s32 outerColor;
+    u32 rowIndex;
+    u8 *colors;
 
     chkmemAllocSiteTag(D_00713EF0, 0x39);
-    alloc = (u8 *)(*jtbl_008873E8)(4, 0x40000);
-    if (alloc == NULL) {
+    handle = (u8 *)(*jtbl_008873E8)(4, 0x40000);
+    if (handle == NULL) {
         kAssertFail(D_00713EF0, 0x3A);
     }
-    if (*(u32 *)(arg0 + 0x38) < 3) {
-        *(u32 *)(arg0 + 0x38) = 3;
+    if (((EffRingParameters *)parameters)->segments.count < 3) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        *(u32 *)(parameters + 0x38) = 3;
     }
-    p2 = GeometryCreateStripGrid(*(u16 *)(arg0 + 0x38), D_00713330, 4, 0x48);
-    *(u32 *)alloc = (u32)p2;
-    count = *(s16 *)(p2 + 8) / 4;
-    dst = *(u8 **)(*(u8 **)(*(u8 **)(p2 + 0x10) + 0x18) + 0x30);
-    v44 = *(s32 *)(arg0 + 0x44);
-    v48 = *(s32 *)(arg0 + 0x48);
-    v4C = *(s32 *)(arg0 + 0x4C);
-    i = 0;
-    while (i < (u32)count) {
-        *(s32 *)(dst + 0) = v44;
-        *(s32 *)(dst + 4) = v48;
-        *(s32 *)(dst + 8) = v48;
-        *(s32 *)(dst + 0xC) = v4C;
-        i++;
-        dst += 0x10;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+    geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x38), D_00713330, 4, 0x48);
+    *(u32 *)handle = (u32)geometry;
+    rowCount = ((EffGeometryBlock *)geometry)->vertexCount / 4;
+    colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry->colors;
+    innerColor = ((EffRingParameters *)parameters)->innerColor;
+    middleColor = ((EffRingParameters *)parameters)->middleColor;
+    outerColor = ((EffRingParameters *)parameters)->outerColor;
+    rowIndex = 0;
+    while (rowIndex < (u32)rowCount) {
+        ((EffRingColorRow *)colors)->colors[0] = innerColor;
+        ((EffRingColorRow *)colors)->colors[1] = middleColor;
+        ((EffRingColorRow *)colors)->colors[2] = middleColor;
+        ((EffRingColorRow *)colors)->colors[3] = outerColor;
+        rowIndex++;
+        colors += 0x10;
     }
-    return alloc;
+    return handle;
 }
 // Frees a ring handle: its geometry handle, then the handle block.
 // FUN_00498EC0
-void RingDestroyHandle(void **arg0)
+void RingDestroyHandle(void **handle)
 {
-    GeometryBlockDestroy(*arg0);
-    jtbl_008873EC[0](arg0);
+    GeometryBlockDestroy(*handle);
+    jtbl_008873EC[0](handle);
 }
 
 
@@ -115,68 +121,70 @@ void RingDestroyHandle(void **arg0)
 #pragma opt_propagation off
 // Rebuilds a ring circle: locks the geometry, samples cos and sin around the fade radius, writes the vertex rows, then unlocks.
 // FUN_00498F10
-void RingRebuildCircle(u8 *arg0)
+void RingRebuildCircle(u8 *instance)
 {
-    u_long128 pair;
-    u_long128 slot80;
-    u_long128 slot70;
-    u_long128 slot60;
-    f32 var_f5;
-    f32 temp_f0;
-    f32 temp_f4;
-    f32 temp_f3;
-    f32 var_f1;
-    f32 temp_f22;
-    f32 var_f21;
-    f32 temp_f20;
-    f32 sum0;
-    f32 sum1;
-    f32 sum2;
-    s32 temp_3;
-    s32 temp_4;
-    s16 temp_2;
-    s32 var_16;
-    u32 var_18;
-    u8 *temp_16;
-    u8 *temp_17;
-    u8 *temp_18;
-    u8 *var_19;
+    /* Earlier whole-layout probe: normalized_diff 462; remaining raw sites are isolated below. */
+    u_long128 direction;
+    u_long128 innerRadiusVector;
+    u_long128 middleRadiusVector;
+    u_long128 outerRadiusVector;
+    f32 elapsed;
+    f32 radialTerm;
+    f32 acceleration;
+    f32 speed;
+    f32 segmentCount;
+    f32 radius;
+    f32 angle;
+    f32 angleStep;
+    f32 innerRadius;
+    f32 middleRadius;
+    f32 outerRadius;
+    s32 duration;
+    s32 age;
+    s16 vertexCount;
+    s32 rowCount;
+    u32 rowIndex;
+    u8 *handle;
+    u8 *geometry;
+    u8 *parameters;
+    u8 *vertices;
 
-    temp_16 = *(u8 **)(arg0 + 0x3C);
-    temp_18 = *(u8 **)(arg0 + 0x40);
-    temp_17 = *(u8 **)temp_16;
-    temp_4 = *(s32 *)(arg0 + 0x34);
-    temp_3 = *(s32 *)(temp_18 + 0x34);
-    if ((temp_3 >= temp_4) || (temp_3 == 0)) {
-        if (*(u8 *)(temp_18 + 0x68) != 0) {
-            var_f5 = (f32)(temp_3 - temp_4);
+    handle = ((EffRingInstance *)instance)->work.bytes;
+    parameters = ((EffRingInstance *)instance)->parameters;
+    geometry = *(u8 **)handle;
+    age = ((EffRingInstance *)instance)->age;
+    duration = ((EffRingParameters *)parameters)->duration;
+    if ((duration >= age) || (duration == 0)) {
+        if (((EffRingCircleParameters *)parameters)->reverse != 0) {
+            elapsed = (f32)(duration - age);
         } else {
-            var_f5 = (f32)temp_4;
+            elapsed = (f32)age;
         }
-        temp_f3 = fabsf(*(f32 *)(temp_18 + 0x60));
-        temp_f4 = *(f32 *)(temp_18 + 0x64);
-        if (temp_f4 < 0.0f) {
-            temp_f0 = 0.5f * (-temp_f3 / (0.5f * temp_f4));
-            if (!(var_f5 <= temp_f0)) {
-                var_f5 = temp_f0;
+        speed = fabsf(((EffRingCircleParameters *)parameters)->speed);
+        acceleration = ((EffRingCircleParameters *)parameters)->acceleration;
+        if (acceleration < 0.0f) {
+            radialTerm = 0.5f * (-speed / (0.5f * acceleration));
+            if (!(elapsed <= radialTerm)) {
+                elapsed = radialTerm;
             }
         }
-        sum2 = temp_f4 * var_f5;
-        temp_f0 = 0.5f * sum2 + temp_f3;
-        temp_f22 = var_f5 * temp_f0;
-        temp_f22 += *(f32 *)(temp_18 + 0x40);
-        temp_2 = *(s16 *)(temp_17 + 8);
-        var_16 = temp_2 / 4;
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
-        var_19 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18) + 0x5C) + 0x14);
-        var_f21 = 0.0f;
-        var_f1 = (f32)*(u32 *)(temp_18 + 0x38);
-        temp_f20 = fGpffff80d0 / var_f1;
-        ((s32 *)&pair)[1] = 0;
-        ((s32 *)&pair)[3] = 0x3F800000;
-        sum0 = *(f32 *)(temp_18 + 0x50) + temp_f22;
-        sum1 = sum0 + *(f32 *)(temp_18 + 0x54);
-        sum2 = sum1 + *(f32 *)(temp_18 + 0x58);
+        outerRadius = acceleration * elapsed;
+        radialTerm = 0.5f * outerRadius + speed;
+        radius = elapsed * radialTerm;
+        radius += ((EffRingParameters *)parameters)->radius;
+        vertexCount = ((EffGeometryBlock *)geometry)->vertexCount;
+        rowCount = vertexCount / 4;
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        vertices = (u8 *)((RpAtomic *)*(u8 **)(geometry + 0x10))->geometry->morphTarget->vertices;
+        angle = 0.0f;
+        segmentCount = (f32)((EffRingParameters *)parameters)->segments.count;
+        angleStep = fGpffff80d0 / segmentCount;
+        ((s32 *)&direction)[1] = 0;
+        ((s32 *)&direction)[3] = 0x3F800000;
+        innerRadius = ((EffRingParameters *)parameters)->innerWidth + radius;
+        middleRadius = innerRadius + ((EffRingParameters *)parameters)->middleWidth;
+        outerRadius = middleRadius + ((EffRingParameters *)parameters)->outerWidth;
         __asm__ volatile(
             "lqc2 $vf10, 0(%0) \n"
             "vmove.xyzw $vf11, $vf10 \n"
@@ -185,9 +193,9 @@ void RingRebuildCircle(u8 *arg0)
             "qmtc2.ni $2, $vf2 \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             :
-            : "r"(D_00713CE0), "f"(sum0)
+            : "r"(D_00713CE0), "f"(innerRadius)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&slot80) : "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&innerRadiusVector) : "memory");
         __asm__ volatile(
             "vmove.xyzw $vf10, $vf11 \n"
             "mfc1 $2, %0 \n"
@@ -199,14 +207,14 @@ void RingRebuildCircle(u8 *arg0)
             "qmtc2.ni $2, $vf2 \n"
             "vmulx.xyzw $vf11, $vf11, $vf2x \n"
             :
-            : "f"(sum1), "f"(sum2)
+            : "f"(middleRadius), "f"(outerRadius)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&slot70) : "memory");
-        __asm__ volatile("sqc2 $vf11, 0(%0)" : : "r"(&slot60) : "memory");
-        var_18 = 0;
-        while (var_18 < (u32)var_16) {
-            ((f32 *)&pair)[0] = cosf(var_f21);
-            ((f32 *)&pair)[2] = sinf(var_f21);
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&middleRadiusVector) : "memory");
+        __asm__ volatile("sqc2 $vf11, 0(%0)" : : "r"(&outerRadiusVector) : "memory");
+        rowIndex = 0;
+        while (rowIndex < (u32)rowCount) {
+            ((f32 *)&direction)[0] = cosf(angle);
+            ((f32 *)&direction)[2] = sinf(angle);
             __asm__ volatile(
                 "lqc2 $vf10, 0(%0) \n"
                 "vmove.xyzw $vf11, $vf10 \n"
@@ -215,50 +223,50 @@ void RingRebuildCircle(u8 *arg0)
                 "qmtc2.ni $2, $vf2 \n"
                 "vmulx.xyzw $vf10, $vf10, $vf2x \n"
                 :
-                : "r"(&pair), "f"(temp_f22)
+                : "r"(&direction), "f"(radius)
                 : "$2", "$vf2", "$vf10", "$vf11", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "memory");
-            *(f32 *)(var_19 + 0) = D_00713D10[0];
-            *(f32 *)(var_19 + 4) = D_00713D14[0];
-            *(f32 *)(var_19 + 8) = D_00713D18[0];
+            ((RwV3d *)vertices)[0].x = D_00713D10[0];
+            ((RwV3d *)vertices)[0].y = D_00713D14[0];
+            ((RwV3d *)vertices)[0].z = D_00713D18[0];
             __asm__ volatile(
                 "lqc2 $vf10, 0(%0) \n"
                 "vmul.xyzw $vf10, $vf10, $vf11 \n"
                 :
-                : "r"(&slot80)
+                : "r"(&innerRadiusVector)
                 : "$vf10", "$vf11", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "memory");
-            *(f32 *)(var_19 + 0xC) = D_00713D10[0];
-            *(f32 *)(var_19 + 0x10) = D_00713D14[0];
-            *(f32 *)(var_19 + 0x14) = D_00713D18[0];
+            ((RwV3d *)vertices)[1].x = D_00713D10[0];
+            ((RwV3d *)vertices)[1].y = D_00713D14[0];
+            ((RwV3d *)vertices)[1].z = D_00713D18[0];
             __asm__ volatile(
                 "lqc2 $vf10, 0(%0) \n"
                 "vmul.xyzw $vf10, $vf10, $vf11 \n"
                 :
-                : "r"(&slot70)
+                : "r"(&middleRadiusVector)
                 : "$vf10", "$vf11", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "memory");
-            *(f32 *)(var_19 + 0x18) = D_00713D10[0];
-            *(f32 *)(var_19 + 0x1C) = D_00713D14[0];
-            *(f32 *)(var_19 + 0x20) = D_00713D18[0];
+            ((RwV3d *)vertices)[2].x = D_00713D10[0];
+            ((RwV3d *)vertices)[2].y = D_00713D14[0];
+            ((RwV3d *)vertices)[2].z = D_00713D18[0];
             __asm__ volatile(
                 "lqc2 $vf10, 0(%0) \n"
                 "vmul.xyzw $vf10, $vf10, $vf11 \n"
                 :
-                : "r"(&slot60)
+                : "r"(&outerRadiusVector)
                 : "$vf10", "$vf11", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "memory");
-            *(f32 *)(var_19 + 0x24) = D_00713D10[0];
-            *(f32 *)(var_19 + 0x28) = D_00713D14[0];
-            *(f32 *)(var_19 + 0x2C) = D_00713D18[0];
-            var_f21 += temp_f20;
-            var_18 += 1;
-            var_19 += 0x30;
+            ((RwV3d *)vertices)[3].x = D_00713D10[0];
+            ((RwV3d *)vertices)[3].y = D_00713D14[0];
+            ((RwV3d *)vertices)[3].z = D_00713D18[0];
+            angle += angleStep;
+            rowIndex += 1;
+            vertices += 0x30;
         }
-        temp_16 = *(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18);
-        func_003c22f0(temp_16);
-        if (*(u16 *)temp_17 & 4) {
-            *(u16 *)(temp_16 + 0xC) = *(u16 *)(temp_16 + 0xC) | 1;
+        handle = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry;
+        func_003c22f0(handle);
+        if (((EffGeometryBlock *)geometry)->kind & 4) {
+            ((RpGeometry *)handle)->lockedSinceLastInst = ((RpGeometry *)handle)->lockedSinceLastInst | 1;
         }
     }
 }
@@ -270,29 +278,30 @@ void RingRebuildCircle(u8 *arg0)
    addiu block. MATCH. */
 // Samples the ring colour fade and writes it to the row; when the row's flag is set, updates the geometry and visible flag.
 // FUN_004992A0
-void RingUpdateRowColour(u8 *param_1)
+void RingUpdateRowColour(u8 *instance)
 {
-  u8 *iVar5;
-  u8 *iVar1;
-  u16 *puVar2;
+  /* Earlier whole-layout probe: normalized_diff 160; color scratch still stores packed VU0 words. */
+  u8 *ring;
+  u8 *parameters;
+  u16 *geometry;
   u8 colourStack[16];
-  int iVar3;
-  int iVar4;
-  int iVar6;
-  u8 *dest;
+  s32 value;
+  s32 duration;
+  s32 age;
+  u8 *material;
   f32 scale;
-  u8 *cs8;
+  u8 *baseColor;
 
-  iVar5 = (u8 *)param_1;
-  iVar3 = *(int *)(iVar5 + 0x3c);
-  iVar1 = *(u8 **)(iVar5 + 0x40);
-  puVar2 = *(u16 **)iVar3;
-  iVar6 = *(int *)(iVar5 + 0x34);
-  iVar4 = *(int *)(iVar1 + 0x34);
-  if (((u32)iVar6 <= (u32)iVar4) || (iVar4 == 0)) {
-    iVar3 = mdlEffectSamplePackedColor((char *)iVar1, (u32 *)(iVar1 + 0x24), iVar6, iVar4);
-    *(u32 *)&colourStack[8] = *(u32 *)(iVar5 + 0x30);
-    cs8 = &colourStack[8];
+  ring = (u8 *)instance;
+  value = ((EffRingInstance *)ring)->work.signedBits;
+  parameters = ((EffRingInstance *)ring)->parameters;
+  geometry = *(u16 **)value;
+  age = ((EffRingInstance *)ring)->age;
+  duration = ((EffRingParameters *)parameters)->duration;
+  if (((u32)age <= (u32)duration) || (duration == 0)) {
+    value = mdlEffectSamplePackedColor((char *)parameters, (u32 *)(parameters + 0x24), age, duration);
+    *(u32 *)&colourStack[8] = ((EffRingInstance *)ring)->packedColor;
+    baseColor = &colourStack[8];
     scale = iGpffff8044;
     __asm__ volatile (
         ".set noreorder                  \n"
@@ -328,109 +337,114 @@ void RingUpdateRowColour(u8 *param_1)
         "sw          $3, 0x40($sp)       \n"
         ".set reorder"
         :
-        : "r"(cs8), "r"((u32)iVar3), "f"(scale)
+        : "r"(baseColor), "r"((u32)value), "f"(scale)
         : "$2", "$3", "memory");
     *(u32 *)&colourStack[12] = *(u32 *)&colourStack[0];
     if (colourStack[15] != 0xff) {
-      dest = *(u8 **)(puVar2 + 10);
-      *(RwRGBA *)(dest + 4) = *(RwRGBA *)&colourStack[12];
+      material = ((EffGeometryBlock *)geometry)->material;
+      *(RwRGBA *)&((RpMaterial *)material)->color = *(RwRGBA *)&colourStack[12];
     }
     else {
       colourStack[15] = 0xfe;
-      dest = *(u8 **)(puVar2 + 10);
-      *(RwRGBA *)(dest + 4) = *(RwRGBA *)&colourStack[12];
+      material = ((EffGeometryBlock *)geometry)->material;
+      *(RwRGBA *)&((RpMaterial *)material)->color = *(RwRGBA *)&colourStack[12];
       colourStack[15] = 0xff;
     }
-    if (*(u8 *)(*(int *)(puVar2 + 10) + 7) != 0) {
-      GeometryBlockSetFrameMatrixCombined(puVar2, iVar5, iVar5 + 0x10, iVar5 + 0x20);
-      if (*(u8 *)(iVar1 + 0x3c) != 0) {
-        *puVar2 = *puVar2 | 1;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+    if (((RpMaterial *)*(s32 *)(geometry + 10))->color.c[3] != 0) {
+      GeometryBlockSetFrameMatrixCombined(geometry, ring, ring + 0x10, ring + 0x20);
+      if (((EffRingParameters *)parameters)->visible != 0) {
+        *geometry = *geometry | 1;
       }
       else {
-        *puVar2 = *puVar2 & 0xfffe;
+        *geometry = *geometry & 0xfffe;
       }
-      GeometryBlockBindResource((int)puVar2, *(u16 *)(iVar1 + 0x28));
+      GeometryBlockBindResource((s32)geometry, ((EffRingParameters *)parameters)->resource);
     }
   }
 }
 // Writes the line colour into its row; alpha 0xFF is reserved as the marker value, so 0xFE is written in its place.
 // FUN_00499470
-void RingWriteLineColour(u8 *arg0) {
-    u8 *p8;
-    u8 *p3;
-    u8 *dst;
+void RingWriteLineColour(u8 *instance) {
+    u8 *block;
+    u8 *geometry;
+    u8 *material;
 
-    p8 = *(u8 **)(arg0 + 0x3C);
-    p3 = *(u8 **)(p8 + 8);
+    block = ((EffRingInstance *)instance)->work.bytes;
+    geometry = ((EffRingRandomBlock *)block)->geometry;
     if (iGpffffbb64.c3 != 0xFF) {
-        dst = *(u8 **)(p3 + 0x14);
-        *(LineNovaColor *)(dst + 4) = iGpffffbb64;
+        material = ((EffGeometryBlock *)geometry)->material;
+        *(LineNovaColor *)&((RpMaterial *)material)->color = iGpffffbb64;
     } else {
         iGpffffbb64.c3 = 0xFE;
-        dst = *(u8 **)(p3 + 0x14);
-        *(LineNovaColor *)(dst + 4) = iGpffffbb64;
+        material = ((EffGeometryBlock *)geometry)->material;
+        *(LineNovaColor *)&((RpMaterial *)material)->color = iGpffffbb64;
         iGpffffbb64.c3 = 0xFF;
     }
-    RingInstanceStop(*(void **)(p8 + 4));
+    RingInstanceStop(((EffRingRandomBlock *)block)->sourceInstance);
 }
 
 // Creates a ring with a per-vertex random scale and a texture from the kind table.
 // FUN_00499510
-u8 *RingCreateRandomScaled(u8 *arg0) {
-    u8 *work;
-    u8 *p;
-    u32 count;
-    u32 stride;
-    u32 i;
-    u8 *dst;
-    s32 v44;
-    s32 v48;
-    s32 avg;
-    f32 f20;
-    f32 t;
+u8 *RingCreateRandomScaled(u8 *parameters) {
+    /* Earlier parameter-only probe: normalized_diff 286; remaining raw sites are isolated below. */
+    u8 *block;
+    u8 *scales;
+    u32 segmentCount;
+    u32 scaleBytes;
+    u32 rowIndex;
+    u8 *colors;
+    s32 innerColor;
+    s32 outerColor;
+    s32 middleColor;
+    f32 spread;
+    f32 randomFactor;
 
-    if (*(u32 *)(arg0 + 0x38) < 3) {
-        *(u32 *)(arg0 + 0x38) = 3;
+    if (((EffRingParameters *)parameters)->segments.count < 3) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        *(u32 *)(parameters + 0x38) = 3;
     }
-    count = *(u32 *)(arg0 + 0x38);
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+    segmentCount = *(u32 *)(parameters + 0x38);
     chkmemAllocSiteTag(D_00713EF0, 0x10F);
-    stride = count * 4;
-    p = (u8 *)(*jtbl_008873E8)(stride + 0x10, 0x40000);
-    if (p == NULL) {
+    scaleBytes = segmentCount * 4;
+    scales = (u8 *)(*jtbl_008873E8)(scaleBytes + 0x10, 0x40000);
+    if (scales == NULL) {
         kAssertFail(D_00713EF0, 0x110);
     }
-    work = p + stride;
-    *(u32 *)(work + 0) = (u32)p;
-    *(u32 *)(work + 0xC) = (u32)p;
-    memcpy(arg0 + 0x5C, arg0, 0x5C);
-    *(u32 *)(work + 4) = (u32)RingCreateKindInstance(1, arg0 + 0x5C);
-    *(u32 *)(work + 8) = (u32)GeometryCreateTableGrid(count & 0xFFFF, 2, 4, D_00713390, 0x48);
-    dst = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(work + 8) + 0x10) + 0x18) + 0x30);
-    v44 = *(s32 *)(arg0 + 0x44);
-    v48 = *(s32 *)(arg0 + 0x48);
-    i = 0;
-    avg = (v44 & v48) + (s32)(((u32)(v44 ^ v48) & 0xFEFEFEFE) >> 1);
-    while (i < count) {
-        *(s32 *)(dst + 0) = v44;
-        *(s32 *)(dst + 4) = v44;
-        *(s32 *)(dst + 8) = avg;
-        *(s32 *)(dst + 0xC) = v44;
-        f20 = *(f32 *)(arg0 + 0xCC);
-        t = effMiscRandFloat(0);
-        *(f32 *)(p + 0) = *(f32 *)(arg0 + 0xC8) * ((1.0f - f20) + f20 * t);
-        i++;
-        dst += 0x10;
-        p += 4;
+    block = scales + scaleBytes;
+    ((EffRingRandomBlock *)block)->scales = scales;
+    ((EffRingRandomBlock *)block)->allocation = scales;
+    memcpy(parameters + 0x5C, parameters, 0x5C);
+    ((EffRingRandomBlock *)block)->sourceInstance = RingCreateKindInstance(1, parameters + 0x5C);
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+    *(u32 *)(block + 8) = (u32)GeometryCreateTableGrid(segmentCount & 0xFFFF, 2, 4, D_00713390, 0x48);
+    colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)((EffRingRandomBlock *)block)->geometry)->atomic)->geometry->colors;
+    innerColor = ((EffRingParameters *)parameters)->innerColor;
+    outerColor = ((EffRingParameters *)parameters)->middleColor;
+    rowIndex = 0;
+    middleColor = (innerColor & outerColor) + (s32)(((u32)(innerColor ^ outerColor) & 0xFEFEFEFE) >> 1);
+    while (rowIndex < segmentCount) {
+        ((EffRingColorRow *)colors)->colors[0] = innerColor;
+        ((EffRingColorRow *)colors)->colors[1] = innerColor;
+        ((EffRingColorRow *)colors)->colors[2] = middleColor;
+        ((EffRingColorRow *)colors)->colors[3] = innerColor;
+        spread = ((EffRingRandomParameters *)parameters)->radialSpread;
+        randomFactor = effMiscRandFloat(0);
+        ((f32 *)scales)[0] = ((EffRingRandomParameters *)parameters)->radialScale * ((1.0f - spread) + spread * randomFactor);
+        rowIndex++;
+        colors += 0x10;
+        scales += 4;
     }
-    return work;
+    return block;
 }
 // Frees a ring block: its geometry handle, its second handle, then the block itself.
 // FUN_004996E0
-void RingDestroyBlock(u8 *arg0)
+void RingDestroyBlock(u8 *block)
 {
-    GeometryBlockDestroy(*(void **)(arg0 + 8));
-    RingInstanceDestroy(*(void **)(arg0 + 4));
-    jtbl_008873EC[0](*(void **)(arg0 + 0xC));
+    GeometryBlockDestroy(((EffRingRandomBlock *)block)->geometry);
+    RingInstanceDestroy(((EffRingRandomBlock *)block)->sourceInstance);
+    jtbl_008873EC[0](((EffRingRandomBlock *)block)->allocation);
 }
 
 
@@ -442,77 +456,79 @@ void RingDestroyBlock(u8 *arg0)
 #pragma opt_loop_invariants on
 // Rebuilds the ring strip vertices from the two geometry handles, locking and unlocking each geometry around the vertex loop.
 // FUN_00499730
-void RingRebuildStrip(u8 *arg0)
+void RingRebuildStrip(u8 *instance)
 {
-    u8 *temp_3;
-    u8 *temp_5;
-    u8 **temp_17;
-    u8 *temp_19;
-    u8 *temp_16;
-    u8 *temp_18a;
-    s32 temp_21;
-    s32 temp_20;
+    /* Earlier whole-layout probe: normalized_diff 428; remaining raw sites are isolated below. */
+    u8 *block;
+    u8 *sourceInstance;
+    u8 **sourceHandle;
+    u8 *parameters;
+    u8 *geometry;
+    u8 *scales;
+    s32 age;
+    s32 duration;
     f32 step;
     u32 limit;
-    u8 *temp_4;
-    s32 stmp;
+    u8 *sourceGeometry;
+    s32 lastVertex;
     u32 counter;
-    u8 *var_7;
-    u8 *var_6;
+    u8 *vertices;
+    u8 *sourceVertices;
     s32 bias;
-    u8 *addr;
-    f32 fscale;
+    u8 *wrapVertex;
+    f32 radialOffset;
     s32 transfer;
-    f32 t2;
-    f32 t1;
-    f32 t0;
-    u8 *temp_18b;
-    u8 *temp_17b;
-    u8 *temp_17c;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 *updatedSource;
+    u8 *sourceRwGeometry;
+    u8 *rwGeometry;
 
-    temp_3 = *(u8 **)(arg0 + 0x3C);
-    temp_5 = *(u8 **)(temp_3 + 4);
-    temp_17 = *(u8 ***)(temp_5 + 0x3C);
-    temp_19 = *(u8 **)(arg0 + 0x40);
-    temp_16 = *(u8 **)(temp_3 + 8);
-    temp_18a = *(u8 **)temp_3;
-    temp_21 = *(s32 *)(arg0 + 0x34);
-    temp_20 = *(s32 *)(temp_19 + 0x34);
-    if ((temp_20 >= temp_21) || (temp_20 == 0)) {
-        RingInstanceAdvance(temp_5);
-        step = (f32)temp_21 / (f32)temp_20;
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(temp_16 + 0x10) + 0x18), 2);
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*temp_17 + 0x10) + 0x18), 2);
-        limit = *(u32 *)(temp_19 + 0x38);
-        temp_4 = *temp_17;
-        stmp = *(s16 *)(temp_4 + 8) - 1;
-        var_7 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_16 + 0x10) + 0x18) + 0x5C) + 0x14);
-        var_6 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_4 + 0x10) + 0x18) + 0x5C) + 0x14);
-        if (*(u8 *)(temp_19 + 0xC4) == 0) {
+    block = ((EffRingInstance *)instance)->work.bytes;
+    sourceInstance = ((EffRingRandomBlock *)block)->sourceInstance;
+    sourceHandle = (u8 **)((EffRingInstance *)sourceInstance)->work.bytes;
+    parameters = ((EffRingInstance *)instance)->parameters;
+    geometry = ((EffRingRandomBlock *)block)->geometry;
+    scales = ((EffRingRandomBlock *)block)->scales;
+    age = ((EffRingInstance *)instance)->age;
+    duration = ((EffRingParameters *)parameters)->duration;
+    if ((duration >= age) || (duration == 0)) {
+        RingInstanceAdvance(sourceInstance);
+        step = (f32)age / (f32)duration;
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)*sourceHandle)->atomic)->geometry, 2);
+        limit = ((EffRingParameters *)parameters)->segments.count;
+        sourceGeometry = *sourceHandle;
+        lastVertex = ((EffGeometryBlock *)sourceGeometry)->vertexCount - 1;
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        vertices = (u8 *)((RpAtomic *)*(u8 **)(geometry + 0x10))->geometry->morphTarget->vertices;
+        sourceVertices = (u8 *)((RpAtomic *)((EffGeometryBlock *)sourceGeometry)->atomic)->geometry->morphTarget->vertices;
+        if (((EffRingRandomParameters *)parameters)->skipVertices == 0) {
             counter = 0;
             bias = -0x48;
             while (counter < limit) {
-                D_00713D10[0] = *(f32 *)(var_6 + 0xC);
-                D_00713D14[0] = *(f32 *)(var_6 + 0x10);
-                D_00713D18[0] = *(f32 *)(var_6 + 0x14);
+                D_00713D10[0] = ((RwV3d *)sourceVertices)[1].x;
+                D_00713D14[0] = ((RwV3d *)sourceVertices)[1].y;
+                D_00713D18[0] = ((RwV3d *)sourceVertices)[1].z;
                 __asm__ volatile(
                     "lqc2 $vf10, 0(%0) \n"
                     "vmove.xyzw $vf12, $vf10 \n"
                     :
                     : "r"(D_00713D10)
                     : "$vf10", "$vf12", "memory");
-                D_00713D10[0] = *(f32 *)(var_6 + 0x24);
-                D_00713D14[0] = *(f32 *)(var_6 + 0x28);
-                D_00713D18[0] = *(f32 *)(var_6 + 0x2C);
+                D_00713D10[0] = ((RwV3d *)sourceVertices)[3].x;
+                D_00713D14[0] = ((RwV3d *)sourceVertices)[3].y;
+                D_00713D18[0] = ((RwV3d *)sourceVertices)[3].z;
                 __asm__ volatile(
                     "lqc2 $vf11, 0(%0) \n"
                     "sqc2 $vf10, 0(%0) \n"
                     :
                     : "r"(D_00713D10)
                     : "$vf10", "$vf11", "memory");
-                *(f32 *)(var_7 + 0x18) = D_00713D10[0];
-                *(f32 *)(var_7 + 0x1C) = D_00713D14[0];
-                *(f32 *)(var_7 + 0x20) = D_00713D18[0];
+                ((RwV3d *)vertices)[2].x = D_00713D10[0];
+                ((RwV3d *)vertices)[2].y = D_00713D14[0];
+                ((RwV3d *)vertices)[2].z = D_00713D18[0];
                 __asm__ volatile(
                     "vsub.xyzw $vf10, $vf10, $vf11 \n"
                     "vmul.xyz $vf2, $vf10, $vf10 \n"
@@ -525,7 +541,7 @@ void RingRebuildStrip(u8 *arg0)
                     :
                     :
                     : "$vf2", "$vf10", "$vf11", "$vf12", "ACC", "Q", "memory");
-                fscale = *(f32 *)temp_18a * step;
+                radialOffset = *(f32 *)scales * step;
                 /* The FPU-to-VU bridge writes its scratch before consuming it. */
                 __asm__ volatile(
                     "mfc1 %0, %1 \n"
@@ -534,50 +550,50 @@ void RingRebuildStrip(u8 *arg0)
                     "vmulx.xyzw $vf10, $vf10, $vf2x \n"
                     "vadd.xyzw $vf10, $vf10, $vf12 \n"
                     : "=&r"(transfer)
-                    : "f"(fscale)
+                    : "f"(radialOffset)
                     : "$vf2", "$vf10", "memory");
                 __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "memory");
-                *(f32 *)(var_7 + 0) = D_00713D10[0];
-                *(f32 *)(var_7 + 4) = D_00713D14[0];
-                *(f32 *)(var_7 + 8) = D_00713D18[0];
-                t2 = *(f32 *)(var_6 + 0x3C);
-                t1 = *(f32 *)(var_6 + 0x40);
-                t0 = *(f32 *)(var_6 + 0x44);
-                *(f32 *)(var_7 + 0xC) = t2;
-                *(f32 *)(var_7 + 0x10) = t1;
-                *(f32 *)(var_7 + 0x14) = t0;
+                ((RwV3d *)vertices)[0].x = D_00713D10[0];
+                ((RwV3d *)vertices)[0].y = D_00713D14[0];
+                ((RwV3d *)vertices)[0].z = D_00713D18[0];
+                x = ((RwV3d *)sourceVertices)[5].x;
+                y = ((RwV3d *)sourceVertices)[5].y;
+                z = ((RwV3d *)sourceVertices)[5].z;
+                ((RwV3d *)vertices)[1].x = x;
+                ((RwV3d *)vertices)[1].y = y;
+                ((RwV3d *)vertices)[1].z = z;
                 if (counter == 0) {
-                    addr = var_6 + stmp * 12 + bias;
-                    t2 = *(f32 *)(addr + 0);
-                    t1 = *(f32 *)(addr + 4);
-                    t0 = *(f32 *)(addr + 8);
-                    *(f32 *)(var_7 + 0x24) = t2;
-                    *(f32 *)(var_7 + 0x28) = t1;
-                    *(f32 *)(var_7 + 0x2C) = t0;
+                    wrapVertex = sourceVertices + lastVertex * 12 + bias;
+                    x = ((RwV3d *)wrapVertex)[0].x;
+                    y = ((RwV3d *)wrapVertex)[0].y;
+                    z = ((RwV3d *)wrapVertex)[0].z;
+                    ((RwV3d *)vertices)[3].x = x;
+                    ((RwV3d *)vertices)[3].y = y;
+                    ((RwV3d *)vertices)[3].z = z;
                 } else {
-                    t2 = *(f32 *)(var_6 - 0x24);
-                    t1 = *(f32 *)(var_6 - 0x20);
-                    t0 = *(f32 *)(var_6 - 0x1C);
-                    *(f32 *)(var_7 + 0x24) = t2;
-                    *(f32 *)(var_7 + 0x28) = t1;
-                    *(f32 *)(var_7 + 0x2C) = t0;
+                    x = ((RwV3d *)sourceVertices)[-3].x;
+                    y = ((RwV3d *)sourceVertices)[-3].y;
+                    z = ((RwV3d *)sourceVertices)[-3].z;
+                    ((RwV3d *)vertices)[3].x = x;
+                    ((RwV3d *)vertices)[3].y = y;
+                    ((RwV3d *)vertices)[3].z = z;
                 }
                 counter += 1;
-                var_7 += 0x30;
-                var_6 += 0x30;
-                temp_18a += 4;
+                vertices += 0x30;
+                sourceVertices += 0x30;
+                scales += 4;
             }
         }
-        temp_18b = *temp_17;
-        temp_17b = *(u8 **)(*(u8 **)(temp_18b + 0x10) + 0x18);
-        func_003c22f0(temp_17b);
-        if (*(u16 *)temp_18b & 4) {
-            *(u16 *)(temp_17b + 0xC) = *(u16 *)(temp_17b + 0xC) | 1;
+        updatedSource = *sourceHandle;
+        sourceRwGeometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)updatedSource)->atomic)->geometry;
+        func_003c22f0(sourceRwGeometry);
+        if (((EffGeometryBlock *)updatedSource)->kind & 4) {
+            ((RpGeometry *)sourceRwGeometry)->lockedSinceLastInst = ((RpGeometry *)sourceRwGeometry)->lockedSinceLastInst | 1;
         }
-        temp_17c = *(u8 **)(*(u8 **)(temp_16 + 0x10) + 0x18);
-        func_003c22f0(temp_17c);
-        if (*(u16 *)temp_16 & 4) {
-            *(u16 *)(temp_17c + 0xC) = *(u16 *)(temp_17c + 0xC) | 1;
+        rwGeometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry;
+        func_003c22f0(rwGeometry);
+        if (((EffGeometryBlock *)geometry)->kind & 4) {
+            ((RpGeometry *)rwGeometry)->lockedSinceLastInst = ((RpGeometry *)rwGeometry)->lockedSinceLastInst | 1;
         }
     }
 }
@@ -585,28 +601,29 @@ void RingRebuildStrip(u8 *arg0)
 
 // Updates a line-nova segment from the source's state block when the row is live.
 // FUN_00499A30
-void RingUpdateLineSegment(u8 *arg0)
+void RingUpdateLineSegment(u8 *instance)
 {
-    u8 *temp_16;
-    u8 *temp_18;
-    u8 *temp_17;
+    /* Earlier whole-layout probe: normalized_diff 196; color scratch still stores packed VU0 words. */
+    u8 *block;
+    u8 *parameters;
+    u8 *geometry;
     u8 colourStack[16];
-    s32 temp_3;
-    u8 *dest;
-    u8 *cs8;
+    s32 sampledColor;
+    u8 *material;
+    u8 *baseColor;
     f32 scale;
-    u_long128 *dstq;
+    u_long128 *destinationQuad;
 
-    temp_16 = *(u8 **)(arg0 + 0x3C);
-    temp_18 = *(u8 **)(arg0 + 0x40);
-    temp_17 = *(u8 **)(temp_16 + 8);
-    if ((*(u32 *)(temp_18 + 0x34) >= *(u32 *)(arg0 + 0x34)) ||
-        (*(u32 *)(temp_18 + 0x34) == 0)) {
-        temp_3 = mdlEffectSamplePackedColor(temp_18, temp_18 + 0x24,
-                               *(u32 *)(arg0 + 0x34),
-                               *(u32 *)(temp_18 + 0x34));
-        *(u32 *)&colourStack[8] = *(u32 *)(arg0 + 0x30);
-        cs8 = &colourStack[8];
+    block = ((EffRingInstance *)instance)->work.bytes;
+    parameters = ((EffRingInstance *)instance)->parameters;
+    geometry = ((EffRingRandomBlock *)block)->geometry;
+    if (((u32)((EffRingParameters *)parameters)->duration >= (u32)((EffRingInstance *)instance)->age) ||
+        (((EffRingParameters *)parameters)->duration == 0)) {
+        sampledColor = mdlEffectSamplePackedColor(parameters, parameters + 0x24,
+                               ((EffRingInstance *)instance)->age,
+                               ((EffRingParameters *)parameters)->duration);
+        *(u32 *)&colourStack[8] = ((EffRingInstance *)instance)->packedColor;
+        baseColor = &colourStack[8];
         scale = fGpffff8044;
         __asm__ volatile(
             ".set noreorder              \n"
@@ -642,104 +659,108 @@ void RingUpdateLineSegment(u8 *arg0)
             "sw $3, 0x50($sp)             \n"
             ".set reorder                \n"
             :
-            : "r"(cs8), "r"(temp_3), "f"(scale)
+            : "r"(baseColor), "r"(sampledColor), "f"(scale)
             : "$2", "$3", "memory");
         *(u32 *)&colourStack[12] = *(u32 *)&colourStack[0];
         if (colourStack[15] != 0xFF) {
-            dest = *(u8 **)(temp_17 + 0x14);
-            *(LineNovaColor *)(dest + 4) =
+            material = ((EffGeometryBlock *)geometry)->material;
+            *(LineNovaColor *)&((RpMaterial *)material)->color =
                 *(LineNovaColor *)&colourStack[12];
         } else {
             colourStack[15] = 0xFE;
-            dest = *(u8 **)(temp_17 + 0x14);
-            *(LineNovaColor *)(dest + 4) =
+            material = ((EffGeometryBlock *)geometry)->material;
+            *(LineNovaColor *)&((RpMaterial *)material)->color =
                 *(LineNovaColor *)&colourStack[12];
             colourStack[15] = 0xFF;
         }
-        if (*(u8 *)(*(u8 **)(temp_17 + 0x14) + 7) != 0) {
-            *(s32 *)(*(u8 **)(temp_16 + 4) + 0x30) =
-                *(s32 *)(arg0 + 0x30);
-            dstq = (u_long128 *)(*(u8 **)(temp_16 + 4) + 0x20);
-            *dstq = *(u_long128 *)(arg0 + 0x20);
-            dstq = (u_long128 *)(*(u8 **)(temp_16 + 4) + 0x0);
-            *dstq = *(u_long128 *)(arg0 + 0x0);
-            dest = *(u8 **)(temp_16 + 4);
-            dstq = (u_long128 *)(dest + 0x10);
-            *dstq = *(u_long128 *)(arg0 + 0x10);
-            RingInstanceUpdateIfActive(*(void **)(temp_16 + 4));
-            GeometryBlockSetFrameMatrixCombined(temp_17, arg0, arg0 + 0x10, arg0 + 0x20);
-            if (*(u8 *)(temp_18 + 0x3C) != 0) {
-                *(u16 *)temp_17 = *(u16 *)temp_17 | 1;
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        if (((RpMaterial *)*(u8 **)(geometry + 0x14))->color.c[3] != 0) {
+            ((EffRingInstance *)((EffRingRandomBlock *)block)->sourceInstance)->packedColor =
+                ((EffRingInstance *)instance)->packedColor;
+            destinationQuad = (u_long128 *)(((EffRingRandomBlock *)block)->sourceInstance + 0x20);
+            *destinationQuad = ((EffRingInstance *)instance)->scale;
+            destinationQuad = (u_long128 *)(((EffRingRandomBlock *)block)->sourceInstance + 0x0);
+            *destinationQuad = ((EffRingInstance *)instance)->position;
+            material = ((EffRingRandomBlock *)block)->sourceInstance;
+            destinationQuad = (u_long128 *)(material + 0x10);
+            *destinationQuad = ((EffRingInstance *)instance)->rotation;
+            RingInstanceUpdateIfActive(((EffRingRandomBlock *)block)->sourceInstance);
+            GeometryBlockSetFrameMatrixCombined(geometry, instance, instance + 0x10, instance + 0x20);
+            if (((EffRingParameters *)parameters)->visible != 0) {
+                ((EffGeometryBlock *)geometry)->kind = ((EffGeometryBlock *)geometry)->kind | 1;
             } else {
-                *(u16 *)temp_17 = *(u16 *)temp_17 & 0xFFFE;
+                ((EffGeometryBlock *)geometry)->kind = ((EffGeometryBlock *)geometry)->kind & 0xFFFE;
             }
-            GeometryBlockBindResource((s32)temp_17, *(u16 *)(temp_18 + 0x28));
+            GeometryBlockBindResource((s32)geometry, ((EffRingParameters *)parameters)->resource);
         }
     }
 }
 
 // Writes the line colour into its row; alpha 0xFF is reserved as the marker value, so 0xFE is written in its place.
 // FUN_00499C50
-void RingWriteLineColourAlt(u8 *arg0) {
-    u8 *p4;
-    u8 *dst;
+void RingWriteLineColourAlt(u8 *instance) {
+    u8 *geometry;
+    u8 *material;
 
-    p4 = *(u8 **)(*(u8 **)(arg0 + 0x3C));
+    geometry = ((EffRingHandle *)((EffRingInstance *)instance)->work.bytes)->geometry;
     if (iGpffffbb64.c3 != 0xFF) {
-        dst = *(u8 **)(p4 + 0x14);
-        *(LineNovaColor *)(dst + 4) = iGpffffbb64;
+        material = ((EffGeometryBlock *)geometry)->material;
+        *(LineNovaColor *)&((RpMaterial *)material)->color = iGpffffbb64;
     } else {
         iGpffffbb64.c3 = 0xFE;
-        dst = *(u8 **)(p4 + 0x14);
-        *(LineNovaColor *)(dst + 4) = iGpffffbb64;
+        material = ((EffGeometryBlock *)geometry)->material;
+        *(LineNovaColor *)&((RpMaterial *)material)->color = iGpffffbb64;
         iGpffffbb64.c3 = 0xFF;
     }
 }
 
 // Creates a ring handle with geometry copies and per-vertex colour rows. Same body as RingCreateHandle.
 // FUN_00499CD0
-u8 *RingCreateHandleAlt(u8 *arg0) {
-    u8 *alloc;
-    u8 *p2;
-    s32 count;
-    s32 v44;
-    s32 v48;
-    s32 v4C;
-    u32 i;
-    u8 *dst;
+u8 *RingCreateHandleAlt(u8 *parameters) {
+    /* Earlier whole-layout probe: normalized_diff 123; remaining raw sites are isolated below. */
+    u8 *handle;
+    u8 *geometry;
+    s32 rowCount;
+    s32 innerColor;
+    s32 middleColor;
+    s32 outerColor;
+    u32 rowIndex;
+    u8 *colors;
 
     chkmemAllocSiteTag(D_00713EF0, 0x1E6);
-    alloc = (u8 *)(*jtbl_008873E8)(4, 0x40000);
-    if (alloc == NULL) {
+    handle = (u8 *)(*jtbl_008873E8)(4, 0x40000);
+    if (handle == NULL) {
         kAssertFail(D_00713EF0, 0x1E7);
     }
-    if (*(u32 *)(arg0 + 0x38) < 3) {
-        *(u32 *)(arg0 + 0x38) = 3;
+    if (((EffRingParameters *)parameters)->segments.count < 3) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        *(u32 *)(parameters + 0x38) = 3;
     }
-    p2 = GeometryCreateStripGrid(*(u16 *)(arg0 + 0x38), D_00713330, 4, 0x48);
-    *(u32 *)alloc = (u32)p2;
-    count = *(s16 *)(p2 + 8) / 4;
-    dst = *(u8 **)(*(u8 **)(*(u8 **)(p2 + 0x10) + 0x18) + 0x30);
-    v44 = *(s32 *)(arg0 + 0x44);
-    v48 = *(s32 *)(arg0 + 0x48);
-    v4C = *(s32 *)(arg0 + 0x4C);
-    i = 0;
-    while (i < (u32)count) {
-        *(s32 *)(dst + 0) = v44;
-        *(s32 *)(dst + 4) = v48;
-        *(s32 *)(dst + 8) = v48;
-        *(s32 *)(dst + 0xC) = v4C;
-        i++;
-        dst += 0x10;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+    geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x38), D_00713330, 4, 0x48);
+    *(u32 *)handle = (u32)geometry;
+    rowCount = ((EffGeometryBlock *)geometry)->vertexCount / 4;
+    colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry->colors;
+    innerColor = ((EffRingParameters *)parameters)->innerColor;
+    middleColor = ((EffRingParameters *)parameters)->middleColor;
+    outerColor = ((EffRingParameters *)parameters)->outerColor;
+    rowIndex = 0;
+    while (rowIndex < (u32)rowCount) {
+        ((EffRingColorRow *)colors)->colors[0] = innerColor;
+        ((EffRingColorRow *)colors)->colors[1] = middleColor;
+        ((EffRingColorRow *)colors)->colors[2] = middleColor;
+        ((EffRingColorRow *)colors)->colors[3] = outerColor;
+        rowIndex++;
+        colors += 0x10;
     }
-    return alloc;
+    return handle;
 }
 // Frees a ring handle: its geometry, then the handle block. Same body as RingDestroyHandle.
 // FUN_00499DF0
-void RingDestroyHandleAlt(void **arg0)
+void RingDestroyHandleAlt(void **handle)
 {
-    GeometryBlockDestroy(*arg0);
-    jtbl_008873EC[0](arg0);
+    GeometryBlockDestroy(*handle);
+    jtbl_008873EC[0](handle);
 }
 
 /* measured: quadword locals retain the VU copy storage. Store each
@@ -749,72 +770,74 @@ void RingDestroyHandleAlt(void **arg0)
 #pragma opt_propagation off
 // Rebuilds a scaled ring circle: samples cos and sin around the fade radius and writes the vertex and colour rows.
 // FUN_00499E40
-void RingRebuildCircleScaled(u8 *arg0)
+void RingRebuildCircleScaled(u8 *instance)
 {
-    u8 *temp_18;
-    u8 *temp_17;
-    s32 temp_4;
-    s32 temp_3;
-    s16 tmp2;
-    s32 var_16;
-    u32 var_18;
-    u8 *var_19;
-    f32 var_f5;
-    f32 temp_f0;
-    f32 temp_f4;
-    f32 temp_f3;
-    f32 var_f1;
+    /* Earlier whole-layout probe: normalized_diff 434; remaining raw sites are isolated below. */
+    u8 *parameters;
+    u8 *geometry;
+    s32 age;
+    s32 duration;
+    s16 vertexCount;
+    s32 rowCount;
+    u32 rowIndex;
+    u8 *vertices;
+    f32 elapsed;
+    f32 radialTerm;
+    f32 acceleration;
+    f32 speed;
+    f32 segmentCount;
     f32 phase;
     f32 step;
     f32 zero;
     f32 fade;
-    f32 f2;
-    f32 f1;
-    f32 f0;
-    u_long128 stk;
-    u_long128 sp80;
-    u_long128 sp70;
-    u_long128 sp60;
-    u8 *tmp16;
+    f32 innerRadius;
+    f32 middleRadius;
+    f32 outerRadius;
+    u_long128 direction;
+    u_long128 innerRadiusVector;
+    u_long128 middleRadiusVector;
+    u_long128 outerRadiusVector;
+    u8 *rwGeometry;
 
     {
-        u8 *tmp3p = *(u8 **)(arg0 + 0x3C);
-        temp_18 = *(u8 **)(arg0 + 0x40);
-        temp_17 = *(u8 **)tmp3p;
-        temp_4 = *(s32 *)(arg0 + 0x34);
-        temp_3 = *(s32 *)(temp_18 + 0x34);
+        u8 *handle = ((EffRingInstance *)instance)->work.bytes;
+        parameters = ((EffRingInstance *)instance)->parameters;
+        geometry = *(u8 **)handle;
+        age = ((EffRingInstance *)instance)->age;
+        duration = ((EffRingParameters *)parameters)->duration;
     }
-    if ((temp_3 >= temp_4) || (temp_3 == 0)) {
-        if (*(u8 *)(temp_18 + 0x64) != 0) {
-            var_f5 = (f32)(temp_3 - temp_4);
+    if ((duration >= age) || (duration == 0)) {
+        if (((EffRingScaledParameters *)parameters)->reverse != 0) {
+            elapsed = (f32)(duration - age);
         } else {
-            var_f5 = (f32)temp_4;
+            elapsed = (f32)age;
         }
-        temp_f3 = fabsf(*(f32 *)(temp_18 + 0x5C));
-        temp_f4 = *(f32 *)(temp_18 + 0x60);
-        if (temp_f4 < 0.0f) {
-            temp_f0 = 0.5f * (-temp_f3 / (0.5f * temp_f4));
-            if (var_f5 > temp_f0) {
-                var_f5 = temp_f0;
+        speed = fabsf(((EffRingScaledParameters *)parameters)->speed);
+        acceleration = ((EffRingScaledParameters *)parameters)->acceleration;
+        if (acceleration < 0.0f) {
+            radialTerm = 0.5f * (-speed / (0.5f * acceleration));
+            if (elapsed > radialTerm) {
+                elapsed = radialTerm;
             }
         }
-        f2 = temp_f4 * var_f5;
-        f0 = temp_f3 + 0.5f * f2;
-        f1 = var_f5 * f0;
-        fade = f1 + *(f32 *)(temp_18 + 0x40);
-        tmp2 = *(s16 *)(temp_17 + 8);
-        var_16 = tmp2 / 4;
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
-        var_19 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18) + 0x5C) + 0x14);
+        innerRadius = acceleration * elapsed;
+        outerRadius = speed + 0.5f * innerRadius;
+        middleRadius = elapsed * outerRadius;
+        fade = middleRadius + ((EffRingParameters *)parameters)->radius;
+        vertexCount = ((EffGeometryBlock *)geometry)->vertexCount;
+        rowCount = vertexCount / 4;
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        vertices = (u8 *)((RpAtomic *)*(u8 **)(geometry + 0x10))->geometry->morphTarget->vertices;
         phase = 0.0f;
-        var_f1 = (f32)*(u32 *)(temp_18 + 0x38);
-        step = fGpffff80d0 / var_f1;
+        segmentCount = (f32)((EffRingParameters *)parameters)->segments.count;
+        step = fGpffff80d0 / segmentCount;
         zero = 0.0f;
-        ((s32 *)&stk)[1] = 0;
-        ((s32 *)&stk)[3] = 0x3F800000;
-        f2 = *(f32 *)(temp_18 + 0x50) + fade;
-        f1 = f2 + *(f32 *)(temp_18 + 0x54);
-        f0 = f1 + *(f32 *)(temp_18 + 0x58);
+        ((s32 *)&direction)[1] = 0;
+        ((s32 *)&direction)[3] = 0x3F800000;
+        innerRadius = ((EffRingParameters *)parameters)->innerWidth + fade;
+        middleRadius = innerRadius + ((EffRingParameters *)parameters)->middleWidth;
+        outerRadius = middleRadius + ((EffRingParameters *)parameters)->outerWidth;
         __asm__ volatile(
             "lqc2 $vf10, 0(%0) \n"
             "vmove.xyzw $vf11, $vf10 \n"
@@ -822,57 +845,57 @@ void RingRebuildCircleScaled(u8 *arg0)
             "nop \n"
             "qmtc2.ni $2, $vf2 \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            : : "r"(D_00713CE0), "f"(f2) : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp80) : "$vf10", "memory");
+            : : "r"(D_00713CE0), "f"(innerRadius) : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&innerRadiusVector) : "$vf10", "memory");
         __asm__ volatile(
             "vmove.xyzw $vf10, $vf11 \n"
             "mfc1 $2, %0 \n"
             "nop \n"
             "qmtc2.ni $2, $vf2 \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            : : "f"(f1) : "$2", "$vf2", "$vf10", "$vf11", "memory");
+            : : "f"(middleRadius) : "$2", "$vf2", "$vf10", "$vf11", "memory");
         __asm__ volatile(
             "mfc1 $2, %0 \n"
             "nop \n"
             "qmtc2.ni $2, $vf2 \n"
             "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-            : : "f"(f0) : "$2", "$vf2", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp70) : "$vf10", "memory");
-        __asm__ volatile("sqc2 $vf11, 0(%0)" : : "r"(&sp60) : "$vf11", "memory");
-        var_18 = 0;
-        while (var_18 < (u32)var_16) {
-            ((f32 *)&stk)[0] = cosf(phase);
-            ((f32 *)&stk)[2] = sinf(phase);
-            *(f32 *)(var_19 + 0) = zero;
-            *(f32 *)(var_19 + 4) = zero;
-            *(f32 *)(var_19 + 8) = zero;
-            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&stk) : "$vf11", "memory");
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&sp80) : "$vf10", "memory");
+            : : "f"(outerRadius) : "$2", "$vf2", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&middleRadiusVector) : "$vf10", "memory");
+        __asm__ volatile("sqc2 $vf11, 0(%0)" : : "r"(&outerRadiusVector) : "$vf11", "memory");
+        rowIndex = 0;
+        while (rowIndex < (u32)rowCount) {
+            ((f32 *)&direction)[0] = cosf(phase);
+            ((f32 *)&direction)[2] = sinf(phase);
+            ((RwV3d *)vertices)[0].x = zero;
+            ((RwV3d *)vertices)[0].y = zero;
+            ((RwV3d *)vertices)[0].z = zero;
+            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&direction) : "$vf11", "memory");
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&innerRadiusVector) : "$vf10", "memory");
             __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" ::: "$vf10", "$vf11", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "$vf10", "memory");
-            *(f32 *)(var_19 + 0xC) = D_00713D10[0];
-            *(f32 *)(var_19 + 0x10) = D_00713D14[0];
-            *(f32 *)(var_19 + 0x14) = D_00713D18[0];
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&sp70) : "$vf10", "memory");
+            ((RwV3d *)vertices)[1].x = D_00713D10[0];
+            ((RwV3d *)vertices)[1].y = D_00713D14[0];
+            ((RwV3d *)vertices)[1].z = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&middleRadiusVector) : "$vf10", "memory");
             __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" ::: "$vf10", "$vf11", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "$vf10", "memory");
-            *(f32 *)(var_19 + 0x18) = D_00713D10[0];
-            *(f32 *)(var_19 + 0x1C) = D_00713D14[0];
-            *(f32 *)(var_19 + 0x20) = D_00713D18[0];
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&sp60) : "$vf10", "memory");
+            ((RwV3d *)vertices)[2].x = D_00713D10[0];
+            ((RwV3d *)vertices)[2].y = D_00713D14[0];
+            ((RwV3d *)vertices)[2].z = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&outerRadiusVector) : "$vf10", "memory");
             __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" ::: "$vf10", "$vf11", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "$vf10", "memory");
-            *(f32 *)(var_19 + 0x24) = D_00713D10[0];
-            *(f32 *)(var_19 + 0x28) = D_00713D14[0];
-            *(f32 *)(var_19 + 0x2C) = D_00713D18[0];
+            ((RwV3d *)vertices)[3].x = D_00713D10[0];
+            ((RwV3d *)vertices)[3].y = D_00713D14[0];
+            ((RwV3d *)vertices)[3].z = D_00713D18[0];
             phase = phase + step;
-            var_18 += 1;
-            var_19 += 0x30;
+            rowIndex += 1;
+            vertices += 0x30;
         }
-        tmp16 = *(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18);
-        func_003c22f0(tmp16);
-        if (*(u16 *)temp_17 & 4) {
-            *(u16 *)(tmp16 + 0xC) = *(u16 *)(tmp16 + 0xC) | 1;
+        rwGeometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry;
+        func_003c22f0(rwGeometry);
+        if (((EffGeometryBlock *)geometry)->kind & 4) {
+            ((RpGeometry *)rwGeometry)->lockedSinceLastInst = ((RpGeometry *)rwGeometry)->lockedSinceLastInst | 1;
         }
     }
 }
@@ -882,29 +905,30 @@ void RingRebuildCircleScaled(u8 *arg0)
    Same VU0 inline-asm + constraint-pointer shape as its twin. MATCH. */
 // Updates a ring row colour and geometry: the second caller's copy of RingUpdateRowColour.
 // FUN_0049A1A0
-void RingUpdateRowColourAlt(u8 *param_1)
+void RingUpdateRowColourAlt(u8 *instance)
 {
-  u8 *iVar5;
-  u8 *iVar1;
-  u16 *puVar2;
+  /* Earlier whole-layout probe: normalized_diff 160; color scratch still stores packed VU0 words. */
+  u8 *ring;
+  u8 *parameters;
+  u16 *geometry;
   u8 colourStack[16];
-  int iVar3;
-  int iVar4;
-  int iVar6;
-  u8 *dest;
+  s32 value;
+  s32 duration;
+  s32 age;
+  u8 *material;
   f32 scale;
-  u8 *cs8;
+  u8 *baseColor;
 
-  iVar5 = (u8 *)param_1;
-  iVar3 = *(int *)(iVar5 + 0x3c);
-  iVar1 = *(u8 **)(iVar5 + 0x40);
-  puVar2 = *(u16 **)iVar3;
-  iVar6 = *(int *)(iVar5 + 0x34);
-  iVar4 = *(int *)(iVar1 + 0x34);
-  if (((u32)iVar6 <= (u32)iVar4) || (iVar4 == 0)) {
-    iVar3 = mdlEffectSamplePackedColor((char *)iVar1, (u32 *)(iVar1 + 0x24), iVar6, iVar4);
-    *(u32 *)&colourStack[8] = *(u32 *)(iVar5 + 0x30);
-    cs8 = &colourStack[8];
+  ring = (u8 *)instance;
+  value = ((EffRingInstance *)ring)->work.signedBits;
+  parameters = ((EffRingInstance *)ring)->parameters;
+  geometry = *(u16 **)value;
+  age = ((EffRingInstance *)ring)->age;
+  duration = ((EffRingParameters *)parameters)->duration;
+  if (((u32)age <= (u32)duration) || (duration == 0)) {
+    value = mdlEffectSamplePackedColor((char *)parameters, (u32 *)(parameters + 0x24), age, duration);
+    *(u32 *)&colourStack[8] = ((EffRingInstance *)ring)->packedColor;
+    baseColor = &colourStack[8];
     scale = iGpffff8044;
     __asm__ volatile (
         ".set noreorder                  \n"
@@ -940,28 +964,29 @@ void RingUpdateRowColourAlt(u8 *param_1)
         "sw          $3, 0x40($sp)       \n"
         ".set reorder"
         :
-        : "r"(cs8), "r"((u32)iVar3), "f"(scale)
+        : "r"(baseColor), "r"((u32)value), "f"(scale)
         : "$2", "$3", "memory");
     *(u32 *)&colourStack[12] = *(u32 *)&colourStack[0];
     if (colourStack[15] != 0xff) {
-      dest = *(u8 **)(puVar2 + 10);
-      *(RwRGBA *)(dest + 4) = *(RwRGBA *)&colourStack[12];
+      material = ((EffGeometryBlock *)geometry)->material;
+      *(RwRGBA *)&((RpMaterial *)material)->color = *(RwRGBA *)&colourStack[12];
     }
     else {
       colourStack[15] = 0xfe;
-      dest = *(u8 **)(puVar2 + 10);
-      *(RwRGBA *)(dest + 4) = *(RwRGBA *)&colourStack[12];
+      material = ((EffGeometryBlock *)geometry)->material;
+      *(RwRGBA *)&((RpMaterial *)material)->color = *(RwRGBA *)&colourStack[12];
       colourStack[15] = 0xff;
     }
-    if (*(u8 *)(*(int *)(puVar2 + 10) + 7) != 0) {
-      GeometryBlockSetFrameMatrixCombined(puVar2, iVar5, iVar5 + 0x10, iVar5 + 0x20);
-      if (*(u8 *)(iVar1 + 0x3c) != 0) {
-        *puVar2 = *puVar2 | 1;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+    if (((RpMaterial *)*(s32 *)(geometry + 10))->color.c[3] != 0) {
+      GeometryBlockSetFrameMatrixCombined(geometry, ring, ring + 0x10, ring + 0x20);
+      if (((EffRingParameters *)parameters)->visible != 0) {
+        *geometry = *geometry | 1;
       }
       else {
-        *puVar2 = *puVar2 & 0xfffe;
+        *geometry = *geometry & 0xfffe;
       }
-      GeometryBlockBindResource((int)puVar2, *(u16 *)(iVar1 + 0x28));
+      GeometryBlockBindResource((s32)geometry, ((EffRingParameters *)parameters)->resource);
     }
   }
 }
@@ -970,52 +995,52 @@ void RingUpdateRowColourAlt(u8 *param_1)
 /* measured: opt_propagation off keeps the named D_00713CE0 pointer's
    lui/addiu/lq sequence instead of folding the low half into lq. */
 #pragma opt_propagation off
-u8 *RingCreateKindInstance(u16 arg0, u8 *arg1)
+u8 *RingCreateKindInstance(u16 kind, u8 *parameters)
 {
-    u8 *p;
+    u8 *instance;
     u_long128 *quadSrc;
     u_long128 quad;
-    s32 size;
-    u32 idx;
+    s32 parameterSize;
+    u32 kindIndex;
 
-    if (arg0 >= 4) {
+    if (kind >= 4) {
         kAssertFail(D_00713EF0, 0x2BD);
     }
-    idx = arg0;
-    size = D_00713F24[idx * 6];
+    kindIndex = kind;
+    parameterSize = D_00713F24[kindIndex * 6];
     chkmemAllocSiteTag(D_00713EF0, 0x2C1);
-    p = (u8 *)(*jtbl_008873E8)(size + 0x50, 0x40000);
-    if (p == NULL) {
+    instance = (u8 *)(*jtbl_008873E8)(parameterSize + 0x50, 0x40000);
+    if (instance == NULL) {
         kAssertFail(D_00713EF0, 0x2C2);
     }
-    *(u8 **)(p + 0x40) = p + 0x50;
-    *(s32 *)(p + 0x34) = 0;
-    *(s32 *)(p + 0x38) = idx;
-    *(s32 *)(p + 0x30) = -1;
+    ((EffRingInstance *)instance)->parameters = instance + 0x50;
+    ((EffRingInstance *)instance)->age = 0;
+    ((EffRingInstance *)instance)->kind = kindIndex;
+    ((EffRingInstance *)instance)->packedColor = -1;
     quadSrc = (u_long128 *)D_00713CE0;
     quad = *quadSrc;
-    *(u_long128 *)(p + 0x20) = quad;
-    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(p) : "memory");
-    __asm__ volatile("sqc2 vf0, 0x10(%0)" : : "r"(p) : "memory");
-    memcpy(*(void **)(p + 0x40), arg1, size);
-    *(u32 *)(p + 0x3C) =
-        ((u32 (*)(u8 *))D_00713F14[arg0 * 6])(arg1);
-    ((void (*)(u8 *))D_00713F10[arg0 * 6])(p);
-    return p;
+    ((EffRingInstance *)instance)->scale = quad;
+    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(instance) : "memory");
+    __asm__ volatile("sqc2 vf0, 0x10(%0)" : : "r"(instance) : "memory");
+    memcpy(((EffRingInstance *)instance)->parameters, parameters, parameterSize);
+    ((EffRingInstance *)instance)->work.bits =
+        ((u32 (*)(u8 *))D_00713F14[kind * 6])(parameters);
+    ((void (*)(u8 *))D_00713F10[kind * 6])(instance);
+    return instance;
 }
 #pragma opt_propagation on
 // Creates a kind instance for an object: resolves the object's record, then builds the instance for its kind (asserts on a missing record).
 // FUN_0049A4E0
-void *RingCreateKindInstanceFromObject(void *arg0) {
-    u8 *p;
+void *RingCreateKindInstanceFromObject(void *source) {
+    u8 *instance;
 
-    p = mdlEffectResolveRelPtrA(arg0);
-    if (p == NULL) {
+    instance = mdlEffectResolveRelPtrA(source);
+    if (instance == NULL) {
         kAssertFail(D_00713EF0, 0x2E5);
     }
-    p = RingCreateKindInstance(*(u16 *)((u8 *)arg0 + 0xC), p);
-    if (p == NULL) {
+    instance = RingCreateKindInstance(((EffSourceDescriptor *)source)->id, instance);
+    if (instance == NULL) {
         kAssertFail(D_00713EF0, 0x2E7);
     }
-    return p;
+    return instance;
 }

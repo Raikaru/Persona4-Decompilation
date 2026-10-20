@@ -2,9 +2,10 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
+#include "fr_font_objects.h"
 #include "h_cdvd.h"
 
-extern void frFontSlotLoad(s32 arg0, u8 *arg1, u8 *arg2);
+extern void frFontSlotLoad(s32 slotId, u8 *header, u8 *fontData);
 
 typedef int (*code)();
 extern u32 DAT_00881630_abs[];
@@ -17,7 +18,7 @@ extern u8 DAT_00881760_abs[];
 
 extern s16 D_00763810;
 
-extern void frFontDrawListMode(void *param_1, u32 param_2);
+extern void frFontDrawListMode(void *list, u32 mode);
 
 extern u32 D_00764598;
 
@@ -30,23 +31,23 @@ extern void frFontRasterEvictExpired(void);
 extern u32 DAT_00881528_abs[];
 extern u32 DAT_0088152C_abs[];
 extern u32 DAT_0088179C_abs[];
-extern u32 frFontListRelease(int param_1);
-extern u32 frFontFadeNodes(int param_1);
+extern u32 frFontListRelease(int list);
+extern u32 frFontFadeNodes(int list);
 extern void *memset(void *dst, s32 value, u32 size);
-extern int sdkSndIsChannelPlaying(int param_1);
+extern int sdkSndIsChannelPlaying(int channelIndex);
 extern void nmMesWindowResetRecords(void);
 extern int fclBankManagerCreate(void);
 extern void fclMiscCreateAssistTask(void);
 struct KwlnTask;
-extern s32 fclBankManagerUpdate(u8 *task);
-extern void frFontTaskDestroy(u8 *task);
-extern void frFontInitManager(int param_1, int param_2);
-extern s8 frFontRunScript(void *param_1, int param_2);
-extern void frFontSetMode(u32 param_1);
+extern s32 fclBankManagerUpdate(u8 *sdkTaskBytes);
+extern void frFontTaskDestroy(u8 *unusedTask);
+extern void frFontInitManager(int gridCapacity, int cacheCapacity);
+extern s8 frFontRunScript(void *context, int onlyCommand);
+extern void frFontSetMode(u32 mode);
 extern u8 *frFontBuildText(void *data);
-extern u8 *frFontBuildTextFull(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
-                         u32 param_5, u32 param_6, u32 param_7, u32 param_8,
-                         u32 param_9);
+extern u8 *frFontBuildTextFull(u32 x, u32 y, u32 duration, u32 style,
+                         u32 palette, u32 effect, u32 intensity, u32 stream,
+                         u32 list);
 extern u32 D_00763840;
 extern u32 D_00763848;
 extern u32 D_00763838;
@@ -57,7 +58,7 @@ extern u32 DAT_00881764_abs[];
 extern u32 DAT_00881768_abs[];
 
 void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s8 D_007645B0;
 
 extern u32 DAT_00881518_abs[];
@@ -92,10 +93,10 @@ extern u32 DAT_008816D0_abs[];
 extern u32 DAT_008817B0_abs[];
 extern char D_0063BB00[];
 extern char D_0063BC10[];
-extern s32 H_Cdvd_AcquireDirectory(const void *arg0, s32 arg1);
-extern void H_Cdvd_ReadSync(s32 arg0);
-extern u8 *H_Cdvd_LookupRequest(void *arg0, void *arg1);
-extern void fmGslContFreeNode(int param_1);
+extern s32 H_Cdvd_AcquireDirectory(const void *path, s32 flags);
+extern void H_Cdvd_ReadSync(s32 cdvd);
+extern u8 *H_Cdvd_LookupRequest(void *pathAddress, void *slot);
+extern void fmGslContFreeNode(int payloadAddress);
 extern void frFontRasterDestroyCache(void);
 extern void frFontReleaseSlots(void);
 extern void kAssertFailAt(const void *msg, const void *file, u32 line);
@@ -155,6 +156,14 @@ extern FrFontManagerData4 gFrFontManagerData_abs[];
 
 extern u32 DAT_00881634_abs[];
 
+/* Glyph metrics are signed edge pairs. The cache provider allocates 0x21C
+ * bytes per FrFontRasterEntry, whose +0x10 word holds the acquired raster. */
+typedef struct FrFontGlyphMetrics { s8 left, right; } FrFontGlyphMetrics;
+typedef struct FrFontRasterEntry {
+    u8 pad00[0x10];
+    u32 references;
+    u8 pad14[0x208];
+} FrFontRasterEntry;
 
 
 /* Builds the slot grid: columns * rows nodes, each with its screen rectangle and optional aux buffer. */
@@ -166,7 +175,7 @@ extern u32 DAT_00881634_abs[];
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
-s32 frFontInitSlotGrid(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s32 aux_size)
+s32 frFontInitSlotGrid(s32 unused, s32 columns, s32 rows, s32 width, s32 height, s32 auxSize)
 {
     u8 *aux = 0;
     u32 i;
@@ -176,7 +185,7 @@ s32 frFontInitSlotGrid(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s
     s32 index;
     GslListNode *node;
     void *(**alloc)(u32, u32);
-    s32 scaled_width, scaled_height, row_y;
+    s32 scaledWidth, scaledHeight, rowY;
     void **tab;
 
     if ((*(s32 *)DAT_0088152C_abs) != 0 && D_007645B0 != 0)
@@ -191,9 +200,9 @@ s32 frFontInitSlotGrid(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s
     (*(s32 *)DAT_0088152C_abs) = DAT_00881510_abs[0] = (u32)alloc[0]((*(s32 *)DAT_00881528_abs) * 32, 0x40000);
     if ((*(s32 *)DAT_0088152C_abs) == 0)
         kAssertFail(D_0063BAE8, 0x18E);
-    if (aux_size != 0) {
+    if (auxSize != 0) {
         chkmemAllocSiteTag(D_0063BAE8, 0x192);
-        aux = (u8 *)(DAT_00881514_abs[0] = (u32)alloc[0](aux_size * (*(s32 *)DAT_00881528_abs), 0x40000));
+        aux = (u8 *)(DAT_00881514_abs[0] = (u32)alloc[0](auxSize * (*(s32 *)DAT_00881528_abs), 0x40000));
         if (aux == 0)
             kAssertFail(D_0063BAE8, 0x194);
     }
@@ -210,11 +219,11 @@ s32 frFontInitSlotGrid(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s
     ((GslListNode *)(*(s32 *)DAT_0088152C_abs))->prev = &((GslListNode *)(*(s32 *)DAT_0088152C_abs))[(*(s32 *)DAT_00881528_abs) - 1];
     index = 0;
     y = 0;
-    scaled_width = width * 16;
-    scaled_height = height * 16;
+    scaledWidth = width * 16;
+    scaledHeight = height * 16;
     for (; y < rows; y++) {
         x = 0;
-        row_y = y * height * 16;
+        rowY = y * height * 16;
         for (; x < columns; x++) {
             node = &((GslListNode *)(*(s32 *)DAT_0088152C_abs))[index];
             if (node == 0) {
@@ -228,11 +237,11 @@ s32 frFontInitSlotGrid(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s
             }
             node->data[0] = index;
             node->data[1] = x * width * 16;
-            node->data[2] = row_y;
-            node->data[3] = node->data[1] + scaled_width;
-            node->data[4] = node->data[2] + scaled_height;
+            node->data[2] = rowY;
+            node->data[3] = node->data[1] + scaledWidth;
+            node->data[4] = node->data[2] + scaledHeight;
             if (aux != 0)
-                node->data[5] = (u32)(aux + index * aux_size);
+                node->data[5] = (u32)(aux + index * auxSize);
             else
                 node->data[5] = 0;
             index++;
@@ -250,9 +259,9 @@ s32 frFontInitSlotGrid(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s
 // caller in this file passes a u8* node, so the param is u8* (not the donor's
 // int). Struct offsets prev=0x18/next=0x1C match the donor's data[6] layout.
 // FUN_00271310
-s32 frFontFreeListInsert(u8 *param_1)
+s32 frFontFreeListInsert(u8 *freeNode)
 {
-  GslListNode *node = (GslListNode *)param_1;
+  GslListNode *node = (GslListNode *)freeNode;
   GslListNode *head;
   GslListNode *next;
   s32 count;
@@ -273,9 +282,9 @@ s32 frFontFreeListInsert(u8 *param_1)
 
 /* Loads font data into slot arg0 with no separate header buffer (see frFontSlotLoad). */
 // FUN_00271380
-void frFontSlotLoadData(s32 arg0, u8 *arg1)
+void frFontSlotLoadData(s32 slot, u8 *fontData)
 {
-    frFontSlotLoad(arg0, 0, arg1);
+    frFontSlotLoad(slot, 0, fontData);
 }
 
 
@@ -288,83 +297,83 @@ void frFontSlotLoadData(s32 arg0, u8 *arg1)
 // FUN_002713B0
 #pragma push
 #pragma opt_propagation off
-void frFontInitManager(s32 arg0, s32 arg1)
+void frFontInitManager(s32 gridCapacity, s32 cacheCapacity)
 {
     FrFontSlot4 *slots;
-    s32 *bb0;
-    s32 var_16;
-    s32 var_2;
-    u32 var_3_2;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_4;
-    s32 var_5;
+    s32 *boundSlots;
+    s32 rows;
+    s32 widthShift;
+    u32 heightBits;
+    s32 heightShift;
+    s32 cacheShift;
+    s32 boundIndex;
+    s32 slotIndex;
     s32 offset;
-    u32 var_3;
-    u32 var_3_3;
+    u32 widthBits;
+    u32 cacheBits;
 
     DAT_00881750_abs[0] = 0;
     DAT_00881754_abs[0] = 0;
     DAT_00881758_abs[0] = 0;
-    var_5 = 0;
+    slotIndex = 0;
     slots = (FrFontSlot4 *)DAT_00881630_abs;
-    while (var_5 < 9) {
-        offset = var_5 << 5;
-        *(s32 *)((u8 *)slots + offset + 0x1c) = 0;
-        var_5 += 1;
+    while (slotIndex < 9) {
+        offset = slotIndex << 5;
+        ((FrFontSlot4 *)((u8 *)slots + offset))->object = 0;
+        slotIndex += 1;
     }
-    var_16 = arg0 >> 4;
-    if (arg0 < 0) {
-        var_16 = (arg0 + 0xf) >> 4;
+    rows = gridCapacity >> 4;
+    if (gridCapacity < 0) {
+        rows = (gridCapacity + 0xf) >> 4;
     }
-    var_3 = 0x200;
+    widthBits = 0x200;
     DAT_0088176C_abs[0] = 0x200;
-    var_2 = 0;
-    if (var_3 == 0) {
+    widthShift = 0;
+    if (widthBits == 0) {
     } else {
-        while (var_3 != 0) {
-            var_3 >>= 1;
-            var_2 += 1;
+        while (widthBits != 0) {
+            widthBits >>= 1;
+            widthShift += 1;
         }
-        var_2 = (var_2 - 1) & 0xff;
+        widthShift = (widthShift - 1) & 0xff;
     }
-    DAT_00881770_abs[0] = var_2 & 0xff;
-    var_3_2 = var_16 << 5;
-    var_2_2 = 0;
-    if (var_3_2 == 0) {
+    DAT_00881770_abs[0] = widthShift & 0xff;
+    heightBits = rows << 5;
+    heightShift = 0;
+    if (heightBits == 0) {
     } else {
-        while (var_3_2 != 0) {
-            var_3_2 >>= 1;
-            var_2_2 += 1;
+        while (heightBits != 0) {
+            heightBits >>= 1;
+            heightShift += 1;
         }
-        var_2_2 = (var_2_2 - 1) & 0xff;
+        heightShift = (heightShift - 1) & 0xff;
     }
-    var_2_2 &= 0xff;
-    var_3_3 = 1 << (var_2_2 + 1);
-    DAT_00881774_abs[0] = var_3_3;
-    var_2_3 = 0;
-    if (var_3_3 == 0) {
+    heightShift &= 0xff;
+    cacheBits = 1 << (heightShift + 1);
+    DAT_00881774_abs[0] = cacheBits;
+    cacheShift = 0;
+    if (cacheBits == 0) {
     } else {
-        while (var_3_3 != 0) {
-            var_3_3 >>= 1;
-            var_2_3 += 1;
+        while (cacheBits != 0) {
+            cacheBits >>= 1;
+            cacheShift += 1;
         }
-        var_2_3 = (var_2_3 - 1) & 0xff;
+        cacheShift = (cacheShift - 1) & 0xff;
     }
-    DAT_00881778_abs[0] = var_2_3 & 0xff;
-    frFontInitSlotGrid(DAT_0088177C_abs[0], 0x10, var_16, 0x20, 0x20, 0x10);
-    DAT_0088175c_abs[0] = rbRingBufCreate(0x2c, arg1 * 4);
-    *(s32 *)DAT_00881760_abs = rbRingBufCreate(0x44, arg1);
+    DAT_00881778_abs[0] = cacheShift & 0xff;
+    frFontInitSlotGrid(DAT_0088177C_abs[0], 0x10, rows, 0x20, 0x20, 0x10);
+    DAT_0088175c_abs[0] = rbRingBufCreate(0x2c, cacheCapacity * 4);
+    *(s32 *)DAT_00881760_abs = rbRingBufCreate(0x44, cacheCapacity);
     frFontLoadTables();
-    var_4 = 0;
-    bb0 = D_008815B0;
-    while (var_4 < 0x20) {
-        offset = var_4 << 2;
-        *(s32 *)((u8 *)bb0 + offset) = 0;
-        var_4 += 1;
+    boundIndex = 0;
+    boundSlots = D_008815B0;
+    while (boundIndex < 0x20) {
+        offset = boundIndex << 2;
+        boundSlots[boundIndex] = 0;
+        boundIndex += 1;
     }
-    D_007645BC = var_16 * 0x10;
-    frFontRasterCreateCache(arg1);
+    D_007645BC = rows * 0x10;
+    frFontRasterCreateCache(cacheCapacity);
 }
 #pragma opt_propagation on
 #pragma pop
@@ -395,53 +404,54 @@ void frFontTaskDestroy(u8 *unusedTask)
 
 /* Loads one font's header and glyph table into slot arg0; arg1 is the font data (NULL falls back to arg2). */
 // FUN_002716B0
-void frFontSlotLoad(s32 arg0, u8 *arg1, u8 *arg2)
+void frFontSlotLoad(s32 slotId, u8 *header, u8 *fontData)
 {
     FrFontSlot4 *slot;
-    s32 var_17;
-    s32 temp_3;
-    s32 temp_4;
-    u8 *temp_5;
+    s32 offset;
+    s32 metricsEnd;
+    s32 slotIndex;
+    u8 *glyphOffsets;
 
-    if (arg1 == NULL && arg2 != NULL) {
-        arg1 = arg2;
+    if (header == NULL && fontData != NULL) {
+        header = fontData;
     }
-    if (arg1 == NULL) {
+    if (header == NULL) {
         kAssertFail(D_0063BAE8, 0x2E9);
     }
-    temp_4 = arg0 & 0xFF;
-    slot = &gFrFontManagerData_abs[0].slots[temp_4];
-    if (temp_4 >= 9) {
+    slotIndex = slotId & 0xFF;
+    slot = &gFrFontManagerData_abs[0].slots[slotIndex];
+    if (slotIndex >= 9) {
         kAssertFailAt(D_0063BB40, D_0063BAE8, 0x2ED);
     }
-    slot->f00 = (u32)arg2;
-    slot->f04 = (u32)arg1;
-    var_17 = *(s32 *)(arg1 + 0) + (*(u8 *)(arg1 + 0xA) << 6);
-    if (*(u8 *)(arg1 + 0x16) != 0) {
-        slot->f08 = *(u32 *)(arg1 + var_17);
-        slot->f10 = (u32)(arg1 + (var_17 + 4));
-        temp_3 = var_17 + (slot->f08 + 4);
-        slot->f0c = *(u32 *)(arg1 + temp_3);
-        slot->f14 = (u32)(arg1 + (temp_3 + 4));
-        var_17 = temp_3 + (slot->f0c + 4);
+    slot->f00 = (u32)fontData;
+    slot->f04 = (u32)header;
+    /* Metric chunks are length-prefixed variable-length payloads, not fixed fields. */
+    offset = ((FrFontFileHeader *)header)->dataOffset + (((FrFontFileHeader *)header)->blockCount << 6);
+    if (((FrFontFileHeader *)header)->hasMetrics != 0) {
+        slot->f08 = *(u32 *)(header + offset); /* Length-prefixed variable-size metric chunk. */
+        slot->f10 = (u32)(header + (offset + 4));
+        metricsEnd = offset + (slot->f08 + 4);
+        slot->f0c = *(u32 *)(header + metricsEnd); /* Length-prefixed variable-size metric chunk. */
+        slot->f14 = (u32)(header + (metricsEnd + 4));
+        offset = metricsEnd + (slot->f0c + 4);
     } else {
         slot->f08 = 0;
         slot->f10 = 0;
         slot->f0c = 0;
         slot->f14 = 0;
     }
-    temp_5 = arg1 + var_17;
-    slot->f18 = (u32)temp_5;
-    func_00440b68(D_0063BB80, temp_5, var_17, *(u16 *)(slot->f04 + 0xE));
+    glyphOffsets = header + offset;
+    slot->f18 = (u32)glyphOffsets;
+    func_00440b68(D_0063BB80, glyphOffsets, offset, ((FrFontFileHeader *)slot->f04)->glyphCount);
     slot->object =
-        (u32)(arg1 + (var_17 + (*(u16 *)(slot->f04 + 0xE) * 4)));
+        (u32)(header + (offset + (((FrFontFileHeader *)slot->f04)->glyphCount * 4)));
 }
 
 /* Frees the block held by slot param_1. */
 // FUN_00271820
-void frFontSlotFree(u32 param_1)
+void frFontSlotFree(u32 slot)
 {
-    DAT_008873ec_abs[0](DAT_00881630_abs[(param_1 & 0xff) * 8]);
+    DAT_008873ec_abs[0](DAT_00881630_abs[(slot & 0xff) * 8]);
 }
 
 
@@ -456,104 +466,44 @@ void frFontSlotFree(u32 param_1)
 // FUN_00271860
 void frFontLoadTables(void)
 {
-    int sp1C;
-    u8 *var_7;
-    u8 *var_7_2;
-    u8 *var_7_3;
-    u8 *var_7_4;
-    u8 *var_7_5;
-    u8 *var_6;
-    u8 *var_6_2;
-    u8 *var_6_3;
-    u8 *var_6_4;
-    u8 *var_6_5;
-    s32 temp_4;
-    s32 temp_3;
-    s32 temp_4_2;
-    s32 temp_3_2;
-    s32 temp_4_3;
-    s32 temp_3_3;
-    s32 temp_4_4;
-    s32 temp_3_4;
-    s32 temp_4_5;
-    s32 temp_3_5;
-    s32 var_5;
-    s32 var_5_2;
-    s32 var_5_3;
-    s32 var_5_4;
-    s32 var_5_5;
-    s32 temp_2;
+    int requestSize;
+    u8 *source;
+    u8 *sourceSecond;
+    u8 *sourceThird;
+    u8 *sourceFourth;
+    u8 *sourceFifth;
+    u8 *destination;
+    u8 *destinationSecond;
+    u8 *destinationThird;
+    u8 *destinationFourth;
+    u8 *destinationFifth;
+    s32 request;
 
     if (DAT_0088164C_abs[0] != 0) {
         func_00440b68(D_0063BB00, NULL);
     }
     if (DAT_008817B0_abs[0] == 0) {
         func_00440b68(&D_00763830, D_0063BAE8, 0x265);
-        temp_2 = H_Cdvd_AcquireDirectory(D_0063BC10, 0);
-        DAT_008817B0_abs[0] = temp_2;
-        H_Cdvd_ReadSync(temp_2);
-        frFontSlotLoad(0, NULL, H_Cdvd_LookupRequest(D_0063BC10, &sp1C));
+        request = H_Cdvd_AcquireDirectory(D_0063BC10, 0);
+        DAT_008817B0_abs[0] = request;
+        H_Cdvd_ReadSync(request);
+        frFontSlotLoad(0, NULL, H_Cdvd_LookupRequest(D_0063BC10, &requestSize));
     }
-    var_7 = (u8 *)gFrFontManagerData_abs;
-    var_6 = (u8 *)DAT_00881650_abs;
-    var_5 = 4;
-    do {
-        temp_4 = *(s32 *)(var_7 + 0);
-        temp_3 = *(s32 *)(var_7 + 4);
-        var_7 += 8;
-        var_5 -= 1;
-        *(s32 *)(var_6 + 0) = temp_4;
-        *(s32 *)(var_6 + 4) = temp_3;
-        var_6 += 8;
-    } while (var_5 > 0);
-    var_7_2 = (u8 *)gFrFontManagerData_abs;
-    var_6_2 = (u8 *)DAT_00881670_abs;
-    var_5_2 = 4;
-    do {
-        temp_4_2 = *(s32 *)(var_7_2 + 0);
-        temp_3_2 = *(s32 *)(var_7_2 + 4);
-        var_7_2 += 8;
-        var_5_2 -= 1;
-        *(s32 *)(var_6_2 + 0) = temp_4_2;
-        *(s32 *)(var_6_2 + 4) = temp_3_2;
-        var_6_2 += 8;
-    } while (var_5_2 > 0);
-    var_7_3 = (u8 *)gFrFontManagerData_abs;
-    var_6_3 = (u8 *)DAT_00881690_abs;
-    var_5_3 = 4;
-    do {
-        temp_4_3 = *(s32 *)(var_7_3 + 0);
-        temp_3_3 = *(s32 *)(var_7_3 + 4);
-        var_7_3 += 8;
-        var_5_3 -= 1;
-        *(s32 *)(var_6_3 + 0) = temp_4_3;
-        *(s32 *)(var_6_3 + 4) = temp_3_3;
-        var_6_3 += 8;
-    } while (var_5_3 > 0);
-    var_7_4 = (u8 *)gFrFontManagerData_abs;
-    var_6_4 = (u8 *)DAT_008816B0_abs;
-    var_5_4 = 4;
-    do {
-        temp_4_4 = *(s32 *)(var_7_4 + 0);
-        temp_3_4 = *(s32 *)(var_7_4 + 4);
-        var_7_4 += 8;
-        var_5_4 -= 1;
-        *(s32 *)(var_6_4 + 0) = temp_4_4;
-        *(s32 *)(var_6_4 + 4) = temp_3_4;
-        var_6_4 += 8;
-    } while (var_5_4 > 0);
-    var_7_5 = (u8 *)gFrFontManagerData_abs;
-    var_6_5 = (u8 *)DAT_008816D0_abs;
-    var_5_5 = 4;
-    do {
-        temp_4_5 = *(s32 *)(var_7_5 + 0);
-        temp_3_5 = *(s32 *)(var_7_5 + 4);
-        var_7_5 += 8;
-        var_5_5 -= 1;
-        *(s32 *)(var_6_5 + 0) = temp_4_5;
-        *(s32 *)(var_6_5 + 4) = temp_3_5;
-        var_6_5 += 8;
-    } while (var_5_5 > 0);
+    source = (u8 *)gFrFontManagerData_abs;
+    destination = (u8 *)DAT_00881650_abs;
+    *(FrFontSlot4 *)destination = *(FrFontSlot4 *)source;
+    sourceSecond = (u8 *)gFrFontManagerData_abs;
+    destinationSecond = (u8 *)DAT_00881670_abs;
+    *(FrFontSlot4 *)destinationSecond = *(FrFontSlot4 *)sourceSecond;
+    sourceThird = (u8 *)gFrFontManagerData_abs;
+    destinationThird = (u8 *)DAT_00881690_abs;
+    *(FrFontSlot4 *)destinationThird = *(FrFontSlot4 *)sourceThird;
+    sourceFourth = (u8 *)gFrFontManagerData_abs;
+    destinationFourth = (u8 *)DAT_008816B0_abs;
+    *(FrFontSlot4 *)destinationFourth = *(FrFontSlot4 *)sourceFourth;
+    sourceFifth = (u8 *)gFrFontManagerData_abs;
+    destinationFifth = (u8 *)DAT_008816D0_abs;
+    *(FrFontSlot4 *)destinationFifth = *(FrFontSlot4 *)sourceFifth;
     D_007645A8 = 0;
     D_007645A4 = 0;
     D_007645A0 = 0;
@@ -580,99 +530,101 @@ void frFontLoadTables(void)
 #pragma opt_propagation off
 void frFontReleaseSlots(void)
 {
+    /* Historical whole-layout typing changed MWCC scheduling; access-site probes now keep matching fields. */
+
     s32 i;
     s32 mask;
-    s32 idx;
-    u32 tmp;
+    s32 slotIndex;
+    u32 request;
     u8 *slot;
-    u8 *par;
-    u32 *pslot;
+    u8 *allocationCursor;
+    u32 *allocationAddress;
 
     for (i = 0; i < 9; i++) {
-        if (*(u32 *)((u8 *)DAT_00881630_abs + i * 0x20 + 0x1c) == 0)
+        if (((FrFontSlot4 *)((u8 *)DAT_00881630_abs + i * 0x20))->object == 0)
             continue;
         mask = i & 0xff;
         if (mask >= 9)
             kAssertFailAt(D_0063BBB0, D_0063BAE8, 0x319);
-        idx = (u32)i & 0xff;
-        slot = (u8 *)DAT_00881630_abs + idx * 0x20;
-        if (*(u32 *)(slot + 0x1c) == 0)
+        slotIndex = (u32)i & 0xff;
+        slot = (u8 *)DAT_00881630_abs + slotIndex * 0x20;
+        if (((FrFontSlot4 *)slot)->object == 0)
             kAssertFail(D_0063BAE8, 0x31D);
-        par = (u8 *)DAT_00881630_abs + idx * 4;
-        tmp = *(u32 *)(par + 0x180);
-        if (tmp == 0)
+        allocationCursor = (u8 *)DAT_00881630_abs + slotIndex * 4;
+        request = (u32)((FrFontManagerData4 *)allocationCursor)->allocations[0];
+        if (request == 0)
             continue;
-        pslot = (u32 *)((u8 *)DAT_00881630_abs + (u32)(u8)i * 4 + 0x180);
-        H_Cdvd_Destroy((struct HCdvd *)tmp);
-        *pslot = 0;
+        allocationAddress = (u32 *)((u8 *)DAT_00881630_abs + (u32)(u8)i * 4 + 0x180);
+        H_Cdvd_Destroy((struct HCdvd *)request);
+        *allocationAddress = 0;
         func_00440b68(D_0063BBF0, mask);
-        *(u32 *)slot = 0;
-        *(u32 *)(slot + 0x1c) = 0;
+        ((FrFontSlot4 *)slot)->f00 = 0;
+        *(u32 *)(slot + 0x1c) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
     }
 }
 #pragma opt_propagation on
 
 /* Keeps the list if it is still in use, otherwise releases it. */
 // FUN_00271B70
-int frFontListKeepOrRelease(int param_1)
+int frFontListKeepOrRelease(int list)
 {
-    char cVar1;
-    int uVar2;
+    char fading;
+    int result;
 
-    cVar1 = (char)frFontFadeNodes(param_1);
-    if (cVar1 != '\0') {
-        uVar2 = param_1;
+    fading = (char)frFontFadeNodes(list);
+    if (fading != '\0') {
+        result = list;
     } else {
-        uVar2 = frFontListRelease(param_1);
+        result = frFontListRelease(list);
     }
-    return uVar2;
+    return result;
 }
 /* Releases a list: drops reference counts, frees unused entries back to the free list, and returns 0. */
 // FUN_00271BD0
-u32 frFontListRelease(int param_1)
+u32 frFontListRelease(int list)
 {
-    int iVar4;
-    int iVar1;
-    int next_list;
-    int iVar2;
-    u32 *puVar3;
+    int glyph;
+    int nextGlyph;
+    int nextList;
+    int raster;
+    u32 *cacheEntry;
 
-    if (param_1 == 0) {
-        return param_1;
+    if (list == 0) {
+        return list;
     }
 
-    while (param_1 != 0) {
-        iVar4 = *(int *)(param_1 + 0x1c);
+    while (list != 0) {
+        glyph = ((FrFontTextRun *)list)->firstGlyph;
 
-        while (iVar4 != 0) {
-            iVar1 = *(int *)(iVar4 + 0x28);
+        while (glyph != 0) {
+            nextGlyph = ((FrFontGlyphData *)glyph)->next;
 
-            if (*(int *)(iVar4 + 0x20) == 0) {
-                *(u16 *)(*(int *)(iVar4 + 0x1c) + 4) =
-                    *(u16 *)(*(int *)(iVar4 + 0x1c) + 4) + -1;
-                iVar2 = *(int *)(iVar4 + 0x1c);
+            if (((FrFontGlyphData *)glyph)->unk20 == 0) {
+                ((FrFontGlyphRaster *)((FrFontGlyphData *)glyph)->raster)->references =
+                    ((FrFontGlyphRaster *)((FrFontGlyphData *)glyph)->raster)->references + -1;
+                raster = ((FrFontGlyphData *)glyph)->raster;
 
-                if ((iVar2 != 0) && (*(u16 *)(iVar2 + 4) == 0)) {
-                    puVar3 = *(u32 **)(iVar2 + 0xc);
+                if ((raster != 0) && (((FrFontGlyphRaster *)raster)->references == 0)) {
+                    cacheEntry = (u32 *)((FrFontGlyphRaster *)raster)->cacheEntry;
 
-                    if (puVar3 != (u32 *)0x0) {
-                        *puVar3 = *puVar3 & 0xfffffffe;
-                        puVar3[4] = 0;
+                    if (cacheEntry != (u32 *)0x0) {
+                        *cacheEntry = *cacheEntry & 0xfffffffe;
+                        cacheEntry[4] = 0;
                     }
 
-                    frFontFreeListInsert((u8 *)*(u32 *)(iVar2 + 8));
+                    frFontFreeListInsert((u8 *)(u32)((FrFontGlyphRaster *)raster)->slot);
                     DAT_00881750_abs[0] = DAT_00881750_abs[0] + -1;
                 }
             }
 
-            fmGslContPushNode(iVar4, DAT_0088175c_abs[0]);
-            iVar4 = iVar1;
+            fmGslContPushNode(glyph, DAT_0088175c_abs[0]);
+            glyph = nextGlyph;
             DAT_00881754_abs[0] = DAT_00881754_abs[0] + -1;
         }
 
-        next_list = *(int *)(param_1 + 0x24);
-        fmGslContPushNode(param_1, *(u32 *)DAT_00881760_abs);
-        param_1 = next_list;
+        nextList = ((FrFontTextRun *)list)->previous;
+        fmGslContPushNode(list, *(u32 *)DAT_00881760_abs);
+        list = nextList;
         DAT_00881758_abs[0] = DAT_00881758_abs[0] + -1;
     }
 
@@ -691,107 +643,109 @@ extern s8 D_00763808[8];
    rounding instruction sequence; unary negation fixes the final mult operand
    order. The complete eight-byte table retains retail GP-relative access. */
 // FUN_00271D10
-void frFontComputeGlyphMetrics(u8 *arg0, s32 arg1)
+void frFontComputeGlyphMetrics(u8 *glyph, s32 glyphIndex)
 {
-    FrFontSlot4 *temp_8;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_5_2;
-    s32 temp_5_3;
-    s32 temp_5_4;
-    s32 temp_5_5;
-    s32 temp_5_6;
-    s32 temp_5_7;
-    s32 temp_5_8;
-    s32 temp_6_2;
-    s32 temp_6_3;
-    s32 var_5;
-    s32 temp_6_6;
-    s32 var_3;
-    s32 var_3_2;
-    s32 var_3_3;
-    s32 var_3_4;
-    s32 var_3_5;
-    s32 var_3_6;
-    s32 temp_6_5;
-    s32 var_5_2;
-    s32 var_8;
-    s8 temp_3_3;
-    s8 temp_5;
-    s32 temp_7_2;
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
-    temp_8 =
+    FrFontSlot4 *slot;
+    s32 heightOverride;
+    s32 advanceOverride;
+    s32 scaledAdvance;
+    s32 defaultScaledAdvance;
+    s32 horizontalScale;
+    s32 scaledWidth;
+    s32 scaledSpacing;
+    s32 verticalScale;
+    s32 scaledHeight;
+    s32 metricsAddress;
+    s32 character;
+    s32 scaledOffset;
+    s32 defaultScaledOffset;
+    s32 extent;
+    s32 advance;
+    s32 defaultAdvance;
+    s32 width;
+    s32 spacing;
+    s32 height;
+    s32 xOffset;
+    s32 defaultOffset;
+    s32 leftFixed;
+    s8 leftEdge;
+    s8 rightEdge;
+    s32 metricsOffset;
+
+    slot =
         (FrFontSlot4 *)DAT_00881630_abs +
-        *(u8 *)(arg0 + 0x15);
-    temp_3 = D_007645A8;
-    if (temp_3 > 0) {
-        *(s8 *)(arg0 + 0x18) = (s8)temp_3;
+        ((FrFontGlyphData *)glyph)->slot;
+    heightOverride = D_007645A8;
+    if (heightOverride > 0) {
+        ((FrFontGlyphData *)glyph)->width = (s8)heightOverride;
     } else {
-        *(s8 *)(arg0 + 0x18) =
-            D_00763808[*(u8 *)(arg0 + 0x15)];
+        ((FrFontGlyphData *)glyph)->width =
+            D_00763808[((FrFontGlyphData *)glyph)->slot];
     }
-    *(s8 *)(arg0 + 0x19) =
-        D_00763808[*(u8 *)(arg0 + 0x15)];
-    temp_3_2 = D_007645A8;
-    if (temp_3_2 > 0) {
-        *(s32 *)(arg0 + 0xC) = temp_3_2;
+    ((FrFontGlyphData *)glyph)->height =
+        D_00763808[*(u8 *)(glyph + 0x15)]; /* measured: this access-site member rewrite changes instruction bytes. */
+    advanceOverride = D_007645A8;
+    if (advanceOverride > 0) {
+        ((FrFontGlyphData *)glyph)->advance = advanceOverride;
     } else {
-        *(s32 *)(arg0 + 0xC) =
-            D_00763808[*(u8 *)(arg0 + 0x15)];
+        ((FrFontGlyphData *)glyph)->advance =
+            D_00763808[*(u8 *)(glyph + 0x15)]; /* measured: this access-site member rewrite changes instruction bytes. */
     }
-    if ((*(u8 *)(arg0 + 0x17) & 1) &&
-        *((u8 *)temp_8->f04 + 0x16) != 0) {
-        temp_7_2 = arg1 * 2;
-        if (temp_7_2 < *(s32 *)((u8 *)temp_8 + 8)) {
-            temp_6_2 = *(s32 *)((u8 *)temp_8 + 0x10);
-            temp_5 = *(s8 *)(temp_6_2 + 1 + temp_7_2);
-            if (temp_5 != 0) {
-                temp_3_3 = *(s8 *)(temp_6_2 + temp_7_2);
-                var_8 = temp_3_3 * 0x10;
-                var_3 = temp_5 - temp_3_3;
-                temp_6_3 = (temp_7_2 >> 1) + 0x20;
-                switch (temp_6_3) {
+    if ((((FrFontGlyphData *)glyph)->flags & 1) &&
+        ((FrFontFileHeader *)slot->f04)->hasMetrics != 0) {
+        metricsOffset = glyphIndex * 2;
+        if (metricsOffset < (s32)slot->f08) {
+            metricsAddress = (s32)slot->f10;
+            rightEdge = *(s8 *)(metricsAddress + 1 + metricsOffset); /* measured: this access-site member rewrite changes instruction bytes. */
+            if (rightEdge != 0) {
+                leftEdge = ((FrFontGlyphMetrics *)(metricsAddress + metricsOffset))->left;
+                leftFixed = leftEdge * 0x10;
+                extent = rightEdge - leftEdge;
+                character = (metricsOffset >> 1) + 0x20;
+                switch (character) {
                 case 0x31:
                 case 0x21:
-                    var_8 -= 0x20;
-                    var_3 += 4;
+                    leftFixed -= 0x20;
+                    extent += 4;
                     break;
                 default:
                     break;
                 }
                 if (D_007645A8 > 0) {
-                    var_5 = -var_8 * D_007645A8;
-                    temp_6_5 = var_5 / 32;
-                    *(s32 *)(arg0 + 4) = temp_6_5;
-                    temp_5_2 = (var_3 + 1) * D_007645A8;
-                    var_3_2 = temp_5_2 / 32;
-                    *(s32 *)(arg0 + 0xC) = var_3_2;
+                    scaledOffset = -leftFixed * D_007645A8;
+                    xOffset = scaledOffset / 32;
+                    ((FrFontGlyphData *)glyph)->x = xOffset;
+                    scaledAdvance = (extent + 1) * D_007645A8;
+                    advance = scaledAdvance / 32;
+                    *(s32 *)(glyph + 0xC) = advance; /* measured: this access-site member rewrite changes instruction bytes. */
                 } else {
-                    temp_6_6 =
-                        -var_8 * D_00763808[*(u8 *)(arg0 + 0x15)];
-                    var_5_2 = temp_6_6 / 32;
-                    *(s32 *)(arg0 + 4) = var_5_2;
-                    temp_5_3 =
-                        (var_3 + 1) * D_00763808[*(u8 *)(arg0 + 0x15)];
-                    var_3_3 = temp_5_3 / 32;
-                    *(s32 *)(arg0 + 0xC) = var_3_3;
+                    defaultScaledOffset =
+                        -leftFixed * D_00763808[*(u8 *)(glyph + 0x15)]; /* measured: this access-site member rewrite changes instruction bytes. */
+                    defaultOffset = defaultScaledOffset / 32;
+                    ((FrFontGlyphData *)glyph)->x = defaultOffset;
+                    defaultScaledAdvance =
+                        (extent + 1) * D_00763808[*(u8 *)(glyph + 0x15)]; /* measured: this access-site member rewrite changes instruction bytes. */
+                    defaultAdvance = defaultScaledAdvance / 32;
+                    *(s32 *)(glyph + 0xC) = defaultAdvance; /* measured: this access-site member rewrite changes instruction bytes. */
                 }
-                temp_5_4 = D_007645A0;
-                if (temp_5_4 > 0) {
-                    temp_5_5 =
-                        (u8)*(s8 *)(arg0 + 0x18) * temp_5_4;
-                    var_3_4 = temp_5_5 / 128;
-                    *(s8 *)(arg0 + 0x18) = (s8)var_3_4;
-                    temp_5_6 = *(s32 *)(arg0 + 0xC) * D_007645A0;
-                    var_3_5 = temp_5_6 / 128;
-                    *(s32 *)(arg0 + 0xC) = var_3_5;
+                horizontalScale = D_007645A0;
+                if (horizontalScale > 0) {
+                    scaledWidth =
+                        (u8)*(s8 *)(glyph + 0x18) * horizontalScale; /* measured: this access-site member rewrite changes instruction bytes. */
+                    width = scaledWidth / 128;
+                    *(s8 *)(glyph + 0x18) = (s8)width; /* measured: this access-site member rewrite changes instruction bytes. */
+                    scaledSpacing = *(s32 *)(glyph + 0xC) * D_007645A0; /* measured: this access-site member rewrite changes instruction bytes. */
+                    spacing = scaledSpacing / 128;
+                    *(s32 *)(glyph + 0xC) = spacing; /* measured: this access-site member rewrite changes instruction bytes. */
                 }
-                temp_5_7 = D_007645A4;
-                if (temp_5_7 > 0) {
-                    temp_5_8 =
-                        (u8)*(s8 *)(arg0 + 0x19) * temp_5_7;
-                    var_3_6 = temp_5_8 / 128;
-                    *(s8 *)(arg0 + 0x19) = (s8)var_3_6;
+                verticalScale = D_007645A4;
+                if (verticalScale > 0) {
+                    scaledHeight =
+                        (u8)*(s8 *)(glyph + 0x19) * verticalScale; /* measured: this access-site member rewrite changes instruction bytes. */
+                    height = scaledHeight / 128;
+                    *(s8 *)(glyph + 0x19) = (s8)height; /* measured: this access-site member rewrite changes instruction bytes. */
                 }
             }
         }
@@ -800,79 +754,83 @@ void frFontComputeGlyphMetrics(u8 *arg0, s32 arg1)
 /* Acquires the glyph for character arg1 in a font: uses the cached raster or loads and decodes it, then takes a node off the free list. */
 // FUN_00271F50
 extern char D_0063BC20[];
-extern u32 frFontRasterLookup(u32 param_1, int param_2);
-extern u32 frFontFindOrLoadEntry(u32 param_1, u32 param_2, u32 param_3);
-extern u16 func_00273910(u32 param_1);
-extern u16 func_00273940(u32 param_1);
+extern u32 frFontRasterLookup(u32 key, int palette);
+extern u32 frFontFindOrLoadEntry(u32 key, u32 bitmap, u32 palette);
+extern u16 func_00273910(u32 slot);
+extern u16 func_00273940(u32 slot);
 
-u8 *frFontAcquireGlyph(u8 *arg0, u32 arg1)
+u8 *frFontAcquireGlyph(u8 *glyph, u32 glyphIndex)
 {
-    u8 *var_18;
-    u8 *temp_17;
-    u8 *temp_2;
-    u8 *var_16;
-    u8 *temp_20;
-    u8 sp60[0x10];
+    /* Historical whole-layout typing changed MWCC scheduling; access-site probes now keep matching fields. */
 
-    if ((var_18 = (u8 *)(u32)frFontRasterLookup(arg1, arg0[0x14])) != NULL) {
-        temp_2 = *(u8 **)(var_18 + 0x10);
-        if (temp_2 != NULL) {
-            *(u16 *)(temp_2 + 4) += 1;
-            return temp_2;
+    u8 *cacheEntry;
+    u8 *raster;
+    u8 *cachedRaster;
+    u8 *freeSlot;
+    u8 *decodedGlyph;
+    u8 decodeWork[0x10];
+
+    if ((cacheEntry = (u8 *)(u32)frFontRasterLookup(glyphIndex, ((FrFontGlyphData *)glyph)->palette)) != NULL) {
+        cachedRaster = (u8 *)(u32)((FrFontRasterEntry *)cacheEntry)->references;
+        if (cachedRaster != NULL) {
+            ((FrFontGlyphRaster *)cachedRaster)->references += 1;
+            return cachedRaster;
         }
     }
-    if (var_18 == NULL) {
-        temp_17 = (u8 *)((u32)gFrFontManagerData_abs + (arg0[0x15] << 5));
+    if (cacheEntry == NULL) {
+        raster = (u8 *)((u32)gFrFontManagerData_abs + (((FrFontGlyphData *)glyph)->slot << 5));
         chkmemAllocSiteTag(D_0063BAE8, 0x526);
-        temp_20 = (u8 *)jtbl_008873E8[0](0x200, 0x40000);
-        fmGslContSetupSubBlocks(*(int **)(temp_17 + 0x1C), (int *)sp60);
-        fmGslContDecodeRun((int)temp_20, (int)arg1, *(int *)(temp_17 + 0x1C), (int *)sp60);
-        var_18 = (u8 *)(u32)frFontFindOrLoadEntry(arg1, (u32)temp_20, arg0[0x14]);
-        if (var_18 == NULL) {
+        decodedGlyph = (u8 *)jtbl_008873E8[0](0x200, 0x40000);
+        fmGslContSetupSubBlocks((int *)(u32)((FrFontSlot4 *)raster)->object, (int *)decodeWork);
+        fmGslContDecodeRun((int)decodedGlyph, (int)glyphIndex, *(int *)(raster + 0x1C), (int *)decodeWork); /* measured: this access-site member rewrite changes instruction bytes. */
+        cacheEntry = (u8 *)(u32)frFontFindOrLoadEntry(glyphIndex, (u32)decodedGlyph, glyph[0x14]); /* measured: this access-site member rewrite changes instruction bytes. */
+        if (cacheEntry == NULL) {
             kAssertFail(D_0063BAE8, 0x560);
         }
-        DAT_008873ec_abs[0](temp_20);
+        DAT_008873ec_abs[0](decodedGlyph);
     }
-    func_00273910(arg0[0x15]);
-    func_00273940(arg0[0x15]);
-    var_16 = *(u8 **)(DAT_0088152C_abs[0] + 0x1C);
-    if (*(s32 *)var_16 == 0) {
-        var_16 = NULL;
+    func_00273910(((FrFontGlyphData *)glyph)->slot);
+    func_00273940(glyph[0x15]); /* measured: this access-site member rewrite changes instruction bytes. */
+    freeSlot = (u8 *)(u32)((GslListNode *)DAT_0088152C_abs[0])->next;
+    if ((s32)((GslListNode *)freeSlot)->data[0] == 0) {
+        freeSlot = NULL;
     } else {
-        *(u32 *)(*(u32 *)(var_16 + 0x18) + 0x1C) = *(u32 *)(var_16 + 0x1C);
-        *(u32 *)(*(u32 *)(var_16 + 0x1C) + 0x18) = *(u32 *)(var_16 + 0x18);
+        ((GslListNode *)((GslListNode *)freeSlot)->prev)->next = (GslListNode *)(u32)((GslListNode *)freeSlot)->next;
+        ((GslListNode *)((GslListNode *)freeSlot)->next)->prev = (GslListNode *)(u32)((GslListNode *)freeSlot)->prev;
         DAT_00881528_abs[0] -= 1;
     }
-    if (var_16 == NULL) {
+    if (freeSlot == NULL) {
         kAssertFailAt(D_0063BC20, D_0063BAE8, 0x508);
     }
-    temp_17 = *(u8 **)(var_16 + 0x14);
-    if (temp_17 == NULL) {
+    raster = (u8 *)(u32)((GslListNode *)freeSlot)->data[5];
+    if (raster == NULL) {
         kAssertFail(D_0063BAE8, 0x50D);
     }
-    *(u16 *)(temp_17 + 4) = 1;
-    *(u32 *)(temp_17 + 8) = (u32)var_16;
-    *(u16 *)(temp_17 + 0) = (u16)arg1;
-    *(u32 *)(temp_17 + 0xC) = (u32)var_18;
-    *(u32 *)(var_18 + 0x10) = (u32)temp_17;
+    ((FrFontGlyphRaster *)raster)->references = 1;
+    ((FrFontGlyphRaster *)raster)->slot = (u32)freeSlot;
+    ((FrFontGlyphRaster *)raster)->character = (u16)glyphIndex;
+    ((FrFontGlyphRaster *)raster)->cacheEntry = (u32)cacheEntry;
+    ((FrFontRasterEntry *)cacheEntry)->references = (u32)raster;
     DAT_00881750_abs[0] += 1;
-    return temp_17;
+    return raster;
 }
 extern char D_0063BC50[];
-extern u8 *fmGslContPopNode(s32 param_1);
+extern u8 *fmGslContPopNode(s32 listAddress);
 
 
 
 /* Creates a text glyph node for character arg0 in slot arg1 with style arg2 and flags arg3, and computes its metrics. */
 // FUN_00272170
-u8 * frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3)
+u8 * frFontCreateGlyphNode(u16 character, u8 slotId, u8 palette, u8 effect)
 {
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
+
     u8 *node;
     u16 ch;
     s32 width;
-    s32 temp;
-    s32 temp2;
-    u16 glyphcount;
+    s32 encodedIndex;
+    s32 shiftedIndex;
+    u16 glyphCount;
     s8 hit;
     s32 value;
 
@@ -881,21 +839,21 @@ u8 * frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3)
     if (node == NULL) {
         kAssertFailAt(D_0063BC50, D_0063BAE8, 0x5D2);
     }
-    *(u16 *)(node + 0) = arg0;
-    *(u8 *)(node + 0x15) = arg1;
-    *(u32 *)(node + 4) = 0;
-    *(u32 *)(node + 8) = 0;
-    *(u32 *)(node + 0xC) = 0;
-    *(u8 *)(node + 0x14) = arg2;
-    *(u32 *)(node + 0x10) = -0x100;
-    *(u8 *)(node + 0x16) = arg3;
-    *(u8 *)(node + 0x17) = D_00763810;
-    *(u16 *)(node + 2) = 0;
-    *(u32 *)(node + 0x1C) = 0;
-    *(u32 *)(node + 0x20) = 0;
-    *(u32 *)(node + 0x24) = 0;
-    *(u32 *)(node + 0x28) = 0;
-    ch = *(u16 *)node;
+    ((FrFontGlyphData *)node)->character = character;
+    ((FrFontGlyphData *)node)->slot = slotId;
+    ((FrFontGlyphData *)node)->x = 0;
+    ((FrFontGlyphData *)node)->y = 0;
+    ((FrFontGlyphData *)node)->advance = 0;
+    ((FrFontGlyphData *)node)->palette = palette;
+    ((FrFontGlyphData *)node)->color = -0x100;
+    ((FrFontGlyphData *)node)->effect = effect;
+    ((FrFontGlyphData *)node)->flags = D_00763810;
+    ((FrFontGlyphData *)node)->frame = 0;
+    ((FrFontGlyphData *)node)->raster = 0;
+    ((FrFontGlyphData *)node)->unk20 = 0;
+    ((FrFontGlyphData *)node)->previous = 0;
+    ((FrFontGlyphData *)node)->next = 0;
+    ch = ((FrFontGlyphData *)node)->character;
     if (ch < 0x80) {
         if (ch == 0x20) {
             width = 0x1F6;
@@ -903,19 +861,19 @@ u8 * frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3)
             width = ch - 0x20;
         }
     } else {
-        temp = ch - 0x8000;
-        temp2 = temp - 0x80;
-        width = ((temp2 & 0xFF00) >> 1) + (temp2 & 0x7F);
+        encodedIndex = ch - 0x8000;
+        shiftedIndex = encodedIndex - 0x80;
+        width = ((shiftedIndex & 0xFF00) >> 1) + (shiftedIndex & 0x7F);
     }
-    glyphcount = *(u16 *)((u8 *)*(u32 **)((u8 *)DAT_00881630_abs + (arg1 & 0xFF) * 0x20 + 4) + 0xE);
-    if (glyphcount > width) {
+    glyphCount = ((FrFontFileHeader *)(u32)((FrFontSlot4 *)((u8 *)DAT_00881630_abs + (slotId & 0xFF) * 0x20))->f04)->glyphCount;
+    if (glyphCount > width) {
         goto width_ok;
     }
     width = 0x147;
 width_ok:
-    *(u32 *)(node + 0x1C) = (u32)frFontAcquireGlyph(node, width);
+    *(u32 *)(node + 0x1C) = (u32)frFontAcquireGlyph(node, width); /* measured: this access-site member rewrite changes instruction bytes. */
     frFontComputeGlyphMetrics(node, width);
-    if ((*(u8 *)(node + 0x17) & 0x10) == 0) {
+    if ((*(u8 *)(node + 0x17) & 0x10) == 0) { /* measured: this access-site member rewrite changes instruction bytes. */
         goto zero_store;
     }
     hit = 0;
@@ -936,36 +894,36 @@ width_ok:
     } else {
         value = 0x10;
     }
-    *(u32 *)(node + 8) = (s8)value;
+    *(u32 *)(node + 8) = (s8)value; /* measured: this access-site member rewrite changes instruction bytes. */
     goto done;
 zero_store:
-    *(u32 *)(node + 8) = 0;
+    *(u32 *)(node + 8) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
 done:
     return node;
 }
 /* Returns the x kerning adjustment for a glyph pair (T/Y/V and vowel codes), scaled by D_007645A0. */
 // FUN_00272390
-int frFontKerningOffset(short *param_1)
+int frFontKerningOffset(short *glyph)
 {
-    u16 *puVar3;
-    u16 sVar1;
-    int iVar2;
-    int iVar3;
+    u16 *previousGlyph;
+    u16 character;
+    int offset;
+    int scaledOffset;
 
-    puVar3 = *(u16 **)((int)param_1 + 0x24);
-    iVar2 = 0;
-    if (*(u8 *)((int)param_1 + 0x15) == 0) {
+    previousGlyph = (u16 *)((FrFontGlyphData *)glyph)->previous;
+    offset = 0;
+    if (((FrFontGlyphData *)glyph)->slot == 0) {
         goto LAB_002723B0;
     }
-    if (*(u8 *)((int)param_1 + 0x15) != 1) {
+    if (((FrFontGlyphData *)glyph)->slot != 1) {
         goto LAB_002724C4;
     }
 LAB_002723B0:
-    if (puVar3 == (u16 *)0x0) {
+    if (previousGlyph == (u16 *)0x0) {
         goto LAB_002724C4;
     }
-    sVar1 = *(u16 *)param_1;
-    switch (sVar1) {
+    character = ((FrFontGlyphData *)glyph)->character;
+    switch (character) {
     case 0x61:
     case 0x65:
     case 0x6f:
@@ -979,55 +937,55 @@ LAB_002723B0:
         goto LAB_002724C4;
     }
 LAB_00272424:
-    sVar1 = *puVar3;
-    if (sVar1 == 0x54) {
+    character = *previousGlyph;
+    if (character == 0x54) {
         goto LAB_00272458;
     }
-    if (sVar1 == 0x80b4) {
+    if (character == 0x80b4) {
         goto LAB_00272458;
     }
-    if (sVar1 == 0x59) {
+    if (character == 0x59) {
         goto LAB_00272458;
     }
-    if (sVar1 == 0x80b9) {
+    if (character == 0x80b9) {
         goto LAB_00272458;
     }
     goto LAB_00272484;
 LAB_00272458:
-    iVar2 = 3;
-    iVar3 = D_007645A0;
-    if (iVar3 <= 0) {
+    offset = 3;
+    scaledOffset = D_007645A0;
+    if (scaledOffset <= 0) {
         goto LAB_00272484;
     }
-    iVar3 = iVar3 * 3;
-    iVar2 = iVar3 >> 7;
-    if (iVar3 < 0) {
-        iVar2 = iVar3 + 0x7f >> 7;
+    scaledOffset = scaledOffset * 3;
+    offset = scaledOffset >> 7;
+    if (scaledOffset < 0) {
+        offset = scaledOffset + 0x7f >> 7;
     }
 LAB_00272484:
-    if (sVar1 == 0x56) {
+    if (character == 0x56) {
         goto LAB_0027249C;
     }
-    if (sVar1 != 0x80b6) {
+    if (character != 0x80b6) {
         goto LAB_002724C4;
     }
 LAB_0027249C:
-    iVar2 = 2;
-    iVar3 = D_007645A0;
-    if (iVar3 <= 0) {
+    offset = 2;
+    scaledOffset = D_007645A0;
+    if (scaledOffset <= 0) {
         goto LAB_002724C4;
     }
-    iVar3 = iVar3 * 2;
-    iVar2 = iVar3 >> 7;
-    if (iVar3 < 0) {
-        iVar2 = iVar3 + 0x7f >> 7;
+    scaledOffset = scaledOffset * 2;
+    offset = scaledOffset >> 7;
+    if (scaledOffset < 0) {
+        offset = scaledOffset + 0x7f >> 7;
     }
 LAB_002724C4:
-    return iVar2;
+    return offset;
 }
 
 extern u8 D_007645B4;
-extern u8 *frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3);
+extern u8 *frFontCreateGlyphNode(u16 character, u8 slotId, u8 palette, u8 effect);
 
 
 
@@ -1040,103 +998,105 @@ extern u8 *frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3);
    Callers explicitly sequence character loads, and dynamic style before
    character, to retain the retail argument evaluation order. */
 // FUN_002724D0
-u8 *frFontCreateTextList(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
-    s32 temp2;
-    u16 ch;
-    u32 var21;
-    u8 value;
-    u8 *temp4;
-    u32 i;
-    u8 a2;
-    u8 a3;
-    u8 *var17;
-    u8 *var16;
-    u8 *var19;
+u8 *frFontCreateTextList(u8 *text, s32 style, s8 palette, s32 effect, u8 *existing) {
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
-    var19 = arg4;
-    var21 = 0;
-    if ((s8)arg1 >= 0) {
-        D_007645B4 = (u8)arg1;
+    s32 kerning;
+    u16 ch;
+    u32 length;
+    u8 value;
+    u8 *previousGlyph;
+    u32 i;
+    u8 glyphPalette;
+    u8 glyphEffect;
+    u8 *glyph;
+    u8 *lastGlyph;
+    u8 *list;
+
+    list = existing;
+    length = 0;
+    if ((s8)style >= 0) {
+        D_007645B4 = (u8)style;
     }
-    if (*(u32 *)((u8 *)DAT_0088164C_abs + ((D_007645B4 & 0xFF) << 5)) == 0) {
+    if (*(u32 *)((u8 *)DAT_0088164C_abs + ((D_007645B4 & 0xFF) << 5)) == 0) { /* Linker interior alias of the slot object column; keep its relocation base. */
         return NULL;
     }
-    if (arg0 != NULL) {
-        var21 = strlen(arg0);
+    if (text != NULL) {
+        length = strlen(text);
     }
-    if (var19 == NULL) {
-        var19 = fmGslContPopNode(*(u32 *)DAT_00881760_abs);
+    if (list == NULL) {
+        list = fmGslContPopNode(*(u32 *)DAT_00881760_abs);
         DAT_00881758_abs[0] += 1;
-        if (var19 == NULL) {
+        if (list == NULL) {
             kAssertFail(&D_0063BAE8, 0x665);
         }
-        memset(var19, 0, 0x44);
-        *(u8 *)(var19 + 2) = 0xFF;
-        *(s16 *)(var19 + 0) = 0x20;
-        *(u8 **)(var19 + 0x2C) = var19;
+        memset(list, 0, 0x44);
+        ((FrFontTextRun *)list)->intensity = 0xFF;
+        ((FrFontTextRun *)list)->code = 0x20;
+        ((FrFontTextRun *)list)->root = (s32)list;
     }
-    var17 = NULL;
-    var16 = *(u8 **)(var19 + 0x20);
+    glyph = NULL;
+    lastGlyph = (u8 *)(u32)((FrFontTextRun *)list)->lastGlyph;
     i = 0;
-    a3 = (u8)arg3;
-    a2 = (u8)arg2;
-    while (i < var21) {
-        value = *(u8 *)(arg0 + i);
+    glyphEffect = (u8)effect;
+    glyphPalette = (u8)palette;
+    while (i < length) {
+        value = text[i];
         ch = value;
         if (value >= 0x80) {
             i += 1;
-            ch = (u16)(((u16)value << 8) | *(u8 *)(arg0 + i));
+            ch = (u16)(((u16)value << 8) | *(u8 *)(text + i)); /* measured: this access-site member rewrite changes instruction bytes. */
         }
-        var17 = frFontCreateGlyphNode(ch, D_007645B4, a2, a3);
-        if (var16 == NULL) {
-            *(u8 **)(var19 + 0x1C) = var17;
+        glyph = frFontCreateGlyphNode(ch, D_007645B4, glyphPalette, glyphEffect);
+        if (lastGlyph == NULL) {
+            ((FrFontTextRun *)list)->firstGlyph = (s32)glyph;
         } else {
-            *(u8 **)(var16 + 0x28) = var17;
+            ((FrFontGlyphData *)lastGlyph)->next = (s32)glyph;
         }
-        if (var17 == NULL) {
+        if (glyph == NULL) {
             kAssertFail(&D_0063BAE8, 0x676);
         }
-        *(u8 **)(var17 + 0x24) = var16;
-        var16 = var17;
-        *(s32 *)(var19 + 0x0C) += *(s32 *)(var17 + 0x0C);
-        *(s32 *)(var19 + 0x18) += 1;
-        temp2 = frFontKerningOffset((short *)var17);
-        if (temp2 != 0) {
-            temp4 = *(u8 **)(var17 + 0x24);
-            if (temp4 != NULL) {
-                *(s32 *)(temp4 + 0x0C) -= temp2;
+        ((FrFontGlyphData *)glyph)->previous = (s32)lastGlyph;
+        lastGlyph = glyph;
+        ((FrFontTextRun *)list)->width += ((FrFontGlyphData *)glyph)->advance;
+        ((FrFontTextRun *)list)->glyphCount += 1;
+        kerning = frFontKerningOffset((short *)glyph);
+        if (kerning != 0) {
+            previousGlyph = *(u8 **)(glyph + 0x24); /* measured: this access-site member rewrite changes instruction bytes. */
+            if (previousGlyph != NULL) {
+                ((FrFontGlyphData *)previousGlyph)->advance -= kerning;
             }
-            *(s32 *)(var19 + 0x0C) -= temp2;
+            *(s32 *)(list + 0x0C) -= kerning; /* measured: this access-site member rewrite changes instruction bytes. */
         }
         i += 1;
     }
-    if (var17 != NULL) {
-        *(u8 **)(var19 + 0x20) = var17;
-        *(s16 *)(var19 + 0x10) = *(u8 *)(var17 + 0x18);
-        *(s16 *)(var19 + 0x12) = *(u8 *)(var17 + 0x19);
+    if (glyph != NULL) {
+        *(u8 **)(list + 0x20) = glyph; /* measured: this access-site member rewrite changes instruction bytes. */
+        ((FrFontTextRun *)list)->glyphWidth = ((FrFontGlyphData *)glyph)->width;
+        ((FrFontTextRun *)list)->glyphHeight = ((FrFontGlyphData *)glyph)->height;
     }
-    return var19;
+    return list;
 }
 /* Sets the byte at +2 of every node in the list. */
 // FUN_00272730
-void frFontSetListFlag(int param_1, u8 param_2)
+void frFontSetListFlag(int list, u8 intensity)
 {
-    if (param_1 == 0) {
+    if (list == 0) {
         kAssertFail(D_0063BAE8, 0x69B);
     }
-    for (; param_1 != 0; param_1 = *(int *)(param_1 + 0x24)) {
-        *(u8 *)(param_1 + 2) = param_2;
+    for (; list != 0; list = ((FrFontTextRun *)list)->previous) {
+        ((FrFontTextRun *)list)->intensity = intensity;
     }
 }
 
 /* Sets the node's leading 16-bit id (character code). */
 // FUN_002727A0
-void frFontSetNodeId(u32 param_1, u16 param_2)
+void frFontSetNodeId(u32 list, u16 code)
 {
-    if (param_1 == 0) {
+    if (list == 0) {
         kAssertFail(D_0063BAE8, 0x6A7);
     }
-    *(u16 *)param_1 = param_2;
+    ((FrFontTextRun *)list)->code = code;
 }
 
 /* Enables the node and marks every node in its chain with 0xFF at +2. */
@@ -1157,73 +1117,73 @@ void frFontEnableList(FrFontNode *node)
 
 /* Sets the byte at +3 of a node and recomputes its width at +0xC. */
 // FUN_00272860
-void frFontSetCharWidth(int param_1, int param_2)
+void frFontSetCharWidth(int list, int spacing)
 {
-    if (param_1 == 0) {
+    if (list == 0) {
         kAssertFail(D_0063BAE8, 0x6C3);
     }
-    *(u8 *)(param_1 + 3) = param_2;
-    *(u32 *)(param_1 + 0xc) = frFontNodeWidth(param_1);
+    ((FrFontTextRun *)list)->spacing = spacing;
+    ((FrFontTextRun *)list)->width = frFontNodeWidth(list);
 }
 
 /* Sets the slot byte (+0x15) of every glyph in every node of the list. */
 // FUN_002728C0
-void frFontSetListSlot(int param_1, u8 param_2)
+void frFontSetListSlot(int list, u8 slot)
 {
-    int iVar1;
+    int glyph;
 
-    if (param_1 == 0) {
+    if (list == 0) {
         kAssertFail(D_0063BAE8, 0x6F2);
     }
-    for (; param_1 != 0; param_1 = *(int *)(param_1 + 0x24)) {
-        for (iVar1 = *(int *)(param_1 + 0x1c); iVar1 != 0;
-             iVar1 = *(int *)(iVar1 + 0x28)) {
-            *(u8 *)(iVar1 + 0x15) = param_2;
+    for (; list != 0; list = ((FrFontTextRun *)list)->previous) {
+        for (glyph = ((FrFontTextRun *)list)->firstGlyph; glyph != 0;
+             glyph = ((FrFontGlyphData *)glyph)->next) {
+            ((FrFontGlyphData *)glyph)->slot = slot;
         }
     }
 }
 
 /* Shifts the whole list so its first node is at (x, y). */
 // FUN_00272950
-void frFontMoveListTo(int param_1, int param_2, int param_3)
+void frFontMoveListTo(int list, int x, int y)
 {
-    int iVar1;
-    int iVar2;
+    int dy;
+    int dx;
 
-    if (param_1 == 0) {
+    if (list == 0) {
         kAssertFail(D_0063BAE8, 0x708);
     }
-    while (*(int *)(param_1 + 0x24) != 0) {
-        param_1 = *(int *)(param_1 + 0x24);
+    while (((FrFontTextRun *)list)->previous != 0) {
+        list = ((FrFontTextRun *)list)->previous;
     }
-    iVar2 = param_2 - *(int *)(param_1 + 4);
-    iVar1 = param_3 - *(int *)(param_1 + 8);
-    while (param_1 != 0) {
-        *(int *)(param_1 + 4) = *(int *)(param_1 + 4) + iVar2;
-        *(int *)(param_1 + 8) = *(int *)(param_1 + 8) + iVar1;
-        param_1 = *(int *)(param_1 + 0x28);
+    dx = x - ((FrFontTextRun *)list)->x;
+    dy = y - ((FrFontTextRun *)list)->y;
+    while (list != 0) {
+        ((FrFontTextRun *)list)->x = ((FrFontTextRun *)list)->x + dx;
+        ((FrFontTextRun *)list)->y = ((FrFontTextRun *)list)->y + dy;
+        list = ((FrFontTextRun *)list)->next;
     }
 }
 
 /* Shifts the whole list to a float position (x * 16, y * 8). */
 // FUN_00272A10
-void frFontMoveListToFloat(int param_1, float param_2, float param_3)
+void frFontMoveListToFloat(int list, float x, float y)
 {
-    int iVar1;
-    int iVar2;
+    int dy;
+    int dx;
 
-    if (param_1 == 0) {
+    if (list == 0) {
         kAssertFail(D_0063BAE8, 0x71F);
     }
-    while (*(int *)(param_1 + 0x24) != 0) {
-        param_1 = *(int *)(param_1 + 0x24);
+    while (((FrFontTextRun *)list)->previous != 0) {
+        list = ((FrFontTextRun *)list)->previous;
     }
-    iVar2 = (int)(16.0f * param_2) - *(int *)(param_1 + 4);
-    iVar1 = (int)(8.0f * param_3) - *(int *)(param_1 + 8);
-    while (param_1 != 0) {
-        *(int *)(param_1 + 4) = *(int *)(param_1 + 4) + iVar2;
-        *(int *)(param_1 + 8) = *(int *)(param_1 + 8) + iVar1;
-        param_1 = *(int *)(param_1 + 0x28);
+    dx = (int)(16.0f * x) - ((FrFontTextRun *)list)->x;
+    dy = (int)(8.0f * y) - ((FrFontTextRun *)list)->y;
+    while (list != 0) {
+        ((FrFontTextRun *)list)->x = ((FrFontTextRun *)list)->x + dx;
+        ((FrFontTextRun *)list)->y = ((FrFontTextRun *)list)->y + dy;
+        list = ((FrFontTextRun *)list)->next;
     }
 }
 
@@ -1244,36 +1204,36 @@ void frFontMoveListToFloat(int param_1, float param_2, float param_3)
    in reconcile_function_boundaries the window is 80 bytes and the obvious nested-while,
    the same shape as the already-matching frFontReplaceGlyphAux below, is byte-exact. */
 // FUN_00272B00
-void frFontSetGlyphAux(int param_1, u8 param_2)
+void frFontSetGlyphAux(int list, u8 palette)
 {
     FrFontGlyph *glyph;
 
-    while (param_1 != 0) {
-        glyph = *(FrFontGlyph **)(param_1 + 0x1c);
+    while (list != 0) {
+        glyph = (FrFontGlyph *)((FrFontTextRun *)list)->firstGlyph;
         while (glyph != NULL) {
-            glyph->unknown_10[4] = param_2;
+            glyph->unknown_10[4] = palette;
             glyph = glyph->next;
         }
-        param_1 = *(int *)(param_1 + 0x24);
+        list = ((FrFontTextRun *)list)->previous;
     }
 }
 
 /* Replaces the aux byte of every glyph equal to key with value. */
 // FUN_00272B50
-void frFontReplaceGlyphAux(int param_1, u8 param_2, u8 param_3)
+void frFontReplaceGlyphAux(int list, u8 oldPalette, u8 newPalette)
 {
-    int key = param_2;
+    int key = oldPalette;
     FrFontGlyph *glyph;
 
-    while (param_1 != 0) {
-        glyph = *(FrFontGlyph **)(param_1 + 0x1c);
+    while (list != 0) {
+        glyph = (FrFontGlyph *)((FrFontTextRun *)list)->firstGlyph;
         while (glyph != NULL) {
             if (glyph->unknown_10[4] == key) {
-                glyph->unknown_10[4] = param_3;
+                glyph->unknown_10[4] = newPalette;
             }
             glyph = glyph->next;
         }
-        param_1 = *(int *)(param_1 + 0x24);
+        list = ((FrFontTextRun *)list)->previous;
     }
 }
 
@@ -1286,56 +1246,56 @@ void frFontReplaceGlyphAux(int param_1, u8 param_2, u8 param_3)
    Same withdrawn branch-landing entry (0x00272BD4, zero callers; this address has 18
    jal sites), same 80-byte window, same nested-while body. */
 // FUN_00272BA0
-void frFontSetGlyphColor(int param_1, u32 param_2)
+void frFontSetGlyphColor(int list, u32 color)
 {
     FrFontGlyph *glyph;
 
-    while (param_1 != 0) {
-        glyph = *(FrFontGlyph **)(param_1 + 0x1c);
+    while (list != 0) {
+        glyph = (FrFontGlyph *)((FrFontTextRun *)list)->firstGlyph;
         while (glyph != NULL) {
-            *(u32 *)((u8 *)glyph + 0x10) = param_2;
+            ((FrFontGlyphData *)glyph)->color = color;
             glyph = glyph->next;
         }
-        param_1 = *(int *)(param_1 + 0x24);
+        list = ((FrFontTextRun *)list)->previous;
     }
 }
 
 /* Returns the last node in the list. */
 // FUN_00272BF0
-int frFontListTail(int param_1)
+int frFontListTail(int list)
 {
-    if (param_1 == 0) {
+    if (list == 0) {
         kAssertFail(D_0063BAE8, 0x77B);
     }
-    while (*(int *)(param_1 + 0x24) != 0) {
-        param_1 = *(int *)(param_1 + 0x24);
+    while (((FrFontTextRun *)list)->previous != 0) {
+        list = ((FrFontTextRun *)list)->previous;
     }
-    return param_1;
+    return list;
 }
 /* Sets bits in the global flag word and returns its previous value. */
 // FUN_00272C60
-u16 frFontSetFlagBits(s16 param_1)
+u16 frFontSetFlagBits(s16 bits)
 {
-    u16 uVar1;
+    u16 previousFlags;
 
-    uVar1 = D_00763810;
-    D_00763810 = D_00763810 | param_1;
-    return uVar1;
+    previousFlags = D_00763810;
+    D_00763810 = D_00763810 | bits;
+    return previousFlags;
 }
 
 
 
 /* Clears bits in the global flag word and returns its previous value. */
 // FUN_00272C80
-u16 frFontClearFlagBits(u16 param_1)
+u16 frFontClearFlagBits(u16 bits)
 {
-    u16 uVar1;
+    u16 previousFlags;
     long mask;
 
-    uVar1 = D_00763810;
-    mask = (s16)~param_1;
+    previousFlags = D_00763810;
+    mask = (s16)~bits;
     D_00763810 = D_00763810 & mask;
-    return uVar1;
+    return previousFlags;
 }
 
 
@@ -1350,17 +1310,19 @@ u16 frFontClearFlagBits(u16 param_1)
 
 u32 frFontFadeNodes(int list)
 {
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
+
     u32 result = 0;
     u32 mask = ~0xff;
     u32 changed = 1;
     u32 type = 2;
 
     while (list != 0) {
-        int node = *(int *)(list + 0x1c);
+        int node = ((FrFontTextRun *)list)->firstGlyph;
 
         while (node != 0) {
-            if (*(u8 *)(node + 0x16) == type) {
-                u32 word = *(u32 *)(node + 0x10);
+            if (((FrFontGlyphData *)node)->effect == type) {
+                u32 word = ((FrFontGlyphData *)node)->color;
                 u32 fade = word & 0xff;
                 u32 merged;
 
@@ -1371,14 +1333,14 @@ u32 frFontFadeNodes(int list)
                     }
                     merged = word & mask;
                     merged |= fade;
-                    *(u32 *)(node + 0x10) = merged;
-                    *(u32 *)(node + 8) += 0x10;
+                    *(u32 *)(node + 0x10) = merged; /* measured: this access-site member rewrite changes instruction bytes. */
+                    ((FrFontGlyphData *)node)->y += 0x10;
                     result = changed;
                 }
             }
-            node = *(int *)(node + 0x28);
+            node = ((FrFontGlyphData *)node)->next;
         }
-        list = *(int *)(list + 0x24);
+        list = ((FrFontTextRun *)list)->previous;
     }
     return result;
 }
@@ -1389,31 +1351,31 @@ u32 frFontFadeNodes(int list)
 
 /* Returns the node if its type and state say it is ready (or 0). */
 // FUN_00272D40
-u8 *frFontReadyNode(u8 *arg0)
+u8 *frFontReadyNode(u8 *list)
 {
-    s32 temp;
+    s32 stateValue;
 
-    temp = *(s32 *)(arg0 + 0x30);
-    switch (temp) {
+    stateValue = ((FrFontTextRun *)list)->command;
+    switch (stateValue) {
     case 0xF222:
     case 0xF227:
-        temp = *(s32 *)(arg0 + 0x3C);
-        if (temp == -1) {
+        stateValue = ((FrFontTextRun *)list)->duration;
+        if (stateValue == -1) {
             break;
         }
-        if (temp > 0) {
-            return arg0;
+        if (stateValue > 0) {
+            return list;
         }
         break;
     case 0xF223:
     case 0xF226:
-        temp = *(s32 *)(arg0 + 0x3C);
-        if (temp == -1) {
+        stateValue = ((FrFontTextRun *)list)->duration;
+        if (stateValue == -1) {
             if (sdkSndIsChannelPlaying(1) != 0) {
-                return arg0;
+                return list;
             }
-        } else if (temp > 0) {
-            return arg0;
+        } else if (stateValue > 0) {
+            return list;
         }
         break;
     }
@@ -1432,8 +1394,10 @@ u8 *frFontReadyNode(u8 *arg0)
    draft wrongly shows 2; retail calls with $18 only). Saved-register
    SUPERSEDED: Saved-register rotation floor. */
 // FUN_00272E10
-s32 frFontStepNodeIntensity(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
+s32 frFontStepNodeIntensity(u8 *list, u8 *glyph, u8 threshold, u8 speed)
 {
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
+
     s32 result = 0;
     s32 amount;
     u8 normalized;
@@ -1442,53 +1406,53 @@ s32 frFontStepNodeIntensity(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
     u8 type;
     u8 accepted;
     u8 found;
-    u8 *temp_18;
+    u8 *previousList;
     u8 *valuep;
     u32 code;
 
     accepted = 0;
     limit = 0xff;
     type = 0;
-    if (*(u8 **)(arg1 + 0x24) == 0) {
-        if (*(u8 **)(arg0 + 0x24) != 0 &&
-            *(u8 **)(*(u8 **)(arg0 + 0x24) + 0x20) != 0) {
-            limit = *(u8 *)(*(u8 **)(*(u8 **)(arg0 + 0x24) + 0x20) + 0x10);
-            type = *(u8 *)(*(u8 **)(*(u8 **)(arg0 + 0x24) + 0x20) + 0x16);
+    if ((u8 *)(u32)((FrFontGlyphData *)glyph)->previous == 0) {
+        if ((u8 *)(u32)((FrFontTextRun *)list)->previous != 0 &&
+            (u8 *)(u32)((FrFontTextRun *)((u8 *)(u32)((FrFontTextRun *)list)->previous))->lastGlyph != 0) {
+            limit = (u8)((FrFontGlyphData *)((u8 *)(u32)((FrFontTextRun *)((u8 *)(u32)((FrFontTextRun *)list)->previous))->lastGlyph))->color;
+            type = ((FrFontGlyphData *)((u8 *)(u32)((FrFontTextRun *)((u8 *)(u32)((FrFontTextRun *)list)->previous))->lastGlyph))->effect;
         }
     } else {
-        limit = *(u8 *)(*(u8 **)(arg1 + 0x24) + 0x10);
+        limit = (u8)((FrFontGlyphData *)((u8 *)(u32)((FrFontGlyphData *)glyph)->previous))->color;
     }
-    if (arg2 > 0 && *(u16 *)arg1 < 0x80) {
-        arg2 += 0x14;
+    if (threshold > 0 && *(u16 *)glyph < 0x80) {
+        threshold += 0x14;
     }
-    valuep = arg1 + 0x10;
-    if (type == 0 || type == *(u8 *)(arg1 + 0x16)) {
-        if (limit >= arg2) {
+    valuep = glyph + 0x10;
+    if (type == 0 || type == ((FrFontGlyphData *)glyph)->effect) {
+        if (limit >= threshold) {
             accepted = 1;
         }
     } else if (limit == 0xff) {
         accepted = 1;
     }
-    temp_18 = *(u8 **)(arg0 + 0x24);
-    if (accepted && temp_18 != 0 &&
-        *(u8 **)(arg0 + 0x1c) == arg1 &&
-        *(s32 *)(arg0 + 0x40) == 0) {
+    previousList = (u8 *)(u32)((FrFontTextRun *)list)->previous;
+    if (accepted && previousList != 0 &&
+        (u8 *)(u32)((FrFontTextRun *)list)->firstGlyph == glyph &&
+        ((FrFontTextRun *)list)->enabled == 0) {
         found = 0;
-        if (frFontReadyNode(temp_18) != 0) {
+        if (frFontReadyNode(previousList) != 0) {
             found = 1;
-            switch (*(s32 *)(temp_18 + 0x30)) {
+            switch (((FrFontTextRun *)previousList)->command) {
             case 0xf222:
             case 0xf227:
-                *(s32 *)(temp_18 + 0x3c) =
-                    *(s32 *)(temp_18 + 0x3c) - 1;
+                ((FrFontTextRun *)previousList)->duration =
+                    ((FrFontTextRun *)previousList)->duration - 1;
                 break;
             case 0xf223:
             case 0xf226:
-                if (*(s32 *)(temp_18 + 0x3c) == -1) {
+                if (((FrFontTextRun *)previousList)->duration == -1) {
                     sdkSndIsChannelPlaying(1);
                 } else {
-                    *(s32 *)(temp_18 + 0x3c) =
-                        *(s32 *)(temp_18 + 0x3c) - 1;
+                    *(s32 *)(previousList + 0x3c) = /* measured: this access-site member rewrite changes instruction bytes. */
+                        ((FrFontTextRun *)previousList)->duration - 1;
                 }
                 break;
             }
@@ -1498,10 +1462,10 @@ s32 frFontStepNodeIntensity(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
         }
     }
     if (accepted) {
-        if (arg3 < 0xff) {
-            amount = (s32)((f32)(arg3 << 5) /
-                           (f32)(*(s32 *)(arg1 + 0xc) +
-                                 *(s8 *)(arg0 + 3)));
+        if (speed < 0xff) {
+            amount = (s32)((f32)(speed << 5) /
+                           (f32)(((FrFontGlyphData *)glyph)->advance +
+                                 ((FrFontTextRun *)list)->spacing));
         } else {
             amount = 0xff;
         }
@@ -1518,9 +1482,9 @@ s32 frFontStepNodeIntensity(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
             *(u32 *)valuep = (value & ~0xff) | 0xff;
         }
     }
-    code = *(u16 *)(arg1 + 2);
+    code = ((FrFontGlyphData *)glyph)->frame;
     if (*(u8 *)valuep < 0xff) {
-        switch (*(u8 *)(arg1 + 0x16)) {
+        switch (((FrFontGlyphData *)glyph)->effect) {
         case 1:
             result = -(((((s32)code << 1) % 5) - 2) * 0x10);
             break;
@@ -1532,29 +1496,29 @@ s32 frFontStepNodeIntensity(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
 }
 /* Draws a list with the default mode. */
 // FUN_00273110
-void frFontDrawListDefault(s32 arg0)
+void frFontDrawListDefault(s32 list)
 {
-    frFontDrawListMode((void *)arg0, 0);
+    frFontDrawListMode((void *)list, 0);
 }
 
 
 
 /* Draws a list with the given mode and the default third argument. */
 // FUN_00273140
-void frFontDrawListMode(void *param_1, u32 param_2)
+void frFontDrawListMode(void *list, u32 mode)
 {
-    frFontDrawList(param_1, param_2, D_00764598);
+    frFontDrawList(list, mode, D_00764598);
 }
 
 
 
 extern s32 D_0076459C;
-extern void RpSkyRenderStateSet(s32 param_1, s32 param_2);
-extern s32 frFontStepNodeIntensity(u8 *param_1, u8 *param_2, u8 param_3, u8 param_4);
+extern void RpSkyRenderStateSet(s32 value, s32 otherValue);
+extern s32 frFontStepNodeIntensity(u8 *list, u8 *glyph, u8 threshold, u8 speed);
 /* Raster dimensions use full unsigned words; the glyph stores their byte
  * source values. Depth precedes the glyph in the shared mixed-ABI contract. */
 extern s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
-                         s32 palette, u32 width, u32 height, u32 color);
+                         s32 palette, u32 width, u32 height, u32 rgba);
 extern code D_00887300_abs[];
 
 
@@ -1567,8 +1531,10 @@ extern code D_00887300_abs[];
    match; the remaining eight retail bytes are alignment padding. */
 // FUN_00273170
 #pragma opt_propagation off
-s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2)
+s32 frFontDrawList(void *list, u32 drawMode, u32 unused)
 {
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
+
     u8 *node;
     u8 *glyph;
     s32 total;
@@ -1581,14 +1547,14 @@ s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2)
     u8 found;
     u32 states;
     u8 style;
-    s32 draw_x;
-    s32 draw_y;
-    u8 palette_index;
+    s32 drawX;
+    s32 drawY;
+    u8 palette;
     u8 width;
     u8 height;
     f32 scale;
 
-    node = (u8 *)arg0;
+    node = (u8 *)list;
     total = 0;
     complete = 1;
     if (!(D_00763810 & 0x40)) {
@@ -1607,52 +1573,52 @@ s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2)
     if (node == 0) {
         return 0;
     }
-    node = *(u8 **)(node + 0x2C);
-    mode = (s8)arg1;
+    node = (u8 *)(u32)((FrFontTextRun *)node)->root;
+    mode = (s8)drawMode;
     while (node != 0) {
-        x = *(s32 *)(node + 4);
-        y = *(s32 *)(node + 8);
-        spacing = *(s8 *)(node + 3);
-        glyph = *(u8 **)(node + 0x1C);
+        x = ((FrFontTextRun *)node)->x;
+        y = ((FrFontTextRun *)node)->y;
+        spacing = ((FrFontTextRun *)node)->spacing;
+        glyph = (u8 *)(u32)((FrFontTextRun *)node)->firstGlyph;
         while (glyph != 0) {
             if (mode == 0) {
-                style = node[0];
-                offset = frFontStepNodeIntensity(node, glyph, style, node[2]);
+                style = (u8)((FrFontTextRun *)node)->code;
+                offset = frFontStepNodeIntensity(node, glyph, style, ((FrFontTextRun *)node)->intensity);
             } else {
                 offset = 0;
             }
-            draw_x = offset + (x + *(s32 *)(glyph + 4));
-            draw_y = y + *(s32 *)(glyph + 8);
-            palette_index = glyph[0x14];
-            width = glyph[0x18];
-            height = glyph[0x19];
-            scale = *(f32 *)(node + 0x14);
-            frFontRasterDrawGlyph(draw_x, draw_y, scale, glyph, palette_index, width, height,
-                         *(u32 *)(glyph + 0x10));
-            if (glyph[0x10] != 0) {
-                *(u16 *)(glyph + 2) += 1;
+            drawX = offset + (x + ((FrFontGlyphData *)glyph)->x);
+            drawY = y + ((FrFontGlyphData *)glyph)->y;
+            palette = ((FrFontGlyphData *)glyph)->palette;
+            width = ((FrFontGlyphData *)glyph)->width;
+            height = ((FrFontGlyphData *)glyph)->height;
+            scale = ((FrFontTextRun *)node)->depth.scale;
+            frFontRasterDrawGlyph(drawX, drawY, scale, glyph, palette, width, height,
+                         ((FrFontGlyphData *)glyph)->color);
+            if (glyph[0x10] != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+                ((FrFontGlyphData *)glyph)->frame += 1;
             }
-            if (glyph[0x10] < 255U) {
+            if (glyph[0x10] < 255U) { /* measured: this access-site member rewrite changes instruction bytes. */
                 complete = 0;
             }
-            x += (s32)((u32)(*(s32 *)(glyph + 0xC) + spacing) << 4);
-            glyph = *(u8 **)(glyph + 0x28);
+            x += (s32)((u32)(((FrFontGlyphData *)glyph)->advance + spacing) << 4);
+            glyph = (u8 *)(u32)((FrFontGlyphData *)glyph)->next;
         }
-        if (*(u8 **)(node + 0x28) == 0 && *(s32 *)(node + 0x40) == 0) {
+        if ((u8 *)(u32)((FrFontTextRun *)node)->next == 0 && ((FrFontTextRun *)node)->enabled == 0) {
             found = 0;
             if (frFontReadyNode(node) != 0) {
                 found = 1;
-                switch (*(s32 *)(node + 0x30)) {
+                switch (((FrFontTextRun *)node)->command) {
                 case 0xF222:
                 case 0xF227:
-                    *(s32 *)(node + 0x3C) -= 1;
+                    ((FrFontTextRun *)node)->duration -= 1;
                     break;
                 case 0xF223:
                 case 0xF226:
-                    if (*(s32 *)(node + 0x3C) == -1) {
+                    if (((FrFontTextRun *)node)->duration == -1) {
                         sdkSndIsChannelPlaying(1);
                     } else {
-                        *(s32 *)(node + 0x3C) -= 1;
+                        *(s32 *)(node + 0x3C) -= 1; /* measured: this access-site member rewrite changes instruction bytes. */
                     }
                     break;
                 }
@@ -1661,8 +1627,8 @@ s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2)
                 complete = 0;
             }
         }
-        total += *(s32 *)(node + 0x18);
-        node = *(u8 **)(node + 0x28);
+        total += ((FrFontTextRun *)node)->glyphCount;
+        node = *(u8 **)(node + 0x28); /* measured: this access-site member rewrite changes instruction bytes. */
     }
     if (D_0076459C > 0) {
         D_0076459C -= 1;
@@ -1682,68 +1648,70 @@ s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2)
    the shared move/beqz block. MATCH at normalized_diff 0, object 340B/window
    352B; exact body archived at build/WCKFldUnit_734b0_match.c. */
 // FUN_002734B0
-s32 frFontMeasureList(u8 *arg0)
+s32 frFontMeasureList(u8 *list)
 {
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_3_3;
-    u8 *temp_3_4;
-    s32 var_17;
-    s32 var_16;
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
-    var_17 = 1;
-    var_16 = 0;
-    if (arg0 == NULL) {
+    s32 command;
+    s32 duration;
+    s32 soundDuration;
+    u8 *pendingList;
+    s32 complete;
+    s32 total;
+
+    complete = 1;
+    total = 0;
+    if (list == NULL) {
         return 0;
     }
-    arg0 = *(u8 **)(arg0 + 0x2C);
-    while (arg0 != NULL) {
-        if ((*(u8 **)(arg0 + 0x28) == NULL) &&
-            (*(s32 *)(arg0 + 0x40) == 0)) {
-            temp_3 = *(s32 *)(arg0 + 0x30);
-            switch (temp_3) {
+    list = (u8 *)(u32)((FrFontTextRun *)list)->root;
+    while (list != NULL) {
+        if (((u8 *)(u32)((FrFontTextRun *)list)->next == NULL) &&
+            (((FrFontTextRun *)list)->enabled == 0)) {
+            command = ((FrFontTextRun *)list)->command;
+            switch (command) {
             case 0xF222:
             case 0xF227:
-                temp_3_2 = *(s32 *)(arg0 + 0x3C);
-                if (temp_3_2 == -1) {
+                duration = ((FrFontTextRun *)list)->duration;
+                if (duration == -1) {
                     goto result_zero;
                 }
-                if (temp_3_2 <= 0) {
+                if (duration <= 0) {
                     goto result_zero;
                 }
-                temp_3_4 = arg0;
+                pendingList = list;
                 goto result_check;
             case 0xF223:
             case 0xF226:
-                temp_3_3 = *(s32 *)(arg0 + 0x3C);
-                if (temp_3_3 == -1) {
+                soundDuration = ((FrFontTextRun *)list)->duration;
+                if (soundDuration == -1) {
                     if (sdkSndIsChannelPlaying(1) != 0) {
-                        temp_3_4 = arg0;
+                        pendingList = list;
                         goto result_check;
                     }
                     goto result_zero;
-                } else if (temp_3_3 <= 0) {
+                } else if (soundDuration <= 0) {
                     goto result_zero;
                 }
-                temp_3_4 = arg0;
+                pendingList = list;
                 goto result_check;
             default:
                 goto result_zero;
             }
 result_zero:
-            temp_3_4 = NULL;
+            pendingList = NULL;
 result_check:
-            if (temp_3_4 != NULL) {
-                var_17 = 0;
+            if (pendingList != NULL) {
+                complete = 0;
             }
         }
-        var_16 += *(s32 *)(arg0 + 0x18);
-        arg0 = *(u8 **)(arg0 + 0x28);
+        total += ((FrFontTextRun *)list)->glyphCount;
+        list = *(u8 **)(list + 0x28); /* measured: this access-site member rewrite changes instruction bytes. */
     }
-    if ((s8)var_17 == 0) {
-        var_16 = 0;
+    if ((s8)complete == 0) {
+        total = 0;
     }
-    return var_16;
+    return total;
 }
 /* Cache maintenance task: releases the cached list and evicts expired raster entries. */
 // FUN_00273610
@@ -1755,38 +1723,38 @@ s32 frFontMaintainCacheTask(u8 *unusedTask)
 }
 /* Splices list param_1 onto the tail of param_2 and returns the joined head (either argument if the other is 0). When param_3 is 1 also moves param_2 to just after param_1 (x + width * 16, y). */
 // FUN_00273650
-int frFontAppendList(int param_1, int param_2, int param_3)
+int frFontAppendList(int tail, int list, int moveAfter)
 {
-    if (param_1 != 0)
+    if (tail != 0)
     {
         goto checkParam2;
     }
-    return param_2;
+    return list;
 
 checkParam2:
-    if (param_2 != 0)
+    if (list != 0)
     {
         goto body;
     }
-    return param_1;
+    return tail;
 
 body:
-    *(u32*)(param_1 + 0x28) = *(u32*)(param_2 + 0x2c);
-    *(int*)(*(int*)(param_2 + 0x2c) + 0x24) = param_1;
-    *(u32*)(param_2 + 0x2c) = *(u32*)(param_1 + 0x2c);
+    ((FrFontTextRun *)tail)->next = (u32)((FrFontTextRun *)list)->root;
+    ((FrFontTextRun *)((FrFontTextRun *)list)->root)->previous = tail;
+    ((FrFontTextRun *)list)->root = (u32)((FrFontTextRun *)tail)->root;
 
-    if (param_3 == 1)
+    if (moveAfter == 1)
     {
-        *(int*)(param_2 + 4) = *(int*)(param_1 + 4) + *(int*)(param_1 + 0xc) * 0x10;
-        *(u32*)(param_2 + 8) = *(u32*)(param_1 + 8);
+        ((FrFontTextRun *)list)->x = ((FrFontTextRun *)tail)->x + ((FrFontTextRun *)tail)->width * 0x10;
+        ((FrFontTextRun *)list)->y = (u32)((FrFontTextRun *)tail)->y;
     }
 
-    return param_2;
+    return list;
 }
 
 
 
-extern int frFontCountRuns(int param_1);
+extern int frFontCountRuns(int node);
 
 
 
@@ -1804,7 +1772,7 @@ extern int frFontCountRuns(int param_1);
 #pragma push
 #pragma optimization_level 1
 #pragma opt_common_subs on
-u8 *frFontSplitRun(u8 **arg0, s32 arg1)
+u8 *frFontSplitRun(u8 **listAddress, s32 runIndex)
 {
     struct FrFontTreeNode {
         u8 unknown_00[8];
@@ -1814,113 +1782,113 @@ u8 *frFontSplitRun(u8 **arg0, s32 arg1)
         struct FrFontTreeNode *next;
         struct FrFontTreeNode *root;
     };
-    s32 temp_3;
-    s32 var_18;
-    struct FrFontTreeNode *temp_17;
-    struct FrFontTreeNode *var_7;
-    struct FrFontTreeNode *temp_3_2;
-    struct FrFontTreeNode *temp_4;
-    struct FrFontTreeNode *temp_6;
-    struct FrFontTreeNode *var_2;
-    struct FrFontTreeNode *var_3;
-    struct FrFontTreeNode *var_4;
-    struct FrFontTreeNode *var_5;
+    s32 runType;
+    s32 remainingRuns;
+    struct FrFontTreeNode *list;
+    struct FrFontTreeNode *runStart;
+    struct FrFontTreeNode *previous;
+    struct FrFontTreeNode *following;
+    struct FrFontTreeNode *next;
+    struct FrFontTreeNode *runEnd;
+    struct FrFontTreeNode *detached;
+    struct FrFontTreeNode *remaining;
+    struct FrFontTreeNode *root;
 
-    var_18 = arg1;
-    if (arg0 == NULL) {
+    remainingRuns = runIndex;
+    if (listAddress == NULL) {
         kAssertFail(&D_0063BAE8, 0x96B);
     }
-    temp_17 = (struct FrFontTreeNode *)*arg0;
-    if (temp_17 == NULL) {
+    list = (struct FrFontTreeNode *)*listAddress;
+    if (list == NULL) {
         return NULL;
     }
-    if (frFontCountRuns((int)temp_17) < 2) {
+    if (frFontCountRuns((int)list) < 2) {
         return NULL;
     }
-    if (frFontCountRuns((int)temp_17) > var_18) {
+    if (frFontCountRuns((int)list) > remainingRuns) {
         goto count_ok;
     }
     return NULL;
 count_ok:
-    var_7 = temp_17->root;
+    runStart = list->root;
     goto outer_check;
 outer_body:
-    temp_3 = var_7->type;
-    var_7 = var_7->next;
+    runType = runStart->type;
+    runStart = runStart->next;
     goto inner_check;
 inner_body:
-    temp_3_2 = (struct FrFontTreeNode *)var_7->type;
-    if ((s32)temp_3_2 != temp_3) {
+    previous = (struct FrFontTreeNode *)runStart->type;
+    if ((s32)previous != runType) {
         goto outer_decrement;
     }
-    var_7 = var_7->next;
+    runStart = runStart->next;
 inner_check:
-    if (var_7 != NULL) {
+    if (runStart != NULL) {
         goto inner_body;
     }
 outer_decrement:
-    var_18 -= 1;
+    remainingRuns -= 1;
 outer_check:
-    if (var_18 > 0) {
+    if (remainingRuns > 0) {
         goto outer_body;
     }
-    if (var_7 == NULL) {
+    if (runStart == NULL) {
         return NULL;
     }
-    var_2 = var_7;
+    runEnd = runStart;
     goto result_check;
 result_body:
-    if (temp_6->type != var_7->type) {
+    if (next->type != runStart->type) {
         goto result_done;
     }
-    var_2 = temp_6;
+    runEnd = next;
 result_check:
-    temp_6 = var_2->next;
-    if (temp_6 != NULL) {
+    next = runEnd->next;
+    if (next != NULL) {
         goto result_body;
     }
 result_done:
-    var_5 = var_7->root;
-    if (var_5 != var_7) {
+    root = runStart->root;
+    if (root != runStart) {
         goto root_done;
     }
-    var_5 = temp_6;
+    root = next;
 root_done:
-    temp_3_2 = var_7->prev;
-    if (temp_3_2 == NULL) {
+    previous = runStart->prev;
+    if (previous == NULL) {
         goto prev_done;
     }
-    temp_3_2->next = temp_6;
+    previous->next = next;
 prev_done:
-    temp_4 = var_2->next;
-    if (temp_4 == NULL) {
+    following = runEnd->next;
+    if (following == NULL) {
         goto next_done;
     }
-    temp_4->prev = var_7->prev;
+    following->prev = runStart->prev;
 next_done:
-    var_7->prev = NULL;
-    var_2->next = NULL;
-    var_3 = var_7;
+    runStart->prev = NULL;
+    runEnd->next = NULL;
+    detached = runStart;
     goto loop29_check;
 loop29_body:
-    var_3->root = var_7;
-    var_3 = var_3->next;
+    detached->root = runStart;
+    detached = detached->next;
 loop29_check:
-    if (var_3 != NULL) {
+    if (detached != NULL) {
         goto loop29_body;
     }
-    var_4 = var_5;
+    remaining = root;
     goto loop32_check;
 loop32_body:
-    var_4->root = var_5;
-    var_4 = var_4->next;
+    remaining->root = root;
+    remaining = remaining->next;
 loop32_check:
-    if (var_4->next != NULL) {
+    if (remaining->next != NULL) {
         goto loop32_body;
     }
-    var_4->root = var_5;
-    *arg0 = (u8 *)var_4;
-    return (u8 *)var_2;
+    remaining->root = root;
+    *listAddress = (u8 *)remaining;
+    return (u8 *)runEnd;
 }
 /* measured: closes the optimization_level 1 scope; frFontSplitRun remains
    MATCH nd 0, object 464/window 464 at the file's O2 baseline. */
@@ -1931,9 +1899,9 @@ loop32_check:
 
 /* Loads data into the system font slot (slot 8). */
 // FUN_002738A0
-void frFontLoadSystemSlot(u8 *param_1)
+void frFontLoadSystemSlot(u8 *fontData)
 {
-    frFontSlotLoad(8, param_1, 0);
+    frFontSlotLoad(8, fontData, 0);
 }
 
 
@@ -1956,22 +1924,24 @@ int frFontNodeWidth(FrFontNode *node)
 
 
 // FUN_00273910
-u16 func_00273910(u32 param_1)
+/* Return the font header halfword at +0x10 for the selected slot; its meaning is not established. */
+u16 func_00273910(u32 slot)
 {
     u32 **base = (u32 **)DAT_00881634_abs;
-    u32 *entry = base[(param_1 & 0xff) * 8];
-    return *(u16 *)((u8 *)entry + 0x10);
+    u32 *entry = base[(slot & 0xff) * 8];
+    return ((FrFontFileHeader *)entry)->unk10;
 }
 
 
 
 
 // FUN_00273940
-u16 func_00273940(u32 param_1)
+/* Return the font header halfword at +0x12 for the selected slot; its meaning is not established. */
+u16 func_00273940(u32 slot)
 {
     u32 **base = (u32 **)DAT_00881634_abs;
-    u32 *entry = base[(param_1 & 0xff) * 8];
-    return *(u16 *)((u8 *)entry + 0x12);
+    u32 *entry = base[(slot & 0xff) * 8];
+    return ((FrFontFileHeader *)entry)->unk12;
 }
 
 
@@ -1986,15 +1956,15 @@ int frFontCountRuns(int node)
     if (node == 0) {
         return result;
     }
-    node = *(int *)(node + 0x2c);
+    node = ((FrFontTextRun *)node)->root;
     while (node != 0) {
-        child = *(int *)(node + 0x28);
-        node = *(int *)(node + 8);
+        child = ((FrFontTextRun *)node)->next;
+        node = ((FrFontTextRun *)node)->y;
         while (child != 0) {
-            if (*(int *)(child + 8) != node) {
+            if (((FrFontTextRun *)child)->y != node) {
                 break;
             }
-            child = *(int *)(child + 0x28);
+            child = ((FrFontTextRun *)child)->next;
         }
         result++;
         node = child;
@@ -2013,8 +1983,10 @@ int frFontCountRuns(int node)
 #pragma opt_rebuildconditionals off
 void frFontLayoutSlotText(u8 index, u8 *context)
 {
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
+
     s8 character;
-    extern s32 strlen(const void *param_1);
+    extern s32 strlen(const void *value);
     extern s8 iGpffffa748;
     extern s8 D_0076380C;
     /* A two-byte glyph plus its NUL terminator. */
@@ -2028,14 +2000,14 @@ void frFontLayoutSlotText(u8 index, u8 *context)
     s32 style;
     s8 spacing;
     s64 byte;
-    s8 previous_style;
+    s8 previousStyle;
     u8 attribute;
-    u8 *new_node;
-    u8 *first_node;
-    u8 *glyph_node;
+    u8 *newNode;
+    u8 *firstNode;
+    u8 *glyphNode;
     FrFontNode *node;
-    FrFontNode *linked_node;
-    FrFontNode *attribute_node;
+    FrFontNode *linkedNode;
+    FrFontNode *attributeNode;
     FrFontGlyph *child;
 
     text = (u8 *)D_008815B0[index];
@@ -2053,11 +2025,11 @@ void frFontLayoutSlotText(u8 index, u8 *context)
         if (length <= 0) {
             kAssertFail(D_0063BAE8, 0xB63);
         }
-        previous_style = *(s8 *)(context + 0xC);
+        previousStyle = ((FrFontContext *)context)->style;
         position = 0;
         goto text_test;
 text_body:
-            byte = *(s8 *)(text + position);
+            byte = *(s8 *)(text + position); /* measured: this access-site member rewrite changes instruction bytes. */
             glyph[0] = byte;
             if (byte == 0x20) {
                 glyph[0] = -0x7D;
@@ -2067,73 +2039,73 @@ text_body:
                 /* Preserve the signed-byte extraction without a signed left shift. */
                 if ((((s64)((u64)byte << 56) >> 56) & 0xFF) >= 0x80) {
                     position += 1;
-                    glyph[1] = *(s8 *)(text + position);
+                    glyph[1] = *(s8 *)(text + position); /* measured: this access-site member rewrite changes instruction bytes. */
                 }
             }
-            style = *(s8 *)(context + 0xC);
-            if (style != (s32)previous_style) {
+            style = *(s8 *)(context + 0xC); /* measured: this access-site member rewrite changes instruction bytes. */
+            if (style != (s32)previousStyle) {
                 /* A style transition needs an empty node before the next glyph. */
-                node = (FrFontNode *)*(u8 **)(context + 0x14);
+                node = (FrFontNode *)(u8 *)(u32)((FrFontContext *)context)->list;
                 if (node == NULL) {
                     goto create_first_node;
                 }
                 if (node->glyphs == NULL) {
                     goto apply_attribute;
                 }
-                new_node = (character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
-                if (new_node != NULL) {
+                newNode = (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)&iGpffffa748, 0, character, ((FrFontContext *)context)->effect, NULL));
+                if (newNode != NULL) {
                     goto link_new_node;
                 }
-                linked_node = node;
+                linkedNode = node;
                 goto store_new_node;
 link_new_node:
-                linked_node = (FrFontNode *)frFontAppendList(
-                    (s32)node, (s32)new_node, 1);
+                linkedNode = (FrFontNode *)frFontAppendList(
+                    (s32)node, (s32)newNode, 1);
 store_new_node:
-                node = linked_node;
-                *(u8 **)(context + 0x14) = (u8 *)node;
+                node = linkedNode;
+                *(u8 **)(context + 0x14) = (u8 *)node; /* measured: this access-site member rewrite changes instruction bytes. */
                 goto apply_attribute;
 create_first_node:
-                first_node = (character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
-                if (first_node != NULL) {
+                firstNode = (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)&iGpffffa748, 0, character, ((FrFontContext *)context)->effect, NULL));
+                if (firstNode != NULL) {
                     goto link_first_node;
                 }
-                linked_node = node;
+                linkedNode = node;
                 goto store_first_node;
 link_first_node:
-                linked_node = (FrFontNode *)frFontAppendList(
-                    (s32)node, (s32)first_node, 1);
+                linkedNode = (FrFontNode *)frFontAppendList(
+                    (s32)node, (s32)firstNode, 1);
 store_first_node:
-                node = linked_node;
-                *(u8 **)(context + 0x14) = (u8 *)node;
+                node = linkedNode;
+                *(u8 **)(context + 0x14) = (u8 *)node; /* measured: this access-site member rewrite changes instruction bytes. */
 apply_attribute:
-                attribute = *(u8 *)(context + 0xF);
-                attribute_node = (FrFontNode *)*(u8 **)(context + 0x14);
-                if (attribute_node == NULL) {
+                attribute = (u8)((FrFontContext *)context)->intensity;
+                attributeNode = (FrFontNode *)*(u8 **)(context + 0x14); /* measured: this access-site member rewrite changes instruction bytes. */
+                if (attributeNode == NULL) {
                     kAssertFail(&D_0063BAE8, 0x69B);
                 }
-                while (attribute_node != NULL) {
-                    attribute_node->unknown_00[2] = attribute;
-                    attribute_node = attribute_node->next;
+                while (attributeNode != NULL) {
+                    attributeNode->unknown_00[2] = attribute;
+                    attributeNode = attributeNode->next;
                 }
-                previous_style = (s8)style;
+                previousStyle = (s8)style;
             }
-            *(u8 **)(context + 0x14) =
-                (character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
+            ((FrFontContext *)context)->list =(s32)
+                (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, style, character, ((FrFontContext *)context)->effect, *(u8 **)(context + 0x14))); /* measured: this access-site member rewrite changes instruction bytes. */
             spacing = D_0076380C;
-            glyph_node = *(u8 **)(context + 0x14);
-            if (glyph_node == NULL) {
+            glyphNode = (u8 *)(u32)((FrFontContext *)context)->list;
+            if (glyphNode == NULL) {
                 kAssertFail(&D_0063BAE8, 0x6C3);
             }
-            *(s8 *)(glyph_node + 3) = spacing;
+            ((FrFontTextRun *)glyphNode)->spacing = spacing;
             width = 0;
-            child = *(FrFontGlyph **)(glyph_node + 0x1C);
+            child = (FrFontGlyph *)(u32)((FrFontTextRun *)glyphNode)->firstGlyph;
             while (child != NULL) {
                 width += child->advance;
-                width += *(s8 *)(glyph_node + 3);
+                width += *(s8 *)(glyphNode + 3); /* measured: this access-site member rewrite changes instruction bytes. */
                 child = child->next;
             }
-            *(s32 *)(glyph_node + 0xC) = width;
+            ((FrFontTextRun *)glyphNode)->width = width;
             position += 1;
             goto text_test;
 text_test:
@@ -2147,7 +2119,7 @@ text_test:
 #pragma pop
 
 extern s8 D_0076380C;
-extern s32 strlen(const void *param_1);
+extern s32 strlen(const void *value);
 
 
 
@@ -2159,10 +2131,12 @@ extern s32 strlen(const void *param_1);
 #pragma push
 #pragma no_branch_likely on
 #pragma opt_rebuildconditionals off
-void frFontLayoutText(u8 *arg0, u8 *arg1)
+void frFontLayoutText(u8 *text, u8 *context)
 {
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
+
     s8 character;
-    extern s32 strlen(const void *param_1);
+    extern s32 strlen(const void *value);
     extern s8 iGpffffa748;
     struct FrFontNode3 {
         u8 unknown_00[0x1C];
@@ -2177,121 +2151,121 @@ void frFontLayoutText(u8 *arg0, u8 *arg1)
     union {
         s32 value;
         s8 bytes[4];
-    } sp8;
-    s32 temp_22;
-    s32 var_18;
-    s8 *var_4;
-    s32 var_3;
-    s32 var_4_2;
-    s32 temp_17;
-    s8 temp_21_2;
-    s64 temp_3;
-    s8 var_16;
-    u8 temp_21;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    struct FrFontNode3 *var_16_2;
-    struct FrFontNode3 *var_16_4;
-    struct FrFontNode3 *var_16_3;
-    struct FrFontChild3 *var_5;
+    } glyphBuffer;
+    s32 length;
+    s32 position;
+    s8 *clear;
+    s32 remaining;
+    s32 width;
+    s32 style;
+    s8 spacing;
+    s64 byte;
+    s8 previousStyle;
+    u8 intensity;
+    u8 *allocated;
+    u8 *firstNode;
+    u8 *glyphNode;
+    struct FrFontNode3 *node;
+    struct FrFontNode3 *linkedNode;
+    struct FrFontNode3 *attributeNode;
+    struct FrFontChild3 *child;
 
-    var_4 = sp8.bytes;
-    var_3 = 3;
-    if (var_4 != NULL) {
+    clear = glyphBuffer.bytes;
+    remaining = 3;
+    if (clear != NULL) {
         do {
-            *var_4 = 0;
-            var_4 += 1;
-            var_3 -= 1;
-        } while (var_3 != 0);
+            *clear = 0;
+            clear += 1;
+            remaining -= 1;
+        } while (remaining != 0);
     }
-    if (arg0 != NULL) {
-        temp_22 = strlen(arg0);
-        var_16 = *(s8 *)(arg1 + 0xC);
-        var_18 = 0;
+    if (text != NULL) {
+        length = strlen(text);
+        previousStyle = ((FrFontContext *)context)->style;
+        position = 0;
         goto loop_test_30;
 loop_body_30:
-            temp_3 = *(s8 *)(arg0 + var_18);
-            sp8.bytes[0] = temp_3;
-            if (temp_3 == 0x20) {
-                sp8.bytes[0] = -0x7D;
-                sp8.bytes[1] = -0xA;
+            byte = *(s8 *)(text + position); /* measured: this access-site member rewrite changes instruction bytes. */
+            glyphBuffer.bytes[0] = byte;
+            if (byte == 0x20) {
+                glyphBuffer.bytes[0] = -0x7D;
+                glyphBuffer.bytes[1] = -0xA;
             } else {
-                sp8.bytes[1] = 0;
-                if ((((s64)((u64)temp_3 << 56) >> 56) & 0xFF) >= 0x80) {
-                    var_18 += 1;
-                    sp8.bytes[1] = *(s8 *)(arg0 + var_18);
+                glyphBuffer.bytes[1] = 0;
+                if ((((s64)((u64)byte << 56) >> 56) & 0xFF) >= 0x80) {
+                    position += 1;
+                    glyphBuffer.bytes[1] = *(s8 *)(text + position); /* measured: this access-site member rewrite changes instruction bytes. */
                 }
             }
-            temp_17 = *(s8 *)(arg1 + 0xC);
-            if (temp_17 != (s32)var_16) {
-                var_16_2 = (struct FrFontNode3 *)*(u8 **)(arg1 + 0x14);
-                if (var_16_2 == NULL) {
+            style = *(s8 *)(context + 0xC); /* measured: this access-site member rewrite changes instruction bytes. */
+            if (style != (s32)previousStyle) {
+                node = (struct FrFontNode3 *)(u8 *)(u32)((FrFontContext *)context)->list;
+                if (node == NULL) {
                     goto null_node_1;
                 }
-                if (var_16_2->flag_1C == 0) {
+                if (node->flag_1C == 0) {
                     goto common_node_1;
                 }
-                temp_2 = (character = *(s8 *)(arg1 + 0xD), frFontCreateTextList((u8 *)&iGpffffa748, 0, character, *(s8 *)(arg1 + 0xE), NULL));
-                if (temp_2 != NULL) {
+                allocated = (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)&iGpffffa748, 0, character, ((FrFontContext *)context)->effect, NULL));
+                if (allocated != NULL) {
                     goto call_node_1;
                 }
-                var_16_4 = var_16_2;
+                linkedNode = node;
                 goto store_node_1;
 call_node_1:
-                var_16_4 = (struct FrFontNode3 *)frFontAppendList(
-                    (s32)var_16_2, (s32)temp_2, 1);
+                linkedNode = (struct FrFontNode3 *)frFontAppendList(
+                    (s32)node, (s32)allocated, 1);
                 goto store_node_1;
 store_node_1:
-                var_16_2 = var_16_4;
-                *(u8 **)(arg1 + 0x14) = (u8 *)var_16_2;
+                node = linkedNode;
+                *(u8 **)(context + 0x14) = (u8 *)node; /* measured: this access-site member rewrite changes instruction bytes. */
                 goto common_node_1;
 null_node_1:
-                temp_2_2 = (character = *(s8 *)(arg1 + 0xD), frFontCreateTextList((u8 *)&iGpffffa748, 0, character, *(s8 *)(arg1 + 0xE), NULL));
-                if (temp_2_2 != NULL) {
+                firstNode = (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)&iGpffffa748, 0, character, ((FrFontContext *)context)->effect, NULL));
+                if (firstNode != NULL) {
                     goto call_node_2;
                 }
-                var_16_4 = var_16_2;
+                linkedNode = node;
                 goto store_node_2;
 call_node_2:
-                var_16_4 = (struct FrFontNode3 *)frFontAppendList(
-                    (s32)var_16_2, (s32)temp_2_2, 1);
+                linkedNode = (struct FrFontNode3 *)frFontAppendList(
+                    (s32)node, (s32)firstNode, 1);
                 goto store_node_2;
 store_node_2:
-                var_16_2 = var_16_4;
-                *(u8 **)(arg1 + 0x14) = (u8 *)var_16_2;
+                node = linkedNode;
+                *(u8 **)(context + 0x14) = (u8 *)node; /* measured: this access-site member rewrite changes instruction bytes. */
 common_node_1:
-                temp_21 = *(u8 *)(arg1 + 0xF);
-                var_16_3 = (struct FrFontNode3 *)*(u8 **)(arg1 + 0x14);
-                if (var_16_3 == NULL) {
+                intensity = (u8)((FrFontContext *)context)->intensity;
+                attributeNode = (struct FrFontNode3 *)*(u8 **)(context + 0x14); /* measured: this access-site member rewrite changes instruction bytes. */
+                if (attributeNode == NULL) {
                     kAssertFail(&D_0063BAE8, 0x69B);
                 }
-                while (var_16_3 != NULL) {
-                    *(u8 *)((u8 *)var_16_3 + 2) = temp_21;
-                    var_16_3 = var_16_3->next;
+                while (attributeNode != NULL) {
+                    ((FrFontTextRun *)attributeNode)->intensity = intensity;
+                    attributeNode = attributeNode->next;
                 }
-                var_16 = (s8)temp_17;
+                previousStyle = (s8)style;
             }
-            *(u8 **)(arg1 + 0x14) =
-                (character = *(s8 *)(arg1 + 0xD), frFontCreateTextList((u8 *)sp8.bytes, temp_17, character, *(s8 *)(arg1 + 0xE), *(u8 **)(arg1 + 0x14)));
-            temp_21_2 = D_0076380C;
-            temp_2_3 = *(u8 **)(arg1 + 0x14);
-            if (temp_2_3 == NULL) {
+            ((FrFontContext *)context)->list =(s32)
+                (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyphBuffer.bytes, style, character, ((FrFontContext *)context)->effect, *(u8 **)(context + 0x14))); /* measured: this access-site member rewrite changes instruction bytes. */
+            spacing = D_0076380C;
+            glyphNode = (u8 *)(u32)((FrFontContext *)context)->list;
+            if (glyphNode == NULL) {
                 kAssertFail(&D_0063BAE8, 0x6C3);
             }
-            *(s8 *)(temp_2_3 + 3) = temp_21_2;
-            var_4_2 = 0;
-            var_5 = *(struct FrFontChild3 **)(temp_2_3 + 0x1C);
-            while (var_5 != NULL) {
-                var_4_2 += *(s32 *)((u8 *)var_5 + 0xC);
-                var_4_2 += *(s8 *)(temp_2_3 + 3);
-                var_5 = var_5->next;
+            ((FrFontTextRun *)glyphNode)->spacing = spacing;
+            width = 0;
+            child = (struct FrFontChild3 *)(u32)((FrFontTextRun *)glyphNode)->firstGlyph;
+            while (child != NULL) {
+                width += ((FrFontGlyphData *)child)->advance;
+                width += *(s8 *)(glyphNode + 3); /* measured: this access-site member rewrite changes instruction bytes. */
+                child = child->next;
             }
-            *(s32 *)(temp_2_3 + 0xC) = var_4_2;
-            var_18 += 1;
+            ((FrFontTextRun *)glyphNode)->width = width;
+            position += 1;
             goto loop_test_30;
 loop_test_30:
-        if (var_18 < temp_22) {
+        if (position < length) {
             goto loop_body_30;
         }
     }
@@ -2305,7 +2279,7 @@ loop_test_30:
 #pragma push
 #pragma optimization_level 1
 #pragma opt_common_subs on
-void frFontUpdateTextWork(u8 *arg0)
+void frFontUpdateTextWork(u8 *context)
 {
     s8 character;
     extern u8 iGpffffa748;
@@ -2340,10 +2314,10 @@ void frFontUpdateTextWork(u8 *arg0)
     struct FrFontNode2 *list;
     struct FrFontNode2 *updated;
     u8 code;
-    u32 pending_value;
+    u32 pendingValue;
     u8 *result;
 
-    work = (struct FrFontWork2 *)arg0;
+    work = (struct FrFontWork2 *)context;
     node = work->list_14;
     if ((node != NULL) && (node->flag_1C == 0)) {
         work->active_1C = 0;
@@ -2386,12 +2360,12 @@ done:
     if (work->pending_1D == 0) {
         goto return_point;
     }
-    pending_value = work->value_00;
+    pendingValue = work->value_00;
     node = work->list_14;
-    node->value_04 = pending_value;
-    pending_value = work->value_04;
+    node->value_04 = pendingValue;
+    pendingValue = work->value_04;
     node = work->list_14;
-    node->value_08 = pending_value;
+    node->value_08 = pendingValue;
     work->pending_1D = 0;
 return_point:
     return;
@@ -2415,6 +2389,8 @@ return_point:
 #pragma opt_rebuildconditionals off
 u8 *frFontBuildText(void *data)
 {
+    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
+
     s8 character;
     s32 style;
     typedef int (*FrFontCommand)();
@@ -2466,8 +2442,8 @@ u8 *frFontBuildText(void *data)
             if (result != 0) {
                 result = 1;
             } else {
-                if (*(s8 *)(context + 0x1C) == 0) {
-                    *(s8 *)(context + 0x1C) = 1;
+                if (((FrFontContext *)context)->active == 0) {
+                    *(s8 *)(context + 0x1C) = 1; /* measured: this access-site member rewrite changes instruction bytes. */
                 }
                 result = 0;
             }
@@ -2476,18 +2452,18 @@ u8 *frFontBuildText(void *data)
             }
         } else if (code == 10) {
             if (D_00763810 & 4) {
-                *(s32 *)(context + 4) += D_00763800 * 8;
-                *(s8 *)(context + 0x1C) = 1;
-                *(s8 *)(context + 0x1D) = 1;
+                ((FrFontContext *)context)->y += D_00763800 * 8;
+                ((FrFontContext *)context)->active = 1;
+                ((FrFontContext *)context)->pendingPosition = 1;
             }
         } else {
-            node = *(FrFontNode **)(context + 0x14);
+            node = (FrFontNode *)(u32)((FrFontContext *)context)->list;
             if ((node != NULL) && (node->glyphs == NULL)) {
-                *(s8 *)(context + 0x1C) = 0;
+                ((FrFontContext *)context)->active = 0;
             }
-            if (*(s8 *)(context + 0x1C) != 0) {
-                node = *(FrFontNode **)(context + 0x14);
-                allocated = (character = *(s8 *)(context + 0xD), frFontCreateTextList(&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
+            if (((FrFontContext *)context)->active != 0) {
+                node = *(FrFontNode **)(context + 0x14); /* measured: this access-site member rewrite changes instruction bytes. */
+                allocated = (character = ((FrFontContext *)context)->palette, frFontCreateTextList(&iGpffffa748, 0, character, ((FrFontContext *)context)->effect, NULL));
                 if (allocated != NULL) {
                     goto link_node;
                 }
@@ -2497,20 +2473,20 @@ link_node:
                 linked = (FrFontNode *)frFontAppendList((s32)node, (s32)allocated, 1);
 store_node:
                 node = linked;
-                *(FrFontNode **)(context + 0x14) = node;
-                frFontSetListFlag((int)node, *(u8 *)(context + 0xF));
-                height = *(s16 *)(context + 0x1E);
-                node = *(FrFontNode **)(context + 0x14);
+                *(FrFontNode **)(context + 0x14) = node; /* measured: this access-site member rewrite changes instruction bytes. */
+                frFontSetListFlag((int)node, *(u8 *)(context + 0xF)); /* measured: this access-site member rewrite changes instruction bytes. */
+                height = ((FrFontContext *)context)->height;
+                node = *(FrFontNode **)(context + 0x14); /* measured: this access-site member rewrite changes instruction bytes. */
                 if (node == NULL) {
                     kAssertFail(D_0063BAE8, 0x6A7);
                 }
                 *(s16 *)node = height;
-                *(s8 *)(context + 0x1C) = 0;
+                *(s8 *)(context + 0x1C) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
             }
-            if (*(s8 *)(context + 0x1D) != 0) {
-                *(s32 *)(*(u8 **)(context + 0x14) + 4) = *(s32 *)context;
-                *(s32 *)(*(u8 **)(context + 0x14) + 8) = *(s32 *)(context + 4);
-                *(s8 *)(context + 0x1D) = 0;
+            if (((FrFontContext *)context)->pendingPosition != 0) {
+                ((FrFontTextRun *)((u8 *)(u32)((FrFontContext *)context)->list))->x = ((FrFontContext *)context)->x;
+                ((FrFontTextRun *)((u8 *)(u32)((FrFontContext *)context)->list))->y = ((FrFontContext *)context)->y;
+                *(s8 *)(context + 0x1D) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
             }
             if ((s32)code < 0x80) {
                 if (code == 0x20) {
@@ -2521,24 +2497,24 @@ store_node:
                     glyph[0] = code;
                     glyph[1] = 0;
                 }
-                *(u8 **)(context + 0x14) = (style = *(s8 *)(context + 0xC), character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
+                *(u8 **)(context + 0x14) = (style = ((FrFontContext *)context)->style, character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, style, character, ((FrFontContext *)context)->effect, *(u8 **)(context + 0x14))); /* measured: this access-site member rewrite changes instruction bytes. */
             } else {
                 pair = (code << 8) | script->data[script->pos++];
                 if (pair < 0xC080) {
                     glyph[0] = (pair & 0xFF00) >> 8;
                     glyph[1] = pair;
                     glyph[2] = 0;
-                    *(u8 **)(context + 0x14) = (style = *(s8 *)(context + 0xC), character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
+                    *(u8 **)(context + 0x14) = (style = ((FrFontContext *)context)->style, character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, style, character, ((FrFontContext *)context)->effect, *(u8 **)(context + 0x14))); /* measured: this access-site member rewrite changes instruction bytes. */
                 } else {
                     pair -= 0x4000;
                     glyph[0] = (pair & 0xFF00) >> 8;
                     glyph[1] = pair;
                     glyph[2] = 0;
-                    *(u8 **)(context + 0x14) = (character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)glyph, 8, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
+                    *(u8 **)(context + 0x14) = (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, 8, character, ((FrFontContext *)context)->effect, *(u8 **)(context + 0x14))); /* measured: this access-site member rewrite changes instruction bytes. */
                 }
             }
-            spacing = (-D_00763808[*(u8 *)(context + 0xC)] * 2) / 32;
-            node = *(FrFontNode **)(context + 0x14);
+            spacing = (-D_00763808[(u8)((FrFontContext *)context)->style] * 2) / 32;
+            node = *(FrFontNode **)(context + 0x14); /* measured: this access-site member rewrite changes instruction bytes. */
             if (node == NULL) {
                 kAssertFail(D_0063BAE8, 0x6C3);
             }
@@ -2550,34 +2526,34 @@ store_node:
                 width += node->line_height;
                 child = child->next;
             }
-            *(s32 *)((u8 *)node + 0xC) = width;
-            duration = *(u32 *)(context + 8);
-            node = *(FrFontNode **)(context + 0x14);
+            ((FrFontTextRun *)node)->width = width;
+            duration = ((FrFontContext *)context)->duration;
+            node = *(FrFontNode **)(context + 0x14); /* measured: this access-site member rewrite changes instruction bytes. */
             if (node == NULL) {
                 kAssertFail(D_0063BAE8, 0x735);
             }
-            *(u32 *)((u8 *)node + 0x14) = duration >> 4;
+            ((FrFontTextRun *)node)->depth.bits = duration >> 4;
         }
     }
     D_00763810 = (s16)(D_00763810 & ~1) | 2;
-    return *(u8 **)(context + 0x14);
+    return (u8 *)(u32)((FrFontContext *)context)->list;
 }
 #pragma pop
 
 
 /* Forward the allocated chain explicitly; callers consume the return value. */
 // FUN_00274570
-u8 *frFontBuildTextSimple(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
-                   u32 param_5, u32 param_6, u32 param_7, u32 param_8)
+u8 *frFontBuildTextSimple(u32 x, u32 y, u32 style, u32 palette,
+                   u32 effect, u32 intensity, u32 stream, u32 list)
 {
-    return frFontBuildTextFull(param_1, param_2, 0, param_3, param_4, param_5, param_6, param_7, param_8);
+    return frFontBuildTextFull(x, y, 0, style, palette, effect, intensity, stream, list);
 }
 
 /* Builds a text chain from nine parameters: packs them into a descriptor (the third shifted by 4), sets mode 0, and calls frFontBuildText. */
 // FUN_002745C0
-u8 *frFontBuildTextFull(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
-                   u32 param_5, u32 param_6, u32 param_7, u32 param_8,
-                   u32 param_9)
+u8 *frFontBuildTextFull(u32 x, u32 y, u32 duration, u32 style,
+                   u32 palette, u32 effect, u32 intensity, u32 stream,
+                   u32 list)
 {
     struct {
         u32 f00;
@@ -2595,15 +2571,15 @@ u8 *frFontBuildTextFull(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
         u16 f1e;
     } data;
 
-    data.f00 = param_1;
-    data.f04 = param_2;
-    data.f08 = param_3 << 4;
-    data.f0c = param_4;
-    data.f0d = param_5;
-    data.f0e = param_6;
-    data.f0f = param_7;
-    data.f10 = param_8;
-    data.f14 = param_9;
+    data.f00 = x;
+    data.f04 = y;
+    data.f08 = duration << 4;
+    data.f0c = style;
+    data.f0d = palette;
+    data.f0e = effect;
+    data.f0f = intensity;
+    data.f10 = stream;
+    data.f14 = list;
     data.f18 = 0;
     data.f1c = 1;
     data.f1d = 1;
@@ -2631,12 +2607,12 @@ u32 frFontMaskFlags(u32 value)
 
 /* Sets (enable != 0) or clears the given bits in the state flag word. */
 // FUN_00274660
-void frFontSetStateBits(u32 param_1, int param_2)
+void frFontSetStateBits(u32 bits, int enable)
 {
-    if (param_2 != 0) {
-        D_007637F8 |= param_1;
+    if (enable != 0) {
+        D_007637F8 |= bits;
     } else {
-        D_007637F8 &= ~param_1;
+        D_007637F8 &= ~bits;
     }
 }
 
@@ -2649,9 +2625,9 @@ u32 frFontGetMode(void)
 
 /* Sets the mode word. */
 // FUN_002746B0
-void frFontSetMode(u32 param_1)
+void frFontSetMode(u32 mode)
 {
-    D_00764594 = param_1;
+    D_00764594 = mode;
 }
 
 /* Runs a font command script from its current position until a terminator; a nonzero param_2 runs only that command. Returns 0. */
@@ -2665,7 +2641,7 @@ void frFontSetMode(u32 param_1)
    variants (nd104), and direct loop/boolean forms. Bare INCLUDE_ASM is
    retained because this candidate remains above the nd<=25 park threshold. */
 // FUN_002746E0
-s8 frFontRunScript(void *param_1, int param_2)
+s8 frFontRunScript(void *context, int onlyCommand)
 {
     typedef int (*FrFontCommand)();
     typedef struct FrFontCommandGroup {
@@ -2678,10 +2654,10 @@ s8 frFontRunScript(void *param_1, int param_2)
     s32 command;
     s32 result;
 
-    script = (FrFontScript *)param_1;
-    if (((((FrFontScript *)param_1)->data[0] & 0xf0) != 0xf0) &&
-        (((FrFontScript *)param_1)->data[1] == 5)) {
-        ((FrFontScript *)param_1)->pos += 4;
+    script = (FrFontScript *)context;
+    if (((((FrFontScript *)context)->data[0] & 0xf0) != 0xf0) &&
+        (((FrFontScript *)context)->data[1] == 5)) {
+        ((FrFontScript *)context)->pos += 4;
     }
     D_007637F8 = 0;
     result = 0;
@@ -2689,7 +2665,7 @@ s8 frFontRunScript(void *param_1, int param_2)
         if ((code & 0xf0) == 0xf0) {
             result = 0;
             command = (code << 8) | script->data[script->pos++];
-            if ((param_2 == 0) || (command == param_2)) {
+            if ((onlyCommand == 0) || (command == onlyCommand)) {
                 group = (FrFontCommandGroup *)
                     (D_0063BA00 + (((command & 0xe0) >> 5) * 8));
                 if (group->count < (command & 0x1f)) {
@@ -2730,7 +2706,7 @@ s8 frFontRunScript(void *param_1, int param_2)
 }
 /* Runs one command with the given mode: saves the mode, runs the command through frFontRunScript, then restores it. */
 // FUN_002748E0
-s8 frFontRunCommand(int param_1, int param_2, int param_3)
+s8 frFontRunCommand(int stream, int mode, int command)
 {
     struct {
         u8 f00[0x10];
@@ -2745,14 +2721,14 @@ s8 frFontRunCommand(int param_1, int param_2, int param_3)
     s8 result;
 
     memset(&data, 0, 0x20);
-    data.f10 = param_1;
+    data.f10 = stream;
     data.f18 = 0;
     data.f1c = 1;
     data.f1d = 1;
     data.f1e = 0x20;
     old = D_00764594;
-    D_00764594 = param_2;
-    result = frFontRunScript(&data, param_3);
+    D_00764594 = mode;
+    result = frFontRunScript(&data, command);
     D_00764594 = old;
     return result;
 }

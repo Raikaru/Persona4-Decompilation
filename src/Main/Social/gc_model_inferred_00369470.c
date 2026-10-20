@@ -5,6 +5,7 @@
 #include "fr_font_internal.h"
 struct RwMatrixTag;
 #include "rw_types_internal.h"
+#include "primitive_queue_internal.h"
 typedef struct {
     s32 lo;
     s32 hi;
@@ -25,12 +26,12 @@ typedef struct PersonaWork PersonaWork;
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *list, u8 *node);
 extern void pscModelDrawCallback(void);
 extern f32 iGpffff84a4;
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                          f32 z, s32 arg6);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 red, u8 green, u8 blue,
+                          f32 z, s32 setStates);
 extern char D_005E5810[];
 extern char D_005E57F0[];
 extern char D_005E5850[];
@@ -94,12 +95,12 @@ extern f32 fGpffff8198;
 #pragma pop
 // Intent: Queues a draw node for a panel object with the shared draw callback pscModelDrawCallback [inferred]
 // FUN_00369470
-void pscModelEnqueueDrawNode(s32 arg0, u8 *arg1) {
+void pscModelEnqueueDrawNode(s32 model, u8 *queue) {
     u8 *p;
 
     p = PrimAllocQueueNode();
-    *(void **)(p + 0x8) = (void *)pscModelDrawCallback;
-    *(s32 *)(p + 0x10) = arg0;
-    PrimAppendNode(arg1, p);
+    ((PrimQueueNode *)p)->callback = (void *)pscModelDrawCallback;
+    ((PrimQueueNode *)p)->argument.handle = model;
+    PrimAppendNode(queue, p);
 }
 

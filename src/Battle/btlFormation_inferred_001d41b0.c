@@ -4,6 +4,7 @@
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
+#include "btl_formation_attach_internal.h"
 typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001d7f10_add(s32 left, s32 right)
 {
@@ -23,10 +24,10 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
-extern void memset(u8 *arg0, s32 arg1, s32 arg2);
-extern s8 datCalcRandomBelow(s32 arg0);
+extern void memset(u8 *, s32, s32);
+extern s8 datCalcRandomBelow(s32 limit);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -81,32 +82,37 @@ extern f32 fGpffff8110;
 /* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
 #pragma push
 #pragma pop
+/* Allocate the attachment work prefix followed by one handle per table entry. */
 // FUN_001D41B0
-u8 *btlFormationAllocEntry(u8 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4)
+/* Allocate the 0x68-byte attachment prefix and one handle per selected table entry. The raw count
+ * reload retains the measured three-word table-address alias behavior. */
+u8 *btlFormationAllocEntry(u8 *table, s32 tableIndex, u32 unit, s32 target, s32 flags)
 {
-    u32 temp_3;
+    u32 unitAddress;
     u32 offset;
     u32 base;
     u8 *result;
     u32 size;
 
-    temp_3 = arg2;
-    offset = (u16)arg1 * 0x314;
-    base = (u32)arg0;
+    unitAddress = unit;
+    offset = (u16)tableIndex * 0x314;
+    base = (u32)table;
+    /* The table consists of 0x314-byte records; only its count is known here. */
     size = *(u16 *)((u8 *)p4_001d7f10_add((s32)offset, (s32)base) + 0x10) * 4 + 0x68;
     chkmemAllocSiteTag(D_00609498, 0x51);
     result = jtbl_008873E8[0](size, 0x40000);
     memset(result, 0, size);
-    *(u8 **)(result + 0) = arg0;
-    *(u8 **)(result + 4) = arg0 + offset + 8;
-    *(u16 *)(result + 0x54) = *(u16 *)(*(u8 **)(result + 4) + 8);
-    *(u8 **)(result + 0x58) = result + 0x68;
-    *(s32 *)(result + 0x10) = -1;
-    *(s32 *)(result + 0x18) = temp_3;
-    *(s32 *)(result + 0x1C) = arg3;
-    *(s32 *)(result + 8) = arg4;
-    if ((arg1 & 0xFFFF) == 1) {
-        *(s8 *)(result + 0x14) = datCalcRandomBelow(0x64);
+    ((BtlAttachWork *)result)->owner = table;
+    ((BtlAttachWork *)result)->table = table + offset + 8;
+    /* measured: typed table reload folds the +8 into +0x10 and changes three words. */
+    ((BtlAttachWork *)result)->count = *(u16 *)(*(u8 **)(result + 4) + 8);
+    ((BtlAttachWork *)result)->handles = (u8 **)(result + 0x68);
+    ((BtlAttachWork *)result)->color = -1;
+    ((BtlAttachWork *)result)->unit = (u8 *)unitAddress;
+    ((BtlAttachWork *)result)->target = (u8 *)target;
+    ((BtlAttachWork *)result)->flags = flags;
+    if ((tableIndex & 0xFFFF) == 1) {
+        ((BtlAttachWork *)result)->level = datCalcRandomBelow(0x64);
     }
     return result;
 }

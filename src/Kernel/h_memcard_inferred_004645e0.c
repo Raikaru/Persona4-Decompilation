@@ -42,7 +42,7 @@ extern u8 D_008E4800[];
 extern u8 D_008E4B50[];
 extern u8 D_008E4D30[];
 extern void func_0043a978(void);
-extern void func_004316a8(s32 arg0);
+extern void func_004316a8(s32);
 extern s32 func_00431928(void *a, u8 *b);
 extern s32 iGpffffba98;
 extern s32 iGpffffba9c;
@@ -120,8 +120,8 @@ extern f32 fGpffff84f0;
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
 typedef RwV3d Code46RingPoint;
-extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
-                         u8 *color, f32 *matrix, s32 setStates);
+extern void primCircleLine3D(const Code46RingPoint *center, f32 radius,
+                         u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;
@@ -228,7 +228,8 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 // FUN_004645E0
-void func_004645e0(void) {
+/* Initialize the card backend and its two-port configuration, then clear slot progress. */
+void memcardInitBackend(void) {
     func_0043a978();
     func_004316a8(0);
     D_008E4B30[0] = 2;

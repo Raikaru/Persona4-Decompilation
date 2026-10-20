@@ -6,11 +6,11 @@ s32 vfprintf();
 s32 func_00444870();
 s32 func_00421da8();
 s32 func_0044a138();
-f32 func_0044b018(s32 arg0, f32 fparg0, f32 fparg1);
+f32 func_0044b018(s32, f32 fparg0, f32 fparg1);
 extern s32 D_009389E0[];
 s32 kwlnTaskGetCurrent(void);
 s32 func_0044d4d0();
-u64 func_00443fd0(s32 *arg0, s8 *arg1, s8 **arg2, s16 arg3);
+u64 func_00443fd0(s32 *, s8 *, s8 **, s16);
 
 typedef struct {
     u8 *unk0;      /* 0x0 */
@@ -47,7 +47,7 @@ s32 chkmemAllocate(u32);
 void chkmemFree(u8 *);
 s32 chkmemReallocate(void *, u32);
 s32 chkmemAllocZeroed(s32, s32);
-s32 func_0044f4d0(void);
+s32 chkmemGetCurrentTaskOwner(void);
 s32 func_00446108();
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
@@ -63,7 +63,7 @@ s32 func_00446108();
 #pragma tailcall on
 #pragma pop
 
-s64 func_004470f0(s64 arg0);
+s64 func_004470f0(s64);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_004470f0 / addiu $sp,0x10 in the delay slot). b210's
@@ -166,7 +166,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443010);
 // FUN_00444700 NONMATCHING
 #ifdef NON_MATCHING
 s32 __sprint(u8 *arg0, u8 *arg1) {
-    extern s32 __sfvwrite(u8 *arg0, u8 *arg1);
+    extern s32 __sfvwrite(u8 *, u8 *);
     s32 result;
 
     if (*(s32 *)(arg1 + 8) == 0) {
@@ -200,7 +200,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444700);
 
 #pragma pop
 
-s32 func_00447b88(s64 arg0);
+s32 func_00447b88(s64);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_00447b88 / addiu $sp,0x10 in the delay slot). b210's
@@ -215,7 +215,7 @@ s32 func_00447b88(s64 arg0);
 #pragma tailcall on
 #pragma pop
 
-s32 func_00447d00(s64 arg0, s32 arg1);
+s32 func_00447d00(s64, s32);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_00447d00 / addiu $sp,0x10 in the delay slot). b210's
@@ -230,7 +230,7 @@ s32 func_00447d00(s64 arg0, s32 arg1);
 #pragma tailcall on
 #pragma pop
 
-f32 func_00448d10(f32 arg0);
+f32 func_00448d10(f32);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_00448d10 / addiu $sp,0x10 in the delay slot). b210's
@@ -245,7 +245,7 @@ f32 func_00448d10(f32 arg0);
 #pragma tailcall on
 #pragma pop
 
-f32 func_00449120(f32 arg0);
+f32 func_00449120(f32);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_00449120 / addiu $sp,0x10 in the delay slot). b210's
@@ -260,7 +260,7 @@ f32 func_00449120(f32 arg0);
 #pragma tailcall on
 #pragma pop
 
-f32 func_004494b8(f32 arg0, f32 arg1);
+f32 func_004494b8(f32, f32);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_004494b8 / addiu $sp,0x10 in the delay slot). b210's
@@ -275,7 +275,7 @@ f32 func_004494b8(f32 arg0, f32 arg1);
 #pragma tailcall on
 #pragma pop
 
-f32 func_00449680(f32 arg0);
+f32 func_00449680(f32);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_00449680 / addiu $sp,0x10 in the delay slot). b210's
@@ -290,7 +290,7 @@ f32 func_00449680(f32 arg0);
 #pragma tailcall on
 #pragma pop
 
-f32 func_00449938(f32 arg0, f32 arg1);
+f32 func_00449938(f32, f32);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_00449938 / addiu $sp,0x10 in the delay slot). b210's
@@ -305,7 +305,7 @@ f32 func_00449938(f32 arg0, f32 arg1);
 #pragma tailcall on
 #pragma pop
 
-f32 __ieee754_sqrtf(f32 arg0);
+f32 __ieee754_sqrtf(f32);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_0044a4d0 / addiu $sp,0x10 in the delay slot). b210's
@@ -321,12 +321,13 @@ f32 __ieee754_sqrtf(f32 arg0);
 #pragma pop
 
 // Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
+/* Supplies the current task identifier to the memory-pool owner callback; zero means no task. */
 // FUN_0044F4D0
-s32 func_0044f4d0(void) {
-    s32 temp;
-    temp = kwlnTaskGetCurrent();
-    if (temp != 0) {
-        return temp;
+s32 chkmemGetCurrentTaskOwner(void) {
+    s32 currentTask;
+    currentTask = kwlnTaskGetCurrent();
+    if (currentTask != 0) {
+        return currentTask;
     }
     return 0;
 }

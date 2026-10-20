@@ -98,7 +98,7 @@ DatUnit* datUnitAddEncounterUnit(DatUnitEc* ec, u16 id);
 /* Clears the slot holding unit and decrements the group count. */
 void datUnitRemoveEncounterUnit(DatUnitEc* ec, DatUnit* unit);
 /* Releases a block through the battle heap free jump table. */
-void datUnitFree(s32 arg0);
+void datUnitFree(s32 allocation);
 /* Returns 1 when every occupied unit in the group is dead. */
 u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase);
 /* Initialises a unit from the enemy table (EC) or clears PC flags, then sets its id. */

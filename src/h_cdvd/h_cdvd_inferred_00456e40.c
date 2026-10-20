@@ -3,6 +3,7 @@
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
+#include "rw_camera_internal.h"
 extern f32 fGpffff81f0;
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
@@ -47,16 +48,7 @@ typedef struct {
 #include "rw_types_internal.h"
 typedef RwV3d Code45Vec3;
 
-typedef struct RwMatrixTag {
-    Code45Vec3 right;
-    u32 flags;
-    Code45Vec3 up;
-    u32 pad1;
-    Code45Vec3 at;
-    u32 pad2;
-    Code45Vec3 pos;
-    u32 pad3;
-} Code45Matrix;
+typedef RwMatrixTag Code45Matrix;
 
 typedef struct RwSphere {
     Code45Vec3 center;
@@ -107,22 +99,22 @@ extern void func_00440b68();
 extern u8 D_007117C8[];
 extern u8 D_007117E0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern u8 *func_003c9eb0(void *arg0);
-extern u8 *func_003c3d20(s32 arg0);
-extern void func_003c38b0(void *arg0, void *arg1);
-extern void func_003cbe80(void *arg0, void *arg1);
+extern u8 *func_003c9eb0(void *);
+extern u8 *func_003c3d20(s32);
+extern void func_003c38b0(void *, void *);
+extern void func_003cbe80(void *, void *);
 extern u8 *func_003e9320(void);
-extern void func_003e9df0(void *arg0);
-extern void func_003efd20(void *arg0, void *arg1);
-extern void func_003c3cc0(void *arg0);
+extern void func_003e9df0(void *);
+extern void func_003efd20(void *, void *);
+extern void func_003c3cc0(void *);
 extern s32 func_003e89c0(void);
-extern void func_003e8970(void *arg0, s32 arg1);
-extern u8 *kwlnCameraCreate(u32 arg0, u32 arg1, u32 arg2);
-extern void func_003e81c0(void *arg0, f32 arg1);
-extern void func_003e8180(void *arg0, f32 arg1);
-extern void func_003cbc10(void *arg0, void *arg1);
-extern void func_003e9d50(void *arg0, void *arg1, s32 arg2, f32 arg3);
-extern void kwlnCameraResizeView(void *arg0, void *arg1, f32 arg2, f32 arg3);
+extern void func_003e8970(void *, s32);
+extern u8 *kwlnCameraCreate(u32 width, u32 height, u32 createZBuffer);
+extern void func_003e81c0(void *, f32);
+extern void func_003e8180(void *, f32);
+extern void func_003cbc10(void *, void *);
+extern void func_003e9d50(void *, void *, s32, f32);
+extern void kwlnCameraResizeView(void *camera, void *requestedView, f32 scale, f32 aspectRatio);
 extern s32 func_00410360(void);
 extern u8 D_00711800[];
 extern u8 D_00711810[];
@@ -251,7 +243,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00456e40-00456e40 */
 
-extern u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 *H_Cdvd_CreateFileDevice(s32 slotCount, u8 *buffer, s32 bufferSize, s32 deviceFlags, s32 deviceId);
 #pragma push
 #pragma pop
 #pragma push
@@ -262,22 +254,22 @@ extern u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 a
 // FUN_00456E40
 void kwlnInitSceneRig(void) {
     struct {
-        u8 sp40[0x10];
-        u8 sp50[8];
+        s32 viewport[4];
+        s32 dimensions[2];
         u8 pad[0x18];
-        u8 sp70[0x18];
+        s32 bounds[6];
     } work;
     u8 *slot;
     u8 *parent;
     u8 *obj;
 
-    *(s32 *)(work.sp70 + 0x14) = 0xC3160000;
-    *(s32 *)(work.sp70 + 0x10) = 0xC3160000;
-    *(s32 *)(work.sp70 + 0xC) = 0xC3160000;
-    *(s32 *)(work.sp70 + 8) = 0x43160000;
-    *(s32 *)(work.sp70 + 4) = 0x43160000;
-    *(s32 *)(work.sp70 + 0) = 0x43160000;
-    obj = func_003c9eb0(work.sp70);
+    work.bounds[5] = 0xC3160000;
+    work.bounds[4] = 0xC3160000;
+    work.bounds[3] = 0xC3160000;
+    work.bounds[2] = 0x43160000;
+    work.bounds[1] = 0x43160000;
+    work.bounds[0] = 0x43160000;
+    obj = func_003c9eb0(work.bounds);
     iGpffffba70 = (s32)obj;
     if ((parent = func_003c3d20(2)) != NULL) {
         func_003c38b0(parent, D_00711800);
@@ -287,7 +279,7 @@ void kwlnInitSceneRig(void) {
     parent = (u8 *)iGpffffba70;
     if ((slot = func_003c3d20(1)) != NULL) {
         if ((obj = func_003e9320()) != NULL) {
-            *(s8 *)(slot + 2) = 1;
+            ((RwObject*)slot)->flags = 1;
             func_003e9df0(obj);
             func_003efd20(slot, obj);
             func_003c38b0(slot, D_00711810);
@@ -304,7 +296,7 @@ loop_00456e40_second_done:
     parent = (u8 *)iGpffffba70;
     if ((slot = func_003c3d20(1)) != NULL) {
         if ((obj = func_003e9320()) != NULL) {
-            *(s8 *)(slot + 2) = 1;
+            ((RwObject*)slot)->flags = 1;
             func_003e9d50(obj, D_00756500, 0, 25.0f);
             func_003e9d50(obj, D_00756510, 2, 170.0f);
             func_003efd20(slot, obj);
@@ -320,21 +312,21 @@ loop_00456e40_third_done:
     }
     iGpffffba7c = slot;
     parent = (u8 *)iGpffffba70;
-    func_003e8970(work.sp50, func_003e89c0());
-    if ((obj = kwlnCameraCreate(*(s32 *)work.sp50, *(s32 *)(work.sp50 + 4), 1)) != NULL) {
+    func_003e8970(work.dimensions, func_003e89c0());
+    if ((obj = kwlnCameraCreate(work.dimensions[0], work.dimensions[1], 1)) != NULL) {
         func_003e81c0(obj, 25600.0f);
         func_003e8180(obj, 20.0f);
         func_003cbc10(parent, obj);
-        *(s32 *)(work.sp40 + 0) = 0;
-        *(s32 *)(work.sp40 + 4) = 0;
-        *(s32 *)(work.sp40 + 8) = *(s32 *)work.sp50;
-        *(s32 *)(work.sp40 + 0xC) = *(s32 *)(work.sp50 + 4);
-        kwlnCameraResizeView(obj, work.sp40, 0.5f, fGpffff802c);
-        *(f32 *)(obj + 0x88) = fGpffff8030;
+        work.viewport[0] = 0;
+        work.viewport[1] = 0;
+        work.viewport[2] = work.dimensions[0];
+        work.viewport[3] = work.dimensions[1];
+        kwlnCameraResizeView(obj, work.viewport, 0.5f, fGpffff802c);
+        ((RwCamera*)obj)->fogPlane = fGpffff8030;
     }
     iGpffffba80 = (s32)obj;
     func_00440b68(D_00711830, func_00410360(),
-                  *(s32 *)(*(u8 **)(obj + 0x60) + 0x14),
-                  *(s32 *)(*(u8 **)(obj + 0x64) + 0x14));
+                  ((RwCamera*)obj)->frameBuffer->depth,
+                  ((RwCamera*)obj)->zBuffer->depth);
 }
 

@@ -1,3 +1,5 @@
+#include "Kosaka/k_misc_work_internal.h"
+#include "kwln_task_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -136,9 +138,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 
 extern s32 D_00762EA0;
 
@@ -170,7 +172,7 @@ extern s32 D_007642F0;
 
 
 
-extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
+extern void resrcMngSetDrawEnabled(s32 enabled, s32 includeFieldModels);
 
 
 
@@ -288,7 +290,7 @@ extern f32 D_008872F8[];
 /* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
 /* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
 // FUN_0014BD90
-s32 KDraw_IsEffectDone(u8 *arg0) {
-    return *(s32 *)(*(u8 **)(arg0 + 0x38)) == 1;
+s32 KDraw_IsEffectDone(u8 *task) {
+    return ((RmdFadeWork *)((KwlnTask *)task)->work)->state == 1;
 }
 

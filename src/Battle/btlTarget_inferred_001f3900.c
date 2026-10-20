@@ -1,3 +1,4 @@
+#include "btl_action_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -13,20 +14,8 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -61,7 +50,7 @@ extern u16 D_00624FD8[];
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
-extern void datCalcClearFlaggedBuffs(s32 arg0);
+extern void datCalcClearFlaggedBuffs(DatUnit *unit);
 
 
 extern u8 iGpffffb468;
@@ -71,7 +60,7 @@ extern u8 D_006251F0[];
 
 
 
-extern s32 btlTargetClearFlaggedBuffs(u8 **arg0);
+extern s32 btlTargetClearFlaggedBuffs(u8 **actionPacket);
 
 
 
@@ -85,12 +74,12 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f3900-001f3900 */
 
-extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
-extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
-extern s32 func_001f0d30(u8 *arg0);
-extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlTargetGroupStateMatches(u8 *arg0);
+extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
+extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
+extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
+extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlTargetGroupStateMatches(u8 *context);
 #pragma push
 #pragma pop
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
@@ -111,8 +100,9 @@ extern s32 btlTargetGroupStateMatches(u8 *arg0);
 /* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
 #pragma pop
 // FUN_001F3900
-s32 btlTargetClearFlaggedBuffs(u8 **arg0) {
-    datCalcClearFlaggedBuffs(*(s32 *)(*(u8 **)(*arg0 + 0x30) + 0xA64));
+/* Clear flagged buffs on the unit held by this action packet. */
+s32 btlTargetClearFlaggedBuffs(u8 **actionPacket) {
+    datCalcClearFlaggedBuffs(((BtlAction *)*actionPacket)->unit->datUnit);
     return 1;
 }
 

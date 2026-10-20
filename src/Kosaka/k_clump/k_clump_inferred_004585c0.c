@@ -1,3 +1,4 @@
+#include "effect_mesh_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -235,7 +236,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 004585c0-004585c0 */
 
-extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 #pragma push
 #pragma pop
 #pragma push
@@ -243,8 +244,9 @@ extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 /* measured: opt_propagation off preserves the retail global-load destination register. */
 /* measured: close propagation-off probe for K_ClumpLookAtBasis. */
 /* Adds the material's colour user-data entry (key D_00711870) when it is missing, storing the packed RGBA word from the material. An existing entry is left unchanged. */
+/* Create the saved packed material color property when it is absent. */
 // FUN_004585C0
-void K_Clump_EnsureMatColorUsrData(u8 *arg0) {
+void K_Clump_EnsureMatColorUsrData(u8 *material) {
     s32 index;
     s32 found;
     s32 value;
@@ -253,7 +255,7 @@ void K_Clump_EnsureMatColorUsrData(u8 *arg0) {
     index = 0;
     goto loop_004585c0_test;
 loop_004585c0_body:
-    value = (s32)func_003bd000((const RpMaterial *)arg0, index);
+    value = (s32)func_003bd000((const RpMaterial *)material, index);
     func_003bd040((RpUserDataArray *)value);
     if (strcmp(func_003bd040((RpUserDataArray *)value), (const char *)D_00711870_abs) == 0) {
         found = 1;
@@ -261,22 +263,22 @@ loop_004585c0_body:
     }
     index += 1;
 loop_004585c0_test:
-    if (index < func_003bcfb0((const RpMaterial *)arg0)) {
+    if (index < func_003bcfb0((const RpMaterial *)material)) {
         goto loop_004585c0_body;
     }
 loop_004585c0_done:
     if (found == 0) {
         func_003bd0d0(
             (u8 *)func_003bd000(
-                (const RpMaterial *)arg0,
+                (const RpMaterial *)material,
                 func_003bcfa0(
-                    (RpMaterial *)arg0,
+                    (RpMaterial *)material,
                     (char *)D_00711870_abs,
                     (value = (s32)(
-                        *(u8 *)(arg0 + 6) |
-                        (*(u8 *)(arg0 + 5) << 8 |
-                            (*(u8 *)(arg0 + 7) << 0x18 |
-                                (*(u8 *)(arg0 + 4) << 0x10)))), 1),
+                        ((RpMaterial *)material)->color.c[2] |
+                        (((RpMaterial *)material)->color.c[1] << 8 |
+                            (((RpMaterial *)material)->color.c[3] << 0x18 |
+                                (((RpMaterial *)material)->color.c[0] << 0x10)))), 1),
                     1)),
             0,
             value);

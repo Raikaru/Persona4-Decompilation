@@ -1,3 +1,7 @@
+#include "primitive_queue_internal.h"
+#include "Kosaka/k_fld_rw_internal.h"
+#include "resrc_manager_internal.h"
+#include "h_cdvd_request_internal.h"
 #include "rw_types_internal.h"
 #include "model_motion_internal.h"
 #include "texture_callback_internal.h"
@@ -30,29 +34,29 @@ typedef enum RwOpCombineType {
     rwCOMBINEPOSTCONCAT,
     rwOPCOMBINETYPEFORCEENUMSIZEINT = 0x7FFFFFFF
 } RwOpCombineType;
-typedef struct { f32 x; f32 y; f32 z; f32 w; } Vec4;
+typedef RwRGBAReal Vec4;
 
 extern s32 sprintf(char *dst, const char *format, ...);
 extern s32 func_00440b68(const char *format, ...);
-extern s32 H_Cdvd_AcquireDirectory(char *path, s32 mode);
-extern s32 H_Cdvd_IsFileLoaded(s32 handle);
-extern u8 *func_00460f80(u8 *list, s32 arg1);
-extern u8 *func_00461080(u8 *list, s32 arg1);
-extern u8 *PrimQueueSkyStateEnter(u8 *list, s32 arg1);
-extern u8 *func_003e9d50(u8 *arg0);
-extern void FldResource_BeginDrawState(u8 *arg0, u8 *arg1);
+extern s32 H_Cdvd_AcquireDirectory(char *path, s32 flags);
+extern s32 H_Cdvd_IsFileLoaded(s32 cdvd);
+extern u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 stateId);
+extern u8 *sdkOtQueueClumpSecondaryPass(u8 *list, s32 stateId);
+extern u8 *PrimQueueSkyStateEnter(u8 *list, s32 stateId);
+extern u8 *func_003e9d50(u8 *);
+extern void FldResource_BeginDrawState(u8 *command, u8 *resource);
 extern s32 K_Clump_CountIntUsrData(void *object, const char *name);
 extern void kAssertFail(const char *file, s32 line);
-extern void mdlEffectSetEulerRotation(s32 a0, f32 f12, f32 f13, f32 f14);
-extern void func_003c9d40(void *arg0);
-extern void func_003c0700(void *arg0);
-extern void func_00462bf0(void *arg0);
-extern void mdlDestroyModelObject(s32 arg0);
-extern void mdlEffectDestroy(s32 arg0);
-extern void func_003bbb60(void *arg0);
+extern void mdlEffectSetEulerRotation(s32 object, f32 angleX, f32 angleY, f32 angleZ);
+extern void func_003c9d40(void *);
+extern void func_003c0700(void *);
+extern void hMaestroFreeListSet(void *listSet);
+extern void mdlDestroyModelObject(s32 model);
+extern void mdlEffectDestroy(s32 model);
+extern void func_003bbb60(void *);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *func_00460e80(u8 *list, s32 arg1);
-extern u8 *func_00461290(u8 *list, s32 arg1);
+extern u8 *sdkOtQueueClump(u8 *list, s32 stateId);
+extern u8 *sdkOtQueueWorld(u8 *list, s32 stateId);
 extern s32 kwlnGetCamera(void);
 extern s32 K_Clump_GetWorld(void);
 extern u8 *K_Clump_GetLightA(void);
@@ -66,21 +70,21 @@ extern s32 func_003cbc60(s32 world, u8 *camera);
 extern RpWorld *func_003cbc10(RpWorld *world, RwCamera *camera);
 extern RpLight *func_003c38b0(RpLight *light, const RwRGBAReal *color);
 extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *transform, RwOpCombineType combine);
-extern s32 mdlPrepareModel(u32 arg0);
-extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
-extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
+extern s32 mdlPrepareModel(u32 model);
+extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
+extern void mdlSetLayerWeight(void *model, s32 layer, f32 speed);
 extern RwMatrix *func_003e9700(RwFrame *frame);
-extern void K_Clump_FreeTextureNameList(void *arg0);
-extern s32 mdlEffectCreateFromResource(s32 a0);
+extern void K_Clump_FreeTextureNameList(void *listHead);
+extern s32 mdlEffectCreateFromResource(s32 resource);
 extern void *memset(void *dst, s32 value, u32 size);
-extern s32 H_Cdvd_LookupRequest(void *arg0, s32 *arg1);
-extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
-extern s32 func_003df3c0(s32 arg0, s32 *arg1);
-extern void func_003e2ce0(s32 arg0, u32 arg1);
-extern void func_003e2e40(s32 arg0, s32 arg1);
-extern s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
-extern s32 func_003dc370(void *arg0);
-extern void func_003ef1b0(s32 arg0);
+extern s32 H_Cdvd_LookupRequest(void *pathAddress, s32 *slot);
+extern s32 func_003e2f60(s32, s32, s32 *);
+extern s32 func_003df3c0(s32, s32 *);
+extern void func_003e2ce0(s32, u32);
+extern void func_003e2e40(s32, s32);
+extern s32 filerEnqueueRequest(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
+extern s32 func_003dc370(void *);
+extern void func_003ef1b0(s32);
 extern RwBool (*D_00887300[])(RwRenderState state, void *value);
 extern u8 *resrcMngGetColorValue(void);
 extern u8 *resrcMngGetColorTarget(void);
@@ -91,11 +95,11 @@ extern u8 iGpffffba4c;
 extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
-extern u8 *func_004669d0(s32 arg0, s32 *arg1, s32 *arg2);
-extern s32 K_Clump_GeometryHasMatUsrData(u8 *arg0, char *arg1);
-extern s32 K_Clump_ClumpHasMatUsrData(u8 *arg0, char *arg1);
-extern void *func_00462ae0(void *arg0);
-extern void func_003db550(u8 *arg0, u8 *arg1);
+extern u8 *filerTakeCompletedRequest(s32 request, s32 *completed, s32 *resultValue);
+extern s32 K_Clump_GeometryHasMatUsrData(u8 *geometry, char *name);
+extern s32 K_Clump_ClumpHasMatUsrData(u8 *clump, char *name);
+extern void *sdkClumpCreateBuckets(void *sourceClump);
+extern void func_003db550(u8 *, u8 *);
 extern char D_005EFCE0[];
 extern char D_005EFD00[];
 extern char D_005EFD80[];
@@ -109,22 +113,22 @@ extern char D_005EFE00[];
 extern char D_005EFE10[];
 extern char iGpffff9e10;
 extern void strcat(char *dst, char *src);
-extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
-extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
-extern s32 FldMap_IsInBandA(s32 a0, s32 a1);
-extern s32 FldMap_IsInBandB(s32 a0, s32 a1);
-extern u8 *FldStepLoadFilePair(s32 a0, s32 a1);
+extern void *mdlCreateModelObjectFromData(u32 type, u16 id, void *resource, u32 flags);
+extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *memory, u32 size, u32 flags);
+extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
+extern s32 FldMap_IsInBandB(s32 fieldId, s32 roomId);
+extern u8 *FldStepLoadFilePair(s32 fieldId, s32 roomId);
 extern s32 *MT_Scene_GetFrameState(void);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
-extern s32 atoi(const char *arg0);
+extern s32 atoi(const char *);
 extern void strcpy(char *dst, char *src);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 D_00754D88[];
 extern s32 chkmemGetBytes(void);
-extern s32 func_003c0520(s32 arg0);
-extern s32 mdlCloneModelObject(s32 arg0);
-extern s32 mdlEffectClone(s32 arg0);
-extern void func_004b1250(void *effect, f32 *position);
+extern s32 func_003c0520(s32);
+extern s32 mdlCloneModelObject(s32 source);
+extern s32 mdlEffectClone(s32 effect);
+extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 extern RwBool RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
 extern RwMatrix *RwMatrixOptimize(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
 extern RwFrame *func_003e9680(RwFrame *frame);
@@ -132,11 +136,11 @@ extern RwMatrix *func_003e0f80(void);
 extern RwBool func_003e0f40(RwMatrix *matrix);
 extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const Vec3 *axis, f32 angle, RwOpCombineType combine);
 extern Vec3 *func_003e42a0(Vec3 *pointOut, const Vec3 *pointIn, const RwMatrix *matrix);
-extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const Vec3 *translation, s32 combine);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const Vec3 *translation, s32 combineOp);
 extern s64 D_005EFE28[];
 extern f32 D_005EFE30[];
 extern u8 *iGpffff9db0;
-extern void H_Cdvd_Destroy(void *ptr);
+extern void H_Cdvd_Destroy(void *cdvd);
 extern u8 D_005EFD20[];
 extern u8 D_005EFD40[];
 extern u8 D_005EFD60[];
@@ -155,18 +159,99 @@ extern s32 D_007E8060[];
 extern s32 iGpffffb208;   /* gp - 0x4DF8 = 0x007642F8 */
 
 
+typedef struct {
+    u16 type;
+    u16 flags;
+    u16 id;
+    u16 pad06;
+    s32 frame;
+    s32 model;
+    s32 effect;
+    union { s32 file; u8 *filePtr; };
+} FldResourceEntry;
+
+/* Object words are 32-bit address carriers: bit 0 selects worlds instead of
+ * clumps; 0x80000000/0x40000000/0x20000000 select the draw-object variants.
+ * 0x10000000 marks a missing distinct primary object; bit 1 marks a clone. */
+typedef struct {
+    u32 flags;
+    s16 majorId;
+    s16 minorId;
+    union { s32 primaryObject; RpWorld *primaryWorld; };
+    union { s32 primaryDrawObject; u8 *primaryDrawObjectPtr; };
+    s32 alternateObject;
+    s32 secondaryObject;
+    u32 clumpCount;
+    s32 clumps[32];
+    union { s32 drawObjects[32]; void *drawObjectPointers[32]; };
+    u32 entryCount;
+    FldResourceEntry entries[96];
+    s32 animation;
+    union { Vec3 scale; struct { s32 scaleXBits, scaleYBits, scaleZBits; }; }; /* 0xA24 */
+    u8 padA30[0xC];
+    s32 hbnFile;                /* 0xA3C */
+    union { s32 hbnData; u8 *hbnDataPtr; };                /* 0xA40 */
+    u8 *loadWork;               /* 0xA44: separately allocated 0x12C-byte load state */
+    s32 fbnFile;                /* 0xA48 */
+    union { u8 *fbnData; s32 fbnDataWord; }; /* 0xA4C */
+    Vec4 savedAmbientColor;     /* 0xA50 */
+    Vec4 savedDirectionalColor; /* 0xA60 */
+    u8 savedLightMatrix[0x40];  /* 0xA70: copied as eight scalar pairs */
+} FldResource;
+
+
+/* The 0x12C-byte load allocation contains the path and asynchronous readers. */
+typedef struct FldResourceLoadWork {
+    char path[0x80];
+    s32 directory;
+    s32 textureReader;
+    u8 pad88[4];
+    u32 worldCount;
+    s32 worldReaders[4];
+    u32 clumpCount;
+    s32 clumpReaders[32];
+    s32 animationReader;
+    s32 textureNames;
+} FldResourceLoadWork;
+
+/* Field loader work: captures are re-read at the asynchronous phase boundaries. */
+typedef struct FldResourceWork {
+    s32 majorId;
+    s32 minorId;
+    u8 pad08[4];
+    s32 flags;
+    s16 variant;
+    s16 environmentId;
+    u8 pad14[0x10];
+    s32 resourceCount;           /* 0x24 */
+    s32 resources[24];           /* 0x28..0x87 */
+    s32 queueFlags;              /* 0x88 */
+    s32 textureNames;            /* 0x8C */
+    u8 pad90[4];
+    s32 state;                   /* 0x94 */
+    s32 queuedCount;             /* 0x98 */
+    struct { s16 majorId, minorId; } queuedIds[16]; /* 0x9C */
+    s32 environmentFile;         /* 0xDC */
+} FldResourceWork;
+
+typedef char FldResourceEntrySize[sizeof(FldResourceEntry) == 0x18 ? 1 : -1];
+typedef char FldResourceSize[sizeof(FldResource) == 0xAB0 ? 1 : -1];
+typedef char FldResourceLoadWorkSize[sizeof(FldResourceLoadWork) == 0x12C ? 1 : -1];
+
+/* Open the primary field directory once for the requested major/minor IDs. */
 // FUN_0014EED0
-void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1)
+void FldResource_OpenPrimaryFile(s32 majorId, s32 minorId)
 {
     char path[0x40];
 
     if (iGpffffb200 == 0) {
-        sprintf(path, D_005EFC60, (u16)arg0, (u16)arg1);
+        sprintf(path, D_005EFC60, (u16)majorId, (u16)minorId);
         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x9E);
         iGpffffb200 = H_Cdvd_AcquireDirectory(path, 1);
     }
 }
 
+/* Return ready when no primary directory is pending or its load has completed. */
 // FUN_0014EF40
 s32 FldResource_IsPrimaryFileLoaded(void)
 {
@@ -176,6 +261,7 @@ s32 FldResource_IsPrimaryFileLoaded(void)
     return H_Cdvd_IsFileLoaded(iGpffffb200) != 0;
 }
 
+/* Return ready when no secondary directory is pending or its load has completed. */
 // FUN_0014EF80
 s32 FldResource_IsSecondaryFileLoaded(void)
 {
@@ -210,73 +296,75 @@ extern const FldResourcePreset fldResourcePresets[3];
 #pragma opt_common_subs on
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
+/* Append preset or explicit field ID pairs to the loader queue. */
+/* Typed queued-ID/table cursors preserve the measured byte-offset-first append/copy order. */
 // FUN_0014EFC0
-void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
+void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
 {
-    char sp90[0x40];
-    char sp50[0x40];
-    s32 var17;
-    s32 var16;
+    char specialPath[0x40];
+    char fieldPath[0x40];
+    s32 presetMajorId;
+    s32 resourceCount;
     u8 *work;
-    *(s32 *)(iGpffff9db0 + 0x24) = 0;
-    *(s32 *)(iGpffff9db0 + 0x94) = 0;
+    ((FldResourceWork *)iGpffff9db0)->resourceCount = 0;
+    ((FldResourceWork *)iGpffff9db0)->state = 0;
     memset(iGpffff9db0 + 0x9C, 0, 0x40);
-    if (FldMap_IsInBandA(arg0, arg1) || FldMap_IsInBandB(arg0, arg1)) {
-        if (FldMap_IsInBandB(arg0, arg1)) {
-            var17 = (u16)((u16)arg0 - 0x14);
-            *(s32 *)(iGpffff9db0 + 0x88) |= 0x80000000;
-            var16 = (s32)FldStepLoadFilePair(arg0, arg1);
-            ((FldFrame *)MT_Scene_GetFrameState())->hbnHandle = (u8 *)var16;
-            var16 = D_005F0591[D_005F0590[(u16)var17] * 12];
+    if (FldMap_IsInBandA(majorId, minorId) || FldMap_IsInBandB(majorId, minorId)) {
+        if (FldMap_IsInBandB(majorId, minorId)) {
+            presetMajorId = (u16)((u16)majorId - 0x14);
+            ((FldResourceWork *)iGpffff9db0)->queueFlags |= 0x80000000;
+            resourceCount = (s32)FldStepLoadFilePair(majorId, minorId);
+            ((FldFrame *)MT_Scene_GetFrameState())->hbnHandle = (u8 *)resourceCount;
+            resourceCount = D_005F0591[D_005F0590[(u16)presetMajorId] * 12];
         } else {
-            var17 = (u16)arg0;
-            var16 = fldResourcePresets[D_005F0590[var17]].ordinaryCount;
+            presetMajorId = (u16)majorId;
+            resourceCount = fldResourcePresets[D_005F0590[presetMajorId]].ordinaryCount;
         }
         work = iGpffff9db0;
-        if (*(s32 *)(work + 0x88) & 0x80000000) {
+        if (((FldResourceWork *)work)->queueFlags & 0x80000000) {
             if (iGpffffb204 == 0) {
-                sprintf(sp90, D_005EFC90, (s16)arg0, (s16)arg1);
+                sprintf(specialPath, D_005EFC90, (s16)majorId, (s16)minorId);
                 func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0xC9);
-                iGpffffb204 = H_Cdvd_AcquireDirectory(sp90, 1);
+                iGpffffb204 = H_Cdvd_AcquireDirectory(specialPath, 1);
             }
             {
                 s32 i;
-                i = var16 - 1;
+                i = resourceCount - 1;
                 for (; i >= 0; i--) {
                     work = iGpffff9db0;
-                    *(s16 *)(work + *(s32 *)(work + 0x98) * 4 + 0x9C) = (s16)var17;
+                    ((FldResourceWork *)(work + ((FldResourceWork *)work)->queuedCount * 4))->queuedIds[0].majorId = (s16)presetMajorId;
                     work = iGpffff9db0;
                     /* Both predicates normalize the major ID to40..59. */
-                    *(s16 *)(work + *(s32 *)(work + 0x98) * 4 + 0x9E) =
-                        *(const s8 *)(((const s8 *)D_005F0590 +
-                                      D_005F05B8[(u16)var17 - 0x28] * 12) + i + 2);
-                    *(s32 *)(iGpffff9db0 + 0x98) += 1;
+                    ((FldResourceWork *)(work + ((FldResourceWork *)work)->queuedCount * 4))->queuedIds[0].minorId =
+                        ((const FldResourcePreset *)(D_005F0590 + D_005F05B8[(u16)presetMajorId - 0x28] * 12))->minorIds[i];
+                    ((FldResourceWork *)iGpffff9db0)->queuedCount += 1;
                 }
             }
         } else {
-            *(s32 *)(work + 0x24) = var16;
+            ((FldResourceWork *)work)->resourceCount = resourceCount;
             {
                 s32 i;
                 u32 offset;
                 i = 0;
-                for (; work = iGpffff9db0, i < *(s32 *)(work + 0x24); i++) {
+                for (; work = iGpffff9db0, i < ((FldResourceWork *)work)->resourceCount; i++) {
                     offset = i * sizeof(s32);
-                    *(s32 *)(work + offset + 0x28) = *(const s32 *)((const u8 *)D_007E8060 + offset);
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                    ((FldResourceWork *)(work + offset))->resources[0] = *(const s32 *)((const u8 *)D_007E8060 + offset);
                 }
             }
-            *(s32 *)(work + 0x94) = 4;
+            ((FldResourceWork *)work)->state = 4;
         }
     } else {
         if (iGpffffb204 == 0) {
-            sprintf(sp50, D_005EFC90, (s16)arg0, (s16)arg1);
+            sprintf(fieldPath, D_005EFC90, (s16)majorId, (s16)minorId);
             func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0xC9);
-            iGpffffb204 = H_Cdvd_AcquireDirectory(sp50, 1);
+            iGpffffb204 = H_Cdvd_AcquireDirectory(fieldPath, 1);
         }
         work = iGpffff9db0;
-        *(s16 *)(fldResourceWorkOffset(*(s32 *)(work + 0x98) * 4, work) + 0x9C) = (s16)arg0;
+        ((FldResourceWork *)fldResourceWorkOffset(((FldResourceWork *)work)->queuedCount * 4, work))->queuedIds[0].majorId = (s16)majorId;
         work = iGpffff9db0;
-        *(s16 *)(fldResourceWorkOffset(*(s32 *)(work + 0x98) * 4, work) + 0x9E) = (s16)arg1;
-        *(s32 *)(iGpffff9db0 + 0x98) += 1;
+        ((FldResourceWork *)fldResourceWorkOffset(((FldResourceWork *)work)->queuedCount * 4, work))->queuedIds[0].minorId = (s16)minorId;
+        ((FldResourceWork *)iGpffff9db0)->queuedCount += 1;
     }
     iGpffffb208 = chkmemGetBytes();
 }
@@ -340,8 +428,8 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
  * 2026-10-09: 94 -> 90: MT_Scene_CreateCameraRes takes the camera entry arrays as pointers.
  * 2026-10-09: 90 -> 86: FldFbnReadTable's last parameter is s16.
  * 2026-10-09: 86 -> 84: the loaded HBN entry is its own local `hbnEntry`.
- * 2026-10-09: 84 -> 83: the first file check assigns `var_2 = 1` in its NULL branch.
- * 2026-10-09: 83 -> 70: temp_18 is declared before temp_19.
+ * 2026-10-09: 84 -> 83: the first file check assigns `pendingCount = 1` in its NULL branch.
+ * 2026-10-09: 83 -> 70: frameMatrix is declared before modelId.
  * 2026-10-09: 70 -> 65: the reload list walker is declared before its next pointer.
  * 2026-10-09: 65 -> 64: the resource pair offset is formed as `idx * 4` then
  * `+= base` (retail adds the base second).
@@ -403,7 +491,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
 #pragma push
 /* measured: O1 preserves the publication-loop pointer/offset lifetimes (fnalign 0). */
 #pragma optimization_level 1
-static inline s32 fldResourceReady_0014f310(u8 *file)
+static inline s32 fldResourceIsReady(u8 *file)
 {
     if (file == NULL) {
         return 1;
@@ -414,7 +502,7 @@ static inline s32 fldResourceReady_0014f310(u8 *file)
     return 0;
 }
 
-static inline s32 fldResourceReadyOne_0014f310(u8 *file, s32 one)
+static inline s32 fldResourceIsReadyWithDefault(u8 *file, s32 one)
 {
     if (file == NULL) {
         return one;
@@ -425,8 +513,10 @@ static inline s32 fldResourceReadyOne_0014f310(u8 *file, s32 one)
     return 0;
 }
 
+/* Advance asynchronous resource, grid, NPC, camera and environment phases; return one at completion. */
+/* Access-site fields preserve the O1 address lifetimes; only individually measured exceptions remain raw. */
 // FUN_0014F310
-s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
+s32 FldResource_StepPartLoad(s32 majorId, s32 minorId) {
     /* Only the fields read while opening the primary FBN are described. */
     typedef struct FldPartReadWork {
         s32 majorId;                    /* 0x00, narrowed to u16 for the FBN */
@@ -436,11 +526,11 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
         u8 unknown12[0x16];
         u8 *primaryResource;            /* 0x28 */
     } FldPartReadWork;
-    typedef struct FldResourceFbnView {
+    typedef struct FldResourceFbn {
         u8 unknown000[0xA48];
         u8 *file;                       /* 0xA48 */
         u8 *data;                       /* 0xA4C */
-    } FldResourceFbnView;
+    } FldResourceFbn;
     /* The matrix layout is the 64-byte RenderWare matrix from bamatrix.h. */
     typedef struct FldResourceCameraTransform {
         Vec3 right;
@@ -455,64 +545,64 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     typedef char FldResourceCameraTransformSize[
         sizeof(FldResourceCameraTransform) == 0x40 ? 1 : -1];
 
-    extern void *FldRc_CreateResource(s16 arg0, s16 arg1);
-    extern s32 FldResource_IsFileLoaded(u8 *arg0);
-    extern void FldResource_ParseChunks(u8 *arg0);
-    extern s32 FldResource_PollLoads(u8 *arg0);
-    extern void FldResource_RequestEntryLoads(u8 *arg0);
-    extern s32 FldResource_TryInstallEntries(u8 *arg0);
-    extern f32 KDraw_MatrixPitchDeg(u8 *arg0);
-    extern f32 KDraw_MatrixYawDeg(u8 *arg0);
-    extern f32 KDraw_MatrixRollDeg(u8 *arg0);
+    extern void *FldRc_CreateResource(s16 majorId, s16 minorId);
+    extern s32 FldResource_IsFileLoaded(u8 *resource);
+    extern void FldResource_ParseChunks(u8 *resource);
+    extern s32 FldResource_PollLoads(u8 *resource);
+    extern void FldResource_RequestEntryLoads(u8 *resource);
+    extern s32 FldResource_TryInstallEntries(u8 *resource);
+    extern f32 KDraw_MatrixPitchDeg(u8 *matrix);
+    extern f32 KDraw_MatrixYawDeg(u8 *matrix);
+    extern f32 KDraw_MatrixRollDeg(u8 *matrix);
     extern s32 FldMap_IsCurrentInBandB(void);
     extern s32 FldMap_IsCurrentInBandA(void);
     extern void resrcMngResetRenderSlots(void);
-    extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
-    extern s32 FldEnvOpenFile(s32 arg0);
-    extern s32 FldEnvironmentLoad(u8 *arg0, s32 arg1);
+    extern void resrcMngSetDrawEnabled(s32 enabled, s32 includeFieldModels);
+    extern s32 FldEnvOpenFile(s32 room);
+    extern s32 FldEnvironmentLoad(u8 *file, s32 room);
     extern s32 FldCamOpenFile(void);
-    extern s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4, u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8);
+    extern s32 FldCamReadRecord(u8 *file, u8 *cameraMatrixOut, u8 *slotMatrixOut, f32 *fovOut, s32 *curveOut, u8 *viewOffsetOut, f32 *viewDistanceOut, f32 *cameraValueOut, s32 *slotIdsOut, s32 *slotVectorsOut);
     /* lint: allow H011 -- retail passes an already-u16-masked ID as a word;
      * the provider consumes that same u16 ID. */
-    extern void MT_Scene_SetResPlacement(s32 id, u8 *position, u8 *angles);
+    extern void MT_Scene_SetResPlacement(s32 resourceId, u8 *position, u8 *angles);
     /* lint: allow H011 -- the final arguments are array addresses; the provider
      * casts its s32 words to memcpy sources of 0x20 and 0x180 bytes. */
-    extern s32 MT_Scene_CreateCameraRes(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
-    extern u8 *MT_Scene_GetResListHead(s32 arg0);
+    extern s32 MT_Scene_CreateCameraRes(u16 resourceId, s32 cameraKind, f32 cameraValue, u8 *firstMatrixInput, u8 *secondMatrixInput, u8 *position, f32 nearValue, f32 farValue, s8 *parameters, Vec3 *data);
+    extern u8 *MT_Scene_GetResListHead(s32 resourceType);
     // lint: allow H011 -- measured: u16 prototype regresses FldResource_StepPartLoad (andi on wide id args)
-    extern u8 *MT_Scene_GetRes(s32 arg0);
-    extern void MT_Scene_DestroyRes(u16 arg0);
-    extern s32 MT_Scene_CreateModelFldRes(u16 arg0, s32 arg1);
-    extern s32 MT_Scene_CreateRes11(u16 arg0, s32 arg1);
+    extern u8 *MT_Scene_GetRes(s32 resTypeId);
+    extern void MT_Scene_DestroyRes(u16 resTypeId);
+    extern s32 MT_Scene_CreateModelFldRes(u16 resourceId, s32 model);
+    extern s32 MT_Scene_CreateRes11(u16 resourceId, s32 model);
     /* lint: allow H011 -- the resource pointer is stored unchanged in the
      * provider's +0x1A0 field; its s32 parameter is a 32-bit address carrier. */
-    extern s32 MT_Scene_CreateFldRes(u16 id, u8 *resource);
-    extern u8 *FldHbnOpenData(s32 arg0, s32 arg1);
-    extern s32 FldHbnReadData(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3);
-    extern void FldHbnSpawnLights(u8 *arg0, s32 arg1);
-    extern u8 *FldFbnOpenData(s32 arg0, s32 arg1, s16 arg2);
+    extern s32 MT_Scene_CreateFldRes(u16 resourceId, u8 *model);
+    extern u8 *FldHbnOpenData(s32 fieldId, s32 roomId);
+    extern s32 FldHbnReadData(u8 *request, u16 **destination, s32 fieldId, s32 roomId);
+    extern void FldHbnSpawnLights(u8 *header, s32 mode);
+    extern u8 *FldFbnOpenData(s32 field, s32 room, s16 variant);
     /* lint: allow H011 -- retail supplies a signed halfword variant; the
      * provider's only use narrows its s32 parameter to s16 for the filename. */
-    extern s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s16 arg4);
-    extern s32 FldFbnApplyTable(u8 *arg0, u8 *arg1);
-    extern s32 FldStepLoadHandleIsDone(u8 *arg0);
-    extern void FldStepLoadHandleDestroy(u8 *arg0);
+    extern s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s16 variant);
+    extern s32 FldFbnApplyTable(u8 *file, u8 *cachedData);
+    extern s32 FldStepLoadHandleIsDone(u8 *handle);
+    extern void FldStepLoadHandleDestroy(u8 *handle);
     extern s32 NpcTable_RequestSceneTable(void);
-    extern s32 NpcTable_InstallSceneTable(u8 *arg0);
+    extern s32 NpcTable_InstallSceneTable(u8 *request);
     extern s32 NpcTable_RequestSecondaryTable(void);
-    extern s32 NpcTable_InstallSecondaryTable(u8 *arg0);
+    extern s32 NpcTable_InstallSecondaryTable(u8 *request);
     extern s32 FldStepIndex(void);
-    extern s32 func_0015ac60(s32 arg0);
-    extern s32 func_0015a7c0(s32 arg0);
+    extern s32 fldStepRestoreBoard(s32 stepIndex);
+    extern s32 fldStepSaveBoard(s32 stepIndex);
     extern void FldCellCreateGrid(void);
     extern void FldStepRefreshBandResVisibility(void);
-    extern void FldBoardGenerate(s32 arg0, s32 arg1, s32 arg2);
-    extern void *mdlGetClump(void *arg0);
-    extern s32 FldRcClumpSetMipmapTex(u8 *arg0, s32 arg1);
+    extern void FldBoardGenerate(s32 mode, s32 seed, s32 unused);
+    extern void *mdlGetClump(void *model);
+    extern s32 FldRcClumpSetMipmapTex(u8 *clump, s32 textureHandle);
     extern s32 func_003ef6d0(void);
-    extern s32 func_003ef650(s32 arg0, u8 *arg1);
+    extern s32 func_003ef650(s32 majorId, u8 *minorId);
     extern void memcpy(void *dst, const void *src, s32 size);
-    extern u8 *func_003e8180(u8 *arg0, f32 arg1);
+    extern u8 *func_003e8180(u8 *majorId, f32 minorId);
     extern s32 D_007D24E0[];
     extern s32 D_007D24E8[];
     extern u8 D_005EFCB0[];
@@ -527,242 +617,244 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     FldResourceCameraTransform secondaryCameraMatrix;
     s8 cameraEntries[0x20];
     Vec3 cameraEntryPositions[0x20];
-    u8 *temp_16;
-    u8 *var_18_4;
-    u8 *temp_16_11;
-    u8 *temp_17_3;
-    s32 temp_19;
-    u8 *temp_2;
-    u8 *temp_2_10;
-    u8 *temp_2_11;
-    u8 *temp_2_12;
+    u8 *queuedWork;
+    u8 *modelResource;
+    u8 *nextEffectResource;
+    u8 *lightWork;
+    s32 modelId;
+    u8 *pairCursor;
+    u8 *ordinaryHbnResource;
+    u8 *primaryOpenWork;
+    u8 *partOpenResource;
     uintptr_t initialPrimary;
-    u8 *temp_2_14;
-    u8 *temp_2_15;
-    u8 *temp_2_16;
-    u8 *temp_2_17;
+    u8 *partReadResource;
+    u8 *partApplyResource;
+    u8 *primaryReloadWork;
+    u8 *partReloadResource;
     uintptr_t reloadedPrimary;
-    u8 *temp_2_19;
-    u8 *temp_2_20;
-    u8 *temp_2_21;
-    u8 *temp_2_22;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_2_5;
-    u8 *temp_2_6;
-    u8 *temp_2_7;
-    u8 *temp_2_8;
-    u8 *temp_2_9;
-    u8 *temp_3_11;
-    u8 *temp_3_12;
-    u8 *temp_3_13;
-    u8 *temp_3_15;
-    u8 *temp_3_16;
-    u8 *temp_3_17;
-    u8 *temp_3_18;
+    u8 *reloadedReadResource;
+    u8 *primaryApplyResource;
+    u8 *reloadedApplyResource;
+    u8 *environmentReloadWork;
+    u8 *hbnOpenResource;
+    u8 *gridHbnWork;
+    u8 *bandHbnResource;
+    u8 *modelEntryCursor;
+    u8 *sceneModelResource;
+    u8 *effectEntryCursor;
+    u8 *sceneEffectResource;
+    u8 *environmentWork;
+    u8 *hbnQueueWork;
+    u8 *ordinaryLightWork;
+    u8 *modelFrameResource;
+    u8 *environmentOpenWork;
+    u8 *cameraOpenWork;
+    u8 *cameraReadWork;
+    u8 *partOpenWork;
     FldPartReadWork *initialPartWork;
-    u8 *temp_3_20;
-    u8 *temp_3_21;
-    u8 *temp_3_22;
+    u8 *partReadWork;
+    u8 *partApplyWork;
+    u8 *partReloadWork;
     FldPartReadWork *reloadedPartWork;
-    u8 *temp_3_24;
-    u8 *temp_3_25;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
-    u8 *temp_3_4;
-    u8 *temp_3_5;
-    u8 *temp_3_6;
-    u8 *temp_3_7;
-    u8 *temp_3_8;
-    u8 *temp_3_9;
-    u8 *temp_4;
-    u8 *temp_4_10;
-    u8 *temp_4_11;
-    u8 *temp_4_12;
-    u8 *temp_4_13;
-    u8 *temp_4_2;
-    u8 *temp_4_3;
-    u8 *temp_4_4;
-    u8 *temp_4_8;
-    u8 *temp_4_9;
-    s32 var_9;
-    u8 *temp_8;
-    s32 temp_7;
-    u8 *a_dst;
-    u8 *a_idx;
-    s32 a_preset;
-    s32 a_resource;
-    u8 *a_tbl;
-    s32 var_9_2;
-    u8 *temp_8_2;
-    s32 temp_7_2;
-    u8 *b_dst;
-    u8 *b_idx;
-    s32 b_preset;
-    s32 b_resource;
-    u8 *b_tbl;
-    u8 *var_17_7;
-    u8 *temp_16_10;
-    u8 *temp_18;
+    u8 *reloadedReadWork;
+    u8 *reloadedApplyWork;
+    u8 *queuePopWork;
+    u8 *fieldWaitWork;
+    u8 *fieldParseWork;
+    u8 *fieldPollWork;
+    u8 *fieldCountWork;
+    u8 *minorIdWork;
+    u8 *entryRequestWork;
+    u8 *entryInstallWork;
+    u8 *secondaryFile;
+    u8 *effectFrameResource;
+    u8 *cameraFile;
+    u8 *environmentFile;
+    u8 *primaryFile;
+    u8 *fieldFile;
+    u8 *initializedWork;
+    u8 *completedSecondaryFile;
+    u8 *mipmapWork;
+    u8 *effectCountResource;
+    s32 ordinaryPublishIndex;
+    u8 *ordinaryPublishWork;
+    s32 ordinaryPublishOffset;
+    u8 *ordinaryDestination;
+    u8 *ordinaryIndexTable;
+    s32 ordinaryPreset;
+    s32 ordinaryResource;
+    u8 *ordinaryCountTable;
+    s32 specialPublishIndex;
+    u8 *specialPublishWork;
+    s32 specialPublishOffset;
+    u8 *specialDestination;
+    u8 *specialIndexTable;
+    s32 specialPreset;
+    s32 specialResource;
+    u8 *specialCountTable;
+    u8 *effectResource;
+    u8 *nextModelResource;
+    u8 *frameMatrix;
     u32 *frameCount;
     u8 *hbnEntry;
-    s32 var_19;
-    s32 var_19_2;
-    s32 temp_18_2;
-    s32 temp_18_3;
-    s32 var_18;
-    s32 var_18_2;
-    s32 var_18_3;
-    s32 var_18_5;
-    s32 temp_17;
-    s32 temp_17_2;
-    s32 temp_17_4;
-    s32 temp_17_5;
-    s32 temp_17_6;
-    s32 temp_17_7;
-    s32 var_17;
-    s32 var_17_2;
-    s32 var_17_5;
-    s32 var_17_6;
-    s32 var_17_8;
-    s32 var_17_9;
-    u32 var_17_3;
-    u32 var_17_4;
-    s32 temp_16_12;
-    s32 temp_16_2;
-    s32 temp_16_3;
-    s32 temp_16_4;
-    s32 temp_16_5;
-    s32 temp_16_6;
-    s32 temp_16_7;
-    s32 temp_16_8;
-    s32 temp_16_9;
-    s32 var_16;
-    s32 var_16_10;
-    s32 var_16_11;
-    s32 var_16_2;
-    s32 var_16_3;
-    s32 var_16_4;
-    s32 var_16_5;
-    s32 var_16_6;
-    s32 var_16_7;
-    s32 var_16_8;
-    s32 var_16_9;
-    s32 temp_4_5;
-    u8 temp_4_6;
-    u8 temp_4_7;
-    s32 temp_3;
-    s32 temp_3_10;
-    s32 temp_3_14;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_2_3;
+    s32 spawnColumn;
+    s32 pickRow;
+    s32 modelClump;
+    s32 effectId;
+    s32 spawnRow;
+    s32 pickColumn;
+    s32 partApplyIndex;
+    s32 reloadedApplyIndex;
+    s32 spawnRowOffset;
+    s32 pickRowOffset;
+    s32 bandHbnOffset;
+    s32 ordinaryHbnOffset;
+    s32 partOpenOffset;
+    s32 partReloadOffset;
+    s32 entryPendingCount;
+    s32 hbnOpenIndex;
+    s32 partReadIndex;
+    s32 partApplyPendingCount;
+    s32 reloadedReadIndex;
+    s32 reloadedApplyPendingCount;
+    u32 modelFrameIndex;
+    u32 effectFrameIndex;
+    s32 reloadedApplyOffset;
+    s32 hbnOpenOffset;
+    s32 gridData;
+    s32 spawnColumnOffset;
+    s32 pickColumnOffset;
+    s32 gridHbnFile;
+    s32 modelFrameOffset;
+    s32 effectFrameOffset;
+    s32 partApplyOffset;
+    s32 entryRequestIndex;
+    s32 partReloadIndex;
+    s32 reloadedReadPendingCount;
+    s32 entryInstallIndex;
+    s32 gridPendingCount;
+    s32 bandHbnIndex;
+    s32 bandLightIndex;
+    s32 ordinaryHbnIndex;
+    s32 ordinaryLightIndex;
+    s32 partOpenIndex;
+    s32 partReadPendingCount;
+    s32 textureNames;
+    u8 cellValue;
+    u8 cellKind;
+    s32 loadState;
+    s32 allocatedBytes;
+    s32 frameKind;
+    s32 pendingCount;
+    s32 readyCount;
+    s32 loadResult;
     s32 one;
-    s32 var_2_4;
+    s32 phaseResult;
 
-    temp_3 = (s32)(*( s32 * )(iGpffff9db0 + 0x94));
-    if (temp_3 == 999) goto completed;
-    if (temp_3 == 41) goto waitReloadedEnvironment;
-    if (temp_3 == 40) goto loadEnvironment;
-    if (temp_3 == 32) goto waitReloadedParts;
-    if (temp_3 == 31) goto readReloadedParts;
-    if (temp_3 == 30) goto reloadParts;
-    if (temp_3 == 13) goto waitParts;
-    if (temp_3 == 12) goto readParts;
-    if (temp_3 == 11) goto loadParts;
-    if (temp_3 == 10) goto readCamera;
-    if (temp_3 == 9) goto waitEnvironment;
-    if (temp_3 == 8) goto readHbnResources;
-    if (temp_3 == 7) goto readGrid;
-    if (temp_3 == 6) goto prepareGrid;
-    if (temp_3 == 5) goto waitNpcTables;
-    if (temp_3 == 4) goto loadNpcTables;
-    if (temp_3 == 3) goto waitResourceInitialization;
-    if (temp_3 == 2) goto initializeResources;
+    loadState = (s32)(((FldResourceWork *)iGpffff9db0)->state);
+    if (loadState == 999) goto completed;
+    if (loadState == 41) goto waitReloadedEnvironment;
+    if (loadState == 40) goto loadEnvironment;
+    if (loadState == 32) goto waitReloadedParts;
+    if (loadState == 31) goto readReloadedParts;
+    if (loadState == 30) goto reloadParts;
+    if (loadState == 13) goto waitParts;
+    if (loadState == 12) goto readParts;
+    if (loadState == 11) goto loadParts;
+    if (loadState == 10) goto readCamera;
+    if (loadState == 9) goto waitEnvironment;
+    if (loadState == 8) goto readHbnResources;
+    if (loadState == 7) goto readGrid;
+    if (loadState == 6) goto prepareGrid;
+    if (loadState == 5) goto waitNpcTables;
+    if (loadState == 4) goto loadNpcTables;
+    if (loadState == 3) goto waitResourceInitialization;
+    if (loadState == 2) goto initializeResources;
     one = 1;
-    if (temp_3 == one) goto waitFieldResource;
-    switch (temp_3) {
+    if (loadState == one) goto waitFieldResource;
+    switch (loadState) {
     case 0: goto loadFieldResource;
-    default: goto block_259;
+    default: goto pending;
     }
 loadFieldResource:
-            if (fldResourceReadyOne_0014f310((u8 *)iGpffffb200, one) == 0) {
+            if (fldResourceIsReadyWithDefault((u8 *)iGpffffb200, one) == 0) {
                 return 0;
             }
-            if (fldResourceReady_0014f310((u8 *)iGpffffb204) == 0) {
+            if (fldResourceIsReady((u8 *)iGpffffb204) == 0) {
                 return 0;
             }
-            temp_3_2 = (u8 *)(iGpffff9db0);
-            *( s32 * )(temp_3_2 + 0x98) = (s32) (*( s32 * )(temp_3_2 + 0x98) - 1);
-            temp_16 = (u8 *)(iGpffff9db0);
-            temp_2 = (u8 *)(*( s32 * )(temp_16 + 0x98) * 4);
-            temp_2 += (s32)temp_16;
-            (((s32 *)(temp_16 + 0x28))[*( s32 * )(temp_16 + 0x24)]) = (s32)FldRc_CreateResource(*( s16 * )(temp_2 + 0x9C), *( s16 * )(temp_2 + 0x9E));
-            *( s32 * )(iGpffff9db0 + 0x94) = 1;
+            queuePopWork = (u8 *)(iGpffff9db0);
+            ((FldResourceWork *)queuePopWork)->queuedCount = (s32) (((FldResourceWork *)queuePopWork)->queuedCount - 1);
+            queuedWork = (u8 *)(iGpffff9db0);
+            pairCursor = (u8 *)(((FldResourceWork *)queuedWork)->queuedCount * 4);
+            pairCursor += (s32)queuedWork;
+            (((s32 *)(queuedWork + 0x28))[((FldResourceWork *)queuedWork)->resourceCount]) = (s32)FldRc_CreateResource(((FldResourceWork *)pairCursor)->queuedIds[0].majorId, ((FldResourceWork *)pairCursor)->queuedIds[0].minorId);
+            ((FldResourceWork *)iGpffff9db0)->state = 1;
 waitFieldResource:
-            temp_3_3 = (u8 *)(iGpffff9db0);
-            if (FldResource_IsFileLoaded((((u8 **)(temp_3_3 + 0x28))[*( s32 * )(temp_3_3 + 0x24)])) == 0) {
+            fieldWaitWork = (u8 *)(iGpffff9db0);
+            if (FldResource_IsFileLoaded((((u8 **)(fieldWaitWork + 0x28))[((FldResourceWork *)fieldWaitWork)->resourceCount])) == 0) {
                 return 0;
             }
-            temp_3_4 = (u8 *)(iGpffff9db0);
-            FldResource_ParseChunks((u8 *)((((s8 **)(temp_3_4 + 0x28))[*( s32 * )(temp_3_4 + 0x24)])));
-            *( s32 * )(iGpffff9db0 + 0x94) = 2;
+            fieldParseWork = (u8 *)(iGpffff9db0);
+            FldResource_ParseChunks((u8 *)((((s8 **)(fieldParseWork + 0x28))[((FldResourceWork *)fieldParseWork)->resourceCount])));
+            ((FldResourceWork *)iGpffff9db0)->state = 2;
 initializeResources:
-            temp_3_5 = (u8 *)(iGpffff9db0);
-            if (FldResource_PollLoads((((u8 **)(temp_3_5 + 0x28))[*( s32 * )(temp_3_5 + 0x24)])) == 0) {
+            fieldPollWork = (u8 *)(iGpffff9db0);
+            if (FldResource_PollLoads((((u8 **)(fieldPollWork + 0x28))[((FldResourceWork *)fieldPollWork)->resourceCount])) == 0) {
                 return 0;
             }
-            temp_3_6 = (u8 *)(iGpffff9db0);
-            *( s32 * )(temp_3_6 + 0x24) = (s32) (*( s32 * )(temp_3_6 + 0x24) + 1);
-            temp_4_3 = (u8 *)(iGpffff9db0);
-            if (*( s32 * )(temp_4_3 + 0x98) > 0) {
-                *( s32 * )(temp_4_3 + 0x94) = 0;
+            fieldCountWork = (u8 *)(iGpffff9db0);
+            ((FldResourceWork *)fieldCountWork)->resourceCount = (s32) (((FldResourceWork *)fieldCountWork)->resourceCount + 1);
+            initializedWork = (u8 *)(iGpffff9db0);
+            if (((FldResourceWork *)initializedWork)->queuedCount > 0) {
+                ((FldResourceWork *)initializedWork)->state = 0;
                 return 0;
             }
-            if (*( s32 * )(temp_4_3 + 0xC) & 0x80000000) {
-                *( s32 * )(temp_4_3 + 0) = (s32) *( s16 * )(*( u8 ** )(temp_4_3 + 0x28) + 4);
-                temp_3_7 = (u8 *)(iGpffff9db0);
-                *( s32 * )(temp_3_7 + 4) = (s32) *( s16 * )(*( u8 ** )(temp_3_7 + 0x28) + 6);
+            if (((FldResourceWork *)initializedWork)->flags & 0x80000000) {
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                ((FldResourceWork *)initializedWork)->majorId = (s32) *( s16 * )((u8 *)((FldResourceWork *)initializedWork)->resources[0] + 4);
+                minorIdWork = (u8 *)(iGpffff9db0);
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                ((FldResourceWork *)minorIdWork)->minorId = (s32) *( s16 * )((u8 *)((FldResourceWork *)minorIdWork)->resources[0] + 6);
             }
-            var_16 = 0;
-            while (var_16 < *( s32 * )((temp_3_8 = (u8 *)(iGpffff9db0)) + 0x24)) {
-                FldResource_RequestEntryLoads(*( u8 ** )((temp_3_8 + (var_16 * 4)) + 0x28));
-                var_16 += 1;
+            entryRequestIndex = 0;
+            while (entryRequestIndex < ((FldResourceWork *)(entryRequestWork = (u8 *)(iGpffff9db0)))->resourceCount) {
+                FldResource_RequestEntryLoads((u8 *)((FldResourceWork *)(entryRequestWork + (entryRequestIndex * 4)))->resources[0]);
+                entryRequestIndex += 1;
             }
-            *( s32 * )(temp_3_8 + 0x94) = 3;
+            ((FldResourceWork *)entryRequestWork)->state = 3;
 waitResourceInitialization:
-            var_17 = 0;
-            var_16_2 = 0;
-            while (var_16_2 < *( s32 * )((temp_3_9 = (u8 *)(iGpffff9db0)) + 0x24)) {
-                if (FldResource_TryInstallEntries(*( u8 ** )((temp_3_9 + (var_16_2 * 4)) + 0x28)) == 0) {
-                    var_17 += 1;
+            entryPendingCount = 0;
+            entryInstallIndex = 0;
+            while (entryInstallIndex < ((FldResourceWork *)(entryInstallWork = (u8 *)(iGpffff9db0)))->resourceCount) {
+                if (FldResource_TryInstallEntries((u8 *)((FldResourceWork *)(entryInstallWork + (entryInstallIndex * 4)))->resources[0]) == 0) {
+                    entryPendingCount += 1;
                 }
-                var_16_2 += 1;
+                entryInstallIndex += 1;
             }
-            if (var_17 != 0) {
+            if (entryPendingCount != 0) {
                 return 0;
             }
-            temp_4_4 = (u8 *)(iGpffffb204);
-            if (temp_4_4 != NULL) {
-                H_Cdvd_Destroy(temp_4_4);
+            completedSecondaryFile = (u8 *)(iGpffffb204);
+            if (completedSecondaryFile != NULL) {
+                H_Cdvd_Destroy(completedSecondaryFile);
                 iGpffffb204 = 0;
             }
-            temp_4_5 = (s32)(*( s32 * )(iGpffff9db0 + 0x8C));
-            if (temp_4_5 != 0) {
-                K_Clump_FreeTextureNameList((void *)(temp_4_5));
-                *( s32 * )(iGpffff9db0 + 0x8C) = 0;
+            textureNames = (s32)(((FldResourceWork *)iGpffff9db0)->textureNames);
+            if (textureNames != 0) {
+                K_Clump_FreeTextureNameList((void *)(textureNames));
+                ((FldResourceWork *)iGpffff9db0)->textureNames = 0;
             }
-            *( s32 * )(iGpffff9db0 + 0x94) = 4;
+            ((FldResourceWork *)iGpffff9db0)->state = 4;
 loadNpcTables:
-            temp_3_10 = (s32)(chkmemGetBytes() - iGpffffb208);
-            iGpffffb208 = temp_3_10;
-            if (*( s32 * )(iGpffff9db0 + 0) < 0xC8) {
-                iGpffffb208 = (s32) (temp_3_10 + 0x32000);
+            allocatedBytes = (s32)(chkmemGetBytes() - iGpffffb208);
+            iGpffffb208 = allocatedBytes;
+            if (((FldResourceWork *)iGpffff9db0)->majorId < 0xC8) {
+                iGpffffb208 = (s32) (allocatedBytes + 0x32000);
             }
             D_007D24E0[0] = NpcTable_RequestSceneTable();
             D_007D24E8[0] = NpcTable_RequestSecondaryTable();
-            *( s32 * )(iGpffff9db0 + 0x94) = 5;
+            ((FldResourceWork *)iGpffff9db0)->state = 5;
 waitNpcTables:
             if (NpcTable_InstallSceneTable((u8 *)D_007D24E0[0]) == 0) {
                 return 0;
@@ -772,81 +864,81 @@ waitNpcTables:
                 return 0;
             }
             D_007D24E8[0] = 0;
-            *( s32 * )(iGpffff9db0 + 0x94) = 6;
+            ((FldResourceWork *)iGpffff9db0)->state = 6;
 prepareGrid:
-            *( s32 * )(iGpffff9db0 + 0x94) = 7;
+            ((FldResourceWork *)iGpffff9db0)->state = 7;
 readGrid:
-            var_16_3 = 0;
+            gridPendingCount = 0;
             if (FldStepLoadHandleIsDone(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle) == 0) {
-                var_16_3 += 1;
+                gridPendingCount += 1;
             }
-            if (var_16_3 != 0) {
+            if (gridPendingCount != 0) {
                 return 0;
             }
-            var_17_2 = 0;
-            while (var_17_2 < *( s32 * )((temp_3_11 = (u8 *)(iGpffff9db0)) + 0x24)) {
-                temp_16_2 = var_17_2 * 4;
-                if (*( s32 * )(*( u8 ** )((temp_3_11 + temp_16_2) + 0x28) + 0xA40) == 0) {
-                    temp_2_2 = (u8 *)(*( u8 ** )((iGpffff9db0 + temp_16_2) + 0x28));
-                    *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_16_2) + 0x28) + 0xA3C) = (s32)FldHbnOpenData(*( u16 * )(temp_2_2 + 4), *( u16 * )(temp_2_2 + 6));
+            hbnOpenIndex = 0;
+            while (hbnOpenIndex < ((FldResourceWork *)(hbnQueueWork = (u8 *)(iGpffff9db0)))->resourceCount) {
+                hbnOpenOffset = hbnOpenIndex * 4;
+                if (((FldResource *)((u8 *)((FldResourceWork *)(hbnQueueWork + hbnOpenOffset))->resources[0]))->hbnData == 0) {
+                    hbnOpenResource = (u8 *)((u8 *)((FldResourceWork *)(iGpffff9db0 + hbnOpenOffset))->resources[0]);
+                    ((FldResource *)((u8 *)((FldResourceWork *)(iGpffff9db0 + hbnOpenOffset))->resources[0]))->hbnFile = (s32)FldHbnOpenData((u16)((FldResource *)hbnOpenResource)->majorId, (u16)((FldResource *)hbnOpenResource)->minorId);
                 }
-                var_17_2 += 1;
+                hbnOpenIndex += 1;
             }
             if (FldMap_IsCurrentInBandB() != 0) {
-                temp_16_3 = (s32)(*(s32 *)(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle + 0x110));
-                memcpy(((FldFrame *)MT_Scene_GetFrameState())->cells,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
+                gridData = (s32)((s32)((HCdvdRequest *)((FldFrame *)MT_Scene_GetFrameState())->hbnHandle)->data);
+                memcpy(((FldFrame *)MT_Scene_GetFrameState())->cells,(const void *)((u8 *)gridData + 4), 0x1800);
                 FldStepLoadHandleDestroy(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle);
-                for (var_18 = 0; var_18 < 0x18; var_18++) {
-                    var_19 = 0;
-                    temp_17 = var_18 << 8;
-                    for (; var_19 < 0x10; var_19++) {
-                        temp_16_4 = var_19 * 0x10;
-                        if ((*( u8 * )(((u8 *)(temp_17 + (s32)MT_Scene_GetFrameState()) + temp_16_4) + 0x54) == 1) && (*( u8 * )(((u8 *)(temp_17 + (s32)MT_Scene_GetFrameState()) + temp_16_4) + 0x58) == 6)) {
-                            *( u8 * )(((u8 *)MT_Scene_GetFrameState()) + 0x44) = (u8)var_19;
-                            *( u8 * )(((u8 *)MT_Scene_GetFrameState()) + 0x45) = (u8)var_18;
-                            goto found_loop_88;
+                for (spawnRow = 0; spawnRow < 0x18; spawnRow++) {
+                    spawnColumn = 0;
+                    spawnRowOffset = spawnRow << 8;
+                    for (; spawnColumn < 0x10; spawnColumn++) {
+                        spawnColumnOffset = spawnColumn * 0x10;
+                        if ((((FldFrame *)((u8 *)(spawnRowOffset + (s32)MT_Scene_GetFrameState()) + spawnColumnOffset))->cells[0][0].occupied == 1) && (((FldFrame *)((u8 *)(spawnRowOffset + (s32)MT_Scene_GetFrameState()) + spawnColumnOffset))->cells[0][0].type == 6)) {
+                            ((FldFrame *)MT_Scene_GetFrameState())->spawnColumn = (u8)spawnColumn;
+                            ((FldFrame *)MT_Scene_GetFrameState())->spawnRow = (u8)spawnRow;
+                            goto foundSpawnCell;
                         }
                     }
                 }
-found_loop_88:
-                for (var_19_2 = 0; var_19_2 < 0x18; var_19_2++) {
-                    var_18_2 = 0;
-                    temp_17_2 = var_19_2 << 8;
-                    for (; var_18_2 < 0x10; var_18_2++) {
-                        temp_16_5 = var_18_2 * 0x10;
-                        if ((*( u8 * )(((u8 *)(temp_17_2 + (s32)MT_Scene_GetFrameState()) + temp_16_5) + 0x54) == 1) && ((*( u8 * )(((u8 *)(temp_17_2 + (s32)MT_Scene_GetFrameState()) + temp_16_5) + 0x58) == 0xA) || (*( u8 * )(((u8 *)(temp_17_2 + (s32)MT_Scene_GetFrameState()) + temp_16_5) + 0x58) == 0xC) || (*( u8 * )(((u8 *)(temp_17_2 + (s32)MT_Scene_GetFrameState()) + temp_16_5) + 0x58) == 0xE))) {
-                            *( u8 * )(((u8 *)MT_Scene_GetFrameState()) + 0x46) = (u8)var_18_2;
-                            *( u8 * )(((u8 *)MT_Scene_GetFrameState()) + 0x47) = (u8)var_19_2;
-                            goto found_loop_99;
+foundSpawnCell:
+                for (pickRow = 0; pickRow < 0x18; pickRow++) {
+                    pickColumn = 0;
+                    pickRowOffset = pickRow << 8;
+                    for (; pickColumn < 0x10; pickColumn++) {
+                        pickColumnOffset = pickColumn * 0x10;
+                        if ((((FldFrame *)((u8 *)(pickRowOffset + (s32)MT_Scene_GetFrameState()) + pickColumnOffset))->cells[0][0].occupied == 1) && ((((FldFrame *)((u8 *)(pickRowOffset + (s32)MT_Scene_GetFrameState()) + pickColumnOffset))->cells[0][0].type == 0xA) || (((FldFrame *)((u8 *)(pickRowOffset + (s32)MT_Scene_GetFrameState()) + pickColumnOffset))->cells[0][0].type == 0xC) || (((FldFrame *)((u8 *)(pickRowOffset + (s32)MT_Scene_GetFrameState()) + pickColumnOffset))->cells[0][0].type == 0xE))) {
+                            ((FldFrame *)MT_Scene_GetFrameState())->cellPick[0] = (u8)pickColumn;
+                            ((FldFrame *)MT_Scene_GetFrameState())->cellPick[1] = (u8)pickRow;
+                            goto foundPickedCell;
                         }
                     }
                 }
-found_loop_99:
-                temp_2_3 = (u8 *)(iGpffff9db0);
-                temp_16_6 = (s32)(FldHbnOpenData(*( u16 * )(temp_2_3 + 0), *( u16 * )(temp_2_3 + 4)));
-                ((FldFrame *)MT_Scene_GetFrameState())->hbnHandle = (u8 *)temp_16_6;
+foundPickedCell:
+                gridHbnWork = (u8 *)(iGpffff9db0);
+                gridHbnFile = (s32)(FldHbnOpenData((u16)((FldResourceWork *)gridHbnWork)->majorId, (u16)((FldResourceWork *)gridHbnWork)->minorId));
+                ((FldFrame *)MT_Scene_GetFrameState())->hbnHandle = (u8 *)gridHbnFile;
             }
-            *( s32 * )(iGpffff9db0 + 0x94) = 8;
+            ((FldResourceWork *)iGpffff9db0)->state = 8;
 readHbnResources:
             if (FldMap_IsCurrentInBandB() != 0) {
                 hbnData = NULL;
-                var_16_4 = 0;
-                while (var_16_4 < *( s32 * )(iGpffff9db0 + 0x24)) {
-                    temp_2_4 = (u8 *)iGpffff9db0;
-                    temp_17_4 = var_16_4 * 4;
-                    temp_2_4 = (u8 *)(*( u8 ** )((temp_2_4 + temp_17_4) + 0x28));
-                    if (FldHbnReadData((u8 *)(*( s32 * )(temp_2_4 + 0xA3C)),(u16 **)(temp_2_4 + 0xA40), *( u16 * )(temp_2_4 + 4), *( u16 * )(temp_2_4 + 6)) == 0) {
+                bandHbnIndex = 0;
+                while (bandHbnIndex < ((FldResourceWork *)iGpffff9db0)->resourceCount) {
+                    bandHbnResource = (u8 *)iGpffff9db0;
+                    bandHbnOffset = bandHbnIndex * 4;
+                    bandHbnResource = (u8 *)((u8 *)((FldResourceWork *)(bandHbnResource + bandHbnOffset))->resources[0]);
+                    if (FldHbnReadData((u8 *)(((FldResource *)bandHbnResource)->hbnFile),(u16 **)&((FldResource *)bandHbnResource)->hbnData, (u16)((FldResource *)bandHbnResource)->majorId, (u16)((FldResource *)bandHbnResource)->minorId) == 0) {
                         return 0;
                     }
-                    *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_4) + 0x28) + 0xA3C) = 0;
-                    var_16_4 += 1;
+                    ((FldResource *)((u8 *)((FldResourceWork *)(iGpffff9db0 + bandHbnOffset))->resources[0]))->hbnFile = 0;
+                    bandHbnIndex += 1;
                 }
-                var_16_5 = 0;
-                while (var_16_5 < *( s32 * )((temp_17_3 = (u8 *)(iGpffff9db0)) + 0x24)) {
-                    FldHbnSpawnLights((u8 *)(*( s8 ** )(*( u8 ** )((temp_17_3 + (var_16_5 * 4)) + 0x28) + 0xA40)), 0);
-                    var_16_5 += 1;
+                bandLightIndex = 0;
+                while (bandLightIndex < ((FldResourceWork *)(lightWork = (u8 *)(iGpffff9db0)))->resourceCount) {
+                    FldHbnSpawnLights((u8 *)((s8 *)((FldResource *)((u8 *)((FldResourceWork *)(lightWork + (bandLightIndex * 4)))->resources[0]))->hbnDataPtr), 0);
+                    bandLightIndex += 1;
                 }
-                if (FldHbnReadData(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle,&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
+                if (FldHbnReadData(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle,&hbnData, (u16)((FldResourceWork *)lightWork)->majorId, (u16)((FldResourceWork *)lightWork)->minorId) == 0) {
                     return 0;
                 }
                 if ((hbnEntry = (u8 *)hbnData) != NULL) {
@@ -854,112 +946,116 @@ readHbnResources:
                     jtbl_008873EC[0](hbnData);
                     ((FldFrame *)MT_Scene_GetFrameState())->hbnHandle = 0;
                 }
-                goto block_123;
+                goto publishResources;
             }
-            var_16_6 = 0;
-            while (var_16_6 < *( s32 * )(iGpffff9db0 + 0x24)) {
-                temp_2_10 = (u8 *)iGpffff9db0;
-                temp_17_5 = var_16_6 * 4;
-                temp_2_10 = (u8 *)(*( u8 ** )((temp_2_10 + temp_17_5) + 0x28));
-                if (FldHbnReadData((u8 *)(*( s32 * )(temp_2_10 + 0xA3C)),(u16 **)(temp_2_10 + 0xA40), *( u16 * )(temp_2_10 + 4), *( u16 * )(temp_2_10 + 6)) == 0) {
+            ordinaryHbnIndex = 0;
+            while (ordinaryHbnIndex < ((FldResourceWork *)iGpffff9db0)->resourceCount) {
+                ordinaryHbnResource = (u8 *)iGpffff9db0;
+                ordinaryHbnOffset = ordinaryHbnIndex * 4;
+                ordinaryHbnResource = (u8 *)((u8 *)((FldResourceWork *)(ordinaryHbnResource + ordinaryHbnOffset))->resources[0]);
+                if (FldHbnReadData((u8 *)(((FldResource *)ordinaryHbnResource)->hbnFile),(u16 **)&((FldResource *)ordinaryHbnResource)->hbnData, (u16)((FldResource *)ordinaryHbnResource)->majorId, (u16)((FldResource *)ordinaryHbnResource)->minorId) == 0) {
                     return 0;
                 }
-                *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_5) + 0x28) + 0xA3C) = 0;
-                var_16_6 += 1;
+                ((FldResource *)((u8 *)((FldResourceWork *)(iGpffff9db0 + ordinaryHbnOffset))->resources[0]))->hbnFile = 0;
+                ordinaryHbnIndex += 1;
             }
-            var_16_7 = 0;
-            while (var_16_7 < *( s32 * )((temp_3_12 = (u8 *)(iGpffff9db0)) + 0x24)) {
-                FldHbnSpawnLights((u8 *)(*( s8 ** )(*( u8 ** )((temp_3_12 + (var_16_7 * 4)) + 0x28) + 0xA40)), 0);
-                var_16_7 += 1;
+            ordinaryLightIndex = 0;
+            while (ordinaryLightIndex < ((FldResourceWork *)(ordinaryLightWork = (u8 *)(iGpffff9db0)))->resourceCount) {
+                FldHbnSpawnLights((u8 *)((s8 *)((FldResource *)((u8 *)((FldResourceWork *)(ordinaryLightWork + (ordinaryLightIndex * 4)))->resources[0]))->hbnDataPtr), 0);
+                ordinaryLightIndex += 1;
             }
-block_123:
+publishResources:
             if (FldMap_IsCurrentInBandA() == 1) {
-                var_9 = 0;
-                temp_8 = (u8 *)(iGpffff9db0);
-                a_dst = (u8 *)D_007E8060;
-                a_idx = (u8 *)D_005F05B8;
-                a_tbl = (u8 *)D_005F0590;
-                while (a_preset = *(u8 *)(a_idx + *(s32 *)temp_8 - 0x28),
-                       var_9 < *(u8 *)(a_tbl + a_preset * 0xC)) {
-                    temp_7 = var_9 * 4;
-                    a_resource = *(s32 *)(temp_8 + temp_7 + 0x28);
-                    *(s32 *)(a_dst + temp_7) = a_resource;
-                    var_9 += 1;
+                ordinaryPublishIndex = 0;
+                ordinaryPublishWork = (u8 *)(iGpffff9db0);
+                ordinaryDestination = (u8 *)D_007E8060;
+                ordinaryIndexTable = (u8 *)D_005F05B8;
+                ordinaryCountTable = (u8 *)D_005F0590;
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                while (ordinaryPreset = *(u8 *)(ordinaryIndexTable + ((FldResourceWork *)ordinaryPublishWork)->majorId - 0x28),
+                       /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                       ordinaryPublishIndex < *(u8 *)(ordinaryCountTable + ordinaryPreset * 0xC)) {
+                    ordinaryPublishOffset = ordinaryPublishIndex * 4;
+                    ordinaryResource = ((FldResourceWork *)(ordinaryPublishWork + ordinaryPublishOffset))->resources[0];
+                    *(s32 *)(ordinaryDestination + ordinaryPublishOffset) = ordinaryResource;
+                    ordinaryPublishIndex += 1;
                 }
-                if (func_0015ac60(FldStepIndex()) == 0) {
-                    FldBoardGenerate(*( s32 * )(iGpffff9db0 + 0) - 0x28, ((FldFrame *)MT_Scene_GetFrameState())->boardParam, 1);
-                    func_0015a7c0(FldStepIndex());
+                if (fldStepRestoreBoard(FldStepIndex()) == 0) {
+                    FldBoardGenerate(((FldResourceWork *)iGpffff9db0)->majorId - 0x28, ((FldFrame *)MT_Scene_GetFrameState())->boardParam, 1);
+                    fldStepSaveBoard(FldStepIndex());
                 }
                 FldCellCreateGrid();
                 FldStepRefreshBandResVisibility();
             } else if (FldMap_IsCurrentInBandB() != 0) {
-                var_9_2 = 0;
-                temp_8_2 = (u8 *)(iGpffff9db0);
-                b_dst = (u8 *)D_007E8060;
-                b_idx = (u8 *)D_005F05B8;
-                b_tbl = (u8 *)D_005F0590;
-                while (b_preset = *(u8 *)(b_idx + *(s32 *)temp_8_2 - 0x3C),
-                       var_9_2 < *(u8 *)(b_tbl + b_preset * 0xC + 1)) {
-                    temp_7_2 = var_9_2 * 4;
-                    b_resource = *(s32 *)(temp_8_2 + temp_7_2 + 0x28);
-                    *(s32 *)(b_dst + temp_7_2) = b_resource;
-                    var_9_2 += 1;
+                specialPublishIndex = 0;
+                specialPublishWork = (u8 *)(iGpffff9db0);
+                specialDestination = (u8 *)D_007E8060;
+                specialIndexTable = (u8 *)D_005F05B8;
+                specialCountTable = (u8 *)D_005F0590;
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                while (specialPreset = *(u8 *)(specialIndexTable + ((FldResourceWork *)specialPublishWork)->majorId - 0x3C),
+                       specialPublishIndex < ((FldResourcePreset *)(specialCountTable + specialPreset * 0xC))->specialCount) {
+                    specialPublishOffset = specialPublishIndex * 4;
+                    specialResource = ((FldResourceWork *)(specialPublishWork + specialPublishOffset))->resources[0];
+                    *(s32 *)(specialDestination + specialPublishOffset) = specialResource;
+                    specialPublishIndex += 1;
                 }
-                if (func_0015ac60(FldStepIndex()) == 0) {
-                    func_0015a7c0(FldStepIndex());
+                if (fldStepRestoreBoard(FldStepIndex()) == 0) {
+                    fldStepSaveBoard(FldStepIndex());
                 }
                 FldCellCreateGrid();
                 FldStepRefreshBandResVisibility();
             } else {
-                MT_Scene_CreateFldRes(0, *( u8 ** )(iGpffff9db0 + 0x28));
-                var_17_3 = 0;
-                while (var_17_3 < (u32) *( u32 * )((temp_3_13 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28))) + 0x11C)) {
-                    temp_16_7 = var_17_3 * 0x18;
-                    temp_18 = (u8 *)(func_003e9700(*( RwFrame ** )((temp_3_13 + temp_16_7) + 0x128)));
-                    temp_3_14 = (*( u16 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x120));
-                    if ((temp_3_14 == 0) || (temp_3_14 == 2)) {
-                        temp_2_5 = *( u8 ** )(iGpffff9db0 + 0x28);
-                        temp_2_5 += var_17_3 * 0x18;
-                        temp_19 = (s32)(MT_Scene_CreateModelFldRes(*( u16 * )(temp_2_5 + 0x124), *( s32 * )(temp_2_5 + 0x12C)) & 0xFFFF);
-                        if (temp_19 == 0) {
+                MT_Scene_CreateFldRes(0, (u8 *)((FldResourceWork *)iGpffff9db0)->resources[0]);
+                modelFrameIndex = 0;
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                while (modelFrameIndex < (u32) *( u32 * )((modelFrameResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])) + 0x11C)) {
+                    modelFrameOffset = modelFrameIndex * 0x18;
+                    frameMatrix = (u8 *)(func_003e9700((RwFrame *)((FldResource *)(modelFrameResource + modelFrameOffset))->entries[0].frame));
+                    frameKind = (((FldResource *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0] + modelFrameOffset))->entries[0].type);
+                    if ((frameKind == 0) || (frameKind == 2)) {
+                        modelEntryCursor = (u8 *)((FldResourceWork *)iGpffff9db0)->resources[0];
+                        modelEntryCursor += modelFrameIndex * 0x18;
+                        modelId = (s32)(MT_Scene_CreateModelFldRes(((FldResource *)modelEntryCursor)->entries[0].id, ((FldResource *)modelEntryCursor)->entries[0].model) & 0xFFFF);
+                        if (modelId == 0) {
                             kAssertFail((const char *)D_005EFC80, 0x297);
                         }
-                        angles.x = KDraw_MatrixPitchDeg(temp_18);
-                        angles.y = KDraw_MatrixYawDeg(temp_18);
-                        angles.z = KDraw_MatrixRollDeg(temp_18);
-                        MT_Scene_SetResPlacement(temp_19, temp_18 + 0x30, (u8 *)&angles);
-                        temp_4_8 = (u8 *)(iGpffff9db0);
-                        if ((*( s32 * )(temp_4_8 + 0) != 0x14) || (*( s32 * )(temp_4_8 + 4) != 1)) {
-                            temp_18_2 = (s32)(mdlGetClump(*( void ** )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C)));
-                            if (FldRcClumpSetMipmapTex((u8 *)(temp_18_2), func_003ef650(func_003ef6d0(), D_005EFCB0)) == 1) {
-                                temp_2_6 = (u8 *)(MT_Scene_GetRes(temp_19));
-                                *( s32 * )(temp_2_6 + 0x28) = (s32) (*( s32 * )(temp_2_6 + 0x28) | 0x01000000);
+                        angles.x = KDraw_MatrixPitchDeg(frameMatrix);
+                        angles.y = KDraw_MatrixYawDeg(frameMatrix);
+                        angles.z = KDraw_MatrixRollDeg(frameMatrix);
+                        MT_Scene_SetResPlacement(modelId, frameMatrix + 0x30, (u8 *)&angles);
+                        mipmapWork = (u8 *)(iGpffff9db0);
+                        if ((((FldResourceWork *)mipmapWork)->majorId != 0x14) || (((FldResourceWork *)mipmapWork)->minorId != 1)) {
+                            modelClump = (s32)(mdlGetClump((void *)((FldResource *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0] + modelFrameOffset))->entries[0].model));
+                            if (FldRcClumpSetMipmapTex((u8 *)(modelClump), func_003ef650(func_003ef6d0(), D_005EFCB0)) == 1) {
+                                sceneModelResource = (u8 *)(MT_Scene_GetRes(modelId));
+                                ((ResrcRecord *)sceneModelResource)->unk28 = (s32) (((ResrcRecord *)sceneModelResource)->unk28 | 0x01000000);
                             }
                         }
-                        if (*( u16 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x122) & 2) {
-                            temp_2_6 = (u8 *)(MT_Scene_GetRes(temp_19));
-                            *( s32 * )(temp_2_6 + 0x150) = 1;
+                        if (((FldResource *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0] + modelFrameOffset))->entries[0].flags & 2) {
+                            sceneModelResource = (u8 *)(MT_Scene_GetRes(modelId));
+                            ((ResrcRecord *)sceneModelResource)->value150 = 1;
                         }
-                        *( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C) = 0;
+                        ((FldResource *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0] + modelFrameOffset))->entries[0].model = 0;
                     }
-                    var_17_3 += 1;
+                    modelFrameIndex += 1;
                 }
-                var_17_4 = 0;
-                while (var_17_4 < *(frameCount = (u32 *)((temp_4_9 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28))) + 0x11C))) {
-                    temp_16_8 = var_17_4 * 0x18;
-                    func_003e9700(*( RwFrame ** )((temp_4_9 + temp_16_8) + 0x128));
-                    temp_4_10 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
-                    if (*( u16 * )((temp_4_10 + temp_16_8) + 0x120) == 1) {
-                        temp_2_7 = (u8 *)(temp_4_10 + (var_17_4 * 0x18));
-                        temp_18_3 = (s32)(MT_Scene_CreateRes11(*( u16 * )(temp_2_7 + 0x124), *( s32 * )(temp_2_7 + 0x130)) & 0xFFFF);
-                        if (temp_18_3 == 0) {
+                effectFrameIndex = 0;
+                while (effectFrameIndex < *(frameCount = (u32 *)((effectCountResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])) + 0x11C))) {
+                    effectFrameOffset = effectFrameIndex * 0x18;
+                    func_003e9700((RwFrame *)((FldResource *)(effectCountResource + effectFrameOffset))->entries[0].frame);
+                    effectFrameResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0]);
+                    if (((FldResource *)(effectFrameResource + effectFrameOffset))->entries[0].type == 1) {
+                        effectEntryCursor = (u8 *)(effectFrameResource + (effectFrameIndex * 0x18));
+                        effectId = (s32)(MT_Scene_CreateRes11(((FldResource *)effectEntryCursor)->entries[0].id, ((FldResource *)effectEntryCursor)->entries[0].effect) & 0xFFFF);
+                        if (effectId == 0) {
                             kAssertFail((const char *)D_005EFC80, 0x2C7);
                         }
-                        *( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_8) + 0x130) = 0;
-                        temp_2_8 = (u8 *)(MT_Scene_GetRes(temp_18_3));
-                        *( s32 * )(temp_2_8 + 0x28) = (s32) (*( s32 * )(temp_2_8 + 0x28) | 2);
+                        ((FldResource *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0] + effectFrameOffset))->entries[0].effect = 0;
+                        sceneEffectResource = (u8 *)(MT_Scene_GetRes(effectId));
+                        ((ResrcRecord *)sceneEffectResource)->unk28 = (s32) (((ResrcRecord *)sceneEffectResource)->unk28 | 2);
                     }
-                    var_17_4 += 1;
+                    effectFrameIndex += 1;
                 }
                 *frameCount = 0U;
                 resrcMngResetRenderSlots();
@@ -969,221 +1065,221 @@ block_123:
                     resrcMngSetDrawEnabled(enable, enable);
                 }
             }
-            *( s32 * )(iGpffff9db0 + 0xDC) = FldEnvOpenFile(*( s16 * )(iGpffff9db0 + 0x12));
-            if (*( s32 * )(iGpffff9db0 + 0) >= 0xC8) {
+            ((FldResourceWork *)iGpffff9db0)->environmentFile = FldEnvOpenFile(((FldResourceWork *)iGpffff9db0)->environmentId);
+            if (((FldResourceWork *)iGpffff9db0)->majorId >= 0xC8) {
                 func_003e8180((void *)(u32)kwlnGetCamera(), 100.0f);
             }
-            if (*( s32 * )(iGpffff9db0 + 0) < 0xC8) {
+            if (((FldResourceWork *)iGpffff9db0)->majorId < 0xC8) {
                 func_003e8180((void *)(u32)kwlnGetCamera(), 100.0f);
             }
-            temp_3_15 = (u8 *)(iGpffff9db0);
-            if (*( s32 * )(temp_3_15 + 0xDC) == 0) {
-                *( s32 * )(iGpffff9db0 + 0xDC) = FldCamOpenFile();
-                temp_3_16 = (u8 *)(iGpffff9db0);
-                if (*( s32 * )(temp_3_16 + 0xDC) != 0) {
-                    *( s32 * )(temp_3_16 + 0x94) = 0xA;
+            environmentOpenWork = (u8 *)(iGpffff9db0);
+            if (((FldResourceWork *)environmentOpenWork)->environmentFile == 0) {
+                ((FldResourceWork *)iGpffff9db0)->environmentFile = FldCamOpenFile();
+                cameraOpenWork = (u8 *)(iGpffff9db0);
+                if (((FldResourceWork *)cameraOpenWork)->environmentFile != 0) {
+                    ((FldResourceWork *)cameraOpenWork)->state = 0xA;
                 } else {
-                    *( s32 * )(temp_3_16 + 0x94) = 0xB;
+                    ((FldResourceWork *)cameraOpenWork)->state = 0xB;
                 }
-                goto block_259;
+                goto pending;
             }
-            *( s32 * )(temp_3_15 + 0x94) = 9;
+            ((FldResourceWork *)environmentOpenWork)->state = 9;
 waitEnvironment:
-            temp_2_9 = (u8 *)(iGpffff9db0);
-            if (FldEnvironmentLoad((u8 *)(*( s32 * )(temp_2_9 + 0xDC)), *( s16 * )(temp_2_9 + 0x12)) != 0) {
-                *( s32 * )(iGpffff9db0 + 0xDC) = FldCamOpenFile();
-                temp_3_17 = (u8 *)(iGpffff9db0);
-                if (*( s32 * )(temp_3_17 + 0xDC) != 0) {
-                    *( s32 * )(temp_3_17 + 0x94) = 0xA;
+            environmentWork = (u8 *)(iGpffff9db0);
+            if (FldEnvironmentLoad((u8 *)(((FldResourceWork *)environmentWork)->environmentFile), ((FldResourceWork *)environmentWork)->environmentId) != 0) {
+                ((FldResourceWork *)iGpffff9db0)->environmentFile = FldCamOpenFile();
+                cameraReadWork = (u8 *)(iGpffff9db0);
+                if (((FldResourceWork *)cameraReadWork)->environmentFile != 0) {
+                    ((FldResourceWork *)cameraReadWork)->state = 0xA;
                 } else {
-                    *( s32 * )(temp_3_17 + 0x94) = 0xB;
-                    goto block_259;
+                    ((FldResourceWork *)cameraReadWork)->state = 0xB;
+                    goto pending;
                 }
             } else {
                 return 0;
             }
 readCamera:
-            if (FldCamReadRecord((u8 *)(*( s32 * )(iGpffff9db0 + 0xDC)), (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, &fieldOfView, &cameraKind, (u8 *)&cameraPosition, &cameraValue60, &cameraValue64, (s32 *)cameraEntries, (s32 *)cameraEntryPositions) != 0) {
+            if (FldCamReadRecord((u8 *)(((FldResourceWork *)iGpffff9db0)->environmentFile), (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, &fieldOfView, &cameraKind, (u8 *)&cameraPosition, &cameraValue60, &cameraValue64, (s32 *)cameraEntries, (s32 *)cameraEntryPositions) != 0) {
                 MT_Scene_CreateCameraRes(0, cameraKind, fieldOfView, (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, (u8 *)&cameraPosition, cameraValue60, cameraValue64, cameraEntries, cameraEntryPositions);
-                *( s32 * )(iGpffff9db0 + 0x94) = 0xB;
-                goto block_259;
+                ((FldResourceWork *)iGpffff9db0)->state = 0xB;
+                goto pending;
             }
             return 0;
 loadParts:
         if (FldMap_IsCurrentInBandB() == 1) {
-            temp_2_11 = (u8 *)(iGpffff9db0);
-            *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = (s32)FldFbnOpenData(*( u16 * )(temp_2_11 + 0), *( u16 * )(temp_2_11 + 4), *( s16 * )(temp_2_11 + 0x10));
+            primaryOpenWork = (u8 *)(iGpffff9db0);
+            ((FldResource *)(u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])->fbnFile = (s32)FldFbnOpenData((u16)((FldResourceWork *)primaryOpenWork)->majorId, (u16)((FldResourceWork *)primaryOpenWork)->minorId, ((FldResourceWork *)primaryOpenWork)->variant);
         } else {
-            var_16_8 = 0;
-            while (var_16_8 < *( s32 * )(iGpffff9db0 + 0x24)) {
-                temp_3_18 = (u8 *)(iGpffff9db0);
-                temp_17_6 = var_16_8 * 4;
-                temp_2_12 = (u8 *)(*( u8 ** )((temp_3_18 + temp_17_6) + 0x28));
-                *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_6) + 0x28) + 0xA48) = (s32)FldFbnOpenData(*( u16 * )(temp_2_12 + 4), *( u16 * )(temp_2_12 + 6), *( s16 * )(temp_3_18 + 0x10));
-                var_16_8 += 1;
+            partOpenIndex = 0;
+            while (partOpenIndex < ((FldResourceWork *)iGpffff9db0)->resourceCount) {
+                partOpenWork = (u8 *)(iGpffff9db0);
+                partOpenOffset = partOpenIndex * 4;
+                partOpenResource = (u8 *)((u8 *)((FldResourceWork *)(partOpenWork + partOpenOffset))->resources[0]);
+                ((FldResource *)((u8 *)((FldResourceWork *)(iGpffff9db0 + partOpenOffset))->resources[0]))->fbnFile = (s32)FldFbnOpenData((u16)((FldResource *)partOpenResource)->majorId, (u16)((FldResource *)partOpenResource)->minorId, ((FldResourceWork *)partOpenWork)->variant);
+                partOpenIndex += 1;
             }
         }
-        *( s32 * )(iGpffff9db0 + 0x94) = 0xC;
+        ((FldResourceWork *)iGpffff9db0)->state = 0xC;
         /* fallthrough */
 readParts:
-        var_16_9 = 0;
+        partReadPendingCount = 0;
         initialPrimary = FldMap_IsCurrentInBandB();
         if (initialPrimary == 1) {
             initialPartWork = (FldPartReadWork *)iGpffff9db0;
             initialPrimary = (uintptr_t)initialPartWork->primaryResource;
-            if (FldFbnReadTable(((FldResourceFbnView *)initialPrimary)->file,
-                             &((FldResourceFbnView *)initialPrimary)->data,
+            if (FldFbnReadTable(((FldResourceFbn *)initialPrimary)->file,
+                             &((FldResourceFbn *)initialPrimary)->data,
                              (u16)initialPartWork->majorId,
                              (u16)initialPartWork->minorId,
                              initialPartWork->variant) == 0) {
-                var_16_9 += 1;
+                partReadPendingCount += 1;
             }
         } else {
-            var_17_5 = 0;
-            while (var_17_5 < *( s32 * )(iGpffff9db0 + 0x24)) {
-                temp_3_20 = (u8 *)(iGpffff9db0);
-                temp_2_14 = (u8 *)(*( u8 ** )((temp_3_20 + (var_17_5 * 4)) + 0x28));
-                if (FldFbnReadTable((u8 *)(*( s32 * )(temp_2_14 + 0xA48)), (u8 **)(temp_2_14 + 0xA4C), *( u16 * )(temp_2_14 + 4), *( u16 * )(temp_2_14 + 6), *( s16 * )(temp_3_20 + 0x10)) == 0) {
-                    var_16_9 += 1;
+            partReadIndex = 0;
+            while (partReadIndex < ((FldResourceWork *)iGpffff9db0)->resourceCount) {
+                partReadWork = (u8 *)(iGpffff9db0);
+                partReadResource = (u8 *)((u8 *)((FldResourceWork *)(partReadWork + (partReadIndex * 4)))->resources[0]);
+                if (FldFbnReadTable((u8 *)(((FldResource *)partReadResource)->fbnFile), (u8 **)&((FldResource *)partReadResource)->fbnData, (u16)((FldResource *)partReadResource)->majorId, (u16)((FldResource *)partReadResource)->minorId, ((FldResourceWork *)partReadWork)->variant) == 0) {
+                    partReadPendingCount += 1;
                 }
-                var_17_5 += 1;
+                partReadIndex += 1;
             }
         }
-        if (var_16_9 != 0) {
+        if (partReadPendingCount != 0) {
             return 0;
         }
-        *( s32 * )(iGpffff9db0 + 0x94) = 0xD;
+        ((FldResourceWork *)iGpffff9db0)->state = 0xD;
 waitParts:
-        var_17_6 = 0;
-        var_18_3 = 0;
-        while (var_18_3 < *( s32 * )((temp_3_21 = (u8 *)(iGpffff9db0)) + 0x24)) {
-            temp_2_15 = (u8 *)iGpffff9db0;
-            temp_16_9 = var_18_3 * 4;
-            temp_2_15 = (u8 *)(*( u8 ** )((temp_2_15 + temp_16_9) + 0x28));
-            if (FldFbnApplyTable((u8 *)(*( s32 * )(temp_2_15 + 0xA48)),(u8 *)(*( s32 * )(temp_2_15 + 0xA4C))) == 0) {
-                var_17_6 += 1;
+        partApplyPendingCount = 0;
+        partApplyIndex = 0;
+        while (partApplyIndex < ((FldResourceWork *)(partApplyWork = (u8 *)(iGpffff9db0)))->resourceCount) {
+            partApplyResource = (u8 *)iGpffff9db0;
+            partApplyOffset = partApplyIndex * 4;
+            partApplyResource = (u8 *)((u8 *)((FldResourceWork *)(partApplyResource + partApplyOffset))->resources[0]);
+            if (FldFbnApplyTable((u8 *)(((FldResource *)partApplyResource)->fbnFile),(u8 *)(((FldResource *)partApplyResource)->fbnDataWord)) == 0) {
+                partApplyPendingCount += 1;
             } else {
-                *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_16_9) + 0x28) + 0xA48) = 0;
+                ((FldResource *)((u8 *)((FldResourceWork *)(iGpffff9db0 + partApplyOffset))->resources[0]))->fbnFile = 0;
             }
-            var_18_3 += 1;
+            partApplyIndex += 1;
         }
-        if (var_17_6 != 0) {
+        if (partApplyPendingCount != 0) {
             return 0;
         }
-        *( s32 * )(temp_3_21 + 0x94) = 0x3E7;
-        goto block_259;
+        ((FldResourceWork *)partApplyWork)->state = 0x3E7;
+        goto pending;
 reloadParts:
-        var_18_4 = (u8 *)(MT_Scene_GetResListHead(3));
-        var_17_7 = (u8 *)(MT_Scene_GetResListHead(8));
-        if (fldResourceReady_0014f310((u8 *)iGpffffb200) != 0) {
-            while (var_18_4 != NULL) {
-                temp_16_10 = (u8 *)(*( u8 ** )(var_18_4 + 0x138));
-                MT_Scene_DestroyRes(*( u16 * )(var_18_4 + 0));
-                var_18_4 = (u8 *)(temp_16_10);
+        modelResource = (u8 *)(MT_Scene_GetResListHead(3));
+        effectResource = (u8 *)(MT_Scene_GetResListHead(8));
+        if (fldResourceIsReady((u8 *)iGpffffb200) != 0) {
+            while (modelResource != NULL) {
+                nextModelResource = (u8 *)((u8 *)((ResrcRecord *)modelResource)->next);
+                MT_Scene_DestroyRes((u16)((FldResource *)modelResource)->flags);
+                modelResource = (u8 *)(nextModelResource);
             }
-            while (var_17_7 != NULL) {
-                temp_16_11 = (u8 *)(*( u8 ** )(var_17_7 + 0x138));
-                MT_Scene_DestroyRes(*( u16 * )(var_17_7 + 0));
-                var_17_7 = (u8 *)(temp_16_11);
+            while (effectResource != NULL) {
+                nextEffectResource = (u8 *)((u8 *)((ResrcRecord *)effectResource)->next);
+                MT_Scene_DestroyRes((u16)((FldResource *)effectResource)->flags);
+                effectResource = (u8 *)(nextEffectResource);
             }
             if (FldMap_IsCurrentInBandB() == 1) {
-                temp_2_16 = (u8 *)(iGpffff9db0);
-                *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = (s32)FldFbnOpenData(*( u16 * )(temp_2_16 + 0), *( u16 * )(temp_2_16 + 4), *( s16 * )(temp_2_16 + 0x10));
+                primaryReloadWork = (u8 *)(iGpffff9db0);
+                ((FldResource *)(u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])->fbnFile = (s32)FldFbnOpenData((u16)((FldResourceWork *)primaryReloadWork)->majorId, (u16)((FldResourceWork *)primaryReloadWork)->minorId, ((FldResourceWork *)primaryReloadWork)->variant);
             } else {
-                var_16_10 = 0;
-                while (var_16_10 < *( s32 * )(iGpffff9db0 + 0x24)) {
-                    temp_3_22 = (u8 *)(iGpffff9db0);
-                    temp_17_7 = var_16_10 * 4;
-                    temp_2_17 = (u8 *)(*( u8 ** )((temp_3_22 + temp_17_7) + 0x28));
-                    *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_7) + 0x28) + 0xA48) = (s32)FldFbnOpenData(*( u16 * )(temp_2_17 + 4), *( u16 * )(temp_2_17 + 6), *( s16 * )(temp_3_22 + 0x10));
-                    var_16_10 += 1;
+                partReloadIndex = 0;
+                while (partReloadIndex < ((FldResourceWork *)iGpffff9db0)->resourceCount) {
+                    partReloadWork = (u8 *)(iGpffff9db0);
+                    partReloadOffset = partReloadIndex * 4;
+                    partReloadResource = (u8 *)((u8 *)((FldResourceWork *)(partReloadWork + partReloadOffset))->resources[0]);
+                    ((FldResource *)((u8 *)((FldResourceWork *)(iGpffff9db0 + partReloadOffset))->resources[0]))->fbnFile = (s32)FldFbnOpenData((u16)((FldResource *)partReloadResource)->majorId, (u16)((FldResource *)partReloadResource)->minorId, ((FldResourceWork *)partReloadWork)->variant);
+                    partReloadIndex += 1;
                 }
             }
-            *( s32 * )(iGpffff9db0 + 0x94) = 0x1F;
+            ((FldResourceWork *)iGpffff9db0)->state = 0x1F;
 readReloadedParts:
-            var_16_11 = 0;
+            reloadedReadPendingCount = 0;
             reloadedPrimary = FldMap_IsCurrentInBandB();
             if (reloadedPrimary == 1) {
                 reloadedPartWork = (FldPartReadWork *)iGpffff9db0;
                 reloadedPrimary = (uintptr_t)reloadedPartWork->primaryResource;
-                if (FldFbnReadTable(((FldResourceFbnView *)reloadedPrimary)->file,
-                                 &((FldResourceFbnView *)reloadedPrimary)->data,
+                if (FldFbnReadTable(((FldResourceFbn *)reloadedPrimary)->file,
+                                 &((FldResourceFbn *)reloadedPrimary)->data,
                                  (u16)reloadedPartWork->majorId,
                                  (u16)reloadedPartWork->minorId,
                                  reloadedPartWork->variant) == 0) {
-                    var_16_11 += 1;
+                    reloadedReadPendingCount += 1;
                 }
             } else {
-                var_17_8 = 0;
-                while (var_17_8 < *( s32 * )(iGpffff9db0 + 0x24)) {
-                    temp_3_24 = (u8 *)(iGpffff9db0);
-                    temp_2_19 = (u8 *)(*( u8 ** )((temp_3_24 + (var_17_8 * 4)) + 0x28));
-                    if (FldFbnReadTable((u8 *)(*( s32 * )(temp_2_19 + 0xA48)), (u8 **)(temp_2_19 + 0xA4C), *( u16 * )(temp_2_19 + 4), *( u16 * )(temp_2_19 + 6), *( s16 * )(temp_3_24 + 0x10)) == 0) {
-                        var_16_11 += 1;
+                reloadedReadIndex = 0;
+                while (reloadedReadIndex < ((FldResourceWork *)iGpffff9db0)->resourceCount) {
+                    reloadedReadWork = (u8 *)(iGpffff9db0);
+                    reloadedReadResource = (u8 *)((u8 *)((FldResourceWork *)(reloadedReadWork + (reloadedReadIndex * 4)))->resources[0]);
+                    if (FldFbnReadTable((u8 *)(((FldResource *)reloadedReadResource)->fbnFile), (u8 **)&((FldResource *)reloadedReadResource)->fbnData, (u16)((FldResource *)reloadedReadResource)->majorId, (u16)((FldResource *)reloadedReadResource)->minorId, ((FldResourceWork *)reloadedReadWork)->variant) == 0) {
+                        reloadedReadPendingCount += 1;
                     }
-                    var_17_8 += 1;
+                    reloadedReadIndex += 1;
                 }
             }
-            if (var_16_11 != 0) {
+            if (reloadedReadPendingCount != 0) {
                 return 0;
             }
-            *( s32 * )(iGpffff9db0 + 0x94) = 0x20;
+            ((FldResourceWork *)iGpffff9db0)->state = 0x20;
 waitReloadedParts:
-            var_17_9 = 0;
+            reloadedApplyPendingCount = 0;
             if (FldMap_IsCurrentInBandB() == 1) {
-                temp_2_20 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
-                if (FldFbnApplyTable((u8 *)(*( s32 * )(temp_2_20 + 0xA48)),(u8 *)(*( s32 * )(temp_2_20 + 0xA4C))) == 0) {
-                    var_17_9 += 1;
+                primaryApplyResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0]);
+                if (FldFbnApplyTable((u8 *)(((FldResource *)primaryApplyResource)->fbnFile),(u8 *)(((FldResource *)primaryApplyResource)->fbnDataWord)) == 0) {
+                    reloadedApplyPendingCount += 1;
                 } else {
-                    *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = 0;
+                    ((FldResource *)(u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])->fbnFile = 0;
                 }
             } else {
-                var_18_5 = 0;
-                while (var_18_5 < *( s32 * )(iGpffff9db0 + 0x24)) {
-                    temp_2_21 = (u8 *)iGpffff9db0;
-                    temp_16_12 = var_18_5 * 4;
-                    temp_2_21 = (u8 *)(*( u8 ** )((temp_2_21 + temp_16_12) + 0x28));
-                    if (FldFbnApplyTable((u8 *)(*( s32 * )(temp_2_21 + 0xA48)),(u8 *)(*( s32 * )(temp_2_21 + 0xA4C))) == 0) {
-                        var_17_9 += 1;
+                reloadedApplyIndex = 0;
+                while (reloadedApplyIndex < ((FldResourceWork *)iGpffff9db0)->resourceCount) {
+                    reloadedApplyResource = (u8 *)iGpffff9db0;
+                    reloadedApplyOffset = reloadedApplyIndex * 4;
+                    reloadedApplyResource = (u8 *)((u8 *)((FldResourceWork *)(reloadedApplyResource + reloadedApplyOffset))->resources[0]);
+                    if (FldFbnApplyTable((u8 *)(((FldResource *)reloadedApplyResource)->fbnFile),(u8 *)(((FldResource *)reloadedApplyResource)->fbnDataWord)) == 0) {
+                        reloadedApplyPendingCount += 1;
                     } else {
-                        *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_16_12) + 0x28) + 0xA48) = 0;
+                        ((FldResource *)((u8 *)((FldResourceWork *)(iGpffff9db0 + reloadedApplyOffset))->resources[0]))->fbnFile = 0;
                     }
-                    var_18_5 += 1;
+                    reloadedApplyIndex += 1;
                 }
             }
-            if (var_17_9 != 0) {
+            if (reloadedApplyPendingCount != 0) {
                 return 0;
             }
-            temp_3_25 = (u8 *)(iGpffff9db0);
-            if (*( s32 * )(temp_3_25 + 0xC) & 4) {
-                *( s32 * )(temp_3_25 + 0x94) = 0x28;
+            reloadedApplyWork = (u8 *)(iGpffff9db0);
+            if (((FldResourceWork *)reloadedApplyWork)->flags & 4) {
+                ((FldResourceWork *)reloadedApplyWork)->state = 0x28;
             } else {
-                *( s32 * )(temp_3_25 + 0x94) = 0x3E7;
-                goto block_259;
+                ((FldResourceWork *)reloadedApplyWork)->state = 0x3E7;
+                goto pending;
             }
 loadEnvironment:
-            if (fldResourceReady_0014f310((u8 *)iGpffffb200) == 0) {
-                goto block_259;
+            if (fldResourceIsReady((u8 *)iGpffffb200) == 0) {
+                goto pending;
             }
-            *( s32 * )(iGpffff9db0 + 0xDC) = FldEnvOpenFile(*( s16 * )(iGpffff9db0 + 0x12));
-            *( s32 * )(iGpffff9db0 + 0x94) = 0x29;
+            ((FldResourceWork *)iGpffff9db0)->environmentFile = FldEnvOpenFile(((FldResourceWork *)iGpffff9db0)->environmentId);
+            ((FldResourceWork *)iGpffff9db0)->state = 0x29;
 waitReloadedEnvironment:
-            temp_2_22 = (u8 *)(iGpffff9db0);
-            if (FldEnvironmentLoad((u8 *)(*( s32 * )(temp_2_22 + 0xDC)), *( s16 * )(temp_2_22 + 0x12)) != 0) {
-                *( s32 * )(iGpffff9db0 + 0x94) = 0x3E7;
-                goto block_259;
+            environmentReloadWork = (u8 *)(iGpffff9db0);
+            if (FldEnvironmentLoad((u8 *)(((FldResourceWork *)environmentReloadWork)->environmentFile), ((FldResourceWork *)environmentReloadWork)->environmentId) != 0) {
+                ((FldResourceWork *)iGpffff9db0)->state = 0x3E7;
+                goto pending;
             }
             return 0;
         }
-        goto block_259;
+        goto pending;
 completed:
-        temp_4_13 = (u8 *)(iGpffffb200);
-        if (temp_4_13 != NULL) {
-            H_Cdvd_Destroy(temp_4_13);
+        primaryFile = (u8 *)(iGpffffb200);
+        if (primaryFile != NULL) {
+            H_Cdvd_Destroy(primaryFile);
             iGpffffb200 = 0;
         }
         return 1;
-block_259:
+pending:
     return 0;
 }
 #pragma pop
@@ -1191,8 +1287,10 @@ block_259:
 #pragma push
 #pragma opt_loop_invariants on
 
+/* Allocate a resource and load state, parse fNNN_NNN IDs, and request its directory. */
+/* Earlier whole-layout probe changed 442 normalized bytes at equal size; only measured access-site exceptions remain. */
 // FUN_00150970
-u8 *FldResource_Create(char *arg0)
+u8 *FldResource_Create(char *path)
 {
     u32 base;
     u8 *resource;
@@ -1205,85 +1303,88 @@ u8 *FldResource_Create(char *arg0)
 
     chkmemAllocSiteTag(D_005EFC80, 0x460);
     base = (u32)D_008873F4;
-    resource = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(valid, 0xAB0, 0x40000);
+    resource = ((u8 *(*)(s32, s32, s32))((FldResource *)base)->flags)(valid, 0xAB0, 0x40000);
     if (resource == NULL) {
         return resource;
     }
     chkmemAllocSiteTag(D_005EFC80, 0x462);
-    work = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(valid, 0x12C, 0x40000);
+    work = ((u8 *(*)(s32, s32, s32))((FldResource *)base)->flags)(valid, 0x12C, 0x40000);
     *(u8 **)(resource + 0xA44) = work;
     if (work == NULL) {
         jtbl_008873EC[0](resource);
         return NULL;
     }
-    strcpy((char *)work, arg0);
-    while (*arg0 != '\0') {
-        arg0++;
+    strcpy((char *)work, path);
+    while (*path != '\0') {
+        path++;
     }
-    for (; *arg0 != '/'; arg0--) {
+    for (; *path != '/'; path--) {
     }
-    if (arg0[1] == 'f') {
-        if ((D_00754D88[(s8)arg0[2]] & 4) == 0) {
+    if (path[1] == 'f') {
+        if ((D_00754D88[(s8)path[2]] & 4) == 0) {
             valid = 0;
         }
-        if ((D_00754D88[(s8)arg0[3]] & 4) == 0) {
+        if ((D_00754D88[(s8)path[3]] & 4) == 0) {
             valid = 0;
         }
-        if ((D_00754D88[(s8)arg0[4]] & 4) == 0) {
+        if ((D_00754D88[(s8)path[4]] & 4) == 0) {
             valid = 0;
         }
-        if (arg0[5] != '_') {
+        if (path[5] != '_') {
             valid = 0;
         }
-        if ((D_00754D88[(s8)arg0[6]] & 4) == 0) {
+        if ((D_00754D88[(s8)path[6]] & 4) == 0) {
             valid = 0;
         }
-        if ((D_00754D88[(s8)arg0[7]] & 4) == 0) {
+        if ((D_00754D88[(s8)path[7]] & 4) == 0) {
             valid = 0;
         }
-        if ((D_00754D88[(s8)arg0[8]] & 4) == 0) {
+        if ((D_00754D88[(s8)path[8]] & 4) == 0) {
             valid = 0;
         }
     } else {
         valid = 0;
     }
     if (valid) {
-        local.token[0] = arg0[2];
-        local.token[1] = arg0[3];
-        local.token[2] = arg0[4];
+        local.token[0] = path[2];
+        local.token[1] = path[3];
+        local.token[2] = path[4];
         local.token[3] = '\0';
-        *(u16 *)(resource + 4) = (u16)atoi(local.token);
-        local.token[0] = arg0[6];
-        local.token[1] = arg0[7];
-        local.token[2] = arg0[8];
+        ((FldResource *)resource)->majorId = (u16)atoi(local.token);
+        local.token[0] = path[6];
+        local.token[1] = path[7];
+        local.token[2] = path[8];
         local.token[3] = '\0';
-        *(u16 *)(resource + 6) = (u16)atoi(local.token);
+        ((FldResource *)resource)->minorId = (u16)atoi(local.token);
     } else {
-        *(s16 *)(resource + 4) = -1;
-        *(s16 *)(resource + 6) = -1;
+        ((FldResource *)resource)->majorId = -1;
+        ((FldResource *)resource)->minorId = -1;
     }
     if (iGpffffb204 == 0) {
         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x4A5);
-        *(s32 *)(*(u8 **)(resource + 0xA44) + 0x80) =
+        ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->directory =
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             H_Cdvd_AcquireDirectory(*(char **)(resource + 0xA44), 0);
     } else {
-        *(s32 *)(*(u8 **)(resource + 0xA44) + 0x80) = 1;
+        ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->directory = 1;
     }
     return resource;
 }
 #pragma pop
 
+/* Poll the resource directory; shared secondary-directory resources are already available. */
+/* The load-state directory handle retains the pointer/integer transport used by the CDVD ABI. */
 // FUN_00150C80
-s32 FldResource_IsFileLoaded(u8 *arg0)
+s32 FldResource_IsFileLoaded(u8 *resource)
 {
-    u8 *p;
+    u8 *file;
 
-    p = *(u8 **)(*(u8 **)(arg0 + 0xA44) + 0x80);
-    if (p == NULL) {
+    file = (u8 *)((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->directory;
+    if (file == NULL) {
         return 1;
     }
     if (iGpffffb204 == 0) {
-        return H_Cdvd_IsFileLoaded((s32)p) != 0;
+        return H_Cdvd_IsFileLoaded((s32)file) != 0;
     }
     return 1;
 }
@@ -1291,6 +1392,8 @@ s32 FldResource_IsFileLoaded(u8 *arg0)
 /* measured: 988B/992B, all emitted instructions match; 4B retail zero tail.
    The stream descriptors and complete chunk header are real helper storage.
    Keep resource snapshots on their retail side of the asynchronous callbacks. */
+/* Dispatch world, clump, texture and animation chunks to asynchronous readers. */
+/* Earlier whole-layout probe: 988 -> 1016 bytes; the mixed body retains only measured load-state/stream exceptions. */
 // FUN_00150CE0
 void FldResource_ParseChunks(u8 *resource)
 {
@@ -1304,6 +1407,7 @@ void FldResource_ParseChunks(u8 *resource)
     s32 child;
     u8 *destination;
 
+    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     data = H_Cdvd_LookupRequest(*(u8 **)(resource + 0xA44), &size);
     memory[0] = data;
     memory[1] = size;
@@ -1313,48 +1417,56 @@ void FldResource_ParseChunks(u8 *resource)
             while (func_003df3c0(streamHandle, (s32 *)chunk) != 0) {
                 switch (chunk[0]) {
                 case 11:
-                    if (*(s32 *)(*(u8 **)(resource + 0xA44) +
-                                 *(s32 *)(*(u8 **)(resource + 0xA44) + 0x8C) * 4 + 0x90) == 0) {
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                    if (((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) +
+                                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                                 (s32)((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->worldCount * 4))->worldReaders[0] == 0) {
+                        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                         chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
                     }
                     chunkMemory[1] = memory[1];
                     child = func_003e2f60(3, 1, &chunkMemory[0]);
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     destination = *(u8 **)(resource + 0xA44);
-                    child = func_004667d0(1, 0, 0, 0, child, 0, 0, 0, 0, 0);
-                    *(s32 *)(destination + *(s32 *)(destination + 0x8C) * 4 + 0x90) = child;
+                    child = filerEnqueueRequest(1, 0, 0, 0, child, 0, 0, 0, 0, 0);
+                    ((FldResourceLoadWork *)(destination + (s32)((FldResourceLoadWork *)destination)->worldCount * 4))->worldReaders[0] = child;
                     func_003e2ce0(streamHandle, chunk[1]);
-                    *(s32 *)(*(u8 **)(resource + 0xA44) + 0x8C) =
-                        *(s32 *)(*(u8 **)(resource + 0xA44) + 0x8C) + 1;
+                    ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->worldCount =
+                        ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->worldCount + 1;
                     break;
                 case 16:
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
                     chunkMemory[1] = memory[1];
                     child = func_003e2f60(3, 1, &chunkMemory[0]);
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     destination = *(u8 **)(resource + 0xA44);
-                    child = func_004667d0(2, 0, 0, 0, child, 0, 0, 0, 0, 0);
-                    *(s32 *)(destination + *(s32 *)(destination + 0xA0) * 4 + 0xA4) = child;
+                    child = filerEnqueueRequest(2, 0, 0, 0, child, 0, 0, 0, 0, 0);
+                    ((FldResourceLoadWork *)(destination + (s32)((FldResourceLoadWork *)destination)->clumpCount * 4))->clumpReaders[0] = child;
                     func_003e2ce0(streamHandle, chunk[1]);
-                    *(s32 *)(*(u8 **)(resource + 0xA44) + 0xA0) =
-                        *(s32 *)(*(u8 **)(resource + 0xA44) + 0xA0) + 1;
+                    ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->clumpCount =
+                        ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->clumpCount + 1;
                     break;
                 case 35:
                     callbackHandle = func_003dc370((void *)streamHandle);
                     func_003ef260((const struct RwTexDictionary *)(u32)callbackHandle, K_Clump_AppendTextureName,
-                                  *(u8 **)(resource + 0xA44) + 0x128);
+                                  ((FldResource *)resource)->loadWork + 0x128);
                     func_003ef1b0(callbackHandle);
                     break;
                 case 22:
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
                     chunkMemory[1] = memory[1];
-                    child = func_004667d0(8, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
-                    *(s32 *)(*(u8 **)(resource + 0xA44) + 0x84) = child;
+                    child = filerEnqueueRequest(8, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
+                    ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureReader = child;
                     func_003e2ce0(streamHandle, chunk[1]);
                     break;
                 case 12:
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
                     chunkMemory[1] = memory[1];
-                    child = func_004667d0(0xB, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
-                    *(s32 *)(*(u8 **)(resource + 0xA44) + 0x124) = child;
+                    child = filerEnqueueRequest(0xB, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
+                    ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->animationReader = child;
                     func_003e2ce0(streamHandle, chunk[1]);
                     break;
                 default:
@@ -1366,9 +1478,11 @@ void FldResource_ParseChunks(u8 *resource)
                 func_003e2e40(streamHandle, 0);
             }
         } else {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             if (*(u8 **)(resource + 0xA44) != NULL) {
-                H_Cdvd_Destroy(*(u8 **)(*(u8 **)(resource + 0xA44) + 0x80));
-                jtbl_008873EC[0](*(u8 **)(resource + 0xA44));
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                H_Cdvd_Destroy((u8 *)((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->directory);
+                jtbl_008873EC[0](((FldResource *)resource)->loadWork);
             }
             if (resource != NULL) {
                 jtbl_008873EC[0](resource);
@@ -1377,376 +1491,422 @@ void FldResource_ParseChunks(u8 *resource)
     }
 }
 
+/* Install completed chunk readers and return one after every pending reader is consumed. */
+/* Earlier whole-layout probe: 1240/1216 bytes. The remaining raw resource loads are individually measured below. */
 // FUN_001510C0
-s32 FldResource_PollLoads(u8 *arg0)
+s32 FldResource_PollLoads(u8 *resource)
 {
-    s32 sp6C;
-    s32 sp68;
-    s32 var_16;
-    u32 var_20;
-    s32 temp_18;
-    u8 *temp_19;
-    u8 *temp_20;
-    u32 var_19;
+    s32 stream;
+    s32 status;
+    s32 pendingCount;
+    u32 worldIndex;
+    s32 dictionary;
+    u8 *world;
+    u8 *clump;
+    u32 clumpIndex;
 
-    var_16 = 0;
-    if (*(u8 **)(arg0 + 0xA44) == NULL) {
+    pendingCount = 0;
+    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+    if (*(u8 **)(resource + 0xA44) == NULL) {
         return 1;
     }
-    if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84) != 0) {
-        if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x128) != 0) {
+    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+    if (((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->textureReader != 0) {
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        if (((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->textureNames != 0) {
             kAssertFail((const char *)D_005EFC80, 0x56C);
         }
-        temp_18 = (s32)func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84), &sp68, &sp6C);
-        if (sp68 == 1) {
-            func_003ef260((const struct RwTexDictionary *)(u32)temp_18, K_Clump_AppendTextureName, *(u8 **)(arg0 + 0xA44) + 0x128);
-            func_003ef1b0(temp_18);
-            *(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84) = 0;
-            if (sp6C != 0) {
-                func_003e2e40(sp6C, 0);
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        dictionary = (s32)filerTakeCompletedRequest(((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->textureReader, &status, &stream);
+        if (status == 1) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003ef260((const struct RwTexDictionary *)(u32)dictionary, K_Clump_AppendTextureName, *(u8 **)(resource + 0xA44) + 0x128);
+            func_003ef1b0(dictionary);
+            ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureReader = 0;
+            if (stream != 0) {
+                func_003e2e40(stream, 0);
             }
         } else {
-            var_16 += 1;
+            pendingCount += 1;
         }
     }
-    for (var_20 = 0; var_20 < *(u32 *)(*(u8 **)(arg0 + 0xA44) + 0x8C); var_20++) {
-        if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_20 * 4 + 0x90) != 0) {
-            temp_19 = func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_20 * 4 + 0x90), &sp68, &sp6C);
-            if (sp68 == 1) {
-                if (temp_19 == NULL) {
+    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+    for (worldIndex = 0; worldIndex < ((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->worldCount; worldIndex++) {
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        if (((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) + worldIndex * 4))->worldReaders[0] != 0) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            world = filerTakeCompletedRequest(((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) + worldIndex * 4))->worldReaders[0], &status, &stream);
+            if (status == 1) {
+                if (world == NULL) {
                     kAssertFail((const char *)D_005EFC80, 0x588);
                 }
-                if (K_Clump_GeometryHasMatUsrData(temp_19, D_005EFCE0) != 0) {
-                    *(s32 *)(arg0 + 0x10) = (s32)temp_19;
-                } else if (K_Clump_GeometryHasMatUsrData(temp_19, D_005EFD00) != 0) {
-                    *(s32 *)(arg0 + 0x14) = (s32)temp_19;
-                } else if (*(s32 *)(arg0 + 0xC) == 0) {
-                    *(s32 *)(arg0 + 0xC) = (s32)temp_19;
-                    func_003db550(temp_19, (void *)(u32)kwlnGetCamera());
+                if (K_Clump_GeometryHasMatUsrData(world, D_005EFCE0) != 0) {
+                    ((FldResource *)resource)->alternateObject = (s32)world;
+                } else if (K_Clump_GeometryHasMatUsrData(world, D_005EFD00) != 0) {
+                    ((FldResource *)resource)->secondaryObject = (s32)world;
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                } else if (*(s32 *)(resource + 0xC) == 0) {
+                    ((FldResource *)resource)->primaryDrawObject = (s32)world;
+                    func_003db550(world, (void *)(u32)kwlnGetCamera());
                 } else {
-                    *(s32 *)(arg0 + 8) = (s32)temp_19;
+                    ((FldResource *)resource)->primaryObject = (s32)world;
                 }
-                *(s32 *)(*(u8 **)(arg0 + 0xA44) + var_20 * 4 + 0x90) = 0;
-                *(s32 *)(arg0 + 0) = *(s32 *)(arg0 + 0) | 1;
-                if (sp6C != 0) {
-                    func_003e2e40(sp6C, 0);
+                ((FldResourceLoadWork *)(((FldResource *)resource)->loadWork + worldIndex * 4))->worldReaders[0] = 0;
+                ((FldResource *)resource)->flags = ((FldResource *)resource)->flags | 1;
+                if (stream != 0) {
+                    func_003e2e40(stream, 0);
                 }
             } else {
-                var_16 += 1;
+                pendingCount += 1;
             }
         }
     }
-    for (var_19 = 0; var_19 < *(u32 *)(*(u8 **)(arg0 + 0xA44) + 0xA0); var_19++) {
-        if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_19 * 4 + 0xA4) != 0) {
-            temp_20 = func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_19 * 4 + 0xA4), &sp68, &sp6C);
-            if (sp68 == 1) {
-                if (temp_20 == NULL) {
+    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+    for (clumpIndex = 0; clumpIndex < ((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->clumpCount; clumpIndex++) {
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        if (((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) + clumpIndex * 4))->clumpReaders[0] != 0) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            clump = filerTakeCompletedRequest(((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) + clumpIndex * 4))->clumpReaders[0], &status, &stream);
+            if (status == 1) {
+                if (clump == NULL) {
                     kAssertFail((const char *)D_005EFC80, 0x5B4);
                 }
-                if (K_Clump_ClumpHasMatUsrData(temp_20, D_005EFCE0) != 0) {
-                    *(s32 *)(arg0 + 0x10) = (s32)temp_20;
-                } else if (K_Clump_ClumpHasMatUsrData(temp_20, D_005EFD00) != 0) {
-                    *(s32 *)(arg0 + 0x14) = (s32)temp_20;
-                } else if (!(*(s32 *)(arg0 + 0) & 1) && *(s32 *)(arg0 + 8) == 0) {
-                    *(s32 *)(arg0 + 8) = (s32)temp_20;
-                    *(void **)(arg0 + 0xC) = func_00462ae0(temp_20);
+                if (K_Clump_ClumpHasMatUsrData(clump, D_005EFCE0) != 0) {
+                    ((FldResource *)resource)->alternateObject = (s32)clump;
+                } else if (K_Clump_ClumpHasMatUsrData(clump, D_005EFD00) != 0) {
+                    ((FldResource *)resource)->secondaryObject = (s32)clump;
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                } else if (!(((FldResource *)resource)->flags & 1) && *(s32 *)(resource + 8) == 0) {
+                    ((FldResource *)resource)->primaryObject = (s32)clump;
+                    ((FldResource *)resource)->primaryDrawObjectPtr = sdkClumpCreateBuckets(clump);
                 } else {
-                    *(s32 *)(arg0 + *(s32 *)(arg0 + 0x18) * 4 + 0x1C) = (s32)temp_20;
-                    *(void **)(arg0 + *(s32 *)(arg0 + 0x18) * 4 + 0x9C) = func_00462ae0(temp_20);
-                    *(s32 *)(arg0 + 0x18) = *(s32 *)(arg0 + 0x18) + 1;
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                    ((FldResource *)(resource + *(s32 *)(resource + 0x18) * 4))->clumps[0] = (s32)clump;
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                    ((FldResource *)(resource + *(s32 *)(resource + 0x18) * 4))->drawObjectPointers[0] = sdkClumpCreateBuckets(clump);
+                    ((FldResource *)resource)->clumpCount = (s32)((FldResource *)resource)->clumpCount + 1;
                 }
-                *(s32 *)(*(u8 **)(arg0 + 0xA44) + var_19 * 4 + 0xA4) = 0;
-                if (sp6C != 0) {
-                    func_003e2e40(sp6C, 0);
+                ((FldResourceLoadWork *)(((FldResource *)resource)->loadWork + clumpIndex * 4))->clumpReaders[0] = 0;
+                if (stream != 0) {
+                    func_003e2e40(stream, 0);
                 }
             } else {
-                var_16 += 1;
+                pendingCount += 1;
             }
         }
     }
-    if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x124) != 0) {
-        *(s32 *)(arg0 + 0xA20) = (s32)func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x124), &sp68, &sp6C);
-        if (sp68 == 1) {
-            if (sp6C != 0) {
-                func_003e2e40(sp6C, 0);
+    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+    if (((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->animationReader != 0) {
+        *(s32 *)(resource + 0xA20) = (s32)filerTakeCompletedRequest(((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->animationReader, &status, &stream);
+        if (status == 1) {
+            if (stream != 0) {
+                func_003e2e40(stream, 0);
             }
-            if (*(s32 *)(arg0 + 0xA20) == 0) {
+            if (((FldResource *)resource)->animation == 0) {
                 kAssertFail((const char *)D_005EFC80, 0x5D9);
             }
-            *(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x124) = 0;
+            ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->animationReader = 0;
         } else {
-            var_16 += 1;
+            pendingCount += 1;
         }
     }
-    if (var_16 == 0) {
-        if (*(s32 *)(arg0 + 8) == 0) {
-            *(s32 *)(arg0 + 0) = *(s32 *)(arg0 + 0) | 0x10000000;
-            *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 0xC);
+    if (pendingCount == 0) {
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        if (*(s32 *)(resource + 8) == 0) {
+            ((FldResource *)resource)->flags = ((FldResource *)resource)->flags | 0x10000000;
+            ((FldResource *)resource)->primaryObject = ((FldResource *)resource)->primaryDrawObject;
         }
-        if (!(*(s32 *)(arg0 + 0) & 1) && *(s32 *)(arg0 + 0x18) == 0) {
-            *(s32 *)(arg0 + 0) = *(s32 *)(arg0 + 0) | 0x10000000;
+        if (!(((FldResource *)resource)->flags & 1) && (s32)((FldResource *)resource)->clumpCount == 0) {
+            ((FldResource *)resource)->flags = ((FldResource *)resource)->flags | 0x10000000;
         }
         if (iGpffffb204 == 0) {
-            H_Cdvd_Destroy(*(u8 **)(*(u8 **)(arg0 + 0xA44) + 0x80));
+            H_Cdvd_Destroy((u8 *)((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->directory);
         }
-        *(s32 *)(arg0 + 0xA24) = 0x3F800000;
-        *(s32 *)(arg0 + 0xA28) = 0x3F800000;
-        *(s32 *)(arg0 + 0xA2C) = 0x3F800000;
+        ((FldResource *)resource)->scaleXBits = 0x3F800000;
+        ((FldResource *)resource)->scaleYBits = 0x3F800000;
+        ((FldResource *)resource)->scaleZBits = 0x3F800000;
         return 1;
     }
     return 0;
 }
 
+/* Find the first non-effect property frame with the requested ID; also publish its flag. */
+/* measured: typed clump-pointer reads change this body; retain only the marked cursor reads. */
 // FUN_00151580
-s32 FldResource_FindFrameForId(u8 *arg0, s32 arg1, s32 *arg2)
+s32 FldResource_FindFrameForId(u8 *resource, s32 entryId, s32 *flagsOut)
 {
-    KClumpIntPropertyResult spA8;
-    KClumpIntPropertyResult spA0;
-    KClumpIntPropertyResult sp98;
-    s32 var_17;
-    s32 var_16;
-    u8 *temp_21;
-    s32 var_22;
-    s32 temp_23;
+    KClumpIntPropertyResult kindProperty;
+    KClumpIntPropertyResult idProperty;
+    KClumpIntPropertyResult flagsProperty;
+    s32 clumpIndex;
+    s32 propertyIndex;
+    u8 *clumpCursor;
+    s32 result;
+    s32 propertyCount;
 
-    var_22 = 0;
-    for (var_17 = 0; var_17 < *(u32 *)(arg0 + 0x18); var_17++) {
-        temp_21 = arg0 + var_17 * 4;
-        temp_23 = K_Clump_CountIntUsrData(*(void **)(temp_21 + 0x1C), (const char *)D_005EFD20);
-        for (var_16 = 0; var_16 < temp_23; var_16++) {
-            K_Clump_GetIntUsrDataAt(&spA0, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD40, var_16);
-            if (spA0.value == 0) {
+    result = 0;
+    for (clumpIndex = 0; clumpIndex < ((FldResource *)resource)->clumpCount; clumpIndex++) {
+        clumpCursor = resource + clumpIndex * 4;
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        propertyCount = K_Clump_CountIntUsrData(*(void **)(clumpCursor + 0x1C), (const char *)D_005EFD20);
+        for (propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            K_Clump_GetIntUsrDataAt(&idProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD40, propertyIndex);
+            if (idProperty.value == 0) {
                 kAssertFail((const char *)D_005EFC80, 0x622);
             }
-            K_Clump_GetIntUsrDataAt(&spA8, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD20, var_16);
-            K_Clump_GetIntUsrDataAt(&sp98, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD60, var_16);
-            if (sp98.value != 0) {
-                *arg2 = 1;
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            K_Clump_GetIntUsrDataAt(&kindProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD20, propertyIndex);
+            K_Clump_GetIntUsrDataAt(&flagsProperty, (void *)((FldResource *)clumpCursor)->clumps[0], (const char *)D_005EFD60, propertyIndex);
+            if (flagsProperty.value != 0) {
+                *flagsOut = 1;
             } else {
-                *arg2 = 0;
+                *flagsOut = 0;
             }
-            if (spA8.value != 1 && arg1 == spA0.value) {
-                var_22 = (s32)spA8.frame;
+            if (kindProperty.value != 1 && entryId == idProperty.value) {
+                result = (s32)kindProperty.frame;
                 goto out;
             }
         }
     }
 out:
-    return var_22;
+    return result;
 }
 
+/* Read clump user properties and request the model/effect assets for each entry. */
+/* Earlier whole-layout probe: 1416/1392 bytes. Only the marked clump/count reads remain raw. */
 // FUN_00151710
-void FldResource_RequestEntryLoads(u8 *arg0)
+void FldResource_RequestEntryLoads(u8 *resource)
 {
-    s32 temp_16;
-    u8 *temp_17;
-    u32 var_19;
-    s32 var_18;
-    u32 sp20C;
-    s32 sp208;
-    KClumpIntPropertyResult sp200;
-    KClumpIntPropertyResult sp1F8;
-    KClumpIntPropertyResult sp1F0;
-    KClumpIntPropertyResult sp1E8;
-    KClumpIntPropertyResult sp1E0;
-    char sp1A0[0x40];
-    char sp160[0x40];
-    char sp120[0x40];
-    char spE0[0x40];
-    char spA0[0x40];
-    char sp60[0x40];
-    s32 r;
+    s32 propertyCount;
+    u8 *clumpCursor;
+    u32 clumpIndex;
+    s32 propertyIndex;
+    u32 modelSize;
+    s32 effectSize;
+    KClumpIntPropertyResult kindProperty;
+    KClumpIntPropertyResult assetProperty;
+    KClumpIntPropertyResult flagsProperty;
+    KClumpIntPropertyResult idProperty;
+    KClumpIntPropertyResult hiddenProperty;
+    char modelPath[0x40];
+    char modelSuffix[0x40];
+    char effectPath[0x40];
+    char effectSuffix[0x40];
+    char sharedModelPath[0x40];
+    char sharedModelSuffix[0x40];
+    s32 modelData;
 
-    for (var_19 = 0; var_19 < *(u32 *)(arg0 + 0x18); var_19++) {
-        temp_17 = arg0 + var_19 * 4;
-        temp_16 = K_Clump_CountIntUsrData(*(void **)(temp_17 + 0x1C), (const char *)D_005EFD20);
-        for (var_18 = 0; var_18 < temp_16; var_18++) {
-            K_Clump_GetIntUsrDataAt(&sp1F8, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD80, var_18);
-            if (sp1F8.value != 0) {
-                K_Clump_GetIntUsrDataAt(&sp1E8, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD40, var_18);
-                if (sp1E8.value == 0) {
+    for (clumpIndex = 0; clumpIndex < ((FldResource *)resource)->clumpCount; clumpIndex++) {
+        clumpCursor = resource + clumpIndex * 4;
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        propertyCount = K_Clump_CountIntUsrData(*(void **)(clumpCursor + 0x1C), (const char *)D_005EFD20);
+        for (propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            K_Clump_GetIntUsrDataAt(&assetProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD80, propertyIndex);
+            if (assetProperty.value != 0) {
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                K_Clump_GetIntUsrDataAt(&idProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD40, propertyIndex);
+                if (idProperty.value == 0) {
                     kAssertFail((const char *)D_005EFC80, 0x65A);
                 }
-                *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x124) = (u16)sp1E8.value;
-                K_Clump_GetIntUsrDataAt(&sp1E0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD60, var_18);
-                if (sp1E0.value != 0) {
-                    *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x122) = 2;
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                ((FldResource *)(resource + *(u32 *)(resource + 0x11C) * 0x18))->entries[0].id = (u16)idProperty.value;
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                K_Clump_GetIntUsrDataAt(&hiddenProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD60, propertyIndex);
+                if (hiddenProperty.value != 0) {
+                    ((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].flags = 2;
                 }
-                K_Clump_GetIntUsrDataAt(&sp200, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD20, var_18);
-                *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x120) = (u16)sp200.value;
-                if (sp200.value == 0) {
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                K_Clump_GetIntUsrDataAt(&kindProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD20, propertyIndex);
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                ((FldResource *)(resource + *(u32 *)(resource + 0x11C) * 0x18))->entries[0].type = (u16)kindProperty.value;
+                if (kindProperty.value == 0) {
                     if (iGpffffb204 == 0) {
-                        strcpy(sp1A0, D_005EFD98);
-                        sprintf(sp160, &iGpffff9e10, *(s16 *)(arg0 + 4));
-                        strcat(sp1A0, sp160);
-                        sprintf(sp160, D_005EFDA8, sp1F8.value);
-                        strcat(sp1A0, sp160);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)mdlCreateModelObjectFromData(4, (u16)sp1F8.value, sp1A0, 0);
+                        strcpy(modelPath, D_005EFD98);
+                        sprintf(modelSuffix, &iGpffff9e10, ((FldResource *)resource)->majorId);
+                        strcat(modelPath, modelSuffix);
+                        sprintf(modelSuffix, D_005EFDA8, assetProperty.value);
+                        strcat(modelPath, modelSuffix);
+                        ((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].model = (s32)mdlCreateModelObjectFromData(4, (u16)assetProperty.value, modelPath, 0);
                     } else {
-                        strcpy(sp1A0, D_005EFDB8);
-                        sprintf(sp160, &iGpffff9e10, *(s16 *)(arg0 + 4));
-                        strcat(sp1A0, sp160);
-                        sprintf(sp160, D_005EFDA8, sp1F8.value);
-                        strcat(sp1A0, sp160);
-                        r = H_Cdvd_LookupRequest(sp1A0, (s32 *)&sp20C);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)mdlCreateModelObjectFromMemory(4, (u16)sp1F8.value, (void *)r, sp20C, 0);
+                        strcpy(modelPath, D_005EFDB8);
+                        sprintf(modelSuffix, &iGpffff9e10, ((FldResource *)resource)->majorId);
+                        strcat(modelPath, modelSuffix);
+                        sprintf(modelSuffix, D_005EFDA8, assetProperty.value);
+                        strcat(modelPath, modelSuffix);
+                        modelData = H_Cdvd_LookupRequest(modelPath, (s32 *)&modelSize);
+                        ((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].model = (s32)mdlCreateModelObjectFromMemory(4, (u16)assetProperty.value, (void *)modelData, modelSize, 0);
                     }
-                } else if (sp200.value == 1) {
+                } else if (kindProperty.value == 1) {
                     if (iGpffffb204 == 0) {
-                        strcpy(sp120, D_005EFDC8);
-                        sprintf(spE0, &iGpffff9e10, *(s16 *)(arg0 + 4));
-                        strcat(sp120, spE0);
-                        sprintf(spE0, D_005EFDD8, sp1F8.value);
-                        strcat(sp120, spE0);
+                        strcpy(effectPath, D_005EFDC8);
+                        sprintf(effectSuffix, &iGpffff9e10, ((FldResource *)resource)->majorId);
+                        strcat(effectPath, effectSuffix);
+                        sprintf(effectSuffix, D_005EFDD8, assetProperty.value);
+                        strcat(effectPath, effectSuffix);
                         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x6A1);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) = H_Cdvd_AcquireDirectory(sp120, 0);
-                        if (*(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) == 0) {
+                        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                        ((FldResource *)(resource + *(u32 *)(resource + 0x11C) * 0x18))->entries[0].file = H_Cdvd_AcquireDirectory(effectPath, 0);
+                        if (((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].file == 0) {
                             kAssertFail((const char *)D_005EFC80, 0x6A2);
                         }
                     } else {
-                        strcpy(sp120, D_005EFDE8);
-                        sprintf(spE0, &iGpffff9e10, *(s16 *)(arg0 + 4));
-                        strcat(sp120, spE0);
-                        sprintf(spE0, D_005EFDD8, sp1F8.value);
-                        strcat(sp120, spE0);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) = H_Cdvd_LookupRequest(sp120, &sp208);
+                        strcpy(effectPath, D_005EFDE8);
+                        sprintf(effectSuffix, &iGpffff9e10, ((FldResource *)resource)->majorId);
+                        strcat(effectPath, effectSuffix);
+                        sprintf(effectSuffix, D_005EFDD8, assetProperty.value);
+                        strcat(effectPath, effectSuffix);
+                        ((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].file = H_Cdvd_LookupRequest(effectPath, &effectSize);
                     }
-                } else if (sp200.value == 2) {
-                    strcpy(spA0, D_005EFE00);
-                    sprintf(sp60, D_005EFDA8, sp1F8.value);
-                    strcat(spA0, sp60);
-                    *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)mdlCreateModelObjectFromData(4, (u16)(sp1F8.value + 0x3E8), spA0, 0);
+                } else if (kindProperty.value == 2) {
+                    strcpy(sharedModelPath, D_005EFE00);
+                    sprintf(sharedModelSuffix, D_005EFDA8, assetProperty.value);
+                    strcat(sharedModelPath, sharedModelSuffix);
+                    ((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].model = (s32)mdlCreateModelObjectFromData(4, (u16)(assetProperty.value + 0x3E8), sharedModelPath, 0);
                 }
-                K_Clump_GetIntUsrDataAt(&sp1F0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFE10, var_18);
-                if (sp200.value == 0) {
-                    *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x122) |= (u16)sp1F0.value;
+                K_Clump_GetIntUsrDataAt(&flagsProperty, (void *)((FldResource *)clumpCursor)->clumps[0], (const char *)D_005EFE10, propertyIndex);
+                if (kindProperty.value == 0) {
+                    ((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].flags |= (u16)flagsProperty.value;
                 }
-                *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x128) = (s32)sp200.frame;
-                *(u32 *)(arg0 + 0x11C) = *(u32 *)(arg0 + 0x11C) + 1;
+                ((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].frame = (s32)kindProperty.frame;
+                ((FldResource *)resource)->entryCount = ((FldResource *)resource)->entryCount + 1;
             }
         }
     }
 }
 
+/* Wait for every entry, apply model placements, create effects and release temporary load state. */
+/* Earlier whole-layout probe: 776/768 bytes. Only marked count/effect/load-state reads remain raw. */
 // FUN_00151C80
-s32 FldResource_TryInstallEntries(u8 *arg0)
+s32 FldResource_TryInstallEntries(u8 *resource)
 {
-    u32 i;
-    u32 j;
+    u32 checkIndex;
+    u32 installIndex;
 
-    for (i = 0; i < *(u32 *)(arg0 + 0x11C); i++) {
-        if (*(u16 *)(arg0 + i * 0x18 + 0x120) == 0 || *(u16 *)(arg0 + i * 0x18 + 0x120) == 2) {
-            if (*(u32 *)(arg0 + i * 0x18 + 0x12C) == 0) {
+    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+    for (checkIndex = 0; checkIndex < *(u32 *)(resource + 0x11C); checkIndex++) {
+        if (((FldResource *)resource)->entries[checkIndex].type == 0 || ((FldResource *)resource)->entries[checkIndex].type == 2) {
+            if ((u32)((FldResource *)resource)->entries[checkIndex].model == 0) {
                 kAssertFail((const char *)D_005EFC80, 0x6E4);
             }
-            if (mdlPrepareModel(*(u32 *)(arg0 + i * 0x18 + 0x12C)) == 0) {
+            if (mdlPrepareModel((u32)((FldResource *)resource)->entries[checkIndex].model) == 0) {
                 return 0;
             }
-        } else if (*(u16 *)(arg0 + i * 0x18 + 0x120) == 1) {
-            if (iGpffffb204 == 0 && *(u8 **)(arg0 + i * 0x18 + 0x134) != NULL && H_Cdvd_IsFileLoaded((s32)*(u8 **)(arg0 + i * 0x18 + 0x134)) == 0) {
+        } else if (((FldResource *)resource)->entries[checkIndex].type == 1) {
+            if (iGpffffb204 == 0 && (u8 *)((FldResource *)resource)->entries[checkIndex].file != NULL && H_Cdvd_IsFileLoaded((s32)(u8 *)((FldResource *)resource)->entries[checkIndex].file) == 0) {
                 return 0;
             }
         }
     }
-    for (j = 0; j < *(u32 *)(arg0 + 0x11C); j++) {
-        if (*(u16 *)(arg0 + j * 0x18 + 0x120) == 0 || *(u16 *)(arg0 + j * 0x18 + 0x120) == 2) {
-            mdlApplyModelMatrix(*(void **)(arg0 + j * 0x18 + 0x12C), func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)), 0);
-            if (*(u16 *)(arg0 + j * 0x18 + 0x122) & 1) {
-                mdlSetLayerWeight(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0.0f);
+    for (installIndex = 0; installIndex < ((FldResource *)resource)->entryCount; installIndex++) {
+        if (((FldResource *)resource)->entries[installIndex].type == 0 || ((FldResource *)resource)->entries[installIndex].type == 2) {
+            mdlApplyModelMatrix((void *)((FldResource *)resource)->entries[installIndex].model, func_003e9700((RwFrame *)((FldResource *)resource)->entries[installIndex].frame), 0);
+            if (((FldResource *)resource)->entries[installIndex].flags & 1) {
+                mdlSetLayerWeight((void *)((FldResource *)resource)->entries[installIndex].model, 0, 0.0f);
             } else {
-                mdlDispatchAnimIfPresent(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0, 8, 1);
+                mdlDispatchAnimIfPresent((void *)((FldResource *)resource)->entries[installIndex].model, 0, 0, 8, 1);
             }
-        } else if (*(u16 *)(arg0 + j * 0x18 + 0x120) == 1) {
+        } else if (((FldResource *)resource)->entries[installIndex].type == 1) {
             if (iGpffffb204 == 0) {
-                if (*(u8 **)(arg0 + j * 0x18 + 0x134) != NULL) {
-                    *(s32 *)(arg0 + j * 0x18 + 0x130) = mdlEffectCreateFromResource(*(u32 *)(*(u8 **)(arg0 + j * 0x18 + 0x134) + 0x110));
-                    func_004b1250(*(void **)(arg0 + j * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)) + 0x30));
-                    H_Cdvd_Destroy(*(u8 **)(arg0 + j * 0x18 + 0x134));
-                    *(u8 **)(arg0 + j * 0x18 + 0x134) = NULL;
+                if (((FldResource *)resource)->entries[installIndex].filePtr != NULL) {
+                    *(s32 *)(resource + installIndex * 0x18 + 0x130) = mdlEffectCreateFromResource((u32)((HCdvdRequest *)(((FldResource *)resource)->entries[installIndex].filePtr))->data);
+                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                    mdlEffectSetChildPositionVec(*(void **)(resource + installIndex * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700((RwFrame *)((FldResource *)resource)->entries[installIndex].frame) + 0x30));
+                    H_Cdvd_Destroy(((FldResource *)resource)->entries[installIndex].filePtr);
+                    ((FldResource *)resource)->entries[installIndex].filePtr = NULL;
                 }
-            } else if (*(u8 **)(arg0 + j * 0x18 + 0x134) != NULL) {
-                *(s32 *)(arg0 + j * 0x18 + 0x130) = mdlEffectCreateFromResource((s32)*(u8 **)(arg0 + j * 0x18 + 0x134));
-                func_004b1250(*(void **)(arg0 + j * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)) + 0x30));
-                *(u8 **)(arg0 + j * 0x18 + 0x134) = NULL;
+            } else if (((FldResource *)resource)->entries[installIndex].filePtr != NULL) {
+                *(s32 *)(resource + installIndex * 0x18 + 0x130) = mdlEffectCreateFromResource((s32)(u8 *)((FldResource *)resource)->entries[installIndex].file);
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                mdlEffectSetChildPositionVec(*(void **)(resource + installIndex * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700((RwFrame *)((FldResource *)resource)->entries[installIndex].frame) + 0x30));
+                ((FldResource *)resource)->entries[installIndex].filePtr = NULL;
             }
         }
     }
-    if (*(u8 **)(arg0 + 0xA44) != NULL) {
-        if (*(s16 *)(arg0 + 4) >= 0x28 && *(s16 *)(arg0 + 4) < 0x31) {
-            if (*(u32 *)(*(u8 **)(arg0 + 0xA44) + 0x128) != 0) {
-                *(s32 *)(iGpffff9db0 + 0x8C) = *(u32 *)(*(u8 **)(arg0 + 0xA44) + 0x128);
+    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+    if (*(u8 **)(resource + 0xA44) != NULL) {
+        if (((FldResource *)resource)->majorId >= 0x28 && ((FldResource *)resource)->majorId < 0x31) {
+            if ((u32)((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureNames != 0) {
+                ((FldResourceWork *)iGpffff9db0)->textureNames = (u32)((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureNames;
             }
         } else {
-            K_Clump_FreeTextureNameList(*(u8 **)(*(u8 **)(arg0 + 0xA44) + 0x128));
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            K_Clump_FreeTextureNameList((u8 *)((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->textureNames);
         }
-        jtbl_008873EC[0](*(u8 **)(arg0 + 0xA44));
-        *(u8 **)(arg0 + 0xA44) = NULL;
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        jtbl_008873EC[0](*(u8 **)(resource + 0xA44));
+        ((FldResource *)resource)->loadWork = NULL;
     }
     return 1;
 }
 
+/* Destroy the owned worlds or clumps, entry models/effects and resource allocation. */
+/* Typed object/entry cursors preserve the pointer and word aliases of the owned allocations. */
 // FUN_00151F80
-void FldResource_Destroy(u8 *arg0)
+void FldResource_Destroy(u8 *resource)
 {
-    s32 temp_4;
-    u32 var_16;
-    u32 var_18;
-    u8 *temp_16;
-    u8 *temp_4_8;
+    s32 primaryWorld;
+    u32 entryIndex;
+    u32 clumpIndex;
+    u8 *clumpCursor;
+    u8 *entryCursor;
 
-    if (*(u32 *)arg0 & 1) {
-        temp_4 = *(s32 *)(arg0 + 8);
-        if (temp_4 != 0 && temp_4 != *(s32 *)(arg0 + 0xC)) {
-            func_003c9d40((void *)temp_4);
+    if (((FldResource *)resource)->flags & 1) {
+        primaryWorld = ((FldResource *)resource)->primaryObject;
+        if (primaryWorld != 0 && primaryWorld != ((FldResource *)resource)->primaryDrawObject) {
+            func_003c9d40((void *)primaryWorld);
         }
-        if (*(s32 *)(arg0 + 0xC) != 0) {
-            func_003c9d40((void *)*(s32 *)(arg0 + 0xC));
+        if (((FldResource *)resource)->primaryDrawObject != 0) {
+            func_003c9d40((void *)((FldResource *)resource)->primaryDrawObject);
         }
-        if (*(s32 *)(arg0 + 0x10) != 0) {
-            func_003c9d40((void *)*(s32 *)(arg0 + 0x10));
+        if (((FldResource *)resource)->alternateObject != 0) {
+            func_003c9d40((void *)((FldResource *)resource)->alternateObject);
         }
-        if (*(s32 *)(arg0 + 0x14) != 0) {
-            func_003c9d40((void *)*(s32 *)(arg0 + 0x14));
+        if (((FldResource *)resource)->secondaryObject != 0) {
+            func_003c9d40((void *)((FldResource *)resource)->secondaryObject);
         }
     } else {
-        func_00462bf0((void *)*(s32 *)(arg0 + 0xC));
-        if (*(s32 *)(arg0 + 8) != 0) {
-            func_003c0700((void *)*(s32 *)(arg0 + 8));
+        hMaestroFreeListSet((void *)((FldResource *)resource)->primaryDrawObject);
+        if (((FldResource *)resource)->primaryObject != 0) {
+            func_003c0700((void *)((FldResource *)resource)->primaryObject);
         }
-        if (*(s32 *)(arg0 + 0x10) != 0) {
-            func_003c0700((void *)*(s32 *)(arg0 + 0x10));
+        if (((FldResource *)resource)->alternateObject != 0) {
+            func_003c0700((void *)((FldResource *)resource)->alternateObject);
         }
-        if (*(s32 *)(arg0 + 0x14) != 0) {
-            func_003c0700((void *)*(s32 *)(arg0 + 0x14));
-        }
-    }
-    for (var_18 = 0; var_18 < *(u32 *)(arg0 + 0x18); var_18++) {
-        temp_16 = arg0 + var_18 * 4;
-        func_00462bf0((void *)*(s32 *)(temp_16 + 0x9C));
-        func_003c0700((void *)*(s32 *)(temp_16 + 0x1C));
-    }
-    for (var_16 = 0; var_16 < *(u32 *)(arg0 + 0x11C); var_16++) {
-        temp_4_8 = arg0 + var_16 * 0x18;
-        if (*(u16 *)(temp_4_8 + 0x120) == 0 || *(u16 *)(temp_4_8 + 0x120) == 2) {
-            mdlDestroyModelObject(*(s32 *)(temp_4_8 + 0x12C));
-        } else if (*(u16 *)(temp_4_8 + 0x120) == 1) {
-            mdlEffectDestroy(*(s32 *)(temp_4_8 + 0x130));
+        if (((FldResource *)resource)->secondaryObject != 0) {
+            func_003c0700((void *)((FldResource *)resource)->secondaryObject);
         }
     }
-    if (*(s32 *)(arg0 + 0xA20) != 0) {
-        func_003bbb60((void *)*(s32 *)(arg0 + 0xA20));
+    for (clumpIndex = 0; clumpIndex < ((FldResource *)resource)->clumpCount; clumpIndex++) {
+        clumpCursor = resource + clumpIndex * 4;
+        hMaestroFreeListSet((void *)((FldResource *)clumpCursor)->drawObjects[0]);
+        func_003c0700((void *)((FldResource *)clumpCursor)->clumps[0]);
     }
-    if (*(s32 *)(arg0 + 0xA40) != 0) {
-        jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0xA40));
+    for (entryIndex = 0; entryIndex < ((FldResource *)resource)->entryCount; entryIndex++) {
+        entryCursor = resource + entryIndex * 0x18;
+        if (((FldResource *)entryCursor)->entries[0].type == 0 || ((FldResource *)entryCursor)->entries[0].type == 2) {
+            mdlDestroyModelObject(((FldResource *)entryCursor)->entries[0].model);
+        } else if (((FldResource *)entryCursor)->entries[0].type == 1) {
+            mdlEffectDestroy(((FldResource *)entryCursor)->entries[0].effect);
+        }
     }
-    jtbl_008873EC[0](arg0);
+    if (((FldResource *)resource)->animation != 0) {
+        func_003bbb60((void *)((FldResource *)resource)->animation);
+    }
+    if (((FldResource *)resource)->hbnData != 0) {
+        jtbl_008873EC[0]((void *)((FldResource *)resource)->hbnData);
+    }
+    jtbl_008873EC[0](resource);
 }
 
 /* The draw-state table has two address lifetimes: one at the initial call,
  * and one shared by the final render-state sequence. The context is passed
  * in the callback's second argument. Saved Vec4 values are light colors. */
+/* Save light colors/transform, move the camera/lights to the selected world and set draw state. */
+/* Only measured world-pointer reads remain raw; the saved matrix still copies eight 8-byte scalar pairs. */
 // FUN_00152170
-void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
+void FldResource_BeginDrawState(u8 *command, u8 *resource)
 {
     typedef struct { u32 w0; u32 w1; } CopyPair;
     u8 *gs;
@@ -1765,11 +1925,11 @@ void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
     (*(RwBool (**)(RwRenderState, void *))gs)(0x14, (void *)2);
     func_003e8110((u32)raster);
     cam = (u8 *)(u32)K_Clump_GetLightA();
-    *(Vec4 *)(arg1 + 0xA50) = *(Vec4 *)(cam + 0x18);
+    ((FldResource *)resource)->savedAmbientColor = ((struct RpLight *)cam)->color;
     cam = (u8 *)(u32)K_Clump_GetLightB();
-    *(Vec4 *)(arg1 + 0xA60) = *(Vec4 *)(cam + 0x18);
-    src = (CopyPair *)(*(u8 **)((u8 *)(u32)K_Clump_GetLightB() + 4) + 0x10);
-    dst = (CopyPair *)(arg1 + 0xA70);
+    ((FldResource *)resource)->savedDirectionalColor = ((struct RpLight *)cam)->color;
+    src = (CopyPair *)((u8 *)((struct RpLight *)(u8 *)(u32)K_Clump_GetLightB())->object.parent + 0x10);
+    dst = (CopyPair *)(resource + 0xA70);
     n = 8;
     do {
         w0 = src->w0;
@@ -1783,44 +1943,49 @@ void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
     if (resrcMngGetColorValue() != 0) {
         func_003c38b0((RpLight *)(u32)K_Clump_GetLightA(), (const RwRGBAReal *)resrcMngGetColorValue());
         func_003c38b0((RpLight *)(u32)K_Clump_GetLightB(), (const RwRGBAReal *)resrcMngGetColorTarget());
-        func_003e9cb0(*(RwFrame **)((u8 *)(u32)K_Clump_GetLightB() + 4),
+        func_003e9cb0((RwFrame *)((struct RpLight *)(u8 *)(u32)K_Clump_GetLightB())->object.parent,
                       (const RwMatrix *)resrcMngGetTransform(), rwCOMBINEREPLACE);
     }
-    *(s8 *)((u8 *)(u32)K_Clump_GetLightB() + 2) = 3;
+    ((struct RpLight *)(u8 *)(u32)K_Clump_GetLightB())->object.flags = 3;
     K_Clump_GetLightB();
-    if (*(s32 *)arg1 & 1) {
+    if ((s32)((FldResource *)resource)->flags & 1) {
         func_003cbc60(K_Clump_GetWorld(), (u8 *)raster);
-        flags = *(s32 *)arg1;
+        flags = (s32)((FldResource *)resource)->flags;
         if (flags & 0x80000000) {
-            func_003cbc10(*(RpWorld **)(arg1 + 0xC), (RwCamera *)raster);
+            func_003cbc10((RpWorld *)((FldResource *)resource)->primaryDrawObject, (RwCamera *)raster);
         } else if (flags & 0x40000000) {
-            light = *(s32 *)(arg1 + 0x10);
+            light = ((FldResource *)resource)->alternateObject;
             if (light != 0) {
                 func_003cbc10((RpWorld *)(u32)light, (RwCamera *)raster);
             }
         } else if (flags & 0x20000000) {
-            light = *(s32 *)(arg1 + 0x14);
+            light = ((FldResource *)resource)->secondaryObject;
             if (light != 0) {
                 func_003cbc10((RpWorld *)(u32)light, (RwCamera *)raster);
             }
         } else {
-            func_003cbc10(*(RpWorld **)(arg1 + 8), (RwCamera *)raster);
+            func_003cbc10((RpWorld *)((FldResource *)resource)->primaryObject, (RwCamera *)raster);
         }
         func_003cbf30((RpWorld *)(u32)K_Clump_GetWorld(), (RpLight *)(u32)K_Clump_GetLightA());
         func_003cbf30((RpWorld *)(u32)K_Clump_GetWorld(), (RpLight *)(u32)K_Clump_GetLightB());
-        flags = *(s32 *)arg1;
+        flags = (s32)((FldResource *)resource)->flags;
         if (flags & 0x80000000) {
-            func_003cbe80(*(RpWorld **)(arg1 + 0xC), (RpLight *)(u32)K_Clump_GetLightA());
-            func_003cbe80(*(RpWorld **)(arg1 + 0xC), (RpLight *)(u32)K_Clump_GetLightB());
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003cbe80(*(RpWorld **)(resource + 0xC), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80((RpWorld *)((FldResource *)resource)->primaryDrawObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else if (flags & 0x40000000) {
-            func_003cbe80(*(RpWorld **)(arg1 + 0x10), (RpLight *)(u32)K_Clump_GetLightA());
-            func_003cbe80(*(RpWorld **)(arg1 + 0x10), (RpLight *)(u32)K_Clump_GetLightB());
-        } else if ((flags & 0x20000000) && (*(s32 *)(arg1 + 0x14) != 0)) {
-            func_003cbe80(*(RpWorld **)(arg1 + 0x14), (RpLight *)(u32)K_Clump_GetLightA());
-            func_003cbe80(*(RpWorld **)(arg1 + 0x14), (RpLight *)(u32)K_Clump_GetLightB());
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003cbe80(*(RpWorld **)(resource + 0x10), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80((RpWorld *)((FldResource *)resource)->alternateObject, (RpLight *)(u32)K_Clump_GetLightB());
+        } else if ((flags & 0x20000000) && (((FldResource *)resource)->secondaryObject != 0)) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003cbe80(*(RpWorld **)(resource + 0x14), (RpLight *)(u32)K_Clump_GetLightA());
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003cbe80(*(RpWorld **)(resource + 0x14), (RpLight *)(u32)K_Clump_GetLightB());
         } else {
-            func_003cbe80(*(RpWorld **)(arg1 + 8), (RpLight *)(u32)K_Clump_GetLightA());
-            func_003cbe80(*(RpWorld **)(arg1 + 8), (RpLight *)(u32)K_Clump_GetLightB());
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003cbe80(*(RpWorld **)(resource + 8), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80((RpWorld *)((FldResource *)resource)->primaryObject, (RpLight *)(u32)K_Clump_GetLightB());
         }
     } else {
         func_003cbf30((RpWorld *)(u32)K_Clump_GetWorld(), (RpLight *)(u32)K_Clump_GetLightC());
@@ -1840,198 +2005,220 @@ void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
     }
 }
 
+/* Restore the global world camera/lights and the light state saved by BeginDrawState. */
+/* Earlier whole-layout probe: 784/768 bytes. Only the marked secondary-world read remains raw. */
 // FUN_00152630
-void FldResource_EndDrawState(u8 *arg0, u8 *arg1)
+void FldResource_EndDrawState(u8 *command, u8 *resource)
 {
-    u8 *temp_2;
-    u8 *temp_18;
-    u8 *temp_18_2;
-    u8 *temp_18_3;
+    u8 *camera;
+    u8 *ambientWorld;
+    u8 *directionalWorld;
+    u8 *thirdLightWorld;
 
-    temp_2 = (void *)(u32)kwlnGetCamera();
-    func_003e8110((u32)temp_2);
-    if (*(u32 *)arg1 & 1) {
-        if (*(u32 *)arg1 & 0x80000000) {
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0xC), (RpLight *)(u32)K_Clump_GetLightA());
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0xC), (RpLight *)(u32)K_Clump_GetLightB());
-        } else if (*(u32 *)arg1 & 0x40000000) {
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x10), (RpLight *)(u32)K_Clump_GetLightA());
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x10), (RpLight *)(u32)K_Clump_GetLightB());
-        } else if ((*(u32 *)arg1 & 0x20000000) && *(s32 *)(arg1 + 0x14) != 0) {
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x14), (RpLight *)(u32)K_Clump_GetLightA());
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x14), (RpLight *)(u32)K_Clump_GetLightB());
+    camera = (void *)(u32)kwlnGetCamera();
+    func_003e8110((u32)camera);
+    if (((FldResource *)resource)->flags & 1) {
+        if (((FldResource *)resource)->flags & 0x80000000) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(resource + 0xC), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->primaryDrawObject, (RpLight *)(u32)K_Clump_GetLightB());
+        } else if (((FldResource *)resource)->flags & 0x40000000) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(resource + 0x10), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->alternateObject, (RpLight *)(u32)K_Clump_GetLightB());
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        } else if ((((FldResource *)resource)->flags & 0x20000000) && *(s32 *)(resource + 0x14) != 0) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(resource + 0x14), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->secondaryObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else {
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 8), (RpLight *)(u32)K_Clump_GetLightA());
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 8), (RpLight *)(u32)K_Clump_GetLightB());
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(resource + 8), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->primaryObject, (RpLight *)(u32)K_Clump_GetLightB());
         }
-        temp_18 = (void *)(u32)K_Clump_GetWorld();
-        func_003cbe80((RpWorld *)temp_18, (RpLight *)(u32)K_Clump_GetLightA());
-        temp_18_2 = (void *)(u32)K_Clump_GetWorld();
-        func_003cbe80((RpWorld *)temp_18_2, (RpLight *)(u32)K_Clump_GetLightB());
-        if (*(u32 *)arg1 & 0x80000000) {
-            func_003cbc60(*(s32 *)(arg1 + 0xC), (u8 *)temp_2);
-        } else if (*(u32 *)arg1 & 0x40000000) {
-            func_003cbc60(*(s32 *)(arg1 + 0x10), (u8 *)temp_2);
-        } else if ((*(u32 *)arg1 & 0x20000000) && *(s32 *)(arg1 + 0x14) != 0) {
-            func_003cbc60(*(s32 *)(arg1 + 0x14), (u8 *)temp_2);
+        ambientWorld = (void *)(u32)K_Clump_GetWorld();
+        func_003cbe80((RpWorld *)ambientWorld, (RpLight *)(u32)K_Clump_GetLightA());
+        directionalWorld = (void *)(u32)K_Clump_GetWorld();
+        func_003cbe80((RpWorld *)directionalWorld, (RpLight *)(u32)K_Clump_GetLightB());
+        if (((FldResource *)resource)->flags & 0x80000000) {
+            func_003cbc60(((FldResource *)resource)->primaryDrawObject, (u8 *)camera);
+        } else if (((FldResource *)resource)->flags & 0x40000000) {
+            func_003cbc60(((FldResource *)resource)->alternateObject, (u8 *)camera);
+        } else if ((((FldResource *)resource)->flags & 0x20000000) && ((FldResource *)resource)->secondaryObject != 0) {
+            func_003cbc60(((FldResource *)resource)->secondaryObject, (u8 *)camera);
         } else {
-            func_003cbc60(*(s32 *)(arg1 + 8), (u8 *)temp_2);
+            func_003cbc60(((FldResource *)resource)->primaryObject, (u8 *)camera);
         }
-        func_003cbc10((RpWorld *)(u32)K_Clump_GetWorld(), (RwCamera *)temp_2);
+        func_003cbc10((RpWorld *)(u32)K_Clump_GetWorld(), (RwCamera *)camera);
     } else {
-        temp_18_3 = (void *)(u32)K_Clump_GetWorld();
-        func_003cbe80((RpWorld *)temp_18_3, (RpLight *)(u32)K_Clump_GetLightC());
+        thirdLightWorld = (void *)(u32)K_Clump_GetWorld();
+        func_003cbe80((RpWorld *)thirdLightWorld, (RpLight *)(u32)K_Clump_GetLightC());
     }
-    func_003c38b0((RpLight *)(u32)K_Clump_GetLightA(), (const RwRGBAReal *)(arg1 + 0xA50));
-    func_003c38b0((RpLight *)(u32)K_Clump_GetLightB(), (const RwRGBAReal *)(arg1 + 0xA60));
+    func_003c38b0((RpLight *)(u32)K_Clump_GetLightA(), (const RwRGBAReal *)(resource + 0xA50));
+    func_003c38b0((RpLight *)(u32)K_Clump_GetLightB(), (const RwRGBAReal *)(resource + 0xA60));
+    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     func_003e9cb0((RwFrame *)(u32)*(s32 *)((u8 *)(u32)K_Clump_GetLightB() + 4),
-                  (const RwMatrix *)(arg1 + 0xA70), rwCOMBINEREPLACE);
-    *(s8 *)((u8 *)(u32)K_Clump_GetLightB() + 2) = 3;
+                  (const RwMatrix *)(resource + 0xA70), rwCOMBINEREPLACE);
+    ((struct RpLight *)(u8 *)(u32)K_Clump_GetLightB())->object.flags = 3;
     K_Clump_GetLightB();
-    func_003e8120((u32)temp_2);
+    func_003e8120((u32)camera);
 }
 
+/* Queue selected world/clumps and bracket their drawing with light-state callbacks. */
+/* Earlier whole-layout probe: 644/640 bytes. Commands are typed; only the marked clump-count read remains raw. */
 // FUN_00152930
-void FldResource_QueueDrawCallbacks(u8 *arg0, u8 *arg1)
+void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource)
 {
-    u8 *var_2;
-    u8 *var_6;
-    u8 *p2;
-    s32 temp_3;
+    u8 *worldCommand;
+    u8 *primaryCommand;
+    u8 *clumpCommand;
+    s32 primaryObject;
     u32 flags;
     u32 i;
 
-    var_6 = NULL;
-    flags = *(u32 *)arg1;
+    primaryCommand = NULL;
+    flags = ((FldResource *)resource)->flags;
     if (flags & 1) {
-        temp_3 = *(s32 *)(arg1 + 8);
-        if (temp_3 != 0) {
+        primaryObject = ((FldResource *)resource)->primaryObject;
+        if (primaryObject != 0) {
             if (flags & 0x80000000) {
-                var_2 = func_00461290(arg0, *(s32 *)(arg1 + 0xC));
+                worldCommand = sdkOtQueueWorld(list, ((FldResource *)resource)->primaryDrawObject);
             } else if (flags & 0x40000000) {
-                var_2 = func_00461290(arg0, *(s32 *)(arg1 + 0x10));
-            } else if ((flags & 0x20000000) && *(s32 *)(arg1 + 0x14) != 0) {
-                var_2 = func_00461290(arg0, *(s32 *)(arg1 + 0x14));
+                worldCommand = sdkOtQueueWorld(list, ((FldResource *)resource)->alternateObject);
+            } else if ((flags & 0x20000000) && ((FldResource *)resource)->secondaryObject != 0) {
+                worldCommand = sdkOtQueueWorld(list, ((FldResource *)resource)->secondaryObject);
             } else {
-                var_2 = func_00461290(arg0, temp_3);
+                worldCommand = sdkOtQueueWorld(list, primaryObject);
             }
-            *(void (**)(void))(var_2 + 8) = (void (*)(void))FldResource_BeginDrawState;
-            *(u8 **)(var_2 + 0x10) = arg1;
-            *(void (**)(void))(var_2 + 0xC) = (void (*)(void))FldResource_EndDrawState;
-            *(u8 **)(var_2 + 0x14) = arg1;
+            ((PrimQueueDrawNode *)worldCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
+            ((PrimQueueDrawNode *)worldCommand)->begin.argument.data = resource;
+            ((PrimQueueDrawNode *)worldCommand)->begin.endCallback = (void (*)(void))FldResource_EndDrawState;
+            ((PrimQueueDrawNode *)worldCommand)->endArgument.data = resource;
         }
     } else {
         if (flags & 0x80000000) {
-            if (*(s32 *)(arg1 + 0xC) != 0) {
-                var_6 = func_00460e80(arg0, *(s32 *)(arg1 + 0xC));
+            if (((FldResource *)resource)->primaryDrawObject != 0) {
+                primaryCommand = sdkOtQueueClump(list, ((FldResource *)resource)->primaryDrawObject);
             } else {
-                var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 8));
+                primaryCommand = PrimQueueSkyStateEnter(list, ((FldResource *)resource)->primaryObject);
             }
         } else if (flags & 0x40000000) {
-            var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x10));
+            primaryCommand = PrimQueueSkyStateEnter(list, ((FldResource *)resource)->alternateObject);
         } else if (flags & 0x20000000) {
-            if (*(s32 *)(arg1 + 0x14) != 0) {
-                var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x14));
+            if (((FldResource *)resource)->secondaryObject != 0) {
+                primaryCommand = PrimQueueSkyStateEnter(list, ((FldResource *)resource)->secondaryObject);
             }
         }
-        if (var_6 != NULL) {
-            *(void (**)(void))(var_6 + 8) = (void (*)(void))FldResource_BeginDrawState;
-            *(u8 **)(var_6 + 0x10) = arg1;
-            *(void (**)(void))(var_6 + 0xC) = (void (*)(void))FldResource_EndDrawState;
-            *(u8 **)(var_6 + 0x14) = arg1;
+        if (primaryCommand != NULL) {
+            ((PrimQueueDrawNode *)primaryCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
+            ((PrimQueueDrawNode *)primaryCommand)->begin.argument.data = resource;
+            ((PrimQueueDrawNode *)primaryCommand)->begin.endCallback = (void (*)(void))FldResource_EndDrawState;
+            ((PrimQueueDrawNode *)primaryCommand)->endArgument.data = resource;
         }
     }
-    if (!(*(u32 *)arg1 & 0xC0000000)) {
-        for (i = 0; i < *(u32 *)(arg1 + 0x18); i++) {
-            if (*(s32 *)(arg1 + 0x9C + i * 4) != 0) {
-                p2 = func_00460e80(arg0, *(s32 *)(arg1 + 0x9C + i * 4));
+    if (!(((FldResource *)resource)->flags & 0xC0000000)) {
+        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+        for (i = 0; i < *(u32 *)(resource + 0x18); i++) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            if (*(s32 *)(resource + 0x9C + i * 4) != 0) {
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                clumpCommand = sdkOtQueueClump(list, *(s32 *)(resource + 0x9C + i * 4));
             } else {
-                p2 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x1C + i * 4));
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                clumpCommand = PrimQueueSkyStateEnter(list, *(s32 *)(resource + 0x1C + i * 4));
             }
-            if (p2 != NULL && i == 0) {
-                *(void (**)(void))(p2 + 8) = (void (*)(void))FldResource_BeginDrawState;
-                *(u8 **)(p2 + 0x10) = arg1;
+            if (clumpCommand != NULL && i == 0) {
+                ((PrimQueueDrawNode *)clumpCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
+                ((PrimQueueDrawNode *)clumpCommand)->begin.argument.data = resource;
             }
-            if (p2 != NULL && i == *(u32 *)(arg1 + 0x18) - 1) {
-                *(void (**)(void))(p2 + 0xC) = (void (*)(void))FldResource_EndDrawState;
-                *(u8 **)(p2 + 0x14) = arg1;
+            if (clumpCommand != NULL && i == ((FldResource *)resource)->clumpCount - 1) {
+                ((PrimQueueDrawNode *)clumpCommand)->begin.endCallback = (void (*)(void))FldResource_EndDrawState;
+                ((PrimQueueDrawNode *)clumpCommand)->endArgument.data = resource;
             }
         }
     }
 }
 
+/* Queue the primary clump pass and attach draw-state callbacks to its first command. */
+/* PrimQueueDrawNode names both callback ABI slots and their contexts. */
 // FUN_00152BB0
-void FldResource_QueueDrawCallbacksPrimary(u8 *arg0, u8 *arg1)
+void FldResource_QueueDrawCallbacksPrimary(u8 *list, u8 *resource)
 {
-    u8 *var_6;
-    u8 *temp_2;
+    u8 *primaryCommand;
+    u8 *clumpCommand;
     u32 i;
 
-    var_6 = NULL;
-    if (!(*(u32 *)arg1 & 1)) {
-        if ((*(u32 *)arg1 & 0x80000000) && *(u8 **)(arg1 + 0xC) != NULL) {
-            var_6 = func_00460f80(arg0, *(s32 *)(arg1 + 0xC));
+    primaryCommand = NULL;
+    if (!(((FldResource *)resource)->flags & 1)) {
+        if ((((FldResource *)resource)->flags & 0x80000000) && (u8 *)((FldResource *)resource)->primaryDrawObject != NULL) {
+            primaryCommand = sdkOtQueueClumpPrimaryPass(list, ((FldResource *)resource)->primaryDrawObject);
         }
-        if (var_6 != NULL) {
-            *(void (**)(void))(var_6 + 8) = (void (*)(void))FldResource_BeginDrawState;
-            *(u8 **)(var_6 + 0x10) = arg1;
-            *(void (**)(void))(var_6 + 0xC) = (void (*)(void))FldResource_EndDrawState;
-            *(u8 **)(var_6 + 0x14) = arg1;
+        if (primaryCommand != NULL) {
+            ((PrimQueueDrawNode *)primaryCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
+            ((PrimQueueDrawNode *)primaryCommand)->begin.argument.data = resource;
+            ((PrimQueueDrawNode *)primaryCommand)->begin.endCallback = (void (*)(void))FldResource_EndDrawState;
+            ((PrimQueueDrawNode *)primaryCommand)->endArgument.data = resource;
         }
     }
-    if (!(*(u32 *)arg1 & 0xC0000000)) {
-        for (i = 0; i < *(u32 *)(arg1 + 0x18); i++) {
-            if (*(u8 **)(arg1 + 0x9C + i * 4) != NULL) {
-                temp_2 = func_00460f80(arg0, *(s32 *)(arg1 + 0x9C + i * 4));
-                if (temp_2 != NULL && i == 0) {
-                    *(void (**)(void))(temp_2 + 8) = (void (*)(void))FldResource_BeginDrawState;
-                    *(u8 **)(temp_2 + 0x10) = arg1;
-                    *(void (**)(void))(temp_2 + 0xC) = (void (*)(void))FldResource_EndDrawState;
-                    *(u8 **)(temp_2 + 0x14) = arg1;
+    if (!(((FldResource *)resource)->flags & 0xC0000000)) {
+        for (i = 0; i < ((FldResource *)resource)->clumpCount; i++) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            if (*(u8 **)(resource + 0x9C + i * 4) != NULL) {
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                clumpCommand = sdkOtQueueClumpPrimaryPass(list, *(s32 *)(resource + 0x9C + i * 4));
+                if (clumpCommand != NULL && i == 0) {
+                    ((PrimQueueDrawNode *)clumpCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
+                    ((PrimQueueDrawNode *)clumpCommand)->begin.argument.data = resource;
+                    ((PrimQueueDrawNode *)clumpCommand)->begin.endCallback = (void (*)(void))FldResource_EndDrawState;
+                    ((PrimQueueDrawNode *)clumpCommand)->endArgument.data = resource;
                 }
             }
         }
     }
 }
 
+/* Queue the secondary clump pass with the selected alternate objects and callbacks. */
+/* PrimQueueDrawNode names both callback ABI slots and their contexts. */
 // FUN_00152CD0
-void FldResource_QueueDrawCallbacksSecondary(u8 *arg0, u8 *arg1)
+void FldResource_QueueDrawCallbacksSecondary(u8 *list, u8 *resource)
 {
-    u8 *var_6;
-    u8 *temp_2;
+    u8 *primaryCommand;
+    u8 *clumpCommand;
     u32 i;
 
-    var_6 = NULL;
-    if (!(*(u32 *)arg1 & 1)) {
-        if ((*(u32 *)arg1 & 0x80000000)) {
-            if (*(s32 *)(arg1 + 0xC) != 0) {
-                var_6 = func_00461080(arg0, *(s32 *)(arg1 + 0xC));
+    primaryCommand = NULL;
+    if (!(((FldResource *)resource)->flags & 1)) {
+        if ((((FldResource *)resource)->flags & 0x80000000)) {
+            if (((FldResource *)resource)->primaryDrawObject != 0) {
+                primaryCommand = sdkOtQueueClumpSecondaryPass(list, ((FldResource *)resource)->primaryDrawObject);
             }
-        } else if ((*(u32 *)arg1 & 0x40000000)) {
-            if (*(s32 *)(arg1 + 0x10) != 0) {
-                var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x10));
+        } else if ((((FldResource *)resource)->flags & 0x40000000)) {
+            if (((FldResource *)resource)->alternateObject != 0) {
+                primaryCommand = PrimQueueSkyStateEnter(list, ((FldResource *)resource)->alternateObject);
             }
-        } else if ((*(u32 *)arg1 & 0x20000000)) {
-            if (*(s32 *)(arg1 + 0x14) != 0) {
-                var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x14));
+        } else if ((((FldResource *)resource)->flags & 0x20000000)) {
+            if (((FldResource *)resource)->secondaryObject != 0) {
+                primaryCommand = PrimQueueSkyStateEnter(list, ((FldResource *)resource)->secondaryObject);
             }
         }
-        if (var_6 != NULL) {
-            *(void (**)(void))(var_6 + 8) = (void (*)(void))FldResource_BeginDrawState;
-            *(u8 **)(var_6 + 0x10) = arg1;
-            *(void (**)(void))(var_6 + 0xC) = (void (*)(void))FldResource_EndDrawState;
-            *(u8 **)(var_6 + 0x14) = arg1;
+        if (primaryCommand != NULL) {
+            ((PrimQueueDrawNode *)primaryCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
+            ((PrimQueueDrawNode *)primaryCommand)->begin.argument.data = resource;
+            ((PrimQueueDrawNode *)primaryCommand)->begin.endCallback = (void (*)(void))FldResource_EndDrawState;
+            ((PrimQueueDrawNode *)primaryCommand)->endArgument.data = resource;
         }
     }
-    if (!(*(u32 *)arg1 & 0xC0000000)) {
-        for (i = 0; i < *(u32 *)(arg1 + 0x18); i++) {
-            if (*(u8 **)(arg1 + 0x9C + i * 4) != NULL) {
-                temp_2 = func_00461080(arg0, *(s32 *)(arg1 + 0x9C + i * 4));
-                if (temp_2 != NULL && i == 0) {
-                    *(void (**)(void))(temp_2 + 8) = (void (*)(void))FldResource_BeginDrawState;
-                    *(u8 **)(temp_2 + 0x10) = arg1;
-                    *(void (**)(void))(temp_2 + 0xC) = (void (*)(void))FldResource_EndDrawState;
-                    *(u8 **)(temp_2 + 0x14) = arg1;
+    if (!(((FldResource *)resource)->flags & 0xC0000000)) {
+        for (i = 0; i < ((FldResource *)resource)->clumpCount; i++) {
+            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+            if (*(u8 **)(resource + 0x9C + i * 4) != NULL) {
+                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                clumpCommand = sdkOtQueueClumpSecondaryPass(list, *(s32 *)(resource + 0x9C + i * 4));
+                if (clumpCommand != NULL && i == 0) {
+                    ((PrimQueueDrawNode *)clumpCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
+                    ((PrimQueueDrawNode *)clumpCommand)->begin.argument.data = resource;
+                    ((PrimQueueDrawNode *)clumpCommand)->begin.endCallback = (void (*)(void))FldResource_EndDrawState;
+                    ((PrimQueueDrawNode *)clumpCommand)->endArgument.data = resource;
                 }
             }
         }
@@ -2044,8 +2231,10 @@ void FldResource_QueueDrawCallbacksSecondary(u8 *arg0, u8 *arg1)
  * resource pointers, loop bounds and the post-rotate frame remain reloads. */
 #pragma push
 #pragma opt_propagation off
+/* Translate clump frames and models; rotate effect positions about the supplied angle first. */
+/* Typed matrix bit members preserve integer initialization in the measured scalar-copy body. */
 // FUN_00152E50
-void FldResource_TransformFrames(u8 *arg0, u8 *arg1, f32 fparg0)
+void FldResource_TransformFrames(u8 *resource, u8 *translation, f32 angle)
 {
     struct {
         Vec3 RWALIGN(trans, 16);
@@ -2076,101 +2265,101 @@ void FldResource_TransformFrames(u8 *arg0, u8 *arg1, f32 fparg0)
     u8 *res3;
     u8 *res4;
 
-    if (!(*(s32 *)arg0 & 1)) {
-        res = *(u8 **)(arg0 + 8);
+    if (!((s32)((FldResource *)resource)->flags & 1)) {
+        res = (u8 *)((FldResource *)resource)->primaryObject;
         if (res != NULL) {
-            frame = *(u8 **)(res + 4);
+            frame = (u8 *)((RwObject *)res)->parent;
             mtx = (u8 *)func_003e9700((RwFrame *)frame);
-            stk.v0 = *(Vec3 *)(mtx + 0x30);
-            stk.v0.x += *(f32 *)(arg1 + 0);
-            stk.v0.y += *(f32 *)(arg1 + 4);
-            stk.v0.z += *(f32 *)(arg1 + 8);
-            *(Vec3 *)(frame + 0x40) = stk.v0;
+            stk.v0 = ((RwMatrix *)mtx)->pos;
+            stk.v0.x += ((Vec3 *)translation)->x;
+            stk.v0.y += ((Vec3 *)translation)->y;
+            stk.v0.z += ((Vec3 *)translation)->z;
+            ((RwFrame *)frame)->modelling.pos = stk.v0;
             RwEngineGetMatrixTolerances(&stk.t0);
-            RwMatrixOptimize((RwMatrix *)(frame + 0x10), &stk.t0);
+            RwMatrixOptimize((RwMatrix *)&((RwFrame *)frame)->modelling, &stk.t0);
             func_003e9680((RwFrame *)frame);
         }
-        res2 = *(u8 **)(arg0 + 0x10);
+        res2 = (u8 *)((FldResource *)resource)->alternateObject;
         if (res2 != NULL) {
-            frame2 = *(u8 **)(res2 + 4);
+            frame2 = (u8 *)((RwObject *)res2)->parent;
             mtx = (u8 *)func_003e9700((RwFrame *)frame2);
-            stk.v1 = *(Vec3 *)(mtx + 0x30);
-            stk.v1.x += *(f32 *)(arg1 + 0);
-            stk.v1.y += *(f32 *)(arg1 + 4);
-            stk.v1.z += *(f32 *)(arg1 + 8);
-            *(Vec3 *)(frame2 + 0x40) = stk.v1;
+            stk.v1 = ((RwMatrix *)mtx)->pos;
+            stk.v1.x += ((Vec3 *)translation)->x;
+            stk.v1.y += ((Vec3 *)translation)->y;
+            stk.v1.z += ((Vec3 *)translation)->z;
+            ((RwFrame *)frame2)->modelling.pos = stk.v1;
             RwEngineGetMatrixTolerances(&stk.t1);
-            RwMatrixOptimize((RwMatrix *)(frame2 + 0x10), &stk.t1);
+            RwMatrixOptimize((RwMatrix *)&((RwFrame *)frame2)->modelling, &stk.t1);
             func_003e9680((RwFrame *)frame2);
         }
-        res3 = *(u8 **)(arg0 + 0x14);
+        res3 = (u8 *)((FldResource *)resource)->secondaryObject;
         if (res3 != NULL) {
-            frame3 = *(u8 **)(res3 + 4);
+            frame3 = (u8 *)((RwObject *)res3)->parent;
             mtx = (u8 *)func_003e9700((RwFrame *)frame3);
-            stk.v2 = *(Vec3 *)(mtx + 0x30);
-            stk.v2.x += *(f32 *)(arg1 + 0);
-            stk.v2.y += *(f32 *)(arg1 + 4);
-            stk.v2.z += *(f32 *)(arg1 + 8);
-            *(Vec3 *)(frame3 + 0x40) = stk.v2;
+            stk.v2 = ((RwMatrix *)mtx)->pos;
+            stk.v2.x += ((Vec3 *)translation)->x;
+            stk.v2.y += ((Vec3 *)translation)->y;
+            stk.v2.z += ((Vec3 *)translation)->z;
+            ((RwFrame *)frame3)->modelling.pos = stk.v2;
             RwEngineGetMatrixTolerances(&stk.t2);
-            RwMatrixOptimize((RwMatrix *)(frame3 + 0x10), &stk.t2);
+            RwMatrixOptimize((RwMatrix *)&((RwFrame *)frame3)->modelling, &stk.t2);
             func_003e9680((RwFrame *)frame3);
         }
     }
     i = 0;
-    while (i < *(u32 *)(arg0 + 0x18)) {
-        res4 = *(u8 **)(arg0 + i * 4 + 0x1C);
+    while (i < ((FldResource *)resource)->clumpCount) {
+        res4 = (u8 *)((FldResource *)resource)->clumps[i];
         if (res4 != NULL) {
-            frame4 = *(u8 **)(res4 + 4);
+            frame4 = (u8 *)((RwObject *)res4)->parent;
             mtx = (u8 *)func_003e9700((RwFrame *)frame4);
-            stk.v3 = *(Vec3 *)(mtx + 0x30);
-            stk.v3.x += *(f32 *)(arg1 + 0);
-            stk.v3.y += *(f32 *)(arg1 + 4);
-            stk.v3.z += *(f32 *)(arg1 + 8);
-            *(Vec3 *)(frame4 + 0x40) = stk.v3;
+            stk.v3 = ((RwMatrix *)mtx)->pos;
+            stk.v3.x += ((Vec3 *)translation)->x;
+            stk.v3.y += ((Vec3 *)translation)->y;
+            stk.v3.z += ((Vec3 *)translation)->z;
+            ((RwFrame *)frame4)->modelling.pos = stk.v3;
             RwEngineGetMatrixTolerances(&stk.t3);
-            RwMatrixOptimize((RwMatrix *)(frame4 + 0x10), &stk.t3);
+            RwMatrixOptimize((RwMatrix *)&((RwFrame *)frame4)->modelling, &stk.t3);
             func_003e9680((RwFrame *)frame4);
         }
         i += 1;
     }
     j = 0;
-    while (j < *(u32 *)(arg0 + 0x11C)) {
-        kind = *(u16 *)(arg0 + j * 0x18 + 0x120);
+    while (j < ((FldResource *)resource)->entryCount) {
+        kind = ((FldResource *)resource)->entries[j].type;
         if (kind == 0 || kind == 2) {
-            mdlTranslateMatrix(*(RwMatrix **)(arg0 + j * 0x18 + 0x12C), (const Vec3 *)arg1, 2);
+            mdlTranslateMatrix((RwMatrix *)((FldResource *)resource)->entries[j].model, (const Vec3 *)translation, 2);
         } else if (kind == 1) {
             {
-                s64 tmp_xy = D_005EFE28[0];
-                f32 tmp_z = D_005EFE30[0];
-                stk.axis.bits.xy = tmp_xy;
-                stk.axis.bits.z = tmp_z;
+                s64 axisXY = D_005EFE28[0];
+                f32 axisZ = D_005EFE30[0];
+                stk.axis.bits.xy = axisXY;
+                stk.axis.bits.z = axisZ;
             }
             mtx2 = (u8 *)func_003e0f80();
-            *(s32 *)(mtx2 + 0x28) = 0x3F800000;
-            *(s32 *)(mtx2 + 0x14) = 0x3F800000;
-            *(s32 *)(mtx2 + 0) = 0x3F800000;
-            *(s32 *)(mtx2 + 0x10) = 0;
-            *(s32 *)(mtx2 + 8) = 0;
-            *(s32 *)(mtx2 + 4) = 0;
-            *(s32 *)(mtx2 + 0x24) = 0;
-            *(s32 *)(mtx2 + 0x20) = 0;
-            *(s32 *)(mtx2 + 0x18) = 0;
-            *(s32 *)(mtx2 + 0x38) = 0;
-            *(s32 *)(mtx2 + 0x34) = 0;
-            *(s32 *)(mtx2 + 0x30) = 0;
-            *(s32 *)(mtx2 + 0xC) |= 0x20003;
-            RwMatrixRotate((RwMatrix *)mtx2, &stk.axis.vector, fparg0, rwCOMBINEPOSTCONCAT);
+            ((RwMatrix *)mtx2)->atZBits = 0x3F800000;
+            ((RwMatrix *)mtx2)->upYBits = 0x3F800000;
+            ((RwMatrix *)mtx2)->rightXBits = 0x3F800000;
+            ((RwMatrix *)mtx2)->upXBits = 0;
+            ((RwMatrix *)mtx2)->rightZBits = 0;
+            ((RwMatrix *)mtx2)->rightYBits = 0;
+            ((RwMatrix *)mtx2)->atYBits = 0;
+            ((RwMatrix *)mtx2)->atXBits = 0;
+            ((RwMatrix *)mtx2)->upZBits = 0;
+            ((RwMatrix *)mtx2)->posZBits = 0;
+            ((RwMatrix *)mtx2)->posYBits = 0;
+            ((RwMatrix *)mtx2)->posXBits = 0;
+            ((RwMatrix *)mtx2)->flags |= 0x20003;
+            RwMatrixRotate((RwMatrix *)mtx2, &stk.axis.vector, angle, rwCOMBINEPOSTCONCAT);
             {
                 u32 k = j;
-                u8 *base = arg0 + k * 0x18;
-                mtx = (u8 *)func_003e9700(*(RwFrame **)(base + 0x128));
-                stk.trans = *(Vec3 *)(mtx + 0x30);
+                u8 *base = resource + k * 0x18;
+                mtx = (u8 *)func_003e9700((RwFrame *)((FldResource *)base)->entries[0].frame);
+                stk.trans = ((RwMatrix *)mtx)->pos;
                 func_003e42a0(&stk.trans, &stk.trans, (const RwMatrix *)mtx2);
-                stk.trans.x += *(f32 *)(arg1 + 0);
-                stk.trans.y += *(f32 *)(arg1 + 4);
-                stk.trans.z += *(f32 *)(arg1 + 8);
-                func_004b1250(*(void **)(base + 0x130), (f32 *)&stk.trans);
+                stk.trans.x += ((Vec3 *)translation)->x;
+                stk.trans.y += ((Vec3 *)translation)->y;
+                stk.trans.z += ((Vec3 *)translation)->z;
+                mdlEffectSetChildPositionVec((void *)((FldResource *)base)->entries[0].effect, (f32 *)&stk.trans);
             }
             func_003e0f40((RwMatrix *)mtx2);
         }
@@ -2186,181 +2375,158 @@ void FldResource_TransformFrames(u8 *arg0, u8 *arg1, f32 fparg0)
 do { \
     s64 copy_s64; \
     f32 copy_f32; \
-    copy_s64 = (src).sp40; \
-    copy_f32 = (src).sp48; \
-    (dst).sp40 = copy_s64; \
-    (dst).sp48 = copy_f32; \
+    copy_s64 = (src).xy; \
+    copy_f32 = (src).z; \
+    (dst).xy = copy_s64; \
+    (dst).z = copy_f32; \
 } while (0)
+/* Rotate clump frames, entry models and effect Euler angles about the stored axis. */
+/* Typed frame/entry fields preserve the packed-axis scalar loads and pointer/handle aliases. */
 // FUN_00153300
-void FldResource_AdvanceAnimations(s8 *arg0, f32 fparg0)
+void FldResource_AdvanceAnimations(s8 *resource, f32 angle)
 {
     extern void func_003e9d50(s32 a0, void *a1, f32 f12, s32 a3);
     void *ptr;
     struct {
-        s64 sp40;
-        f32 sp48;
-    } sp;
-    u16 temp_4;
-    u32 var_16;
-    u32 var_16_2;
-    u8 *temp_3;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
-    u8 *temp_3_4;
-    u8 *temp_5;
+        s64 xy;
+        f32 z;
+    } axis;
+    u16 kind;
+    u32 clumpIndex;
+    u32 entryIndex;
+    u8 *primaryClump;
+    u8 *firstAlternateClump;
+    u8 *secondAlternateClump;
+    u8 *clump;
+    u8 *entryCursor;
 
-    ptr = &sp.sp40;
-    COPY_SCALAR_PAIR(sp, *(typeof(sp) *)D_005EFE38);
-    if (!(*(u32 *)arg0 & 1)) {
-        temp_3 = *(u8 **)(arg0 + 8);
-        if (temp_3 != NULL) {
-            func_003e9d50(*(s32 *)(temp_3 + 4), ptr, fparg0, 2);
+    ptr = &axis.xy;
+    COPY_SCALAR_PAIR(axis, *(typeof(axis) *)D_005EFE38);
+    if (!(((FldResource *)resource)->flags & 1)) {
+        primaryClump = (u8 *)((FldResource *)resource)->primaryObject;
+        if (primaryClump != NULL) {
+            func_003e9d50((s32)((RwObject *)primaryClump)->parent, ptr, angle, 2);
         }
-        temp_3_2 = *(u8 **)(arg0 + 0x10);
-        if (temp_3_2 != NULL) {
-            func_003e9d50(*(s32 *)(temp_3_2 + 4), &sp.sp40, fparg0, 2);
+        firstAlternateClump = (u8 *)((FldResource *)resource)->alternateObject;
+        if (firstAlternateClump != NULL) {
+            func_003e9d50((s32)((RwObject *)firstAlternateClump)->parent, &axis.xy, angle, 2);
         }
-        temp_3_3 = *(u8 **)(arg0 + 0x14);
-        if (temp_3_3 != NULL) {
-            func_003e9d50(*(s32 *)(temp_3_3 + 4), &sp.sp40, fparg0, 2);
+        secondAlternateClump = (u8 *)((FldResource *)resource)->secondaryObject;
+        if (secondAlternateClump != NULL) {
+            func_003e9d50((s32)((RwObject *)secondAlternateClump)->parent, &axis.xy, angle, 2);
         }
     }
-    var_16 = 0;
-    goto loop_test_11;
-loop_body_11:
-    temp_3_4 = *(u8 **)(arg0 + var_16 * 4 + 0x1C);
-    if (temp_3_4 != NULL) {
-        func_003e9d50(*(s32 *)(temp_3_4 + 4), &sp.sp40, fparg0, 2);
+    clumpIndex = 0;
+    goto testClump;
+rotateClump:
+    clump = (u8 *)((FldResource *)resource)->clumps[clumpIndex];
+    if (clump != NULL) {
+        func_003e9d50((s32)((RwObject *)clump)->parent, &axis.xy, angle, 2);
     }
-    var_16 += 1;
-loop_test_11:
-    if (var_16 < *(u32 *)(arg0 + 0x18)) {
-        goto loop_body_11;
+    clumpIndex += 1;
+testClump:
+    if (clumpIndex < ((FldResource *)resource)->clumpCount) {
+        goto rotateClump;
     }
-    var_16_2 = 0;
-    goto loop_test_19;
-loop_body_19:
-    temp_5 = (u8 *)arg0 + var_16_2 * 0x18;
-    temp_4 = *(u16 *)(temp_5 + 0x120);
-    if (temp_4 == 0) {
-        goto switch_body_a;
+    entryIndex = 0;
+    goto testEntry;
+rotateEntry:
+    entryCursor = (u8 *)resource + entryIndex * 0x18;
+    kind = ((FldResource *)entryCursor)->entries[0].type;
+    if (kind == 0) {
+        goto rotateModel;
     }
-    if (temp_4 != 2) {
-        goto switch_case_1_test;
+    if (kind != 2) {
+        goto testEffect;
     }
-switch_body_a:
-    mdlRotateMatrix((void *)(*(s32 *)(temp_5 + 0x12C)), &sp.sp40, fparg0, 2);
-    goto switch_end;
-switch_case_1_test:
-    if (temp_4 != 1) {
-        goto switch_end;
+rotateModel:
+    mdlRotateMatrix((void *)(((FldResource *)entryCursor)->entries[0].model), &axis.xy, angle, 2);
+    goto nextEntry;
+testEffect:
+    if (kind != 1) {
+        goto nextEntry;
     }
-    mdlEffectSetEulerRotation(*(s32 *)(temp_5 + 0x130), 0.0f, fparg0, 0.0f);
-switch_end:
+    mdlEffectSetEulerRotation(((FldResource *)entryCursor)->entries[0].effect, 0.0f, angle, 0.0f);
+nextEntry:
     ;
-    var_16_2 += 1;
-loop_test_19:
-    if (var_16_2 < *(u32 *)(arg0 + 0x11C)) {
-        goto loop_body_19;
+    entryIndex += 1;
+testEntry:
+    if (entryIndex < ((FldResource *)resource)->entryCount) {
+        goto rotateEntry;
     }
 }
 /* measured: restore propagation after FldResource_AdvanceAnimations. */
 #pragma pop
 
-typedef struct {
-    u16 type;
-    u16 flags;
-    s32 field_4;
-    s32 field_8;
-    s32 field_c;
-    s32 field_10;
-    s32 field_14;
-} k_fldSubEntry;
-
-typedef struct {
-    u32 flags;
-    s16 field_04;
-    s16 field_06;
-    s32 field_08;
-    s32 field_0c;
-    s32 field_10;
-    s32 field_14;
-    u32 count1;
-    s32 arr1[32];
-    s32 arr2[32];
-    u32 count2;
-    k_fldSubEntry entries[96];
-    s32 field_a20;
-    Vec3 scale;
-} k_fldResource;
-
-extern void FldResource_TransformFrames(u8 *arg0, u8 *arg1, f32 arg2);
+extern void FldResource_TransformFrames(u8 *resource, u8 *translation, f32 angle);
 
 /* measured: MWCCPS2 b210 -O2, 792B/window 800B, 17 relocations,
  * eight zero alignment bytes. Ghidra identifies the unsigned angle
  * conversion; IDA identifies the three-pair copy of each 24-byte entry.
  * The arrays end at the measured count/scale fields, not at the allocation
  * boundary: the original allocation remains 0xAB0 bytes. */
+/* Clone non-world resources and apply an unsigned number of quarter turns plus translation. */
+/* Typed clone cursors preserve the measured three-pair 24-byte entry copies and word-backed pointer aliases. */
 // FUN_001534A0
-k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *arg1, u32 arg2)
+FldResource *FldResource_CloneRotated(FldResource *src, void *translation, u32 quarterTurns)
 {
-    k_fldResource *dst;
-    f32 temp_f20;
+    FldResource *dst;
+    f32 angle;
     u32 i;
     u32 j;
-    u8 *p_dst;
+    u8 *destinationCursor;
 
-    temp_f20 = 90.0f * (f32)arg2;
+    angle = 90.0f * (f32)quarterTurns;
     if (src->flags & 1) {
         return NULL;
     }
     chkmemAllocSiteTag(D_005EFC80, 0xA2A);
-    dst = (k_fldResource *)D_008873F4[0](1, 0xAB0, 0x40000);
+    dst = (FldResource *)D_008873F4[0](1, 0xAB0, 0x40000);
     dst->flags = src->flags | 2;
-    dst->field_04 = src->field_04;
-    dst->field_06 = src->field_06;
-    if (src->field_08 != 0) {
-        dst->field_08 = func_003c0520(src->field_08);
-        dst->field_0c = (s32)func_00462ae0((void *)dst->field_08);
+    dst->majorId = src->majorId;
+    dst->minorId = src->minorId;
+    if (src->primaryObject != 0) {
+        dst->primaryObject = func_003c0520(src->primaryObject);
+        dst->primaryDrawObject = (s32)sdkClumpCreateBuckets((void *)dst->primaryObject);
     }
-    if (src->field_10 != 0) {
-        dst->field_10 = func_003c0520(src->field_10);
+    if (src->alternateObject != 0) {
+        dst->alternateObject = func_003c0520(src->alternateObject);
     }
-    if (src->field_14 != 0) {
-        dst->field_14 = func_003c0520(src->field_14);
+    if (src->secondaryObject != 0) {
+        dst->secondaryObject = func_003c0520(src->secondaryObject);
     }
-    dst->count1 = src->count1;
-    for (i = 0; i < src->count1; i++) {
-        s32 arg = *(s32 *)((u8 *)src + i * 4 + 28);
-        if (arg != 0) {
-            s32 *s1;
-            p_dst = (u8 *)dst + i * 4;
-            s1 = (s32 *)(p_dst + 28);
-            *s1 = func_003c0520(arg);
-            *(s32 *)(p_dst + 156) = (s32)func_00462ae0((void *)*s1);
+    dst->clumpCount = src->clumpCount;
+    for (i = 0; i < src->clumpCount; i++) {
+        s32 clump = ((FldResource *)((u8 *)src + i * 4))->clumps[0];
+        if (clump != 0) {
+            s32 *clumpSlot;
+            destinationCursor = (u8 *)dst + i * 4;
+            clumpSlot = (s32 *)&((FldResource *)destinationCursor)->clumps[0];
+            *clumpSlot = func_003c0520(clump);
+            ((FldResource *)destinationCursor)->drawObjects[0] = (s32)sdkClumpCreateBuckets((void *)*clumpSlot);
         }
     }
-    dst->count2 = src->count2;
-    for (j = 0; j < src->count2; j++) {
-        u8 *src_base = (u8 *)src + (s32)j * 24;
-        k_fldSubEntry *a3 = (k_fldSubEntry *)(src_base + 288);
-        p_dst = (u8 *)dst + (s32)j * 24;
-        *(k_fldSubEntry *)(p_dst + 288) = *a3;
+    dst->entryCount = src->entryCount;
+    for (j = 0; j < src->entryCount; j++) {
+        u8 *sourceCursor = (u8 *)src + (s32)j * 24;
+        FldResourceEntry *entry = (FldResourceEntry *)&((FldResource *)sourceCursor)->entries[0].type;
+        destinationCursor = (u8 *)dst + (s32)j * 24;
+        dst->entries[j] = *entry;
 
-        if (a3->type == 0 || a3->type == 2) {
-            u8 *s1 = (u8 *)src + j * 24;
-            s32 *s0 = &dst->entries[j].field_c;
-            *s0 = mdlCloneModelObject(*(s32 *)(s1 + 300));
-            mdlApplyModelMatrix((void *)*s0, func_003e9700(*(void **)(s1 + 296)), 0);
-            if (*(u16 *)(s1 + 290) & 2) {
-                *(u16 *)(p_dst + 290) |= 2;
+        if (entry->type == 0 || entry->type == 2) {
+            u8 *sourceCursor = (u8 *)src + j * 24;
+            s32 *modelSlot = &dst->entries[j].model;
+            *modelSlot = mdlCloneModelObject(((FldResource *)sourceCursor)->entries[0].model);
+            mdlApplyModelMatrix((void *)*modelSlot, func_003e9700((void *)((FldResource *)sourceCursor)->entries[0].frame), 0);
+            if (((FldResource *)sourceCursor)->entries[0].flags & 2) {
+                ((FldResource *)destinationCursor)->entries[0].flags |= 2;
             }
-        } else if (a3->type == 1) {
-            *(s32 *)(p_dst + 304) = mdlEffectClone(*(s32 *)(src_base + 304));
+        } else if (entry->type == 1) {
+            ((FldResource *)destinationCursor)->entries[0].effect = mdlEffectClone(((FldResource *)sourceCursor)->entries[0].effect);
         }
     }
     dst->scale = src->scale;
-    FldResource_AdvanceAnimations((s8 *)dst, temp_f20);
-    FldResource_TransformFrames((u8 *)dst, arg1, temp_f20);
+    FldResource_AdvanceAnimations((s8 *)dst, angle);
+    FldResource_TransformFrames((u8 *)dst, translation, angle);
     return dst;
 }

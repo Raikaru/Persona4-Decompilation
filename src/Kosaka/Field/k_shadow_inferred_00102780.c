@@ -1,3 +1,4 @@
+#include "kwln_task_internal.h"
 #include "sdk_dbprt.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -127,45 +128,64 @@ extern u8 iGpffff85d0;
 /* measured: opt_loop_invariants off prevents the four queue-address expressions from being hoisted across their wait loops. */
 /* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
 /* measured: opt_propagation on closes the bracket after the exact-match body. */
+/* Sequence control words consumed by the delayed-start dispatcher. */
+typedef struct FldSequenceWork {
+    s32 flags;
+    s32 sequence;
+    s32 unk08;
+    s32 delay;
+    s32 unk10;
+    s32 parameters;
+} FldSequenceWork;
+
+/* Count down a pending sequence, dispatch its start callback, and poll until it finishes. */
+typedef struct FldSequenceCallbacks {
+    void (*start)(s32);
+    s32 (*poll)(void);
+    u8 pad08[0x48];
+} FldSequenceCallbacks;
+
+/* measured: typing the remaining sequence/delay/parameter loads loses MATCH. The poll load also retains its
+ * separate D_005DCC68 anchor; rebasing it to the typed callback table loses MATCH. */
 // FUN_00102780
-s32 FldShadowAnim_Update(u8 *arg0)
+s32 FldShadowAnim_Update(u8 *task)
 {
     s32 remaining;
     s32 kind;
     s32 handle;
     u8 *state;
 
-    state = *(u8 **)(arg0 + 0x38);
+    state = ((KwlnTask *)task)->work;
     kind = *(s32 *)(state + 4);
     if (kind > -1) {
-        if (*(s32 *)state & 1) {
+        if (((FldSequenceWork *)state)->flags & 1) {
             remaining = *(s32 *)(state + 0xC);
             if (remaining <= 0) {
-                (*(void (**)(s32))((u8 *)D_005DCC64 + kind * 0x50))(*(s32 *)(state + 0x14));
+                ((FldSequenceCallbacks *)D_005DCC64)[kind].start(*(s32 *)(state + 0x14));
                 handle = *(s32 *)(state + 0x14);
                 if (handle != 0) {
                     jtbl_008873EC[0]((u8 *)(u32)handle);
                 }
-                *(s32 *)(state + 0x14) = 0;
-                *(s32 *)state &= ~1;
+                ((FldSequenceWork *)state)->parameters = 0;
+                ((FldSequenceWork *)state)->flags &= ~1;
             } else {
-                *(s32 *)(state + 0xC) = remaining - 1;
+                ((FldSequenceWork *)state)->delay = remaining - 1;
             }
             goto block_10;
         }
         if ((*(s32 (**)(void))((u8 *)D_005DCC68 + kind * 0x50))() == 1) {
             return 0;
         }
-        *(s32 *)(state + 4) = -1;
-        *(s32 *)(state + 0x10) = 0;
+        ((FldSequenceWork *)state)->sequence = -1;
+        ((FldSequenceWork *)state)->unk10 = 0;
     }
 block_10:
     return 0;
 }
 
 // FUN_00102890
-void FldShadowAnim_Destroy(u8 *arg0) {
+void FldShadowAnim_Destroy(u8 *task) {
     iGpffffb1a8 = 0;
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 

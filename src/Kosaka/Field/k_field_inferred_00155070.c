@@ -20,73 +20,74 @@ extern f32 iGpffff8218;
 extern f32 iGpffff830c;
 extern s32 D_007D2510[];
 extern s32 FldMap_IsCurrentInEitherBand(void);
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 );
 extern s32 *MT_Scene_GetFrameState(void);
-extern void K_View_SetFov(void *arg0, f32 arg1);
-extern void func_003e0670(void *arg0, s32 arg1);
-extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
-extern void FldCameraAdvanceCurve(s32 arg0, s32 arg1);
-extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
-extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
-extern void func_0016ea30(s32 arg0, f32 arg1);
-extern void FldFrame_SetSlotVector(s32 arg0, s8 arg1, void *arg2);
-extern u8 *FldFrame_GetSlotBuffer(s32 arg0);
-extern void FldCameraUpdateLookAt(s32 arg0);
+extern void K_View_SetFov(void *, f32 );
+extern void func_003e0670(void *, s32 );
+extern void func_003e9cb0(s32 , void *, s32 );
+extern void FldCameraAdvanceCurve(s32 , s32 );
+extern void FldFrame_SetViewOffset(s32 , void *);
+extern void FldFrame_SetViewDistance(s32 , f32 );
+extern void fldCameraSetFollowHeight(s32 , f32 );
+extern void FldFrame_SetSlotVector(s32 , s8 , void *);
+extern u8 *FldFrame_GetSlotBuffer(s32 );
+extern void FldCameraUpdateLookAt(s32 );
 extern s32 kwlnGetCamera(void);
 #pragma push
 #pragma opt_loop_invariants on
 // Intent: Apply the camera parameters from resource 0x14: field of view, view offset, distance, the slot vectors and the frame slot buffer [inferred]
+/* The camera resource has version-specific parameters at +0x140..0x304; bytewise slot/matrix copies retain the measured load/store order. */
 // FUN_00155070
 void MT_Scene_ApplyCameraParams(void)
 {
-    u8 sp30[0x40];
-    u8 *temp_2;
-    u8 *var_2;
-    u8 *var_6;
-    s16 *temp_4;
-    s32 temp_3;
-    s32 var_5;
-    s32 var_17;
+    u8 slotMatrix[0x40];
+    u8 *cameraResource;
+    u8 *slotDestination;
+    u8 *matrixSource;
+    s16 *firstWord;
+    s32 secondWord;
+    s32 pairsRemaining;
+    s32 slotIndex;
 
-    temp_2 = MT_Scene_GetResListHead(0x14);
-    if (temp_2 != NULL) {
-        K_View_SetFov((void *)kwlnGetCamera(), *(f32 *)(temp_2 + 0x144));
-        func_003e0670(sp30, *(s32 *)(temp_2 + 0x148));
-        func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), sp30, 0);
-        FldCameraAdvanceCurve(MT_Scene_GetFrameState()[1], *(s32 *)(temp_2 + 0x140));
-        FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], temp_2 + 0x150);
-        if ((*(f32 *)(temp_2 + 0x15C) == 0.0f) &&
+    cameraResource = MT_Scene_GetResListHead(0x14);
+    if (cameraResource != NULL) {
+        K_View_SetFov((void *)kwlnGetCamera(), *(f32 *)(cameraResource + 0x144));
+        func_003e0670(slotMatrix, *(s32 *)(cameraResource + 0x148));
+        func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), slotMatrix, 0);
+        FldCameraAdvanceCurve(MT_Scene_GetFrameState()[1], *(s32 *)(cameraResource + 0x140));
+        FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], cameraResource + 0x150);
+        if ((*(f32 *)(cameraResource + 0x15C) == 0.0f) &&
             (FldMap_IsCurrentInEitherBand() == 1)) {
-            *(f32 *)(temp_2 + 0x15C) = 20.0f;
+            *(f32 *)(cameraResource + 0x15C) = 20.0f;
         }
-        FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], *(f32 *)(temp_2 + 0x15C));
-        func_0016ea30(MT_Scene_GetFrameState()[1], *(f32 *)(temp_2 + 0x160));
-        var_17 = 0;
+        FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], *(f32 *)(cameraResource + 0x15C));
+        fldCameraSetFollowHeight(MT_Scene_GetFrameState()[1], *(f32 *)(cameraResource + 0x160));
+        slotIndex = 0;
         goto loop_test;
 loop_body:
-        if (*(s8 *)(temp_2 + var_17 + 0x164) != 0) {
+        if (*(s8 *)(cameraResource + slotIndex + 0x164) != 0) {
             FldFrame_SetSlotVector(MT_Scene_GetFrameState()[1],
-                          (s8)var_17,
-                          temp_2 + var_17 * 0xC + 0x184);
+                          (s8)slotIndex,
+                          cameraResource + slotIndex * 0xC + 0x184);
         }
-        var_17 += 1;
+        slotIndex += 1;
 loop_test:
-        if (var_17 < 0x20) {
+        if (slotIndex < 0x20) {
             goto loop_body;
         }
-        func_003e0670(sp30, *(s32 *)(temp_2 + 0x14C));
-        var_2 = FldFrame_GetSlotBuffer(MT_Scene_GetFrameState()[1]);
-        var_6 = sp30;
-        var_5 = 8;
+        func_003e0670(slotMatrix, *(s32 *)(cameraResource + 0x14C));
+        slotDestination = FldFrame_GetSlotBuffer(MT_Scene_GetFrameState()[1]);
+        matrixSource = slotMatrix;
+        pairsRemaining = 8;
         do {
-            temp_4 = *(s16 **)var_6;
-            temp_3 = *(s32 *)(var_6 + 4);
-            var_6 += 8;
-            var_5 -= 1;
-            *(s16 **)var_2 = temp_4;
-            *(s32 *)(var_2 + 4) = temp_3;
-            var_2 += 8;
-        } while (var_5 > 0);
+            firstWord = *(s16 **)matrixSource;
+            secondWord = *(s32 *)(matrixSource + 4);
+            matrixSource += 8;
+            pairsRemaining -= 1;
+            *(s16 **)slotDestination = firstWord;
+            *(s32 *)(slotDestination + 4) = secondWord;
+            slotDestination += 8;
+        } while (pairsRemaining > 0);
         FldCameraUpdateLookAt(MT_Scene_GetFrameState()[1]);
     }
 }
@@ -126,17 +127,17 @@ s32 FldSceneLoadReady(void)
 #pragma opt_loop_invariants on
 // Intent: Set the three fade globals from the state pair: a scale value for state 7 (and state 6 with 6, state 21 with 1), or the defaults otherwise [inferred]
 // FUN_001552A0
-void MT_Scene_SetFadeForState(u16 arg0, u16 arg1) {
+void MT_Scene_SetFadeForState(u16 fieldKind, u16 baseState) {
     f32 value;
 
     value = 0.0f;
-    if ((arg0 == 7) && (arg1 != 1)) {
+    if ((fieldKind == 7) && (baseState != 1)) {
         value = iGpffff853c;
     }
-    if ((arg0 == 6) && (arg1 == 6)) {
+    if ((fieldKind == 6) && (baseState == 6)) {
         value = iGpffff853c;
     }
-    if ((arg0 == 0x15) && (arg1 == 1)) {
+    if ((fieldKind == 0x15) && (baseState == 1)) {
         value = iGpffff853c;
     }
     if (!(value <= 0.0f)) {

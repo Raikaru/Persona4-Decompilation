@@ -3,6 +3,7 @@
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
+#include "rw_camera_internal.h"
 extern f32 fGpffff81f0;
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
@@ -47,16 +48,6 @@ typedef struct {
 #include "rw_types_internal.h"
 typedef RwV3d Code45Vec3;
 
-typedef struct RwMatrixTag {
-    Code45Vec3 right;
-    u32 flags;
-    Code45Vec3 up;
-    u32 pad1;
-    Code45Vec3 at;
-    u32 pad2;
-    Code45Vec3 pos;
-    u32 pad3;
-} Code45Matrix;
 
 typedef struct RwSphere {
     Code45Vec3 center;
@@ -166,26 +157,27 @@ extern u8 D_008D1CD4[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00450490-00450490 */
 
 /* measured: object 92B vs window 96B, normalized_diff 0; named locals preserve retail load order and FPU register coloring. */
+/* Maps camera depth through the near and far planes into clamped nonnegative device depth. */
 // FUN_00450490
-f32 func_00450490(f32 fparg0)
+f32 sdkDbprtProjectDepth(f32 cameraDepth)
 {
-    f32 temp_fc;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f0;
+    f32 farDepth;
+    f32 projectedDepth;
+    f32 depthDelta;
+    f32 perspectiveScale;
 
-    temp_fc = *(f32 *)D_008872FC_abs;
-    temp_f2 = *(f32 *)(iGpffffb9e0 + 0x84);
-    temp_f0 = *(f32 *)(iGpffffb9e0 + 0x80);
-    temp_f1 = *(f32 *)D_008872F8_abs - temp_fc;
-    temp_f1 = temp_f1 / (temp_f0 - temp_f2);
-    temp_f2 = fparg0 - temp_f2;
-    temp_f2 = temp_f2 * temp_f1;
-    temp_f0 = temp_f0 / fparg0;
-    temp_f1 = temp_fc + temp_f0 * temp_f2;
-    if (temp_f1 < 0.0f) {
-        temp_f1 = 0.0f;
+    farDepth = *(f32 *)D_008872FC_abs;
+    depthDelta = ((RwCamera *)iGpffffb9e0)->farPlane;
+    perspectiveScale = ((RwCamera *)iGpffffb9e0)->nearPlane;
+    projectedDepth = *(f32 *)D_008872F8_abs - farDepth;
+    projectedDepth = projectedDepth / (perspectiveScale - depthDelta);
+    depthDelta = cameraDepth - depthDelta;
+    depthDelta = depthDelta * projectedDepth;
+    perspectiveScale = perspectiveScale / cameraDepth;
+    projectedDepth = farDepth + perspectiveScale * depthDelta;
+    if (projectedDepth < 0.0f) {
+        projectedDepth = 0.0f;
     }
-    return temp_f1;
+    return projectedDepth;
 }
 

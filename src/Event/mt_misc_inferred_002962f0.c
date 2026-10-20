@@ -4,13 +4,15 @@
 #include "type.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
+#include "evt_record_collection_internal.h"
+#include "evt_effect_internal.h"
 typedef char *va_list;
 #define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
 #define va_end(ap) ((void)0)
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 mtMiscResourceValue(s32 arg0);
+s32 mtMiscResourceValue(s32 resourceId);
 
 
 extern s32 iGpffffb538;
@@ -38,15 +40,15 @@ static inline EvtSceneRecord *evtSceneRecordAt(MtMiscSceneSource *source, s32 in
     return (EvtSceneRecord *)((u8 *)source->records98 + index * 0x3C);
 }
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, f32 farg0, s32 arg5, s32 arg6,
-                          s32 arg7);
+extern u32 yTimeTrackAppendKey(s32 source, s32 eventWork, s32 nodeData, s32 recordCount,
+                          s32, f32, s32, s32,
+                          s32);
 extern f32 fGpffff8204;
-extern void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
-                          f32 farg3, s32 arg1, s32 arg2);
+extern void mtMiscDrawSpriteAt(s32 source, f32, f32, f32,
+                          f32, s32 eventWork, s32 nodeData);
 extern char D_0063C8F0[];
 extern char D_0063C910[];
-extern void memcpy(void *arg0, void *arg1, s32 arg2);
+extern void memcpy(void *source, void *eventWork, s32 nodeData);
 extern s32 D_0076462C;
 extern u8 iGpffffa7e8;
 
@@ -57,9 +59,9 @@ extern s32 D_0063E830[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 002962f0-00296850 */
 
-extern void mtMiscCollectType1Records(u8 *arg0);
-extern void mtMiscCollectType2Records(u8 *arg0);
-extern void mtMiscBuildSceneNodes(u8 *arg0);
+extern void mtMiscCollectType1Records(u8 *eventWork);
+extern void mtMiscCollectType2Records(u8 *eventWork);
+extern void mtMiscBuildSceneNodes(u8 *eventWork);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -78,128 +80,122 @@ extern void mtMiscBuildSceneNodes(u8 *arg0);
 // Collects type-4 records of the current scene into event nodes. Returns early
 // unless the readiness check at +0x678 passes and evtMessageWindowRecordCount reports a
 // positive count.
+/* measured: typing each remaining packed child store individually loses MATCH;
+ * source loads are typed while those alias-sensitive stores retain their access shape. */
 // FUN_002962F0
-void mtMiscCollectType4Records(MtMiscSceneSource *arg0, u8 *arg1)
+void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
 {
-  extern s32 evtMessageWindowRecordCount(s32 *arg0); /* lint: allow H011 -- the caller compares the count as signed (<= 0); the definition returns the same bits as u32 */
-  extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
-  extern u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2);
-  typedef struct { s16 x, y, z, w; } Pos4_962f0;
-  s32 temp_3;
-  u8 *temp_17;
-  s32 var_16;
-  u16 var_2;
-  u16 var_3;
-  u16 var_4;
-  u8 *temp_2;
-  u8 *temp_7;
-  if (evtMessageWindowIsOpen((u32 *)(arg1 + 0x678)) != 1)
+  extern s32 evtMessageWindowRecordCount(s32 *object); /* lint: allow H011 -- the caller compares the count as signed (<= 0); the definition returns the same bits as u32 */
+  extern u8 *evtNodeAlloc(s32 kind, u8 *ownerAddress);
+  extern u8 *evtNodeCreate(u8 *parentBytes, s32 startFrame, u8 *event);
+  s32 recordData;
+  u8 *parentNode;
+  s32 recordIndex;
+  u16 recordId;
+  u16 recordType;
+  u16 recordFlags;
+  u8 *childNode;
+  u8 *sourceRecord;
+  if (evtMessageWindowIsOpen((u32 *)(eventWork + 0x678)) != 1)
   {
     return;
   }
-  if (evtMessageWindowRecordCount((s32 *)(arg1 + 0x678)) <= 0)
+  if (evtMessageWindowRecordCount((s32 *)(eventWork + 0x678)) <= 0)
   {
     return;
   }
-  temp_17 = evtNodeAlloc(4, arg1);
-  var_16 = 0;
-  goto loop_test;
-loop_body:
-  if (arg0->header->kind == 4)
-  {
-    var_3 = mtMiscSceneRecord16At(arg0, var_16)->type;
-  }
-  else
-  {
-    var_3 = evtSceneRecordAt(arg0, var_16)->type;
-  }
-  if ((var_3 & 0xFFFF) != 4)
-  {
-    goto loop_increment;
-  }
-  if (arg0->header->kind == 4)
-  {
-    var_2 = mtMiscSceneRecord16At(arg0, var_16)->id;
-  }
-  else
-  {
-    var_2 = evtSceneRecordAt(arg0, var_16)->id;
-  }
-  {
-    Pos4_962f0 tmp;
-    Pos4_962f0 pos;
-    s16 *p10;
-    u8 *p12;
-    u8 *p14;
-    u8 *p15;
-    u8 *p16;
-    temp_2 = evtNodeCreate(temp_17, var_2 & 0xFFFF, arg1);
-    temp_3 = var_16 * 0x3C;
-    temp_7 = (u8 *)arg0->records98 + temp_3;
-    tmp = *((Pos4_962f0 *)(temp_7 + 0xC));
-    pos = tmp;
-    *((Pos4_962f0 *)(temp_2 + 8)) = pos;
-    if (arg0->header->kind == 4)
+  parentNode = evtNodeAlloc(4, eventWork);
+  recordIndex = 0;
+  for (; recordIndex < source->countAC; recordIndex += 1) {
+    if (source->header->kind == 4)
     {
-      var_4 = mtMiscSceneRecord16At(arg0, var_16)->unk_04;
+      recordType = mtMiscSceneRecord16At(source, recordIndex)->type;
     }
     else
     {
-      var_4 = *((u16 *)((u8 *)arg0->records98 + temp_3 + 4));
+      recordType = evtSceneRecordAt(source, recordIndex)->type;
     }
-    *((u16 *)(temp_2 + 2)) = var_4;
-    if (arg0->header->kind == 4)
+    if ((recordType & 0xFFFF) != 4)
     {
-      p10 = &mtMiscSceneRecord16At(arg0, var_16)->unk_08;
+      continue;
+    }
+    if (source->header->kind == 4)
+    {
+      recordId = mtMiscSceneRecord16At(source, recordIndex)->id;
     }
     else
     {
-      p10 = (s16 *)((u8 *)arg0->records98 + temp_3 + 0x14);
+      recordId = evtSceneRecordAt(source, recordIndex)->id;
     }
-    *((s16 *)(temp_2 + 0x10)) = *p10;
-    if (arg0->header->kind == 4)
     {
-      p12 = (u8 *)&mtMiscSceneRecord16At(arg0, var_16)->unk_08;
+      EvtRecordPosition positionCopy;
+      EvtRecordPosition position;
+      s16 *firstSetting;
+      u8 *secondSettingSource;
+      u8 *firstByteSource;
+      u8 *secondByteSource;
+      u8 *thirdByteSource;
+      childNode = evtNodeCreate(parentNode, recordId & 0xFFFF, eventWork);
+      recordData = recordIndex * 0x3C;
+      sourceRecord = (u8 *)source->records98 + recordData;
+      positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)sourceRecord)->position;
+      position = positionCopy;
+      *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+      if (source->header->kind == 4)
+      {
+        recordFlags = mtMiscSceneRecord16At(source, recordIndex)->unk_04;
+      }
+      else
+      {
+        recordFlags = ((EvtSceneRecord *)((u8 *)source->records98 + recordData))->unk_04;
+      }
+      ((EvtChildNode *)childNode)->unk02 = recordFlags;
+      if (source->header->kind == 4)
+      {
+        firstSetting = &mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+      }
+      else
+      {
+        firstSetting = (s16 *)((u8 *)source->records98 + recordData + 0x14);
+      }
+      ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.halfword = *firstSetting;
+      if (source->header->kind == 4)
+      {
+        secondSettingSource = (u8 *)&mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+      }
+      else
+      {
+        secondSettingSource = (u8 *)((u8 *)source->records98 + recordData + 0x14);
+      }
+      *((s16 *)(childNode + 0x12)) = ((EvtRecordParameters *)secondSettingSource)->unk00.halves.second;
+      if (source->header->kind == 4)
+      {
+        firstByteSource = (u8 *)&mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+      }
+      else
+      {
+        firstByteSource = (u8 *)((u8 *)source->records98 + recordData + 0x14);
+      }
+      *((s8 *)(childNode + 0x14)) = ((EvtRecordParameters *)firstByteSource)->unk04.bytes.first;
+      if (source->header->kind == 4)
+      {
+        secondByteSource = (u8 *)&mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+      }
+      else
+      {
+        secondByteSource = (u8 *)((u8 *)source->records98 + recordData + 0x14);
+      }
+      *((s8 *)(childNode + 0x15)) = ((EvtRecordParameters *)secondByteSource)->unk04.bytes.second;
+      if (source->header->kind == 4)
+      {
+        thirdByteSource = (u8 *)&mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+      }
+      else
+      {
+        thirdByteSource = (u8 *)((u8 *)source->records98 + recordData + 0x14);
+      }
+      *((s8 *)(childNode + 0x16)) = ((EvtRecordParameters *)thirdByteSource)->unk04.bytes.third;
     }
-    else
-    {
-      p12 = (u8 *)((u8 *)arg0->records98 + temp_3 + 0x14);
-    }
-    *((s16 *)(temp_2 + 0x12)) = *((s16 *)(p12 + 2));
-    if (arg0->header->kind == 4)
-    {
-      p14 = (u8 *)&mtMiscSceneRecord16At(arg0, var_16)->unk_08;
-    }
-    else
-    {
-      p14 = (u8 *)((u8 *)arg0->records98 + temp_3 + 0x14);
-    }
-    *((s8 *)(temp_2 + 0x14)) = *((s8 *)(p14 + 4));
-    if (arg0->header->kind == 4)
-    {
-      p15 = (u8 *)&mtMiscSceneRecord16At(arg0, var_16)->unk_08;
-    }
-    else
-    {
-      p15 = (u8 *)((u8 *)arg0->records98 + temp_3 + 0x14);
-    }
-    *((s8 *)(temp_2 + 0x15)) = *((s8 *)(p15 + 5));
-    if (arg0->header->kind == 4)
-    {
-      p16 = (u8 *)&mtMiscSceneRecord16At(arg0, var_16)->unk_08;
-    }
-    else
-    {
-      p16 = (u8 *)((u8 *)arg0->records98 + temp_3 + 0x14);
-    }
-    *((s8 *)(temp_2 + 0x16)) = *((s8 *)(p16 + 6));
-  }
-loop_increment:
-  var_16 += 1;
-loop_test:
-  if (var_16 < arg0->countAC)
-  {
-    goto loop_body;
   }
   return;
 }
@@ -207,68 +203,60 @@ loop_test:
 // Collects type-5 records (0x3C-byte entries from the list at +0xA4). The count
 // comes from +0xAC when the list kind is below 6, else from +0xA8.
 // FUN_00296600
-void mtMiscCollectType5Records(MtMiscSceneSource *arg0, u8 *arg1)
+void mtMiscCollectType5Records(MtMiscSceneSource *source, u8 *eventWork)
 {
   extern u8 *evtNodeCreate();
-  extern u8 *evtNodeAlloc(s32 arg0);
-  s32 temp_16;
-  u8 *new_var3;
-  u8 *new_var;
-  s32 var_17;
-  u8 *temp_19;
-  s32 var_18;
-  s16 field_c;
-  s16 field_e;
-  s16 field_10;
-  s16 field_12;
-  u16 temp_6;
-  u8 *temp_2;
-  u8 *temp_3;
-  u8 *temp_5;
-  temp_19 = evtNodeAlloc(5);
-  if ((arg0->header->kind) < 6)
+  extern u8 *evtNodeAlloc(s32 source);
+  s32 recordOffset;
+  u8 *positionTarget;
+  u8 *payloadTarget;
+  s32 recordCount;
+  u8 *parentNode;
+  s32 index;
+  s16 positionX;
+  s16 positionY;
+  s16 positionZ;
+  s16 positionW;
+  u16 recordId;
+  u8 *childNode;
+  u8 *recordData;
+  u8 *recordCursor;
+  parentNode = evtNodeAlloc(5);
+  if ((source->header->kind) < 6)
   {
-    var_17 = arg0->countAC;
+    recordCount = source->countAC;
   }
   else
   {
-    var_17 = arg0->countA8;
+    recordCount = source->countA8;
   }
-  var_18 = 0;
-  goto loop_7_test;
-  loop_7_body:
-  temp_5 = (u8 *)arg0->recordsA4;
+  index = 0;
+  for (; index < recordCount; index += 1) {
+    recordCursor = (u8 *)source->recordsA4;
 
-  temp_16 = var_18 * 0x3C;
-  temp_5 += temp_16;
-  if ((*((u16 *) temp_5)) != 5)
-  {
-    goto loop_7_increment;
-  }
-  temp_2 = evtNodeCreate((temp_6 = *((u16 *) (temp_5 + 2)), temp_19), temp_6, arg1);
-  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
-  field_c = *((s16 *) (temp_3 + 0xC));
-  field_e = *((s16 *) (temp_3 + 0xE));
-  field_10 = *((s16 *) (temp_3 + 0x10));
-  field_12 = *((s16 *) (temp_3 + 0x12));
-  new_var3 = temp_2;
-  *((s16 *) (temp_2 + 8)) = field_c;
-  *((s16 *) (new_var3 + 0xA)) = field_e;
-  *((s16 *) (new_var3 + 0xC)) = field_10;
-  *((s16 *) (((0, new_var3)) + 0xE)) = field_12;
-  new_var = new_var3;
-  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
-  *((s16 *) (new_var + 0x10)) = *((s16 *) (temp_3 + 0x14));
-  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
-  *((s8 *) (new_var + 0x12)) = *((s8 *) (temp_3 + 0x16));
-  loop_7_increment:
-  var_18 += 1;
-
-  loop_7_test:
-  if (var_18 < var_17)
-  {
-    goto loop_7_body;
-  }
+    recordOffset = index * 0x3C;
+    recordCursor += recordOffset;
+    if ((((EvtSceneRecord *)recordCursor)->type) != 5)
+    {
+      continue;
+    }
+    childNode = evtNodeCreate((recordId = ((EvtSceneRecord *)recordCursor)->id, parentNode), recordId, eventWork);
+    recordData = ((u8 *)source->recordsA4) + recordOffset;
+    positionX = ((EvtSceneRecord *)recordData)->position[0];
+    positionY = ((EvtSceneRecord *)recordData)->position[1];
+    positionZ = ((EvtSceneRecord *)recordData)->position[2];
+    positionW = ((EvtSceneRecord *)recordData)->position[3];
+    positionTarget = childNode;
+    ((EvtRecordPosition *)((EvtChildNode *)childNode)->unk08)->x = positionX;
+    ((EvtRecordPosition *)((EvtChildNode *)positionTarget)->unk08)->y = positionY;
+    ((EvtRecordPosition *)((EvtChildNode *)positionTarget)->unk08)->z = positionZ;
+    ((EvtRecordPosition *)((EvtChildNode *)((0, positionTarget)))->unk08)->w = positionW;
+    payloadTarget = positionTarget;
+    recordData = ((u8 *)source->recordsA4) + recordOffset;
+    ((EvtRecordParameters *)&((EvtChildNode *)payloadTarget)->payload)->unk00.halfword = ((EvtRecordParameters *)&((EvtSceneRecord *)recordData)->unk_14)->unk00.halfword;
+    recordData = ((u8 *)source->recordsA4) + recordOffset;
+    ((EvtRecordParameters *)&((EvtChildNode *)payloadTarget)->payload)->unk00.bytes.third = ((EvtRecordParameters *)&((EvtSceneRecord *)recordData)->unk_14)->unk00.bytes.third;
+    }
 
   return;
 }
@@ -276,76 +264,68 @@ void mtMiscCollectType5Records(MtMiscSceneSource *arg0, u8 *arg1)
 // Type-19 counterpart of mtMiscCollectType5Records: same loop and count choice,
 // matching record type 0x13 and copying the settings halfwords at +0x14 to +0x18.
 // FUN_00296720
-void mtMiscCollectType19Records(MtMiscSceneSource *arg0, u8 *arg1)
+void mtMiscCollectType19Records(MtMiscSceneSource *source, u8 *eventWork)
 {
   extern u8 *evtNodeCreate();
-  extern u8 *evtNodeAlloc(s32 arg0);
-  s32 temp_16;
-  u8 *new_var3;
-  u8 *new_var;
-  s32 var_17;
-  u8 *temp_19;
-  s32 var_18;
-  s16 field_c;
-  s16 field_e;
-  s16 field_10;
-  s16 field_12;
-  s16 field_14;
-  s16 field_16;
-  s16 field_18;
-  u16 temp_6;
-  u8 *temp_2;
-  u8 *temp_3;
-  u8 *temp_5;
-  temp_19 = evtNodeAlloc(0x13);
-  if ((arg0->header->kind) < 6)
+  extern u8 *evtNodeAlloc(s32 source);
+  s32 recordOffset;
+  u8 *positionTarget;
+  u8 *payloadTarget;
+  s32 recordCount;
+  u8 *parentNode;
+  s32 index;
+  s16 positionX;
+  s16 positionY;
+  s16 positionZ;
+  s16 positionW;
+  s16 settingFirst;
+  s16 settingSecond;
+  s16 settingThird;
+  u16 recordId;
+  u8 *childNode;
+  u8 *recordData;
+  u8 *recordCursor;
+  parentNode = evtNodeAlloc(0x13);
+  if ((source->header->kind) < 6)
   {
-    var_17 = arg0->countAC;
+    recordCount = source->countAC;
   }
   else
   {
-    var_17 = arg0->countA8;
+    recordCount = source->countA8;
   }
-  var_18 = 0;
-  goto loop_7_test;
-  loop_7_body:
-  temp_5 = (u8 *)arg0->recordsA4;
-  temp_16 = var_18 * 0x3C;
-  temp_5 += temp_16;
-  if ((*((u16 *) temp_5)) != 0x13)
-  {
-    goto loop_7_increment;
-  }
-  temp_2 = evtNodeCreate((temp_6 = *((u16 *) (temp_5 + 2)), temp_19),
-                          temp_6, arg1);
-  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
-  field_c = *((s16 *) (temp_3 + 0xC));
-  field_e = *((s16 *) (temp_3 + 0xE));
-  field_10 = *((s16 *) (temp_3 + 0x10));
-  field_12 = *((s16 *) (temp_3 + 0x12));
-  new_var3 = temp_2;
-  *((s16 *) (temp_2 + 8)) = field_c;
-  *((s16 *) (new_var3 + 0xA)) = field_e;
-  *((s16 *) (new_var3 + 0xC)) = field_10;
-  *((s16 *) (((0, new_var3)) + 0xE)) = field_12;
-  new_var = new_var3;
-  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
-  field_14 = *((s16 *) (temp_3 + 0x14));
-  *((s16 *) (new_var + 0x10)) = field_14;
-  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
-  field_16 = *((s16 *) (temp_3 + 0x16));
-  *((s16 *) (new_var + 0x12)) = field_16;
-  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
-  field_18 = *((s16 *) (temp_3 + 0x18));
-  *((s16 *) (new_var + 0x14)) = field_18;
-  loop_7_increment:
-  var_18 += 1;
-
-  loop_7_test:
-  if (var_18 < var_17)
-  {
-    goto loop_7_body;
-  }
+  index = 0;
+  for (; index < recordCount; index += 1) {
+    recordCursor = (u8 *)source->recordsA4;
+    recordOffset = index * 0x3C;
+    recordCursor += recordOffset;
+    if ((((EvtSceneRecord *)recordCursor)->type) != 0x13)
+    {
+      continue;
+    }
+    childNode = evtNodeCreate((recordId = ((EvtSceneRecord *)recordCursor)->id, parentNode),
+                            recordId, eventWork);
+    recordData = ((u8 *)source->recordsA4) + recordOffset;
+    positionX = ((EvtSceneRecord *)recordData)->position[0];
+    positionY = ((EvtSceneRecord *)recordData)->position[1];
+    positionZ = ((EvtSceneRecord *)recordData)->position[2];
+    positionW = ((EvtSceneRecord *)recordData)->position[3];
+    positionTarget = childNode;
+    ((EvtRecordPosition *)((EvtChildNode *)childNode)->unk08)->x = positionX;
+    ((EvtRecordPosition *)((EvtChildNode *)positionTarget)->unk08)->y = positionY;
+    ((EvtRecordPosition *)((EvtChildNode *)positionTarget)->unk08)->z = positionZ;
+    ((EvtRecordPosition *)((EvtChildNode *)((0, positionTarget)))->unk08)->w = positionW;
+    payloadTarget = positionTarget;
+    recordData = ((u8 *)source->recordsA4) + recordOffset;
+    settingFirst = ((EvtRecordParameters *)&((EvtSceneRecord *)recordData)->unk_14)->unk00.halfword;
+    ((EvtRecordParameters *)&((EvtChildNode *)payloadTarget)->payload)->unk00.halfword = settingFirst;
+    recordData = ((u8 *)source->recordsA4) + recordOffset;
+    settingSecond = ((EvtRecordParameters *)&((EvtSceneRecord *)recordData)->unk_14)->unk00.halves.second;
+    ((EvtRecordParameters *)&((EvtChildNode *)payloadTarget)->payload)->unk00.halves.second = settingSecond;
+    recordData = ((u8 *)source->recordsA4) + recordOffset;
+    settingThird = ((EvtRecordParameters *)&((EvtSceneRecord *)recordData)->unk_14)->unk04.halfword;
+    ((EvtRecordParameters *)&((EvtChildNode *)payloadTarget)->payload)->unk04.halfword = settingThird;
+    }
 
   return;
 }
@@ -356,965 +336,859 @@ void mtMiscCollectType19Records(MtMiscSceneSource *arg0, u8 *arg1)
 #pragma push
 /* measured: func_00296850 MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
-// Builds the mt_misc scene for arg1 from the source record arg0: scene nodes, the type 1, 2, 4, 5, and 19 record sets, the header words copied from arg0+0x90, and the per-entry nodes counted at arg0+0x58.
+// Build the event scene from source: fixed nodes, filtered record sets, header words, and per-entry nodes.
+/* The +0xD0 header word has no member in the shared EvtEventWork layout.
+ * measured: each other remaining raw access loses MATCH when typed independently;
+ * keep those frame/list reloads and packed-payload aliases at their original sites. */
 // FUN_00296850
-s32 mtMiscBuildScene(MtMiscSceneSource *arg0, u8 *arg1)
+s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
 {
-  extern void mtMiscBuildSceneNodes(u8 *arg0);
-  extern void mtMiscCollectType1Records(u8 *arg0);
-  extern void mtMiscCollectType2Records(u8 *arg0);
-  extern void evtNodeLoadRecordsByCount(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3);
-  extern void evtNodeLoadRecords2F(u8 *arg0, u8 *arg1);
-  extern void evtNodeLoadCameraRecords(u8 *arg0, u8 *arg1);
-  extern void evtNodeLoadRecords24(u8 *arg0, u8 *arg1);
-  extern void evtNodeLoadRecords30(u8 *arg0, u8 *arg1);
-  extern void evtNodeLoadRecords34(u8 *arg0, u8 *arg1);
-  extern void evtNodeLoadRecords0A(u8 *arg0, u8 *arg1);
-  extern void mtMiscCollectType4Records(MtMiscSceneSource *arg0, u8 *arg1);
-  extern void mtMiscCollectType5Records(MtMiscSceneSource *arg0, u8 *arg1);
-  extern void mtMiscCollectType19Records(MtMiscSceneSource *arg0, u8 *arg1);
-  extern void evtRefreshNodeResources(u8 *arg0);
-  extern void evtResultSet(s32 arg0, s32 arg1);
-  extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
-  extern u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2);
+  extern void mtMiscBuildSceneNodes(u8 *eventWork);
+  extern void mtMiscCollectType1Records(u8 *eventWork);
+  extern void mtMiscCollectType2Records(u8 *eventWork);
+  extern void evtNodeLoadRecordsByCount(u8 *source, u8 *eventWork, u8 *node, u16 recordCount);
+  extern void evtNodeLoadRecords2F(u8 *source, u8 *eventWork);
+  extern void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork);
+  extern void evtNodeLoadRecords24(u8 *source, u8 *eventWork);
+  extern void evtNodeLoadRecords30(u8 *source, u8 *eventWork);
+  extern void evtNodeLoadRecords34(u8 *source, u8 *eventWork);
+  extern void evtNodeLoadRecords0A(u8 *source, u8 *eventWork);
+  extern void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork);
+  extern void mtMiscCollectType5Records(MtMiscSceneSource *source, u8 *eventWork);
+  extern void mtMiscCollectType19Records(MtMiscSceneSource *source, u8 *eventWork);
+  extern void evtRefreshNodeResources(u8 *event);
+  extern void evtResultSet(s32 slot, s32 value);
+  extern u8 *evtNodeAlloc(s32 kind, u8 *ownerAddress);
+  extern u8 *evtNodeCreate(u8 *parentBytes, s32 startFrame, u8 *event);
   extern void func_00440b68(char *fmt, ...);
   extern char D_0063CB00[];
   extern char D_0063CB18[];
-  typedef struct { s16 x, y, z, w; } Pos4;
-  s32 var_18;
-  s32 var_19;
-  u8 *temp_18;
+  s32 index;
+  s32 recordIndex;
+  u8 *waitNode;
   u8 *node;
-  s32 tmpc;
-  s32 *srcw;
-  s32 *dstw;
-  s32 ncopy;
-  s32 off;
-  u8 *dest;
-  u8 *q;
-  u16 id;
-  u16 id2;
-  u16 var_4h;
+  s32 headerWord;
+  s32 *sourceWords;
+  s32 *destinationWords;
+  s32 wordsRemaining;
+  s32 recordOffset;
+  u8 *childNode;
+  u8 *recordParameters;
+  u16 recordType;
+  u16 recordId;
+  u16 recordFlags;
 
   func_00440b68(D_0063CB00);
-  mtMiscBuildSceneNodes(arg1);
-  mtMiscCollectType1Records(arg1);
-  mtMiscCollectType2Records(arg1);
-  var_18 = 0;
-  goto loop18_test;
-loop18_body:
-  evtNodeAlloc(0x18, arg1);
-  var_18 += 1;
-loop18_test:
-  if (var_18 < arg0->count58) {
-    goto loop18_body;
+  mtMiscBuildSceneNodes(eventWork);
+  mtMiscCollectType1Records(eventWork);
+  mtMiscCollectType2Records(eventWork);
+  index = 0;
+  while (index < source->count58) {
+      evtNodeAlloc(0x18, eventWork);
+      index += 1;
   }
+
   func_00440b68(D_0063CB18);
-  if (arg0->headerWords != NULL) {
-    *((s32 *)(arg1 + 8)) = arg0->headerWords[2];
-    *((s32 *)(arg1 + 0xC)) = arg0->headerWords[0];
-    *((s32 *)(arg1 + 0x10)) = arg0->headerWords[1];
-    *((s32 *)(arg1 + 0xD0)) = arg0->headerWords[3];
-    srcw = arg0->headerWords;
-    dstw = (s32 *)(arg1 + 0x24);
-    ncopy = 9;
-do_copy:
-    tmpc = *srcw;
-    srcw += 1;
-    ncopy -= 1;
-    *dstw = tmpc;
-    dstw += 1;
-    if (ncopy > 0) {
-      goto do_copy;
+  if (source->headerWords != NULL) {
+    ((EvtEventWork *)eventWork)->frameCount = source->headerWords[2];
+    ((EvtEventWork *)eventWork)->startFrame = source->headerWords[0];
+    ((EvtEventWork *)eventWork)->frameLimit = source->headerWords[1];
+    *((s32 *)(eventWork + 0xD0)) = source->headerWords[3];
+    sourceWords = source->headerWords;
+    destinationWords = (s32 *)(eventWork + 0x24);
+    wordsRemaining = 9;
+    do {
+      headerWord = *sourceWords;
+      sourceWords += 1;
+      wordsRemaining -= 1;
+      *destinationWords = headerWord;
+      destinationWords += 1;
+    } while (wordsRemaining > 0);
+    ((EvtEventWork *)eventWork)->frame = *((s32 *)(eventWork + 0xC));
+    ((EvtEventWork *)eventWork)->lastFrame = -1;
+    if (((EvtEventWork *)eventWork)->frame < 0) {
+      *((s32 *)(eventWork + 0x14)) = 0;
     }
-    *((s32 *)(arg1 + 0x14)) = *((s32 *)(arg1 + 0xC));
-    *((s32 *)(arg1 + 0x18)) = -1;
-    if (*((s32 *)(arg1 + 0x14)) < 0) {
-      *((s32 *)(arg1 + 0x14)) = 0;
-    }
-    tmpc = *((s32 *)(arg1 + 8)) - 1;
-    if (tmpc < *((s32 *)(arg1 + 0x14))) {
-      *((s32 *)(arg1 + 0x14)) = tmpc;
+    headerWord = *((s32 *)(eventWork + 8)) - 1;
+    if (headerWord < *((s32 *)(eventWork + 0x14))) {
+      *((s32 *)(eventWork + 0x14)) = headerWord;
     }
   }
-  node = *((u8 **)(arg1 + 0x4C));
-  goto ll_test;
-ll_body:
-  evtNodeLoadRecordsByCount((u8 *)arg0, arg1, node, *((u16 *)(node + 0xC)));
-  node = *((u8 **)(node + 0x90));
-ll_test:
-  if (node != NULL) {
-    goto ll_body;
+  node = (u8 *)((EvtEventWork *)eventWork)->nodeList;
+  while (node != NULL) {
+      evtNodeLoadRecordsByCount((u8 *)source, eventWork, node, ((EvtNode *)node)->flags);
+      node = *((u8 **)(node + 0x90));
   }
-  evtNodeLoadRecords2F((u8 *)arg0, arg1);
+
+  evtNodeLoadRecords2F((u8 *)source, eventWork);
   {
-    u8 *resource_31;
-    s32 index_31;
-    resource_31 = evtNodeAlloc(0x31, arg1);
-    index_31 = 0;
-    goto loop31_test;
-  loop31_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_31)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_31)->type;
-    }
-    if ((id & 0xFFFF) != 0x31)
-    {
-      goto loop31_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_31)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_31)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_31, id2 & 0xFFFF, arg1);
-      off = index_31 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *enableParent;
+    s32 enableIndex;
+    enableParent = evtNodeAlloc(0x31, eventWork);
+    enableIndex = 0;
+    for (; enableIndex < source->countAC; enableIndex += 1) {
+      if (source->header->kind == 4)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_31)->unk_08;
+        recordType = mtMiscSceneRecord16At(source, enableIndex)->type;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordType = evtSceneRecordAt(source, enableIndex)->type;
       }
-      *((s32 *)(dest + 0x10)) = *((s32 *)q);
-      if (arg0->header->kind == 4)
+      if ((recordType & 0xFFFF) != 0x31)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_31)->unk_08;
+        continue;
       }
-      else
+      if (source->header->kind == 4)
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
-      }
-      *((s32 *)(dest + 0x14)) = *((s32 *)(q + 4));
-    }
-  loop31_inc:
-    index_31 += 1;
-  loop31_test:
-    if (index_31 < arg0->countAC)
-    {
-      goto loop31_body;
-    }
-  }
-  evtNodeLoadCameraRecords((u8 *)arg0, arg1);
-  temp_18 = evtNodeAlloc(0x22, arg1);
-  *((s32 *)(temp_18 + 8)) = -1;
-  *((s32 *)(temp_18 + 0x34)) = 0;
-  var_19 = 0;
-  goto loop22_test;
-loop22_body:
-  if (arg0->header->kind == 4)
-  {
-    id = mtMiscSceneRecord16At(arg0, var_19)->type;
-  }
-  else
-  {
-    id = evtSceneRecordAt(arg0, var_19)->type;
-  }
-  if ((id & 0xFFFF) != 0x22)
-  {
-    goto loop22_inc;
-  }
-  if (arg0->header->kind == 4)
-  {
-    id2 = mtMiscSceneRecord16At(arg0, var_19)->id;
-  }
-  else
-  {
-    id2 = evtSceneRecordAt(arg0, var_19)->id;
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = evtNodeCreate(temp_18, id2 & 0xFFFF, arg1);
-    off = var_19 * 0x3C;
-    q = (u8 *)arg0->records98 + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
-  }
-loop22_inc:
-  var_19 += 1;
-loop22_test:
-  if (var_19 < arg0->countAC)
-  {
-    goto loop22_body;
-  }
-  evtNodeLoadRecords24((u8 *)arg0, arg1);
-  if (*((s32 *)(*((u8 **)(arg1 + 0x5D0)) + 4)) > 0) {
-    {
-      u8 *resource_25;
-      s32 index_25;
-      resource_25 = evtNodeAlloc(0x25, arg1);
-      index_25 = 0;
-      goto loop25_test;
-  loop25_body:
-      if (arg0->header->kind == 4)
-      {
-        id = mtMiscSceneRecord16At(arg0, index_25)->type;
+        recordId = mtMiscSceneRecord16At(source, enableIndex)->id;
       }
       else
       {
-        id = evtSceneRecordAt(arg0, index_25)->type;
-      }
-      if ((id & 0xFFFF) != 0x25)
-      {
-        goto loop25_inc;
-      }
-      if (arg0->header->kind == 4)
-      {
-        id2 = mtMiscSceneRecord16At(arg0, index_25)->id;
-      }
-      else
-      {
-        id2 = evtSceneRecordAt(arg0, index_25)->id;
+        recordId = evtSceneRecordAt(source, enableIndex)->id;
       }
       {
-        Pos4 tmp;
-        Pos4 pos;
-        dest = evtNodeCreate(resource_25, id2 & 0xFFFF, arg1);
-        off = index_25 * 0x3C;
-        q = (u8 *)arg0->records98 + off;
-        tmp = *((Pos4 *)(q + 0xC));
-        pos = tmp;
-        *((Pos4 *)(dest + 8)) = pos;
-        if (arg0->header->kind == 4)
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(enableParent, recordId & 0xFFFF, eventWork);
+        recordOffset = enableIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
         {
-          q = (u8 *)&mtMiscSceneRecord16At(arg0, index_25)->unk_08;
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, enableIndex)->unk_08;
         }
         else
         {
-          q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
         }
-        memcpy(dest + 0x10, q, 0x28);
+        ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.word = ((EvtRecordParameters *)recordParameters)->unk00.word;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, enableIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        *((s32 *)(childNode + 0x14)) = ((EvtRecordParameters *)recordParameters)->unk04.word;
       }
-  loop25_inc:
-      index_25 += 1;
-  loop25_test:
-      if (index_25 < arg0->countAC)
-      {
-        goto loop25_body;
       }
+  }
+  evtNodeLoadCameraRecords((u8 *)source, eventWork);
+  waitNode = evtNodeAlloc(0x22, eventWork);
+  ((EvtNode *)waitNode)->unk08 = -1;
+  ((EvtNode *)waitNode)->res = 0;
+  recordIndex = 0;
+  for (; recordIndex < source->countAC; recordIndex += 1) {
+    if (source->header->kind == 4)
+    {
+      recordType = mtMiscSceneRecord16At(source, recordIndex)->type;
+    }
+    else
+    {
+      recordType = evtSceneRecordAt(source, recordIndex)->type;
+    }
+    if ((recordType & 0xFFFF) != 0x22)
+    {
+      continue;
+    }
+    if (source->header->kind == 4)
+    {
+      recordId = mtMiscSceneRecord16At(source, recordIndex)->id;
+    }
+    else
+    {
+      recordId = evtSceneRecordAt(source, recordIndex)->id;
+    }
+    {
+      EvtRecordPosition positionCopy;
+      EvtRecordPosition position;
+      childNode = evtNodeCreate(waitNode, recordId & 0xFFFF, eventWork);
+      recordOffset = recordIndex * 0x3C;
+      recordParameters = (u8 *)source->records98 + recordOffset;
+      positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+      position = positionCopy;
+      *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+    }
+  }
+  evtNodeLoadRecords24((u8 *)source, eventWork);
+  if (((EvtEffectTable *)((EvtEventWork *)eventWork)->effectTable)->count > 0) {
+    {
+      u8 *placementParent;
+      s32 placementIndex;
+      placementParent = evtNodeAlloc(0x25, eventWork);
+      placementIndex = 0;
+      for (; placementIndex < source->countAC; placementIndex += 1) {
+        if (source->header->kind == 4)
+        {
+          recordType = mtMiscSceneRecord16At(source, placementIndex)->type;
+        }
+        else
+        {
+          recordType = evtSceneRecordAt(source, placementIndex)->type;
+        }
+        if ((recordType & 0xFFFF) != 0x25)
+        {
+          continue;
+        }
+        if (source->header->kind == 4)
+        {
+          recordId = mtMiscSceneRecord16At(source, placementIndex)->id;
+        }
+        else
+        {
+          recordId = evtSceneRecordAt(source, placementIndex)->id;
+        }
+        {
+          EvtRecordPosition positionCopy;
+          EvtRecordPosition position;
+          childNode = evtNodeCreate(placementParent, recordId & 0xFFFF, eventWork);
+          recordOffset = placementIndex * 0x3C;
+          recordParameters = (u8 *)source->records98 + recordOffset;
+          positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+          position = positionCopy;
+          *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+          if (source->header->kind == 4)
+          {
+            recordParameters = (u8 *)&mtMiscSceneRecord16At(source, placementIndex)->unk_08;
+          }
+          else
+          {
+            recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+          }
+          memcpy(childNode + 0x10, recordParameters, 0x28);
+        }
+        }
     }
   }
   {
-    u8 *resource_26;
-    s32 index_26;
-    resource_26 = evtNodeAlloc(0x26, arg1);
-    index_26 = 0;
-    goto loop26_test;
-  loop26_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_26)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_26)->type;
-    }
-    if ((id & 0xFFFF) != 0x26)
-    {
-      goto loop26_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_26)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_26)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_26, id2 & 0xFFFF, arg1);
-      off = index_26 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *choiceParent;
+    s32 choiceIndex;
+    choiceParent = evtNodeAlloc(0x26, eventWork);
+    choiceIndex = 0;
+    for (; choiceIndex < source->countAC; choiceIndex += 1) {
+      if (source->header->kind == 4)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_26)->unk_08;
+        recordType = mtMiscSceneRecord16At(source, choiceIndex)->type;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordType = evtSceneRecordAt(source, choiceIndex)->type;
       }
-      *((s32 *)(dest + 0x10)) = *((s32 *)q);
-      if (arg0->header->kind == 4)
+      if ((recordType & 0xFFFF) != 0x26)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_26)->unk_08;
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, choiceIndex)->id;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordId = evtSceneRecordAt(source, choiceIndex)->id;
       }
-      *((f32 *)(dest + 0x14)) = *((f32 *)(q + 4));
-    }
-  loop26_inc:
-    index_26 += 1;
-  loop26_test:
-    if (index_26 < arg0->countAC)
-    {
-      goto loop26_body;
-    }
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(choiceParent, recordId & 0xFFFF, eventWork);
+        recordOffset = choiceIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, choiceIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.word = ((EvtRecordParameters *)recordParameters)->unk00.word;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, choiceIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        *((f32 *)(childNode + 0x14)) = ((EvtRecordParameters *)recordParameters)->unk04.scalar;
+      }
+      }
   }
-  evtNodeLoadRecords30((u8 *)arg0, arg1);
+  evtNodeLoadRecords30((u8 *)source, eventWork);
   {
-    u8 *resource_32;
-    s32 index_32;
-    resource_32 = evtNodeAlloc(0x32, arg1);
-    index_32 = 0;
-    goto loop32_test;
-  loop32_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_32)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_32)->type;
-    }
-    if ((id & 0xFFFF) != 0x32)
-    {
-      goto loop32_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_32)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_32)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_32, id2 & 0xFFFF, arg1);
-      off = index_32 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *streamParent;
+    s32 streamIndex;
+    streamParent = evtNodeAlloc(0x32, eventWork);
+    streamIndex = 0;
+    for (; streamIndex < source->countAC; streamIndex += 1) {
+      if (source->header->kind == 4)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_32)->unk_08;
+        recordType = mtMiscSceneRecord16At(source, streamIndex)->type;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordType = evtSceneRecordAt(source, streamIndex)->type;
       }
-      *((s32 *)(dest + 0x10)) = *((s32 *)q);
-    }
-  loop32_inc:
-    index_32 += 1;
-  loop32_test:
-    if (index_32 < arg0->countAC)
-    {
-      goto loop32_body;
-    }
+      if ((recordType & 0xFFFF) != 0x32)
+      {
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, streamIndex)->id;
+      }
+      else
+      {
+        recordId = evtSceneRecordAt(source, streamIndex)->id;
+      }
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(streamParent, recordId & 0xFFFF, eventWork);
+        recordOffset = streamIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, streamIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.word = ((EvtRecordParameters *)recordParameters)->unk00.word;
+      }
+      }
   }
   {
-    u8 *resource_33;
-    s32 index_33;
-    resource_33 = evtNodeAlloc(0x33, arg1);
-    index_33 = 0;
-    goto loop33_test;
-  loop33_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_33)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_33)->type;
-    }
-    if ((id & 0xFFFF) != 0x33)
-    {
-      goto loop33_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_33)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_33)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_33, id2 & 0xFFFF, arg1);
-      off = index_33 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *labelParent;
+    s32 labelIndex;
+    labelParent = evtNodeAlloc(0x33, eventWork);
+    labelIndex = 0;
+    for (; labelIndex < source->countAC; labelIndex += 1) {
+      if (source->header->kind == 4)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_33)->unk_08;
+        recordType = mtMiscSceneRecord16At(source, labelIndex)->type;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordType = evtSceneRecordAt(source, labelIndex)->type;
       }
-      memcpy(dest + 0x10, q, 0x28);
-    }
-  loop33_inc:
-    index_33 += 1;
-  loop33_test:
-    if (index_33 < arg0->countAC)
-    {
-      goto loop33_body;
-    }
+      if ((recordType & 0xFFFF) != 0x33)
+      {
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, labelIndex)->id;
+      }
+      else
+      {
+        recordId = evtSceneRecordAt(source, labelIndex)->id;
+      }
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(labelParent, recordId & 0xFFFF, eventWork);
+        recordOffset = labelIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, labelIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        memcpy(childNode + 0x10, recordParameters, 0x28);
+      }
+      }
   }
-  evtNodeLoadRecords34((u8 *)arg0, arg1);
+  evtNodeLoadRecords34((u8 *)source, eventWork);
   {
-    u8 *resource_35;
-    s32 index_35;
-    resource_35 = evtNodeAlloc(0x35, arg1);
-    index_35 = 0;
-    goto loop35_test;
-  loop35_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_35)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_35)->type;
-    }
-    if ((id & 0xFFFF) != 0x35)
-    {
-      goto loop35_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_35)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_35)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_35, id2 & 0xFFFF, arg1);
-      off = index_35 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *environmentParent;
+    s32 environmentIndex;
+    environmentParent = evtNodeAlloc(0x35, eventWork);
+    environmentIndex = 0;
+    for (; environmentIndex < source->countAC; environmentIndex += 1) {
+      if (source->header->kind == 4)
       {
-        var_4h = mtMiscSceneRecord16At(arg0, index_35)->unk_04;
+        recordType = mtMiscSceneRecord16At(source, environmentIndex)->type;
       }
       else
       {
-        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
+        recordType = evtSceneRecordAt(source, environmentIndex)->type;
       }
-      *((u16 *)(dest + 2)) = var_4h;
-      if (arg0->header->kind == 4)
+      if ((recordType & 0xFFFF) != 0x35)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_35)->unk_08;
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, environmentIndex)->id;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordId = evtSceneRecordAt(source, environmentIndex)->id;
       }
-      memcpy(dest + 0x10, q, 0x28);
-    }
-  loop35_inc:
-    index_35 += 1;
-  loop35_test:
-    if (index_35 < arg0->countAC)
-    {
-      goto loop35_body;
-    }
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(environmentParent, recordId & 0xFFFF, eventWork);
+        recordOffset = environmentIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordFlags = mtMiscSceneRecord16At(source, environmentIndex)->unk_04;
+        }
+        else
+        {
+          recordFlags = ((EvtSceneRecord *)((u8 *)source->records98 + recordOffset))->unk_04;
+        }
+        ((EvtChildNode *)childNode)->unk02 = recordFlags;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, environmentIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        memcpy(childNode + 0x10, recordParameters, 0x28);
+      }
+      }
   }
   {
-    u8 *resource_37;
-    s32 index_37;
-    resource_37 = evtNodeAlloc(0x37, arg1);
-    index_37 = 0;
-    goto loop37_test;
-  loop37_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_37)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_37)->type;
-    }
-    if ((id & 0xFFFF) != 0x37)
-    {
-      goto loop37_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_37)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_37)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_37, id2 & 0xFFFF, arg1);
-      off = index_37 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *screenColorParent;
+    s32 screenColorIndex;
+    screenColorParent = evtNodeAlloc(0x37, eventWork);
+    screenColorIndex = 0;
+    for (; screenColorIndex < source->countAC; screenColorIndex += 1) {
+      if (source->header->kind == 4)
       {
-        var_4h = mtMiscSceneRecord16At(arg0, index_37)->unk_04;
+        recordType = mtMiscSceneRecord16At(source, screenColorIndex)->type;
       }
       else
       {
-        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
+        recordType = evtSceneRecordAt(source, screenColorIndex)->type;
       }
-      *((u16 *)(dest + 2)) = var_4h;
-      if (arg0->header->kind == 4)
+      if ((recordType & 0xFFFF) != 0x37)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_37)->unk_08;
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, screenColorIndex)->id;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordId = evtSceneRecordAt(source, screenColorIndex)->id;
       }
-      memcpy(dest + 0x10, q, 0x28);
-    }
-  loop37_inc:
-    index_37 += 1;
-  loop37_test:
-    if (index_37 < arg0->countAC)
-    {
-      goto loop37_body;
-    }
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(screenColorParent, recordId & 0xFFFF, eventWork);
+        recordOffset = screenColorIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordFlags = mtMiscSceneRecord16At(source, screenColorIndex)->unk_04;
+        }
+        else
+        {
+          recordFlags = ((EvtSceneRecord *)((u8 *)source->records98 + recordOffset))->unk_04;
+        }
+        ((EvtChildNode *)childNode)->unk02 = recordFlags;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, screenColorIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        memcpy(childNode + 0x10, recordParameters, 0x28);
+      }
+      }
   }
   {
-    u8 *resource_38;
-    s32 index_38;
-    resource_38 = evtNodeAlloc(0x38, arg1);
-    index_38 = 0;
-    goto loop38_test;
-  loop38_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_38)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_38)->type;
-    }
-    if ((id & 0xFFFF) != 0x38)
-    {
-      goto loop38_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_38)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_38)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_38, id2 & 0xFFFF, arg1);
-      off = index_38 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *taskHandleParent;
+    s32 taskHandleIndex;
+    taskHandleParent = evtNodeAlloc(0x38, eventWork);
+    taskHandleIndex = 0;
+    for (; taskHandleIndex < source->countAC; taskHandleIndex += 1) {
+      if (source->header->kind == 4)
       {
-        var_4h = mtMiscSceneRecord16At(arg0, index_38)->unk_04;
+        recordType = mtMiscSceneRecord16At(source, taskHandleIndex)->type;
       }
       else
       {
-        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
+        recordType = evtSceneRecordAt(source, taskHandleIndex)->type;
       }
-      *((u16 *)(dest + 2)) = var_4h;
-      if (arg0->header->kind == 4)
+      if ((recordType & 0xFFFF) != 0x38)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_38)->unk_08;
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, taskHandleIndex)->id;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordId = evtSceneRecordAt(source, taskHandleIndex)->id;
       }
-      memcpy(dest + 0x10, q, 0x28);
-    }
-  loop38_inc:
-    index_38 += 1;
-  loop38_test:
-    if (index_38 < arg0->countAC)
-    {
-      goto loop38_body;
-    }
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(taskHandleParent, recordId & 0xFFFF, eventWork);
+        recordOffset = taskHandleIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordFlags = mtMiscSceneRecord16At(source, taskHandleIndex)->unk_04;
+        }
+        else
+        {
+          recordFlags = ((EvtSceneRecord *)((u8 *)source->records98 + recordOffset))->unk_04;
+        }
+        ((EvtChildNode *)childNode)->unk02 = recordFlags;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, taskHandleIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        memcpy(childNode + 0x10, recordParameters, 0x28);
+      }
+      }
   }
   {
-    u8 *resource_39;
-    s32 index_39;
-    resource_39 = evtNodeAlloc(0x39, arg1);
-    index_39 = 0;
-    goto loop39_test;
-  loop39_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_39)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_39)->type;
-    }
-    if ((id & 0xFFFF) != 0x39)
-    {
-      goto loop39_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_39)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_39)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_39, id2 & 0xFFFF, arg1);
-      off = index_39 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *cameraPositionParent;
+    s32 cameraPositionIndex;
+    cameraPositionParent = evtNodeAlloc(0x39, eventWork);
+    cameraPositionIndex = 0;
+    for (; cameraPositionIndex < source->countAC; cameraPositionIndex += 1) {
+      if (source->header->kind == 4)
       {
-        var_4h = mtMiscSceneRecord16At(arg0, index_39)->unk_04;
+        recordType = mtMiscSceneRecord16At(source, cameraPositionIndex)->type;
       }
       else
       {
-        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
+        recordType = evtSceneRecordAt(source, cameraPositionIndex)->type;
       }
-      *((u16 *)(dest + 2)) = var_4h;
-      if (arg0->header->kind == 4)
+      if ((recordType & 0xFFFF) != 0x39)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_39)->unk_08;
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, cameraPositionIndex)->id;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordId = evtSceneRecordAt(source, cameraPositionIndex)->id;
       }
-      memcpy(dest + 0x10, q, 0x28);
-    }
-  loop39_inc:
-    index_39 += 1;
-  loop39_test:
-    if (index_39 < arg0->countAC)
-    {
-      goto loop39_body;
-    }
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(cameraPositionParent, recordId & 0xFFFF, eventWork);
+        recordOffset = cameraPositionIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordFlags = mtMiscSceneRecord16At(source, cameraPositionIndex)->unk_04;
+        }
+        else
+        {
+          recordFlags = ((EvtSceneRecord *)((u8 *)source->records98 + recordOffset))->unk_04;
+        }
+        ((EvtChildNode *)childNode)->unk02 = recordFlags;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, cameraPositionIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        memcpy(childNode + 0x10, recordParameters, 0x28);
+      }
+      }
   }
-  evtNodeLoadRecords0A((u8 *)arg0, arg1);
-  mtMiscCollectType4Records(arg0, arg1);
-  mtMiscCollectType5Records(arg0, arg1);
+  evtNodeLoadRecords0A((u8 *)source, eventWork);
+  mtMiscCollectType4Records(source, eventWork);
+  mtMiscCollectType5Records(source, eventWork);
   {
-    u8 *resource_36;
-    s32 index_36;
-    resource_36 = evtNodeAlloc(0x36, arg1);
-    index_36 = 0;
-    goto loop36_test;
-  loop36_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_36)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_36)->type;
-    }
-    if ((id & 0xFFFF) != 0x36)
-    {
-      goto loop36_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_36)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_36)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_36, id2 & 0xFFFF, arg1);
-      off = index_36 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *soundTrackParent;
+    s32 soundTrackIndex;
+    soundTrackParent = evtNodeAlloc(0x36, eventWork);
+    soundTrackIndex = 0;
+    for (; soundTrackIndex < source->countAC; soundTrackIndex += 1) {
+      if (source->header->kind == 4)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_36)->unk_08;
+        recordType = mtMiscSceneRecord16At(source, soundTrackIndex)->type;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordType = evtSceneRecordAt(source, soundTrackIndex)->type;
       }
-      memcpy(dest + 0x10, q, 0x28);
-    }
-  loop36_inc:
-    index_36 += 1;
-  loop36_test:
-    if (index_36 < arg0->countAC)
-    {
-      goto loop36_body;
-    }
+      if ((recordType & 0xFFFF) != 0x36)
+      {
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, soundTrackIndex)->id;
+      }
+      else
+      {
+        recordId = evtSceneRecordAt(source, soundTrackIndex)->id;
+      }
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(soundTrackParent, recordId & 0xFFFF, eventWork);
+        recordOffset = soundTrackIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, soundTrackIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        memcpy(childNode + 0x10, recordParameters, 0x28);
+      }
+      }
   }
-  mtMiscCollectType19Records(arg0, arg1);
+  mtMiscCollectType19Records(source, eventWork);
   {
-    u8 *resource_06;
-    s32 index_06;
-    resource_06 = evtNodeAlloc(6, arg1);
-    index_06 = 0;
-    goto loop06_test;
-  loop06_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_06)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_06)->type;
-    }
-    if ((id & 0xFFFF) != 6)
-    {
-      goto loop06_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_06)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_06)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_06, id2 & 0xFFFF, arg1);
-      off = index_06 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *commandParent;
+    s32 commandIndex;
+    commandParent = evtNodeAlloc(6, eventWork);
+    commandIndex = 0;
+    for (; commandIndex < source->countAC; commandIndex += 1) {
+      if (source->header->kind == 4)
       {
-        var_4h = mtMiscSceneRecord16At(arg0, index_06)->unk_04;
+        recordType = mtMiscSceneRecord16At(source, commandIndex)->type;
       }
       else
       {
-        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
+        recordType = evtSceneRecordAt(source, commandIndex)->type;
       }
-      *((u16 *)(dest + 2)) = var_4h;
-      if (arg0->header->kind == 4)
+      if ((recordType & 0xFFFF) != 6)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_06)->unk_08;
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, commandIndex)->id;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordId = evtSceneRecordAt(source, commandIndex)->id;
       }
-      memcpy(dest + 0x10, q, 0x28);
-      if (*((s16 *)(dest + 0x12)) == -1) {
-        *((s16 *)(dest + 0x12)) = 0;
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(commandParent, recordId & 0xFFFF, eventWork);
+        recordOffset = commandIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordFlags = mtMiscSceneRecord16At(source, commandIndex)->unk_04;
+        }
+        else
+        {
+          recordFlags = ((EvtSceneRecord *)((u8 *)source->records98 + recordOffset))->unk_04;
+        }
+        ((EvtChildNode *)childNode)->unk02 = recordFlags;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, commandIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        memcpy(childNode + 0x10, recordParameters, 0x28);
+        if (((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.halves.second == -1) {
+          *((s16 *)(childNode + 0x12)) = 0;
+        }
       }
-    }
-  loop06_inc:
-    index_06 += 1;
-  loop06_test:
-    if (index_06 < arg0->countAC)
-    {
-      goto loop06_body;
-    }
+      }
   }
   {
-    u8 *resource_07;
-    s32 index_07;
-    resource_07 = evtNodeAlloc(7, arg1);
-    index_07 = 0;
-    goto loop07_test;
-  loop07_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_07)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_07)->type;
-    }
-    if ((id & 0xFFFF) != 7)
-    {
-      goto loop07_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_07)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_07)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_07, id2 & 0xFFFF, arg1);
-      off = index_07 * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *rangeFlagParent;
+    s32 rangeFlagIndex;
+    rangeFlagParent = evtNodeAlloc(7, eventWork);
+    rangeFlagIndex = 0;
+    for (; rangeFlagIndex < source->countAC; rangeFlagIndex += 1) {
+      if (source->header->kind == 4)
       {
-        var_4h = mtMiscSceneRecord16At(arg0, index_07)->unk_04;
+        recordType = mtMiscSceneRecord16At(source, rangeFlagIndex)->type;
       }
       else
       {
-        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
+        recordType = evtSceneRecordAt(source, rangeFlagIndex)->type;
       }
-      *((u16 *)(dest + 2)) = var_4h;
-      if (arg0->header->kind == 4)
+      if ((recordType & 0xFFFF) != 7)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_07)->unk_08;
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, rangeFlagIndex)->id;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordId = evtSceneRecordAt(source, rangeFlagIndex)->id;
       }
-      *((s16 *)(dest + 0x10)) = *((s16 *)q);
-    }
-  loop07_inc:
-    index_07 += 1;
-  loop07_test:
-    if (index_07 < arg0->countAC)
-    {
-      goto loop07_body;
-    }
+      {
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(rangeFlagParent, recordId & 0xFFFF, eventWork);
+        recordOffset = rangeFlagIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordFlags = mtMiscSceneRecord16At(source, rangeFlagIndex)->unk_04;
+        }
+        else
+        {
+          recordFlags = ((EvtSceneRecord *)((u8 *)source->records98 + recordOffset))->unk_04;
+        }
+        ((EvtChildNode *)childNode)->unk02 = recordFlags;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, rangeFlagIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.halfword = ((EvtRecordParameters *)recordParameters)->unk00.halfword;
+      }
+      }
   }
   {
-    u8 *resource_1C;
-    s32 index_1C;
-    resource_1C = evtNodeAlloc(0x1C, arg1);
-    index_1C = 0;
-    goto loop1C_test;
-  loop1C_body:
-    if (arg0->header->kind == 4)
-    {
-      id = mtMiscSceneRecord16At(arg0, index_1C)->type;
-    }
-    else
-    {
-      id = evtSceneRecordAt(arg0, index_1C)->type;
-    }
-    if ((id & 0xFFFF) != 0x1C)
-    {
-      goto loop1C_inc;
-    }
-    if (arg0->header->kind == 4)
-    {
-      id2 = mtMiscSceneRecord16At(arg0, index_1C)->id;
-    }
-    else
-    {
-      id2 = evtSceneRecordAt(arg0, index_1C)->id;
-    }
-    {
-      Pos4 tmp;
-      Pos4 pos;
-      dest = evtNodeCreate(resource_1C, id2 & 0xFFFF, arg1);
-      off = index_1C * 0x3C;
-      q = (u8 *)arg0->records98 + off;
-      tmp = *((Pos4 *)(q + 0xC));
-      pos = tmp;
-      *((Pos4 *)(dest + 8)) = pos;
-      if (arg0->header->kind == 4)
+    u8 *drawParent;
+    s32 drawIndex;
+    drawParent = evtNodeAlloc(0x1C, eventWork);
+    drawIndex = 0;
+    for (; drawIndex < source->countAC; drawIndex += 1) {
+      if (source->header->kind == 4)
       {
-        var_4h = mtMiscSceneRecord16At(arg0, index_1C)->unk_04;
+        recordType = mtMiscSceneRecord16At(source, drawIndex)->type;
       }
       else
       {
-        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
+        recordType = evtSceneRecordAt(source, drawIndex)->type;
       }
-      *((u16 *)(dest + 2)) = var_4h;
-      if (arg0->header->kind == 4)
+      if ((recordType & 0xFFFF) != 0x1C)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_1C)->unk_08;
+        continue;
+      }
+      if (source->header->kind == 4)
+      {
+        recordId = mtMiscSceneRecord16At(source, drawIndex)->id;
       }
       else
       {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
+        recordId = evtSceneRecordAt(source, drawIndex)->id;
       }
-      *((s32 *)(dest + 0x10)) = *((s32 *)q);
-      if (arg0->header->kind == 4)
       {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_1C)->unk_08;
+        EvtRecordPosition positionCopy;
+        EvtRecordPosition position;
+        childNode = evtNodeCreate(drawParent, recordId & 0xFFFF, eventWork);
+        recordOffset = drawIndex * 0x3C;
+        recordParameters = (u8 *)source->records98 + recordOffset;
+        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        position = positionCopy;
+        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        if (source->header->kind == 4)
+        {
+          recordFlags = mtMiscSceneRecord16At(source, drawIndex)->unk_04;
+        }
+        else
+        {
+          recordFlags = ((EvtSceneRecord *)((u8 *)source->records98 + recordOffset))->unk_04;
+        }
+        ((EvtChildNode *)childNode)->unk02 = recordFlags;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, drawIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.word = ((EvtRecordParameters *)recordParameters)->unk00.word;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, drawIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        *((s32 *)(childNode + 0x14)) = ((EvtRecordParameters *)recordParameters)->unk04.word;
+        if (source->header->kind == 4)
+        {
+          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, drawIndex)->unk_08;
+        }
+        else
+        {
+          recordParameters = (u8 *)((u8 *)source->records98 + recordOffset + 0x14);
+        }
+        *((s32 *)(childNode + 0x18)) = ((EvtRecordParameters *)recordParameters)->unk08.word;
       }
-      else
-      {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
-      *((s32 *)(dest + 0x14)) = *((s32 *)(q + 4));
-      if (arg0->header->kind == 4)
-      {
-        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_1C)->unk_08;
-      }
-      else
-      {
-        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
-      }
-      *((s32 *)(dest + 0x18)) = *((s32 *)(q + 8));
-    }
-  loop1C_inc:
-    index_1C += 1;
-  loop1C_test:
-    if (index_1C < arg0->countAC)
-    {
-      goto loop1C_body;
-    }
   }
-  evtRefreshNodeResources(arg1);
-  var_18 = 0;
-  goto loopA_test;
-loopA_body:
-  evtResultSet(var_18, -1);
-  var_18 += 1;
-loopA_test:
-  if (var_18 < 10)
-  {
-    goto loopA_body;
+  evtRefreshNodeResources(eventWork);
+  index = 0;
+  while (index < 10) {
+      evtResultSet(index, -1);
+      index += 1;
   }
+
   return 1;
 }
+/* Restore the scoped lifetime analysis after the scene builder. */
+#pragma pop
 

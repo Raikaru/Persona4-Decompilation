@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -22,7 +23,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern void EffSpriteUpdate(u8 *arg0);
+extern void EffSpriteUpdate(u8 *instance);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
 
@@ -59,9 +60,9 @@ extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
 extern void func_003c22f0();
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
-extern void func_003c42b0(void *arg0, s32 arg1);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
+extern void func_003c42b0(void *instance, s32 value);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -99,20 +100,20 @@ typedef struct EffSpriteRGBA {
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* Sprite update: reads the frame counter at +0x2C, resets it to zero when the cycle wraps, and rebuilds the sprite's frame, colour and texture state. */
 // FUN_004A5FC0
-void EffSpriteUpdate(u8 *arg0)
+void EffSpriteUpdate(u8 *instance)
 {
-    extern void GeometryBlockSetFrameMatrix(void *arg0, void *arg1, void *arg2, f32 arg3);
-    extern s32 mdlEffectSamplePackedColor(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-    extern f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
-    extern void mdlEffectWrapTrackFrames(s32 arg0, u32 arg1);
-    extern void mdlEffectEvalSubPose(s32 arg0, f32 *arg1);
-    extern void TlpSelectFrame(void *arg0, u32 arg1, f32 *arg2);
-    extern void GeometryBlockGetTextureInfo(s32 arg0, u32 *arg1);
-    extern void GeometryBlockBindResource(void *arg0, s32 arg1);
-    extern void func_003c22f0(void *arg0);
-    extern void func_003c42b0(void *arg0, s32 arg1);
-    extern f32 cosf(f32 arg0);
-    extern f32 sinf(f32 arg0);
+    extern void GeometryBlockSetFrameMatrix(void *instance, void *value, void *count, f32 flags);
+    extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
+    extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
+    extern void mdlEffectWrapTrackFrames(s32 instance, u32 frame);
+    extern void mdlEffectEvalSubPose(s32 instance, f32 *output);
+    extern void TlpSelectFrame(void *work, u32 index, f32 *out);
+    extern void GeometryBlockGetTextureInfo(s32 block, u32 *info);
+    extern void GeometryBlockBindResource(void *block, s32 resourceId);
+    extern void func_003c22f0(void *instance);
+    extern void func_003c42b0(void *instance, s32 value);
+    extern f32 cosf(f32 instance);
+    extern f32 sinf(f32 instance);
     extern f32 D_00761134;
     EffSpriteRGBA color;
     u32 baseWord;
@@ -134,26 +135,28 @@ void EffSpriteUpdate(u8 *arg0)
     f32 *vertex;
     f32 *uv;
 
-    total = *(s32 *)(arg0 + 0xBC);
-    count = *(s32 *)(arg0 + 0x2C);
-    sprite = *(u8 **)(arg0 + 0xC8);
+    total = ((MdlEffectAnimatedSprite *)instance)->duration;
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    count = *(s32 *)(instance + 0x2C);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    sprite = *(u8 **)(instance + 0xC8);
     if (count == 0) {
         return;
     }
     if (!(count < total) && total > 0) {
-        if (*(u8 *)(arg0 + 0x74) != 0) {
-            *(s32 *)(arg0 + 0x2C) = 0;
+        if (((MdlEffectAnimatedSprite *)instance)->cycle != 0) {
+            ((MdlEffectAnimatedSprite *)instance)->age = 0;
             count = 0;
         } else {
             return;
         }
     }
-    GeometryBlockSetFrameMatrix(sprite, arg0, arg0 + 0x10, *(f32 *)(arg0 + 0x20));
+    GeometryBlockSetFrameMatrix(sprite, instance, instance + 0x10, ((MdlEffectAnimatedSprite *)instance)->scale);
     {
-        s32 tint = mdlEffectSamplePackedColor(arg0 + 0x30, arg0 + 0x54, count, total);
+        s32 tint = mdlEffectSamplePackedColor(instance + 0x30, instance + 0x54, count, total);
         f32 unit;
 
-        baseWord = *(u32 *)(arg0 + 0x24);
+        baseWord = (u32)((MdlEffectAnimatedSprite *)instance)->packedColor;
         {
             const u32 *word = &baseWord;
 
@@ -176,24 +179,26 @@ void EffSpriteUpdate(u8 *arg0)
         "sw $2, packed\n" : "=m"(packed) : : "$2", "$vf2", "$vf10");
     *(u32 *)&color = packed;
     if (color.alpha != 0xFF) {
-        *(EffSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
+        *(EffSpriteRGBA *)&((RpMaterial *)((EffGeometryBlock *)sprite)->material)->color = color;
     } else {
         color.alpha = 0xFE;
-        *(EffSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
+        *(EffSpriteRGBA *)&((RpMaterial *)((EffGeometryBlock *)sprite)->material)->color = color;
         color.alpha = 0xFF;
     }
-    scale = mdlEffectSampleScalarKeys(arg0 + 0x64, count, total);
-    scale = scale * *(f32 *)(arg0 + 0xC0);
-    spin = mdlEffectSampleScalarKeys(arg0 + 0x90, count, total);
-    if (*(s32 *)(arg0 + 0xD0) != 0) {
+    scale = mdlEffectSampleScalarKeys(instance + 0x64, count, total);
+    scale = scale * ((MdlEffectAnimatedSprite *)instance)->sizeScale;
+    spin = mdlEffectSampleScalarKeys(instance + 0x90, count, total);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    if (*(s32 *)(instance + 0xD0) != 0) {
         f32 cellW;
         f32 cellH;
         f32 y0;
         f32 x0;
         f32 x1;
 
-        mdlEffectWrapTrackFrames(*(s32 *)(arg0 + 0xD0), count);
-        mdlEffectEvalSubPose(*(s32 *)(arg0 + 0xD0), animation);
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlEffectWrapTrackFrames(*(s32 *)(instance + 0xD0), count);
+        mdlEffectEvalSubPose(((MdlEffectAnimatedSprite *)instance)->tracks, animation);
         cellW = 16.0f * animation[12];
         cellH = 16.0f * animation[13];
         x0 = animation[6] * cellW;
@@ -215,12 +220,13 @@ void EffSpriteUpdate(u8 *arg0)
         info.size[0] = (u32)animation[12];
         info.size[1] = (u32)animation[13];
         spin += animation[4];
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&animation[5]);
-    } else if (*(void **)(arg0 + 0xCC) != NULL) {
+    } else if ((void *)((MdlEffectAnimatedSprite *)instance)->tlp != NULL) {
         s32 w;
         s32 h;
 
-        TlpSelectFrame(*(void **)(arg0 + 0xCC), count, texture);
+        TlpSelectFrame((void *)((MdlEffectAnimatedSprite *)instance)->tlp, count, texture);
         w = (s32)(16.0f * texture[2]);
         h = (s32)(16.0f * texture[3]);
         info.corner[0] = 0;
@@ -239,6 +245,7 @@ void EffSpriteUpdate(u8 *arg0)
         info.rect[3] = (f32)(h >> 5) / 16.0f;
         info.size[0] = (u32)texture[2];
         info.size[1] = (u32)texture[3];
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&texture[4]);
     } else {
         s32 w;
@@ -262,12 +269,13 @@ void EffSpriteUpdate(u8 *arg0)
         info.size[0] = frame[0];
         info.size[1] = frame[1];
     }
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(sprite + 0x10) + 0x18), 0xFF2);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    RpGeometryLock(((RpAtomic *)*(u8 **)(sprite + 0x10))->geometry, 0xFF2);
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(sprite + 0x10) + 0x18);
+        u8 *geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)sprite)->atomic)->geometry;
 
-        vertex = *(f32 **)(*(u8 **)(geometry + 0x5C) + 0x14);
-        uv = *(f32 **)(geometry + 0x34);
+        vertex = ((RpMorphTarget *)(u8 *)((RpGeometry *)geometry)->morphTarget)->vertices;
+        uv = ((RpGeometry *)geometry)->texCoords[0];
     }
     left = info.rect[0] * scale;
     top = info.rect[1] * scale;
@@ -312,19 +320,19 @@ void EffSpriteUpdate(u8 *arg0)
         uv[5] = (f32)info.corner[5] * invH;
     }
     {
-        u8 *owner = *(u8 **)(arg0 + 0xC8);
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *owner = ((MdlEffectAnimatedSprite *)instance)->geometry;
+        u8 *geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
 
         func_003c22f0(geometry);
         if ((*(u16 *)owner & 4) != 0) {
-            *(u16 *)(geometry + 0xC) |= 1;
+            ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
-    if (*(u8 *)(arg0 + 0xC4) != 0) {
+    if (((MdlEffectAnimatedSprite *)instance)->hidden != 0) {
         *(u16 *)sprite |= 1;
     } else {
         *(u16 *)sprite &= 0xFFFE;
     }
-    GeometryBlockBindResource(sprite, *(u16 *)(arg0 + 0x58));
+    GeometryBlockBindResource(sprite, ((MdlEffectAnimatedSprite *)instance)->resource);
 }
 

@@ -12,11 +12,11 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern void mdlEffectSeqStop();
 extern s32 iGpffffa7c8;
-extern void scrDiscardArgs(void *arg0, ...);
+extern void scrDiscardArgs(void *, ...);
 
-s32 mtMiscResourceValue(s32 arg0);
+s32 mtMiscResourceValue(s32 resourceId);
 
-s32 sdkSndFadeOutChannel(s64 arg0, s32 arg1);
+s32 sdkSndFadeOutChannel(s64, s32);
 
 extern s32 iGpffffb538;
 extern u8 D_00882ED0[];
@@ -24,34 +24,34 @@ extern u8 D_00882EF0[];
 extern u8 D_00882EDE[];
 extern u8 D_00882EFE[];
 extern void sprintf(char *buf, const char *fmt, s32 value);
-extern void sdkSndStartChannel(s16 arg0, char *buf);
+extern void sdkSndStartChannel(s16 channelIndex, char *path);
 extern char D_0063CB30[];
 extern char D_0063D050[];
-extern void sdkSndResetChannel(s32 arg0, s32 arg1);
-extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
-void mdlEffectSeqStart(s32 arg0, s16 arg1);
-s32 sdkSndPlayCue(s16 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32, s32);
+extern void sdkSndFadeOutChannelFrames(s32 channelIndex, s32 requestValue, s32 fadeFrames);
+void mdlEffectSeqStart(s32 duration, s16 sequenceId);
+s32 sdkSndPlayCue(s16, s32);
 s32 sdkSndStopMainChannel(void);
-s32 sdkSndStopChannel(s16 arg0);
+s32 sdkSndStopChannel(s16 fadeFrames);
 
 
 
-extern s64 scrGetParamIntS64(s32 arg0);
-extern void sdkSndRequestTrack(s32 arg0);
-extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
+extern s64 scrGetParamIntS64(s32);
+extern void sdkSndRequestTrack(s32 trackId);
+extern void func_0029e990(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern s32 D_0063CB50[];
-extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
+extern void func_0029e9a0(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern u8 D_0063CFA0[];
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, f32 farg0, s32 arg5, s32 arg6,
-                          s32 arg7);
+extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
+                          s32, f32 farg0, s32, s32,
+                          s32);
 extern f32 fGpffff8204;
-extern void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
-                          f32 farg3, s32 arg1, s32 arg2);
+extern void mtMiscDrawSpriteAt(s32 image, f32 x, f32 y, f32 scaleX,
+                          f32 scaleY, s32 alphaSubtract, s32 centered);
 extern char D_0063C8F0[];
 extern char D_0063C910[];
 extern s32 D_0076462C;
@@ -64,11 +64,11 @@ extern s32 D_0063E830[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 002996e0-00299c20 */
 
-extern void mtMiscCollectType1Records(u8 *arg0);
-extern void mtMiscCollectType2Records(u8 *arg0);
-extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
-extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
-extern void scrDiscardArgs(void *arg0, ...);
+extern void mtMiscCollectType1Records(u8 *eventWork);
+extern void mtMiscCollectType2Records(u8 *eventWork);
+extern void func_0029e990(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void func_0029e9a0(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void scrDiscardArgs(void *, ...);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -88,13 +88,14 @@ extern void scrDiscardArgs(void *arg0, ...);
 #pragma pop
 // FUN_002996E0
 s32 K_Cmd_MDL_EFFECT_SEQ_START(void) {
-    s32 temp_16;
+    s32 model;
 
-    temp_16 = scrGetParamInt(0);
-    mdlEffectSeqStart(temp_16, scrGetParamInt(1));
+    model = scrGetParamInt(0);
+    mdlEffectSeqStart(model, scrGetParamInt(1));
     return 1;
 }
 
+/* Stop the active model-effect sequence and complete the script command. */
 // FUN_00299740
 s32 K_Cmd_MDL_EFFECT_SEQ_STOP(void)
 {
@@ -102,14 +103,15 @@ s32 K_Cmd_MDL_EFFECT_SEQ_STOP(void)
     return 1;
 }
 
+/* Start a stream on channel zero using two signed-halfword script operands. */
 // FUN_00299770
 s32 K_Cmd_SND_STREAM_START_CH0(void) {
-    s32 a;
-    s32 b;
+    s32 streamId;
+    s32 value;
 
-    a = scrGetParamInt(0);
-    b = scrGetParamInt(1);
-    sdkSndStartStream(0, 0, (s16)a, (s16)b);
+    streamId = scrGetParamInt(0);
+    value = scrGetParamInt(1);
+    sdkSndStartStream(0, 0, (s16)streamId, (s16)value);
     return 1;
 }
 
@@ -119,14 +121,15 @@ s32 K_Cmd_SND_STREAM_STOP_CH0(void) {
     return 1;
 }
 
+/* Start a stream on channel one using two signed-halfword script operands. */
 // FUN_00299800
 s32 K_Cmd_SND_STREAM_START_CH1(void) {
-    s32 a;
-    s32 b;
+    s32 streamId;
+    s32 value;
 
-    a = scrGetParamInt(0);
-    b = scrGetParamInt(1);
-    sdkSndStartStream(1, 0, (s16)a, (s16)b);
+    streamId = scrGetParamInt(0);
+    value = scrGetParamInt(1);
+    sdkSndStartStream(1, 0, (s16)streamId, (s16)value);
     return 1;
 }
 
@@ -143,42 +146,45 @@ s32 K_Cmd_BGM(void) {
     return 1;
 }
 
+/* Stop the main channel for operand zero, otherwise stop the selected channel. */
 // FUN_002998D0
 /* p4flow Common 0x0070 BGM_STOP (id 0 stops all, else stops channel). */
 s32 K_Cmd_BGM_STOP(void) {
-    s32 temp_2;
+    s32 channel;
 
-    temp_2 = scrGetParamInt(0);
-    if (temp_2 == 0) {
+    channel = scrGetParamInt(0);
+    if (channel == 0) {
         sdkSndStopMainChannel();
     } else {
-        sdkSndStopChannel(temp_2);
+        sdkSndStopChannel(channel);
     }
     return 1;
 }
 
+/* Format the event-sound path from its identifier and start channel two. */
 // FUN_00299920
 /* p4flow Common 0x0071 EVT_SE_PLAY (numbered SE on channel 2). */
 s32 K_Cmd_EVT_SE_PLAY(void) {
-    char sp10[0x20];
-    s32 v;
+    char path[0x20];
+    s32 soundId;
 
-    v = scrGetParamInt(0);
-    sprintf(sp10, D_0063D050, v);
-    sdkSndStartChannel(2, sp10);
+    soundId = scrGetParamInt(0);
+    sprintf(path, D_0063D050, soundId);
+    sdkSndStartChannel(2, path);
     return 1;
 }
 
+/* Reset channel two immediately for zero frames, otherwise fade it out over the requested frames. */
 // FUN_00299970
 /* p4flow Common 0x0072 EVT_SE_STOP (0 stops channel 2, else fades out). */
 s32 K_Cmd_EVT_SE_STOP(void) {
-    s32 v;
+    s32 frames;
 
-    v = scrGetParamInt(0);
-    if (v == 0) {
+    frames = scrGetParamInt(0);
+    if (frames == 0) {
         sdkSndResetChannel(2, 0);
     } else {
-        sdkSndFadeOutChannelFrames(2, 0, v);
+        sdkSndFadeOutChannelFrames(2, 0, frames);
     }
     return 1;
 }
@@ -190,6 +196,7 @@ s32 K_Cmd_EVT_SE_PLAY2(void) {
     return 1;
 }
 
+/* Consume the legacy operand and request channel-three fade-out. */
 // FUN_00299A10
 /* p4flow Common 0x0074 EVT_SE_STOP2 (fades out channel 3). */
 s32 K_Cmd_EVT_SE_STOP2(void) {
@@ -198,53 +205,57 @@ s32 K_Cmd_EVT_SE_STOP2(void) {
     return 1;
 }
 
+/* Set the custom fade RGB color from byte-truncated operands. */
 // FUN_00299A50
 s32 scrSetFadeColor(void) {
-    s32 a;
-    s32 b;
-    s32 c;
+    s32 red;
+    s32 green;
+    s32 blue;
 
-    a = scrGetParamInt(0);
-    b = scrGetParamInt(1);
-    c = scrGetParamInt(2);
-    H_Fade_SetCustomColor(a & 0xFF, b & 0xFF, c & 0xFF);
+    red = scrGetParamInt(0);
+    green = scrGetParamInt(1);
+    blue = scrGetParamInt(2);
+    H_Fade_SetCustomColor(red & 0xFF, green & 0xFF, blue & 0xFF);
     return 1;
 }
 
+/* Consume five wide script operands and forward them to the first unused command sink. */
 // FUN_00299AC0
-s32 func_00299ac0(void) {
-    s64 a;
-    s64 b;
-    s64 c;
-    s64 d;
-    s64 e;
+s32 scrCommonDiscardWideArgs(void) {
+    s64 first;
+    s64 second;
+    s64 third;
+    s64 fourth;
+    s64 fifth;
 
-    a = scrGetParamIntS64(0);
-    b = scrGetParamIntS64(1);
-    c = scrGetParamIntS64(2);
-    d = scrGetParamIntS64(3);
-    e = scrGetParamIntS64(4);
-    func_0029e990(a, b, c, d, e);
+    first = scrGetParamIntS64(0);
+    second = scrGetParamIntS64(1);
+    third = scrGetParamIntS64(2);
+    fourth = scrGetParamIntS64(3);
+    fifth = scrGetParamIntS64(4);
+    func_0029e990(first, second, third, fourth, fifth);
     return 1;
 }
 
+/* Consume five wide script operands and forward them to the separate unused command sink. */
 // FUN_00299B70
-s32 func_00299b70(void) {
-    s64 a;
-    s64 b;
-    s64 c;
-    s64 d;
-    s64 e;
+s32 scrCommonIgnoreWideArgs(void) {
+    s64 first;
+    s64 second;
+    s64 third;
+    s64 fourth;
+    s64 fifth;
 
-    a = scrGetParamIntS64(0);
-    b = scrGetParamIntS64(1);
-    c = scrGetParamIntS64(2);
-    d = scrGetParamIntS64(3);
-    e = scrGetParamIntS64(4);
-    func_0029e9a0(a, b, c, d, e);
+    first = scrGetParamIntS64(0);
+    second = scrGetParamIntS64(1);
+    third = scrGetParamIntS64(2);
+    fourth = scrGetParamIntS64(3);
+    fifth = scrGetParamIntS64(4);
+    func_0029e9a0(first, second, third, fourth, fifth);
     return 1;
 }
 
+/* Consume a string operand through the legacy discard helper and complete the command. */
 // FUN_00299C20
 s32 K_Cmd_STRING_DISCARD(void)
 {
