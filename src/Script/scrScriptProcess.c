@@ -3,6 +3,7 @@
 #include "scr_internal.h"
 #include "sdk_task_registration.h"
 #include "kwln_task_internal.h"
+#include "member_access.h"
 
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -171,8 +172,8 @@ void poolSetAllocationSite(char* allocationFile, s32 allocationLine);
 u8* poolAlloc(s32 requestedSize);
 void poolFree(void* address);
 u32 kwlnTaskGetWork(void* task);
-s32 func_0029e970(void);
-void func_0029e960(s32);
+s32 scrProcessGetHandleNoop(void);
+void scrProcessInitNoop(s32);
 void func_00440b68(char* fmt, ...);
 void H_Dbprt_FmtLog(char* fmt, ...);
 void itfMesWindowReleaseIfActive(s32 handle);
@@ -320,7 +321,6 @@ s32 scrGetWorkCount(void)
 
 // Allocates a script work block for a header, its content entries and the procedure at index; the work is bound to those inputs [inferred].
 // FUN_0029D2F0
-/* Raw accesses retain MATCH: replacing these proven offsets with fields changed instruction selection. */
 ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* procedure, u8* labels, u8* instructions, u8* messages, u8* strings, s32 index)
 {
     ScrScriptWork* work;
@@ -330,6 +330,7 @@ ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* pr
     s32 j;
     s8 c;
     s32 handle;
+    ScrLblPrcd* sourceProcedure;
 
     if (header == NULL || entries == NULL || procedure == NULL || instructions == NULL)
     {
@@ -353,16 +354,18 @@ ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* pr
     }
     i = 0;
     src = procedure + (index << 5);
-    while ((work->label.name[i] = *(s8*)((s32)src + i)) != 0)
+    sourceProcedure = (ScrLblPrcd*)src;
+    while ((work->label.name[i] = sourceProcedure->name[i]) != 0)
     {
         i++;
     }
     work->label.addr = ((ScrLblPrcd*)((u32)(index << 5) + (u32)procedure))->addr;
     work->label.unk_1c = 0;
+    /* Measured: field and typed-local array forms reverse addu operands; separate array bases add instructions. */
     for (j = 0; j < 0x30; j++)
     {
-        *(u8*)((s32)work + j + 0x20) = 0;
-        *(u32*)((s32)work + j * 4 + 0x50) = 0;
+        MEMBER(u8, (s32)work + j, ScrScriptWork, stackTypes) = 0;
+        MEMBER(u32, (s32)work + j * 4, ScrScriptWork, stackValues) = 0;
     }
     work->header = (u8*)header;
     work->entries = (u8*)entries;
@@ -516,8 +519,8 @@ s32 scrRunTaskStep(u8 *task)
     return 0;
 }
 
-// FUN_0029D900
 /* Release the script attached to a scheduler task and clear its process-work pointer. */
+// FUN_0029D900
 void scrDestroyTask(u8 *sdkTaskBytes)
 {
     KwlnTask* scrTask = (KwlnTask*)sdkTaskBytes;
@@ -538,9 +541,9 @@ void scrInitPools(void)
 {
     D_00764610 = scrPoolCreate(0x160, 3);
     D_00764614 = scrPoolCreate(0x340, 3);
-    if (func_0029e970() == 0)
+    if (scrProcessGetHandleNoop() == 0)
     {
-        func_0029e960(0);
+        scrProcessInitNoop(0);
     }
 }
 
@@ -671,8 +674,8 @@ void scrDebugDumpWorkList(void)
     func_00440b68(D_0063E5C8, D_00764604);
 }
 
-// FUN_0029DE20
 /* Find the procedure content section, then return the matching procedure-name index or -1. */
+// FUN_0029DE20
 s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
 {
     ScrContentEntry* entries;
@@ -801,7 +804,6 @@ static inline ScrPreviewRectangle scrPreviewRectangleValue(const ScrPreviewRecta
  * docs/probe_archive/Script_selection_0029e040_20260924.md. */
 // Task step that loads the script file named by the task's text, then creates the procedure work once the file is ready [inferred].
 // FUN_0029E040
-/* Raw accesses retain MATCH: replacing these proven offsets with fields changed instruction selection. */
 s32 scrLoadScriptStep(u8 *sdkTask)
 {
     ScrTaskData *task;
@@ -820,7 +822,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
     s8 *selectionText;
     char *prefix;
 
-    task = *(ScrTaskData **)(sdkTask + 0x38);
+    task = (ScrTaskData *)((KwlnTask *)sdkTask)->work;
     if (sdkFilerPollResult(task->unk_04, (s8 *)task->text) == 1) {
         switch (task->state) {
         case 0:
@@ -844,6 +846,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
             }
             break;
         case 2:
+            /* Linker interior alias of SdkPadRecord.directionPressed; distinct address forms retain retail reloads. */
             if (*(u16 *)&D_008C0256[0] & 0x1000) {
                 coordinate = task->unk_220;
                 if (coordinate >= 2.0f) {
@@ -891,13 +894,13 @@ s32 scrLoadScriptStep(u8 *sdkTask)
 
                 entries = scriptBytes + 0x20;
                 entryIndex = 0;
-                entryCount = *(s32 *)(scriptBytes + 0x10);
+                entryCount = ((ScrHeader *)scriptBytes)->totalEntries;
                 while (entryIndex < entryCount) {
                     u8 *entry;
 
                     entry = entries + entryIndex * 16;
-                    if (*(s32 *)entry == 0) {
-                        procedureBytes = scriptBytes + *(s32 *)(entry + 0xC);
+                    if (((ScrContentEntry *)entry)->contentType == 0) {
+                        procedureBytes = scriptBytes + ((ScrContentEntry *)entry)->offset;
                         break;
                     }
                     entryIndex++;
@@ -906,7 +909,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
                     procedureCount = 0;
                 } else {
                     entryOffset = (u32)(entryIndex * 16);
-                    procedureCount = *(s32 *)(entryOffset + (u32)entries + 8);
+                    procedureCount = ((ScrContentEntry *)(entryOffset + (u32)entries))->elementCount;
                 }
             }
             if (task->unk_218 < 0) {
@@ -915,6 +918,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
                 task->unk_218 = procedureCount - 1;
             }
             procedureRecord = scrFindContentEntry((u8 *)task->unk_224, task->unk_218);
+            /* Packed record: transport the adjacent floats at 0x21C/0x220 as one unaligned 64-bit argument. */
             H_Dbprt_FmtAt(*(s64 *)((u8 *)task + 0x21C), &iGpffffa7d8, task->unk_218, procedureRecord);
             pixelX = 12.0f * task->unk_21C;
             pixelY = 12.0f * task->unk_220;
