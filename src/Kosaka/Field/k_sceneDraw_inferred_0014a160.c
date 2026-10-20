@@ -342,6 +342,7 @@ done_0014a230:
     return result;
 }
 
+/* Test the current loader field and room against the secondary map-band predicate. */
 // FUN_0014A270
 s32 FldMap_IsCurrentInBandB(void) {
     u8 *fieldState;

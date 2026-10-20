@@ -41,6 +41,7 @@ extern s32 RemoveIntcHandler(s32 cause, s32 handle);
 extern s32 D_007616AC;
 extern s32 D_00764294;
 
+/* Register and enable INTC channel 2 for shadow polling; remove the handler if enabling fails. */
 // FUN_001026F0
 s32 FldShadow_InstallIntcHandler(void)
 {

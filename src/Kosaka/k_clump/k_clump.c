@@ -22,13 +22,7 @@ typedef struct KClumpUserDataContext
 
 extern void memset(void* destination, s32 value, u32 size);
 
-typedef struct
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 radius;
-} RwSphere;
+#include "rw_geometry_layout_internal.h"
 
 extern void* func_003bfae0(void* object);
 extern s32 RwCameraFrustumTestSphere(void* camera, void* sphere);
@@ -461,13 +455,12 @@ void K_Clump_GetIntUsrDataAt(KClumpIntPropertyResult* result, void* object, cons
 
 
 
-/* Mark the caller output when traversal finds the sentinel byte FF at offset seven. */
-/* The traversal item's owning layout is not established: only the sentinel byte at +7 is observed, so retain
- * this byte access. */
+/* Mark the caller output when a traversed material has fully opaque alpha. */
+/* RpGeometryForAllMaterials supplies RpMaterial records; +7 is color.alpha. */
 // FUN_00461530
 s32 K_Clump_CheckSentinelFrameCb(u8 *frame, s32 *found)
 {
-    if (*(u8 *)(frame + 7) == 0xFF) {
+    if (((RpMaterial *)frame)->color.alpha == 0xFF) {
         *found = 1;
     }
     return (s32)frame;
