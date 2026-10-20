@@ -199,9 +199,8 @@ store:
 /* Stably sort queued actions by descending agility; optional enemy scores use a clamped 90–110 percent roll. */
 // FUN_001B1020
 #pragma push
-/* measured: func_001b1020 MATCH -> MISMATCH without this pragma. */
+/* measured: cached inner bounds and a while-sort retain 32 or more baseline words; either toggle alone differs. */
 #pragma opt_loop_invariants on
-/* measured: func_001b1020 MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
 /* Sort descending by agility, optionally applying the enemy-only 90 through 110 percent random factor. */
 void btlActionQueueSortByRank(s32 randomizeEnemies)
@@ -259,8 +258,8 @@ void btlActionQueueSortByRank(s32 randomizeEnemies)
         }
     } while (swapped);
 }
-
 #pragma pop
+
 /* Sort the twelve order slots so units of the given kind keep their place:
    count the occupied prefix, then bubble adjacent units of different kinds.
    The counting pass reuses the sort cursor and index; scoped opt_lifetimes
@@ -268,9 +267,9 @@ void btlActionQueueSortByRank(s32 randomizeEnemies)
    their retail registers. */
 // FUN_001B11C0
 #pragma push
-/* measured: func_001b11c0 MATCH -> MISMATCH without this pragma. */
+/* measured: separate counting cursors and cached inner bounds retain 33 or more words; either toggle alone differs. */
 #pragma opt_lifetimes on
-/* measured: func_001b11c0 MATCH -> MISMATCH without this pragma. */
+/* measured: keeping lifetimes alone still leaves 33 differing words without invariant hoisting. */
 #pragma opt_loop_invariants on
 void btlActionQueueSortKeepingKind(s32 genus)
 {
@@ -312,8 +311,8 @@ void btlActionQueueSortKeepingKind(s32 genus)
         }
     } while (changed != 0);
 }
-
 #pragma pop
+
 /* For an enemy opening, move one or two of the leading enemy actions behind the rest of the queue. */
 // FUN_001B1280
 void btlActionQueueRequeueLeadingEnemies(s32 genus)

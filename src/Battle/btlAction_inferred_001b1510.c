@@ -487,6 +487,7 @@ void btlMainSceneSetInit(void)
 
 /* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
 /* measured: btlMainSceneSetUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: if/else, conditional and switch voice selectors retain 49 or more baseline words. */
 #pragma opt_rebuildconditionals off
 // FUN_001B19C0
 /* Wait for field loading and outstanding packets, then queue voice and optional boss resources. */
@@ -813,7 +814,7 @@ void btlMainUnitCreateInit(void) {
  * siblings, allocated data and 122 exact-position references are preserved.
  * The separate retained-height caller-domain proof remains required. */
 #pragma push
-/* measured: btlMainUnitCreateUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: split entry-move and bonus-scan lifetimes reduce baseline to nine words, but do not match. */
 #pragma opt_lifetimes on
 // FUN_001B2380
 s32 btlMainUnitCreateUpdate(void)
@@ -1199,12 +1200,12 @@ unit_done:
     }
     return nextState;
 }
-
 #pragma pop
+
 /* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
  * Keep full-width dependency snapshots and branch-materialized final mode. */
 #pragma push
-/* measured: btlMainUnitLoadInit MATCH -> MISMATCH without this pragma. */
+/* measured: conditional/switch finish modes and named unit members retain 26 or more baseline words. */
 #pragma opt_rebuildconditionals off
 // FUN_001B33C0
 /* Chain enemy model loads and entry effects, followed by panel and voice playback packets. */
@@ -1308,8 +1309,8 @@ void btlMainUnitLoadInit(void)
         btlPacketEnqueue(finishPacket, 1);
     }
 }
-
 #pragma pop
+
 /* Wait for unit packets and loading flags, apply enemy model visibility, then request the start phase. */
 // FUN_001B36B0
 s32 btlMainUnitLoadUpdate(void)

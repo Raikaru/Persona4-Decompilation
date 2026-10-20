@@ -1037,7 +1037,7 @@ s32 btlFormationLookupSlot(u8 *unit, u16 slotIndex)
     }
 }
 
-/* measured: btlFormationClearSlots MATCH -> MISMATCH without this pragma. */
+/* measured: typed formation indexing and a single narrow cursor retain 38 or more baseline words. */
 #pragma opt_propagation off
 // Intent: Clear the formation slots and their placements. [inferred]
 // FUN_0022CC90
@@ -2319,13 +2319,8 @@ fail:
 }
 
 // FUN_0022F950
-/* measured: scoped propagation preserves the post-query skill reload
- * before the unit move; canonical s16 arguments leave two swapped words
- * without it. The query receives its real action pointer. */
+/* measured: the existing typed skill query retains MATCH under surrounding propagation; no exception is needed. */
 // Intent: Report whether the unit's skill is blocked. [inferred]
-#pragma push
-/* measured: btlUnitSkillBlocked MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate) {
     s32 paired;
     s16 skill;
@@ -2355,7 +2350,6 @@ s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate) {
     return 0;
 }
 
-#pragma pop
 // Intent: Report whether the slot is open for the unit. [inferred]
 // FUN_0022FA90
 s32 btlUnitSlotIsOpen(u8 *action, s16 slotIndex)
