@@ -11,8 +11,13 @@ typedef struct MdlSeRecord {
         MdlFileObject base;
         struct { u8 pad00[0x0E]; s16 id; } identity;
     };
-    void *primaryRequest;
-    void *secondaryRequest;
+    union {
+        struct {
+            void *primaryRequest;
+            void *secondaryRequest;
+        };
+        void *requests[2];
+    };
     u8 unk1C[0x0C];
 } MdlSeRecord;
 typedef struct MdlSeCell {
@@ -370,7 +375,7 @@ void mdlSeRequestLoad(void **owner, u32 type, u16 id, s32 source, u32 size)
    Inlining the shared copy operation separates its local lifetimes from
    the callback and reproduces the retail saved-register allocation.
    Bank sizes stay unsigned for the consumer's argument-load ordering. */
-static inline void copyLoadedRequest(void **owner, s32 requestOffset)
+static inline void copyLoadedRequest(void **owner, s32 requestIndex)
 {
     void *node;
     void *request;
@@ -379,8 +384,8 @@ static inline void copyLoadedRequest(void **owner, s32 requestOffset)
     u32 fileSize;
 
     node = *owner;
-    /* The shared inline copy selects the +0x14 or +0x18 request by byte offset. */
-    request = *(void **)((u8 *)node + requestOffset);
+    /* Copy either of the record's two completed asynchronous requests. */
+    request = ((MdlSeRecord *)node)->requests[requestIndex];
     fileSize = ((HCdvdRequest *)request)->size;
     source = ((HCdvdRequest *)request)->data;
     chkmemAllocSiteTag(&D_007241D8, 0x49);
@@ -419,7 +424,7 @@ s32 mdlSeUpdateRecord(void **owner)
     switch (mode) {
     case 1:
         if (H_Cdvd_IsFileLoaded(((MdlSeRecord *)current)->primaryRequest) != 0) {
-            copyLoadedRequest(owner, 0x14);
+            copyLoadedRequest(owner, 0);
             request = ((MdlSeRecord *)*owner)->primaryRequest;
             if (request != NULL) {
                 H_Cdvd_Destroy(request);
@@ -436,7 +441,7 @@ s32 mdlSeUpdateRecord(void **owner)
             if (H_Cdvd_IsFileLoaded(request) == 0) {
                 return 0;
             }
-            copyLoadedRequest(owner, 0x18);
+            copyLoadedRequest(owner, 1);
             H_Cdvd_Destroy(((MdlSeRecord *)*owner)->secondaryRequest);
             ((MdlSeRecord *)*owner)->secondaryRequest = NULL;
         }
