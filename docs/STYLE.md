@@ -60,8 +60,13 @@ equivalence.
   loads differently. When a whole-layout rewrite moves instructions, type one
   function and then one access at a time; usually one or two accesses cause
   the difference. Try the access-site form `((Foo *)work)->field` with the
-  original `u8 *` local before retyping the local. Leave only the measured
-  culprits raw, each with a comment naming the effect. A scoped optimization
+  original `u8 *` local before retyping the local. An access that changes
+  the output in every typed form is written with `MEMBER(type, base, Struct,
+  member)` from `include/member_access.h`: the same byte-offset expression,
+  with the offset taken from the proven layout, so the reader still sees the
+  member. Pass `base` exactly as the original expression spelled it. Raw
+  numeric offsets remain only for interleaved tables, linker interior aliases
+  and variable-length records, each with a comment. A scoped optimization
   pragma is acceptable only when the typed body matches with it and not
   without, recorded as a measurement (H003).
 - **Use the project types** from `include/type.h`: `u8`/`s8`, `u16`/`s16`,
