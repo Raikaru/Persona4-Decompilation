@@ -11,6 +11,11 @@
 #include "rw_camera_internal.h"
 #include "btl_ui_task_internal.h"
 #include "member_access.h"
+
+/* Unit settings: measured sprite helpers use loop invariants off and propagation on. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+
 /* The five transition channels occupy 0xF0 bytes, copied as a unit by
    fclSpriteUpdateTweens callers. Setters and update paths establish each
    timer, endpoint and mode. Bit-pattern unions retain constructor stores. */
@@ -286,6 +291,7 @@ extern u8 D_00793E80[];
    exactly as retail. SDK callbacks use their actual update and destroy signatures. */
 // Intent: creates a child task with a 0x190-byte sprite work block at +0x38. It sets the start position at +0x134, clears the four corner colours and the flags, and returns the task handle.
 // FUN_002B5C90
+#pragma push
 /* measured: open opt_loop_invariants scope for fclSpriteSpawnChild. */
 #pragma opt_loop_invariants on
 /* measured: bare removal and aggregate white-color snapshot; best baseline residual 20 differing bytes. */
@@ -315,7 +321,7 @@ s32 fclSpriteSpawnChild(s32 parent, f2 position) {
     return handle;
 }
 /* measured: close opt_loop_invariants scope after fclSpriteSpawnChild. */
-#pragma opt_loop_invariants off
+#pragma pop
 // Intent: duplicate of fclSpriteWork (same body, kept under the Alt name).
 // FUN_002B5DA0
 u8 *fclSpriteWorkAlt(u8 *task) {
@@ -633,6 +639,7 @@ s32 fclSpriteHasDisplayFlags(u8 *task) {
    is the store pointer. arg0/s16, arg1/s16, arg2/s8 sign-exts match retail. */
 // Fcl sprite set flag: sets (mode 0) or clears (mode 1) bit bit of the flags of sprite index.
 // FUN_002B68D0
+#pragma push
 /* measured: open opt_propagation scope for fclSpriteSetFlag. */
 #pragma opt_propagation off
 /* measured: typed and MEMBER work-base loads; best baseline residual 14 differing bytes. */
@@ -649,7 +656,7 @@ void fclSpriteSetFlag(s16 index, s16 bit, s8 mode) {
     ((FclSpriteRecord *)(record + 4))->halfWidth = (s16)flags;
 }
 /* measured: close opt_propagation scope after fclSpriteSetFlag. */
-#pragma opt_propagation on
+#pragma pop
 // Fcl sprite flag bit: returns bit bit of flags as 0 or 1.
 // FUN_002B6970
 s16 fclSpriteFlagBit(s16 flags, s16 bit) {
@@ -688,6 +695,7 @@ void fclSpriteStartPositionTask(u8 *task, f2 start, f2 end, u32 mode, u32 durati
    fclSpriteSetFlag, fclSpriteStartAlphaAt, fclSpriteStartRevealScaleAt, fclSpriteStartTweenAt, fclSpriteStartColorAt, fclSpriteReset, fclSpriteResetScale). */
 // Fcl sprite start position (index): starts a position transition on sprite index.
 // FUN_002B69F0
+#pragma push
 /* measured: open opt_propagation scope for fclSpriteStartPositionAt. */
 #pragma opt_propagation off
 /* measured: typed and MEMBER work-base loads; best baseline residual 14 differing bytes. */
@@ -696,7 +704,7 @@ void fclSpriteStartPositionAt(s16 index, f2 start, f2 end, u32 mode, u32 duratio
     fclSpriteStartPosition(work + ((s32)index << 8) + 0x14, start, end, mode, duration, delay);
 }
 /* measured: close opt_propagation scope after fclSpriteStartPositionAt. */
-#pragma opt_propagation on
+#pragma pop
 // Fcl sprite start alpha (task): starts an alpha transition on the task's sprite block.
 // FUN_002B6A40
 void fclSpriteStartAlphaTask(u8 *task, u8 startAlpha, u8 endAlpha, u8 mode, s32 duration, s16 delay) {
@@ -718,6 +726,7 @@ void fclSpriteStartAlphaTask(u8 *task, u8 startAlpha, u8 endAlpha, u8 mode, s32 
    sign-extension; opt_propagation off fixes the load-sinking order). */
 // Fcl sprite start alpha (index): starts an alpha transition on sprite index.
 // FUN_002B6A70
+#pragma push
 /* measured: open opt_propagation scope for fclSpriteStartAlphaAt. */
 #pragma opt_propagation off
 /* measured: typed and MEMBER work-base loads; best baseline residual 14 differing bytes. */
@@ -726,7 +735,7 @@ void fclSpriteStartAlphaAt(s16 index, u8 startAlpha, u8 endAlpha, u8 mode, s32 d
     fclSpriteStartAlpha(work + ((s32)index << 8) + 0x14, startAlpha, endAlpha, mode, duration, (s16)delay);
 }
 /* measured: close opt_propagation scope after fclSpriteStartAlphaAt. */
-#pragma opt_propagation on
+#pragma pop
 // Fcl sprite start reveal scale (task): starts a scale reveal on the task's sprite block.
 // FUN_002B6AC0
 void fclSpriteStartRevealScaleTask(u8 *task, f32 startX, f32 endX, f32 startY, f32 endY, u32 mode, u32 duration, s32 delay) {
@@ -748,38 +757,33 @@ void fclSpriteStartRevealScaleTask(u8 *task, f32 startX, f32 endX, f32 startY, f
    s32 and passed as (s16)arg3 (s16 widening emits the retail sign-extension). */
 // Fcl sprite start reveal scale (index): starts a scale reveal on sprite index.
 // FUN_002B6AF0
+#pragma push
 #pragma opt_propagation off
 /* measured: typed and MEMBER work-base loads; best baseline residual 13 differing bytes. */
 void fclSpriteStartRevealScaleAt(s16 index, f32 startX, f32 endX, f32 startY, f32 endY, u32 mode, u32 duration, s16 delay) {
     u8 *work = ((KwlnTask *)(iGpffffb574))->work;
     fclSpriteStartRevealScale(work + ((s32)index * 256) + 0x14, startX, endX, startY, endY, mode, duration, (s16)delay);
 }
-/* measured: close opt_propagation scope after fclSpriteStartRevealScaleAt. */
-#pragma opt_propagation on
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg3 s32 passed
    as (s16)arg3 (s16 widening = retail's dsll32/dsra32 sign-ext). */
 // Fcl sprite start tween (index): starts a two-float tween on sprite index.
 // FUN_002B6B40
-#pragma opt_propagation off
 /* measured: typed and MEMBER work-base loads; best baseline residual 13 differing bytes. */
 void fclSpriteStartTweenAt(s16 index, u8 mode, s32 duration, s32 delay, f32 start, f32 end) {
     u8 *work = ((KwlnTask *)(iGpffffb574))->work;
     fclSpriteStartTween(work + ((s32)index << 8) + 0x14, mode, duration, (s16)delay, start, end);
 }
-/* measured: close opt_propagation scope after fclSpriteStartTweenAt. */
-#pragma opt_propagation on
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg5 s32 passed
    as (s16)arg5 (s16 widening = retail's dsll32/dsra32 sign-ext). */
 // Fcl sprite start color (index): starts a colour fade on sprite index.
 // FUN_002B6B90
-#pragma opt_propagation off
 /* measured: typed and MEMBER work-base loads; best baseline residual 14 differing bytes. */
 void fclSpriteStartColorAt(s16 index, u4 start, u4 end, u8 mode, s16 duration, s32 delay) {
     u8 *work = ((KwlnTask *)(iGpffffb574))->work;
     fclSpriteStartColor(work + ((s32)index << 8) + 0x14, start, end, mode, duration, (s16)delay);
 }
-/* measured: close opt_propagation scope after fclSpriteStartColorAt. */
-#pragma opt_propagation on
+/* measured: restore unit propagation after the shared reveal-scale, tween and color wrapper scope. */
+#pragma pop
 // Fcl sprite activate (task): marks the task's sprite active and sets its id, scale and position.
 // FUN_002B6BE0
 void fclSpriteActivateTask(u8 *task, f2 position, u32 order, f32 depth) {
@@ -838,6 +842,7 @@ void fclSpriteCreate(s16 index, f2 position, f32 depth, s32 order) {
 
 // Fcl sprite reset scale: resets sprite index to unit scale and full opacity.
 // FUN_002B6D60
+#pragma push
 /* measured: open opt_propagation scope for fclSpriteResetScale. */
 #pragma opt_propagation off
 /* measured: typed and MEMBER work-base loads; best baseline residual 19 differing bytes. */
@@ -851,7 +856,7 @@ void fclSpriteResetScale(s16 index) {
     ((FclSpriteRecord *)(last + recordOffset + 4))->animation.alpha = 0xFF;
 }
 /* measured: opt_propagation off is bracketed around fclSpriteResetScale. */
-#pragma opt_propagation on
+#pragma pop
 // Intent: applies the masked render-state preset and emits the masked tag pair. Used as a queue callback by fclSpriteStartPanelLayout.
 // FUN_002B6DA0
 void fclSpriteApplyMaskedPreset(void) {
@@ -1794,14 +1799,16 @@ s32 fclSpriteUpdateTweens(u8 *animation) {
     return (s32)animation;
 }
 
-/* measured: opt_loop_invariants on is required for the signed-short loop
-   preheader/register shape; removing it produced obj 860B/window 864B with
-   50 differing words. */
-#pragma opt_loop_invariants on
+#pragma push
 /* measured: opt_propagation off is required for ordered global/field loads and
    final-call argument setup; removing it produced obj 852B/window 864B with
    130 differing words. */
 #pragma opt_propagation off
+#pragma push
+/* measured: opt_loop_invariants on is required for the signed-short loop
+   preheader/register shape; removing it produced obj 860B/window 864B with
+   50 differing words. */
+#pragma opt_loop_invariants on
 // Intent: sets the four corner quads of a sprite from the fixed inputs at +0x1F4-+0x200, sets the sky render states for the quad draw, and writes the four corner positions.
 // FUN_002B9AB0
 /* measured: explicit depth-source pointer and propagation bisection; best baseline residual 397 differing bytes. */
@@ -1867,16 +1874,14 @@ void fclSpriteBuildCornerQuads(u8 *task, u8 *entry) {
     one = 1;
     tbl[0](one, *(s32 *)r);
 }
-#pragma opt_propagation on
 /* measured probe: restore opt_loop_invariants after fclSpriteBuildCornerQuads. */
-#pragma opt_loop_invariants off
+#pragma pop
 
 
 /* measured: opt_propagation off orders the compare loads as retail (0x194 field
    into f0, then the fGpffff8504 global into f1 via the g local). The recompute of
    the entry pointer after the compares is the (u32)i * 0x220 spelling, which mwcc
    does not CSE with the s32 form above. Declaration order q,p,i,r colours s0..s3. */
-#pragma opt_propagation off
 // Intent: updates the list's entries (count at +0x6600). An active entry advances its tweens and queues fclSpriteBuildCornerQuads while visible; an idle one clears its active bit.
 // FUN_002B9E10
 /* measured: MEMBER scale load and reversed comparison; best baseline residual 6 differing bytes. */
@@ -1914,7 +1919,7 @@ s32 fclSpriteListUpdate(u8 *task) {
     return 0;
 }
 /* measured: restore propagation for the rest of the unit. */
-#pragma opt_propagation on
+#pragma pop
 // Intent: destroy callback for the 0x6610-byte list task created by fclSpriteListCreateChild (frees the work block at +0x38).
 // FUN_002B9F60
 void fclSpriteDestroyListTask(u8 *task) {
