@@ -138,6 +138,7 @@ void fclCmbBallDraw(u8 *drawTask, u8 *work) {
     FclVec2 position;
     s16 vertexIndex;
     s16 packetIndex;
+    FclCmbBall *ballWork = (FclCmbBall *)work;
 
     scale = 1.0f / ((FclBallCamera *)kwlnGetCamera())->depth;
     texture = fclCombineGetTexture();
@@ -153,46 +154,48 @@ void fclCmbBallDraw(u8 *drawTask, u8 *work) {
     setState[0](0xA, 5);
     RpSkyRenderStateSet(2, 0x44);
     RpSkyRenderStateSet(3, 0x717FB);
-    /* measured: the remaining drawPacket reads lose MATCH when individually typed after vertex stores. */
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x10))->uBits = 0;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x10))->vBits = 0;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x50))->uBits = 0x3F800000;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x50))->vBits = 0;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x90))->uBits = 0;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x90))->vBits = 0x3F800000;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0xD0))->uBits = 0x3F800000;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0xD0))->vBits = 0x3F800000;
-    /* measured: typing all alpha reads adds a saved register across color constructors; only the matching reads are typed. */
+    /* measured: access-site drawPacket casts differ after vertex stores;
+       the ballWork alias types these reads while preserving whole-file MATCH. */
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x10))->uBits = 0;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x10))->vBits = 0;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x50))->uBits = 0x3F800000;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x50))->vBits = 0;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x90))->uBits = 0;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x90))->vBits = 0x3F800000;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0xD0))->uBits = 0x3F800000;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0xD0))->vBits = 0x3F800000;
+    /* measured: access-site alpha typing adds a saved register across color
+       constructors; ballWork preserves the required load without byte offsets. */
     if (((FclCmbBall *)work)->colorMode == 1) {
         color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, ((FclCmbBall *)work)->alpha);
     } else {
-        color = fclMakeDrawColor(0, 0, 0x66, *(u8 *)(work + 0xE6E));
+        color = fclMakeDrawColor(0, 0, 0x66, ballWork->alpha);
         if (((FclCmbBall *)work)->drawPacket >= 3) {
             color = fclMakeDrawColor(0xCC, 0xFF, 0xFF, (u32)((FclCmbBall *)work)->alpha >> 1);
         }
     }
     for (vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
-        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->z = ((RenderDepth *)D_008872E0)->nearZ - ((FclCmbBall *)work)->depth;
-        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->reciprocalDepth = scale;
-        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->red = color.c0;
-        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->green = color.c1;
-        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->blue = color.c2;
+        ((FclBallVertex *)((u32)work + (ballWork->drawPacket << 8) + vertexIndex * 64 + 0x10))->z = ((RenderDepth *)D_008872E0)->nearZ - ((FclCmbBall *)work)->depth;
+        ((FclBallVertex *)((u32)work + (ballWork->drawPacket << 8) + vertexIndex * 64 + 0x10))->reciprocalDepth = scale;
+        ((FclBallVertex *)((u32)work + (ballWork->drawPacket << 8) + vertexIndex * 64 + 0x10))->red = color.c0;
+        ((FclBallVertex *)((u32)work + (ballWork->drawPacket << 8) + vertexIndex * 64 + 0x10))->green = color.c1;
+        ((FclBallVertex *)((u32)work + (ballWork->drawPacket << 8) + vertexIndex * 64 + 0x10))->blue = color.c2;
         ((FclBallVertex *)((u32)work + (((FclCmbBall *)work)->drawPacket << 8) + vertexIndex * 64 + 0x10))->alpha = color.c3;
     }
     position = ((FclCmbBall *)work)->position;
-    packetIndex = *(s16 *)(work + 2);
+    packetIndex = ballWork->drawPacket;
     position.x += packetIndex * 19;
     if (packetIndex >= 3) {
         position.x += 12.0f;
     }
     ((FclBallVertex *)((packetIndex << 8) + (u32)work + 0x10))->x = position.x;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x10))->y = position.y;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x50))->x = 16.0f + position.x;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x50))->y = position.y;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x90))->x = position.x;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x90))->y = 16.0f + position.y;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0xD0))->x = 16.0f + position.x;
-    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0xD0))->y = 16.0f + position.y;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x10))->y = position.y;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x50))->x = 16.0f + position.x;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x50))->y = position.y;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x90))->x = position.x;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x90))->y = 16.0f + position.y;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0xD0))->x = 16.0f + position.x;
+    ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0xD0))->y = 16.0f + position.y;
     (*setState)(1, *(u32 *)texture);
     ((FclCmbBall *)work)->drawPacket += 1;
 }
@@ -214,23 +217,26 @@ extern void fclCmbBallDraw(u8 *, u8 *);
 // FUN_0034B380
 s32 fclCmbBallUpdate(u8 *task) {
     u8 *work;
+    FclCmbBall *ballWork;
 
     work = ((SdkTask *)task)->work;
+    ballWork = (FclCmbBall *)work;
     if ((((FclCmbBall *)work)->flags & 1) == 0) {
         return 0;
     }
 
     /* Flags: bit 0 enables drawing; bit 2 enables the alpha animation. */
-    /* measured: typing the remaining E68-E70/E73 accesses individually loses MATCH;
-     * whole-field typing hoists their addresses across interpolation/clamp calls. */
+    /* measured: access-site animation fields hoist addresses across the
+     * interpolation/clamp calls; the ballWork alias keeps every field typed
+     * without changing the matched callback. Keep both pointer forms. */
     if (((((FclCmbBall *)work)->flags & 4) >> 2) == 1) {
         if (((FclCmbBall *)work)->alphaDelay == 0) {
-            if (*(s8 *)(work + 0xE73) == 0) {
-                *(u8 *)(work + 0xE6E) =
+            if (ballWork->alphaLoop == 0) {
+                ballWork->alpha =
                     (u8)fclEaseInterpolate((s32)((FclCmbBall *)work)->easeMode,
-                                           (f32)*(u8 *)(work + 0xE6C),
-                                           (f32)*(u8 *)(work + 0xE6D),
-                                           (f32)(s16)*(s16 *)(work + 0xE6A),
+                                           (f32)ballWork->startAlpha,
+                                           (f32)ballWork->endAlpha,
+                                           (f32)(s16)ballWork->alphaFrame,
                                            (f32)(s16)((FclCmbBall *)work)->alphaDuration);
             } else {
                 ((FclCmbBall *)work)->alpha =
@@ -240,19 +246,19 @@ s32 fclCmbBallUpdate(u8 *task) {
                                            (f32)(s16)((FclCmbBall *)work)->alphaFrame,
                                            (f32)(((FclCmbBall *)work)->alphaDuration / 2));
             }
-            if (((FclCmbBall *)work)->alphaFrame < *(s16 *)(work + 0xE68)) {
-                *(s16 *)(work + 0xE6A) =
+            if (((FclCmbBall *)work)->alphaFrame < ballWork->alphaDuration) {
+                ballWork->alphaFrame =
                     fclAddClamped(((FclCmbBall *)work)->alphaFrame, 1,
-                                  *(s16 *)(work + 0xE68), 0, 1);
+                                  ballWork->alphaDuration, 0, 1);
             } else {
-                *(u8 *)(work + 0xE6E) = ((FclCmbBall *)work)->endAlpha;
+                ballWork->alpha = ((FclCmbBall *)work)->endAlpha;
                 if (((FclCmbBall *)work)->alphaLoop == 1) {
                     ((FclCmbBall *)work)->alpha = ((FclCmbBall *)work)->startAlpha;
                 }
                 ((FclCmbBall *)work)->flags = ((FclCmbBall *)work)->flags | 4;
             }
         } else {
-            *(s16 *)(work + 0xE70) = fclSubClamped(((FclCmbBall *)work)->alphaDelay, 1, 0, 0, 1);
+            ballWork->alphaDelay = fclSubClamped(((FclCmbBall *)work)->alphaDelay, 1, 0, 0, 1);
         }
     }
 
