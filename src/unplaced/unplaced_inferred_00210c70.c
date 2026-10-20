@@ -2546,7 +2546,7 @@ void btlPanelInitRecord(u8 *panel, s32 task) {
 
 /* Empty panel hook; the retail body has no side effects. */
 // FUN_00216E50
-void btlPanelNoOp(void)
+void btlPanelInitNoop(void)
 {
 }
 

@@ -125,7 +125,7 @@ s32 btlAiSetGlobal(void)
 /* measured: closes opt_propagation probe for btlAiSetGlobal. */
 /* AI script command 0x20b8 (p4flow AI.json AI_FUNCTION_00B8). */
 // FUN_001EB370
-s32 btlAiNoOperation(void)
+s32 btlAiScriptCommandNoop(void)
 {
     return 1;
 }

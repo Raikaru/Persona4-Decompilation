@@ -89,7 +89,7 @@ extern u8 *iGpffffb3ac;
 extern s32 D_00881444_abs[];
 extern void btlAdvantageInitNoop(void *);
 extern void btlEncounterUpdateEntries(void *state);
-extern void btlPanelNoOp(void *);
+extern void btlPanelInitNoop(void *);
 extern void btlEntryListPrune(void *head);
 extern void btlPanelUpdate(void *panel);
 extern f32 fGpffff8478;
@@ -183,7 +183,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
     ((BtlUiTaskWork *)work)->portraitNode.unk00 = 0;
     ((BtlUiTaskWork *)work)->portraitNode.unk04 = 0;
     PrimAppendNode(D_00795020, work + 0x81C);
-    btlPanelNoOp(((BtlUiTaskWork *)work)->message);
+    btlPanelInitNoop(((BtlUiTaskWork *)work)->message);
     ((BtlUiTaskWork *)work)->messageNode.unk00 = 0;
     ((BtlUiTaskWork *)work)->messageNode.unk04 = 0;
     PrimAppendNode(D_00795080, work + 0x88C);

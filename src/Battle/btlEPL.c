@@ -605,7 +605,7 @@ void btlEplStepColorPairFade(u8 *effect)
 #pragma opt_dead_assignments on
 /* Empty retail EPL entry; its intended parameter or update role is not established. */
 // FUN_001FD780
-void btlEplNoOp(void)
+void btlEplUnitRgbaDestroyNoop(void)
 {
 }
 

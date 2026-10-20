@@ -81,6 +81,6 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 #pragma pop
 /* Empty callback; no state or register results are produced. */
 // FUN_004A7DE0
-void mdlEffectEmptyCallback(void) {
+void mdlEffectSequenceFlushNoop(void) {
 }
 
