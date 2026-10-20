@@ -123,9 +123,7 @@ typedef struct {
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 
 /* measured: donor loop shape requires invariant hoisting for the retail preheader and loop register coloring. */
-#pragma opt_loop_invariants on
 /* measured: close the donor loop's invariant-hoisting bracket. */
-#pragma opt_loop_invariants off
 /* measured: probing O1 for retail's extra saved pointer. */
 #pragma optimization_level 1
 /* measured: closing O1 probe. */
@@ -133,17 +131,12 @@ typedef struct {
 /* measured: 1448B in the 1456B window.  The slot x/y reads are f32-array views
    (retail adds the row before arg0), and the last sprite pointer is a local
    loaded ahead of the alpha conversion, which needs opt_propagation off. */
-#pragma push
-#pragma opt_propagation off
-#pragma pop
 /* measured: close opt_propagation for radarDrawSpritePair probe. */
-#pragma opt_propagation on
 /* measured: second 00134890 probe preserves the retail floating zero and constant materialization. */
-#pragma opt_propagation off
 /* measured: close opt_propagation for radarResetLayout. */
-#pragma opt_propagation on
 /* measured: loop-invariant hoisting gives 444B / 448B with only zero tail padding. */
 #pragma push
+/* measured: baseline invariant motion gives nd262 and 468/448 bytes. */
 #pragma opt_loop_invariants on
 /* This party-change snapshot is distinct from RadarMenu: IDs begin at 0x38,
  * the count follows eight halfword slots at 0x48, and each snapshot is three
@@ -201,9 +194,7 @@ s32 radarCollectPartyChanges(u8 *state) {
 }
 #pragma pop
 /* measured: close mixed-ABI palette draw pair pragma. */
-#pragma opt_propagation on
 /* measured: close neighboring mixed-ABI palette branch pragma. */
-#pragma opt_propagation on
 /* measured: the 130.0f sum is assigned to a different (dead) variable, so mwcc
    emits the constant as the first add.s operand like retail; `temp_f21 +=
    130.0f` keeps the variable first. The 467.0f sum is recomputed for the last
@@ -212,11 +203,7 @@ s32 radarCollectPartyChanges(u8 *state) {
    radarDrawEntryRow (same slot views, same sprite-pointer local under
    opt_propagation off); the selected entry is a local so the compare keeps
    retail's operand order. */
-#pragma push
-#pragma opt_propagation off
-#pragma pop
 /* measured: close family opt_propagation bracket. */
-#pragma opt_propagation on
 /* Matched.  Same menu-state-machine family as radarTransferMenuUpdate, radarPersonaMenuUpdate
    and radarUpdateState: `*arg1 = (var_2 = 1)`, a switch on *arg0 whose arms
    break to a shared `return 0`, the fade arm returning 2, and a 0x30-byte
@@ -251,6 +238,3 @@ s32 radarCollectPartyChanges(u8 *state) {
 /* The selected recipient has both a signed-halfword skill API value and a
    promoted menu-helper value. Query results are tested before their later
    uses, and controller masks retain C integer promotion. */
-#pragma push
-#pragma opt_loop_invariants on
-#pragma pop

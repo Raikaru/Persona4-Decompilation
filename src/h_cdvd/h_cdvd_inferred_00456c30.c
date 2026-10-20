@@ -248,8 +248,7 @@ u8 *H_Cdvd_FileContextPath(void)
     return (u8 *)&iGpffffad88;
 }
 
-/* measured probe: opt_propagation off preserves allocator-table liveness for 00456c60. */
-/* measured: func_00456c60 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd149; advancing a typed-size entry cursor gives nd241. */
 #pragma opt_propagation off
 // Intent: creates a file device with `arg0` entries of `arg2` bytes each, starting at `arg1`, and registers its callbacks. Returns the device record.
 // FUN_00456C60

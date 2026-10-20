@@ -121,6 +121,7 @@ success:
 /* measured: opt_loop_invariants on hoists the case-zero store constant into the
    preheader, matching retail's li $v1 before the loop-entry branch. */
 /* measured: func_002a1fa0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline invariant motion gives nd263 and grows the body to 896/880 bytes. */
 #pragma opt_loop_invariants on
 // Intent: draws the time-limit overlay for a work item (background rectangle, then the state machine that paints each track).
 // FUN_002A1FA0
