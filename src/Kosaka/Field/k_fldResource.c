@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "primitive_queue_internal.h"
 #include "Kosaka/k_fldResource_internal.h"
 #include "resrc_manager_internal.h"
@@ -263,6 +264,7 @@ extern const FldResourcePreset fldResourcePresets[3];
 // FUN_0014EFC0
 void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
 {
+    const s32 *resourceReference;
     char specialPath[0x40];
     char fieldPath[0x40];
     s32 presetMajorId;
@@ -311,7 +313,8 @@ void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
                 for (; work = iGpffff9db0, i < ((FldResourceWork *)work)->resourceCount; i++) {
                     offset = i * sizeof(s32);
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    ((FldResourceWork *)(work + offset))->resources[0] = *(const s32 *)((const u8 *)D_007E8060 + offset);
+                    resourceReference = (const s32 *)((const u8 *)D_007E8060 + offset);
+                    ((FldResourceWork *)(work + offset))->resources[0] = *resourceReference;
                 }
             }
             ((FldResourceWork *)work)->state = 4;
@@ -476,9 +479,11 @@ static inline s32 fldResourceIsReadyWithDefault(u8 *file, s32 one)
 }
 
 /* Advance asynchronous resource, grid, NPC, camera and environment phases; return one at completion. */
-/* Access-site fields preserve the O1 address lifetimes; only individually measured exceptions remain raw. */
+/* Access-site fields preserve the O1 address lifetimes; only individually measured exceptions use retained pointers or MEMBER. */
 // FUN_0014F310
 s32 FldResource_StepPartLoad(s32 majorId, s32 minorId) {
+    s32 *specialResourceSlot;
+    s32 *ordinaryResourceSlot;
     /* Only the fields read while opening the primary FBN are described. */
     typedef struct FldPartReadWork {
         s32 majorId;                    /* 0x00, narrowed to u16 for the FBN */
@@ -774,10 +779,10 @@ initializeResources:
             }
             if (((FldResourceWork *)initializedWork)->flags & 0x80000000) {
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                ((FldResourceWork *)initializedWork)->majorId = (s32) *( s16 * )((u8 *)((FldResourceWork *)initializedWork)->resources[0] + 4);
+                ((FldResourceWork *)initializedWork)->majorId = (s32) ((FldResource *)(u8 *)((FldResourceWork *)initializedWork)->resources[0])->majorId;
                 minorIdWork = (u8 *)(iGpffff9db0);
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                ((FldResourceWork *)minorIdWork)->minorId = (s32) *( s16 * )((u8 *)((FldResourceWork *)minorIdWork)->resources[0] + 6);
+                ((FldResourceWork *)minorIdWork)->minorId = (s32) ((FldResource *)(u8 *)((FldResourceWork *)minorIdWork)->resources[0])->minorId;
             }
             entryRequestIndex = 0;
             while (entryRequestIndex < ((FldResourceWork *)(entryRequestWork = (u8 *)(iGpffff9db0)))->resourceCount) {
@@ -934,12 +939,14 @@ publishResources:
                 ordinaryIndexTable = (u8 *)D_005F05B8;
                 ordinaryCountTable = (u8 *)D_005F0590;
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                /* Layout exception: preset-map alias; row, flexible-tail, array and pointer probes lose MATCH. */
                 while (ordinaryPreset = *(u8 *)(ordinaryIndexTable + ((FldResourceWork *)ordinaryPublishWork)->majorId - 0x28),
                        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                       ordinaryPublishIndex < *(u8 *)(ordinaryCountTable + ordinaryPreset * 0xC)) {
+                       ordinaryPublishIndex < ((FldResourcePreset *)ordinaryCountTable)[ordinaryPreset].ordinaryCount) {
                     ordinaryPublishOffset = ordinaryPublishIndex * 4;
                     ordinaryResource = ((FldResourceWork *)(ordinaryPublishWork + ordinaryPublishOffset))->resources[0];
-                    *(s32 *)(ordinaryDestination + ordinaryPublishOffset) = ordinaryResource;
+                    ordinaryResourceSlot = (s32 *)(ordinaryDestination + ordinaryPublishOffset);
+                    *ordinaryResourceSlot = ordinaryResource;
                     ordinaryPublishIndex += 1;
                 }
                 if (fldStepRestoreBoard(FldStepIndex()) == 0) {
@@ -955,11 +962,13 @@ publishResources:
                 specialIndexTable = (u8 *)D_005F05B8;
                 specialCountTable = (u8 *)D_005F0590;
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
+                /* Layout exception: preset-map alias; row, flexible-tail, array and pointer probes lose MATCH. */
                 while (specialPreset = *(u8 *)(specialIndexTable + ((FldResourceWork *)specialPublishWork)->majorId - 0x3C),
                        specialPublishIndex < ((FldResourcePreset *)(specialCountTable + specialPreset * 0xC))->specialCount) {
                     specialPublishOffset = specialPublishIndex * 4;
                     specialResource = ((FldResourceWork *)(specialPublishWork + specialPublishOffset))->resources[0];
-                    *(s32 *)(specialDestination + specialPublishOffset) = specialResource;
+                    specialResourceSlot = (s32 *)(specialDestination + specialPublishOffset);
+                    *specialResourceSlot = specialResource;
                     specialPublishIndex += 1;
                 }
                 if (fldStepRestoreBoard(FldStepIndex()) == 0) {
@@ -971,7 +980,7 @@ publishResources:
                 MT_Scene_CreateFldRes(0, (u8 *)((FldResourceWork *)iGpffff9db0)->resources[0]);
                 modelFrameIndex = 0;
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                while (modelFrameIndex < (u32) *( u32 * )((modelFrameResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])) + 0x11C)) {
+                while (modelFrameIndex < (u32) ((FldResource *)(modelFrameResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])))->entryCount) {
                     modelFrameOffset = modelFrameIndex * 0x18;
                     frameMatrix = (u8 *)(func_003e9700((RwFrame *)((FldResource *)(modelFrameResource + modelFrameOffset))->entries[0].frame));
                     frameKind = (((FldResource *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0] + modelFrameOffset))->entries[0].type);
@@ -1003,7 +1012,7 @@ publishResources:
                     modelFrameIndex += 1;
                 }
                 effectFrameIndex = 0;
-                while (effectFrameIndex < *(frameCount = (u32 *)((effectCountResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])) + 0x11C))) {
+                while (effectFrameIndex < *(frameCount = &((FldResource *)(effectCountResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])))->entryCount)) {
                     effectFrameOffset = effectFrameIndex * 0x18;
                     func_003e9700((RwFrame *)((FldResource *)(effectCountResource + effectFrameOffset))->entries[0].frame);
                     effectFrameResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0]);
@@ -1254,6 +1263,7 @@ pending:
 // FUN_00150970
 u8 *FldResource_Create(char *path)
 {
+    FldResource *fieldResource;
     u32 base;
     u8 *resource;
     u8 *work;
@@ -1266,12 +1276,13 @@ u8 *FldResource_Create(char *path)
     chkmemAllocSiteTag(D_005EFC80, 0x460);
     base = (u32)D_008873F4;
     resource = ((u8 *(*)(s32, s32, s32))((FldResource *)base)->flags)(valid, 0xAB0, 0x40000);
+    fieldResource = (FldResource *)resource;
     if (resource == NULL) {
         return resource;
     }
     chkmemAllocSiteTag(D_005EFC80, 0x462);
     work = ((u8 *(*)(s32, s32, s32))((FldResource *)base)->flags)(valid, 0x12C, 0x40000);
-    *(u8 **)(resource + 0xA44) = work;
+    fieldResource->loadWork = work;
     if (work == NULL) {
         jtbl_008873EC[0](resource);
         return NULL;
@@ -1326,7 +1337,7 @@ u8 *FldResource_Create(char *path)
         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x4A5);
         ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->directory =
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            H_Cdvd_AcquireDirectory(*(char **)(resource + 0xA44), 0);
+            H_Cdvd_AcquireDirectory((char *)(fieldResource->loadWork), 0);
     } else {
         ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->directory = 1;
     }
@@ -1359,6 +1370,7 @@ s32 FldResource_IsFileLoaded(u8 *resource)
 // FUN_00150CE0
 void FldResource_ParseChunks(u8 *resource)
 {
+    FldResource *fieldResource = (FldResource *)resource;
     s32 size;
     s32 memory[2]; /* RwMemory: start, length. */
     s32 chunkMemory[2];
@@ -1370,7 +1382,7 @@ void FldResource_ParseChunks(u8 *resource)
     u8 *destination;
 
     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    data = H_Cdvd_LookupRequest(*(u8 **)(resource + 0xA44), &size);
+    data = H_Cdvd_LookupRequest(fieldResource->loadWork, &size);
     memory[0] = data;
     memory[1] = size;
     if (data != 0) {
@@ -1380,16 +1392,16 @@ void FldResource_ParseChunks(u8 *resource)
                 switch (chunk[0]) {
                 case 11:
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    if (((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) +
+                    if (((FldResourceLoadWork *)(fieldResource->loadWork +
                                  /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                                 (s32)((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->worldCount * 4))->worldReaders[0] == 0) {
+                                 (s32)((FldResourceLoadWork *)fieldResource->loadWork)->worldCount * 4))->worldReaders[0] == 0) {
                         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                        chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
+                        chunkMemory[0] = memory[0] + MEMBER(s32, (u8 *)streamHandle, struct RwStream, memory.position);
                     }
                     chunkMemory[1] = memory[1];
                     child = func_003e2f60(3, 1, &chunkMemory[0]);
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    destination = *(u8 **)(resource + 0xA44);
+                    destination = fieldResource->loadWork;
                     child = filerEnqueueRequest(1, 0, 0, 0, child, 0, 0, 0, 0, 0);
                     ((FldResourceLoadWork *)(destination + (s32)((FldResourceLoadWork *)destination)->worldCount * 4))->worldReaders[0] = child;
                     func_003e2ce0(streamHandle, chunk[1]);
@@ -1398,11 +1410,11 @@ void FldResource_ParseChunks(u8 *resource)
                     break;
                 case 16:
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
+                    chunkMemory[0] = memory[0] + MEMBER(s32, (u8 *)streamHandle, struct RwStream, memory.position);
                     chunkMemory[1] = memory[1];
                     child = func_003e2f60(3, 1, &chunkMemory[0]);
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    destination = *(u8 **)(resource + 0xA44);
+                    destination = fieldResource->loadWork;
                     child = filerEnqueueRequest(2, 0, 0, 0, child, 0, 0, 0, 0, 0);
                     ((FldResourceLoadWork *)(destination + (s32)((FldResourceLoadWork *)destination)->clumpCount * 4))->clumpReaders[0] = child;
                     func_003e2ce0(streamHandle, chunk[1]);
@@ -1417,7 +1429,7 @@ void FldResource_ParseChunks(u8 *resource)
                     break;
                 case 22:
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
+                    chunkMemory[0] = memory[0] + MEMBER(s32, (u8 *)streamHandle, struct RwStream, memory.position);
                     chunkMemory[1] = memory[1];
                     child = filerEnqueueRequest(8, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
                     ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureReader = child;
@@ -1425,7 +1437,7 @@ void FldResource_ParseChunks(u8 *resource)
                     break;
                 case 12:
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
+                    chunkMemory[0] = memory[0] + MEMBER(s32, (u8 *)streamHandle, struct RwStream, memory.position);
                     chunkMemory[1] = memory[1];
                     child = filerEnqueueRequest(0xB, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
                     ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->animationReader = child;
@@ -1441,9 +1453,9 @@ void FldResource_ParseChunks(u8 *resource)
             }
         } else {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            if (*(u8 **)(resource + 0xA44) != NULL) {
+            if (fieldResource->loadWork != NULL) {
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                H_Cdvd_Destroy((u8 *)((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->directory);
+                H_Cdvd_Destroy((u8 *)((FldResourceLoadWork *)fieldResource->loadWork)->directory);
                 jtbl_008873EC[0](((FldResource *)resource)->loadWork);
             }
             if (resource != NULL) {
@@ -1454,10 +1466,11 @@ void FldResource_ParseChunks(u8 *resource)
 }
 
 /* Install completed chunk readers and return one after every pending reader is consumed. */
-/* Earlier whole-layout probe: 1240/1216 bytes. The remaining raw resource loads are individually measured below. */
+/* Earlier whole-layout probe: 1240/1216 bytes. The retained byte-alias resource loads are individually measured below. */
 // FUN_001510C0
 s32 FldResource_PollLoads(u8 *resource)
 {
+    FldResource *fieldResource = (FldResource *)resource;
     s32 stream;
     s32 status;
     s32 pendingCount;
@@ -1469,20 +1482,20 @@ s32 FldResource_PollLoads(u8 *resource)
 
     pendingCount = 0;
     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    if (*(u8 **)(resource + 0xA44) == NULL) {
+    if (fieldResource->loadWork == NULL) {
         return 1;
     }
     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    if (((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->textureReader != 0) {
+    if (((FldResourceLoadWork *)fieldResource->loadWork)->textureReader != 0) {
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        if (((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->textureNames != 0) {
+        if (((FldResourceLoadWork *)fieldResource->loadWork)->textureNames != 0) {
             kAssertFail((const char *)D_005EFC80, 0x56C);
         }
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        dictionary = (s32)filerTakeCompletedRequest(((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->textureReader, &status, &stream);
+        dictionary = (s32)filerTakeCompletedRequest(((FldResourceLoadWork *)fieldResource->loadWork)->textureReader, &status, &stream);
         if (status == 1) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003ef260((const struct RwTexDictionary *)(u32)dictionary, K_Clump_AppendTextureName, *(u8 **)(resource + 0xA44) + 0x128);
+            func_003ef260((const struct RwTexDictionary *)(u32)dictionary, K_Clump_AppendTextureName, fieldResource->loadWork + 0x128);
             func_003ef1b0(dictionary);
             ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureReader = 0;
             if (stream != 0) {
@@ -1493,11 +1506,11 @@ s32 FldResource_PollLoads(u8 *resource)
         }
     }
     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    for (worldIndex = 0; worldIndex < ((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->worldCount; worldIndex++) {
+    for (worldIndex = 0; worldIndex < ((FldResourceLoadWork *)fieldResource->loadWork)->worldCount; worldIndex++) {
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        if (((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) + worldIndex * 4))->worldReaders[0] != 0) {
+        if (((FldResourceLoadWork *)(fieldResource->loadWork + worldIndex * 4))->worldReaders[0] != 0) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            world = filerTakeCompletedRequest(((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) + worldIndex * 4))->worldReaders[0], &status, &stream);
+            world = filerTakeCompletedRequest(((FldResourceLoadWork *)(fieldResource->loadWork + worldIndex * 4))->worldReaders[0], &status, &stream);
             if (status == 1) {
                 if (world == NULL) {
                     kAssertFail((const char *)D_005EFC80, 0x588);
@@ -1507,7 +1520,7 @@ s32 FldResource_PollLoads(u8 *resource)
                 } else if (K_Clump_GeometryHasMatUsrData(world, D_005EFD00) != 0) {
                     ((FldResource *)resource)->secondaryObject = (s32)world;
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                } else if (*(s32 *)(resource + 0xC) == 0) {
+                } else if (fieldResource->primaryDrawObject == 0) {
                     ((FldResource *)resource)->primaryDrawObject = (s32)world;
                     func_003db550(world, (void *)(u32)kwlnGetCamera());
                 } else {
@@ -1524,11 +1537,11 @@ s32 FldResource_PollLoads(u8 *resource)
         }
     }
     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    for (clumpIndex = 0; clumpIndex < ((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->clumpCount; clumpIndex++) {
+    for (clumpIndex = 0; clumpIndex < ((FldResourceLoadWork *)fieldResource->loadWork)->clumpCount; clumpIndex++) {
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        if (((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) + clumpIndex * 4))->clumpReaders[0] != 0) {
+        if (((FldResourceLoadWork *)(fieldResource->loadWork + clumpIndex * 4))->clumpReaders[0] != 0) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            clump = filerTakeCompletedRequest(((FldResourceLoadWork *)(*(u8 **)(resource + 0xA44) + clumpIndex * 4))->clumpReaders[0], &status, &stream);
+            clump = filerTakeCompletedRequest(((FldResourceLoadWork *)(fieldResource->loadWork + clumpIndex * 4))->clumpReaders[0], &status, &stream);
             if (status == 1) {
                 if (clump == NULL) {
                     kAssertFail((const char *)D_005EFC80, 0x5B4);
@@ -1538,14 +1551,14 @@ s32 FldResource_PollLoads(u8 *resource)
                 } else if (K_Clump_ClumpHasMatUsrData(clump, D_005EFD00) != 0) {
                     ((FldResource *)resource)->secondaryObject = (s32)clump;
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                } else if (!(((FldResource *)resource)->flags & 1) && *(s32 *)(resource + 8) == 0) {
+                } else if (!(((FldResource *)resource)->flags & 1) && fieldResource->primaryObject == 0) {
                     ((FldResource *)resource)->primaryObject = (s32)clump;
                     ((FldResource *)resource)->primaryDrawObjectPtr = sdkClumpCreateBuckets(clump);
                 } else {
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    ((FldResource *)(resource + *(s32 *)(resource + 0x18) * 4))->clumps[0] = (s32)clump;
+                    ((FldResource *)(resource + (s32)(fieldResource->clumpCount) * 4))->clumps[0] = (s32)clump;
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    ((FldResource *)(resource + *(s32 *)(resource + 0x18) * 4))->drawObjectPointers[0] = sdkClumpCreateBuckets(clump);
+                    ((FldResource *)(resource + (s32)(fieldResource->clumpCount) * 4))->drawObjectPointers[0] = sdkClumpCreateBuckets(clump);
                     ((FldResource *)resource)->clumpCount = (s32)((FldResource *)resource)->clumpCount + 1;
                 }
                 ((FldResourceLoadWork *)(((FldResource *)resource)->loadWork + clumpIndex * 4))->clumpReaders[0] = 0;
@@ -1558,8 +1571,8 @@ s32 FldResource_PollLoads(u8 *resource)
         }
     }
     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    if (((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->animationReader != 0) {
-        *(s32 *)(resource + 0xA20) = (s32)filerTakeCompletedRequest(((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->animationReader, &status, &stream);
+    if (((FldResourceLoadWork *)fieldResource->loadWork)->animationReader != 0) {
+        fieldResource->animation = (s32)filerTakeCompletedRequest(((FldResourceLoadWork *)fieldResource->loadWork)->animationReader, &status, &stream);
         if (status == 1) {
             if (stream != 0) {
                 func_003e2e40(stream, 0);
@@ -1574,7 +1587,7 @@ s32 FldResource_PollLoads(u8 *resource)
     }
     if (pendingCount == 0) {
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        if (*(s32 *)(resource + 8) == 0) {
+        if (fieldResource->primaryObject == 0) {
             ((FldResource *)resource)->flags = ((FldResource *)resource)->flags | 0x10000000;
             ((FldResource *)resource)->primaryObject = ((FldResource *)resource)->primaryDrawObject;
         }
@@ -1597,6 +1610,7 @@ s32 FldResource_PollLoads(u8 *resource)
 // FUN_00151580
 s32 FldResource_FindFrameForId(u8 *resource, s32 entryId, s32 *flagsOut)
 {
+    FldResource *clumpResource;
     KClumpIntPropertyResult kindProperty;
     KClumpIntPropertyResult idProperty;
     KClumpIntPropertyResult flagsProperty;
@@ -1609,16 +1623,17 @@ s32 FldResource_FindFrameForId(u8 *resource, s32 entryId, s32 *flagsOut)
     result = 0;
     for (clumpIndex = 0; clumpIndex < ((FldResource *)resource)->clumpCount; clumpIndex++) {
         clumpCursor = resource + clumpIndex * 4;
+        clumpResource = (FldResource *)clumpCursor;
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        propertyCount = K_Clump_CountIntUsrData(*(void **)(clumpCursor + 0x1C), (const char *)D_005EFD20);
+        propertyCount = K_Clump_CountIntUsrData((void *)(clumpResource->clumps[0]), (const char *)D_005EFD20);
         for (propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            K_Clump_GetIntUsrDataAt(&idProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD40, propertyIndex);
+            K_Clump_GetIntUsrDataAt(&idProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD40, propertyIndex);
             if (idProperty.value == 0) {
                 kAssertFail((const char *)D_005EFC80, 0x622);
             }
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            K_Clump_GetIntUsrDataAt(&kindProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD20, propertyIndex);
+            K_Clump_GetIntUsrDataAt(&kindProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD20, propertyIndex);
             K_Clump_GetIntUsrDataAt(&flagsProperty, (void *)((FldResource *)clumpCursor)->clumps[0], (const char *)D_005EFD60, propertyIndex);
             if (flagsProperty.value != 0) {
                 *flagsOut = 1;
@@ -1636,10 +1651,12 @@ out:
 }
 
 /* Read clump user properties and request the model/effect assets for each entry. */
-/* Earlier whole-layout probe: 1416/1392 bytes. Only the marked clump/count reads remain raw. */
+/* Earlier whole-layout probe: 1416/1392 bytes. Only the marked clump/count reads use retained pointers or MEMBER. */
 // FUN_00151710
 void FldResource_RequestEntryLoads(u8 *resource)
 {
+    FldResource *fieldResource = (FldResource *)resource;
+    FldResource *clumpResource;
     s32 propertyCount;
     u8 *clumpCursor;
     u32 clumpIndex;
@@ -1661,28 +1678,29 @@ void FldResource_RequestEntryLoads(u8 *resource)
 
     for (clumpIndex = 0; clumpIndex < ((FldResource *)resource)->clumpCount; clumpIndex++) {
         clumpCursor = resource + clumpIndex * 4;
+        clumpResource = (FldResource *)clumpCursor;
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        propertyCount = K_Clump_CountIntUsrData(*(void **)(clumpCursor + 0x1C), (const char *)D_005EFD20);
+        propertyCount = K_Clump_CountIntUsrData((void *)(clumpResource->clumps[0]), (const char *)D_005EFD20);
         for (propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            K_Clump_GetIntUsrDataAt(&assetProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD80, propertyIndex);
+            K_Clump_GetIntUsrDataAt(&assetProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD80, propertyIndex);
             if (assetProperty.value != 0) {
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                K_Clump_GetIntUsrDataAt(&idProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD40, propertyIndex);
+                K_Clump_GetIntUsrDataAt(&idProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD40, propertyIndex);
                 if (idProperty.value == 0) {
                     kAssertFail((const char *)D_005EFC80, 0x65A);
                 }
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                ((FldResource *)(resource + *(u32 *)(resource + 0x11C) * 0x18))->entries[0].id = (u16)idProperty.value;
+                ((FldResource *)(resource + fieldResource->entryCount * 0x18))->entries[0].id = (u16)idProperty.value;
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                K_Clump_GetIntUsrDataAt(&hiddenProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD60, propertyIndex);
+                K_Clump_GetIntUsrDataAt(&hiddenProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD60, propertyIndex);
                 if (hiddenProperty.value != 0) {
                     ((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].flags = 2;
                 }
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                K_Clump_GetIntUsrDataAt(&kindProperty, *(void **)(clumpCursor + 0x1C), (const char *)D_005EFD20, propertyIndex);
+                K_Clump_GetIntUsrDataAt(&kindProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD20, propertyIndex);
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                ((FldResource *)(resource + *(u32 *)(resource + 0x11C) * 0x18))->entries[0].type = (u16)kindProperty.value;
+                ((FldResource *)(resource + fieldResource->entryCount * 0x18))->entries[0].type = (u16)kindProperty.value;
                 if (kindProperty.value == 0) {
                     if (iGpffffb204 == 0) {
                         strcpy(modelPath, D_005EFD98);
@@ -1709,7 +1727,7 @@ void FldResource_RequestEntryLoads(u8 *resource)
                         strcat(effectPath, effectSuffix);
                         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x6A1);
                         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                        ((FldResource *)(resource + *(u32 *)(resource + 0x11C) * 0x18))->entries[0].file = H_Cdvd_AcquireDirectory(effectPath, 0);
+                        ((FldResource *)(resource + fieldResource->entryCount * 0x18))->entries[0].file = H_Cdvd_AcquireDirectory(effectPath, 0);
                         if (((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].file == 0) {
                             kAssertFail((const char *)D_005EFC80, 0x6A2);
                         }
@@ -1739,15 +1757,16 @@ void FldResource_RequestEntryLoads(u8 *resource)
 }
 
 /* Wait for every entry, apply model placements, create effects and release temporary load state. */
-/* Earlier whole-layout probe: 776/768 bytes. Only marked count/effect/load-state reads remain raw. */
+/* Earlier whole-layout probe: 776/768 bytes. Only marked count/effect/load-state reads use retained pointers or MEMBER. */
 // FUN_00151C80
 s32 FldResource_TryInstallEntries(u8 *resource)
 {
+    FldResource *fieldResource = (FldResource *)resource;
     u32 checkIndex;
     u32 installIndex;
 
     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    for (checkIndex = 0; checkIndex < *(u32 *)(resource + 0x11C); checkIndex++) {
+    for (checkIndex = 0; checkIndex < fieldResource->entryCount; checkIndex++) {
         if (((FldResource *)resource)->entries[checkIndex].type == 0 || ((FldResource *)resource)->entries[checkIndex].type == 2) {
             if ((u32)((FldResource *)resource)->entries[checkIndex].model == 0) {
                 kAssertFail((const char *)D_005EFC80, 0x6E4);
@@ -1772,32 +1791,32 @@ s32 FldResource_TryInstallEntries(u8 *resource)
         } else if (((FldResource *)resource)->entries[installIndex].type == 1) {
             if (iGpffffb204 == 0) {
                 if (((FldResource *)resource)->entries[installIndex].filePtr != NULL) {
-                    *(s32 *)(resource + installIndex * 0x18 + 0x130) = mdlEffectCreateFromResource((u32)((HCdvdRequest *)(((FldResource *)resource)->entries[installIndex].filePtr))->data);
+                    MEMBER(s32, resource + installIndex * 0x18, FldResource, entries[0].effect) = mdlEffectCreateFromResource((u32)((HCdvdRequest *)(((FldResource *)resource)->entries[installIndex].filePtr))->data);
                     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    mdlEffectSetChildPositionVec(*(void **)(resource + installIndex * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700((RwFrame *)((FldResource *)resource)->entries[installIndex].frame) + 0x30));
+                    mdlEffectSetChildPositionVec(MEMBER(void *, resource + installIndex * 0x18, FldResource, entries[0].effect), (f32 *)((u8 *)func_003e9700((RwFrame *)((FldResource *)resource)->entries[installIndex].frame) + 0x30));
                     H_Cdvd_Destroy(((FldResource *)resource)->entries[installIndex].filePtr);
                     ((FldResource *)resource)->entries[installIndex].filePtr = NULL;
                 }
             } else if (((FldResource *)resource)->entries[installIndex].filePtr != NULL) {
-                *(s32 *)(resource + installIndex * 0x18 + 0x130) = mdlEffectCreateFromResource((s32)(u8 *)((FldResource *)resource)->entries[installIndex].file);
+                MEMBER(s32, resource + installIndex * 0x18, FldResource, entries[0].effect) = mdlEffectCreateFromResource((s32)(u8 *)((FldResource *)resource)->entries[installIndex].file);
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                mdlEffectSetChildPositionVec(*(void **)(resource + installIndex * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700((RwFrame *)((FldResource *)resource)->entries[installIndex].frame) + 0x30));
+                mdlEffectSetChildPositionVec(MEMBER(void *, resource + installIndex * 0x18, FldResource, entries[0].effect), (f32 *)((u8 *)func_003e9700((RwFrame *)((FldResource *)resource)->entries[installIndex].frame) + 0x30));
                 ((FldResource *)resource)->entries[installIndex].filePtr = NULL;
             }
         }
     }
     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    if (*(u8 **)(resource + 0xA44) != NULL) {
+    if (fieldResource->loadWork != NULL) {
         if (((FldResource *)resource)->majorId >= 0x28 && ((FldResource *)resource)->majorId < 0x31) {
             if ((u32)((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureNames != 0) {
                 ((FldResourceWork *)iGpffff9db0)->textureNames = (u32)((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureNames;
             }
         } else {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            K_Clump_FreeTextureNameList((u8 *)((FldResourceLoadWork *)*(u8 **)(resource + 0xA44))->textureNames);
+            K_Clump_FreeTextureNameList((u8 *)((FldResourceLoadWork *)fieldResource->loadWork)->textureNames);
         }
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        jtbl_008873EC[0](*(u8 **)(resource + 0xA44));
+        jtbl_008873EC[0](fieldResource->loadWork);
         ((FldResource *)resource)->loadWork = NULL;
     }
     return 1;
@@ -1866,10 +1885,11 @@ void FldResource_Destroy(u8 *resource)
  * and one shared by the final render-state sequence. The context is passed
  * in the callback's second argument. Saved Vec4 values are light colors. */
 /* Save light colors/transform, move the camera/lights to the selected world and set draw state. */
-/* Only measured world-pointer reads remain raw; the saved matrix still copies eight 8-byte scalar pairs. */
+/* Only measured world-pointer reads use retained pointers or MEMBER; the saved matrix still copies eight 8-byte scalar pairs. */
 // FUN_00152170
 void FldResource_BeginDrawState(u8 *command, u8 *resource)
 {
+    FldResource *fieldResource = (FldResource *)resource;
     typedef struct { u32 w0; u32 w1; } CopyPair;
     u8 *gs;
     void *raster;
@@ -1933,20 +1953,20 @@ void FldResource_BeginDrawState(u8 *command, u8 *resource)
         flags = (s32)((FldResource *)resource)->flags;
         if (flags & 0x80000000) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003cbe80(*(RpWorld **)(resource + 0xC), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80((RpWorld *)(fieldResource->primaryDrawObject), (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbe80((RpWorld *)((FldResource *)resource)->primaryDrawObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else if (flags & 0x40000000) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003cbe80(*(RpWorld **)(resource + 0x10), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80((RpWorld *)(fieldResource->alternateObject), (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbe80((RpWorld *)((FldResource *)resource)->alternateObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else if ((flags & 0x20000000) && (((FldResource *)resource)->secondaryObject != 0)) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003cbe80(*(RpWorld **)(resource + 0x14), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80((RpWorld *)(fieldResource->secondaryObject), (RpLight *)(u32)K_Clump_GetLightA());
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003cbe80(*(RpWorld **)(resource + 0x14), (RpLight *)(u32)K_Clump_GetLightB());
+            func_003cbe80((RpWorld *)(fieldResource->secondaryObject), (RpLight *)(u32)K_Clump_GetLightB());
         } else {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003cbe80(*(RpWorld **)(resource + 8), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80((RpWorld *)(fieldResource->primaryObject), (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbe80((RpWorld *)((FldResource *)resource)->primaryObject, (RpLight *)(u32)K_Clump_GetLightB());
         }
     } else {
@@ -1972,6 +1992,7 @@ void FldResource_BeginDrawState(u8 *command, u8 *resource)
 // FUN_00152630
 void FldResource_EndDrawState(u8 *command, u8 *resource)
 {
+    FldResource *fieldResource = (FldResource *)resource;
     u8 *camera;
     u8 *ambientWorld;
     u8 *directionalWorld;
@@ -1982,20 +2003,20 @@ void FldResource_EndDrawState(u8 *command, u8 *resource)
     if (((FldResource *)resource)->flags & 1) {
         if (((FldResource *)resource)->flags & 0x80000000) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(resource + 0xC), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)fieldResource->primaryDrawObject, (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->primaryDrawObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else if (((FldResource *)resource)->flags & 0x40000000) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(resource + 0x10), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)fieldResource->alternateObject, (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->alternateObject, (RpLight *)(u32)K_Clump_GetLightB());
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        } else if ((((FldResource *)resource)->flags & 0x20000000) && *(s32 *)(resource + 0x14) != 0) {
+        } else if ((((FldResource *)resource)->flags & 0x20000000) && fieldResource->secondaryObject != 0) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(resource + 0x14), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)fieldResource->secondaryObject, (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->secondaryObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(resource + 8), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)fieldResource->primaryObject, (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->primaryObject, (RpLight *)(u32)K_Clump_GetLightB());
         }
         ambientWorld = (void *)(u32)K_Clump_GetWorld();
@@ -2019,7 +2040,7 @@ void FldResource_EndDrawState(u8 *command, u8 *resource)
     func_003c38b0((RpLight *)(u32)K_Clump_GetLightA(), (const RwRGBAReal *)(resource + 0xA50));
     func_003c38b0((RpLight *)(u32)K_Clump_GetLightB(), (const RwRGBAReal *)(resource + 0xA60));
     /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    func_003e9cb0((RwFrame *)(u32)*(s32 *)((u8 *)(u32)K_Clump_GetLightB() + 4),
+    func_003e9cb0((RwFrame *)(u32)(s32)(((struct RpLight *)(u8 *)(u32)K_Clump_GetLightB())->object.parent),
                   (const RwMatrix *)(resource + 0xA70), rwCOMBINEREPLACE);
     ((struct RpLight *)(u8 *)(u32)K_Clump_GetLightB())->object.flags = 3;
     K_Clump_GetLightB();
@@ -2031,6 +2052,7 @@ void FldResource_EndDrawState(u8 *command, u8 *resource)
 // FUN_00152930
 void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource)
 {
+    FldResource *fieldResource = (FldResource *)resource;
     u8 *worldCommand;
     u8 *primaryCommand;
     u8 *clumpCommand;
@@ -2080,14 +2102,14 @@ void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource)
     }
     if (!(((FldResource *)resource)->flags & 0xC0000000)) {
         /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        for (i = 0; i < *(u32 *)(resource + 0x18); i++) {
+        for (i = 0; i < fieldResource->clumpCount; i++) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            if (*(s32 *)(resource + 0x9C + i * 4) != 0) {
+            if (((FldResource *)resource)->drawObjects[i] != 0) {
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                clumpCommand = sdkOtQueueClump(list, *(s32 *)(resource + 0x9C + i * 4));
+                clumpCommand = sdkOtQueueClump(list, ((FldResource *)resource)->drawObjects[i]);
             } else {
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                clumpCommand = PrimQueueSkyStateEnter(list, *(s32 *)(resource + 0x1C + i * 4));
+                clumpCommand = PrimQueueSkyStateEnter(list, ((FldResource *)resource)->clumps[i]);
             }
             if (clumpCommand != NULL && i == 0) {
                 ((PrimQueueDrawNode *)clumpCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
@@ -2125,9 +2147,9 @@ void FldResource_QueueDrawCallbacksPrimary(u8 *list, u8 *resource)
     if (!(((FldResource *)resource)->flags & 0xC0000000)) {
         for (i = 0; i < ((FldResource *)resource)->clumpCount; i++) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            if (*(u8 **)(resource + 0x9C + i * 4) != NULL) {
+            if ((u8 *)(((FldResource *)resource)->drawObjects[i]) != NULL) {
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                clumpCommand = sdkOtQueueClumpPrimaryPass(list, *(s32 *)(resource + 0x9C + i * 4));
+                clumpCommand = sdkOtQueueClumpPrimaryPass(list, ((FldResource *)resource)->drawObjects[i]);
                 if (clumpCommand != NULL && i == 0) {
                     ((PrimQueueDrawNode *)clumpCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
                     ((PrimQueueDrawNode *)clumpCommand)->begin.argument.data = resource;
@@ -2173,9 +2195,9 @@ void FldResource_QueueDrawCallbacksSecondary(u8 *list, u8 *resource)
     if (!(((FldResource *)resource)->flags & 0xC0000000)) {
         for (i = 0; i < ((FldResource *)resource)->clumpCount; i++) {
             /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            if (*(u8 **)(resource + 0x9C + i * 4) != NULL) {
+            if ((u8 *)(((FldResource *)resource)->drawObjects[i]) != NULL) {
                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                clumpCommand = sdkOtQueueClumpSecondaryPass(list, *(s32 *)(resource + 0x9C + i * 4));
+                clumpCommand = sdkOtQueueClumpSecondaryPass(list, ((FldResource *)resource)->drawObjects[i]);
                 if (clumpCommand != NULL && i == 0) {
                     ((PrimQueueDrawNode *)clumpCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
                     ((PrimQueueDrawNode *)clumpCommand)->begin.argument.data = resource;

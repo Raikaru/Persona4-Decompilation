@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mt_scene_internal.h"
 #include "model_motion_internal.h"
 /* Original translation unit k_fldUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -302,7 +303,8 @@ typedef struct FieldUnitLayerResource {
 /* Field-address casts below retain native integer-handle accesses without
  * changing shared call signatures or byte-pointer aliasing. */
 typedef struct FieldUnitEffectNode {
-    u8 pad00[8];
+    struct FieldUnitEffectNode *first;
+    u8 pad04[4];
     u8 *effect;
     u8 pad0C[4];
     struct FieldUnitEffectNode *next;
@@ -331,6 +333,13 @@ typedef struct FieldUnitModelCache {
     u16 fieldId, roomId;
     u8 *model;
 } FieldUnitModelCache;
+typedef struct FieldUnitModelCacheGroup {
+    FieldUnitModelCache player;
+    FieldUnitModelCache members[3];
+} FieldUnitModelCacheGroup;
+typedef struct FieldUnitNearbySelection {
+    u8 *units[8], *objects[8];
+} FieldUnitNearbySelection;
 typedef struct FieldUnitObject {
     s32 active, flags, unk08;
     u16 resourceId, placementIndex;
@@ -907,11 +916,11 @@ u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
     source = placement;
     do {
         s32 word0 = *(s32 *)source;
-        s32 word1 = *(s32 *)(source + 4);
+        s32 word1 = (s32)(((S8 *)source)->h[1]);
         source += 8;
         copyCount -= 1;
         *(s32 *)destination = word0;
-        *(s32 *)(destination + 4) = word1;
+        ((S8 *)destination)->h[1] = word1;
         destination += 8;
     } while (copyCount > 0);
     *(u8 * *)&((FieldUnitRecord *)slot)->placement = slot + 0x5C;
@@ -919,7 +928,7 @@ u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
     ((FieldUnitRecord *)slot)->cellZ = (s16)(s32)((600.0f + ((FieldUnitPlacement *)placement)->position.z) / 1200.0f);
     unitIndex = 0;
     levelSum = 0;
-    unitCount = ((DatUnitGenusBase *)(*(u8 **)(slot + 0x48)))->count;
+    unitCount = ((DatUnitGenusBase *)(MEMBER(u8 *, slot, FieldUnitRecord, unitData)))->count;
     for (; unitIndex < (s32)unitCount; unitIndex++) {
         /* Step 4: batch protocol record. Baseline 36 MATCH / 6 ASM, this
            function 0 words diff (760B obj / 768B window) with volatile.
@@ -936,7 +945,7 @@ u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
            block-scope group 32, inlined double-deref 32, s32 unitCount 32,
            (s32)slot cast 35. No honest spelling reproduces the reload, so
            volatile is kept to preserve MATCH; H001 remains here. */
-        group = *(u8 *volatile *)(slot + 0x48);
+        group = MEMBER(u8 *volatile, slot, FieldUnitRecord, unitData);
         levelSum += ((DatUnitGenusBase *)group)->unit[unitIndex].level;
     }
     ((FieldUnitRecord *)slot)->level = levelSum / (s32)unitCount;
@@ -948,10 +957,11 @@ u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
 /* Historical probe residual below predates the current MATCH; retained as provenance. */
 /* measured: parked nd 5, object/window 808/816. The control flow, 0x50-byte frame, stack aggregate stores, and 35.0f COP1 call match. Exact fndiff residuals are offsets 0x14, 0x18, 0x1C, 0x20, and 0x24: b210 schedules the D_005F1528 lwc1 before the D_005F1520 ld and colors the ld result $v0 instead of retail $v1. Ruled out assignment/declaration-order swaps, named-local versus direct-store forms, pointer and aggregate S8/S12 forms, comma sequencing, register storage, and pragma wrappers; no prototype or symbol changes. Committed at nd 5. */
 /* Create an encounter slot scene object and size its shadow and marker from the level difference. */
-/* measured: remaining raw unit/model/placement accesses changed codegen even individually (201..598 differing bytes); keep their byte-pointer aliasing. Nested scene fields are typed. */
+/* measured: retained byte-alias unit/model/placement accesses changed codegen even individually (201..598 differing bytes); keep their byte-pointer aliasing. Nested scene fields are typed. */
 // FUN_00163C90
 s32 FldUnit_SetupSlot(s32 slotIndex)
 {
+    FieldUnitRecord *unitRecord;
   u8 rotationAxis[12];
   f32 markerScale[3];
   u16 mode;
@@ -964,8 +974,9 @@ s32 FldUnit_SetupSlot(s32 slotIndex)
   axisPair = (axisWords = *((s64 *) D_005F1520));
   axisZ = *((f32 *) D_005F1528);
   *((s64 *) rotationAxis) = axisPair;
-  *((f32 *) (rotationAxis + 8)) = axisZ;
+  ((V3 *)rotationAxis)->z = axisZ;
   unit = D_007E8C00 + (slotIndex * 0x750);
+  unitRecord = (FieldUnitRecord *)unit;
   if ((*(s32 *)&((FieldUnitRecord *)unit)->unitData) == 0)
   {
     return 1;
@@ -987,9 +998,9 @@ s32 FldUnit_SetupSlot(s32 slotIndex)
   {
     mode = 3;
   }
-  *((s32 *) (unit + 0x54)) = (s32) MT_Scene_GetRes(MT_Scene_CreateModelCharShadowRes((slotIndex + 0x64) & 0xFFFF, mode, *((u8 **) (unit + 0x50))) & 0xFFFF);
-  mdlDispatchAnimIfPresent(*((u8 **) (unit + 0x50)), 0, 0, 0x10, 1);
-  mdlSetAttachedOwner(*((u8 **) (unit + 0x50)), D_005DC920);
+  unitRecord->scene = (FieldUnitSceneResource *)(s32) MT_Scene_GetRes(MT_Scene_CreateModelCharShadowRes((slotIndex + 0x64) & 0xFFFF, mode, (u8 *)(unitRecord->model)) & 0xFFFF);
+  mdlDispatchAnimIfPresent((u8 *)(unitRecord->model), 0, 0, 0x10, 1);
+  mdlSetAttachedOwner((u8 *)(unitRecord->model), D_005DC920);
   levelDifference = (((FieldUnitRecord *)unit)->level) - FldEvent_AverageEntryValue();
   if (levelDifference < (-3))
   {
@@ -1010,25 +1021,25 @@ s32 FldUnit_SetupSlot(s32 slotIndex)
   {
     ((FieldUnitRecord *)unit)->levelBand = 3;
   }
-  if ((*((u8 *) (unit + 0x1CA))) == 1)
+  if ((unitRecord->variant) == 1)
   {
-    FldShadow_SetRingParticles(*(s32 *)&((FieldUnitSceneResource *)(*((u8 **) (unit + 0x54))))->effectTask, *((f32 *) (D_005F1340 + ((((FieldUnitRecord *)unit)->levelBand) * 4))));
+    FldShadow_SetRingParticles(*(s32 *)&((FieldUnitSceneResource *)((u8 *)(unitRecord->scene)))->effectTask, ((f32 *)D_005F1340)[((FieldUnitRecord *)unit)->levelBand]);
   }
-  mdlScale((Model *)(*((void **) (unit + 0x50))), (const RwV3d *)((D_005F12E0 + ((*((u8 *) (unit + 0x1CA))) * 0x30)) + ((((FieldUnitRecord *)unit)->levelBand) * 0xC)), 2);
-  RwMatrixUpdate((u8 *)mdlGetMatrix(*((void **)  (unit + 0x50))));
-  FldFrameTask_Rotate((u8 *)(*(s32 *)&((FieldUnitSceneResource *)(*((u8 **) (unit + 0x54))))->movementTask), rotationAxis, *((f32 *) ((*(u8 * *)&((FieldUnitRecord *)unit)->placement) + 0x14C)));
-  FldFrameTask_SetPosition(*(s32 *)&((FieldUnitSceneResource *)(*((u8 **) (unit + 0x54))))->movementTask, (*((u8 **) (unit + 0x1AC))) + 0x140);
-  SceneDraw_SetResVisibleChecked(*((u16 *) (*((u8 **) (0x54 + unit)))), 1);
-  FldFrameTask_SetFlags(*(s32 *)&((FieldUnitSceneResource *)(*((u8 **) (unit + 0x54))))->movementTask, 0x40000000);
-  FldFrameTask_SetHeight(*(s32 *)&((FieldUnitSceneResource *)(*((u8 **) (unit + 0x54))))->movementTask, 35.0f);
-  *(s32 *)&((FieldUnitSceneResource *)(*((u8 **) (unit + 0x54))))->markerModel = (s32)mdlCloneModelObject((u8 *)(iGpffffb274));
-  markerRadius = FldFrameTask_GetHeight(*(s32 *)&((FieldUnitSceneResource *)(*((u8 **) (unit + 0x54))))->movementTask);
+  mdlScale((Model *)((void *)(unitRecord->model)), (const RwV3d *)((D_005F12E0 + ((unitRecord->variant) * 0x30)) + ((((FieldUnitRecord *)unit)->levelBand) * 0xC)), 2);
+  RwMatrixUpdate((u8 *)mdlGetMatrix((void *)(unitRecord->model)));
+  FldFrameTask_Rotate((u8 *)(*(s32 *)&((FieldUnitSceneResource *)((u8 *)(unitRecord->scene)))->movementTask), rotationAxis, ((FieldUnitPlacement *)(*(u8 * *)&((FieldUnitRecord *)unit)->placement))->yawDegrees);
+  FldFrameTask_SetPosition(*(s32 *)&((FieldUnitSceneResource *)((u8 *)(unitRecord->scene)))->movementTask, ((u8 *)(unitRecord->placement)) + 0x140);
+  SceneDraw_SetResVisibleChecked(*((u16 *) ((u8 *)(unitRecord->scene))), 1);
+  FldFrameTask_SetFlags(*(s32 *)&((FieldUnitSceneResource *)((u8 *)(unitRecord->scene)))->movementTask, 0x40000000);
+  FldFrameTask_SetHeight(*(s32 *)&((FieldUnitSceneResource *)((u8 *)(unitRecord->scene)))->movementTask, 35.0f);
+  *(s32 *)&((FieldUnitSceneResource *)((u8 *)(unitRecord->scene)))->markerModel = (s32)mdlCloneModelObject((u8 *)(iGpffffb274));
+  markerRadius = FldFrameTask_GetHeight(*(s32 *)&((FieldUnitSceneResource *)((u8 *)(unitRecord->scene)))->movementTask);
   markerScale[2] = markerRadius;
   markerScale[1] = markerRadius;
   markerScale[0] = markerRadius;
-  mdlScale((Model *)((*(s32 *)&((FieldUnitSceneResource *)(*((u8 **) (unit + 0x54))))->markerModel)), (const RwV3d *)(markerScale), 2);
-  mdlAdvanceModelFromFlags((u8 *) (*(s32 *)&((FieldUnitSceneResource *)(*((u8 **) (unit + 0x54))))->markerModel));
-  ((FieldUnitRecord *)unit)->followerTask = FldAI_SpawnPatrol(0, unit, *((u8 *) (unit + 0x1CA)));
+  mdlScale((Model *)((*(s32 *)&((FieldUnitSceneResource *)((u8 *)(unitRecord->scene)))->markerModel)), (const RwV3d *)(markerScale), 2);
+  mdlAdvanceModelFromFlags((u8 *) (*(s32 *)&((FieldUnitSceneResource *)((u8 *)(unitRecord->scene)))->markerModel));
+  ((FieldUnitRecord *)unit)->followerTask = FldAI_SpawnPatrol(0, unit, unitRecord->variant);
   ((FieldUnitRecord *)unit)->tintTask = FldUnit_SpawnTintTask((u8 *) 0, unit);
   return 1;
 }
@@ -1047,10 +1058,11 @@ s32 FldUnit_AllSlotsReady(void)
 }
 
 /* Release unit data, scene resources, model ownership and controller tasks for one occupied slot. */
-/* measured: typing the remaining model reads or final slot clears changed codegen (207..250 differing bytes); keep these raw accesses after teardown calls. */
+/* measured: typing the remaining model reads or final slot clears changed codegen (207..250 differing bytes); keep the measured pointer/MEMBER accesses after teardown calls. */
 // FUN_00164020
 void FldUnit_ReleaseSlot(u8 *unit)
 {
+    FieldUnitRecord *unitRecord = (FieldUnitRecord *)unit;
     s32 i;
     s32 unitData;
     u16 *sceneId;
@@ -1065,9 +1077,9 @@ void FldUnit_ReleaseSlot(u8 *unit)
         if ((*(s32 *)&((FieldUnitRecord *)unit)->model != 0) &&
             ((((FieldUnitRecord *)unit)->characterId == 0) || (((FieldUnitRecord *)unit)->ownsModel == 1))) {
             for (i = 0; i < 5; i++) {
-                ((FieldUnitModel *)(*(s32 *)(unit + 0x50)))->layers[i].flags |= 1;
+                ((FieldUnitModel *)(MEMBER(s32, unit, FieldUnitRecord, model)))->layers[i].flags |= 1;
             }
-            KMisc_CreateDelayMdlFree(*(s32 *)(unit + 0x50), 0);
+            KMisc_CreateDelayMdlFree(MEMBER(s32, unit, FieldUnitRecord, model), 0);
         }
         if (((FieldUnitRecord *)unit)->followerTask != 0) {
             kwlnTaskDestroyWithHierarchy(((FieldUnitRecord *)unit)->followerTask);
@@ -1081,13 +1093,13 @@ void FldUnit_ReleaseSlot(u8 *unit)
         if (((FieldUnitRecord *)unit)->tintTask != 0) {
             kwlnTaskDestroyWithHierarchy(((FieldUnitRecord *)unit)->tintTask);
         }
-        *(s32 *)(unit + 0x48) = 0;
-        *(s32 *)(unit + 0x50) = 0;
-        *(s32 *)(unit + 0x54) = 0;
-        *(s32 *)(unit + 0x1B0) = 0;
-        *(s32 *)(unit + 0x734) = 0;
-        *(s32 *)(unit + 0x1B4) = 0;
-        *(s32 *)(unit + 0x1B8) = 0;
+        unitRecord->unitData = 0;
+        MEMBER(s32, unit, FieldUnitRecord, model) = 0;
+        unitRecord->scene = 0;
+        MEMBER(s32, unit, FieldUnitRecord, followerTask) = 0;
+        MEMBER(s32, unit, FieldUnitRecord, fileData) = 0;
+        MEMBER(s32, unit, FieldUnitRecord, iconTask) = 0;
+        MEMBER(s32, unit, FieldUnitRecord, tintTask) = 0;
         if (((FieldUnitRecord *)unit)->encounterCategory != 0) {
             iGpffffb2e8 -= 1;
         }
@@ -1116,7 +1128,7 @@ void FldUnit_ReleaseAllSlots(void)
 
 /* Keep cache traversal and signed selection lifetimes separate. Script records
    contain fixed 32-byte paths indexed by the 16-bit PC ID. */
-/* measured: the two remaining raw model-cache reads changed codegen by 135/436 bytes; cache records start eight bytes beyond the biased cursor. */
+/* measured: the two retained byte-alias model-cache reads changed codegen by 135/436 bytes; cache records start eight bytes beyond the biased cursor. */
 // FUN_00164230
 void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
 {
@@ -1150,7 +1162,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
 
                 j = 0;
                 while (j < 5) {
-                    record = *(u8 **)(cache + 12) + (j * 3) * 4;
+                    record = ((FieldUnitModelCacheGroup *)cache)->members[0].model + (j * 3) * 4;
                     ((FieldUnitModel *)record)->layers[0].flags = ((FieldUnitModel *)record)->layers[0].flags | 1;
                     j += 1;
                 }
@@ -1202,7 +1214,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
 
                     j = 0;
                     while (j < 5) {
-                        record = *(u8 **)(cache + 12) + (j * 3) * 4;
+                        record = ((FieldUnitModelCacheGroup *)cache)->members[0].model + (j * 3) * 4;
                         ((FieldUnitModel *)record)->layers[0].flags = ((FieldUnitModel *)record)->layers[0].flags | 1;
                         j += 1;
                     }
@@ -1566,11 +1578,11 @@ void FldUnit_UpdateSlot(s32 slotIndex)
         matrixSource = unit;
         do {
             firstWord = *(s32 *)matrixSource;
-            secondWord = *(s32 *)(matrixSource + 4);
+            secondWord = (s32)(((S8 *)matrixSource)->h[1]);
             matrixSource += 8;
             i -= 1;
             *(s32 *)matrixDestination = firstWord;
-            *(s32 *)(matrixDestination + 4) = secondWord;
+            ((S8 *)matrixDestination)->h[1] = secondWord;
             matrixDestination += 8;
         } while (i > 0);
         RwMatrixUpdate((u8 *)mdlGetMatrix(*modelSlot));
@@ -1589,7 +1601,7 @@ void FldUnit_UpdateSlot(s32 slotIndex)
         mdlScale((Model *)(*(u8 * *)&((FieldUnitSceneResource *)*markerSceneSlot)->markerModel), (const RwV3d *)(&markerScale[0]), 2);
         mdlAdvanceModelFromFlags(*(u8 * *)&((FieldUnitSceneResource *)*markerSceneSlot)->markerModel);
         if (datUnitGroupIsDefeated((DatUnitGenusBase *)*unitDataSlot) == 0) {
-            mdlDispatchAnimIfPresent(*modelSlot, 0, (s16)FldCharacterAnimSelect(*(u16 *)(D_007F00D8 + (slotIndex * 0x750))), 0, 1);
+            mdlDispatchAnimIfPresent(*modelSlot, 0, (s16)FldCharacterAnimSelect(((u16 *)D_007F00D8)[(slotIndex) * (0x750 / sizeof(u16))]), 0, 1);
         }
         if (slotIndex != 0) {
             stride = 0x750;
@@ -1599,6 +1611,7 @@ void FldUnit_UpdateSlot(s32 slotIndex)
             FldAI_ChaserEnable(followerTask);
         }
         if (slotIndex == 0) {
+            /* Layout exception: interior icon-task alias; record, scalar-array and typed-alias probes lose MATCH. */
             *(s32 *)(D_007EFB64 + unitOffset) = FldPlayerIconTaskCreate(0);
         }
     }
@@ -1682,7 +1695,7 @@ void FldUnit_UpdateSlotModels(void)
             mdlSetAttachedOwner(*(u8 **)modelSlot, D_005DC920);
             if (*variantSlot == 1) {
                 unitForTint = D_007E8C00 + i * 0x750;
-                FldShadow_SetRingParticles(*(s32 *)&((FieldUnitSceneResource *)*(u8 **)slot)->effectTask, *(f32 *)(D_005F1340 + ((FieldUnitRecord *)unitForTint)->levelBand * 4));
+                FldShadow_SetRingParticles(*(s32 *)&((FieldUnitSceneResource *)*(u8 **)slot)->effectTask, ((f32 *)D_005F1340)[((FieldUnitRecord *)unitForTint)->levelBand]);
             }
             slot = D_007E8C00 + i * 0x750;
             variantSlot = slot + 0x1CA;
@@ -1693,16 +1706,16 @@ void FldUnit_UpdateSlotModels(void)
             matrixSource = slot;
             do {
                 firstWordOrResourceId = *(s32 *)matrixSource;
-                secondWordOrResourceId = *(s32 *)(matrixSource + 4);
+                secondWordOrResourceId = (s32)(((S8 *)matrixSource)->h[1]);
                 matrixSource += 8;
                 copyCount -= 1;
                 *(s32 *)matrixDestination = firstWordOrResourceId;
-                *(s32 *)(matrixDestination + 4) = secondWordOrResourceId;
+                ((S8 *)matrixDestination)->h[1] = secondWordOrResourceId;
                 matrixDestination += 8;
             } while (copyCount > 0);
             RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)modelSlot));
             sceneSlot = slot + 0x54;
-            SceneDraw_SetResVisibleChecked(*(u16 *)(*(u8 **)sceneSlot), 1);
+            SceneDraw_SetResVisibleChecked(((FieldUnitSceneResource *)*(u8 **)sceneSlot)->resourceId, 1);
             FldFrameTask_SetFlags(*(s32 *)&((FieldUnitSceneResource *)*(u8 **)sceneSlot)->movementTask, 0x40000000);
             FldFrameTask_UpdateTile(*(s32 *)&((FieldUnitSceneResource *)*(u8 **)sceneSlot)->movementTask);
             FldFrameTask_SetHeight(*(s32 *)&((FieldUnitSceneResource *)*(u8 **)sceneSlot)->movementTask, 35.0f);
@@ -1747,37 +1760,37 @@ void FldUnit_SetSlotModel(u8 *unit, s32 destroyModel)
         matrixDestination = slot;
         do {
             u32 w0 = *(u32 *)matrixSource;
-            u32 w1 = *(u32 *)(matrixSource + 4);
+            u32 w1 = ((S8 *)matrixSource)->h[1];
             matrixSource += 8;
             copyCount--;
             *(u32 *)matrixDestination = w0;
-            *(u32 *)(matrixDestination + 4) = w1;
+            ((S8 *)matrixDestination)->h[1] = w1;
             matrixDestination += 8;
         } while (copyCount > 0);
-        MT_Scene_DestroyRes(*(u16 *)(*(u32 *)&((FieldUnitRecord *)slot)->scene));
-        *(u32 *)(slot + 0x54) = 0;
-        if (*(u32 *)(slot + 0x50) != 0) {
-            mdlClearAlphaBlend(*(u32 *)(slot + 0x50));
-            mdlSetColor(*(u32 *)(slot + 0x50), D_00763010);
+        MT_Scene_DestroyRes(((FieldUnitSceneResource *)*(u32 *)&((FieldUnitRecord *)slot)->scene)->resourceId);
+        MEMBER(u32, slot, FieldUnitRecord, scene) = 0;
+        if (MEMBER(u32, slot, FieldUnitRecord, model) != 0) {
+            mdlClearAlphaBlend(MEMBER(u32, slot, FieldUnitRecord, model));
+            mdlSetColor(MEMBER(u32, slot, FieldUnitRecord, model), D_00763010);
         }
-        if (*(u32 *)(slot + 0x50) != 0 && destroyModel == 1) {
+        if (MEMBER(u32, slot, FieldUnitRecord, model) != 0 && destroyModel == 1) {
             for (i = 0; i < 5; i++) {
                 ((FieldUnitModel *)(*(u32 *)&((FieldUnitRecord *)slot)->model))->layers[i].flags |= 1;
             }
-            mdlDestroyModelObject(*(u8 **)(slot + 0x50));
-            *(u32 *)(slot + 0x50) = 0;
+            mdlDestroyModelObject(MEMBER(u8 *, slot, FieldUnitRecord, model));
+            MEMBER(u32, slot, FieldUnitRecord, model) = 0;
         }
         if (*(u32 *)&((FieldUnitRecord *)slot)->followerTask != 0) {
             kwlnTaskDestroyWithHierarchy(*(u32 *)&((FieldUnitRecord *)slot)->followerTask);
-            *(u32 *)(slot + 0x1B0) = 0;
+            MEMBER(u32, slot, FieldUnitRecord, followerTask) = 0;
         }
         if (*(u32 *)&((FieldUnitRecord *)slot)->tintTask != 0) {
             kwlnTaskDestroyWithHierarchy(*(u32 *)&((FieldUnitRecord *)slot)->tintTask);
-            *(u32 *)(slot + 0x1B8) = 0;
+            MEMBER(u32, slot, FieldUnitRecord, tintTask) = 0;
         }
         if (*(u32 *)&((FieldUnitRecord *)slot)->iconTask != 0) {
             kwlnTaskDestroyWithHierarchy(*(u32 *)&((FieldUnitRecord *)slot)->iconTask);
-            *(u32 *)(slot + 0x1B4) = 0;
+            MEMBER(u32, slot, FieldUnitRecord, iconTask) = 0;
         }
     }
 }
@@ -1899,6 +1912,9 @@ void FldUnit_RequestUnitResource(void)
 #pragma opt_loop_invariants on
 s32 FldUnit_InstallResources(void)
 {
+    s32 *fileRequestSlot;
+    ResrcRecord *sceneInstance;
+    FieldUnitNpcResource *npcResource;
     u8* instance;
     s32 pair;
     u8* node;
@@ -1936,7 +1952,7 @@ s32 FldUnit_InstallResources(void)
         while (cursor != NULL)
         {
             nodeCount++;
-            cursor = *(u8**)(cursor + 0x138);
+            cursor = (u8 *)(((FieldUnitPlacement *)cursor)->next);
         }
     }
     if (nodeCount == 0)
@@ -2002,21 +2018,24 @@ s32 FldUnit_InstallResources(void)
         resourceId = MT_Scene_CreateModelNpcShadowRes((u16)(0x3FF - pair), 3, modelHandle);
         SceneDraw_SetResVisibleChecked(resourceId, 1);
         instance = (u8*)MT_Scene_GetRes(resourceId);
+        sceneInstance = (ResrcRecord *)instance;
+        npcResource = (FieldUnitNpcResource *)instance;
         ((FieldUnitNpcResource *)instance)->unk234 = 3;
         {
             u8* loaded;
-            loaded = (u8*)*(s32*)((u8*)D_007643C0 + handleOffset);
+            fileRequestSlot = (s32 *)((u8 *)D_007643C0 + handleOffset);
+            loaded = (u8*)*fileRequestSlot;
             if (loaded != NULL)
             {
                 u8* fileSlot;
                 fileSlot = (u8*)&D_007643C0[(u32)pair];
                 ((FieldUnitNpcResource *)instance)->fileSize = ((HCdvd *)loaded)->fileSize;
                 chkmemAllocSiteTag(D_005F1500, 0x990);
-                allocation = DAT_008873F4[0](1, *(u32*)(instance + 0x28C), 0x40000);
+                allocation = DAT_008873F4[0](1, npcResource->fileSize, 0x40000);
                 *(void* *)&((ResrcRecord *)instance)->handle288 = allocation;
                 {
                     u8* file = (u8*)*(s32*)fileSlot;
-                    memcpy(allocation, (const void *)(((HCdvd *)file)->fileMemory), *(u32*)(instance + 0x28C));
+                    memcpy(allocation, (const void *)(((HCdvd *)file)->fileMemory), npcResource->fileSize);
                 }
                 H_Cdvd_Destroy((HCdvd *)(*(s32*)fileSlot));
                 *(s32*)fileSlot = 0;
@@ -2028,9 +2047,9 @@ s32 FldUnit_InstallResources(void)
             *(s32 *)&((ResrcRecord *)instance)->handle22C = model;
             scale.x = scale.y = scale.z = 30.0f;
             mdlScale((Model *)(*(s32 *)&((ResrcRecord *)instance)->handle22C), &scale, 2);
-            mdlAdvanceModelFromFlags(*(u8**)(instance + 0x22C));
+            mdlAdvanceModelFromFlags((u8*)(sceneInstance->handle22C));
             mdlRotateMatrix(((ResrcRecord *)instance)->modelHandle164, D_00756510, ((FieldUnitPlacement *)node)->yawDegrees, 2);
-            mdlTranslateMatrix(*(void**)(instance + 0x164), (void*)(node + 0x140), 2);
+            mdlTranslateMatrix(sceneInstance->modelHandle164, (void*)(node + 0x140), 2);
             ((ResrcRecord *)instance)->handle294 = FldNpcControlTaskCreate(*(s32 *)&((ResrcRecord *)instance)->handle228, (s32)(instance));
             node = *(u8* *)&((FieldUnitPlacement *)node)->next;
             *(s32*)modelSlot = 0;
@@ -2047,6 +2066,9 @@ s32 FldUnit_InstallResources(void)
 // FUN_00165FB0
 void FldUnit_ApplySlotTint(u8 *entry, u8 *placement, s32 resourceId)
 {
+    s32 *modelSlot;
+    FieldUnitPlacement *spawnPlacement = (FieldUnitPlacement *)placement;
+    FieldUnitObject *fieldObject = (FieldUnitObject *)entry;
     s32 cellX;
     s32 cellZ;
     s32 variant;
@@ -2066,22 +2088,23 @@ void FldUnit_ApplySlotTint(u8 *entry, u8 *placement, s32 resourceId)
 
     if (entry != NULL) {
         variant = (s32)(((((FieldUnitObject *)entry)->encounter + 7)[0] & 1) != 0);
-        ((FieldUnitObject *)entry)->resourceId = (u16)MT_Scene_CreateModelFldRes(resourceId & 0xFFFF, (s32)mdlCloneModelObject((u8 *)(*(s32 *)(fldStepGetModelSlot()))));
-        sceneResource = (u8 *)MT_Scene_GetRes(*(u16 *)(entry + 0xC));
+        modelSlot = (s32 *)fldStepGetModelSlot();
+        ((FieldUnitObject *)entry)->resourceId = (u16)MT_Scene_CreateModelFldRes(resourceId & 0xFFFF, (s32)mdlCloneModelObject((u8 *)(*modelSlot)));
+        sceneResource = (u8 *)MT_Scene_GetRes(fieldObject->resourceId);
         mdlSetAttachedOwner(*(u8 * *)&((ResrcRecord *)sceneResource)->slotHandle[1], D_005DC920);
         scaleOffset = variant * 0xC;
-        mdlScale((Model *)(*(u8 **)(sceneResource + 0x144)), (const RwV3d *)(D_005F1530 + scaleOffset), 2);
-        mdlRotateMatrix(*(u8 **)(sceneResource + 0x144), D_00756510, ((FieldUnitPlacement *)placement)->yawDegrees, 2);
-        mdlTranslateMatrix((RwMatrix *)*(u8 **)(sceneResource + 0x144), (const RwV3d *)(placement + 0x140), 2);
+        mdlScale((Model *)(MEMBER(u8 *, sceneResource, ResrcRecord, slotHandle[1])), (const RwV3d *)(D_005F1530 + scaleOffset), 2);
+        mdlRotateMatrix(MEMBER(u8 *, sceneResource, ResrcRecord, slotHandle[1]), D_00756510, ((FieldUnitPlacement *)placement)->yawDegrees, 2);
+        mdlTranslateMatrix((RwMatrix *)MEMBER(u8 *, sceneResource, ResrcRecord, slotHandle[1]), (const RwV3d *)(placement + 0x140), 2);
         if (((FieldUnitObject *)entry)->unk08 != 0) {
-            mdlDispatchAnimIfPresent(*(u8 **)(sceneResource + 0x144), 0, 2, 0, 0);
+            mdlDispatchAnimIfPresent(MEMBER(u8 *, sceneResource, ResrcRecord, slotHandle[1]), 0, 2, 0, 0);
         } else if (variant == 1) {
-            mdlDispatchAnimIfPresent(*(u8 **)(sceneResource + 0x144), 0, 3, 0, 0);
+            mdlDispatchAnimIfPresent(MEMBER(u8 *, sceneResource, ResrcRecord, slotHandle[1]), 0, 3, 0, 0);
         }
-        modelForFlags = *(u8 **)(sceneResource + 0x144);
+        modelForFlags = MEMBER(u8 *, sceneResource, ResrcRecord, slotHandle[1]);
         ((FieldUnitModel *)modelForFlags)->flags |= 0x80;
-        modelForEffects = *(u8 **)(sceneResource + 0x144);
-        effectNode = *(u8 **)(((FieldUnitModel *)modelForEffects)->effectList);
+        modelForEffects = MEMBER(u8 *, sceneResource, ResrcRecord, slotHandle[1]);
+        effectNode = (u8 *)(((FieldUnitEffectNode *)((FieldUnitModel *)modelForEffects)->effectList)->first);
         modelColor = ((FieldUnitModel *)modelForEffects)->effectColor;
         colorOrEffect = iGpffff9f28;
         color1 = iGpffff9f29;
@@ -2099,22 +2122,22 @@ void FldUnit_ApplySlotTint(u8 *entry, u8 *placement, s32 resourceId)
             effectNode = *(u8 * *)&((FieldUnitEffectNode *)effectNode)->next;
         }
         if (variant == 1) {
-            mdlSetColor((s32)*(u8 **)(sceneResource + 0x144), (u8 *)&iGpffff9f24);
+            mdlSetColor((s32)MEMBER(u8 *, sceneResource, ResrcRecord, slotHandle[1]), (u8 *)&iGpffff9f24);
         } else {
-            mdlSetColor((s32)*(u8 **)(sceneResource + 0x144), D_005F1570 + ((FldStepIndex() / 20U) * 4));
+            mdlSetColor((s32)MEMBER(u8 *, sceneResource, ResrcRecord, slotHandle[1]), D_005F1570 + ((FldStepIndex() / 20U) * 4));
         }
         markerModel = (u8 *)mdlCloneModelObject((u8 *)(D_00764364));
         *(u8 * *)&((ResrcRecord *)sceneResource)->handle16C = markerModel;
-        mdlRotateMatrix(markerModel, D_00756510, *(f32 *)(placement + 0x14C), 2);
-        mdlScale((Model *)(*(u8 **)(sceneResource + 0x16C)), (const RwV3d *)(D_005F1550 + scaleOffset), 2);
-        mdlTranslateMatrix((RwMatrix *)*(u8 **)(sceneResource + 0x16C), (const RwV3d *)(placement + 0x140), 2);
-        attachedMarker = *(u8 **)(sceneResource + 0x16C);
+        mdlRotateMatrix(markerModel, D_00756510, spawnPlacement->yawDegrees, 2);
+        mdlScale((Model *)(MEMBER(u8 *, sceneResource, ResrcRecord, handle16C)), (const RwV3d *)(D_005F1550 + scaleOffset), 2);
+        mdlTranslateMatrix((RwMatrix *)MEMBER(u8 *, sceneResource, ResrcRecord, handle16C), (const RwV3d *)(placement + 0x140), 2);
+        attachedMarker = MEMBER(u8 *, sceneResource, ResrcRecord, handle16C);
         ((FieldUnitObject *)entry)->marker = attachedMarker;
         mdlAdvanceModelFromFlags(attachedMarker);
         cellX = (s32)((600.0f + ((FieldUnitPlacement *)placement)->position.x) / 1200.0f);
         cellZ = (s32)((600.0f + ((FieldUnitPlacement *)placement)->position.z) / 1200.0f);
         *(u8 * *)&((ResrcRecord *)sceneResource)->slotHandle[0] = (u8 *)MT_Scene_GetRes(((FldFrame *)MT_Scene_GetFrameState())->cells[cellZ][cellX].resourceId);
-        SceneDraw_SetResVisible(*(u16 *)(entry + 0xC), 1);
+        SceneDraw_SetResVisible(fieldObject->resourceId, 1);
         iGpffffb2e4 += 1;
     }
 }
@@ -2166,7 +2189,7 @@ void FldUnit_UpdateEnemySlot(void)
         j = 0;
         slotTable = D_007E80A0;
         for (; j < 8; j++) {
-            if (*(s32 *)(slotTable + j * 0x168) == 0) {
+            if (((FieldUnitObject *)(slotTable + j * 0x168))->active == 0) {
                 slot = slotTable + j * 0x168;
                 break;
             }
@@ -2179,11 +2202,11 @@ void FldUnit_UpdateEnemySlot(void)
         copySource = placement;
         do {
             u32 w0 = *(u32 *)copySource;
-            u32 w1 = *(u32 *)(copySource + 4);
+            u32 w1 = ((S8 *)copySource)->h[1];
             copySource += 8;
             copyCount--;
             *(u32 *)copyDestination = w0;
-            *(u32 *)(copyDestination + 4) = w1;
+            ((S8 *)copyDestination)->h[1] = w1;
             copyDestination += 8;
         } while (copyCount > 0);
         FldUnit_ApplySlotTint(slot, placement, 0x3FE - i);
@@ -2224,11 +2247,11 @@ void FldUnit_UpdateAllEnemySlots(void)
                     s = node;
                     do {
                         u32 w0 = *(u32 *)s;
-                        u32 w1 = *(u32 *)(s + 4);
+                        u32 w1 = ((S8 *)s)->h[1];
                         s += 8;
                         n--;
                         *(u32 *)d = w0;
-                        *(u32 *)(d + 4) = w1;
+                        ((S8 *)d)->h[1] = w1;
                         d += 8;
                     } while (n > 0);
                 }
@@ -2329,6 +2352,7 @@ u8 *FldUnit_FindNearestSlot(u8 *limit, u32 *selectedIndex, s32 requestedIndex)
 // FUN_001668E0
 s32 FldUnit_SetupEncounter(u8 *task)
 {
+    FieldUnitEncounterWork *encounterWork;
     s32 value;
     s32 initialSlotIndex;
     s32 refillSlotIndex;
@@ -2340,6 +2364,8 @@ s32 FldUnit_SetupEncounter(u8 *task)
     u8 *fieldState;
 
     work = ((KwlnTask *)task)->work;
+
+    encounterWork = (FieldUnitEncounterWork *)work;
     if (((FieldUnitEncounterWork *)work)->mode == 1) {
         return 0;
     }
@@ -2355,7 +2381,7 @@ s32 FldUnit_SetupEncounter(u8 *task)
             spawnLimit = Encount_GetEntryRateOrOverride(*(u16 *)fieldState, *(u16 *)&((FieldUnitRoomKey *)fieldState)->roomId, (u16)(FldStepIndex() & 0xFFFF));
         }
         if (FldMap_IsCurrentInBandB() == 1) {
-            spawnLimit = *(u32 *)(work + 0xC);
+            spawnLimit = encounterWork->limit;
             if (spawnLimit == -1U) {
                 spawnLimit = 0xF;
             }
@@ -2440,6 +2466,7 @@ u32 FldUnit_IsSettled(u8 *task)
     }
 }
 
+/* Set the encounter task mode; a missing task intentionally leaves state unchanged. */
 // FUN_00166C60
 void FldUnit_SetMode(u8 *task, s32 mode)
 {
@@ -2449,10 +2476,12 @@ void FldUnit_SetMode(u8 *task, s32 mode)
 }
 
 /* Apply the fixed violet tint while whitening ordinary model effects. */
-/* measured: remaining raw work/effect accesses changed codegen individually (74..292 differing bytes); preserve byte-pointer aliasing across tint callbacks. */
+/* measured: retained byte-alias work/effect accesses changed codegen individually (74..292 differing bytes); preserve byte-pointer aliasing across tint callbacks. */
 // FUN_00166C80
 s32 FldUnit_PulseTintStep(u8 *task)
 {
+    FieldUnitEffectNode *effectEntry;
+    FieldUnitTintWork *tintWork;
     u8 *work;
     u8 *node;
     u8 *sourceColor;
@@ -2462,48 +2491,52 @@ s32 FldUnit_PulseTintStep(u8 *task)
     s32 variant;
     s32 i;
     work = ((KwlnTask *)task)->work;
+    tintWork = (FieldUnitTintWork *)work;
     sinf(D_007613EC * (f32)(((FieldUnitTintWork *)work)->frame) / 10.0f);
-    sourceColor = mdlGetColor(*(u32 *)(*(u32 *)&((FieldUnitTintWork *)work)->unit + 0x50));
+    sourceColor = mdlGetColor((u32)(((FieldUnitRecord *)*(u32 *)&((FieldUnitTintWork *)work)->unit)->model));
     *(S4 *)modelColor = *(S4 *)sourceColor;
     modelColor[0] = 0x34;
     modelColor[1] = 0x2E;
     modelColor[2] = 0x61;
-    *(s32 *)(work + 8) = *(s32 *)(work + 8) + 1;
-    if (*(s32 *)(work + 8) > 10) {
-        *(s32 *)(work + 8) = 0;
+    tintWork->frame = tintWork->frame + 1;
+    if (tintWork->frame > 10) {
+        tintWork->frame = 0;
     }
-    variant = *(u8 *)(*(u32 *)(work + 4) + 0x1CA);
+    variant = ((FieldUnitRecord *)(u32)(tintWork->unit))->variant;
     if (variant == 0) {
-        u8 *unit = *(u8 **)(work + 4);
+        u8 *unit = tintWork->unit;
         u8 *model = *(u8 * *)&((FieldUnitRecord *)unit)->model;
         u8 *effectList = ((FieldUnitModel *)model)->effectList;
         node = *(u8 **)effectList;
+        effectEntry = (FieldUnitEffectNode *)node;
         while (node != NULL) {
             if (((FieldUnitEffectNode *)node)->effect != NULL) {
                 mdlEffectGetPackedColor(((FieldUnitEffectNode *)node)->effect, effectColor);
                 effectColor[0] = 0xFF;
                 effectColor[1] = 0xFF;
                 effectColor[2] = 0xFF;
-                mdlEffectSetPackedColor(*(u8 **)(node + 8), effectColor);
+                mdlEffectSetPackedColor(effectEntry->effect, effectColor);
             }
             node = *(u8 * *)&((FieldUnitEffectNode *)node)->next;
+            effectEntry = (FieldUnitEffectNode *)node;
         }
     } else if (variant == 1) {
-        u8 *unit = *(u8 **)(work + 4);
+        u8 *unit = tintWork->unit;
         u8 *model = *(u8 * *)&((FieldUnitRecord *)unit)->model;
         u8 *effectList = ((FieldUnitModel *)model)->effectList;
         u8 *firstEffect = *(u8 **)effectList;
         u8 *secondEffect = *(u8 * *)&((FieldUnitEffectNode *)firstEffect)->next;
         node = *(u8 * *)&((FieldUnitEffectNode *)secondEffect)->next;
+        effectEntry = (FieldUnitEffectNode *)node;
         if (((FieldUnitEffectNode *)node)->effect != NULL) {
             mdlEffectGetPackedColor(((FieldUnitEffectNode *)node)->effect, markerColor);
             markerColor[0] = modelColor[0];
             markerColor[1] = modelColor[1];
             markerColor[2] = modelColor[2];
-            mdlEffectSetPackedColor(*(u8 **)(node + 8), markerColor);
+            mdlEffectSetPackedColor(effectEntry->effect, markerColor);
         }
     }
-    mdlSetColor(*(u32 *)(*(u32 *)(work + 4) + 0x50), modelColor);
+    mdlSetColor((u32)(((FieldUnitRecord *)(u32)(tintWork->unit))->model), modelColor);
     return 0;
 }
 
@@ -2515,10 +2548,13 @@ s32 FldUnit_PulseTintStep(u8 *task)
    copies interleave lbu/sb. The madd.s (175+70x) and msub.s (37-10x,
    255-200x) fused expressions and the 0x28 store match. */
 /* Pulse the model RGB over forty frames and propagate it to the marker effect. */
-/* measured: remaining raw work/effect accesses changed codegen individually (77..554 differing bytes); preserve counter reloads and callback-crossing accesses. */
+/* measured: retained byte-alias work/effect accesses changed codegen individually (77..554 differing bytes); preserve counter reloads and callback-crossing accesses. */
 // FUN_00166E30
 s32 FldUnit_PulseTintPeriod(u8 *task)
 {
+    FieldUnitEffectNode *markerEffectEntry;
+    FieldUnitEffectNode *effectEntry;
+    FieldUnitTintWork *tintWork;
     u8 modelColor[4];
     u8 effectColor[4];
     u8 markerColor[4];
@@ -2539,10 +2575,12 @@ s32 FldUnit_PulseTintPeriod(u8 *task)
     u8 sourceAlpha;
 
     work = ((KwlnTask *)task)->work;
+
+    tintWork = (FieldUnitTintWork *)work;
     pulse = sinf(D_007613EC *
                              (f32)(((FieldUnitTintWork *)work)->frame) /
                              (f32)(((FieldUnitTintWork *)work)->period));
-    sourceColor = mdlGetColor(*(s32 *)(((FieldUnitTintWork *)work)->unit + 0x50));
+    sourceColor = mdlGetColor((s32)(((FieldUnitRecord *)((FieldUnitTintWork *)work)->unit)->model));
     sourceRed = *sourceColor++;
     sourceGreen = *sourceColor++;
     sourceBlue = *sourceColor++;
@@ -2551,23 +2589,25 @@ s32 FldUnit_PulseTintPeriod(u8 *task)
     modelColor[1] = sourceGreen;
     modelColor[2] = sourceBlue;
     modelColor[3] = sourceAlpha;
-    *(s32 *)(work + 0xC) = 0x28;
+    tintWork->period = 0x28;
     red = (175.0f + 0.0f) + (70.0f * pulse);
     modelColor[0] = (u8)red;
     green = (37.0f + 0.0f) - (10.0f * pulse);
     modelColor[1] = (u8)green;
     blue = (255.0f + 0.0f) - (208.0f * pulse);
     modelColor[2] = (u8)blue;
-    nextFrame = *(s32 *)(work + 8) + 1;
-    *(s32 *)(work + 8) = nextFrame;
-    if (*(s32 *)(work + 0xC) < nextFrame) {
-        *(s32 *)(work + 8) = 0;
+    nextFrame = tintWork->frame + 1;
+    tintWork->frame = nextFrame;
+    if (tintWork->period < nextFrame) {
+        tintWork->frame = 0;
     }
-    unit = *(u8 **)(work + 4);
+    unit = tintWork->unit;
     variant = ((FieldUnitRecord *)unit)->variant;
     if (variant == 0) {
-        effectNode = *(u8 **)(*(u8 * *)&((FieldUnitRecord *)unit)->model + 0x2CC);
+        effectNode = ((FieldUnitModel *)*(u8 * *)&((FieldUnitRecord *)unit)->model)->effectList;
+        effectEntry = (FieldUnitEffectNode *)effectNode;
         effectNode = *(u8 **)effectNode;
+        effectEntry = (FieldUnitEffectNode *)effectNode;
         goto loop_16_check;
 loop_16_body:
         if (*(s32 *)&((FieldUnitEffectNode *)effectNode)->effect != 0) {
@@ -2575,37 +2615,45 @@ loop_16_body:
             effectColor[0] = 0xFF;
             effectColor[1] = 0xFF;
             effectColor[2] = 0xFF;
-            mdlEffectSetPackedColor(*(u8 **)(effectNode + 8), effectColor);
+            mdlEffectSetPackedColor(effectEntry->effect, effectColor);
         }
         effectNode = *(u8 * *)&((FieldUnitEffectNode *)effectNode)->next;
+        effectEntry = (FieldUnitEffectNode *)effectNode;
 loop_16_check:
         if (effectNode == NULL) {
             goto mode_done;
         }
         goto loop_16_body;
     } else if (variant == 1) {
-        markerEffect = *(u8 **)(*(u8 * *)&((FieldUnitRecord *)unit)->model + 0x2CC);
+        markerEffect = ((FieldUnitModel *)*(u8 * *)&((FieldUnitRecord *)unit)->model)->effectList;
+        markerEffectEntry = (FieldUnitEffectNode *)markerEffect;
         markerEffect = *(u8 **)markerEffect;
+        markerEffectEntry = (FieldUnitEffectNode *)markerEffect;
         markerEffect = *(u8 * *)&((FieldUnitEffectNode *)markerEffect)->next;
+        markerEffectEntry = (FieldUnitEffectNode *)markerEffect;
         markerEffect = *(u8 * *)&((FieldUnitEffectNode *)markerEffect)->next;
+        markerEffectEntry = (FieldUnitEffectNode *)markerEffect;
         if (*(s32 *)&((FieldUnitEffectNode *)markerEffect)->effect != 0) {
             mdlEffectGetPackedColor(((FieldUnitEffectNode *)markerEffect)->effect, markerColor);
             markerColor[0] = modelColor[0];
             markerColor[1] = modelColor[1];
             markerColor[2] = modelColor[2];
-            mdlEffectSetPackedColor(*(u8 **)(markerEffect + 8), markerColor);
+            mdlEffectSetPackedColor(markerEffectEntry->effect, markerColor);
         }
     }
 mode_done:
-    mdlSetColor(*(s32 *)(*(u8 **)(work + 4) + 0x50), modelColor);
+    mdlSetColor((s32)(((FieldUnitRecord *)tintWork->unit)->model), modelColor);
     return 0;
 }
 
 /* Pulse the model RGB over twenty frames and propagate it to the marker effect. */
-/* measured: remaining raw work/effect accesses changed codegen individually (77..528 differing bytes); preserve counter reloads and callback-crossing accesses. */
+/* measured: retained byte-alias work/effect accesses changed codegen individually (77..528 differing bytes); preserve counter reloads and callback-crossing accesses. */
 // FUN_00167120
 s32 FldUnit_PulseTintBlend(u8 *task)
 {
+    FieldUnitEffectNode *markerEffectEntry;
+    FieldUnitEffectNode *effectEntry;
+    FieldUnitTintWork *tintWork;
     u8 modelColor[4];
     u8 effectColor[4];
     u8 markerColor[4];
@@ -2626,10 +2674,12 @@ s32 FldUnit_PulseTintBlend(u8 *task)
     u8 sourceAlpha;
 
     work = ((KwlnTask *)task)->work;
+
+    tintWork = (FieldUnitTintWork *)work;
     pulse = sinf(D_007613EC *
                              (f32)(((FieldUnitTintWork *)work)->frame) /
                              (f32)(((FieldUnitTintWork *)work)->period));
-    sourceColor = mdlGetColor(*(s32 *)(((FieldUnitTintWork *)work)->unit + 0x50));
+    sourceColor = mdlGetColor((s32)(((FieldUnitRecord *)((FieldUnitTintWork *)work)->unit)->model));
     sourceRed = *sourceColor++;
     sourceGreen = *sourceColor++;
     sourceBlue = *sourceColor++;
@@ -2638,23 +2688,25 @@ s32 FldUnit_PulseTintBlend(u8 *task)
     modelColor[1] = sourceGreen;
     modelColor[2] = sourceBlue;
     modelColor[3] = sourceAlpha;
-    *(s32 *)(work + 0xC) = 0x14;
+    tintWork->period = 0x14;
     red = 255.0f;
     modelColor[0] = (u8)red;
     green = (198.0f + 0.0f) + (57.0f * pulse);
     modelColor[1] = (u8)green;
     blue = 100.0f * pulse;
     modelColor[2] = (u8)blue;
-    nextFrame = *(s32 *)(work + 8) + 1;
-    *(s32 *)(work + 8) = nextFrame;
-    if (*(s32 *)(work + 0xC) < nextFrame) {
-        *(s32 *)(work + 8) = 0;
+    nextFrame = tintWork->frame + 1;
+    tintWork->frame = nextFrame;
+    if (tintWork->period < nextFrame) {
+        tintWork->frame = 0;
     }
-    unit = *(u8 **)(work + 4);
+    unit = tintWork->unit;
     variant = ((FieldUnitRecord *)unit)->variant;
     if (variant == 0) {
-        effectNode = *(u8 **)(*(u8 * *)&((FieldUnitRecord *)unit)->model + 0x2CC);
+        effectNode = ((FieldUnitModel *)*(u8 * *)&((FieldUnitRecord *)unit)->model)->effectList;
+        effectEntry = (FieldUnitEffectNode *)effectNode;
         effectNode = *(u8 **)effectNode;
+        effectEntry = (FieldUnitEffectNode *)effectNode;
         goto loop_16_check;
 loop_16_body:
         if (*(s32 *)&((FieldUnitEffectNode *)effectNode)->effect != 0) {
@@ -2662,29 +2714,34 @@ loop_16_body:
             effectColor[0] = 0xFF;
             effectColor[1] = 0xFF;
             effectColor[2] = 0xFF;
-            mdlEffectSetPackedColor(*(u8 **)(effectNode + 8), effectColor);
+            mdlEffectSetPackedColor(effectEntry->effect, effectColor);
         }
         effectNode = *(u8 * *)&((FieldUnitEffectNode *)effectNode)->next;
+        effectEntry = (FieldUnitEffectNode *)effectNode;
 loop_16_check:
         if (effectNode == NULL) {
             goto mode_done;
         }
         goto loop_16_body;
     } else if (variant == 1) {
-        markerEffect = *(u8 **)(*(u8 * *)&((FieldUnitRecord *)unit)->model + 0x2CC);
+        markerEffect = ((FieldUnitModel *)*(u8 * *)&((FieldUnitRecord *)unit)->model)->effectList;
+        markerEffectEntry = (FieldUnitEffectNode *)markerEffect;
         markerEffect = *(u8 **)markerEffect;
+        markerEffectEntry = (FieldUnitEffectNode *)markerEffect;
         markerEffect = *(u8 * *)&((FieldUnitEffectNode *)markerEffect)->next;
+        markerEffectEntry = (FieldUnitEffectNode *)markerEffect;
         markerEffect = *(u8 * *)&((FieldUnitEffectNode *)markerEffect)->next;
+        markerEffectEntry = (FieldUnitEffectNode *)markerEffect;
         if (*(s32 *)&((FieldUnitEffectNode *)markerEffect)->effect != 0) {
             mdlEffectGetPackedColor(((FieldUnitEffectNode *)markerEffect)->effect, markerColor);
             markerColor[0] = modelColor[0];
             markerColor[1] = modelColor[1];
             markerColor[2] = modelColor[2];
-            mdlEffectSetPackedColor(*(u8 **)(markerEffect + 8), markerColor);
+            mdlEffectSetPackedColor(markerEffectEntry->effect, markerColor);
         }
     }
 mode_done:
-    mdlSetColor(*(s32 *)(*(u8 **)(work + 4) + 0x50), modelColor);
+    mdlSetColor((s32)(((FieldUnitRecord *)tintWork->unit)->model), modelColor);
     return 0;
 }
 
@@ -2695,10 +2752,11 @@ void FldUnit_FreeTintState(u8 *task)
 }
 
 /* Create the encounter-category tint callback and initialize its pulse period. */
-/* measured: typing the remaining model access changed 62 bytes; keep the raw model/flag path while initializing the tint task. */
+/* measured: typing the remaining model access changed 62 bytes; keep the measured model/flag path while initializing the tint task. */
 // FUN_00167420
 s32 FldUnit_SpawnTintTask(u8 *parent, u8 *unit)
 {
+    FieldUnitRecord *unitRecord = (FieldUnitRecord *)unit;
     s32 workAddress;
     s32 task;
     chkmemAllocSiteTag(D_005F1500, 0xD36);
@@ -2709,9 +2767,9 @@ s32 FldUnit_SpawnTintTask(u8 *parent, u8 *unit)
     task = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005F15C0), 0xF, 0, 0, D_005F15B0[((FieldUnitRecord *)unit)->encounterCategory], FldUnit_FreeTintState, (u8 *)(workAddress));
     ((FieldUnitTintWork *)workAddress)->unit = unit;
     ((FieldUnitTintWork *)workAddress)->period = 0x28;
-    *(s32 *)(*(u32 *)&((FieldUnitRecord *)unit)->model + 0xD8) |= 0x80;
+    ((FieldUnitModel *)*(u32 *)&((FieldUnitRecord *)unit)->model)->flags |= 0x80;
     if (((FieldUnitRecord *)unit)->variant == 1) {
-        *(s32 *)(*(u32 *)(unit + 0x50) + 0xD8) &= ~0x100;
+        ((FieldUnitModel *)(u32)(unitRecord->model))->flags &= ~0x100;
     }
     return task;
 }
@@ -2820,7 +2878,7 @@ void FldUnit_UpdateFieldState(void)
                     }
                     selected = D_007E80A0 + objectIndex * 0x168;
                     ((FieldUnitObject *)selected)->flags |= 1;
-                    *(u8 **)(D_007E8020 + 0x20 + objectCount * 4) = selected;
+                    ((FieldUnitNearbySelection *)D_007E8020)->objects[objectCount] = selected;
                     objectCount += 1;
                 } else {
                     ((FieldUnitObject *)object)->flags &= ~1;
@@ -2835,7 +2893,7 @@ void FldUnit_UpdateFieldState(void)
 /* Model replacement waits for all selected units before completing the task.
  * Measured: 904 relocated bytes plus eight zero suffix bytes. The scoped
  * lifetime/reload profile preserves the kind field across model teardown. */
-/* The remaining raw model-table access preserves the per-selection slot materialization described above; the surrounding request/cache fields are typed. */
+/* The retained byte-alias model-table access preserves the per-selection slot materialization described above; the surrounding request/cache fields are typed. */
 // FUN_001679D0
 #pragma push
 /* measured: FldUnit_UpdatePartyState MATCH -> MISMATCH without this pragma. */
@@ -2949,8 +3007,7 @@ s32 FldUnit_UpdatePartyState(u8 *task)
                 s32 layer;
 
                 for (layer = 0; layer < 5; layer++) {
-                    if (mdlPrepareSlotModel((u8 *)(*(s32 *)(D_007EF9B0 + ((FieldUnitPartyWork *)entry)->selectedIndices[0] * 0x750 +
-                                     0x50)), layer & 0xFFFF) == 0) {
+                    if (mdlPrepareSlotModel((u8 *)(MEMBER(s32, D_007EF9B0 + ((FieldUnitPartyWork *)entry)->selectedIndices[0] * 0x750, FieldUnitRecord, model)), layer & 0xFFFF) == 0) {
                         return 0;
                     }
                 }

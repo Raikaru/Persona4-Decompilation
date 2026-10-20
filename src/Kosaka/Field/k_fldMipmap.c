@@ -51,8 +51,8 @@ extern void func_003ea370(void *image);
 /* Source unit: src/promoted/k_fldMipmap.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldMipmap.c; members 0018bfb0-0018c580 */
 
-// FUN_0018BFB0
 /* Load five images, assemble their mip levels, and install the named texture. */
+// FUN_0018BFB0
 s32 FldMipmapLoadUpdate(u8 *task)
 {
     FldMipmapLoadWork *work;
@@ -110,7 +110,7 @@ s32 FldMipmapLoadUpdate(u8 *task)
             entry = (u8 *)work + i * 4;
             request = entry + 0x34;
             if (*(u8 **)request != NULL) {
-                *(u8 **)(entry + 0x18) =
+                ((FldMipmapLoadWork *)entry)->images[0] =
                     (u8 *)filerTakeCompletedRequest((s32)*(u8 **)request, &out, 0);
                 if (out != 0) {
                     *(u8 **)request = NULL;
@@ -168,8 +168,8 @@ void FldMipmapLoadDestroy(u8 *task)
     jtbl_008873EC[0](((SdkTask *)task)->work);
 }
 
-// FUN_0018C580
 /* Schedule the shared mipmap loader; parent is intentionally unused. */
+// FUN_0018C580
 s32 FldMipmapLoadTaskCreate(u8 *parent)
 {
     u8 *mem;
