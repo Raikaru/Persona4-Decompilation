@@ -7,6 +7,9 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
+/* measured: plain base + offset changes eight menu callers by 1-8 bytes;
+ * the shared offset-first addition preserves all nineteen owner MATCHes. */
+#include "byte_address_internal.h"
 extern s32 radarSkillEffectMissing(s16, s16, s32);
 extern s32 cmpSkillApplySelected(s16, s16, s32, u8 *);
 extern s32 nLineIsIdle(void);
@@ -15,10 +18,6 @@ extern s32 nLineIsIdle(void);
 extern struct GDataEntry *datEntryAt(s16);
 extern u32 datEntryGetFlags(s16);
 extern s32 datCalcSkillEffectFlagsById(s16, s16, u32, u32);
-/* Keep the unsigned integer address addition order used by the matching indexed loads. */
-static inline u8 *radarOffsetAddress(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 extern u16 datGetSkillPropertyByte(s32);
 extern s32 titleSetMenuLayout(u8 *, u32);
@@ -492,19 +491,20 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
 }
 #pragma pop
 
-/* Measured: struct indexing in this inline changed radarAdvanceGroupSelection; retain the 4-byte item-record cursor. */
+/* Find the beginning of the preceding run of equal item flags. */
 static inline s32 radarPreviousGroupStart(u8 *work, s32 index)
 {
     u32 selected;
-    selected = datEntryGetFlags(*(s16 *)(radarOffsetAddress((index - 1) * 4, work) + 0x3E));
+    selected = datEntryGetFlags(((RadarItemMenuWork *)byteAddressAdd((index - 1) * sizeof(RadarItemEntry), work))->entries[0].item);
     index = index - 1;
     while (index > 0) {
-        if (datEntryGetFlags(*(s16 *)(work + index * 4 + 0x3A)) != selected) break;
+        if (datEntryGetFlags(((RadarItemMenuWork *)(work + index * 4))->entries[-1].item) != selected) break;
         index--;
     }
     return index;
 }
 
+/* Keep the initial group selected when no preceding group exists. */
 static inline s32 radarPreviousGroupStartOrSame(u8 *work, s32 total)
 {
     if (total == 0) {
@@ -514,15 +514,15 @@ static inline s32 radarPreviousGroupStartOrSame(u8 *work, s32 total)
     }
 }
 
-/* Measured: struct indexing in this inline changed radarAdvanceGroupSelection; retain the 4-byte item-record cursor. */
+/* Find the next flag group, wrapping when the item list ends. */
 static inline s32 radarNextGroupStart(u8 *work, s32 total, s32 count, s32 wrap)
 {
     s32 index;
     u32 selected;
-    selected = datEntryGetFlags(*(s16 *)(radarOffsetAddress(total * 4, work) + 0x3E));
+    selected = datEntryGetFlags(((RadarItemMenuWork *)byteAddressAdd(total * sizeof(RadarItemEntry), work))->entries[0].item);
     index = total + 1;
     while (index < count) {
-        if (datEntryGetFlags(*(s16 *)(work + index * 4 + 0x3E)) != selected) break;
+        if (datEntryGetFlags(((RadarItemMenuWork *)(work + index * 4))->entries[0].item) != selected) break;
         index++;
     }
     if (index >= count) index = wrap;
@@ -808,8 +808,8 @@ void radarHandleEntrySelect(s32 *state, u8 *work) {
     u8 *entry;
     s16 type;
 
-    entry = radarOffsetAddress((((RadarItemMenuWork *)work)->unk24 + ((RadarItemMenuWork *)work)->unk22) * 4,
-                         work) + 0x3E;
+    entry = byteAddressAdd((((RadarItemMenuWork *)work)->unk24 + ((RadarItemMenuWork *)work)->unk22) * sizeof(RadarItemEntry),
+                         work) + MEMBER_OFFSET(RadarItemMenuWork, entries);
     if (radarEntryTypeIsActive(*(s16 *)entry) == 0) {
         sdkSndStartStream(0, 0, 0, 8);
         return;
@@ -1121,7 +1121,7 @@ s32 radarApplyItemStep(s16 source, s16 recipientId, u8 *work)
             datSetFlag(5121, 1);
         } else {
             radarRandomizeEntries(work);
-            entry = radarOffsetAddress((u32)total * 4U, work);
+            entry = byteAddressAdd((u32)total * sizeof(RadarItemEntry), work);
             remaining = --((RadarItemMenuWork *)(entry))->entries[0].count;
             if (remaining == 0) {
                 s32 selection;
@@ -1225,9 +1225,9 @@ s32 radarTransferSelectedUnit(u8 *work) {
     s32 lastPage;
     s16 previousItem;
 
-    unitId = ((RadarEquipmentMenuWork *)(radarOffsetAddress(((RadarEquipmentMenuWork *)(work))->unk28 * 2, work)))->recipients[0];
-    selectedItem = ((RadarEquipmentMenuWork *)(radarOffsetAddress((((RadarEquipmentMenuWork *)(work))->unk2C +
-                                     ((RadarEquipmentMenuWork *)(work))->unk2E) * 4, work)))->entries[0].item;
+    unitId = ((RadarEquipmentMenuWork *)(byteAddressAdd(((RadarEquipmentMenuWork *)(work))->unk28 * sizeof(s16), work)))->recipients[0];
+    selectedItem = ((RadarEquipmentMenuWork *)(byteAddressAdd((((RadarEquipmentMenuWork *)(work))->unk2C +
+                                     ((RadarEquipmentMenuWork *)(work))->unk2E) * sizeof(RadarItemEntry), work)))->entries[0].item;
     equipmentSlot.value = ((RadarEquipmentMenuWork *)(work))->unk2A;
     previousItem = (s16)datGetEquippedItemByUnit(unitId, equipmentSlot.value);
     if (selectedItem == previousItem) {
@@ -1677,7 +1677,7 @@ s32 radarBeginCharacterPick(u8 *work, s32 *state) {
         cmpPersonaSetSelection(work, 0, ((SdkListState *)(listState))->row);
         *state = 0xB;
         /* Measured: access-site, cursor-local and array row loads change alias reloads (227-229 differing bytes). */
-        characterId = character = ((RadarPersonaMenuWork *)(radarOffsetAddress(MEMBER(s32, listState, SdkListState, row) * 2, work)))->characters[0];
+        characterId = character = ((RadarPersonaMenuWork *)(byteAddressAdd(MEMBER(s32, listState, SdkListState, row) * sizeof(u16), work)))->characters[0];
         if (listResult == 1) {
             shdPersonaBeginDisplay(((RadarPersonaMenuWork *)work)->personaDisplay, characterId, (s32)datPersonaGetRecord(character), 0);
         } else if (listResult == 2) {
@@ -1729,9 +1729,9 @@ s32 radarRecipientMenuUpdate(u32 *state, s32 *active, u8 *work) {
 
     *active = (finished = 1);
     characterRow = (((RadarSkillMenuWork *)(work))->unk5C);
-    character = ((RadarSkillMenuWork *)(radarOffsetAddress(characterRow * 2, work)))->recipients[0];
+    character = ((RadarSkillMenuWork *)(byteAddressAdd(characterRow * sizeof(s16), work)))->recipients[0];
     recipientRow = (((RadarSkillMenuWork *)(work))->unk62);
-    recipientValue = recipientId = ((RadarSkillMenuWork *)(radarOffsetAddress(recipientRow * 2, work)))->recipients[0];
+    recipientValue = recipientId = ((RadarSkillMenuWork *)(byteAddressAdd(recipientRow * sizeof(s16), work)))->recipients[0];
     skillRow = (((RadarSkillMenuWork *)(work))->unk5E);
     skillPage = (((RadarSkillMenuWork *)(work))->unk60);
     skillIndex = skillPage + skillRow;
@@ -1984,7 +1984,7 @@ void radarHandleEntryAction(s32 *state, s16 character, s32 recipient, u8 *work) 
         sdkSndStartStream(0, 0, 0, 8);
         return;
     }
-    targetType = datGetSkillPropertyByte(((RadarSkillMenuWork *)(radarOffsetAddress(skillIndex * 0xC, work)))->skills[0].skill) & 0xFFFF;
+    targetType = datGetSkillPropertyByte(((RadarSkillMenuWork *)(byteAddressAdd(skillIndex * sizeof(RadarSkillEntry), work)))->skills[0].skill) & 0xFFFF;
     if (targetType == 0) {
         cmpSkillSetSelection((s16 *)work, 3, 0);
         cmpSkillSetMode(work, 5);
@@ -2020,7 +2020,7 @@ s32 radarEntryIsAllowed(s16 character, s32 skillIndex, u8 *work) {
 
     allowed = 1;
     savedLeadSlot = -1;
-    entry = radarOffsetAddress(skillIndex * 0xC, work);
+    entry = byteAddressAdd(skillIndex * sizeof(RadarSkillEntry), work);
     skill = ((RadarSkillMenuWork *)entry)->skills[0].skill;
     leadSlot = ((RadarSkillMenuWork *)entry)->skills[0].leadSlot;
     if (datIsSkillAvailable(skill) == 0) {

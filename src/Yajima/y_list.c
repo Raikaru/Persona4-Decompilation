@@ -296,20 +296,21 @@ s8 yListKindFor(void *task) {
 #pragma opt_loop_invariants on
 static inline s32 yListAcceptsItem(u8 *owner, s16 id)
 {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
-    u8 *filter = *(u8 **)(owner + 0x38);
-    if (*(s32 *)(filter + 4) == 0 && *(s32 *)(filter + 8) == 0) {
+    /* An absent mask accepts every item; otherwise both active masks apply. */
+    u8 *filter = ((KwlnTask *)owner)->work;
+    /* measured: a typed alias preserves mask reloads that access-site-only typing moves. */
+    YListItemWork *filterWork = (YListItemWork *)filter;
+    if (((YListItemWork *)filter)->filterA == 0 && ((YListItemWork *)filter)->filterB == 0) {
         return 1;
     }
-    if (*(s32 *)(filter + 4) == 0 && (*(s32 *)(filter + 8) & datEntryCategoryMask(id))) {
+    if (((YListItemWork *)filter)->filterA == 0 && (((YListItemWork *)filter)->filterB & datEntryCategoryMask(id))) {
         return 1;
     }
-    if (*(s32 *)(filter + 8) == 0 && (*(s32 *)(filter + 4) & datEntryGetFlags(id))) {
+    if (((YListItemWork *)filter)->filterB == 0 && (filterWork->filterA & datEntryGetFlags(id))) {
         return 1;
     }
-    if ((*(s32 *)(filter + 4) & datEntryGetFlags(id)) &&
-        (*(s32 *)(filter + 8) & datEntryCategoryMask(id))) {
+    if ((filterWork->filterA & datEntryGetFlags(id)) &&
+        (filterWork->filterB & datEntryCategoryMask(id))) {
         return 1;
     }
     return 0;
@@ -944,15 +945,12 @@ void yListSlotCopyEntry(u8 *destination, s8 list, s16 index) {
 
 
 static inline u8 *yListWork(s8 list) {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
-    return *(u8 **)(D_00882F70[list] + 0x38);
+    return ((KwlnTask *)D_00882F70[list])->work;
 }
 
 static inline u8 *yListEntryInWork(u8 *work, s16 index) {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
-    switch (*(u32 *)(work + 4)) {
+    /* Roster list kinds reserve the availability matrix before their records. */
+    switch (((YListPersonaWork *)work)->kind.unsignedValue) {
     case 0:
     case 2:
     case 7:
@@ -1642,11 +1640,10 @@ s32 yListIsExcludedId(u16 id, u16 *exclude) {
 
 static inline u8 *yListEntry(s8 list, s16 index)
 {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
-    u8 *p = *(u8 **)(D_00882F70[list] + 0x38);
+    /* Roster list kinds reserve the availability matrix before their records. */
+    u8 *p = ((KwlnTask *)D_00882F70[list])->work;
 
-    switch (*(u32 *)(p + 4)) {
+    switch (((YListPersonaWork *)p)->kind.unsignedValue) {
     case 0:
     case 2:
     case 7:
@@ -1664,13 +1661,12 @@ static inline u8 *yListEntry(s8 list, s16 index)
 
 static inline s32 yListContains(s8 list, s16 id)
 {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
+    /* Search the live slot records for a matching persona identifier. */
     s16 k;
 
     if (D_00882F70[list] != NULL) {
-        for (k = 0; k < *(s32 *)(*(u8 **)(D_00882F70[list] + 0x38) + 8); k++) {
-            if (id == *(u16 *)(yListSlotEntry(list, k) + 2)) {
+        for (k = 0; k < ((YListPersonaWork *)((KwlnTask *)D_00882F70[list])->work)->count.value; k++) {
+            if (id == ((DatPersonaRecord *)yListSlotEntry(list, k))->id) {
                 return 1;
             }
         }
