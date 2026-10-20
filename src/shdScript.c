@@ -128,6 +128,7 @@ s32 shdScriptCategoryTaskUpdate(u8 *task)
         nmMesWindowStepSlotRelease((s8)work->slot);
     return 0;
 }
+/* Release the category-increment task's allocated work through the allocator callback. */
 // FUN_0025CB80
 void shdScriptCategoryTaskDestroy(u8 *task)
 {

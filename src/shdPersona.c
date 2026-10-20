@@ -1,5 +1,6 @@
 /* Original translation unit shdPersona.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "member_access.h"
 #include "sdk_task_registration.h"
 #include "sdk_snd_internal.h"
 #include "sdktask.h"
@@ -92,7 +93,7 @@ typedef struct PersonaRenderWork {
     Vec2f selectionPosition;
     u8 selectionStartAlpha, selectionTargetAlpha, selectionAlpha, unk44F;
     f32 selectionStartFrame, selectionEndFrame;
-    u8 effect[0x68];
+    union { u8 effect[0x68]; ShdPersonaEffect effectState; };
     ShdPersonaBackdrop backdrop;
     ShdPersonaAcquisition acquisition;
     u8 pad4F6[2];
@@ -117,7 +118,16 @@ typedef struct PersonaRenderWork {
     s32 flags;
     s32 phase;
     f32 opacity;
-    u8 drawNode[0x30];
+    union {
+        u8 drawNode[0x30];
+        struct {
+            s32 next, previous;
+            void (*callback)(u8 *);
+            u8 padC[4];
+            u8 *argument;
+            u8 pad14[0x1C];
+        } drawCommand;
+    };
     u16 queueIndex;
     u8 pad572[2];
 } PersonaRenderWork;
@@ -328,13 +338,13 @@ void shdPersonaFillStatusBlock(DatPersonaRecord *persona, u8 *status, s32 statMo
 
 
 // Intent: Copy five stat bytes from the persona record into the status block at offset 0xC [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00115C00
 void shdPersonaCopyStatBytes(u8 *stats, u8 *status)
 {
     s32 i = 0;
     while (i < 5) {
-        *(u8 *)(status + i + 0xC) = stats[i];
+        MEMBER(u8, status + i, PersonaRenderRecord, added[0]) = stats[i];
         i++;
     }
 }
@@ -1019,7 +1029,7 @@ extern char D_005E57F0[];
    each iteration — #pragma opt_loop_invariants on restores the hoist. */
 #pragma opt_loop_invariants on
 // Intent: Initialise a persona panel task: counters, child-task callbacks, texture ids and the ten channel rectangles [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_001175E0
 void shdPersonaTaskInit(u8 *task, s32 inputState, s32 inputOpenDuration, s32 inputCloseDuration)
 {
@@ -1037,9 +1047,9 @@ void shdPersonaTaskInit(u8 *task, s32 inputState, s32 inputOpenDuration, s32 inp
     ((PersonaRenderWork *)b)->phase = 0;
     ((PersonaRenderWork *)b)->flags = 0;
     memset(b + 0x540, 0, 0x30);
-    *(void (**)(u8 *))(b + 0x548) = (void (*)(u8 *))shdPersonaDrawPanels;
-    *(u8 **)(b + 0x550) = b;
-    *(s16 *)(*(u8 **)(task + 0x38) + 0x570) = 0xB1;
+    ((PersonaRenderWork *)b)->drawCommand.callback = (void (*)(u8 *))shdPersonaDrawPanels;
+    ((PersonaRenderWork *)b)->drawCommand.argument = b;
+    *(s16 *)&((PersonaRenderWork *)MEMBER(u8 *, task, SdkTask, work))->queueIndex = 0xB1;
     ((PersonaRenderWork *)b)->model = shdPersonaModelCreate((s32)task, 0xF, 0, 0, -0x100);
     shdPersonaSetState(task, inputState);
     ((PersonaRenderWork *)b)->sprites[0] = (s32)resourceFindByName(D_005E5810);
@@ -1088,23 +1098,23 @@ u8 *shdPersonaTaskCreate(s32 parentTask, s32 priority, s32 state, s32 openDurati
 
 
 // Intent: Per-frame update of a persona panel task: copy its resource block and advance its state machine [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_001178A0
 s32 shdPersonaTaskUpdate(u8 *task)
 {
     u8 *b = ((SdkTask *)task)->work;
     s32 off;
-    *(s32 *)(b + 0x540) = 0;
-    *(s32 *)(b + 0x544) = 0;
+    ((PersonaRenderWork *)b)->drawCommand.next = 0;
+    ((PersonaRenderWork *)b)->drawCommand.previous = 0;
     off = 0x30 * ((PersonaRenderWork *)b)->queueIndex;
     PrimAppendNode(D_00793E80 + off, b + 0x540);
     switch (((PersonaRenderWork *)b)->phase) {
     case 0:
-        *(s32 *)(b + 0x538) = 1;
+        MEMBER(s32, b, PersonaRenderWork, phase) = 1;
         /* fallthrough */
     case 1:
         if (((PersonaRenderWork *)b)->controllerAddress != 0) {
-            *(s32 *)(b + 0x538) = 2;
+            MEMBER(s32, b, PersonaRenderWork, phase) = 2;
             ((PersonaRenderWork *)b)->flags |= 8;
         }
         break;
@@ -1204,7 +1214,7 @@ static inline f32 personaFallingPhase(s32 frame, s32 first, s32 last)
 }
 
 // Intent: Update and draw the card-open effect: growing panel scale, 24 radial particles, four corner marks and a pulse ring [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00117980
 #pragma push
 #pragma opt_loop_invariants on
@@ -1264,13 +1274,13 @@ void shdPersonaDrawEffect(u8 *panel)
             } else {
                 growth = 1.0f;
             }
-            frameCount = *(u16 *)(effect + 0x2);
+            frameCount = MEMBER(u16, effect, ShdPersonaEffect, frame);
             t1 = personaSinePhase(frameCount, 4, 5);
             panelScale = D_007611AC * growth - D_00761288 * t1;
         } else {
             panelScale = 1.0f;
         }
-        frameCount = *(u16 *)(effect + 0x2);
+        frameCount = MEMBER(u16, effect, ShdPersonaEffect, frame);
         fade = personaLinearPhase(frameCount, 0, 15);
         {
             f32 fc = (f32)col;
@@ -1278,14 +1288,14 @@ void shdPersonaDrawEffect(u8 *panel)
             opacity = (u8)opacityValue;
             alpha = opacity & 0xFF;
         }
-        if (++*(u16 *)(effect + 0x2) >= 15) {
+        if (++MEMBER(u16, effect, ShdPersonaEffect, frame) >= 15) {
             ((ShdPersonaEffect *)effect)->flags = ((ShdPersonaEffect *)effect)->flags | 1;
         }
     } else if ((((ShdPersonaEffect *)effect)->flags & 2) != 0) {
         col = personaModulatedOpacity(b[0x505], personaFallingPhase(((ShdPersonaEffect *)effect)->frame, 0, 3));
         alpha = col;
         panelScale = 1.0f;
-        if (++*(u16 *)(effect + 0x2) >= 3) {
+        if (++MEMBER(u16, effect, ShdPersonaEffect, frame) >= 3) {
             ((PersonaRenderWork *)b)->flags = ((PersonaRenderWork *)b)->flags & 0xFFF7FFFF;
         }
     } else {
@@ -1400,10 +1410,10 @@ void shdPersonaDrawEffect(u8 *panel)
     drawPosition.x = 523.0f;
     drawPosition.y = 91.0f - panelScale * 30.0f;
     sdkSpriteDrawOnceScaled(((PersonaRenderWork *)b)->sprites[2], 0xB4, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(panelScale * 4096.0f), 0.0f, 0, 0);
-    pulseScale = panelScale * personaPulseEnvelope(*(u16 *)(effect + 0x6));
+    pulseScale = panelScale * personaPulseEnvelope(MEMBER(u16, effect, ShdPersonaEffect, pulseFrame));
     drawPosition.x = 542.0f;
     drawPosition.y = (1.0f - pulseScale) * 20.0f + 76.0f;
-    sdkSpriteDrawOnceScaled(*(s32 *)(b + 0x2C0), 0xB5, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(pulseScale * 4096.0f), 0.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(MEMBER(s32, b, PersonaRenderWork, sprites[2]), 0xB5, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(pulseScale * 4096.0f), 0.0f, 0, 0);
 }
 #pragma pop
 
@@ -1489,7 +1499,7 @@ extern f32 iGpffff8094;
  * the actual buffers; each particle loop has its own counter.
  * See docs/probe_archive/Persona_animation_00118a20_20260923.md. */
 // Intent: Draw the sliding background panels for the persona screen; their phases follow the frame counter at 0x520 [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00118A20
 #pragma push
 #pragma opt_loop_invariants on
@@ -1537,7 +1547,7 @@ void shdPersonaDrawSlidingPanels(u8 *panel)
             x = 1.0f;
         }
         f25 = 1.0f - x;
-        v = *(s16 *)(panel + 0x520);
+        v = MEMBER(s16, panel, PersonaRenderWork, revealFrame);
         if (v < 3) {
             x = 0.0f;
         } else if (v < 9) {
@@ -1546,7 +1556,7 @@ void shdPersonaDrawSlidingPanels(u8 *panel)
             x = 1.0f;
         }
         f24 = 1.0f - x;
-        v = *(s16 *)(panel + 0x520);
+        v = MEMBER(s16, panel, PersonaRenderWork, revealFrame);
         if (v < 7) {
             x = 0.0f;
         } else if (v < 0x11) {
@@ -1555,7 +1565,7 @@ void shdPersonaDrawSlidingPanels(u8 *panel)
             x = 1.0f;
         }
         f23 = 1.0f - x;
-        v = *(s16 *)(panel + 0x520);
+        v = MEMBER(s16, panel, PersonaRenderWork, revealFrame);
         if (v < 9) {
             x = 0.0f;
         } else if (v < 0x13) {
@@ -1564,12 +1574,12 @@ void shdPersonaDrawSlidingPanels(u8 *panel)
             x = 1.0f;
         }
         f22 = 1.0f - x;
-        if (*(s16 *)(panel + 0x520) >= 7) {
+        if (MEMBER(s16, panel, PersonaRenderWork, revealFrame) >= 7) {
             ((PersonaRenderWork *)panel)->revealPulseFrame = ((PersonaRenderWork *)panel)->revealPulseFrame + 1;
             if (((PersonaRenderWork *)panel)->revealPulseFrame >= 0x46) {
-                *(s16 *)(panel + 0x522) = 0;
+                MEMBER(s16, panel, PersonaRenderWork, revealPulseFrame) = 0;
             }
-            v = *(s16 *)(panel + 0x522);
+            v = MEMBER(s16, panel, PersonaRenderWork, revealPulseFrame);
             if (v < 0) {
                 f21 = 0.0f;
             } else if (v < 0x46) {
@@ -1578,12 +1588,12 @@ void shdPersonaDrawSlidingPanels(u8 *panel)
                 f21 = 1.0f;
             }
         }
-        if (*(s16 *)(panel + 0x520) >= 9) {
+        if (MEMBER(s16, panel, PersonaRenderWork, revealFrame) >= 9) {
             ((PersonaRenderWork *)panel)->revealLabelFrame = ((PersonaRenderWork *)panel)->revealLabelFrame + 1;
             if (((PersonaRenderWork *)panel)->revealLabelFrame >= 0x28) {
-                *(s16 *)(panel + 0x524) = 0;
+                MEMBER(s16, panel, PersonaRenderWork, revealLabelFrame) = 0;
             }
-            v = *(s16 *)(panel + 0x524);
+            v = MEMBER(s16, panel, PersonaRenderWork, revealLabelFrame);
             if (v < 0) {
                 f20 = 0.0f;
             } else if (v < 0x28) {
@@ -1735,7 +1745,7 @@ extern f32 iGpffff8368;
  * four retail zero-tail bytes. Prior renderers, siblings and data stay exact.
  * Proof: build/first-party-focus-20260921/persona-w4/continuation-2. */
 // Intent: Draw the blue backdrop, ten rising particles, community rank and bonus digits [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00119210
 void shdPersonaDrawBackdrop(u8 *work)
 {
@@ -1824,11 +1834,11 @@ void shdPersonaDrawBackdrop(u8 *work)
                 }
             }
             *(u16 *)particle = 0;
-            *(u16 *)(particle + 2) = (u16)((f32)(u32)definitions.row[index].period *
+            MEMBER(u16, particle, ShdPersonaParticle, duration) = (u16)((f32)(u32)definitions.row[index].period *
                 (1.0f + 0.5f * ((f32)(RpRandom() & 0xFFFU) / 4096.0f)));
     skip_reset:
             point.x = definitions.row[index].x;
-            point.y = 448.0f - (f32)0x382 * shdPersonaEaseProgress(*(u16 *)particle, 0, *(u16 *)(particle + 2), 0);
+            point.y = 448.0f - (f32)0x382 * shdPersonaEaseProgress(*(u16 *)particle, 0, MEMBER(u16, particle, ShdPersonaParticle, duration), 0);
             shdPersonaDrawParticleQuads((f32 *)&point, alpha);
             index++;
         }
@@ -1839,17 +1849,17 @@ void shdPersonaDrawBackdrop(u8 *work)
     {
         sdkSpriteDrawOnce(0, ((PersonaRenderWork *)work)->backdropTexture, 0, 322.0f, 176.0f, inverseAlpha, 0.0f, 0);
         if ((communityRank & 0xFF) == 0xA) {
-            sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), 0xC, 520.0f, 170.0f, inverseAlpha, 0.0f, 0);
+            sdkSpriteDrawOnce(0, MEMBER(s32, work, PersonaRenderWork, backdropTexture), 0xC, 520.0f, 170.0f, inverseAlpha, 0.0f, 0);
         } else {
             s32 rank = communityRank & 0xFF;
-            sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), rank + 1, (f32)0x209, 173.0f, inverseAlpha, 0.0f, 0);
+            sdkSpriteDrawOnce(0, MEMBER(s32, work, PersonaRenderWork, backdropTexture), rank + 1, (f32)0x209, 173.0f, inverseAlpha, 0.0f, 0);
         }
     }
     digitX = (f32)0x232;
     digitY = 220.0f;
     digits = ((ShdPersonaBackdrop *)animation)->bonus;
     do {
-        sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), (digits % 10) + 1, digitX, digitY, inverseAlpha, 0.0f, 0);
+        sdkSpriteDrawOnce(0, MEMBER(s32, work, PersonaRenderWork, backdropTexture), (digits % 10) + 1, digitX, digitY, inverseAlpha, 0.0f, 0);
         digitX -= 28.0f;
         digitY += 5.0f;
         digits /= 10;
@@ -1864,7 +1874,7 @@ void shdPersonaDrawBackdrop(u8 *work)
  * resolve to retail, with a twelve-byte zero suffix and no owned data.
  * Proof: build/game-next-20260921/persona/accepted-acquisition. */
 // Intent: Draw the persona acquisition animation: rotating panel, glow phase and label [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00119810
 void shdPersonaDrawAcquisition(u8 *work)
 {
@@ -1889,10 +1899,10 @@ void shdPersonaDrawAcquisition(u8 *work)
         if (++((ShdPersonaAcquisition *)animation)->frame >= 0x28) {
             *(u16 *)animation = *(u16 *)animation | 1;
         }
-        if (*(u16 *)(animation + 2) == 8) {
+        if (MEMBER(u16, animation, ShdPersonaAcquisition, frame) == 8) {
             sdkSndStartStream(1, 3, 3, 2);
         }
-        frame = *(u16 *)(animation + 2);
+        frame = MEMBER(u16, animation, ShdPersonaAcquisition, frame);
         if ((s32)frame < 0) {
             progress = 0.0f;
         } else if ((s32)frame < 8) {
@@ -1902,7 +1912,7 @@ void shdPersonaDrawAcquisition(u8 *work)
         }
         maximum = 1.0f;
         rotationProgress = maximum - progress;
-        frame = *(u16 *)(animation + 2);
+        frame = MEMBER(u16, animation, ShdPersonaAcquisition, frame);
         if ((s32)frame < 8) {
             progress = 0.0f;
         } else if ((s32)frame < 0xF) {
@@ -1911,7 +1921,7 @@ void shdPersonaDrawAcquisition(u8 *work)
             progress = maximum;
         }
         labelProgress = progress;
-        frame = *(u16 *)(animation + 2);
+        frame = MEMBER(u16, animation, ShdPersonaAcquisition, frame);
         if ((s32)frame < 8) {
             progress = 0.0f;
         } else if ((s32)frame < 0x28) {
@@ -1941,13 +1951,13 @@ void shdPersonaDrawAcquisition(u8 *work)
         f32 floatAlpha;
         f32 glowOpacity;
         u8 glowAlpha;
-        alpha = *(u8 *)(work + 0x505);
+        alpha = MEMBER(u8, work, PersonaRenderWork, alpha);
         floatAlpha = (f32)(u32)alpha;
         glowOpacity = 0.5f * floatAlpha * (maximum - glowProgress);
         glowAlpha = (u8)glowOpacity;
         RpSkyRenderStateSet(3, (void *)0x71801);
         RpSkyRenderStateSet(2, (void *)0x48);
-        sdkSpriteDrawOnceScaled(*(s32 *)(work + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f,
+        sdkSpriteDrawOnceScaled(MEMBER(s32, work, PersonaRenderWork, backdropTexture), 0xB, (f32)0x19B, 296.0f, 0.0f,
                    0xFF, 0xFF, 0xFF, glowAlpha, 0x1000, 0x1000, angle, (s16)0x12E, (s16)0x21);
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
@@ -1955,10 +1965,10 @@ void shdPersonaDrawAcquisition(u8 *work)
     if (((ShdSkillState *)((PersonaRenderWork *)work)->skills)->cursor == 8) {
         s32 inverseAlpha;
         mode = 8;
-        inverseAlpha = 255 - *(u8 *)(work + 0x505);
+        inverseAlpha = 255 - MEMBER(u8, work, PersonaRenderWork, alpha);
         sdkSpriteDrawOnceTinted(0, ((PersonaRenderWork *)work)->sprites[1], 0x5C, (f32)0x1A5, (f32)0x147,
                       inverseAlpha, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-        sdkSpriteDrawOnceTinted(0, *(s32 *)(work + 0x2BC), 0x5D, (f32)0x25B, (f32)0x147,
+        sdkSpriteDrawOnceTinted(0, MEMBER(s32, work, PersonaRenderWork, sprites[1]), 0x5D, (f32)0x25B, (f32)0x147,
                       inverseAlpha, 0x2D, 0x2D, 0x2D, 0.0f, 0);
     } else {
         mode = 7;
@@ -1967,7 +1977,7 @@ void shdPersonaDrawAcquisition(u8 *work)
         s32 alpha;
         f32 floatAlpha;
         f32 labelOpacity;
-        alpha = *(u8 *)(work + 0x505);
+        alpha = MEMBER(u8, work, PersonaRenderWork, alpha);
         floatAlpha = (f32)(u32)alpha;
         labelOpacity = floatAlpha * labelProgress;
         color = (u8)labelOpacity;
@@ -2467,7 +2477,7 @@ extern f32 iGpffff8094;
    2^31 branch (the old "output-GPR floor") is what moved it to $v1. */
 #pragma opt_propagation off
 // Intent: Tween the ten channels toward their targets over the closing window; clears the closing flag 0x4 when done [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011AE90
 void shdPersonaTweenChannelsClose(u8 *panel)
 {
@@ -2513,8 +2523,8 @@ void shdPersonaTweenChannelsClose(u8 *panel)
     total = ((PersonaRenderWork *)panel)->closeDuration;
     raw2 = ((PersonaRenderWork *)panel)->openingFrame;
     if (raw2 < total) {
-        ((PersonaRenderWork *)panel)->alpha = *(u8 *)(panel + 0x504) +
-            (raw2 * (((PersonaRenderWork *)panel)->targetAlpha - *(u8 *)(panel + 0x504))) / total;
+        ((PersonaRenderWork *)panel)->alpha = ((PersonaRenderWork *)panel)->startAlpha +
+            (raw2 * (((PersonaRenderWork *)panel)->targetAlpha - ((PersonaRenderWork *)panel)->startAlpha)) / total;
     } else {
         ((PersonaRenderWork *)panel)->alpha = ((PersonaRenderWork *)panel)->targetAlpha;
         ((PersonaRenderWork *)panel)->flags &= ~4;
@@ -2522,9 +2532,9 @@ void shdPersonaTweenChannelsClose(u8 *panel)
         ((PersonaRenderWork *)panel)->flags &= ~0x200000;
         ((PersonaRenderWork *)panel)->flags &= ~0x800000;
         if (((PersonaRenderWork *)panel)->alpha == 0) {
-            *(s32 *)(panel + 0x534) &= ~1;
+            MEMBER(s32, panel, PersonaRenderWork, flags) &= ~1;
         } else {
-            *(s32 *)(panel + 0x534) |= 0x400000;
+            MEMBER(s32, panel, PersonaRenderWork, flags) |= 0x400000;
         }
     }
 }
@@ -2554,7 +2564,7 @@ void shdPersonaTweenChannelsClose(u8 *panel)
    residual. Final object is 444B against a 448B window; the remaining four
    bytes are zero tail padding accepted by the verifier (normalized_diff 0). */
 // Intent: Draw the panel for its current state: states 0, 2 and 4 use draw mode 0x10, state 3 uses 0x23, and state 1 draws a gauge bar scaled by the alpha at 0x505 [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011B110
 void shdPersonaDrawByState(u8 *panel)
 {
@@ -2586,7 +2596,7 @@ void shdPersonaDrawByState(u8 *panel)
         color[0] = 0xFF;
         color[1] = 0xE9;
         color[2] = 0x2C;
-        color[3] = *(u8 *)(panel + 0x505);
+        color[3] = MEMBER(u8, panel, PersonaRenderWork, alpha);
         D_00887300[0](1, 0);
         PrimDrawFlatRectangle(color, (f32 *)work, 0.0f, 0);
         return;
@@ -2615,7 +2625,7 @@ void shdPersonaDestroy(u8 *task)
 
 
 // Intent: Finish the panel phase: begin the close when the flag 0x1 is set and the phase is 2, else clear flag 0x1, then set the phase to 3 [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011B360
 void shdPersonaFinishPhase(u8 *task)
 {
@@ -2623,7 +2633,7 @@ void shdPersonaFinishPhase(u8 *task)
     if ((((PersonaRenderWork *)b)->flags & 1) != 0 && ((PersonaRenderWork *)b)->phase == 2) {
         shdPersonaBeginClose(task);
     } else {
-        *(s32 *)(b + 0x534) &= ~1;
+        MEMBER(s32, b, PersonaRenderWork, flags) &= ~1;
     }
     ((PersonaRenderWork *)b)->phase = 3;
 }
@@ -2658,7 +2668,7 @@ void shdPersonaDispCtlReconfigure(u8 *, s32, s32);
 s32 shdPersonaDispCtlGetHandle(u8 *);
 void shdPersonaLevelUpRoute(u8 *);
 // Intent: Set the display state for a target and index: reconfigure the display control, or start the display transition for a nonzero target [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011B480
 void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, s8 cursor)
 {
@@ -2671,7 +2681,7 @@ void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, 
     work = ((SdkTask *)task)->work;
     t17 = shdPersonaDispCtlGetHandle(((PersonaRenderWork *)work)->model);
     if (personaAddress == 0) {
-        shdPersonaDispCtlReconfigure(*(u8 **)(work + 0x4F8), 0, t17);
+        shdPersonaDispCtlReconfigure(MEMBER(u8 *, work, PersonaRenderWork, model), 0, t17);
         ((PersonaRenderWork *)work)->phase = 1;
         ((PersonaRenderWork *)work)->flags &= ~8;
         return;
@@ -2703,10 +2713,10 @@ void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, 
             t3_2 = ((ShdPersonaEffect *)((PersonaRenderWork *)work)->effect)->flags;
             if (!(t3_2 & 2)) {
                 if (!(t3_2 & 1)) {
-                    *(s32 *)(work + 0x534) = t4 & 0xFFF7FFFF;
+                    MEMBER(s32, work, PersonaRenderWork, flags) = t4 & 0xFFF7FFFF;
                 } else {
-                    *(s16 *)(work + 0x45A) = 0;
-                    *(u16 *)(work + 0x458) |= 2;
+                    MEMBER(s16, work, PersonaRenderWork, effectState.frame) = 0;
+                    MEMBER(u16, work, PersonaRenderWork, effectState.flags) |= 2;
                 }
             }
         }
@@ -2715,7 +2725,7 @@ void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, 
         ((PersonaRenderWork *)work)->flags |= 0x80000;
         memset(work + 0x458, 0, 0x68);
     }
-    shdPersonaDispCtlReconfigure(*(u8 **)(work + 0x4F8), *(u16 *)((u8 *)personaAddress + 2), t17);
+    shdPersonaDispCtlReconfigure(MEMBER(u8 *, work, PersonaRenderWork, model), ((DatPersonaRecord *)personaAddress)->id, t17);
     shdPersonaEndSelection(task, 0);
     shdPersonaLevelUpRoute(task);
 }
@@ -2725,7 +2735,7 @@ void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, 
 extern char D_005E4E00[];
 void shdPersonaDispCtlSetGaugeEnabled(u8 *, s32);
 // Intent: Set the persona panel state at 0x52C and reconfigure the panel for the new state [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011B6D0
 s32 shdPersonaSetState(u8 *task, s32 inputState)
 {
@@ -2740,7 +2750,7 @@ s32 shdPersonaSetState(u8 *task, s32 inputState)
 
     work = ((SdkTask *)task)->work;
     if (((PersonaRenderWork *)work)->state != inputState) {
-        *(s32 *)(work + 0x52C) = inputState;
+        MEMBER(s32, work, PersonaRenderWork, state) = inputState;
         switch (inputState) {
         case 0:
             t1 = ((PersonaRenderWork *)work)->flags | 0x40;
@@ -2829,7 +2839,7 @@ s32 shdPersonaSetState(u8 *task, s32 inputState)
 
 
 // Intent: Fill a state block from the persona record pointer, choosing the layout by the panel state at 0x52C [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011B8F0
 void shdPersonaFillStateBlock(u8 *task, u8 *stats)
 {
@@ -2856,7 +2866,7 @@ void shdPersonaFillStateBlock(u8 *task, u8 *stats)
         break;
     }
     for (i = 0; i < 5; i++) {
-        *(u8 *)(work + 0x18 + i) = stats[i];
+        *(u8 *)(work + MEMBER_OFFSET(PersonaRenderWork, persona[0].added) + i) = stats[i];
     }
 }
 
@@ -2888,7 +2898,7 @@ s32 shdPersonaIsTransitioning(u8 *task)
 
 
 // Intent: Begin the persona open transition: set the open and active flags and clear the close and selection flags [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011BA40
 void shdPersonaBeginOpen(u8 *panel)
 {
@@ -2918,10 +2928,10 @@ void shdPersonaBeginOpen(u8 *panel)
     ((PersonaRenderWork *)panel)->flags = t7;
     p = *(u16 **)&((PersonaRenderWork *)panel)->controllerAddress;
     if (p != NULL && (*p & 4)) {
-        *(s32 *)(panel + 0x534) |= 0x80000;
+        MEMBER(s32, panel, PersonaRenderWork, flags) |= 0x80000;
         memset(panel + 0x458, 0, 0x68);
     } else {
-        *(s32 *)(panel + 0x534) &= 0xFFF7FFFF;
+        MEMBER(s32, panel, PersonaRenderWork, flags) &= 0xFFF7FFFF;
     }
     state = ((PersonaRenderWork *)panel)->state;
     switch (state) {
@@ -2942,7 +2952,7 @@ void shdPersonaBeginOpen(u8 *panel)
 
 
 // Intent: Start the persona panel slide-in with its tween and sound [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011BB90
 void shdPersonaStartSlideIn(u8 *task)
 {
@@ -2954,7 +2964,7 @@ void shdPersonaStartSlideIn(u8 *task)
         Vec2f dst;
         shdPersonaBeginOpen(b);
         *(u16 *)&((PersonaRenderWork *)b)->openingFrame = 0;
-        ((PersonaRenderWork *)b)->startAlpha = *(u8 *)(b + 0x505);
+        ((PersonaRenderWork *)b)->startAlpha = MEMBER(u8, b, PersonaRenderWork, alpha);
         ((PersonaRenderWork *)b)->targetAlpha = 0xFF;
         t = 131.0f + ((PersonaRenderWork *)b)->origin.x;
         src.x = t;
@@ -2963,7 +2973,7 @@ void shdPersonaStartSlideIn(u8 *task)
         dst.x = 640.0f + t;
         dst.y = u;
         shdPersonaDispCtlSetOffsets(((PersonaRenderWork *)b)->model, &dst, &src);
-        shdPersonaDispCtlSetPosition(*(u8 **)(b + 0x4F8), 0);
+        shdPersonaDispCtlSetPosition(MEMBER(u8 *, b, PersonaRenderWork, model), 0);
         shdPersonaSetupChannels(b, 0);
     }
 }
@@ -2971,7 +2981,7 @@ void shdPersonaStartSlideIn(u8 *task)
 
 
 // Intent: Begin the persona close transition: set the close flag and clear the open and selection flags [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011BC70
 void shdPersonaBeginClose(u8 *task)
 {
@@ -2989,17 +2999,17 @@ void shdPersonaBeginClose(u8 *task)
     flags = ((PersonaRenderWork *)work)->flags;
     if (((flags & 1) != 0 && (flags & 4) == 0) || (flags & 0x400000) != 0) {
         t1 = ((PersonaRenderWork *)((SdkTask *)task)->work)->flags | 4;
-        *(s32 *)(work + 0x534) = t1;
+        ((PersonaRenderWork *)work)->flags = t1;
         t2 = t1 & ~2;
-        *(s32 *)(work + 0x534) = t2;
+        ((PersonaRenderWork *)work)->flags = t2;
         t3 = t2 & ~0x800;
-        *(s32 *)(work + 0x534) = t3;
+        ((PersonaRenderWork *)work)->flags = t3;
         t4 = t3 & ~0x1000;
-        *(s32 *)(work + 0x534) = t4;
+        ((PersonaRenderWork *)work)->flags = t4;
         t5 = t4 & ~0x2000;
-        *(s32 *)(work + 0x534) = t5;
+        ((PersonaRenderWork *)work)->flags = t5;
         t6 = t5 & ~0x4000;
-        *(s32 *)(work + 0x534) = t6;
+        ((PersonaRenderWork *)work)->flags = t6;
         ((ShdSkillState *)((PersonaRenderWork *)work)->skills)->cursor = -1;
         *(s32 *)&((PersonaRenderWork *)work)->selectionPosition.x = 0xC3E10000;
         state = ((PersonaRenderWork *)work)->state;
@@ -3020,7 +3030,7 @@ void shdPersonaBeginClose(u8 *task)
         ((PersonaRenderWork *)work)->startAlpha = ((PersonaRenderWork *)work)->alpha;
         *(s8 *)&((PersonaRenderWork *)work)->targetAlpha = 0;
         shdPersonaSetupChannels(work, 1);
-        *(s32 *)(work + 0x534) &= 0xFF7FFFFF;
+        MEMBER(s32, work, PersonaRenderWork, flags) &= 0xFF7FFFFF;
     }
 }
 
@@ -3273,7 +3283,7 @@ do { case 3: case 2: case 4: break; default: task++; task--; kAssertFail(D_005E4
 
 
 // Intent: Set up two channels and the start position once, snapshot the 15-word parameter block at 0xC into 0x48, end the selection, then start the display transition [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011C180
 void shdPersonaBeginDisplayAndEndSelection(u8 *task, s32 category, s32 personaAddress, s8 cursor)
 {
@@ -3299,7 +3309,7 @@ void shdPersonaBeginDisplayAndEndSelection(u8 *task, s32 category, s32 personaAd
         ((PersonaRenderWork *)work)->channels[7].startAlpha = 0xFF;
         ((PersonaRenderWork *)work)->channels[8].startAlpha = 0xFF;
         ((PersonaRenderWork *)work)->comparisonFrame = 0;
-        *(s32 *)(work + 0x534) |= 0x4000;
+        MEMBER(s32, work, PersonaRenderWork, flags) |= 0x4000;
     }
     src = (s32 *)(work + 0xC);
     dst = (s32 *)(work + 0x48);
@@ -3319,7 +3329,7 @@ void shdPersonaBeginDisplayAndEndSelection(u8 *task, s32 category, s32 personaAd
 
 
 // Intent: Snapshot the 15-word parameter block at 0xC into 0x48, set up three channels once, then start the display transition with the given target, index and flag [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011C2C0
 void shdPersonaBeginDisplay(u8 *task, s32 category, s32 personaAddress, s8 cursor)
 {
@@ -3347,7 +3357,7 @@ void shdPersonaBeginDisplay(u8 *task, s32 category, s32 personaAddress, s8 curso
         ((PersonaRenderWork *)work)->channels[7].startAlpha = 0xFF;
         ((PersonaRenderWork *)work)->channels[8].startAlpha = 0xFF;
         ((PersonaRenderWork *)work)->comparisonFrame = 0;
-        *(s32 *)(work + 0x534) |= 0x4000;
+        MEMBER(s32, work, PersonaRenderWork, flags) |= 0x4000;
     }
     src = (s32 *)(work + 0xC);
     dst = (s32 *)(work + 0x48);
@@ -3370,7 +3380,7 @@ void shdPersonaBeginDisplay(u8 *task, s32 category, s32 personaAddress, s8 curso
 #pragma push
 #pragma opt_loop_invariants on
 // Intent: Tween the comparison display from its start values toward its targets over the comparison window [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+
 // FUN_0011C3E0
 void shdPersonaTweenComparison(u8 *panel)
 {
@@ -3408,7 +3418,8 @@ void shdPersonaTweenComparison(u8 *panel)
            Retail's per-iteration reload is therefore real, but no legal C
            spelling found so far reproduces both the reload AND the
            instruction order.  shdPersonaTweenComparison is a DEMOTION CANDIDATE. */
-        raw = *(volatile s16 *)(panel + 0x516);
+        /* lint: allow H001 -- measured: pre-existing per-record volatile load; see demotion note above */
+        raw = *(volatile s16 *)&((PersonaRenderWork *)panel)->comparisonFrame;
         lo = ((PersonaRenderWork *)(panel + i * 36))->channels[0].duration;
         ratio = (f32)raw;
         if (ratio < lo) {
@@ -3490,7 +3501,7 @@ void shdPersonaBeginSelection(u8 *task)
 
 
 // Intent: End persona selection and set the selection-end flag 0x2000; arg1 selects the end mode [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011C6E0
 void shdPersonaEndSelection(u8 *task, s32 mode)
 {
@@ -3501,8 +3512,8 @@ void shdPersonaEndSelection(u8 *task, s32 mode)
         ((PersonaRenderWork *)b)->selectionStart.y = ((PersonaRenderWork *)b)->selectionPosition.y;
         *(s32 *)&((PersonaRenderWork *)b)->selectionTarget.x = 0xC3E10000;
         *(u16 *)&((PersonaRenderWork *)b)->selectionFrame = 0;
-        *(s32 *)(b + 0x534) |= 0x2000;
-        *(s32 *)(b + 0x534) &= ~0x1000;
+        MEMBER(s32, b, PersonaRenderWork, flags) |= 0x2000;
+        MEMBER(s32, b, PersonaRenderWork, flags) &= ~0x1000;
         if (mode != 0) {
             sdkSndStartStream(0, 1, 0, 4);
         }
@@ -3539,7 +3550,7 @@ void shdPersonaEndSelection(u8 *task, s32 mode)
    the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
 #pragma opt_propagation off
 // Intent: Tween the persona selection panel open and clear its opening flag when done [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011C780
 void shdPersonaTweenSelectionOpen(u8 *panel)
 {
@@ -3564,7 +3575,7 @@ void shdPersonaTweenSelectionOpen(u8 *panel)
     a = ((PersonaRenderWork *)panel)->selectionStartAlpha; b = ((PersonaRenderWork *)panel)->selectionTargetAlpha; diff = (f32)(b - a); f_abs = (f32)(u32)a;
     acc = f_abs + ratio * diff;
     ((PersonaRenderWork *)panel)->selectionAlpha = (u8)acc;
-    if (!((f32)(s16)*(s16 *)(panel + 0x514) <= 5.0f)) ((PersonaRenderWork *)panel)->flags &= ~0x1000;
+    if (!((f32)(s16)MEMBER(s16, panel, PersonaRenderWork, selectionFrame) <= 5.0f)) ((PersonaRenderWork *)panel)->flags &= ~0x1000;
 }
 #pragma pop
 /* measured: rule 2 confirmed — with the multiplications written ratio-first
@@ -3607,7 +3618,7 @@ void shdPersonaTweenSelectionOpen(u8 *panel)
    the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
 #pragma opt_propagation off
 // Intent: Tween the persona selection panel closed, clearing the selection flags and resetting the selected index [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011C930
 void shdPersonaTweenSelectionClose(u8 *panel)
 { s32 a; s32 b; s16 raw; f32 diff; f32 f_abs; f32 acc; f32 ratio; f32 lo; f32 hi; f32 base; f32 delta;
@@ -3617,7 +3628,7 @@ void shdPersonaTweenSelectionClose(u8 *panel)
     base = ((PersonaRenderWork *)panel)->selectionStart.y; delta = ((PersonaRenderWork *)panel)->selectionTarget.y - base; ((PersonaRenderWork *)panel)->selectionPosition.y = base + ratio * delta;
     a = ((PersonaRenderWork *)panel)->selectionStartAlpha; b = ((PersonaRenderWork *)panel)->selectionTargetAlpha; diff = (f32)(b - a); f_abs = (f32)(u32)a; acc = f_abs + ratio * diff;
     ((PersonaRenderWork *)panel)->selectionAlpha = (u8)acc;
-    if (!((f32)(s16)*(s16 *)(panel + 0x514) <= 5.0f)) { ((PersonaRenderWork *)panel)->flags &= ~0x800; ((PersonaRenderWork *)panel)->flags &= ~0x2000; ((ShdSkillState *)((PersonaRenderWork *)panel)->skills)->cursor = -1; }
+    if (!((f32)(s16)MEMBER(s16, panel, PersonaRenderWork, selectionFrame) <= 5.0f)) { ((PersonaRenderWork *)panel)->flags &= ~0x800; ((PersonaRenderWork *)panel)->flags &= ~0x2000; ((ShdSkillState *)((PersonaRenderWork *)panel)->skills)->cursor = -1; }
 }
 #pragma pop
 // Intent: Advance the persona selection cursor by one step [inferred]
@@ -3729,7 +3740,7 @@ void shdPersonaArmSkillReveal(u8 *task)
 
 
 // Intent: Advance the skill-reveal frame and play the reveal sound at the cue frame [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011CE50
 void shdPersonaUpdateReveal(u8 *panel)
 {
@@ -3740,7 +3751,7 @@ void shdPersonaUpdateReveal(u8 *panel)
         }
     } else if ((v & 0x20000) != 0) {
         if (((PersonaRenderWork *)panel)->revealFrame >= 50) {
-            *(s32 *)(panel + 0x534) &= ~0x200;
+            MEMBER(s32, panel, PersonaRenderWork, flags) &= ~0x200;
         }
     }
 }
@@ -3868,15 +3879,15 @@ void shdPersonaSetChildDispCtlHandle(u8 *task, s32 color)
 }
 
 // Intent: Set the child display-control handle and colour from arg1 and arg2 [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011D170
-/* Kept as a raw deref on purpose: through SdkTask::work mwcc hoists arg0 + 0x38
-   into a saved register and reuses it, where retail re-issues lw 0x38 for each
-   of the two reads. The typed form is not codegen-neutral here. */
+/* measured: SdkTask.work needs MEMBER here: its direct/local forms reuse
+   the task work address across the handle callback instead of reloading it.
+   The outer persona model field itself uses its ordinary typed member. */
 void shdPersonaSetChildDispCtlHandleAndColor(u8 *task, s32 handle, s32 color)
 {
     shdPersonaDispCtlSetHandle(((PersonaRenderWork *)((SdkTask *)task)->work)->model, handle);
-    shdPersonaDispCtlSetColor(*(s32 *)(*(u8 **)(task + 0x38) + 0x4F8), color);
+    shdPersonaDispCtlSetColor((s32)((PersonaRenderWork *)MEMBER(u8 *, task, SdkTask, work))->model, color);
 }
 
 
@@ -3909,7 +3920,7 @@ extern char D_005E4E60[];
 extern char D_005E4E90[];
 extern char iGpffff9c18;
 // Intent: Advance the persona model-load state machine one step and return its status [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011D1F0
 s32 shdPersonaLoadModelStep(u8 *task)
 {
@@ -3926,7 +3937,7 @@ s32 shdPersonaLoadModelStep(u8 *task)
             if (kwlnTaskGetTaskByName(D_005E4E40) != 0) {
                 func_00440b68(D_005E4E60);
             } else {
-                sprintf(work + 0x54, D_005E4E90, *(s32 *)(work + 4));
+                sprintf(work + 0x54, D_005E4E90, MEMBER(s32, work, ShdPersonaModelWork, resourceId));
                 func_00440b68(&iGpffff9c18, D_005E4868, 0x1046);
                 directory = H_Cdvd_AcquireDirectory(work + 0x54, 0);
                 ((ShdPersonaModelWork *)work)->directory = directory;
@@ -3949,9 +3960,9 @@ s32 shdPersonaLoadModelStep(u8 *task)
     case 2:
         ((ShdPersonaModelWork *)work)->loaded = filerTakeCompletedRequest(((ShdPersonaModelWork *)work)->stream, &completed, 0);
         if (completed != 0) {
-            *(s32 *)(work + 0x48) = 0;
+            MEMBER(s32, work, ShdPersonaModelWork, stream) = 0;
             H_Cdvd_Destroy(((ShdPersonaModelWork *)work)->directory);
-            *(s32 *)(work + 0x4C) = 0;
+            MEMBER(s32, work, ShdPersonaModelWork, directory) = 0;
             ((ShdPersonaModelWork *)work)->state = 3;
         }
         break;
@@ -3964,24 +3975,24 @@ s32 shdPersonaLoadModelStep(u8 *task)
 
 
 // Intent: Destroy a persona model-load task, freeing its child and its work block [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011D3C0
 void shdPersonaModelDestroy(u8 *task)
 {
     u8 *b = ((SdkTask *)task)->work;
     if (((ShdPersonaModelWork *)b)->stream != 0) {
         shdPersonaDispCtlCreate(((ShdPersonaModelWork *)b)->stream, ((ShdPersonaModelWork *)b)->directory, D_005E4E40);
-        *(s32 *)(b + 0x48) = 0;
-        *(s32 *)(b + 0x4C) = 0;
+        MEMBER(s32, b, ShdPersonaModelWork, stream) = 0;
+        MEMBER(s32, b, ShdPersonaModelWork, directory) = 0;
         ((ShdPersonaModelWork *)b)->loaded = 0;
     } else {
         if (((ShdPersonaModelWork *)b)->directory != 0) {
             H_Cdvd_Destroy(((ShdPersonaModelWork *)b)->directory);
-            *(s32 *)(b + 0x4C) = 0;
+            MEMBER(s32, b, ShdPersonaModelWork, directory) = 0;
         }
         if (((ShdPersonaModelWork *)b)->loaded != 0) {
             func_003ef3a0(((ShdPersonaModelWork *)b)->loaded);
-            *(s32 *)(b + 0x50) = 0;
+            MEMBER(s32, b, ShdPersonaModelWork, loaded) = 0;
         }
     }
     jtbl_008873EC[0](b);
@@ -4162,7 +4173,7 @@ void shdPersonaDrawQuadStrips(f32 depth, s32 color, s32 edgeAlpha, f32 x, f32 y,
 
 
 // Intent: Draw a quad whose vertex offset eases from the start value at 0x20 to the end value at 0x30 by a sine lerp [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011DC50
 void shdPersonaDrawSineQuad(u8 *task)
 {
@@ -4176,9 +4187,9 @@ void shdPersonaDrawSineQuad(u8 *task)
     if (shdPersonaDispCtlIsLoaded(task) != 0 && ((ShdPersonaModelWork *)work)->resourceId != 0) {
         t = (f32)((ShdPersonaModelWork *)work)->frame;
         if (t < 10.0f) {
-            *(s32 *)(work + 0x10) += 1;
+            MEMBER(s32, work, ShdPersonaModelWork, frame) += 1;
             f20 = ((ShdPersonaModelWork *)work)->start.x;
-            t = sinf(iGpffff8094 * (f32)*(s32 *)(work + 0x10) / 10.0f);
+            t = sinf(iGpffff8094 * (f32)MEMBER(s32, work, ShdPersonaModelWork, frame) / 10.0f);
             d = ((ShdPersonaModelWork *)work)->target.x - f20;
             ((ShdPersonaModelWork *)work)->current.x = f20 + d * t;
         } else {
@@ -4186,7 +4197,7 @@ void shdPersonaDrawSineQuad(u8 *task)
         }
         a = ((ShdPersonaModelWork *)work)->handle;
         shdPersonaDrawQuadStrips(((ShdPersonaModelWork *)work)->depth, a, a,
-                      *(f32 *)(work + 0x28), ((ShdPersonaModelWork *)work)->current.y,
+                      MEMBER(f32, work, ShdPersonaModelWork, current.x), ((ShdPersonaModelWork *)work)->current.y,
                       0x200, 0x200, ((ShdPersonaModelWork *)work)->loaded);
     }
 }
@@ -4201,7 +4212,7 @@ void shdPersonaDrawSineQuad(u8 *task)
    identical. Register-colouring floor. */
 /* measured: full body decompiled (guard chain, two float lerps, shdDrawColourQuad + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as shdPersonaDrawSineQuad note). Committed at nd 53. */
 // Intent: Draw the state-3 gauge bar: two lerped spans scaled by one third of the total [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011DD50
 void shdPersonaDrawSmoothBar(u8 *task)
 {
@@ -4217,8 +4228,8 @@ void shdPersonaDrawSmoothBar(u8 *task)
             (((ShdPersonaModelWork *)work)->current.y - ((ShdPersonaModelWork *)work)->committed.y) / 3.0f;
         first = ((ShdPersonaModelWork *)work)->color;
         shdDrawColourQuad(((ShdPersonaModelWork *)work)->depth, first,
-                      *(f32 *)(work + 0x40) + ((ShdPersonaModelWork *)work)->offset.x,
-                      *(f32 *)(work + 0x44) + ((ShdPersonaModelWork *)work)->offset.y,
+                      MEMBER(f32, work, ShdPersonaModelWork, committed.x) + ((ShdPersonaModelWork *)work)->offset.x,
+                      MEMBER(f32, work, ShdPersonaModelWork, committed.y) + ((ShdPersonaModelWork *)work)->offset.y,
                       ((ShdPersonaModelWork *)work)->current.x, ((ShdPersonaModelWork *)work)->current.y,
                       512.0f, 512.0f, ((ShdPersonaModelWork *)work)->loaded, 1, 0);
         RpSkyRenderStateSet(3, (void *)0x717FB);
@@ -4265,7 +4276,7 @@ s32 shdPersonaDispCtlGetHandle(u8 *task)
 
 
 // Intent: Poll the display-control model load and free its resources when the load completes [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011DED0
 s32 shdPersonaDispCtlUpdate(u8 *task)
 {
@@ -4286,8 +4297,8 @@ s32 shdPersonaDispCtlUpdate(u8 *task)
         if (r != 0) {
             func_003ef3a0(r);
         }
-        if (*(s32 *)(w + 4) != 0) {
-            H_Cdvd_Destroy(*(s32 *)(w + 4));
+        if (MEMBER(s32, w, ShdPersonaStreamWork, directory) != 0) {
+            H_Cdvd_Destroy(MEMBER(s32, w, ShdPersonaStreamWork, directory));
         }
         return -1;
     }
@@ -4333,7 +4344,7 @@ s32 shdPersonaDispCtlCreate(s32 stream, s32 inputDirectory, char *taskName)
 
 s32 shdPersonaDispCtlUpdate(u8 *task);
 // Intent: Reconfigure a display-control task by destroying its child and creating a new one [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011E0C0
 void shdPersonaDispCtlReconfigure(u8 *task, s32 inputResourceId, s32 inputHandle)
 {
@@ -4355,23 +4366,23 @@ void shdPersonaDispCtlReconfigure(u8 *task, s32 inputResourceId, s32 inputHandle
                 *(s32 *)r = p48;
                 ((ShdPersonaStreamWork *)r)->directory = p4c;
             }
-            *(s32 *)(w + 0x48) = 0;
-            *(s32 *)(w + 0x4C) = 0;
+            MEMBER(s32, w, ShdPersonaModelWork, stream) = 0;
+            MEMBER(s32, w, ShdPersonaModelWork, directory) = 0;
             ((ShdPersonaModelWork *)w)->loaded = 0;
         } else {
             p4c = ((ShdPersonaModelWork *)w)->directory;
             if (p4c != 0) {
                 H_Cdvd_Destroy(p4c);
-                *(s32 *)(w + 0x4C) = 0;
+                MEMBER(s32, w, ShdPersonaModelWork, directory) = 0;
             }
             p4c = ((ShdPersonaModelWork *)w)->loaded;
             if (p4c != 0) {
                 func_003ef3a0(p4c);
-                *(s32 *)(w + 0x50) = 0;
+                MEMBER(s32, w, ShdPersonaModelWork, loaded) = 0;
             }
         }
         ((ShdPersonaModelWork *)w)->handle = inputHandle;
-        *(s32 *)(w + 4) = inputResourceId;
+        MEMBER(s32, w, ShdPersonaModelWork, resourceId) = inputResourceId;
         ((ShdPersonaModelWork *)w)->state = 0;
     }
 }
@@ -4385,7 +4396,7 @@ void shdPersonaDispCtlSetHandle(u8 *task, s32 inputHandle)
 
 
 // Intent: Set the display-control position at offsets 0x28 and 0x40 from the source position block [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011E240
 void shdPersonaDispCtlSetPosition(u8 *task, u8 *position)
 {
@@ -4395,7 +4406,7 @@ void shdPersonaDispCtlSetPosition(u8 *task, u8 *position)
     if (position != NULL) {
         ((ShdPersonaModelWork *)b)->target.x = ((Vec2f *)position)->x;
         ((ShdPersonaModelWork *)b)->target.y = ((Vec2f *)position)->y;
-    ((ShdPersonaModelWork *)b)->start.x = 640.0f + *(f32 *)(b + 0x30);
+    ((ShdPersonaModelWork *)b)->start.x = 640.0f + MEMBER(f32, b, ShdPersonaModelWork, target.x);
     ((ShdPersonaModelWork *)b)->start.y = ((ShdPersonaModelWork *)b)->target.y;
     }
     v0 = ((ShdPersonaModelWork *)b)->start.x;
@@ -4448,6 +4459,7 @@ void shdPersonaDispCtlCommitPosition(u8 *task)
 
 
 
+/* Offset the model's draw position without changing its tween endpoints. */
 // FUN_0011E390
 void shdPersonaDispCtlSetDrawOffset(u8 *task, Vec2f offset)
 {
@@ -4469,11 +4481,11 @@ void shdPersonaDispCtlSetColor(s32 taskHandle, s32 inputColor)
 
 
 // Intent: Return whether the display-control task has finished loading (state 3) [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+
 // FUN_0011E3E0
 u32 shdPersonaDispCtlIsLoaded(u8 *task)
 {
-    return *(s32 *)(((SdkTask *)task)->work + 0) == 3;
+    return ((ShdPersonaModelWork *)((SdkTask *)task)->work)->state == 3;
 }
 
 
@@ -4602,7 +4614,7 @@ s32 shdPersonaPickRandomSkillPair(u8 *levelUp)
 
 
 // Intent: Advance the skill-list stage: show the next unlocked skill name and level; otherwise move to the next stage, picking a random skill pair when one is needed [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011E740
 void shdPersonaAdvanceSkillList(u8 *levelUp)
 {
@@ -4613,12 +4625,12 @@ void shdPersonaAdvanceSkillList(u8 *levelUp)
 
     base = ((ShdPersonaLevelUpWork *)levelUp)->learnList;
     while ((idx = ((ShdPersonaLevelUpWork *)levelUp)->field0C) < 5 && *(u8 *)&((ShdPersonaLearnList *)base)->statGains[idx] == 0) {
-        *(s32 *)(levelUp + 0xC) += 1;
+        MEMBER(s32, levelUp, ShdPersonaLevelUpWork, field0C) += 1;
     }
     if (idx < 5) {
         strcpy(buf, D_005E4850[idx]);
         nmMesWindowSetCurrentString(0, buf);
-        sprintf(buf, &iGpffff9c20, base[*(s32 *)(levelUp + 0xC) + 0x82]);
+        sprintf(buf, &iGpffff9c20, base[MEMBER(s32, levelUp, ShdPersonaLevelUpWork, field0C) + 0x82]);
         nmMesWindowSetCurrentString(1, buf);
         nmMesWindowShowCurrentRecord(((ShdPersonaLevelUpWork *)levelUp)->messages[2]);
         *(s16 *)&((ShdPersonaLevelUpWork *)levelUp)->cursor = 0;
@@ -4685,7 +4697,7 @@ static inline s32 personaReplaceLevelSkill(SdkTask *parent, u16 previous, u16 re
 }
 
 // Intent: Advance the level-up skill-learn state machine one step and return its status [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011E8E0
 s32 shdPersonaLevelUpStep(u8 *task)
 {
@@ -4714,7 +4726,7 @@ s32 shdPersonaLevelUpStep(u8 *task)
         first->level = first->level + *(u8 *)pc;
         i = 0;
         while (i < 5) {
-            datPersonaAddStat((u8 *)first, i & 0xFFFF, *(s8 *)(pc + i + 0x82));
+            datPersonaAddStat((u8 *)first, i & 0xFFFF, MEMBER(s8, pc + i, ShdPersonaLearnList, statGains[0]));
             i += 1;
         }
         r = shdPersonaCalcExpRemaining(first, 0);
@@ -4722,7 +4734,7 @@ s32 shdPersonaLevelUpStep(u8 *task)
         b2 = ((SdkTask *)e2)->work;
         shdPersonaFillStatusForState(b2, *(u8 **)b2);
         shdPersonaCopyStatBytes(pc + 0x82, b2 + 0xC);
-        *(s32 *)(*(u8 **)(e2 + 0x38) + 0x44) = r;
+        *(s32 *)&((PersonaRenderWork *)MEMBER(u8 *, e2, SdkTask, work))->persona[0].nextExperience = r;
         work->state = 1;
     }
         /* fallthrough */
@@ -4794,10 +4806,10 @@ s32 shdPersonaLevelUpStep(u8 *task)
             b = parent->work;
             if ((((PersonaRenderWork *)b)->flags & 0x8000) == 0) {
                 s16 sv;
-                *(s32 *)(b + 0x534) = ((PersonaRenderWork *)b)->flags | 0x8000;
+                MEMBER(s32, b, PersonaRenderWork, flags) = ((PersonaRenderWork *)b)->flags | 0x8000;
                 *(u16 *)&((PersonaRenderWork *)b)->skillFrame = 0;
                 ((PersonaRenderWork *)b)->selectedSkill = ShdSkill_FindSlot(b + 0x8C, selected);
-                sv = *(s16 *)(b + 0x51A);
+                sv = MEMBER(s16, b, PersonaRenderWork, selectedSkill);
                 if (sv < 0) {
                     kAssertFail(D_005E4868, 0xEB1);
                 }
@@ -4945,10 +4957,10 @@ s32 shdPersonaLevelUpStep(u8 *task)
             bb = work->parentTask->work;
             if ((((PersonaRenderWork *)bb)->flags & 0x8000) == 0) {
                 s16 sv;
-                *(s32 *)(bb + 0x534) = ((PersonaRenderWork *)bb)->flags | 0x8000;
+                MEMBER(s32, bb, PersonaRenderWork, flags) = ((PersonaRenderWork *)bb)->flags | 0x8000;
                 *(u16 *)&((PersonaRenderWork *)bb)->skillFrame = 0;
                 ((PersonaRenderWork *)bb)->selectedSkill = ShdSkill_FindSlot(bb + 0x8C, highlightSkill);
-                sv = *(s16 *)(bb + 0x51A);
+                sv = MEMBER(s16, bb, PersonaRenderWork, selectedSkill);
                 if (sv < 0) {
                     kAssertFail(D_005E4868, 0xEB1);
                 }
@@ -4988,7 +5000,7 @@ s32 shdPersonaLevelUpStep(u8 *task)
         ((PersonaRenderWork *)base)->persona[0].unknown05[0] = 0;
         j = 0;
         while (j < 5) {
-            *(u8 *)(base + j + 0x18) = 0;
+            MEMBER(u8, base + j, PersonaRenderWork, persona[0].added[0]) = 0;
             j += 1;
         }
         shdPersonaFillStatusForState(base, *(u8 **)base);
@@ -5052,10 +5064,12 @@ extern char D_005E4F30[];
 s32 shdPersonaLevelUpStep(u8 *);
 void shdPersonaLevelUpDestroy(u8 *);
 // Intent: Create a level-up child task that copies its parameters and the skill table into its work block [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+
 // FUN_0011F410
 u8 *shdPersonaLevelUpCreate(s32 inputParentTask, s32 personaTask, u8 *inputLearnList, s32 messageResource, s32 extraMessage, s32 *messages)
 {
+    ShdPersonaLevelUpWork *levelUpWork;
+
     ShdPersonaLevelUpWork *w;
     u8 *r;
     s32 i;
@@ -5074,7 +5088,7 @@ u8 *shdPersonaLevelUpCreate(s32 inputParentTask, s32 personaTask, u8 *inputLearn
     w->parameter3 = messageResource;
     w->parameter4 = extraMessage;
     for (i = 0; i < 0xB; i++) {
-        *(s32 *)((u8 *)w + 0x2C + i * 4) = messages[i];
+        (levelUpWork = w)->messages[i] = messages[i];
     }
     return r;
 }
@@ -5120,7 +5134,7 @@ void shdPersonaBeginSelection(u8 *task);
  * complete 36B switch table, and twelve retail zero-tail bytes.
  * Proof: build/game-resume-20260921/persona-w2/accepted-dialog. */
 // Intent: Advance the skill-replace state machine one step and return its status [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011F5A0
 s32 shdPersonaSkillReplaceStep(u8 *task)
 {
@@ -5204,7 +5218,7 @@ s32 shdPersonaSkillReplaceStep(u8 *task)
                         queuedSkill = ShdSkill_GetPendingSkill(bb + 0x8C);
                     }
                     pendingSkill = queuedSkill & 0xFFFF;
-                    current = *(u8 **)(pp + 0x38);
+                    current = MEMBER(u8 *, pp, SdkTask, work);
                     if (*(u8 **)current == NULL) {
                         kAssertFail(D_005E4868, 0xE45);
                     }
@@ -5217,7 +5231,7 @@ s32 shdPersonaSkillReplaceStep(u8 *task)
                     if (ok != 0) {
                         ok2 = 1;
                     } else {
-                        if ((*(s32 *)(bb + 0x534) & 0x100000) == 0) {
+                        if ((MEMBER(s32, bb, PersonaRenderWork, flags) & 0x100000) == 0) {
                             ShdSkill_PopPoolEntry(bb + 0x8C);
                         }
                         ok2 = 0;
@@ -5245,9 +5259,9 @@ s32 shdPersonaSkillReplaceStep(u8 *task)
                                 ((PersonaRenderWork *)qb)->selectionStart.y = ((PersonaRenderWork *)qb)->selectionPosition.y;
                                 *(s32 *)&((PersonaRenderWork *)qb)->selectionTarget.x = 0xC3E10000;
                                 *(u16 *)&((PersonaRenderWork *)qb)->selectionFrame = 0;
-                                nv = *(s32 *)(qb + 0x534) | 0x2000;
-                                *(s32 *)(qb + 0x534) = nv;
-                                *(s32 *)(qb + 0x534) = nv & ~0x1000;
+                                nv = MEMBER(s32, qb, PersonaRenderWork, flags) | 0x2000;
+                                MEMBER(s32, qb, PersonaRenderWork, flags) = nv;
+                                MEMBER(s32, qb, PersonaRenderWork, flags) = nv & ~0x1000;
                             }
                         }
                     }
@@ -5275,10 +5289,10 @@ s32 shdPersonaSkillReplaceStep(u8 *task)
             fq = ((PersonaRenderWork *)q)->flags;
             if ((fq & 0x8000) == 0) {
                 s16 sv;
-                *(s32 *)(q + 0x534) = fq | 0x8000;
+                MEMBER(s32, q, PersonaRenderWork, flags) = fq | 0x8000;
                 *(u16 *)&((PersonaRenderWork *)q)->skillFrame = 0;
                 ((PersonaRenderWork *)q)->selectedSkill = ShdSkill_FindSlot(q + 0x8C, selected);
-                sv = *(s16 *)(q + 0x51A);
+                sv = MEMBER(s16, q, PersonaRenderWork, selectedSkill);
                 if (sv < 0) {
                     kAssertFail(D_005E4868, 0xEB1);
                 }
@@ -5330,10 +5344,12 @@ void shdPersonaSkillReplaceDestroy(u8 *task)
 
 
 // Intent: Create a skill-replace child task that copies its parameters and a 0xB-word table into its work block [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+
 // FUN_0011FBC0
 u8 *shdPersonaSkillReplaceCreate(s32 parentTask, u8 *personaTask, s32 messageResource, u8 *messages)
 {
+    ShdPersonaSkillReplaceWork *replacementWork;
+
     ShdPersonaSkillReplaceWork *w;
     u8 *r;
     s32 i;
@@ -5350,7 +5366,7 @@ u8 *shdPersonaSkillReplaceCreate(s32 parentTask, u8 *personaTask, s32 messageRes
     w->parent = personaTask;
     w->messageHandle = messageResource;
     for (i = 0; i < 0xB; i++) {
-        *(s32 *)((u8 *)w + 0x18 + i * 4) = ((s32 *)messages)[i];
+        (replacementWork = w)->messages[i] = ((s32 *)messages)[i];
     }
     return r;
 }

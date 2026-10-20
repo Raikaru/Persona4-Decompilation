@@ -105,7 +105,7 @@ extern s32 func_003c8d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_003c8d80(s32 arg0, s32 arg1);
 extern s32 func_003c2b70(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (*arg4)());
 extern s32 func_003c2ba0(s32 arg0, s32 (*arg1)(), s32 (*arg2)(), s32 (*arg3)());
-extern s32 func_0038fb20(u8 *arg0);
+extern s32 rpCollTreeStreamGetSize(u8 *arg0);
 extern s32 func_003df240(s32 arg0, s32 *arg1, s32 arg2);
 extern f32 DefaultGeomAnimCB(s32 arg0, f32 arg1);
 extern u8 *func_004115d0(void);
@@ -188,7 +188,7 @@ s32 func_00390280(s32 arg0, s32 arg1)
 s32 func_00390290(s32 arg0, s32 arg1)
 {
     if (*(s32 *)(arg0 + arg1) != 0) {
-        return func_0038fb20((u8 *)*(s32 *)(arg0 + arg1)) + 0x10;
+        return rpCollTreeStreamGetSize((u8 *)*(s32 *)(arg0 + arg1)) + 0x10;
     }
     return 0;
 }

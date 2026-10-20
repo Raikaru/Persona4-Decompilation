@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2598 of 13102 symbols carry a recovered name.
+// 2601 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -5608,9 +5608,9 @@ func_0038f7f0 = 0x0038F7F0; // type:func
 func_0038f880 = 0x0038F880; // type:func
 func_0038f8d0 = 0x0038F8D0; // type:func
 func_0038f950 = 0x0038F950; // type:func
-func_0038f990 = 0x0038F990; // type:func
+rpCollTreeCreate = 0x0038F990; // type:func
 func_0038fb10 = 0x0038FB10; // type:func
-func_0038fb20 = 0x0038FB20; // type:func
+rpCollTreeStreamGetSize = 0x0038FB20; // type:func
 func_0038fb50 = 0x0038FB50; // type:func
 func_0038fd30 = 0x0038FD30; // type:func
 func_0038fe90 = 0x0038FE90; // type:func
@@ -7868,7 +7868,7 @@ func_00441ef0 = 0x00441EF0; // type:func
 copysignf = 0x00441F40; // type:func
 func_00441f68 = 0x00441F68; // type:func
 sprintf = 0x00442088; // type:func
-func_004420f8 = 0x004420F8; // type:func
+stdioScanStringStreamNoop = 0x004420F8; // type:func
 sscanf = 0x00442100; // type:func
 __scan_string_with_context = 0x00442188; // type:func
 __stream_write_callback = 0x00442220; // type:func
