@@ -126,7 +126,7 @@ static inline void btlCameraCopyPoseComponents(s64 *outPair, f32 *outComponent,
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001ce470-001cff00 */
 
 /* measured: opt_propagation off probe for ce470 mixed-load ordering. */
-/* measured: func_001ce470 MATCH -> MISMATCH without this pragma. */
+/* measured: direct paired stores, separate XY/Z snapshots and typed camera aliases retain three baseline words. */
 #pragma opt_propagation off
 /* Submit fixed pose pairs at entry and frame 0x25 with their respective durations. */
 // FUN_001CE470

@@ -306,7 +306,7 @@ void btlActionStartUpdate(s64 *actionWords) {
    keeps source operand order for `named + named` (addu off,base / addu idx,sum
    as retail) but commutes an inline product on the left (`a * k + b` emits
    addu b,a*k); the table base must be copied first so its lw leads the block. */
-/* measured: btlActionSelectMove MATCH -> MISMATCH without this pragma. */
+/* measured: typed rows, byte-table bases and named move slots still differ by 15 words without propagation off. */
 #pragma opt_propagation off
 /* Return a distant unit to its anchor with the motion-table movement speed. */
 // FUN_001A0F40

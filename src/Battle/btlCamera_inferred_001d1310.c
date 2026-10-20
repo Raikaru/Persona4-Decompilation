@@ -103,9 +103,7 @@ void btlCameraCountUnitsByBand(u16 *counts) {
     }
 }
 
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: btlCameraFindFormationForCounts MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
+/* measured: typed formation-array indexing retains MATCH with the surrounding propagation setting. */
 /* Return the first fitting formation row, or the final row if no capacities fit. */
 // FUN_001D14B0
 s32 btlCameraFindFormationForCounts(u8 *counts)
@@ -121,7 +119,7 @@ s32 btlCameraFindFormationForCounts(u8 *counts)
     goto test;
 loop:
     maskedIndex = (u16)index;
-    entry = table + (maskedIndex * 0xE0);
+    entry = (u8 *)&((BtlCameraFormation *)table)[maskedIndex];
     if (((u16 *)counts)[0] > ((BtlCameraFormation *)entry)->capacity[0]) {
         goto next;
     }
@@ -205,9 +203,8 @@ done:
 }
 
 #pragma push
-/* measured: btlCameraAssignFormationSlots MATCH -> MISMATCH without this pragma. */
+/* measured: named unit members retain 218 baseline words; either lifetime/hoisting setting alone also differs. */
 #pragma opt_loop_invariants on
-/* measured: btlCameraAssignFormationSlots MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
 /* Assign party/enemy formation slots, optionally snap positions, then face
  * each side toward the other. MWCC b210: 1592 bytes and eight zero tail bytes.
@@ -385,8 +382,8 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
         ((BtlBattleState *)iGpffffb3ac)->unkA72 = btlSideCountNotBad(2, 0x80000);
     }
 }
-
 #pragma pop
+
 /* Move the flagged units along their horizontal animation-bound separation; return completion. */
 // FUN_001D1CC0
 s32 btlCameraNudgeUnitPair(u8 *work)
