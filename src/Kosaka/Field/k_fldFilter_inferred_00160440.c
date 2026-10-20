@@ -221,7 +221,8 @@ void FldFilterApplyColour(void)
  * current-row base held as an integer (u32) so the row offset is the first addu operand, as retail.
  * blend row reads the base word as u32 (retail reloads it there instead of reusing the current-row base).
  */
-static inline void zeroBytes16_00160880(u8 *p)
+/* Clear the sixteen-byte color scratch buffer when it is present. */
+static inline void fldFilterClearColorBytes(u8 *p)
 {
     s32 n = 16;
 
@@ -235,7 +236,9 @@ static inline void zeroBytes16_00160880(u8 *p)
 }
 
 /* Keep the state-word read at the join after updating the previous state. */
-static inline s32 previousStateValue_00160880(const s32 *state)
+/* Read the previous crossfade state through its original word pointer. */
+/* measured: expansion reuses the preceding state word instead of retaining the retail reload and load order. */
+static inline s32 fldFilterPreviousState(const s32 *state)
 {
     return *state;
 }
@@ -296,7 +299,7 @@ void FldColorCrossfadeStep(void)
             D_007643AC = cur;
         }
     }
-    prev = previousStateValue_00160880(&D_007643AC);
+    prev = fldFilterPreviousState(&D_007643AC);
     b = D_007643B0;
     inv = 1.0f - b;
     i = 0;
@@ -432,7 +435,7 @@ void FldColorCrossfadeStep(void)
             if ((s32)((FldFilterEntry *)(curOff + base))[0].type == 3) {
                 u8 *vtx;
 
-                zeroBytes16_00160880(colsA);
+                fldFilterClearColorBytes(colsA);
                 colsA[0] = (u8)r0;
                 colsA[1] = (u8)g0;
                 colsA[2] = (u8)b0;
@@ -464,7 +467,7 @@ void FldColorCrossfadeStep(void)
             } else {
                 u8 *vtx;
 
-                zeroBytes16_00160880(colsB);
+                fldFilterClearColorBytes(colsB);
                 colsB[0] = (u8)r0;
                 colsB[1] = (u8)g0;
                 colsB[2] = (u8)b0;

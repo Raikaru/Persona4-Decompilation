@@ -1,5 +1,6 @@
 /* Original translation unit datPersona.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "operand_order_internal.h"
 #include "type.h"
 #include "datPersona_internal.h"
 #include "datUnit_internal.h"
@@ -59,10 +60,6 @@ extern u8 *iGpffffb3d8; /* gp -0x4C28 */
 extern u8 *iGpffffb3d4; /* gp -0x4C2C */
 extern u8 *iGpffffb3dc; /* gp -0x4C24 */
 extern u16 (*iGpffffb3e4)[311]; /* gp -0x4C1C */
-static inline s32 datPersonaOrFlag(s32 flags, s32 mask)
-{
-    return flags | mask;
-}
 
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 *datPersonaResolveRecord(u8 *record);
@@ -158,6 +155,8 @@ u16 datPersonaRosterSlotFlags(s32 slotIndex)
    Its length helper preserves that value across the known-skill query.
    Native b210 O2 with these scoped propagation/loop settings is exact
    684/688 bytes; see docs/probe_archive/Persona_skills_00109510_20260922.md. */
+/* Compute the inclusive count between the first and last selected persona. */
+/* measured: expansion allocates the span and loop indices to different saved registers. */
 static inline s32 datPersonaSelectedCount(s32 first, s32 last)
 {
     return (last + 1) - first;
@@ -1019,10 +1018,10 @@ void datPersonaSetRosterMode(s32 rosterMode)
         D_0079B40C[0] = flags | 1;
         break;
     case 2:
-        D_0079B40C[0] = datPersonaOrFlag(datPersonaOrFlag(flags, 1), 2);
+        D_0079B40C[0] = (operandOrderOr(flags, 1) | 2);
         break;
     case 3:
-        D_0079B40C[0] = datPersonaOrFlag(datPersonaOrFlag(datPersonaOrFlag(flags, 1), 2), 4);
+        D_0079B40C[0] = (operandOrderOr(operandOrderOr(flags, 1), 2) | 4);
         break;
     default:
         kAssertFail(D_005E4318, 0x4CD);
@@ -1285,7 +1284,8 @@ s32 datPersonaUsesFixedGrowth(DatPersonaRecord *persona)
  */
 #pragma push
 #pragma opt_loop_invariants on
-static inline s32 DPGrowthIsParty(u8 *persona)
+/* Test whether the persona identifier belongs to the party-persona interval. */
+static inline s32 datPersonaGrowthIsParty(u8 *persona)
 {
     /* Same DatPersonaRecord +2 access retained by the matching level-preview caller. */
     /* measured: typed site/local/array forms change instructions; this existing member is exact. */
@@ -1296,20 +1296,8 @@ static inline s32 DPGrowthIsParty(u8 *persona)
     return 0;
 }
 
-/* Read the starting level. measured: array/site/local fields change nine bytes
- * in datPersonaPreviewLevelUp; keep offset-before-base byte indexing. */
-static inline u8 DPGrowthBaseLevel(u16 id)
-{
-    u8 *table = iGpffffb3d4;
-    return table[(u32)id * sizeof(DatPersonaLevelRow) + MEMBER_OFFSET(DatPersonaLevelRow, baseLevel)];
-}
-
-static inline u32 DPGrowthOffset(u32 offset, u32 base)
-{
-    return offset + base;
-}
-
-static inline s32 DPGrowthFindSkill(u16 skill, u8 *skills, s32 known)
+/* Search the known halfword skills, retaining the truncated index on return. */
+static inline s32 datPersonaGrowthFindSkill(u16 skill, u8 *skills, s32 known)
 {
     s32 index;
     /* The skill-list byte cursor preserves the preview's halfword index truncation. */
@@ -1319,7 +1307,6 @@ static inline s32 DPGrowthFindSkill(u16 skill, u8 *skills, s32 known)
     return index & 0xFFFF;
 }
 
-static inline s32 DPGrowthAddStat(s32 gain, s32 base) { return gain + base; }
 
 // Intent: previews stat, skill and level changes of persona arg0 at level arg2 into arg1 without modifying the persona.
 /* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
@@ -1397,11 +1384,11 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
     expsum = (u32)((DatPersonaRecord *)persona)->exp + (u32)addedExp;
     pidoff = (pid & 0xFFFF) * 0x46;
     while (datPersonaGetExpForLevel(persona, level) <= expsum && level <= 99) {
-        if (!DPGrowthIsParty(persona)) {
+        if (!datPersonaGrowthIsParty(persona)) {
             for (roll = 0; (roll & 0xFFFF) < 3; roll = (roll + 1) & 0xFFFF) {
                 total = 0;
                 sumIndex = 0;
-                table = (u8 *)DPGrowthOffset((u32)pidoff, (u32)iGpffffb3dc);
+                table = (u8 *)((u32)pidoff + (u32)iGpffffb3dc);
                 while ((sumIndex & 0xFFFF) < 5) {
                     if ((s32)(delta[(sumIndex & 0xFFFF) + 0x82] + stat[(u16)sumIndex]) < 99) {
                         total = (total + table[sumIndex & 0xFFFF]) & 0xFFFF;
@@ -1412,7 +1399,7 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
                     choice = (datCalcRandomBelow(total & 0xFFFF) + 1) & 0xFFFF;
                     weight = 0;
                     statScan = 0;
-                    table = (u8 *)DPGrowthOffset((u32)pidoff, (u32)iGpffffb3dc);
+                    table = (u8 *)((u32)pidoff + (u32)iGpffffb3dc);
                     while ((statScan & 0xFFFF) < 5) {
                         gain = delta + (statScan & 0xFFFF) + 0x82;
                         if ((s32)(*gain + stat[(u16)statScan]) < 99) {
@@ -1441,7 +1428,7 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
                     gain = delta + (partyIndex & 0xFFFF) + 0x82;
                     if ((s32)(*gain + statBase) < 99) {
                         delta[(partyIndex & 0xFFFF) + 0x82] += table[(partyIndex & 0xFFFF) + 0x7A];
-                        if ((s32)DPGrowthAddStat(delta[(partyIndex & 0xFFFF) + 0x82], statBase) > 99) {
+                        if ((s32)operandOrderAdd(delta[(partyIndex & 0xFFFF) + 0x82], statBase) > 99) {
                             *gain = 99 - statBase;
                         }
                     }
@@ -1452,7 +1439,7 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
         level++;
         delta[0] += 1;
     }
-    if (DPGrowthIsParty(persona)) {
+    if (datPersonaGrowthIsParty(persona)) {
         /* measured: typed site/local/array forms change instructions; this existing member is exact. */
         entry = (u8 *)iGpffffb3e4 + (MEMBER(u16, persona, DatPersonaRecord, id) - 0xC0) * 0x26E + 4;
         limit = 32;
@@ -1462,7 +1449,8 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
         pid = (u16)MEMBER(s16, persona, DatPersonaRecord, id);
         entry = (u8 *)iGpffffb3dc + pid * 0x46 + 6;
         limit = 16;
-        oldLevel = persona[4] - DPGrowthBaseLevel(pid);
+        /* measured: typed base-level fields change nine bytes; plain byte-table indexing retains MATCH. */
+        oldLevel = persona[4] - (iGpffffb3d4[(u32)(u16)pid * sizeof(DatPersonaLevelRow) + MEMBER_OFFSET(DatPersonaLevelRow, baseLevel)]);
     }
     newLevel = oldLevel + delta[0];
     first = 0;
@@ -1503,7 +1491,7 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
 
             if (learningEvent->skill != 0) {
 
-                search = DPGrowthFindSkill(learningEvent->skill, skills, known);
+                search = datPersonaGrowthFindSkill(learningEvent->skill, skills, known);
                 if (search == known) {
                     if ((added & 0xFFFF) >= 32) {
                         kAssertFail(D_005E4318, 0x604);
@@ -1515,7 +1503,7 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
             break;
         case 2:
             if (((DatPersonaLearnEvent *)entry)->skill != 0) {
-                search = DPGrowthFindSkill(((DatPersonaLearnEvent *)entry)->skill, skills, known);
+                search = datPersonaGrowthFindSkill(((DatPersonaLearnEvent *)entry)->skill, skills, known);
                 if (search != known) {
                     if ((removed & 0xFFFF) >= 32) {
                         kAssertFail(D_005E4318, 0x614);

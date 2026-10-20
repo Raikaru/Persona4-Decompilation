@@ -1071,6 +1071,7 @@ extern char D_00713078[], D_00713088[], D_007130A0[];
 extern char D_00756758[], D_00756748[], D_00756730[], D_00756720[];
 /* Inline overlap search preserves retail's early-return branches.
    The metadata table and count are reloaded on each retry. */
+/* Return the end of an overlapping movie-pool allocation, or the candidate unchanged. */
 static inline u32 sdkMallocFindOverlap(u32 candidate, u32 size)
 {
     u32 i;
