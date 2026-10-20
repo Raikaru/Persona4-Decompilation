@@ -8,7 +8,7 @@
 extern s32 func_003df050(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
 extern s32 func_003e2910(u8 *arg0, void *arg1, s32 arg2);
 extern u8 *func_003df2a0(u8 *arg0, void *arg1, u32 arg2);
-extern u8 *func_0038f990(u16, u16, f32 *, s32);
+extern u8 *rpCollTreeCreate(u16, u16, f32 *, s32);
 extern void (*jtbl_008873EC[])(void *);
 extern s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void *func_003e2ab0(void *arg0, void *arg1, s32 arg2);
@@ -147,7 +147,7 @@ read_header:
 make_output:
     output.max = input.min;
     output.min = input.max;
-    temp_2 = func_0038f990(input.count1, input.count2,
+    temp_2 = rpCollTreeCreate(input.count1, input.count2,
                             (f32 *)&output.min, input.size);
     if (temp_2 == NULL) {
         goto result_null;
@@ -211,7 +211,7 @@ u8 *func_0038fe90(u8 *arg0, u32 arg1, s32 arg2, f32 *arg3, s32 *arg4)
     s32 value;
 
     *arg4 = 0;
-    tree = (CollTree *)func_0038f990(arg1 & 0xFFFF, arg2 & 0xFFFF, arg3, 1);
+    tree = (CollTree *)rpCollTreeCreate(arg1 & 0xFFFF, arg2 & 0xFFFF, arg3, 1);
     if (tree == NULL) {
         return NULL;
     }
