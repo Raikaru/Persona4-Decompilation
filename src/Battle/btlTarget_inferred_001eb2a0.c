@@ -137,8 +137,8 @@ void btlTargetClearRecord(u8 *record) {
     memset(record, 0, 0x5C);
 }
 
+/* Reset command selection and three plan values while retaining the target slots. */
 // FUN_001EB3B0
-/* Reset command selection and its three plan values while retaining the target slots. */
 void btlTargetResetCommandRecord(u8 *record) {
     u8 *work;
 

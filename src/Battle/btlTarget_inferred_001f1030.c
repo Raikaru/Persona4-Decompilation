@@ -786,7 +786,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
         status &= ~2;
     }
     if (*(s16 *)(context + 0xEE) == -1) {
-        *(s16 *)(context + 0xEE) = func_001f0610(idw);
+        *(s16 *)(context + 0xEE) = btlTargetSkillAuxiliaryMessageNoop(idw);
     }
     if (((DatSkillEntry *)(u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8))->kind24 == 6) {
         ((BtlAction *)context)->unk_1a |= 0x4000;
