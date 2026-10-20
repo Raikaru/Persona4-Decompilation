@@ -64,62 +64,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
-
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -135,10 +80,6 @@ extern s32 iGpffffb444;
 extern s32 datCalcIsLowHp(u8 *unit);
 extern s32 datCalcIsGuarding(s32 unitFlags);
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern void (*jtbl_008873EC[])(void *data);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -168,12 +109,13 @@ extern u8 D_00794150[];
    (beq 1, beqz, b default) instead of the inverted two-branch form an
    `||` condition produces.  The case labels are written 0 then 1 because
    the compare chain is emitted in reverse label order. */
-// FUN_00198DD0
-/* measured: remaining model/data-unit reloads change MATCH to MISMATCH at the individually tested call sites. */
+/* measured: a distinct typed unit alias retains the model/data-unit reloads that moved instructions at the measured call sites. */
 /* Choose the rest motion from status/HP/guard/death state; replace playback only when already at rest. */
+// FUN_00198DD0
 #pragma push
 void btlUnitUpdateStatusMotion(u8 *unit, u16 frame)
 {
+    BtlUnit *unitFields = (BtlUnit *)unit;
     s16 restMotion;
     s64 value;
     u16 motionOption;
@@ -192,7 +134,7 @@ void btlUnitUpdateStatusMotion(u8 *unit, u16 frame)
             if (mdlLayerHasAnimation(((BtlUnit *)unit)->layerHandle, 0, motionId) == 0) {
                 available = 0;
             } else {
-                keyEmpty = mdlIsLayerKeyEmpty(*(u8 **)(unit + 0xA00), 0, motionId);
+                keyEmpty = mdlIsLayerKeyEmpty(unitFields->layerHandle, 0, motionId);
                 if (keyEmpty == 1) {
                     available = 0;
                 } else {
@@ -206,25 +148,25 @@ void btlUnitUpdateStatusMotion(u8 *unit, u16 frame)
             restMotion = 0x12;
         }
     }
-    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0xFFFFF) != 0) {
+    if (datCalcChkBadStatus((s32)unitFields->datUnit, 0xFFFFF) != 0) {
         restMotion = 3;
     }
-    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100000) != 0) {
+    if (datCalcChkBadStatus((s32)unitFields->datUnit, 0x100000) != 0) {
         restMotion = 0xA;
     }
-    if (datCalcIsGuarding(*(s32 *)(unit + 0xA64)) != 0) {
+    if (datCalcIsGuarding((s32)unitFields->datUnit) != 0) {
         restMotion = 0x18;
     }
-    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100) != 0) {
+    if (datCalcChkBadStatus((s32)unitFields->datUnit, 0x100) != 0) {
         restMotion = 0;
     }
-    if ((datCalcIsDead(*(u8 **)(unit + 0xA64), 0) != 0) && ((((BtlUnit *)unit)->flags3 & 0x20) != 0)) {
+    if ((datCalcIsDead((u8 *)unitFields->datUnit, 0) != 0) && ((((BtlUnit *)unit)->flags3 & 0x20) != 0)) {
         if ((((BtlUnit *)unit)->flags2 & 2) != 0) {
             motionId = (s16)(btlUnitGetMotionId(unit, 0x13) & 0xFFFF);
             if (mdlLayerHasAnimation(((BtlUnit *)unit)->layerHandle, 0, motionId) == 0) {
                 available = 0;
             } else {
-                keyEmpty = mdlIsLayerKeyEmpty(*(u8 **)(unit + 0xA00), 0, motionId);
+                keyEmpty = mdlIsLayerKeyEmpty(unitFields->layerHandle, 0, motionId);
                 if (keyEmpty == 1) {
                     available = 0;
                 } else {

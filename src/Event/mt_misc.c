@@ -46,6 +46,7 @@ void mtMiscAppendEntry(int tableAddress, u32 resourceData)
 // FUN_00291220
 void mtMiscSetSlotRes(int tableAddress, int slotIndex, int entryIndex, u64 creationFlags)
 {
+    EvtEffectTable *effectTable = (EvtEffectTable *)tableAddress;
     u16 oldResourceId;
     u16 resourceId;
     u16 *slot;
@@ -63,8 +64,8 @@ void mtMiscSetSlotRes(int tableAddress, int slotIndex, int entryIndex, u64 creat
             }
             *slot = 0;
         }
-        /* measured: typing this remaining count reload loses MATCH across the resource callbacks. */
-        if (*(int *)(tableAddress + 4) <= entryIndex) {
+        /* measured: the separate typed table local preserves the count reload after resource callbacks. */
+        if (effectTable->count <= entryIndex) {
             value = 0;
         }
         else {

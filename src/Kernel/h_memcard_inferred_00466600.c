@@ -229,8 +229,8 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-// FUN_00466600
 /* Wake the backend thread only in its waiting states, preserving interrupt state. */
+// FUN_00466600
 void memcardWakeBackendThread(void) {
     s32 threadStatus[12];
     s32 r;

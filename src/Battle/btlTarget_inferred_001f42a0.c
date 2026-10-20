@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "btl_target_message_internal.h"
 #include "btl_sound_internal.h"
 #include "h_cdvd_request_internal.h"
 #include "btl_action_internal.h"
@@ -19,17 +21,6 @@
 /* Force the offset operand into the first addu slot. */
 
 /* Force the base operand into the first addu slot. */
-
-/* The step trigger occupies the first eight bytes of the playback block. */
-typedef struct BtlActionStepCounter {
-    u16 elapsed;
-    u16 interval;
-} BtlActionStepCounter;
-typedef struct BtlActionStepState {
-    BtlActionStepCounter counter;
-    u16 pending;
-    u16 unk06;
-} BtlActionStepState;
 
 /* Packet 0x800 has 0x18 bytes of work, populated by btlTargetCreateTargetPacket. */
 typedef struct BtlTargetCallbackWork {
@@ -138,20 +129,20 @@ extern u8 *btlActionFindByUnit(s32 unit);
    index arithmetic and the 0x70 field load in a temporary before its saved copy. */
 /* measured: restore propagation for the rest of the unit. */
 /* Return the current-actor message only for the selected action. */
-/* Raw selected-action word comparison preserves the existing integer callback contract; the shared state stores a pointer. */
+/* Cast the selected-action pointer to the integer callback argument domain. */
 // FUN_001F42A0
 s32 btlActionGetCurrentActorMsgCode(s32 context) {
-    if (*(s32 *)(iGpffffb3ac + 0x170) != context) {
+    if (((s32)(((BtlBattleState *)(iGpffffb3ac))->selectedAction)) != context) {
         return -1;
     }
     return 0x173;
 }
 
 /* Choose the default message, including the battle-flag/actor-id exception. */
-/* Raw battle flags preserve the signed-word access of this callback; the shared field is unsigned. */
+/* Interpret battle flags as a signed word without changing their stored bits. */
 // FUN_001F42D0
 s32 btlActionGetDefaultMsgCode(void) {
-    if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x20000000) != 0) {
+    if ((((s32)(((BtlBattleState *)(iGpffffb3ac))->battleFlags)) & 0x20000000) != 0) {
         if (btlCurrentUnitId() == 0x20B) {
             return 0x18B;
         }
@@ -174,7 +165,7 @@ s32 btlActionGetSideMsgCode(u8 *context)
 
 /* Map party character ids to the message bank beginning at 0x68. */
 // FUN_001F4380
-s32 func_001f4380(u8 *action)
+s32 btlActionGetUnableToRecoverMsgCode(u8 *action)
 {
     u16 characterId;
     u8 *unit;
@@ -205,7 +196,7 @@ s32 func_001f4380(u8 *action)
 }
 
 /* Select a character message tier only while enemies remain. */
-/* measured: the remaining action-unit reload changed MATCH when converted to the typed unit field. */
+/* Measured site/local/stride unit reloads changed MATCH; MEMBER names the action field. */
 // FUN_001F4430
 s32 btlActionGetCharacterLevelMsg(u8 *action, s32 tier) {
     s32 messageOffset;
@@ -221,7 +212,7 @@ s32 btlActionGetCharacterLevelMsg(u8 *action, s32 tier) {
         return -1;
     }
     messageOffset = (5 - tier) * 7;
-    characterId = ((BtlUnit *)*(u8 **)(action + 0x30))->charId;
+    characterId = ((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->charId;
     switch (characterId) {
     case 1:
         return messageOffset + 0xFD;
@@ -244,7 +235,7 @@ s32 btlActionGetCharacterLevelMsg(u8 *action, s32 tier) {
 
 /* Map party character ids to the message bank beginning at 0x3D. */
 // FUN_001F4550
-s32 func_001f4550(u8 *action)
+s32 btlActionGetAilmentOnsetMsgCode(u8 *action)
 {
     u16 characterId;
     u8 *unit;
@@ -276,7 +267,7 @@ s32 func_001f4550(u8 *action)
 
 /* Map party character ids to the message bank beginning at 0x35. */
 // FUN_001F4600
-s32 func_001f4600(u8 *action)
+s32 btlActionGetDownMsgCode(u8 *action)
 {
     u16 characterId;
     u8 *unit;
@@ -308,7 +299,7 @@ s32 func_001f4600(u8 *action)
 
 /* Map party character ids to the message bank beginning at 0x14A. */
 // FUN_001F46B0
-s32 func_001f46b0(u8 *action)
+s32 btlActionGetCriticalMsgCode(u8 *action)
 {
     u16 characterId;
     u8 *unit;
@@ -340,7 +331,7 @@ s32 func_001f46b0(u8 *action)
 
 /* Map party character ids to the message bank beginning at 0x143. */
 // FUN_001F4760
-s32 func_001f4760(u8 *action)
+s32 btlActionGetWeaknessMsgCode(u8 *action)
 {
     u16 characterId;
     u8 *unit;
@@ -371,7 +362,7 @@ s32 func_001f4760(u8 *action)
 }
 
 /* Choose a character/tier message, with optional thirty-percent special-bank rolls. */
-/* measured: the remaining repeated action-unit loads changed MATCH when typed, including one-access substitutions. */
+/* Measured singleton site/local/stride unit reloads changed MATCH; MEMBER preserves those reloads. */
 // FUN_001F4810
 s32 btlActionPickMsgCodeByRoll(u8 *action, s32 flags, s32 tier) {
     s32 messageOffset;
@@ -385,10 +376,10 @@ s32 btlActionPickMsgCodeByRoll(u8 *action, s32 flags, s32 tier) {
     if (tier == 1) {
         if ((flags & 2) && (datCalcRandomBelow(0x64) < 0x1E)) {
             s32 firstChoice;
-            if (((BtlUnit *)*(u8 **)(action + 0x30))->genus != 0) {
+            if (((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->genus != 0) {
                 firstChoice = -1;
             } else {
-                switch (((BtlUnit *)*(u8 **)(action + 0x30))->charId) {
+                switch (((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->charId) {
                 case 1:
                     firstChoice = 0x14A;
                     break;
@@ -419,10 +410,10 @@ s32 btlActionPickMsgCodeByRoll(u8 *action, s32 flags, s32 tier) {
         }
         if ((flags & 4) && (datCalcRandomBelow(0x64) < 0x1E)) {
             s32 secondChoice;
-            if (((BtlUnit *)*(u8 **)(action + 0x30))->genus != 0) {
+            if (((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->genus != 0) {
                 secondChoice = -1;
             } else {
-                switch (((BtlUnit *)*(u8 **)(action + 0x30))->charId) {
+                switch (((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->charId) {
                 case 1:
                     secondChoice = 0x143;
                     break;
@@ -453,7 +444,7 @@ s32 btlActionPickMsgCodeByRoll(u8 *action, s32 flags, s32 tier) {
         }
     }
     messageOffset = (5 - tier) * 7;
-    switch (((BtlUnit *)*(u8 **)(action + 0x30))->charId) {
+    switch (((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->charId) {
     case 1:
         return messageOffset + 0x120;
     case 2:
@@ -475,7 +466,7 @@ s32 btlActionPickMsgCodeByRoll(u8 *action, s32 flags, s32 tier) {
 
 /* Map party character ids to the message bank beginning at 0x158. */
 // FUN_001F4AD0
-s32 func_001f4ad0(u8 *action)
+s32 btlActionGetSelfDownMsgCode(u8 *action)
 {
     u16 characterId;
     u8 *unit;
@@ -507,7 +498,7 @@ s32 func_001f4ad0(u8 *action)
 
 /* Map party character ids to the message bank beginning at 0x4D. */
 // FUN_001F4B80
-s32 func_001f4b80(u8 *action)
+s32 btlActionGetAffinityHitMsgCode(u8 *action)
 {
     u16 characterId;
     u8 *unit;
@@ -539,7 +530,7 @@ s32 func_001f4b80(u8 *action)
 
 /* Map party character ids to the message bank beginning at 0x2D. */
 // FUN_001F4C30
-s32 func_001f4c30(u8 *action)
+s32 btlActionGetLowHpMsgCode(u8 *action)
 {
     u16 characterId;
     u8 *unit;
@@ -570,15 +561,15 @@ s32 func_001f4c30(u8 *action)
 }
 
 /* Choose the character message bank according to the battle flag and current actor id. */
-/* measured: the initial unit-pointer load must remain raw to preserve the verified branch/load sequence. */
+/* Measured site/local/stride forms of the first unit load changed MATCH; MEMBER retains the sequence. */
 // FUN_001F4CE0
-s32 func_001f4ce0(u8 *action)
+s32 btlActionGetDefeatMsgCode(u8 *action)
 {
     u16 specialCharacterId;
     u16 characterId;
     u8 *unit;
 
-    unit = *(u8 **)(action + 0x30);
+    unit = MEMBER(u8 *, action, BtlAction, unit);
     if (unit[0xA2] != 0) {
         return -1;
     }
@@ -641,7 +632,7 @@ low_switch_4ce0:
    The owned nine-entry switch table resolves to retail at 0x00747500.
    See docs/probe_archive/BattleAction_20260922_resume.md. */
 /* Collect party status/buff and enemy-count messages, then pick a non-repeated candidate. */
-/* measured: remaining unit and playback snapshots changed MATCH under per-access typing; keep the raw loads around query callbacks. */
+/* Measured site/local/stride unit snapshots changed MATCH; MEMBER retains loads around query callbacks. */
 // FUN_001F4E50
 s64 btlActionPickRandomStatusMsg(u8 *context) {
     struct ActionMessageChoice {
@@ -666,7 +657,7 @@ s64 btlActionPickRandomStatusMsg(u8 *context) {
         if (datCalcIsDead((s32)((u8 *)((BtlUnit *)unit)->datUnit), 0) == 0) {
             u8 *unitWork = (u8 *)btlActionFindByUnit((s32)unit);
             if ((unitWork == NULL) || !(((BtlAction *)unitWork)->flags & 0x20)) {
-                if (datCalcIsLowHp((s32)((void *)*(u8 **)(unit + 0xA64))) != 0) {
+                if (datCalcIsLowHp((s32)((void *)MEMBER(u8 *, unit, BtlUnit, datUnit))) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x8A;
                     choice->actor = ((BtlUnit *)unit)->charId;
@@ -674,64 +665,64 @@ s64 btlActionPickRandomStatusMsg(u8 *context) {
                     code8ACount = (code8ACount + 1) & 0xFFFF;
                 }
                 if (((BtlUnit *)unit)->charId != 1) {
-                    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x10) != 0) {
+                    if (datCalcChkBadStatus(MEMBER(s32, unit, BtlUnit, datUnit), 0x10) != 0) {
                         struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                         choice->code = 0x99;
-                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                         choiceCount = (choiceCount + 1) & 0xFFFF;
-                    } else if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x20) != 0) {
+                    } else if (datCalcChkBadStatus(MEMBER(s32, unit, BtlUnit, datUnit), 0x20) != 0) {
                         struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                         choice->code = 0x9f;
-                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                         choiceCount = (choiceCount + 1) & 0xFFFF;
-                    } else if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x4) != 0) {
+                    } else if (datCalcChkBadStatus(MEMBER(s32, unit, BtlUnit, datUnit), 0x4) != 0) {
                         struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                         choice->code = 0xa5;
-                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                         choiceCount = (choiceCount + 1) & 0xFFFF;
-                    } else if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x2) != 0) {
+                    } else if (datCalcChkBadStatus(MEMBER(s32, unit, BtlUnit, datUnit), 0x2) != 0) {
                         struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                         choice->code = 0xab;
-                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                         choiceCount = (choiceCount + 1) & 0xFFFF;
-                    } else if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x1) != 0) {
+                    } else if (datCalcChkBadStatus(MEMBER(s32, unit, BtlUnit, datUnit), 0x1) != 0) {
                         struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                         choice->code = 0xb1;
-                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                         choiceCount = (choiceCount + 1) & 0xFFFF;
-                    } else if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x40) != 0) {
+                    } else if (datCalcChkBadStatus(MEMBER(s32, unit, BtlUnit, datUnit), 0x40) != 0) {
                         struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                         choice->code = 0xb7;
-                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                         choiceCount = (choiceCount + 1) & 0xFFFF;
-                    } else if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x80) != 0) {
+                    } else if (datCalcChkBadStatus(MEMBER(s32, unit, BtlUnit, datUnit), 0x80) != 0) {
                         struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                         choice->code = 0xbd;
-                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                         choiceCount = (choiceCount + 1) & 0xFFFF;
-                    } else if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x8) != 0) {
+                    } else if (datCalcChkBadStatus(MEMBER(s32, unit, BtlUnit, datUnit), 0x8) != 0) {
                         struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                         choice->code = 0xc3;
-                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                         choiceCount = (choiceCount + 1) & 0xFFFF;
                     }
                 }
-                if (datCalcHasBuffMask(*(DatUnit **)(unit + 0xA64), 0xA) != 0) {
+                if (datCalcHasBuffMask(MEMBER(DatUnit *, unit, BtlUnit, datUnit), 0xA) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x6F;
-                    choice->actor = *(u16 *)(unit + 0xA4);
+                    choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                     choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
-                if (datCalcHasBuffMask(*(DatUnit **)(unit + 0xA64), 0x80) != 0) {
+                if (datCalcHasBuffMask(MEMBER(DatUnit *, unit, BtlUnit, datUnit), 0x80) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x76;
-                    choice->actor = *(u16 *)(unit + 0xA4);
+                    choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                     choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
-                if (datCalcHasBuffMask(*(DatUnit **)(unit + 0xA64), 0x220) != 0) {
+                if (datCalcHasBuffMask(MEMBER(DatUnit *, unit, BtlUnit, datUnit), 0x220) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x7D;
-                    choice->actor = *(u16 *)(unit + 0xA4);
+                    choice->actor = MEMBER(u16, unit, BtlUnit, charId);
                     choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
             }
@@ -739,29 +730,29 @@ s64 btlActionPickRandomStatusMsg(u8 *context) {
         unit = (u8 *)((BtlUnit *)unit)->nextUnit;
     }
     {
-        u8 *sourceUnit = *(u8 **)(context + 0x30);
+        u8 *sourceUnit = MEMBER(u8 *, context, BtlAction, unit);
         if (((BtlUnit *)sourceUnit)->charId == 1) {
             if (datCalcChkBadStatus((s32)((BtlUnit *)sourceUnit)->datUnit, 0x20) != 0) {
                 choices[choiceCount & 0xFFFF].code = 0x92;
                 choices[choiceCount & 0xFFFF].actor = -1;
                 choiceCount = (choiceCount + 1) & 0xFFFF;
-            } else if (datCalcChkBadStatus(*(s32 *)(sourceUnit + 0xA64), 0x2) != 0) {
+            } else if (datCalcChkBadStatus(MEMBER(s32, sourceUnit, BtlUnit, datUnit), 0x2) != 0) {
                 choices[choiceCount & 0xFFFF].code = 0x94;
                 choices[choiceCount & 0xFFFF].actor = -1;
                 choiceCount = (choiceCount + 1) & 0xFFFF;
-            } else if (datCalcChkBadStatus(*(s32 *)(sourceUnit + 0xA64), 0x1) != 0) {
+            } else if (datCalcChkBadStatus(MEMBER(s32, sourceUnit, BtlUnit, datUnit), 0x1) != 0) {
                 choices[choiceCount & 0xFFFF].code = 0x95;
                 choices[choiceCount & 0xFFFF].actor = -1;
                 choiceCount = (choiceCount + 1) & 0xFFFF;
-            } else if (datCalcChkBadStatus(*(s32 *)(sourceUnit + 0xA64), 0x40) != 0) {
+            } else if (datCalcChkBadStatus(MEMBER(s32, sourceUnit, BtlUnit, datUnit), 0x40) != 0) {
                 choices[choiceCount & 0xFFFF].code = 0x96;
                 choices[choiceCount & 0xFFFF].actor = -1;
                 choiceCount = (choiceCount + 1) & 0xFFFF;
-            } else if (datCalcChkBadStatus(*(s32 *)(sourceUnit + 0xA64), 0x80) != 0) {
+            } else if (datCalcChkBadStatus(MEMBER(s32, sourceUnit, BtlUnit, datUnit), 0x80) != 0) {
                 choices[choiceCount & 0xFFFF].code = 0x97;
                 choices[choiceCount & 0xFFFF].actor = -1;
                 choiceCount = (choiceCount + 1) & 0xFFFF;
-            } else if (datCalcChkBadStatus(*(s32 *)(sourceUnit + 0xA64), 0x8) != 0) {
+            } else if (datCalcChkBadStatus(MEMBER(s32, sourceUnit, BtlUnit, datUnit), 0x8) != 0) {
                 choices[choiceCount & 0xFFFF].code = 0x98;
                 choices[choiceCount & 0xFFFF].actor = -1;
                 choiceCount = (choiceCount + 1) & 0xFFFF;
@@ -834,7 +825,7 @@ s64 btlActionPickRandomStatusMsg(u8 *context) {
 }
 
 /* Select an ailment message for the selected action while its pending kind is 0xB. */
-/* measured: these DatUnit-pointer reloads must remain raw after the first status query; typing either changed MATCH. */
+/* Measured site/local/stride DatUnit reloads changed MATCH after the first status query. */
 // FUN_001F55B0
 s32 btlActionGetPendingMsgCode(u8 *context)
 {
@@ -849,10 +840,10 @@ s32 btlActionGetPendingMsgCode(u8 *context)
         if (datCalcChkBadStatus((s32)((BtlUnit *)work)->datUnit, 0x10) != 0) {
             return 0x91;
         }
-        if (datCalcChkBadStatus(*(s32 *)(work + 0xA64), 4) != 0) {
+        if (datCalcChkBadStatus(MEMBER(s32, work, BtlUnit, datUnit), 4) != 0) {
             return 0x93;
         }
-        if (datCalcChkBadStatus(*(s32 *)(work + 0xA64), 2) != 0) {
+        if (datCalcChkBadStatus(MEMBER(s32, work, BtlUnit, datUnit), 2) != 0) {
             return 0x94;
         }
         break;
@@ -863,7 +854,7 @@ s32 btlActionGetPendingMsgCode(u8 *context)
 }
 
 /* Map an encounter slot from one through five to its message code. */
-/* The encounter record is opaque here; only its halfword slot selector at +2 is established. */
+/* The encounter slot is the halfword at the start of the shared encounter record. */
 // FUN_001F5680
 /* The `return -1` and `return v + 0x11` blocks are reached by goto so they
    land in retail's order; writing both as plain returns emits them the other
@@ -872,11 +863,11 @@ s32 btlActionGetSlotMsgCode(void) {
     u8 *p;
     s32 v;
 
-    p = *(u8 **)(iGpffffb3ac + 0xC68);
+    p = ((u8 *)(((BtlBattleState *)(iGpffffb3ac))->encounterRecord));
     if (p == NULL) {
         return -1;
     }
-    v = *(u16 *)(p + 2);
+    v = (((BtlSoundEncounterRecord *)(p))->slot);
     if (v < 6) {
         if (v != 0) {
             goto add;
@@ -888,7 +879,7 @@ add:
 }
 
 /* Gate a target-message callback against playback state and encounter flags, then request playback. */
-/* measured: remaining playback-state reloads changed MATCH when typed. Encounter-rule and relative-message directory payloads remain opaque. */
+/* Playback state, encounter rules and relative message rows use their shared layouts. */
 // FUN_001F56D0
 s32 btlActionRunTargetCallback(s32 context, u16 argument, s32 option, s32 extra, s32 argumentMode) {
     s32 flags;
@@ -902,7 +893,7 @@ s32 btlActionRunTargetCallback(s32 context, u16 argument, s32 option, s32 extra,
     extern s32 (*D_0060AB20[])(s32, s32, s32, s32);
     extern s32 btlSoundRequestPlayback(u16, s32);
 
-    flags = *(s32 *)(iGpffffb3ac + 0xC);
+    flags = ((s32)(((BtlBattleState *)(iGpffffb3ac))->flags));
     if ((flags & 0x1000000) == 0) {
         return 1;
     }
@@ -910,19 +901,19 @@ s32 btlActionRunTargetCallback(s32 context, u16 argument, s32 option, s32 extra,
         return 0;
     }
     mode = argumentMode & 6;
-    if ((mode == 0) && ((*(u16 *)(iGpffffb3ac + 0xA4E) & 1) != 0)) {
+    if ((mode == 0) && (((((BtlBattleState *)(iGpffffb3ac))->playback.flags) & 1) != 0)) {
         return 1;
     }
-    table = iGpffffb414 + (*(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8) * 0x18);
+    table = iGpffffb414 + ((((BtlSoundEncounterRecord *)(((u8 *)(((BtlBattleState *)(iGpffffb3ac))->encounterRecord))))->trackRule) * 0x18);
     if ((*(s32 *)table & 0x400) != 0) {
         return 1;
     }
-    if ((*(u16 *)(iGpffffb3ac + 0xA4E) & 1) != 0) {
+    if (((((BtlBattleState *)(iGpffffb3ac))->playback.flags) & 1) != 0) {
         index = argument & 0xFFFF;
-        if (*(s16 *)(iGpffffb3ac + 0xA5C) == index) {
+        if ((((BtlBattleState *)(iGpffffb3ac))->playback.currentChannel) == index) {
             return 1;
         }
-        if (*(s16 *)(iGpffffb3ac + 0xA64) == index) {
+        if ((((BtlBattleState *)(iGpffffb3ac))->playback.pendingChannel) == index) {
             return 1;
         }
     }
@@ -938,10 +929,10 @@ s32 btlActionRunTargetCallback(s32 context, u16 argument, s32 option, s32 extra,
         u8 *pool;
         u8 *entries;
         s32 slot;
-        pool = *(u8 **)(iGpffffb3ac + 0xA54);
+        pool = ((u8 *)(((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->handle));
         slot = value & 0xFFFF;
         entries = (u8 *)((HCdvdRequest *)pool)->data;
-        if (*(u8 *)(entries + slot * 0xC) != 0) {
+        if ((((BtlTargetMessageEntry *)(entries))[slot].restricted) != 0) {
             return 1;
         }
     }
@@ -956,7 +947,7 @@ s32 btlActionRunTargetCallback(s32 context, u16 argument, s32 option, s32 extra,
 }
 
 /* Advance the delayed message request, select a record, and remember its callback/channel. */
-/* The message directory retains twelve-byte relative-offset rows; its resource payload is outside the playback-state layout. */
+/* The archive request owns the message payload; directory rows contain relative offsets. */
 // FUN_001F58D0
 void btlActionStepMessagePhase(void)
 {
@@ -996,8 +987,8 @@ case1:
     *(u16 *)phaseAddress = 2;
 case2:
     messageState = iGpffffb3ac;
-    messageTable = *(u8 **)(((BtlSoundPlayback *)(messageState + 0xA44))->handle + 0x110);
-    messageRecord = messageTable + ((s32 *)(messageTable + 4))[*(u16 *)(messageState + 0xA60) * 3];
+    messageTable = ((u8 *)(((HCdvdRequest *)(((BtlSoundPlayback *)(messageState + 0xA44))->handle))->data));
+    messageRecord = messageTable + ((s32 *)(messageTable + 4))[((u16)(((BtlSoundPlayback *)(messageState + 0xA44))->pendingId)) * 3];
     fclMiscSetStatusCode(messageRecord, phaseAddress, battle);
     fclMiscAddRecord(((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->channel,
                   datCalcRandomBelow(itfMesRecordCount(messageRecord)), 0, 0);
@@ -1018,7 +1009,7 @@ done:
 }
 
 /* Advance pending step counters and enqueue the trigger action when its threshold is reached. */
-/* measured: remaining counter/action reloads changed MATCH with typed substitutions; preserve their callback-crossing byte-pointer shape. */
+/* Step counters occupy the shared playback prefix; callback queries still observe the original action state. */
 // FUN_001F5A00
 void btlActionCheckStepTrigger(s32 context)
 {
@@ -1046,8 +1037,7 @@ void btlActionCheckStepTrigger(s32 context)
                         (u16)(((BtlActionStepCounter *)(iGpffffb3ac +
                                        ((i & 0xFFFF) * 4) + 0xA44))->elapsed + 1);
                     if ((context != 0) &&
-                        (*(u16 *)(iGpffffb3ac +
-                                  ((i & 0xFFFF) * 4) + 0xA46) >= 4) &&
+                        ((((BtlBattleState *)(iGpffffb3ac + ((i & 0xFFFF) * 4)))->playback.steps.counter.interval) >= 4) &&
                         (((BtlActionStepCounter *)(iGpffffb3ac +
                                   ((i & 0xFFFF) * 4) + 0xA44))->elapsed ==
                          (((BtlActionStepCounter *)(iGpffffb3ac +
@@ -1061,11 +1051,10 @@ void btlActionCheckStepTrigger(s32 context)
                              ((BtlActionStepCounter *)(global +
                                       ((i & 0xFFFF) * 4) + 0xA44))->interval) &&
                             (datCalcChkBadStatus(
-                                 *(s32 *)(*(u8 **)(((BtlBattleState *)global)->selectedAction +
-                                                   0x30) + 0xA64),
+                                 ((s32)(((BtlUnit *)(((u8 *)(((BtlAction *)(((BtlBattleState *)global)->selectedAction))->unit))))->datUnit)),
                                  0x180010) == 0) &&
                             (btlActionGetActive() == 0)) {
-                            *(u16 *)(((BtlBattleState *)iGpffffb3ac)->selectedAction + 0x16) =
+                            (((BtlAction *)(((BtlBattleState *)iGpffffb3ac)->selectedAction))->unk_16) =
                                 0x1C;
                             btlActionActiveListPush(
                                 (s32)((BtlBattleState *)iGpffffb3ac)->selectedAction);
@@ -1149,7 +1138,7 @@ s32 btlActionIsPendingBit(s32 context) {
 }
 
 /* Cache target callback dispatch and optionally wait until its message playback has finished. */
-/* measured: the two remaining cached-result accesses changed MATCH when replaced with typed work fields. */
+/* Measured site/local/stride cached-result accesses changed MATCH; MEMBER preserves callback-crossing aliasing. */
 // FUN_001F5ED0
 s32 btlActionCachedDispatch(u8 *context)
 {
@@ -1157,14 +1146,14 @@ s32 btlActionCachedDispatch(u8 *context)
     u8 *global;
 
     if (((BtlTargetCallbackWork *)context)->result == 0) {
-        *(s32 *)(context + 0x14) = btlActionRunTargetCallback(
+        MEMBER(s32, context, BtlTargetCallbackWork, result) = btlActionRunTargetCallback(
             ((BtlTargetCallbackWork *)context)->action,
             ((BtlTargetCallbackWork *)context)->command,
             ((BtlTargetCallbackWork *)context)->argument,
             ((BtlTargetCallbackWork *)context)->extraArgument,
             ((BtlTargetCallbackWork *)context)->flags);
     }
-    result = *(s32 *)(context + 0x14);
+    result = MEMBER(s32, context, BtlTargetCallbackWork, result);
     if ((result == 1) && (((BtlTargetCallbackWork *)context)->flags & 1) != 0) {
         global = iGpffffb3ac;
         if (((((BtlSoundPlayback *)(global + 0xA44))->flags & 1) != 0) ||

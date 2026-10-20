@@ -57,68 +57,70 @@ s32 titleSoundReapTask(s32 task)
 #pragma optimization_level 2
 /* Wait for sound slots, then run memcard slot creation and its result/retry windows. */
 // FUN_0012C220
-/* Typed TitleSoundWork accesses changed this callback (508/496 bytes);
- * retain byte-offset loads/stores to preserve the measured whole-file match. */
+/* Earlier whole-layout TitleSoundWork access changed this callback (508/496 bytes);
+ * access-site fields and a separate typed work pointer preserve the whole-file match. */
 s32 titleSoundStartStep(u8 *task) {
     s32 countdown;
     s32 result;
     s32 windowState;
     u32 state;
     u8 *work;
+    TitleSoundWork *soundWork;
 
     work = ((SdkTask *)task)->work;
-    state = *(u32 *)(work + 0);
+    soundWork = (TitleSoundWork *)(work);
+    state = ((TitleSoundWork *)work)->state;
     switch (state) {
     case 0:
         if ((hsndSlotIsStarting(0) != 0) && (hsndSlotIsStarting(1) != 0)) {
-            *(u32 *)(work + 0) = 1U;
+            ((TitleSoundWork *)work)->state = 1U;
         }
         goto block_20;
     default:
         goto block_20;
     case 1:
-        *(s32 *)(work + 0xC) = shdWindowTaskCreate(task, 1, 0xF);
-        *(s32 *)(work + 8) = 0x3C;
-        *(u32 *)(work + 0) = 2U;
+        ((TitleSoundWork *)work)->windowTask = shdWindowTaskCreate(task, 1, 0xF);
+        ((TitleSoundWork *)work)->countdown = 0x3C;
+        ((TitleSoundWork *)work)->state = 2U;
         goto block_20;
     case 2:
-        countdown = *(s32 *)(work + 8) - 1;
-        *(s32 *)(work + 8) = countdown;
+        countdown = ((TitleSoundWork *)work)->countdown - 1;
+        ((TitleSoundWork *)work)->countdown = countdown;
         if (countdown == 0) {
             H_Memcard_Reset();
-            *(u32 *)(work + 0) = 3U;
+            ((TitleSoundWork *)work)->state = 3U;
         }
         goto block_20;
     case 3:
         result = H_Memcard_CreateSlotsStep();
-        *(s32 *)(work + 4) = result;
+        ((TitleSoundWork *)work)->result = result;
         if (result != 0) {
             if (result == 0x64) {
-                shdWindowMarkDone(*(s32 *)(work + 0xC));
+                shdWindowMarkDone(((TitleSoundWork *)work)->windowTask);
                 return -1;
             }
-            *(u32 *)(work + 0) = 4U;
+            ((TitleSoundWork *)work)->state = 4U;
             goto block_20;
         }
         goto block_20;
     case 4:
-        shdWindowMarkDone(*(s32 *)(work + 0xC));
-        if (*(s32 *)(work + 4) == -6) {
-            *(s32 *)(work + 0xC) = shdWindowTaskCreate(task, 1, 0x15);
+        shdWindowMarkDone(((TitleSoundWork *)work)->windowTask);
+        if (((TitleSoundWork *)work)->result == -6) {
+            soundWork->windowTask = shdWindowTaskCreate(task, 1, 0x15);
         } else {
-            *(s32 *)(work + 0xC) = shdWindowTaskCreate(task, 1, 0x10);
+            soundWork->windowTask = shdWindowTaskCreate(task, 1, 0x10);
         }
-        *(u32 *)(work + 0) = 5U;
+        ((TitleSoundWork *)work)->state = 5U;
         goto block_20;
     case 5:
-        windowState = shdWindowQueryState(*(s32 *)(work + 0xC));
+        windowState = shdWindowQueryState(((TitleSoundWork *)work)->windowTask);
         if (windowState == 1) {
-            shdWindowMarkDone(*(s32 *)(work + 0xC));
+            shdWindowMarkDone(soundWork->windowTask);
             return -1;
         }
         if (windowState == 2) {
-            shdWindowMarkDone(*(s32 *)(work + 0xC));
-            *(u32 *)(work + 0) = 1U;
+            shdWindowMarkDone(soundWork->windowTask);
+            ((TitleSoundWork *)work)->state = 1U;
         }
         goto block_20;
     }

@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_skill_target_internal.h"
@@ -63,62 +64,8 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
 
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -132,10 +79,6 @@ extern f32 DAT_0076112c;
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -171,11 +114,12 @@ void btlUnitHoldPendingEnemyDodge(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019A680
 /* measured: typing the remaining velocity writes or counter increment changes MATCH to MISMATCH. */
 /* Integrate outward and return phases of a bounded dodge displacement, then clear the offset. */
+// FUN_0019A680
 s32 btlUnitEnemyDodgePacketUpdate(u8 *packetWork)
 {
+    BtlUnitDodgePacket *typedPacketWork = (BtlUnitDodgePacket *)packetWork;
     RwV3d direction;
     f32 progress;
     f32 returnProgress;
@@ -200,20 +144,20 @@ s32 btlUnitEnemyDodgePacketUpdate(u8 *packetWork)
     if (!(velocity < 0.0f)) {
         progress = ((BtlUnitDodgePacket *)packetWork)->progress;
         nextOutProgress = (1.0f - progress) * velocity;
-        *(f32 *)(packetWork + 0xC) = velocity + fGpffff82d8;
+        typedPacketWork->velocity = velocity + fGpffff82d8;
         progress = ((BtlUnitDodgePacket *)packetWork)->progress;
         offset = distance * progress;
-        nextOutProgress = btlUnitAddProgress(progress, nextOutProgress);
+        nextOutProgress = operandOrderAddFloat(progress, nextOutProgress);
         ((BtlUnitDodgePacket *)packetWork)->progress = nextOutProgress;
         if (!(nextOutProgress < fGpffff82d4))
-            *(f32 *)(packetWork + 0xC) = fGpffff82dc;
+            typedPacketWork->velocity = fGpffff82dc;
         goto block_11;
     }
     returnStep = -velocity;
     returnProgress = ((BtlUnitDodgePacket *)packetWork)->progress;
     nextProgress = returnProgress * returnStep;
     returnStep = fGpffff80f0;
-    *(f32 *)(packetWork + 0xC) = velocity - returnStep;
+    typedPacketWork->velocity = velocity - returnStep;
     returnProgress = ((BtlUnitDodgePacket *)packetWork)->progress;
     offset = distance * returnProgress;
     nextProgress = returnProgress - nextProgress;
@@ -235,7 +179,7 @@ block_11:
         ((BtlUnit *)unit)->posOffset.z = direction.z * offset;
         ((BtlUnit *)unit)->flags2 |= 4;
     }
-    *(s32 *)(packetWork + 4) += 1;
+    typedPacketWork->counter += 1;
     return 0;
 }
 

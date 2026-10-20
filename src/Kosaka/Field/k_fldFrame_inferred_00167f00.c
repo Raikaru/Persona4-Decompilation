@@ -8,6 +8,8 @@
 #include "scene_render_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "Kosaka/k_model_internal.h"
+#include "resrc_manager_internal.h"
+#include "member_access.h"
 
 typedef struct RwMatrix RwMatrix;
 
@@ -43,7 +45,9 @@ typedef struct FldTaskStorage {
 } FldTaskStorage;
 
 
-/* Actor table stride is 0x750; the movement callback wraps the history at 64. */
+/* Actor table stride is 0x750; the movement callback wraps the history at 64.
+ * Shifted byte cursors select valid[index], position[index], and forward[index]
+ * through the corresponding zero-index member when alias-sensitive. */
 typedef struct FldActorHistory {
     u8 pad00[0x48];
     s32 active;
@@ -57,7 +61,9 @@ typedef struct FldActorHistory {
     struct { f32 x, z; } position[64];
     RwV3d forward[64];
     s32 writeIndex;
-    u8 pad714[0x3c];
+    u8 pad714[0x14];
+    u16 actorId;
+    u8 pad72A[0x26];
 } FldActorHistory;
 
 
@@ -121,8 +127,9 @@ extern u8 D_005F12E0[];
 extern u8 D_005F15F8[];
 extern u8 D_005F1630[];
 extern u8 D_005F1610[];
-extern u8 D_007F00D8[];
-extern u8 D_007E9328[];
+typedef struct FldActorIdSlot { u16 actorId; u8 pad02[0x74E]; } FldActorIdSlot;
+extern FldActorIdSlot D_007F00D8[];
+extern FldActorIdSlot D_007E9328[];
 extern s32 FldFrameTask_Update(u8 *task);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void mdlAdvanceModelFromFlags(s32 model);
@@ -169,9 +176,6 @@ extern void RwMatrixUpdate(u8 *task);
 typedef signed __int128 s128;
 
 
-static inline f32 code1_0016_cvt(s32 value) {
-    return (f32)value;
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0016; members 00167f00-00168ec0 */
 
@@ -202,11 +206,12 @@ static inline f32 code1_0016_cvt(s32 value) {
 /* measured: optimization_level 1 reproduces FldDayEventActive's register coloring. */
 /* measured: restore baseline optimization level after FldDayEventActive. */
 /* Resolve the follower model lazily, then copy the owner position for type-3 resources. */
-/* Raw payload/matrix accesses retained: typed access changed whole-file codegen;
+/* Byte-base fallbacks retain the measured payload/matrix aliasing;
  * proven layouts are documented above. */
 // FUN_00167F00
 s32 FldFrameTask_UpdateFollower(u8 *task)
 {
+    FldFollowerData *followerWork;
     s32 resourceType;
     s32 model;
     u16 resourceKey;
@@ -216,34 +221,35 @@ s32 FldFrameTask_UpdateFollower(u8 *task)
     u8 *secondaryEntry;
     u8 *targetEntry;
 
-    work = *(u8 **)(task + 0x38);
-    if (*(s32 *)(work + 0xC) == 0) {
-        resourceKey = *(u16 *)(work + 4);
+    work = ((FldTaskStorage *)(task))->data;
+    if (((FldFollowerData *)(work))->followerModel == 0) {
+        resourceKey = ((FldFollowerData *)(work))->resourceKey;
         resourceType = (resourceKey & 0xFFC00) >> 0xA;
         switch (resourceType) {
         case 1:
             entry = MT_Scene_GetRes(resourceKey);
-            *(s32 *)(work + 8) = *(s32 *)(entry + 0x164);
-            *(s32 *)(work + 0xC) = *(s32 *)(entry + 0x228);
+            ((FldFollowerData *)(work))->model = ((ResrcRecord *)(entry))->modelHandle164Value;
+            MEMBER(s32, work, FldFollowerData, followerModel) = (s32)((ResrcRecord *)(entry))->handle228;
             break;
         case 3:
             secondaryEntry = MT_Scene_GetRes(resourceKey);
-            if ((*(s32 *)(secondaryEntry + 0x28) & 0x10000000) != 0) {
-                *(s32 *)(work + 8) = *(s32 *)(secondaryEntry + 0x164);
-                *(s32 *)(work + 0xC) = *(s32 *)(secondaryEntry + 0x22C);
+            if (((s32)((ResrcRecord *)(secondaryEntry))->unk28 & 0x10000000) != 0) {
+                ((FldFollowerData *)(work))->model = ((ResrcRecord *)(secondaryEntry))->modelHandle164Value;
+                MEMBER(s32, work, FldFollowerData, followerModel) = (s32)((ResrcRecord *)(secondaryEntry))->handle22C;
             }
             break;
         }
     }
-    model = *(s32 *)(work + 8);
+    model = ((FldFollowerData *)(work))->model;
+    followerWork = (FldFollowerData *)work;
     if ((model != 0) &&
-        (*(s32 *)(work + 0xC) != 0) &&
-        (((*(u16 *)(work + 4) & 0xFFC00) >> 0xA) == 3)) {
+        (followerWork->followerModel != 0) &&
+        (((((FldFollowerData *)(work))->resourceKey & 0xFFC00) >> 0xA) == 3)) {
         sourceMatrix = (u8 *)mdlGetMatrix(model);
-        targetEntry = (u8 *)mdlGetMatrix(*(s32 *)(work + 0xC));
-        *(RwV3d *)(targetEntry + 0x30) =
-            *(RwV3d *)(sourceMatrix + 0x30);
-        mdlAdvanceModelFromFlags(*(s32 *)(work + 0xC));
+        targetEntry = (u8 *)mdlGetMatrix(MEMBER(s32, work, FldFollowerData, followerModel));
+        ((RwMatrix *)(targetEntry))->pos =
+            ((RwMatrix *)(sourceMatrix))->pos;
+        mdlAdvanceModelFromFlags(MEMBER(s32, work, FldFollowerData, followerModel));
     }
     return 0;
 }
@@ -255,11 +261,13 @@ void FldFrameTask_DestroyFollower(u8 *task)
 }
 
 /* Apply movement in three collision-tested steps and sample the actor history every five ticks. */
-/* Raw payload/matrix accesses retained: typed access changed whole-file codegen;
+/* Byte-base fallbacks retain the measured payload/matrix aliasing;
  * proven layouts are documented above. */
 // FUN_00168060
 s32 FldFrameTask_Update(u8 *task)
 {
+    FldMoveData *movementWork;
+    FldActorHistory *historySample;
     FldMoveScratch stack;
     s32 state;
     s32 i;
@@ -271,19 +279,20 @@ s32 FldFrameTask_Update(u8 *task)
     u8 *target;
     u8 *work;
 
-    work = *(u8 **)(task + 0x38);
-    if ((*(u32 *)(work + 4) & 0x08000000) != 0) {
+    work = ((FldTaskStorage *)(task))->data;
+    if ((((FldMoveData *)(work))->flags & 0x08000000) != 0) {
         return 0;
     }
 
     state = *(s32 *)work;
     switch (state) {
     case 0:
-        object = mdlGetMatrix(*(s32 *)(work + 0x10));
-        stack.position = *(RwV3d *)(object + 0x30);
+        object = mdlGetMatrix(((FldMoveData *)(work))->model);
+        stack.position = ((RwMatrix *)(object))->pos;
 
-        if (((*(u32 *)(work + 4) & 0x40000000) != 0) &&
-            ((*(u32 *)(work + 4) & 0x10000000) == 0)) {
+        movementWork = (FldMoveData *)work;
+    if (((MEMBER(u32, work, FldMoveData, flags) & 0x40000000) != 0) &&
+            ((movementWork->flags & 0x10000000) == 0)) {
             stack.rayEnd = stack.position;
             stack.rayStart = stack.rayEnd;
             if (FldMap_IsCurrentInBandA() != 0) {
@@ -293,74 +302,74 @@ s32 FldFrameTask_Update(u8 *task)
             }
             stack.rayEnd.y -= 1000.0f;
             if (FldFrame_RaycastSelectedWorld(&stack.rayStart, &stack.hitPoint) == 1) {
-                *(f32 *)(work + 0x1C) = -(stack.position.y - stack.hitPoint.y);
+                ((FldMoveData *)(work))->displacement.y = -(stack.position.y - stack.hitPoint.y);
             }
         }
 
         for (i = 0; i < 3; i++) {
-            stack.moveStep.x = *(f32 *)(work + 0x18) / 3.0f;
-            stack.moveStep.y = *(f32 *)(work + 0x1C) / 3.0f;
-            stack.moveStep.z = *(f32 *)(work + 0x20) / 3.0f;
-            source = mdlGetMatrix(*(s32 *)(work + 0x10));
-            stack.position = *(RwV3d *)(source + 0x30);
-            stack.position.y += *(f32 *)(work + 0x24);
-            if ((*(u32 *)(work + 4) & 0x10000000) == 0) {
+            stack.moveStep.x = ((FldMoveData *)(work))->displacement.x / 3.0f;
+            stack.moveStep.y = ((FldMoveData *)(work))->displacement.y / 3.0f;
+            stack.moveStep.z = ((FldMoveData *)(work))->displacement.z / 3.0f;
+            source = mdlGetMatrix(MEMBER(s32, work, FldMoveData, model));
+            stack.position = ((RwMatrix *)(source))->pos;
+            stack.position.y += ((FldMoveData *)(work))->height;
+            if ((MEMBER(u32, work, FldMoveData, flags) & 0x10000000) == 0) {
                 FldFrame_RaycastFieldWorlds(&stack.position, &stack.moveStep,
-                              *(f32 *)(work + 0x24), *(u16 *)(work + 8));
+                              MEMBER(f32, work, FldMoveData, height), ((FldMoveData *)(work))->resourceKey);
             }
-            mdlTranslateMatrix((RwMatrix *)*(s32 *)(work + 0x10), &stack.moveStep, 2);
-            if (*(s32 *)(work + 0x14) != 0) {
-                source = mdlGetMatrix(*(s32 *)(work + 0x10));
-                target = mdlGetMatrix(*(s32 *)(work + 0x14));
-                *(RwV3d *)(target + 0x30) =
-                    *(RwV3d *)(source + 0x30);
-                mdlAdvanceModelFromFlags(*(s32 *)(work + 0x14));
+            mdlTranslateMatrix((RwMatrix *)MEMBER(s32, work, FldMoveData, model), &stack.moveStep, 2);
+            if (((FldMoveData *)(work))->followerModel != 0) {
+                source = mdlGetMatrix(MEMBER(s32, work, FldMoveData, model));
+                target = mdlGetMatrix(MEMBER(s32, work, FldMoveData, followerModel));
+                ((RwMatrix *)(target))->pos =
+                    ((RwMatrix *)(source))->pos;
+                mdlAdvanceModelFromFlags(MEMBER(s32, work, FldMoveData, followerModel));
             }
         }
 
-        if (*(s32 *)(work + 0xC) != 0) {
-            if ((*(u32 *)(work + 4) & 1) == 0) {
-                counter = *(u32 *)(work + 0x3C);
+        if ((s32)((FldMoveData *)(work))->actor != 0) {
+            if ((MEMBER(u32, work, FldMoveData, flags) & 1) == 0) {
+                counter = ((FldMoveData *)(work))->historyTicks;
                 if (counter >= 5) {
-                    target = *(u8 **)(work + 0xC);
-                    *(u8 *)(*(s32 *)(target + 0x710) + (s32)target +
-                            0x1D0) = 1;
-                    target = *(u8 **)(work + 0xC);
-                    *(f32 *)((*(u32 *)(target + 0x710) << 3) +
-                             (u32)target + 0x210) =
-                        *(f32 *)(object + 0x30);
-                    target = *(u8 **)(work + 0xC);
-                    *(f32 *)((*(u32 *)(target + 0x710) << 3) +
-                             (u32)target + 0x214) =
-                        *(f32 *)(object + 0x38);
-                    target = *(u8 **)(work + 0xC);
-                    offset = *(s32 *)(target + 0x710) * 12;
+                    target = ((FldMoveData *)(work))->actor;
+                    ((FldActorHistory *)(((FldActorHistory *)(target))->writeIndex + (s32)target))[0].valid[0] = 1;
+                    target = MEMBER(u8 *, work, FldMoveData, actor);
+                    ((FldActorHistory *)(((u32)((FldActorHistory *)(target))->writeIndex << 3) +
+                             (u32)target))[0].position[0].x =
+                        MEMBER(f32, object, RwMatrix, pos.x);
+                    target = MEMBER(u8 *, work, FldMoveData, actor);
+                    ((FldActorHistory *)(((u32)((FldActorHistory *)(target))->writeIndex << 3) +
+                             (u32)target))[0].position[0].z =
+                        ((RwMatrix *)(object))->pos.z;
+                    target = MEMBER(u8 *, work, FldMoveData, actor);
+                    offset = ((FldActorHistory *)(target))->writeIndex * 12;
                     offset += (s32)target;
-                    *(RwV3d *)(offset + 0x410) =
-                        *(RwV3d *)(object + 0x20);
-                    target = *(u8 **)(work + 0xC);
-                    *(s32 *)(target + 0x710) += 1;
-                    target = *(u8 **)(work + 0xC);
+                    historySample = (FldActorHistory *)offset;
+    historySample->forward[0] =
+                        ((RwMatrix *)(object))->at;
+                    target = MEMBER(u8 *, work, FldMoveData, actor);
+                    ((FldActorHistory *)(target))->writeIndex += 1;
+                    target = MEMBER(u8 *, work, FldMoveData, actor);
                     historyCounter = (s32 *)(target + 0x710);
-                    if (*(s32 *)(target + 0x710) >= 0x40) {
+                    if (((FldActorHistory *)(target))->writeIndex >= 0x40) {
                         *historyCounter = 0;
                     }
-                    *(s32 *)(work + 0x3C) = 0;
+                    MEMBER(s32, work, FldMoveData, historyTicks) = 0;
                 } else {
-                    *(u32 *)(work + 0x3C) = counter + 1;
+                    MEMBER(u32, work, FldMoveData, historyTicks) = counter + 1;
                 }
             } else {
-                *(s32 *)(work + 0x3C) = 0;
+                ((FldMoveData *)(work))->historyTicks = 0;
             }
         }
 
-        *(s32 *)(work + 0x40) =
-            (s32)((*(f32 *)(object + 0x30) + 600.0f) / 1200.0f);
-        *(s32 *)(work + 0x44) =
-            (s32)((*(f32 *)(object + 0x38) + 600.0f) / 1200.0f);
-        if ((*(u16 *)(work + 8) & 0x3FF) < 100) {
-            FldAmbientTrigger(*(s32 *)(work + 0x10), *(u16 *)(work + 0xA),
-                          *(u16 *)(work + 8));
+        ((FldMoveData *)(work))->tileX =
+            (s32)((MEMBER(f32, object, RwMatrix, pos.x) + 600.0f) / 1200.0f);
+        ((FldMoveData *)(work))->tileZ =
+            (s32)((((RwMatrix *)(object))->pos.z + 600.0f) / 1200.0f);
+        if ((((FldMoveData *)(work))->resourceKey & 0x3FF) < 100) {
+            FldAmbientTrigger(MEMBER(s32, work, FldMoveData, model), ((FldMoveData *)(work))->actorId,
+                          ((FldMoveData *)(work))->resourceKey);
         }
         *(s32 *)work += 1;
         break;
@@ -386,7 +395,7 @@ void FldFrameTask_Destroy(u8 *task)
 #pragma opt_loop_invariants on
 s32 FldFrameTask_Spawn(s32 parentTask, s32 resourceKey, f32 height)
 {
-    /* Raw compound accesses retain byte-addressed ABI/table aliases and measured expression order. */
+    /* Named ABI/table accesses retain the measured byte-address expression order. */
     s32 taskHandle;
     s32 partyOffset;
     s32 enemyOffset;
@@ -419,15 +428,15 @@ s32 FldFrameTask_Spawn(s32 parentTask, s32 resourceKey, f32 height)
     if (resourceType == 1) {
         secondaryEntry = MT_Scene_GetRes(key);
         if (secondaryEntry != NULL) {
-            ((FldMoveData *)entry)->model = *(s32 *)(secondaryEntry + 0x164);
+            ((FldMoveData *)entry)->model = ((ResrcRecord *)(secondaryEntry))->modelHandle164Value;
         }
         partyIndex = 0;
         while (partyIndex < 4) {
             partyOffset = partyIndex * stride;
             record = D_007EF9B0 + partyOffset;
-            if ((*(s32 *)(record + 0x48) != 0) &&
-                (*(s32 *)(record + 0x50) == *(s32 *)(secondaryEntry + 0x164))) {
-                ((FldMoveData *)entry)->actorId = *(u16 *)(D_007F00D8 + partyOffset);
+            if ((((FldActorHistory *)(record))->active != 0) &&
+                (((FldActorHistory *)(record))->model == ((ResrcRecord *)(secondaryEntry))->modelHandle164Value)) {
+                ((FldMoveData *)entry)->actorId = D_007F00D8[partyIndex].actorId;
                 ((FldMoveData *)entry)->actor = record;
                 break;
             }
@@ -437,9 +446,9 @@ s32 FldFrameTask_Spawn(s32 parentTask, s32 resourceKey, f32 height)
         while (enemyIndex < 0xF) {
             enemyOffset = enemyIndex * stride;
             enemyRecord = D_007E8C00 + enemyOffset;
-            if ((*(s32 *)(enemyRecord + 0x48) != 0) &&
-                (*(s32 *)(enemyRecord + 0x50) == *(s32 *)(secondaryEntry + 0x164))) {
-                ((FldMoveData *)entry)->actorId = *(u16 *)(D_007E9328 + enemyOffset);
+            if ((((FldActorHistory *)(enemyRecord))->active != 0) &&
+                (((FldActorHistory *)(enemyRecord))->model == ((ResrcRecord *)(secondaryEntry))->modelHandle164Value)) {
+                ((FldMoveData *)entry)->actorId = D_007E9328[enemyIndex].actorId;
                 ((FldMoveData *)entry)->actor = enemyRecord;
                 break;
             }
@@ -448,14 +457,14 @@ s32 FldFrameTask_Spawn(s32 parentTask, s32 resourceKey, f32 height)
     } else if (resourceType == 3) {
         targetEntry = MT_Scene_GetRes(key);
         if (targetEntry != NULL) {
-            ((FldMoveData *)entry)->model = *(s32 *)(targetEntry + 0x164);
+            ((FldMoveData *)entry)->model = ((ResrcRecord *)(targetEntry))->modelHandle164Value;
         }
     }
     chkmemAllocSiteTag(D_005F15F8, 0x83);
     base = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x10, 0x40000);
     if (base != NULL) {
         (s32)kwlnTaskCreateChild((void *)(taskHandle), (const void *)(D_005F1610), 0x10, 0, 0, FldFrameTask_UpdateFollower, FldFrameTask_DestroyFollower, (u8 *)(base));
-        *(s16 *)(base + 4) = resourceKey;
+        ((FldFollowerData *)(base))->resourceKey = resourceKey;
     }
     return taskHandle;
 }
@@ -470,6 +479,7 @@ void FldFrameTask_SetFlags(u8 *task, s32 flags)
     ((FldMoveData *)work)->flags = ((FldMoveData *)work)->flags | flags;
 }
 
+/* Clear only the requested movement/collision-control bits in the task payload. */
 // FUN_00168750
 void FldFrameTask_ClearFlags(u8 *task, s32 flags)
 {
@@ -513,7 +523,7 @@ s32 FldFrameTask_GetTileZ(u8 *task)
 // FUN_001687F0
 void FldFrameTask_GetPosition(u8 *destination, u8 *task)
 {
-    /* Raw compound accesses retain byte-addressed ABI/table aliases and measured expression order. */
+    /* Named ABI/table accesses retain the measured byte-address expression order. */
     RwV3d position;
     u8 *clearCursor;
     s32 clearRemaining;
@@ -543,7 +553,7 @@ void FldFrameTask_GetPosition(u8 *destination, u8 *task)
 // FUN_00168890
 void FldFrameTask_SetOrientation(u8 *task, u8 *orientation)
 {
-    /* Raw payload/matrix accesses retained: typed fields changed whole-file codegen. */
+    /* Byte-base fallbacks retain the measured payload/matrix aliasing. */
     RwV3d savedPosition;
     RwV3d zeroPosition;
     RwV3d initialTolerance;
@@ -556,7 +566,7 @@ void FldFrameTask_SetOrientation(u8 *task, u8 *orientation)
     u8 *entry;
     u8 *record;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((FldTaskStorage *)(task))->data;
     clearCursor = (u8 *)&zeroPosition;
     clearRemaining = 0xC;
     if (clearCursor != NULL) {
@@ -566,94 +576,95 @@ void FldFrameTask_SetOrientation(u8 *task, u8 *orientation)
             clearRemaining -= 1;
         } while (clearRemaining != 0);
     }
-    model = *(s32 *)(work + 0x10);
+    model = ((FldMoveData *)(work))->model;
     if (model != 0) {
         entry = mdlGetMatrix(model);
-        savedPosition = *(RwV3d *)(entry + 0x30);
-        entry = mdlGetMatrix(*(s32 *)(work + 0x10));
-        *(RwV3d *)(entry + 0x30) = zeroPosition;
+        savedPosition = ((RwMatrix *)(entry))->pos;
+        entry = mdlGetMatrix(MEMBER(s32, work, FldMoveData, model));
+        ((RwMatrix *)(entry))->pos = zeroPosition;
         RwEngineGetMatrixTolerances(&initialTolerance);
         RwMatrixOptimize(
-            mdlGetMatrix(*(s32 *)(work + 0x10)),
+            mdlGetMatrix(MEMBER(s32, work, FldMoveData, model)),
             &initialTolerance);
-        RwMatrixUpdate(mdlGetMatrix(*(s32 *)(work + 0x10)));
-        entry = mdlGetMatrix(*(s32 *)(work + 0x10));
+        RwMatrixUpdate(mdlGetMatrix(MEMBER(s32, work, FldMoveData, model)));
+        entry = mdlGetMatrix(MEMBER(s32, work, FldMoveData, model));
         *(RwV3d *)entry = *(RwV3d *)orientation;
-        entry = mdlGetMatrix(*(s32 *)(work + 0x10));
-        *(RwV3d *)(entry + 0x10) = *(RwV3d *)(orientation + 0x10);
-        entry = mdlGetMatrix(*(s32 *)(work + 0x10));
-        *(RwV3d *)(entry + 0x20) = *(RwV3d *)(orientation + 0x20);
+        entry = mdlGetMatrix(MEMBER(s32, work, FldMoveData, model));
+        ((RwMatrix *)(entry))->up = ((RwMatrix *)(orientation))->up;
+        entry = mdlGetMatrix(MEMBER(s32, work, FldMoveData, model));
+        ((RwMatrix *)(entry))->at = ((RwMatrix *)(orientation))->at;
         RwEngineGetMatrixTolerances(&basisTolerance);
         RwMatrixOptimize(
-            mdlGetMatrix(*(s32 *)(work + 0x10)),
+            mdlGetMatrix(MEMBER(s32, work, FldMoveData, model)),
             &basisTolerance);
-        RwMatrixUpdate(mdlGetMatrix(*(s32 *)(work + 0x10)));
-        record = *(u8 **)(work + 0xC);
+        RwMatrixUpdate(mdlGetMatrix(MEMBER(s32, work, FldMoveData, model)));
+        record = ((FldMoveData *)(work))->actor;
         if (record != NULL) {
             mdlScale(
-                *(void **)(work + 0x10),
-                D_005F12E0 + *(u8 *)(record + 0x1CA) * 0x30 +
-                    *(u8 *)(record + 0x1CB) * 0xC,
+                MEMBER(void *, work, FldMoveData, model),
+                D_005F12E0 + ((FldActorHistory *)(record))->scaleGroup * 0x30 +
+                    ((FldActorHistory *)(record))->scaleIndex * 0xC,
                 2);
         }
-        entry = mdlGetMatrix(*(s32 *)(work + 0x10));
-        *(RwV3d *)(entry + 0x30) = savedPosition;
+        entry = mdlGetMatrix(MEMBER(s32, work, FldMoveData, model));
+        ((RwMatrix *)(entry))->pos = savedPosition;
         RwEngineGetMatrixTolerances(&finalTolerance);
         RwMatrixOptimize(
-            mdlGetMatrix(*(s32 *)(work + 0x10)),
+            mdlGetMatrix(MEMBER(s32, work, FldMoveData, model)),
             &finalTolerance);
-        RwMatrixUpdate(mdlGetMatrix(*(s32 *)(work + 0x10)));
+        RwMatrixUpdate(mdlGetMatrix(MEMBER(s32, work, FldMoveData, model)));
     }
 }
 
+/* Replace the model position, optimize its matrix, and refresh the cached field-cell coordinates. */
 // FUN_00168AE0
 void FldFrameTask_SetPosition(u8 *task, u8 *position)
 {
-    /* Raw payload/matrix accesses retained: typed fields changed whole-file codegen. */
+    /* Byte-base fallbacks retain the measured payload/matrix aliasing. */
     RwV3d tolerance;
     s32 model;
     u8 *work;
     u8 *entry;
 
-    work = *(u8 **)(task + 0x38);
-    model = *(s32 *)(work + 0x10);
+    work = ((FldTaskStorage *)(task))->data;
+    model = ((FldMoveData *)(work))->model;
     if (model != 0) {
         entry = (u8 *)mdlGetMatrix(model);
-        *(RwV3d *)(entry + 0x30) =
-            *(RwV3d *)(position + 0x00);
+        ((RwMatrix *)(entry))->pos =
+            ((RwV3d *)position)[0];
         RwEngineGetMatrixTolerances(&tolerance);
         RwMatrixOptimize(
-            (u8 *)mdlGetMatrix(*(s32 *)(work + 0x10)),
+            (u8 *)mdlGetMatrix(MEMBER(s32, work, FldMoveData, model)),
             &tolerance);
         RwMatrixUpdate(
-            (u8 *)mdlGetMatrix(*(s32 *)(work + 0x10)));
-        *(s32 *)(work + 0x40) =
+            (u8 *)mdlGetMatrix(MEMBER(s32, work, FldMoveData, model)));
+        ((FldMoveData *)(work))->tileX =
             (s32)((600.0f +
-                   *(f32 *)(mdlGetMatrix(*(s32 *)(work + 0x10)) +
-                            0x30)) /
+                   ((RwMatrix *)(mdlGetMatrix(MEMBER(s32, work, FldMoveData, model))))->pos.x) /
                   1200.0f);
-        *(s32 *)(work + 0x44) =
+        ((FldMoveData *)(work))->tileZ =
             (s32)((600.0f +
-                   *(f32 *)(mdlGetMatrix(*(s32 *)(work + 0x10)) +
-                            0x38)) /
+                   ((RwMatrix *)(mdlGetMatrix(MEMBER(s32, work, FldMoveData, model))))->pos.z) /
                   1200.0f);
     }
 }
 
-/* Raw payload/matrix accesses retained: typed fields changed whole-file codegen. */
+/* Byte-base fallbacks retain the measured payload/matrix aliasing. */
+/* Refresh the cached 1200-unit field-cell coordinates from the model's current world position. */
 // FUN_00168C00
 void FldFrameTask_UpdateTile(u8 *task) {
     u8 *work;
 
-    work = *(u8 **)(task + 0x38);
-    *(s32 *)(work + 0x40) =
-        (s32)((600.0f + *(f32 *)(mdlGetMatrix(*(s32 *)(work + 0x10)) + 0x30)) /
+    work = ((FldTaskStorage *)(task))->data;
+    ((FldMoveData *)(work))->tileX =
+        (s32)((600.0f + ((RwMatrix *)(mdlGetMatrix(((FldMoveData *)(work))->model)))->pos.x) /
               1200.0f);
-    *(s32 *)(work + 0x44) =
-        (s32)((600.0f + *(f32 *)(mdlGetMatrix(*(s32 *)(work + 0x10)) + 0x38)) /
+    ((FldMoveData *)(work))->tileZ =
+        (s32)((600.0f + ((RwMatrix *)(mdlGetMatrix(MEMBER(s32, work, FldMoveData, model))))->pos.z) /
               1200.0f);
 }
 
+/* Queue a forward displacement and return the movement task to its collision-update state. */
 // FUN_00168CB0
 void FldFrameTask_StartMove(u8 *task, f32 distance)
 {
@@ -694,7 +705,7 @@ void FldFrameTask_StartMove(u8 *task, f32 distance)
 }
 
 /* Rotate around the model origin, retaining world position. */
-/* Raw payload/matrix accesses retained: typed fields changed whole-file codegen. */
+/* Byte-base fallbacks retain the measured payload/matrix aliasing. */
 // FUN_00168DE0
 void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle) {
     RwV3d position;
@@ -703,20 +714,21 @@ void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle) {
     u8 *work;
     u8 *entry;
 
-    work = *(u8 **)(task + 0x38);
-    model = *(s32 *)(work + 0x10);
+    work = ((FldTaskStorage *)(task))->data;
+    model = ((FldMoveData *)(work))->model;
     if (model != 0) {
         entry = mdlGetMatrix(model);
-        position = *(RwV3d *)(entry + 0x30);
+        position = ((RwMatrix *)(entry))->pos;
         negativePosition.x = -1.0f * position.x;
         negativePosition.y = -1.0f * position.y;
         negativePosition.z = -1.0f * position.z;
-        mdlTranslateMatrix((RwMatrix *)*(s32 *)(work + 0x10), &negativePosition, 2);
-        mdlRotateMatrix((void *)(u32)*(s32 *)(work + 0x10), axis, angle, 2);
-        mdlTranslateMatrix((RwMatrix *)*(s32 *)(work + 0x10), &position, 2);
+        mdlTranslateMatrix((RwMatrix *)MEMBER(s32, work, FldMoveData, model), &negativePosition, 2);
+        mdlRotateMatrix((void *)(u32)MEMBER(s32, work, FldMoveData, model), axis, angle, 2);
+        mdlTranslateMatrix((RwMatrix *)MEMBER(s32, work, FldMoveData, model), &position, 2);
     }
 }
 
+/* Project onto the plane perpendicular to the dominant normal component and test triangle crossing parity. */
 // FUN_00168EC0
 s32 K_FldFrame_IsPointInTriangle(f32 *point, f32 **vertices, f32 *normal)
 {

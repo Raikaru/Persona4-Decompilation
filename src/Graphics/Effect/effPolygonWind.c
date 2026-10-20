@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "include_asm.h"
 /* Original translation unit effPolygonWind.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -10,6 +11,11 @@ extern void (*D_008873ec[])(void *);
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef int s128 __attribute__((mode(TI)));
+
+/* Each alias starts at one callback/size column of a 0x1C-byte kind row. */
+typedef struct WindKindSize { s32 parameterBytes; u8 pad04[0x18]; } WindKindSize;
+typedef struct WindKindAllocator { void *(*allocate)(void *, void *); u8 pad04[0x18]; } WindKindAllocator;
+typedef struct WindKindInitializer { void (*initialize)(void *); u8 pad04[0x18]; } WindKindInitializer;
 
 /* 4-byte color state at 0x00724C54..57, accessed gp-relative in retail. */
 typedef struct {
@@ -131,7 +137,7 @@ extern void SpiralWindInitEntries(u8 *, u8 *);
 extern u8 *mdlEffectCloneMultipartGeometry(u8 *);
 extern void *memcpy(void *, const void *, u32);
 extern char D_00713330[];
-extern char D_00714148[];
+extern WindKindSize D_00714148[];
 extern u_long128 D_00713CE0;
 
 extern void kAssertFail(void *, s32);
@@ -153,36 +159,40 @@ extern f32 iGpffff8084; /* 0x00761174 */
 extern f32 fGpffff8044; /* 0x00761134 */
 extern f32 iGpffff8080; /* 0x00761170 */
 extern void *WindAllocKindEntry(s32, void *);
-extern char D_00714134[];
-extern char D_00714130[];
+extern WindKindAllocator D_00714134[];
+extern WindKindInitializer D_00714130[];
 extern char D_00714110[];
 
 // Allocates a funnel wind block: count * 48 entry bytes plus a 12-byte header.
 // FUN_004A20B0
 u8 *FunnelWindAllocBlock(u8 *config, s32 texture)
 {
-    /* Earlier whole-layout trial: 235 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 235 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *work;
     s32 size;
+    WindConfig *settings;
+    WindBlock *allocation;
 
-    size = ((WindConfig *)config)->particleCount.signedWord * 0x30 + 0xC;
+    settings = (WindConfig *)config;
+    size = settings->particleCount.signedWord * 0x30 + 0xC;
     chkmemAllocSiteTag(D_00714110, 0x52);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    allocation = (WindBlock *)work;
     if (work == NULL) {
         kAssertFail(D_00714110, 0x53);
     }
-    ((WindBlock *)work)->particles.bytes = work + 0xC;
-    ((WindBlock *)work)->allocation.bytes = work;
-    if (((WindConfig *)config)->segments.word < 3U) {
+    allocation->particles.bytes = work + 0xC;
+    allocation->allocation.bytes = work;
+    if (settings->segments.word < 3U) {
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u32 *)(config + 0x8C) = 3U;
+        settings->segments.word = 3U;
     }
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    *(u8 **)(work + 4) = GeometryCreateStripGridMultiPart(*(u16 *)(config + 0x38), *(u16 *)(config + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
+    allocation->instance.bytes = GeometryCreateStripGridMultiPart(settings->particleCount.half, settings->segments.half, (s32)(u32)D_00713330, 4, 0x4C);
     if (texture == 0) {
-        mdlEffectSetGeometryTexture(((WindBlock *)work)->instance.pointer, TnSlotObject(0x14));
+        mdlEffectSetGeometryTexture(allocation->instance.pointer, TnSlotObject(0x14));
     } else {
-        mdlEffectUploadGeometryTexture(((WindBlock *)work)->instance.pointer, texture);
+        mdlEffectUploadGeometryTexture(allocation->instance.pointer, texture);
     }
     mdlEffectBuildWindFadeRows(work, config);
     return work;
@@ -192,27 +202,31 @@ u8 *FunnelWindAllocBlock(u8 *config, s32 texture)
 // FUN_004A21E0
 u8 *FunnelWindAllocFromParent(u8 *parent)
 {
-    /* Earlier whole-layout trial: 71 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 71 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *parentBlock;
     u8 *config;
     u8 *work;
     s32 size;
+    WindConfig *settings;
+    WindBlock *allocation;
 
     parentBlock = ((WindEffect *)parent)->block.bytes;
     config = ((WindEffect *)parent)->config.bytes;
-    size = ((WindConfig *)config)->particleCount.signedWord * 0x30 + 0xC;
+    settings = (WindConfig *)config;
+    size = settings->particleCount.signedWord * 0x30 + 0xC;
     chkmemAllocSiteTag(D_00714110, 0x52);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    allocation = (WindBlock *)work;
     if (work == NULL) {
         kAssertFail(D_00714110, 0x53);
     }
-    ((WindBlock *)work)->particles.bytes = work + 0xC;
-    ((WindBlock *)work)->allocation.bytes = work;
-    if (((WindConfig *)config)->segments.word < 3U) {
+    allocation->particles.bytes = work + 0xC;
+    allocation->allocation.bytes = work;
+    if (settings->segments.word < 3U) {
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u32 *)(config + 0x8C) = 3U;
+        settings->segments.word = 3U;
     }
-    ((WindBlock *)work)->instance.bytes = mdlEffectCloneMultipartGeometry(((WindBlock *)parentBlock)->instance.bytes);
+    allocation->instance.bytes = mdlEffectCloneMultipartGeometry(((WindBlock *)parentBlock)->instance.bytes);
     mdlEffectBuildWindFadeRows(work, config);
     return work;
 }
@@ -239,7 +253,7 @@ void FunnelWindFreeBlock(u8 *effect) {
 // FUN_004A2310
 void FunnelWindUpdateStrip(u8 *effect)
 {
-    /* Earlier whole-layout trial: 1693 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 1693 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     EffectVuVector point;
     EffectVuVector normal;
     f32 width;
@@ -267,8 +281,10 @@ void FunnelWindUpdateStrip(u8 *effect)
     u32 index;
     s32 segmentCount;
     u8 *instance;
+    WindGeometryInstance *geometryInstance;
     u32 lifetime;
     u8 *particle;
+    WindParticle *entry;
     u32 sample;
     u8 *vertices;
     u8 *texCoords;
@@ -305,14 +321,15 @@ void FunnelWindUpdateStrip(u8 *effect)
     list = ((WindEffect *)effect)->block.bytes;
     particle = ((WindBlock *)list)->particles.bytes;
     instance = ((WindBlock *)list)->instance.bytes;
+    geometryInstance = (WindGeometryInstance *)instance;
     respawn = ((WindConfig *)config)->respawn;
     accel = ((WindConfig *)config)->unkF4;
-    RpGeometryLock(((RpAtomic *)((WindGeometryInstance *)instance)->atomic)->geometry, 0xFF2);
+    RpGeometryLock(((RpAtomic *)geometryInstance->atomic)->geometry, 0xFF2);
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    geometry = (u8*)((RpAtomic *)*(u8 **)(instance + 0x10))->geometry;
+    geometry = (u8*)((RpAtomic *)geometryInstance->atomic)->geometry;
     vertices = (u8*)((RpMorphTarget *)(u8 *)((RpGeometry *)geometry)->morphTarget)->vertices;
     texCoords = (u8 *)((RpGeometry *)geometry)->texCoords[0];
-    segmentCount = ((WindGeometryInstance *)instance)->vertexCount;
+    segmentCount = geometryInstance->vertexCount;
     sampleCount = ((WindConfig *)config)->segments.word + 1;
     sampleScale = (f32)sampleCount;
     vSpan = ((WindConfig *)config)->unk98;
@@ -325,7 +342,8 @@ void FunnelWindUpdateStrip(u8 *effect)
     zero = 0.0f;
     quarter = 0.25f;
     for (; index < particleCount; index++, particle += 0x30) {
-        state = ((WindParticle *)particle)->age.word;
+        entry = (WindParticle *)particle;
+        state = entry->age.word;
         if (state == (u32)-2) {
             goto skip;
         }
@@ -337,51 +355,51 @@ void FunnelWindUpdateStrip(u8 *effect)
             t = ((WindConfig *)config)->unkC0;
             t = ((WindConfig *)config)->unkBC * ((one - t) + t * effMiscRandFloat(0));
             end = ((WindConfig *)config)->unkC8;
-            ((WindParticle *)particle)->unkC = (((WindConfig *)config)->unkC4 * ((one - end) + end * effMiscRandFloat(0)) - t) / (f32)lifetime;
-            ((WindParticle *)particle)->unk8 = t;
+            entry->unkC = (((WindConfig *)config)->unkC4 * ((one - end) + end * effMiscRandFloat(0)) - t) / (f32)lifetime;
+            entry->unk8 = t;
             t = ((WindConfig *)config)->unkD0;
             t = ((WindConfig *)config)->unkCC * ((one - t) + t * effMiscRandFloat(0));
             end = ((WindConfig *)config)->unkD8;
-            ((WindParticle *)particle)->unk14 = (((WindConfig *)config)->unkD4 * ((one - end) + end * effMiscRandFloat(0)) - t) / (f32)lifetime;
-            ((WindParticle *)particle)->unk10 = t;
+            entry->unk14 = (((WindConfig *)config)->unkD4 * ((one - end) + end * effMiscRandFloat(0)) - t) / (f32)lifetime;
+            entry->unk10 = t;
             t = ((WindConfig *)config)->unkE0;
-            ((WindParticle *)particle)->unk28 = ((WindConfig *)config)->unkE8 * ((one - t) + t * effMiscRandFloat(0));
-            ((WindParticle *)particle)->unk1C = spin * effMiscRandFloat(0);
+            entry->unk28 = ((WindConfig *)config)->unkE8 * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk1C = spin * effMiscRandFloat(0);
             t = ((WindConfig *)config)->unkF0;
-            ((WindParticle *)particle)->unk18 = ((WindConfig *)config)->unkEC * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk18 = ((WindConfig *)config)->unkEC * ((one - t) + t * effMiscRandFloat(0));
             t = ((WindConfig *)config)->unkB4;
-            ((WindParticle *)particle)->unk20 = ((WindConfig *)config)->unkB0 * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk20 = ((WindConfig *)config)->unkB0 * ((one - t) + t * effMiscRandFloat(0));
             t = ((WindConfig *)config)->unkAC;
-            ((WindParticle *)particle)->unk24 = ((WindConfig *)config)->unkA8 * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk24 = ((WindConfig *)config)->unkA8 * ((one - t) + t * effMiscRandFloat(0));
             t = ((WindConfig *)config)->unk9C;
             ((WindFunnelParticle *)particle)->unk2C = ((WindConfig *)config)->unk98 * ((one - t) + t * effMiscRandFloat(0));
             if (spawnAll != 0) {
-                ((WindParticle *)particle)->age.word = effMiscRand(0) % lifetime;
-                t = (f32)((WindParticle *)particle)->age.signedWord;
+                entry->age.word = effMiscRand(0) % lifetime;
+                t = (f32)entry->age.signedWord;
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                *(f32 *)(particle + 0x10) = *(f32 *)(particle + 0x10) + *(f32 *)(particle + 0x14) * t;
+                entry->unk10 = entry->unk10 + entry->unk14 * t;
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                *(f32 *)(particle + 0x8) = *(f32 *)(particle + 0x8) + *(f32 *)(particle + 0xC) * t;
+                entry->unk8 = entry->unk8 + entry->unkC * t;
             } else {
-                ((WindParticle *)particle)->age.word = 0;
+                entry->age.word = 0;
             }
             pending--;
             goto skip;
         }
         if (state >= lifetime) {
             if (respawn != 0) {
-                ((WindParticle *)particle)->age.word = (u32)-1;
+                entry->age.word = (u32)-1;
             } else {
                 memset(vertices, 0, segmentCount * 12);
-                ((WindParticle *)particle)->age.word = (u32)-2;
+                entry->age.word = (u32)-2;
             }
             if (iGpffffbb64.c3 != 0xFF) {
-                u8 *color = ((u8 **)((WindGeometryInstance *)instance)->materials)[(u16)index];
+                u8 *color = ((u8 **)geometryInstance->materials)[(u16)index];
                 ((WindMaterial *)color)->unk4 = iGpffffbb64;
             } else {
                 iGpffffbb64.c3 = 0xFE;
                 {
-                    u8 *color = ((u8 **)((WindGeometryInstance *)instance)->materials)[(u16)index];
+                    u8 *color = ((u8 **)geometryInstance->materials)[(u16)index];
                     ((WindMaterial *)color)->unk4 = iGpffffbb64;
                 }
                 iGpffffbb64.c3 = 0xFF;
@@ -389,21 +407,21 @@ void FunnelWindUpdateStrip(u8 *effect)
             goto skip;
         }
         t = (f32)(s32)state;
-        angle = t * (((WindParticle *)particle)->unk18 + half * (accel * t));
-        angle += ((WindParticle *)particle)->unk1C;
-        ((WindParticle *)particle)->unk10 = ((WindParticle *)particle)->unk10 + ((WindParticle *)particle)->unk14;
-        ((WindParticle *)particle)->unk8 = ((WindParticle *)particle)->unk8 + ((WindParticle *)particle)->unkC;
+        angle = t * (entry->unk18 + half * (accel * t));
+        angle += entry->unk1C;
+        entry->unk10 = entry->unk10 + entry->unk14;
+        entry->unk8 = entry->unk8 + entry->unkC;
         height = zero;
-        rise = ((WindParticle *)particle)->unk10 / sampleScale;
-        base = ((WindParticle *)particle)->unk8;
-        width = quarter * ((WindParticle *)particle)->unk20;
-        if (!(((WindParticle *)particle)->unk18 < zero)) {
-            step = ((WindParticle *)particle)->unk24 / sampleScale;
+        rise = entry->unk10 / sampleScale;
+        base = entry->unk8;
+        width = quarter * entry->unk20;
+        if (!(entry->unk18 < zero)) {
+            step = entry->unk24 / sampleScale;
         } else {
-            step = -((WindParticle *)particle)->unk24 / sampleScale;
+            step = -entry->unk24 / sampleScale;
         }
         normal.lane[1] = rise;
-        swell = ((WindParticle *)particle)->unk28;
+        swell = entry->unk28;
         v0 = ((WindFunnelParticle *)particle)->unk2C;
         for (sample = 0; sample < sampleCount; sample++) {
             f32 s;
@@ -467,15 +485,15 @@ void FunnelWindUpdateStrip(u8 *effect)
             height += rise;
         }
         ((WindFunnelParticle *)particle)->unk2C = ((WindFunnelParticle *)particle)->unk2C + vStep;
-        ((WindParticle *)particle)->age.word = ((WindParticle *)particle)->age.word + 1;
+        entry->age.word = entry->age.word + 1;
         continue;
 skip:
         vertices += segmentCount * 12;
         texCoords += segmentCount * 8;
     }
-    geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)instance)->atomic)->geometry;
+    geometry = (u8*)((RpAtomic *)geometryInstance->atomic)->geometry;
     func_003c22f0((RpGeometry *)geometry);
-    if ((((WindGeometryInstance *)instance)->flags & 4) != 0) {
+    if ((geometryInstance->flags & 4) != 0) {
         ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
@@ -687,8 +705,10 @@ void FunnelWindUpdateEntries(u8 *effect)
 #pragma opt_loop_invariants on
 void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
 {
-    /* Earlier whole-layout trial: 214 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 214 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *colors;
+    WindBlock *windBlock = (WindBlock *)block;
+    WindStripColors *colorRow;
     u8 *colorsBase;
     u8 *geometry;
     u8 *texCoords;
@@ -714,9 +734,9 @@ void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
 
     particleCount = ((WindConfig *)configOrCopyIndex)->particleCount.word;
     if (particleCount != 0) {
-        RpGeometryLock((RpGeometry *)((u8*)((RpAtomic *)((WindGeometryInstance *)((WindBlock *)block)->instance.bytes)->atomic)->geometry), 0xFF8);
+        RpGeometryLock((RpGeometry *)((u8*)((RpAtomic *)((WindGeometryInstance *)windBlock->instance.bytes)->atomic)->geometry), 0xFF8);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)*(u8 **)(block + 4))->atomic)->geometry;
+        geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)windBlock->instance.bytes)->atomic)->geometry;
         colorsBase = (u8 *)((RpGeometry *)geometry)->colors;
         colors = colorsBase;
         texCoordsBase = (u8 *)((RpGeometry *)geometry)->texCoords[0];
@@ -732,6 +752,7 @@ void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
         scale = 255.0f;
         sampleIndex = 0;
         while (sampleIndex < (u32)sampleCount) {
+            colorRow = (WindStripColors *)colors;
             if (sampleIndex < (u32)fadeInOrTexCoordBytes) {
                 sampleFloat = (f32)(u32)sampleIndex;
                 opacity = sampleFloat / (f32)fadeInOrTexCoordBytes;
@@ -742,13 +763,13 @@ void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
             } else {
                 opacity = 1.0f;
             }
-            ((WindStripColors *)colors)->colors[0].signedWord = 0xFFFFFF;
+            colorRow->colors[0].signedWord = 0xFFFFFF;
             scaledAlpha = scale * opacity;
             alpha = (u32)scaledAlpha;
-            ((WindStripColors *)colors)->colors[1].signedWord = (alpha << 24) | 0xFFFFFF;
+            colorRow->colors[1].signedWord = (alpha << 24) | 0xFFFFFF;
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            ((WindStripColors *)colors)->colors[2].color = *(PolygonWindColor *)(colors + 4);
-            ((WindStripColors *)colors)->colors[3].signedWord = 0xFFFFFF;
+            colorRow->colors[2].color = colorRow->colors[1].color;
+            colorRow->colors[3].signedWord = 0xFFFFFF;
             colors += 0x10;
             ((WindStripTexCoords *)texCoords)->coordinates[0][0].signedBits = 0;
             secondU = 2.0f * uStep;
@@ -777,28 +798,32 @@ void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
 // FUN_004A33E0
 u8 *FallingFunnelWindAllocBlock(u8 *config, s32 texture)
 {
-    /* Earlier whole-layout trial: 238 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 238 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *work;
     s32 size;
+    WindConfig *settings;
+    WindBlock *allocation;
 
-    size = ((WindConfig *)config)->particleCount.signedWord * 0x30 + 0xC;
+    settings = (WindConfig *)config;
+    size = settings->particleCount.signedWord * 0x30 + 0xC;
     chkmemAllocSiteTag(D_00714110, 0x212);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    allocation = (WindBlock *)work;
     if (work == NULL) {
         kAssertFail(D_00714110, 0x213);
     }
-    ((WindBlock *)work)->particles.bytes = work + 0xC;
-    ((WindBlock *)work)->allocation.bytes = work;
-    if (((WindConfig *)config)->segments.word < 3U) {
+    allocation->particles.bytes = work + 0xC;
+    allocation->allocation.bytes = work;
+    if (settings->segments.word < 3U) {
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u32 *)(config + 0x8C) = 3U;
+        settings->segments.word = 3U;
     }
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    *(u8 **)(work + 4) = GeometryCreateStripGridMultiPart(*(u16 *)(config + 0x38), *(u16 *)(config + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
+    allocation->instance.bytes = GeometryCreateStripGridMultiPart(settings->particleCount.half, settings->segments.half, (s32)(u32)D_00713330, 4, 0x4C);
     if (texture == 0) {
-        mdlEffectSetGeometryTexture(((WindBlock *)work)->instance.pointer, TnSlotObject(0x14));
+        mdlEffectSetGeometryTexture(allocation->instance.pointer, TnSlotObject(0x14));
     } else {
-        mdlEffectUploadGeometryTexture(((WindBlock *)work)->instance.pointer, texture);
+        mdlEffectUploadGeometryTexture(allocation->instance.pointer, texture);
     }
     FallingFunnelWindInitEntries(work, config);
     return work;
@@ -808,27 +833,31 @@ u8 *FallingFunnelWindAllocBlock(u8 *config, s32 texture)
 // FUN_004A3510
 u8 *FallingFunnelWindAllocFromParent(u8 *parent)
 {
-    /* Earlier whole-layout trial: 71 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 71 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *parentBlock;
     u8 *config;
     u8 *work;
     s32 size;
+    WindConfig *settings;
+    WindBlock *allocation;
 
     parentBlock = ((WindEffect *)parent)->block.bytes;
     config = ((WindEffect *)parent)->config.bytes;
-    size = ((WindConfig *)config)->particleCount.signedWord * 0x30 + 0xC;
+    settings = (WindConfig *)config;
+    size = settings->particleCount.signedWord * 0x30 + 0xC;
     chkmemAllocSiteTag(D_00714110, 0x212);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    allocation = (WindBlock *)work;
     if (work == NULL) {
         kAssertFail(D_00714110, 0x213);
     }
-    ((WindBlock *)work)->particles.bytes = work + 0xC;
-    ((WindBlock *)work)->allocation.bytes = work;
-    if (((WindConfig *)config)->segments.word < 3U) {
+    allocation->particles.bytes = work + 0xC;
+    allocation->allocation.bytes = work;
+    if (settings->segments.word < 3U) {
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u32 *)(config + 0x8C) = 3U;
+        settings->segments.word = 3U;
     }
-    ((WindBlock *)work)->instance.bytes = mdlEffectCloneMultipartGeometry(((WindBlock *)parentBlock)->instance.bytes);
+    allocation->instance.bytes = mdlEffectCloneMultipartGeometry(((WindBlock *)parentBlock)->instance.bytes);
     FallingFunnelWindInitEntries(work, config);
     return work;
 }
@@ -848,17 +877,17 @@ void FallingFunnelWindFreeBlock(u8 *effect) {
  * direction, crossed with the radial axis and scaled to the strip width; the
  * loop then steps the centre along that direction. Loop invariants hoist the
  * bridge addresses as retail does. The particle state is signed so its -1/-2
- * markers stay in the loop body, and windAdd keeps the (p8 + pC) operand order
+ * markers stay in the loop body, and operandOrderAddFloat keeps the (p8 + pC) operand order
  * that retail evaluates before the bulge term. FPR declarations follow the
  * order a regalloc_whatif.py replay of the captured colouring derived. */
-static inline f32 windAdd(f32 first, f32 second) { return first + second; }
+
 #pragma push
 #pragma opt_loop_invariants on
 // Updates the falling funnel wind strip: a call-free inner loop steps the centre along the normalised direction.
 // FUN_004A3640
 void FallingFunnelWindUpdateStrip(u8 *effect)
 {
-    /* Earlier whole-layout trial: 1760 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 1760 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     EffectVuVector point;
     EffectVuVector direction;
     f32 t;
@@ -883,8 +912,10 @@ void FallingFunnelWindUpdateStrip(u8 *effect)
     u32 index;
     s32 segmentCount;
     u8 *instance;
+    WindGeometryInstance *geometryInstance;
     u32 lifetime;
     u8 *particle;
+    WindParticle *entry;
     u32 sample;
     u8 *vertices;
     u8 *texCoords;
@@ -921,15 +952,16 @@ void FallingFunnelWindUpdateStrip(u8 *effect)
     list = ((WindEffect *)effect)->block.bytes;
     particle = ((WindBlock *)list)->particles.bytes;
     instance = ((WindBlock *)list)->instance.bytes;
+    geometryInstance = (WindGeometryInstance *)instance;
     respawn = ((WindConfig *)config)->respawn;
     accel = ((WindConfig *)config)->unkD8;
     gravity = ((WindConfig *)config)->unkE4;
-    RpGeometryLock(((RpAtomic *)((WindGeometryInstance *)instance)->atomic)->geometry, 0xFF2);
+    RpGeometryLock(((RpAtomic *)geometryInstance->atomic)->geometry, 0xFF2);
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    geometry = (u8*)((RpAtomic *)*(u8 **)(instance + 0x10))->geometry;
+    geometry = (u8*)((RpAtomic *)geometryInstance->atomic)->geometry;
     vertices = (u8*)((RpMorphTarget *)(u8 *)((RpGeometry *)geometry)->morphTarget)->vertices;
     texCoords = (u8 *)((RpGeometry *)geometry)->texCoords[0];
-    segmentCount = ((WindGeometryInstance *)instance)->vertexCount;
+    segmentCount = geometryInstance->vertexCount;
     sampleCount = ((WindConfig *)config)->segments.word + 1;
     sampleScale = (f32)sampleCount;
     vSpan = ((WindConfig *)config)->unk98;
@@ -945,7 +977,8 @@ void FallingFunnelWindUpdateStrip(u8 *effect)
     goto check;
 body:
     {
-        state = ((WindParticle *)particle)->age.signedWord;
+        entry = (WindParticle *)particle;
+        state = entry->age.signedWord;
         if (state == -2) {
             goto skip;
         }
@@ -957,51 +990,51 @@ body:
             t = ((WindConfig *)config)->unkC0;
             t = ((WindConfig *)config)->unkBC * ((one - t) + t * effMiscRandFloat(0));
             end = ((WindConfig *)config)->unkC8;
-            ((WindParticle *)particle)->unkC = (((WindConfig *)config)->unkC4 * ((one - end) + end * effMiscRandFloat(0)) - t) / (f32)lifetime;
-            ((WindParticle *)particle)->unk8 = t;
+            entry->unkC = (((WindConfig *)config)->unkC4 * ((one - end) + end * effMiscRandFloat(0)) - t) / (f32)lifetime;
+            entry->unk8 = t;
             t = ((WindConfig *)config)->unkE0;
-            ((WindParticle *)particle)->unk10 = ((WindConfig *)config)->unkDC * ((one - t) + t * effMiscRandFloat(0));
-            ((WindParticle *)particle)->unk14 = ((WindConfig *)config)->unkCC * effMiscRandFloat(0);
+            entry->unk10 = ((WindConfig *)config)->unkDC * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk14 = ((WindConfig *)config)->unkCC * effMiscRandFloat(0);
             t = ((WindConfig *)config)->unkE8;
-            ((WindParticle *)particle)->unk28 = ((WindConfig *)config)->unkF0 * ((one - t) + t * effMiscRandFloat(0));
-            ((WindParticle *)particle)->unk1C = spin * effMiscRandFloat(0);
+            entry->unk28 = ((WindConfig *)config)->unkF0 * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk1C = spin * effMiscRandFloat(0);
             t = ((WindConfig *)config)->unkD4;
-            ((WindParticle *)particle)->unk18 = ((WindConfig *)config)->unkD0 * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk18 = ((WindConfig *)config)->unkD0 * ((one - t) + t * effMiscRandFloat(0));
             t = ((WindConfig *)config)->unkB4;
-            ((WindParticle *)particle)->unk20 = ((WindConfig *)config)->unkB0 * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk20 = ((WindConfig *)config)->unkB0 * ((one - t) + t * effMiscRandFloat(0));
             t = ((WindConfig *)config)->unkAC;
-            ((WindParticle *)particle)->unk24 = ten * (((WindConfig *)config)->unkA8 * ((one - t) + t * effMiscRandFloat(0)));
+            entry->unk24 = ten * (((WindConfig *)config)->unkA8 * ((one - t) + t * effMiscRandFloat(0)));
             t = ((WindConfig *)config)->unk9C;
             ((WindFunnelParticle *)particle)->unk2C = ((WindConfig *)config)->unk98 * ((one - t) + t * effMiscRandFloat(0));
             if (spawnAll != 0) {
-                ((WindParticle *)particle)->age.word = effMiscRand(0) % lifetime;
-                t = (f32)((WindParticle *)particle)->age.signedWord;
+                entry->age.word = effMiscRand(0) % lifetime;
+                t = (f32)entry->age.signedWord;
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                *(f32 *)(particle + 0x14) = *(f32 *)(particle + 0x14) + *(f32 *)(particle + 0x10) * t;
+                entry->unk14 = entry->unk14 + entry->unk10 * t;
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                *(f32 *)(particle + 0x14) = *(f32 *)(particle + 0x14) - half * (t * (gravity * t));
+                entry->unk14 = entry->unk14 - half * (t * (gravity * t));
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                *(f32 *)(particle + 0x8) = *(f32 *)(particle + 0x8) + *(f32 *)(particle + 0xC) * t;
+                entry->unk8 = entry->unk8 + entry->unkC * t;
             } else {
-                ((WindParticle *)particle)->age.word = 0;
+                entry->age.word = 0;
             }
             pending--;
             goto skip;
         }
         if ((u32)state >= lifetime) {
             if (respawn != 0) {
-                ((WindParticle *)particle)->age.signedWord = -1;
+                entry->age.signedWord = -1;
             } else {
                 memset(vertices, 0, segmentCount * 12);
-                ((WindParticle *)particle)->age.signedWord = -2;
+                entry->age.signedWord = -2;
             }
             if (iGpffffbb64.c3 != 0xFF) {
-                u8 *color = ((u8 **)((WindGeometryInstance *)instance)->materials)[(u16)index];
+                u8 *color = ((u8 **)geometryInstance->materials)[(u16)index];
                 ((WindMaterial *)color)->unk4 = iGpffffbb64;
             } else {
                 iGpffffbb64.c3 = 0xFE;
                 {
-                    u8 *color = ((u8 **)((WindGeometryInstance *)instance)->materials)[(u16)index];
+                    u8 *color = ((u8 **)geometryInstance->materials)[(u16)index];
                     ((WindMaterial *)color)->unk4 = iGpffffbb64;
                 }
                 iGpffffbb64.c3 = 0xFF;
@@ -1010,17 +1043,17 @@ body:
         }
         v0 = ((WindFunnelParticle *)particle)->unk2C;
         end = (f32)state;
-        angle = end * (((WindParticle *)particle)->unk18 + half * (accel * end));
-        angle += ((WindParticle *)particle)->unk1C;
+        angle = end * (entry->unk18 + half * (accel * end));
+        angle += entry->unk1C;
         {
-            f32 base = ((WindParticle *)particle)->unk8;
+            f32 base = entry->unk8;
             f32 offset;
             f32 width;
             f32 stepLength;
             f32 s;
 
-            height = ((WindParticle *)particle)->unk14;
-            swell = ((WindParticle *)particle)->unk28;
+            height = entry->unk14;
+            swell = entry->unk28;
             offset = end / (f32)lifetime - centre;
             t = base + swell * (offset * offset);
             c = cosf(angle);
@@ -1030,9 +1063,9 @@ body:
             point.lane[2] = s * t;
             effectVuLoad11(&point);
             __asm__ volatile("vmove.xyzw $vf12, $vf11" : : : "$vf12");
-            height = (height + ((WindParticle *)particle)->unk10) - gravity * end;
+            height = (height + entry->unk10) - gravity * end;
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            base = windAdd(*(f32 *)(particle + 0x8), ((WindParticle *)particle)->unkC) + swell * (((one + end) / (f32)lifetime - centre) * ((one + end) / (f32)lifetime - centre));
+            base = operandOrderAddFloat(entry->unk8, entry->unkC) + swell * (((one + end) / (f32)lifetime - centre) * ((one + end) / (f32)lifetime - centre));
             point.lane[0] = c * base;
             point.lane[1] = height;
             point.lane[2] = s * base;
@@ -1047,10 +1080,10 @@ body:
                 "vwaitq\n"
                 "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10");
             effectVuStore10(&direction);
-            ((WindParticle *)particle)->unk14 = height;
-            ((WindParticle *)particle)->unk8 = ((WindParticle *)particle)->unk8 + ((WindParticle *)particle)->unkC;
-            width = quarter * ((WindParticle *)particle)->unk20;
-            stepLength = ((WindParticle *)particle)->unk24 / sampleScale;
+            entry->unk14 = height;
+            entry->unk8 = entry->unk8 + entry->unkC;
+            width = quarter * entry->unk20;
+            stepLength = entry->unk24 / sampleScale;
             point.lane[0] = c;
             point.lane[1] = zero;
             point.lane[2] = s;
@@ -1100,7 +1133,7 @@ body:
             }
         }
         ((WindFunnelParticle *)particle)->unk2C = ((WindFunnelParticle *)particle)->unk2C + vStep;
-        ((WindParticle *)particle)->age.word = ((WindParticle *)particle)->age.word + 1;
+        entry->age.word = entry->age.word + 1;
         goto next;
 skip:
         vertices += segmentCount * 12;
@@ -1113,9 +1146,9 @@ check:
     if (index < particleCount) {
         goto body;
     }
-    geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)instance)->atomic)->geometry;
+    geometry = (u8*)((RpAtomic *)geometryInstance->atomic)->geometry;
     func_003c22f0((RpGeometry *)geometry);
-    if ((((WindGeometryInstance *)instance)->flags & 4) != 0) {
+    if ((geometryInstance->flags & 4) != 0) {
         ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
@@ -1349,10 +1382,12 @@ void FallingFunnelWindUpdateEntries(u8 *effect)
 // FUN_004A4450
 void SpiralWindInitEntries(u8 *block, u8 *config)
 {
-    /* Earlier whole-layout trial: 260 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 260 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u32 meshCount;
     u8 *geometry;
     u8 *colors;
+    WindBlock *windBlock = (WindBlock *)block;
+    WindStripColors *colorRow;
     u8 *colorsBase;
     u8 *texCoordsBase;
     u8 *texCoords;
@@ -1371,10 +1406,10 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
 
     meshCount = ((WindConfig *)config)->particleCount.word;
     if (meshCount != 0) {
-        geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)((WindBlock *)block)->instance.bytes)->atomic)->geometry;
+        geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)windBlock->instance.bytes)->atomic)->geometry;
         RpGeometryLock((RpGeometry *)(geometry), 0xFF8);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)*(u8 **)(block + 4))->atomic)->geometry;
+        geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)windBlock->instance.bytes)->atomic)->geometry;
         colorsBase = (u8 *)((RpGeometry *)geometry)->colors;
         colors = colorsBase;
         texCoordsBase = (u8 *)((RpGeometry *)geometry)->texCoords[0];
@@ -1387,6 +1422,7 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
         wordCount = pointCount * 4;
         i = 0;
         while (i < pointCount) {
+            colorRow = (WindStripColors *)colors;
             if (i < fadeIn) {
                 opacity = (f32)i / (f32)(s32)fadeIn;
             } else if (fadeOut < i) {
@@ -1394,11 +1430,11 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
             } else {
                 opacity = 1.0f;
             }
-            ((WindStripColors *)colors)->colors[0].word = 0xFFFFFF;
-            ((WindStripColors *)colors)->colors[1].word = ((u32)(opacity * 255.0f) << 24) | 0xFFFFFF;
+            colorRow->colors[0].word = 0xFFFFFF;
+            colorRow->colors[1].word = ((u32)(opacity * 255.0f) << 24) | 0xFFFFFF;
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            ((WindStripColors *)colors)->colors[2].color = *(PolygonWindColor *)(colors + 4);
-            ((WindStripColors *)colors)->colors[3].word = 0xFFFFFF;
+            colorRow->colors[2].color = colorRow->colors[1].color;
+            colorRow->colors[3].word = 0xFFFFFF;
             colors += 0x10;
             ((WindStripTexCoords *)texCoords)->coordinates[0][0].bits = 0;
             ((WindStripTexCoords *)texCoords)->coordinates[1][0].value = step;
@@ -1418,7 +1454,7 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
             copies += 1;
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        model = *(u16 **)(block + 4);
+        model = windBlock->instance.halves;
         geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)(u8 *)model)->atomic)->geometry;
         func_003c22f0((RpGeometry *)(geometry));
         if ((*model & 4) != 0) {
@@ -1432,28 +1468,32 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
 // FUN_004A4790
 u8 *SpiralWindAllocBlock(u8 *config, s32 texture)
 {
-    /* Earlier whole-layout trial: 240 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 240 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *work;
     s32 size;
+    WindConfig *settings;
+    WindBlock *allocation;
 
-    size = ((WindConfig *)config)->particleCount.signedWord * 0x2C + 0xC;
+    settings = (WindConfig *)config;
+    size = settings->particleCount.signedWord * 0x2C + 0xC;
     chkmemAllocSiteTag(D_00714110, 0x3E4);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    allocation = (WindBlock *)work;
     if (work == NULL) {
         kAssertFail(D_00714110, 0x3E5);
     }
-    ((WindBlock *)work)->particles.bytes = work + 0xC;
-    ((WindBlock *)work)->allocation.bytes = work;
-    if (((WindConfig *)config)->segments.word < 3U) {
+    allocation->particles.bytes = work + 0xC;
+    allocation->allocation.bytes = work;
+    if (settings->segments.word < 3U) {
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u32 *)(config + 0x8C) = 3U;
+        settings->segments.word = 3U;
     }
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    *(u8 **)(work + 4) = GeometryCreateStripGridMultiPart(*(u16 *)(config + 0x38), *(u16 *)(config + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
+    allocation->instance.bytes = GeometryCreateStripGridMultiPart(settings->particleCount.half, settings->segments.half, (s32)(u32)D_00713330, 4, 0x4C);
     if (texture == 0) {
-        mdlEffectSetGeometryTexture(((WindBlock *)work)->instance.pointer, TnSlotObject(0x14));
+        mdlEffectSetGeometryTexture(allocation->instance.pointer, TnSlotObject(0x14));
     } else {
-        mdlEffectUploadGeometryTexture(((WindBlock *)work)->instance.pointer, texture);
+        mdlEffectUploadGeometryTexture(allocation->instance.pointer, texture);
     }
     SpiralWindInitEntries(work, config);
     return work;
@@ -1463,27 +1503,31 @@ u8 *SpiralWindAllocBlock(u8 *config, s32 texture)
 // FUN_004A48D0
 u8 *SpiralWindAllocFromParent(u8 *parent)
 {
-    /* Earlier whole-layout trial: 67 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 67 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *parentBlock;
     u8 *config;
     u8 *work;
     s32 size;
+    WindConfig *settings;
+    WindBlock *allocation;
 
     parentBlock = ((WindEffect *)parent)->block.bytes;
     config = ((WindEffect *)parent)->config.bytes;
-    size = ((WindConfig *)config)->particleCount.signedWord * 0x2C + 0xC;
+    settings = (WindConfig *)config;
+    size = settings->particleCount.signedWord * 0x2C + 0xC;
     chkmemAllocSiteTag(D_00714110, 0x3E4);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    allocation = (WindBlock *)work;
     if (work == NULL) {
         kAssertFail(D_00714110, 0x3E5);
     }
-    ((WindBlock *)work)->particles.bytes = work + 0xC;
-    ((WindBlock *)work)->allocation.bytes = work;
-    if (((WindConfig *)config)->segments.word < 3U) {
+    allocation->particles.bytes = work + 0xC;
+    allocation->allocation.bytes = work;
+    if (settings->segments.word < 3U) {
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u32 *)(config + 0x8C) = 3U;
+        settings->segments.word = 3U;
     }
-    ((WindBlock *)work)->instance.bytes = mdlEffectCloneMultipartGeometry(((WindBlock *)parentBlock)->instance.bytes);
+    allocation->instance.bytes = mdlEffectCloneMultipartGeometry(((WindBlock *)parentBlock)->instance.bytes);
     SpiralWindInitEntries(work, config);
     return work;
 }
@@ -1509,7 +1553,7 @@ void SpiralWindFreeBlock(u8 *effect) {
 // FUN_004A4A10
 void SpiralWindUpdateStrip(u8 *effect)
 {
-    /* Earlier whole-layout trial: 1484 differing bytes; raw sites below were retested individually. */
+    /* Earlier whole-layout trial: 1484 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     EffectVuVector point;
     f32 sampleScale;
     f32 one;
@@ -1533,8 +1577,10 @@ void SpiralWindUpdateStrip(u8 *effect)
     u32 index;
     s32 segmentCount;
     u8 *instance;
+    WindGeometryInstance *geometryInstance;
     u32 lifetime;
     u8 *particle;
+    WindParticle *entry;
     u32 sample;
     u8 *vertices;
     u8 *texCoords;
@@ -1571,14 +1617,15 @@ void SpiralWindUpdateStrip(u8 *effect)
     list = ((WindEffect *)effect)->block.bytes;
     particle = ((WindBlock *)list)->particles.bytes;
     instance = ((WindBlock *)list)->instance.bytes;
+    geometryInstance = (WindGeometryInstance *)instance;
     respawn = ((WindConfig *)config)->respawn;
     accel = ((WindConfig *)config)->unkD4;
-    RpGeometryLock(((RpAtomic *)((WindGeometryInstance *)instance)->atomic)->geometry, 0xFF2);
+    RpGeometryLock(((RpAtomic *)geometryInstance->atomic)->geometry, 0xFF2);
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    geometry = (u8*)((RpAtomic *)*(u8 **)(instance + 0x10))->geometry;
+    geometry = (u8*)((RpAtomic *)geometryInstance->atomic)->geometry;
     vertices = (u8*)((RpMorphTarget *)(u8 *)((RpGeometry *)geometry)->morphTarget)->vertices;
     texCoords = (u8 *)((RpGeometry *)geometry)->texCoords[0];
-    segmentCount = ((WindGeometryInstance *)instance)->vertexCount;
+    segmentCount = geometryInstance->vertexCount;
     sampleCount = ((WindConfig *)config)->segments.word + 1;
     sampleScale = (f32)sampleCount;
     vSpan = ((WindConfig *)config)->unk98;
@@ -1592,7 +1639,8 @@ void SpiralWindUpdateStrip(u8 *effect)
     quarter = 0.25f;
     zero = 0.0f;
     for (; index < particleCount; index++, particle += 0x2C) {
-        state = ((WindParticle *)particle)->age.word;
+        entry = (WindParticle *)particle;
+        state = entry->age.word;
         if (state == (u32)-2) {
             goto skip;
         }
@@ -1604,44 +1652,44 @@ void SpiralWindUpdateStrip(u8 *effect)
             start = ((WindConfig *)config)->unkC0;
             start = ((WindConfig *)config)->unkBC * ((one - start) + start * effMiscRandFloat(0));
             end = ((WindConfig *)config)->unkC8;
-            ((WindParticle *)particle)->unk14 = (((WindConfig *)config)->unkC4 * ((one - end) + end * effMiscRandFloat(0)) - start) / (f32)lifetime;
-            ((WindParticle *)particle)->unk10 = start;
-            ((WindParticle *)particle)->unk8 = spread * (two * (effMiscRandFloat(0) - half));
-            ((WindParticle *)particle)->unkC = spread * (two * (effMiscRandFloat(0) - half));
-            ((WindParticle *)particle)->unk1C = spin * effMiscRandFloat(0);
+            entry->unk14 = (((WindConfig *)config)->unkC4 * ((one - end) + end * effMiscRandFloat(0)) - start) / (f32)lifetime;
+            entry->unk10 = start;
+            entry->unk8 = spread * (two * (effMiscRandFloat(0) - half));
+            entry->unkC = spread * (two * (effMiscRandFloat(0) - half));
+            entry->unk1C = spin * effMiscRandFloat(0);
             t = ((WindConfig *)config)->unkD0;
-            ((WindParticle *)particle)->unk18 = ((WindConfig *)config)->unkCC * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk18 = ((WindConfig *)config)->unkCC * ((one - t) + t * effMiscRandFloat(0));
             t = ((WindConfig *)config)->unkB4;
-            ((WindParticle *)particle)->unk20 = ((WindConfig *)config)->unkB0 * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk20 = ((WindConfig *)config)->unkB0 * ((one - t) + t * effMiscRandFloat(0));
             t = ((WindConfig *)config)->unkAC;
-            ((WindParticle *)particle)->unk24 = ((WindConfig *)config)->unkA8 * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk24 = ((WindConfig *)config)->unkA8 * ((one - t) + t * effMiscRandFloat(0));
             t = ((WindConfig *)config)->unk9C;
-            ((WindParticle *)particle)->unk28 = ((WindConfig *)config)->unk98 * ((one - t) + t * effMiscRandFloat(0));
+            entry->unk28 = ((WindConfig *)config)->unk98 * ((one - t) + t * effMiscRandFloat(0));
             if (spawnAll != 0) {
-                ((WindParticle *)particle)->age.word = effMiscRand(0) % lifetime;
-                t = (f32)((WindParticle *)particle)->age.signedWord;
+                entry->age.word = effMiscRand(0) % lifetime;
+                t = (f32)entry->age.signedWord;
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                *(f32 *)(particle + 0x10) = *(f32 *)(particle + 0x10) + *(f32 *)(particle + 0x14) * t;
+                entry->unk10 = entry->unk10 + entry->unk14 * t;
             } else {
-                ((WindParticle *)particle)->age.word = 0;
+                entry->age.word = 0;
             }
             pending--;
             goto skip;
         }
         if (state >= lifetime) {
             if (respawn != 0) {
-                ((WindParticle *)particle)->age.word = (u32)-1;
+                entry->age.word = (u32)-1;
             } else {
                 memset(vertices, 0, segmentCount * 12);
-                ((WindParticle *)particle)->age.word = (u32)-2;
+                entry->age.word = (u32)-2;
             }
             if (iGpffffbb64.c3 != 0xFF) {
-                u8 *color = ((u8 **)((WindGeometryInstance *)instance)->materials)[(u16)index];
+                u8 *color = ((u8 **)geometryInstance->materials)[(u16)index];
                 ((WindMaterial *)color)->unk4 = iGpffffbb64;
             } else {
                 iGpffffbb64.c3 = 0xFE;
                 {
-                    u8 *color = ((u8 **)((WindGeometryInstance *)instance)->materials)[(u16)index];
+                    u8 *color = ((u8 **)geometryInstance->materials)[(u16)index];
                     ((WindMaterial *)color)->unk4 = iGpffffbb64;
                 }
                 iGpffffbb64.c3 = 0xFF;
@@ -1649,18 +1697,18 @@ void SpiralWindUpdateStrip(u8 *effect)
             goto skip;
         }
         t = (f32)(s32)state;
-        angle = t * (((WindParticle *)particle)->unk18 + half * (accel * t));
-        angle += ((WindParticle *)particle)->unk1C;
-        radius = (((WindParticle *)particle)->unk10 += ((WindParticle *)particle)->unk14);
-        width = quarter * ((WindParticle *)particle)->unk20;
-        if (!(((WindParticle *)particle)->unk18 < zero)) {
-            step = ((WindParticle *)particle)->unk24 / sampleScale;
+        angle = t * (entry->unk18 + half * (accel * t));
+        angle += entry->unk1C;
+        radius = (entry->unk10 += entry->unk14);
+        width = quarter * entry->unk20;
+        if (!(entry->unk18 < zero)) {
+            step = entry->unk24 / sampleScale;
         } else {
-            step = -((WindParticle *)particle)->unk24 / sampleScale;
+            step = -entry->unk24 / sampleScale;
         }
-        v0 = ((WindParticle *)particle)->unk28;
-        effMiscRotateXVU(((WindParticle *)particle)->unk8);
-        effMiscRotateYVU(((WindParticle *)particle)->unkC);
+        v0 = entry->unk28;
+        effMiscRotateXVU(entry->unk8);
+        effMiscRotateYVU(entry->unkC);
         effMiscCombineRotationVU();
         point.lane[0] = cosf(angle);
         point.lane[1] = zero;
@@ -1731,16 +1779,16 @@ void SpiralWindUpdateStrip(u8 *effect)
             }
             texCoords += 0x20;
         }
-        ((WindParticle *)particle)->unk28 = ((WindParticle *)particle)->unk28 + vStep;
-        ((WindParticle *)particle)->age.word = ((WindParticle *)particle)->age.word + 1;
+        entry->unk28 = entry->unk28 + vStep;
+        entry->age.word = entry->age.word + 1;
         continue;
 skip:
         vertices += segmentCount * 12;
         texCoords += segmentCount * 8;
     }
-    geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)instance)->atomic)->geometry;
+    geometry = (u8*)((RpAtomic *)geometryInstance->atomic)->geometry;
     func_003c22f0((RpGeometry *)geometry);
-    if ((((WindGeometryInstance *)instance)->flags & 4) != 0) {
+    if ((geometryInstance->flags & 4) != 0) {
         ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
@@ -1925,9 +1973,7 @@ void *WindAllocKindEntry(s32 kind, void *parameters)
         kAssertFail(D_00714110, 0x59F);
     }
     kindIndex = kind & 0xFFFF;
-    /* D_00714148 names the size column, not the start of the kind table. */
-    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
-    parameterBytes = *(s32 *)(D_00714148 + kindIndex * 0x1C);
+    parameterBytes = D_00714148[kindIndex].parameterBytes;
     chkmemAllocSiteTag(D_00714110, 0x5A3);
     effect = jtbl_008873E8[0](parameterBytes + 0x50, 0x40000);
     if (effect == NULL) {
@@ -1954,7 +2000,7 @@ void *WindCreateKindEntry(void *source)
     u8 *parameters;
     u8 *texture;
     u8 *effect;
-    u32 tableOffset;
+    u32 kindIndex;
 
     texture = mdlEffectResolveRelPtrB(source);
     if (texture == NULL) {
@@ -1976,12 +2022,9 @@ void *WindCreateKindEntry(void *source)
     }
     kind = (u8 *)(((EffSourceDescriptor *)source)->id & 0xFFFF);
     effect = WindAllocKindEntry((s32)kind, parameters);
-    tableOffset = ((u32)kind & 0xFFFF) * 28;
-    /* These linker symbols name callback columns inside 0x1C-byte records. */
-    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
-    ((WindEffect *)effect)->block.word = (u32)((void *(*)(void *, void *))(*(void **)(D_00714134 + tableOffset)))(parameters, texture);
-    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
-    ((void (*)(void *))(*(void **)(D_00714130 + tableOffset)))(effect);
+    kindIndex = ((u32)kind & 0xFFFF);
+    ((WindEffect *)effect)->block.word = (u32)D_00714134[kindIndex].allocate(parameters, texture);
+    D_00714130[kindIndex].initialize(effect);
     if (effect == NULL) {
         kAssertFail(D_00714110, 0x5E5);
     }

@@ -8,6 +8,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "member_access.h"
 #include "kwln_task_internal.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
@@ -77,16 +78,50 @@ typedef struct {
     MapTestCell cells[24][16];
 } MapTestGrid;
 
+/* Work allocation is 0x1B440 bytes; each grid cell owns a 0x120-byte draw packet. */
+typedef struct FldMapTestWork {
+    s32 state;
+    s32 mode;
+    u8 pad08[8];
+    u8 packets[24][16][0x120];
+    u8 pad1B010[0x420];
+    s32 variant;
+    u8 *entries;
+    KwlnTask *menuTask;
+    u8 pad1B43C[4];
+} FldMapTestWork;
+
+typedef struct FldMapTestEntry {
+    u8 pad00[8];
+    u8 unk08, unk09;
+    u8 pad0A[6];
+} FldMapTestEntry;
+
+typedef struct FldViewerWork {
+    s32 state;
+    KwlnTask *menuTask;
+} FldViewerWork;
+
+/* Requests 9 and 10 use separate portions of the same 0x20-byte packet. */
+typedef struct FldViewerRequest {
+    u16 values[3];
+    s16 value06, value08;
+    u8 pad0A[2];
+    s32 arguments[3];
+    u8 pad18[8];
+} FldViewerRequest;
+
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018E810
 /* Drive the board-generation menu, then render the generated grid for inspection. */
+// FUN_0018E810
 s32 FldMapTestUpdate(u8 *task)
 {
+    FldMapTestWork *mapWork;
     extern PadStatus D_008C0240[2];
     extern s64 iGpffff9fd0;
     extern PanelColor iGpffff9fd8;
@@ -98,83 +133,84 @@ s32 FldMapTestUpdate(u8 *task)
     u8 *work;
     s32 menuValue;
 
-    /* Typed work fields alter MWCC scheduling; retain the proven scalar offsets. */
-    work = *(u8 **)(task + 0x38);
-    switch (*(s32 *)work) {
+    work = ((KwlnTask *)task)->work;
+    mapWork = (FldMapTestWork *)work;
+    switch (((FldMapTestWork *)work)->state) {
     case 0:
-        *(KwlnTask **)(work + 0x1B438) = sdkLboxCreate((KwlnTask *)task, 0x100, 0x40);
-        sdkLboxAddDescriptors(*(KwlnTask **)(work + 0x1B438), D_005F5730, 4);
-        sdkLboxSetVisibleRows(*(u8 **)(work + 0x1B438), 0x14);
-        sdkLboxSetState(*(u8 **)(work + 0x1B438), 4);
-        sdkLboxSetSelection(*(u8 **)(work + 0x1B438), 1);
-        *(u8 **)(work + 0x1B434) = D_007E3720;
-        *(s32 *)work += 1;
+        ((FldMapTestWork *)work)->menuTask = sdkLboxCreate((KwlnTask *)task, 0x100, 0x40);
+        sdkLboxAddDescriptors(mapWork->menuTask, D_005F5730, 4);
+        sdkLboxSetVisibleRows((u8 *)mapWork->menuTask, 0x14);
+        sdkLboxSetState((u8 *)mapWork->menuTask, 4);
+        sdkLboxSetSelection((u8 *)mapWork->menuTask, 1);
+        ((FldMapTestWork *)work)->entries = D_007E3720;
+        ((FldMapTestWork *)work)->state += 1;
         break;
     case 1:
         if (D_008C0240[0].trigger & 0x40) {
-            switch (sdkLboxGetSelectedId(*(u8 **)(work + 0x1B438))) {
+            switch (sdkLboxGetSelectedId((u8 *)((FldMapTestWork *)work)->menuTask)) {
             case 0:
-                *((u8 *)MT_Scene_GetFrameState() + 0x4A) =
-                    *(*(u8 **)(work + 0x1B434) +
-                      *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1B438), 3) * 0x10 + 8);
-                *((u8 *)MT_Scene_GetFrameState() + 0x4B) =
-                    *(*(u8 **)(work + 0x1B434) +
-                      *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1B438), 3) * 0x10 + 9);
-                *(s32 *)(work + 0x4) = 2;
-                menuValue = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1B438), 0);
-                FldBoardGenerate(*(s32 *)(work + 0x4), menuValue, 0);
-                kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x1B438));
-                *(s32 *)work += 1;
+                /* Measured: adding a byte-pointer cast swaps addu operands; keep these column reads cast-free. */
+                ((FldFrame *)MT_Scene_GetFrameState())->unk48[2] =
+                    *(((FldMapTestWork *)work)->entries +
+                      *sdkLboxGetValuePtr(mapWork->menuTask, 3) * 0x10 + MEMBER_OFFSET(FldMapTestEntry, unk08));
+                ((FldFrame *)MT_Scene_GetFrameState())->unk48[3] =
+                    *(mapWork->entries +
+                      *sdkLboxGetValuePtr(mapWork->menuTask, 3) * 0x10 + MEMBER_OFFSET(FldMapTestEntry, unk09));
+                ((FldMapTestWork *)work)->mode = 2;
+                menuValue = *sdkLboxGetValuePtr(mapWork->menuTask, 0);
+                FldBoardGenerate(mapWork->mode, menuValue, 0);
+                kwlnTaskDestroyWithHierarchy(mapWork->menuTask);
+                ((FldMapTestWork *)work)->state += 1;
                 break;
             case 1:
-                *((u8 *)MT_Scene_GetFrameState() + 0x4A) =
-                    *(*(u8 **)(work + 0x1B434) +
-                      *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1B438), 3) * 0x10 + 8);
-                *((u8 *)MT_Scene_GetFrameState() + 0x4B) =
-                    *(*(u8 **)(work + 0x1B434) +
-                      *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1B438), 3) * 0x10 + 9);
-                *(s32 *)(work + 0x4) = 0;
-                menuValue = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1B438), 1);
-                FldBoardGenerate(*(s32 *)(work + 0x4), menuValue, 0);
-                kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x1B438));
-                *(s32 *)work += 1;
+                ((FldFrame *)MT_Scene_GetFrameState())->unk48[2] =
+                    *(((FldMapTestWork *)work)->entries +
+                      *sdkLboxGetValuePtr(mapWork->menuTask, 3) * 0x10 + MEMBER_OFFSET(FldMapTestEntry, unk08));
+                ((FldFrame *)MT_Scene_GetFrameState())->unk48[3] =
+                    *(mapWork->entries +
+                      *sdkLboxGetValuePtr(mapWork->menuTask, 3) * 0x10 + MEMBER_OFFSET(FldMapTestEntry, unk09));
+                ((FldMapTestWork *)work)->mode = 0;
+                menuValue = *sdkLboxGetValuePtr(mapWork->menuTask, 1);
+                FldBoardGenerate(mapWork->mode, menuValue, 0);
+                kwlnTaskDestroyWithHierarchy(mapWork->menuTask);
+                ((FldMapTestWork *)work)->state += 1;
                 break;
             case 2:
-                *((u8 *)MT_Scene_GetFrameState() + 0x4A) =
-                    *(*(u8 **)(work + 0x1B434) +
-                      *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1B438), 3) * 0x10 + 8);
-                *((u8 *)MT_Scene_GetFrameState() + 0x4B) =
-                    *(*(u8 **)(work + 0x1B434) +
-                      *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1B438), 3) * 0x10 + 9);
-                *(s32 *)(work + 0x4) = 1;
-                menuValue = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1B438), 2);
-                FldBoardGenerate(*(s32 *)(work + 0x4), menuValue, 0);
-                kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x1B438));
-                *(s32 *)work += 1;
+                ((FldFrame *)MT_Scene_GetFrameState())->unk48[2] =
+                    *(((FldMapTestWork *)work)->entries +
+                      *sdkLboxGetValuePtr(mapWork->menuTask, 3) * 0x10 + MEMBER_OFFSET(FldMapTestEntry, unk08));
+                ((FldFrame *)MT_Scene_GetFrameState())->unk48[3] =
+                    *(mapWork->entries +
+                      *sdkLboxGetValuePtr(mapWork->menuTask, 3) * 0x10 + MEMBER_OFFSET(FldMapTestEntry, unk09));
+                ((FldMapTestWork *)work)->mode = 1;
+                menuValue = *sdkLboxGetValuePtr(mapWork->menuTask, 2);
+                FldBoardGenerate(mapWork->mode, menuValue, 0);
+                kwlnTaskDestroyWithHierarchy(mapWork->menuTask);
+                ((FldMapTestWork *)work)->state += 1;
                 break;
             }
         }
         break;
     case 2:
-        *(s32 *)work += 1;
+        ((FldMapTestWork *)work)->state += 1;
         break;
     case 3:
-        *(s32 *)work += 1;
+        ((FldMapTestWork *)work)->state += 1;
         break;
     case 4:
         if (D_008C0240[0].trigger & 0x8000) {
-            *(s32 *)(work + 0x1B430) -= 1;
+            ((FldMapTestWork *)work)->variant -= 1;
         } else if (D_008C0240[0].trigger & 0x2000) {
-            *(s32 *)(work + 0x1B430) += 1;
+            ((FldMapTestWork *)work)->variant += 1;
         }
-        if (*(s32 *)(work + 0x1B430) < 0) {
-            *(s32 *)(work + 0x1B430) = 3;
+        if (((FldMapTestWork *)work)->variant < 0) {
+            mapWork->variant = 3;
         }
-        if (*(s32 *)(work + 0x1B430) > 3) {
-            *(s32 *)(work + 0x1B430) = 0;
+        if (mapWork->variant > 3) {
+            mapWork->variant = 0;
         }
         if (D_008C0240[0].trigger & 0x40) {
-            FldBoardGenerate(*(s32 *)(work + 0x4), 0, 0);
+            FldBoardGenerate(((FldMapTestWork *)work)->mode, 0, 0);
         }
         sdkDbprtQueueText(iGpffff9fd0, iGpffff9fdc, iGpffffb240);
         {
@@ -209,7 +245,7 @@ s32 FldMapTestUpdate(u8 *task)
             }
         }
         if (D_008C0240[0].trigger & 0x20) {
-            *(s32 *)work = 0;
+            ((FldMapTestWork *)work)->state = 0;
         }
         break;
     }
@@ -236,8 +272,8 @@ void FldMapTestDestroy(u8 *task)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018EF50
 /* Attach a map-test task with storage for all per-cell render packets. */
+// FUN_0018EF50
 void FldMapTestTaskCreate(s32 parent)
 {
     chkmemAllocSiteTag(&D_005F57B0, 0x101);
@@ -251,77 +287,78 @@ void FldMapTestTaskCreate(s32 parent)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018EFE0
 /* Edit viewer parameters and submit command 9 or 10; wait until it completes. */
+// FUN_0018EFE0
 s32 FldViewerUpdate(u8 *task)
 {
-    /* Command payload: halfwords at 0..8, words at C..14; struct access loses MATCH. */
+    FldViewerWork *viewerWork;
+    /* Four stack-packet accesses retain MEMBER: direct fields and a typed request pointer change the instruction image. */
     u8 packet[0x20];
     u8 *work;
     s32 hidden;
 
-    /* Typed work fields alter MWCC scheduling; retain the proven scalar offsets. */
-    work = *(u8 **)(task + 0x38);
-    switch (*(s32 *)work) {
+    work = ((KwlnTask *)task)->work;
+    viewerWork = (FldViewerWork *)work;
+    switch (((FldViewerWork *)work)->state) {
     case 0:
-        *(KwlnTask **)(work + 0x4) = sdkLboxCreate((KwlnTask *)task, 0xDC, 0xA0);
-        sdkLboxAddDescriptors(*(KwlnTask **)(work + 0x4), D_005F5830, 0xB);
+        ((FldViewerWork *)work)->menuTask = sdkLboxCreate((KwlnTask *)task, 0xDC, 0xA0);
+        sdkLboxAddDescriptors(viewerWork->menuTask, D_005F5830, 0xB);
         hidden = iGpffffb268 != 0;
-        *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 5) = hidden ^ 1;
-        *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 0) = iGpffffb3a0;
-        *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 1) = iGpffffb39c;
-        *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 2) = iGpffffb398;
-        *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 3) = iGpffffb394;
-        *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 4) = iGpffffb390;
-        *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 6) = iGpffffb250;
-        sdkLboxSetVisibleRows(*(u8 **)(work + 4), 0x14);
-        sdkLboxSetState(*(u8 **)(work + 4), 4);
-        sdkLboxSetSelection(*(u8 **)(work + 4), 1);
-        *(s32 *)work += 1;
+        *sdkLboxGetValuePtr(viewerWork->menuTask, 5) = hidden ^ 1;
+        *sdkLboxGetValuePtr(viewerWork->menuTask, 0) = iGpffffb3a0;
+        *sdkLboxGetValuePtr(viewerWork->menuTask, 1) = iGpffffb39c;
+        *sdkLboxGetValuePtr(viewerWork->menuTask, 2) = iGpffffb398;
+        *sdkLboxGetValuePtr(viewerWork->menuTask, 3) = iGpffffb394;
+        *sdkLboxGetValuePtr(viewerWork->menuTask, 4) = iGpffffb390;
+        *sdkLboxGetValuePtr(viewerWork->menuTask, 6) = iGpffffb250;
+        sdkLboxSetVisibleRows((u8 *)viewerWork->menuTask, 0x14);
+        sdkLboxSetState((u8 *)viewerWork->menuTask, 4);
+        sdkLboxSetSelection((u8 *)viewerWork->menuTask, 1);
+        ((FldViewerWork *)work)->state += 1;
         break;
     case 1:
-        iGpffffb268 = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 5) != 1;
-        iGpffffb250 = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 6);
+        iGpffffb268 = *sdkLboxGetValuePtr(((FldViewerWork *)work)->menuTask, 5) != 1;
+        iGpffffb250 = *sdkLboxGetValuePtr(viewerWork->menuTask, 6);
         if (D_008C024E[0] & 0x40) {
-            if (*sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 8) == -1) {
-                *(u16 *)(packet + 0) =
-                    (u16)*sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 0);
-                *(u16 *)(packet + 0x2) =
-                    (u16)*sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 1);
-                *(u16 *)(packet + 0x4) =
-                    (u16)*sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 2);
-                *(s16 *)(packet + 0x6) =
-                    (s16)*sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 3);
-                *(s16 *)(packet + 0x8) =
-                    (s16)*sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 4);
-                iGpffffb3a0 = *(u16 *)(packet + 0);
-                iGpffffb39c = *(u16 *)(packet + 0x2);
-                iGpffffb398 = *(u16 *)(packet + 0x4);
-                iGpffffb394 = *(s16 *)(packet + 0x6);
-                iGpffffb390 = *(s16 *)(packet + 0x8);
+            if (*sdkLboxGetValuePtr(viewerWork->menuTask, 8) == -1) {
+                ((FldViewerRequest *)packet)->values[0] =
+                    (u16)*sdkLboxGetValuePtr(viewerWork->menuTask, 0);
+                ((FldViewerRequest *)packet)->values[1] =
+                    (u16)*sdkLboxGetValuePtr(viewerWork->menuTask, 1);
+                ((FldViewerRequest *)packet)->values[2] =
+                    (u16)*sdkLboxGetValuePtr(viewerWork->menuTask, 2);
+                ((FldViewerRequest *)packet)->value06 =
+                    (s16)*sdkLboxGetValuePtr(viewerWork->menuTask, 3);
+                ((FldViewerRequest *)packet)->value08 =
+                    (s16)*sdkLboxGetValuePtr(viewerWork->menuTask, 4);
+                iGpffffb3a0 = ((FldViewerRequest *)packet)->values[0];
+                iGpffffb39c = MEMBER(u16, packet, FldViewerRequest, values[1]);
+                iGpffffb398 = MEMBER(u16, packet, FldViewerRequest, values[2]);
+                iGpffffb394 = MEMBER(s16, packet, FldViewerRequest, value06);
+                iGpffffb390 = MEMBER(s16, packet, FldViewerRequest, value08);
                 sequenceRequest(9, packet, 0x1C, 0);
-                sdkLboxSetSelection(*(u8 **)(work + 4), 0);
-                *(s32 *)work = 2;
+                sdkLboxSetSelection((u8 *)viewerWork->menuTask, 0);
+                ((FldViewerWork *)work)->state = 2;
             } else {
-                *(s32 *)(packet + 0xC) =
-                    *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 8);
-                *(s32 *)(packet + 0x10) =
-                    *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 9);
-                *(s32 *)(packet + 0x14) =
-                    *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x4), 0xA);
+                ((FldViewerRequest *)packet)->arguments[0] =
+                    *sdkLboxGetValuePtr(viewerWork->menuTask, 8);
+                ((FldViewerRequest *)packet)->arguments[1] =
+                    *sdkLboxGetValuePtr(viewerWork->menuTask, 9);
+                ((FldViewerRequest *)packet)->arguments[2] =
+                    *sdkLboxGetValuePtr(viewerWork->menuTask, 0xA);
                 sequenceRequest(0xA, packet, 0x1C, 0);
-                sdkLboxSetSelection(*(u8 **)(work + 4), 0);
-                *(s32 *)work = 2;
+                sdkLboxSetSelection((u8 *)viewerWork->menuTask, 0);
+                ((FldViewerWork *)work)->state = 2;
             }
         } else if (D_008C024E[0] & 0x20) {
-            *(s32 *)work = 3;
+            ((FldViewerWork *)work)->state = 3;
         }
         break;
     case 2:
         if (kwlnGetCurrentWorkValue() == 0) {
             iGpffffb3a4 = 0;
-            sdkLboxSetSelection(*(u8 **)(work + 4), 1);
-            *(s32 *)work = 1;
+            sdkLboxSetSelection((u8 *)((FldViewerWork *)work)->menuTask, 1);
+            ((FldViewerWork *)work)->state = 1;
         }
         break;
     case 3:

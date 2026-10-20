@@ -57,7 +57,7 @@ void tickerStartTask(void) {
 
 /* Step fade-in/out counters and wait for any calendar-change child task. */
 // FUN_00121B70
-/* Raw offsets preserve the measured match: CalendarFade access changed codegen (nd 306). */
+/* Earlier whole-layout typing probe: CalendarFade access changed codegen (nd 306).; access-site and typed-local forms now match. */
 s32 fadeTaskStep(u8 *unusedTask) {
     extern s32 calendarStartDayChange(s32 , s32 );
     extern s32 calendarStartTimeChange(s32 , s32 );
@@ -73,50 +73,52 @@ s32 fadeTaskStep(u8 *unusedTask) {
     s32 duration;
     u32 state;
     u8 *fade;
+    CalendarFade *fadeState;
 
     fade = (u8 *)iGpffffb1cc;
-    state = *(u32 *)(fade + 0);
+    fadeState = (CalendarFade *)(fade);
+    state = ((CalendarFade *)fade)->state;
     switch (state) {
     case 0:
-        *(s32 *)(fade + 0x14) = 0;
+        ((CalendarFade *)fade)->changeRequested = 0;
         break;
     case 1:
-        *(s32 *)(fade + 0x10) = 1;
-        *(u32 *)(fade + 0) = 2;
+        ((CalendarFade *)fade)->drawEnabled = 1;
+        ((CalendarFade *)fade)->state = 2;
         break;
     case 2:
-        *(s32 *)(fade + 0x10) = 1;
-        nextCounter = *(s32 *)(fade + 0xC) + 1;
-        *(s32 *)(fade + 0xC) = nextCounter;
-        duration = *(s32 *)(fade + 8);
+        ((CalendarFade *)fade)->drawEnabled = 1;
+        nextCounter = ((CalendarFade *)fade)->counter + 1;
+        ((CalendarFade *)fade)->counter = nextCounter;
+        duration = ((CalendarFade *)fade)->duration;
         if (nextCounter >= duration) {
-            *(s32 *)(fade + 0xC) = duration;
-            *(u32 *)(fade + 0) = 3;
+            fadeState->counter = duration;
+            ((CalendarFade *)fade)->state = 3;
         }
         break;
     case 3:
-        *(s32 *)(fade + 0x10) = 1;
-        if (*(s32 *)(fade + 0x14) != 0) {
-            *(u32 *)(fade + 0) = 6;
-        } else if ((*(s32 *)(fade + 4) == 4) &&
-                   (*(s32 *)(fade + 0x18) != 0)) {
-            *(s32 *)(fade + 0x1C) = cldDungeonInStart(0);
-            *(u32 *)(fade + 0) = 7;
-            *(s32 *)(fade + 0x18) = 0;
+        ((CalendarFade *)fade)->drawEnabled = 1;
+        if (((CalendarFade *)fade)->changeRequested != 0) {
+            ((CalendarFade *)fade)->state = 6;
+        } else if ((((CalendarFade *)fade)->mode == 4) &&
+                   (((CalendarFade *)fade)->specialRequested != 0)) {
+            ((CalendarFade *)fade)->childTask = cldDungeonInStart(0);
+            ((CalendarFade *)fade)->state = 7;
+            fadeState->specialRequested = 0;
         }
         break;
     case 4:
-        *(s32 *)(fade + 0x10) = 1;
-        *(u32 *)(fade + 0) = 5;
+        ((CalendarFade *)fade)->drawEnabled = 1;
+        ((CalendarFade *)fade)->state = 5;
         break;
     case 5:
-        *(s32 *)(fade + 0x10) = 1;
-        previousCounter = *(s32 *)(fade + 0xC) - 1;
-        *(s32 *)(fade + 0xC) = previousCounter;
+        ((CalendarFade *)fade)->drawEnabled = 1;
+        previousCounter = ((CalendarFade *)fade)->counter - 1;
+        ((CalendarFade *)fade)->counter = previousCounter;
         if (previousCounter <= 0) {
-            *(s32 *)(fade + 0x10) = 0;
-            *(s32 *)(fade + 0xC) = 0;
-            *(u32 *)(fade + 0) = 0;
+            fadeState->drawEnabled = 0;
+            fadeState->counter = 0;
+            ((CalendarFade *)fade)->state = 0;
         }
         break;
     case 6:
@@ -126,20 +128,20 @@ s32 fadeTaskStep(u8 *unusedTask) {
         currentDay = clndGetDaysSinceApr5();
         currentPeriod = clndGetPeriod();
         if (previousDay != currentDay) {
-            *(s32 *)(fade + 0x1C) = calendarStartDayChange(previousDay, currentDay);
-            *(u32 *)(fade + 0) = 7;
+            ((CalendarFade *)fade)->childTask = calendarStartDayChange(previousDay, currentDay);
+            ((CalendarFade *)fade)->state = 7;
         } else if (previousPeriod != currentPeriod) {
-            *(s32 *)(fade + 0x1C) = calendarStartTimeChange(previousPeriod, currentPeriod);
-            *(u32 *)(fade + 0) = 7;
+            ((CalendarFade *)fade)->childTask = calendarStartTimeChange(previousPeriod, currentPeriod);
+            ((CalendarFade *)fade)->state = 7;
         } else {
-            *(s32 *)(fade + 0x14) = 0;
-            *(u32 *)(fade + 0) = 3;
+            ((CalendarFade *)fade)->changeRequested = 0;
+            ((CalendarFade *)fade)->state = 3;
         }
         break;
     case 7:
-        if (kwlnTaskGetState(*(s32 *)(fade + 0x1C)) == 3) {
-            *(s32 *)(fade + 0x14) = 0;
-            *(u32 *)(fade + 0) = 3;
+        if (kwlnTaskGetState(((CalendarFade *)fade)->childTask) == 3) {
+            ((CalendarFade *)fade)->changeRequested = 0;
+            ((CalendarFade *)fade)->state = 3;
         }
         break;
     }

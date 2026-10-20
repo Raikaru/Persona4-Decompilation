@@ -1,4 +1,5 @@
 /* Original translation unit sdkDbprt.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "operand_order_internal.h"
 #include "type.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -18,7 +19,7 @@ typedef struct RwImage {
 
 #define HDBPRT_GRID_WIDTH  (640 / 12)
 #define HDBPRT_GRID_HEIGHT (480 / 12)
-
+typedef struct { u8 b0, b1, b2, b3; } RGBA8;
 typedef struct HDbText3D HDbText3D;
 struct HDbText3D
 {
@@ -28,9 +29,9 @@ struct HDbText3D
     f32 cameraDepth;
     u8 text[256];
     f32 depthOffset;
-    u8 color[4];
+    union { u8 color[4]; RGBA8 packedColor; };
 };
-typedef struct { u8 b0, b1, b2, b3; } RGBA8;
+
 
 static char sGrid[HDBPRT_GRID_HEIGHT][HDBPRT_GRID_WIDTH];
 /* b210 emits these private small-data objects in reverse declaration order.
@@ -50,7 +51,7 @@ extern char D_00710500[];
 extern char D_00710510[];
 extern char D_00710530[];
 /* Absolute 12x12 font grid (zero-filled .bss). */
-extern char D_008BF720[];
+extern u8 D_008BF720[HDBPRT_GRID_HEIGHT][HDBPRT_GRID_WIDTH];
 
 /* library / file helpers */
 extern void func_00440b68(const char *fmt, ...);
@@ -133,10 +134,7 @@ void H_Dbprt_Flush()
 #pragma opt_loop_invariants on
 /* The glyph atlas has sixteen columns. Keep this conversion signed so
  * its remainder operation also describes negative input values. */
-static inline s32 debugGlyphColumn(s32 value)
-{
-    return value % 16;
-}
+
 
 /* Draws non-space characters from the 53 by 40 debug grid and restores fog state. */
 // FUN_0044F720
@@ -236,7 +234,7 @@ void sdkDbprtDrawGrid(void)
                     vertices[2].position[1] = bottomY;
                     vertices[3].position[0] = rightX;
                     vertices[3].position[1] = bottomY;
-                    tileColumn = debugGlyphColumn((s32)glyphIndex);
+                    tileColumn = operandOrderRemainder((s32)glyphIndex, 16);
                     leftU = 0.0625f * (f32)tileColumn;
                     textureCoordinates[0] = leftU;
                     topV = 0.0625f * (f32)(s32)((u32)glyphIndex >> 4);
@@ -275,7 +273,7 @@ void sdkDbprtDrawGrid(void)
  * multiply and add retain the original separate evaluation.
  * See docs/probe_archive/Debug_queued_text_0044fa90_20260924.md. */
 /* Draws queued colored text at screen or projected camera depth. */
-/* measured: node->text[characterIndex] changes one instruction byte; retain the explicit text-buffer address calculation. */
+/* measured: node->text[characterIndex] changes one instruction byte; taking the named element address preserves the byte alias. */
 // FUN_0044FA90
 void sdkDbprtDrawQueuedText(void) {
     extern s32 (*D_00887300[])(s32 state, void *value);
@@ -310,7 +308,7 @@ void sdkDbprtDrawQueuedText(void) {
         characterIndex = 0;
         while (characterIndex < 0x100) {
             u8 glyph;
-            glyph = *(u8 *)((u8 *)node + 0x10 + characterIndex);
+            glyph = *(u8 *)&((HDbText3D *)node)->text[characterIndex];
             if (glyph == 0) {
                 break;
             }
@@ -344,7 +342,7 @@ void sdkDbprtDrawQueuedText(void) {
                     vertices[2].position[1] = bottomY;
                     vertices[3].position[0] = rightX;
                     vertices[3].position[1] = bottomY;
-                    atlasColumn = debugGlyphColumn((s32)(glyph & 0xFF));
+                    atlasColumn = operandOrderRemainder(((s32)(glyph & 0xFF)), 16);
                     leftU = 0.0625f * (f32)atlasColumn;
                     textureCoordinates[0] = leftU;
                     topV = 0.0625f * (f32)(s32)((u32)glyph >> 4);
@@ -402,7 +400,7 @@ void sdkDbprtDrawQueuedText(void) {
                     vertices[2].position[1] = bottomY;
                     vertices[3].position[0] = rightX;
                     vertices[3].position[1] = bottomY;
-                    atlasColumn = debugGlyphColumn((s32)(glyph & 0xFF));
+                    atlasColumn = operandOrderRemainder(((s32)(glyph & 0xFF)), 16);
                     leftU = 0.0625f * (f32)atlasColumn;
                     textureCoordinates[0] = leftU;
                     topV = 0.0625f * (f32)(s32)((u32)glyph >> 4);
@@ -444,7 +442,7 @@ void sdkDbprtDrawQueuedText(void) {
 /* measured: the residual at offsets 0xF4/0xF8 was an address-materialisation
    order/width choice. Converting the pointer through a named s32 local emits
    retail's addu $v1,$s3,$sp; addiu $v1,$v1,0x60 pair before lb $a1,0($v1). */
-/* measured: two-dimensional grid indexing loses MATCH; the integer-domain address order also preserves signed row/column arithmetic. */
+/* measured: indexing with the old byte-array declaration lost MATCH; declaring the actual 53-byte rows preserves the grid stores. */
 // FUN_00450050
 void H_Dbprt_FmtAt(s64 position, const char* format, ...) {
     va_list args;
@@ -478,7 +476,7 @@ void H_Dbprt_FmtAt(s64 position, const char* format, ...) {
                     if ((row == 0x27) && (column >= 0x35)) {
                         func_00440b68((char *)&iGpffffac30 + 0x10, character);
                     } else {
-                        *(u8 *)((u32)D_008BF720 + (u32)(row * 0x35) + (u32)column) = character;
+                        D_008BF720[row][column] = character;
                     }
                     column += 1;
                 }
@@ -511,7 +509,7 @@ void sdkDbprtQueueColoredText(s64 position, s32 color, s32 formatAddress, ...) {
         ((HDbText3D *)entry)->x = ((PackedVec2f *)&position)->xy.x;
         ((HDbText3D *)entry)->y = y;
         ((HDbText3D *)entry)->cameraDepth = 0.0f;
-        *(RGBA8 *)((HDbText3D *)entry)->color = *(RGBA8 *)&color;
+        ((HDbText3D *)entry)->packedColor = *(RGBA8 *)&color;
         ((HDbText3D *)entry)->depthOffset = 0.0f;
         tail = iGpffffb9dc;
         if (tail == NULL) {

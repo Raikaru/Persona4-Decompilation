@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "member_access.h"
 #include "sdk_task_registration.h"
 /* Original translation unit btlShuffleResult.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -131,6 +132,8 @@ extern void datSetFlag(s32 flagId, s32 enabled);
 #pragma opt_propagation off
 s32 btlShuffleResultOpen(u8 *work)
 {
+    BtlShuffleResultWork *resultWork = (BtlShuffleResultWork *)work;
+    BtlShuffleResultRoster *roster;
     u8 *state;
     s32 sum;
     s32 row;
@@ -146,6 +149,7 @@ s32 btlShuffleResultOpen(u8 *work)
     s32 idx;
 
     state = work + 0x18;
+    roster = (BtlShuffleResultRoster *)state;
     scroll = ((BtlShuffleResultRoster *)(work + 0x18))->scroll;
     row = ((BtlShuffleResultRoster *)(work + 0x18))->row;
     sum = row + scroll;
@@ -205,8 +209,8 @@ s32 btlShuffleResultOpen(u8 *work)
             } else if (D_008C024E[0] & 0x80) {
                 {
                     u8 **selected = (u8 **)(state + 0x4C) + sum;
-                    /* measured: these display-pointer reloads change allocation when expressed through the roster member. */
-                    u8 *display = *(u8 **)(state + 0x18);
+                    /* measured: access-site display casts change allocation; the roster alias preserves the reload. */
+                    u8 *display = roster->display;
                     s32 displayMode = 1;
                     shdPersonaSetDisplayState(display, displayMode, (u32)*selected, 0);
                 }
@@ -323,7 +327,7 @@ s32 btlShuffleResultOpen(u8 *work)
         if (nmMesWindowCurrentOpenState() == 0) {
             switch (nmMesWindowCurrentAnimFlag()) {
             case 0:
-                shdPersonaFinishPhase((u8 *)(*(s32 *)(state + 0x18)));
+                shdPersonaFinishPhase((u8 *)(*(s32 *)&roster->display));
                 *(s32 *)&((BtlShuffleResultRoster *)state)->display = 0;
                 btlShuffleDrawCardEndDetail((u8 *)(*(s32 *)&((BtlShuffleContext *)((BtlShuffleResultWork *)work)->context)->cardTask));
                 btlShuffleDrawViewClearActive((u8 *)(*(s32 *)&((BtlShuffleContext *)((BtlShuffleResultWork *)work)->context)->viewTask));
@@ -411,6 +415,7 @@ s32 btlShuffleResultInit(u8 *work) {
 // FUN_00381830
 s32 btlShuffleResultLayout(u8 *work)
 {
+    BtlShuffleResultWork *resultWork = (BtlShuffleResultWork *)work;
     s32 *state = (s32 *)(work + 0x18);
     s32 count;
     s32 i;
@@ -422,8 +427,8 @@ s32 btlShuffleResultLayout(u8 *work)
         *state = 1;
         /* fallthrough */
     case 1:
-        /* measured: the initial raw frame load preserves allocation; the later increment can use the typed member. */
-        if ((s32)*(u16 *)(work + 6) < 0xA) {
+        /* measured: the work alias preserves the initial frame load and the later typed increment. */
+        if ((s32)resultWork->frames < 0xA) {
             /* measured: the compound assignment's VALUE keeps the incremented
                counter in one register, so b210 emits the sh before the andi
                exactly as retail does; a separate `cnt = cnt + 1; store;` pair
@@ -445,8 +450,8 @@ s32 btlShuffleResultLayout(u8 *work)
                                       ((BtlShuffleContext *)base)->pattern);
                 for (i = 0; i < count; i++) {
                     if (i != ((BtlShuffleContext *)base)->revealCard) {
-                        /* Card flags share the variant motion prefix; its union layout is not exposed by the partial pose type. */
-                        if (*(u16 *)(base + (i * 0xE8) + 0x1D6A0) & 2) {
+                        /* Card flags share the typed variant-motion prefix at the established 0xE8 stride. */
+                        if (((BtlShuffleContext *)base)->cards[i].flags & 2) {
                             kAssertFail(D_0064EC70, 0x8C);
                         }
                         btlShuffleCardUpdateState(base + (i * 0xFB0));
@@ -471,25 +476,28 @@ s32 btlShuffleResultLayout(u8 *work)
 
 
 
-static inline void shuffleResultOpen(u8 *context)
+/* Start the selected card reveal, reset its view and finish the trail effects. */
+static inline void btlShuffleResultStartReveal(u8 *context)
 {
+    BtlShuffleContext *drawing = (BtlShuffleContext *)context;
     f32 screen[2];
     BtlShuffleVec3 position;
     ((BtlShuffleTaskWork *)(context - 0x70))->fieldOfView = 10.0f;
     btlShuffleDrawViewReset(context);
     screen[0] = 316.0f;
     screen[1] = 211.0f;
-    /* measured: the remaining context access changes allocation or CSE when typed alone; neighboring safe accesses are typed. */
-    btlShuffleCardScaleVec(context + *(s32 *)(context + 0x1F308) * 0xFB0, &screen[0], 160.0f, (f32 *)&position);
+    /* measured: the dedicated drawing alias preserves MATCH where access-site casts change allocation. */
+    btlShuffleCardScaleVec(context + drawing->revealCard * 0xFB0, &screen[0], 160.0f, (f32 *)&position);
     btlShuffleDrawMoveCard(context, ((BtlShuffleContext *)context)->revealCard, 0.0f, 0.0f, (f32 *)&position, (f32 *)&position);
-    btlShuffleEffUpdate(*(u8 **)(context + 0x1F29C));
-    btlShuffleEffEnd(*(u8 **)(context + 0x1F29C));
+    btlShuffleEffUpdate(drawing->trailTask);
+    btlShuffleEffEnd(drawing->trailTask);
     btlShuffleDrawViewStartRun(((BtlShuffleContext *)context)->viewTask);
     btlShuffleEffInitTrail(((BtlShuffleContext *)context)->trailTask, 6);
 
 }
 
-static inline s32 shuffleResultRoll(u8 kind)
+/* Roll the card orientation, honoring the first-result and field-band flags. */
+static inline s32 btlShuffleResultRoll(u8 kind)
 {
     u8 reversedChance;
     s32 columnValue;
@@ -513,7 +521,8 @@ static inline s32 shuffleResultRoll(u8 kind)
     return 1;
 }
 
-static inline void shuffleResultDescribe(u8 *work)
+/* Show the selected reward kind and its upright or reversed description. */
+static inline void btlShuffleResultDescribe(u8 *work)
 {
     u8 text[64];
     s32 kind;
@@ -533,7 +542,8 @@ static inline void shuffleResultDescribe(u8 *work)
 
 }
 
-static inline s32 shuffleResultReverse(u8 *work)
+/* Turn a reversed result upright when the reversal-override flags permit it. */
+static inline s32 btlShuffleResultReverse(u8 *work)
 {
     ShuffleResultState *state = (ShuffleResultState *)(work + 0x18);
     u8 text[64];
@@ -548,7 +558,8 @@ static inline s32 shuffleResultReverse(u8 *work)
     return 0;
 }
 
-static inline void shuffleResultDescribePacked(s32 packed)
+/* Show the reward kind and orientation encoded in the packed result. */
+static inline void btlShuffleResultDescribePacked(s32 packed)
 {
     u8 text[64];
     if ((packed & 0xFFFF) != 0) {
@@ -562,7 +573,8 @@ static inline void shuffleResultDescribePacked(s32 packed)
 
 }
 
-static inline s32 shuffleResultPersonaState(u8 *work)
+/* Choose the persona acquisition phase for an owned, full-roster or newly added result. */
+static inline s32 btlShuffleResultPersonaState(u8 *work)
 {
     s32 persona;
     u16 capacity;
@@ -595,6 +607,8 @@ static inline s32 shuffleResultPersonaState(u8 *work)
 // FUN_00381A70
 s32 btlShuffleResultRun(u8 *work)
 {
+    BtlShuffleResultWork *resultWork = (BtlShuffleResultWork *)work;
+    BtlShuffleContext *drawing;
     /* Capture the context and payload bases once. This local view scalarizes
        to the retail saved-pointer lifetimes; it is not an external layout. */
     struct {
@@ -610,6 +624,7 @@ s32 btlShuffleResultRun(u8 *work)
     s32 upright;
 
     view.context = *(u8 **)work;
+    drawing = (BtlShuffleContext *)view.context;
     view.state = (ShuffleResultState *)(work + 0x18);
     switch (view.state->phase) {
     case 0:
@@ -620,7 +635,7 @@ s32 btlShuffleResultRun(u8 *work)
         }
         break;
     case 1:
-        shuffleResultOpen(view.context);
+        btlShuffleResultStartReveal(view.context);
         view.state->phase = 2;
     case 2:
         result = btlShuffleDrawFlagA((u8 *)*(s32 *)&((BtlShuffleContext *)view.context)->frontCardTask);
@@ -628,8 +643,8 @@ s32 btlShuffleResultRun(u8 *work)
             result = btlShuffleDrawViewIsRunReady(((BtlShuffleContext *)view.context)->viewTask);
             if (result != 0) {
                 btlShuffleDrawSetPose(view.context, ((BtlShuffleContext *)view.context)->revealCard, 0, 0x14);
-                /* measured: the remaining context access changes allocation or CSE when typed alone; neighboring safe accesses are typed. */
-                *(u16 *)(view.context + 0x1F2F4) = (u16)(((BtlShuffleContext *)view.context)->flags | 8);
+                /* measured: the dedicated drawing alias preserves MATCH where access-site casts change allocation. */
+                drawing->flags = (u16)(((BtlShuffleContext *)view.context)->flags | 8);
                 view.state->phase = 3;
                 goto waitForCard;
             }
@@ -639,7 +654,7 @@ s32 btlShuffleResultRun(u8 *work)
     waitForCard:
         result = btlShuffleDrawStateC(view.context + ((BtlShuffleContext *)view.context)->revealCard * 0xE8 + 0x1D6A0);
         if (result != 0) {
-            *(u16 *)(view.context + 0x1F2F4) = (u16)(((BtlShuffleContext *)view.context)->flags & 0xFFFB);
+            drawing->flags = (u16)(((BtlShuffleContext *)view.context)->flags & 0xFFFB);
             result = datGetFlag(0x1434);
             if (result == 0) {
                 nmMesWindowResetCurrent();
@@ -666,27 +681,27 @@ s32 btlShuffleResultRun(u8 *work)
             switch (result) {
             case 0:
                 view.state->timer = 0;
-                switch (*(u8 *)(work + 0x12)) {
+                switch (resultWork->bonusKind) {
                 case 1:
 
                     view.state->phase = 10;
                     view.state->spinsRemaining = 0;
-                    upright = shuffleResultRoll(((BtlShuffleResultWork *)work)->bonusKind);
+                    upright = btlShuffleResultRoll(((BtlShuffleResultWork *)work)->bonusKind);
                     view.state->isUpright = upright;
                     randomBits = RpRandom() & 0xFFF;
                     randomValue = (f32)randomBits;
                     view.state->resultCard = (u8)(1.0f + (1.0f + 20.0f * (randomValue / 4096.0f)));
-                    *(u16 *)(view.context + 0x1F2F4) = (u16)(((BtlShuffleContext *)view.context)->flags | 0x20);
+                    drawing->flags = (u16)(((BtlShuffleContext *)view.context)->flags | 0x20);
                     *(s32 *)&((BtlShuffleContext *)view.context)->alternateCardTask = btlShuffleDrawSpawn(*(u8 * *)&((BtlShuffleContext *)view.context)->parentTask, (view.state->resultCard - 1) & 0xFF);
                     break;
                 default:
 
                     view.state->phase = 7;
-                    *(u16 *)(view.context + 0x1F2F4) = (u16)(((BtlShuffleContext *)view.context)->flags | 0x10);
+                    drawing->flags = (u16)(((BtlShuffleContext *)view.context)->flags | 0x10);
                     randomBits = RpRandom() & 0xFFF;
                     randomValue = (f32)randomBits;
                     view.state->spinsRemaining = ((s32)(3.0f * (randomValue / 4096.0f)) + 5) * 2;
-                    upright = shuffleResultRoll(((BtlShuffleResultWork *)work)->bonusKind);
+                    upright = btlShuffleResultRoll(((BtlShuffleResultWork *)work)->bonusKind);
                     view.state->isUpright = upright;
                     if (upright == 0) {
                         view.state->spinsRemaining = view.state->spinsRemaining + 1;
@@ -722,7 +737,7 @@ s32 btlShuffleResultRun(u8 *work)
         break;
     case 8:
     advanceSpin:
-        result = btlShuffleDrawStateC(view.context + *(s32 *)(view.context + 0x1F308) * 0xE8 + 0x1D6A0);
+        result = btlShuffleDrawStateC(view.context + drawing->revealCard * 0xE8 + 0x1D6A0);
         if (result != 0) {
             rotation = D_0064EC88;
             btlShuffleDrawSetCurve(view.context, ((BtlShuffleContext *)view.context)->revealCard, 0, view.state->step, &rotation, 0.0f, 180.0f);
@@ -739,9 +754,9 @@ s32 btlShuffleResultRun(u8 *work)
     case 9:
         result = btlShuffleDrawStateC(view.context + ((BtlShuffleContext *)view.context)->revealCard * 0xE8 + 0x1D6A0);
         if (result != 0) {
-            if (*(u16 *)(view.context + 0x1F2F4) & 0x10) {
-                *(u16 *)(view.context + 0x1F2F4) = (u16)(*(u16 *)(view.context + 0x1F2F4) & 0xFFEF);
-                *(u16 *)(view.context + 0x1F2F4) = (u16)(((BtlShuffleContext *)view.context)->flags | 0x100);
+            if (drawing->flags & 0x10) {
+                drawing->flags = (u16)(drawing->flags & 0xFFEF);
+                drawing->flags = (u16)(((BtlShuffleContext *)view.context)->flags | 0x100);
                 ((BtlShuffleContext *)view.context)->pulse = 0;
             }
             if (view.state->isUpright != 0) {
@@ -749,7 +764,7 @@ s32 btlShuffleResultRun(u8 *work)
             } else {
                 sdkSndStartStream(1, 3, 2, 2);
             }
-            shuffleResultDescribe(work);
+            btlShuffleResultDescribe(work);
             view.state->phase = 0xD;
         }
         break;
@@ -757,8 +772,8 @@ s32 btlShuffleResultRun(u8 *work)
         if (((view.state->timer += 1) & 0xFFFF) >= 10) {
             view.state->step = 5;
             view.state->phase = 0xB;
-            btlShuffleDrawViewExpandRun(*(u8 **)(view.context + 0x1F294));
-            btlShuffleDrawViewStartDesaturation(*(u8 **)(view.context + 0x1F294));
+            btlShuffleDrawViewExpandRun(drawing->viewTask);
+            btlShuffleDrawViewStartDesaturation(drawing->viewTask);
             btlShuffleDrawViewStartReveal(((BtlShuffleContext *)view.context)->viewTask);
         }
         break;
@@ -777,11 +792,11 @@ s32 btlShuffleResultRun(u8 *work)
         result = btlShuffleDrawViewIsRevealFinished(((BtlShuffleContext *)view.context)->viewTask);
         if (result != 0) {
             if (view.state->isUpright == 0) {
-                *(u16 *)(view.context + 0x1F2F4) = (u16)(((BtlShuffleContext *)view.context)->flags | 0x80);
+                drawing->flags = (u16)(((BtlShuffleContext *)view.context)->flags | 0x80);
             }
-            *(u16 *)(view.context + 0x1F2F4) = (u16)(((BtlShuffleContext *)view.context)->flags | 0x40);
-            if (*(void **)(view.context + 0x1F2A0) != 0) {
-                kwlnTaskDestroyWithHierarchy(*(struct KwlnTask **)(view.context + 0x1F2A0));
+            drawing->flags = (u16)(((BtlShuffleContext *)view.context)->flags | 0x40);
+            if (*(void * *)&drawing->frontCardTask != 0) {
+                kwlnTaskDestroyWithHierarchy(*(struct KwlnTask * *)&drawing->frontCardTask);
                 *(s32 *)&((BtlShuffleContext *)view.context)->frontCardTask = 0;
             }
             if (view.state->isUpright != 0) {
@@ -799,7 +814,7 @@ s32 btlShuffleResultRun(u8 *work)
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
-            override = shuffleResultReverse(work);
+            override = btlShuffleResultReverse(work);
             view.state->uprightOverride = override;
             if (override != 0) {
                 view.state->phase = 0x10;
@@ -818,7 +833,7 @@ s32 btlShuffleResultRun(u8 *work)
             nmMesWindowCloseCurrent(1);
             result = view.state->secondaryResult;
             if (result != 0) {
-                shuffleResultDescribePacked(result);
+                btlShuffleResultDescribePacked(result);
                 view.state->phase = 0xF;
             } else {
                 return 1;
@@ -855,12 +870,12 @@ s32 btlShuffleResultRun(u8 *work)
     case 18:
         result = btlShuffleDrawStateC(view.context + ((BtlShuffleContext *)view.context)->revealCard * 0xE8 + 0x1D6A0);
         if (result != 0) {
-            *(u16 *)(view.context + 0x1F2F4) = (u16)(((BtlShuffleContext *)view.context)->flags & 0xFFF7);
-            if (*(void **)(view.context + 0x1F2A0) != 0) {
-                kwlnTaskDestroyWithHierarchy(*(struct KwlnTask **)(view.context + 0x1F2A0));
+            drawing->flags = (u16)(((BtlShuffleContext *)view.context)->flags & 0xFFF7);
+            if (*(void * *)&drawing->frontCardTask != 0) {
+                kwlnTaskDestroyWithHierarchy(*(struct KwlnTask * *)&drawing->frontCardTask);
                 *(s32 *)&((BtlShuffleContext *)view.context)->frontCardTask = 0;
             }
-            result = shuffleResultPersonaState(work);
+            result = btlShuffleResultPersonaState(work);
             ((BtlShuffleResultWork *)work)->phase = result;
         }
         break;
@@ -868,8 +883,8 @@ s32 btlShuffleResultRun(u8 *work)
         result = btlShuffleSeqFlag(view.context);
         if (result != 0) {
             datSetFlag(0x1434, 1);
-            /* measured: a typed message-resource load changes the argument-register choice by one instruction byte. */
-            nmMesWindowOpenCurrent((u8 *)(*(s32 *)(view.context + 0x1F2DC)));
+            /* measured: an access-site message-resource cast changes one instruction byte; drawing preserves MATCH. */
+            nmMesWindowOpenCurrent((u8 *)(drawing->textureBlobs[0]));
             view.state->phase = 4;
         }
         break;
@@ -881,6 +896,8 @@ s32 btlShuffleResultRun(u8 *work)
 /* Present the special result menu and return when its card and view transitions finish. */
 // FUN_00382BA0
 s32 btlShuffleResultMenu(u8 *work) {
+    BtlShuffleResultWork *resultWork = (BtlShuffleResultWork *)work;
+    BtlShuffleContext *drawing;
     f32 pos[2];
     struct {
         u8 pad[8];
@@ -892,6 +909,7 @@ s32 btlShuffleResultMenu(u8 *work) {
 
     phaseState = work + 0x18;
     context = ((BtlShuffleResultWork *)work)->context;
+    drawing = (BtlShuffleContext *)context;
     stage = ((BtlShuffleResultMenu *)phaseState)->phase;
     switch (stage) {
     case 0:
@@ -899,11 +917,11 @@ s32 btlShuffleResultMenu(u8 *work) {
         btlShuffleDrawViewReset(context);
         pos[0] = 316.0f;
         pos[1] = 211.0f;
-        /* measured: the remaining context access changes allocation or CSE when typed alone; neighboring safe accesses are typed. */
-        btlShuffleCardScaleVec(context + *(s32 *)(context + 0x1F308) * 0xFB0, &pos[0], 160.0f, (f32 *)&outBuf.out[0]);
+        /* measured: the dedicated drawing alias preserves MATCH where access-site casts change allocation. */
+        btlShuffleCardScaleVec(context + drawing->revealCard * 0xFB0, &pos[0], 160.0f, (f32 *)&outBuf.out[0]);
         btlShuffleDrawMoveCard(context, ((BtlShuffleContext *)context)->revealCard, 0.0f, 0.0f, (f32 *)&outBuf.out[0], (f32 *)&outBuf.out[0]);
-        btlShuffleEffUpdate(*(u8 **)(context + 0x1F29C));
-        btlShuffleEffEnd(*(u8 **)(context + 0x1F29C));
+        btlShuffleEffUpdate(drawing->trailTask);
+        btlShuffleEffEnd(drawing->trailTask);
         btlShuffleDrawViewSetMenuBusy(((BtlShuffleContext *)context)->viewTask);
         btlShuffleEffInitTrail(((BtlShuffleContext *)context)->trailTask, 7);
         ((BtlShuffleContext *)context)->unk1F30C = 1;
@@ -926,7 +944,7 @@ s32 btlShuffleResultMenu(u8 *work) {
         goto block_17;
     case 3:
         if (btlShuffleDrawStateC(context + ((BtlShuffleContext *)context)->revealCard * 0xE8 + 0x1D6A0) != 0) {
-            *(u16 *)(context + 0x1F2F4) = (u16)(((BtlShuffleContext *)context)->flags & 0xFFFB);
+            drawing->flags = (u16)(((BtlShuffleContext *)context)->flags & 0xFFFB);
             ((BtlShuffleResultMenu *)phaseState)->phase = 4;
         case 4:
             if (btlShuffleDrawViewIsMenuIdle(((BtlShuffleContext *)context)->viewTask) != 0) {
@@ -946,14 +964,16 @@ block_17:
 
 
 /* Column (0/1) of the two-column bonus tables D_0064E6E0 and D_0064E700. */
-static inline u8 shuffleBonusColumn(void)
+/* Select the field-band column shared by the bonus threshold and weight tables. */
+static inline u8 btlShuffleBonusColumn(void)
 {
     return FldStepBandFlagSet() ? 1 : 0;
 }
 
 /* Roll for the shuffle bonus: nonzero when enabled and a 0-99 roll falls
    under the table threshold for the current bonus level and rate. */
-static inline s32 shuffleBonusRoll(u8 *work, s32 rate)
+/* Test the bonus enable flags and roll against the current reward threshold. */
+static inline s32 btlShuffleBonusRoll(u8 *work, s32 rate)
 {
     u8 flag;
     s32 thresh;
@@ -962,7 +982,7 @@ static inline s32 shuffleBonusRoll(u8 *work, s32 rate)
     if (datGetFlag(0x1430) == 0 || datGetFlag(0x11) == 0) {
         return 0;
     }
-    flag = shuffleBonusColumn();
+    flag = btlShuffleBonusColumn();
     if (((BtlShuffleResultWork *)work)->bonusKind == 0) {
         thresh = (u8)(D_0064E6E0[0][flag] + iGpffffa9B8[rate]);
     } else {
@@ -976,7 +996,8 @@ static inline s32 shuffleBonusRoll(u8 *work, s32 rate)
 }
 
 /* Pick the bonus level (0-based) from the cumulative D_0064E700 weights. */
-static inline s32 shuffleBonusPick(void)
+/* Pick the bonus level from the field-band cumulative weight table. */
+static inline s32 btlShuffleBonusPick(void)
 {
     u8 flag;
     s32 chance;
@@ -984,7 +1005,7 @@ static inline s32 shuffleBonusPick(void)
     s32 i;
     u8 *weights;
 
-    flag = shuffleBonusColumn();
+    flag = btlShuffleBonusColumn();
     chance = (u8)(100.0f * ((f32)(RpRandom() & 0xFFF) / 4096.0f));
     sum = 0;
     i = 0;
@@ -1002,26 +1023,29 @@ static inline s32 shuffleBonusPick(void)
 // FUN_00382EA0
 s32 btlShuffleResultBonus(u8 *work, u8 *parentTask, s32 cardKind, u16 personaId, s32 rate)
 {
+    BtlShuffleResultWork *resultWork = (BtlShuffleResultWork *)work;
+    BtlShuffleContext *drawing;
     u8 *unit;
     s32 count;
     s32 i;
     u8 *u;
 
     unit = btlShuffleGetDrawContext(parentTask);
+    drawing = (BtlShuffleContext *)unit;
     *(u8 **)work = unit;
     /* measured: typing this initial kind store grows Bonus from 2172 to 2184 bytes. */
-    *(s32 *)(work + 0xC) = cardKind;
+    MEMBER(s32, work, BtlShuffleResultWork, cardKind) = cardKind;
     ((BtlShuffleResultWork *)work)->personaId = personaId;
-    /* measured: a typed message-resource load changes the argument-register choice by one instruction byte. */
-    nmMesWindowOpenCurrent((u8 *)(*(s32 *)(unit + 0x1F2DC)));
+    /* measured: an access-site message-resource cast changes one instruction byte; drawing preserves MATCH. */
+    nmMesWindowOpenCurrent((u8 *)(drawing->textureBlobs[0]));
     switch (((BtlShuffleResultWork *)work)->cardKind) {
     case -1:
         nmMesWindowShowCurrentRecord(8);
         ((BtlShuffleResultWork *)work)->phase = 8;
         return 0;
     case 0:
-        if (shuffleBonusRoll(work, rate) != 0) {
-            ((BtlShuffleResultWork *)work)->bonusKind = shuffleBonusPick() + 1;
+        if (btlShuffleBonusRoll(work, rate) != 0) {
+            ((BtlShuffleResultWork *)work)->bonusKind = btlShuffleBonusPick() + 1;
             ((BtlShuffleResultWork *)work)->flags |= 1;
             *(s32 *)&((BtlShuffleContext *)unit)->frontCardTask = btlShuffleDrawSpawn(*(u8 * *)&((BtlShuffleContext *)unit)->parentTask, (u8)(((BtlShuffleResultWork *)work)->bonusKind - 1));
         }
@@ -1032,8 +1056,8 @@ s32 btlShuffleResultBonus(u8 *work, u8 *parentTask, s32 cardKind, u16 personaId,
         ((BtlShuffleResultWork *)work)->phase = 0;
         break;
     case 2:
-        if (shuffleBonusRoll(work, rate) != 0) {
-            ((BtlShuffleResultWork *)work)->bonusKind = shuffleBonusPick() + 1;
+        if (btlShuffleBonusRoll(work, rate) != 0) {
+            ((BtlShuffleResultWork *)work)->bonusKind = btlShuffleBonusPick() + 1;
             ((BtlShuffleResultWork *)work)->flags |= 1;
             *(s32 *)&((BtlShuffleContext *)unit)->frontCardTask = btlShuffleDrawSpawn(*(u8 * *)&((BtlShuffleContext *)unit)->parentTask, (u8)(((BtlShuffleResultWork *)work)->bonusKind - 1));
         } else if (btlShuffleRollChance(work) != 0) {
@@ -1061,8 +1085,8 @@ s32 btlShuffleResultBonus(u8 *work, u8 *parentTask, s32 cardKind, u16 personaId,
         count = btlShuffleDrawTableLookup(((BtlShuffleContext *)u)->cardCount, ((BtlShuffleContext *)u)->pattern);
         for (i = 0; i < count; i++) {
             if (i != ((BtlShuffleContext *)u)->revealCard) {
-                /* Card flags share the variant motion prefix; its union layout is not exposed by the partial pose type. */
-                if (*(u16 *)(u + i * 0xE8 + 0x1D6A0) & 2) {
+                /* Card flags share the typed variant-motion prefix at the established 0xE8 stride. */
+                if (((BtlShuffleContext *)u)->cards[i].flags & 2) {
                     kAssertFail(D_0064EC70, 0x8C);
                 }
                 btlShuffleCardUpdateState(u + i * 0xFB0);
@@ -1075,6 +1099,7 @@ s32 btlShuffleResultBonus(u8 *work, u8 *parentTask, s32 cardKind, u16 personaId,
 /* Dispatch result phases until the roster, bonus and message work completes. */
 // FUN_00383720
 s32 btlShuffleResultMain(u8 *work) {
+    BtlShuffleResultWork *resultWork = (BtlShuffleResultWork *)work;
     s32 btlShuffleResultRun(u8 *work);
     s32 btlShuffleResultInit(u8 *work);
     s32 btlShuffleResultLayout(u8 *work);
@@ -1086,12 +1111,12 @@ s32 btlShuffleResultMain(u8 *work) {
     u16 count;
     u32 stage;
 
-    /* measured: typing the dispatch load grows Main to 804 bytes; its phase stores remain typed. */
-    stage = (u32)*(s32 *)(work + 8);
+    /* measured: access-site dispatch typing grows Main to 804 bytes; the resultWork alias preserves MATCH. */
+    stage = (u32)resultWork->phase;
     switch (stage) {
     case 0:
-        /* measured: the initial raw frame load preserves allocation; the later increment can use the typed member. */
-        count = *(u16 *)(work + 6);
+        /* measured: the work alias preserves the initial frame load and the later typed increment. */
+        count = resultWork->frames;
         if ((s32)count < 0xA) {
             if (((((BtlShuffleResultWork *)work)->frames += 1) & 0xFFFF) == 0xA) {
                 sdkSndStartStream(1, 1, 5, 0xA);
@@ -1183,14 +1208,16 @@ block_39:
 /* Advance the result task until completion or a cancellation flag requests destruction. */
 // FUN_00383A40
 s32 btlShuffleResultEnd(u8 *task) {
+    BtlShuffleResultWork *resultWork;
     u8 *state;
 
     state = ((struct KwlnTask *)task)->work;
+    resultWork = (BtlShuffleResultWork *)state;
     if (((BtlShuffleResultWork *)state)->flags & 4) {
         return -1;
     }
-    /* measured: the result test must retain its byte-pointer alias; the result store can remain typed. */
-    if (*(s32 *)(state + 0x14) == 0) {
+    /* measured: the resultWork alias preserves the result test and its callback-visible store. */
+    if (resultWork->result == 0) {
         ((BtlShuffleResultWork *)state)->result = btlShuffleResultMain(state);
     }
     return 0;

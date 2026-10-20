@@ -12,9 +12,6 @@ extern u16 D_008C024E[];
 
 extern s32 D_008815B0[];
 
-static inline u32 add_retail_ptr(u32 offset, u32 base) {
-    return offset + base;
-}
 
 extern u16 D_008817E8[];
 extern u8 D_007964C0[];
@@ -41,6 +38,8 @@ extern s32 itfMesWindowFindPressedEntry(s16 *selection);
 // FUN_0027AE90
 s32 itfMesWindowPollSelection(u8 *window)
 {
+    ItfMesSelection *cursorFields;
+
     extern void itfMesWindowMoveSelection(u8 *selection, s32 direction);
     extern u16 D_008C0252[];
     extern u16 D_008C0274[];
@@ -117,7 +116,7 @@ s32 itfMesWindowPollSelection(u8 *window)
             if (bits & 1)
                 count = -1;
             if (count != -1 && count != ((ItfMesSelection *)state)->cursor) {
-                *(s16 *)(state + 0xE) = (s16)count;
+                (cursorFields = (ItfMesSelection *)(state), cursorFields)->cursor = (s16)count;
                 ((ItfMesSelection *)state)->selected = (s16)selected;
             }
             return 1;

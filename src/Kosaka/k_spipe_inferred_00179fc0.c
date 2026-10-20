@@ -1,3 +1,8 @@
+#include "member_access.h"
+#include "field_frame_internal.h"
+#include "resrc_manager_internal.h"
+#include "model_battle_internal.h"
+#include "Kosaka/k_fldResource_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "mt_scene_internal.h"
 #include "rw_geometry_internal.h"
@@ -145,6 +150,16 @@ typedef struct FldShadowAtomicContext {
     FldShadowProjectionWork *work;
     void *atomic;
 } FldShadowAtomicContext;
+/* Granule of the native matrix-copy loops: eight pairs transfer all 0x40 bytes. */
+typedef struct FldShadowWordPair { s32 first, second; } FldShadowWordPair;
+typedef struct FldShadowMirrorScratch {
+    RwMatrixTag matrix;
+    f32 tolerances[3];
+    u8 pad4C[4];
+    union { RwV3d value; s32 bits[3]; } scale;
+    u8 pad5C[4];
+    u8 tail[12];
+} FldShadowMirrorScratch;
 enum RwOpCombineType
 {
     rwCOMBINEREPLACE = 0,   /**<Replace -
@@ -189,9 +204,7 @@ struct _RxObjSpace3DVertex;
 #pragma opt_propagation off
 /* Set up projection coordinates, traverse world or atomic collision, and flush the vertex buffer. */
 // FUN_00179FC0
-/* Layout: caster fields follow FldShadowCaster; the projection buffer follows
- * FldShadowProjectionWork. Typed fields changed this function's instructions in
- * the owning file, so preserve byte accesses and the existing two-word matrix copies. */
+/* Typed camera, projection-work, and resource aliases retain callback reloads and the five-cell stencil. */
 s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection, f32 opacity, f32 depth, s32 fadeWithDepth, u8 *workData) {
     extern struct RwMatrixTag *func_003e0960(struct RwMatrixTag *, const struct RwMatrixTag *);
     extern struct RwMatrixTag *RwMatrixScale(struct RwMatrixTag *, const RwV3d *, enum RwOpCombineType);
@@ -217,7 +230,13 @@ s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *in
     FieldRenderStateSetFunction *renderStates;
     s32 resourceIndex;
     s32 count;
+    RwCamera *shadowCamera = (RwCamera *)camera;
+    FldShadowProjectionWork *projection = (FldShadowProjectionWork *)workData;
+    ResrcRecord *scene;
+    RwMatrixTag *sourceMatrix;
+    FldResource *field;
     sceneResource = MT_Scene_GetResListHead(0xC);
+    scene = (ResrcRecord *)sceneResource;
     renderStates = D_00887300;
     renderStates[0]((RwRenderState)(1), (void *)(raster));
     renderStates[0]((RwRenderState)(2), (void *)(3));
@@ -230,9 +249,10 @@ s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *in
     } else {
         renderStates[0]((RwRenderState)(0xB), (void *)(6));
     }
-    source = *(u8 **)(camera + 4) + 0x10;
-    *(RwV3d *)(workData + 0x5470) = *(RwV3d *)(source + 0x20);
-    viewWindow = *(f32 *)(camera + 0x68);
+    source = (u8 *)shadowCamera->object.object.parent + 0x10;
+    sourceMatrix = (RwMatrixTag *)source;
+    projection->tail.direction = sourceMatrix->at;
+    viewWindow = shadowCamera->viewWindow[0];
     func_003e0960((struct RwMatrixTag *)(workData + 0x5480), (struct RwMatrixTag *)source);
     scale.y = -0.5f / viewWindow;
     scale.x = scale.y;
@@ -242,21 +262,22 @@ s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *in
     translation.x = 0.5f;
     translation.z = 0.0f;
     RwMatrixTranslate((struct RwMatrixTag *)(workData + 0x5480), &translation, rwCOMBINEPOSTCONCAT);
-    *(s32 *)(workData + 0x54C4) = fadeWithDepth;
+    projection->tail.fadeWithDepth = fadeWithDepth;
     {
         const u8 alpha = (u8)(255.0f * opacity);
-        *(u8 *)(workData + 0x54C0) = alpha;
+        projection->tail.alpha = alpha;
     }
-    *(s32 *)(workData + 0x54C8) = 0;
-    *(u32 *)(workData + 0x5460) = 0;
+    projection->tail.flushCount = 0;
+    projection->vertexCount = 0;
     if (collisionKind == 0) {
-        source = *(u8 **)(sceneResource + 0x1A0);
+        source = (u8 *)scene->handle1A0;
+        field = (FldResource *)source;
         {
-            void *preferred = *(void **)(source + 0x10);
+            void *preferred = (void *)field->alternateObject;
             if (preferred != NULL)
                 collisionWorld = preferred;
             else
-                collisionWorld = *(void **)(source + 8);
+                collisionWorld = (void *)field->primaryObject;
         }
         func_00394d70(collisionWorld, intersection, FldShadow_ProjectTriangle, workData);
     } else if (collisionKind == 1) {
@@ -273,22 +294,23 @@ check_second:
         goto alloc_path;
 alloc_path:
         {
+            ResrcRecord *tile;
             tileResource = (u8 *)MT_Scene_GetRes(0x400);
+            tile = (ResrcRecord *)tileResource;
             if (tileResource == NULL) {
                 return 0;
             }
-            tileXOffset = FldFrameTask_GetTileX(*(u8 **)(tileResource + 0x220));
-            tileZOffset = FldFrameTask_GetTileZ(*(u8 **)(tileResource + 0x220));
+            tileXOffset = FldFrameTask_GetTileX((u8 *)tile->handle220);
+            tileZOffset = FldFrameTask_GetTileZ((u8 *)tile->handle220);
             tileZOffset = tileZOffset * 0x100;
             tileXOffset = tileXOffset * 0x10;
-            /* Frame-grid origin/bounds remain unknown; retain the five neighbor
-             * ID offsets, with 0x10-column and 0x100-row strides. */
-            ids[0] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset + 0x56);
+            /* Test the center, adjacent columns, and adjacent rows of the 0x10/0x100-stride cell grid. */
+            ids[0] = ((FldFrameCell *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset + MEMBER_OFFSET(FldFrame, cells[0][0])))->resourceId;
             resources[0] = (u8 *)MT_Scene_GetRes(ids[0]);
             if (resources[0] != NULL) {
                 count++;
             }
-            ids[1] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset + 0x66);
+            ids[1] = ((FldFrameCell *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset + MEMBER_OFFSET(FldFrame, cells[0][1])))->resourceId;
             {
             s32 i;
             s32 current;
@@ -306,7 +328,7 @@ alloc_path:
                 }
             }
             }
-            ids[2] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset + 0x46);
+            ids[2] = ((FldFrameCell *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset + MEMBER_OFFSET(FldFrame, cells[0][0]) - sizeof(FldFrameCell)))->resourceId;
             {
             s32 i;
             s32 current;
@@ -324,7 +346,7 @@ alloc_path:
                 }
             }
             }
-            ids[3] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset + 0x156);
+            ids[3] = ((FldFrameCell *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset + MEMBER_OFFSET(FldFrame, cells[1][0])))->resourceId;
             {
             s32 i;
             s32 current;
@@ -342,7 +364,7 @@ alloc_path:
                 }
             }
             }
-            ids[4] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset - 0xAA);
+            ids[4] = ((FldFrameCell *)((u8 *)MT_Scene_GetFrameState() + tileZOffset + tileXOffset + MEMBER_OFFSET(FldFrame, cells[0][0]) - sizeof(((FldFrame *)0)->cells[0])))->resourceId;
             {
             s32 i;
             s32 current;
@@ -370,34 +392,35 @@ join_path:;
             for (resourceIndex = 0; resourceIndex < count; resourceIndex++) {
                 u8 **entry = &resources[resourceIndex];
                 u8 *object = *entry;
-                void *clump = *(void **)(*(u8 **)(object + 0x1A0) + 0x10);
+                ResrcRecord *resource = (ResrcRecord *)object;
+                void *clump = (void *)((FldResource *)(u8 *)resource->handle1A0)->alternateObject;
                 if (clump != NULL) {
                     RpClumpForAllAtomics(clump, FldShadow_ProjectAtomic, &context);
                 } else {
                     u32 k;
-                    for (k = 0; k < *(u32 *)(*(u8 **)(object + 0x1A0) + 0x18); k++) {
-                        RpClumpForAllAtomics(*(void **)(*(u8 **)(*entry + 0x1A0) + k * 4 + 0x1C),
+                    for (k = 0; k < ((FldResource *)(u8 *)resource->handle1A0)->clumpCount; k++) {
+                        RpClumpForAllAtomics((void *)((FldResource *)(u8 *)((ResrcRecord *)*entry)->handle1A0)->clumps[k],
                                              FldShadow_ProjectAtomic, &context);
                     }
                 }
             }
         }
     }
-    *(u32 *)(workData + 0x5464) = (*(u32 *)(workData + 0x5460) + *(u32 *)(workData + 0x54C8) * 600) / 3U;
-    if (*(u32 *)(workData + 0x5460) != 0) {
+    projection->triangleCount = (projection->vertexCount + (u32)projection->tail.flushCount * 600) / 3U;
+    if (projection->vertexCount != 0) {
         FieldRenderStateSetFunction *drawBase = D_00887300;
         drawBase[0]((RwRenderState)(1), (void *)(raster));
         drawBase[0]((RwRenderState)(0xE), (void *)(0));
         drawBase[0]((RwRenderState)(6), (void *)(1));
         drawBase[0]((RwRenderState)(8), (void *)(0));
-        if (func_00410420((struct _RxObjSpace3DVertex *)workData, *(u32 *)(workData + 0x5460), 0, 0x19) != 0) {
+        if (func_00410420((struct _RxObjSpace3DVertex *)workData, projection->vertexCount, 0, 0x19) != 0) {
             func_004106a0(rwPRIMTYPETRILIST);
             func_004104d0();
         }
         if (iGpffffba48 == 1) {
             renderStates[0]((RwRenderState)(0xE), (void *)(1));
         }
-        *(u32 *)(workData + 0x5460) = 0;
+        projection->vertexCount = 0;
     }
     renderStates = D_00887300;
     renderStates[0]((RwRenderState)(0xB), (void *)(6));
@@ -410,9 +433,8 @@ join_path:;
 /* measured: opt_propagation off preserves the second-branch descriptor
    pointer materialisation and grouped float-load order; object matches
    the 464-byte retail window. */
-/* Layout: caster fields follow FldShadowCaster; the projection buffer follows
- * FldShadowProjectionWork. Typed fields changed this function's instructions in
- * the owning file, so preserve byte accesses and the existing two-word matrix copies. */
+/* The raster argument reads the handle's native signed-word representation, not a converted pointer.
+ * measured: this named-member word access preserves both projection branches and whole-file MATCH. */
 void FldShadow_CmdProjectBounds(u8 *unused, u8 *caster)
 {
     struct
@@ -427,52 +449,57 @@ void FldShadow_CmdProjectBounds(u8 *unused, u8 *caster)
     f32 *sphereValues;
     u8 *sceneResource;
     u8 *matrix;
+    FldShadowCaster *shadow = (FldShadowCaster *)caster;
+    ResrcRecord *scene;
+    RwMatrixTag *modelMatrix;
 
     sceneResource = MT_Scene_GetResListHead(0xC);
+    scene = (ResrcRecord *)sceneResource;
     intersection.type = 4;
-    extent = *(f32 *)(caster + 0x18);
+    extent = shadow->height;
     intersection.values[0] = extent +
-                     *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)(caster + 0x10)) + 0x30);
+                     ((RwMatrixTag *)mdlGetMatrix(shadow->model))->pos.x;
     intersection.values[1] = extent +
-                     *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)(caster + 0x10)) + 0x34);
+                     ((RwMatrixTag *)mdlGetMatrix(shadow->model))->pos.y;
     intersection.values[2] = extent +
-                     *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)(caster + 0x10)) + 0x38);
+                     ((RwMatrixTag *)mdlGetMatrix(shadow->model))->pos.z;
     intersection.values[3] =
-        *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)(caster + 0x10)) + 0x30) - extent;
+        ((RwMatrixTag *)mdlGetMatrix(shadow->model))->pos.x - extent;
     intersection.values[4] =
-        *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)(caster + 0x10)) + 0x34) - extent;
+        ((RwMatrixTag *)mdlGetMatrix(shadow->model))->pos.y - extent;
     intersection.values[5] =
-        *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)(caster + 0x10)) + 0x38) - extent;
+        ((RwMatrixTag *)mdlGetMatrix(shadow->model))->pos.z - extent;
     if (sceneResource != NULL) {
-        if ((*(s32 *)(*(u8 **)(sceneResource + 0x1A0)) & 1) != 0) {
-            FldShadow_DrawProjection(*(u8 **)(caster + 0x44),
-                          *(s32 *)(caster + 0x40),
+        if ((((FldResource *)(u8 *)scene->handle1A0)->flags & 1) != 0) {
+            FldShadow_DrawProjection(shadow->camera,
+                          *(s32 *)&shadow->raster,
                           0,
                           &intersection,
                           1.0f,
-                          *(f32 *)(caster + 0x18) / 2.0f,
+                          shadow->height / 2.0f,
                           0,
-                          *(u8 **)(caster + 0x4C));
+                          shadow->projection);
         } else {
             intersection.type = 3;
-            matrix = mdlGetMatrix(*(u8 **)(caster + 0x10));
+            matrix = mdlGetMatrix(shadow->model);
+            modelMatrix = (RwMatrixTag *)matrix;
             sphereValues = intersection.values;
-            componentX = *(f32 *)(matrix + 0x30);
-            componentY = *(f32 *)(matrix + 0x34);
-            componentZ = *(f32 *)(matrix + 0x38);
+            componentX = modelMatrix->pos.x;
+            componentY = modelMatrix->pos.y;
+            componentZ = modelMatrix->pos.z;
             intersection.values[0] = componentX;
             intersection.values[1] = componentY;
             intersection.values[2] = componentZ;
-            componentY = *(f32 *)(caster + 0x18);
+            componentY = shadow->height;
             intersection.values[3] = componentY;
-            FldShadow_DrawProjection(*(u8 **)(caster + 0x44),
-                          *(s32 *)(caster + 0x40),
+            FldShadow_DrawProjection(shadow->camera,
+                          *(s32 *)&shadow->raster,
                           1,
                           sphereValues,
                           1.0f,
                           componentY / 2.0f,
                           0,
-                          *(u8 **)(caster + 0x4C));
+                          shadow->projection);
         }
         if (iGpffffba48 == 1)
             D_00887300[0]((RwRenderState)0xE, (void *)1);
@@ -481,9 +508,8 @@ void FldShadow_CmdProjectBounds(u8 *unused, u8 *caster)
 
 /* Save the model matrix, reflect it across the configured axis, and disable item-slot drawing. */
 // FUN_0017A8D0
-/* Layout: caster fields follow FldShadowCaster; the projection buffer follows
- * FldShadowProjectionWork. Typed fields changed this function's instructions in
- * the owning file, so preserve byte accesses and the existing two-word matrix copies. */
+/* measured: scratch-position stores in access-site/indexed forms add four bytes each; typed-local forms
+ * add twelve bytes. MEMBER preserves those two stores; the remaining fields and copy granules are typed. */
 void FldShadow_CmdBeginFlip(u8 *unused, u8 *caster)
 {
     /* Scratch layout: matrix 0x00, tolerances 0x40, reflection scale 0x50,
@@ -499,16 +525,18 @@ void FldShadow_CmdBeginFlip(u8 *unused, u8 *caster)
     s8 *clearCursor;
     s32 clearBytes;
     s32 slotIndex;
-    u8 *savedCursor;
+    FldShadowWordPair *savedCursor;
     s32 savePairs;
     u8 *matrix;
-    u8 *slot;
+    MdlWpnSlot *slot;
     u8 *unusedMatrix;
     u8 *unusedSlot;
-    u8 *modelCursor;
-    u8 *copyCursor;
-    u8 *scratchCursor;
+    FldShadowWordPair *modelCursor;
+    FldShadowWordPair *copyCursor;
+    FldShadowWordPair *scratchCursor;
     s32 copyPairs;
+    FldShadowCaster *shadow = (FldShadowCaster *)caster;
+    RwMatrixTag *modelMatrix;
 
     clearCursor = (s8 *)(scratch + 0x60);
     clearBytes = 0xC;
@@ -519,116 +547,119 @@ void FldShadow_CmdBeginFlip(u8 *unused, u8 *caster)
             clearBytes -= 1;
         } while (clearBytes != 0);
     }
-    modelCursor = mdlGetMatrix(*(u8 **)(caster + 0x10));
-    savedCursor = caster + 0x80;
+    modelCursor = (FldShadowWordPair *)mdlGetMatrix(shadow->model);
+    savedCursor = (FldShadowWordPair *)shadow->savedMatrix;
     savePairs = 8;
     do {
-        firstSavedWord = *(s32 *)(modelCursor + 0);
-        secondSavedWord = *(s32 *)(modelCursor + 4);
-        modelCursor += 8;
+        firstSavedWord = modelCursor->first;
+        secondSavedWord = modelCursor->second;
+        modelCursor += 1;
         savePairs -= 1;
-        *(s32 *)(savedCursor + 0) = firstSavedWord;
-        *(s32 *)(savedCursor + 4) = secondSavedWord;
-        savedCursor += 8;
+        savedCursor->first = firstSavedWord;
+        savedCursor->second = secondSavedWord;
+        savedCursor += 1;
     } while (savePairs > 0);
-    copyCursor = caster + 0x80;
-    scratchCursor = scratch;
+    copyCursor = (FldShadowWordPair *)shadow->savedMatrix;
+    scratchCursor = (FldShadowWordPair *)scratch;
     copyPairs = 8;
     do {
-        firstCopiedWord = *(s32 *)(copyCursor + 0);
-        secondCopiedWord = *(s32 *)(copyCursor + 4);
-        copyCursor += 8;
+        firstCopiedWord = copyCursor->first;
+        secondCopiedWord = copyCursor->second;
+        copyCursor += 1;
         copyPairs -= 1;
-        *(s32 *)(scratchCursor + 0) = firstCopiedWord;
-        *(s32 *)(scratchCursor + 4) = secondCopiedWord;
-        scratchCursor += 8;
+        scratchCursor->first = firstCopiedWord;
+        scratchCursor->second = secondCopiedWord;
+        scratchCursor += 1;
     } while (copyPairs > 0);
-    if (!(*(f32 *)(caster + 0xCC) <= *(f32 *)(caster + 0xD4))) {
-        *(s32 *)(scratch + 0x50) = 0x3F800000;
-        *(s32 *)(scratch + 0x54) = 0x3F800000;
-        *(s32 *)(scratch + 0x58) = 0xBF800000;
-        coordinate = *(f32 *)(caster + 0xC8);
+    if (!(shadow->mirrorAxis.axis.x <= shadow->mirrorAxis.axis.z)) {
+        ((FldShadowMirrorScratch *)scratch)->scale.bits[0] = 0x3F800000;
+        ((FldShadowMirrorScratch *)scratch)->scale.bits[1] = 0x3F800000;
+        ((FldShadowMirrorScratch *)scratch)->scale.bits[2] = 0xBF800000;
+        coordinate = shadow->mirrorPoint.z;
         component = coordinate + coordinate;
-        coordinate = *(f32 *)(scratch + 0x38);
-        *(f32 *)(scratch + 0x38) = component - coordinate;
+        coordinate = ((FldShadowMirrorScratch *)scratch)->matrix.pos.z;
+        MEMBER(f32, scratch, FldShadowMirrorScratch, matrix.pos.z) = component - coordinate;
     } else {
-        *(s32 *)(scratch + 0x50) = 0xBF800000;
-        *(s32 *)(scratch + 0x54) = 0x3F800000;
-        *(s32 *)(scratch + 0x58) = 0x3F800000;
-        coordinate = *(f32 *)(caster + 0xC0);
+        ((FldShadowMirrorScratch *)scratch)->scale.bits[0] = 0xBF800000;
+        ((FldShadowMirrorScratch *)scratch)->scale.bits[1] = 0x3F800000;
+        ((FldShadowMirrorScratch *)scratch)->scale.bits[2] = 0x3F800000;
+        coordinate = shadow->mirrorPoint.x;
         component = coordinate + coordinate;
-        coordinate = *(f32 *)(scratch + 0x30);
-        *(f32 *)(scratch + 0x30) = component - coordinate;
+        coordinate = ((FldShadowMirrorScratch *)scratch)->matrix.pos.x;
+        MEMBER(f32, scratch, FldShadowMirrorScratch, matrix.pos.x) = component - coordinate;
     }
     slotIndex = 0;
     goto loop_11_cond;
 loop_11_body:
-    slot = *(u8 **)(caster + 0x10) + (slotIndex * 0xC);
-    *(u8 *)(slot + 0x28C) &= ~1;
+    slot = &((Model *)shadow->model)->attachedWpns[slotIndex];
+    slot->flags &= ~1;
     slotIndex += 1;
 loop_11_cond:
     if (slotIndex < 5)
         goto loop_11_body;
     /* Model flag 4 selects the reflected pass; 0x40 requests matrix propagation. */
-    *(s32 *)(*(u8 **)(caster + 0x10) + 0xD8) |= 4;
-    mdlScale(*(u8 **)(caster + 0x10), scratch + 0x50, 2);
-    matrix = mdlGetMatrix(*(u8 **)(caster + 0x10));
-    component = *(f32 *)(scratch + 0x30);
-    coordinate = *(f32 *)(scratch + 0x34);
-    positionZ = *(f32 *)(scratch + 0x38);
-    *(f32 *)(matrix + 0x30) = component;
-    *(f32 *)(matrix + 0x34) = coordinate;
-    *(f32 *)(matrix + 0x38) = positionZ;
+    ((Model *)shadow->model)->flags |= 4;
+    mdlScale(shadow->model, scratch + 0x50, 2);
+    matrix = mdlGetMatrix(shadow->model);
+    modelMatrix = (RwMatrixTag *)matrix;
+    component = ((FldShadowMirrorScratch *)scratch)->matrix.pos.x;
+    coordinate = ((FldShadowMirrorScratch *)scratch)->matrix.pos.y;
+    positionZ = ((FldShadowMirrorScratch *)scratch)->matrix.pos.z;
+    modelMatrix->pos.x = component;
+    modelMatrix->pos.y = coordinate;
+    modelMatrix->pos.z = positionZ;
     RwEngineGetMatrixTolerances((f32 *)(scratch + 0x40));
-    RwMatrixOptimize(mdlGetMatrix(*(u8 **)(caster + 0x10)),
+    RwMatrixOptimize(mdlGetMatrix(shadow->model),
                   (f32 *)(scratch + 0x40));
-    RwMatrixUpdate(mdlGetMatrix(*(u8 **)(caster + 0x10)));
-    *(s32 *)(*(u8 **)(caster + 0x10) + 0xD8) |= 0x40;
-    mdlUpdateModelMatrix(*(u8 **)(caster + 0x10));
-    mdlPrepareItemSlots(*(u8 **)(caster + 0x10));
+    RwMatrixUpdate(mdlGetMatrix(shadow->model));
+    ((Model *)shadow->model)->flags |= 0x40;
+    mdlUpdateModelMatrix(shadow->model);
+    mdlPrepareItemSlots(shadow->model);
 }
 
 /* Restore the saved model matrix and re-enable the five item slots after reflection. */
 // FUN_0017AAE0
-/* Layout: caster fields follow FldShadowCaster; the projection buffer follows
- * FldShadowProjectionWork. Typed fields changed this function's instructions in
- * the owning file, so preserve byte accesses and the existing two-word matrix copies. */
+/* Walk the saved and live matrices with the native two-word copy granule, retaining all eight transfers. */
 void FldShadow_CmdEndFlip(u8 *unused, u8 *caster)
 {
-    u8 *savedCursor;
+    FldShadowWordPair *savedCursor;
     s32 secondWord;
     s32 firstWord;
     s32 unusedPairs;
     s32 index;
     u8 *model;
     u8 *restoredModel;
-    u8 *slot;
-    u8 *matrixCursor;
+    MdlWpnSlot *slot;
+    FldShadowWordPair *matrixCursor;
+    FldShadowCaster *shadow = (FldShadowCaster *)caster;
+    Model *shadowModel;
 
-    model = *(u8 **)(caster + 0x10);
-    *(s32 *)(model + 0xD8) &= ~0x40;
+    model = shadow->model;
+    shadowModel = (Model *)model;
+    shadowModel->flags &= ~0x40;
     D_00887300[0]((RwRenderState)0x14, (void *)2);
-    matrixCursor = mdlGetMatrix(*(u8 **)(caster + 0x10));
-    savedCursor = caster + 0x80;
+    matrixCursor = (FldShadowWordPair *)mdlGetMatrix(shadow->model);
+    savedCursor = (FldShadowWordPair *)shadow->savedMatrix;
     index = 8;
     do {
-        firstWord = *(s32 *)savedCursor;
-        secondWord = *(s32 *)(savedCursor + 4);
-        savedCursor += 8;
+        firstWord = savedCursor->first;
+        secondWord = savedCursor->second;
+        savedCursor += 1;
         index -= 1;
-        *(s32 *)matrixCursor = firstWord;
-        *(s32 *)(matrixCursor + 4) = secondWord;
-        matrixCursor += 8;
+        matrixCursor->first = firstWord;
+        matrixCursor->second = secondWord;
+        matrixCursor += 1;
     } while (index > 0);
-    restoredModel = *(u8 **)(caster + 0x10);
-    *(s32 *)(restoredModel + 0xD8) &= ~4;
-    mdlUpdateModelMatrix(*(u8 **)(caster + 0x10));
-    mdlPrepareItemSlots(*(u8 **)(caster + 0x10));
+    restoredModel = shadow->model;
+    shadowModel = (Model *)restoredModel;
+    shadowModel->flags &= ~4;
+    mdlUpdateModelMatrix(shadow->model);
+    mdlPrepareItemSlots(shadow->model);
     index = 0;
     goto loop_4_cond;
 loop_4_body:
-    slot = *(u8 **)(caster + 0x10) + (index * 0xC);
-    *(u8 *)(slot + 0x28C) |= 1;
+    slot = &((Model *)shadow->model)->attachedWpns[index];
+    slot->flags |= 1;
     index += 1;
 loop_4_cond:
     if (index < 5)

@@ -46,8 +46,8 @@ store:
     return 1;
 }
 
+/* Append a follow-up action to the first empty active slot; return zero when all twelve slots are occupied. */
 // FUN_001B0E30
-/* Append a follow-up action to the twelve-slot active list; return zero when full. */
 s32 btlActionActiveListPush(s32 action)
 {
     s32 *p;
@@ -142,8 +142,8 @@ shift:
     return 1;
 }
 
+/* Move an existing queued action behind the contiguous occupied entries; return zero if it was not queued. */
 // FUN_001B0FA0
-/* Move a queued action behind the occupied suffix, preserving the relative order of other entries. */
 s32 btlActionQueueMoveToBack(u8 *action)
 {
     s32 *p;
@@ -196,6 +196,7 @@ store:
    store eliminated the constant is rebuilt inside the loop instead.  Both
    pragmas are scoped: the file-wide `opt_dead_assignments off` costs a
    match elsewhere in this unit. */
+/* Stably sort queued actions by descending agility; optional enemy scores use a clamped 90–110 percent roll. */
 // FUN_001B1020
 #pragma push
 /* measured: func_001b1020 MATCH -> MISMATCH without this pragma. */
@@ -313,8 +314,8 @@ void btlActionQueueSortKeepingKind(s32 genus)
 }
 
 #pragma pop
+/* For an enemy opening, move one or two of the leading enemy actions behind the rest of the queue. */
 // FUN_001B1280
-/* Move half of a leading two-to-five-enemy group behind the remaining order entries. */
 void btlActionQueueRequeueLeadingEnemies(s32 genus)
 {
     u8 *base;

@@ -1,4 +1,7 @@
+#include "operand_order_internal.h"
 #include "include_asm.h"
+#include "member_access.h"
+#include "kwln_task_internal.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
 /* Original translation unit btlResultSimple.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -48,10 +51,13 @@ void PrimAppendNode(void *list, void *node);
 extern u32 D_00795F20[];
 s32 btlResultSimpleStepPhase(u8 *task);
 s32 btlShuffleOverlayIdle(void);
-static inline u32 addBase(u32 base, u32 index) { return base + index; }
+
 extern char iGpffffa5b8;
 extern u8 *iGpffffa5a0[2];
-extern s32 iGpffffa5a8[2];
+
+/* Resource-name alias starts at the first of two adjacent handles. */
+typedef struct BtlResultResourceName { s32 name; } BtlResultResourceName;
+extern BtlResultResourceName iGpffffa5a8[2];
 extern s32 iGpffffa5b0;
 extern char iGpffffa5b4;
 typedef struct ResultParticleStyle {
@@ -100,6 +106,12 @@ typedef struct BtlResultPulse {
     u8 pad06[2];
 } BtlResultPulse;
 
+/* Twelve-byte pulse table rows provide a duration and the two offset endpoints. */
+typedef struct BtlResultPulseStyle {
+    u16 duration;
+    u8 pad02[2];
+    f32 start, end;
+} BtlResultPulseStyle;
 /* Work buffer handed to the result state machine (see btlResultSimpleCreateTask). */
 typedef struct BtlResultSimpleWork BtlResultSimpleWork;
 struct BtlResultSimpleWork
@@ -120,7 +132,7 @@ struct BtlResultSimpleWork
     s32 field400[3];   // 0x400..0x40B
     s32 sharedBanks[2];// 0x40C..0x413
     s32 field414[0x2A];// 0x414..0x4BB
-    s32 field4BC;      // 0x4BC
+    union { s32 archiveAddress; u8 *archive; }; // 0x4BC
     ResultParticleState particles[5]; // 0x4C0..0x55F
     BtlResultPulse pulses[2];         // 0x560..0x56F
     u8 *field570;      // 0x570
@@ -142,7 +154,7 @@ extern s32 btlResultSimpleUpdate(u8 *task);
 // FUN_0021ED10
 #pragma opt_loop_invariants on
 /* Draw a signed decimal or grouped unsigned number using digit sprites, updating the supplied pen
- * position. The raw digit slot is an indexed sprite-handle lookup. */
+ * position. The measured digit lookup names the sprite array through MEMBER. */
 void btlResultSimpleDrawLabel(u8 *work, f32 *position, f32 unusedDepth, s32 color, u32 value, s32 groupDigits)
 {
     s8 rev[0x40];
@@ -204,7 +216,7 @@ void btlResultSimpleDrawLabel(u8 *work, f32 *position, f32 unusedDepth, s32 colo
                     kAssertFail(&D_00629610, 0x119);
                 }
                 sdkSpriteDrawAt(
-                    *(void **)(work + digit * 4 + 0x478),
+                    MEMBER(void *, work + digit * 4, BtlResultSimpleWork, field414[25]),
                     position[0], position[1], hi, mid, lo, ch);
                 position[0] += 22.0f;
                 break;
@@ -228,6 +240,7 @@ void btlResultSimpleDrawLabel(u8 *work, f32 *position, f32 unusedDepth, s32 colo
  * independent record/style fields. */
 void btlResultSimpleCreateSprites(BtlResultSimpleWork *work)
 {
+    BtlResultSimpleWork *result;
     u8 *base;
     u8 *row;
     u8 *src;
@@ -243,6 +256,7 @@ void btlResultSimpleCreateSprites(BtlResultSimpleWork *work)
     u8 c;
 
     base = (u8 *)work;
+    result = (BtlResultSimpleWork *)base;
     for (i = 0; i < 20; i++) {
         src = (u8 *)D_006291A0 + i * 0x18;
         row = (u8 *)&((BtlResultSimpleWork *)base)->animation[i];
@@ -285,9 +299,9 @@ void btlResultSimpleCreateSprites(BtlResultSimpleWork *work)
     }
     for (k = 0; k < 5; k++) {
         p = base + k * 0x20;
-        *(u32 *)(p + 0x4C8) = 0x43560000;
+        *(u32 *)&((BtlResultSimpleWork *)p)->particles[0].position[0] = 0x43560000;
         row = p + 0x4C0;
-        *(f32 *)(p + 0x4D0) = *(f32 *)(p + 0x4C8);
+        ((BtlResultSimpleWork *)p)->particles[0].previous[0] = ((BtlResultSimpleWork *)p)->particles[0].position[0];
         ((ResultParticleState *)row)->next[0] =
             (f32)((RpRandom() & 0xFFF) * 214) / 4096.0f;
         src = (u8 *)D_00629560 + k * 0x1C;
@@ -301,11 +315,11 @@ void btlResultSimpleCreateSprites(BtlResultSimpleWork *work)
     }
     for (m = 0; m < 2; m++) {
         row = base + m * 8;
-        *(s16 *)(row + 0x564) = 0;
-        *(f32 *)(row + 0x560) = *(f32 *)((u8 *)D_006295F0 + m * 0xC + 4);
+        *(s16 *)&((BtlResultSimpleWork *)row)->pulses[0].frame = 0;
+        ((BtlResultSimpleWork *)row)->pulses[0].offset = ((BtlResultPulseStyle *)D_006295F0)[m].start;
     }
-    *(s16 *)(base + 0x3C) = 0;
-    *(s32 *)(base + 0x38) = 0;
+    *(s16 *)&result->field3C = 0;
+    *(s32 *)&result->phase = 0;
 }
 #pragma opt_loop_invariants off
 /* measured 2026-08-07: discarded raw_alias body reached nd 57 with object
@@ -323,7 +337,8 @@ void btlResultSimpleCreateSprites(BtlResultSimpleWork *work)
    build/WCBattleUI_btlResultSimple_prepark_validate.c. */
 // FUN_0021F340
 /* Adopt three sprite banks, poll their readiness and the message archive, and set the corresponding
- * work flags. Measured: typed archive-pointer reloads change MATCH; retain that raw reload. */
+ * work flags. Measured: the archive-entry reload and clear store still change allocation when typed;
+ * MEMBER preserves those two accesses. */
 s32 btlResultSimpleLoadAssets(BtlResultSimpleWork *work)
 {
     s32 spriteBank;
@@ -338,12 +353,12 @@ s32 btlResultSimpleLoadAssets(BtlResultSimpleWork *work)
 
     workBytes = (u8 *)work;
     if (!(((BtlResultSimpleWork *)workBytes)->flags & 0x100)) {
-        if (*(s32 *)(workBytes + 0x4BC) != 0 &&
-            H_Cdvd_IsFileLoaded((u8 *)*(s32 *)(workBytes + 0x4BC)) != 0) {
+        if (*(s32 *)&((BtlResultSimpleWork *)workBytes)->archive != 0 &&
+            H_Cdvd_IsFileLoaded((u8 *)*(s32 *)&((BtlResultSimpleWork *)workBytes)->archive) != 0) {
             archiveIndex = 0;
             while (archiveIndex < 3) {
                 dest = (s32 *)(workBytes + archiveIndex * 4 + 0x400);
-                *dest = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_GetArchiveEntry(*(u8 **)(workBytes + 0x4BC), archiveIndex, 0));
+                *dest = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_GetArchiveEntry(MEMBER(u8 *, workBytes, BtlResultSimpleWork, archive), archiveIndex, 0));
                 if (*dest == 0) {
                     kAssertFail(&D_00629610, 0x181);
                 }
@@ -358,7 +373,7 @@ s32 btlResultSimpleLoadAssets(BtlResultSimpleWork *work)
         bankIndex = 0;
         readyCount = 0;
         while (bankIndex < 3) {
-            spriteBank = *(s32 *)(workBytes + bankIndex * 4 + 0x400);
+            spriteBank = ((BtlResultSimpleWork *)workBytes)->field400[bankIndex];
             if (spriteBank != 0 && hMaestroDecodeIsReady(spriteBank) != 0) {
                 readyCount += 1;
             }
@@ -366,15 +381,15 @@ s32 btlResultSimpleLoadAssets(BtlResultSimpleWork *work)
         }
         if (readyCount == 3) {
             ((BtlResultSimpleWork *)workBytes)->flags |= 0x20;
-            archive = *(s32 *)(workBytes + 0x4BC);
+            archive = *(s32 *)&((BtlResultSimpleWork *)workBytes)->archive;
             if (archive != 0) {
                 H_Cdvd_Destroy((u8 *)archive);
-                *(s32 *)(workBytes + 0x4BC) = 0;
+                MEMBER(s32, workBytes, BtlResultSimpleWork, archiveAddress) = 0;
             }
         }
     }
     if (!(((BtlResultSimpleWork *)workBytes)->flags & 0x40)) {
-        messageArchive = *(s32 *)(((BtlResultSimpleWork *)workBytes)->field570 + 0x934);
+        messageArchive = ((BtlResultWork *)((BtlResultSimpleWork *)workBytes)->field570)->file;
         if (messageArchive != 0 && H_Cdvd_IsFileLoaded((u8 *)messageArchive) != 0) {
             ((BtlResultSimpleWork *)workBytes)->flags |= 0x40;
         }
@@ -389,62 +404,64 @@ s32 btlResultSimpleLoadAssets(BtlResultSimpleWork *work)
 
 
 
-// FUN_0021F520
 /* Animate result rows, wait for confirmation, then sequence the optional notice before completion.
- * Measured: typed frame reloads change MATCH across row callbacks; raw parent fields remain the shared
- * result payload. */
+ * The dedicated work alias preserves frame reloads across row callbacks; the parent uses its shared
+ * result layout. */
+// FUN_0021F520
 s32 btlResultSimpleStepPhase(u8 *task) {
+    BtlResultSimpleWork *result;
     u8 *work;
     u8 *sub;
     u32 state;
     s32 i;
     s32 v;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((struct KwlnTask *)task)->work;
+    result = (BtlResultSimpleWork *)work;
     sub = ((BtlResultSimpleWork *)work)->field570;
     state = ((BtlResultSimpleWork *)work)->phase;
     switch (state) {
     case 0:
-        v = *(u16 *)(work + 0x3C);
+        v = result->field3C;
         if (v >= 0x1E) {
             goto L;
         }
-        *(u16 *)(work + 0x3C) = v + 1;
+        result->field3C = v + 1;
         for (i = 0; i < 0x14; i++) {
             switch (((BtlResultAnimStyle *)D_00629380)[i].motion) {
             case 0:
-                radarAnimateValue(work + i * 0x30 + 0x40, *(u16 *)(work + 0x3C), 0);
+                radarAnimateValue(work + i * 0x30 + 0x40, result->field3C, 0);
                 break;
             case 1:
-                radarAnimateValue(work + i * 0x30 + 0x40, *(u16 *)(work + 0x3C), 1);
+                radarAnimateValue(work + i * 0x30 + 0x40, result->field3C, 1);
                 break;
             }
         }
-        if (*(u16 *)(work + 0x3C) != 0x1E) {
+        if (result->field3C != 0x1E) {
             goto L;
         }
         ((BtlResultSimpleWork *)work)->flags |= 0x10;
-        *(u16 *)(work + 0x3C) = 0;
-        *(u32 *)(work + 0x38) = 1;
+        result->field3C = 0;
+        result->phase = 1;
         goto L;
     case 1:
-        v = (*(u16 *)(work + 0x3C) += 1);
+        v = (result->field3C += 1);
         if ((v & 0xFFFF) < 4) {
             goto L;
         }
         if (btlMainGetPhase() != 0x10) {
             goto L;
         }
-        *(u32 *)(work + 0x38) = 2;
+        result->phase = 2;
         goto L;
     case 2:
         if ((D_008C024E[0] & 0x40) || (D_008C024C[0] & 0x10)) {
-            if (*(s16 *)(sub + 0x6F8) > 0) {
+            if (((BtlResultWork *)sub)->awards.unk698 > 0) {
                 nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8 **)&((BtlResultWork *)sub)->file, 0, 0)));
                 nmMesWindowShowCurrentRecord(0x17);
-                *(u32 *)(work + 0x38) = 3;
+                result->phase = 3;
             } else {
-                *(u32 *)(work + 0x38) = 5;
+                result->phase = 5;
             }
         }
         goto L;
@@ -453,14 +470,14 @@ s32 btlResultSimpleStepPhase(u8 *task) {
             goto L;
         }
         nmMesWindowResetCurrent();
-        shdScriptCategoryTaskCreate(task, 0, *(s16 *)(sub + 0x6F8));
-        *(u32 *)(work + 0x38) = 4;
+        shdScriptCategoryTaskCreate(task, 0, ((BtlResultWork *)sub)->awards.unk698);
+        result->phase = 4;
         goto L;
     case 4:
         if (shdScriptIsCategoryTaskActive() != 0) {
             goto L;
         }
-        *(u32 *)(work + 0x38) = 5;
+        result->phase = 5;
         goto L;
     case 5:
         return 1;
@@ -469,9 +486,9 @@ s32 btlResultSimpleStepPhase(u8 *task) {
         return 0;
     }
 }
+/* Drive result asset readiness, drawing setup, notice windows and final shutdown flags. Parent
+ * fields use the shared result payload representation. */
 // FUN_0021F790
-/* Drive result asset readiness, drawing setup, notice windows and final shutdown flags. Raw parent
- * fields retain the shared result payload representation. */
 s32 btlResultSimpleUpdate(u8 *task) {
     BtlResultSimpleWork *work;
     u32 state;
@@ -555,21 +572,19 @@ s32 btlResultSimpleUpdate(u8 *task) {
 }
 
 
-/* Preserve the range-then-sample operand order of the native product. */
-static inline f32 resultParticleProduct(f32 range, f32 sample)
-{
-    return range * sample;
-}
+/* measured: the shared product keeps range before sample in the native mul.s operands. */
+
 
 /* Native b210 O2: 1108/1120 bytes, seventeen resolved relocations and
  * twelve zero alignment bytes. Update and draw the five result-screen
  * sprites using their individual motion and random-duration styles.
  * See docs/probe_archive/Result_particles_0021fa40_20260924.md. */
 // FUN_0021FA40
-/* Advance and draw the five independently timed result particles from their style rows. Raw parent
- * flags retain the existing shared-header access shape. */
+/* Advance and draw the five independently timed result particles from their style rows. Parent
+ * flags use the shared reward layout. */
 void btlResultSimpleInitAnimRecords(u8 *work)
 {
+    BtlResultSimpleWork *result = (BtlResultSimpleWork *)work;
     extern void shdEnableBlendFlag(void);
     extern void shdDisableBlendFlag(void);
     extern f32 sinf(f32 angle);
@@ -590,7 +605,7 @@ void btlResultSimpleInitAnimRecords(u8 *work)
     shdEnableBlendFlag();
     for (i = 0; i < 5; i++) {
         particle = (ResultParticleState *)(work + 0x4C0 + i * sizeof(ResultParticleState));
-        if ((*(u16 *)(((BtlResultSimpleWork *)work)->field570 + 8) & 4) == 0 && *(s32 *)(work + 0x38) != 0) {
+        if ((((BtlXpReward *)((BtlResultWork *)((BtlResultSimpleWork *)work)->field570)->parameters)->flags & 4) == 0 && *(s32 *)&result->phase != 0) {
             /* Use the stored halfword result, including its wrap at 65535. */
             nextAge = (particle->age += 1);
             if (nextAge >= particle->duration) {
@@ -601,7 +616,7 @@ void btlResultSimpleInitAnimRecords(u8 *work)
                 minimum = style->minimumAmplitude;
                 random = RpRandom();
                 amount = (f32)(random & 0xFFF);
-                amount = resultParticleProduct(style->maximumAmplitude - minimum, amount);
+                amount = operandOrderMultiply(style->maximumAmplitude - minimum, amount);
                 /* The low twelve random bits select a fraction in [0, 1). */
                 particle->amplitude = minimum + amount / 4096.0f;
                 particle->age = 0;
@@ -614,7 +629,7 @@ void btlResultSimpleInitAnimRecords(u8 *work)
         opacity = ((BtlResultSimpleWork *)work)->animation[12].opacity;
         style = (const ResultParticleStyle *)((u8 *)D_00629560 + i * sizeof(ResultParticleStyle));
         /* The sprite and opacity are captured before either motion callback. */
-        resource = *(void **)(work + 0x414 + style->resource * 4);
+        resource = *(void **)&((BtlResultSimpleWork *)work)->field414[style->resource];
         switch (style->motion) {
         case 0:
             amount = sinf((iGpffff83d8 * (f32)(u32)particle->age) / (f32)(u32)particle->duration);
@@ -647,11 +662,12 @@ void btlResultSimpleInitAnimRecords(u8 *work)
 // FUN_0021FEA0
 #pragma push
 #pragma opt_loop_invariants on
-/* Draw the animated result headings, reward values, particles and conditional banners. Measured: typed
- * coordinate and opacity reloads each change MATCH; keep those byte-shaped loads while typing sprite
- * storage. */
+/* Draw the animated result headings, reward values, particles and conditional banners. Measured: a dedicated
+ * work alias preserves coordinate and opacity reloads; only the indexed level-digit lookup needs
+ * the named offset fallback. */
 void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
 {
+    BtlResultSimpleWork *result = (BtlResultSimpleWork *)work;
     typedef struct { f32 x, y; } Vec2f;
     typedef union { Vec2f xy; f32 v[2]; s64 bits; } ResultPosition;
     u8 *w;
@@ -739,7 +755,7 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
     (void)unusedTask;
     w = work;
     if ((*(u16 *)w) & 2) {
-        p16 = (*(struct ResultSubHeader **)(w + 0x570));
+        p16 = (*(struct ResultSubHeader **)&((BtlResultSimpleWork *)w)->field570);
         renderStates = (u32)D_00887300;
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(6, (void *)0);
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(8, (void *)0);
@@ -754,8 +770,8 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(4, (void *)1);
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
-        rectangle[0] = (s32)(-224.0f + (*(f32 *)(w + 0x1D0)));
-        rectangle[1] = (s32)(224.0f + (*(f32 *)(w + 0x1D4)));
+        rectangle[0] = (s32)(-224.0f + (result->animation[8].current[0]));
+        rectangle[1] = (s32)(224.0f + (result->animation[8].current[1]));
         rectangle[2] = 0x30C;
         rectangle[3] = 0x30C;
         color[0] = 0xFF;
@@ -766,8 +782,8 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
         shdEnableBlendFlag();
         PrimDrawRectangle(&color[0], (u8 *)&rectangle[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
         shdDisableBlendFlag();
-        rectangle[0] = (s32)(-224.0f + (*(f32 *)(w + 0x200)));
-        rectangle[1] = (s32)(224.0f + (*(f32 *)(w + 0x204)));
+        rectangle[0] = (s32)(-224.0f + (result->animation[9].current[0]));
+        rectangle[1] = (s32)(224.0f + (result->animation[9].current[1]));
         rectangle[2] = 0x30C;
         rectangle[3] = 0x30C;
         color[0] = 0xFF;
@@ -778,14 +794,14 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(1, (void *)0);
         PrimDrawRectangle(&color[0], (u8 *)&rectangle[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
         shdDisableBlendFlag();
-        position.v[0] =(386.0f + (*(f32 *)(w + 0x1A0)));
-        position.v[1] =(35.0f + (*(f32 *)(w + 0x1A4)));
-        opacity = *(u8 *)(w + 0x1AA);
+        position.v[0] =(386.0f + (result->animation[7].current[0]));
+        position.v[1] =(35.0f + (result->animation[7].current[1]));
+        opacity = result->animation[7].opacity;
         sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[36];
         sdkSpriteDrawAt(sprite, position.v[0], position.v[1], 0x32, 0x32, 0x32, opacity);
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(1, (void *)0);
-        rectangle[0] = (s32)((*(f32 *)(w + 0x1D0)));
-        rectangle[1] = (s32)((*(f32 *)(w + 0x1D4)));
+        rectangle[0] = (s32)((result->animation[8].current[0]));
+        rectangle[1] = (s32)((result->animation[8].current[1]));
         rectangle[2] = 0x19F;
         rectangle[3] = 0x1C0;
         color[0] = 0xFF;
@@ -794,9 +810,9 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
         color[3] = 0xFF;
         PrimDrawFlatRectangle(&color[0], (f32 *)&rectangle[0], 0.0f, 0);
         coordinate = (f32)0x275;
-        coordinate += (*(f32 *)(w + 0x1D0));
+        coordinate += (result->animation[8].current[0]);
         rectangle[0] = (s32)(coordinate);
-        rectangle[1] = (s32)((*(f32 *)(w + 0x1D4)));
+        rectangle[1] = (s32)((result->animation[8].current[1]));
         rectangle[2] = 0x12;
         rectangle[3] = 0x1C0;
         color[0] = 0xFF;
@@ -817,9 +833,9 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
         color[3] = 0;
         PrimDrawFlatRectangle(&color[0], (f32 *)&rectangle[0], 20.0f, 0);
         coordinate = (f32)0x19F;
-        coordinate += (*(f32 *)(w + 0x260));
+        coordinate += (result->animation[11].current[0]);
         rectangle[0] = (s32)(coordinate);
-        rectangle[1] = (s32)(35.0f + (*(f32 *)(w + 0x264)));
+        rectangle[1] = (s32)(35.0f + (result->animation[11].current[1]));
         rectangle[2] = 0xFE;
         rectangle[3] = 0x1F4;
         color[0] = 0xFF;
@@ -830,28 +846,28 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
         RpSkyRenderStateSet(3, (void *)0x717FB);
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(8, (void *)0);
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(6, (void *)1);
-        heroOpacity = (*(u8 *)(w + 0x17A));
-        position.v[0] =(73.0f + (*(f32 *)(w + 0x170)));
+        heroOpacity = (result->animation[6].opacity);
+        position.v[0] =(73.0f + (result->animation[6].current[0]));
         coordinate = (f32)0x187;
-        coordinate += (*(f32 *)(w + 0x174));
+        coordinate += (result->animation[6].current[1]);
         position.v[1] = coordinate;
                 sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[13];
                 sdkSpriteDrawSized(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
                     heroOpacity, 0x1000, 0x1000, 0, 0.0f, (s64)0);
         coordinate = (f32)0x111;
-        coordinate += (*(f32 *)(w + 0x170));
+        coordinate += (result->animation[6].current[0]);
         position.v[0] = coordinate;
         coordinate = (f32)0x187;
-        coordinate += (*(f32 *)(w + 0x174));
+        coordinate += (result->animation[6].current[1]);
         position.v[1] = coordinate;
                 sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[14];
                 sdkSpriteDrawSized(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
                     heroOpacity, 0x1000, 0x1000, 0, 0.0f, (s64)0);
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(6, (void *)0);
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(6, (void *)1);
-        position.v[0] =(76.0f + (*(f32 *)(w + 0x170)));
+        position.v[0] =(76.0f + (result->animation[6].current[0]));
         coordinate = (f32)0x171;
-        coordinate += (*(f32 *)(w + 0x174));
+        coordinate += (result->animation[6].current[1]);
         position.v[1] = coordinate;
                 sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[8];
                 sdkSpriteDrawSized(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
@@ -865,22 +881,22 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
             color[1] = 0x7C;
             color[2] = 0;
         }
-        position.v[0] =(1.0f + (117.0f + (*(f32 *)(w + 0x170))));
+        position.v[0] =(1.0f + (117.0f + (result->animation[6].current[0])));
         coordinate = (f32)0x175;
-        coordinate += (*(f32 *)(w + 0x174));
+        coordinate += (result->animation[6].current[1]);
         position.v[1] = coordinate;
         sprintf(numberText, &iGpffffa5b4, datCalcGetLevelById(1) & 0xFF);
         digitIndex = 0;
         while (numberText[digitIndex] != 0) {
             digitCharacter = numberText[digitIndex];
-                sprite = *(u8 **)(w + digitCharacter * 4 + 0x390);
+                sprite = *(u8 **)(w + digitCharacter * 4 + MEMBER_OFFSET(BtlResultSimpleWork, field414[15]) - 48 * sizeof(s32));
             sdkSpriteDrawSized(sprite, position.v[0], position.v[1], 10.0f,
                     color[0], color[1], color[2], heroOpacity, 0x1000, 0x1000, 0, 0.0f, (s64)0);
             position.v[0] += 16.0f;
             digitIndex += 1;
         }
-        position.v[0] =(157.0f + (*(f32 *)(w + 0x170)));
-        position.v[1] =((366.0f + (*(f32 *)(w + 0x174))) - 2.0f);
+        position.v[0] =(157.0f + (result->animation[6].current[0]));
+        position.v[1] =((366.0f + (result->animation[6].current[1])) - 2.0f);
         frFontExDrawText(position.v[0], position.v[1], 10.0f, (((u8)heroOpacity & 0xFF) | ~0xFF), 5, 1, (const char *)datPersonaNamePart1(1), 0, 0);
         ((s32 (*)(s32, void *))*(u32 *)renderStates)(6, (void *)0);
         if (p16->flags & 4) {
@@ -888,45 +904,45 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
             labelGreen = 0x5F;
             labelBlue = 0x1F;
             emptyRewardSprite = (s32)(((BtlResultSimpleWork *)w)->field414[12]);
-            position.v[0] =(78.0f + (*(f32 *)(w + 0xE0)));
-            position.v[1] =(53.0f + (*(f32 *)(w + 0xE4)));
-            opacity = *(u8 *)(w + 0xEA);
+            position.v[0] =(78.0f + (result->animation[3].current[0]));
+            position.v[1] =(53.0f + (result->animation[3].current[1]));
+            opacity = result->animation[3].opacity;
             sdkSpriteDrawAt((void *)(emptyRewardSprite), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
-            position.v[0] =(75.0f + (*(f32 *)(w + 0x110)));
-            position.v[1] =(113.0f + (*(f32 *)(w + 0x114)));
-            opacity = *(u8 *)(w + 0x11A);
+            position.v[0] =(75.0f + (result->animation[4].current[0]));
+            position.v[1] =(113.0f + (result->animation[4].current[1]));
+            opacity = result->animation[4].opacity;
             sdkSpriteDrawAt((void *)(emptyRewardSprite), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
-            position.v[0] =(75.0f + (*(f32 *)(w + 0x140)));
-            position.v[1] =(172.0f + (*(f32 *)(w + 0x144)));
-            opacity = *(u8 *)(w + 0x14A);
+            position.v[0] =(75.0f + (result->animation[5].current[0]));
+            position.v[1] =(172.0f + (result->animation[5].current[1]));
+            opacity = result->animation[5].opacity;
             sdkSpriteDrawAt((void *)(emptyRewardSprite), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
         } else {
             labelGreen = 0;
             labelBlue = 0;
             labelRed = 0;
             awardValue = (((BtlResultWork *)p16)->awards.heroExp);
-            position.v[0] =(75.0f + (*(f32 *)(w + 0xE0)));
-            position.v[1] =(52.0f + (*(f32 *)(w + 0xE4)));
-            moneyOpacity = (u8)((*(u8 *)(w + 0xEA)));
+            position.v[0] =(75.0f + (result->animation[3].current[0]));
+            position.v[1] =(52.0f + (result->animation[3].current[1]));
+            moneyOpacity = (u8)((result->animation[3].opacity));
             btlResultSimpleDrawLabel(w, &position.v[0], 0.0f, moneyOpacity | (s32)0xEC7C0000, awardValue, 0);
             sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[6];
             sdkSpriteDrawAt(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, moneyOpacity);
             experience = (u32)(btlXpBaseAward((u8 *)&p16->flags));
-            position.v[0] =(75.0f + (*(f32 *)(w + 0x110)));
-            position.v[1] =(112.0f + (*(f32 *)(w + 0x114)));
-            experienceOpacity = (u8)((*(u8 *)(w + 0x11A)));
+            position.v[0] =(75.0f + (result->animation[4].current[0]));
+            position.v[1] =(112.0f + (result->animation[4].current[1]));
+            experienceOpacity = (u8)((result->animation[4].opacity));
             btlResultSimpleDrawLabel(w, &position.v[0], 0.0f, experienceOpacity | (s32)0xEC7C0000, experience, 1);
             sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[7];
             sdkSpriteDrawAt(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, experienceOpacity);
-            position.v[0] =(73.0f + (*(f32 *)(w + 0x140)));
-            position.v[1] =(162.0f + (*(f32 *)(w + 0x144)));
-            itemOpacity = (u8)((*(u8 *)(w + 0x14A)));
+            position.v[0] =(73.0f + (result->animation[5].current[0]));
+            position.v[1] =(162.0f + (result->animation[5].current[1]));
+            itemOpacity = (u8)((result->animation[5].opacity));
             itemIndex = 0;
-            while (itemIndex < (*(s32 *)((u8 *)(p16) + 0x38))) {
+            while (itemIndex < (((BtlXpReward *)((BtlResultWork *)(u8 *)p16)->parameters)->itemCount)) {
                 datEntryReset((u8 *)&itemRow);
                 itemRecord = (u8 *)((u8 *)p16 + (itemIndex * 4));
-                itemRow.a0 = (u16)((*(u16 *)((u8 *)(itemRecord) + 0x2C)));
-                itemRow.a2 = (s16)((*(s16 *)((u8 *)(itemRecord) + 0x2E)));
+                itemRow.a0 = (u16)((*(u16 *)&((BtlXpReward *)((BtlResultWork *)(u8 *)itemRecord)->parameters)->items[0].id));
+                itemRow.a2 = (s16)((((BtlXpReward *)((BtlResultWork *)(u8 *)itemRecord)->parameters)->items[0].count));
                 itemRow.b6 = 6;
                 itemRow.b8 = 5;
                 datEntryDrawRow(position.xy, 0.0f, itemOpacity, (u8 *)&itemRow);
@@ -934,19 +950,19 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
                 itemIndex += 1;
             }
         }
-        position.v[0] =(68.0f + (*(f32 *)(w + 0xE0)));
-        position.v[1] =(20.0f + (*(f32 *)(w + 0xE4)));
-        opacity = *(u8 *)(w + 0xEA);
+        position.v[0] =(68.0f + (result->animation[3].current[0]));
+        position.v[1] =(20.0f + (result->animation[3].current[1]));
+        opacity = result->animation[3].opacity;
         sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[1];
         sdkSpriteDrawAt(sprite, position.v[0], position.v[1], labelRed, labelGreen, labelBlue, opacity);
-        position.v[0] =(67.0f + (*(f32 *)(w + 0x110)));
-        position.v[1] =(80.0f + (*(f32 *)(w + 0x114)));
-        opacity = *(u8 *)(w + 0x11A);
+        position.v[0] =(67.0f + (result->animation[4].current[0]));
+        position.v[1] =(80.0f + (result->animation[4].current[1]));
+        opacity = result->animation[4].opacity;
         sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[0];
         sdkSpriteDrawAt(sprite, position.v[0], position.v[1], labelRed, labelGreen, labelBlue, opacity);
-        position.v[0] =(68.0f + (*(f32 *)(w + 0x140)));
-        position.v[1] =(139.0f + (*(f32 *)(w + 0x144)));
-        opacity = *(u8 *)(w + 0x14A);
+        position.v[0] =(68.0f + (result->animation[5].current[0]));
+        position.v[1] =(139.0f + (result->animation[5].current[1]));
+        opacity = result->animation[5].opacity;
         sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[2];
         sdkSpriteDrawAt(sprite, position.v[0], position.v[1], labelRed, labelGreen, labelBlue, opacity);
         rectangle[0] = 0;
@@ -956,7 +972,7 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
         color[0] = 0xFF;
         color[1] = 0xE9;
         color[2] = 0xE;
-        color[3] = (u8)((*(u8 *)(w + 0x23A)));
+        color[3] = (u8)((result->animation[10].opacity));
         PrimDrawFlatRectangle(&color[0], (f32 *)&rectangle[0], 0.0f, 1);
         if (p16->flags & 4) {
             headingRed = 0x67;
@@ -967,19 +983,19 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
             headingGreen = 0;
             headingBlue = 0;
         }
-        position.v[0] =(17.0f + (*(f32 *)(w + 0x50)));
-        position.v[1] =(20.0f + (*(f32 *)(w + 0x54)));
-        opacity = *(u8 *)(w + 0x5A);
+        position.v[0] =(17.0f + (result->animation[0].current[0]));
+        position.v[1] =(20.0f + (result->animation[0].current[1]));
+        opacity = result->animation[0].opacity;
         sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[3];
         sdkSpriteDrawAt(sprite, position.v[0], position.v[1], headingRed, headingGreen, headingBlue, opacity);
-        position.v[0] =(17.0f + (*(f32 *)(w + 0x80)));
-        position.v[1] =(80.0f + (*(f32 *)(w + 0x84)));
-        opacity = *(u8 *)(w + 0x8A);
+        position.v[0] =(17.0f + (result->animation[1].current[0]));
+        position.v[1] =(80.0f + (result->animation[1].current[1]));
+        opacity = result->animation[1].opacity;
         sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[4];
         sdkSpriteDrawAt(sprite, position.v[0], position.v[1], headingRed, headingGreen, headingBlue, opacity);
-        position.v[0] =(17.0f + (*(f32 *)(w + 0xB0)));
-        position.v[1] =(139.0f + (*(f32 *)(w + 0xB4)));
-        opacity = *(u8 *)(w + 0xBA);
+        position.v[0] =(17.0f + (result->animation[2].current[0]));
+        position.v[1] =(139.0f + (result->animation[2].current[1]));
+        opacity = result->animation[2].opacity;
         sprite = (u8 *)((BtlResultSimpleWork *)w)->field414[5];
         sdkSpriteDrawAt(sprite, position.v[0], position.v[1], headingRed, headingGreen, headingBlue, opacity);
         if (p16->flags & 4) {
@@ -988,43 +1004,43 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
                 pulseBase = (u8 *)(w + (pulseIndex * 8));
                 pulse = (u8 *)(pulseBase + 0x560);
                 pulseStyle = (u8 *)D_006295F0 + pulseIndex * 0xC;
-                if (++(*(u16 *)(pulseBase + 0x564)) < (*(u16 *)pulseStyle)) {
+                if (++(((BtlResultSimpleWork *)pulseBase)->pulses[0].frame) < (*(u16 *)pulseStyle)) {
                     goto skip_zero;
                 }
-                (*(u16 *)(pulse + 4)) = 0;
+                (((BtlResultPulse *)pulse)->frame) = 0;
             skip_zero:
-                startOffset = (*(f32 *)(pulseStyle + 4));
-                elapsed = (*(u16 *)(pulse + 4));
+                startOffset = (((BtlResultPulseStyle *)pulseStyle)->start);
+                elapsed = (((BtlResultPulse *)pulse)->frame);
                 elapsedFloat = (f32)elapsed;
                 duration = (*(u16 *)pulseStyle);
                 durationFloat = (f32)duration;
-                endOffset = (*(f32 *)(pulseStyle + 8));
+                endOffset = (((BtlResultPulseStyle *)pulseStyle)->end);
                 (*(f32 *)pulse) = startOffset + (elapsedFloat / durationFloat) * (endOffset - startOffset);
                 pulseIndex += 1;
             }
             coordinate = (f32)0x1D7;
-            coordinate += (*(f32 *)(w + 0x320));
+            coordinate += (result->animation[15].current[0]);
             position.v[0] = coordinate;
-            position.v[1] =(506.0f + (*(f32 *)(w + 0x324)));
-            firstBannerOpacity = (*(u8 *)(w + 0x32A));
+            position.v[1] =(506.0f + (result->animation[15].current[1]));
+            firstBannerOpacity = (result->animation[15].opacity);
             firstBannerSprite = (s32)(((BtlResultSimpleWork *)w)->field414[39]);
             shdEnableBlendFlag();
             sdkSpriteDrawSized((u8 *)firstBannerSprite, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, firstBannerOpacity, 0x1000, 0x1000, 0, -72.0f, (s64)0);
             shdDisableBlendFlag();
             coordinate = (f32)0x107;
-            coordinate += (*(f32 *)(w + 0x350));
+            coordinate += (result->animation[16].current[0]);
             position.v[0] = coordinate;
             basePosition.v[0] = position.v[0];
-            position.v[1] = (464.0f + (*(f32 *)(w + 0x354)));
+            position.v[1] = (464.0f + (result->animation[16].current[1]));
             basePosition.v[1] = position.v[1];
-            secondBannerOpacity = (*(u8 *)(w + 0x35A));
+            secondBannerOpacity = (result->animation[16].opacity);
             secondBannerSprite = (s32)(((BtlResultSimpleWork *)w)->field414[40]);
             shdEnableBlendFlag();
             sdkSpriteDrawSized((u8 *)secondBannerSprite, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, secondBannerOpacity, 0x1000, 0x1000, 0, -30.0f, (s64)0);
             shdDisableBlendFlag();
-            position.v[0] =((*(f32 *)(w + 0x3B0)) + (((BtlResultSimpleWork *)w)->pulses[0].offset));
-            position.v[1] =((*(f32 *)(w + 0x3B4)));
-            shadowOpacity = (*(u8 *)(w + 0x3BA));
+            position.v[0] =((result->animation[18].current[0]) + (((BtlResultSimpleWork *)w)->pulses[0].offset));
+            position.v[1] =((result->animation[18].current[1]));
+            shadowOpacity = (result->animation[18].opacity);
             shadowIndex = 0;
             while (shadowIndex < 3) {
                 shadowBase = basePosition;
@@ -1045,18 +1061,18 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
                 position.v[0] += fGpffff8418;
                 shadowIndex += 1;
             }
-            position.v[0] = ((*(f32 *)(w + 0x380)) - 88.0f);
+            position.v[0] = ((result->animation[17].current[0]) - 88.0f);
             basePosition.v[0] = position.v[0];
-            position.v[1] = (200.0f + (*(f32 *)(w + 0x384)));
+            position.v[1] = (200.0f + (result->animation[17].current[1]));
             basePosition.v[1] = position.v[1];
-            thirdBannerOpacity = (*(u8 *)(w + 0x38A));
+            thirdBannerOpacity = (result->animation[17].opacity);
             thirdBannerSprite = (s32)(((BtlResultSimpleWork *)w)->field414[41]);
             shdEnableBlendFlag();
             sdkSpriteDrawSized((u8 *)thirdBannerSprite, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, thirdBannerOpacity, 0x1000, 0x1000, 0, 15.0f, (s64)0);
             shdDisableBlendFlag();
-            position.v[0] =((*(f32 *)(w + 0x3E0)) + (((BtlResultSimpleWork *)w)->pulses[1].offset));
-            position.v[1] =((*(f32 *)(w + 0x3E4)));
-            secondaryShadowOpacity = (*(u8 *)(w + 0x3EA));
+            position.v[0] =((result->animation[19].current[0]) + (((BtlResultSimpleWork *)w)->pulses[1].offset));
+            position.v[1] =((result->animation[19].current[1]));
+            secondaryShadowOpacity = (result->animation[19].opacity);
             secondaryShadowIndex = 0;
             while (secondaryShadowIndex < 3) {
                 secondaryBase = basePosition;
@@ -1092,27 +1108,27 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
    Tried: struct-vs-pointer arith for the 0x4BC block, every declaration order
    of p/w/i (8 variants), loop-local addr pointers, shared addr var, u16/u32
    counters; all give the identical 12-word rotation. Register-coloring floor. */
-// FUN_002214D0
 /* Release the result archive, adopted sprite banks, all sprite nodes and the work allocation. */
+// FUN_002214D0
 void btlResultSimpleTaskDestroy(u8 *unusedTask) {
     BtlResultSimpleWork *p;
     s32 i;
     s32 j;
 
     p = (BtlResultSimpleWork *)kwlnTaskGetWork();
-    if (p->field4BC != 0) {
-        H_Cdvd_Destroy((void *)p->field4BC);
-        p->field4BC = 0;
+    if (p->archiveAddress != 0) {
+        H_Cdvd_Destroy((void *)p->archiveAddress);
+        p->archiveAddress = 0;
     }
     for (i = 0; i < 3; i++) {
-        s32 *el = (s32 *)(addBase((u32)p, (u32)(i * 4)) + 0x400);
+        s32 *el = (s32 *)((((u32)p) + ((u32)(i * 4))) + 0x400);
         if (*el != 0) {
             sdkSpriteRelease((void *)*el);
             *el = 0;
         }
     }
     for (j = 0; j < 0x2A; j++) {
-        s32 *el = (s32 *)(addBase((u32)p, (u32)(j * 4)) + 0x414);
+        s32 *el = (s32 *)((((u32)p) + ((u32)(j * 4))) + 0x414);
         if (*el != 0) {
             sdkSpriteFreeNode((void *)*el);
             *el = 0;
@@ -1122,22 +1138,24 @@ void btlResultSimpleTaskDestroy(u8 *unusedTask) {
 }
 // FUN_002215C0
 /* Allocate the complete 0x578-byte simple-result work, register callbacks, and attach the parent
- * result work. Raw primitive callback words retain the queue payload layout. */
+ * result work. Primitive callback words use the established queue payload layout. */
 s32 btlResultSimpleCreateTask(s32 parentTask) {
+    BtlResultSimpleWork *result;
     u8 *work;
     u16 *parentWork;
     s32 task;
 
     chkmemAllocSiteTag(&D_00629628, 0x3A);
     work = (u8 *)(*jtbl_008873E8)(0x578, 0x40000);
+    result = (BtlResultSimpleWork *)work;
     memset(work, 0, 0x578);
     task = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_006290F0), 0xF, 0, 0, btlResultSimpleUpdate, btlResultSimpleTaskDestroy, (u8 *)(work));
     parentWork = kwlnTaskGetWork(parentTask);
-    *(s32 *)(work + 4) = 0;
-    *(u16 **)(work + 0x570) = parentWork;
+    *(s32 *)&result->state = 0;
+    *(u16 * *)&result->field570 = parentWork;
     memset(work + 8, 0, 0x30);
-    *(void (**)(u8 *, u8 *))(work + 0x10) = btlResultSimpleDraw;
-    *(u8 **)(work + 0x18) = work;
+    *(void (**)(u8 *, u8 *))&((BtlResultSimpleWork *)work)->drawCallback = btlResultSimpleDraw;
+    *(u8 * *)&result->drawWork = work;
     return task;
 }
 
@@ -1150,7 +1168,7 @@ void btlResultSimpleSetDoneFlag(void) {
 }
 
 // FUN_002216E0
-/* Choose the overlay or delayed-close path from the result flags. Raw frame/state stores retain the
+/* Choose the overlay or delayed-close path from the result flags. Typed frame/state stores retain the
  * existing halfword/word work-pointer representation. */
 void btlResultSimpleOnConfirm(void) {
     u16 *work;
@@ -1158,11 +1176,11 @@ void btlResultSimpleOnConfirm(void) {
     work = kwlnTaskGetWork();
     if (work[0] & 0x80) {
         btlShuffleStartOverlay();
-        *(s32 *)(work + 2) = 5;
+        *(s32 *)&((BtlResultSimpleWork *)work)->state = 5;
         return;
     }
-    *(s16 *)((u8 *)work + 0x3C) = 0;
-    *(s32 *)(work + 2) = 6;
+    *(s16 *)&((BtlResultSimpleWork *)work)->field3C = 0;
+    *(s32 *)&((BtlResultSimpleWork *)work)->state = 6;
 }
 
 // FUN_00221740
@@ -1179,8 +1197,7 @@ u16 btlResultSimpleIsDone(void) {
    368B window exactly. */
 // Intent: set up the result entries from the date index and asset slot. [inferred]
 // FUN_00221770
-/* Choose date-dependent result resources, acquire both archives and request asynchronous asset setup.
- * The raw resource-name table spans adjacent linker-visible symbols. */
+/* Choose date-dependent result resources, acquire both archives and request asynchronous asset setup. */
 void btlResultSimpleSetupEntries(void) {
     s32 *dst;
     s32 i;
@@ -1193,14 +1210,15 @@ void btlResultSimpleSetupEntries(void) {
         i = (0U < r) ^ 1U;
     }
     func_00440b68(&iGpffffa5b8, &D_00629610, 1410);
-    work->field4BC = (s32)H_Cdvd_AcquireDirectory(iGpffffa5a0[i], 1);
-    if (work->field4BC == 0) {
+    work->archiveAddress = (s32)H_Cdvd_AcquireDirectory(iGpffffa5a0[i], 1);
+    if (work->archiveAddress == 0) {
         kAssertFail(&D_00629610, 1411);
     }
     i = 3;
     for (; i < 5; i++) {
         dst = (s32 *)((u8 *)work + i * 4 + 0x400);
-        *dst = resourceFindByName(*(s32 *)((u8 *)iGpffffa5a8 + i * 4 - 12));
+        /* measured: array indexing changes two bytes; retain the slot-three-relative alias base. */
+        *dst = resourceFindByName(((BtlResultResourceName *)((u8 *)iGpffffa5a8 + i * 4 - 12))->name);
         if (*dst == 0) {
             kAssertFail(&D_00629610, 1419);
         }

@@ -51,8 +51,8 @@ void FldSupporterDestroy(u8 *task)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018DF60
 /* Create the supporter only away from field-step boundaries. */
+// FUN_0018DF60
 s32 FldSupporterTaskCreate(s32 parent)
 {
     s32 taskHandle;
@@ -76,8 +76,8 @@ s32 FldSupporterTaskCreate(s32 parent)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018E030
 /* Change activity and latch the current global frame for the supporter. */
+// FUN_0018E030
 void FldFrameObjSetActive(u8 *task, s32 active)
 {
     if (task != NULL) {

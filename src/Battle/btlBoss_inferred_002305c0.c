@@ -2,6 +2,7 @@
 #include "type.h"
 #include "model_callbacks_internal.h"
 #include "btl_effect_internal.h"
+#include "h_cdvd_request_internal.h"
 
 typedef struct BtlPacket BtlPacket;
 
@@ -48,8 +49,8 @@ extern char D_00635800[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0023; members 002305c0-002308a0 */
 
 extern void btlBossResolveNpcModelName(s32 destination, u16 modelId);
-// FUN_002305C0
 /* Allocate the eight-byte end-BGM loader work and install its update callback. */
+// FUN_002305C0
 BtlPacket *btlBossCreateLoadEndBgmPacket(s32 id)
 {
     u8 *packet;
@@ -63,8 +64,8 @@ BtlPacket *btlBossCreateLoadEndBgmPacket(s32 id)
     return (BtlPacket *)packet;
 }
 
-// FUN_00230610
 /* Release and clear the optional boss end-BGM archive handle. */
+// FUN_00230610
 s32 btlBossReleaseEndBgmHandle(void)
 {
     u8 *handle;
@@ -77,8 +78,8 @@ s32 btlBossReleaseEndBgmHandle(void)
     return 1;
 }
 
-// FUN_00230650
 /* Queue an immediate end-BGM resource-release callback. */
+// FUN_00230650
 BtlPacket *btlBossCreateReleaseEndBgmPacket(void)
 {
     u8 *packet;
@@ -89,22 +90,21 @@ BtlPacket *btlBossCreateReleaseEndBgmPacket(void)
     return (BtlPacket *)packet;
 }
 
-// FUN_00230690
-/* Raw +0x110/+0x118 reads belong to an external archive handle; its complete layout is not recovered here. */
 /* Submit the loaded end-BGM resource to sound channel 2. */
+// FUN_00230690
 s32 btlBossStepEndBgmHandle(void)
 {
     u8 *handle;
 
     handle = (u8 *)((BtlBattleState *)iGpffffb3ac)->bossEndBgmHandle;
     if (handle != NULL) {
-        sdkSndStartMonoBuffer(2, *(s32 *)(handle + 0x110), *(s32 *)(handle + 0x118));
+        sdkSndStartMonoBuffer(2, *(s32 *)&((HCdvdRequest *)handle)->data, ((HCdvdRequest *)handle)->signedSize);
     }
     return 1;
 }
 
-// FUN_002306D0
 /* Queue the loaded end-BGM playback callback. */
+// FUN_002306D0
 BtlPacket *btlBossCreateStepEndBgmPacket(void)
 {
     u8 *packet;
@@ -115,8 +115,8 @@ BtlPacket *btlBossCreateStepEndBgmPacket(void)
     return (BtlPacket *)packet;
 }
 
-// FUN_00230710
 /* Reset sound channel 2 only while the end-BGM resource exists. */
+// FUN_00230710
 s32 btlBossStopEndBgm(void)
 {
     if (((BtlBattleState *)iGpffffb3ac)->bossEndBgmHandle != 0) {
@@ -125,8 +125,8 @@ s32 btlBossStopEndBgm(void)
     return 1;
 }
 
-// FUN_00230750
 /* Queue the conditional end-BGM stop callback. */
+// FUN_00230750
 BtlPacket *btlBossCreateStopEndBgmPacket(void)
 {
     u8 *packet;
@@ -137,8 +137,8 @@ BtlPacket *btlBossCreateStopEndBgmPacket(void)
     return (BtlPacket *)packet;
 }
 
-// FUN_00230790
 /* Map supported boss encounter IDs to unit IDs; unsupported encounters return -1. */
+// FUN_00230790
 s32 btlBossMapUnitIdToEntryId(void)
 {
     switch (btlCurrentUnitId()) {
@@ -179,8 +179,8 @@ s32 btlBossMapUnitIdToEntryId(void)
     }
 }
 
-// FUN_002308A0
 /* Format a model path by category, calendar window, and selected costume. */
+// FUN_002308A0
 s32 btlBossResolveModelName(u32 modelKind, u16 modelId, char *path)
 {
     s32 characterId;

@@ -24,7 +24,14 @@ typedef struct WaveSpawnParameters {
     s32 emissionDuration;
     u32 emissionRate;
     f32 emissionVariation;
-    u32 unknown2c[16];
+    union {
+        u32 unknown2c[16];
+        struct {
+            u8 pad2C[0x28];
+            u16 resourceId; /* +0x54: geometry resource and output-node slot selector */
+            u8 pad56[0x16];
+        };
+    };
     f32 sizeVariation;
     u32 unknown70[10];
     f32 angleVariation;
@@ -40,7 +47,9 @@ typedef struct WaveSpawnParameters {
 
 typedef struct WaveSpawnEmitter {
     u16 kind, unknown02;
-    u32 primaryCount, totalCount, flags;
+    u32 primaryCount;
+    union { u32 totalCount; s32 signedTotalCount; };
+    u32 flags;
     s32 ticks;
     f32 emissionAccumulator;
     SpawnParticle *particles;

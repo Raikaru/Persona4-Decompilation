@@ -2,6 +2,7 @@
 #define CAMP_MENU_INTERNAL_H
 
 #include "radar_menu_internal.h"
+#include "sfl_persona_internal.h"
 
 /* The camp radar owns 0x18B0 bytes (radarInitState). Its 41 animation
  * records share the 0x30-byte format used by radarAnimateValue. */
@@ -37,8 +38,8 @@ typedef struct CampMenu {
     CampGridEntry grid[108];       /* 0xFA0 */
     RadarSprite sprites[25];       /* 0x1810 */
     u8 *spritePack;                /* 0x1874 */
-    s32 primaryLabels[7];
-    s32 secondaryLabels[7];
+    union { s32 primaryLabels[7]; SflPersonaState primaryLabelState; };
+    union { s32 secondaryLabels[7]; SflPersonaState secondaryLabelState; };
 } CampMenu;
 
 /* Mode tables contain 41 records; scales are converted from float to u16. */

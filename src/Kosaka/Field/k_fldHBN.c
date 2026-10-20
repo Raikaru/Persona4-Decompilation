@@ -6,6 +6,12 @@
 #include "field_transition_internal.h"
 #include "field_frame_internal.h"
 #include "field_scene_internal.h"
+#include "member_access.h"
+
+typedef struct FldHbnExtendedLightResource {
+    u8 pad00[0x18C];
+    s32 parameter;
+} FldHbnExtendedLightResource;
 
 /* Versioned HBN headers add one count/unknown-word pair per new record class.
  * The first record starts at 0x28, 0x30, 0x38 or 0x48 depending on version. */
@@ -155,7 +161,7 @@ s32 FldHbnReadData(u8 *request, u16 **destination, s32 fieldId, s32 roomId)
 #pragma opt_lifetimes on
 void FldHbnSpawnLights(u8 *header, s32 mode)
 {
-    /* Raw accesses retained: the proven request/record layouts above changed whole-file codegen when substituted. */
+    /* Byte-base fallbacks preserve the request/record aliasing measured against typed fields. */
     extern s32 MT_Scene_CreatePointRes14(u16 resourceId, f32 *position, f32 radius);
     extern s32 MT_Scene_CreatePointRes15(u16 resourceId, f32 *position, f32 radius);
     extern s32 MT_Scene_CreatePointRes16(u16 resourceId, f32 *position, f32 radius);
@@ -171,70 +177,70 @@ void FldHbnSpawnLights(u8 *header, s32 mode)
     u32 extraIndex;
 
     if (header != NULL) {
-        if (*(u32 *)(header + 4) == 0x10000) {
+        if (((FldHbnHeader *)(header))->version == 0x10000) {
             lightCursor = header + 0x28;
-        } else if (*(u32 *)(header + 4) == 0x10001) {
+        } else if (((FldHbnHeader *)(header))->version == 0x10001) {
             lightCursor = header + 0x30;
-        } else if (*(u32 *)(header + 4) == 0x10002) {
+        } else if (((FldHbnHeader *)(header))->version == 0x10002) {
             lightCursor = header + 0x38;
         } else {
             lightCursor = header + 0x48;
         }
-        for (lightIndex = 0; lightIndex < *(u32 *)(header + 8);) {
+        for (lightIndex = 0; lightIndex < ((FldHbnHeader *)(header))->lightCount;) {
             if ((((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (mode == 1)) && ((mode != 1) || (((*(u16 *)lightCursor & 0x3FF) != 0x3FE) && ((*(u16 *)lightCursor & 0x3FF) != 0x3FF)))) {
-                MT_Scene_CreateFldHitLight(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 8), *(f32 *)(lightCursor + 0x14), *(f32 *)(lightCursor + 0x18), *(f32 *)(lightCursor + 0x1C), *(FieldRgba8 *)(lightCursor + 4));
+                MT_Scene_CreateFldHitLight(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 8), ((FldHbnLight *)(lightCursor))->first, ((FldHbnLight *)(lightCursor))->second, ((FldHbnLight *)(lightCursor))->third, ((FldHbnLight *)(lightCursor))->color);
             }
             lightIndex++;
             lightCursor += 0x20;
         }
         pointCursor = lightCursor;
-        for (pointIndex = 0; pointIndex < *(u32 *)(header + 0x10);) {
+        for (pointIndex = 0; pointIndex < ((FldHbnHeader *)(header))->pointCount;) {
             if ((((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (mode == 1)) && ((mode != 1) || ((*(u16 *)pointCursor & 0x3FF) != 0x3FF))) {
-                MT_Scene_CreatePointRes14(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), *(f32 *)(pointCursor + 0x10));
+                MT_Scene_CreatePointRes14(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), ((FldHbnPoint *)(pointCursor))->value);
             }
             pointIndex++;
             pointCursor += 0x14;
         }
         if (((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (((FldMap_IsCurrentInBandB() == 1) && (mode == 1)))) {
-            for (pointIndex = 0; pointIndex < *(u32 *)(header + 0x18);) {
-                MT_Scene_CreatePointRes15(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), *(f32 *)(pointCursor + 0x10));
+            for (pointIndex = 0; pointIndex < ((FldHbnHeader *)(header))->pointAltCount;) {
+                MT_Scene_CreatePointRes15(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), ((FldHbnPoint *)(pointCursor))->value);
                 pointIndex++;
                 pointCursor += 0x14;
             }
         }
         if (((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (mode == 1)) {
-            for (extraIndex = 0; extraIndex < *(u32 *)(header + 0x20);) {
-                MT_Scene_CreatePointRes16(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), *(f32 *)(pointCursor + 0x10));
+            for (extraIndex = 0; extraIndex < ((FldHbnHeader *)(header))->pointExtraCount;) {
+                MT_Scene_CreatePointRes16(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), ((FldHbnPoint *)(pointCursor))->value);
                 extraIndex++;
                 pointCursor += 0x14;
             }
-            if (*(u32 *)(header + 4) > 0x10000U) {
-                for (extraIndex = 0; extraIndex < *(u32 *)(header + 0x28);) {
-                    MT_Scene_CreatePointRes17(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), *(f32 *)(pointCursor + 0x10));
+            if (MEMBER(u32, header, FldHbnHeader, version) > 0x10000U) {
+                for (extraIndex = 0; extraIndex < ((FldHbnHeader *)(header))->pointExtendedCount;) {
+                    MT_Scene_CreatePointRes17(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), ((FldHbnPoint *)(pointCursor))->value);
                     extraIndex++;
                     pointCursor += 0x14;
                 }
             }
-            if (*(u32 *)(header + 4) > 0x10001U) {
+            if (MEMBER(u32, header, FldHbnHeader, version) > 0x10001U) {
                 lightCursor = pointCursor;
-                for (lightIndex = 0; lightIndex < *(u32 *)(header + 0x30);) {
-                    MT_Scene_CreateRes21Light(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 8), *(f32 *)(lightCursor + 0x14), *(f32 *)(lightCursor + 0x18), *(f32 *)(lightCursor + 0x1C), *(FieldRgba8 *)(lightCursor + 4));
+                for (lightIndex = 0; lightIndex < ((FldHbnHeader *)(header))->lightExtendedCount;) {
+                    MT_Scene_CreateRes21Light(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 8), ((FldHbnLight *)(lightCursor))->first, ((FldHbnLight *)(lightCursor))->second, ((FldHbnLight *)(lightCursor))->third, ((FldHbnLight *)(lightCursor))->color);
                     {
                         u8 *resource = MT_Scene_GetRes(((*(u16 *)lightCursor & 0x3FF) | 0x5400) & 0xFFFF);
-                        *(s32 *)(resource + 0x18C) = *(u16 *)(lightCursor + 2);
+                        ((FldHbnExtendedLightResource *)(resource))->parameter = ((FldHbnLight *)(lightCursor))->parameter;
                     }
                     lightIndex++;
                     lightCursor += 0x20;
                 }
             }
-            if (*(u32 *)(header + 4) > 0x10002U) {
-                for (lightIndex = 0; lightIndex < *(u32 *)(header + 0x38);) {
-                    MT_Scene_CreatePointRes18(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 4), *(f32 *)(lightCursor + 0x10));
+            if (MEMBER(u32, header, FldHbnHeader, version) > 0x10002U) {
+                for (lightIndex = 0; lightIndex < ((FldHbnHeader *)(header))->pointLateCount;) {
+                    MT_Scene_CreatePointRes18(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 4), ((FldHbnPoint *)(lightCursor))->value);
                     lightIndex++;
                     lightCursor += 0x14;
                 }
-                for (lightIndex = 0; lightIndex < *(u32 *)(header + 0x40);) {
-                    MT_Scene_CreatePointRes19(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 4), *(f32 *)(lightCursor + 0x10));
+                for (lightIndex = 0; lightIndex < ((FldHbnHeader *)(header))->pointFinalCount;) {
+                    MT_Scene_CreatePointRes19(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 4), ((FldHbnPoint *)(lightCursor))->value);
                     lightIndex++;
                     lightCursor += 0x14;
                 }
@@ -244,6 +250,7 @@ void FldHbnSpawnLights(u8 *header, s32 mode)
 }
 
 #pragma pop
+/* Open the field/room event table; packed loading returns sentinel handle one instead of a request. */
 // FUN_0015FF20
 u8 *FldHbnOpenTable(s32 fieldId, s32 roomId)
 {
@@ -350,7 +357,7 @@ u8 *FldHbnOpenScript(s32 fieldId)
 // FUN_001602A0
 s32 FldHbnLoadScriptBuffer(u8 *request, s32 fieldId)
 {
-    /* Raw accesses retained: the proven request/record layouts above changed whole-file codegen when substituted. */
+    /* Byte-base fallbacks preserve the request/record aliasing measured against typed fields. */
     u32 dataSize;
     char path[0x40];
     u8 *copy;
@@ -365,10 +372,10 @@ s32 FldHbnLoadScriptBuffer(u8 *request, s32 fieldId)
         if (H_Cdvd_IsFileLoaded(request) != 0)
         {
             chkmemAllocSiteTag(D_005F1108, 0x2F9);
-            copy = D_008873F4[0](1, (s32)(*(u32 *)(request + 0x118)), 0x40000);
+            copy = D_008873F4[0](1, (s32)(((FldHbnRequest *)(request))->size), 0x40000);
             ((FldFrame *)MT_Scene_GetFrameState())->auxBuffer = copy;
-            ((FldFrame *)MT_Scene_GetFrameState())->auxSize = *(u32 *)(request + 0x118);
-            memcpy(((FldFrame *)MT_Scene_GetFrameState())->auxBuffer, *(void **)(request + 0x110), *(u32 *)(request + 0x118));
+            ((FldFrame *)MT_Scene_GetFrameState())->auxSize = MEMBER(u32, request, FldHbnRequest, size);
+            memcpy(((FldFrame *)MT_Scene_GetFrameState())->auxBuffer, ((FldHbnRequest *)(request))->data, MEMBER(u32, request, FldHbnRequest, size));
             H_Cdvd_Destroy(request);
             return 1;
         }

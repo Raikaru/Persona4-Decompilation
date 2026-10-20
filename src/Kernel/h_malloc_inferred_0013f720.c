@@ -1,3 +1,5 @@
+#include "byte_address_internal.h"
+#include "member_access.h"
 #include "btl_target_state_packet_internal.h"
 #include "datPersona_internal.h"
 #include "list_item_internal.h"
@@ -13,12 +15,6 @@ extern u32 datCalcGetSpById(s16 unitId);
 extern s32 cmpSkillApplySelected(s16 casterId, s16 targetId, s32 skillIndex, u8 *menu);
 struct GDataEntry;
 extern s32 datCalcSkillEffectFlagsById(s16 sourceId, s16 targetId, u32 skillId, u32 flags);
-static inline u8 *code13AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
-static inline f32 code13Add(f32 left, f32 right) {
-    return left + right;
-}
 extern void radarDrawFrame(u8 *work);
 extern void radarResetEntries(u8 *work);
 extern void radarAnimateValue(void *work, s32 frame, s32 mode);
@@ -138,7 +134,7 @@ s32 cmpSkillApplySelected(s16 casterId, s16 targetId, s32 skillIndex, u8 *menu) 
 
     result = 1;
     previousPersona = -1;
-    skillEntry = code13AddOff(skillIndex * 0xC, menu);
+    skillEntry = byteAddressAdd((u32)(skillIndex * 0xC), menu);
     skillIdField = skillEntry + 0x102;
     skillId = ((CmpSkillEntry *)(skillEntry + 0x100))->skillId;
     personaIdField = skillEntry + 0x100;
@@ -161,7 +157,7 @@ s32 cmpSkillApplySelected(s16 casterId, s16 targetId, s32 skillIndex, u8 *menu) 
         while (targetIndex < ((CmpSkillMenu *)menu)->targetCount) {
             targetEntry = menu + targetIndex * 2;
             targetIdField = targetEntry + 0xF4;
-            if (datCalcSkillEffectFlagsById(casterId, *(s16 *)(targetEntry + 0xF4), skillId, 0) == 0) {
+            if (datCalcSkillEffectFlagsById(casterId, ((CmpSkillMenu *)targetEntry)->targetIds[0], skillId, 0) == 0) {
                 datCalcApplySkillEffectById(casterId, *(s16 *)targetIdField, skillId, 0);
                 appliedCount += 1;
             }
@@ -272,7 +268,7 @@ void radarInitState(u8 *work) {
 
     i = 0;
     while (i <= 0) {
-        *(s16 *)(work + i * 2 + 0x34) = 0;
+        ((CampMenu *)work)->selection[i] = 0;
         i++;
     }
 
@@ -296,9 +292,9 @@ void radarInitState(u8 *work) {
     while (n < 0x6C) {
         slot = (s32 *)(work + n * 0x14 + 0xFA4);
         *slot = n % 9;
-        *(s32 *)((u8 *)slot + 8) = 9;
-        *(s32 *)((u8 *)slot + 4) = n / 9;
-        *(s32 *)((u8 *)slot + 0xC) = 0xC;
+        ((CampMenu *)work)->grid[n].columns = 9;
+        ((CampMenu *)work)->grid[n].row = n / 9;
+        ((CampMenu *)work)->grid[n].rows = 0xC;
         n++;
     }
 
@@ -325,13 +321,13 @@ void radarInitState(u8 *work) {
         while (k < 0x19) {
             if (k < 3) {
                 slot = (s32 *)(work + k * 4 + 0x1810);
-                *slot = (s32)sdkSpriteNewNode((u32)resource0, *(u8 *)(D_005EDA00 + k));
+                *slot = (s32)sdkSpriteNewNode((u32)resource0, D_005EDA00[k]);
             } else if (k < 0x18) {
                 slot = (s32 *)(work + k * 4 + 0x1810);
-                *slot = (s32)sdkSpriteNewNode((u32)resource1, *(u8 *)(D_005EDA00 + k));
+                *slot = (s32)sdkSpriteNewNode((u32)resource1, D_005EDA00[k]);
             } else {
                 slot = (s32 *)(work + k * 4 + 0x1810);
-                *slot = (s32)sdkSpriteNewNode((u32)resource2, *(u8 *)(D_005EDA00 + k));
+                *slot = (s32)sdkSpriteNewNode((u32)resource2, D_005EDA00[k]);
             }
             if (*slot == 0) {
                 kAssertFail(D_005EF6C8, 0x1FD);
@@ -346,15 +342,13 @@ void radarInitState(u8 *work) {
 #pragma pop
 // Intent: advances the radar stage from 0 to 1; returns 1 once the stage is 1 or after advancing, 0 otherwise.
 // FUN_0013FF80
-/* CampMenu.stage is proven; typed access changes b210 codegen (45 differing
- * bytes), so retain the byte-base form used by the matched owner. */
 s32 radarAdvanceStage(u8 *work) {
-    s32 v = *(s32 *)(work + 0x14);
+    s32 v = MEMBER(s32, work, CampMenu, stage);
 
     switch (v) {
     case 0:
         v += 1;
-        *(s32 *)(work + 0x14) = v;
+        ((CampMenu *)work)->stage = v;
         return 1;
     case 1:
         return 1;
@@ -365,8 +359,6 @@ s32 radarAdvanceStage(u8 *work) {
 
 // Intent: animates the radar entries toward the current counter, resets and draws the frame; returns 0 while any entry is still busy.
 // FUN_0013FFD0
-/* CampMenu.frame is proven; typed access changes b210 register allocation
- * (204 differing bytes). Animation records begin at 0x40 with stride 0x30. */
 s32 radarUpdateFrame(u8 *work) {
     s16 frame;
     s32 i;
@@ -374,21 +366,21 @@ s32 radarUpdateFrame(u8 *work) {
     u8 *p;
 
     result = 1;
-    frame = *(s16 *)(work + 0x20);
+    frame = MEMBER(s16, work, CampMenu, frame);
     if (frame < 0x64) {
-        *(s16 *)(work + 0x20) = frame + 1;
+        ((CampMenu *)work)->frame = frame + 1;
     }
     i = 0;
     goto loop_test;
 loop_body:
     if ((i >= 0x1C) || ((i >= 9) && (i < 0x10))) {
         p = work + i * 0x30;
-        radarAnimateValue(p + 0x40, *(s16 *)(work + 0x20), 1);
+        radarAnimateValue(p + 0x40, ((CampMenu *)work)->frame, 1);
     } else {
         p = work + i * 0x30;
-        radarAnimateValue(p + 0x40, *(s16 *)(work + 0x20), 0);
+        radarAnimateValue(p + 0x40, ((CampMenu *)work)->frame, 0);
     }
-    if (*(u8 *)(p + 0x5A) != 0) {
+    if (((CampMenu *)p)->entries[0].currentAlpha != 0) {
         result = 0;
     }
     i++;

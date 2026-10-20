@@ -12,7 +12,7 @@
    The codefunc return codes (CODEFUNC_*) and the scrRunCodeLoop return codes
    (SCRTRACE_*) are defined in scrTraceCode.c; they are not the same values. */
 
-typedef struct ScrData ScrData;
+typedef struct ScrScriptWork ScrScriptWork;
 
 s32 scrGetParamInt(s32 paramIdx);
 f32 scrGetParamFloat(s32 paramIdx);
@@ -26,6 +26,6 @@ s32 scrGetMessageManager(void);
 
 /* Interpreter loop: runs codefuncs until one returns CODEFUNC_STOP (result
    SCRTRACE_STOP) or CODEFUNC_YIELD (result SCRTRACE_YIELD). */
-u32 scrRunCodeLoop(ScrData *scr);
+u32 scrRunCodeLoop(ScrScriptWork *scr);
 
 #endif

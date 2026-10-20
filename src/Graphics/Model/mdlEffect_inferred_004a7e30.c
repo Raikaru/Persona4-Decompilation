@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "rw_camera_internal.h"
 #include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
@@ -18,10 +19,6 @@ typedef struct {
     u8 c2;
     u8 c3;
 } PolygonWindColor;
-static inline u32 p4_add_u32(u32 left, u32 right)
-{
-    return left + right;
-}
 extern PolygonWindColor iGpffffbb64;
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
@@ -139,7 +136,7 @@ s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices)
     u8 *vertex;
 
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    if (*(f32 *)(parameters + 0x18) > 640.0f ||
+    if (MEMBER(f32, parameters, MdlEffectBillboardParameters, left) > 640.0f ||
         ((MdlEffectBillboardParameters *)parameters)->top > 448.0f ||
         ((MdlEffectBillboardParameters *)parameters)->right < 0.0f ||
         ((MdlEffectBillboardParameters *)parameters)->bottom < 0.0f) {
@@ -170,14 +167,14 @@ loop_004a7e30_check:
     centerV = ((MdlEffectBillboardParameters *)parameters)->centerY / D_00922D98[0];
     reciprocalDepth = ((MdlEffectBillboardParameters *)parameters)->scale;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    screenDepth = *(f32 *)(parameters + 0x18);
+    screenDepth = MEMBER(f32, parameters, MdlEffectBillboardParameters, left);
     coordinate = screenDepth / D_00922D94[0];
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    firstComponent = *(f32 *)(parameters + 0x1C) / D_00922D98[0];
+    firstComponent = MEMBER(f32, parameters, MdlEffectBillboardParameters, top) / D_00922D98[0];
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    secondComponent = *(f32 *)(parameters + 0x20) / D_00922D94[0];
+    secondComponent = MEMBER(f32, parameters, MdlEffectBillboardParameters, right) / D_00922D94[0];
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    component = *(f32 *)(parameters + 0x24) / D_00922D98[0];
+    component = MEMBER(f32, parameters, MdlEffectBillboardParameters, bottom) / D_00922D98[0];
     value = coordinate - centerU;
     leftU = reciprocalDepth * value;
     value = firstComponent - centerV;
@@ -205,7 +202,7 @@ loop_004a7e30_check:
     ((MdlEffectScreenVertex *)vertices)[3].x = ((MdlEffectBillboardParameters *)parameters)->right;
     ((MdlEffectScreenVertex *)vertices)[3].y = ((MdlEffectBillboardParameters *)parameters)->top;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    if (*(f32 *)(parameters + 8) == 0.0f) {
+    if (MEMBER(f32, parameters, MdlEffectBillboardParameters, angle) == 0.0f) {
         firstComponent = leftU + centerU;
         secondComponent = rightU + centerU;
         component = topV + centerV;
@@ -220,7 +217,7 @@ loop_004a7e30_check:
         ((MdlEffectScreenVertex *)vertices)[3].v.value = component;
     } else {
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        cosine = cosf(*(f32 *)(parameters + 8));
+        cosine = cosf(MEMBER(f32, parameters, MdlEffectBillboardParameters, angle));
         sine = sinf(((MdlEffectBillboardParameters *)parameters)->angle);
         reciprocalDepth = topV * sine;
         firstComponent = leftU * cosine;

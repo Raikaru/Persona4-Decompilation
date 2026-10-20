@@ -4,6 +4,7 @@
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "mdl_effect_drawable_internal.h"
 #include "effect_instance_internal.h"
 #include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
@@ -14,28 +15,27 @@ extern void mdlEffectReleaseTrackInstance(s32 instance);
 extern void TlpRelease(s32 work);
 extern s32 TlpAddRef(s32 work);
 /* Replace the screen sprite track resource, or reference the source TLP when no track is present. */
-/* measured: individual source/destination track and TLP typing changes resource-transfer scheduling (normalized_diff 102..106); retain their byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_004B1A00
-/* Replace the screen sprite's track resource, or share its TLP when no track is present. */
 void mdlEffectScreenSpriteCopyResource(u8 *destination, u8 *source) {
+    MdlEffectScreenSprite *destinationFields = (MdlEffectScreenSprite *)(destination);
+    MdlEffectScreenSprite *sourceFields = (MdlEffectScreenSprite *)(source);
     s32 previousTracks;
     s32 previousTlp;
 
-    /* measured: typed resource fields change reload scheduling (nd 72 whole-layout,
-     * nd 61 destination-only); retain byte-base aliasing for this resource transfer. */
-    if (*(s32 *)(source + 0xAC) != 0) {
-        previousTracks = *(s32 *)(destination + 0xAC);
+    if (((MdlEffectScreenSprite *)(source))->tracks != 0) {
+        previousTracks = ((MdlEffectScreenSprite *)(destination))->tracks;
         if (previousTracks != 0) {
             mdlEffectReleaseTrackInstance(previousTracks);
         }
-        *(s32 *)(destination + 0xAC) = mdlEffectShareTrackInstance(*(s32 *)(source + 0xAC));
+        destinationFields->tracks = mdlEffectShareTrackInstance(sourceFields->tracks);
         return;
     }
-    if (*(s32 *)(source + 0xA8) != 0) {
-        previousTlp = *(s32 *)(destination + 0xA8);
+    if (((MdlEffectScreenSprite *)(source))->tlp != 0) {
+        previousTlp = ((MdlEffectScreenSprite *)(destination))->tlp;
         if (previousTlp != 0) {
             TlpRelease(previousTlp);
         }
-        *(s32 *)(destination + 0xA8) = TlpAddRef(*(s32 *)(source + 0xA8));
+        destinationFields->tlp = TlpAddRef(sourceFields->tlp);
     }
 }

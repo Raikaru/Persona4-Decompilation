@@ -7,16 +7,9 @@
 #include "type.h"
 #include "fcl_assist_internal.h"
 #include "kwln_task_internal.h"
+#include "kwln_view_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
-static inline s32 p4_pack_or(s32 left, s32 right)
-{
-    return left | right;
-}
-static inline f32 p4_mul_left(f32 left, f32 right)
-{
-    return right * left;
-}
 
 /* Shop task work: a byte state followed by the draw-task handle. */
 typedef struct FclShopMainWork {
@@ -193,7 +186,7 @@ s32 fclShopMainUpdate(u8 *task)
             camera = kwlnGetCamera();
             K_View_SetFov(camera, MT_Scene_GetCameraFov());
             sceneCamera = kwlnGetCamera();
-            func_003e9cb0(*(s32 *)(sceneCamera + 4), (void *)MT_Scene_GetCameraResFirst(), 0);
+            func_003e9cb0(((KwlnView *)sceneCamera)->camera, (void *)MT_Scene_GetCameraResFirst(), 0);
             work->state = 3;
         }
         goto block_26;

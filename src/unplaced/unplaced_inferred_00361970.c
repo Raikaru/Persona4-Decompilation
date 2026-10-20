@@ -1,7 +1,9 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00361970-00362f00 */
 
 #include "include_asm.h"
+#include "member_access.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "message_frame_internal.h"
 #include "primitive_point_buffer.h"
 #include "fr_font_internal.h"
@@ -35,11 +37,6 @@ extern f32 iGpffff84a4;
 extern void kAssertFail(const void *file, s32 line);
 extern char D_0064E280[];
 extern f32 cosf(f32 object);
-static inline f32 addRowMotionOffset(f32 left, f32 right)
-{
-    return left + right;
-}
-
 extern void cmpSystemFocusFlaggedRow(u8 *work);
 extern void cmpSystemMenuInit(u8 *work);
 extern s32 datCommunityPanelOpenStepAlt(u8 *work);
@@ -122,12 +119,12 @@ void cmpSystemMenuRelease(u8 *work)
     configTask = ((RadarMenuWork *)work)->configTask.handle;
     if (configTask != 0) {
         kwlnTaskDestroyWithHierarchy(configTask);
-        *(s32 *)(work + 0x704) = 0;
+        MEMBER(s32, work, RadarMenuWork, configTask.handle) = 0;
     }
     messageSlot = ((RadarMenuWork *)work)->messageSlot;
     if (messageSlot != -1) {
         nmMesWindowDestroySlot(messageSlot);
-        *(s8 *)(work + 0x3C) = -1;
+        MEMBER(s8, work, RadarMenuWork, messageSlot) = -1;
     }
     ((RadarMenuWork *)work)->drawFlags = 0;
 }
@@ -148,12 +145,12 @@ void radarStepBarWave(u8 *work)
 
     /* measured: typing the repeated counter reads/stores changes 336 normalized bytes;
      * retain the retail halfword reloads, with only their initial loads typed. */
-    *(s16 *)(work + 0x22) = ((RadarMenuWork *)work)->topWaveFrame + 1;
-    if (*(s16 *)(work + 0x22) >= 0x19) *(s16 *)(work + 0x22) = 0;
-    *(s16 *)(work + 0x24) = ((RadarMenuWork *)work)->bottomWaveFrame + 1;
-    if (*(s16 *)(work + 0x24) >= 0x1E) *(s16 *)(work + 0x24) = 0;
-    topWave = (s32)((11.0f * (f32)*(s16 *)(work + 0x22)) / 25.0f);
-    bottomWave = (s32)(11.0f * (1.0f - ((f32)*(s16 *)(work + 0x24) / 30.0f)));
+    ((RadarMenuWork *)(work))->topWaveFrame = ((RadarMenuWork *)work)->topWaveFrame + 1;
+    if (((RadarMenuWork *)(work))->topWaveFrame >= 0x19) MEMBER(s16, work, RadarMenuWork, topWaveFrame) = 0;
+    ((RadarMenuWork *)(work))->bottomWaveFrame = ((RadarMenuWork *)work)->bottomWaveFrame + 1;
+    if (((RadarMenuWork *)(work))->bottomWaveFrame >= 0x1E) MEMBER(s16, work, RadarMenuWork, bottomWaveFrame) = 0;
+    topWave = (s32)((11.0f * (f32)MEMBER(s16, work, RadarMenuWork, topWaveFrame)) / 25.0f);
+    bottomWave = (s32)(11.0f * (1.0f - ((f32)MEMBER(s16, work, RadarMenuWork, bottomWaveFrame) / 30.0f)));
     column = 0;
     while (column < 0xB) {
         if (column < topWave) topDistance = topWave - column; else topDistance = column - topWave;
@@ -180,11 +177,11 @@ void radarStepValueAnimation(u8 *work) {
 
     /* measured: typing the repeated slideElapsed accesses grows 128 to 140 bytes. */
     if (elapsed < 100) {
-        *(s16 *)(work + 0x26) = elapsed + 1;
+        MEMBER(s16, work, RadarMenuWork, slideElapsed) = elapsed + 1;
     }
     for (animationIndex = 0; animationIndex <= 0; animationIndex++) {
         record = work + animationIndex * 0x30;
-        count = *(s16 *)(work + 0x26);
+        count = MEMBER(s16, work, RadarMenuWork, slideElapsed);
         radarAnimateValue(record + 0x5B8, count, 0);
     }
   }
@@ -235,10 +232,9 @@ void radarDrawColumn(s32 rowIndex, u8 *work)
     f32 nameY;
     u8 finalAlpha;
 
-    /* measured: direct panels[8 + rowIndex] adds an index adjustment; even a typed
-     * subarray base changes cursor-address scheduling. Keep the three interior
-     * field cursors in their original shape. Typed marker alpha changes four
-     * instruction bytes, so its indexed byte load below also stays raw. */
+    /* Earlier panel-index and subarray probes changed cursor-address scheduling.
+     * Keep the three interior field cursors in their original shape; the marker
+     * alpha now uses the matching full-work panels[20 + rowIndex] access. */
     baseX = ((RadarMenuWork *)work)->x.f;
     baseY = ((RadarMenuWork *)work)->y.f;
     scale = (f32)((RadarMenuWork *)work)->alpha / 255.0f;
@@ -319,7 +315,7 @@ void radarDrawColumn(s32 rowIndex, u8 *work)
         MenuPaletteColor *pal;
         f32 markerX = 15.0f + (baseX + ((MenuSlotAnimation *)(work + 0x408))[rowIndex].currentX.f);
         f32 markerY = -13.0f + (rowOffsetY + (117.0f + (baseY + ((MenuSlotAnimation *)(work + 0x408))[rowIndex].currentY.f)));
-        u8 markerAlpha = (u8)((f32)*(u8 *)(work + 0x422 + rowIndex * 0x30) * scale);
+        u8 markerAlpha = (u8)((f32)((RadarMenuWork *)work)->panels[20 + rowIndex].currentAlpha * scale);
         pal = (MenuPaletteColor *)D_0064B2EC;
         sdkSpriteDrawAt(((RadarMenuWork *)work)->sprites[19].object, markerX, markerY, 0x8C, 0x85, 0xFF, markerAlpha);
         drawNode = ((RadarMenuWork *)work)->sprites[20].object;
@@ -329,7 +325,7 @@ void radarDrawColumn(s32 rowIndex, u8 *work)
     } else if (dimFlag != 0) {
         x = 62.0f + (baseX + ((MenuSlotAnimation *)(work + 0x408))[rowIndex].currentX.f);
         y = -13.0f + (rowOffsetY + (117.0f + (baseY + ((MenuSlotAnimation *)(work + 0x408))[rowIndex].currentY.f)));
-        alpha = (u8)((f32)*(u8 *)(work + 0x422 + rowIndex * 0x30) * scale);
+        alpha = (u8)((f32)((RadarMenuWork *)work)->panels[20 + rowIndex].currentAlpha * scale);
         sdkSpriteDrawAt(((RadarMenuWork *)work)->sprites[40].object, x, y, 0xFF, 0xFF, 0xFF, alpha);
     }
     sprintf((char *)digits, (const char *)&iGpffffa980, itemIndex + 1);
@@ -411,7 +407,7 @@ s32 cmpSystemMenuUpdate(u32 *phase, s32 *active, u8 *work)
 
     /* measured: typed messageSlot/configTask/topRow retain addresses across calls;
      * together with the fade reload they change the body from 1872 to 1884 bytes.
-     * Keep those repeated accesses raw; all other recovered work/query fields are typed. */
+     * MEMBER keeps the measured repeated accesses byte-addressed; other work/query fields remain typed. */
     /* measured: replacing the shared finish jumps with early returns grows 1872 to 1940 bytes. */
     *active = 1;
     switch (*phase) {
@@ -463,10 +459,10 @@ s32 cmpSystemMenuUpdate(u32 *phase, s32 *active, u8 *work)
                 nLineSelectSet(0x1E);
                 break;
             case 2:
-                nmMesWindowShowSlotRecord(*(s8 *)(work + 0x3C), 4);
-                nmMesWindowSetSlotParam(*(s8 *)(work + 0x3C), 0);
+                nmMesWindowShowSlotRecord(((RadarMenuWork *)(work))->messageSlot, 4);
+                nmMesWindowSetSlotParam(MEMBER(s8, work, RadarMenuWork, messageSlot), 0);
                 nmMesWindowRequestRefresh();
-                nmMesWindowSetSlotFlag(*(s8 *)(work + 0x3C), 1);
+                nmMesWindowSetSlotFlag(MEMBER(s8, work, RadarMenuWork, messageSlot), 1);
                 *phase = 0xA;
                 break;
             }
@@ -511,14 +507,14 @@ s32 cmpSystemMenuUpdate(u32 *phase, s32 *active, u8 *work)
             *phase = 0xC;
         } else {
             sdkListStateConfigure(query, 6, ((RadarMenuWork *)work)->rowCount,
-                          ((RadarMenuWork *)work)->selectedRow, *(s16 *)(work + 0x2C));
+                          ((RadarMenuWork *)work)->selectedRow, ((RadarMenuWork *)(work))->topRow);
             sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0x2000, 0x8000);
             if ((inputResult = sdkListStateHandleInput(query)) > 0) {
                 selection = ((SdkListState *)query)->cursor;
                 cmpSystemSetSelection(work, 1, selection);
                 selection = ((SdkListState *)query)->scroll;
                 cmpSystemSetSelection(work, 2, selection);
-                if (*(s16 *)(work + 0x2C) != ((RadarMenuWork *)work)->previousTopRow) {
+                if (MEMBER(s16, work, RadarMenuWork, topRow) != ((RadarMenuWork *)work)->previousTopRow) {
                     radarResetSlideDirection(work);
                 }
                 datCommunityCursorFeedback(inputResult);
@@ -527,24 +523,24 @@ s32 cmpSystemMenuUpdate(u32 *phase, s32 *active, u8 *work)
         goto finish;
     case 8:
         if (nLineIsIdle() != 0) {
-            *(s32 *)(work + 0x704) = cmpConfigCreate(0, 0);
+            ((RadarMenuWork *)(work))->configTask.handle = cmpConfigCreate(0, 0);
             *phase = 9;
         }
         goto finish;
     case 9:
-        if (cmpConfigIsStepDone(*(u8 **)(work + 0x704)) != 0) {
-            if (cmpConfigIsStepCancelled(*(u8 **)(work + 0x704)) != 0) {
+        if (cmpConfigIsStepDone(((RadarMenuWork *)(work))->configTask.node) != 0) {
+            if (cmpConfigIsStepCancelled(MEMBER(u8 *, work, RadarMenuWork, configTask.node)) != 0) {
                 return 2;
             }
-            kwlnTaskDestroyWithHierarchy(*(s32 *)(work + 0x704));
-            *(s32 *)(work + 0x704) = 0;
+            kwlnTaskDestroyWithHierarchy(MEMBER(s32, work, RadarMenuWork, configTask.handle));
+            MEMBER(s32, work, RadarMenuWork, configTask.handle) = 0;
             *phase = 1;
         }
         goto finish;
     case 10:
-        nmMesWindowStepSlot(*(s8 *)(work + 0x3C), resultFlag);
-        if (nmMesWindowSlotStatus(*(s8 *)(work + 0x3C)) == 0) {
-            switch (nmMesWindowSlotResult(*(s8 *)(work + 0x3C))) {
+        nmMesWindowStepSlot(((RadarMenuWork *)(work))->messageSlot, resultFlag);
+        if (nmMesWindowSlotStatus(MEMBER(s8, work, RadarMenuWork, messageSlot)) == 0) {
+            switch (nmMesWindowSlotResult(MEMBER(s8, work, RadarMenuWork, messageSlot))) {
             case 0:
                 fadeBeginTransition(1, 0x1E);
                 sdkSndStopChannel(0x1E);
@@ -555,7 +551,7 @@ s32 cmpSystemMenuUpdate(u32 *phase, s32 *active, u8 *work)
                 *phase = 4;
                 break;
             }
-            nmMesWindowCloseSlot((s8)*(s8 *)(work + 0x3C), 1);
+            nmMesWindowCloseSlot((s8)MEMBER(s8, work, RadarMenuWork, messageSlot), 1);
         }
         goto finish;
     case 11:
@@ -567,7 +563,7 @@ s32 cmpSystemMenuUpdate(u32 *phase, s32 *active, u8 *work)
         if ((++((RadarMenuWork *)work)->fadeFrame & 0xFFFF) >= 3) {
             resultFlag = 1;
         } else {
-            alpha = (1.0f - ((f32)*(u16 *)(work + 0xC) / 3.0f)) * 255.0f;
+            alpha = (1.0f - ((f32)MEMBER(u16, work, RadarMenuWork, fadeFrame) / 3.0f)) * 255.0f;
             inputResult = (u8)alpha;
             ((RadarMenuWork *)work)->alpha = inputResult;
             resultFlag = 0;
@@ -599,9 +595,9 @@ s32 cmpPartyPanelStepRowMotion(u8 *motion)
      * across the increment and output store (216 versus 208 bytes); preserve those reloads. */
     frame = ((CmpPartyRowMotion *)motion)->frame;
     if (frame < ((CmpPartyRowMotion *)motion)->duration) {
-        *(s16 *)(motion + 0x18) = frame + 1;
-        step = *(s16 *)(motion + 0x18);
-        ease = 1.0f - cosf(iGpffff84a4 * ((f32)step / (f32)*(s16 *)(motion + 0x1A)));
+        MEMBER(s16, motion, CmpPartyRowMotion, frame) = frame + 1;
+        step = MEMBER(s16, motion, CmpPartyRowMotion, frame);
+        ease = 1.0f - cosf(iGpffff84a4 * ((f32)step / (f32)MEMBER(s16, motion, CmpPartyRowMotion, duration)));
         startX = ((CmpPartyRowMotion *)motion)->startX;
         x = ((CmpPartyRowMotion *)motion)->endX;
         x = x - startX;
@@ -612,8 +608,8 @@ s32 cmpPartyPanelStepRowMotion(u8 *motion)
         y = y * ease;
         x = x + startX;
         ((CmpPartyRowMotion *)motion)->x = x;
-        startY = *(f32 *)(motion + 4);
-        startY = addRowMotionOffset(y, startY);
+        startY = ((CmpPartyRowMotion *)(motion))->startY;
+        startY = operandOrderAddFloat(y, startY);
         ((CmpPartyRowMotion *)motion)->y = startY;
         return 0;
     }

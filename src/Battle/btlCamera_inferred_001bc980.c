@@ -9,6 +9,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_camera_sequence_internal.h"
+#include "rw_frame_internal.h"
 
 #include "rw_types_internal.h"
 #include "btl_skill_internal.h"
@@ -52,14 +53,6 @@ extern u32 iGpffffa0b8;
 extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 clearUnitFlags);
@@ -95,8 +88,6 @@ extern f32 fGpffff8108;
 void mdlEffectSetSequenceRequest(s32 sequence, s16 sequenceId, s32 firstValue, s32 secondValue);
 
 
-
-
 #pragma push
 #pragma pop
 
@@ -104,10 +95,12 @@ void mdlEffectSetSequenceRequest(s32 sequence, s16 sequenceId, s32 firstValue, s
 
 extern s32 btlActionGetQueueSecond(void);
 extern void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend);
-/* Index the action target list; the shared action type still exposes this region as bytes. */
-static inline u8 *cameraVisibilityTarget(u8 *action, u16 index)
+/* Index the twelve-entry action target list using its proven pointer stride. */
+/* Read an action target for camera visibility geometry. */
+/* measured: keeps target-index load scheduling and the complete geometry instruction sequence; btlCameraSetupActionGeometry plain expansion differs 448 byte(s). */
+static inline u8 *btlCameraGetVisibilityTarget(u8 *action, u16 index)
 {
-    return *(u8 **)(action + index * 4 + 0x38);
+    return ((BtlAction *)action)->targets[index];
 }
 struct RwV3d;
 /* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
@@ -128,8 +121,8 @@ struct RwV3d;
 #pragma pop
 #pragma push
 #pragma pop
-// FUN_001BC980
 /* Build four curve keyframes between supplied poses, or begin from the current pose. */
+// FUN_001BC980
 s32 btlCameraPlayPoseSequence(u8 *work)
 {
     struct C980Frame {
@@ -180,8 +173,8 @@ s32 btlCameraPlayPoseSequence(u8 *work)
     return 1;
 }
 
-// FUN_001BCB50
 /* Allocate the 0x44-byte two-pose packet; missing first inputs select the current pose. */
+// FUN_001BCB50
 u8 *btlCameraCreatePoseSequencePacket(s32 action, u8 *firstPosition, u8 *firstFocus, f32 firstValue,
                   u8 *secondPosition, u8 *secondFocus, f32 secondValue, f32 duration)
 {
@@ -211,16 +204,16 @@ u8 *btlCameraCreatePoseSequencePacket(s32 action, u8 *firstPosition, u8 *firstFo
     return packet;
 }
 
-// FUN_001BCC80
 /* Forward the four initialized command-work values to the external camera command handler. */
+// FUN_001BCC80
 s32 btlCameraRunPacketCommand(u8 *work) {
     mdlEffectSetSequenceRequest(((BtlCameraCommand *)work)->value, ((BtlCameraCommand *)work)->option, ((BtlCameraCommand *)work)->first,
                   ((BtlCameraCommand *)work)->second);
     return 1;
 }
 
-// FUN_001BCCC0
 /* Allocate a 0x10-byte camera-command work record and install its update callback. */
+// FUN_001BCCC0
 u8 *btlCameraCreatePacketCommand(s32 value, s16 option, s32 first, s32 second) {
     u8 *packet;
     u8 *work;
@@ -238,8 +231,8 @@ u8 *btlCameraCreatePacketCommand(s32 value, s16 option, s32 first, s32 second) {
 #pragma push
 /* measured: btlCameraSetupActionGeometry MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Set visibility and fade flags from action membership and the horizontal camera corridor; mode bits select exclusions. */
 // FUN_001BCD40
-/* Set visibility/fade flags using action membership and the horizontal camera corridor; mode bits select exclusions. Raw offsets retained: the proven struct rewrite changed whole-file MWCC instructions. */
 void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode)
 {
     extern void btlUnitSetFlags(BtlUnit *unit, u16 flags);
@@ -257,8 +250,11 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
     u8 *unit;
     u16 targetGroups;
     f32 distance;
+    BtlAction *actionData = (BtlAction *)action;
+    BtlAction *currentData;
+    BtlUnit *unitData;
 
-    if ((*(u32 *)(D_0076449C + 0x10) & 4) != 0)
+    if ((((BtlBattleState *)D_0076449C)->battleFlags & 4) != 0)
         return;
 
     if (first != NULL && second != NULL) {
@@ -274,78 +270,79 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
     if ((mode & 0x10) != 0) {
         s32 index;
         index = 0;
-        while ((index & 0xFFFF) < *(u16 *)(action + 0x6A)) {
-            targetGroups |= (u16)(1u << *(u8 *)(*(u8 **)(
-                cameraVisibilityTarget(action, index) + 0x30) + 0xA2));
+        while ((index & 0xFFFF) < actionData->unk_6a) {
+            targetGroups |= (u16)(1u << ((BtlAction *)btlCameraGetVisibilityTarget(action, index))->unit->genus);
             index = (index + 1) & 0xFFFF;
         }
     }
 
-    for (current = *(u8 **)(D_0076449C + 0x174); current != NULL;
-         current = *(u8 **)(current + 0x450)) {
-        if ((*(u16 *)(current + 0x1A) & 1) == 0)
+    for (current = ((BtlBattleState *)D_0076449C)->actions; current != NULL;
+         current = (u8 *)currentData->next) {
+        currentData = (BtlAction *)current;
+        if ((currentData->unk_1a & 1) == 0)
             continue;
-        unit = *(u8 **)(current + 0x30);
-        if ((*(u32 *)(unit + 0x9C) & 8) == 0)
+        unit = (u8 *)currentData->unit;
+        unitData = (BtlUnit *)unit;
+        if ((unitData->flags3 & 8) == 0)
             continue;
 
         if ((mode & 0x20) != 0 && current != action) {
             btlUnitClearFlags((BtlUnit *)unit, 2);
             btlUnitSetFlags((BtlUnit *)unit, 4);
-            if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+            if ((mode & 0x40) == 0) unitData->cols[1].alpha = 0xFF;
             continue;
         }
         if ((mode & 0x100) != 0) {
             btlUnitClearFlags((BtlUnit *)unit, 2);
             if ((mode & 0x400) != 0) btlUnitSetFlags((BtlUnit *)unit, 4);
-            if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+            if ((mode & 0x40) == 0) unitData->cols[1].alpha = 0xFF;
             continue;
         }
-        if (current == *(u8 **)(D_0076449C + 0x170) && (mode & 4) != 0) {
+        if (current == ((BtlBattleState *)D_0076449C)->selectedAction && (mode & 4) != 0) {
             btlUnitClearFlags((BtlUnit *)unit, 2);
             btlUnitSetFlags((BtlUnit *)unit, 4);
-            if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+            if ((mode & 0x40) == 0) unitData->cols[1].alpha = 0xFF;
             continue;
         }
         if (action != NULL) {
             if (current == action && (mode & 1) != 0) {
                 btlUnitClearFlags((BtlUnit *)unit, 2);
                 btlUnitSetFlags((BtlUnit *)unit, 4);
-                if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+                if ((mode & 0x40) == 0) unitData->cols[1].alpha = 0xFF;
                 continue;
             }
-            if ((targetGroups & (1u << *(u8 *)(unit + 0xA2))) != 0) {
+            if ((targetGroups & (1u << unitData->genus)) != 0) {
                 btlUnitClearFlags((BtlUnit *)unit, 2);
                 btlUnitSetFlags((BtlUnit *)unit, 4);
-                if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+                if ((mode & 0x40) == 0) unitData->cols[1].alpha = 0xFF;
                 continue;
             }
             if ((mode & 0x800) != 0 && current == (u8 *)(uintptr_t)btlActionGetQueueSecond()) {
                 btlUnitClearFlags((BtlUnit *)unit, 2);
                 btlUnitSetFlags((BtlUnit *)unit, 4);
-                if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+                if ((mode & 0x40) == 0) unitData->cols[1].alpha = 0xFF;
                 continue;
             }
             if ((mode & 2) != 0) {
                 s32 index;
                 index = 0;
-                while ((index & 0xFFFF) < *(u16 *)(action + 0x6A)) {
-                    if (current == cameraVisibilityTarget(action, index)) {
+                while ((index & 0xFFFF) < actionData->unk_6a) {
+                    if (current == btlCameraGetVisibilityTarget(action, index)) {
                         btlUnitClearFlags((BtlUnit *)unit, 2);
                         btlUnitSetFlags((BtlUnit *)unit, 4);
-                        if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+                        if ((mode & 0x40) == 0) unitData->cols[1].alpha = 0xFF;
                         break;
                     }
                     index = (index + 1) & 0xFFFF;
                 }
-                if ((index & 0xFFFF) != *(u16 *)(action + 0x6A) ||
-                    current == *(u8 **)(action + 0x88))
+                if ((index & 0xFFFF) != actionData->unk_6a ||
+                    current == actionData->parameters.followUp)
                     continue;
             }
-            if (*(u8 *)(unit + 0xA2) == *(u8 *)(*(u8 **)(action + 0x30) + 0xA2) &&
+            if (unitData->genus == actionData->unit->genus &&
                 (mode & 8) != 0) {
                 btlUnitClearFlags((BtlUnit *)unit, 2);
-                if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+                if ((mode & 0x40) == 0) unitData->cols[1].alpha = 0xFF;
                 continue;
             }
         }
@@ -356,7 +353,7 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
             geometry.point[1] = geometry.center[2];
             distance = btlTargetAngleBetween((u8 *)geometry.first, (u8 *)geometry.second,
                                      (u8 *)geometry.point, (u8 *)geometry.closest);
-            distance = 0.0f + distance - *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
+            distance = 0.0f + distance - unitData->sphereRadius * unitData->scale;
             if (((geometry.first[0] < geometry.closest[0] ||
                   !(geometry.second[0] <= geometry.closest[0])) &&
                  (!(geometry.first[0] <= geometry.closest[0]) ||
@@ -371,7 +368,7 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
         }
         if (distance <= radius) {
             btlUnitSetFlags((BtlUnit *)unit, 2);
-            if ((mode & 0x80) == 0) *(u8 *)(unit + 0x37) = 0;
+            if ((mode & 0x80) == 0) unitData->cols[1].alpha = 0;
             if ((mode & 0x200) != 0) btlUnitClearFlags((BtlUnit *)unit, 4);
         }
     }
@@ -384,8 +381,8 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
    masked loop-counter use. */
 /* measured: btlCameraClearAllUnitFlags MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
+/* Clear the low camera visibility flags on both battle-side unit lists. */
 // FUN_001BD300
-/* Clear low camera visibility flags on both battle-side unit lists. Raw list-head indexing preserves the side-pair byte stride. */
 void btlCameraClearAllUnitFlags(void)
 {
     s32 sideIndex;
@@ -396,7 +393,7 @@ void btlCameraClearAllUnitFlags(void)
     goto outer_check;
 outer_body:
     index = sideIndex & 0xFFFF;
-    unit = *(u8 **)(iGpffffb3ac + (index * 8) + 0x178);
+    unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[index * 2];
     goto inner_check;
 inner_body:
     btlUnitClearFlags(unit, 0xF);
@@ -411,8 +408,8 @@ outer_check:
 /* measured: closes opt_common_subs for the following translation-unit code. */
 /* measured: closes opt_propagation for the following translation-unit code. */
 /* measured: opt_common_subs off preserves the retail per-use masked index. */
+/* Mark eligible units within their scaled radius plus 200 units of the camera modelling position. */
 // FUN_001BD390
-/* Set the near-camera flag when an eligible unit lies within its scaled radius plus 200. Raw indexed list heads and external view-transform payload retain their existing address arithmetic. */
 void btlCameraUpdateUnitInRangeFlags(void)
 {
     extern void btlUnitSetFlags();
@@ -426,21 +423,21 @@ void btlCameraUpdateUnitInRangeFlags(void)
     f32 values[3];
     f32 delta[3];
 
-    base = *(u8 **)(((u8 *)kwlnGetCamera()) + 4) + 0x10;
+    base = (u8 *)&((RwFrame *)((RwCamera *)kwlnGetCamera())->object.object.parent)->modelling;
     counter = 0;
     goto outer_check;
 outer_body:
     index = counter & 0xFFFF;
-    current = *(u8 **)(iGpffffb3ac + (index * 8) + 0x178);
+    current = ((BtlBattleState *)iGpffffb3ac)->unitLists[index * 2];
     goto inner_check;
 inner_body:
     ability = (s32)((BtlUnit *)current)->datUnit;
     if ((ability != 0 && datCalcEnemyHasExtendedFlag((u8 *)ability) != 0) ||
         (((BtlUnit *)current)->flags3 & 8) != 0) {
         btlUnitGetSphereWorldCenter(current, values);
-        delta[0] = *(f32 *)(base + 0x30) - values[0];
-        delta[1] = *(f32 *)(base + 0x34) - values[1];
-        delta[2] = *(f32 *)(base + 0x38) - values[2];
+        delta[0] = ((RwMatrixTag *)base)->pos.x - values[0];
+        delta[1] = ((RwMatrixTag *)base)->pos.y - values[1];
+        delta[2] = ((RwMatrixTag *)base)->pos.z - values[2];
         if (RwV3dLength(delta) <=
             0.0f + 200.0f +
             ((BtlUnit *)current)->sphereRadius * ((BtlUnit *)current)->scale) {

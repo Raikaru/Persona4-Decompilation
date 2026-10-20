@@ -7,6 +7,7 @@
 #include "sdk_task_registration.h"
 #include "sdktask.h"
 #include "type.h"
+#include "member_access.h"
 #include "field_light_internal.h"
 #include "field_frame_internal.h"
 #include "rw_types_internal.h"
@@ -17,26 +18,39 @@ extern u32 datGetFlag(s32);
 extern void (*jtbl_008873EC[])(void *);
 #include "Kosaka/k_fldFrame_internal.h"
 #include "scene_event_internal.h"
+typedef struct { u8 pad0[0x14]; s32 handle; } FldStepWork;
+typedef struct { s32 field, room; } FldStepLocation;
+typedef struct { s32 required, paired; } FldStepFlagPair;
+typedef struct {
+    u16 id, month, day, time;
+    u8 dayMask, weekdayMask, timeMask, phase;
+    FldStepFlagPair requirements[5];
+    s32 excluded[12];
+    u16 field, room;
+    u8 pad68[0x1C];
+} FldStepRecord;
+
 /* Step record layout (stride 0x84): id +0, month/day/time +2/+4/+6,
  * calendar masks +8/+9/+A, phase condition +B, five required flag pairs +C,
  * twelve excluded flags +34, field/room +64/+66. The active location stores
  * two s32 values at +0/+4. The release handle is at work +0x14.
- * Typed rewrites below were measured and reverted where they changed codegen. */
+ * Typed record cursors preserve the reverse traversal and calendar cutoffs. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 // Intent: Release the handle at the work block's +0x14 through the hook table and clear it [inferred]
 // FUN_0015D270
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 void FldStepReleaseHandle(u8 *work)
 {
+    FldStepWork *stepWork = (FldStepWork *)work;
     s32 handle;
 
-    handle = *(s32 *)(work + 0x14);
+    handle = ((FldStepWork *)(work))->handle;
     if (handle != 0) {
         (*jtbl_008873EC)((void *)handle);
-        *(s32 *)(work + 0x14) = 0;
+        stepWork->handle = 0;
     }
 }
 #pragma pop
@@ -81,9 +95,10 @@ u16 *FldStepFindEmptySlot(u32 emptyIndex)
 #pragma opt_rebuildconditionals on
 /* Select the last step whose location, calendar masks and flag requirements pass; return NULL if none do. */
 // FUN_0015D310
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 u8 *fldStepFindEligibleRecord(u16 *records)
 {
+    FldStepRecord *stepRecord;
     extern s16 datGetDateIndex(void);
     extern s64 calGetDayEntryByPhase(s32 records, u32);
     extern u8 datGetTimeSlot(void);
@@ -137,37 +152,38 @@ loop_3:
     reverseIndex = 0;
     goto loop_test;
 loop_body:
+        stepRecord = (FldStepRecord *)recordAddress;
         fieldState = iGpffff9db0;
-        if ((*(s32 *)(fieldState + 0) == *(u16 *)(recordAddress + 0x64)) &&
-            (*(s32 *)(fieldState + 4) == *(u16 *)(recordAddress + 0x66))) {
-            startMonth = *(u16 *)(recordAddress + 2);
+        if ((((FldStepLocation *)(fieldState))->field == ((FldStepRecord *)(recordAddress))->field) &&
+            (((FldStepLocation *)(fieldState))->room == ((FldStepRecord *)(recordAddress))->room)) {
+            startMonth = ((FldStepRecord *)(recordAddress))->month;
             if ((startMonth == endMonth) &&
-                (*(u16 *)(recordAddress + 4) == endDay) &&
-                (*(u16 *)(recordAddress + 6) == endTimeSlot)) {
+                (((FldStepRecord *)(recordAddress))->day == endDay) &&
+                (((FldStepRecord *)(recordAddress))->time == endTimeSlot)) {
                 endMonth = 3;
                 endDay = 0x1F;
                 endTimeSlot = 0;
             }
-            if (clndIsDateInRange(startMonth, *(u16 *)(recordAddress + 4),
+            if (clndIsDateInRange(startMonth, ((FldStepRecord *)(recordAddress))->day,
                              endMonth, endDay) == 1) {
-                if ((*(u16 *)(recordAddress + 2) == month) &&
-                    (*(u16 *)(recordAddress + 4) == day) &&
+                if ((stepRecord->month == month) &&
+                    (stepRecord->day == day) &&
                     ((datGetTimeSlot() & 0xFF) < endTimeSlot)) {
-                    endMonth = *(u16 *)(recordAddress + 2);
-                    endDay = *(u16 *)(recordAddress + 4);
-                    endTimeSlot = *(u16 *)(recordAddress + 6);
+                    endMonth = stepRecord->month;
+                    endDay = stepRecord->day;
+                    endTimeSlot = ((FldStepRecord *)(recordAddress))->time;
                     goto block_50;
                 }
-                if (((*(u8 *)(recordAddress + 8) == 0) ||
-                     (*(u8 *)(recordAddress + 8) &
+                if (((((FldStepRecord *)(recordAddress))->dayMask == 0) ||
+                     (stepRecord->dayMask &
                       (1U << calHasDayEntry((s16)datGetDateIndex())))) &&
-                    ((*(u8 *)(recordAddress + 9) == 0) ||
-                     (*(u8 *)(recordAddress + 9) &
+                    ((((FldStepRecord *)(recordAddress))->weekdayMask == 0) ||
+                     (stepRecord->weekdayMask &
                       (1U << calGetWeekdayOfDay((s16)datGetDateIndex())))) &&
-                    ((*(u8 *)(recordAddress + 0xA) == 0) ||
-                     (*(u8 *)(recordAddress + 0xA) &
+                    ((((FldStepRecord *)(recordAddress))->timeMask == 0) ||
+                     (stepRecord->timeMask &
                       (1U << (datGetTimeSlot() & 0xFF))))) {
-                    phaseCondition = *(u8 *)(recordAddress + 0xB);
+                    phaseCondition = ((FldStepRecord *)(recordAddress))->phase;
                     if (phaseCondition == 1) {
                         firstDate = (s16)datGetDateIndex();
                         firstPhase = (s64)(s8)calGetDayEntryByPhase(firstDate,
@@ -190,7 +206,7 @@ loop_body:
                     }
 block_34:
                     for (excludedIndex = 0; excludedIndex < 0xC; excludedIndex++) {
-                        excludedFlag = *(s32 *)(recordAddress + (excludedIndex * 4) + 0x34);
+                        excludedFlag = ((FldStepRecord *)(recordAddress + (excludedIndex * 4)))->excluded[0];
                         if ((excludedFlag != -1) &&
                             (datGetFlag(excludedFlag) == 1)) {
                             break;
@@ -200,7 +216,7 @@ block_34:
                         hasRequirements = 0;
                         for (requiredIndex = 0; requiredIndex < 5; requiredIndex++) {
                             flagPair = (u8 *)(recordAddress + (requiredIndex * 8));
-                            requiredFlag = *(s32 *)(flagPair + 0xC);
+                            requiredFlag = ((FldStepRecord *)(flagPair))->requirements[0].required;
                             if (requiredFlag == -1) {
                                 continue;
                             }
@@ -208,7 +224,7 @@ block_34:
                             if (datGetFlag(requiredFlag) != 1) {
                                 continue;
                             }
-                            pairedFlag = *(s32 *)(flagPair + 0x10);
+                            pairedFlag = ((FldStepRecord *)(flagPair))->requirements[0].paired;
                             if (pairedFlag != -1) {
                                 if (datGetFlag(pairedFlag) != 1) {
                                     continue;
@@ -227,9 +243,9 @@ block_34:
                 }
             } else {
 block_49:
-                endMonth = *(u16 *)(recordAddress + 2);
-                endDay = *(u16 *)(recordAddress + 4);
-                endTimeSlot = *(u16 *)(recordAddress + 6);
+                endMonth = stepRecord->month;
+                endDay = stepRecord->day;
+                endTimeSlot = ((FldStepRecord *)(recordAddress))->time;
                 goto block_50;
             }
         } else {

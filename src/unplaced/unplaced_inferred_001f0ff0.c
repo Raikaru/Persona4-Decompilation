@@ -19,8 +19,8 @@
 #pragma push
 #pragma opt_loop_invariants off
 #pragma optimization_level 1
+/* Return whether classification of the action's stored skill yields no target bits. */
 // FUN_001F0FF0
-/* Classify the action using its stored skill index; true means no target class. */
 s32 btlActionHasNoTargetClass(u32 action)
 {
     s32 index;

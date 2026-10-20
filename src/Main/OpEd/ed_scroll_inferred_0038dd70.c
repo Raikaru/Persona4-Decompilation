@@ -35,10 +35,6 @@ extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
                           f32 depth, u8 red, u8 green, u8 blue, u8 alpha,
                           u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
                           s16 pivotY);
-static inline u32 add_offset_first_0038(u32 offset, u32 base)
-{
-    return offset + base;
-}
 
 /* Source unit: src/promoted/code1_0038.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0038.c; members 0038dd70-0038dd70 */
@@ -55,8 +51,9 @@ extern s32 (*D_00887310[])(s32, void *, s32);
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
 #pragma push
 #pragma pop
+/* Empty poll callback in sequence row 0x005DD2A0; unlike ordinary polls this entry does not define a result. */
 // FUN_0038DD70
-void func_0038dd70(void)
+void edScrollPollNoop(void)
 {
 }
 

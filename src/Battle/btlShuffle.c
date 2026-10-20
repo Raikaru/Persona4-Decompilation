@@ -103,14 +103,17 @@ extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3ec;
 extern u16 *datPersonaGetSkills(struct DatPersonaRecord *persona);
 extern s32 datPersonaReplaceSkill(u8 *persona, s16 oldSkill, u16 newSkill);
+/* Interior column aliases retain their own relocations and the 12-byte table stride. */
+typedef struct BtlShuffleRewardHalfwordColumn { u16 value; u8 pad02[10]; } BtlShuffleRewardHalfwordColumn;
+typedef struct BtlShuffleRewardCallbackColumn { s32 (*apply)(s32, s32 *); u8 pad04[8]; } BtlShuffleRewardCallbackColumn;
 
 extern s32 D_0064E7B0[];
 
-extern u16 D_0064E7B4[];
+extern BtlShuffleRewardHalfwordColumn D_0064E7B4[];
 
-extern u16 D_0064E7B6[];
+extern BtlShuffleRewardHalfwordColumn D_0064E7B6[];
 
-extern s32 D_0064E7B8[];
+extern BtlShuffleRewardCallbackColumn D_0064E7B8[];
 
 extern void datSetScriptValue(s32 index, u32 value);
 
@@ -140,7 +143,7 @@ extern u8 datPersonaGetBuffedStat(u8 *persona, u16 statIndex);
 extern s32 datPersonaAddStat(u8 *persona, u16 statIndex, s8 delta);
 extern u8 D_00793E80[];
 
-extern s32 iGpffffa9c0; /* two draw-queue indices, accessed through the original GP-relative base */
+extern s32 iGpffffa9c0[2]; /* two draw-queue indices, accessed through the original GP-relative base */
 
 extern void PrimAppendNode(u8 *list, u8 *node);
 
@@ -191,8 +194,8 @@ s32 btlShuffleTaskUpdate(u8 *unusedTask)
         BtlShuffleTaskWork *p = (BtlShuffleTaskWork *)((u8 *)work + i * 0x30);
         *(s32 *)&p->queues[0].node.pad00[0] = 0;
         *(s32 *)&p->queues[0].node.pad00[4] = 0;
-        /* measured: an array declaration changes loop hoisting and register allocation. */
-        PrimAppendNode((u8 *)D_00793E80 + *(s32 *)((u8 *)&iGpffffa9c0 + i * 4) * 0x30, (u8 *)p + 0xC);
+        /* measured: the two-entry array declaration now preserves MATCH and the GP-relative base. */
+        PrimAppendNode((u8 *)D_00793E80 + iGpffffa9c0[i] * 0x30, (u8 *)p + 0xC);
     }
     switch (work->phase) {
     case 0:
@@ -317,6 +320,7 @@ case2_body:
     return 0;
 }
 
+/* Dispatch the shuffle drawing update while the parent draw-enabled flag is set. */
 // FUN_0036E580
 void btlShuffleQueueDraw(u8 *queue, u16 *work)
 {
@@ -327,6 +331,7 @@ void btlShuffleQueueDraw(u8 *queue, u16 *work)
 
 
 
+/* Queue the sequence card drawing while the parent draw-enabled flag is set. */
 // FUN_0036E5C0
 void btlShuffleQueueSeqDraw(u8 *queue, u16 *work)
 {
@@ -869,8 +874,8 @@ s32 btlShuffleBuildRoster(s32 selector, s32 *result)
         for (idx = 0; idx < 0x2C; idx++) {
             rule = (u8 *)D_0064E7B0 + idx * 12;
             if (datGetFlag(((BtlShuffleRewardRule *)rule)->flag) != 0) {
-                kind = *(u16 *)((u8 *)D_0064E7B4 + idx * 12);
-                variant = *(u16 *)((u8 *)D_0064E7B6 + idx * 12);
+                kind = D_0064E7B4[idx].value;
+                variant = D_0064E7B6[idx].value;
                 datSetFlag(((BtlShuffleRewardRule *)rule)->flag, 0);
                 break;
             }
@@ -883,7 +888,7 @@ s32 btlShuffleBuildRoster(s32 selector, s32 *result)
     for (idx2 = 0; idx2 < 0x2C; idx2++) {
         rule = (u8 *)D_0064E7B0 + idx2 * 12;
         if (selector == (s32)(((BtlShuffleRewardRule *)rule)->variant | (((BtlShuffleRewardRule *)rule)->kind << 16))) {
-            applyRule = (s32 (*)(s32, s32 *))*(s32 *)((u8 *)D_0064E7B8 + idx2 * 12);
+            applyRule = D_0064E7B8[idx2].apply;
             if (applyRule == NULL) {
                 *result = 1;
                 datSetFlag(((BtlShuffleRewardRule *)rule)->flag, 1);
@@ -910,7 +915,9 @@ s32 btlShuffleBuildRoster(s32 selector, s32 *result)
    are needed for retail's register assignment and address forms. See
    docs/probe_archive/BtlShuffle_worker8_20261005.md for the earlier layout
    recovery. */
-static inline u16 *shuffleCandidateField(s32 offset, void *base)
+/* Address one halfword of the selected replacement-skill candidate. */
+/* measured: keeps separate addiu field addresses before lhu; plain C folds the displacement and removes a word. */
+static inline u16 *btlShuffleCandidateField(s32 offset, void *base)
 {
     return (u16 *)((u8 *)base + offset);
 }
@@ -1001,9 +1008,9 @@ s32 btlShufflePickRosterMember(s32 selector, u8 *result)
     r = datCalcRandomBelow(candidateCount);
     {
         /* Each field address is formed from the chosen entry separately. */
-        u16 *field = shuffleCandidateField(2, (u8 *)candidates + r * 4);
+        u16 *field = btlShuffleCandidateField(2, (u8 *)candidates + r * 4);
         second = *field;
-        field = shuffleCandidateField(r * 4, candidates);
+        field = btlShuffleCandidateField(r * 4, candidates);
         first = *field;
     }
     datPersonaReplaceSkill(persona, (s16)first, second);

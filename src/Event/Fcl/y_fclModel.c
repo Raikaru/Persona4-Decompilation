@@ -8,6 +8,10 @@
 #include "model_matrix_internal.h"
 #include "sdktask.h"
 #include "scene_render_internal.h"
+#include "member_access.h"
+#include "rw_camera_internal.h"
+#include "mdl_file_internal.h"
+#include "primitive_queue_internal.h"
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 D_0064A618[];
@@ -73,8 +77,8 @@ typedef struct FclModelEntry {
     s16 quatIdx;
     s32 colorA;
     s32 colorB;
-    s16 winX;
-    s16 winY;
+    s16 viewOffsetX;
+    s16 viewOffsetY;
 } FclModelEntry;
 
 /* The 0x100-byte allocation in func_0034a4f0 and its update/draw consumers
@@ -101,15 +105,25 @@ typedef struct FclModelWork {
     f32 savedLightB[4];
     u8 pad94[0xC];
     u8 savedLightMatrix[64];
-    FclVec2 savedWindow;
+    FclVec2 savedViewOffset;
     s32 drawLayer;
     u8 *spriteA;
     u8 *spriteB;
     u8 padF4[0xC];
 } FclModelWork;
 
+/* The cloned block owns 0x20-byte model entries and 0x10-byte quaternions,
+ * as fixed up by datCloneEntryBlock before the draw callback consumes it. */
+typedef struct DatEntryBlock {
+    u32 largeCount;
+    u32 smallCount;
+    void *largeRecords;
+    u8 *smallRecords;
+} DatEntryBlock;
 
-/* Camera/model set-up for one model work block (context); task is unused.
+
+/* Apply camera-relative model transforms, lighting and view offsets for context;
+   save the previous state first. The task parameter is unused.
    measured with opt_propagation off, which keeps the D_ constant loads in `ld`/`lwc1`
    order and keeps the constant/temporary statements where they are written:
    - the model table entry is read three ways: byte-offset arithmetic for the first entry
@@ -165,11 +179,14 @@ void fclModelBeginDraw(u8 *task, u8 *context)
     u8 matB[64] __attribute__((aligned(16)));
     s128 quat __attribute__((aligned(16)));
     u8 *obj;
+    FclModelWork *modelWork;
     u8 *parent;
     (void)task;
-    /* FclModelWork describes these offsets. Typed access changed register
-       allocation (1900B versus retail 1860B); retain the measured byte form. */
+    /* measured: the earlier whole-body typing grew 1860B to 1900B. Grouped
+       per-access probes now preserve MATCH by mixing access-site fields with
+       modelWork; keep both pointer forms and their declaration order. */
     obj = context;
+    modelWork = (FclModelWork *)obj;
     {
         u8 *p = trans;
         s32 n = 12;
@@ -187,7 +204,7 @@ void fclModelBeginDraw(u8 *task, u8 *context)
         *(s64 *)&scale[0] = xy;
         *(f32 *)&scale[8] = z;
     }
-    if ((*(u8 **)(obj + 0xC) != NULL) && (mdlPrepareModel(*(u8 **)(obj + 0xC)) != 0)) {
+    if ((((FclModelWork *)obj)->model != NULL) && (mdlPrepareModel(((FclModelWork *)obj)->model) != 0)) {
         {
             s64 xy = *(s64 *)&D_0064A658[0];
             f32 z = *(f32 *)&D_0064A660[0];
@@ -200,20 +217,20 @@ void fclModelBeginDraw(u8 *task, u8 *context)
             *(s64 *)&axisY[0] = xy;
             *(f32 *)&axisY[8] = z;
         }
-        parent = *(u8 **)((u8 *)kwlnGetCamera() + 4) + 0x10;
+        parent = (u8 *)((RwObject *)(u8 *)kwlnGetCamera())->parent + 0x10;
         {
-            u8 *entry = *(u8 **)(obj + 0x10) + ((s32)*(u16 *)(obj + 8) << 5);
-            *(f32 *)&trans[0] += (f32)*(s16 *)(entry + 0);
-            *(f32 *)&trans[4] += (f32)*(s16 *)(entry + 2);
-            *(f32 *)&trans[8] += (f32)*(s16 *)(entry + 4);
+            u8 *entry = (u8 *)((FclModelWork *)obj)->entries + ((s32)((FclModelWork *)obj)->modelId << 5);
+            *(f32 *)&trans[0] += (f32)((FclModelEntry *)entry)->offset[0];
+            *(f32 *)&trans[4] += (f32)((FclModelEntry *)entry)->offset[1];
+            *(f32 *)&trans[8] += (f32)((FclModelEntry *)entry)->offset[2];
             {
-                f32 s = *(f32 *)(entry + 8);
+                f32 s = ((FclModelEntry *)entry)->scale;
                 *(f32 *)&scale[8] = s;
                 *(f32 *)&scale[4] = s;
                 *(f32 *)&scale[0] = s;
             }
             {
-                s32 *sp = (s32 *)(obj + 0x30);
+                s32 *sp = (s32 *)&modelWork->matrix;
                 s32 *dp = (s32 *)mat;
                 s32 cnt = 8;
                 do {
@@ -226,15 +243,15 @@ void fclModelBeginDraw(u8 *task, u8 *context)
                     dp += 2;
                 } while (cnt > 0);
             }
-            RwMatrixRotate(mat, axisY, (*(FclModelEntry **)(obj + 0x10))[*(u16 *)(obj + 8)].angle, 1);
+            RwMatrixRotate(mat, axisY, (modelWork->entries)[modelWork->modelId].angle, 1);
         }
         RwMatrixTranslate(mat, trans, 2);
         RwMatrixMultiply(tmpA, mat, parent);
         *(M64 *)mat = *(M64 *)tmpA;
-        mdlApplyModelMatrix(*(u8 **)(obj + 0xC), mat, 0);
-        mdlScale(*(u8 **)(obj + 0xC), scale, 1);
+        mdlApplyModelMatrix(modelWork->model, mat, 0);
+        mdlScale(modelWork->model, scale, 1);
         {
-            u16 idx = *(u16 *)(obj + 8);
+            u16 idx = modelWork->modelId;
             if (idx == 0x1B) {
                 iGpffffb5a0 = 10.0f;
             } else if (idx == 0xA1) {
@@ -245,7 +262,7 @@ void fclModelBeginDraw(u8 *task, u8 *context)
                 iGpffffb5a0 = 0.0f;
             }
         }
-        mdlRotateMatrix(*(u8 **)(obj + 0xC), axisX, iGpffffb5a0, 1);
+        mdlRotateMatrix(modelWork->model, axisX, iGpffffb5a0, 1);
         colA = *(s128 *)D_0064A680;
         colB = *(s128 *)D_0064A690;
         quat = *(s128 *)D_0064A6A0;
@@ -260,20 +277,20 @@ void fclModelBeginDraw(u8 *task, u8 *context)
                 } while (n != 0);
             }
         }
-        parent = *(u8 **)((u8 *)kwlnGetCamera() + 4) + 0x10;
-        *(f32 *)(obj + 0x70) = K_View_GetFov(kwlnGetCamera());
+        parent = (u8 *)((RwObject *)(u8 *)kwlnGetCamera())->parent + 0x10;
+        ((FclModelWork *)obj)->savedFov = K_View_GetFov(kwlnGetCamera());
         {
             u8 *cam = (u8 *)K_Clump_GetLightA();
-            *(V4 *)(obj + 0x74) = *(V4 *)(cam + 0x18);
+            *(V4 *)&((FclModelWork *)obj)->savedLightA = *(V4 *)&((SceneRenderLight *)cam)->color;
         }
         {
             u8 *cam = (u8 *)K_Clump_GetLightB();
-            *(V4 *)(obj + 0x84) = *(V4 *)(cam + 0x18);
+            *(V4 *)&((FclModelWork *)obj)->savedLightB = *(V4 *)&((SceneRenderLight *)cam)->color;
         }
         {
-            u8 *src = *(u8 **)((u8 *)K_Clump_GetLightB() + 4);
+            u8 *src = (u8 *)((RwObject *)(u8 *)K_Clump_GetLightB())->parent;
             s32 *sp = (s32 *)(src + 0x10);
-            s32 *dp = (s32 *)(obj + 0xA0);
+            s32 *dp = (s32 *)&modelWork->savedLightMatrix;
             s32 cnt = 8;
             do {
                 s32 a = sp[0];
@@ -287,11 +304,11 @@ void fclModelBeginDraw(u8 *task, u8 *context)
         }
         {
             u8 *cam = (u8 *)kwlnGetCamera();
-            *(FclVec2 *)(obj + 0xE0) = *(FclVec2 *)(cam + 0x78);
+            ((FclModelWork *)obj)->savedViewOffset = *(FclVec2 *)&((RwCamera *)cam)->viewOffset;
         }
         {
-            FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
-            s32 c1 = tbl[*(u16 *)(obj + 8)].colorA;
+            FclModelEntry *tbl = modelWork->entries;
+            s32 c1 = tbl[modelWork->modelId].colorA;
             f32 ch0 = (f32)((c1 >> 24) & 0xFF);
             f32 k255 = 255.0f;
             ((f32 *)&colA)[0] = ch0 / k255;
@@ -299,31 +316,33 @@ void fclModelBeginDraw(u8 *task, u8 *context)
             ((f32 *)&colA)[2] = (f32)((c1 >> 8) & 0xFF) / k255;
             ((f32 *)&colA)[3] = (f32)(c1 & 0xFF) / k255;
             {
-                s32 c2 = tbl[*(u16 *)(obj + 8)].colorB;
+                s32 c2 = tbl[((FclModelWork *)obj)->modelId].colorB;
                 ((f32 *)&colB)[0] = (f32)((c2 >> 24) & 0xFF) / k255;
                 ((f32 *)&colB)[1] = (f32)((c2 >> 16) & 0xFF) / k255;
                 ((f32 *)&colB)[2] = (f32)((c2 >> 8) & 0xFF) / k255;
                 ((f32 *)&colB)[3] = (f32)(c2 & 0xFF) / k255;
             }
-            win[0] = (f32)tbl[*(u16 *)(obj + 8)].winX / 640.0f;
-            win[1] = (f32)tbl[*(u16 *)(obj + 8)].winY / 448.0f;
+            win[0] = (f32)tbl[((FclModelWork *)obj)->modelId].viewOffsetX / 640.0f;
+            win[1] = (f32)tbl[((FclModelWork *)obj)->modelId].viewOffsetY / 448.0f;
         }
         K_View_SetFov(kwlnGetCamera(), 40.0f);
         func_003c38b0((u8 *)K_Clump_GetLightA(), (u8 *)&colA);
         func_003c38b0((u8 *)K_Clump_GetLightB(), (u8 *)&colB);
         {
-            u16 idx2 = *(u16 *)(obj + 8);
+            u16 idx2 = modelWork->modelId;
             s32 off2 = (s32)idx2 << 5;
-            u8 *base = *(u8 **)(obj + 0x10) + 0x12;
-            s16 qidx = *(s16 *)(base + off2);
+            u8 *base = (u8 *)&modelWork->entries->quatIdx;
+            /* Recover the containing entry from its quatIdx field cursor;
+               retail materializes the field address before adding the stride. */
+            s16 qidx = ((FclModelEntry *)(base + off2 - MEMBER_OFFSET(FclModelEntry, quatIdx)))->quatIdx;
             if (qidx == -1) {
-                memcpy((u8 *)&quat, obj + 0x18, 16);
+                memcpy((u8 *)&quat, modelWork->quaternion, 16);
             } else {
-                u8 *tbl = *(u8 **)(obj + 0x14);
-                if (qidx < *(s32 *)(tbl + 4)) {
-                    memcpy((u8 *)&quat, *(u8 **)(tbl + 0xC) + ((s32)qidx * 16), 16);
+                u8 *tbl = ((FclModelWork *)obj)->entryBlock;
+                if (qidx < (s32)((DatEntryBlock *)tbl)->smallCount) {
+                    memcpy((u8 *)&quat, ((DatEntryBlock *)tbl)->smallRecords + ((s32)qidx * 16), 16);
                 } else {
-                    memcpy((u8 *)&quat, *(u8 **)(tbl + 0xC), 16);
+                    memcpy((u8 *)&quat, ((DatEntryBlock *)tbl)->smallRecords, 16);
                 }
             }
         }
@@ -364,8 +383,8 @@ void fclModelBeginDraw(u8 *task, u8 *context)
         }
         RwMatrixMultiply(matB, matQ, parent);
         *(M64 *)matQ = *(M64 *)matB;
-        func_003e9cb0(*(s32 *)((u8 *)K_Clump_GetLightB() + 4), matQ, 0);
-        *(u8 *)((u8 *)K_Clump_GetLightB() + 2) = 3;
+        func_003e9cb0(((SceneRenderLight *)(u8 *)K_Clump_GetLightB())->frame, matQ, 0);
+        ((RwObject *)(u8 *)K_Clump_GetLightB())->flags = 3;
         (void)K_Clump_GetLightB();
         func_003cbf30(K_Clump_GetWorld(), (s32)K_Clump_GetLightC());
         func_003e8130(kwlnGetCamera(), win);
@@ -379,19 +398,20 @@ void fclModelRestoreDrawState(u8 *task, u8 *context)
 {
     u8 *model;
 
-    /* The shared light prefix leaves SDK flags opaque; +2 marks its frame dirty. */
+    /* The light object flag byte is set after restoring its frame matrix. */
     model = ((FclModelWork *)context)->model;
     if ((model != NULL) && (mdlPrepareModel(model) != 0)) {
         K_View_SetFov(kwlnGetCamera(), ((FclModelWork *)context)->savedFov);
         func_003c38b0(K_Clump_GetLightA(), (u8 *)&((FclModelWork *)context)->savedLightA);
         func_003c38b0(K_Clump_GetLightB(), (u8 *)&((FclModelWork *)context)->savedLightB);
         func_003e9cb0(((SceneRenderLight *)K_Clump_GetLightB())->frame, (u8 *)&((FclModelWork *)context)->savedLightMatrix, 0);
-        *(s8 *)((u8 *)K_Clump_GetLightB() + 2) = 3;
+        *(s8 *)&((RwObject *)(u8 *)K_Clump_GetLightB())->flags = 3;
         K_Clump_GetLightB();
     }
 }
 
-/* Effect state machine for the model task at task+0x38. Layout notes measured against retail:
+/* Load and animate a fusion model, coordinate its sprites, queue bracketed draw
+   callbacks, and release owned resources on request. Layout notes measured against retail:
    - the two draw calls take FclDrawColor by value and their colours are locals filled by
      fclMakeDrawColor struct returns; declaring the locals in this order (pos0, pos1, color1,
      color0, colorTmp) reproduces retail's stack slots 0x38/0x28/0x4C/0x48/0x44;
@@ -410,125 +430,127 @@ s32 cmbEffModelUpdate(u8 *task)
     FclDrawColor color0;
     FclDrawColor colorTmp;
     u8 *obj;
-    /* FclModelWork documents the layout; typed fields grew this callback
-       to 2176B for a 2096B retail window, so preserve its byte accesses.
-       Raw model +0xEE and queue +8/+0x10 accesses are external object ABIs. */
-    obj = *(u8 **)(task + 0x38);
-    switch (*(s8 *)obj) {
+    FclModelWork *modelWork;
+    /* measured: the earlier whole-body typing grew 2096B to 2176B. Grouped
+       access-site probes plus the modelWork alias now type every field and
+       preserve MATCH, including model completion and primitive queue nodes. */
+    obj = ((SdkTask *)task)->work;
+    modelWork = (FclModelWork *)obj;
+    switch (((FclModelWork *)obj)->state) {
     case 0:
-        if (*(s8 *)(obj + 6) == 1) {
-            *(s8 *)obj = 4;
+        if (((FclModelWork *)obj)->releaseRequested == 1) {
+            ((FclModelWork *)obj)->state = 4;
         }
         break;
     case 1:
-        *(u8 **)(obj + 0xC) = mdlFindOrCreateModelObject(0xB, *(u16 *)(obj + 8), 0);
-        *(s8 *)obj = 2;
+        ((FclModelWork *)obj)->model = mdlFindOrCreateModelObject(0xB, ((FclModelWork *)obj)->modelId, 0);
+        ((FclModelWork *)obj)->state = 2;
         break;
     case 2:
-        if (mdlPrepareModel(*(u8 **)(obj + 0xC)) != 0) {
-            if (*(s8 *)(obj + 0x28) == 1) {
-                mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, 0, 0, 1);
+        if (mdlPrepareModel(((FclModelWork *)obj)->model) != 0) {
+            if (((FclModelWork *)obj)->previewMode == 1) {
+                mdlDispatchAnimIfPresent(modelWork->model, 0, 0, 0, 1);
             } else {
-                *(s8 *)(obj + 4) = 0;
+                ((FclModelWork *)obj)->effectState = 0;
             }
-            *(s16 *)(obj + 2) = 0;
-            *(s8 *)obj = 3;
-            if (*(s8 *)(obj + 6) == 1) {
-                *(s8 *)obj = 4;
+            ((FclModelWork *)obj)->drawDelay = 0;
+            ((FclModelWork *)obj)->state = 3;
+            if (((FclModelWork *)obj)->releaseRequested == 1) {
+                ((FclModelWork *)obj)->state = 4;
             }
         }
         break;
     case 3:
-        if (*(s8 *)(obj + 6) == 1) {
-            *(s8 *)obj = 4;
+        if (((FclModelWork *)obj)->releaseRequested == 1) {
+            ((FclModelWork *)obj)->state = 4;
             return 0;
         }
-        if (*(s8 *)(obj + 1) == 1) {
+        if (((FclModelWork *)obj)->paused == 1) {
             return 0;
         }
-        if (*(s8 *)(obj + 0x28) == 0) {
-            *(s32 *)(obj + 0xE8) = 0x29;
+        if (((FclModelWork *)obj)->previewMode == 0) {
+            ((FclModelWork *)obj)->drawLayer = 0x29;
             if (datGetFlag(0x1450) == 0) {
                 return 0;
             }
-            if (*(s8 *)(obj + 4) != 4) {
-                switch (*(s8 *)(obj + 4)) {
+            if (((FclModelWork *)obj)->effectState != 4) {
+                switch (((FclModelWork *)obj)->effectState) {
                 case 0:
-                    if (cmbCardEffSpriteFileLoaded(*(u8 **)(obj + 0xEC)) == 0) {
+                    if (cmbCardEffSpriteFileLoaded(((FclModelWork *)obj)->spriteA) == 0) {
                         return 0;
                     }
-                    if (cmbCardEffSpriteFileLoaded(*(u8 **)(obj + 0xF0)) == 0) {
+                    if (cmbCardEffSpriteFileLoaded(((FclModelWork *)obj)->spriteB) == 0) {
                         return 0;
                     }
-                    if (*(s8 *)(obj + 5) == 1) {
-                        u16 modelId = *(u16 *)(obj + 8);
+                    if (((FclModelWork *)obj)->animationRequested == 1) {
+                        u16 modelId = ((FclModelWork *)obj)->modelId;
                         if (modelId == 0x16) {
-                            FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
+                            FclModelEntry *tbl = ((FclModelWork *)obj)->entries;
                             s16 animationId = tbl[modelId].animationId;
-                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, animationId, 0, 0);
+                            mdlDispatchAnimIfPresent(((FclModelWork *)obj)->model, 0, animationId, 0, 0);
                         } else {
-                            FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
+                            FclModelEntry *tbl = ((FclModelWork *)obj)->entries;
                             s16 animationId = tbl[modelId].animationId;
-                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, animationId, 10, 0);
+                            mdlDispatchAnimIfPresent(((FclModelWork *)obj)->model, 0, animationId, 10, 0);
                         }
                     }
-                    *(s8 *)(obj + 4) = 1;
+                    modelWork->effectState = 1;
                     break;
                 case 1:
-                    if (cmbCardEffSpriteIsActive(*(u8 **)(obj + 0xEC)) == 0) {
+                    if (cmbCardEffSpriteIsActive(((FclModelWork *)obj)->spriteA) == 0) {
                         datScreenPointToWorldPosition((u8 *)&pos0, 0x140, 0xA5, 300.0f);
                         color0 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
-                        cmbCardEffSpawnSprite(*(u8 **)(obj + 0xEC), pos0, 0.0f, 0.0f, 0.0f, 1.0f, color0, 0, -1);
+                        cmbCardEffSpawnSprite(modelWork->spriteA, pos0, 0.0f, 0.0f, 0.0f, 1.0f, color0, 0, -1);
                     }
-                    if (cmbCardEffSpriteIsActive(*(u8 **)(obj + 0xF0)) == 0) {
+                    if (cmbCardEffSpriteIsActive(((FclModelWork *)obj)->spriteB) == 0) {
                         colorTmp = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
                         *(FclDrawColor *)&color1 = colorTmp;
                         datScreenPointToWorldPosition((u8 *)&pos1, 0x140, 0xA5, 300.0f);
-                        if (*(u16 *)(obj + 8) == 0x59) {
+                        if (((FclModelWork *)obj)->modelId == 0x59) {
                             color1 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xCD);
-                        } else if (*(u16 *)(obj + 8) == 0xA) {
+                        } else if (((FclModelWork *)obj)->modelId == 0xA) {
                             color1 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xA);
-                        } else if (*(u16 *)(obj + 8) == 0x5F) {
+                        } else if (((FclModelWork *)obj)->modelId == 0x5F) {
                             color1 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xAA);
                         }
-                        cmbCardEffSpawnSprite(*(u8 **)(obj + 0xF0), pos1, 0.0f, 0.0f, 0.0f, 1.0f, color1, 0, -1);
+                        cmbCardEffSpawnSprite(modelWork->spriteB, pos1, 0.0f, 0.0f, 0.0f, 1.0f, color1, 0, -1);
                     }
-                    if (*(s8 *)(obj + 5) == 1) {
-                        u16 modelId = *(u16 *)(obj + 8);
+                    if (((FclModelWork *)obj)->animationRequested == 1) {
+                        u16 modelId = ((FclModelWork *)obj)->modelId;
                         if ((modelId == 4) || (modelId == 0xB) || (modelId == 0x16) || (modelId == 0x2D) || (modelId == 0x53) ||
                             (modelId == 0x6B) || (modelId == 0x9A) || (modelId == 0x57) || (modelId == 0xA6) || (modelId == 0xBA) ||
                             (modelId == 0xBD) || (modelId == 0x15) || (modelId == 0x43) || (modelId == 0x68) || (modelId == 0x8D) ||
                             (modelId == 0x93) || (modelId == 0x71) || (modelId == 0x7D) || (modelId == 0x8A) || (modelId == 0xA3) ||
                             (modelId == 0x39)) {
-                            *(s8 *)(obj + 4) = 2;
-                            *(s8 *)(obj + 5) = 0;
+                            modelWork->effectState = 2;
+                            modelWork->animationRequested = 0;
                         } else {
-                            *(s8 *)(obj + 4) = 3;
+                            modelWork->effectState = 3;
                         }
                     } else {
-                        *(s8 *)(obj + 4) = 4;
+                        modelWork->effectState = 4;
                     }
                     break;
                 case 2:
-                    if (*(u8 *)(*(u8 **)(obj + 0xC) + 0xEE) == 1) {
-                        *(s8 *)(obj + 5) = 0;
-                        *(s8 *)(obj + 4) = 4;
+                    if (((MdlFileModel *)((FclModelWork *)obj)->model)->finished == 1) {
+                        ((FclModelWork *)obj)->animationRequested = 0;
+                        modelWork->effectState = 4;
                     } else if ((f32)evtGetEventFrame() >= 700.0f) {
-                        *(s8 *)(obj + 5) = 0;
-                        *(s8 *)(obj + 4) = 4;
+                        ((FclModelWork *)obj)->animationRequested = 0;
+                        modelWork->effectState = 4;
                     }
                     break;
                 case 3:
                     {
-                        u8 *mdl = *(u8 **)(obj + 0xC);
-                        if (*(u8 *)(mdl + 0xEE) == 1) {
+                        u8 *mdl = ((FclModelWork *)obj)->model;
+                        if (((MdlFileModel *)mdl)->finished == 1) {
                             mdlDispatchAnimIfPresent(mdl, 0, 0, 30, 1);
-                            *(s8 *)(obj + 5) = 0;
-                            *(s8 *)(obj + 4) = 4;
+                            ((FclModelWork *)obj)->animationRequested = 0;
+                            modelWork->effectState = 4;
                         } else if ((f32)evtGetEventFrame() >= 700.0f) {
-                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, 0, 30, 1);
-                            *(s8 *)(obj + 5) = 0;
-                            *(s8 *)(obj + 4) = 4;
+                            mdlDispatchAnimIfPresent(modelWork->model, 0, 0, 30, 1);
+                            ((FclModelWork *)obj)->animationRequested = 0;
+                            modelWork->effectState = 4;
                         }
                     }
                     break;
@@ -537,64 +559,64 @@ s32 cmbEffModelUpdate(u8 *task)
                 }
             }
         } else {
-            *(s32 *)(obj + 0xE8) = 0xB3;
+            ((FclModelWork *)obj)->drawLayer = 0xB3;
         }
         {
             void *setupQueueNode = PrimAllocQueueNode();
-            *(void **)((u8 *)setupQueueNode + 8) = (void *)fclModelBeginDraw;
-            *(u8 **)((u8 *)setupQueueNode + 0x10) = obj;
-            PrimAppendNode(&D_00793E80[(*(s32 *)(obj + 0xE8) - 1) * 0x30], setupQueueNode);
+            ((PrimQueueNode *)(u8 *)setupQueueNode)->callback = (void *)fclModelBeginDraw;
+            ((PrimQueueNode *)(u8 *)setupQueueNode)->argument.data = obj;
+            PrimAppendNode(&D_00793E80[(modelWork->drawLayer - 1) * 0x30], setupQueueNode);
             {
-                s16 drawDelay = *(s16 *)(obj + 2);
+                s16 drawDelay = ((FclModelWork *)obj)->drawDelay;
                 if (drawDelay < 3) {
-                    *(s16 *)(obj + 2) = fclAddClamped(drawDelay, 1, 3, 0, 1);
+                    modelWork->drawDelay = fclAddClamped(drawDelay, 1, 3, 0, 1);
                 } else {
-                    mdlQueueModelForDraw(&D_00793E80[(*(s32 *)(obj + 0xE8)) * 0x30], *(u8 **)(obj + 0xC));
-                    if (*(s8 *)(obj + 0x28) == 0) {
-                        mdlSetAttachedOwner(*(u8 **)(obj + 0xC), D_005DCA70);
+                    mdlQueueModelForDraw(&D_00793E80[(modelWork->drawLayer) * 0x30], ((FclModelWork *)obj)->model);
+                    if (modelWork->previewMode == 0) {
+                        mdlSetAttachedOwner(modelWork->model, D_005DCA70);
                     } else {
-                        mdlSetAttachedOwner(*(u8 **)(obj + 0xC), D_005DCA1C);
+                        mdlSetAttachedOwner(modelWork->model, D_005DCA1C);
                     }
                 }
             }
             {
                 void *restoreQueueNode = PrimAllocQueueNode();
-                *(void **)((u8 *)restoreQueueNode + 8) = (void *)fclModelRestoreDrawState;
-                *(u8 **)((u8 *)restoreQueueNode + 0x10) = obj;
-                PrimAppendNode(&D_00793E80[(*(s32 *)(obj + 0xE8) + 1) * 0x30], restoreQueueNode);
+                ((PrimQueueNode *)(u8 *)restoreQueueNode)->callback = (void *)fclModelRestoreDrawState;
+                ((PrimQueueNode *)(u8 *)restoreQueueNode)->argument.data = obj;
+                PrimAppendNode(&D_00793E80[(modelWork->drawLayer + 1) * 0x30], restoreQueueNode);
             }
         }
         break;
     case 4:
         {
-            u8 *modelToFree = *(u8 **)(obj + 0xC);
+            u8 *modelToFree = ((FclModelWork *)obj)->model;
             if (modelToFree != NULL) {
                 mdlDestroyModelObject(modelToFree);
-                *(u8 **)(obj + 0xC) = NULL;
+                modelWork->model = NULL;
             }
             {
-                u8 *entryBlockToFree = *(u8 **)(obj + 0x14);
+                u8 *entryBlockToFree = ((FclModelWork *)obj)->entryBlock;
                 if (entryBlockToFree != NULL) {
                     datFreeBlock(entryBlockToFree);
-                    *(u8 **)(obj + 0x14) = NULL;
+                    modelWork->entryBlock = NULL;
                 }
             }
-            if (*(s8 *)(obj + 0x28) == 0) {
-                u8 *firstSprite = *(u8 **)(obj + 0xEC);
+            if (((FclModelWork *)obj)->previewMode == 0) {
+                u8 *firstSprite = ((FclModelWork *)obj)->spriteA;
                 if (firstSprite != NULL) {
                     kwlnTaskDestroyWithHierarchy(firstSprite);
-                    *(u8 **)(obj + 0xEC) = NULL;
+                    modelWork->spriteA = NULL;
                 }
                 {
-                    u8 *secondSprite = *(u8 **)(obj + 0xF0);
+                    u8 *secondSprite = ((FclModelWork *)obj)->spriteB;
                     if (secondSprite != NULL) {
                         kwlnTaskDestroyWithHierarchy(secondSprite);
-                        *(u8 **)(obj + 0xF0) = NULL;
+                        modelWork->spriteB = NULL;
                     }
                 }
             }
-            *(s8 *)(obj + 6) = 0;
-            *(s8 *)obj = 0;
+            ((FclModelWork *)obj)->releaseRequested = 0;
+            ((FclModelWork *)obj)->state = 0;
         }
         break;
     case 5:
@@ -611,10 +633,11 @@ void cmbEffModelDestroy(u8 *task)
     u8 *work;
     u8 *model;
     u8 *entryBlock;
+    SdkTask *modelTask = (SdkTask *)task;
 
-    /* The typed task work load changes the saved base register (two words);
-       retain the +0x38 access while using the proven work members below. */
-    work = *(u8 **)(task + 0x38);
+    /* measured: using an access-site cast for both task work loads changes
+       two words; the modelTask alias preserves the second load and MATCH. */
+    work = ((SdkTask *)task)->work;
     model = ((FclModelWork *)work)->model;
     if (model != NULL) {
         mdlDestroyModelObject(model);
@@ -623,7 +646,7 @@ void cmbEffModelDestroy(u8 *task)
     if (entryBlock != NULL) {
         datFreeBlock(entryBlock);
     }
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    jtbl_008873EC[0](modelTask->work);
 }
 
 /* measured: retail loads the {s64 @0x50, f32 @0x58} and {s64 @0x40, f32 @0x48}
@@ -704,9 +727,9 @@ s32 fclModelEffectCreate(s32 parentTask, s32 entryId)
     ((FclModelWork *)mem)->animationRequested = 0;
     entry = datCloneEntryBlock((s8)entryId);
     ((FclModelWork *)mem)->entryBlock = entry;
-    /* The cloned data-block header supplies its entry array at +8; its other
-       spans are owned by the data loader rather than the model work layout. */
-    ((FclModelWork *)mem)->entries = *(FclModelEntry **)(entry + 8);
+    /* The cloned data header supplies the 0x20-byte model-entry array; its
+       second record list contains the optional 0x10-byte quaternions. */
+    ((FclModelWork *)mem)->entries = (FclModelEntry *)((DatEntryBlock *)entry)->largeRecords;
     ((FclModelWork *)mem)->drawLayer = 0xB3;
     RwMatrixRotate((u8 *)&((FclModelWork *)mem)->matrix, &rotationAxis[0], 180.0f, 0);
     RwMatrixTranslate((u8 *)&((FclModelWork *)mem)->matrix, &translation[0], 2);

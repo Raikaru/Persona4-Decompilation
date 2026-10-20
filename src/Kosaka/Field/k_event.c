@@ -29,6 +29,8 @@ extern f32 RwV3dLength(const RwV3d* vector);
 
 #pragma push
 
+/* Test the target direction against the viewer's inclusive angular bounds,
+ * wrapping the degree interval across zero when necessary. */
 // FUN_0014BFF0
 u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov)
 {
@@ -149,6 +151,8 @@ done:
 
 #pragma push
 
+/* Return the target distance inside the FOV-specific range or the unrestricted
+ * near range; return -1 when neither strict distance bound accepts it. */
 // FUN_0014C3D0
 f32 FldEvent_GetVisibleDistance(const RwMatrix* viewerMat, const RwV3d* targetPos,
                   f32 fov, f32 fovMaxDist, f32 maxDist)
@@ -173,6 +177,7 @@ f32 FldEvent_GetVisibleDistance(const RwMatrix* viewerMat, const RwV3d* targetPo
     }
     return result;
 }
+/* Test full three-dimensional separation against an exclusive distance limit. */
 // FUN_0014C4C0
 u32 K_FldEvent_ArePosWithinDist(const RwV3d* posA, const RwV3d* posB, f32 maxDist)
 {

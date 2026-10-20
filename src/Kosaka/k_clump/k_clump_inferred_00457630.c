@@ -38,9 +38,6 @@ extern void RwV3dNormalize(f32 *, f32 *);
 extern void func_003e9680(void *);
 extern s64 D_00711858[];
 extern f32 D_00711860[];
-static inline f32 add_f32(f32 a, f32 b) {
-    return a + b;
-}
 extern u8 *iGpffffb9e0;
 extern void (*D_00887304[])();
 extern void (*D_008873EC[])(void *);
@@ -213,20 +210,10 @@ typedef struct Code45Im2DVertex {
 } Code45Im2DVertex;
 
 #pragma push
-static inline s32 overlayAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 
 #pragma pop
 #pragma push
-/* Character codes are normalized as bytes; the atlas column retains
- * the signed remainder operation used by the original renderer. */
-static inline s32 fontAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 #pragma pop
 
@@ -251,8 +238,7 @@ struct RwFrame {
     struct RwMatrixTag modelling;
 };
 
-/* measured: typing the remaining right/forward component accesses individually loses MATCH; the frame,
- * position, and other matrix components remain typed. */
+/* A retained matrix pointer keeps the cross-product component loads in retail order. */
 // FUN_00457630
 void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp) {
     struct {
@@ -264,6 +250,7 @@ void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp) 
     f32 *fallback;
     u8 *record;
     u8 *basis;
+    struct RwMatrixTag *matrix;
     f32 *refVec;
     u8 *fwd;
     u8 *up;
@@ -282,6 +269,7 @@ void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp) 
     }
     record = (u8 *)((struct RpAtomic *)object)->frame;
     basis = record + 0x10;
+    matrix = (struct RwMatrixTag *)basis;
     ((struct RwFrame *)record)->modelling.pos = *(Code45Vec3 *)position;
     ((struct RwFrame *)record)->modelling.at.x = ((Code45Vec3 *)target)->x - ((struct RwFrame *)record)->modelling.pos.x;
     ((struct RwFrame *)record)->modelling.at.y = ((Code45Vec3 *)target)->y - ((struct RwFrame *)record)->modelling.pos.y;
@@ -289,14 +277,14 @@ void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp) 
     fwd = basis + 0x20;
     RwV3dNormalize((f32 *)fwd, (f32 *)fwd);
     ((struct RwMatrixTag *)basis)->right.x =
-        *(f32 *)(basis + 0x24) * refVec[2] -
-        *(f32 *)(basis + 0x28) * refVec[1];
-    *(f32 *)(basis + 4) =
-        *(f32 *)(basis + 0x28) * refVec[0] -
-        *(f32 *)(basis + 0x20) * refVec[2];
-    forwardY = *(f32 *)(basis + 0x24);
-    forwardX = *(f32 *)(basis + 0x20);
-    *(f32 *)(basis + 8) =
+        matrix->at.y * refVec[2] -
+        matrix->at.z * refVec[1];
+    matrix->right.y =
+        matrix->at.z * refVec[0] -
+        matrix->at.x * refVec[2];
+    forwardY = matrix->at.y;
+    forwardX = matrix->at.x;
+    matrix->right.z =
         forwardX * refVec[1] -
         forwardY * refVec[0];
     RwV3dNormalize((f32 *)basis, (f32 *)basis);
@@ -305,7 +293,7 @@ void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp) 
         ((struct RwMatrixTag *)basis)->at.z * ((struct RwMatrixTag *)basis)->right.y;
     ((struct RwMatrixTag *)basis)->up.y =
         ((struct RwMatrixTag *)basis)->at.z * ((struct RwMatrixTag *)basis)->right.x -
-        *(f32 *)(basis + 0x20) * ((struct RwMatrixTag *)basis)->right.z;
+        matrix->at.x * ((struct RwMatrixTag *)basis)->right.z;
     ((struct RwMatrixTag *)basis)->up.z =
         ((struct RwMatrixTag *)basis)->at.x * ((struct RwMatrixTag *)basis)->right.y -
         ((struct RwMatrixTag *)basis)->at.y * ((struct RwMatrixTag *)basis)->right.x;

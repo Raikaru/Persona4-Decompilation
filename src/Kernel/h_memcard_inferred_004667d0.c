@@ -234,12 +234,11 @@ typedef struct MovieNativeWork {
 #pragma opt_loop_invariants on
 // FUN_004667D0
 /* Allocate a request from the fixed pool and append it under the interrupt lock. */
-/* FilerRequest/Slot document the proven offsets; typed member access changes
- * the owner from MATCH to MISMATCH under b210, so retain byte addressing. */
 u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
                     s32 flags, s32 source, s32 buffer, s32 byteCount,
                     const char *cacheName, s32 resultKind, s32 memoryKind)
 {
+    FilerRequestSlot *filerRequestSlotCursor;
     extern void *memset(void *dst, s32 value, size_t size);
     extern char *strcpy(char *dst, const char *src);
     s32 lock;
@@ -253,8 +252,9 @@ u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
         if (*(u8 **)last == NULL) {
             i = 0;
             for (; i < 256; i++) {
-                if (*(s32 *)(D_008E4D30 + i * 0x1DC) == 0) {
-                    *(s32 *)(D_008E4D30 + i * 0x1DC) = 1;
+                if (((FilerRequestSlot *)D_008E4D30)[i].inUse == 0) {
+                    filerRequestSlotCursor = (FilerRequestSlot *)(D_008E4D30 + i * 0x1DC);
+                    filerRequestSlotCursor->inUse = 1;
                     request = D_008E4D30 + i * 0x1DC + 4;
                     memset(request, 0, 0x1D8);
                     goto allocated;
@@ -262,29 +262,29 @@ u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
             }
             request = NULL;
         allocated:
-            *(u8 **)(request + 0) = NULL;
-            request[0x24] = 0;
+            ((FilerRequest *)request)->next = NULL;
+            ((FilerRequest *)request)->name[0] = 0;
             if (name != NULL) {
                 strcpy((char *)request + 0x24, name);
             }
-            request[0xA4] = 0;
+            ((FilerRequest *)request)->path[0] = 0;
             if (path != NULL) {
                 strcpy((char *)request + 0xA4, path);
             }
-            *(s32 *)(request + 8) = source;
-            *(s32 *)(request + 0x1A4) = 0;
-            *(s32 *)(request + 0x1A8) = flags;
-            *(s32 *)(request + 0x1AC) = kind;
-            *(s32 *)(request + 0x1C4) = buffer;
-            *(s32 *)(request + 0x1C0) = byteCount;
-            request[0x124] = 0;
-            *(s32 *)(request + 0x20) = resultKind;
-            *(s32 *)(request + 0x1CC) = memoryKind;
-            *(s16 *)(request + 0x1D4) = 0;
+            ((FilerRequest *)request)->source = source;
+            ((FilerRequest *)request)->state = 0;
+            ((FilerRequest *)request)->flags = flags;
+            ((FilerRequest *)request)->kind = kind;
+            ((FilerRequest *)request)->buffer = buffer;
+            ((FilerRequest *)request)->byteCount = byteCount;
+            ((FilerRequest *)request)->cacheName[0] = 0;
+            ((FilerRequest *)request)->resultKind = resultKind;
+            ((FilerRequest *)request)->memoryKind = memoryKind;
+            ((FilerRequest *)request)->unk1D4 = 0;
             if (cacheName != NULL) {
                 strcpy((char *)request + 0x124, cacheName);
             }
-            *(u8 **)(request + 4) = last;
+            ((FilerRequest *)request)->previous = last;
             *(u8 **)last = request;
             if (lock != 0) {
                 func_0042ba70();

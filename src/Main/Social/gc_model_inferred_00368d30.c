@@ -37,10 +37,6 @@ extern char D_0064E460[];
 extern char D_0064E280[];
 
 extern f32 cosf(f32);
-static inline f32 p4_00362f00_add(f32 left, f32 right)
-{
-    return left + right;
-}
 extern void sflDataInitPanel(void);
 extern void pscLightInitQuad(u8 *dst);
 extern f32 fGpffff8390;
@@ -153,11 +149,13 @@ void pscModelInitPanel(u8 *model)
 /* measured: func_00368e80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // Intent: Advances a panel's animation timer and phase values for its mode, then rebuilds its tile vertices [inferred]
+/* Advance mode-specific card UV and pulse phases, expire timed transitions, and rebuild enabled tile meshes. */
 // FUN_00368E80
-/* PscModel member access hoisted extra addresses under b210 (1480/1472 bytes);
- * retain byte accesses to the proven psc_model_internal.h layout for an exact match. */
+/* Initial whole-layout typing hoisted extra addresses (1480/1472 bytes); the
+ * access-site and shared typed-local forms below preserve the retail code. */
 void pscModelStepAnimation(u8 *model)
 {
+    PscModel *panelModel;
     extern f32 D_007612D0;
     extern f32 fGpffff838c;
     extern void pscModelBuildTileVertices(u8 *mesh, u8 *model);
@@ -182,84 +180,85 @@ void pscModelStepAnimation(u8 *model)
     f32 rotatingUv[8];
 
     base = model;
-    *(f32 *)(base + 0x3C) += iGpffff8040;
-    mode = *(s32 *)(base + 4);
+    panelModel = (PscModel *)base;
+    ((PscModel *)base)->elapsed += iGpffff8040;
+    mode = ((PscModel *)base)->mode;
     switch (mode) {
     case 0:
-    elapsedCycles = *(f32 *)(base + 0x3C) / 3.0f;
+    elapsedCycles = panelModel->elapsed / 3.0f;
     fastPhase = elapsedCycles - (f32)(s32)elapsedCycles;
-    *(f32 *)(base + 0x2B8) = fastPhase;
-    *(f32 *)(base + 0x2DC) = fastPhase;
-    *(f32 *)(base + 0x300) = 1.0f + fastPhase;
-    *(f32 *)(base + 0x324) = 1.0f + fastPhase;
-    elapsedCycles = *(f32 *)(base + 0x3C) / 16.0f;
+    ((PscModel *)base)->u.m01.b2[0].f20 = fastPhase;
+    ((PscModel *)base)->u.m01.b2[1].f20 = fastPhase;
+    ((PscModel *)base)->u.m01.b2[2].f20 = 1.0f + fastPhase;
+    ((PscModel *)base)->u.m01.b2[3].f20 = 1.0f + fastPhase;
+    elapsedCycles = panelModel->elapsed / 16.0f;
     slowPhase = elapsedCycles - (f32)(s32)elapsedCycles;
-    *(f32 *)(base + 0x348) = slowPhase;
-    *(f32 *)(base + 0x36C) = slowPhase;
-    *(f32 *)(base + 0x390) = 1.0f + slowPhase;
-    *(f32 *)(base + 0x3B4) = 1.0f + slowPhase;
-    elapsedCycles = *(f32 *)(base + 0x3C) / 4.0f;
+    ((PscModel *)base)->u.m01.b3[0].f20 = slowPhase;
+    ((PscModel *)base)->u.m01.b3[1].f20 = slowPhase;
+    ((PscModel *)base)->u.m01.b3[2].f20 = 1.0f + slowPhase;
+    ((PscModel *)base)->u.m01.b3[3].f20 = 1.0f + slowPhase;
+    elapsedCycles = panelModel->elapsed / 4.0f;
     pulsePhase = elapsedCycles - (f32)(s32)elapsedCycles;
     if (pulsePhase < 0.5f) {
         pulseBase = fGpffff8198;
-        *(f32 *)(base + 0x5FC) = pulseBase + ((pulseBase * pulsePhase) / 0.5f);
+        ((PscModel *)base)->u.m01.b8[0].dir.y = pulseBase + ((pulseBase * pulsePhase) / 0.5f);
     } else {
         phaseProgress = (pulsePhase - 0.5f) / 0.5f;
         remainingPhase = 1.0f - phaseProgress;
         pulseBase = fGpffff8198;
         pulseSize = pulseBase + pulseBase * remainingPhase;
-        *(f32 *)(base + 0x5FC) = pulseSize;
+        ((PscModel *)base)->u.m01.b8[0].dir.y = pulseSize;
     }
-    elapsedCycles = *(f32 *)(base + 0x3C) / 2.0f;
+    elapsedCycles = panelModel->elapsed / 2.0f;
     bobPhase = elapsedCycles - (f32)(s32)elapsedCycles;
     if (bobPhase < 0.5f) {
-        *(f32 *)(base + 0x5F8) = (0.5f * bobPhase) / 0.5f;
+        ((PscModel *)base)->u.m01.b8[0].dir.x = (0.5f * bobPhase) / 0.5f;
     } else {
-        *(f32 *)(base + 0x5F8) = 0.5f * (1.0f - ((bobPhase - 0.5f) / 0.5f));
+        ((PscModel *)base)->u.m01.b8[0].dir.x = 0.5f * (1.0f - ((bobPhase - 0.5f) / 0.5f));
     }
     pulseSize = 100.0f + 20.0f * bobPhase;
     pulseScale = pulseSize / 100.0f;
     textureHigh = 0.5f + (0.38671875f / pulseScale);
-    *(f32 *)(base + 0x4F4) = textureHigh;
+    ((PscModel *)base)->u.m01.b6[0].f1c = textureHigh;
     textureLow = 0.5f - (0.38671875f / pulseScale);
-    *(f32 *)(base + 0x518) = textureLow;
-    *(f32 *)(base + 0x53C) = textureLow;
-    *(f32 *)(base + 0x560) = textureHigh;
+    ((PscModel *)base)->u.m01.b6[1].f1c = textureLow;
+    ((PscModel *)base)->u.m01.b6[2].f1c = textureLow;
+    ((PscModel *)base)->u.m01.b6[3].f1c = textureHigh;
     textureLow = 0.5f - (0.41015625f / pulseScale);
-    *(f32 *)(base + 0x4F8) = textureLow;
-    *(f32 *)(base + 0x51C) = textureLow;
+    ((PscModel *)base)->u.m01.b6[0].f20 = textureLow;
+    ((PscModel *)base)->u.m01.b6[1].f20 = textureLow;
     textureLow = 0.5f + (0.41015625f / pulseScale);
-    *(f32 *)(base + 0x540) = textureLow;
-    *(f32 *)(base + 0x564) = textureLow;
+    ((PscModel *)base)->u.m01.b6[2].f20 = textureLow;
+    ((PscModel *)base)->u.m01.b6[3].f20 = textureLow;
         break;
     case 1:
-    elapsedCycles = *(f32 *)(base + 0x3C) / 2.0f;
+    elapsedCycles = panelModel->elapsed / 2.0f;
     bobPhase = elapsedCycles - (f32)(s32)elapsedCycles;
     if (bobPhase < 0.5f) {
-        *(f32 *)(base + 0x32C) = (fGpffff838c * bobPhase) / 0.5f;
+        ((PscModel *)base)->u.m01.b3[0].dir.y = (fGpffff838c * bobPhase) / 0.5f;
     } else {
         phaseProgress = (bobPhase - 0.5f) / 0.5f;
         remainingPhase = 1.0f - phaseProgress;
-        *(f32 *)(base + 0x32C) = fGpffff838c * remainingPhase;
+        ((PscModel *)base)->u.m01.b3[0].dir.y = fGpffff838c * remainingPhase;
     }
     pulseSize = 70.0f + 20.0f * bobPhase;
     pulseScale = pulseSize / 100.0f;
     textureHigh = 0.5f + (0.38671875f / pulseScale);
-    *(f32 *)(base + 0x2B4) = textureHigh;
+    ((PscModel *)base)->u.m01.b2[0].f1c = textureHigh;
     textureLow = 0.5f - (0.38671875f / pulseScale);
-    *(f32 *)(base + 0x2D8) = textureLow;
-    *(f32 *)(base + 0x2FC) = textureLow;
-    *(f32 *)(base + 0x320) = textureHigh;
+    ((PscModel *)base)->u.m01.b2[1].f1c = textureLow;
+    ((PscModel *)base)->u.m01.b2[2].f1c = textureLow;
+    ((PscModel *)base)->u.m01.b2[3].f1c = textureHigh;
     textureLow = 0.5f - (0.41015625f / pulseScale);
-    *(f32 *)(base + 0x2B8) = textureLow;
-    *(f32 *)(base + 0x2DC) = textureLow;
+    ((PscModel *)base)->u.m01.b2[0].f20 = textureLow;
+    ((PscModel *)base)->u.m01.b2[1].f20 = textureLow;
     textureLow = 0.5f + (0.41015625f / pulseScale);
-    *(f32 *)(base + 0x300) = textureLow;
-    *(f32 *)(base + 0x324) = textureLow;
+    ((PscModel *)base)->u.m01.b2[2].f20 = textureLow;
+    ((PscModel *)base)->u.m01.b2[3].f20 = textureLow;
         break;
     }
     if (((*(s32 *)base) & 2) != 0) {
-        switch (*(s32 *)(base + 4)) {
+        switch (panelModel->mode) {
         case 0: {
             f32 *uv;
             f32 *uvY;
@@ -275,7 +274,7 @@ void pscModelStepAnimation(u8 *model)
             rotatingUv[5] = 0.0f;
             rotatingUv[6] = 1.0f;
             rotatingUv[7] = 0.0f;
-            angle = D_007612D0 * (*(f32 *)(base + 0x3C) / 4.0f);
+            angle = D_007612D0 * (panelModel->elapsed / 4.0f);
             for (i = 0; i < 4; i++) {
                 uv = &rotatingUv[i * 2];
                 uv[0] -= 0.5f;
@@ -296,23 +295,23 @@ void pscModelStepAnimation(u8 *model)
                 uv[0] += 0.5f;
                 uv[1] += 0.5f;
             }
-            *(f32 *)(base + 0x584) = rotatingUv[0];
-            *(f32 *)(base + 0x588) = rotatingUv[1];
-            *(f32 *)(base + 0x5A8) = rotatingUv[2];
-            *(f32 *)(base + 0x5AC) = rotatingUv[3];
-            *(f32 *)(base + 0x5CC) = rotatingUv[4];
-            *(f32 *)(base + 0x5D0) = rotatingUv[5];
-            *(f32 *)(base + 0x5F0) = rotatingUv[6];
-            *(f32 *)(base + 0x5F4) = rotatingUv[7];
+            ((PscModel *)base)->u.m01.b7[0].f1c = rotatingUv[0];
+            ((PscModel *)base)->u.m01.b7[0].f20 = rotatingUv[1];
+            ((PscModel *)base)->u.m01.b7[1].f1c = rotatingUv[2];
+            ((PscModel *)base)->u.m01.b7[1].f20 = rotatingUv[3];
+            ((PscModel *)base)->u.m01.b7[2].f1c = rotatingUv[4];
+            ((PscModel *)base)->u.m01.b7[2].f20 = rotatingUv[5];
+            ((PscModel *)base)->u.m01.b7[3].f1c = rotatingUv[6];
+            ((PscModel *)base)->u.m01.b7[3].f20 = rotatingUv[7];
             break;
         }
         }
     }
     if (((*(s32 *)base) & 1) != 0) {
-        *(s32 *)(base + 0x44) += 0x10000;
-        switch (*(s32 *)(base + 0x48)) {
+        ((PscModel *)base)->transitionTime += 0x10000;
+        switch (((PscModel *)base)->unk48) {
         case 0:
-            if ((u32)*(s32 *)(base + 0x44) >= 0x1E0000U) {
+            if ((u32)panelModel->transitionTime >= 0x1E0000U) {
                 *(s32 *)base &= ~1;
             }
             break;
@@ -321,7 +320,7 @@ void pscModelStepAnimation(u8 *model)
         }
     }
     if (((*(s32 *)base) & 8) != 0) {
-        pscModelBuildTileVertices(*(u8 **)(base + 0xDC), base);
+        pscModelBuildTileVertices(((PscModel *)base)->unkDC, base);
     }
 }
 

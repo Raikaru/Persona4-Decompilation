@@ -24,9 +24,6 @@ extern char D_0063D050[];
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,
@@ -59,9 +56,9 @@ extern void mtMiscCollectType1Records(u8 *eventWork);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029e980-0029e980 */
 
+/* Release hook called by active-script-handle cleanup; this retail implementation has no side effects. */
 // FUN_0029E980
-/* Retail contains an empty script-process hook; no side effects are established. */
-void func_0029e980(void)
+void scrProcessReleaseNoop(void)
 {
 }
 

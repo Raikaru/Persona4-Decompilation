@@ -108,17 +108,19 @@ void btlPacketIncUnitCounter(u8 *work)
 // FUN_00202480
 s32 btlPacketUpdateHpRatio(u8 *work)
 {
+    BtlUnit *unitFields;
     s16 delta;
     s16 maximumHp;
     s32 hp;
     u8 *unit;
 
     unit = ((BtlHpRatioWork *)work)->unit;
+    unitFields = (BtlUnit *)unit;
     switch (((BtlHpRatioWork *)work)->mode) {
     case 0:
         hp = (s16)datCalcGetHp((s32)((BtlUnit *)unit)->datUnit);
         /* measured: typing both datUnit loads hoists +A64 into s3 (244 vs 240 bytes). */
-        maximumHp = (s16)datCalcMaxHp(*(s32 *)(unit + 0xA64));
+        maximumHp = (s16)datCalcMaxHp((s32)unitFields->datUnit);
         delta = ((BtlHpRatioWork *)work)->delta;
         if (delta != 0) {
             hp = (s16)(hp + delta);

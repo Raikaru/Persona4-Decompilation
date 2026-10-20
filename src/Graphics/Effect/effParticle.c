@@ -88,6 +88,7 @@ void *ParticleCreateBlock(s32 recordCount)
 void *ParticleCreateFromSource(void *opaqueSource)
 {
     u8 *source = opaqueSource;
+    EffSourceDescriptor *descriptor = (EffSourceDescriptor *)source;
     u8 *settings;
     u32 allocatorAddress;
     u32 count;
@@ -112,36 +113,41 @@ void *ParticleCreateFromSource(void *opaqueSource)
     allocatorAddress = (u32)jtbl_008873E8;
     {
         u8 *const particle = (*(void *(**)(u32, u32))allocatorAddress)(0x60, 0x40000);
+        EffParticleInstance *instance = (EffParticleInstance *)particle;
+        WaveSpawnEmitter *emitter;
         memset(particle, 0, 0x60);
         if (particle == NULL) {
             kAssertFail(D_00713CD0, 0x1F);
         }
-        ((EffParticleInstance *)particle)->recordCount.value = count;
-        ((EffParticleInstance *)particle)->packedColor.signedValue = -1;
-        ((EffParticleInstance *)particle)->scale.value = 1.0f;
+        instance->recordCount.value = count;
+        instance->packedColor.signedValue = -1;
+        instance->scale.value = 1.0f;
         if (particle == NULL) {
             kAssertFail(D_00713CD0, 0x57);
         }
-        ParticleAllocRecords(particle, ((EffSourceDescriptor *)source)->id, settings);
-        if (((EffParticleInstance *)particle)->recordCount.value == 0) {
+        ParticleAllocRecords(particle, descriptor->id, settings);
+        if (instance->recordCount.value == 0) {
             return particle;
         }
         resource = (s32 *)mdlEffectResolveRelPtrB(source);
         if (resource != NULL) {
-            switch (((EffSourceDescriptor *)source)->kind) {
+            switch (descriptor->kind) {
             case 1:
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                ParticleSetMaterialSlot(particle, *(s32 *)(((EffParticleInstance *)particle)->emitter.bytes + 8), 1);
+                emitter = (WaveSpawnEmitter *)instance->emitter.bytes;
+                ParticleSetMaterialSlot(particle, emitter->signedTotalCount, 1);
                 ParticleSetTextureFromHandle(particle, (s32)resource);
                 break;
             case 2:
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                ParticleSetMaterialSlot(particle, *(s32 *)(((EffParticleInstance *)particle)->emitter.bytes + 8), 2);
+                emitter = (WaveSpawnEmitter *)instance->emitter.bytes;
+                ParticleSetMaterialSlot(particle, emitter->signedTotalCount, 2);
                 ParticleSetLinkedGroup(particle, resource);
                 break;
             case 4:
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                ParticleSetMaterialSlot(particle, *(s32 *)(((EffParticleInstance *)particle)->emitter.bytes + 8), 4);
+                emitter = (WaveSpawnEmitter *)instance->emitter.bytes;
+                ParticleSetMaterialSlot(particle, emitter->signedTotalCount, 4);
                 ParticleSetTextureById(particle, *resource);
                 break;
             case 5:
@@ -152,21 +158,22 @@ void *ParticleCreateFromSource(void *opaqueSource)
                 break;
             case 7:
                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                ParticleSetMaterialSlot(particle, *(s32 *)(((EffParticleInstance *)particle)->emitter.bytes + 8), 7);
+                emitter = (WaveSpawnEmitter *)instance->emitter.bytes;
+                ParticleSetMaterialSlot(particle, emitter->signedTotalCount, 7);
                 ParticleSetAuxResource(particle, resource);
                 chkmemAllocSiteTag(D_00713CC0, 0x171);
                 link = (*(void *(**)(u32, u32))allocatorAddress)(0x30, 0x40000);
                 memset(link, 0, 0x30);
-                ((EffParticleInstance *)particle)->link = (ParticleLinkNode *)link;
+                instance->link = (ParticleLinkNode *)link;
                 ((ParticleLinkNode *)link)->tag = 0x19;
-                ((EffParticleInstance *)particle)->link->owner = particle;
+                instance->link->owner = particle;
                 break;
             default:
                 kAssertFail(D_00713CD0, 0x7E);
                 break;
             }
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            ((EffParticleInstance *)particle)->kind = *(u16 *)(source + 0x1C);
+            instance->kind = descriptor->kind;
         }
         return particle;
     }
@@ -174,69 +181,71 @@ void *ParticleCreateFromSource(void *opaqueSource)
 
 // Frees a particle block: its records and sub-objects, then the block itself.
 // FUN_00486E10
-/* Remaining raw instance sites were isolated by individual owning-file trials. */
+/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleFree(u8 *particle)
 {
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
     u32 count;
     u32 i;
 
-    if (((EffParticleInstance *)particle)->childAllocation.handle != 0) {
-        if (((EffParticleInstance *)particle)->emitter.handle != 0) {
-            count = (s32)((WaveSpawnEmitter *)((EffParticleInstance *)particle)->emitter.handle)->totalCount;
+    if (instance->childAllocation.handle != 0) {
+        if (instance->emitter.handle != 0) {
+            count = (s32)((WaveSpawnEmitter *)instance->emitter.handle)->totalCount;
         } else {
-            count = ((EffParticleInstance *)particle)->recordCount.signedValue;
+            count = instance->recordCount.signedValue;
         }
         for (i = 0; i < count; i++) {
-            mdlEffectDestroyPrimitiveRecord(((u8 **)((EffParticleInstance *)particle)->children.bytes)[i]);
+            mdlEffectDestroyPrimitiveRecord(((u8 **)instance->children.bytes)[i]);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        jtbl_008873EC[0](*(void **)(particle + 0x38));
+        jtbl_008873EC[0](instance->childAllocation.pointer);
     }
-    if (((EffParticleInstance *)particle)->modelAllocation.handle != 0) {
-        if (((EffParticleInstance *)particle)->emitter.handle != 0) {
-            count = (s32)((WaveSpawnEmitter *)((EffParticleInstance *)particle)->emitter.handle)->totalCount;
+    if (instance->modelAllocation.handle != 0) {
+        if (instance->emitter.handle != 0) {
+            count = (s32)((WaveSpawnEmitter *)instance->emitter.handle)->totalCount;
         } else {
-            count = ((EffParticleInstance *)particle)->recordCount.signedValue;
+            count = instance->recordCount.signedValue;
         }
         for (i = 0; i < count; i++) {
-            mdlEffectDestroyWithNodes(((u8 **)((EffParticleInstance *)particle)->models.bytes)[i]);
+            mdlEffectDestroyWithNodes(((u8 **)instance->models.bytes)[i]);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        jtbl_008873EC[0](*(void **)(particle + 0x40));
+        jtbl_008873EC[0](instance->modelAllocation.pointer);
     }
-    if (((EffParticleInstance *)particle)->animation.handle != 0) {
-        mdlEffectReleaseTrackInstance(((EffParticleInstance *)particle)->animation.handle);
+    if (instance->animation.handle != 0) {
+        mdlEffectReleaseTrackInstance(instance->animation.handle);
     }
-    if (((EffParticleInstance *)particle)->tlpRef != 0) {
-        TlpRelease(((EffParticleInstance *)particle)->tlpRef);
+    if (instance->tlpRef != 0) {
+        TlpRelease(instance->tlpRef);
     }
-    if (((EffParticleInstance *)particle)->flags & 1) {
-        mdlEffectFreeEmitterAllocation((u8 *)((EffParticleInstance *)particle)->emitter.handle);
+    if (instance->flags & 1) {
+        mdlEffectFreeEmitterAllocation((u8 *)instance->emitter.handle);
     }
-    if (((EffParticleInstance *)particle)->geometry.handle != 0) {
-        GeometryBlockDestroy(((EffParticleInstance *)particle)->geometry.handle);
+    if (instance->geometry.handle != 0) {
+        GeometryBlockDestroy(instance->geometry.handle);
     }
-    if (((EffParticleInstance *)particle)->link != NULL) {
-        jtbl_008873EC[0](((EffParticleInstance *)particle)->link);
+    if (instance->link != NULL) {
+        jtbl_008873EC[0](instance->link);
     }
     jtbl_008873EC[0](particle);
 }
 // Creates a particle block from a parent particle block, copying its records and mode.
 // FUN_00486FB0
-/* Remaining raw instance sites were isolated by individual owning-file trials. */
+/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void *ParticleCreateFromParent(void *opaqueSource)
 {
     u8 *particle = opaqueSource;
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
     u32 recordCapacity;
     u8 *parameters;
     u8 *createdParticle;
     u32 emissionCount;
 
-    if (((EffParticleInstance *)particle)->emitter.handle == 0) {
+    if (instance->emitter.handle == 0) {
         kAssertFail(D_00713CD0, 0xE0);
     }
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    parameters = (u8*)((WaveSpawnEmitter *)*(u8 **)(particle + 0x4C))->originalParameters;
+    parameters = (u8*)((WaveSpawnEmitter *)instance->emitter.bytes)->originalParameters;
     if (parameters == NULL) {
         kAssertFail(D_00713CD0, 0xE2);
     }
@@ -262,12 +271,12 @@ void *ParticleCreateFromParent(void *opaqueSource)
         kAssertFail(D_00713CD0, 0xE4);
     }
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    ParticleAllocRecords(createdParticle, ((WaveSpawnEmitter *)*(u8 **)(particle + 0x4C))->kind, (void *)parameters);
+    ParticleAllocRecords(createdParticle, ((WaveSpawnEmitter *)instance->emitter.bytes)->kind, (void *)parameters);
     if (((EffParticleInstance *)createdParticle)->recordCount.signedValue == 0) {
         return createdParticle;
     }
-    if (((EffParticleInstance *)particle)->geometry.handle != 0) {
-        ((EffParticleInstance *)createdParticle)->geometry.handle = (s32)GeometryCloneBlock((void *)((EffParticleInstance *)particle)->geometry.handle);
+    if (instance->geometry.handle != 0) {
+        ((EffParticleInstance *)createdParticle)->geometry.handle = (s32)GeometryCloneBlock((void *)instance->geometry.handle);
     }
     ParticleCopyModeFromSource(createdParticle, particle);
     return createdParticle;
@@ -279,68 +288,70 @@ void *ParticleCreateFromParent(void *opaqueSource)
    Object/window 1136B, normalized_diff 0. */
 // Copies the source's mode into the particle block: dispatches on the source's type word to the matching setter.
 // FUN_00487160
-/* Remaining raw instance sites were isolated by individual owning-file trials. */
+/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleCopyModeFromSource(u8 *particle, u8 *source)
 {
-    switch (((EffParticleInstance *)source)->kind) {
+    EffParticleInstance *sourceInstance = (EffParticleInstance *)source;
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
+    switch (sourceInstance->kind) {
     case 1:
     case 4:
-        ((EffParticleInstance *)particle)->texScaleX = ((EffParticleInstance *)source)->texScaleX;
-        ((EffParticleInstance *)particle)->texScaleY = ((EffParticleInstance *)source)->texScaleY;
+        instance->texScaleX = sourceInstance->texScaleX;
+        instance->texScaleY = sourceInstance->texScaleY;
         break;
     case 2:
-        if (((EffParticleInstance *)source)->animation.handle == 0) {
+        if (sourceInstance->animation.handle == 0) {
             kAssertFail(D_00713CD0, 0x10D);
         }
-        if (((EffParticleInstance *)source)->emitter.handle == 0) {
+        if (sourceInstance->emitter.handle == 0) {
             kAssertFail(D_00713CD0, 0x10E);
         }
-        if (((EffParticleInstance *)particle)->animation.handle != 0) {
-            mdlEffectReleaseTrackInstance(((EffParticleInstance *)particle)->animation.handle);
+        if (instance->animation.handle != 0) {
+            mdlEffectReleaseTrackInstance(instance->animation.handle);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(s32 *)(particle + 0x44) = mdlEffectShareTrackInstance(*(s32 *)(source + 0x44));
+        instance->animation.handle = mdlEffectShareTrackInstance(sourceInstance->animation.handle);
         break;
     case 5: {
         u32 count5;
         u32 i5;
 
-        count5 = ((WaveSpawnEmitter *)((EffParticleInstance *)source)->emitter.bytes)->totalCount;
+        count5 = ((WaveSpawnEmitter *)sourceInstance->emitter.bytes)->totalCount;
         if (count5 == 0) {
             return;
         }
-        if (((EffParticleInstance *)source)->childAllocation.handle == 0) {
+        if (sourceInstance->childAllocation.handle == 0) {
             kAssertFail(D_00713CD0, 0x119);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        if (*(s32 *)(source + 0x4C) == 0) {
+        if (sourceInstance->emitter.handle == 0) {
             kAssertFail(D_00713CD0, 0x11A);
         }
-        if (((EffParticleInstance *)particle)->childAllocation.handle != 0) {
+        if (instance->childAllocation.handle != 0) {
             for (i5 = 0; i5 < count5; i5++) {
-                mdlEffectDestroyPrimitiveRecord(((u8 **)((EffParticleInstance *)particle)->children.bytes)[i5]);
+                mdlEffectDestroyPrimitiveRecord(((u8 **)instance->children.bytes)[i5]);
             }
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            jtbl_008873EC[0](*(void **)(particle + 0x38));
-            ((EffParticleInstance *)particle)->children.bytes = NULL;
+            jtbl_008873EC[0](instance->childAllocation.pointer);
+            instance->children.bytes = NULL;
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            *(u8 **)(particle + 0x38) = NULL;
+            instance->childAllocation.bytes = NULL;
         }
         if (count5 * 4 == 0) {
             return;
         }
         chkmemAllocSiteTag(D_00713CD0, 0x12C);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x38) = (u8 *)(*jtbl_008873E8)(count5 * 4, 0x40000);
+        instance->childAllocation.bytes = (u8 *)(*jtbl_008873E8)(count5 * 4, 0x40000);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        if (*(u8 **)(particle + 0x38) == NULL) {
+        if (instance->childAllocation.bytes == NULL) {
             kAssertFail(D_00713CD0, 0x12D);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x34) = *(u8 **)(particle + 0x38);
+        instance->children.bytes = instance->childAllocation.bytes;
         for (i5 = 0; i5 < count5; i5++) {
-            ((u8 **)((EffParticleInstance *)particle)->children.bytes)[i5] =
-                mdlEffectCreateChildRecord(((u8 **)((EffParticleInstance *)source)->children.bytes)[0]);
+            ((u8 **)instance->children.bytes)[i5] =
+                mdlEffectCreateChildRecord(((u8 **)sourceInstance->children.bytes)[0]);
         }
         break;
     }
@@ -348,42 +359,42 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
         u32 count6;
         u32 i6;
 
-        count6 = ((WaveSpawnEmitter *)((EffParticleInstance *)source)->emitter.bytes)->totalCount;
+        count6 = ((WaveSpawnEmitter *)sourceInstance->emitter.bytes)->totalCount;
         if (count6 == 0) {
             return;
         }
-        if (((EffParticleInstance *)source)->modelAllocation.handle == 0) {
+        if (sourceInstance->modelAllocation.handle == 0) {
             kAssertFail(D_00713CD0, 0x139);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        if (*(s32 *)(source + 0x4C) == 0) {
+        if (sourceInstance->emitter.handle == 0) {
             kAssertFail(D_00713CD0, 0x13A);
         }
-        if (((EffParticleInstance *)particle)->modelAllocation.handle != 0) {
+        if (instance->modelAllocation.handle != 0) {
             for (i6 = 0; i6 < count6; i6++) {
-                mdlEffectDestroyWithNodes(((u8 **)((EffParticleInstance *)particle)->models.bytes)[i6]);
+                mdlEffectDestroyWithNodes(((u8 **)instance->models.bytes)[i6]);
             }
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            jtbl_008873EC[0](*(void **)(particle + 0x40));
-            ((EffParticleInstance *)particle)->models.bytes = NULL;
+            jtbl_008873EC[0](instance->modelAllocation.pointer);
+            instance->models.bytes = NULL;
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            *(u8 **)(particle + 0x40) = NULL;
+            instance->modelAllocation.bytes = NULL;
         }
         if (count6 * 4 == 0) {
             return;
         }
         chkmemAllocSiteTag(D_00713CD0, 0x14C);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x40) = (u8 *)(*jtbl_008873E8)(count6 * 4, 0x40000);
+        instance->modelAllocation.bytes = (u8 *)(*jtbl_008873E8)(count6 * 4, 0x40000);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        if (*(u8 **)(particle + 0x40) == NULL) {
+        if (instance->modelAllocation.bytes == NULL) {
             kAssertFail(D_00713CD0, 0x14D);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x3C) = *(u8 **)(particle + 0x40);
+        instance->models.bytes = instance->modelAllocation.bytes;
         for (i6 = 0; i6 < count6; i6++) {
-            ((u8 **)((EffParticleInstance *)particle)->models.bytes)[i6] =
-                mdlEffectCloneWithNodes(((u8 **)((EffParticleInstance *)source)->models.bytes)[0]);
+            ((u8 **)instance->models.bytes)[i6] =
+                mdlEffectCloneWithNodes(((u8 **)sourceInstance->models.bytes)[0]);
         }
         break;
     }
@@ -391,23 +402,23 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
         u8 *p;
 
         /* The source handle reads and the store stay as raw offsets: typed forms changed the codegen (measured). */
-        if (((EffParticleInstance *)source)->tlpRef == 0) {
+        if (sourceInstance->tlpRef == 0) {
             kAssertFail(D_00713CD0, 0x156);
         }
-        if (((EffParticleInstance *)particle)->tlpRef != 0) {
-            TlpRelease(((EffParticleInstance *)particle)->tlpRef);
+        if (instance->tlpRef != 0) {
+            TlpRelease(instance->tlpRef);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(s32 *)(particle + 0x48) = TlpAddRef(*(s32 *)(source + 0x48));
-        if (((EffParticleInstance *)particle)->link != NULL) {
+        instance->tlpRef = TlpAddRef(sourceInstance->tlpRef);
+        if (instance->link != NULL) {
             kAssertFail(D_00713CD0, 0x15F);
         }
         chkmemAllocSiteTag(D_00713CC0, 0x171);
         p = (u8 *)(*jtbl_008873E8)(0x30, 0x40000);
         memset(p, 0, 0x30);
-        ((EffParticleInstance *)particle)->link = (ParticleLinkNode *)p;
+        instance->link = (ParticleLinkNode *)p;
         ((ParticleLinkNode *)p)->tag = 0x19;
-        ((EffParticleInstance *)particle)->link->owner = particle;
+        instance->link->owner = particle;
         break;
     }
     default:
@@ -415,20 +426,21 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
         break;
     }
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    ((EffParticleInstance *)particle)->kind = *(u16 *)(source + 0xC);
+    instance->kind = sourceInstance->kind;
 }
 
 // Allocates the particle record block (count times the record size) and marks the block dirty.
 // FUN_004875D0
-/* Remaining raw instance sites were isolated by individual owning-file trials. */
+/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleAllocRecords(u8 *particle, s32 source, void *options)
 {
-    if (((EffParticleInstance *)particle)->emitter.bits != 0) {
-        mdlEffectFreeEmitterAllocation((u8 *)((EffParticleInstance *)particle)->emitter.bits);
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
+    if (instance->emitter.bits != 0) {
+        mdlEffectFreeEmitterAllocation((u8 *)instance->emitter.bits);
     }
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    *(u32 *)(particle + 0x4C) = (u32)mdlEffectAllocateTrackPath(source & 0xFFFF, ((EffParticleInstance *)particle)->recordCount.value, options);
-    ((EffParticleInstance *)particle)->flags |= 1;
+    instance->emitter.bits = (u32)mdlEffectAllocateTrackPath(source & 0xFFFF, instance->recordCount.value, options);
+    instance->flags |= 1;
 }
 
 
@@ -436,10 +448,11 @@ void ParticleAllocRecords(u8 *particle, s32 source, void *options)
 
 // Sets the material slot from the type: types 1 and 4 take a material by id, type 2 takes the second material id, type 7 leaves it.
 // FUN_00487650
-/* Remaining raw instance sites were isolated by individual owning-file trials. */
+/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleSetMaterialSlot(u8 *particle, s32 source, s32 options)
 {
-    s32 previousHandle = ((EffParticleInstance *)particle)->geometry.handle;
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
+    s32 previousHandle = instance->geometry.handle;
 
     if (previousHandle != 0) {
         GeometryBlockDestroy(previousHandle);
@@ -448,11 +461,11 @@ void ParticleSetMaterialSlot(u8 *particle, s32 source, s32 options)
     case 1:
     case 4:
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(s32 *)(particle + 0x50) = GeometryCreateAtomicFromResource(source & 0xFFFF, 0x20080027);
+        instance->geometry.handle = GeometryCreateAtomicFromResource(source & 0xFFFF, 0x20080027);
         return;
     case 2:
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(s32 *)(particle + 0x50) = GeometryCreateAtomicFromResource(source & 0xFFFF, 0x200000A7);
+        instance->geometry.handle = GeometryCreateAtomicFromResource(source & 0xFFFF, 0x200000A7);
         /* fallthrough */
     case 7:
         return;
@@ -494,95 +507,98 @@ void ParticleSetTextureFromHandle(u8 *particle, s32 source)
 
 // Replaces the linked group handle with the one returned for the given list.
 // FUN_00487860
-/* Remaining raw instance sites were isolated by individual owning-file trials. */
+/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleSetLinkedGroup(u8 *particle, s32 *source)
 {
-    s32 previousHandle = ((EffParticleInstance *)particle)->animation.handle;
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
+    s32 previousHandle = instance->animation.handle;
 
     if (previousHandle != 0) {
         mdlEffectReleaseTrackInstance(previousHandle);
     }
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    *(s32 *)(particle + 0x44) = mdlEffectCreateTrackInstance(source);
+    instance->animation.handle = mdlEffectCreateTrackInstance(source);
 }
 
 // Rebuilds the subtype chain: releases the old chain, then builds count entries from the resource (entry 0 from the resource, the rest linked).
 // FUN_004878C0
-/* Remaining raw instance sites were isolated by individual owning-file trials. */
+/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleRebuildSubtypeChain(u8 *particle, void *source)
 {
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
     u32 count;
     u32 i;
 
-    if (((EffParticleInstance *)particle)->emitter.handle != 0) {
-        count = (s32)((WaveSpawnEmitter *)((EffParticleInstance *)particle)->emitter.handle)->totalCount;
+    if (instance->emitter.handle != 0) {
+        count = (s32)((WaveSpawnEmitter *)instance->emitter.handle)->totalCount;
     } else {
-        count = ((EffParticleInstance *)particle)->recordCount.signedValue;
+        count = instance->recordCount.signedValue;
     }
-    if (((EffParticleInstance *)particle)->childAllocation.handle != 0) {
+    if (instance->childAllocation.handle != 0) {
         for (i = 0; i < count; i++) {
-            mdlEffectDestroyPrimitiveRecord(((u8 **)((EffParticleInstance *)particle)->children.bytes)[i]);
+            mdlEffectDestroyPrimitiveRecord(((u8 **)instance->children.bytes)[i]);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        jtbl_008873EC[0](*(void **)(particle + 0x38));
-        ((EffParticleInstance *)particle)->children.bytes = NULL;
+        jtbl_008873EC[0](instance->childAllocation.pointer);
+        instance->children.bytes = NULL;
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x38) = NULL;
+        instance->childAllocation.bytes = NULL;
     }
     if (count * 4 != 0) {
         chkmemAllocSiteTag(D_00713CD0, 0x21C);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x38) = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
+        instance->childAllocation.bytes = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        if (*(u8 **)(particle + 0x38) == NULL) {
+        if (instance->childAllocation.bytes == NULL) {
             kAssertFail(D_00713CD0, 0x21D);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x34) = *(u8 **)(particle + 0x38);
-        ((u8 **)((EffParticleInstance *)particle)->children.bytes)[0] = mdlEffectCreatePrimitiveRecord((u8 *)source);
+        instance->children.bytes = instance->childAllocation.bytes;
+        ((u8 **)instance->children.bytes)[0] = mdlEffectCreatePrimitiveRecord((u8 *)source);
         for (i = 1; i < count; i++) {
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            ((u8 **)*(u8 **)(particle + 0x34))[i] = mdlEffectCreateChildRecord(((u8 **)*(u8 **)(particle + 0x34))[0]);
+            ((u8 **)instance->children.bytes)[i] = mdlEffectCreateChildRecord(((u8 **)instance->children.bytes)[0]);
         }
     }
 }
 // Rebuilds the alternate subtype chain: releases the old chain, then builds count entries linked from the resource; same shape as ParticleRebuildSubtypeChain.
 // FUN_00487A30
-/* Remaining raw instance sites were isolated by individual owning-file trials. */
+/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleRebuildSubtypeChainAlt(u8 *particle, void *source)
 {
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
     u32 count;
     u32 i;
 
-    if (((EffParticleInstance *)particle)->emitter.handle != 0) {
-        count = (s32)((WaveSpawnEmitter *)((EffParticleInstance *)particle)->emitter.handle)->totalCount;
+    if (instance->emitter.handle != 0) {
+        count = (s32)((WaveSpawnEmitter *)instance->emitter.handle)->totalCount;
     } else {
-        count = ((EffParticleInstance *)particle)->recordCount.signedValue;
+        count = instance->recordCount.signedValue;
     }
-    if (((EffParticleInstance *)particle)->modelAllocation.handle != 0) {
+    if (instance->modelAllocation.handle != 0) {
         for (i = 0; i < count; i++) {
-            mdlEffectDestroyWithNodes(((u8 **)((EffParticleInstance *)particle)->models.bytes)[i]);
+            mdlEffectDestroyWithNodes(((u8 **)instance->models.bytes)[i]);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        jtbl_008873EC[0](*(void **)(particle + 0x40));
-        ((EffParticleInstance *)particle)->models.bytes = NULL;
+        jtbl_008873EC[0](instance->modelAllocation.pointer);
+        instance->models.bytes = NULL;
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x40) = NULL;
+        instance->modelAllocation.bytes = NULL;
     }
     if (count * 4 != 0) {
         chkmemAllocSiteTag(D_00713CD0, 0x24F);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x40) = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
+        instance->modelAllocation.bytes = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        if (*(u8 **)(particle + 0x40) == NULL) {
+        if (instance->modelAllocation.bytes == NULL) {
             kAssertFail(D_00713CD0, 0x250);
         }
         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-        *(u8 **)(particle + 0x3C) = *(u8 **)(particle + 0x40);
-        ((u8 **)((EffParticleInstance *)particle)->models.bytes)[0] = mdlEffectBuildFromResource((u8 *)source);
+        instance->models.bytes = instance->modelAllocation.bytes;
+        ((u8 **)instance->models.bytes)[0] = mdlEffectBuildFromResource((u8 *)source);
         for (i = 1; i < count; i++) {
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            ((u8 **)*(u8 **)(particle + 0x3C))[i] = mdlEffectCloneWithNodes(((u8 **)*(u8 **)(particle + 0x3C))[0]);
+            ((u8 **)instance->models.bytes)[i] = mdlEffectCloneWithNodes(((u8 **)instance->models.bytes)[0]);
         }
     }
 }
@@ -595,13 +611,14 @@ void ParticleRebuildSubtypeChainAlt(u8 *particle, void *source)
 /* Access-site trials isolated the remaining raw descriptor/handle accesses below. */
 void ParticleSetAuxResource(u8 *particle, s32 *source)
 {
-    s32 previousHandle = ((EffParticleInstance *)particle)->tlpRef;
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
+    s32 previousHandle = instance->tlpRef;
 
     if (previousHandle != 0) {
         TlpRelease(previousHandle);
     }
     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-    *(s32 *)(particle + 0x48) = TlpCreate(source);
+    instance->tlpRef = TlpCreate(source);
 }
 
 
@@ -890,6 +907,7 @@ typedef char ParticleAnimationOutputSize[(sizeof(ParticleAnimationOutput) == 56)
 
 /* VU0 boundary: VF10 contains the normalized animated particle color.
  * Packing produces the real four-byte scalar consumed by the color stream. */
+/* Convert the animated VU color to a packed byte-channel word. */
 static inline u32 particlePackAnimatedColor(void)
 {
     u32 result;
@@ -909,6 +927,7 @@ static inline u32 particlePackAnimatedColor(void)
 }
 
 /* The transformed pass keeps the color-byte scale in an FPR. */
+/* Scale the animated VU color before packing its byte channels. */
 static inline u32 particlePackAnimatedColorTransformed(f32 scale)
 {
     u32 result;
@@ -935,11 +954,11 @@ static inline u32 particlePackAnimatedColorTransformed(f32 scale)
 
 // Projects the particle vertices through the VU0 matrix and writes the packed colour per vertex.
 // FUN_00487FB0
-/* Emitter/record members and PTank stream elements are typed at their access sites;
- * only individually measured culprits retain raw object accesses. */
-/* Remaining raw instance sites were isolated by individual owning-file trials. */
+/* Typed emitter/record locals and native PTank stream elements preserve the original traversal lifetimes. */
+/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleProjectVertices(u8* particle, f32 scale)
 {
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
     extern s32 func_003a5180(RpAtomic * atomic);
     extern s32 func_003a2770(RpAtomic * atomic, RpPTankLockStruct * lock, u32 dataFlags, RpPTankLockFlags access);
     extern RpAtomic *func_003a2920(RpAtomic *atomic);
@@ -982,7 +1001,9 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     u8* record;
     u8* atomicAddress;
     u8* settings;
+    WaveSpawnParameters *emitterSettings;
     u8* animationSettings;
+    WaveSpawnParameters *animatedEmitterSettings;
     s32 particleCount;
     s32 activeCount;
     f32 colorScale;
@@ -994,9 +1015,9 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     s32 animatedTransformedIndex;
     s32 effectIndex;
     s32 modelIndex;
-    emitterOrObjects = ((EffParticleInstance *)particle)->emitter.bytes;
+    emitterOrObjects = instance->emitter.bytes;
     {
-        s32 inputColor = ((EffParticleInstance *)particle)->packedColor.signedValue;
+        s32 inputColor = instance->packedColor.signedValue;
         const s32* word = &inputColor;
         colorScale = fGpffff8044;
         __asm__ volatile("lw $2, 0(%0)\n"
@@ -1023,7 +1044,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
         goto particle_render_done;
     }
     record = (u8*)((WaveSpawnEmitter *)emitterOrObjects)->particles;
-    switch (((EffParticleInstance *)particle)->kind)
+    switch (instance->kind)
     {
     case 1:
     case 4:
@@ -1032,10 +1053,11 @@ void ParticleProjectVertices(u8* particle, f32 scale)
         f32 angleStep;
         f32 lowerAngle;
         activeCount = 0;
-        scaleX = ((EffParticleInstance *)particle)->texScaleX * scale;
-        scaleY = ((EffParticleInstance *)particle)->texScaleY * scale;
-        atomicAddress = ((EffGeometryBlock *)((EffParticleInstance *)particle)->geometry.bytes)->atomic;
+        scaleX = instance->texScaleX * scale;
+        scaleY = instance->texScaleY * scale;
+        atomicAddress = ((EffGeometryBlock *)instance->geometry.bytes)->atomic;
         settings = (u8*)((WaveSpawnEmitter *)emitterOrObjects)->parameters;
+        emitterSettings = (WaveSpawnParameters *)settings;
         func_003a5180((RpAtomic*)atomicAddress);
         func_003a2770((RpAtomic*)atomicAddress, &positionLock, 1, 0x40000000);
         func_003a2770((RpAtomic*)atomicAddress, &colorLock, 2, 0x40000000);
@@ -1049,16 +1071,17 @@ void ParticleProjectVertices(u8* particle, f32 scale)
             lowerAngle = fGpffff80a0;
             while (plainIndex < particleCount)
             {
-                if (((SpawnParticle *)record)->age >= 0)
+                SpawnParticle *entry = (SpawnParticle *)record;
+                if (entry->age >= 0)
                 {
-                    ((BtlShuffleVec3 *)positionLock.data)->x = ((SpawnParticle *)record)->position.lane[0];
-                    ((BtlShuffleVec3 *)positionLock.data)->y = ((SpawnParticle *)record)->position.lane[1];
-                    ((BtlShuffleVec3 *)positionLock.data)->z = ((SpawnParticle *)record)->position.lane[2];
+                    ((BtlShuffleVec3 *)positionLock.data)->x = entry->position.lane[0];
+                    ((BtlShuffleVec3 *)positionLock.data)->y = entry->position.lane[1];
+                    ((BtlShuffleVec3 *)positionLock.data)->z = entry->position.lane[2];
                     positionLock.data += positionLock.stride;
-                    *(s32*)colorLock.data = (s32)((SpawnParticle *)record)->color;
+                    *(s32*)colorLock.data = (s32)entry->color;
                     colorLock.data += colorLock.stride;
                     {
-                        f32 f = ((SpawnParticle *)record)->angle;
+                        f32 f = entry->angle;
                         if (!(f <= upperAngle))
                         {
                             while (!(f <= upperAngle))
@@ -1074,12 +1097,12 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                             }
                         }
                         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                        *(f32*)(record + 0x1C) = f;
+                        entry->angle = f;
                         *(f32*)rotationLock.data = f;
                         rotationLock.data += rotationLock.stride;
                     }
                     {
-                        f32 s = ((SpawnParticle *)record)->size;
+                        f32 s = entry->size;
                         ((RwV2d *)sizeLock.data)->x = scaleX * s;
                         ((RwV2d *)sizeLock.data)->y = scaleY * s;
                         sizeLock.data += sizeLock.stride;
@@ -1120,7 +1143,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
             transformedPosition = (f32*)transformedPoint;
             while (transformedIndex < particleCount)
             {
-                if (((SpawnParticle *)record)->age >= 0)
+                SpawnParticle *entry = (SpawnParticle *)record;
+                if (entry->age >= 0)
                 {
                     __asm__ volatile("lqc2 $vf28, 0(%0)\n"
                                      "lqc2 $vf29, 16(%0)\n"
@@ -1142,10 +1166,10 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                     ((BtlShuffleVec3 *)positionLock.data)->y = ((EffectVuVector *)transformedPoint)->lane[1];
                     ((BtlShuffleVec3 *)positionLock.data)->z = ((EffectVuVector *)transformedPoint)->lane[2];
                     positionLock.data += positionLock.stride;
-                    *(s32*)colorLock.data = (s32)((SpawnParticle *)record)->color;
+                    *(s32*)colorLock.data = (s32)entry->color;
                     colorLock.data += colorLock.stride;
                     {
-                        f32 f = ((SpawnParticle *)record)->angle;
+                        f32 f = entry->angle;
                         if (!(f <= upperAngle))
                         {
                             while (!(f <= upperAngle))
@@ -1161,12 +1185,12 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                             }
                         }
                         /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                        *(f32*)(record + 0x1C) = f;
+                        entry->angle = f;
                         *(f32*)rotationLock.data = f;
                         rotationLock.data += rotationLock.stride;
                     }
                     {
-                        f32 s = ((SpawnParticle *)record)->size;
+                        f32 s = entry->size;
                         ((RwV2d *)sizeLock.data)->x = scaleX * s;
                         ((RwV2d *)sizeLock.data)->y = scaleY * s;
                         sizeLock.data += sizeLock.stride;
@@ -1181,25 +1205,25 @@ void ParticleProjectVertices(u8* particle, f32 scale)
         if (activeCount != 0)
         {
             u8* material;
-            materialColor.word = ((EffParticleInstance *)particle)->packedColor.value;
+            materialColor.word = instance->packedColor.value;
             material = *((RpGeometry *)(u8*)((RpAtomic *)atomicAddress)->geometry)->materials;
             ((RpMaterial *)material)->color = *(EffMeshColor *)&materialColor.bytes;
             {
                 /* Runtime PTank plugin-offset slot, not a fixed RpAtomic member. */
-                ((ParticleTankState *)*(u8**)(atomicAddress + iGpffffb610))->flags |= 0x800000;
+                ((ParticleTankState *)((ParticleTankState **)(atomicAddress + iGpffffb610))[0])->flags |= 0x800000;
                 /* Runtime PTank plugin-offset slot, not a fixed RpAtomic member. */
-                ((ParticleTankState *)*(u8**)(atomicAddress + iGpffffb610))->activeCount = activeCount;
+                ((ParticleTankState *)((ParticleTankState **)(atomicAddress + iGpffffb610))[0])->activeCount = activeCount;
             }
             /* Packed halfword in the shared emitter parameter word span (unknown2c). */
-            GeometryBlockSetPartState(((EffParticleInstance *)particle)->geometry.bytes, *(u16*)(settings + 0x54));
+            GeometryBlockSetPartState(instance->geometry.bytes, emitterSettings->resourceId);
             /* Packed halfword in the shared emitter parameter word span (unknown2c). */
-            GeometryBlockBindResource(*(u8**)(particle + 0x50), *(u16*)(settings + 0x54));
+            GeometryBlockBindResource(instance->geometry.bytes, emitterSettings->resourceId);
         }
         break;
     }
     case 2:
     {
-        u8* animationResource = ((EffParticleInstance *)particle)->animation.bytes;
+        u8* animationResource = instance->animation.bytes;
         if (animationResource == 0)
         {
             kAssertFail(D_00713CD0, 0x380);
@@ -1209,8 +1233,9 @@ void ParticleProjectVertices(u8* particle, f32 scale)
          * ends after the active-count guard and PTank count store. */
         {
             s32 animatedActiveCount = 0;
-            atomicAddress = ((EffGeometryBlock *)((EffParticleInstance *)particle)->geometry.bytes)->atomic;
+            atomicAddress = ((EffGeometryBlock *)instance->geometry.bytes)->atomic;
             animationSettings = (u8*)((WaveSpawnEmitter *)emitterOrObjects)->parameters;
+            animatedEmitterSettings = (WaveSpawnParameters *)animationSettings;
             func_003a5180((RpAtomic*)atomicAddress);
             func_003a2770((RpAtomic*)atomicAddress, &positionLock, 1, 0x40000000);
             func_003a2770((RpAtomic*)atomicAddress, &colorLock, 2, 0x40000000);
@@ -1226,21 +1251,22 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                 animatedIndex = 0;
                 while (animatedIndex < particleCount)
                 {
-                    if (((SpawnParticle *)record)->age >= 0)
+                SpawnParticle *entry = (SpawnParticle *)record;
+                    if (entry->age >= 0)
                     {
-                        mdlEffectWrapTrackFrames((s32)animationResource, (u32)((SpawnParticle *)record)->age);
+                        mdlEffectWrapTrackFrames((s32)animationResource, (u32)entry->age);
                         mdlEffectEvalSubPose((s32)animationResource, (f32*)&animation);
                         ((RwV2d *)uvLock.data)[0].x = animation.u0;
                         ((RwV2d *)uvLock.data)[0].y = animation.v0;
                         ((RwV2d *)uvLock.data)[1].x = animation.u1;
                         ((RwV2d *)uvLock.data)[1].y = animation.v1;
                         uvLock.data += uvLock.stride;
-                        ((BtlShuffleVec3 *)positionLock.data)->x = ((SpawnParticle *)record)->position.lane[0];
-                        ((BtlShuffleVec3 *)positionLock.data)->y = ((SpawnParticle *)record)->position.lane[1];
-                        ((BtlShuffleVec3 *)positionLock.data)->z = ((SpawnParticle *)record)->position.lane[2];
+                        ((BtlShuffleVec3 *)positionLock.data)->x = entry->position.lane[0];
+                        ((BtlShuffleVec3 *)positionLock.data)->y = entry->position.lane[1];
+                        ((BtlShuffleVec3 *)positionLock.data)->z = entry->position.lane[2];
                         positionLock.data += positionLock.stride;
                         {
-                            u32 particleColor = ((SpawnParticle *)record)->color;
+                            u32 particleColor = entry->color;
                             u32 animationColor;
                             f32 colorScale = fGpffff8044;
                             __asm__ volatile("lw $2, 0(%0)\n"
@@ -1273,7 +1299,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                             colorLock.data += colorLock.stride;
                         }
                         {
-                            f32 f = ((SpawnParticle *)record)->angle + animation.angle;
+                            f32 f = entry->angle + animation.angle;
                             f32 upperAngle = fGpffff8084;
                             if (!(f <= upperAngle))
                             {
@@ -1299,7 +1325,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                             rotationLock.data += rotationLock.stride;
                         }
                         {
-                            f32 s = ((SpawnParticle *)record)->size * scale;
+                            f32 s = entry->size * scale;
                             ((RwV2d *)sizeLock.data)->x = animation.width * s;
                             ((RwV2d *)sizeLock.data)->y = animation.height * s;
                             sizeLock.data += sizeLock.stride;
@@ -1341,9 +1367,10 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                 lowerAngle = fGpffff80b8;
                 while (animatedTransformedIndex < particleCount)
                 {
-                    if (((SpawnParticle *)record)->age >= 0)
+                SpawnParticle *entry = (SpawnParticle *)record;
+                    if (entry->age >= 0)
                     {
-                        mdlEffectWrapTrackFrames((s32)animationResource, (u32)((SpawnParticle *)record)->age);
+                        mdlEffectWrapTrackFrames((s32)animationResource, (u32)entry->age);
                         mdlEffectEvalSubPose((s32)animationResource, (f32*)&animation);
                         __asm__ volatile("lqc2 $vf28, 0(%0)\n"
                                          "lqc2 $vf29, 16(%0)\n"
@@ -1371,7 +1398,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                         ((BtlShuffleVec3 *)positionLock.data)->z = ((EffectVuVector *)transformedPoint)->lane[2];
                         positionLock.data += positionLock.stride;
                         {
-                            u32 particleColor = ((SpawnParticle *)record)->color;
+                            u32 particleColor = entry->color;
                             u32 animationColor;
                             __asm__ volatile("lw $2, 0(%0)\n"
                                              "pextlb $2, $0, $2\n"
@@ -1403,7 +1430,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                             colorLock.data += colorLock.stride;
                         }
                         {
-                            f32 f = ((SpawnParticle *)record)->angle + animation.angle;
+                            f32 f = entry->angle + animation.angle;
                             if (!(f <= upperAngle))
                             {
                                 while (!(f <= upperAngle))
@@ -1422,7 +1449,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                             rotationLock.data += rotationLock.stride;
                         }
                         {
-                            f32 s = ((SpawnParticle *)record)->size * scale;
+                            f32 s = entry->size * scale;
                             ((RwV2d *)sizeLock.data)->x = animation.width * s;
                             ((RwV2d *)sizeLock.data)->y = animation.height * s;
                             sizeLock.data += sizeLock.stride;
@@ -1437,26 +1464,26 @@ void ParticleProjectVertices(u8* particle, f32 scale)
             if (animatedActiveCount != 0)
             {
                 u8* material;
-                materialColor.word = ((EffParticleInstance *)particle)->packedColor.value;
+                materialColor.word = instance->packedColor.value;
                 material = *((RpGeometry *)(u8*)((RpAtomic *)atomicAddress)->geometry)->materials;
                 ((RpMaterial *)material)->color = *(EffMeshColor *)&materialColor.bytes;
                 {
                     /* Runtime PTank plugin-offset slot, not a fixed RpAtomic member. */
-                    ((ParticleTankState *)*(u8**)(atomicAddress + iGpffffb610))->flags |= 0x800000;
+                    ((ParticleTankState *)((ParticleTankState **)(atomicAddress + iGpffffb610))[0])->flags |= 0x800000;
                     /* Runtime PTank plugin-offset slot, not a fixed RpAtomic member. */
-                    ((ParticleTankState *)*(u8**)(atomicAddress + iGpffffb610))->activeCount = animatedActiveCount;
+                    ((ParticleTankState *)((ParticleTankState **)(atomicAddress + iGpffffb610))[0])->activeCount = animatedActiveCount;
                 }
                 /* Packed halfword in the shared emitter parameter word span (unknown2c). */
-                GeometryBlockSetPartState(((EffParticleInstance *)particle)->geometry.bytes, *(u16*)(animationSettings + 0x54));
+                GeometryBlockSetPartState(instance->geometry.bytes, animatedEmitterSettings->resourceId);
                 /* Packed halfword in the shared emitter parameter word span (unknown2c). */
-                GeometryBlockBindResource(*(u8**)(particle + 0x50), *(u16*)(animationSettings + 0x54));
+                GeometryBlockBindResource(instance->geometry.bytes, animatedEmitterSettings->resourceId);
             }
         }
     }
     break;
     case 5:
     {
-        emitterOrObjects = ((EffParticleInstance *)particle)->children.bytes;
+        emitterOrObjects = instance->children.bytes;
         if (emitterOrObjects == 0)
         {
             kAssertFail(D_00713CD0, 0x3F3);
@@ -1464,9 +1491,10 @@ void ParticleProjectVertices(u8* particle, f32 scale)
         effectIndex = 0;
         while (effectIndex < particleCount)
         {
-            if (((SpawnParticle *)record)->age >= 0)
+                SpawnParticle *entry = (SpawnParticle *)record;
+            if (entry->age >= 0)
             {
-                u32 particleColor = ((SpawnParticle *)record)->color;
+                u32 particleColor = entry->color;
                 u32 packedColor;
                 u32 colorWord;
                 __asm__ volatile("lw $2, 0(%0)\n"
@@ -1508,7 +1536,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     break;
     case 6:
     {
-        emitterOrObjects = ((EffParticleInstance *)particle)->models.bytes;
+        emitterOrObjects = instance->models.bytes;
         if (emitterOrObjects == 0)
         {
             kAssertFail(D_00713CD0, 0x406);
@@ -1516,9 +1544,10 @@ void ParticleProjectVertices(u8* particle, f32 scale)
         modelIndex = 0;
         while (modelIndex < particleCount)
         {
-            if (((SpawnParticle *)record)->age >= 0)
+                SpawnParticle *entry = (SpawnParticle *)record;
+            if (entry->age >= 0)
             {
-                u32 particleColor = ((SpawnParticle *)record)->color;
+                u32 particleColor = entry->color;
                 u32 packedColor;
                 u32 colorWord;
                 __asm__ volatile("lw $2, 0(%0)\n"
@@ -1561,13 +1590,13 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     case 7:
     {
         u8* t = (u8*)((WaveSpawnEmitter *)emitterOrObjects)->parameters;
-        ((EffParticleInstance *)particle)->link->field_0x00 = 0;
-        ((EffParticleInstance *)particle)->link->field_0x04 = 0;
+        instance->link->field_0x00 = 0;
+        instance->link->field_0x04 = 0;
         {
             /* Packed halfword in the shared emitter parameter word span (unknown2c). */
-            u8* pb = (u8*)TnGetOffset1C(*(u16*)(t + 0x54));
+            u8* pb = (u8*)TnGetOffset1C(((WaveSpawnParameters *)t)->resourceId);
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            PrimAppendNode(pb, *(u8**)(particle + 0x5C));
+            PrimAppendNode(pb, (u8 *)instance->link);
         }
     }
     break;
@@ -1599,10 +1628,7 @@ typedef char ParticleProjectedVec3Size[(sizeof(ParticleProjectedVec3) == 12) ? 1
 typedef char ParticleProjectedVertexSize[(sizeof(ParticleProjectedVertex) == 64) ? 1 : -1];
 typedef char ParticleProjectedSelectionSize[(sizeof(TlpSel) == 20) ? 1 : -1];
 
-static inline u32 particleProjectedFrameIndex(const u8 *record)
-{
-    return (u32)((const SpawnParticle *)record)->age;
-}
+
 
 /* measured: b210 -O2, full unmasked 4236/4240-byte proof and four zero tail bytes.
  * Native vertex/selection fields and VU outputs preserve the retail memory order.
@@ -1612,10 +1638,10 @@ static inline u32 particleProjectedFrameIndex(const u8 *record)
 /* Camera and billboard code now share the canonical RwMatrixTag declaration. */
 // Draws the particle billboards: builds each quad from the projected corners and submits them with the camera near and far planes.
 // FUN_00488D70
-/* Emitter/record members and PTank stream elements are typed at their access sites;
- * only individually measured culprits retain raw object accesses. */
+/* Typed emitter/record locals and native PTank stream elements preserve the original traversal lifetimes. */
 void ParticleDrawBillboards(u8 *particle)
 {
+    EffParticleInstance *instance = (EffParticleInstance *)particle;
     extern s32 kwlnGetCamera(void);
     extern void effMiscBuildRotationVU(void);
     extern void TlpSelectFrame(TLP *work, u32 index, TlpSel *out);
@@ -1655,7 +1681,7 @@ void ParticleDrawBillboards(u8 *particle)
     u32 transformedPackedColor;
     f32 colorScale;
     {
-        w = ((EffParticleInstance *)particle)->packedColor.signedValue;
+        w = instance->packedColor.signedValue;
         __asm__ volatile(
             "lw $2, 0(%0)\n"
             "pextlb $2, $0, $2\n"
@@ -1671,14 +1697,14 @@ void ParticleDrawBillboards(u8 *particle)
         __asm__ volatile("sqc2 $vf10, 0(%1)\n"
             : "=m"(parent) : "r"(parent) : "memory");
     }
-    emitter = ((EffParticleInstance *)particle)->emitter.bytes;
+    emitter = instance->emitter.bytes;
     record = (u8*)((WaveSpawnEmitter *)emitter)->particles;
     bufferNear = D_008872FC[0];
     bufferFar = D_008872F8[0];
     cameraFar = ((RwCamera *)(u32)kwlnGetCamera())->farPlane;
     cameraNear = ((RwCamera *)(u32)kwlnGetCamera())->nearPlane;
     particleCount = (s32)((WaveSpawnEmitter *)emitter)->totalCount;
-    switch (((EffParticleInstance *)particle)->kind) {
+    switch (instance->kind) {
     case 7:
     if (((s32)((WaveSpawnEmitter *)emitter)->flags & 1) == 0) {
         f32 reciprocalDepth;
@@ -1688,9 +1714,10 @@ void ParticleDrawBillboards(u8 *particle)
         planeSpan = cameraNear - cameraFar;
         bufferFar = bufferFar - bufferNear;
         while (i < particleCount) {
-            if (((SpawnParticle *)record)->age >= 0) {
+            SpawnParticle *entry = (SpawnParticle *)record;
+            if (entry->age >= 0) {
                 u32 work;
-                sourceColor = (s32)((SpawnParticle *)record)->color;
+                sourceColor = (s32)entry->color;
                 __asm__ volatile(
                     "lw $2, 0(%0)\n"
                     "pextlb $2, $0, $2\n"
@@ -1724,12 +1751,12 @@ void ParticleDrawBillboards(u8 *particle)
                 if (packed.bytes.alpha != 0) {
                     f32 width;
                     f32 height;
-                    TlpSelectFrame((TLP *)((EffParticleInstance *)particle)->tlpRef, (u32)((SpawnParticle *)record)->age, &selection);
+                    TlpSelectFrame((TLP *)instance->tlpRef, (u32)entry->age, &selection);
                     D_00887300[0](rwRENDERSTATETEXTURERASTER, *(void **)selection.tex);
                     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                    width = *(f32 *)(record + 0x18) * ((selection.w / 32.0f) * selection.a);
+                    width = entry->size * ((selection.w / 32.0f) * selection.a);
                     /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                    height = *(f32 *)(record + 0x18) * ((selection.h / 32.0f) * selection.b);
+                    height = entry->size * ((selection.h / 32.0f) * selection.b);
                     vertices[0].u.els.color.r = (f32)(u32)packed.bytes.red;
                     vertices[0].u.els.color.g = (f32)(u32)packed.bytes.green;
                     vertices[0].u.els.color.b = (f32)(u32)packed.bytes.blue;
@@ -1746,9 +1773,9 @@ void ParticleDrawBillboards(u8 *particle)
                     vertices[3].u.els.color.g = (f32)(u32)packed.bytes.green;
                     vertices[3].u.els.color.b = (f32)(u32)packed.bytes.blue;
                     vertices[3].u.els.color.a = (f32)(u32)packed.bytes.alpha;
-                    worldPosition.x = ((SpawnParticle *)record)->position.lane[0];
-                    worldPosition.y = ((SpawnParticle *)record)->position.lane[1];
-                    worldPosition.z = ((SpawnParticle *)record)->position.lane[2];
+                    worldPosition.x = entry->position.lane[0];
+                    worldPosition.y = entry->position.lane[1];
+                    worldPosition.z = entry->position.lane[2];
                     func_003e42a0(&cameraPosition, &worldPosition, (const BtlShuffleMatrix *)((u8 *)(u32)kwlnGetCamera() + 0x20));
                     {
                         f32 ry = cameraPosition.y / cameraPosition.z;
@@ -1769,9 +1796,9 @@ void ParticleDrawBillboards(u8 *particle)
                                 projectedDepth = 0.0f;
                             }
                             reciprocalDepth = 1.0f / projectedDepth;
-                            cosine = cosf(((SpawnParticle *)record)->angle);
+                            cosine = cosf(entry->angle);
                             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                            sine = sinf(*(f32 *)(record + 0x1C));
+                            sine = sinf(entry->angle);
                             widthCosine = width * cosine;
                             heightCosine = height * cosine;
                             width = width * sine;
@@ -1831,7 +1858,8 @@ void ParticleDrawBillboards(u8 *particle)
         s640 = 640.0f;
         s448 = 448.0f;
         while (i < particleCount) {
-            if (((SpawnParticle *)record)->age >= 0) {
+            SpawnParticle *entry = (SpawnParticle *)record;
+            if (entry->age >= 0) {
                 __asm__ volatile("lqc2 $vf28, 0(%0)\nlqc2 $vf29, 16(%0)\nlqc2 $vf30, 32(%0)\nlqc2 $vf31, 48(%0)\nlqc2 $vf10, 0(%1)\nvmulax.xyzw $ACC, $vf28, $vf10x\nvmadday.xyzw $ACC, $vf29, $vf10y\nvmaddaz.xyzw $ACC, $vf30, $vf10z\nvmaddw.xyzw $vf10, $vf31, $vf0w\n" : : "r"(base), "r"(record) : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10", "ACC", "memory");
                 __asm__ volatile("sqc2 $vf10, 0(%1)\n" : "=m"(*(ParticleSnapshot *)D_00713D10) : "r"(D_00713D10) : "$vf10", "memory");
                 worldPosition.x = ((EffectVuVector *)D_00713D10)->lane[0];
@@ -1839,7 +1867,7 @@ void ParticleDrawBillboards(u8 *particle)
                 worldPosition.z = ((EffectVuVector *)D_00713D10)->lane[2];
                 {
                     u32 work;
-                    transformedColor = (s32)((SpawnParticle *)record)->color;
+                    transformedColor = (s32)entry->color;
                     __asm__ volatile(
                         "lw $2, 0(%0)\n"
                         "pextlb $2, $0, $2\n"
@@ -1876,11 +1904,11 @@ void ParticleDrawBillboards(u8 *particle)
                         f32 height;
                         u32 frameIndex;
 
-                        frameIndex = particleProjectedFrameIndex(record);
-                        TlpSelectFrame((TLP *)((EffParticleInstance *)particle)->tlpRef, frameIndex, &selection);
+                        frameIndex = ((u32)((const SpawnParticle *)(record))->age);
+                        TlpSelectFrame((TLP *)instance->tlpRef, frameIndex, &selection);
                         D_00887300[0](rwRENDERSTATETEXTURERASTER, *(void **)selection.tex);
                         {
-                            f32 particleScale = ((SpawnParticle *)record)->size;
+                            f32 particleScale = entry->size;
                             f32 dimension = selection.w / scale32;
                             dimension = dimension * selection.a;
                             width = particleScale * dimension;
@@ -1926,9 +1954,9 @@ void ParticleDrawBillboards(u8 *particle)
                                     projectedDepth = zero;
                                 }
                                 inv2 = one / projectedDepth;
-                                cosine = cosf(((SpawnParticle *)record)->angle);
+                                cosine = cosf(entry->angle);
                                 /* measured: this access-site member conversion makes the owning function MISMATCH. */
-                                sine = sinf(*(f32 *)(record + 0x1C));
+                                sine = sinf(entry->angle);
                                 widthCosine = width * cosine;
                                 heightCosine = height * cosine;
                                 width = width * sine;

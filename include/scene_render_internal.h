@@ -42,7 +42,7 @@ typedef struct SceneLightingState {
 /* Type-12 environment resource prefix. The field handle follows at +0x1A0
  * (ResrcRecord.handle1A0); only the lighting prefix is described here. */
 typedef struct SceneEnvironmentResource {
-    SceneUpdateResource base;
+    ResrcHeader base;
     f32 colorValue[4];
     f32 colorTarget[4];
     struct RwMatrix transform;

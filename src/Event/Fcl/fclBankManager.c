@@ -6,6 +6,8 @@
 
 
 
+typedef struct FclBankPosition { f32 x, y; } FclBankPosition;
+
 extern char iGpffffa890[8];
 extern int iGpffffa898;
 
@@ -130,7 +132,8 @@ s32 fclBankHasPendingLoad(void)
 }
 
 /* Return the first unoccupied slot, or -1 when both are in use. */
-static inline s16 findUnusedBank(FclBankRecord *banks)
+/* Find the first bank slot whose allocation flag is clear. */
+static inline s16 fclBankFindUnused(FclBankRecord *banks)
 {
     s32 i;
     FclBankSlot *slot = banks->slots;
@@ -143,7 +146,8 @@ static inline s16 findUnusedBank(FclBankRecord *banks)
 }
 
 /* Reuse an occupied slot only when it is neither loading nor visible. */
-static inline s16 findReusableBank(FclBankRecord *banks)
+/* Find an allocated bank that is neither locked nor visible. */
+static inline s16 fclBankFindReusable(FclBankRecord *banks)
 {
     s32 i;
     FclBankSlot *slot = banks->slots;
@@ -169,9 +173,9 @@ s64 fclBankAcquire(int *node)
     FclBankRequest *payload;
 
     banks = fclBankWork()->record;
-    selected = findUnusedBank(banks);
+    selected = fclBankFindUnused(banks);
     if (selected == -1)
-        selected = findReusableBank(banks);
+        selected = fclBankFindReusable(banks);
     if ((s16)selected == -1)
         return -1;
     payload = ((FclBankRequestNode *)node)->request;
@@ -304,7 +308,7 @@ void fclBankUpdateFades(void)
                 ratio = (f32)ticks / 5.0f;
                 /* Position accessor has a byte-pointer ABI; the two f32 components are at +0/+4. */
                 *(f32 *)fclBankGetPositionPtr(slot->index) = (f32)x;
-                *(f32 *)(fclBankGetPositionPtr(slot->index) + 4) = 91.0f;
+                ((FclBankPosition *)fclBankGetPositionPtr(slot->index))->y = 91.0f;
                 fclBankSetAlpha(slot->index, (u8)(ratio * 255.0f));
                 fclBankResume(slot->index);
                 if (slot->fadeTicks >= 5) {
@@ -350,7 +354,8 @@ void fclBankUpdateFades(void)
    twelve zero tail bytes. Keep the inlined peer mask in its loop preheader. */
 #pragma opt_loop_invariants on
 /* Test for a visible peer on the same side with the same descriptor high half. */
-static inline s32 bankSlotHasMatchingVisiblePeer(FclBankSlot *slot)
+/* Test whether another visible allocated slot shares the descriptor class and bank flag. */
+static inline s32 fclBankHasMatchingVisiblePeer(FclBankSlot *slot)
 {
     FclBankSlot *peer;
     s32 i;
@@ -430,7 +435,7 @@ s32 fclBankManagerUpdate(u8 *sdkTaskBytes)
                         slot->flags &= ~0x200;
                         slot->flags &= ~4;
                         slot->state = 1;
-                        if (bankSlotHasMatchingVisiblePeer(slot)) {
+                        if (fclBankHasMatchingVisiblePeer(slot)) {
                             slot->flags |= 0x20;
                         }
                     }

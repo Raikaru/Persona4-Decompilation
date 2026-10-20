@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
 #include "scene_resource_internal.h"
@@ -28,9 +29,6 @@ extern char D_0063D050[];
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32, s32, s32,
@@ -73,6 +71,7 @@ extern void mtMiscCollectType2Records(u8 *);
 // FUN_00294280
 void mtMiscBuildSceneNodes(u8 *eventWork)
 {
+    ResrcHeader *firstHeader;
     typedef struct Resrc Resrc;
     typedef struct ResrcManager ResrcManager;
     extern u32 MT_Scene_GetResManager(void);
@@ -116,27 +115,28 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
     resourceManager = MT_Scene_GetResManager();
     if (resourceManager != 0) {
         firstResource = (u16 *)MT_Scene_GetRes(0x400);
+        firstHeader = (ResrcHeader *)firstResource;
         if (firstResource != NULL) {
             nodeValue = (s32)evtNodeAlloc(1, (s32)eventWork);
             evtNodeSetRes(nodeValue, 0x400, (s32)firstResource);
             ((MtMiscSceneNode *)nodeValue)->unk_08 = -1;
-            componentThird = ((SceneUpdateResource *)firstResource)->position.x;
-            componentSecond = ((SceneUpdateResource *)firstResource)->position.y;
-            componentFirst = ((SceneUpdateResource *)firstResource)->position.z;
+            componentThird = ((ResrcHeader *)firstResource)->position.x;
+            componentSecond = ((ResrcHeader *)firstResource)->position.y;
+            componentFirst = ((ResrcHeader *)firstResource)->position.z;
             ((MtMiscSceneNode *)nodeValue)->unk_38.x = componentThird;
             ((MtMiscSceneNode *)nodeValue)->unk_38.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_38.z = componentFirst;
-            componentThird = ((SceneUpdateResource *)firstResource)->rotation.x;
-            componentSecond = ((SceneUpdateResource *)firstResource)->rotation.y;
-            componentFirst = ((SceneUpdateResource *)firstResource)->rotation.z;
+            componentThird = ((ResrcHeader *)firstResource)->rotation.x;
+            componentSecond = ((ResrcHeader *)firstResource)->rotation.y;
+            componentFirst = ((ResrcHeader *)firstResource)->rotation.z;
             ((MtMiscSceneNode *)nodeValue)->unk_44.x = componentThird;
             ((MtMiscSceneNode *)nodeValue)->unk_44.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_44.z = componentFirst;
-            firstX = fptodp(((SceneUpdateResource *)firstResource)->position.x);
-            /* measured: typed diagnostic coordinate reads lose MATCH; retain their reloads. */
-            firstY = fptodp(*(f32 *)(firstResource + 4));
+            firstX = fptodp(((ResrcHeader *)firstResource)->position.x);
+            /* measured: a typed resource local preserves these diagnostic coordinate reloads. */
+            firstY = fptodp(firstHeader->position.y);
             func_00440b68(D_0063CAC0, firstX, firstY,
-                          fptodp(*(f32 *)(firstResource + 6)));
+                          fptodp(firstHeader->position.z));
             firstColor = mdlGetColor(((SceneCharacterUpdate *)firstResource)->model);
             red = firstColor[0];
             value = firstColor[1];
@@ -158,22 +158,22 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             nodeValue = (s32)evtNodeAllocWithRes(
                 1, eventWork, *(u16 *)modelResource, (s32)modelResource);
             ((MtMiscSceneNode *)nodeValue)->unk_08 = -1;
-            componentThird = ((SceneUpdateResource *)modelResource)->position.x;
-            componentSecond = ((SceneUpdateResource *)modelResource)->position.y;
-            componentFirst = ((SceneUpdateResource *)modelResource)->position.z;
+            componentThird = ((ResrcHeader *)modelResource)->position.x;
+            componentSecond = ((ResrcHeader *)modelResource)->position.y;
+            componentFirst = ((ResrcHeader *)modelResource)->position.z;
             ((MtMiscSceneNode *)nodeValue)->unk_38.x = componentThird;
             ((MtMiscSceneNode *)nodeValue)->unk_38.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_38.z = componentFirst;
-            componentThird = ((SceneUpdateResource *)modelResource)->rotation.x;
-            componentSecond = ((SceneUpdateResource *)modelResource)->rotation.y;
-            componentFirst = ((SceneUpdateResource *)modelResource)->rotation.z;
+            componentThird = ((ResrcHeader *)modelResource)->rotation.x;
+            componentSecond = ((ResrcHeader *)modelResource)->rotation.y;
+            componentFirst = ((ResrcHeader *)modelResource)->rotation.z;
             ((MtMiscSceneNode *)nodeValue)->unk_44.x = componentThird;
             ((MtMiscSceneNode *)nodeValue)->unk_44.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_44.z = componentFirst;
-            diagnosticX = fptodp(((SceneUpdateResource *)modelResource)->position.x);
-            diagnosticY = fptodp(*(f32 *)(modelResource + 8));
+            diagnosticX = fptodp(((ResrcHeader *)modelResource)->position.x);
+            diagnosticY = fptodp(MEMBER(f32, modelResource, ResrcHeader, position.y));
             func_00440b68(D_0063CAC0, diagnosticX, diagnosticY,
-                          fptodp(*(f32 *)(modelResource + 0xC)));
+                          fptodp(MEMBER(f32, modelResource, ResrcHeader, position.z)));
             color = mdlGetColor(((SceneCharacterUpdate *)modelResource)->model);
             red = color[0];
             value = color[1];
@@ -184,7 +184,7 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             ((MtMiscSceneNode *)nodeValue)->unk_50[2] = (u8)blue;
             ((MtMiscSceneNode *)nodeValue)->unk_50[3] = (u8)alpha;
             resourceIndex++;
-            modelResource = (u8 *)((SceneUpdateResource *)modelResource)->next;
+            modelResource = (u8 *)((ResrcHeader *)modelResource)->next;
         }
 
         nodeValue = 0;
@@ -220,11 +220,11 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             do {
                 /* The light matrix is copied in eight word pairs, preserving its reserved words. */
                 value = *(s32 *)sourceWords;
-                red = *(s32 *)(sourceWords + 4);
+                red = ((s32 *)sourceWords)[1];
                 sourceWords += 8;
                 pairsRemaining--;
                 *(s32 *)destinationWords = value;
-                *(s32 *)(destinationWords + 4) = red;
+                ((s32 *)destinationWords)[1] = red;
                 destinationWords += 8;
             } while (pairsRemaining > 0);
         }

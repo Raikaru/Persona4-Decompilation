@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -14,10 +15,7 @@ extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
 extern s32 scrGetParamIntS32(s32 index);
-static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 
 
 extern void memset(void *destination, s32 value, u32 size);
@@ -100,7 +98,7 @@ s32 btlAiGetGlobal(void) {
     u8 *slot;
 
     index = scrGetParamIntS32(0);
-    slot = btlTargetOffsetAddress((u32)index * 4, iGpffffb3ac);
+    slot = byteAddressAdd((u32)index * 4, (u8 *)(iGpffffb3ac));
     scrSetReturnInt(((BtlTargetScriptGlobals *)(slot + 0xDD8))->values[0]);
     return 1;
 }
@@ -120,14 +118,14 @@ s32 btlAiSetGlobal(void)
 
     idx = scrGetParamIntS32(0);
     value = scrGetParamIntS32(1);
-    ((BtlTargetScriptGlobals *)(btlTargetOffsetAddress((u32)idx * 4, iGpffffb3ac) + 0xDD8))->values[0] = value;
+    ((BtlTargetScriptGlobals *)(byteAddressAdd((u32)idx * 4, (u8 *)(iGpffffb3ac)) + 0xDD8))->values[0] = value;
     return 1;
 }
 
 /* measured: closes opt_propagation probe for btlAiSetGlobal. */
 /* AI script command 0x20b8 (p4flow AI.json AI_FUNCTION_00B8). */
 // FUN_001EB370
-s32 btlAiNoOperation(void)
+s32 btlAiScriptCommandNoop(void)
 {
     return 1;
 }
@@ -137,24 +135,24 @@ void btlTargetClearRecord(u8 *record) {
     memset(record, 0, 0x5C);
 }
 
+/* Reset command selection and three plan values while retaining the target slots. */
 // FUN_001EB3B0
-/* Reset command selection and its three plan values while retaining the target slots. */
 void btlTargetResetCommandRecord(u8 *record) {
     u8 *work;
 
     work = record;
     btlTargetResetRecordCounter(work);
-    ((BtlTargetRecord *)work)->command = 0;
-    ((BtlTargetRecord *)work)->skill = 0;
-    ((BtlTargetRecord *)work)->kind = 0;
-    ((BtlTargetRecord *)work)->unk50 = 0;
-    ((BtlTargetRecord *)work)->unk54 = 0;
-    ((BtlTargetRecord *)work)->unk58 = 0;
+    ((BtlAiCommandWork *)work)->command = 0;
+    ((BtlAiCommandWork *)work)->skill = 0;
+    ((BtlAiCommandWork *)work)->kind = 0;
+    ((BtlAiCommandWork *)work)->unk50 = 0;
+    ((BtlAiCommandWork *)work)->unk54 = 0;
+    ((BtlAiCommandWork *)work)->unk58 = 0;
     memset(work + 0x3E, 0, 6);
 }
 
 // FUN_001EB410
 void btlTargetResetRecordCounter(u8 *record) {
-    ((BtlTargetRecord *)record)->count = 0;
+    ((BtlAiCommandWork *)record)->targetCount = 0;
 }
 

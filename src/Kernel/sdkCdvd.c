@@ -264,8 +264,6 @@ tail:
 #pragma pop
 
 // Intent: returns the directory node for `arg0`, creating it when needed, and takes a reference on it.
-/* HCdvd proves these request links and path buffers; retain byte accesses
- * because the typed pointer rewrite changed the measured matching codegen. */
 // FUN_00454A60
 u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags) {
     u8 normalizedPath[0x100];
@@ -282,10 +280,10 @@ u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags) {
                 ((HCdvd *)node)->refCount = (s16)(((HCdvd *)node)->refCount + 1);
                 return node;
             }
-            if (*(u8**)(node + 4) == NULL) {
+            if (*(u8* *)&(((HCdvd *)node)->next) == NULL) {
                 break;
             }
-            node = *(u8**)(node + 4);
+            node = *(u8* *)&(((HCdvd *)node)->next);
         }
     }
     chkmemAllocSiteTag(D_00710870, 0x198);
@@ -293,14 +291,14 @@ u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags) {
     H_Cdvd_BuildPathUppercase(path, newNode + 0x10);
     H_Cdvd_BuildVolumePaths(newNode + 0x10, newNode + 0x158, newNode + 0x258);
     ((HCdvd *)newNode)->readState = 0;
-    *(u8**)(node + 4) = newNode;
-    *(u8**)(newNode + 0) = node;
-    *(s32*)(newNode + 4) = 0;
-    *(s32*)(newNode + 0x110) = 0;
+    *(u8* *)&(((HCdvd *)node)->next) = newNode;
+    *(u8* *)&(((HCdvd *)newNode)->prev) = node;
+    *(s32 *)&(((HCdvd *)newNode)->next) = 0;
+    *(s32 *)&(((HCdvd *)newNode)->fileMemory) = 0;
     ((HCdvd *)newNode)->hasExternalMemory = 0;
     ((HCdvd *)newNode)->flags = flags;
     ((HCdvd *)newNode)->refCount = 1;
-    *(s32*)(newNode + 0x154) = 0;
+    *(s32 *)&(((HCdvd *)newNode)->adxf) = 0;
     ((HCdvd *)newNode)->classes = chkmemGetClasses();
     return newNode;
 }

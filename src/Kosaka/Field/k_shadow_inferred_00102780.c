@@ -18,7 +18,8 @@ extern s32 iGpffffb1a8;
 extern s32 iGpffffb9e8;
 extern u8 D_005DCB58[];
 extern u8 D_005DCC64[];
-extern u8 D_005DCC68[];
+typedef s32 (*FldSequencePollCallback)(void);
+extern FldSequencePollCallback D_005DCC68[];
 extern u8 D_005DD6A0[];
 extern u8 D_005DD6C0[];
 extern u8 D_005DD610[];
@@ -154,15 +155,17 @@ s32 FldShadowAnim_Update(u8 *task)
     s32 kind;
     s32 handle;
     u8 *state;
+    FldSequenceWork *sequence;
 
     state = ((KwlnTask *)task)->work;
-    kind = *(s32 *)(state + 4);
+    sequence = (FldSequenceWork *)state;
+    kind = sequence->sequence;
     if (kind > -1) {
         if (((FldSequenceWork *)state)->flags & 1) {
-            remaining = *(s32 *)(state + 0xC);
+            remaining = sequence->delay;
             if (remaining <= 0) {
-                ((FldSequenceCallbacks *)D_005DCC64)[kind].start(*(s32 *)(state + 0x14));
-                handle = *(s32 *)(state + 0x14);
+                ((FldSequenceCallbacks *)D_005DCC64)[kind].start(sequence->parameters);
+                handle = sequence->parameters;
                 if (handle != 0) {
                     jtbl_008873EC[0]((u8 *)(u32)handle);
                 }
@@ -173,7 +176,7 @@ s32 FldShadowAnim_Update(u8 *task)
             }
             goto block_10;
         }
-        if ((*(s32 (**)(void))((u8 *)D_005DCC68 + kind * 0x50))() == 1) {
+        if ((D_005DCC68[kind * (0x50 / sizeof(FldSequencePollCallback))])() == 1) {
             return 0;
         }
         ((FldSequenceWork *)state)->sequence = -1;

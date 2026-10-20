@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00331980-00331f90 */
 
 #include "fcl_object_internal.h"
+#include "member_access.h"
 #include "list_item_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
@@ -94,10 +95,10 @@ s32 weaponShopTalkUpdate(u8 *task)
         }
         if ((cmmCommunityRecordValue(0x13) & 0xFFFF) == 6 || (cmmCommunityRecordValue(0x13) & 0xFFFF) == 7) {
             gift = D_00645090 + ((cmmCommunityRecordValue(0x13) & 0xFFFF) - 6) * 0x10;
-            if (datGetFlag(*(s32 *)(gift + 12)) != 0 || *(s32 *)(gift + 12) == 0) {
+            if (datGetFlag(((WeaponShopGift *)(gift))->requiredFlag) != 0 || MEMBER(s32, gift, WeaponShopGift, requiredFlag) == 0) {
                 ((WeaponShopTalkWork *)work)->slot = nmMesWindowAcquire(D_00645240);
                 nmMesWindowShowSlotRecord(work[1], *(s16 *)gift);
-                datItemSetCount(*(s16 *)(gift + 2), ((datItemCount(*(s16 *)(gift + 2)) & 0xFF) + 1) & 0xFF);
+                datItemSetCount(((WeaponShopGift *)(gift))->item, ((datItemCount(MEMBER(s16, gift, WeaponShopGift, item)) & 0xFF) + 1) & 0xFF);
                 datSetFlag(((WeaponShopGift *)gift)->setFlag, 1);
                 datSetFlag(((WeaponShopGift *)gift)->clearFlag, 0);
                 (((WeaponShopTalkWork *)work)->state)++;
@@ -109,8 +110,8 @@ s32 weaponShopTalkUpdate(u8 *task)
             entry = D_00644ED0 + (i * 0x10);
             startDate = (s16)(((WeaponShopTalk *)entry)->startDay + 100 * (fclCalendarMonthOrder(((WeaponShopTalk *)entry)->startMonth) & 0xFF));
             endDate = (s16)(((WeaponShopTalk *)entry)->endDay + 100 * (fclCalendarMonthOrder(((WeaponShopTalk *)entry)->endMonth) & 0xFF));
-            if (*(s16 *)entry != -1 && datGetFlag(*(s32 *)(entry + 12)) == 0 &&
-                (datGetFlag(*(s32 *)(entry + 4)) != 0 || *(s32 *)(entry + 4) == 0) && !(startDate > dateCode) &&
+            if (*(s16 *)entry != -1 && datGetFlag(MEMBER(s32, entry, WeaponShopTalk, seenFlag)) == 0 &&
+                (datGetFlag(((WeaponShopTalk *)(entry))->requiredFlag) != 0 || MEMBER(s32, entry, WeaponShopTalk, requiredFlag) == 0) && !(startDate > dateCode) &&
                 !(endDate < dateCode)) {
                 ((WeaponShopTalkWork *)work)->slot = nmMesWindowAcquire(D_00645240);
                 nmMesWindowShowSlotRecord(work[1], *(s16 *)entry);
@@ -130,7 +131,7 @@ s32 weaponShopTalkUpdate(u8 *task)
             entry = D_00644ED0 + (j * 0x10);
             startDate = (s16)(((WeaponShopTalk *)entry)->startDay + 100 * (fclCalendarMonthOrder(((WeaponShopTalk *)entry)->startMonth) & 0xFF));
             endDate = (s16)(((WeaponShopTalk *)entry)->endDay + 100 * (fclCalendarMonthOrder(((WeaponShopTalk *)entry)->endMonth) & 0xFF));
-            if (*(s16 *)entry != -1 && (datGetFlag(*(s32 *)(entry + 4)) != 0 || *(s32 *)(entry + 4) == 0) &&
+            if (*(s16 *)entry != -1 && (datGetFlag(((WeaponShopTalk *)(entry))->requiredFlag) != 0 || MEMBER(s32, entry, WeaponShopTalk, requiredFlag) == 0) &&
                 !(startDate > dateCode) && !(endDate < dateCode)) {
                 ((WeaponShopTalkWork *)work)->slot = nmMesWindowAcquire(D_00645240);
                 nmMesWindowShowSlotRecord(work[1], *(s16 *)entry);

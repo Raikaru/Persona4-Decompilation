@@ -3,13 +3,14 @@
 
 #include "rw_camera_internal.h"
 
-/* SDK baframe.h prefix through modelling (0x10); field code never sizes a frame.
- * The world matrix, object list, hierarchy links and plugins follow this prefix. */
+/* SDK baframe.h prefix through the modelling and world matrices.
+ * Object lists, hierarchy links and plugins follow this prefix. */
 typedef struct RwFrame {
     RwObject object;
     void *dirtyNext;
     void *dirtyPrevious;
     RwMatrixTag modelling;
+    RwMatrixTag ltm;
 } __attribute__((aligned(16))) RwFrame;
 
 #endif

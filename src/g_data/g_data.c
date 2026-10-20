@@ -6,6 +6,36 @@
 #include "h_cdvd.h"
 #include "datPersona_internal.h"
 #include "rw_camera_internal.h"
+#include "h_cdvd_request_internal.h"
+#include "member_access.h"
+#include "byte_address_internal.h"
+
+/* Interior columns of the party slots retain the linker's own address anchors. */
+typedef struct DatPartyCategories {
+    s16 points[8];
+    u8 pad10[0x78];
+} DatPartyCategories;
+typedef struct DatPartyTail {
+    s16 value;
+    u8 pad02[0x86];
+} DatPartyTail;
+typedef struct DatPartyEquipment {
+    s16 items[3];
+    u8 pad06[0x82];
+} DatPartyEquipment;
+/* Offsets are pinned by the flag, script-value and collection accessors. */
+typedef struct DatSaveState {
+    u8 pad00[0x3E2C];
+    u32 flags[0xB0];
+    u32 scriptValues[0x80];
+    u8 pad42EC[0x64C];
+    u32 collection[0x55];
+} DatSaveState;
+/* Save sections follow the fixed 0x34-byte image header. */
+typedef struct DatSaveImage {
+    u8 header[0x34];
+    u8 sections[];
+} DatSaveImage;
 
 typedef struct DatScoreRecord {
     u8 pad00[6];
@@ -48,32 +78,7 @@ extern u32 D_005E2200[];
 
 extern u8 D_0079BF00[];
 
-typedef struct GDataEntry {
-    u32 kind;
-    u32 flags;
-    u16 primaryValue;
-    u16 secondaryValue;
-    u8 unk0C;
-    u8 unk0D;
-    u8 property;
-    u8 unk0F;
-    u16 middleBandValue;
-    u16 lastBandValue;
-    u8 unk14[0x10];
-    u32 grantedSkill;
-    u16 value;
-    u16 accessoryPercent;
-    u16 element;
-    u16 unk2E;
-    u32 categoryMask;
-    u32 price;
-    s8 availableMonth;
-    s8 availableDay;
-    u8 unk3A;
-    u8 unk3B;
-    u32 firstMoonGate;
-    u32 secondMoonGate;
-} GDataEntry;
+#include "g_data_entry_internal.h"
 
 extern GDataEntry* D_007242A0;
 extern GDataEntry* iGpffffb1ac;
@@ -145,9 +150,9 @@ extern u8 D_007973C4[];
 extern u8 D_00796E50[];
 extern u8 D_00796D4C[];
 extern u8 D_00796D4E[];
-extern u8 D_00796D84[];
-extern u8 D_00796D8C[];
-extern u8 D_00796D74[];
+extern DatPartyTail D_00796D84[];
+extern DatPartyEquipment D_00796D8C[];
+extern DatPartyCategories D_00796D74[];
 extern u8 D_00796D54[];
 extern s16 D_00797574[];
 extern u8 D_007973CA[];
@@ -246,8 +251,14 @@ typedef struct PersonaWork {
 typedef struct DatEntryBlock {
     u32 largeCount;
     u32 smallCount;
-    void *largeRecords;
-    void *smallRecords;
+    union {
+        void *largeRecords;
+        u32 largeAddress;
+    };
+    union {
+        void *smallRecords;
+        u32 smallAddress;
+    };
 } DatEntryBlock;
 
 /* Four-byte skill records are shared by the 0x46- and 0x26E-byte tables. */
@@ -275,32 +286,30 @@ extern void FUN_0043f9c8(void* destination, s32 value, u32 size);
 extern void datBuildPersonaDisplayName(void);
 extern u8 DAT_007973a0[0x24];
 
-static inline u8* idxFirst(u32 a, u8* b)
-{
-    return (u8*)(a + (u32)b);
-}
 
 // Intent: copies one entry from the loaded table, with its record lists, into a new heap block and returns it.
 // FUN_00104900
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 void* datCloneEntryBlock(s32 entryIndex)
 {
     u8* copy;
     u32 size;
     u32 entryOffset;
+    DatEntryBlock* block;
 
     chkmemAllocSiteTag(D_005E4298, 0xB8);
-    entryOffset = (entryIndex & 0xFFFF) * 16;
-    size = *(u32*)((u8*)iGpffffb1ac + entryOffset + 0) * 32 + 0x10 + *(u32*)((u8*)iGpffffb1ac + entryOffset + 4) * 16;
+    entryOffset = (entryIndex & 0xFFFF) * sizeof(DatEntryBlock);
+    size = ((DatEntryBlock*)((u8*)iGpffffb1ac + entryOffset))->largeCount * 32 + 0x10 + ((DatEntryBlock*)((u8*)iGpffffb1ac + entryOffset))->smallCount * 16;
     copy = jtbl_008873E8[0](size, 0x40000);
+    block = (DatEntryBlock*)copy;
     memcpy(copy, (u8*)iGpffffb1ac + entryOffset, 0x10);
-    *(u32*)(copy + 8) = (u32)copy + 0x10;
-    *(u32*)(copy + 0xC) = *(u32*)(copy + 8) + *(u32*)(copy + 0) * 32;
-    memcpy(*(void**)(copy + 8), *(void**)(idxFirst(entryOffset, (u8*)iGpffffb1ac) + 8), *(u32*)(copy + 0) * 32);
-    memcpy(*(void**)(copy + 0xC), *(void**)(idxFirst(entryOffset, (u8*)iGpffffb1ac) + 0xC), *(u32*)(copy + 4) * 16);
+    block->largeRecords = (void*)((u32)copy + 0x10);
+    block->smallRecords = (void*)((u32)((DatEntryBlock*)copy)->largeRecords + block->largeCount * 32);
+    memcpy(block->largeRecords, ((DatEntryBlock*)byteAddressAdd(entryOffset, (u8*)iGpffffb1ac))->largeRecords, block->largeCount * 32);
+    memcpy(block->smallRecords, ((DatEntryBlock*)byteAddressAdd(entryOffset, (u8*)iGpffffb1ac))->smallRecords, block->smallCount * 16);
     return copy;
 }
 
+/* Assert a nonnull heap block before releasing it through the allocator table. */
 // FUN_00104A00
 void datFreeBlock(s32 block)
 {
@@ -310,36 +319,38 @@ void datFreeBlock(s32 block)
 
 // Intent: reads the g_data entry table from disc (H_Cdvd_ReadSync) and builds the in-memory copy at iGpffffb1ac.
 // FUN_00104A60
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Counts and addresses share the on-disc header; integer address members preserve arithmetic load order. */
 void datLoadEntryTable(void)
 {
     u8* obj;
     u8* src;
     u32 size;
     u8* dst;
+    DatEntryBlock* sourceBlocks;
 
     func_00440b68(&iGpffff9b10, D_005E4298, 0xCD);
     obj = H_Cdvd_AcquireDirectory(D_005E42B0, 0);
     H_Cdvd_ReadSync(obj);
-    src = *(u8**)(obj + 0x110);
-    size = (*(u32*)(src + 0) + *(u32*)(src + 0x10)) * 32 + 0x20 + (*(u32*)(src + 4) + *(u32*)(src + 0x14)) * 16;
+    src = ((HCdvdRequest*)obj)->data;
+    sourceBlocks = (DatEntryBlock*)src;
+    size = (sourceBlocks[0].largeCount + sourceBlocks[1].largeCount) * 32 + 0x20 + (sourceBlocks[0].smallCount + sourceBlocks[1].smallCount) * 16;
     chkmemAllocSiteTag(D_005E4298, 0xD2);
     iGpffffb1ac = (GDataEntry*)jtbl_008873E8[0](size, 0x40000);
-    *(u32*)((u8*)iGpffffb1ac + 0) = *(u32*)(src + 0);
-    *(u32*)((u8*)iGpffffb1ac + 4) = *(u32*)(src + 4);
-    *(u32*)((u8*)iGpffffb1ac + 8) = (u32)iGpffffb1ac + 0x20;
-    *(u32*)((u8*)iGpffffb1ac + 0xC) = *(u32*)((u8*)iGpffffb1ac + 8) + *(u32*)((u8*)iGpffffb1ac + 0) * 32;
+    ((DatEntryBlock*)iGpffffb1ac)[0].largeCount = sourceBlocks[0].largeCount;
+    ((DatEntryBlock*)iGpffffb1ac)[0].smallCount = sourceBlocks[0].smallCount;
+    ((DatEntryBlock*)iGpffffb1ac)[0].largeRecords = (void*)((u32)iGpffffb1ac + 0x20);
+    ((DatEntryBlock*)iGpffffb1ac)[0].smallAddress = ((DatEntryBlock*)iGpffffb1ac)[0].largeAddress + ((DatEntryBlock*)iGpffffb1ac)[0].largeCount * 32;
     dst = src + 0x20;
-    memcpy(*(void**)((u8*)iGpffffb1ac + 8), dst, *(u32*)((u8*)iGpffffb1ac + 0) * 32);
-    dst = dst + *(u32*)((u8*)iGpffffb1ac + 0) * 32;
-    memcpy(*(void**)((u8*)iGpffffb1ac + 0xC), dst, *(u32*)((u8*)iGpffffb1ac + 4) * 16);
-    *(u32*)((u8*)iGpffffb1ac + 0x10) = *(u32*)(src + 0x10);
-    *(u32*)((u8*)iGpffffb1ac + 0x14) = *(u32*)(src + 0x14);
-    *(u32*)((u8*)iGpffffb1ac + 0x18) = *(u32*)((u8*)iGpffffb1ac + 0xC) + *(u32*)((u8*)iGpffffb1ac + 4) * 16;
-    *(u32*)((u8*)iGpffffb1ac + 0x1C) = *(u32*)((u8*)iGpffffb1ac + 0x18) + *(u32*)((u8*)iGpffffb1ac + 0x10) * 32;
-    dst = dst + *(u32*)((u8*)iGpffffb1ac + 4) * 16;
-    memcpy(*(void**)((u8*)iGpffffb1ac + 0x18), dst, *(u32*)((u8*)iGpffffb1ac + 0x10) * 32);
-    memcpy(*(void**)((u8*)iGpffffb1ac + 0x1C), dst + *(u32*)((u8*)iGpffffb1ac + 0x10) * 32, *(u32*)((u8*)iGpffffb1ac + 0x14) * 16);
+    memcpy(((DatEntryBlock*)iGpffffb1ac)[0].largeRecords, dst, ((DatEntryBlock*)iGpffffb1ac)[0].largeCount * 32);
+    dst = dst + ((DatEntryBlock*)iGpffffb1ac)[0].largeCount * 32;
+    memcpy(((DatEntryBlock*)iGpffffb1ac)[0].smallRecords, dst, ((DatEntryBlock*)iGpffffb1ac)[0].smallCount * 16);
+    ((DatEntryBlock*)iGpffffb1ac)[1].largeCount = sourceBlocks[1].largeCount;
+    ((DatEntryBlock*)iGpffffb1ac)[1].smallCount = sourceBlocks[1].smallCount;
+    ((DatEntryBlock*)iGpffffb1ac)[1].largeAddress = ((DatEntryBlock*)iGpffffb1ac)[0].smallAddress + ((DatEntryBlock*)iGpffffb1ac)[0].smallCount * 16;
+    ((DatEntryBlock*)iGpffffb1ac)[1].smallAddress = ((DatEntryBlock*)iGpffffb1ac)[1].largeAddress + ((DatEntryBlock*)iGpffffb1ac)[1].largeCount * 32;
+    dst = dst + ((DatEntryBlock*)iGpffffb1ac)[0].smallCount * 16;
+    memcpy(((DatEntryBlock*)iGpffffb1ac)[1].largeRecords, dst, ((DatEntryBlock*)iGpffffb1ac)[1].largeCount * 32);
+    memcpy(((DatEntryBlock*)iGpffffb1ac)[1].smallRecords, dst + ((DatEntryBlock*)iGpffffb1ac)[1].largeCount * 32, ((DatEntryBlock*)iGpffffb1ac)[1].smallCount * 16);
     H_Cdvd_Destroy((struct HCdvd *)obj);
 }
 
@@ -381,8 +392,8 @@ u32 datCalcGetHpById(s16 unitId)
     }
 }
 
-// FUN_00104D50
 /* Read current SP from the protagonist record or the indexed party character. */
+// FUN_00104D50
 u32 datCalcGetSpById(s16 unitId)
 {
     if (unitId == 1)
@@ -410,8 +421,8 @@ u16 datCalcMaxHpById(s16 unitId)
     }
 }
 
-// FUN_00104E30
 /* Compute maximum SP for the protagonist record or the indexed party character. */
+// FUN_00104E30
 u16 datCalcMaxSpById(s16 unitId)
 {
     if (unitId == 1)
@@ -424,8 +435,9 @@ u16 datCalcMaxSpById(s16 unitId)
     }
 }
 
+/* Read category points from the protagonist or the party record selected by unit id. */
 // FUN_00104EA0
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: D_00796D74 addresses the category halfwords inside 0x88-byte party slots. */
 s16 datGetCategoryValueById(s16 unitId, s16 category)
 {
     if (unitId == 1)
@@ -434,7 +446,7 @@ s16 datGetCategoryValueById(s16 unitId, s16 category)
     }
     else
     {
-        return *(s16*)((u8*)D_00796D74 + (s32)unitId * 0x88 + (s32)category * 2);
+        return D_00796D74[unitId].points[category];
     }
 }
 
@@ -444,8 +456,8 @@ s16 datCategoryRank(s16 category)
     return datRankForPoints(category, D_007973F4[category]);
 }
 
-// FUN_00104F50
 /* Accumulate five category thresholds; return the first rank whose cumulative threshold exceeds points. */
+// FUN_00104F50
 s16 datRankForPoints(s16 category, s16 points)
 {
     s32 sum = 0;
@@ -511,8 +523,9 @@ s16 datCategoryRankProgress(s16 category, f32 scale)
 }
 #pragma pop
 
+/* Store category points in the protagonist or indexed party character record. */
 // FUN_001051A0
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: D_00796D74 addresses the category halfwords inside 0x88-byte party slots. */
 void datSetCategoryValueById(s16 unitId, s16 category, s16 points)
 {
     if (unitId == 1)
@@ -521,10 +534,11 @@ void datSetCategoryValueById(s16 unitId, s16 category, s16 points)
     }
     else
     {
-        *(s16*)((u8*)D_00796D74 + (s32)unitId * 0x88 + (s32)category * 2) = points;
+        D_00796D74[unitId].points[category] = points;
     }
 }
 
+/* Read experience directly for the protagonist, otherwise require a persona record. */
 // FUN_00105210
 u32 datPersonaGetExpById(s16 unitId)
 {
@@ -541,8 +555,8 @@ u32 datPersonaGetExpById(s16 unitId)
     }
 }
 
+/* Read the selected protagonist roster persona id or the fixed party persona id. */
 // FUN_00105290
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 u16 datGetPersonaIdByUnit(s16 unitId)
 {
     if (unitId == 1)
@@ -550,11 +564,11 @@ u16 datGetPersonaIdByUnit(s16 unitId)
         s32 v = D_00797F88[0];
 
         K_ASSERT(v < 0xC, 0x1C3);
-        return *(u16*)((u8*)D_00797F8E + v * 0x30);
+        return ((DatPersonaRecord*)((u8*)D_00797F8E + v * 0x30 - 2))->id;
     }
     else
     {
-        return *(u16*)((u8*)D_00796D96 + (s32)unitId * 0x88);
+        return ((DatPersonaRecord*)((u8*)D_00796D96 + (s32)unitId * 0x88 - 2))->id;
     }
 }
 
@@ -582,8 +596,8 @@ s32 datGetActiveRosterIndex(s32 character)
 
 
 
-// FUN_00105340
 /* Apply the bad-status reader to the selected protagonist or party character. */
+// FUN_00105340
 void datCalcGetBadStatusNoDownById(s16 unitId)
 {
     if (unitId == 1)
@@ -613,8 +627,8 @@ u16 datGetLevelTableFirstValue(s16 unitId)
     return ((u16(*)[22])D_005DD844)[r & 0xFF][unitId * 2];
 }
 
-// FUN_00105460
 /* Looks up the second halfword of the unit-specific level-table pair using the current level. */
+// FUN_00105460
 u16 datGetLevelTableSecondValue(s16 unitId)
 {
     s32 r;
@@ -630,8 +644,8 @@ u16 datGetLevelTableSecondValue(s16 unitId)
     return ((u16(*)[22])D_005DD846)[r & 0xFF][unitId * 2];
 }
 
-// FUN_00105510
 /* Resolve unit 1 to the protagonist record and units 2..10 to the 0x88-stride party slots. */
+// FUN_00105510
 u8* datUnitGetRecord(s16 unitId)
 {
     if (unitId == 1)
@@ -645,8 +659,8 @@ u8* datUnitGetRecord(s16 unitId)
     }
 }
 
-// FUN_001055A0
 /* Initialize the selected character record with the same signed unit selector. */
+// FUN_001055A0
 void datCalcInitUnitById(s16 unitId)
 {
     if (unitId == 1)
@@ -658,8 +672,8 @@ void datCalcInitUnitById(s16 unitId)
         datCalcInitUnit(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit, unitId);
     }
 }
-// FUN_00105610
 /* Test the selected character for death without applying an HP delta. */
+// FUN_00105610
 u32 datCalcIsDeadById(s16 unitId)
 {
     if (unitId == 1)
@@ -672,8 +686,8 @@ u32 datCalcIsDeadById(s16 unitId)
     }
 }
 
-// FUN_00105690
 /* Stores the byte at DatUnit.level for unit 1 and asserts for other units. */
+// FUN_00105690
 void datSetHeroLevel(s16 unitId, u8 value)
 {
     if (unitId == 1)
@@ -688,7 +702,6 @@ void datSetHeroLevel(s16 unitId, u8 value)
 
 // Intent: stores a unit's current HP (hero slot D_007973CC, party slots at +0x88 stride). The slot is the one datClampUnitHpSp writes.
 // FUN_001056E0
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 void datSetUnitHp(s16 unitId, s16 hp)
 {
     if (unitId == 1)
@@ -697,13 +710,12 @@ void datSetUnitHp(s16 unitId, s16 hp)
     }
     else
     {
-        *(s16*)((u8*)D_00796D4C + (s32)unitId * 0x88) = hp;
+        ((DatUnit*)((u8*)D_00796D4C + (s32)unitId * 0x88 - 8))->hp = hp;
     }
 }
 
 // Intent: stores a unit's current SP (hero slot D_007973CE, party slots at +0x88 stride). The slot is the one datClampUnitHpSp writes.
 // FUN_00105730
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 void datSetUnitSp(s16 unitId, s16 sp)
 {
     if (unitId == 1)
@@ -712,13 +724,12 @@ void datSetUnitSp(s16 unitId, s16 sp)
     }
     else
     {
-        *(s16*)((u8*)D_00796D4E + (s32)unitId * 0x88) = sp;
+        ((DatUnit*)((u8*)D_00796D4E + (s32)unitId * 0x88 - 10))->sp = sp;
     }
 }
 
 // Intent: clamps a unit's current HP and SP to its max HP and max SP (datCalcMaxHp / datCalcMaxSp). Writes the max back when the current value is larger.
 // FUN_00105780
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 void datClampUnitHpSp(s16 unitId)
 {
     u32 r;
@@ -751,7 +762,7 @@ void datClampUnitHpSp(s16 unitId)
         }
         else
         {
-            *(s16*)((u8*)D_00796D4C + (s32)unitId * 0x88) = t;
+            ((DatUnit*)((u8*)D_00796D4C + (s32)unitId * 0x88 - 8))->hp = t;
         }
     }
     if (unitId == 1)
@@ -780,11 +791,12 @@ void datClampUnitHpSp(s16 unitId)
         }
         else
         {
-            *(s16*)((u8*)D_00796D4E + (s32)unitId * 0x88) = t;
+            ((DatUnit*)((u8*)D_00796D4E + (s32)unitId * 0x88 - 10))->sp = t;
         }
     }
 }
 
+/* Store protagonist experience; non-protagonist selectors trigger the retail assertion. */
 // FUN_00105990
 void datSetHeroExp(s16 unitId, u32 experience)
 {
@@ -872,8 +884,9 @@ second_done:
     return (s32)((u32)value3 - (u32)value);
 }
 
+/* Store the trailing character halfword, selecting protagonist or party storage. */
 // FUN_00105C90
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: D_00796D84 addresses the tail halfword inside each 0x88-byte party slot. */
 void datSetUnitRecordTailValue(s16 unitId, s16 value)
 {
     if (unitId == 1)
@@ -882,7 +895,7 @@ void datSetUnitRecordTailValue(s16 unitId, s16 value)
     }
     else
     {
-        *(s16*)((u8*)D_00796D84 + (s32)unitId * 0x88) = value;
+        D_00796D84[unitId].value = value;
     }
 }
 
@@ -900,8 +913,8 @@ void datCalcSetBadStatusById(s16 unitId, s16 unusedValue)
     }
 }
 
-// FUN_00105D50
 /* Clear the requested status mask in the selected character record. */
+// FUN_00105D50
 void datCalcClearBadStatusById(s16 unitId, u32 mask)
 {
     if (unitId == 1)
@@ -914,8 +927,9 @@ void datCalcClearBadStatusById(s16 unitId, u32 mask)
     }
 }
 
+/* Store an equipment ID in the selected character's equipment slot. */
 // FUN_00105DC0
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: D_00796D8C addresses three equipment halfwords inside each 0x88-byte party slot. */
 void datSetEquippedItemByUnit(s16 unitId, s16 slotIndex, s16 itemId)
 {
     if (unitId == 1)
@@ -924,12 +938,12 @@ void datSetEquippedItemByUnit(s16 unitId, s16 slotIndex, s16 itemId)
     }
     else
     {
-        *(s16*)((u8*)D_00796D8C + (s32)unitId * 0x88 + (s32)slotIndex * 2) = itemId;
+        D_00796D8C[unitId].items[slotIndex] = itemId;
     }
 }
 
+/* Check the five available tactics and store the selected character's tactic. */
 // FUN_00105E30
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 void datSetUnitAiTactic(s16 unitId, s16 value)
 {
     K_ASSERT(value < 5, 0x322);
@@ -939,7 +953,7 @@ void datSetUnitAiTactic(s16 unitId, s16 value)
     }
     else
     {
-        *(s8*)((u8*)D_00796D54 + (s32)unitId * 0x88) = value;
+        ((DatUnit*)((u8*)D_00796D54 + (s32)unitId * 0x88 - 16))->aiTactic = value;
     }
 }
 
@@ -959,8 +973,8 @@ s16 datGetPartyId(s32 idx)
 
 
 
+/* Return the signed tactic byte from the selected character record. */
 // FUN_00105F00
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 s16 datGetUnitAiTactic(s16 unitId)
 {
     if (unitId == 1)
@@ -969,12 +983,12 @@ s16 datGetUnitAiTactic(s16 unitId)
     }
     else
     {
-        return *(s8*)((u8*)D_00796D54 + (s32)unitId * 0x88);
+        return ((DatUnit*)((u8*)D_00796D54 + (s32)unitId * 0x88 - 16))->aiTactic;
     }
 }
 
-// FUN_00105F50
 /* Reads the persona arcana byte and resolves its community value. */
+// FUN_00105F50
 s8 datGetPersonaArcanaCommunityValue(u16 personaId)
 {
     u8* table = DAT_007644c4;
@@ -983,8 +997,8 @@ s8 datGetPersonaArcanaCommunityValue(u16 personaId)
     return (s8)cmmCommunityValueForArcana(table[id * 0xE + 2]);
 }
 
-// FUN_00105FA0
 /* Store money after asserting it does not exceed the 9,999,999 cap. */
+// FUN_00105FA0
 void datSetMoney(u32 amount)
 {
     if (amount > 0x98967F)
@@ -1002,8 +1016,8 @@ void datSetPartyId(s32 idx, s16 pcId)
 
 
 
-// FUN_00106020
 /* Add a signed amount to money and clamp the result to 0..9,999,999. */
+// FUN_00106020
 s32 datAddMoney(s32 delta)
 {
     s32 value = delta + D_0079B68C[0];
@@ -1062,8 +1076,8 @@ s32 datGetPendingFlag(void)
     return D_00797B80[0];
 }
 
-// FUN_00106100
 /* Store the date and refresh the weekday, calendar-entry and related day flags. */
+// FUN_00106100
 void datSetDateIndex(s16 date)
 {
     u32 weekday;
@@ -1136,8 +1150,8 @@ void datSetPendingFlag(u32 flags)
     D_00797B80[0] = flags;
 }
 
-// FUN_00106330
 /* Test one flag in the 0x1600-bit global bitmap using a word index and bit mask. */
+// FUN_00106330
 u32 datGetFlag(s32 bit)
 {
     s32 mask;
@@ -1151,8 +1165,8 @@ u32 datGetFlag(s32 bit)
 
 
 
-// FUN_00106390
 /* Set or clear one checked global flag; flag 0x1576 also emits a diagnostic. */
+// FUN_00106390
 void datSetFlag(s32 flagId, s32 enabled)
 {
     s32 idx;
@@ -1178,15 +1192,16 @@ void datSetFlag(s32 flagId, s32 enabled)
     }
 }
 
+/* Clear all 176 words of persistent game flags. */
 // FUN_00106480
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: the flag words start at DAT_007973a0 + 0x3E2C. */
 void datClearFlags(void)
 {
     s32 i = 0;
 
     while (i < 0xB0)
     {
-        *(u32*)((u8*)DAT_007973a0 + i * 4 + 0x3E2C) = 0;
+        ((DatSaveState *)DAT_007973a0)->flags[i] = 0;
         i = i + 1;
     }
 }
@@ -1197,31 +1212,32 @@ void datPersonaClearRosterMode(void)
     datPersonaSetRosterMode(0);
 }
 
-// FUN_001064F0
 /* Checks an index below 0x80 and reads its global script-value word. */
+// FUN_001064F0
 u32 datGetScriptValue(s32 index)
 {
     K_ASSERT(index < 0x80, 0x4AE);
     return D_0079B48C[index];
 }
 
-// FUN_00106550
 /* Checks an index below 0x80 and writes its global script-value word. */
+// FUN_00106550
 void datSetScriptValue(s32 index, u32 value)
 {
     K_ASSERT(index < 0x80, 0x4B9);
     D_0079B48C[index] = value;
 }
 
+/* Clear the first 127 script-value words, leaving the final word untouched. */
 // FUN_001065C0
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: script words start at DAT_007973a0 + 0x40EC; retail clears only 127. */
 void datClearScriptValues(void)
 {
     s32 i = 0;
 
     while (i < 0x7F)
     {
-        *(u32*)((u8*)DAT_007973a0 + i * 4 + 0x40EC) = 0;
+        ((DatSaveState *)DAT_007973a0)->scriptValues[i] = 0;
         i = i + 1;
     }
 }
@@ -1313,125 +1329,109 @@ u32 datEntryGetKind(s16 itemId)
 }
 
 // FUN_00106880
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u32 datEntryGetFlags(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 4);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->flags;
 }
 
 // FUN_001068B0
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u16 datEntryGetPrimaryValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 8);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->primaryValue;
 }
 
 // FUN_001068E0
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u16 datEntryGetSecondaryValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0xA);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->secondaryValue;
 }
 
 // FUN_00106910
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u8 datEntryGetPropertyByte(s16 itemId)
 {
-    return *(u8*)((u8*)D_007242A0 + (s32)itemId * 68 + 0xE);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->property;
 }
 
 // FUN_00106940
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u16 datEntryGetMiddleBandValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x10);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->middleBandValue;
 }
 
 // FUN_00106970
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u16 datEntryGetLastBandValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x12);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->lastBandValue;
 }
 
 // Intent: returns the skill id an item grants (u32 at +0x24 of the entry). datCalcSkillCost and PTDatCalcHasSkill compare the result with skill ids.
 // FUN_001069A0
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u32 datItemGrantedSkill(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x24);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->grantedSkill;
 }
 
 // Intent: returns the item value (u16 at +0x28). code1_0013 reads it as itemValue.
 // FUN_001069D0
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u16 datItemValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x28);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->value;
 }
 
 // Intent: returns the accessory's damage percent (u16 at +0x2A). DCDamageAccessoryFraction uses it as the percentage.
 // FUN_00106A00
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u16 datItemAccessoryPercent(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x2A);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->accessoryPercent;
 }
 
 // Intent: returns the item's element (u16 at +0x2C). datCalcSkillElement and datCalcHitResult read it for the equipped item.
 // FUN_00106A30
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u16 datItemElement(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x2C);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->element;
 }
 
 // Intent: returns the category bitmask (u32 at +0x30) that y_list.c tests against its filter.
 // FUN_00106A60
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u32 datEntryCategoryMask(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x30);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->categoryMask;
 }
 
 // Intent: returns the item's price (u32 at +0x34). fclItemShopDiscountedPrice subtracts the discount from it.
 // FUN_00106A90
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u32 datItemPrice(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x34);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->price;
 }
 
 // Intent: returns the calendar month (+0x38) an item is available from. Compared through func_002be100 with fclCalendarMonth.
 // FUN_00106AC0
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 s8 datItemAvailableMonth(s16 itemId)
 {
-    return *(s8*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x38);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->availableMonth;
 }
 
 // Intent: returns the calendar day (+0x39) an item is available from, paired with datItemAvailableMonth.
 // FUN_00106AF0
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 s8 datItemAvailableDay(s16 itemId)
 {
-    return *(s8*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x39);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->availableDay;
 }
 
 // Intent: returns the first moon-phase gate word (+0x3C). Bits 8..19 are the phase key and the low byte is the second fclMoonPhaseAtLeast argument.
 // FUN_00106B20
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u32 datItemMoonGateFirst(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x3C);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->firstMoonGate;
 }
 
 // Intent: returns the second moon-phase gate word (+0x40), with the same layout as datItemMoonGateFirst.
 // FUN_00106B50
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 u32 datItemMoonGateSecond(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x40);
+    return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->secondMoonGate;
 }
 
 /* The signed item ID selects a bank-relative metadata index. */
@@ -1476,18 +1476,17 @@ s64 datItemBankOffset(s16 encodedItemId)
 // Intent: tests bit (arg1 + 4) of the 32-bit flag word at +0x30 of a g_data entry; callers are the equipment screen and the new-game script.
 // FUN_00106C30
 #pragma opt_propagation off
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 s32 datEntryHasFlag(s16 itemId, s16 flagIndex)
 {
     u32 flags;
 
-    flags = *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x30);
+    flags = ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->categoryMask;
     return (flags & (1 << ((s32)flagIndex + 4))) != 0;
 }
 #pragma opt_propagation on
 
-// FUN_00106C80
 /* Classify item ids into the below-0x100, below-0x200 and remaining comparison bands. */
+// FUN_00106C80
 s32 datIdBand(s16 itemId)
 {
     if (itemId < 0x100)
@@ -1501,8 +1500,9 @@ s32 datIdBand(s16 itemId)
     return 2;
 }
 
+/* Read an equipment slot from the protagonist or selected party character. */
 // FUN_00106CD0
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: D_00796D8C addresses three equipment halfwords inside each 0x88-byte party slot. */
 s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex)
 {
     if (unitId == 1)
@@ -1511,12 +1511,13 @@ s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex)
     }
     else
     {
-        return *(s16*)((u8*)D_00796D8C + (s32)unitId * 0x88 + (s32)slotIndex * 2);
+        return D_00796D8C[unitId].items[slotIndex];
     }
 }
 
+/* Assign the selected character's equipment slot without validating the item ID. */
 // FUN_00106D40
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: D_00796D8C addresses three equipment halfwords inside each 0x88-byte party slot. */
 void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId)
 {
     if (unitId == 1)
@@ -1525,7 +1526,7 @@ void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId)
     }
     else
     {
-        *(s16*)((u8*)D_00796D8C + (s32)unitId * 0x88 + (s32)slotIndex * 2) = itemId;
+        D_00796D8C[unitId].items[slotIndex] = itemId;
     }
 }
 
@@ -1541,8 +1542,8 @@ void datFreeTaskWork(u8 *unusedTask)
 
 
 
-// FUN_00108D80
 /* Destroy the named task hierarchy when the scheduler lookup succeeds. */
+// FUN_00108D80
 void datDestroyTaskByName(void)
 {
   long handle;
@@ -1580,8 +1581,8 @@ void datResetTotalBtl(void)
    declaring `u8 *p` before `s32 i` is byte-exact. Measured: the reverse order is
    nd 7, an `i = 0` before the pointer setup is nd 12, index arithmetic without a
    pointer local is nd 101, and fourteen allocation/loop pragmas all leave nd 7. */
-// FUN_00109190
 /* Sums the halfword at offset six in 21 sixteen-byte records and divides by 210. */
+// FUN_00109190
 f32 datGetAverageRecordScore(void) {
     f32 sum;
     u8 *p;
@@ -1607,8 +1608,8 @@ u8 datPersonaGetLevel(int persona)
 
 
 
-// FUN_00109400
 /* Resolve the unit's persona record before reading its level byte. */
+// FUN_00109400
 u8 datPersonaGetLevelByPcId(u16 pcId)
 {
     PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(pcId);
@@ -1642,8 +1643,8 @@ u16 *datPersonaGetSkills(DatPersonaRecord *persona)
 
 
 
-// FUN_001094E0
 /* Resolve the unit's persona record and return its eight-skill array. */
+// FUN_001094E0
 u16* datPersonaGetSkillsByPcId(u16 pcId)
 {
     PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(pcId);
@@ -1653,8 +1654,8 @@ u16* datPersonaGetSkillsByPcId(u16 pcId)
 
 
 
-// FUN_00109D80
 /* Add a signed byte delta to one bonus stat in the resolved persona record. */
+// FUN_00109D80
 void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 {
     PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(pcId);
@@ -1664,8 +1665,8 @@ void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 
 
 
-// FUN_0010C6F0
 /* Reject level 99, otherwise compare experience against the next-level threshold. */
+// FUN_0010C6F0
 s32 datPersonaCanLevelUp(PersonaWork* persona)
 {
     if (persona->level >= 99) {
@@ -1676,6 +1677,7 @@ s32 datPersonaCanLevelUp(PersonaWork* persona)
 
 
 
+/* Append kind-one, unflagged skill records to the output skill list. */
 static inline void datCollectValidSkills(u8* skillData, u16* skills,
                                          s32* validSkills, s32 skillLimit)
 {
@@ -1683,8 +1685,8 @@ static inline void datCollectValidSkills(u8* skillData, u16* skills,
 
     for (skillIdx = 0; skillIdx < skillLimit; skillIdx++)
     {
-        if (skillData[skillIdx * 4] == 0 &&
-            ((s8*)skillData)[skillIdx * 4 + 1] == 1)
+        if (((DatSkillRecord *)skillData)[skillIdx].flags == 0 &&
+            ((DatSkillRecord *)skillData)[skillIdx].kind == 1)
         {
             skills[*validSkills] = ((DatSkillRecord*)skillData)[skillIdx].skill;
             (*validSkills)++;
@@ -1692,8 +1694,8 @@ static inline void datCollectValidSkills(u8* skillData, u16* skills,
     }
 }
 
-// FUN_0010D360
 /* Collect active kind-1 skills from the special 32-entry table or the ordinary 16-entry table. */
+// FUN_0010D360
 void datPersonaCollectSkills(u16 personaId, u16* skills, s32* skillCount)
 {
     u8* skillData;
@@ -1716,7 +1718,7 @@ void datPersonaCollectSkills(u16 personaId, u16* skills, s32* skillCount)
 
 // FUN_0010D480
 /* Retail no-op called during battle-unit setup; no state changes occur here. */
-void func_0010d480(void)
+void datBattleUnitLoadCompleteNoop(void)
 {
 }
 
@@ -1769,8 +1771,8 @@ void datBuildPersonaDisplayName(void)
     sprintf(DAT_00796e20, &DAT_00762ca0, DAT_00796e00, DAT_00796de0);
 }
 
-// FUN_0010D620
 /* Return the rebuilt protagonist display name for unit 1, otherwise the static name-table entry. */
+// FUN_0010D620
 u32 datPersonaDisplayName(s16 unitId)
 {
     if (unitId == 1)
@@ -1830,7 +1832,7 @@ u32 datPersonaNamePart1Alt(s16 unitId)
 
 // FUN_0010D7B0
 /* Retail no-op called from kernel initialization; no state changes occur here. */
-void func_0010d7b0(void)
+void datKernelInitNoop(void)
 {
 }
 
@@ -2170,6 +2172,7 @@ level_done:
 }
 #pragma pop
 
+/* Restore tagged sections until the terminator or checksum section, then rebuild protagonist names. */
 // FUN_0010E710
 void datSaveRestoreImage(s32 version, u8 *image, s32 unusedSize)
 {
@@ -2199,8 +2202,9 @@ void datSaveRestoreImage(s32 version, u8 *image, s32 unusedSize)
     sprintf(DAT_00796e20, &iGpffff9bb0, DAT_00796e00, DAT_00796de0);
 }
 
+/* Walk variable-length save sections and compare their byte sum with the checksum section. */
 // FUN_0010E880
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* The fixed image header precedes a flexible stream of tagged sections. */
 s32 datSaveVerifyChecksum(s32 unusedVersion, u8 *image, s32 size)
 {
     u8 byte;
@@ -2232,7 +2236,7 @@ s32 datSaveVerifyChecksum(s32 unusedVersion, u8 *image, s32 size)
             i = 0;
             while (i < sum)
             {
-                checksum = (checksum + *(u8*)(image + i + 0x34)) & 0xFF;
+                checksum = (checksum + ((DatSaveImage *)(image + i))->sections[0]) & 0xFF;
                 i = i + 1;
             }
             memcpy(&length, cursor + 4, 4);
@@ -2451,8 +2455,9 @@ void datSaveRestoreSection(s32 unusedVersion, u32 tag, u32 length, u8* data)
     }
 }
 
+/* Clear all 85 words of the collection-entry bitmap. */
 // FUN_0010F390
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: the collection words start at DAT_007973a0 + 0x4938. */
 void datClearCollectionBitmap(void)
 {
     u32 i = 0;
@@ -2460,7 +2465,7 @@ void datClearCollectionBitmap(void)
 
     while (i < 0x55)
     {
-        *(u32*)(p + i * 4 + 0x4938) = 0;
+        ((DatSaveState *)p)->collection[i] = 0;
         i = i + 1;
     }
 }
@@ -2485,10 +2490,7 @@ u32 datTestBitmapBit(u32 entryIndex, u32 bitIndex)
     return *p & (1U << (bit & 0x1f));
 }
 
-static inline u32 bitAndFirst(u32 a, u32 b)
-{
-    return a & b;
-}
+
 
 /* measured: opt_loop_invariants on hoists the sllv constant 1 and keeps the
    D_007973A0 base in $a3 like retail; without it mwcc rematerializes addiu
@@ -2496,7 +2498,7 @@ static inline u32 bitAndFirst(u32 a, u32 b)
 #pragma opt_loop_invariants on
 
 // FUN_0010F460
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Linker interior alias: the collection words start at DAT_007973a0 + 0x4938. */
 u32 datGetCollectionEntryBits(u16 entryIndex)
 {
     u32 result = 0;
@@ -2506,7 +2508,7 @@ u32 datGetCollectionEntryBits(u16 entryIndex)
 
     while (i < 8)
     {
-        result |= bitAndFirst(*(u32*)(base + (j >> 5) * 4 + 0x4938), 1 << (j & 0x1F));
+        result |= ((((DatSaveState *)base)->collection[j >> 5]) & (1 << (j & 0x1F)));
         i = i + 1;
         j = j + 1;
     }
@@ -2521,8 +2523,8 @@ void datResetBattleUnitSaveTable(void)
     btlUnitRecordResetSaveTable(D_0079BE2C);
 }
 
-// FUN_0010F4F0
 /* Return the per-unit 20-byte roster slot for a nonzero signed selector below eleven. */
+// FUN_0010F4F0
 u8 *datPersonaGetRosterSlot(s32 unitId) {
     s32 v = (s16)unitId;
 
@@ -2539,8 +2541,8 @@ s32 datIsSkillAvailable(s32 skillId)
     return datCalcIsSkillAvailable(skillId);
 }
 
-// FUN_0010F560
 /* Resolve the character by id and pass its record to the threshold-kind reader. */
+// FUN_0010F560
 u16 datCalcThresholdKindById(s16 unitId, s32 skillId)
 {
     u8* p;
@@ -2557,8 +2559,8 @@ u16 datCalcThresholdKindById(s16 unitId, s32 skillId)
     return datCalcThresholdKind(p, skillId);
 }
 
-// FUN_0010F600
 /* Resolve the character by id and compute its cost for the requested skill. */
+// FUN_0010F600
 u32 datCalcSkillCostById(s16 unitId, s32 skillId)
 {
     u8* p;
@@ -2575,8 +2577,8 @@ u32 datCalcSkillCostById(s16 unitId, s32 skillId)
     return datCalcSkillCost(p, skillId);
 }
 
-// FUN_0010F6A0
 /* Resolve the character, validate its embedded id and evaluate the requested threshold trigger. */
+// FUN_0010F6A0
 s32 datCalcThresholdTriggerById(s16 unitId, u32 skillId)
 {
     u8* ptr;
@@ -2596,8 +2598,8 @@ s32 datCalcThresholdTriggerById(s16 unitId, u32 skillId)
     return datCalcThresholdTrigger(ptr, skillId);
 }
 
-// FUN_0010F770
 /* Resolve source and target character ids before applying the skill effect. */
+// FUN_0010F770
 void datCalcApplySkillEffectById(s16 sourceId, s16 targetId, u32 skillId, u32 flags)
 {
     u8* source;
@@ -2625,8 +2627,8 @@ void datCalcApplySkillEffectById(s16 sourceId, s16 targetId, u32 skillId, u32 fl
     datCalcApplySkillEffect(skillId, source, target, flags);
 }
 
-// FUN_0010F8C0
 /* Checks the skill id below 0x1B8 and returns byte eight of its 0x28-byte record. */
+// FUN_0010F8C0
 u16 datGetSkillPropertyByte(s32 skillId)
 {
     u8* table;
@@ -2638,8 +2640,8 @@ u16 datGetSkillPropertyByte(s32 skillId)
     return table[id * 0x28 + 8];
 }
 
-// FUN_0010F930
 /* Resolve source and target character ids and return the skill-effect flags. */
+// FUN_0010F930
 s32 datCalcSkillEffectFlagsById(s16 sourceId, s16 targetId, u32 skillId, u32 flags)
 {
     u8* source;
@@ -2667,8 +2669,8 @@ s32 datCalcSkillEffectFlagsById(s16 sourceId, s16 targetId, u32 skillId, u32 fla
     return datCalcSkillEffectFlags(skillId, source, target, flags);
 }
 
-// FUN_0010FA80
 /* Resolve source and target character ids and pass all three result addresses to the outcome calculator. */
+// FUN_0010FA80
 void datCalcSkillOutcomeById(s16 sourceId, s16 targetId, u32 skillId, u32 flags, u32 firstResult, u32 secondResult, u32 thirdResult)
 {
     u8* source;
@@ -2695,8 +2697,8 @@ void datCalcSkillOutcomeById(s16 sourceId, s16 targetId, u32 skillId, u32 flags,
     datCalcSkillOutcome(skillId, source, target, flags, (s32*)firstResult, (s32*)secondResult, (s32*)thirdResult);
 }
 
-// FUN_0010FBD0
 /* Returns the first set flag among bits 1, 2 and 3 of the persona flag table. */
+// FUN_0010FBD0
 u32 datGetPersonaFlagClass(u32 personaId)
 {
     u16 f;
@@ -2725,8 +2727,8 @@ void datClearPersonaRecordCache(void)
     FUN_0043f9c8(D_007981CC, 0, 0x3000);
 }
 
-// FUN_0010FCB0
 /* Return an active 0x30-byte cached persona record, or null when its active bit is clear. */
+// FUN_0010FCB0
 u8* datPersonaCachedRecord(s32 personaId)
 {
     u16 v;
@@ -2740,22 +2742,24 @@ u8* datPersonaCachedRecord(s32 personaId)
     return 0;
 }
 
+/* Validate the source persona id and copy its complete record into the cache. */
 // FUN_0010FD40
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 void datPersonaCacheRecord(u8* src)
 {
+    DatPersonaRecord* persona = (DatPersonaRecord*)src;
     s32 index;
 
     K_ASSERT(src != 0, 0xF27);
-    index = *(u16*)(src + 2);
+    index = persona->id;
     K_ASSERT(index >= 0 && index < 0x100, 0xF28);
-    memcpy((u8*)DAT_007973a0 + *(u16*)(src + 2) * 48 + 0xE2C, src, 0x30);
+    memcpy((u8*)DAT_007973a0 + persona->id * 48 + 0xE2C, src, 0x30);
 }
 
+/* Return excluded records unchanged, otherwise find the cached copy or seed a missing cache entry. */
 // FUN_0010FDE0
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 u8* datPersonaResolveRecord(u8* record)
 {
+    DatPersonaRecord* persona = (DatPersonaRecord*)record;
     s32 v;
     u16 w;
     u8* q;
@@ -2764,13 +2768,13 @@ u8* datPersonaResolveRecord(u8* record)
     {
         FUN_0046d730(__FILE__, 0xF5D);
     }
-    v = *(u16*)(record + 2);
+    v = persona->id;
     if ((v < 0) || (v >= 0x100))
     {
         FUN_0046d730(__FILE__, 0xF5E);
     }
-    v = *(u16*)(record + 2);
-    w = *(u16*)((u8*)iGpffffb3d4 + v * 14);
+    v = persona->id;
+    w = ((DatPersonaMetadata*)((u8*)iGpffffb3d4 + v * 14))->flags;
     if (w & 8)
     {
         return record;
@@ -2783,7 +2787,7 @@ u8* datPersonaResolveRecord(u8* record)
     {
         FUN_0046d730(__FILE__, 0xF1D);
     }
-    if (*(u16*)(D_007981CC + v * 0x30) & 1)
+    if (((DatPersonaRecord*)(D_007981CC + v * 0x30))->flags & 1)
     {
         q = (u8*)D_007973A0 + v * 0x30 + 0xE2C;
     }
@@ -2799,18 +2803,20 @@ u8* datPersonaResolveRecord(u8* record)
     {
         FUN_0046d730(__FILE__, 0xF27);
     }
-    v = *(u16*)(record + 2);
+    v = persona->id;
     if ((v < 0) || (v >= 0x100))
     {
         FUN_0046d730(__FILE__, 0xF28);
     }
-    v = *(u16*)(record + 2);
+    v = persona->id;
     memcpy((u8*)D_007973A0 + v * 0x30 + 0xE2C, record, 0x30);
     return NULL;
 }
 
+/* Initialize every nonzero persona id and seed cache entries allowed by metadata flags. */
 // FUN_0010FFA0
-/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+/* Measured: seven id accesses change instructions with field, typed-local and array forms;
+ * MEMBER preserves their byte-buffer base and halfword width. Other accesses use the real layouts. */
 void datPersonaInitAllRecords(void) {
     u8 buf[0x30];
     u8 *base;
@@ -2822,24 +2828,24 @@ void datPersonaInitAllRecords(void) {
     {
         FUN_0043f9c8(buf, 0, 0x30);
         datPersonaInitRecord(buf, (u16)i);
-        *(u16 *)buf |= 1;
-        if (((s32)*(u16 *)(buf + 2) < 0) || ((s32)*(u16 *)(buf + 2) >= 0x100))
+        ((DatPersonaRecord*)buf)->flags |= 1;
+        if (((s32)((DatPersonaRecord*)buf)->id < 0) || ((s32)MEMBER(u16, buf, DatPersonaRecord, id) >= 0x100))
         {
             FUN_0046d730((const char *)D_005E4298, 0xF5E);
         }
         base = iGpffffb3d4;
-        id = *(u16 *)(buf + 2);
-        if (!(*(u16 *)(base + id * 0xE) & 8) &&
-            !(*(u16 *)(base + id * 0xE) & 0x20))
+        id = MEMBER(u16, buf, DatPersonaRecord, id);
+        if (!(((DatPersonaMetadata*)((u8*)base + id * 14))->flags & 8) &&
+            !(((DatPersonaMetadata*)((u8*)base + id * 14))->flags & 0x20))
         {
-            if (((s32)*(u16 *)(buf + 2) < 0) || ((s32)*(u16 *)(buf + 2) >= 0x100))
+            if (((s32)MEMBER(u16, buf, DatPersonaRecord, id) < 0) || ((s32)MEMBER(u16, buf, DatPersonaRecord, id) >= 0x100))
             {
                 FUN_0046d730((const char *)D_005E4298, 0xF1D);
             }
             {
                 u8 *q;
                 q = (u8 *)DAT_007973a0 + id * 0x30;
-                if (*(u16 *)(q + 0xE2C) & 1)
+                if (((DatPersonaRecord*)(q + 0xE2C))->flags & 1)
                 {
                     q = q + 0xE2C;
                 }
@@ -2849,11 +2855,11 @@ void datPersonaInitAllRecords(void) {
                 }
                 if (q == NULL)
                 {
-                    if (((s32)*(u16 *)(buf + 2) < 0) || ((s32)*(u16 *)(buf + 2) >= 0x100))
+                    if (((s32)MEMBER(u16, buf, DatPersonaRecord, id) < 0) || ((s32)MEMBER(u16, buf, DatPersonaRecord, id) >= 0x100))
                     {
                         FUN_0046d730((const char *)D_005E4298, 0xF28);
                     }
-                    memcpy((u8 *)DAT_007973a0 + (s32)*(u16 *)(buf + 2) * 0x30 + 0xE2C, buf, 0x30);
+                    memcpy((u8 *)DAT_007973a0 + (s32)MEMBER(u16, buf, DatPersonaRecord, id) * 0x30 + 0xE2C, buf, 0x30);
                 }
             }
         }
@@ -2861,8 +2867,8 @@ void datPersonaInitAllRecords(void) {
     }
 }
 
-// FUN_00110140
 /* Divides the number of active cached persona records by the metadata-eligible count and scales by 100. */
+// FUN_00110140
 s32 datGetPersonaCacheCompletionPercent(void)
 {
     s32 count1 = 0;
@@ -2909,6 +2915,7 @@ s32 datGetPersonaCacheCompletionPercent(void)
     return count1 * 0x64 / count2;
 }
 
+/* Copy a complete persona record into staging and store its separate selection id. */
 // FUN_00110270
 void datStageRecord(u8* src, u16 personaId)
 {
@@ -2934,8 +2941,8 @@ u8* datStagedRecord(void)
     return D_0079B6A8;
 }
 
-// FUN_001102F0
 /* Builds and transforms a normalized camera-space ray and writes camera position plus scaled direction. */
+// FUN_001102F0
 u8* datScreenPointToWorldPosition(u8* output, s32 screenX, s32 screenY, f32 distance)
 {
     f32 buf[3];

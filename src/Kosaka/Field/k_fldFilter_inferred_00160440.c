@@ -6,6 +6,9 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "rw_camera_internal.h"
+#include "h_cdvd_request_internal.h"
+#include "primitive_queue_internal.h"
 #include "Kosaka/k_fldFilter_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_matrix_internal.h"
@@ -57,11 +60,11 @@ void FldAuxBufferRelease(void)
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 /* Initialize the seven-by-eight screen grid of four-vertex filter quads. */
-/* The remaining camera +0x80 float is the projected quad depth; the camera object's complete layout is not defined in this unit. */
+/* Quad depth is captured from the camera near plane before any vertex store. */
 // FUN_001604A0
 void K_FldFilter_InitQuads(u8 *camera)
 {
-    f32 depth = *(f32 *)(camera + 0x80);
+    f32 depth = ((RwCamera *)(camera))->nearPlane;
     f32 inv = 1.0f / depth;
     s32 i;
     s32 j;
@@ -126,7 +129,7 @@ void FldFilterLoadFile(void)
     func_00440b68((char *)&iGpffff9f00, D_005F11E8, 0xF4);
     file = H_Cdvd_AcquireDirectory(D_005F1200, 0);
     H_Cdvd_ReadSync(file);
-    memcpy(iGpffffb2b0, *(void **)(file + 0x110), 0x12400);
+    memcpy(iGpffffb2b0, ((HCdvdRequest *)(file))->data, 0x12400);
     H_Cdvd_Destroy(file);
     K_FldFilter_InitQuads(kwlnGetCamera());
 }
@@ -218,7 +221,8 @@ void FldFilterApplyColour(void)
  * current-row base held as an integer (u32) so the row offset is the first addu operand, as retail.
  * blend row reads the base word as u32 (retail reloads it there instead of reusing the current-row base).
  */
-static inline void zeroBytes16_00160880(u8 *p)
+/* Clear the sixteen-byte color scratch buffer when it is present. */
+static inline void fldFilterClearColorBytes(u8 *p)
 {
     s32 n = 16;
 
@@ -232,7 +236,9 @@ static inline void zeroBytes16_00160880(u8 *p)
 }
 
 /* Keep the state-word read at the join after updating the previous state. */
-static inline s32 previousStateValue_00160880(const s32 *state)
+/* Read the previous crossfade state through its original word pointer. */
+/* measured: expansion reuses the preceding state word instead of retaining the retail reload and load order. */
+static inline s32 fldFilterPreviousState(const s32 *state)
 {
     return *state;
 }
@@ -242,10 +248,13 @@ static inline s32 previousStateValue_00160880(const s32 *state)
 #pragma opt_propagation on
 #pragma opt_lifetimes on
 // Intent: Advance the colour cross-fade from the previous state table to the current one by one step, writing blended vertex colours for seven rows of eight [inferred]
-/* Byte cursors intentionally retain the measured current/previous row address order and queue callback layout; colors use a 0x24-byte lattice stride. */
+/* Current/previous cursors advance one packed color per column and 0x24 bytes per row.
+ * Their colors[0..1][0..1] fields therefore select the four corners at (i, j). */
 // FUN_00160880
 void FldColorCrossfadeStep(void)
 {
+    FldFilterEntry *currentColors;
+    FldFilterEntry *previousColors;
     s32 cur;
     s32 prev;
     f32 blend;
@@ -290,7 +299,7 @@ void FldColorCrossfadeStep(void)
             D_007643AC = cur;
         }
     }
-    prev = previousStateValue_00160880(&D_007643AC);
+    prev = fldFilterPreviousState(&D_007643AC);
     b = D_007643B0;
     inv = 1.0f - b;
     i = 0;
@@ -311,22 +320,26 @@ void FldColorCrossfadeStep(void)
             s32 w;
             s32 bright;
 
-            w = *(s32 *)(p + 4);
+            currentColors = (FldFilterEntry *)p;
+    w = (s32)currentColors->colors[0][0];
             r0 = w & 0xFF;
             g0 = (w >> 8) & 0xFF;
             b0 = (w >> 16) & 0xFF;
             a0 = (w >> 24) & 0xFF;
-            w = *(s32 *)(p + 8);
+
+    w = (s32)currentColors->colors[0][1];
             r1 = w & 0xFF;
             g1 = (w >> 8) & 0xFF;
             b1 = (w >> 16) & 0xFF;
             a1 = (w >> 24) & 0xFF;
-            w = *(s32 *)(p + 0x2C);
+
+    w = (s32)currentColors->colors[1][1];
             r2 = w & 0xFF;
             g2 = (w >> 8) & 0xFF;
             b2 = (w >> 16) & 0xFF;
             a2 = (w >> 24) & 0xFF;
-            w = *(s32 *)(p + 0x28);
+
+    w = (s32)currentColors->colors[1][0];
             r3 = w & 0xFF;
             g3 = (w >> 8) & 0xFF;
             b3 = (w >> 16) & 0xFF;
@@ -349,22 +362,26 @@ void FldColorCrossfadeStep(void)
                 s32 sr2, sg2, sb2, sa2;
                 s32 sr3, sg3, sb3, sa3;
 
-                w = *(s32 *)(q + 4);
+                previousColors = (FldFilterEntry *)q;
+    w = (s32)previousColors->colors[0][0];
                 sr0 = w & 0xFF;
                 sg0 = (w >> 8) & 0xFF;
                 sb0 = (w >> 16) & 0xFF;
                 sa0 = (w >> 24) & 0xFF;
-                w = *(s32 *)(q + 8);
+
+    w = (s32)previousColors->colors[0][1];
                 sr1 = w & 0xFF;
                 sg1 = (w >> 8) & 0xFF;
                 sb1 = (w >> 16) & 0xFF;
                 sa1 = (w >> 24) & 0xFF;
-                w = *(s32 *)(q + 0x2C);
+
+    w = (s32)previousColors->colors[1][1];
                 sr2 = w & 0xFF;
                 sg2 = (w >> 8) & 0xFF;
                 sb2 = (w >> 16) & 0xFF;
                 sa2 = (w >> 24) & 0xFF;
-                w = *(s32 *)(q + 0x28);
+
+    w = (s32)previousColors->colors[1][0];
                 sr3 = w & 0xFF;
                 sg3 = (w >> 8) & 0xFF;
                 sb3 = (w >> 16) & 0xFF;
@@ -415,10 +432,10 @@ void FldColorCrossfadeStep(void)
                 b3 = b3 * iGpffff9ef8 / 255;
                 a3 = a3 * iGpffff9ef8 / 255;
             }
-            if (*(s32 *)(curOff + base) == 3) {
+            if ((s32)((FldFilterEntry *)(curOff + base))[0].type == 3) {
                 u8 *vtx;
 
-                zeroBytes16_00160880(colsA);
+                fldFilterClearColorBytes(colsA);
                 colsA[0] = (u8)r0;
                 colsA[1] = (u8)g0;
                 colsA[2] = (u8)b0;
@@ -450,7 +467,7 @@ void FldColorCrossfadeStep(void)
             } else {
                 u8 *vtx;
 
-                zeroBytes16_00160880(colsB);
+                fldFilterClearColorBytes(colsB);
                 colsB[0] = (u8)r0;
                 colsB[1] = (u8)g0;
                 colsB[2] = (u8)b0;
@@ -481,12 +498,12 @@ void FldColorCrossfadeStep(void)
                 res = PrimQueueDrawPrimitive(D_00794960, 4, vtx, 4);
             }
             if ((j == 0) && (i == 0)) {
-                *(void **)(res + 8) = (void *)FldFilterResetRenderState;
-                *(s32 *)(res + 16) = 0;
+                ((PrimQueueDrawNode *)(res))->begin.callback = (void *)FldFilterResetRenderState;
+                ((PrimQueueDrawNode *)(res))->begin.argument.handle = 0;
             }
             if ((j == 7) && (i == 6) && ((s32)((FldFilterEntry *)(iGpffffb2b0 + iGpffffb2b8 * 0x124))->type == 3)) {
-                *(void **)(res + 12) = (void *)FldFilterApplyColour;
-                *(s32 *)(res + 20) = 0;
+                ((PrimQueueDrawNode *)(res))->begin.endCallback = (void *)FldFilterApplyColour;
+                ((PrimQueueDrawNode *)(res))->endArgument.handle = 0;
             }
         }
     }

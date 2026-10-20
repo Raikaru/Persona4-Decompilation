@@ -1,3 +1,5 @@
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "model_motion_internal.h"
 #include "texture_callback_internal.h"
 #include "model_callbacks_internal.h"
@@ -17,13 +19,11 @@
 #include "model_matrix_internal.h"
 #include "mdl_file_internal.h"
 #include "rw/std/stddef.h"
+#include "member_access.h"
 #include "Kosaka/k_clump_internal.h"
 #include "Kosaka/k_clump_draw_internal.h"
-/* measured: index-first addu operand-order carrier (lever 3). Kept at top of
-   file, OUTSIDE the opt_propagation pragma regions, so it inlines cleanly and
-   does not emit a standalone symbol. */
-static inline u32 mdlAddOffset(u32 offset, u32 base) { return offset + base; }
-static inline f32 mdlMultiplyOrdered(f32 a, f32 b) { return a * b; }
+/* measured: byteAddressAdd preserves index-first address operands outside the
+ * pragma regions; ordinary sums are used at every insensitive call site. */
 extern f32 iGpffff8040;
 extern f32 fGpffff809c;
 extern u8 D_00713180[];
@@ -397,6 +397,9 @@ typedef struct MdlCloneAttachmentTable {
     u16 unknown32;                 /* 0x32 */
 } MdlCloneAttachmentTable;
 
+/* One pointer-sized attachment slot selected from the primary/secondary arrays. */
+typedef struct MdlAttachmentSlot { void *object; } MdlAttachmentSlot;
+
 typedef struct MdlAnimResource {
     MdlAnimResourceEntry* entries;
     u32 unknown04; /* base UV dictionary address */
@@ -434,6 +437,14 @@ typedef struct MdlLookState {
     f32 yawOffset;
     f32 pitchOffset;
 } MdlLookState;
+
+/* Contiguous scale-hook parameters beginning at the layer's scaleNode. */
+typedef struct MdlHierarchyScale {
+    s32 node;
+    RwV3d scale;
+    f32 modelScale;
+    f32 aspect;
+} MdlHierarchyScale;
 
 typedef struct MdlLayerState {
     u16 flags;
@@ -648,7 +659,7 @@ u8* mdlDispatchAnimTableCreate(u16 count)
     table = ((void* (*)(int, int))DAT_008873e8[0])(size, 0x40000);
     memset(table, 0, size);
     *(u8* *)&((MdlDispatchAnimTable *)table)->entries = table + 0x10;
-    *(u16*)(table + 8) = count;
+    MEMBER(u16, table, MdlDispatchAnimTable, count) = count;
     for (entryIndex = 0; entryIndex < ((MdlDispatchAnimTable *)table)->count; entryIndex++) {
         *(s32 *)&((MdlDispatchAnimEntry *)(*(u8* *)&((MdlDispatchAnimTable *)table)->entries + entryIndex * 0x50))->matrix.at.z = 0x3F800000;
         *(s32 *)&((MdlDispatchAnimEntry *)(*(u8* *)&((MdlDispatchAnimTable *)table)->entries + entryIndex * 0x50))->matrix.up.y = 0x3F800000;
@@ -848,12 +859,10 @@ struct RpHAnimHierarchy
  * (554 fnalign edits); opt_lifetimes gives the s0/s1 list-walk colours (+9 without). */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-static inline u32 mdlTableEntryAddress(u32 offset, u32 base)
-{
-    return offset + base;
-}
 
 /* Read the scalar snapshot retained across the hierarchy callbacks. */
+/* Read the animation snapshot across hierarchy callback and matrix-update lifetimes. */
+/* measured: direct reads at the two retained sites change hierarchy register allocation; the third site expands without a difference. */
 static inline u32 mdlAnimationFlag(const u32 *flag)
 {
     return *flag;
@@ -987,6 +996,9 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
   typedef char ControllerCacheOmega[(offsetof(ControllerSlerpCache, omega) == 32) ? 1 : -1];
   typedef char ControllerCacheFlag[(offsetof(ControllerSlerpCache, nearlyZero) == 36) ? 1 : -1];
   typedef char ControllerPositionSize[(sizeof(position) == 12) ? 1 : -1];
+  RtAnimInterpolator *poseInterpolator;
+  MdlLookState *lookState = (MdlLookState *)controllerState;
+  MdlLayerState *modelLayer = (MdlLayerState *)layerState;
   typedef char ControllerWorkingVectorSize[(sizeof(workingVector) == 12) ? 1 : -1];
   typedef char ControllerWorkingVectorX[(offsetof(RwV3d, x) == 0) ? 1 : -1];
   typedef char ControllerWorkingVectorY[(offsetof(RwV3d, y) == 4) ? 1 : -1];
@@ -1081,14 +1093,15 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
     ((MdlFrame *)frameOrStride)->privateFlags = ((MdlFrame *)frameOrStride)->privateFlags | 2;
   }
   interpolatorAddress = (unsigned int)hierarchy->currentAnim;
-  applyKeyFrame = *(void (**)(void *, void *))(interpolatorAddress + 0x3c);
+  poseInterpolator = (RtAnimInterpolator *)interpolatorAddress;
+  applyKeyFrame = *(void (**)(void *, void *))&poseInterpolator->keyFrameApplyCB;
   frameOrStride = ((RtAnimInterpolator *)interpolatorAddress)->currentInterpKeyFrameSize;
   parentStackTop = &parentStack[1];
   nodeInfoAddress = (unsigned int)hierarchy->pNodeInfo;
   outputMatrix = (float *)hierarchy->pMatrixArray;
   keyFrameAddress = interpolatorAddress + 0x4c;
-  workValue = **(int **)(modelState + 0x1a);
-  blendControl = *(unsigned int **)(mdlTableEntryAddress((short)modelState[2] * 0x50, workValue) + 0x48);
+  workValue = **(int **)&modelLayer->resource;
+  blendControl = *(unsigned int **)&((MdlDispatchAnimEntry *)((u32)byteAddressAdd((short)modelState[2] * 0x50, (u8 *)(workValue))))->blendControl;
   if ((blendControl != (unsigned int *)0x0) && (((MdlLayerState *)modelState)->speed == 0.0f)) {
     return 1;
   }
@@ -1144,7 +1157,7 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
           *controller = *controller | 0x600;
         }
         angleLimited = 0;
-        workingVector.x = 1.0f / *(float *)(controller + 0x18);
+        workingVector.x = 1.0f / lookState->scale.x;
         workingVector.y = 1.0f / ((MdlLookState *)controller)->scale.y;
         workingVector.z = 1.0f / ((MdlLookState *)controller)->scale.z;
         if ((*modelState & 0x10) != 0) {
@@ -1269,7 +1282,7 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
               rotation = *(ControllerQuat *)&((MdlLookState *)controller)->limitedRotation[0];
             }
             if (((*controller & 0x8000) != 0) &&
-               ((*(float *)(controller + 0x24) != 0.0f || (((MdlLookState *)controller)->pitchOffset != 0.0f)))) {
+               ((lookState->yawOffset != 0.0f || (((MdlLookState *)controller)->pitchOffset != 0.0f)))) {
               rotationSnapshot = rotation;
               limitRotation = 0;
               axis[0] = 0;
@@ -1318,7 +1331,7 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
               *controller = *controller & 0xf7ff;
             }
             /* Snapshot the complete starting controller quaternion. */
-            startRotation = *(const ControllerQuat *)(controller + 8);
+            startRotation = *(const ControllerQuat *)&lookState->rotation[0];
             func_003dcc70((struct RtQuat *)(&startRotation.value[0]),(struct RtQuat *)(&rotation.value[0]),(struct RtQuatSlerpCache *)(&interpolation.from[0]));
             {
               f32 interpolationTime = ((MdlLookState *)controller)->blend;
@@ -1553,7 +1566,7 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
       if (nodeFrame != 0) {
         if ((hierarchyFlags & 0x1000) != 0) {
           *(RwMatrix *)&((MdlFrame *)(u8 *)(u32)(nodeFrame))->modelling.right.x = frameMatrix;
-          if (mdlAnimationFlag(&animated) == 0) {
+          if ((*(&animated)) == 0) {
             func_003e9680((u8 *)(nodeFrame));
           }
         }
@@ -1611,7 +1624,7 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
       }
       else {
         workValue = (short)modelState[2] * 0x50;
-        startFrame = *(int **)(**(int * *)&((MdlLayerState *)modelState)->resource + 0x4c + workValue);
+        startFrame = *(int **)(**(int * *)&((MdlLayerState *)modelState)->resource + MEMBER_OFFSET(MdlDispatchAnimEntry, startFrame) + workValue);
         if (startFrame == (int *)0x0) {
           angleOrTime = 0.0f;
         }
@@ -1727,17 +1740,20 @@ void mdlInstallHierarchyScaleHook(u8* hierarchyData, u8* layer)
     u8* activeInterpolator;
     s32 keyFrameSize;
     s32 keyFrameAddress;
+    RpHAnimHierarchy *hierarchy = (RpHAnimHierarchy *)hierarchyData;
+    MdlHierarchyScale *hierarchyScale;
 
     scaleFields = layer + 0x3C;
-    interpolator = *(u8**)(hierarchyData + 0x20);
+    hierarchyScale = (MdlHierarchyScale *)scaleFields;
+    interpolator = *(u8 **)&hierarchy->currentAnim;
     if (interpolator != 0) {
         *(s32*)DAT_00922ba0_abs = *(s32 *)&((RtAnimInterpolator *)interpolator)->keyFrameApplyCB;
         *(s32 *)&((RtAnimInterpolator *)interpolator)->keyFrameApplyCB = (s32)mdlHierarchyScaleHook;
-        activeInterpolator = *(u8**)(hierarchyData + 0x20);
+        activeInterpolator = *(u8 **)&hierarchy->currentAnim;
         keyFrameSize = ((RtAnimInterpolator *)activeInterpolator)->currentInterpKeyFrameSize;
         keyFrameAddress = (s32)activeInterpolator + 0x4C;
         *(s32*)DAT_00922ba4_abs = keyFrameAddress;
-        keyFrameAddress = keyFrameAddress + keyFrameSize * *(s32*)(scaleFields + 0);
+        keyFrameAddress = keyFrameAddress + keyFrameSize * hierarchyScale->node;
         *(s32*)DAT_00922ba4_abs = keyFrameAddress;
         if (((MdlLayerState *)layer)->speed != 0.0f) {
             *(s32*)DAT_00922ba8_abs = keyFrameAddress;
@@ -1745,9 +1761,9 @@ void mdlInstallHierarchyScaleHook(u8* hierarchyData, u8* layer)
             *(s32*)DAT_00922ba8_abs = 0;
         }
         *(float**)DAT_00922bac_abs = (float*)(scaleFields + 4);
-        *(f32*)D_00922BB0_abs = *(f32*)(scaleFields + 0x10);
-        *(f32*)D_00922BB4_abs = *(f32*)(scaleFields + 0x14);
-        if ((*(u16*)(layer + 0x54) & 0x81E0) != 0) {
+        *(f32*)D_00922BB0_abs = hierarchyScale->modelScale;
+        *(f32*)D_00922BB4_abs = hierarchyScale->aspect;
+        if ((MEMBER(u16, layer, MdlLayerState, look.flags) & 0x81E0) != 0) {
             mdlUpdateHierarchyPose(hierarchyData, layer, layer + 0x54, 0);
             ((MdlLayerState *)layer)->look.flags |= 0x4000;
         } else {
@@ -1814,9 +1830,10 @@ void* mdlSetupAtomicMatFX(void* atomic, void* data)
     u32 boneCount;
     u8* geometryData;
     int materialIndex;
+    struct RpAtomic *modelAtomic = (struct RpAtomic *)atomic;
 
     geometryData = atomic;
-    geometryOrCount = *(int*)(geometryData + 0x18);
+    geometryOrCount = *(int *)&modelAtomic->geometry;
     if (geometryOrCount == 0) {
         return atomic;
     }
@@ -1866,13 +1883,14 @@ void* mdlResolveLoopAnimation(void* interpolator, u8* layer)
     void* activeInterpolator;
     u8* metadataField;
     f32 timeScale;
+    MdlLayerState *layerState = (MdlLayerState *)layer;
 
     rawIndex = ((MdlLayerState *)layer)->animationIndex;
-    table = *(s32**)(layer + 0x34);
+    table = *(s32 **)&layerState->resource;
     if (table != 0 &&
         (signedIndex = (s64)rawIndex, count = ((MdlDispatchAnimTable *)table)->count,
          signedIndex < (s64)(u32)count) &&
-        (off = rawIndex * 0x50, animation = *(u8**)(*(s32 *)&((MdlDispatchAnimTable *)table)->entries + 0x40 + off)) != 0 &&
+        (off = rawIndex * 0x50, animation = *(u8**)(*(s32 *)&((MdlDispatchAnimTable *)table)->entries + MEMBER_OFFSET(MdlDispatchAnimEntry, animation) + off)) != 0 &&
         animation != D_00922BC0_abs) {
         if (!(((MdlLayerState *)layer)->flags & 1)) {
             if (signedIndex < (s64)(u32)count && rawIndex >= 0) {
@@ -1890,10 +1908,10 @@ void* mdlResolveLoopAnimation(void* interpolator, u8* layer)
                     mdlNoopSecondaryEffect(*(s32 *)&((MdlCloneAttachmentTable *)attachments)->secondaryDraw);
                 }
             }
-            activeInterpolator = *(void* *)&((RpHAnimHierarchy *)(u8*)*(void**)(layer + 0x20))->currentAnim;
+            activeInterpolator = *(void* *)&((RpHAnimHierarchy *)layerState->hierarchy)->currentAnim;
             RtAnimInterpolatorSetAnimLoopCallBack(activeInterpolator, 0, 0);
             timeScale = iGpffff8040;
-            *(f32*)(layer + 0xC) = timeScale * ((MdlLayerState *)layer)->speed;
+            layerState->time = timeScale * ((MdlLayerState *)layer)->speed;
             metadataField = (u8*)*(s32 *)&((MdlDispatchAnimTable *)(u8*)*(s32* *)&((MdlLayerState *)layer)->resource)->entries;
             metadataField += 0x4C;
             metadataField += off;
@@ -1901,7 +1919,7 @@ void* mdlResolveLoopAnimation(void* interpolator, u8* layer)
             if (startFrame != 0) {
                 ((MdlLayerState *)layer)->time = ((MdlLayerState *)layer)->time + timeScale * (f32)(s32)*(s32*)startFrame;
             }
-            activeInterpolator = *(void* *)&((RpHAnimHierarchy *)(u8*)*(void**)(layer + 0x20))->currentAnim;
+            activeInterpolator = *(void* *)&((RpHAnimHierarchy *)layerState->hierarchy)->currentAnim;
             func_003d5e40_typed(((MdlLayerState *)layer)->time, activeInterpolator);
             activeInterpolator = *(void* *)&((RpHAnimHierarchy *)(u8*)*(void* *)&((MdlLayerState *)layer)->hierarchy)->currentAnim;
             RtAnimInterpolatorSetAnimLoopCallBack(activeInterpolator, mdlResolveLoopAnimation, layer);
@@ -1959,8 +1977,9 @@ void mdlDestroySlotEffects(u8 *layer)
     u32 *drawSlot;
     u32 pointerOffset;
     u32 arrayAddress;
+    MdlLayerState *layerState = (MdlLayerState *)layer;
 
-    attachments = *(u32**)(layer + 0x38);
+    attachments = (u32 *)layerState->attachments;
     if (attachments != 0)
     {
         animationIndex = 0;
@@ -1984,36 +2003,36 @@ void mdlDestroySlotEffects(u8 *layer)
         DAT_008873ec[0](attachments);
         *(u32* *)&((MdlLayerState *)layer)->attachments = 0;
     }
-    if (*(u32*)(layer + 0x24) != 0)
+    if ((u32)layerState->blendFrom != 0)
     {
-        func_003d5830(*(u32*)(layer + 0x24));
+        func_003d5830((u32)layerState->blendFrom);
         *(u32 *)&((MdlLayerState *)layer)->blendFrom = 0;
     }
-    if (*(u32*)(layer + 0x28) != 0)
+    if ((u32)layerState->blendTo != 0)
     {
-        func_003d5830(*(u32*)(layer + 0x28));
+        func_003d5830((u32)layerState->blendTo);
         *(u32 *)&((MdlLayerState *)layer)->blendTo = 0;
     }
-    if (*(u32*)(layer + 0x2C) != 0)
+    if ((u32)layerState->rebaseInput != 0)
     {
-        func_003d5830(*(u32*)(layer + 0x2C));
+        func_003d5830((u32)layerState->rebaseInput);
         *(u32 *)&((MdlLayerState *)layer)->rebaseInput = 0;
     }
-    if (*(u32*)(layer + 0x30) != 0)
+    if ((u32)layerState->rebaseRotation != 0)
     {
-        func_003d5830(*(u32*)(layer + 0x30));
+        func_003d5830((u32)layerState->rebaseRotation);
         *(u32 *)&((MdlLayerState *)layer)->rebaseRotation = 0;
     }
-    if (*(u32*)(layer + 0x34) != 0)
+    if ((u32)layerState->resource != 0)
     {
-        mdlDispatchAnimTableRelease((u8*)*(u32*)(layer + 0x34));
+        mdlDispatchAnimTableRelease((u8*)layerState->resource);
         *(u32 *)&((MdlLayerState *)layer)->resource = 0;
     }
     if ((((MdlLayerState *)layer)->flags & 2) != 0)
     {
-        if (*(u32*)(layer + 0x20) != 0)
+        if ((u32)layerState->hierarchy != 0)
         {
-            func_00397120(*(u32*)(layer + 0x20));
+            func_00397120((u32)layerState->hierarchy);
             *(u32 *)&((MdlLayerState *)layer)->hierarchy = 0;
         }
     }
@@ -2133,23 +2152,21 @@ void mdlRebaseLayerPose(u8 *layer)
     f32 diff1;
     f32 diff2;
     f32 diff0;
+    MdlLayerState *layerState = (MdlLayerState *)layer;
 
-    referenceInterpolator = *(u8 **)(layer + 0x2C);
+    referenceInterpolator = layerState->rebaseInput;
     if ((referenceInterpolator != 0) && ((*(u16 *)layer & 0x80) != 0))
     {
         func_003d5bc0(referenceInterpolator, iGpffff8040);
-        count = ((RtAnimInterpolator *)*(u8 * *)&((RpHAnimHierarchy *)*(u8 **)(layer + 0x20))->currentAnim)->numNodes;
+        count = ((RtAnimInterpolator *)*(u8 * *)&((RpHAnimHierarchy *)layerState->hierarchy)->currentAnim)->numNodes;
         for (nodeIndex = 0, one = 1.0f, zero = 0.0f; nodeIndex < count; nodeIndex++)
         {
             outputInterpolator = *(u8 * *)&((RpHAnimHierarchy *)((MdlLayerState *)layer)->hierarchy)->currentAnim;
-            out = (MdlBlendRecord *)(mdlAddOffset(nodeIndex * ((RtAnimInterpolator *)outputInterpolator)->currentInterpKeyFrameSize,
-                                             (u32)outputInterpolator) + 0x4C);
+            out = (MdlBlendRecord *)(((u32)byteAddressAdd(nodeIndex * ((RtAnimInterpolator *)outputInterpolator)->currentInterpKeyFrameSize, (u8 *)((u32)outputInterpolator))) + 0x4C);
             inputInterpolator = ((MdlLayerState *)layer)->rebaseInput;
-            input = (MdlBlendRecord *)(mdlAddOffset(nodeIndex * ((RtAnimInterpolator *)inputInterpolator)->currentInterpKeyFrameSize,
-                                               (u32)inputInterpolator) + 0x4C);
+            input = (MdlBlendRecord *)(((u32)byteAddressAdd(nodeIndex * ((RtAnimInterpolator *)inputInterpolator)->currentInterpKeyFrameSize, (u8 *)((u32)inputInterpolator))) + 0x4C);
             rotationInterpolator = ((MdlLayerState *)layer)->rebaseRotation;
-            rotation = (MdlBlendRecord *)(mdlAddOffset(nodeIndex * ((RtAnimInterpolator *)rotationInterpolator)->currentInterpKeyFrameSize,
-                                                  (u32)rotationInterpolator) + 0x4C);
+            rotation = (MdlBlendRecord *)(((u32)byteAddressAdd(nodeIndex * ((RtAnimInterpolator *)rotationInterpolator)->currentInterpKeyFrameSize, (u8 *)((u32)rotationInterpolator))) + 0x4C);
             rawY = rotation->quat.y;
             rawX = rotation->quat.x;
             rawZ = rotation->quat.z;
@@ -2249,6 +2266,7 @@ u8 *mdlAdvanceLayer(u8 *layer, u8 *previousLayer, s32 updatePose)
     u32 flags;
     u8 *emptyAnimation;
     void *currentInterpolator;
+    u8 **animationField;
 
     animationIndex = ((MdlLayerState *)layer)->animationIndex;
     if (animationIndex < 0) {
@@ -2258,7 +2276,7 @@ u8 *mdlAdvanceLayer(u8 *layer, u8 *previousLayer, s32 updatePose)
         table = *(u8 * *)&((MdlLayerState *)layer)->resource;
         if (table != 0 && animationIndex < ((MdlDispatchAnimTable *)table)->count) {
             offset = animationIndex * 0x50;
-            animation = *(u8 **)(*(u32 *)table + 0x40 + offset);
+            animation = *(u8 **)(*(u32 *)table + MEMBER_OFFSET(MdlDispatchAnimEntry, animation) + offset);
             if (animation != 0 && animation != (u8 *)D_00922BC0_abs) {
                 if (table != 0 && ((MdlDispatchAnimTable *)table)->unknown != 0) {
                     func_003d5e40(*(u8 * *)&((RpHAnimHierarchy *)((MdlLayerState *)layer)->hierarchy)->currentAnim,
@@ -2287,7 +2305,8 @@ u8 *mdlAdvanceLayer(u8 *layer, u8 *previousLayer, s32 updatePose)
             }
             offset = selectedIndex * 0x50;
             animationBase = *(u8 **)table + 0x40;
-            animation = *(u8 **)(animationBase + offset);
+            animationField = (u8 **)(animationBase + offset);
+            animation = *animationField;
             if (animation == 0) {
                 goto advance_blend;
             }
@@ -2302,7 +2321,8 @@ u8 *mdlAdvanceLayer(u8 *layer, u8 *previousLayer, s32 updatePose)
             if (selectedIndex >= count) {
                 goto advance_blend;
             }
-            animation = *(u8 **)(animationBase + selectedIndex * 0x50);
+            animationField = (u8 **)(animationBase + selectedIndex * 0x50);
+            animation = *animationField;
             if (animation == 0 || animation == emptyAnimation) {
                 goto advance_blend;
             }
@@ -2317,7 +2337,7 @@ u8 *mdlAdvanceLayer(u8 *layer, u8 *previousLayer, s32 updatePose)
             if (!(progress < one)) {
                 func_003d5840(*(void * *)&((RpHAnimHierarchy *)((MdlLayerState *)layer)->hierarchy)->currentAnim,
                     *(void **)*(void * *)&((MdlLayerState *)layer)->blendTo);
-                animation = *(u8 **)(*(u32 *)*(u8 * *)&((MdlLayerState *)layer)->resource + 0x4C + offset);
+                animation = *(u8 **)(*(u32 *)*(u8 * *)&((MdlLayerState *)layer)->resource + MEMBER_OFFSET(MdlDispatchAnimEntry, startFrame) + offset);
                 if (animation == 0) {
                     func_003d5e40(*(u8 * *)&((RpHAnimHierarchy *)((MdlLayerState *)layer)->hierarchy)->currentAnim, elapsed);
                 } else {
@@ -2338,7 +2358,7 @@ advance_blend:
                 selectedIndex = (s16)animationIndex;
                 if (selectedIndex < (s64)(u32)((MdlDispatchAnimTable *)table)->count) {
                     offset = selectedIndex * 0x50;
-                    animation = *(u8 **)(*(u32 *)table + 0x40 + offset);
+                    animation = *(u8 **)(*(u32 *)table + MEMBER_OFFSET(MdlDispatchAnimEntry, animation) + offset);
                     if (animation != 0 && animation != (u8 *)D_00922BC0_abs) {
                         func_003d5bc0(*(void * *)&((RpHAnimHierarchy *)((MdlLayerState *)layer)->hierarchy)->currentAnim, elapsed);
                         goto finish_time;
@@ -2354,7 +2374,7 @@ advance_blend:
             }
             animationBase = *(u8 **)table;
             offset = selectedIndex * 0x50;
-            if (*(u8 **)(offset + (u32)animationBase + 0x40) == (u8 *)D_00922BC0_abs) {
+            if (((MdlDispatchAnimEntry *)(offset + (u32)animationBase))->animation == (u8 *)D_00922BC0_abs) {
                 goto finish_time;
             }
 advance_clock:
@@ -2368,7 +2388,7 @@ finish_time:
         selectedIndex = (s16)animationIndex;
         if (selectedIndex < (s64)(u32)((MdlDispatchAnimTable *)table)->count) {
             offset = selectedIndex * 0x50;
-            animation = *(u8 **)(*(u32 *)table + 0x40 + offset);
+            animation = *(u8 **)(*(u32 *)table + MEMBER_OFFSET(MdlDispatchAnimEntry, animation) + offset);
             if (animation != 0 && animation != (u8 *)D_00922BC0_abs) {
                 if ((*(u16 *)layer & 2) != 0 && previousLayer != 0) {
                     currentInterpolator = *(void * *)&((RpHAnimHierarchy *)((MdlLayerState *)layer)->hierarchy)->currentAnim;
@@ -2403,7 +2423,7 @@ finish_time:
 extern void func_003d59a0(void* a, void* b);
 /* MATCH: 1320B instructions plus eight zero-tail bytes. Member-first
    field bases, signed promoted counts and separate attachment offsets
-   preserve retail lifetimes. Reuse mdlAddOffset for index-first address sums. */
+   preserve retail lifetimes. Index-first sums use the shared byteAddressAdd. */
 
 
 #pragma push
@@ -2431,6 +2451,9 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
     s32* startFrame;
     u8* control;
     u8* fieldBase;
+    void **clipField;
+    s32 **startFrameField;
+    u8 **blendControlField;
 
     *(u16*)layer &= ~1u;
     narrowFlags = (u16)flags;
@@ -2442,12 +2465,12 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
         currentIndex < (entryCount = table->count) &&
         (currentOffset = currentIndex * (s32)sizeof(MdlDispatchAnimEntry),
          animationFields = (u8*)table->entries + offsetof(MdlDispatchAnimEntry, animation),
-         clip = *(void**)(animationFields + currentOffset)) != 0 &&
+         clipField = (void **)(animationFields + currentOffset), clip = *clipField) != 0 &&
         clip != (missingClip = D_00922BC0_abs) &&
         table != 0 &&
         (nextIndex = (s16)animation) < entryCount &&
         (nextOffset = nextIndex * (s32)sizeof(MdlDispatchAnimEntry),
-         clip = *(void**)(animationFields + nextOffset)) != 0 &&
+         clipField = (void **)(animationFields + nextOffset), clip = *clipField) != 0 &&
         clip != missingClip) {
         if (*(RtAnimInterpolator* *)&((MdlLayerState *)layer)->blendFrom == 0) {
             hierarchy = ((MdlLayerState *)layer)->hierarchy;
@@ -2464,7 +2487,7 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
         func_003d5840(*(RtAnimInterpolator* *)&((MdlLayerState *)layer)->blendFrom,
             (((MdlLayerState *)layer)->resource)->entries[((MdlLayerState *)layer)->animationIndex].animation);
         func_003d5840(*(RtAnimInterpolator* *)&((MdlLayerState *)layer)->blendTo,
-            ((MdlDispatchAnimEntry*)(mdlAddOffset((u32)nextOffset, (u32)(((MdlLayerState *)layer)->resource)->entries)))->animation);
+            ((MdlDispatchAnimEntry*)((((u32)nextOffset) + ((u32)(((MdlLayerState *)layer)->resource)->entries))))->animation);
         table = ((MdlLayerState *)layer)->resource;
         if (table == 0 || table->unknown == 0) {
             func_003d59a0(*(RtAnimInterpolator* *)&((MdlLayerState *)layer)->blendFrom,
@@ -2473,7 +2496,8 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
             func_003d5e40(((MdlLayerState *)layer)->blendFrom, ((MdlLayerState *)layer)->time);
         }
         fieldBase = (u8*)(((MdlLayerState *)layer)->resource)->entries + offsetof(MdlDispatchAnimEntry, startFrame);
-        startFrame = *(s32**)(fieldBase + nextOffset);
+        startFrameField = (s32 **)(fieldBase + nextOffset);
+        startFrame = *startFrameField;
         if (startFrame != 0) {
             func_003d5e40(((MdlLayerState *)layer)->blendTo, iGpffff8040 * (f32)*startFrame);
         }
@@ -2486,11 +2510,12 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
         if (table != 0 && (nextIndex = (s16)animation) < table->count &&
             (nextOffset = nextIndex * (s32)sizeof(MdlDispatchAnimEntry),
              animationFields = (u8*)table->entries + offsetof(MdlDispatchAnimEntry, animation),
-             clip = *(void**)(animationFields + nextOffset)) != 0 &&
+             clipField = (void **)(animationFields + nextOffset), clip = *clipField) != 0 &&
             clip != D_00922BC0_abs) {
             func_003d5840(((RpHAnimHierarchy *)((MdlLayerState *)layer)->hierarchy)->currentAnim, clip);
             fieldBase = (u8*)(((MdlLayerState *)layer)->resource)->entries + offsetof(MdlDispatchAnimEntry, startFrame);
-            startFrame = *(s32**)(fieldBase + nextOffset);
+            startFrameField = (s32 **)(fieldBase + nextOffset);
+            startFrame = *startFrameField;
             if (startFrame == 0) {
                 func_003d5e40(*(u8* *)&((RpHAnimHierarchy *)((MdlLayerState *)layer)->hierarchy)->currentAnim, 0.0f);
             } else {
@@ -2507,7 +2532,8 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
     if (((MdlLayerState *)layer)->look.flags & 0x81e0) {
         currentOffset = ((MdlLayerState *)layer)->animationIndex * (s32)sizeof(MdlDispatchAnimEntry);
         fieldBase = (u8*)(((MdlLayerState *)layer)->resource)->entries + offsetof(MdlDispatchAnimEntry, blendControl);
-        control = *(u8**)(fieldBase + currentOffset);
+        blendControlField = (u8 **)(fieldBase + currentOffset);
+        control = *blendControlField;
         if (control != 0) {
             u32 one;
             ((MdlDirectionalBlend *)control)->duration = 0.0f;
@@ -2520,22 +2546,24 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
         }
         nextOffset = (s16)animation * (s32)sizeof(MdlDispatchAnimEntry);
         fieldBase = (u8*)(((MdlLayerState *)layer)->resource)->entries + offsetof(MdlDispatchAnimEntry, blendControl);
-        control = *(u8**)(fieldBase + nextOffset);
+        blendControlField = (u8 **)(fieldBase + nextOffset);
+        control = *blendControlField;
         if (control != 0) {
             f32 fraction;
             ((MdlDirectionalBlend *)control)->duration = (f32)(u32)((MdlLayerState *)layer)->blendTicks;
             fraction = ((MdlLayerState *)layer)->blend;
-            ((MdlDirectionalBlend *)((MdlDispatchAnimEntry*)(mdlAddOffset((u32)nextOffset, (u32)(((MdlLayerState *)layer)->resource)->entries)))->blendControl)->progress = fraction;
+            ((MdlDirectionalBlend *)((MdlDispatchAnimEntry*)((((u32)nextOffset) + ((u32)(((MdlLayerState *)layer)->resource)->entries))))->blendControl)->progress = fraction;
         }
     }
     control = *(u8* *)&((MdlLayerState *)layer)->attachments;
     if (control != 0) {
         nextOffset = (s16)animation * (s32)sizeof(void*);
-        ((MdlCloneAttachmentTable *)control)->nextPrimary = *(void**)(*(u8 **)&((MdlCloneAttachmentTable *)control)->primary + nextOffset);
+        ((MdlCloneAttachmentTable *)control)->nextPrimary =
+            ((MdlAttachmentSlot *)(*(u8 **)&((MdlCloneAttachmentTable *)control)->primary + nextOffset))->object;
         if (narrowFlags & 0x20) {
             clip = 0;
         } else {
-            clip = *(void**)(*(u8 **)&((MdlCloneAttachmentTable *)control)->secondary + nextOffset);
+            clip = ((MdlAttachmentSlot *)(*(u8 **)&((MdlCloneAttachmentTable *)control)->secondary + nextOffset))->object;
         }
         ((MdlCloneAttachmentTable *)control)->nextSecondary = clip;
         *(s32 *)&((MdlCloneAttachmentTable *)control)->pendingSecondary = 1;
@@ -2603,6 +2631,7 @@ void mdlUpdateBlendTrack(u8* state, u8* layer)
     s32 previousMaterialAnimation;
     u32 dispatchTableAddress;
     s32 animationOffset;
+    MdlLayerState *layerState = (MdlLayerState *)layer;
     resourceTable = *(s32**)state;
     if ((resourceTable != NULL) &&
         ((animationIndex = ((MdlLayerState *)layer)->animationIndex), (animationIndex >= 0))) {
@@ -2634,7 +2663,8 @@ void mdlUpdateBlendTrack(u8* state, u8* layer)
             if ((dispatchTableAddress != 0) &&
                 (animationIndex < ((MdlDispatchAnimTable *)dispatchTableAddress)->count) &&
                 ((animationOffset = animationIndex * 0x50,
-                 animationClip = *(s32*)((u32)((u32)*(s32*)dispatchTableAddress + 0x40) +
+                 /* measured: plain animationOffset changes 23 bytes; retain the existing address operand order. */
+                 animationClip = *(s32*)((u32)((u32)*(s32*)dispatchTableAddress + MEMBER_OFFSET(MdlDispatchAnimEntry, animation)) +
                                     (u32)(animationOffset, animationOffset))),
                  (animationClip != 0)) &&
                 ((u8*)animationClip != (u8*)D_00922BC0_abs)) {
@@ -2645,7 +2675,7 @@ void mdlUpdateBlendTrack(u8* state, u8* layer)
                 }
                 mdlMatAnimApplyScaled(animation, animationTime);
             } else {
-                mdlMatAnimApplyScaled(animation, *(f32*)(layer + 0xC));
+                mdlMatAnimApplyScaled(animation, layerState->time);
                 if (((MdlLayerState *)layer)->time > mdlMatAnimMaxDuration(animation)) {
                     mdlResolveLoopAnimation(NULL, layer);
                 }
@@ -2811,6 +2841,7 @@ void* mdlAnimLoopCallback(void* interpolator, void* control)
     u16 count;
     s64 signedIndex;
     int* resource;
+    MdlAnimControl *animationControl = (MdlAnimControl *)control;
 
     if (control == (void*)0 ||
         ((rawIndex = ((struct MdlAnimLoopContext*)control)->rawIndex,
@@ -2827,8 +2858,8 @@ void* mdlAnimLoopCallback(void* interpolator, void* control)
         return interpolator;
     }
 
-    rawIndex = *(s16*)((u8*)control + 4);
-    resource = *(int**)((u8*)control + 0x18);
+    rawIndex = animationControl->index;
+    resource = (int *)animationControl->resource;
     if (resource != (int*)0) {
         signedIndex = (s64)rawIndex;
         count = ((MdlAnimResource *)resource)->count;
@@ -2897,9 +2928,10 @@ void mdlSetupNamedFrameAnims(u8* control, void* clump)
         code callback;
         u32 value;
     } callbackData;
+    MdlAnimControl *animationControl = (MdlAnimControl *)control;
 
-    if ((*(int*)(control + 0x18) != 0) &&
-        (*(u32 *)&((MdlAnimControl *)control)->primaryTime = 0, *(int *)&((MdlAnimResource *)*(int*)(control + 0x18))->objects == 0)) {
+    if ((animationControl->resource != 0) &&
+        (*(u32 *)&((MdlAnimControl *)control)->primaryTime = 0, animationControl->resource->objects == 0)) {
         frames = func_003df5d0(4, 0);
 
         callbackData.callback = (code)mdlAppendUniqueListEntry;
@@ -2907,9 +2939,9 @@ void mdlSetupNamedFrameAnims(u8* control, void* clump)
 
         RpClumpForAllAtomics(clump, mdlForEachAtomicListEntry, &callbackData);
 
-        *(u32 *)&((MdlAnimResource *)*(int*)(control + 0x18))->objects = frames;
+        *(u32 *)&animationControl->resource->objects = frames;
 
-        for (frameEntry = (u32*)func_003df890((s32*)(*(u32 *)&((MdlAnimResource *)*(int*)(control + 0x18))->objects));
+        for (frameEntry = (u32*)func_003df890((s32*)animationControl->resource->objects);
              framesEnd = (u32*)func_003df8a0(*(u32 *)&((MdlAnimResource *)*(int *)&((MdlAnimControl *)control)->resource)->objects),
              frameEntry != framesEnd; frameEntry = frameEntry + 1) {
             userData = mdlGetFrameNameUserData((void*)*frameEntry);
@@ -3027,9 +3059,12 @@ void mdlSetAnimControlTime(u8* control, f32 time)
     u32* objectEntry;
     u32 objects;
     u8* entryState;
+    MdlAnimResource *resource;
+    RtAnimInterpolator *frameAnimation;
 
-    entryState = *(u8**)(control + 0x18);
-    if (entryState != 0 && *(u32*)(entryState + 8) != 0) {
+    entryState = MEMBER(u8*, control, MdlAnimControl, resource);
+    resource = (MdlAnimResource *)entryState;
+    if (entryState != 0 && *(u32 *)&resource->objects != 0) {
         ((MdlAnimControl *)control)->primaryTime = time;
         ((MdlAnimControl *)control)->secondaryTime = time;
         objects = *(u32 *)&((MdlAnimResource *)*(u8* *)&((MdlAnimControl *)control)->resource)->objects;
@@ -3039,9 +3074,10 @@ void mdlSetAnimControlTime(u8* control, f32 time)
             case 5:
             case 6:
                 entryState = (u8*)func_003d8130(*objectEntry, 0);
+                frameAnimation = (RtAnimInterpolator *)entryState;
                 if (entryState != 0) {
-                    if (*(void**)(entryState + 0x40) == (void*)mdlKeyFrameBlendCopy &&
-                        *(void**)(entryState + 0x44) == (void*)mdlKeyFrameInterpolateCopy) {
+                    if (*(void **)&frameAnimation->keyFrameBlendCB == (void*)mdlKeyFrameBlendCopy &&
+                        frameAnimation->keyFrameInterpolateCB == (void*)mdlKeyFrameInterpolateCopy) {
                         func_003d5e40(entryState, time);
                         *(void* *)&((RtAnimInterpolator *)entryState)->keyFrameBlendCB = (void*)mdlKeyFrameBlendCopy;
                         ((RtAnimInterpolator *)entryState)->keyFrameInterpolateCB = (void*)mdlKeyFrameInterpolateCopy;
@@ -3051,9 +3087,10 @@ void mdlSetAnimControlTime(u8* control, f32 time)
                 }
                 if (((MdlAnimControl *)control)->mode != 1) {
                     entryState = (u8*)func_003d8130(*objectEntry, 1);
+                    frameAnimation = (RtAnimInterpolator *)entryState;
                     if (entryState != 0) {
-                        if (*(void**)(entryState + 0x40) == (void*)mdlKeyFrameBlendCopy &&
-                            *(void**)(entryState + 0x44) == (void*)mdlKeyFrameInterpolateCopy) {
+                        if (*(void **)&frameAnimation->keyFrameBlendCB == (void*)mdlKeyFrameBlendCopy &&
+                            frameAnimation->keyFrameInterpolateCB == (void*)mdlKeyFrameInterpolateCopy) {
                             func_003d5e40(entryState, time);
                             *(void* *)&((RtAnimInterpolator *)entryState)->keyFrameBlendCB = (void*)mdlKeyFrameBlendCopy;
                             ((RtAnimInterpolator *)entryState)->keyFrameInterpolateCB = (void*)mdlKeyFrameInterpolateCopy;
@@ -3091,14 +3128,19 @@ extern void func_0039a700();
 extern void func_00399bf0();
 extern s32 iGpffffb74c;
 
-/* The interpolator plugin offset is registered at runtime; no fixed object
- * field can replace this offset plus its 12-byte plugin-header displacement. */
+/* The registered runtime offset selects the plugin; its secondary-interpolator
+ * slot follows the fixed twelve-byte plugin header. */
+typedef struct MdlInterpolatorPlugin {
+    u8 pad00[12];
+    u32 secondary;
+} MdlInterpolatorPlugin;
+/* Destroy the secondary interpolator and clear the clump plugin slot when present. */
 static inline void mdlSetupDetach(u32 *object) {
     RtAnimInterpolator *interpolator = (RtAnimInterpolator *)func_003d8130(*object, 1);
     if (interpolator != 0) {
         func_003d7c50(interpolator->pCurrentAnim);
         func_003d5830(interpolator);
-        *(u32 *)((u8 *)*object + iGpffffb74c + 12) = 0;
+        ((MdlInterpolatorPlugin *)((u8 *)*object + iGpffffb74c))->secondary = 0;
     }
 }
 
@@ -3137,7 +3179,7 @@ void mdlStartAnimation(void *clump, MdlAnimControl *state,
                 }
                 name = mdlGetFrameNameUserData((void *)*object);
                 if (name != 0) {
-                    animation = func_003d6170(((MdlAnimResourceEntry *)mdlAddOffset((s32)index * 8, (u32)state->resource->entries))->resource, name);
+                    animation = func_003d6170(((MdlAnimResourceEntry *)((u32)byteAddressAdd((s32)index * 8, (u8 *)((u32)state->resource->entries))))->resource, name);
                     if (animation != 0) {
                         special = strncmp(name, &gp0xffff9d10, 5) == 0;
                         interpolator = (RtAnimInterpolator *)func_003d8130(*object, 1);
@@ -3188,6 +3230,7 @@ void mdlStartAnimation(void *clump, MdlAnimControl *state,
 #pragma push
 #pragma always_inline on
 
+/* Advance the secondary material interpolator, or only refresh callbacks in mode one. */
 static inline void mdlStepSecondary(MdlAnimControl* state, u32* it)
 {
     if (state->mode != 1) {
@@ -3225,6 +3268,7 @@ static inline void mdlStepSecondary(MdlAnimControl* state, u32* it)
     }
 }
 
+/* Advance both supported material interpolators and refresh the animated object. */
 static inline void mdlStepAnimObject(MdlAnimControl* state, u32* it)
 {
     extern s32 func_003d7cf0(u32 object);
@@ -3296,6 +3340,7 @@ void* mdlFindFrameById(void* object, void* data)
 
 /* Keep the root fast path separate from recursive child traversal.
    The inlined return paths preserve the retail branch layout. */
+/* Find a frame by ID, checking the root before traversing its children. */
 static inline u8* mdlFindFrame(u8* frame, s32 id)
 {
     MdlFrameSearch data;
@@ -3809,11 +3854,13 @@ void mdlUpdateDrawState(MdlDrawState* owner)
     {
     u8* model;
     u8* effect;
+    MdlCloneAttachmentTable *attachments;
     layer = 0;
     while ((s64)layer < 2) {
         model = *(u8* *)&((Model *)((u8*)owner + layer * 0xA4))->layers[0].attachments;
         if (model != 0) {
-            effect = *(u8**)(model + 0x18);
+            attachments = (MdlCloneAttachmentTable *)model;
+            effect = attachments->primaryDraw;
             if (effect != 0 && ((MdlCloneAttachmentTable *)model)->delay == 0) {
                 mdlEffectListSetUniformScale((s32*)effect, (f32*)(model + 8));
                 mdlEffectListBuildTransforms(*(u8 ***)&((MdlCloneAttachmentTable *)model)->primaryDraw, (u8*)owner);
@@ -3822,7 +3869,7 @@ void mdlUpdateDrawState(MdlDrawState* owner)
             if (effect != 0 && ((MdlCloneAttachmentTable *)model)->delay == 0) {
                 mdlRefreshSecondaryEffect(effect, owner);
             }
-            if (*(u16*)(model + 0x30) > 0) {
+            if (attachments->delay > 0) {
                 ((MdlCloneAttachmentTable *)model)->delay -= 1;
             }
         }
@@ -3908,11 +3955,13 @@ void mdlUpdateDrawState(MdlDrawState* owner)
                 }
                 {
                 struct { u16 index; u8* table; } layerCursor;
+                MdlCloneAttachmentTable *attachments;
                 layerCursor.index = 0;
                 while ((s64)layerCursor.index < 2) {
                     layerCursor.table = *(u8* *)&((Model *)((u8*)attached.model + layerCursor.index * 0xA4))->layers[0].attachments;
                     if (layerCursor.table != 0) {
-                        source = *(u8**)(layerCursor.table + 0x18);
+                        attachments = (MdlCloneAttachmentTable *)layerCursor.table;
+                        source = attachments->primaryDraw;
                         if (source != 0 && ((MdlCloneAttachmentTable *)layerCursor.table)->delay == 0) {
                             mdlEffectListSetUniformScale((s32*)source, (f32*)(layerCursor.table + 8));
                             mdlEffectListBuildTransforms(*(u8** *)&((MdlCloneAttachmentTable *)layerCursor.table)->primaryDraw, (u8*)attached.model);
@@ -3921,7 +3970,7 @@ void mdlUpdateDrawState(MdlDrawState* owner)
                         if (source != 0 && ((MdlCloneAttachmentTable *)layerCursor.table)->delay == 0) {
                             mdlRefreshSecondaryEffect(source, attached.model);
                         }
-                        if (*(u16*)(layerCursor.table + 0x30) > 0) {
+                        if (attachments->delay > 0) {
                             ((MdlCloneAttachmentTable *)layerCursor.table)->delay -= 1;
                         }
                     }
@@ -4037,6 +4086,7 @@ typedef struct MdlMaterialColorReal { f32 red, green, blue, alpha; } MdlMaterial
 #pragma push
 #pragma always_inline on
 
+/* Normalize all byte-color channels to the material floating-point range. */
 static inline void mdlColorToReal(MdlMaterialColorReal* out, const RwRGBA* color)
 {
     out->red = (f32)(u32)color->red * (1.0f / 255.0f);
@@ -4045,6 +4095,7 @@ static inline void mdlColorToReal(MdlMaterialColorReal* out, const RwRGBA* color
     out->alpha = (f32)(u32)color->alpha * (1.0f / 255.0f);
 }
 
+/* Unpack the material color word into blue, green, red and alpha bytes. */
 static inline void mdlColorUnpack(RwRGBA* out, u32 packed)
 {
     out->blue = packed;
@@ -4053,6 +4104,7 @@ static inline void mdlColorUnpack(RwRGBA* out, u32 packed)
     out->alpha = packed >> 24;
 }
 
+/* Round normalized material channels to byte colors with a half-unit bias. */
 static inline void mdlColorQuantize(RwRGBA* out, const MdlMaterialColorReal* color)
 {
     f32 maximum = 255.0f;
@@ -4259,7 +4311,7 @@ void *mdlSetFrameColorIfNamed(void *atomic, void *context)
     namedColor = (u8 *)context;
     geometry = *(u8 **)&((struct RpAtomic *)atomic)->geometry;
     materialCount = ((MdlGeometry *)geometry)->count;
-    nameLength = strlen(*(s32 *)(namedColor + 4));
+    nameLength = strlen((s32)((MdlNamedColor *)namedColor)->name);
     materialIndex = 0;
     while (materialIndex < materialCount) {
         material = (u8*)(u32)((MdlGeometry *)geometry)->materials[materialIndex];
@@ -4323,7 +4375,7 @@ void mdlBuildScaledSlotRecords(void *model, void *properties)
     while ((propertyIndex & 0xFFFF) < 0x10) {
         propertySlot = (u16)propertyIndex;
         propertyCursor = (u8 *)properties + propertySlot * 2;
-        if (*(u16 *)(propertyCursor + 0x198) > 0) {
+        if (((MdlScaleProperties *)properties)->nodeCounts[propertySlot] > 0) {
             if ((propertyIndex & 0xFFFF) == 0) {
                 scaleFactor = ((MdlScaleProperties *)properties)->scaleFactor;
                 scaleValue = ((MdlScaleProperties *)properties)->scaleDivisorX;
@@ -4331,10 +4383,10 @@ void mdlBuildScaledSlotRecords(void *model, void *properties)
                 scaleValue = ((MdlScaleProperties *)properties)->scaleDivisorYZ;
                 scaledX = one / scaleValue;
                 scaleValue = ((MdlScaleProperties *)properties)->aspectFactor;
-                scaleValue = mdlMultiplyOrdered(scaleFactor, scaleValue);
-                scaleValue = mdlMultiplyOrdered(inverseX, scaleValue);
-                scaledYZ = mdlMultiplyOrdered(scaledX, scaleValue);
-                scaledX = mdlMultiplyOrdered(scaleFactor, inverseX);
+                scaleValue = operandOrderMultiply(scaleFactor, scaleValue);
+                scaleValue = operandOrderMultiply(inverseX, scaleValue);
+                scaledYZ = ((scaledX) * (scaleValue));
+                scaledX = ((scaleFactor) * (inverseX));
             }
             layerIndex = 0;
             while ((layerIndex & 0xFFFF) < 2) {
@@ -4558,9 +4610,10 @@ void mdlSetupPreparedModel(u8* model)
     u16 modelType;
     u32 hierarchyFlagsOrEffects;
     u8* layerBase;
+    Model *modelObject = (Model *)model;
 
     entries = (u8 (*)[0xA4])model;
-    RpClumpForAllAtomics(*(void**)(model + 0xDC), mdlDoubleAtomicEntryW, NULL);
+    RpClumpForAllAtomics(modelObject->clump, mdlDoubleAtomicEntryW, NULL);
     if (*(s32 *)&((Model *)model)->animControl.resource != 0) {
         mdlSetupNamedFrameAnims(model + 0x23C, ((Model *)model)->clump);
     }
@@ -4577,8 +4630,8 @@ void mdlSetupPreparedModel(u8* model)
             }
         }
     }
-    ((Model *)model)->drawBuckets = sdkClumpCreateBuckets(*(void**)(model + 0xDC));
-    RpClumpForAllAtomics(*(void**)(model + 0xDC), mdlEnsureAtomicMatColors, NULL);
+    ((Model *)model)->drawBuckets = sdkClumpCreateBuckets(modelObject->clump);
+    RpClumpForAllAtomics(modelObject->clump, mdlEnsureAtomicMatColors, NULL);
     modelType = ((Model *)model)->type;
     switch (modelType) {
     case 1:
@@ -4749,7 +4802,7 @@ s32 mdlPrepareModel(u8* model)
     void* source;
     s32 id;
 
-    flags = *(s32*)(model + 0xD8);
+    flags = MEMBER(s32, model, Model, flags);
     if ((flags & 0x1000) != 0) {
         return 1;
     }
@@ -4807,6 +4860,7 @@ typedef struct MdlCloneLayer {
     u8 unknown3c[0x68];             /* next layer at 0xa4 */
 } MdlCloneLayer;
 
+/* Allocate and clear one attachment header followed by its two pointer arrays. */
 static inline MdlCloneAttachmentTable* mdlCloneAttachmentStorage(u32 count)
 {
     MdlCloneAttachmentTable* copy;
@@ -4937,6 +4991,8 @@ void mdlDestroyModelObject(u8* model)
 {
     u32 slotIndex;
     void* matrixTable;
+    Model *modelObject = (Model *)model;
+    MdlMatrixTable *matrices;
 
     if (((Model *)model)->clump != 0) {
         func_003c0700(((Model *)model)->clump);
@@ -4944,19 +5000,20 @@ void mdlDestroyModelObject(u8* model)
     for (slotIndex = 0; slotIndex < 2; slotIndex++) {
         mdlDestroySlotEffects(model + slotIndex * 0xA4 + 0xEC);
     }
-    if (*(void**)(model + 0x234) != 0) {
-        mdlReleaseAnimEntryTable(*(void**)(model + 0x234));
+    if (modelObject->materialResource != 0) {
+        mdlReleaseAnimEntryTable(modelObject->materialResource);
         *(void* *)&((Model *)model)->materialResource = 0;
     }
-    if (*(void**)(model + 0x254) != 0) {
-        mdlReleaseBlendTrack(*(void**)(model + 0x254));
+    if (modelObject->animControl.resource != 0) {
+        mdlReleaseBlendTrack(modelObject->animControl.resource);
         *(void* *)&((Model *)model)->animControl.resource = 0;
     }
     matrixTable = ((Model *)model)->matrixTable;
+    matrices = (MdlMatrixTable *)matrixTable;
     if (matrixTable != 0) {
-        *(u16*)((u8*)matrixTable + 2) = *(u16*)((u8*)matrixTable + 2) - 1;
-        if (*(u16*)((u8*)matrixTable + 2) == 0) {
-            DAT_008873ec[0](*(void**)((u8*)matrixTable + 4));
+        matrices->unknown = matrices->unknown - 1;
+        if (matrices->unknown == 0) {
+            DAT_008873ec[0](matrices->entries);
         }
     }
     if (((Model *)model)->drawBuckets != 0) {
@@ -4973,7 +5030,7 @@ void mdlDestroyModelObject(u8* model)
         mdlEffectListDestroy(((Model *)model)->effects);
     }
     mdlReleaseObject(model + 0x2D0);
-    if (*(void**)(model + 0x308) != 0) {
+    if (modelObject->next != 0) {
         ((Model *)(u8*)((Model *)model)->next)->previous = ((Model *)model)->previous;
     }
     if (((Model *)model)->previous != 0) {
@@ -5268,13 +5325,14 @@ void mdlQueueModelForDraw(void* queue, u8* model)
     RwRGBA color;
     u32 uncolored;
     u32 childUncolored;
+    Model *modelObject = (Model *)model;
 
-    flags = *(u32*)(model + 0xd8);
+    flags = modelObject->flags;
     if ((flags & 0x1000) == 0)
         return;
     if ((flags & 4) == 0)
         mdlAdvanceModel(model, (flags & 1) == 0);
-    flags = *(u32*)(model + 0xd8);
+    flags = modelObject->flags;
     if ((flags & 2) != 0)
         return;
     if (model[0xd3] <= 0)
@@ -5288,7 +5346,7 @@ void mdlQueueModelForDraw(void* queue, u8* model)
         PrimAppendNode(((Model *)model)->queue, command);
     }
     renderCommand = PrimAllocQueueNode();
-    if (*(void**)(model + 0xe0) != 0)
+    if (modelObject->drawBuckets != 0)
     {
         *(void* *)&((OtPrimitiveNode *)renderCommand)->callback = (void*)mdlApplyDrawState;
         ((OtPrimitiveNode *)renderCommand)->callbackData = model;
@@ -5300,10 +5358,10 @@ void mdlQueueModelForDraw(void* queue, u8* model)
     }
     *(void* *)&((OtPrimitiveNode *)renderCommand)->endCallback = (void*)mdlResetDrawState;
     ((OtPrimitiveNode *)renderCommand)->endCallbackData = model;
-    flags = *(u32*)(model + 0xd8);
+    flags = modelObject->flags;
     if ((flags & 0x20) == 0 || ((Model*)model)->color.alpha == 255)
     {
-        if (*(void**)(model + 0xe0) == 0)
+        if (modelObject->drawBuckets == 0)
         {
             ((OtPrimitiveNode *)renderCommand)->command = 9;
             *(void* *)&((OtPrimitiveNode *)renderCommand)->primitive = ((Model*)model)->clump;
@@ -5327,9 +5385,9 @@ void mdlQueueModelForDraw(void* queue, u8* model)
         PrimAppendNode(queue, renderCommand);
     }
 
-    if (*(void**)(model + 0x2cc) != 0)
+    if (modelObject->effects != 0)
     {
-        flags = *(u32*)(model + 0xd8);
+        flags = modelObject->flags;
         if ((flags & 0x20000) != 0)
             goto layers;
         if ((flags & 0x8000) != 0)
@@ -5351,7 +5409,7 @@ void mdlQueueModelForDraw(void* queue, u8* model)
             real.blue *= tint.blue;
             real.alpha *= tint.alpha;
             mdlColorQuantize(&color, &real);
-            mdlEffectListSetColor(*(u8***)(model + 0x2cc), (s32*)&color);
+            mdlEffectListSetColor(*(u8 ***)&modelObject->effects, (s32*)&color);
             if (color.alpha > 0)
                 mdlEffectListInvokeEach(*(s32 *)&((Model *)model)->owner, *(u8** *)&((Model *)model)->effects);
         }
@@ -5366,7 +5424,7 @@ layers:
     {
         MdlCloneAttachmentTable** slot = &((MdlCloneLayer*)(model + 0xec + (u32)layer * sizeof(MdlCloneLayer)))->attachments;
         MdlCloneAttachmentTable* attachments = *slot;
-        if (attachments != 0 && (*(u32*)(model + 0xd8) & 0x20000) == 0)
+        if (attachments != 0 && (modelObject->flags & 0x20000) == 0)
         {
             u8* attachmentQueue;
             void* draw;
@@ -5443,6 +5501,7 @@ void mdlDrawVisibleAtomics(void* clump)
 #pragma push
 #pragma opt_common_subs off
 
+/* Select the base transform and dispatch animation to the requested layer and children. */
 static inline void mdlDispatchAnimation(u8* mdl, u32 layer, s16 animation, u16 frame, s32 flags)
 {
     u32 baseLayer;
@@ -5460,11 +5519,11 @@ static inline void mdlDispatchAnimation(u8* mdl, u32 layer, s16 animation, u16 f
             s32 index = (s16)animation;
             if (index >= 0 && (table = ((Model *)mdl)->layers[0].resource) != 0 &&
                 index < table->count &&
-                (offset = index * 80, entries = table->entries,
-                 clip = *(void**)mdlAddOffset((u32)entries + 64, offset)) != 0 && clip != D_00922BC0_abs) {
+                (offset = index * sizeof(MdlDispatchAnimEntry), entries = table->entries,
+                 clip = *(void**)(((u32)entries + MEMBER_OFFSET(MdlDispatchAnimEntry, animation)) + (offset))) != 0 && clip != D_00922BC0_abs) {
                 *(RwMatrix *)&((Model *)mdl)->identityMat.right.x = *(RwMatrix *)&((MdlDispatchAnimEntry *)((u8*)entries + offset))->matrix.right.x;
             } else {
-                RwMatrix* matrix = (RwMatrix*)(mdl + 64);
+                RwMatrix* matrix = (RwMatrix*)(mdl + MEMBER_OFFSET(Model, identityMat));
                 matrix->right.x = matrix->up.y = matrix->at.z = 1.0f;
                 matrix->up.x = 0.0f;
                 matrix->right.z = 0.0f;
@@ -5546,11 +5605,9 @@ s32 mdlLayerIsPresent(void* model, s32 layer)
     return 1;
 }
 
-/* measured: MATCHED this wave (nd 0, was 91). Levers: (3) mdlAddOffset index-first
-   addu helper, (4) explicit entryData temp for the *(u16*)(resourceAddress+8) load, and
-   reusing resourceAddress for *obj (resourceAddress = *(int*)(resourceAddress+0)) which routes the load into
-   the $a3 mask reg exactly as retail does, with mdlAddOffset folding index into the
-   addu. The (u16)data second check uses plain ints (no mask local). */
+/* measured: byteAddressAdd preserves the entry-index addu operands while the
+ * separate entryData and resourceAddress lifetimes retain the retail loads
+ * and mask register. The second check uses ordinary integer comparisons. */
 /* The signed-short animation contract is shared by the model and battle
    callers. Integer comparisons perform the retail sign extension here. */
 /* Returns 1 when the layer's animation table has an entry for the animation. Layer 0 also checks the secondary list at +0x234. */
@@ -5560,12 +5617,12 @@ s32 mdlLayerHasAnimation(u8* model, u32 layer, s16 animation)
     int result = 0;
     int tableOrEntries;
     int entryCount;
-    tableOrEntries = *(int *)&((Model *)mdlAddOffset((layer & 0xffff) * 0xa4, (u32)model))->layers[0].resource;
+    tableOrEntries = *(int *)&((Model *)((u32)byteAddressAdd((layer & 0xffff) * 0xa4, (u8 *)((u32)model))))->layers[0].resource;
     if (tableOrEntries != 0) {
         entryCount = ((MdlDispatchAnimTable *)tableOrEntries)->count;
         if (animation < entryCount) {
             tableOrEntries = *(int *)&((MdlDispatchAnimTable *)tableOrEntries)->entries;
-            if (*(int *)&((MdlDispatchAnimEntry *)mdlAddOffset(animation * 0x50, (u32)tableOrEntries))->animation != 0) result = 1;
+            if (*(int *)&((MdlDispatchAnimEntry *)((u32)byteAddressAdd(animation * 0x50, (u8 *)((u32)tableOrEntries))))->animation != 0) result = 1;
         }
     }
     if ((u16)layer == 0) {
@@ -5592,10 +5649,8 @@ s32 mdlLayerHasAnimation(u8* model, u32 layer, s16 animation)
    (load-sinking, brief-confirmed); (3) the return-1 path gets its own b to
    the epilogue where retail falls through. Load-CSE +
    sign-extension-reissue floor (same family as 79d10). */
-/* MATCHED this wave (nd 0, was 33). Levers: (3) mdlAddOffset index-first addu
-   helper, (7) D_00922BC0_abs lui/addiu address, (4) opt_propagation off forces
-   the lhu-before-signext load order (FLYDraw/FLYCmbcardeff combo). Helper is
-   defined at top of file, outside the pragma. */
+/* measured: byteAddressAdd retains the index-first addu; the sentinel address
+ * and propagation setting preserve the lhu-before-sign-extension load order. */
 /* Returns 1 when layer input has a key at index mode whose animation is the empty-clip sentinel D_00922BC0, and 0 otherwise, including when the index is out of range. */
 // FUN_00479DD0
 #pragma opt_propagation off
@@ -5610,7 +5665,7 @@ s32 mdlIsLayerKeyEmpty(u8* model, u16 layer, s16 animation)
     isEmpty = 0;
     hasIndex = 0;
     entryOffset = (layer & 0xffff) * 0xa4;
-    tableOrEntries = *(int *)&((Model *)mdlAddOffset(entryOffset, (u32)model))->layers[0].resource;
+    tableOrEntries = *(int *)&((Model *)((entryOffset) + ((u32)model)))->layers[0].resource;
     if (tableOrEntries != 0)
     {
         entryCount = ((MdlDispatchAnimTable *)tableOrEntries)->count;
@@ -5622,7 +5677,7 @@ s32 mdlIsLayerKeyEmpty(u8* model, u16 layer, s16 animation)
     if (hasIndex != 0)
     {
         tableOrEntries = *(int *)&((MdlDispatchAnimTable *)tableOrEntries)->entries;
-        entryOffset = mdlAddOffset(animation * 0x50, (u32)tableOrEntries);
+        entryOffset = ((u32)byteAddressAdd(animation * 0x50, (u8 *)((u32)tableOrEntries)));
         if (*(int *)&((MdlDispatchAnimEntry *)entryOffset)->animation == (int)D_00922BC0_abs)
         {
             isEmpty = 1;
@@ -5652,7 +5707,7 @@ void mdlSetLayerTime(void* model, s32 layer, f32 frameValue)
     layerIndex = layer;
     time = iGpffff8040 * frameValue;
     layerOffset = (layerIndex & 0xFFFF) * 0xA4;
-    layerBase = mdlAddOffset(layerOffset, (u32)model);
+    layerBase = ((layerOffset) + ((u32)model));
     animationIndex = ((Model *)layerBase)->layers[0].animationIndex;
     if (animationIndex < 0)
         goto tail;
@@ -5662,13 +5717,14 @@ void mdlSetLayerTime(void* model, s32 layer, f32 frameValue)
     if (((MdlDispatchAnimTable *)table)->count <= animationIndex)
         goto tail;
     entryOffset = animationIndex * 0x50;
-    clip = *(s32 *)((u32)((u32)*(s32 *)table + 0x40) + (u32)(entryOffset, entryOffset));
+    /* measured: plain entryOffset changes 25 bytes; retain the existing address operand order. */
+    clip = *(s32 *)((u32)((u32)*(s32 *)table + MEMBER_OFFSET(MdlDispatchAnimEntry, animation)) + (u32)(entryOffset, entryOffset));
     if (clip == 0)
         goto tail;
     if (clip == (s32)D_00922BC0_abs)
         goto tail;
     func_003d5e40(*(void* *)&((RpHAnimHierarchy *)((Model *)layerBase)->layers[0].hierarchy)->currentAnim, time);
-    layerBase = mdlAddOffset(layerOffset, (u32)model);
+    layerBase = ((layerOffset) + ((u32)model));
     ((Model *)layerBase)->layers[0].flags |= 4;
 tail:
     if ((layerIndex & 0xFFFF) == 0) {
@@ -5914,15 +5970,15 @@ s32 mdlPrepareItemSlots(void* model) {
         animationIndex = ((Model *)(u8*)model)->layers[0].animationIndex;
         if (animationIndex < ((MdlDispatchAnimTable *)(u8*)table)->count) {
             entryOffset = (s32)animationIndex * 0x50;
-            clip = *(void**)((u32)((u32)*(s32*)table + 0x40) + (u32)entryOffset);
+            clip = *(void**)((u32)((u32)*(s32*)table + MEMBER_OFFSET(MdlDispatchAnimEntry, animation)) + (u32)entryOffset);
             if (clip != (void*)0 && clip != (void*)D_00922BC0_abs) {
                 func_00397c40(*(void* *)&((Model *)(u8*)model)->layers[0].hierarchy);
                 slotIndex = 0;
                 while ((s64)slotIndex < 5) {
                     entryOffset = (u16)slotIndex;
                     slotBase = (u8*)model + (entryOffset * 0xC);
-                    if ((((Model *)(u8*)slotBase)->attachedWpns[0].flags & 1) != 0 && *(void**)((u8*)slotBase + 0x290) != (void*)0 && mdlPrepareSlotModel(model, slotIndex) != 0) {
-                        child = *(void**)((u8*)slotBase + 0x290);
+                    if ((((Model *)(u8*)slotBase)->attachedWpns[0].flags & 1) != 0 && ((Model *)slotBase)->attachedWpns[0].wpnMdl != (void*)0 && mdlPrepareSlotModel(model, slotIndex) != 0) {
+                        child = ((Model *)slotBase)->attachedWpns[0].wpnMdl;
                         childTable = *(void* *)&((Model *)(u8*)child)->layers[0].resource;
                         if (childTable != (void*)0) {
                             childIndex = ((Model *)(u8*)child)->layers[0].animationIndex;
@@ -5967,6 +6023,7 @@ void mdlClearAtomicFlags(void* model, int flags)
 #pragma push
 /* Retain the separate body, test and found-index masks from retail. */
 #pragma opt_common_subs off
+/* Resolve a keyed attachment entry and compose its matrix with the matching clump frame. */
 static inline s32 mdlMatrixFromTable(MdlMatrixTable* list, void* owner,
                                        s32 input, u8* dst)
 {
@@ -6302,7 +6359,7 @@ void mdlAttachSlotModelFindOrCreate(void* model, u16 slotIndex, u32 type, u16 id
     }
 done:
     slotOffset = (slotIndex & 0xFFFF) * 0xC;
-    slotBase = (void*)mdlAddOffset(slotOffset, (u32)(u8*)model);
+    slotBase = (void*)((slotOffset) + ((u32)(u8*)model));
     ((Model *)slotBase)->attachedWpns[0].wpnMdl = result;
     ((Model *)result)->flags |= 4;
     ((Model *)(u8*)((Model *)slotBase)->attachedWpns[0].wpnMdl)->flags |= 0x8000;
@@ -6455,30 +6512,14 @@ void mdlFreeAuxBlock(void* model)
 #pragma opt_loop_invariants on
 /* Material and UV headers share only the first entry-array pointer; the
  * eight-byte entries are indexed here without assuming either header extent. */
-static inline void **mdlLoaderValueAt(void *table, u32 index)
-{
-    return (void **)(*(u8 **)table + index * 8);
-}
 
-static inline MdlDispatchAnimEntry *mdlLoaderAnimEntry(MdlDispatchAnimTable *table, u32 slot)
-{
-    return &table->entries[slot];
-}
 
-static inline void mdlLoaderSetFrame(s32 value, MdlDispatchAnimTable *table, u32 slot, s32 which)
-{
-    mdlLoaderAnimEntry(table, slot)->startFrame[which] = value;
-}
 
-static inline void mdlLoaderSetAnimation(void *value, MdlDispatchAnimTable *table, u32 slot)
-{
-    mdlLoaderAnimEntry(table, slot)->animation = value;
-}
 
 /* Reads the aux block's RenderWare chunk stream, dispatching each chunk type to its loader: texture dictionaries, animation, UV dictionaries, effect lists and materials. Data not yet ready is queued as a request. Returns 1 once the stream is consumed. */
-/* measured: keep the material/UV slot macros and callback-visible model resource checks
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Material/UV payloads use their named eight-byte entry layout directly.
+ * measured: all four loader access/store helper expansions retain whole-file MATCH;
+ * callback-visible model resource checks keep their existing byte-shaped accesses. */
 // FUN_0047B0C0
 s32 mdlReadAuxChunks(u8 *model)
 {
@@ -6506,6 +6547,7 @@ s32 mdlReadAuxChunks(u8 *model)
     MdlLoaderState *state;
     MdlDispatchAnimTable *layerResource;
     s32 index;
+    Model *modelObject = (Model *)model;
     extern void *func_003df3c0(void *stream, struct RwChunkHeaderInfo *header);
     extern u32 func_003e2910(void *stream, void *buffer, u32 length);
     extern void *func_003e2ce0(void *stream, u32 length);
@@ -6531,8 +6573,8 @@ s32 mdlReadAuxChunks(u8 *model)
     extern u8 D_0070B610[];
 
 #define LOAD_LAYER() ((MdlCloneLayer *)(model + 0xec + (u32)state->layer * 0xa4))
-#define LOAD_MATERIALS() (*(MdlLoaderMaterialTable **)(model + 0x234))
-#define LOAD_UVS() (*(MdlLoaderUvTable **)(model + 0x254))
+#define LOAD_MATERIALS() (*(MdlLoaderMaterialTable **)&modelObject->materialResource)
+#define LOAD_UVS() (*(MdlLoaderUvTable **)&modelObject->animControl.resource)
 #define LOAD_MEMORY() do { \
     u32 position = ((MdlMemoryStream *)(u8 *)state->stream)->position; \
     memory.start = state->memory + position; \
@@ -6639,7 +6681,7 @@ s32 mdlReadAuxChunks(u8 *model)
 
         case 0x10:
         if ((((Model *)model)->flags & 0x4000) != 0) {
-            if (*(void **)(model + 0xdc) == 0) {
+            if (modelObject->clump == 0) {
                 void *clump = func_003c0f20(state->stream);
                 ((Model *)model)->clump = clump;
             }
@@ -6659,7 +6701,7 @@ s32 mdlReadAuxChunks(u8 *model)
             MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)mdlDispatchAnimTableCreate(capacity);
             LOAD_LAYER()->resource = table;
         }
-        mdlLoaderSetAnimation(D_00922BC0_abs, LOAD_LAYER()->resource, state->slot);
+        (LOAD_LAYER()->resource)->entries[state->slot].animation = (D_00922BC0_abs);
         func_003e2ce0(state->stream, chunk.length);
         continue;
 
@@ -6707,7 +6749,7 @@ s32 mdlReadAuxChunks(u8 *model)
                 MdlLoaderMaterialTable *materials = LOAD_MATERIALS();
 
                 if (materials != 0 && materials->count > sourceIndex) {
-                    void *value = *mdlLoaderValueAt(materials, sourceIndex);
+                    void *value = ((MdlLoaderEntry *)*(u8 **)materials)[sourceIndex].value;
                     if (value != 0) {
                         u16 dst = state->slot;
 
@@ -6720,7 +6762,7 @@ s32 mdlReadAuxChunks(u8 *model)
                 MdlLoaderUvTable *uvs = LOAD_UVS();
 
                 if (uvs != 0 && sourceIndex < uvs->count) {
-                    void *value = *mdlLoaderValueAt(uvs, sourceIndex);
+                    void *value = ((MdlLoaderEntry *)*(u8 **)uvs)[sourceIndex].value;
                     if (value != 0) {
                         u16 dst = state->slot;
 
@@ -6844,7 +6886,7 @@ s32 mdlReadAuxChunks(u8 *model)
             func_003e2ce0(state->stream, effect.skip);
             payload = state->memory + ((MdlMemoryStream *)(u8 *)state->stream)->position;
             if (((Model *)model)->clump == 0 && state->clumpStream == 0) {
-                if (*(void **)(model + 0x2cc) == 0) {
+                if (modelObject->effects == 0) {
                     *(u32 *)&((Model *)model)->effects = mdlEffectListCreate();
                 }
                 head = *(u32 ** *)&((Model *)model)->effects;
@@ -6932,9 +6974,9 @@ s32 mdlReadAuxChunks(u8 *model)
             ((MdlDispatchAnimEntry *)((u8 *)layerResource->entries + (state->slot) * sizeof(MdlDispatchAnimEntry)))->startFrame = values;
         }
         if (chunk.type == 0xf0f00007) {
-            mdlLoaderSetFrame(metadata, LOAD_LAYER()->resource, state->slot, 0);
+            (LOAD_LAYER()->resource)->entries[state->slot].startFrame[0] = (metadata);
         } else {
-            mdlLoaderSetFrame(metadata, LOAD_LAYER()->resource, state->slot, 1);
+            (LOAD_LAYER()->resource)->entries[state->slot].startFrame[1] = (metadata);
         }
         continue;
 
@@ -7025,13 +7067,19 @@ s32 mdlPollAuxResources(u8 *model)
     u32 requestByteOffset;
     u32 resourceEntryOffset;
     s32 checkedByteOffset;
+    Model *modelObject = (Model *)model;
+    MdlLoaderState *loaderState;
+    MdlLoaderMaterial *material;
+    MdlLoaderState *mappedLoader;
+    MdlCloneAttachmentTable *attachmentTable;
 
     loader = ((Model *)model)->auxiliary;
+    loaderState = (MdlLoaderState *)loader;
     allReady = 1;
     textureReady = 1;
     baseUvReady = 1;
-    if (*(u32 *)(loader + 4) != 0) {
-        primaryResult = filerTakeCompletedRequest(*(u8 **)(loader + 4), &requestResult.ready, &requestResult.handle);
+    if (*(u32 *)&loaderState->textureRequest != 0) {
+        primaryResult = filerTakeCompletedRequest(loaderState->textureRequest, &requestResult.ready, &requestResult.handle);
         if (requestResult.ready == 1) {
             func_003ef260((const struct RwTexDictionary *)primaryResult, K_Clump_AppendTextureName, loader + 0x34);
             func_003ef1b0((void *)primaryResult);
@@ -7042,10 +7090,10 @@ s32 mdlPollAuxResources(u8 *model)
             allReady = 0;
         }
     }
-    if (*(u32 *)(loader + 8) != 0) {
-        secondaryResult = filerTakeCompletedRequest(*(u8 **)(loader + 8), &requestResult.ready, &requestResult.handle);
+    if (*(u32 *)&loaderState->uvRequest != 0) {
+        secondaryResult = filerTakeCompletedRequest(loaderState->uvRequest, &requestResult.ready, &requestResult.handle);
         if (requestResult.ready == 1) {
-            if (*(void **)(model + 0x254) == 0) {
+            if (modelObject->animControl.resource == 0) {
                 entryCount = ((MdlLoaderState *)loader)->capacities[0];
                 allocationSize = (u32)entryCount * 8 + 0x10;
                 chkmemAllocSiteTag(D_00713138, 0x908);
@@ -7065,16 +7113,16 @@ s32 mdlPollAuxResources(u8 *model)
             baseUvReady = 0;
         }
     }
-    if (*(u32 *)(loader + 0xC) != 0) {
+    if (*(u32 *)&loaderState->uvRequests != 0) {
         requestIndex = 0;
-        while (requestIndex < *(u16 *)(loader + 0x20)) {
-            requestTable = *(u8 **)(loader + 0xC);
+        while (requestIndex < loaderState->capacities[0]) {
+            requestTable = *(u8 **)&loaderState->uvRequests;
             requestByteOffset = requestIndex * 4;
             pendingRequest = ((u8 **)requestTable)[requestIndex];
             if (pendingRequest != 0) {
                 entryResult = filerTakeCompletedRequest(pendingRequest, &requestResult.ready, &requestResult.handle);
                 if (requestResult.ready == 1) {
-                    if (*(void **)(model + 0x254) == 0) {
+                    if (modelObject->animControl.resource == 0) {
                         entryCount = ((MdlLoaderState *)loader)->capacities[0];
                         allocationSize = (u32)entryCount * 8 + 0x10;
                         chkmemAllocSiteTag(D_00713138, 0x908);
@@ -7089,7 +7137,7 @@ s32 mdlPollAuxResources(u8 *model)
                     resourceEntryOffset = (u16)requestIndex * 8;
                     *(u32 *)&((MdlLoaderEntry *)(*(u8 **)resource + resourceEntryOffset))->value = (u32)entryResult;
                     func_003e2e40((void *)requestResult.handle, 0);
-                    *(u32 *)(*(u8 * *)&((MdlLoaderState *)loader)->uvRequests + requestByteOffset) = 0;
+                    ((u32 *)loaderState->uvRequests)[requestIndex] = 0;
                 } else {
                     allReady = 0;
                 }
@@ -7097,7 +7145,7 @@ s32 mdlPollAuxResources(u8 *model)
             requestIndex++;
         }
     }
-    pendingSource = *(s32 *)(loader + 0x14);
+    pendingSource = *(s32 *)&loaderState->clumpStream;
     if (pendingSource != 0 || *(u32 *)&((MdlLoaderState *)loader)->clumpRequest != 0) {
         if (textureReady == 1 && baseUvReady == 1) {
             if (pendingSource != 0) {
@@ -7105,7 +7153,7 @@ s32 mdlPollAuxResources(u8 *model)
                 *(u32 *)&((MdlLoaderState *)loader)->clumpStream = 0;
                 allReady = 0;
             } else {
-                clumpResult = filerTakeCompletedRequest(*(u8 **)(loader + 0x10), &requestResult.ready, &requestResult.handle);
+                clumpResult = filerTakeCompletedRequest(loaderState->clumpRequest, &requestResult.ready, &requestResult.handle);
                 if (requestResult.ready == 1) {
                     *(u32 *)&((Model *)model)->clump = (u32)clumpResult;
                     func_003e2e40((void *)requestResult.handle, 0);
@@ -7118,11 +7166,12 @@ s32 mdlPollAuxResources(u8 *model)
             allReady = 0;
         }
     }
-    materialRequest = *(u8 **)(loader + 0x18);
+    materialRequest = *(u8 **)&loaderState->materials;
     if (materialRequest != 0) {
-        if (*(void **)(model + 0xDC) != 0) {
+        if (modelObject->clump != 0) {
             while (materialRequest != 0) {
-                if (*(void **)(model + 0x234) == 0) {
+                material = (MdlLoaderMaterial *)materialRequest;
+                if (modelObject->materialResource == 0) {
                     entryCount = ((MdlLoaderState *)loader)->capacities[0];
                     allocationSize = (u32)entryCount * 8 + 8;
                     chkmemAllocSiteTag(D_00713138, 0x850);
@@ -7133,10 +7182,10 @@ s32 mdlPollAuxResources(u8 *model)
                     ((MdlAnimEntryTable *)resourceTable)->references = 1;
                     *(u8 * *)&((Model *)model)->materialResource = resourceTable;
                 }
-                if (*(u32 *)(**(u8 ***)(model + 0x234) + *(u16 *)(materialRequest + 4) * 8) == 0) {
-                    *(u32 *)(**(u8 ** *)&((Model *)model)->materialResource + ((MdlLoaderMaterial *)materialRequest)->slot * 8) = (u32)mdlMatAnimCreateList();
+                if (((MdlLoaderEntry *)*(u8 **)modelObject->materialResource)[material->slot].value == 0) {
+                    *(u32 *)&((MdlLoaderEntry *)*(u8 **)modelObject->materialResource)[material->slot].value = (u32)mdlMatAnimCreateList();
                 }
-                mdlMatAnimLoadChunk(*(void **)(materialRequest + 8), (u8 **)*(void **)(**(u8 ** *)&((Model *)model)->materialResource + ((MdlLoaderMaterial *)materialRequest)->slot * 8), ((MdlLoaderMaterial *)materialRequest)->kind, ((Model *)model)->clump);
+                mdlMatAnimLoadChunk(material->stream, (u8 **)((MdlLoaderEntry *)*(u8 **)modelObject->materialResource)[material->slot].value, ((MdlLoaderMaterial *)materialRequest)->kind, ((Model *)model)->clump);
                 func_003e2e40(((MdlLoaderMaterial *)materialRequest)->stream, 0);
                 nextRequest = *(u8 * *)&((MdlLoaderMaterial *)materialRequest)->next;
                 DAT_008873ec[0](materialRequest);
@@ -7151,8 +7200,9 @@ s32 mdlPollAuxResources(u8 *model)
         layerIndex = 0;
         while (layerIndex < 2) {
             mapFields = loader + layerIndex * 4;
+            mappedLoader = (MdlLoaderState *)mapFields;
             slotMapPointer = (u8 **)(mapFields + 0x24);
-            if (*(u8 **)(mapFields + 0x24) != 0) {
+            if (mappedLoader->cloneSlots[0] != 0) {
                 slotIndex = 0;
                 layerBase = model + layerIndex * 0xA4;
                 capacityFields = loader + layerIndex * 2;
@@ -7207,15 +7257,16 @@ s32 mdlPollAuxResources(u8 *model)
                             }
                             attachments = *(u8 * *)&((Model *)layerBase)->layers[0].attachments;
                             if (attachments != 0) {
-                                entryData = *(u8 **)(attachments + 0x14);
+                                attachmentTable = (MdlCloneAttachmentTable *)attachments;
+                                entryData = *(u8 **)&attachmentTable->primary;
                                 sourcePointerOffset = sourceIndex * 4;
                                 if (*(u32 * *)&((MdlLoaderEntry *)(entryData + sourcePointerOffset))->value != 0) {
-                                    *(u32 **)(*(u8 * *)&((MdlCloneAttachmentTable *)attachments)->primary + destinationIndex * 4) =
+                                    ((u32 **)attachmentTable->primary)[destinationIndex] =
                                         mdlEffectListCopy(*(u32 ** *)&((MdlLoaderEntry *)(entryData + sourcePointerOffset))->value);
                                 }
-                                entryData = *(u8 **)(attachments + 0x20);
+                                entryData = *(u8 **)&attachmentTable->secondary;
                                 if (*(u32 * *)&((MdlLoaderEntry *)(entryData + sourcePointerOffset))->value != 0) {
-                                    *(u32 **)(*(u8 * *)&((MdlCloneAttachmentTable *)attachments)->secondary + destinationIndex * 4) =
+                                    ((u32 **)attachmentTable->secondary)[destinationIndex] =
                                         mdlEffectListWrapShared(*(u32 ** *)&((MdlLoaderEntry *)(entryData + sourcePointerOffset))->value);
                                 }
                             }

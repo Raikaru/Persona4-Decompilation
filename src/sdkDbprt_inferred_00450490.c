@@ -35,9 +35,6 @@ extern void (*D_00887300[])();
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern s64 D_00711858[];
 extern f32 D_00711860[];
-static inline f32 add_f32(f32 a, f32 b) {
-    return a + b;
-}
 extern u8 *iGpffffb9e0;
 extern void (*D_00887304[])();
 extern void (*D_008873EC[])(void *);

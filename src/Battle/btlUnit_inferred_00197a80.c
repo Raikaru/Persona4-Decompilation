@@ -68,62 +68,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
-
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -139,10 +84,6 @@ extern float btlFormationGetScale(int unit);
 extern s32 btlUnitArcMovePacketUpdate(u8 *packetWork);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -174,8 +115,8 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off preserves the COP1 chain's intermediate colouring. */
 /* measured: func_00197a80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-// FUN_00197A80
 /* Advance the arc displacement, or apply the indexed vertical-offset curve for the alternate mode. */
+// FUN_00197A80
 s32 btlUnitArcMovePacketUpdate(u8 *packetWork)
 {
     u8 *unit;
@@ -229,8 +170,8 @@ s32 btlUnitArcMovePacketUpdate(u8 *packetWork)
 }
 
 /* measured: restore opt_propagation after func_00197a80 FPR temporary colouring probe. */
-// FUN_00197CC0
 /* Allocate arc work with the starting counter and the formation scale. */
+// FUN_00197CC0
 u8 *btlUnitCreateArcMovePacket(s32 unitAddress, s16 mode, s16 counter)
 {
     u8 *packet;
@@ -252,11 +193,12 @@ void btlUnitHoldPendingRotate(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_00197D70
-/* measured: typing the final work flags load or counter increment changes MATCH to MISMATCH. */
+/* measured: access-site flags/counter typing changes MATCH to MISMATCH; a distinct typed packet alias preserves both accesses. */
 /* Start an immediate facing change or a deferred rotation and wait for its activity bit to clear. */
+// FUN_00197D70
 s32 btlUnitRotatePacketUpdate(u8 *packetWork)
 {
+    BtlUnitRotatePacket *packetWorkFields = (BtlUnitRotatePacket *)packetWork;
     u8 *unit;
     RtQuat rotation;
     RwV3d output;
@@ -288,7 +230,7 @@ s32 btlUnitRotatePacketUpdate(u8 *packetWork)
                 btlUnitGetAnchorPose(unit, NULL, NULL, (f32 *)&output);
                 ((BtlUnitRotatePacket *)packetWork)->target = output;
             }
-            flags = *(s32 *)(packetWork + 0x10);
+            flags = packetWorkFields->flags;
             ((BtlUnitMovement *)(unit + 0xC4))->rotationTarget =
                 ((BtlUnitRotatePacket *)packetWork)->target;
             ((BtlUnitMovement *)(unit + 0xC4))->unk440 = 0;
@@ -302,7 +244,7 @@ s32 btlUnitRotatePacketUpdate(u8 *packetWork)
     if (active == 0) {
         result = 1;
     } else {
-        *(s32 *)(packetWork + 0x14) += 1;
+        packetWorkFields->counter += 1;
         result = 0;
     }
     return result;

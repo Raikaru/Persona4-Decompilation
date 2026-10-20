@@ -22,12 +22,9 @@ extern char D_0063D050[];
 
 
 
-extern void func_0029e990(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void scrCommandFiveOperandNoop(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,
@@ -60,9 +57,9 @@ extern void mtMiscCollectType1Records(u8 *eventWork);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029e990-0029e990 */
 
+/* Consume the five wide operands forwarded by the first unused script-command sink without side effects. */
 // FUN_0029E990
-/* Retail no-op receiving five wide values forwarded by a script command; their meanings are not established. */
-void func_0029e990(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth)
+void scrCommandFiveOperandNoop(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth)
 {
 }
 

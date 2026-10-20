@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "model_battle_internal.h"
 #include "btl_voice_internal.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -134,7 +136,7 @@ extern s32 btlSoundPickRandomPartnerVoice(u8 *action);
 /* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
 /* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
 /* Run the voice selector once, wait for channel 3, and bracket the unit/model talk flags. */
-/* measured: remaining packet/action reloads changed MATCH when typed. Model +0x2E0 is a talk-control halfword inside an otherwise opaque model span. */
+/* Measured packet/action reloads use MEMBER; model motion flag 0x20 gates talk animation. */
 // FUN_001F9800
 s32 btlVoicePacketUpdate(u8 *packetData)
 {
@@ -160,28 +162,28 @@ s32 btlVoicePacketUpdate(u8 *packetData)
             return 1;
         }
         sdkSndStartIndexedSource(((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->bank, 3, (u16)voiceId);
-        *(s32 *)(packetData + 0x14) = 1;
+        MEMBER(s32, packetData, BtlVoicePacketWork, started) = 1;
         goto block_15_9800;
     }
     if (sdkSndIsChannelPlaying(3) != 1) {
         if ((((BtlVoicePacketWork *)packetData)->flags & 1) == 0 && (action != NULL)) {
-            finishingUnit = *(u8 **)(action + 0x30);
+            finishingUnit = MEMBER(u8 *, action, BtlAction, unit);
             if ((((BtlUnit *)finishingUnit)->flags2 & 2) != 0) {
                 ((BtlUnit *)finishingUnit)->unk_9d8 &= 0xFFEF;
                 finishingModel = ((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->layerHandle;
-                *(u16 *)(finishingModel + 0x2E0) |= 0x20;
+                (((Model *)(finishingModel))->motion.flags) |= 0x20;
             }
         }
         return 1;
     }
 block_15_9800:
     if ((((BtlVoicePacketWork *)packetData)->flags & 1) == 0 &&
-        *(s32 *)(packetData + 0x14) == 1 && (action != NULL)) {
-        speakingUnit = *(u8 **)(action + 0x30);
+        MEMBER(s32, packetData, BtlVoicePacketWork, started) == 1 && (action != NULL)) {
+        speakingUnit = MEMBER(u8 *, action, BtlAction, unit);
         if ((((BtlUnit *)speakingUnit)->flags2 & 2) != 0) {
             ((BtlUnit *)speakingUnit)->unk_9d8 |= 0x10;
             speakingModel = ((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->layerHandle;
-            *(u16 *)(speakingModel + 0x2E0) &= 0xFFDF;
+            (((Model *)(speakingModel))->motion.flags) &= 0xFFDF;
         }
     }
     return 0;

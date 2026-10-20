@@ -10,7 +10,7 @@
 #include "kwln_task_internal.h"
 #include "rw_camera_internal.h"
 #include "btl_ui_task_internal.h"
-
+#include "member_access.h"
 /* The five transition channels occupy 0xF0 bytes, copied as a unit by
    fclSpriteUpdateTweens callers. Setters and update paths establish each
    timer, endpoint and mode. Bit-pattern unions retain constructor stores. */
@@ -321,8 +321,8 @@ u8 *fclSpriteWorkAlt(u8 *task) {
     return ((KwlnTask *)(task))->work;
 }
 
-// FUN_002B5DB0
 /* Store a child sprite position and copy its opaque bounds representation. */
+// FUN_002B5DB0
 void fclSpriteSetPositionBounds(u8 *task, f2 position, FclBoundsPacket bounds) {
     FclBoundsBytes representation;
     u8 *work;
@@ -338,8 +338,8 @@ void fclSpriteSetBaseScale(u8 *task, f32 scale) {
     ((FclSpriteChild *)(((KwlnTask *)(task))->work))->baseScale = scale;
 }
 
-// FUN_002B5E30
 /* Set all four child-sprite corner colors to the same RGBA value. */
+// FUN_002B5E30
 void fclSpriteSetCornerColors(u8 *task, u4 color) {
     u8 *work = ((KwlnTask *)(task))->work;
     s32 cornerIndex;
@@ -347,8 +347,8 @@ void fclSpriteSetCornerColors(u8 *task, u4 color) {
         ((FclSpriteChild *)work)->cornerColors[cornerIndex] = color;
     }
 }
-// FUN_002B5E90
 /* Initialize a child-sprite position transition and select transition kind two. */
+// FUN_002B5E90
 void fclSpriteStartMove(u8 *task, f2 start, f2 end, u32 duration) {
     u8 *work = ((KwlnTask *)(task))->work;
     ((FclSpriteChild *)(work))->elapsed = 0;
@@ -360,8 +360,8 @@ void fclSpriteStartMove(u8 *task, f2 start, f2 end, u32 duration) {
     ((FclSpriteChild *)(work))->state = 2;
 }
 
-// FUN_002B5EF0
 /* Initialize simultaneous position and bounds transitions for a child sprite. */
+// FUN_002B5EF0
 void fclSpriteStartBoundsMove(u8 *task, f2 start, f2 end, FclBoundsPacket startBounds, FclBoundsPacket endBounds, u32 duration) {
     FclBoundsBytes startRepresentation = startBounds.representation;
     FclBoundsBytes endRepresentation = endBounds.representation;
@@ -471,12 +471,14 @@ void fclSpriteApplySkyPresetB(void) {
 // Intent: per-frame update of one sprite task: advances its tweens, then, when alpha and scale are above threshold, queues the sprite draw (sdkSpriteDrawQueued) with the layout chosen by flag 13.
 // FUN_002B6340
 s32 fclSpriteUpdateAndDrawTask(u8 *task) {
+    FclSpriteRecord *sprite;
     u8 *p;
     u8 *q;
     s32 color;
     f32 a;
     f32 g;
     p = ((KwlnTask *)(task))->work;
+    sprite = (FclSpriteRecord *)p;
     memcpy(p + 0x10, fclSpriteUpdateTweens(p + 0x10), 0xF0);
     if (((FclSpriteRecord *)p)->animation.alpha <= 0) return 0;
     a = ((FclSpriteRecord *)p)->animation.scaleX.value;
@@ -491,19 +493,15 @@ s32 fclSpriteUpdateAndDrawTask(u8 *task) {
             PrimAppendNode(D_00793E80 + ((FclSpriteRecord *)p)->order.word * 0x30, q);
             color = fclPackRgba(255, ((FclSpriteRecord *)p)->animation.color.c0, ((FclSpriteRecord *)p)->animation.color.c1, ((FclSpriteRecord *)p)->animation.color.c2);
             sdkSpriteDrawQueued(((FclSpriteRecord *)p)->animation.position.x, ((FclSpriteRecord *)p)->animation.position.y, ((FclSpriteRecord *)p)->animation.depth,
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 color, p[0x6E], ((FclSpriteRecord *)p)->id, ((FclSpriteRecord *)p)->resource.pointer, 0,
                 ((FclSpriteRecord *)p)->halfWidth, ((FclSpriteRecord *)p)->halfHeight, ((FclSpriteRecord *)p)->animation.value.value,
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(f32 *)(p + 0xA0), *(f32 *)(p + 0xAC), D_00793E80 + *(s32 *)(p + 8) * 0x30);
+                sprite->animation.scaleX.value, sprite->animation.scaleY.value, D_00793E80 + sprite->order.word * 0x30);
         } else {
             color = fclPackRgba(255, ((FclSpriteRecord *)p)->animation.color.c0, ((FclSpriteRecord *)p)->animation.color.c1, ((FclSpriteRecord *)p)->animation.color.c2);
             sdkSpriteDrawQueued(((FclSpriteRecord *)p)->animation.position.x, ((FclSpriteRecord *)p)->animation.position.y, ((FclSpriteRecord *)p)->animation.depth,
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 color, p[0x6E], ((FclSpriteRecord *)p)->id, ((FclSpriteRecord *)p)->resource.pointer, 1,
                 ((FclSpriteRecord *)p)->halfWidth, ((FclSpriteRecord *)p)->halfHeight, ((FclSpriteRecord *)p)->animation.value.value,
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(f32 *)(p + 0xA0), *(f32 *)(p + 0xAC), D_00793E80 + ((FclSpriteRecord *)p)->order.word * 0x30);
+                sprite->animation.scaleX.value, sprite->animation.scaleY.value, D_00793E80 + ((FclSpriteRecord *)p)->order.word * 0x30);
         }
     }
     return 0;
@@ -875,6 +873,7 @@ void fclSpriteEmitTagPair(void) {
  * queue. One queue pointer holds the work table (a copy of it would keep
  * the base a declared local; retail's base is a temporary in $s3), and the
  * entry offset is formed once before the active test. */
+/* Test whether any animation flag in bits one through twelve is active. */
 static inline s16 yDrawAnyBit(s32 flags)
 {
     s16 bit;
@@ -887,8 +886,8 @@ static inline s16 yDrawAnyBit(s32 flags)
     return 0;
 }
 
-/* measured: typing each retained access on this line loses owner MATCH. */
-#define YDRAW_BASE (*(u8 **)(iGpffffb574 + 0x38))
+/* The global task owns the shared sprite pool allocation. */
+#define YDRAW_BASE (((KwlnTask *)iGpffffb574)->work)
 
 #pragma push
 #pragma opt_common_subs on
@@ -998,17 +997,14 @@ s32 fclSpritePoolUpdate(u8 *task) {
                 if (fl == 1) {
                     if ((s8)((FclSpriteRecord *)(d + 4))->animation.alphaReverse == 0) {
                         if ((s8)((FclSpriteRecord *)(d + 4))->animation.positionReverse == 0) {
-                            /* measured: typing each retained access on this line loses owner MATCH. */
-                            *(s16 *)(d + 0x14) = fl & ~1;
+                            ((FclSpritePool *)d)->records[0].animation.flags = fl & ~1;
                         }
                     }
                 }
             }
             /* Only entries active on loop entry belong in this list. */
-            /* measured: typing each retained access on this line loses owner MATCH. */
             count = queue[0x18602];
             ((FclSpritePool *)queue)->activeIndices[count] = i;
-            /* measured: typing each retained access on this line loses owner MATCH. */
             (queue[0x18602])++;
         }
         i++;
@@ -1126,6 +1122,7 @@ void fclSpriteReset(s16 index, s16 spriteId) {
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
 /* Preserve both components of the outgoing position value. */
+/* measured: plain aggregate copies at either call change fclSpriteStartShowHide code generation. */
 static inline void fclCopyTransitionPosition(f2 *destination, const f2 *source)
 {
     f32 y, x;
@@ -1147,12 +1144,7 @@ typedef struct YDrawTransitionFlags {
 } YDrawTransitionFlags;
 
 /* Submit the actual initial and target opacity values in row order. */
-static inline void fclRevealOpacity(u8 *work, const FclDrawColor *color)
-{
-    u8 initialAlpha = 0;
-    u32 targetAlpha = color->c3;
-    fclSpriteStartAlpha(work, initialAlpha, targetAlpha, 0, 0, 0);
-}
+
 
 // Intent: starts a show or hide transition for pool slot index (hidden == 1 hides, otherwise shows). Sets the slot's flags, sizes it from the scaled sprite width and height, and starts the alpha, reveal-scale and position tweens with the given duration and delay.
 // FUN_002B77D0
@@ -1222,7 +1214,7 @@ void fclSpriteStartShowHide(s16 index, f2 position, s16 spriteId, FclDrawColor c
         ((FclSpriteRecord *)(dimensionRows + recordOffset + 4))->halfHeight = (s16)(sdkSpriteScaledHeight(sample) / 2.0f);
         sdkSpriteFreeNode(sample);
         ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->animation.color = color;
-        fclRevealOpacity(((KwlnTask *)(iGpffffb574))->work + recordOffset + 0x14, &color);
+        (fclSpriteStartAlpha((((KwlnTask *)(iGpffffb574))->work + recordOffset + 0x14), 0, (&color)->c3, 0, 0, 0));
         animationRows = ((KwlnTask *)(iGpffffb574))->work;
         delay = (s32)startDelay;
         duration = (s32)showDuration;
@@ -1355,6 +1347,7 @@ found_check:
 // Intent: one-shot layout of the 0x130-byte panel task: sets its four channel records and two render positions, and queues the render job with fclSpriteApplyMaskedPreset and fclSpriteEmitTagPair. Returns at once while +0x124 is set; fclSpriteCreatePanelChild sets that flag, and nothing traced so far clears it.
 // FUN_002B7F20
 s32 fclSpriteStartPanelLayout(u8 *task) {
+    FclSpritePanel *panel;
     u8 *p;
     f32 scale;
     u8 *q;
@@ -1364,6 +1357,7 @@ s32 fclSpriteStartPanelLayout(u8 *task) {
     f32 d;
 
     p = ((KwlnTask *)(task))->work;
+    panel = (FclSpritePanel *)p;
     scale = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
     if ((s8)((FclSpritePanel *)p)->hidden == 1) {
         return 0;
@@ -1387,7 +1381,7 @@ s32 fclSpriteStartPanelLayout(u8 *task) {
     ((FclSpritePanel *)p)->vertices[2].x = ((FclSpritePanel *)p)->position.x;
     ((FclSpritePanel *)p)->vertices[2].y = ((FclSpritePanel *)p)->position.y + (f32)((FclSpritePanel *)p)->height;
     /* measured: typing each retained access on this line loses owner MATCH. */
-    ((FclSpritePanel *)p)->vertices[3].x = ((FclSpritePanel *)p)->position.x + (f32)*(s32 *)(p + 0x10);
+    ((FclSpritePanel *)p)->vertices[3].x = ((FclSpritePanel *)p)->position.x + (f32)MEMBER(s32, p, FclSpritePanel, width);
     ((FclSpritePanel *)p)->vertices[3].y = ((FclSpritePanel *)p)->position.y + (f32)((FclSpritePanel *)p)->height;
     q = PrimQueueDrawPrimitive(D_00793E80 + ((FclSpritePanel *)p)->order * 0x30,
                       4, (void *)(p + 0x20), 4);
@@ -1396,8 +1390,7 @@ s32 fclSpriteStartPanelLayout(u8 *task) {
     q = PrimAllocQueueNode();
     ((FclDrawQueueNode *)q)->draw.pointer = (void *)fclSpriteEmitTagPair;
     ((FclDrawQueueNode *)q)->data.work = p;
-    /* measured: typing each retained access on this line loses owner MATCH. */
-    PrimAppendNode(D_00793E80 + (*(s32 *)(p + 0x120) + 1) * 0x30, q);
+    PrimAppendNode(D_00793E80 + (panel->order + 1) * 0x30, q);
     return 0;
 }
 /* measured: restore opt_loop_invariants after the target. */
@@ -1522,6 +1515,7 @@ void fclSpriteStartColor(u8 *animation, u4 start, u4 end, u8 mode, s16 duration,
 
 /* Position snapshots are consumed by the inline transition setters.
    Duration stays signed-word sized until each field is stored. */
+/* Initialize position interpolation endpoints, timing, mode and active flag. */
 static inline void fclStartPosition(u8 *animation, f2 start, f2 end, u32 mode, s32 duration, s32 delay) {
     f32 startX = start.x;
     f32 startY;
@@ -1539,6 +1533,7 @@ static inline void fclStartPosition(u8 *animation, f2 start, f2 end, u32 mode, s
     ((FclSpriteAnimation *)(animation))->flags |= 2;
 }
 
+/* Initialize opacity interpolation endpoints, timing, mode and active flag. */
 static inline void fclStartAlpha(u8 *animation, u8 startAlpha, u32 endAlpha, u32 mode, u32 duration, s16 delay) {
     ((FclSpriteAnimation *)(animation))->alphaStart = startAlpha;
     ((FclSpriteAnimation *)(animation))->alphaEnd = endAlpha;
@@ -1550,6 +1545,7 @@ static inline void fclStartAlpha(u8 *animation, u8 startAlpha, u32 endAlpha, u32
     ((FclSpriteAnimation *)(animation))->flags |= 4;
 }
 
+/* Initialize the incoming or outgoing vertical reveal-scale transition. */
 static inline void fclStartRevealScale(u8 *animation, u32 mode, u32 duration, s32 delay, s8 outgoing)
 {
     ((FclSpriteAnimation *)(animation))->scaleXStart.value = 1.0f;
@@ -1572,6 +1568,7 @@ static inline void fclStartRevealScale(u8 *animation, u32 mode, u32 duration, s3
     ((FclSpriteAnimation *)(animation))->flags |= 0x10;
 }
 
+/* Initialize RGB interpolation endpoints, timing, mode and active flag. */
 static inline void fclStartColor(u8 *animation, u4 start, u4 end, u8 mode, s16 duration, s32 delay) {
     ((FclSpriteAnimation *)(animation))->colorStart.c0 = start.c0;
     ((FclSpriteAnimation *)(animation))->colorStart.c1 = start.c1;
@@ -1629,56 +1626,47 @@ void fclSpriteStartEntrance(u8 *animation, FclVec2 position, u4 startColor, u4 e
 // Intent: advances the five tween channels of one sprite record (position, alpha, colour, scale, colour pulse) by a frame. Each channel waits out its delay (+0x34, +0x60, +0x7E, +0xA0, +0xC8), eases with fclEaseInterpolate and steps its timer with fclAddClamped. Returns the record.
 // FUN_002B89A0
 s32 fclSpriteUpdateTweens(u8 *animation) {
-    /* Earlier whole-body typing grew 4368B to 4984B; the remaining raw sites
-       below were isolated individually after retaining the match-neutral fields. */
+    FclSpriteAnimation *spriteAnimation = (FclSpriteAnimation *)animation;
+    /* Whole-body typing previously grew 4368B to 4984B; grouped per-access
+       probes retain byte-access aliasing only at the measured MEMBER sites. */
     if (((((FclSpriteAnimation *)(animation))->flags & 2) >> 1) == 1) {
         if (((FclSpriteAnimation *)animation)->positionDelay == 0) {
             if ((s8)((FclSpriteAnimation *)animation)->positionReverse == 0) {
                 ((FclSpriteAnimation *)animation)->position.x = fclEaseInterpolate((s32)(s8)((FclSpriteAnimation *)animation)->positionMode, ((FclSpriteAnimation *)animation)->positionStart.x, ((FclSpriteAnimation *)animation)->positionEnd.x, (f32)((FclSpriteAnimation *)animation)->positionElapsed, (f32)((FclSpriteAnimation *)animation)->positionDuration);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FclSpriteAnimation *)animation)->position.y = fclEaseInterpolate((s32)*(s8 *)(animation + 0x36), ((FclSpriteAnimation *)animation)->positionStart.y, ((FclSpriteAnimation *)animation)->positionEnd.y, (f32)*(s16 *)(animation + 0x32), (f32)*(s16 *)(animation + 0x30));
+                ((FclSpriteAnimation *)animation)->position.y = fclEaseInterpolate((s32)spriteAnimation->positionMode, ((FclSpriteAnimation *)animation)->positionStart.y, ((FclSpriteAnimation *)animation)->positionEnd.y, (f32)spriteAnimation->positionElapsed, (f32)spriteAnimation->positionDuration);
             } else {
                 ((FclSpriteAnimation *)animation)->position.x = fclEaseInterpolate((s32)(s8)((FclSpriteAnimation *)animation)->positionMode, ((FclSpriteAnimation *)animation)->positionStart.x, ((FclSpriteAnimation *)animation)->positionEnd.x, (f32)((FclSpriteAnimation *)animation)->positionElapsed, (f32)(((FclSpriteAnimation *)animation)->positionDuration / 2));
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FclSpriteAnimation *)animation)->position.y = fclEaseInterpolate((s32)*(s8 *)(animation + 0x36), ((FclSpriteAnimation *)animation)->positionStart.y, ((FclSpriteAnimation *)animation)->positionEnd.y, (f32)*(s16 *)(animation + 0x32), (f32)(*(s16 *)(animation + 0x30) / 2));
+                ((FclSpriteAnimation *)animation)->position.y = fclEaseInterpolate((s32)spriteAnimation->positionMode, ((FclSpriteAnimation *)animation)->positionStart.y, ((FclSpriteAnimation *)animation)->positionEnd.y, (f32)spriteAnimation->positionElapsed, (f32)(spriteAnimation->positionDuration / 2));
             }
             /* measured: typing each retained access on this line loses owner MATCH. */
-            if (*(s16 *)(animation + 0x32) < *(s16 *)(animation + 0x30)) {
+            if (spriteAnimation->positionElapsed < MEMBER(s16, animation, FclSpriteAnimation, positionDuration)) {
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                *(s16 *)(animation + 0x32) = fclAddClamped((s32)*(s16 *)(animation + 0x32), 1, (s32)*(s16 *)(animation + 0x30), 0, 1);
+                spriteAnimation->positionElapsed = fclAddClamped((s32)spriteAnimation->positionElapsed, 1, (s32)MEMBER(s16, animation, FclSpriteAnimation, positionDuration), 0, 1);
             } else {
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(f32 *)(animation + 0x28) = *(f32 *)(animation + 0x20);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(f32 *)(animation + 0x2C) = *(f32 *)(animation + 0x24);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                if (*(s8 *)(animation + 0x37) == 1) {
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(f32 *)(animation + 0x28) = *(f32 *)(animation + 0x18);
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(f32 *)(animation + 0x2C) = *(f32 *)(animation + 0x1C);
+                spriteAnimation->position.x = spriteAnimation->positionEnd.x;
+                spriteAnimation->position.y = spriteAnimation->positionEnd.y;
+                if (spriteAnimation->positionReverse == 1) {
+                    spriteAnimation->position.x = spriteAnimation->positionStart.x;
+                    spriteAnimation->position.y = spriteAnimation->positionStart.y;
                 }
                 if (((((FclSpriteAnimation *)(animation))->flags & 0x1000) >> 12) == 1) {
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(s16 *)(animation + 0x32) = 1;
+                    spriteAnimation->positionElapsed = 1;
                 } else {
                     ((FclSpriteAnimation *)(animation))->flags &= ~2;
                 }
             }
         } else {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s16 *)(animation + 0x34) = fclSubClamped((s32)((FclSpriteAnimation *)animation)->positionDelay, 1, 0, 0, 1);
+            spriteAnimation->positionDelay = fclSubClamped((s32)((FclSpriteAnimation *)animation)->positionDelay, 1, 0, 0, 1);
         }
     } else if (((((FclSpriteAnimation *)(animation))->flags & 0x80) >> 7) == 1) {
         ((FclSpriteAnimation *)animation)->position.y = fclEaseInterpolate(1, ((FclSpriteAnimation *)animation)->positionEnd.y, ((FclSpriteAnimation *)animation)->positionEnd.y - ((FclSpriteAnimation *)animation)->bounceHeight, (f32)((FclSpriteAnimation *)animation)->bounceElapsed, (f32)(((FclSpriteAnimation *)animation)->bounceDuration / 2));
         /* measured: typing each retained access on this line loses owner MATCH. */
-        if (*(s16 *)(animation + 0xEC) < *(s16 *)(animation + 0xEE)) {
+        if (spriteAnimation->bounceElapsed < MEMBER(s16, animation, FclSpriteAnimation, bounceDuration)) {
             /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s16 *)(animation + 0xEC) = fclAddClamped((s32)*(s16 *)(animation + 0xEC), 1, (s32)*(s16 *)(animation + 0xEE), 0, 1);
+            spriteAnimation->bounceElapsed = fclAddClamped((s32)spriteAnimation->bounceElapsed, 1, (s32)MEMBER(s16, animation, FclSpriteAnimation, bounceDuration), 0, 1);
         } else {
             ((FclSpriteAnimation *)animation)->position.x = ((FclSpriteAnimation *)animation)->positionEnd.x;
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(f32 *)(animation + 0x2C) = *(f32 *)(animation + 0x24);
+            spriteAnimation->position.y = spriteAnimation->positionEnd.y;
             ((FclSpriteAnimation *)(animation))->flags &= ~0x80;
         }
     }
@@ -1690,109 +1678,82 @@ s32 fclSpriteUpdateTweens(u8 *animation) {
                 ((FclSpriteAnimation *)animation)->alpha = (u8)fclEaseInterpolate((s32)(s8)((FclSpriteAnimation *)animation)->alphaMode, (f32)(u32)((FclSpriteAnimation *)animation)->alphaStart, (f32)(u32)((FclSpriteAnimation *)animation)->alphaEnd, (f32)((FclSpriteAnimation *)animation)->alphaElapsed, (f32)(((FclSpriteAnimation *)animation)->alphaDuration / 2));
             }
             /* measured: typing each retained access on this line loses owner MATCH. */
-            if (*(s16 *)(animation + 0x5A) < *(s16 *)(animation + 0x58)) {
+            if (spriteAnimation->alphaElapsed < MEMBER(s16, animation, FclSpriteAnimation, alphaDuration)) {
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                *(s16 *)(animation + 0x5A) = fclAddClamped((s32)*(s16 *)(animation + 0x5A), 1, (s32)*(s16 *)(animation + 0x58), 0, 1);
+                spriteAnimation->alphaElapsed = fclAddClamped((s32)spriteAnimation->alphaElapsed, 1, (s32)MEMBER(s16, animation, FclSpriteAnimation, alphaDuration), 0, 1);
             } else {
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 animation[0x5E] = animation[0x5D];
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                if (*(s8 *)(animation + 0x63) == 1) {
-                    /* measured: typing each retained access on this line loses owner MATCH. */
+                if (spriteAnimation->alphaReverse == 1) {
                     animation[0x5E] = animation[0x5C];
                 }
                 if (((((FclSpriteAnimation *)(animation))->flags & 0x800) >> 11) == 1) {
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(s16 *)(animation + 0x5A) = 1;
+                    spriteAnimation->alphaElapsed = 1;
                 } else {
                     ((FclSpriteAnimation *)(animation))->flags &= ~4;
                 }
             }
         } else {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s16 *)(animation + 0x60) = fclSubClamped((s32)((FclSpriteAnimation *)animation)->alphaDelay, 1, 0, 0, 1);
+            spriteAnimation->alphaDelay = fclSubClamped((s32)((FclSpriteAnimation *)animation)->alphaDelay, 1, 0, 0, 1);
         }
     }
     if (((((FclSpriteAnimation *)(animation))->flags & 0x200) >> 9) == 1) {
         if (((FclSpriteAnimation *)animation)->colorDelay == 0) {
             if ((s8)((FclSpriteAnimation *)animation)->colorReverse == 0) {
                 ((FclSpriteAnimation *)animation)->color.c0 = (u8)fclEaseInterpolate((s32)(s8)((FclSpriteAnimation *)animation)->colorMode, (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c0, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c0, (f32)((FclSpriteAnimation *)animation)->colorElapsed, (f32)((FclSpriteAnimation *)animation)->colorDuration);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FclSpriteAnimation *)animation)->color.c1 = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c1, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c1, (f32)*(s16 *)(animation + 0x7C), (f32)*(s16 *)(animation + 0x7A));
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FclSpriteAnimation *)animation)->color.c2 = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c2, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c2, (f32)*(s16 *)(animation + 0x7C), (f32)*(s16 *)(animation + 0x7A));
+                ((FclSpriteAnimation *)animation)->color.c1 = (u8)fclEaseInterpolate((s32)spriteAnimation->colorMode, (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c1, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c1, (f32)spriteAnimation->colorElapsed, (f32)spriteAnimation->colorDuration);
+                ((FclSpriteAnimation *)animation)->color.c2 = (u8)fclEaseInterpolate((s32)spriteAnimation->colorMode, (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c2, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c2, (f32)spriteAnimation->colorElapsed, (f32)spriteAnimation->colorDuration);
             } else {
                 ((FclSpriteAnimation *)animation)->color.c0 = (u8)fclEaseInterpolate((s32)(s8)((FclSpriteAnimation *)animation)->colorMode, (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c0, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c0, (f32)((FclSpriteAnimation *)animation)->colorElapsed, (f32)(((FclSpriteAnimation *)animation)->colorDuration / 2));
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FclSpriteAnimation *)animation)->color.c1 = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c1, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c1, (f32)*(s16 *)(animation + 0x7C), (f32)(*(s16 *)(animation + 0x7A) / 2));
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FclSpriteAnimation *)animation)->color.c2 = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c2, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c2, (f32)*(s16 *)(animation + 0x7C), (f32)(*(s16 *)(animation + 0x7A) / 2));
+                ((FclSpriteAnimation *)animation)->color.c1 = (u8)fclEaseInterpolate((s32)spriteAnimation->colorMode, (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c1, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c1, (f32)spriteAnimation->colorElapsed, (f32)(spriteAnimation->colorDuration / 2));
+                ((FclSpriteAnimation *)animation)->color.c2 = (u8)fclEaseInterpolate((s32)spriteAnimation->colorMode, (f32)(u32)((FclSpriteAnimation *)animation)->colorStart.c2, (f32)(u32)((FclSpriteAnimation *)animation)->colorEnd.c2, (f32)spriteAnimation->colorElapsed, (f32)(spriteAnimation->colorDuration / 2));
             }
             if (((((FclSpriteAnimation *)(animation))->flags & 0x40) >> 6) == 1) {
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(s16 *)(animation + 0x7C) = fclAddClamped((s32)*(s16 *)(animation + 0x7C), 1, (s32)*(s16 *)(animation + 0x7A), 1, 2);
+                spriteAnimation->colorElapsed = fclAddClamped((s32)spriteAnimation->colorElapsed, 1, (s32)spriteAnimation->colorDuration, 1, 2);
             /* measured: typing each retained access on this line loses owner MATCH. */
-            } else if (*(s16 *)(animation + 0x7C) < *(s16 *)(animation + 0x7A)) {
+            } else if (spriteAnimation->colorElapsed < MEMBER(s16, animation, FclSpriteAnimation, colorDuration)) {
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                *(s16 *)(animation + 0x7C) = fclAddClamped((s32)*(s16 *)(animation + 0x7C), 1, (s32)*(s16 *)(animation + 0x7A), 0, 1);
+                spriteAnimation->colorElapsed = fclAddClamped((s32)spriteAnimation->colorElapsed, 1, (s32)MEMBER(s16, animation, FclSpriteAnimation, colorDuration), 0, 1);
             } else {
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 animation[0x75] = animation[0x71];
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 animation[0x76] = animation[0x72];
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 animation[0x77] = animation[0x73];
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                if (*(s8 *)(animation + 0x81) == 1) {
-                    /* measured: typing each retained access on this line loses owner MATCH. */
+                if (spriteAnimation->colorReverse == 1) {
                     animation[0x75] = animation[0x6D];
-                    /* measured: typing each retained access on this line loses owner MATCH. */
                     animation[0x76] = animation[0x6E];
-                    /* measured: typing each retained access on this line loses owner MATCH. */
                     animation[0x77] = animation[0x6F];
                 }
                 ((FclSpriteAnimation *)(animation))->flags &= ~0x200;
             }
         } else {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s16 *)(animation + 0x7E) = fclSubClamped((s32)((FclSpriteAnimation *)animation)->colorDelay, 1, 0, 0, 1);
+            spriteAnimation->colorDelay = fclSubClamped((s32)((FclSpriteAnimation *)animation)->colorDelay, 1, 0, 0, 1);
         }
     }
     if (((((FclSpriteAnimation *)(animation))->flags & 0x10) >> 4) == 1) {
         if (((FclSpriteAnimation *)animation)->scaleDelay == 0) {
             if ((s8)((FclSpriteAnimation *)animation)->scaleReverse == 0) {
                 ((FclSpriteAnimation *)animation)->scaleX.value = fclEaseInterpolate((s32)(s8)((FclSpriteAnimation *)animation)->scaleMode, ((FclSpriteAnimation *)animation)->scaleXStart.value, ((FclSpriteAnimation *)animation)->scaleXEnd.value, (f32)((FclSpriteAnimation *)animation)->scaleElapsed, (f32)((FclSpriteAnimation *)animation)->scaleDuration);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FclSpriteAnimation *)animation)->scaleY.value = fclEaseInterpolate((s32)*(s8 *)(animation + 0xA2), ((FclSpriteAnimation *)animation)->scaleYStart.value, ((FclSpriteAnimation *)animation)->scaleYEnd.value, (f32)*(s16 *)(animation + 0x84), (f32)*(s16 *)(animation + 0x82));
+                ((FclSpriteAnimation *)animation)->scaleY.value = fclEaseInterpolate((s32)spriteAnimation->scaleMode, ((FclSpriteAnimation *)animation)->scaleYStart.value, ((FclSpriteAnimation *)animation)->scaleYEnd.value, (f32)spriteAnimation->scaleElapsed, (f32)spriteAnimation->scaleDuration);
             } else {
                 ((FclSpriteAnimation *)animation)->scaleX.value = fclEaseInterpolate((s32)(s8)((FclSpriteAnimation *)animation)->scaleMode, ((FclSpriteAnimation *)animation)->scaleXStart.value, ((FclSpriteAnimation *)animation)->scaleXEnd.value, (f32)((FclSpriteAnimation *)animation)->scaleElapsed, (f32)(((FclSpriteAnimation *)animation)->scaleDuration / 2));
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FclSpriteAnimation *)animation)->scaleY.value = fclEaseInterpolate((s32)*(s8 *)(animation + 0xA2), ((FclSpriteAnimation *)animation)->scaleYStart.value, ((FclSpriteAnimation *)animation)->scaleYEnd.value, (f32)*(s16 *)(animation + 0x84), (f32)(*(s16 *)(animation + 0x82) / 2));
+                ((FclSpriteAnimation *)animation)->scaleY.value = fclEaseInterpolate((s32)spriteAnimation->scaleMode, ((FclSpriteAnimation *)animation)->scaleYStart.value, ((FclSpriteAnimation *)animation)->scaleYEnd.value, (f32)spriteAnimation->scaleElapsed, (f32)(spriteAnimation->scaleDuration / 2));
             }
             if (((((FclSpriteAnimation *)(animation))->flags & 0x40) >> 6) == 1) {
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(s16 *)(animation + 0x84) = fclAddClamped((s32)*(s16 *)(animation + 0x84), 1, (s32)*(s16 *)(animation + 0x82), 1, 2);
+                spriteAnimation->scaleElapsed = fclAddClamped((s32)spriteAnimation->scaleElapsed, 1, (s32)spriteAnimation->scaleDuration, 1, 2);
             /* measured: typing each retained access on this line loses owner MATCH. */
-            } else if (*(s16 *)(animation + 0x84) < *(s16 *)(animation + 0x82)) {
+            } else if (spriteAnimation->scaleElapsed < MEMBER(s16, animation, FclSpriteAnimation, scaleDuration)) {
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                *(s16 *)(animation + 0x84) = fclAddClamped((s32)*(s16 *)(animation + 0x84), 1, (s32)*(s16 *)(animation + 0x82), 0, 1);
+                spriteAnimation->scaleElapsed = fclAddClamped((s32)spriteAnimation->scaleElapsed, 1, (s32)MEMBER(s16, animation, FclSpriteAnimation, scaleDuration), 0, 1);
             } else {
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(f32 *)(animation + 0x90) = *(f32 *)(animation + 0x8C);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(f32 *)(animation + 0x9C) = *(f32 *)(animation + 0x98);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                if (*(s8 *)(animation + 0xA3) == 1) {
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(f32 *)(animation + 0x90) = *(f32 *)(animation + 0x88);
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(f32 *)(animation + 0x9C) = *(f32 *)(animation + 0x94);
+                spriteAnimation->scaleX.value = spriteAnimation->scaleXEnd.value;
+                spriteAnimation->scaleY.value = spriteAnimation->scaleYEnd.value;
+                if (spriteAnimation->scaleReverse == 1) {
+                    spriteAnimation->scaleX.value = spriteAnimation->scaleXStart.value;
+                    spriteAnimation->scaleY.value = spriteAnimation->scaleYStart.value;
                 }
                 ((FclSpriteAnimation *)(animation))->flags &= ~0x10;
             }
         } else {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s16 *)(animation + 0xA0) = fclSubClamped((s32)((FclSpriteAnimation *)animation)->scaleDelay, 1, 0, 0, 1);
+            spriteAnimation->scaleDelay = fclSubClamped((s32)((FclSpriteAnimation *)animation)->scaleDelay, 1, 0, 0, 1);
         }
     }
     if (((((FclSpriteAnimation *)(animation))->flags & 8) >> 3) == 1) {
@@ -1800,40 +1761,31 @@ s32 fclSpriteUpdateTweens(u8 *animation) {
             if ((s8)((FclSpriteAnimation *)animation)->valueReverse == 0) {
                 ((FclSpriteAnimation *)animation)->value.value = fclEaseInterpolate((s32)(s8)((FclSpriteAnimation *)animation)->valueMode, ((FclSpriteAnimation *)animation)->valueStart.value, ((FclSpriteAnimation *)animation)->valueEnd.value, (f32)((FclSpriteAnimation *)animation)->valueElapsed, (f32)((FclSpriteAnimation *)animation)->valueDuration);
                 if (((((FclSpriteAnimation *)(animation))->flags & 0x100) >> 8) == 1) {
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(f32 *)(animation + 0xC0) = *(f32 *)(animation + 0xC0) + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)((FclSpriteAnimation *)animation)->pulseElapsed, 100.0f) - 25.0f);
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(s16 *)(animation + 0xE0) = fclAddClamped((s32)*(s16 *)(animation + 0xE0), 1, 0xC8, 1, 2);
+                    spriteAnimation->value.value = spriteAnimation->value.value + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)((FclSpriteAnimation *)animation)->pulseElapsed, 100.0f) - 25.0f);
+                    spriteAnimation->pulseElapsed = fclAddClamped((s32)spriteAnimation->pulseElapsed, 1, 0xC8, 1, 2);
                 }
             } else {
                 ((FclSpriteAnimation *)animation)->value.value = fclEaseInterpolate((s32)(s8)((FclSpriteAnimation *)animation)->valueMode, ((FclSpriteAnimation *)animation)->valueStart.value, ((FclSpriteAnimation *)animation)->valueEnd.value, (f32)((FclSpriteAnimation *)animation)->valueElapsed, (f32)(((FclSpriteAnimation *)animation)->valueDuration / 2));
                 if (((((FclSpriteAnimation *)(animation))->flags & 0x100) >> 8) == 1) {
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(f32 *)(animation + 0xC0) = *(f32 *)(animation + 0xC0) + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)((FclSpriteAnimation *)animation)->pulseElapsed, 100.0f) - 25.0f);
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(s16 *)(animation + 0xE0) = fclAddClamped((s32)*(s16 *)(animation + 0xE0), 1, 0xC8, 1, 2);
+                    spriteAnimation->value.value = spriteAnimation->value.value + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)((FclSpriteAnimation *)animation)->pulseElapsed, 100.0f) - 25.0f);
+                    spriteAnimation->pulseElapsed = fclAddClamped((s32)spriteAnimation->pulseElapsed, 1, 0xC8, 1, 2);
                 }
             }
             if (((((FclSpriteAnimation *)(animation))->flags & 0x40) >> 6) == 1) {
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(s16 *)(animation + 0xC4) = fclAddClamped((s32)*(s16 *)(animation + 0xC4), 1, (s32)*(s16 *)(animation + 0xC6), 1, 2);
+                spriteAnimation->valueElapsed = fclAddClamped((s32)spriteAnimation->valueElapsed, 1, (s32)spriteAnimation->valueDuration, 1, 2);
             /* measured: typing each retained access on this line loses owner MATCH. */
-            } else if (*(s16 *)(animation + 0xC4) < *(s16 *)(animation + 0xC6)) {
+            } else if (spriteAnimation->valueElapsed < MEMBER(s16, animation, FclSpriteAnimation, valueDuration)) {
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                *(s16 *)(animation + 0xC4) = fclAddClamped((s32)*(s16 *)(animation + 0xC4), 1, (s32)*(s16 *)(animation + 0xC6), 0, 1);
+                spriteAnimation->valueElapsed = fclAddClamped((s32)spriteAnimation->valueElapsed, 1, (s32)MEMBER(s16, animation, FclSpriteAnimation, valueDuration), 0, 1);
             } else {
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(f32 *)(animation + 0xC0) = *(f32 *)(animation + 0xBC);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                if (*(s8 *)(animation + 0xCB) == 1) {
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    *(f32 *)(animation + 0xC0) = *(f32 *)(animation + 0xB8);
+                spriteAnimation->value.value = spriteAnimation->valueEnd.value;
+                if (spriteAnimation->valueReverse == 1) {
+                    spriteAnimation->value.value = spriteAnimation->valueStart.value;
                 }
                 ((FclSpriteAnimation *)(animation))->flags &= ~8;
             }
         } else {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s16 *)(animation + 0xC8) = fclSubClamped((s32)((FclSpriteAnimation *)animation)->valueDelay, 1, 0, 0, 1);
+            spriteAnimation->valueDelay = fclSubClamped((s32)((FclSpriteAnimation *)animation)->valueDelay, 1, 0, 0, 1);
         }
     }
     return (s32)animation;

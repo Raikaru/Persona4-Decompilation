@@ -11,12 +11,6 @@
 extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *config);
 extern void *D_00609850[];
-/* The surrounding wrappers use the raw s64 ABI; this typed view preserves
-   the 32-bit call result at this store site. */
-static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skillId);
 extern s32 datCalcDefaultSkillId(u8 *unit);
@@ -119,6 +113,7 @@ u8 *btlTargetCreateProcedurePacket(s32 action, s32 scriptKind, u8 *procedureName
     return packet;
 }
 
+/* Pick a random usable skill from the supported set, falling back to the default attack. */
 // FUN_001EBC00
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 /* measured: func_001ebc00 MATCH -> MISMATCH without this pragma. */
@@ -248,11 +243,11 @@ void btlAiChooseUsableAttackSkill(u8 *action, u8 *command)
     }
     available = count & 0xFFFF;
     if (available == 0) {
-        ((BtlTargetRecord *)command)->kind = 1;
-        ((BtlTargetRecord *)command)->command = datCalcDefaultSkillId((u8 *)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit));
+        ((BtlAiCommandWork *)command)->kind = 1;
+        ((BtlAiCommandWork *)command)->command = datCalcDefaultSkillId((u8 *)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit));
     } else {
-        ((BtlTargetRecord *)command)->kind = 2;
-        ((BtlTargetRecord *)command)->command = choices[datCalcRandomBelow(available)];
+        ((BtlAiCommandWork *)command)->kind = 2;
+        ((BtlAiCommandWork *)command)->command = choices[datCalcRandomBelow(available)];
     }
 }
 

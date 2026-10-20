@@ -1,11 +1,10 @@
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
+#include "member_access.h"
 #include "effect_mesh_internal.h"
 #include "effect_after_internal.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
-
-typedef struct RuntimeWork RuntimeWork;
 
 typedef struct RuntimeListNode
 {
@@ -28,20 +27,6 @@ typedef struct AfPackCommand {
     u8 padC[0x4];
     s32 target; /* +0x10 */
 } AfPackCommand;
-
-typedef struct RuntimeWork {
-    s32 flags; /* +0x0 */
-    union { s16 signedHalf; u16 half; } sectionCount; /* +0x4 */
-    u16 parameterCount; /* +0x6 */
-    u16 materialCount; /* +0x8 */
-    u8 padA[0x2];
-    u8 * sections; /* +0xC */
-    u8 * parameters; /* +0x10 */
-    u8 * materials; /* +0x14 */
-    u8 * timing; /* +0x18 */
-    union { s32* signedWords; u8 * bytes; u8 ** byteTable; } commands; /* +0x1C */
-    s32 owner; /* +0x20: compared by AfPackReleaseByOwner */
-} RuntimeWork;
 
 /* Disk headers are fixed prefixes; their command streams have variable length. */
 typedef struct AfPackResourceHeader {
@@ -147,7 +132,7 @@ extern void func_003c22f0(void* a);
 // FUN_004B6030
 u8 *AfPackBindResource(void *resource)
 {
-    /* Earlier whole-layout comparison: 1833 differing bytes; remaining raw sites are isolated below. */
+    /* Earlier whole-layout comparison: 1833 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     extern void memcpy(void *dst, void *src, u32 size);
     u8 *parameterRecords[16];
     u8 *materialRecords[16];
@@ -170,13 +155,13 @@ u8 *AfPackBindResource(void *resource)
     p = resource;
     header = p;
     p += 0x10;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    for (parameterIndex = 0; parameterIndex < *(u16 *)(header + 0xA); parameterIndex++) {
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    for (parameterIndex = 0; parameterIndex < MEMBER(u16, header, AfPackResourceHeader, parameterCount); parameterIndex++) {
         parameterRecords[parameterIndex] = p;
         p += 0x38;
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    for (recordIndex = 0; recordIndex < *(u16 *)(header + 0xC); recordIndex++) {
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    for (recordIndex = 0; recordIndex < MEMBER(u16, header, AfPackResourceHeader, materialCount); recordIndex++) {
         u8 *cur;
 
         materialRecords[recordIndex] = p;
@@ -200,8 +185,8 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    for (recordIndex = 0; recordIndex < *(u16 *)(header + 8); recordIndex++) {
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    for (recordIndex = 0; recordIndex < MEMBER(u16, header, AfPackResourceHeader, sectionCount); recordIndex++) {
         sectionRecords[recordIndex] = p;
         switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
@@ -226,16 +211,16 @@ u8 *AfPackBindResource(void *resource)
     }
     size = 0;
     size = size + 0x24;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    size = size + *(u16 *)(header + 8) * 0x18;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    size = size + *(u16 *)(header + 0xA) * 0x34;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    size = size + *(u16 *)(header + 0xC) * 0x18;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    size = size + *(u16 *)(header + 8) * 4;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    for (sizeIndex = 0; sizeIndex < *(u16 *)(header + 8); sizeIndex++) {
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    size = size + MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 0x18;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    size = size + MEMBER(u16, header, AfPackResourceHeader, parameterCount) * 0x34;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    size = size + MEMBER(u16, header, AfPackResourceHeader, materialCount) * 0x18;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    size = size + MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 4;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    for (sizeIndex = 0; sizeIndex < MEMBER(u16, header, AfPackResourceHeader, sectionCount); sizeIndex++) {
         switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
             size += ((AfPackSectionRecord64 *)sectionRecords[sizeIndex])->commandBytes.signedValue;
@@ -245,30 +230,30 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    size += *(u16 *)(header + 8) * 8;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    size += MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 8;
     chkmemAllocSiteTag(D_007146B0, 0x1E4);
     base = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     node = base;
     base = base + 0x24;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    *(u8 **)(node + 0xC) = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(u16 *)(header + 8) * 0x18;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    *(u8 **)(node + 0x10) = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(u16 *)(header + 0xA) * 0x34;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    *(u8 **)(node + 0x14) = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(u16 *)(header + 0xC) * 0x18;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    *(u8 **)(node + 0x1C) = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(u16 *)(header + 8) * 4;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    for (commandIndex = 0; commandIndex < *(u16 *)(header + 8); commandIndex++) {
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    MEMBER(u8 *, node, RuntimeWork, sections) = base;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    base += MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 0x18;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    MEMBER(u8 *, node, RuntimeWork, parameters) = base;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    base += MEMBER(u16, header, AfPackResourceHeader, parameterCount) * 0x34;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    MEMBER(u8 *, node, RuntimeWork, materials) = base;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    base += MEMBER(u16, header, AfPackResourceHeader, materialCount) * 0x18;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    MEMBER(u8 *, node, RuntimeWork, commands.bytes) = base;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    base += MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 4;
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    for (commandIndex = 0; commandIndex < MEMBER(u16, header, AfPackResourceHeader, sectionCount); commandIndex++) {
         (((RuntimeWork *)node)->commands.byteTable)[commandIndex] = base;
         switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
@@ -281,10 +266,10 @@ u8 *AfPackBindResource(void *resource)
     }
     ((RuntimeWork *)node)->timing = base;
     ((RuntimeWork *)node)->flags = ((AfPackResourceHeader *)header)->flags;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    ((RuntimeWork *)node)->sectionCount.half = *(u16 *)(header + 8);
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    ((RuntimeWork *)node)->parameterCount = *(u16 *)(header + 0xA);
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    ((RuntimeWork *)node)->sectionCount.half = MEMBER(u16, header, AfPackResourceHeader, sectionCount);
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    ((RuntimeWork *)node)->parameterCount = MEMBER(u16, header, AfPackResourceHeader, parameterCount);
     ((RuntimeWork *)node)->materialCount = ((AfPackResourceHeader *)header)->materialCount;
     for (copyParameterIndex = 0; copyParameterIndex < ((AfPackResourceHeader *)header)->parameterCount; copyParameterIndex++) {
         f32 *dst = (f32 *)(((RuntimeWork *)node)->parameters + copyParameterIndex * 0x34);
@@ -304,8 +289,8 @@ u8 *AfPackBindResource(void *resource)
         dst[11] = src[12];
         dst[12] = src[13];
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    for (materialIndex = 0; materialIndex < *(u16 *)(header + 0xC); materialIndex++) {
+    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+    for (materialIndex = 0; materialIndex < MEMBER(u16, header, AfPackResourceHeader, materialCount); materialIndex++) {
         u8 *dst = ((RuntimeWork *)node)->materials + materialIndex * 0x18;
         u8 *src = materialRecords[materialIndex];
         u8 *colors = materialColors[materialIndex];
@@ -353,8 +338,8 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
         j = 0;
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        n = *(u16 *)(header + 0xA);
+        /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+        n = MEMBER(u16, header, AfPackResourceHeader, parameterCount);
         for (; j < n; j++) {
             if (id == *(u16 *)parameterRecords[j]) {
                 break;
@@ -370,8 +355,8 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
         j = 0;
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        n = *(u16 *)(header + 0xC);
+        /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+        n = MEMBER(u16, header, AfPackResourceHeader, materialCount);
         for (; j < n; j++) {
             if (id == *(u16 *)materialRecords[j]) {
                 break;
@@ -436,7 +421,6 @@ u8 *AfPackBindResource(void *resource)
 // FUN_004B6900
 u8* AfPackCreateInstance(u8* resource)
 {
-    /* Earlier whole-layout comparison: 544 differing bytes; remaining raw sites are isolated below. */
     u8* node;
     u8* base;
     u8* temp;
@@ -447,7 +431,10 @@ u8* AfPackCreateInstance(u8* resource)
         u8 c[4];
     } Color4;
     Color4 color;
+    RuntimeWork *pack;
+    RuntimeListNode *instance;
 
+    pack = (RuntimeWork *)resource;
     size = 0;
     size += 0x24;
     size += ((RuntimeWork *)resource)->sectionCount.signedHalf * 0x3C;
@@ -456,16 +443,14 @@ u8* AfPackCreateInstance(u8* resource)
     size += ((RuntimeWork *)resource)->sectionCount.signedHalf * 0x18;
     chkmemAllocSiteTag(D_007146B0, 0x287);
     node = (u8*)(*jtbl_008873E8)(size, 0x40000);
+    instance = (RuntimeListNode *)node;
     base = node + 0x24;
     ((RuntimeListNode *)node)->vertices = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(s16*)(resource + 4) * 0x3C;
+    base += pack->sectionCount.signedHalf * 0x3C;
     ((RuntimeListNode *)node)->renderObjects = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(s16*)(resource + 4) * 8;
+    base += pack->sectionCount.signedHalf * 8;
     ((RuntimeListNode *)node)->commands = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(s16*)(resource + 4) * 0x20;
+    base += pack->sectionCount.signedHalf * 0x20;
     ((RuntimeListNode *)node)->entries = base;
     ((RuntimeListNode *)node)->flags = 0;
     ((RuntimeListNode *)node)->work = (RuntimeWork *)(resource);
@@ -475,50 +460,37 @@ u8* AfPackCreateInstance(u8* resource)
     node[0x23] = 0xFE;
 
     i = 0;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    if (*(s16*)(resource + 4) > 0)
+    if (pack->sectionCount.signedHalf > 0)
     {
         color.c[0] = 0xFF;
         color.c[1] = 0xFF;
         color.c[2] = 0xFF;
         color.c[3] = 0xFE;
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        while (i < *(s16*)(resource + 4))
+        while (i < pack->sectionCount.signedHalf)
         {
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            effAfterAllocVectorBuffers(*(u8**)(node + 8) + i * 0x3C,
+            effAfterAllocVectorBuffers(instance->vertices + i * 0x3C,
                           ((RuntimeWork *)resource)->sections + i * 0x18);
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            ((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->material.value = func_003c4140();
+            ((AfPackRenderEntry *)(instance->renderObjects + i*8))->material.value = func_003c4140();
             {
                 u8* obj;
                 u8* material;
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                obj = (u8 *)((EffAfterQueue *)*(u8 **)(node + 8))[i].config;
+                obj = (u8 *)((EffAfterQueue *)instance->vertices)[i].config;
                 material = ((EffAfterConfig *)obj)->material;
                 if ((((EffAfterMaterial *)material)->flags & 1) != 0)
                 {
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                    func_003c42b0(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->material.pointer,
+                    func_003c42b0(((AfPackRenderEntry *)(instance->renderObjects + i*8))->material.pointer,
                                   (u8 *)((EffAfterMaterial *)material)->texture);
                 }
             }
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            *(Color4 *)&((RpMaterial *)(((AfPackRenderEntry *)*(u8 **)(node + 0xC))[i].material.pointer))->color = color;
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            temp = effAfterCreateRibbon(*(u8**)(node + 8) + i * 0x3C,
-                                 /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                                 ((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->material.rpMaterial);
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            ((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->atomic.value = func_003c00e0();
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            func_003c0210(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->atomic.pointer, temp, 0);
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            RpAtomicSetFrame(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->atomic.pointer,
+            *(Color4 *)&((RpMaterial *)(((AfPackRenderEntry *)instance->renderObjects)[i].material.pointer))->color = color;
+            temp = effAfterCreateRibbon(instance->vertices + i * 0x3C,
+                                 ((AfPackRenderEntry *)(instance->renderObjects + i*8))->material.rpMaterial);
+            ((AfPackRenderEntry *)(instance->renderObjects + i*8))->atomic.value = func_003c00e0();
+            func_003c0210(((AfPackRenderEntry *)(instance->renderObjects + i*8))->atomic.pointer, temp, 0);
+            RpAtomicSetFrame(((AfPackRenderEntry *)(instance->renderObjects + i*8))->atomic.pointer,
                           (void*)func_003e9320());
             func_003c2a80(temp);
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            effMiscProgressResetWork(*(u8**)(node + 8) + i * 0x3C, temp);
+            effMiscProgressResetWork(instance->vertices + i * 0x3C, temp);
             func_003c22f0(temp);
             i++;
         }
@@ -631,7 +603,7 @@ s32 AfPackTaskUpdate(u8 *unusedTask)
 // Runs the afterimage list once per frame: updates the render entries, reaps nodes with no live entries (freeing their buffers), then draws the remaining entries.
 // FUN_004B6E80
 void AfPackRunList(void) {
-    /* Earlier whole-layout comparison: 483 differing bytes; remaining raw sites are isolated below. */
+    /* Earlier whole-layout comparison: 483 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     typedef int (*code)();
     extern code DAT_008873ec_abs[];
     void *(**table);
@@ -684,29 +656,29 @@ void AfPackRunList(void) {
                 }
                 prev = (u8 *)((RuntimeListNode *)temp)->previous;
                 if (prev != NULL) {
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                    ((RuntimeListNode *)prev)->next = (RuntimeListNode *)(*(u8 **)(temp + 0x1C));
+                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                    ((RuntimeListNode *)prev)->next = (RuntimeListNode *)(MEMBER(u8 *, temp, RuntimeListNode, next));
                 }
                 if (temp == (u8 *)D_00764C9C) {
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                    D_00764C9C = *(u8 **)(temp + 0x18);
+                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                    D_00764C9C = MEMBER(u8 *, temp, RuntimeListNode, previous);
                 }
                 if (temp == (u8 *)D_00764CA0) {
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                    D_00764CA0 = (RuntimeListNode *)*(u8 **)(temp + 0x1C);
+                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                    D_00764CA0 = (RuntimeListNode *)MEMBER(u8 *, temp, RuntimeListNode, next);
                 }
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                work = *(u8 **)(temp + 4);
+                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                work = MEMBER(u8 *, temp, RuntimeListNode, work);
                 i = 0;
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                while (i < ((RuntimeWork *)*(u8 **)(temp + 4))->sectionCount.signedHalf) {
+                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                while (i < ((RuntimeWork *)MEMBER(u8 *, temp, RuntimeListNode, work))->sectionCount.signedHalf) {
                     effAfterFreeVectorBuffers(((RuntimeListNode *)temp)->vertices + i * 0x3C);
                     off = i * 8;
                     func_003e9390((u8 *)((RpAtomic *)(((AfPackRenderEntry *)(((RuntimeListNode *)temp)->renderObjects + off))->atomic.pointer))->frame);
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                    func_003c02e0(((AfPackRenderEntry *)(*(u8 **)(temp + 0xC) + off))->atomic.pointer);
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                    func_003c4220(((AfPackRenderEntry *)(*(u8 **)(temp + 0xC) + off))->material.pointer);
+                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                    func_003c02e0(((AfPackRenderEntry *)(MEMBER(u8 *, temp, RuntimeListNode, renderObjects) + off))->atomic.pointer);
+                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                    func_003c4220(((AfPackRenderEntry *)(MEMBER(u8 *, temp, RuntimeListNode, renderObjects) + off))->material.pointer);
                     i++;
                 }
                 table = (void *(**) )DAT_008873ec_abs;
@@ -732,7 +704,7 @@ void AfPackRunList(void) {
 // FUN_004B7140
 void AfPackReleaseByOwner(s32 owner)
 {
-    /* Earlier whole-layout comparison: 303 differing bytes; remaining raw sites are isolated below. */
+    /* Earlier whole-layout comparison: 303 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     s32 renderOffset;
     u8* nextNode;
     u8* node;
@@ -765,32 +737,32 @@ void AfPackReleaseByOwner(s32 owner)
             previous = (u8 *)((RuntimeListNode *)node)->previous;
             if (previous != NULL)
             {
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                ((RuntimeListNode *)previous)->next = (RuntimeListNode *)(*(u8**)(node + 0x1C));
+                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                ((RuntimeListNode *)previous)->next = (RuntimeListNode *)(MEMBER(u8*, node, RuntimeListNode, next));
             }
             if (node == (u8*)D_00764C9C)
             {
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                D_00764C9C = *(void**)(node + 0x18);
+                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                D_00764C9C = MEMBER(void*, node, RuntimeListNode, previous);
             }
             if (node == (u8*)D_00764CA0)
             {
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                D_00764CA0 = *(RuntimeListNode**)(node + 0x1C);
+                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                D_00764CA0 = MEMBER(RuntimeListNode*, node, RuntimeListNode, next);
             }
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            resource = *(u8**)(node + 4);
+            /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+            resource = MEMBER(u8*, node, RuntimeListNode, work);
             sectionIndex = 0;
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            while (sectionIndex < ((RuntimeWork *)*(u8 **)(node + 4))->sectionCount.signedHalf)
+            /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+            while (sectionIndex < ((RuntimeWork *)MEMBER(u8 *, node, RuntimeListNode, work))->sectionCount.signedHalf)
             {
                 effAfterFreeVectorBuffers(((RuntimeListNode *)node)->vertices + sectionIndex * 0x3C);
                 renderOffset = sectionIndex * 8;
                 func_003e9390(((RpAtomic *)(((AfPackRenderEntry *)(((RuntimeListNode *)node)->renderObjects + renderOffset))->atomic.pointer))->frame);
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                func_003c02e0(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + renderOffset))->atomic.pointer);
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                func_003c4220(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + renderOffset))->material.pointer);
+                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                func_003c02e0(((AfPackRenderEntry *)(MEMBER(u8 *, node, RuntimeListNode, renderObjects) + renderOffset))->atomic.pointer);
+                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
+                func_003c4220(((AfPackRenderEntry *)(MEMBER(u8 *, node, RuntimeListNode, renderObjects) + renderOffset))->material.pointer);
                 sectionIndex++;
             }
             base = (u32)jtbl_008873EC;

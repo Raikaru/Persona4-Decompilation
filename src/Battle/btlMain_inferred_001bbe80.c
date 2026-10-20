@@ -43,14 +43,6 @@ extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u32 iGpffffa0b8;
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern u8 D_0060A0E0[];
@@ -103,8 +95,8 @@ extern f32 fGpffff8108;
 #pragma pop
 #pragma push
 #pragma pop
-// FUN_001BBE80
 /* Initialize the camera spring duration from seconds and select spring transition mode. */
+// FUN_001BBE80
 void btlCameraSetSpringDuration(u8 *camera, f32 seconds) {
     btlTargetInitSpring(camera + 0x84, 60.0f * seconds / 2.0f);
     ((BtlCamera *)camera)->curveFlags &= 0xFFF3;

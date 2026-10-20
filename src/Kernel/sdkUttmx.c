@@ -324,6 +324,7 @@ static void tmxSwizzlePalette8(RwImage* image, s32 bitDepth)
 
 #pragma push
 #pragma opt_loop_invariants on
+/* Decode a version-two TMX0 buffer into an image; unsupported headers return NULL. */
 // FUN_00463930
 /* Indexed TMX palettes have four- or eight-bit image depth.
  * Keep the palette byte count live across the private conversion helpers.
@@ -469,12 +470,11 @@ RwImage *tmxDecodeStream(u8 *stream)
 #pragma pop
 
 /* Read the TMX header and payload, decode it, and release temporary storage. */
-/* TmxHeader layout is proven; retain byte-offset header loads because
- * typed members changed the measured matching instruction allocation. */
+/* A native stack header preserves the retail field loads and stack placement. */
 // FUN_00463D60
 RwImage *tmxLoadFile(const char *name)
 {
-    u8 header[0x40];
+    TmxHeader header;
     RwStream *stream;
     RwImage *image;
     u8 *buffer;
@@ -482,11 +482,11 @@ RwImage *tmxLoadFile(const char *name)
     image = 0;
     stream = func_003e2f60(rwSTREAMFILENAME, rwSTREAMREAD, name);
     if (stream != NULL) {
-        func_003e2910(stream, header, 0x40);
+        func_003e2910(stream, &header, 0x40);
         chkmemAllocSiteTag(D_00712688, 0x3BE);
-        buffer = jtbl_008873E8[0](*(s32 *)(header + 4), 0x40000);
-        func_003e2910(stream, buffer + 0x40, *(s32 *)(header + 4) - 0x40);
-        memcpy(buffer, header, 0x40);
+        buffer = jtbl_008873E8[0](header.fileSize, 0x40000);
+        func_003e2910(stream, buffer + 0x40, header.fileSize - 0x40);
+        memcpy(buffer, &header, 0x40);
         image = tmxDecodeStream(buffer);
         jtbl_008873EC[0](buffer);
         func_003e2e40(stream, NULL);

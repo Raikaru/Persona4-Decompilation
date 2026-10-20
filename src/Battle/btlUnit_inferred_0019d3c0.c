@@ -63,62 +63,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
-
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern void mdlDestroyModelObject(void *model);
 extern void mdlSetColor(void *model, s32 *color);
@@ -137,10 +82,6 @@ extern void btlUnitClearModelState(u8 *unit, s32 mode);
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -181,11 +122,12 @@ extern u8 D_00794150[];
  * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
-// FUN_0019D3C0
 /* measured: typing the remaining model reloads/clear or scene-ID clear changes MATCH to MISMATCH. */
 /* Release the scene resource and destroy owned models; clear the model-present flag. */
+// FUN_0019D3C0
 void btlUnitReleaseModel(u8 *unit)
 {
+    BtlUnit *typedUnit = (BtlUnit *)unit;
     u16 sceneId;
     s32 index;
     u8 *model;
@@ -199,18 +141,18 @@ void btlUnitReleaseModel(u8 *unit)
             btlUnitClearModelState(unit, 1);
             btlUnitClearModelState(unit, 2);
             btlUnitClearModelState(unit, 3);
-            mdlSetColor(*(u8 **)(unit + 0xA00), (s32 *)&iGpffffa4d8);
-            mdlSetLayerWeight(*(u8 **)(unit + 0xA00), 0, 1.0f);
+            mdlSetColor(typedUnit->layerHandle, (s32 *)&iGpffffa4d8);
+            mdlSetLayerWeight(typedUnit->layerHandle, 0, 1.0f);
             if (index == 1 && (((BtlUnit *)unit)->flags2 & 8) == 0)
-                mdlDestroyModelObject(*(u8 **)(unit + 0xA00));
+                mdlDestroyModelObject(typedUnit->layerHandle);
         }
-        *(u16 *)(unit + 0x9FE) = 0;
+        typedUnit->sceneDrawId = 0;
     } else {
         model = ((BtlUnit *)unit)->layerHandle;
         if (model != NULL)
             mdlDestroyModelObject(model);
     }
-    *(u8 **)(unit + 0xA00) = NULL;
+    typedUnit->layerHandle = NULL;
     ((BtlUnit *)unit)->flags2 &= ~2;
 }
 

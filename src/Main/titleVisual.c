@@ -1,6 +1,9 @@
 #include "include_asm.h"
 /* Original translation unit titleVisual.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "member_access.h"
+#include "member_access.h"
+#include "mdl_effect_internal.h"
 #include "primitive_queue_internal.h"
 
 extern void chkmemAllocSiteTag(const void *file, s32 line);
@@ -179,6 +182,7 @@ void titleVisualDrawSpritePacket(u8 *unused, u8 *packet) {
 }
 #pragma opt_propagation on
 
+/* Pack sprite position, color, and resource selection for immediate drawing or optional draw-queue submission. */
 // FUN_002AB380
 /* Build a tinted sprite packet and dispatch it through the optional draw queue. */
 void titleVisualSubmitSprite(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 spriteIndex, void *resource, s32 flags, void *queue) {
@@ -204,10 +208,11 @@ void titleVisualSubmitSprite(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 sp
     titleVisualDrawSpritePacket(NULL, packet);
 }
 
+/* Draw a queued model with its saved transform and flags, then restore live flags and release the packet. */
 // FUN_002AB4B0
 /* Draw a queued model with its saved flags and matrix, restoring the live flags afterward. */
-/* Typed Model/TitleModelPacket accesses change b210 register allocation; retain
- * their proven +0xD8/+0xDC and +0x50/+0x54 byte accesses for MATCH. */
+/* Per-access typing preserves retail allocation; remaining MEMBER_OFFSET
+ * flag restores retain byte-cursor aliasing measured against the whole file. */
 void titleVisualDrawModelPacket(void *unused, u8 *packet) {
     s8 color[4];
     u8 *model;
@@ -219,22 +224,24 @@ void titleVisualDrawModelPacket(void *unused, u8 *packet) {
     color[1] = (s8)(packedColor >> 16);
     color[2] = (s8)(packedColor >> 8);
     color[3] = (s8)packedColor;
-    model = *(u8 **)(packet + 0x54);
-    savedFlags = *(s32 *)(model + 0xD8);
-    *(s32 *)(model + 0xD8) = *(s32 *)(packet + 0x50);
+    model = ((TitleModelPacket *)packet)->model;
+    savedFlags = ((Model *)model)->flags;
+    ((Model *)model)->flags = ((TitleModelPacket *)packet)->flags;
     mdlApplyModelMatrix(model, packet + 0x10, 0);
     titleVisualDrawTintedModel(model, color);
-    *(s32 *)(model + 0xD8) = savedFlags;
+    *(s32 *)(model + MEMBER_OFFSET(Model, flags)) = savedFlags;
     jtbl_008873EC[0](packet);
 }
 
 /* measured: opt_propagation off preserves retail's cached render-table base. */
 #pragma opt_propagation off
+/* Apply title render states and RGBA tint, draw visible model atomics, and close optional blend and mask modes. */
 // FUN_002AB550
 /* Install the title render state and draw the model with the supplied RGBA color. */
-/* Typed Model/TitleModelPacket accesses change b210 register allocation; retain
- * their proven +0xD8/+0xDC and +0x50/+0x54 byte accesses for MATCH. */
+/* Per-access typing preserves retail allocation; remaining MEMBER_OFFSET
+ * flag restores retain byte-cursor aliasing measured against the whole file. */
 void titleVisualDrawTintedModel(u8 *model, s8 *color) {
+    Model *drawModelState = (Model *)model;
     void (**render)(u32 state, u32 value);
 
     render = D_00887300;
@@ -251,37 +258,39 @@ void titleVisualDrawTintedModel(u8 *model, s8 *color) {
     RpSkyRenderStateSet(3, 0x50003);
     RpSkyRenderStateSet(2, 0x44);
     render[0](1, 0);
-    if ((*(s32 *)(model + 0xD8) & 8) != 0) {
+    if ((((Model *)model)->flags & 8) != 0) {
         render[0](6, 1);
     }
-    if ((*(s32 *)(model + 0xD8) & 0x10) != 0) {
+    if ((drawModelState->flags & 0x10) != 0) {
         render[0](8, 1);
     }
-    if ((*(s32 *)(model + 0xD8) & 0x40000) != 0) {
+    if ((drawModelState->flags & 0x40000) != 0) {
         shdEnableBlendFlag();
     }
-    if ((*(s32 *)(model + 0xD8) & 0x100000) != 0) {
+    if ((drawModelState->flags & 0x100000) != 0) {
         mdlEffectEmitMaskedTagPair();
     }
     mdlSetColor(model, color);
     mdlApplyColorToAtomics(model);
     mdlUpdateModelMatrix(model);
     mdlPrepareItemSlots(model);
-    mdlDrawVisibleAtomics(*(s32 *)(model + 0xDC));
-    if ((*(s32 *)(model + 0xD8) & 0x40000) != 0) {
+    mdlDrawVisibleAtomics(((Model *)model)->clump);
+    if ((drawModelState->flags & 0x40000) != 0) {
         shdDisableBlendFlag();
     }
-    if ((*(s32 *)(model + 0xD8) & 0x100000) != 0) {
+    if ((drawModelState->flags & 0x100000) != 0) {
         mdlEffectEmitTagPair();
     }
 }
 #pragma opt_propagation on
 
+/* Build a camera-facing scaled model transform and submit a packet while preserving the live model matrix for immediate draws. */
 // FUN_002AB790
 /* Build a camera-facing scaled model matrix and submit a model packet; immediate drawing restores the live matrix. */
-/* Typed Model/TitleModelPacket accesses change b210 register allocation; retain
- * their proven +0xD8/+0xDC and +0x50/+0x54 byte accesses for MATCH. */
+/* Per-access typing preserves retail allocation; remaining MEMBER_OFFSET
+ * flag restores retain byte-cursor aliasing measured against the whole file. */
 void titleVisualSubmitModel(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, f32 scale, s32 projectPosition, u8 *model, void *queue) {
+    TitleModelPacket *modelPacket;
     s8 color[4];
     f32 translation[3];
     f32 scaleVector[3];
@@ -320,16 +329,16 @@ void titleVisualSubmitModel(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, f32 sca
     screenY = (s32)y;
     screenX = (s32)x;
     datScreenPointToWorldPosition(projectedPosition, screenX, screenY, depth);
-    cameraMatrixCursor = func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4));
+    cameraMatrixCursor = func_003e9700((s32)((MdlEffectCamera *)kwlnGetCamera())->frame);
     matrixCopyCursor = (u8 *)drawMatrix;
     cameraPairsRemaining = 8;
     do {
-        cameraFirstWord = *(s32 *)(cameraMatrixCursor + 0);
-        cameraSecondWord = *(s32 *)(cameraMatrixCursor + 4);
+        cameraFirstWord = ((s32 *)cameraMatrixCursor)[0];
+        cameraSecondWord = ((s32 *)cameraMatrixCursor)[1];
         cameraMatrixCursor += 8;
         cameraPairsRemaining -= 1;
-        *(s32 *)(matrixCopyCursor + 0) = cameraFirstWord;
-        *(s32 *)(matrixCopyCursor + 4) = cameraSecondWord;
+        ((s32 *)matrixCopyCursor)[0] = cameraFirstWord;
+        ((s32 *)matrixCopyCursor)[1] = cameraSecondWord;
         matrixCopyCursor += 8;
     } while (cameraPairsRemaining > 0);
     drawMatrix[8] = projectedPosition[0] - drawMatrix[12];
@@ -365,50 +374,51 @@ void titleVisualSubmitModel(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, f32 sca
     RwMatrixTranslate(drawMatrix, translation, 2);
     chkmemAllocSiteTag(D_0063EE50, 0x16B);
     packet = D_008873F4[0](1, 0x60, 0x40000);
-    *(u32 *)(packet + 0) = (rgb << 8) | alpha;
-    *(s32 *)(packet + 0x50) = *(s32 *)(model + 0xD8);
+    modelPacket = (TitleModelPacket *)packet;
+    ((TitleModelPacket *)packet)->color = (rgb << 8) | alpha;
+    ((TitleModelPacket *)packet)->flags = ((Model *)model)->flags;
     packetMatrixSource = (u8 *)drawMatrix;
     packetMatrixCursor = packet + 0x10;
     packetPairsRemaining = 8;
     do {
-        packetFirstWord = *(s32 *)(packetMatrixSource + 0);
-        packetSecondWord = *(s32 *)(packetMatrixSource + 4);
+        packetFirstWord = ((s32 *)packetMatrixSource)[0];
+        packetSecondWord = ((s32 *)packetMatrixSource)[1];
         packetMatrixSource += 8;
         packetPairsRemaining -= 1;
-        *(s32 *)(packetMatrixCursor + 0) = packetFirstWord;
-        *(s32 *)(packetMatrixCursor + 4) = packetSecondWord;
+        ((s32 *)packetMatrixCursor)[0] = packetFirstWord;
+        ((s32 *)packetMatrixCursor)[1] = packetSecondWord;
         packetMatrixCursor += 8;
     } while (packetPairsRemaining > 0);
-    *(u8 **)(packet + 0x54) = model;
+    ((TitleModelPacket *)packet)->model = model;
     if (queue != NULL) {
         drawNode = PrimAllocQueueNode();
-        *(void **)(drawNode + 8) = (void *)titleVisualDrawModelPacket;
-        *(u8 **)(drawNode + 0x10) = packet;
+        ((PrimQueueNode *)drawNode)->callback = (void *)titleVisualDrawModelPacket;
+        ((PrimQueueNode *)drawNode)->argument.data = packet;
         PrimAppendNode(queue, drawNode);
     } else {
         savedMatrixCursor = mdlGetMatrix((u32)(s32)model);
         restoreMatrixCursor = (u8 *)drawMatrix;
         restorePairsRemaining = 8;
         do {
-            savedFirstWord = *(s32 *)(savedMatrixCursor + 0);
-            savedSecondWord = *(s32 *)(savedMatrixCursor + 4);
+            savedFirstWord = ((s32 *)savedMatrixCursor)[0];
+            savedSecondWord = ((s32 *)savedMatrixCursor)[1];
             savedMatrixCursor += 8;
             restorePairsRemaining -= 1;
-            *(s32 *)(restoreMatrixCursor + 0) = savedFirstWord;
-            *(s32 *)(restoreMatrixCursor + 4) = savedSecondWord;
+            ((s32 *)restoreMatrixCursor)[0] = savedFirstWord;
+            ((s32 *)restoreMatrixCursor)[1] = savedSecondWord;
             restoreMatrixCursor += 8;
         } while (restorePairsRemaining > 0);
-        packedColor = *(u32 *)(packet + 0);
+        packedColor = ((TitleModelPacket *)packet)->color;
         color[0] = (s8)(packedColor >> 24);
         color[1] = (s8)(packedColor >> 16);
         color[2] = (s8)(packedColor >> 8);
         color[3] = (s8)packedColor;
-        drawModel = *(u8 **)(packet + 0x54);
-        savedFlags = *(s32 *)(drawModel + 0xD8);
-        *(s32 *)(drawModel + 0xD8) = *(s32 *)(packet + 0x50);
+        drawModel = modelPacket->model;
+        savedFlags = ((Model *)drawModel)->flags;
+        ((Model *)drawModel)->flags = modelPacket->flags;
         mdlApplyModelMatrix(drawModel, packet + 0x10, 0);
         titleVisualDrawTintedModel(drawModel, color);
-        *(s32 *)(drawModel + 0xD8) = savedFlags;
+        *(s32 *)(drawModel + MEMBER_OFFSET(Model, flags)) = savedFlags;
         jtbl_008873EC[0](packet);
         mdlApplyModelMatrix(model, drawMatrix, 0);
     }

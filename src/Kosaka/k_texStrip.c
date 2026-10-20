@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "include_asm.h"
 #include "Kosaka/k_clump_property_internal.h"
 #include "sdk_task_registration.h"
@@ -543,18 +544,18 @@ s32 K_TexStripBuildUpdate(u8 *task)
 #pragma pop
 /* Close the directory iterator before releasing the build task work. */
 // FUN_001915C0
-/* TexStripWork stores the directory handle at offset 4. Typed task/work
- * access changed five instruction bytes; keep byte access and the final slot reload. */
+/* measured: access-site, typed-local, and indexed initial task-work loads differ in five bytes.
+ * The directory field and final task-slot reload remain typed. */
 void K_TexStripBuildTaskDestroy(u8 *task)
 {
     s32 directory;
 
-    directory = *(s32 *)(*(u8 **)(task + 0x38) + 4);
+    directory = ((TexStripWork *)MEMBER(u8 *, task, KwlnTask, work))->directory;
     if (directory >= 0)
     {
         func_00428618(directory);
     }
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
 /* Allocate and start the resource texture-strip build task. */
@@ -717,18 +718,18 @@ s32 K_TexStripLoadUpdate(u8 *task)
 
 /* Close any directory handle before freeing load-task work. */
 // FUN_00191B70
-/* TexStripWork stores the directory handle at offset 4. Typed task/work
- * access changed five instruction bytes; keep byte access and the final slot reload. */
+/* measured: access-site, typed-local, and indexed initial task-work loads differ in five bytes.
+ * The directory field and final task-slot reload remain typed. */
 void K_TexStripLoadDestroy(u8 *task)
 {
     s32 directory;
 
-    directory = *(s32 *)(*(u8 **)(task + 0x38) + 4);
+    directory = ((TexStripWork *)MEMBER(u8 *, task, KwlnTask, work))->directory;
     if (directory >= 0)
     {
         func_00428618(directory);
     }
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
 /* Start texture loading at field ID 0x28 and texture ID one. */

@@ -1,3 +1,5 @@
+#include "byte_address_internal.h"
+#include "member_access.h"
 #include "include_asm.h"
 #include "type.h"
 #include "itf_mes_objects.h"
@@ -12,9 +14,7 @@ extern u16 D_008C024E[];
 
 extern s32 D_008815B0[];
 
-static inline u32 add_retail_ptr(u32 offset, u32 base) {
-    return offset + base;
-}
+
 
 extern u16 D_008817E8[];
 extern u8 D_007964C0[];
@@ -96,12 +96,11 @@ void itfMesWindowCommitSelection(u8 *window)
             cursorIndex = ((ItfMesSelection *)state)->cursor;
             choiceCount = ((ItfMesSelection *)state)->count;
             listHandle = ((ItfMesSelection *)state)->list.value;
-            *(s32 *)(state + 4) = itfMesReleaseTagRun(
+            MEMBER(s32, state, ItfMesSelection, list.value) = itfMesReleaseTagRun(
                 listHandle, cursorIndex, choiceCount);
             entry = ((ItfMesWindow *)window)->record.bytes;
-            entry = *(u8 **)((u8 *)add_retail_ptr(
-                (u32)(((ItfMesSelection *)state)->recordIndex.value * 8), (u32)entry) + 0x24);
-            index = *(s16 *)(state + 0xE);
+            entry = ((ItfMesRecord *)((u8 *)((u32)byteAddressAdd(((u32)(((ItfMesSelection *)state)->recordIndex.value * 8)), (u8 *)(u32)entry))))->entries[0].data.bytes;
+            index = MEMBER(s16, state, ItfMesSelection, cursor);
             count = ((ItfMesChoiceRecord *)entry)->count;
             cursor = (s32 *)(entry + 0x20);
             i = 0;
@@ -138,7 +137,7 @@ void itfMesWindowCommitSelection(u8 *window)
         if ((flags & 0xC00) == 0) {
             if (((ItfMesSelection *)state)->list.value != 0) {
                 frFontListKeepOrRelease(((ItfMesSelection *)state)->list.value);
-                *(s32 *)(state + 4) = 0;
+                MEMBER(s32, state, ItfMesSelection, list.value) = 0;
             }
             ((ItfMesSelection *)state)->state = -1;
         }

@@ -5,7 +5,7 @@
 #include "fr_font_internal.h"
 #include "name_entry_internal.h"
 #include "kwln_task_internal.h"
-
+#include "member_access.h"
 extern void (*jtbl_008873EC[])(void *);
 extern u16 *D_00764658;
 
@@ -68,8 +68,8 @@ extern u8 iGpffffa7e8;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a02f0-002a02f0 */
 
-// FUN_002A02F0
 /* Reset six selection statuses when requested, then draw the five populated name-entry slots. */
+// FUN_002A02F0
 void yTimeNameDrawSelections(u8 *task, s32 preserveStatus) {
     NameEntryWork *work;
     s32 i;
@@ -77,8 +77,8 @@ void yTimeNameDrawSelections(u8 *task, s32 preserveStatus) {
     work = (NameEntryWork *)((KwlnTask *)task)->work;
     if ((preserveStatus == 0) && (work->inputState != 1)) {
         for (i = 0; i < 6; i++) {
-            /* MATCH requires the byte-domain row address; the typed selectionStatus[i][0] access changed codegen. */
-            *(s16 *)((u8 *)work + (i * 4) + 0x1C38) = 0;
+            /* measured: typed rows and MEMBER commute the retail addu operands; retain this address tree. */
+            *(s16 *)((u8 *)work + (i * 4) + MEMBER_OFFSET(NameEntryWork, selectionStatus)) = 0;
         }
     }
     yTimeLimitDrawButton(task, 0);

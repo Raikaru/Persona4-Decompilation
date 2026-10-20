@@ -1,5 +1,6 @@
 /* Source unit: src/Main/OpEd/ed_scroll_0038e6d0.c */
 #include "type.h"
+#include "member_access.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
 #include "ed_staff_internal.h"
@@ -100,11 +101,14 @@ u32 edScrollIsActive(void)
 }
 
 // Intent: Per-frame roll step: run the hold and scroll phases, parse stream commands into new text records and drift them up [inferred]
+/* Advance credit scrolling, parse new lines, and hold then fade the final record before stopping. */
 // FUN_0038DF60
-/* Typed staff-roll members change b210 address materialization; retain byte/word
- * accesses to ed_scroll_internal.h layouts to keep the retail instructions. */
+/* Initial whole-layout typing changed b210 address materialization; the per-access
+ * forms below were measured independently against the whole translation unit. */
 void edScrollStep(void)
 {
+    EdScrollRecord *recordFields;
+    EdScrollWork *scrollWork;
     u32 *work;
     u32 *entry;
     u32 text;
@@ -126,9 +130,10 @@ void edScrollStep(void)
         kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
+    scrollWork = (EdScrollWork *)work;
     if ((~work[0] & 1) == 0) {
         if ((work[0] & 4) != 0) {
-            *(f32 *)(work + 0x48a) = *(f32 *)((u8 *)(uintptr_t)work[0x488] + 0x8c);
+            ((EdScrollWork *)work)->phaseStartY = ((EdScrollRecord *)(uintptr_t)work[0x488])->y;
             work[0x481] = 0;
             work[0x489] = 1;
             work[0] &= ~4u;
@@ -145,7 +150,7 @@ void edScrollStep(void)
             break;
         case 1:
             edScrollShortHoldEnabled();
-            step = fGpffff8500 / ((*(f32 *)(work + 0x48a) - 208.0f) * 2.0f);
+            step = fGpffff8500 / ((((EdScrollWork *)work)->phaseStartY - 208.0f) * 2.0f);
             segmentFrames = (s32)(fGpffff84fc / step);
             frame = work[0x481];
             if ((s32)frame < segmentFrames) {
@@ -153,15 +158,15 @@ void edScrollStep(void)
                 edScrollShortHoldEnabled();
                 elapsed = (f32)(s32)work[0x481];
                 drift = fGpffff84fc - step * elapsed;
-                *(f32 *)((u8 *)(uintptr_t)work[0x488] + 0x8c) =
-                    *(f32 *)(work + 0x48a) -
+                ((EdScrollRecord *)(uintptr_t)work[0x488])->y =
+                    scrollWork->phaseStartY -
                     (fGpffff84fc * elapsed - (step * 0.5f) * elapsed * elapsed);
             } else {
                 phaseEnd = segmentFrames + iGpffffa9ec;
                 if ((s32)frame < phaseEnd) {
                     work[0x481] = frame + 1;
                     drift = 0.0f;
-                    *(f32 *)((u8 *)(uintptr_t)work[0x488] + 0x8c) = 208.0f;
+                    ((EdScrollRecord *)(uintptr_t)work[0x488])->y = 208.0f;
                 } else if ((s32)frame < phaseEnd + 0x2d) {
                     work[0x481] = frame + 1;
                     fade = ((f32)(segmentFrames + iGpffffa9ec + 0x2d -
@@ -170,10 +175,10 @@ void edScrollStep(void)
                            45.0f;
                     ((u8 *)work)[0x122f] = (u8)fade;
                     drift = 0.0f;
-                    *(f32 *)((u8 *)(uintptr_t)work[0x488] + 0x8c) = 208.0f;
+                    ((EdScrollRecord *)(uintptr_t)work[0x488])->y = 208.0f;
                 } else {
                     drift = 0.0f;
-                    *(f32 *)((u8 *)(uintptr_t)work[0x488] + 0x8c) = 208.0f;
+                    ((EdScrollRecord *)(uintptr_t)work[0x488])->y = 208.0f;
                     work[0] &= ~1u;
                 }
             }
@@ -183,7 +188,7 @@ void edScrollStep(void)
         }
         stream = edResGetStream();
         if ((~work[0] & 2) != 0) {
-            height = *(f32 *)(work + 0x487) - drift;
+            height = ((EdScrollWork *)work)->nextY - drift;
             parse = 1;
             align = 0;
             while ((!(height < 448.0f)) == 0 && parse != 0) {
@@ -192,7 +197,7 @@ void edScrollStep(void)
                 case 0:
                     work[0] |= 2;
                     parse = 0;
-                    *(f32 *)(work + 0x487) += drift;
+                    scrollWork->nextY += drift;
                     break;
                 case 1:
                 {
@@ -206,8 +211,8 @@ void edScrollStep(void)
                         work[0x488] = (u32)entry;
                         work[0] |= 4;
                     }
-                    *(f32 *)((u8 *)entry + 0x8c) = *(f32 *)(work + 0x487);
-                    *(f32 *)(work + 0x487) += 27.0f;
+                    ((EdScrollRecord *)entry)->y = scrollWork->nextY;
+                    scrollWork->nextY += 27.0f;
                     align = 0;
                     break;
                 }
@@ -215,35 +220,37 @@ void edScrollStep(void)
                     align = 1;
                     break;
                 case 3:
-                    *(f32 *)(work + 0x487) =
-                        (f32)edScrollStreamOperand() * 25.0f + *(f32 *)(work + 0x487) + 0.0f;
+                    scrollWork->nextY =
+                        (f32)edScrollStreamOperand() * 25.0f + scrollWork->nextY + 0.0f;
                     break;
                 case 4:
-                    *(f32 *)(work + 0x487) += 10.0f;
+                    scrollWork->nextY += 10.0f;
                     break;
                 default:
                     break;
                 }
                 edScrollStreamAdvance();
-                height = *(f32 *)(work + 0x487) - drift;
+                height = scrollWork->nextY - drift;
             }
         }
         for (i = 0; i < 0x20; i++) {
             u32 *elem = (u32 *)((u8 *)work + i * 0x90);
             u32 *record = elem + 1;
+            recordFields = (EdScrollRecord *)record;
             if ((~elem[1] & 1) == 0) {
-                if ((*(f32 *)(record + 0x23) - drift) + 27.0f < 0.0f) {
+                if ((((EdScrollRecord *)record)->y - drift) + 27.0f < 0.0f) {
                     edScrollFreeRecord(record);
                 }
-                *(f32 *)(record + 0x23) -= drift;
+                recordFields->y -= drift;
             }
         }
-        *(f32 *)(work + 0x487) -= drift;
+        ((EdScrollWork *)work)->nextY -= drift;
         edScrollLayoutRecords();
     }
 }
 
 // Intent: Colour and draw each active record's glyph lists while the roll is active [inferred]
+/* Apply the current packed RGBA color and draw each active credit record glyph list. */
 // FUN_0038E4B0
 /* The glyph handle pointer is a field-address transport into EdScrollRecord.glyphs (eight-byte pairs), not an independent allocation. */
 void edScrollDrawLines(void)
@@ -261,7 +268,7 @@ void edScrollDrawLines(void)
     if ((~((EdScrollWork *)work)->flags & 1) != 0) {
         return;
     }
-    color = *(EdColor *)((EdScrollWork *)work)->color;
+    color = ((EdColor *)((EdScrollWork *)work)->color)[0];
     for (i = 0, packed = (u32)color.r << 24 | (u32)color.g << 16 |
                          (u32)color.b << 8 | (u32)color.a;
          i < 0x20; i++) {
@@ -446,6 +453,7 @@ void edScrollLayoutText(u32 *work, char *text, s32 align)
 }
 
 // Intent: Move a record's glyph lists to its row and reset their scale [inferred]
+/* Position each glyph relative to its record origin and reset the glyph list scale. */
 // FUN_0038EAE0
 /* The float cursor addresses an EdScrollGlyph pair; its second word is a handle, so keep the bit-preserving word reinterpretation for the font ABI. */
 void edScrollMoveRecord(u32* work, const f32* pos)
@@ -454,9 +462,9 @@ void edScrollMoveRecord(u32* work, const f32* pos)
 
     for (i = 0; i < (s32)((EdScrollRecord *)work)->count; i++) {
         f32* entry = (f32*)((u8*)work + i * 8 + 4);
-        frFontMoveListTo(*(u32*)(entry + 1), (s32)((pos[0] + entry[0]) * 16.0f),
+        frFontMoveListTo(((EdScrollGlyph *)entry)->handle, (s32)((pos[0] + entry[0]) * 16.0f),
                       (s32)(pos[1] * 8.0f));
-        frFontExSetScale(*(u32*)(entry + 1), 0.0f);
+        frFontExSetScale(*(u32*)(entry + MEMBER_OFFSET(EdScrollGlyph, handle) / sizeof(*entry)), 0.0f);
     }
 }
 
@@ -475,6 +483,7 @@ void edScrollSetRecordColor(u32* work, const u8* color)
 }
 
 // Intent: Return the stream command byte at the current read offset [inferred]
+/* Read the current command byte from the resource stream without advancing its cursor. */
 // FUN_0038EC50
 /* The parameter header returns a byte-stream base address; no object layout applies to its command bytes. */
 u32 edScrollStreamCommand(void)
@@ -489,10 +498,11 @@ u32 edScrollStreamCommand(void)
     work = D_007246A0;
     stream = edResGetStream();
     base = brpParamReadWord4((const u32 *)(uintptr_t)stream);
-    return *(u8 *)(uintptr_t)(base + ((EdScrollWork *)work)->streamOffset);
+    return ((u8 *)(uintptr_t)(base + ((EdScrollWork *)work)->streamOffset))[0];
 }
 
 // Intent: Return the byte after the current stream command, used as its operand [inferred]
+/* Read the unsigned operand byte immediately following the current resource stream command. */
 // FUN_0038ECC0
 /* The parameter header returns a byte stream; the operand is the next raw byte rather than a struct field. */
 s32 edScrollStreamOperand(void)
@@ -507,13 +517,14 @@ s32 edScrollStreamOperand(void)
     work = D_007246A0;
     stream = edResGetStream();
     base = brpParamReadWord4((const u32 *)(uintptr_t)stream);
-    return *(u8 *)(uintptr_t)(((EdScrollWork *)work)->streamOffset + base + 1);
+    return ((u8 *)(uintptr_t)(((EdScrollWork *)work)->streamOffset + base + 1))[0];
 }
 
 // Intent: Advance the stream read offset by the length of the current command [inferred]
+/* Advance the stream cursor by one command, including the extra byte carried by spacing commands. */
 // FUN_0038ED30
-/* Typed staff-roll members change b210 address materialization; retain byte/word
- * accesses to ed_scroll_internal.h layouts to keep the retail instructions. */
+/* Initial whole-layout typing changed b210 address materialization; the per-access
+ * forms below were measured independently against the whole translation unit. */
 void edScrollStreamAdvance(void)
 {
     u32 *work;
@@ -529,7 +540,7 @@ void edScrollStreamAdvance(void)
     stream = edResGetStream();
     base = brpParamReadWord4((const u32 *)(uintptr_t)stream);
     offset = work[0x120c / 4];
-    command = *(u8 *)(uintptr_t)(base + offset);
+    command = ((u8 *)(uintptr_t)(base + offset))[0];
     switch (command) {
     case 0:
         break;

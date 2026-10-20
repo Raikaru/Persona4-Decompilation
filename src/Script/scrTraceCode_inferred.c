@@ -5,17 +5,7 @@
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
 
-/* Partial script execution context; the interpreter establishes the PC and timers. */
-typedef struct ScrContext {
-    u8 pad00[0x18];
-    s32 pc;
-    u8 pad1C[0x114];
-    s32 messageManager;
-    u8 pad134[4];
-    s32 commandTimer;
-    u8 pad13C[0x18];
-    s32 aiState;
-} ScrContext;
+#include "scr_context_internal.h"
 typedef char *va_list;
 #define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
 #define va_end(ap) ((void)0)
@@ -37,9 +27,6 @@ extern char D_0063D050[];
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,

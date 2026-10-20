@@ -30,27 +30,27 @@ extern u8 D_0064B308[];
 #pragma opt_loop_invariants on
 // Intent: Shift each of the four slots' positions and alphas into their previous values, highlight the selected slot, and reset the counter at +0x1C [inferred]
 // FUN_001302D0
-/* Raw offsets preserve the measured match: MenuSlotAnimation row pointers changed codegen (nd 122). */
+/* Earlier whole-layout typing probe: MenuSlotAnimation row pointers changed codegen (nd 122).; access-site and typed-local forms now match. */
 void radarPushSlotState(u8 *menu) {
     s32 i;
 
     for (i = 0; i < 4; i++) {
         u8 *q = menu + i * 0x30;
-        *(f32 *)(q + 0x1608) = *(f32 *)(q + 0x1618);
-        *(f32 *)(q + 0x160c) = *(f32 *)(q + 0x161c);
-        *(u8 *)(q + 0x1620) = *(u8 *)(q + 0x1622);
-        *(f32 *)(q + 0x16c8) = *(f32 *)(q + 0x16d8);
-        *(f32 *)(q + 0x16cc) = *(f32 *)(q + 0x16dc);
-        *(u8 *)(q + 0x16e0) = *(u8 *)(q + 0x16e2);
-        if (*(s16 *)(menu + 0x26) == i) {
-            *(s32 *)(q + 0x1610) = 0x41c80000;
-            *(s32 *)(q + 0x16d0) = 0x41c80000;
+        ((RadarMenu *)(q))->entries[17].startX.f = ((RadarMenu *)(q))->entries[17].currentX.f;
+        ((RadarMenu *)(q))->entries[17].startY.f = ((RadarMenu *)(q))->entries[17].currentY.f;
+        ((RadarMenu *)(q))->entries[17].startAlpha.u = ((RadarMenu *)(q))->entries[17].currentAlpha;
+        ((RadarMenu *)(q))->entries[21].startX.f = ((RadarMenu *)(q))->entries[21].currentX.f;
+        ((RadarMenu *)(q))->entries[21].startY.f = ((RadarMenu *)(q))->entries[21].currentY.f;
+        ((RadarMenu *)(q))->entries[21].startAlpha.u = ((RadarMenu *)(q))->entries[21].currentAlpha;
+        if (((RadarMenu *)(menu))->selection[2] == i) {
+            ((RadarMenu *)(q))->entries[17].targetX.s = 0x41c80000;
+            ((RadarMenu *)(q))->entries[21].targetX.s = 0x41c80000;
         } else {
-            *(s32 *)(q + 0x1610) = 0;
-            *(s32 *)(q + 0x16d0) = 0;
+            ((RadarMenu *)(q))->entries[17].targetX.s = 0;
+            ((RadarMenu *)(q))->entries[21].targetX.s = 0;
         }
     }
-    *(s16 *)(menu + 0x1c) = 0;
+    ((RadarMenu *)(menu))->entryFrame = 0;
 }
 #pragma pop
 
@@ -58,33 +58,34 @@ void radarPushSlotState(u8 *menu) {
 #pragma opt_loop_invariants off
 // Intent: Reset the indicator's colours and positions, choosing the x offset by comparing the counters at +0x24 and +0x2A [inferred]
 // FUN_00130360
-/* Raw offsets preserve the measured match: RadarMenu access changed codegen (nd 32). */
+/* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 32).; access-site and typed-local forms now match. */
 void radarResetIndicator(u8 *menu) {
     f32 indicatorY;
     f32 baseY;
+    RadarMenu *radarMenu = (RadarMenu *)(menu);
 
-    *(u32 *)(menu + 0x1ab8) = 0x435d0000;
-    *(u32 *)(menu + 0x1ac0) = 0x435d0000;
-    *(u32 *)(menu + 0x1ac8) = 0x435d0000;
-    *(u8 *)(menu + 0x1ad0) = 0xff;
-    *(u8 *)(menu + 0x1ad2) = 0xff;
-    *(u8 *)(menu + 0x1ad1) = 0;
-    *(u32 *)(menu + 0x1af4) = 0;
-    if (*(s16 *)(menu + 0x24) > *(s16 *)(menu + 0x2a)) {
-        indicatorY = 21.0f + *(f32 *)(menu + 0x149c);
-        *(f32 *)(menu + 0x1acc) = indicatorY;
-        *(f32 *)(menu + 0x1abc) = indicatorY;
-        *(f32 *)(menu + 0x1ac4) = *(f32 *)(menu + 0x1acc) - 10.0f;
-        *(u32 *)(menu + 0x1aec) = 0xc1200000;
+    ((RadarMenu *)(menu))->indicators[0].startX.u = 0x435d0000;
+    ((RadarMenu *)(menu))->indicators[0].targetX.u = 0x435d0000;
+    ((RadarMenu *)(menu))->indicators[0].currentX.u = 0x435d0000;
+    ((RadarMenu *)(menu))->indicators[0].startAlpha.u = 0xff;
+    ((RadarMenu *)(menu))->indicators[0].currentAlpha = 0xff;
+    ((RadarMenu *)(menu))->indicators[0].targetAlpha = 0;
+    ((RadarMenu *)(menu))->indicators[1].targetY.u = 0;
+    if (((RadarMenu *)(menu))->selection[1] > ((RadarMenu *)(menu))->previousSelection[1]) {
+        indicatorY = 21.0f + ((RadarMenu *)(menu))->entries[9].currentY.f;
+        ((RadarMenu *)(menu))->indicators[0].currentY.f = indicatorY;
+        ((RadarMenu *)(menu))->indicators[0].startY.f = indicatorY;
+        ((RadarMenu *)(menu))->indicators[0].targetY.f = ((RadarMenu *)(menu))->indicators[0].currentY.f - 10.0f;
+        ((RadarMenu *)(menu))->indicators[1].startY.u = 0xc1200000;
     } else {
-        baseY = 21.0f + *(f32 *)(menu + 0x158c);
+        baseY = 21.0f + ((RadarMenu *)(menu))->entries[14].currentY.f;
         indicatorY = 170.0f + baseY;
-        *(f32 *)(menu + 0x1acc) = indicatorY;
-        *(f32 *)(menu + 0x1abc) = indicatorY;
-        *(f32 *)(menu + 0x1ac4) = 10.0f + *(f32 *)(menu + 0x1acc);
-        *(u32 *)(menu + 0x1aec) = 0x41200000;
+        ((RadarMenu *)(menu))->indicators[0].currentY.f = indicatorY;
+        ((RadarMenu *)(menu))->indicators[0].startY.f = indicatorY;
+        ((RadarMenu *)(menu))->indicators[0].targetY.f = 10.0f + radarMenu->indicators[0].currentY.f;
+        ((RadarMenu *)(menu))->indicators[1].startY.u = 0x41200000;
     }
-    *(s16 *)(menu + 0x20) = 0;
+    ((RadarMenu *)(menu))->indicatorFrame = 0;
 }
 #pragma pop
 
@@ -93,7 +94,7 @@ void radarResetIndicator(u8 *menu) {
 #pragma optimization_level 1
 // Intent: Randomize the scatter of each of the twelve entries with probability three in four; the others keep their current alpha [inferred]
 // FUN_00130430
-/* Raw offsets preserve the measured match: MenuSlotAnimation row pointers changed codegen (nd 182). */
+/* Earlier whole-layout typing probe: MenuSlotAnimation row pointers changed codegen (nd 182).; access-site and typed-local forms now match. */
 void radarRandomizeEntries(u8 *menu)
 {
     f32 scatterX;
@@ -114,21 +115,21 @@ void radarRandomizeEntries(u8 *menu)
                 scatterX = (f32)(s32)columnOffset;
                 scatterX += scatterX;
             }
-            *(f32 *)(p + 0x1880) = scatterX;
-            *(f32 *)(p + 0x1878) = scatterX;
-            *(u32 *)(p + 0x187C) = 0x43FA0000;
-            *(f32 *)(p + 0x188C) = *(f32 *)(p + 0x187C);
-            *(s32 *)(p + 0x1884) = 0xC2C80000;
+            ((RadarMenu *)(p))->scatter[0].targetX.f = scatterX;
+            ((RadarMenu *)(p))->scatter[0].startX.f = scatterX;
+            ((RadarMenu *)(p))->scatter[0].startY.u = 0x43FA0000;
+            ((RadarMenu *)(p))->scatter[0].currentY.f = ((RadarMenu *)(p))->scatter[0].startY.f;
+            ((RadarMenu *)(p))->scatter[0].targetY.s = 0xC2C80000;
             q = (u32 *)(p + 0x18A0);
             random = RpRandom() % 10U;
             *q = random;
-            *(s32 *)(p + 0x18A4) = random + 0xA;
+            ((RadarMenu *)(p))->scatter[0].endFrame.s = random + 0xA;
         } else {
             p = menu + i * 0x30;
-            *(f32 *)(p + 0x187C) = *(f32 *)(p + 0x1884);
+            ((RadarMenu *)(p))->scatter[0].startY.f = ((RadarMenu *)(p))->scatter[0].targetY.f;
         }
     }
-    *(s16 *)(menu + 0x1E) = 0;
+    ((RadarMenu *)(menu))->scatterFrame = 0;
 }
 #pragma pop
 

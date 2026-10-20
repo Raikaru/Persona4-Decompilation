@@ -16,6 +16,11 @@
 #include "field_npc_control_internal.h"
 #include "rw_types_internal.h"
 #include "scene_event_internal.h"
+typedef struct FldTestLauncherWork {
+    s32 state;
+    s32 model;
+} FldTestLauncherWork;
+
 extern void mdlDestroyModelObject(s32 model);
 extern void (*jtbl_008873EC[])(void *);
 void K_Test_Create(s32 parentTask);
@@ -57,16 +62,16 @@ s32 K_Test_LauncherUpdate(u8 *task)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018E4D0
 /* Release an optional model before freeing the launcher allocation. */
+// FUN_0018E4D0
 void K_Test_LauncherDestroy(u8 *task)
 {
+    KwlnTask *taskRecord = (KwlnTask *)task;
     s32 model;
-    /* Work+4 is the model; typed task access changes MWCC alias/reload codegen. */
-    model = *(s32 *)(*(u8 **)(task + 0x38) + 4);
+    model = ((FldTestLauncherWork *)((KwlnTask *)task)->work)->model;
     if (model != 0) {
         mdlDestroyModelObject(model);
     }
-    jtbl_008873EC[0](*(void **)(task + 0x38));
+    jtbl_008873EC[0]((void *)taskRecord->work);
 }
 #pragma pop

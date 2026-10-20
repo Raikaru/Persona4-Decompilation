@@ -2,6 +2,7 @@
 /* Original translation unit evtEffect.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "scene_event_internal.h"
+#include "evt_effect_internal.h"
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
@@ -21,22 +22,6 @@ extern s32 H_Cdvd_IsFileLoaded(u8 *cdvd);
 extern u8 *H_Cdvd_LookupRequest(u8 *pathAddress, u32 *slot);
 extern s32 H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 
-/* The loader advances 0x2C bytes per record; requests and lookup results occupy
-   the last two words. The allocation is 0x190 bytes, with a 0x10-byte header. */
-typedef struct EvtEffectEntry {
-    s32 kind;
-    u8 filename[0x20];
-    s32 lookupResult;
-    u8 *request;
-} EvtEffectEntry;
-
-typedef struct EvtEffectTable {
-    s32 state;
-    s32 count;
-    s32 nextIndex;
-    s32 pendingRequest;
-    EvtEffectEntry entries[];
-} EvtEffectTable;
 
 // Intent: Allocates a 0x190-byte effect table with its count cleared and accounts the memory [inferred]
 // FUN_00290F00

@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "dat_skill_entry_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_action_internal.h"
 #include "btl_skill_target_internal.h"
@@ -6,10 +8,6 @@
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
 
 extern u16 datCalcMaxHp(u8 *unit);
 extern u16 datCalcMaxSp(u8 *unit);
@@ -85,11 +83,12 @@ extern f32 fGpffff8110;
 #pragma pop
 #pragma push
 #pragma pop
-/* Prefer status/buff-relevant targets, then choose a damaged HP or SP candidate according to the skill parameters.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Prefer status/buff-relevant targets, then choose a damaged HP or SP candidate according to the skill parameters. */
 // FUN_001D8E50
 void btlEffectSelectTargetByStatus(u8 *action, u8 *selection)
 {
+    BtlTargetSelection *selectionFields = (BtlTargetSelection *)selection;
+    BtlUnit *workFields;
     u16 best_value1;
     s16 best_index1;
     u16 best_value2;
@@ -101,17 +100,17 @@ void btlEffectSelectTargetByStatus(u8 *action, u8 *selection)
     u16 alternate;
     u8 *work;
 
-    if (*(u16 *)(selection + 0x38) <= 1)
+    if (((BtlTargetSelection *)(selection))->count <= 1)
         return;
-    switch (*(u16 *)(action + 0x6C)) {
+    switch (((BtlAction *)(action))->unk_6c) {
     case 2:
         goto mode_valid;
     default:
-        switch (*(u16 *)(action + 0x6C)) {
+        switch (((BtlAction *)(action))->unk_6c) {
         case 3:
             goto mode_valid;
         default:
-            switch (*(u16 *)(action + 0x6C)) {
+            switch (((BtlAction *)(action))->unk_6c) {
             case 1:
                 goto mode_valid;
             default:
@@ -122,7 +121,7 @@ void btlEffectSelectTargetByStatus(u8 *action, u8 *selection)
 
 mode_valid:
 
-        offset = (u32)*(u16 *)(action + 0x6E) * 0x28;
+        offset = (u32)((BtlAction *)(action))->unk_6e * 0x28;
         {
             u8 *entry;
             entry = (u8 *)((u32)offset + (u32)iGpffffb3b8);
@@ -130,33 +129,27 @@ mode_valid:
                 return;
 
             if (entry[0x18] == 2) {
-            target = *(s32 *)((u8 *)((u32)iGpffffb3b8 + 0x1C) + offset);
+            target = *(s32 *)((u8 *)((u32)iGpffffb3b8 + MEMBER_OFFSET(DatSkillEntry, statusMask)) + offset);
             if (target != 0) {
                 index = 0;
-                while ((u16)index < *(u16 *)(selection + 0x38)) {
-                    if (*(u8 **)(action + 0x30) ==
-                        *(u8 **)(*(u8 **)(selection + (u32)(u16)index * 4) + 0x30) &&
+                while ((u16)index < selectionFields->count) {
+                    if ((u8 *)((BtlAction *)(action))->unit ==
+                        (u8 *)((BtlAction *)(selectionFields->entries[(u32)(u16)index]))->unit &&
                         datCalcChkBadStatus(
-                            (s32)*(u8 **)(*(u8 **)(*(u8 **)(selection +
-                                                          (u32)(u16)index * 4) +
-                                                     0x30) +
-                                     0xA64),
+                            (s32)(u8 *)((BtlUnit *)((u8 *)((BtlAction *)(selectionFields->entries[(u32)(u16)index]))->unit))->datUnit,
                             target) != 0) {
-                        *(u16 *)(selection + 0x3A) = (u16)index;
+                        ((BtlTargetSelection *)(selection))->selected = (u16)index;
                         return;
                     }
                     index = (index + 1) & 0xFFFF;
                 }
 
                 index = 0;
-                while ((u16)index < *(u16 *)(selection + 0x38)) {
+                while ((u16)index < selectionFields->count) {
                     if (datCalcChkBadStatus(
-                            (s32)*(u8 **)(*(u8 **)(*(u8 **)(selection +
-                                                          (u32)(u16)index * 4) +
-                                                     0x30) +
-                                     0xA64),
+                            (s32)(u8 *)((BtlUnit *)((u8 *)((BtlAction *)(((BtlTargetSelection *)(selection))->entries[(u32)(u16)index]))->unit))->datUnit,
                             target) != 0) {
-                        *(u16 *)(selection + 0x3A) = (u16)index;
+                        ((BtlTargetSelection *)(selection))->selected = (u16)index;
                         return;
                     }
                     index = (index + 1) & 0xFFFF;
@@ -165,38 +158,37 @@ mode_valid:
         }
         }
 
-        target = *(s32 *)((u8 *)((u32)iGpffffb3b8 + 0x20) + offset);
+        target = *(s32 *)((u8 *)((u32)iGpffffb3b8 + MEMBER_OFFSET(DatSkillEntry, buffMask)) + offset);
         if (target != 0) {
             index = 0;
-            while ((u16)index < *(u16 *)(selection + 0x38)) {
+            while ((u16)index < selectionFields->count) {
                 if (datCalcHasBuffMask(
-                        (DatUnit *)((BtlAction *)*(u8 **)(selection +
-                                                      (u32)(u16)index * 4))->unit->datUnit,
+                        (DatUnit *)((BtlAction *)((BtlTargetSelection *)(selection))->entries[(u32)(u16)index])->unit->datUnit,
                         target) == 0) {
-                    *(u16 *)(selection + 0x3A) = (u16)index;
+                    ((BtlTargetSelection *)(selection))->selected = (u16)index;
                     return;
                 }
                 index = (index + 1) & 0xFFFF;
             }
         }
 
-        switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+        switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->effectKind) {
         case 15:
             goto mode1_select;
         default:
-            switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+            switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->effectKind) {
             case 11:
                 goto mode1_select;
             default:
-                switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+                switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->effectKind) {
                 case 9:
                     goto mode1_select;
                 default:
-                    switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+                    switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->effectKind) {
                     case 5:
                         goto mode1_select;
                     default:
-                        switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+                        switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->effectKind) {
                         case 2:
                             goto mode1_select;
                         default:
@@ -212,10 +204,11 @@ mode1_select:
             best_value1 = 0xFFFF;
             best_index1 = -1;
             index = 0;
-            while ((u16)index < *(u16 *)(selection + 0x38)) {
-                work = *(u8 **)(*(u8 **)(selection + (u32)(u16)index * 4) + 0x30);
-                value = datCalcGetHp(*(u8 **)(work + 0xA64));
-                alternate = datCalcMaxHp(*(u8 **)(work + 0xA64));
+            while ((u16)index < selectionFields->count) {
+                work = (u8 *)((BtlAction *)(((BtlTargetSelection *)(selection))->entries[(u32)(u16)index]))->unit;
+                workFields = (BtlUnit *)work;
+                value = datCalcGetHp((u8 *)((BtlUnit *)(work))->datUnit);
+                alternate = datCalcMaxHp((u8 *)workFields->datUnit);
                 if (value < best_value1 && value < alternate) {
                     best_value1 = value;
                     best_index1 = (s16)index;
@@ -223,29 +216,29 @@ mode1_select:
                 index = (index + 1) & 0xFFFF;
             }
             if (best_index1 != -1) {
-                *(u16 *)(selection + 0x3A) = (u16)best_index1;
+                ((BtlTargetSelection *)(selection))->selected = (u16)best_index1;
                 return;
             }
         }
 
 mode2_check:
-        switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+        switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->spEffectKind) {
         case 15:
             goto mode2_select;
         default:
-            switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+            switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->spEffectKind) {
             case 11:
                 goto mode2_select;
             default:
-                switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+                switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->spEffectKind) {
                 case 9:
                     goto mode2_select;
                 default:
-                    switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+                    switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->spEffectKind) {
                     case 5:
                         goto mode2_select;
                     default:
-                        switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+                        switch (((DatSkillEntry *)((u8 *)((u32)offset + (u32)iGpffffb3b8)))->spEffectKind) {
                         case 2:
                             goto mode2_select;
                         default:
@@ -261,10 +254,11 @@ mode2_select:
             best_value2 = 0xFFFF;
             best_index2 = -1;
             index = 0;
-            while ((u16)index < *(u16 *)(selection + 0x38)) {
-                work = *(u8 **)(*(u8 **)(selection + (u32)(u16)index * 4) + 0x30);
-                value = datCalcGetSp(*(u8 **)(work + 0xA64));
-                alternate = datCalcMaxSp(*(u8 **)(work + 0xA64));
+            while ((u16)index < selectionFields->count) {
+                work = (u8 *)((BtlAction *)(((BtlTargetSelection *)(selection))->entries[(u32)(u16)index]))->unit;
+                workFields = (BtlUnit *)work;
+                value = datCalcGetSp((u8 *)((BtlUnit *)(work))->datUnit);
+                alternate = datCalcMaxSp((u8 *)workFields->datUnit);
                 if (value < best_value2 && value < alternate) {
                     best_value2 = value;
                     best_index2 = (s16)index;
@@ -272,7 +266,7 @@ mode2_select:
                 index = (index + 1) & 0xFFFF;
             }
             if (best_index2 != -1)
-                *(u16 *)(selection + 0x3A) = (u16)best_index2;
+                ((BtlTargetSelection *)(selection))->selected = (u16)best_index2;
         }
 
 mode_done:
@@ -368,11 +362,11 @@ test:
     return matches;
 }
 
-/* Search active actions by genus, status and optional skill filters, returning at the first successful predicate.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Search active actions by genus, status and optional skill filters, returning at the first successful predicate. */
 // FUN_001D94D0
 int btlEffectFindUnitMatchingCallback(int action, int conditionValue, int sideMask, int statusMask, int filterFlags, code predicate)
 {
+    BtlUnit *workFields;
     u8 *unit;
     u8 *work;
     u16 flags;
@@ -388,11 +382,11 @@ int btlEffectFindUnitMatchingCallback(int action, int conditionValue, int sideMa
 
     extern s32 datCalcElementBit(s16 element);
     extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
-    extern s32 func_001f9ce0(u8 *value, s32 index);
+    extern s32 btlTargetAffinityKnowledgeBypassNoop(u8 *value, s32 index);
     extern s32 datTestBitmapBit(u16 entryIndex, u16 bitIndex);
 
     (void)action;
-    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    unit = ((BtlBattleState *)(iGpffffb3ac))->actions;
     type_mask = (u16)sideMask;
     options = (u16)filterFlags;
     option_one = options & 1;
@@ -403,47 +397,48 @@ int btlEffectFindUnitMatchingCallback(int action, int conditionValue, int sideMa
     goto test;
 
 loop:
-    flags = *(u16 *)(unit + 0x1A);
+    flags = ((BtlAction *)(unit))->unk_1a;
     if ((flags & 1) != 0 && (flags & 8) != 0) {
-        work = *(u8 **)(unit + 0x30);
-        if ((type_mask & (1 << *(u8 *)(work + 0xA2))) != 0) {
+        work = (u8 *)((BtlAction *)(unit))->unit;
+        workFields = (BtlUnit *)work;
+        if ((type_mask & (1 << ((BtlUnit *)(work))->genus)) != 0) {
             if (options == 0)
                 goto check_general;
             if (option_one != 0 &&
-                datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), 0x100000) == 0)
+                datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)(work))->datUnit, 0x100000) == 0)
                 goto next;
             if (option_two != 0) {
                 status = datCalcElementBit((s16)conditionValue);
                 if ((status & 0xE0001) == 0) {
                     if ((status & 2) != 0) {
-                        effects = datCalcGetBuffStatus(*(u8 **)(work + 0xA64), 0x10);
+                        effects = datCalcGetBuffStatus((u8 *)((BtlUnit *)(work))->datUnit, 0x10);
                         if (effects > 0)
                             goto next;
                     } else if ((status & 0x40) == 0) {
-                        effects = datCalcGetBuffStatus(*(u8 **)(work + 0xA64), 0x11);
+                        effects = datCalcGetBuffStatus((u8 *)((BtlUnit *)(work))->datUnit, 0x11);
                         if (effects > 0)
                             goto next;
                     }
                 }
             }
             if (option_four_eight != 0 &&
-                *(u8 *)(work + 0xA2) == 1 &&
-                func_001f9ce0(unit, (s16)conditionValue) == 0 &&
-                datTestBitmapBit(*(u16 *)(work + 0xA4), (u16)conditionValue) == 0) {
+                workFields->genus == 1 &&
+                btlTargetAffinityKnowledgeBypassNoop(unit, (s16)conditionValue) == 0 &&
+                datTestBitmapBit(((BtlUnit *)(work))->charId, (u16)conditionValue) == 0) {
                 if (option_four_value != 0)
                     goto next;
                 return 1;
             }
 check_general:
             if ((ignore_dead_value == 0 ||
-                 datCalcIsDead(*(u8 **)(work + 0xA64), 0) == 0) &&
-                datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), statusMask) == 0 &&
+                 datCalcIsDead((u8 *)((BtlUnit *)(work))->datUnit, 0) == 0) &&
+                datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)(work))->datUnit, statusMask) == 0 &&
                 predicate(unit, conditionValue) != 0)
                 return 1;
         }
     }
 next:
-    unit = *(u8 **)(unit + 0x450);
+    unit = (u8 *)((BtlAction *)(unit))->next;
 test:
     if (unit != NULL)
         goto loop;

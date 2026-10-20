@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "btl_skill_target_internal.h"
 #include "list_item_internal.h"
 #include "btl_motion_internal.h"
@@ -30,14 +31,6 @@ typedef struct {
     s16 field6;
     s16 field8;
 } P4_00202D20;
-static inline f32 func_0020_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 
 extern f32 fGpffff815c;
@@ -155,8 +148,10 @@ void btlUiUpdateModelCurve(u8 *command)
     u32 elapsedFrame;
     u32 duration;
     f32 scale;
+    MdlEffectModelReference *reference;
 
     modelReference = ((MdlEffectCommand *)command)->object;
+    reference = (MdlEffectModelReference *)modelReference;
     parameters = ((MdlEffectCommand *)command)->parameters;
     elapsedFrame = ((MdlEffectCommand *)command)->counter;
     duration = ((MdlEffectModelCurve *)parameters)->duration;
@@ -184,8 +179,7 @@ void btlUiUpdateModelCurve(u8 *command)
             mdlSetLayerWeight(*(u8 **)modelReference, 0, ((MdlEffectModelCurve *)parameters)->layerWeight);
             mdlAdvanceModelFromFlags(*(u8 **)modelReference);
             mdlCopyIndexedMatrix(*(u8 **)modelReference, ((MdlEffectModelReference *)modelReference)->matrixIndex, frame.firstMatrix);
-            /* measured: typing this second index load changes instruction bytes; +4 is matrixIndex. */
-            mdlCopyIndexedMatrix(*(u8 **)modelReference, *(u16 *)(modelReference + 4) + 1, frame.secondMatrix + 0x10);
+            mdlCopyIndexedMatrix(*(u8 **)modelReference, reference->matrixIndex + 1, frame.secondMatrix + 0x10);
             frame.anchorPosition = *(Vec3 *)frame.secondMatrix;
             btlCameraLookAtQuat(&frame.anchorRotation, frame.secondMatrix, frame.rotationScratch, frame.basisScratch);
             btlMainCurveReset((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.anchorPosition));
@@ -220,14 +214,14 @@ void btlUiUpdateOverlayScale(u8 *command)
     scaleDelta = (f32)(u32)duration;
     progress /= scaleDelta;
     scaleDelta = ((MdlEffectOverlayScale *)parameters)->endScale - startScale;
-    scaleDelta = func_0020_mul(progress, scaleDelta);
+    scaleDelta = operandOrderMultiply(progress, scaleDelta);
     progress = scaleDelta + startScale;
     ((MdlEffectUiState *)D_0076449C)->overlayScale = fGpffff81a8 * progress;
 }
 
 /* Empty callback; it does not inspect or change state. */
 // FUN_00200A50
-void btlUiNoOperation(void)
+void btlUiUnitPositionDestroyNoop(void)
 {
 }
 

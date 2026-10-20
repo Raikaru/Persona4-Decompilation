@@ -65,62 +65,7 @@ extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 extern void btlUnitOverridePacketUpdate(u8 *packet);
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
-
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -134,10 +79,6 @@ extern f32 DAT_0076112c;
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -167,11 +108,12 @@ void btlUnitReleasePendingOverride(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + -1;
 }
 
-// FUN_00195730
-/* measured: typing the remaining work+0x24 flag updates changes MATCH to MISMATCH; keep their byte-pointer aliasing. */
+/* measured: access-site flag updates change MATCH to MISMATCH; a distinct typed work alias retains all three flag updates. */
 /* Create an override work block; bits 1/2/4 identify supplied position, quaternion and color. */
+// FUN_00195730
 u8 *btlUnitCreateOverridePacket(u8 *unit, u8 *position, u8 *rotation, u8 *color)
 {
+    BtlUnitOverridePacket *workFields;
     u8 *packet;
     u8 *work;
 
@@ -180,19 +122,20 @@ u8 *btlUnitCreateOverridePacket(u8 *unit, u8 *position, u8 *rotation, u8 *color)
     ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlUnitOverridePacketUpdate;
     ((BtlPacket *)packet)->destroyFunc = (BtlPacketFunc)btlUnitReleasePendingOverride;
     work = (u8 *)((BtlPacket *)packet)->workData;
+    workFields = (BtlUnitOverridePacket *)work;
     ((BtlUnitOverridePacket *)work)->unit = unit;
     ((BtlUnitOverridePacket *)work)->flags = 0;
     if (position != NULL) {
         ((BtlUnitOverridePacket *)work)->position = *(RwV3d *)position;
-        *(u16 *)(work + 0x24) |= 1;
+        workFields->flags |= 1;
     }
     if (rotation != NULL) {
         ((BtlUnitOverridePacket *)work)->rotation = *(RtQuat *)rotation;
-        *(u16 *)(work + 0x24) |= 2;
+        workFields->flags |= 2;
     }
     if (color != NULL) {
         ((BtlUnitOverridePacket *)work)->color = *(RwRGBA *)color;
-        *(u16 *)(work + 0x24) |= 4;
+        workFields->flags |= 4;
     }
     return packet;
 }

@@ -1,6 +1,9 @@
+#include "byte_address_internal.h"
 #include "model_callbacks_internal.h"
 /* Original translation unit evtScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "fr_font_objects.h"
+#include "mdl_file_internal.h"
 #include "primitive_queue_internal.h"
 #include "resrc_manager_internal.h"
 #include "sdk_task_registration.h"
@@ -54,10 +57,7 @@ extern void frFontSetGlyphColor(u8 *list, s32 color);
    retail's offset-first `addu $v0,$v0,$s0`; every callsite spelling (p+scaled,
    scaled+p, a named s32 local) is canonicalized back to base-first. Expand it at
    the use rather than through a local, so nothing stays live across a call. */
-static inline u32 evtSlot(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
 
 extern void frFontListKeepOrRelease(u8 *list);
 extern f32 sinf(f32 floatInput);
@@ -86,6 +86,9 @@ typedef struct EvtRestartWork {
 // Intent: NPC model task update: waits for the model, replaces the NPC shadow resource, and copies its colour into the event node; returns -1 when done [inferred]
 // FUN_00298370
 s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
+    EvtNpcLoadWork *slotFields;
+    EvtNpcLoadWork *slotFieldsReload;
+
     /* Loader/resource offsets are proven by EvtNpcLoadWork and ResrcRecord; typed access changes MWCC scheduling. */
     s32 taskOrSlot;
     u8 *resource;
@@ -94,10 +97,10 @@ s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
     u8 *workOrNode;
 
     workOrNode = (u8 *)kwlnTaskGetWork();
-    modelOrResource = *(s32 *)(workOrNode + 0);
+    modelOrResource = ((EvtNpcLoadWork *)(workOrNode))->model;
     if (mdlPrepareModel(modelOrResource) == 1) {
-        MT_Scene_DestroyRes((u16)((( *(s32 *)(workOrNode + 4) + 0x384) & 0x3FF) | 0xC00));
-        modelOrResource = (s32)(MT_Scene_CreateModelNpcShadowRes((*(s32 *)(workOrNode + 4) + 0x384) & 0xFFFF, 3, modelOrResource) & 0xFFFF);
+        MT_Scene_DestroyRes((u16)((( ((EvtNpcLoadWork *)(workOrNode))->slot + 0x384) & 0x3FF) | 0xC00));
+        modelOrResource = (s32)(MT_Scene_CreateModelNpcShadowRes(((slotFields = (EvtNpcLoadWork *)(workOrNode), slotFields)->slot + 0x384) & 0xFFFF, 3, modelOrResource) & 0xFFFF);
         if (modelOrResource == 0) {
             kAssertFail(D_0063CF80, 0x34);
         }
@@ -108,13 +111,13 @@ s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
             kAssertFail(D_0063CF80, 0x39);
         }
         eventWorkOrColor = (u8 *)evtGetEventTaskWork(kwlnTaskGetWork(taskOrSlot));
-        taskOrSlot = *(s32 *)(workOrNode + 4);
+        taskOrSlot = (slotFieldsReload = (EvtNpcLoadWork *)(workOrNode), slotFieldsReload)->slot;
         workOrNode = (u8 *)evtFindSlotEntry(eventWorkOrColor, taskOrSlot);
         if (workOrNode == NULL) {
             kAssertFail(D_0063CF80, 0x3D);
         }
         evtNodeSetRes(workOrNode, modelOrResource, (u16 *)resource);
-        eventWorkOrColor = mdlGetColor(*(s32 *)(resource + 0x164));
+        eventWorkOrColor = mdlGetColor(((ResrcRecord *)(resource))->modelHandle164Value);
         ((EvtNode *)workOrNode)->color = *(EvtColor *)eventWorkOrColor;
         return -1;
     }
@@ -146,8 +149,8 @@ s32 evtCmdNpcModelLoad(void)
         /* The nested model identity is a kind/id halfword pair at +0xD4/+0xD6; full model layout is unresolved. */
         if (MT_Scene_GetRes(id) != 0) {
             resource = (u8 *)MT_Scene_GetRes(id);
-            if (*(u16 *)(*(s32 *)(resource + 0x164) + 0xD4) == 5 &&
-                *(u16 *)(*(s32 *)(resource + 0x164) + 0xD6) == modelId) {
+            if (((MdlFileModel *)(((ResrcRecord *)(resource))->modelHandle164Value))->type == 5 &&
+                ((MdlFileModel *)(((ResrcRecord *)(resource))->modelHandle164Value))->id == modelId) {
                 MT_Scene_SetResActiveById(id, 1);
                 return 1;
             }
@@ -195,7 +198,7 @@ s32 evtCmdSetEventSlot(void) {
     if (evtMessageWindowIsOpen((u32 *)((EvtEventWork *)p)->messageWindow) == 0) {
         return 1;
     }
-    *(s32 *)((u8 *)evtSlot(slot * 4, (u32)p) + 0x698) = value;
+    ((EvtEventWork *)((u8 *)((u32)byteAddressAdd((slot * 4), (u8 *)(u32)p))))->messageControl.slots[0] = value;
     return 1;
 }
 
@@ -223,7 +226,7 @@ void evtDrawCenteredWindowText(f32 x, f32 y, f32 depth, s32 color, s32 alpha,
         sum = 0;
         while (node != NULL) {
             sum += frFontNodeWidth(node);
-            node = *(u8 **)(node + 0x24);
+            node = *(u8 * *)&((FrFontTextRun *)(node))->previous;
         }
         frFontMoveListToFloat(p, x - (f32)sum / 2.0f, y);
         frFontSetGlyphColor(p, alpha | ~0xFF);
@@ -261,7 +264,7 @@ void evtRestartTaskDraw(s32 unused, s32 task) {
 
     work = (u8 *)kwlnTaskGetWork(task);
     /* Message-window +8 is the manager handle; the containing window layout is not recovered here. */
-    messageManager = *(s32 *)((u8 *)evtGetEventTaskWork(kwlnTaskGetWork(evtEnsureEventTask())) + 0x680);
+    messageManager = ((EvtEventWork *)((u8 *)evtGetEventTaskWork(kwlnTaskGetWork(evtEnsureEventTask()))))->messageControl.manager;
     rowIndex = 0;
     while (rowIndex < 0xF) {
         rowStart = rowIndex * 0x28;
