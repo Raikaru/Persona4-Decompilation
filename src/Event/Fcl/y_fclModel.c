@@ -139,6 +139,7 @@ typedef struct DatEntryBlock {
      of the angle load and the combine-op immediate is emitted first. */
 // FUN_00349440
 #pragma push
+/* measured: baseline C nd 415B; adjacent-local declaration probe nd 415B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 void fclModelBeginDraw(u8 *task, u8 *context)
 {

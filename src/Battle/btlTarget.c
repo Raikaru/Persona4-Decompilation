@@ -116,7 +116,6 @@ s32 btlTargetAIPickAction(void) {
  * which wraps this function in the same pragma. It is load-bearing:
  * measured: without it MWCC rematerializes the loop constant inside the loop
  * (addiu/sllv with swapped operands) instead of hoisting it, giving nd 28. */
-#pragma opt_loop_invariants on
 
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d21e0 (verified MATCH there).
  * The `volatile` on `state` is load-bearing and carried over from the donor.
@@ -165,6 +164,9 @@ extern void btlUnitUpdateHpGauge(void* source, u8* packet, s32* hpDelta);
 
 
 /* Return the genus bitmask of selected actions; duplicate targets share a bit. */
+#pragma push
+/* measured: u16 and u32 shift-one locals both leave nd28 without invariant hoisting. */
+#pragma opt_loop_invariants on
 // FUN_001EB440
 u16 btlTargetGetUnitIndex(BtlTarget* target)
 {
@@ -178,8 +180,7 @@ u16 btlTargetGetUnitIndex(BtlTarget* target)
     }
     return mask;
 }
-/* measured: see the annotation above the matching `on` pragma (btlTargetGetUnitIndex). */
-#pragma opt_loop_invariants off
+#pragma pop
 
 
 /* Start the action procedure once, then wait until its task is unlinked. */
@@ -256,8 +257,7 @@ f32 btlTargetVectorDistance(const RwV3d* first, const RwV3d* second)
     return RwV3dLength(&delta);
 }
 
-/* measured: opt_propagation off probe for ec2b0 load ordering. */
-#pragma opt_propagation off
+/* measured: the unit baseline retains MATCH without a propagation exception. */
 // FUN_001EC2B0
 /* Return twice the inverse-cosine of the absolute quaternion dot product. */
 f32 btlTargetQuatAngle(BtlTargetQuaternionHolder *right, BtlTargetQuaternionHolder *left)
@@ -277,8 +277,6 @@ f32 btlTargetQuatAngle(BtlTargetQuaternionHolder *right, BtlTargetQuaternionHold
     }
     return 2.0f * func_0044b920(dot);
 }
-/* measured: close opt_propagation probe for btlTargetQuatAngle. */
-#pragma opt_propagation on
 
 /* Return perpendicular line distance and optionally write the two-coordinate projection. */
 // FUN_001EC3D0
@@ -405,9 +403,7 @@ void btlTargetPositionToCell(s16* outX, s16* outZ, f32* position)
 
 /* Write the four cell-rounded XZ radius bounds into the unit obstacle. */
 // FUN_001EC790
-/* measured: opt_propagation off keeps zMax materialization before the
-   xMaxWorld conversion, matching retail's instruction order. */
-#pragma opt_propagation off
+/* measured: reusing the cell coordinates for the upper bounds retains MATCH with propagation enabled. */
 /* Write the four XZ corners of the cell-rounded radius bounds embedded in the unit. */
 void btlTargetSetRadiusArea(void* work, s32 x, s32 z, f32 radius)
 {
@@ -416,8 +412,6 @@ void btlTargetSetRadiusArea(void* work, s32 x, s32 z, f32 radius)
     s16 xMin;
     s16 zMin;
     s16 diameterTiles;
-    s16 xMax;
-    s16 zMax;
     f32 xMinWorld;
     f32 zMinWorld;
     f32 xMaxWorld;
@@ -433,10 +427,10 @@ void btlTargetSetRadiusArea(void* work, s32 x, s32 z, f32 radius)
     xMinWorld = (f32)(xMin * 25 - 1750);
     zMinWorld = (f32)(zMin * 25 - 1750);
     diameterTiles = (s16)radiusTiles * 2;
-    xMax = xMin + diameterTiles;
-    zMax = zMin + diameterTiles;
-    xMaxWorld = (f32)(xMax * 25 - 1750);
-    zMaxWorld = (f32)(zMax * 25 - 1750);
+    xMin = xMin + diameterTiles;
+    zMin = zMin + diameterTiles;
+    xMaxWorld = (f32)(xMin * 25 - 1750);
+    zMaxWorld = (f32)(zMin * 25 - 1750);
 
     ((BtlTargetObstacle *)((u8 *)work + 0x508))->corners[0].position.x = xMinWorld;
     ((BtlTargetObstacle *)((u8 *)work + 0x508))->corners[0].position.z = zMinWorld;
@@ -447,18 +441,12 @@ void btlTargetSetRadiusArea(void* work, s32 x, s32 z, f32 radius)
     ((BtlTargetObstacle *)((u8 *)work + 0x508))->corners[3].position.x = xMinWorld;
     ((BtlTargetObstacle *)((u8 *)work + 0x508))->corners[3].position.z = zMaxWorld;
 }
-/* measured: opt_propagation on restores the unit baseline after this match. */
-#pragma opt_propagation on
-/* measured: opt_propagation off is required for this function's exact
-   floating-point scheduling. */
-#pragma opt_propagation off
+/* measured: reusing the two coordinates for displacement and projection retains MATCH with propagation enabled. */
 // FUN_001EC8C0
 /* Test perpendicular distance only when the projection lies inside the segment bounds. */
 s32 btlTargetNearSegment(f32* first, f32* second, f32* point, f32 threshold)
 {
     f32 delta[2];
-    f32 pointDeltaX;
-    f32 pointDeltaY;
     f32 cross;
     f32 projectedX;
     f32 projectedY;
@@ -466,9 +454,9 @@ s32 btlTargetNearSegment(f32* first, f32* second, f32* point, f32 threshold)
     delta[0] = first[0] - second[0];
     delta[1] = first[1] - second[1];
     func_003e41e0(delta, delta);
-    pointDeltaX = point[0] - first[0];
-    pointDeltaY = point[1] - first[1];
-    cross = pointDeltaX * delta[1] + pointDeltaY * -delta[0];
+    projectedX = point[0] - first[0];
+    projectedY = point[1] - first[1];
+    cross = projectedX * delta[1] + projectedY * -delta[0];
     projectedX = point[0] - cross * delta[1];
     projectedY = point[1] - cross * -delta[0];
     if (((first[0] < projectedX || second[0] > projectedX) &&
@@ -480,8 +468,6 @@ s32 btlTargetNearSegment(f32* first, f32* second, f32* point, f32 threshold)
     }
     return fabsf(cross) < threshold;
 }
-/* measured: opt_propagation on restores the unit baseline after this match. */
-#pragma opt_propagation on
 /* MATCH.  Reject a graph edge when it crosses an active link or an obstacle
    edge.  The last eleven words were one saved-register exchange: retail
    colours the second loop's counter $s2 and its next-corner pointer $s3,

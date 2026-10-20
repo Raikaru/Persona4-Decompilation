@@ -1,5 +1,9 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 001853e0-00186640 */
 
+/* Unit optimizer settings; the noise-update invariant exception remains scoped below. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+
 #include "field_transition_internal.h"
 #include "sdk_lbox_internal.h"
 #include "sdk_dbprt.h"
@@ -64,21 +68,20 @@ typedef struct {
     union { u8 *raster; s32 rasterHandle; };
 } GridDrawWork;
 
+/* measured: byte-address views retain one dispatch-table base snapshot across each render-state sequence at baseline. */
+
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 /* Install the grid render state and bind the first noise texture raster. */
 // FUN_001853E0
-#pragma opt_propagation off
 void FldNoiseRenderStateA(u8 *task, u8 *work)
 {
     s32 *value;
     void (**base)(s32, s32);
 
-    base = D_00887300;
+    base = (void (**)(s32, s32))(u8 *)D_00887300;
     base[0](0xE, 0);
     base[0](6, 0);
     base[0](8, 0);
@@ -94,20 +97,17 @@ void FldNoiseRenderStateA(u8 *task, u8 *work)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 /* Install the strip render state, bind the second noise texture raster and emit its tag. */
 // FUN_001854F0
-#pragma opt_propagation off
 void FldNoiseRenderStateB(u8 *task, u8 *work)
 {
     s32 *value;
     void (**base)(s32, s32);
 
-    base = D_00887300;
+    base = (void (**)(s32, s32))(u8 *)D_00887300;
     base[0](0xE, 0);
     base[0](6, 1);
     base[0](8, 0);
@@ -124,8 +124,6 @@ void FldNoiseRenderStateB(u8 *task, u8 *work)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -138,19 +136,16 @@ void FldNoiseFlush(void)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 /* Install the overlay render state, bind the captured display raster and emit its tag. */
 // FUN_00185620
-#pragma opt_propagation off
 void FldNoiseOverlayDraw(u8 *task, u8 *work)
 {
     void (**base)(s32, s32);
 
-    base = D_00887300;
+    base = (void (**)(s32, s32))(u8 *)D_00887300;
     base[0](0xE, 0);
     base[0](6, 0);
     base[0](8, 0);
@@ -166,19 +161,16 @@ void FldNoiseOverlayDraw(u8 *task, u8 *work)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 /* Install the untextured ring/cover render state and emit the masked effect tag. */
 // FUN_00185730
-#pragma opt_propagation off
 void FldNoiseRenderStateSetup(void)
 {
     void (**base)(s32, s32);
 
-    base = D_00887300;
+    base = (void (**)(s32, s32))(u8 *)D_00887300;
     base[0](0xE, 0);
     base[0](6, 0);
     base[0](8, 0);
@@ -194,8 +186,6 @@ void FldNoiseRenderStateSetup(void)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -208,8 +198,6 @@ void FldNoiseEmitRings(void)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -221,8 +209,8 @@ void FldNoiseEmitRings(void)
 /* Noise draw nodes carry the second callback payload in PrimQueueDrawNode.endArgument. */
 // FUN_00185850
 #pragma push
+/* measured: separate block-local counters remove opt_lifetimes; baseline invariant handling still differs by 2525 bytes. */
 #pragma opt_loop_invariants on
-#pragma opt_lifetimes on
 s32 FldNoiseUpdate(u8 *task)
 {
     extern u8 D_00794930[];
@@ -313,76 +301,81 @@ s32 FldNoiseUpdate(u8 *task)
                 column++;
             }
         }
-        for (index = 0; index < 0xe; index = index + 1) {
-            column = 0;
-            while (column < 1) {
-                work->bands[index][column][0].x = (float)(column * 0x280);
-                work->bands[index][column][0].y = (float)(index << 5);
-                work->bands[index][column][0].z = 1000.0f;
-                value = (float)((column + 1) * 0x280);
-                work->bands[index][column][1].x = value;
-                work->bands[index][column][1].y = (float)(index << 5);
-                work->bands[index][column][1].z = 1000.0f;
-                work->bands[index][column][2].x = (float)(column * 0x280);
-                work->bands[index][column][2].y = (f32)((index + 1) * 0x20);
-                work->bands[index][column][2].z = 1000.0f;
-                work->bands[index][column][3].x = value;
-                work->bands[index][column][3].y = (f32)((index + 1) * 0x20);
-                work->bands[index][column][3].z = 1000.0f;
-                work->bands[index][column][0].reciprocalZ = 0.001f;
-                work->bands[index][column][1].reciprocalZ = 0.001f;
-                work->bands[index][column][2].reciprocalZ = 0.001f;
-                work->bands[index][column][3].reciprocalZ = 0.001f;
-                work->bands[index][column][0].red = 255.0f;
-                work->bands[index][column][0].green = 255.0f;
-                work->bands[index][column][0].blue = 255.0f;
-                work->bands[index][column][0].alpha = 32.0f;
-                work->bands[index][column][1].red = 255.0f;
-                work->bands[index][column][1].green = 255.0f;
-                work->bands[index][column][1].blue = 255.0f;
-                work->bands[index][column][1].alpha = 32.0f;
-                work->bands[index][column][2].red = 255.0f;
-                work->bands[index][column][2].green = 255.0f;
-                work->bands[index][column][2].blue = 255.0f;
-                work->bands[index][column][2].alpha = 32.0f;
-                work->bands[index][column][3].red = 255.0f;
-                work->bands[index][column][3].green = 255.0f;
-                work->bands[index][column][3].blue = 255.0f;
-                work->bands[index][column][3].alpha = 32.0f;
-                work->bands[index][column][0].u = 0.0f;
-                work->bands[index][column][0].v = 0.0f;
-                work->bands[index][column][1].u = 1.0f;
-                work->bands[index][column][1].v = 0.0f;
-                work->bands[index][column][2].u = 0.0f;
-                work->bands[index][column][2].v = 1.0f;
-                work->bands[index][column][3].u = 1.0f;
-                work->bands[index][column][3].v = 1.0f;
-                column = column + 1;
+        {
+            s32 index;
+            for (index = 0; index < 0xe; index = index + 1) {
+                s32 column = 0;
+                while (column < 1) {
+                    work->bands[index][column][0].x = (float)(column * 0x280);
+                    work->bands[index][column][0].y = (float)(index << 5);
+                    work->bands[index][column][0].z = 1000.0f;
+                    value = (float)((column + 1) * 0x280);
+                    work->bands[index][column][1].x = value;
+                    work->bands[index][column][1].y = (float)(index << 5);
+                    work->bands[index][column][1].z = 1000.0f;
+                    work->bands[index][column][2].x = (float)(column * 0x280);
+                    work->bands[index][column][2].y = (f32)((index + 1) * 0x20);
+                    work->bands[index][column][2].z = 1000.0f;
+                    work->bands[index][column][3].x = value;
+                    work->bands[index][column][3].y = (f32)((index + 1) * 0x20);
+                    work->bands[index][column][3].z = 1000.0f;
+                    work->bands[index][column][0].reciprocalZ = 0.001f;
+                    work->bands[index][column][1].reciprocalZ = 0.001f;
+                    work->bands[index][column][2].reciprocalZ = 0.001f;
+                    work->bands[index][column][3].reciprocalZ = 0.001f;
+                    work->bands[index][column][0].red = 255.0f;
+                    work->bands[index][column][0].green = 255.0f;
+                    work->bands[index][column][0].blue = 255.0f;
+                    work->bands[index][column][0].alpha = 32.0f;
+                    work->bands[index][column][1].red = 255.0f;
+                    work->bands[index][column][1].green = 255.0f;
+                    work->bands[index][column][1].blue = 255.0f;
+                    work->bands[index][column][1].alpha = 32.0f;
+                    work->bands[index][column][2].red = 255.0f;
+                    work->bands[index][column][2].green = 255.0f;
+                    work->bands[index][column][2].blue = 255.0f;
+                    work->bands[index][column][2].alpha = 32.0f;
+                    work->bands[index][column][3].red = 255.0f;
+                    work->bands[index][column][3].green = 255.0f;
+                    work->bands[index][column][3].blue = 255.0f;
+                    work->bands[index][column][3].alpha = 32.0f;
+                    work->bands[index][column][0].u = 0.0f;
+                    work->bands[index][column][0].v = 0.0f;
+                    work->bands[index][column][1].u = 1.0f;
+                    work->bands[index][column][1].v = 0.0f;
+                    work->bands[index][column][2].u = 0.0f;
+                    work->bands[index][column][2].v = 1.0f;
+                    work->bands[index][column][3].u = 1.0f;
+                    work->bands[index][column][3].v = 1.0f;
+                    column = column + 1;
+                }
             }
         }
-        index = 0;
-        value2 = 0.0f;
-        for (; index < 0x42; index = index + 2) {
-            work->rings[0][index + 0].x = (cosf(value2) * 850.0f * 0.5f + 320.0f);
-            value = (float)sinf(value2);
-            work->rings[0][index + 0].y = (value * 750.0f * 0.5f + 224.0f);
-            work->rings[0][index + 0].z = 1000.0f;
-            work->rings[0][index + 0].reciprocalZ = 0.001f;
-            work->rings[0][index + 0].red = 0.0f;
-            work->rings[0][index + 0].green = 255.0f;
-            work->rings[0][index + 0].blue = 0.0f;
-            work->rings[0][index + 0].alpha = 128.0f;
-            value = 450.0f * cosf(value2);
-            work->rings[0][index + 1].x = (value * 0.5f + 320.0f);
-            value = 250.0f * sinf(value2);
-            work->rings[0][index + 1].y = (value * 0.5f + 224.0f);
-            work->rings[0][index + 1].z = 1000.0f;
-            work->rings[0][index + 1].reciprocalZ = 0.001f;
-            work->rings[0][index + 1].red = 0.0f;
-            work->rings[0][index + 1].green = 255.0f;
-            work->rings[0][index + 1].blue = 0.0f;
-            work->rings[0][index + 1].alpha = 0.0f;
-            value2 = value2 + fGpffff84d4;
+        {
+            s32 index = 0;
+            value2 = 0.0f;
+            for (; index < 0x42; index = index + 2) {
+                work->rings[0][index + 0].x = (cosf(value2) * 850.0f * 0.5f + 320.0f);
+                value = (float)sinf(value2);
+                work->rings[0][index + 0].y = (value * 750.0f * 0.5f + 224.0f);
+                work->rings[0][index + 0].z = 1000.0f;
+                work->rings[0][index + 0].reciprocalZ = 0.001f;
+                work->rings[0][index + 0].red = 0.0f;
+                work->rings[0][index + 0].green = 255.0f;
+                work->rings[0][index + 0].blue = 0.0f;
+                work->rings[0][index + 0].alpha = 128.0f;
+                value = 450.0f * cosf(value2);
+                work->rings[0][index + 1].x = (value * 0.5f + 320.0f);
+                value = 250.0f * sinf(value2);
+                work->rings[0][index + 1].y = (value * 0.5f + 224.0f);
+                work->rings[0][index + 1].z = 1000.0f;
+                work->rings[0][index + 1].reciprocalZ = 0.001f;
+                work->rings[0][index + 1].red = 0.0f;
+                work->rings[0][index + 1].green = 255.0f;
+                work->rings[0][index + 1].blue = 0.0f;
+                work->rings[0][index + 1].alpha = 0.0f;
+                value2 = value2 + fGpffff84d4;
+            }
         }
         value2 = 0.0f;
         work->cover[0].x = 0.0f;
@@ -417,51 +410,56 @@ s32 FldNoiseUpdate(u8 *task)
         work->cover[3].green = 255.0f;
         work->cover[3].blue = 255.0f;
         work->cover[3].alpha = 0.0f;
-        for (index = 0; index < 0x42; index = index + 2) {
-            work->rings[1][index + 0].x = (cosf(value2) * 850.0f * 0.5f + 320.0f);
-            value = (float)sinf(value2);
-            work->rings[1][index + 0].y = (value * 750.0f * 0.5f + 224.0f);
-            work->rings[1][index + 0].z = 1000.0f;
-            work->rings[1][index + 0].reciprocalZ = 0.001f;
-            work->rings[1][index + 0].red = 0.0f;
-            work->rings[1][index + 0].green = 255.0f;
-            work->rings[1][index + 0].blue = 0.0f;
-            work->rings[1][index + 0].alpha = 64.0f;
-            value = 500.0f * cosf(value2);
-            work->rings[1][index + 1].x = (value * 0.5f + 320.0f);
-            value = 300.0f * sinf(value2);
-            work->rings[1][index + 1].y = (value * 0.5f + 224.0f);
-            work->rings[1][index + 1].z = 1000.0f;
-            work->rings[1][index + 1].reciprocalZ = 0.001f;
-            work->rings[1][index + 1].red = 0.0f;
-            work->rings[1][index + 1].green = 255.0f;
-            work->rings[1][index + 1].blue = 0.0f;
-            work->rings[1][index + 1].alpha = 0.0f;
-            value2 = value2 + fGpffff84d4;
+        {
+            s32 index;
+            for (index = 0; index < 0x42; index = index + 2) {
+                work->rings[1][index + 0].x = (cosf(value2) * 850.0f * 0.5f + 320.0f);
+                value = (float)sinf(value2);
+                work->rings[1][index + 0].y = (value * 750.0f * 0.5f + 224.0f);
+                work->rings[1][index + 0].z = 1000.0f;
+                work->rings[1][index + 0].reciprocalZ = 0.001f;
+                work->rings[1][index + 0].red = 0.0f;
+                work->rings[1][index + 0].green = 255.0f;
+                work->rings[1][index + 0].blue = 0.0f;
+                work->rings[1][index + 0].alpha = 64.0f;
+                value = 500.0f * cosf(value2);
+                work->rings[1][index + 1].x = (value * 0.5f + 320.0f);
+                value = 300.0f * sinf(value2);
+                work->rings[1][index + 1].y = (value * 0.5f + 224.0f);
+                work->rings[1][index + 1].z = 1000.0f;
+                work->rings[1][index + 1].reciprocalZ = 0.001f;
+                work->rings[1][index + 1].red = 0.0f;
+                work->rings[1][index + 1].green = 255.0f;
+                work->rings[1][index + 1].blue = 0.0f;
+                work->rings[1][index + 1].alpha = 0.0f;
+                value2 = value2 + fGpffff84d4;
+            }
         }
-        index = 0;
-        value2 = 0.0f;
-        for (; index < 0x42; index = index + 2) {
-            work->rings[2][index + 0].x = (cosf(value2) * 850.0f * 0.5f + 320.0f);
-            value = (float)sinf(value2);
-            work->rings[2][index + 0].y = (value * 750.0f * 0.5f + 224.0f);
-            work->rings[2][index + 0].z = 1000.0f;
-            work->rings[2][index + 0].reciprocalZ = 0.001f;
-            work->rings[2][index + 0].red = 0.0f;
-            work->rings[2][index + 0].green = 255.0f;
-            work->rings[2][index + 0].blue = 0.0f;
-            work->rings[2][index + 0].alpha = 240.0f;
-            value = 450.0f * cosf(value2);
-            work->rings[2][index + 1].x = (value * 0.5f + 320.0f);
-            value = 250.0f * sinf(value2);
-            work->rings[2][index + 1].y = (value * 0.5f + 224.0f);
-            work->rings[2][index + 1].z = 1000.0f;
-            work->rings[2][index + 1].reciprocalZ = 0.001f;
-            work->rings[2][index + 1].red = 0.0f;
-            work->rings[2][index + 1].green = 255.0f;
-            work->rings[2][index + 1].blue = 0.0f;
-            work->rings[2][index + 1].alpha = 0.0f;
-            value2 = value2 + fGpffff84d4;
+        {
+            s32 index = 0;
+            value2 = 0.0f;
+            for (; index < 0x42; index = index + 2) {
+                work->rings[2][index + 0].x = (cosf(value2) * 850.0f * 0.5f + 320.0f);
+                value = (float)sinf(value2);
+                work->rings[2][index + 0].y = (value * 750.0f * 0.5f + 224.0f);
+                work->rings[2][index + 0].z = 1000.0f;
+                work->rings[2][index + 0].reciprocalZ = 0.001f;
+                work->rings[2][index + 0].red = 0.0f;
+                work->rings[2][index + 0].green = 255.0f;
+                work->rings[2][index + 0].blue = 0.0f;
+                work->rings[2][index + 0].alpha = 240.0f;
+                value = 450.0f * cosf(value2);
+                work->rings[2][index + 1].x = (value * 0.5f + 320.0f);
+                value = 250.0f * sinf(value2);
+                work->rings[2][index + 1].y = (value * 0.5f + 224.0f);
+                work->rings[2][index + 1].z = 1000.0f;
+                work->rings[2][index + 1].reciprocalZ = 0.001f;
+                work->rings[2][index + 1].red = 0.0f;
+                work->rings[2][index + 1].green = 255.0f;
+                work->rings[2][index + 1].blue = 0.0f;
+                work->rings[2][index + 1].alpha = 0.0f;
+                value2 = value2 + fGpffff84d4;
+            }
         }
         work->overlay[0].x = 0.0f;
         work->overlay[0].y = 0.0f;
@@ -538,9 +536,13 @@ s32 FldNoiseUpdate(u8 *task)
         ((PrimQueueNode *)callbackNode)->callback = FldNoiseRenderStateB;
         ((PrimQueueNode *)callbackNode)->argument.data = (u8 *)work;
         PrimAppendNode(D_00794930,callbackNode);
-        for (index = 0; index < 0xe; index = index + 1) {
-            for (column = 0; column < 1; column = column + 1) {
-                PrimQueueDrawPrimitive(D_00794930,4,work->bands[index][column],4);
+        {
+            s32 index;
+            for (index = 0; index < 0xe; index = index + 1) {
+                s32 column;
+                for (column = 0; column < 1; column = column + 1) {
+                    PrimQueueDrawPrimitive(D_00794930,4,work->bands[index][column],4);
+                }
             }
         }
         callbackNode = (u8 *)PrimAllocQueueNode();
@@ -588,8 +590,6 @@ s32 FldNoiseUpdate(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -602,8 +602,6 @@ void FldNoiseDestroy(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off

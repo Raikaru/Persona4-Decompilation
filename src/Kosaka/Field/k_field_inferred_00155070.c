@@ -37,8 +37,6 @@ extern void FldFrame_SetSlotVector(s32 , s8 , void *);
 extern u8 *FldFrame_GetSlotBuffer(s32 );
 extern void FldCameraUpdateLookAt(s32 );
 extern s32 kwlnGetCamera(void);
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: Apply the camera parameters from resource 0x14: field of view, view offset, distance, the slot vectors and the frame slot buffer [inferred]
 /* Resource camera parameters occupy +0x140..0x304; scalar-pair copies retain load/store order, and MEMBER preserves view-distance aliasing. */
 // FUN_00155070
@@ -95,40 +93,28 @@ loop_test:
         FldCameraUpdateLookAt(MT_Scene_GetFrameState()[1]);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: Clear the scene frame state block [inferred]
 // FUN_00155250
 void MT_Scene_ResetFrameState(void)
 {
     memset(D_007D2510, 0, 0x18F8);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: Return the scene frame state block [inferred]
 // FUN_00155280
 s32 *MT_Scene_GetFrameState(void)
 {
     return D_007D2510;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: Return the scene-load ready flag: 0 while a field load is in progress, 1 once the scene has loaded [inferred]
 // FUN_00155290
 s32 FldSceneLoadReady(void)
 {
     return iGpffffb210;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: Set the three fade globals from the state pair: a scale value for state 7 (and state 6 with 6, state 21 with 1), or the defaults otherwise [inferred]
 // FUN_001552A0
 void MT_Scene_SetFadeForState(u16 fieldKind, u16 baseState) {
@@ -154,7 +140,6 @@ void MT_Scene_SetFadeForState(u16 fieldKind, u16 baseState) {
     iGpffffb28c = iGpffff830c;
     iGpffffb288 = 0x40400000;
 }
-#pragma pop
 
 #include "Kosaka/k_fldFrame_internal.h"
 #include "scene_event_internal.h"

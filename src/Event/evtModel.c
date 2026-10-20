@@ -118,8 +118,6 @@ extern f32 effMiscQuatAngle(void *firstQuaternion, f32 *secondQuaternion);
 
 // Intent: Single-model motion state machine: state 0 ramps the blend weight from speed, state 1 aims the look-at subobject at dst, then the timed step ends the motion [inferred]
 // FUN_00291B60
-#pragma push
-#pragma opt_rebuildconditionals off
 s32 evtModelStepLookAt(s32 unusedContext, u8 *recordBytes) {
     EvtModelRec *rec = (EvtModelRec *)recordBytes;
     f32 speed;
@@ -135,15 +133,7 @@ s32 evtModelStepLookAt(s32 unusedContext, u8 *recordBytes) {
     if (model == 0) {
         return 1;
     }
-    /* Preserve the unsigned float-to-word conversion around 2^31. */
-    if (2.1474836e9f <= rec->phase) {
-        goto state_large;
-    }
-    state = (s32)rec->phase;
-    goto state_ready;
-state_large:
-    state = (s32)(rec->phase - 2.1474836e9f) | 0x80000000;
-state_ready:
+    state = (u32)rec->phase;
     if (state == 0) {
         if (mdlHasActiveMode(model) == 0) {
             rec->flags |= 1;
@@ -221,12 +211,9 @@ common:
     *(F32x4 *)rec->lookAtSnapshot = *(F32x4 *)mdlGetLookAtSubobject(model);
     return 0;
 }
-#pragma pop
 
 // Intent: Variant of evtModelStepLookAt with a different track scale range and blend factor [inferred]
 // FUN_00291FA0
-#pragma push
-#pragma opt_rebuildconditionals off
 s32 evtModelStepLookAtAlt(s32 unusedContext, u8 *recordBytes) {
     EvtModelRec *rec = (EvtModelRec *)recordBytes;
     f32 unusedBlendValue;
@@ -275,15 +262,7 @@ s32 evtModelStepLookAtAlt(s32 unusedContext, u8 *recordBytes) {
     if (model == 0) {
         return 1;
     }
-    /* Preserve the unsigned float-to-word conversion around 2^31. */
-    if (2.1474836e9f <= rec->phase) {
-        goto state_large;
-    }
-    state = (s32)rec->phase;
-    goto state_ready;
-state_large:
-    state = (s32)(rec->phase - 2.1474836e9f) | 0x80000000;
-state_ready:
+    state = (u32)rec->phase;
     if (state == 0) {
         if (mdlHasActiveMode(model) == 0) {
             rec->flags |= 1;
@@ -533,7 +512,6 @@ common:
         *(F32x4 *)rec->lookAtSnapshot = *(F32x4 *)mdlGetLookAtSubobject(model);
         return 0;
 }
-#pragma pop
 
 // Intent: Two-model aim: points model id's look-at direction at model id2 while blending, then waits for model id's motion to finish [inferred]
 // FUN_00292BB0
@@ -638,7 +616,7 @@ s32 evtModelStepAimAtModel(s32 unusedContext, u8 *recordBytes) {
 // it. Returns 1 once the resource is gone or the motion has ended, else 0.
 // FUN_00292EF0
 #pragma push
-#pragma opt_rebuildconditionals off
+/* measured: unsigned phase cast removes rebuilding toggle; propagation baseline still differs by 5 words at sound arguments. */
 #pragma opt_propagation off
 s32 evtModelStepMotion(s32 unusedContext, u8 *recordBytes) {
     EvtModelRec *rec = (EvtModelRec *)recordBytes;
@@ -652,15 +630,7 @@ s32 evtModelStepMotion(s32 unusedContext, u8 *recordBytes) {
     if (handle == 0) {
         return 1;
     }
-    /* Preserve the unsigned float-to-word conversion around 2^31. */
-    if (2.1474836e9f <= rec->phase) {
-        goto big;
-    }
-    frame = (s32)rec->phase;
-    goto done;
-big:
-    frame = (s32)(rec->phase - 2.1474836e9f) | 0x80000000;
-done:
+    frame = (u32)rec->phase;
     if (frame == 0) {
         MT_Scene_SetResMotion(MT_Scene_GetRes(id), 0, 1, 5, 0, 0, 1.0f);
     } else if (frame == 5) {

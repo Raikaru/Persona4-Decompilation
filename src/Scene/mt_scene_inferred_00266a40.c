@@ -462,6 +462,7 @@ f32 MT_Scene_CubicBezier(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
 /* measured: closes the optimization_level bracket (nd 0). */
 /* Copy complete table objects; renderer callbacks may change the item index. */
 /* measured: cldShapeDraw MATCH -> MISMATCH without this pragma. */
+/* measured: baseline differs by 198 words; explicit position-component copies leave nd643; retain common-subexpression setting. */
 #pragma opt_common_subs off
 /* Draw the indexed contour with depth and opacity derived from the transition scale. */
 // FUN_00267800
@@ -535,6 +536,7 @@ s32 cldShapeDraw(u8 **shapeWork, u8 *entry)
 #pragma optimization_level 2
 /* measured: PrimDrawContour MATCH -> MISMATCH without this pragma. */
 // FUN_00267B20
+/* measured: baseline differs by 289 words; cached special-contour origin leaves nd930; retain propagation off. */
 #pragma opt_propagation off
 /* Draw contour fill, outline and closing edge; shape 9 takes the single-pass special path. */
 void PrimDrawContour(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 unusedMode, s32 shape, s32 originX, s32 originY,

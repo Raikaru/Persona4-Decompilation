@@ -57,6 +57,7 @@ extern Code1_0049Color iGpffffbb64;
 /* measured: func_004916f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* Spawn and advance orbiting particles, including preroll, key sampling and trail snapshots. */
+/* measured: baseline removal and a structured primary loop still differ (best isolated nd 1235 bytes); retain both toggles. */
 // FUN_004916F0
 void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
 {

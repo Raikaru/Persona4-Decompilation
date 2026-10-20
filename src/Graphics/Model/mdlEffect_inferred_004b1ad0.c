@@ -75,7 +75,7 @@ typedef struct EffScreenSpriteRGBA {
     u8 alpha;
 } EffScreenSpriteRGBA;
 #pragma push
-/* measured: func_004b1ad0 MATCH -> MISMATCH without this pragma. */
+/* measured: removal, named viewport constants, and do/while probes mismatch (73-word removal residual from unhoisted constants). */
 #pragma opt_loop_invariants on
 /* Sample sprite color, size and texture animation, project its corners through the camera and queue the geometry. */
 // FUN_004B1AD0

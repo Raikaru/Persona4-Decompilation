@@ -68,15 +68,6 @@ extern s8 iGpffffba89;
 extern s8 iGpffffba8a;
 extern s8 iGpffffba8b;
 extern void (*D_008873FC[])(s32 param, u8* arg);
-#pragma push
-#pragma opt_propagation off
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
-#pragma opt_propagation off
-#pragma opt_propagation on
 // Intent: sets the four bytes of the kwln RGBA colour record (the one kwlnGetColorRgb returns).
 // FUN_00457140
 void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha)

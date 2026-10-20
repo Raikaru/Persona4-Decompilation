@@ -203,11 +203,9 @@ s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
 }
 
 #pragma push
-/* measured: btlTargetRebuildRadiusLinks MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd2171, loop hoisting alone nd237, adding lifetimes nd31; dead-assignment setting closes it. */
 #pragma opt_loop_invariants on
-/* measured: btlTargetRebuildRadiusLinks MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
-/* measured: btlTargetRebuildRadiusLinks MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
 // FUN_001ED700
 /* Rebuild obstacle midpoint links and route neighbors for the requested clearance radius. */
@@ -458,8 +456,8 @@ void btlTargetRebuildRadiusLinks(f32 radius)
     btlTargetCollectRouteNeighbors(iGpffffb3ac + 0x7DC, radius);
     btlTargetCollectRouteNeighbors(iGpffffb3ac + 0x90C, radius);
 }
-
 #pragma pop
+
 /* Clear obstacle links and initialize the four world boundary corners at plus or minus 1750. */
 // FUN_001EE1C0
 void btlTargetResetRadiusState(void) {
@@ -616,7 +614,7 @@ s32 btlTargetRefreshRadiusNode(u8 *unit) {
    locals. opt_loop_invariants hoists &pts[n] (retail $s5) and pts[0].z
    (retail $f20) out of the subdivision loop. */
 #pragma push
-/* measured: btlTargetBuildSmoothRoute MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd1116; caching the final point pointer leaves nd1345; retain invariant hoisting. */
 #pragma opt_loop_invariants on
 // FUN_001EE610
 s32 btlTargetBuildSmoothRoute(u8 *route, f32 radius)
@@ -771,7 +769,6 @@ s32 btlTargetBuildSmoothRoute(u8 *route, f32 radius)
     }
     return 1;
 }
-
-
-/* Restore the caller compilation settings after the route builder. */
 #pragma pop
+
+

@@ -92,19 +92,11 @@ extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
    drawers are. The title x stays in a register and is also stored to
    pos.x. */
 
-/* measured: opt_rebuildconditionals off preserves the retail positive branch. */
-#pragma opt_rebuildconditionals off
-/* measured: restore conditional rebuilding after this function. */
-#pragma opt_rebuildconditionals on
 
 /* Animate four sprites with interpolated colors and rotated pixel offsets.
    The timer and random samples are snapshots; angle division precedes
    multiplication, and the second sine result is converted to a signed
    pixel offset after scaling. Opacity crosses the sprite API as a byte. */
-/* measured: opt_loop_invariants on hoists the conversion constants into the retail preheader. */
-#pragma opt_loop_invariants on
-/* measured: restore loop-invariant optimization after func_00389cb0. */
-#pragma opt_loop_invariants off
 typedef union Code38WavePhase {
     Vec2f direction[2];
     Vec2f pair[2];
@@ -134,21 +126,12 @@ typedef struct Code38RingVertex {
 /* Measured: 904/912 bytes, eleven resolved relocations and eight zero
  * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
-#pragma opt_propagation off
-#pragma opt_propagation on
 typedef struct Code38RevealWeight {
     f32 value;
 } Code38RevealWeight;
 
-#pragma push
-#pragma opt_loop_invariants on
 
-#pragma pop
 
-// measured: preserve retail argument materialization order
-#pragma opt_propagation off
-// measured: restore propagation default
-#pragma opt_propagation on
 typedef struct {
     u16 counter;
     u16 pad;

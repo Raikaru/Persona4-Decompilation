@@ -240,6 +240,7 @@ extern void sdkSndStreamTaskDestroy(u8 *task);
 // FUN_00458FA0
 /* measured: retail hoists the loop bases/0x134/-1 constants to the
    preheaders; mwcc rematerialises them, so the scoped pragma is required. */
+/* measured: baseline removal differs by 69 words; a named channel pointer still fails (1316B versus 1312B). */
 #pragma opt_loop_invariants on
 void sdkSndInit(void)
 {
@@ -519,6 +520,7 @@ s32 sdkSndFadeMainChannel(void)
    through call-free paths. Preserve the pre-destructor destination and
    constructor-record address lifetimes with dead assignments disabled. */
 #pragma push
+/* measured: baseline removal differs by 404 words; a cached constructor-record pointer also fails. */
 #pragma opt_dead_assignments off
 typedef struct SndHandleRecord { s32 handle; u8 rest[0x130]; } SndHandleRecord;
 typedef struct SndCreateRecord { u32 words[10]; } SndCreateRecord;

@@ -32,9 +32,10 @@ typedef struct FldSupporterWork {
     u8 pad10[4];
 } FldSupporterWork;
 extern s32 FldSupporterUpdate(u8 *task);
-#pragma push
+/* Unit settings shared by the supporter task routines. */
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+#pragma push
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -46,8 +47,6 @@ void FldSupporterDestroy(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -71,8 +70,6 @@ s32 FldSupporterTaskCreate(s32 parent)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off

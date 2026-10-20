@@ -288,12 +288,12 @@ s32 cmpEquipMenuUpdate(u8 *workArea) {
  * The two local records hold logical actor/opacity snapshots only. Pointer
  * address accumulation below uses the EE's 32-bit unsigned address domain.
  * opt_lifetimes retains the original call-crossing values; dead assignments
- * remain enabled. Both settings are scoped to this function.
+ * use the file baseline. Only the lifetime override is scoped here.
  */
 // FUN_00131A00
 #pragma push
+/* measured: baseline draw has 2445 differing words; lifetime isolation restores MATCH without the redundant dead-assignment setting. */
 #pragma opt_lifetimes on
-#pragma opt_dead_assignments on
 /* Historical whole-layout rewrite changed 8450 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
 void cmpEquipMenuDraw(u8 *workArea)
 
@@ -844,7 +844,6 @@ void cmpEquipMenuDraw(u8 *workArea)
   sdkSpriteDrawFooter(drawPosition.xy, 0.0f, (u8)(alpha), menu->footerMode, menu->footerTexture);
   return;
 }
-#pragma opt_dead_assignments on
 
 #pragma pop
 
@@ -880,8 +879,6 @@ void cmpEquipStepTabAnimations(u8 *workArea) {
 }
 
 /* measured: equipment-mode switch and table update match the retail window. */
-/* measured: common-subexpression elimination is disabled for the setup and switch layout. */
-#pragma opt_common_subs off
 /* Snapshot current row poses and apply the selected equipment-menu layout and visibility mask. */
 // FUN_00134560
 /* Historical whole-layout rewrite changed 614 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
@@ -961,7 +958,6 @@ s32 cmpEquipSetMode(u8 *workArea, s32 mode)
         break;
     }
     if (table != 0) {
-#pragma opt_common_subs on
         for (j = 0; j < 0x29; j++) {
             src = table + j * 0x1C;
             dst = workArea + j * 0x30;

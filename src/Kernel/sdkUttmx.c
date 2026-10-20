@@ -2,6 +2,9 @@
 #include "include_asm.h"
 #include "type.h"
 
+/* Unit settings: loop-invariant motion enabled. */
+#pragma opt_loop_invariants on
+
 /* On-disk TMX0 header, followed by palettes and pixel data at +0x40. */
 typedef struct TmxHeader {
     u8 version;
@@ -65,10 +68,9 @@ extern u32 func_003ec6a0(s32, s32, s32);
 extern void kAssertFail(u8 *file, s32 line);
 extern void tmxDmaCopy(u32 destination, u32 source, u32 byteCount);
 
-#pragma push
 /* W318 measured: opt_loop_invariants on changes 00463570 nd67->0,
  * 00463620 nd48->0, 004636a0 nd79->0 (port of the P3 scoped pragma). */
-#pragma opt_loop_invariants on
+/* measured: baseline removal differs in 67 bytes; pointer-induction pixel traversal; for-loop row and pixel lifetimes also differ. */
 
 
 /* Expand PS2 0..128 alpha to 0..255 while copying RGBA pixels. */
@@ -113,12 +115,11 @@ static void tmxConvertRgba32(RwImage* image, const u8* source)
         y++;
     }
 }
-#pragma opt_loop_invariants off
 
 
 /* W318 measured: opt_loop_invariants on changes 00463620 nd48->0
  * (port of the P3 scoped pragma). */
-#pragma opt_loop_invariants on
+/* measured: baseline removal differs in 51 bytes; pointer-induction pixel traversal; for-loop row and pixel lifetimes also differ. */
 
 
 /* Expand RGB triples into opaque four-byte pixels, respecting image stride. */
@@ -152,12 +153,11 @@ static void tmxConvertRgb24(RwImage* image, const u8* source)
         y++;
     }
 }
-#pragma opt_loop_invariants off
 
 
 /* W318 measured: opt_loop_invariants on changes 004636a0 nd79->0
  * (port of the P3 scoped pragma). */
-#pragma opt_loop_invariants on
+/* measured: baseline removal differs in 79 bytes; pointer-induction pixel traversal; for-loop row and pixel lifetimes also differ. */
 
 
 /* Expand packed five-bit RGB channels into opaque four-byte pixels. */
@@ -195,7 +195,6 @@ static void tmxConvertRgb555(RwImage* image, const u8* source)
         y++;
     }
 }
-#pragma opt_loop_invariants off
 
 
 /* W318 measured: opt_loop_invariants on hoists the inner-loop width>>1
@@ -207,7 +206,7 @@ static void tmxConvertRgb555(RwImage* image, const u8* source)
 
 /* Unpack low then high four-bit palette indices into the image rows. */
 // FUN_00463740
-#pragma opt_loop_invariants on
+/* measured: baseline removal differs in 57 bytes; pointer-induction pixel traversal; for-loop row and pixel lifetimes also differ. */
 static void tmxUnpackNibbles(RwImage* image, const u8* source)
 {
     u8* dst;
@@ -236,14 +235,13 @@ static void tmxUnpackNibbles(RwImage* image, const u8* source)
         y++;
     }
 }
-#pragma opt_loop_invariants off
 
 
 /* W414: hidden-return scan found no h_maestro candidate; materializing
  * depth in count, then initializing i before the shift, reached nd14 -> 0
  * (obj 168/176).  W318 measured: opt_loop_invariants on changes 004637c0
  * nd69->14; object stays 168/176. */
-#pragma opt_loop_invariants on
+/* measured: baseline removal differs in 74 bytes; pointer-induction palette traversal; fold palette-count setup also differ. */
 
 
 /* Copy the indexed palette and expand its PS2 alpha range. */
@@ -278,7 +276,6 @@ static void tmxConvertPalette(RwImage* image, const u8* source)
         }
     }
 }
-#pragma opt_loop_invariants off
 
 
 
@@ -322,8 +319,7 @@ static void tmxSwizzlePalette8(RwImage* image, s32 bitDepth)
 
 
 
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline removal differs in 362 bytes; pointer-induction indexed pixel copy; cache palette entry count before source copy also differ. */
 /* Decode a version-two TMX0 buffer into an image; unsupported headers return NULL. */
 // FUN_00463930
 /* Indexed TMX palettes have four- or eight-bit image depth.
@@ -466,8 +462,6 @@ RwImage *tmxDecodeStream(u8 *stream)
     return image;
 }
 
-#pragma pop
-#pragma pop
 
 /* Read the TMX header and payload, decode it, and release temporary storage. */
 /* A native stack header preserves the retail field loads and stack placement. */
@@ -510,8 +504,7 @@ RwImage *tmxImageWriteCallback(RwImage *image, const char *name)
    measured: b210 -O2 with loop invariants, 604B/608B, both relocations exact;
    the final four bytes are zero alignment padding. */
 // FUN_00463EA0
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline removal differs in 398 bytes; unsigned counted chunk loop; initialize DMA state at first use also differ. */
 void tmxDmaCopy(u32 destination, u32 source, u32 byteCount)
 {
     extern void func_00421a60(s32);
@@ -635,7 +628,6 @@ void tmxDmaCopy(u32 destination, u32 source, u32 byteCount)
             ".set reorder\n" : : : "memory");
     }
 }
-#pragma pop
 
 /* measured: plain-C reconstruction is 1240B against the 1248B retail window at
    verify normalized_diff 10. The header checks, format switch, allocation and

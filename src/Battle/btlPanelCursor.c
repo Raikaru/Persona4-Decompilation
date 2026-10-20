@@ -452,6 +452,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
  * while the loop keeps its repeated color components in registers.
  * See docs/probe_archive/Battle_cursor_0020d6a0_20260923.md. */
 #pragma push
+/* measured: baseline nd800; typed pointer reuse, typed parameter cache, inverted if/else did not match (best nd800); retain opt_lifetimes on. */
 #pragma opt_lifetimes on
 // FUN_0020D6A0
 /* Update the green four-segment/ring target cursor and its HP gauge. The dedicated cursor alias preserves the byte-base allocation. */

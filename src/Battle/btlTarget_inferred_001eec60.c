@@ -322,9 +322,6 @@ s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius)
 // FUN_001EF110
 /* 904/912 bytes; all eighteen relocations resolve exactly.
    Stage both endpoint loads before either store to preserve overlap. */
-#pragma push
-/* measured: btlRouteBuildArc MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 /* Generate eight XZ samples by interpolating endpoint rotations and distances about a center. */
 s32 btlRouteBuildArc(u8 *route, const f32 *startXZ,
                   const f32 *endXZ, const f32 *centerXZ)
@@ -432,18 +429,12 @@ s32 btlRouteBuildArc(u8 *route, const f32 *startXZ,
         blend = blend + 0.125f;
         index = index + 1;
     }
-    {
-        f32 endX = endXZ[0];
-        f32 endZ = endXZ[1];
-        (((BtlTargetRoute *)(route))->points[7].x) = endX;
-        (((BtlTargetRoute *)(route))->points[7].z) = endZ;
-    }
+    ((BtlTargetRoute *)route)->points[7] = *(const BtlTargetPoint *)endXZ;
     MEMBER(u16, route, BtlTargetRoute, count) = 8;
     ((BtlTargetRoute *)route)->state = 2;
     return 1;
 }
 
-#pragma pop
 /* Read the low byte of an ID-indexed four-byte record, returning one when it is zero. */
 // FUN_001EF4A0
 s32 btlUnitSlotValueOrOne(s32 unitId)

@@ -10,6 +10,9 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
+
+/* Unit setting: propagation on; the backdrop draw retains its measured exception. */
+#pragma opt_propagation on
 extern void (*jtbl_008873EC[])(void *);
 extern u8 D_005E50D0[];
 extern u8 D_005E5870[];
@@ -120,8 +123,6 @@ extern u8 D_005E51A0[];
 extern u8 D_005E51B0[];
 extern void clndPromptDestroy(u8 *task);
 extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
-#pragma push
-#pragma opt_propagation on
 /* Load the calendar atlas, initialize its five animations and synchronize the displayed date. */
 // FUN_001228C0
 s32 calendarStateTask(u8 *unusedTask)
@@ -171,10 +172,7 @@ s32 calendarStateTask(u8 *unusedTask)
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Release calendar work and clear the active global pointer. */
 // FUN_00122A10
 void calendarStateTaskDestroy(u8 *task)
@@ -182,10 +180,7 @@ void calendarStateTaskDestroy(u8 *task)
     jtbl_008873EC[0](((struct KwlnTask *)task)->work);
     iGpffffb1dc = 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* measured: b210 -O2 emits all 3220 executable retail bytes; the
    remaining 12 bytes are zero alignment. Fresh float constants and
    shared integer literals require propagation and constant extraction
@@ -193,6 +188,7 @@ void calendarStateTaskDestroy(u8 *task)
    Proof: build/cos20335-continuation/field-ui/review-00122a40-closed. */
 // FUN_00122A40
 #pragma push
+/* measured: baseline and individual propagation/constant-extraction probes differ (nd 2413/2197/2413). */
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
 /* Animate and draw the calendar background, month/day digits and period indicators; restore fog state afterward. */
@@ -410,10 +406,7 @@ void calendarDrawBackdrop(void *unusedNode, void *work)
     states[0](rwRENDERSTATEFOGENABLE, (void *)savedFog);
 }
 #pragma pop
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Queue the backdrop draw callback with the active calendar work as its payload. */
 // FUN_001236E0
 s32 calendarQueueResult(u8 *unusedTask) {
@@ -427,10 +420,7 @@ s32 calendarQueueResult(u8 *unusedTask) {
     PrimAppendNode(D_00795F50, p);
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Allocate the calendar state and attach update and queued-draw tasks to the parent. */
 // FUN_00123730
 s32 calendarStartTasks(s32 parentTask)
@@ -446,10 +436,7 @@ s32 calendarStartTasks(s32 parentTask)
     (s32)kwlnTaskCreateChild((void *)(task), (const void *)(D_005E5190), 0x97, 0, 0, calendarQueueResult, 0, (u8 *)((u8 *)0));
     return task;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Return the displayed period, or zero when no calendar controller exists. */
 // FUN_00123810
 s16 clndGetPeriod(void)
@@ -464,10 +451,7 @@ s16 clndGetPeriod(void)
     }
     return value;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Return the displayed date index, or zero when no calendar controller exists. */
 // FUN_00123830
 s16 clndGetDaysSinceApr5(void)
@@ -482,10 +466,8 @@ s16 clndGetDaysSinceApr5(void)
     }
     return value;
 }
-#pragma pop
 
 #pragma push
-#pragma opt_propagation on
 /* measured: the named first-field load plus -O1 reproduce retail's argument setup order; exact match nd 0 (obj 104B/window 112B). */
 /* measured: opens optimization_level 1 to keep the +6 store and +4 load before the call conversion (nd 0). */
 // FUN_00123850
@@ -508,7 +490,6 @@ void calendarSyncFromDate(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Restart the five record animations when visibility changes; mode 1 starts at frame zero. */
 // FUN_001238C0
@@ -575,7 +556,6 @@ void calendarSetMode(s32 mode)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Latch whether field or event activity selects the alternate prompt sprites. */
 // FUN_00123A10
@@ -600,7 +580,6 @@ set1:
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Clear the calendar visibility request and enabled draw groups. */
 // FUN_00123A80
@@ -617,7 +596,6 @@ void calendarResetPending(void)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Save the current day-table value before replacing it. */
 // FUN_00123AA0
@@ -633,7 +611,6 @@ void calendarPushValue(s16 value) {
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Restore the saved day-table value. */
 // FUN_00123AC0
@@ -648,7 +625,6 @@ void calendarPopValue(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Return the signed low byte of the day-table value, or -1 without calendar state. */
 // FUN_00123AE0
@@ -664,7 +640,6 @@ s8 calendarGetValueLowByte(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Return the displayed date index, or -1 without calendar state. */
 // FUN_00123B10
@@ -680,7 +655,6 @@ s16 calendarStateDaysSinceApr5(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Return the displayed period, or -1 without calendar state. */
 // FUN_00123B40
@@ -696,7 +670,6 @@ s16 calendarStatePeriod(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Run the carry-over prompt sequence, retry dialogs and memory-card icon task; return -1 when complete. */
 // FUN_00123B70
@@ -775,7 +748,6 @@ block_20:
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 // FUN_00123D50
 void clndPromptDestroy(u8 *task)
@@ -785,7 +757,6 @@ void clndPromptDestroy(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Allocate and start the carry-over prompt task, recording its handle. */
 // FUN_00123D80
@@ -807,7 +778,6 @@ s32 clndPromptStart(void)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Clear the prompt handle and report completion once its task reaches state 3. */
 // FUN_00123E30
@@ -824,7 +794,6 @@ s32 clndPromptFinished(void)
 s32 fadeStatus(void);
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Sequence fading, logo/movie playback and title results before entering or restoring game state. */
 // FUN_00123E80
@@ -979,7 +948,6 @@ s32 clndSceneUpdate(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 // FUN_00124210
 void taskReleaseSlotModel(u8 *task)

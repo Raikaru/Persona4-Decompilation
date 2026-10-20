@@ -184,25 +184,23 @@ typedef struct BtlEncounterRecord {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 001927c0-001935c0 */
 
-/* measured: opt_propagation off is scoped to btlRenderStateSetup. */
-/* measured: btlRenderStateSetup MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
+/* measured: a byte-addressed render-state table retains MATCH with propagation enabled. */
 /* Initialize render state and opaque black colour before the battle draw pass. */
 // FUN_001927C0
 void btlRenderStateSetup(void)
 {
     u8 color[4];
-    void (**base)(s32, s32);
+    u8 *base;
 
     RpSkyRenderStateSet(2, 0x44);
     RpSkyRenderStateSet(3, 0x717FB);
-    base = D_00887300;
-    base[0](0xE, 0);
-    base[0](6, 0);
-    base[0](8, 0);
-    base[0](9, 2);
-    base[0](0xC, 1);
-    base[0](1, 0);
+    base = (u8 *)D_00887300;
+    ((void (**)(s32, s32))base)[0](0xE, 0);
+    ((void (**)(s32, s32))base)[0](6, 0);
+    ((void (**)(s32, s32))base)[0](8, 0);
+    ((void (**)(s32, s32))base)[0](9, 2);
+    ((void (**)(s32, s32))base)[0](0xC, 1);
+    ((void (**)(s32, s32))base)[0](1, 0);
     mdlEffectEmitMaskedTagPair();
     color[0] = 0;
     color[1] = 0;
@@ -212,10 +210,7 @@ void btlRenderStateSetup(void)
     mdlEffectEmitTagPair();
 }
 
-/* measured: closes opt_propagation around btlRenderStateSetup. */
-/* measured: opt_propagation off is scoped to btlSkyScroll. */
-/* measured: opt_loop_invariants on is scoped to btlSkyScroll. */
-/* measured: btlSkyScroll MATCH -> MISMATCH without this pragma. */
+/* measured: byte-addressed callback-table loads also remove the sky's propagation exception. */
 #pragma opt_loop_invariants on
 /* Scroll the sky texture V coordinates, wrapping after one texture period. */
 // FUN_001928C0
@@ -229,19 +224,19 @@ void btlSkyScroll(void)
     u8 *battle;
     struct RpAtomic *atomic;
     BtlSkyTexCoord *texCoords;
-    void (**base)(s32, s32);
+    u8 *base;
     struct RpAtomic *(*callback)(struct RpAtomic *);
 
     if (((BtlBattleState *)iGpffffb3ac)->skyActive != 0) {
         RpSkyRenderStateSet(2, 0x54);
         RpSkyRenderStateSet(3, 0x757FB);
-        base = D_00887300;
-        base[0](7, 2);
-        base[0](0xE, 0);
-        base[0](6, 1);
-        base[0](8, 0);
-        base[0](9, 2);
-        base[0](0xC, 1);
+        base = (u8 *)D_00887300;
+        ((void (**)(s32, s32))base)[0](7, 2);
+        ((void (**)(s32, s32))base)[0](0xE, 0);
+        ((void (**)(s32, s32))base)[0](6, 1);
+        ((void (**)(s32, s32))base)[0](8, 0);
+        ((void (**)(s32, s32))base)[0](9, 2);
+        ((void (**)(s32, s32))base)[0](0xC, 1);
         RpGeometryLock(
             ((BtlSky *)((BtlBattleState *)iGpffffb3ac)->sky)->atomic->geometry,
             0xFF0);
@@ -278,8 +273,6 @@ void btlSkyScroll(void)
     }
 }
 
-/* measured: closes opt_loop_invariants around btlSkyScroll. */
-/* measured: closes opt_propagation around btlSkyScroll. */
 /* measured: btlRelease, func_001932f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_00192AC0

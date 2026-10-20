@@ -699,10 +699,11 @@ void TrackSetScale(u8 *instance, f32 scale)
 }
 
 /* Measured: 620/624 bytes, 40 resolved relocations and 4 zero alignment bytes. */
-#pragma push
-#pragma opt_propagation off
 // Allocates a ribbon track: count * 2 + 0x1C bytes, with ribbon and cap geometry and per-sample colours.
 // FUN_00493E60
+/* measured: toggle removal and direct indexed material loads both differ by 213 normalized bytes. */
+#pragma push
+#pragma opt_propagation off
 u8 *TrackAllocRibbons(u16 count, u16 segments) {
     /* Keep ribbon/table/material byte accesses: typed ribbon fields changed b210 codegen (normalized_diff 295); alpha 0xFF is reserved. */
     s32 size;

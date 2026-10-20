@@ -229,7 +229,7 @@ u8 *btlCameraCreatePacketCommand(s32 value, s16 option, s32 first, s32 second) {
 }
 
 #pragma push
-/* measured: btlCameraSetupActionGeometry MATCH -> MISMATCH without this pragma. */
+/* measured: cached alpha mode and typed/narrow target cursors retain 306 or more baseline words. */
 #pragma opt_loop_invariants on
 /* Set visibility and fade flags from action membership and the horizontal camera corridor; mode bits select exclusions. */
 // FUN_001BCD40
@@ -373,13 +373,14 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
         }
     }
 }
-
 #pragma pop
+
 /* measured: disabling propagation preserves retail's independent outer-index
    materialisation after the preheader branch. */
 /* measured: disabling common-subexpression folding preserves retail's second
    masked loop-counter use. */
 /* measured: btlCameraClearAllUnitFlags MATCH -> MISMATCH without this pragma. */
+/* measured: named unit members retain 26 baseline words in the clear scan and 69 in the range scan. */
 #pragma opt_common_subs off
 /* Clear the low camera visibility flags on both battle-side unit lists. */
 // FUN_001BD300

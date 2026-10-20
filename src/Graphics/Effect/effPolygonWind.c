@@ -6,6 +6,9 @@
 #include "rw_geometry_internal.h"
 #include "effect_vu0_internal.h"
 #include "effect_mesh_internal.h"
+
+/* Unit settings: loop-invariant motion enabled. */
+#pragma opt_loop_invariants on
 extern void mdlEffectDestroyMultipartGeometry(void *source);
 extern void (*D_008873ec[])(void *);
 
@@ -241,6 +244,10 @@ void FunnelWindFreeBlock(u8 *effect) {
     D_008873ec[0](((WindBlock *)block)->allocation.pointer);
 }
 
+#pragma push
+/* measured: unit loop-invariants-on changes FunnelWindUpdateStrip by 852 normalized
+ * bytes and FunnelWindPackColors by 669; retain their shared loop-invariants-off region. */
+#pragma opt_loop_invariants off
 /* Funnel wind strip update, the SpiralWindUpdateStrip sibling without the VU0 matrix:
  * each sample sits on a ring of radius base + swell * (s - centre)^2 at a
  * rising height, and the strip is widened along the normalised ring offset.
@@ -658,6 +665,7 @@ void FunnelWindPackColors(u8 *effect)
         mdlEffectAppendGeometryPrimitive(instance, ((WindConfig *)config)->unk28);
     }
 }
+#pragma pop
 
 /* measured: without #pragma opt_loop_invariants on, mwcc rematerializes the
  * 0xFF/0xFE/-1 constants inside the loop instead of hoisting them to the
@@ -665,7 +673,7 @@ void FunnelWindPackColors(u8 *effect)
  * with it the loop matches retail exactly. */
 // Updates the funnel entries in a per-entry loop (0x30 stride).
 // FUN_004A3010
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 120B; adjacent-local declaration probe nd 120B; retain settings for owner MATCH. */
 void FunnelWindUpdateEntries(u8 *effect)
 {
     u8 *block;
@@ -695,14 +703,12 @@ void FunnelWindUpdateEntries(u8 *effect)
         particle += 0x30;
     }
 }
-#pragma opt_loop_invariants off
 
 // Initialises the falling funnel entries from the config (0x30 stride).
 // FUN_004A30E0
 /* Reusing configOrCopyIndex as the replica index after its last dereference preserves the
  * retail saved-register allocation for the replication loop. */
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 439B; adjacent-local declaration probe nd 439B; retain settings for owner MATCH. */
 void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
 {
     /* Earlier whole-layout trial: 214 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
@@ -792,7 +798,6 @@ void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
         }
     }
 }
-#pragma pop
 
 // Allocates a falling funnel wind block: count * 48 entry bytes plus a 12-byte header.
 // FUN_004A33E0
@@ -881,8 +886,7 @@ void FallingFunnelWindFreeBlock(u8 *effect) {
  * that retail evaluates before the bulge term. FPR declarations follow the
  * order a regalloc_whatif.py replay of the captured colouring derived. */
 
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 258B; adjacent-local declaration probe nd 257B; retain settings for owner MATCH. */
 // Updates the falling funnel wind strip: a call-free inner loop steps the centre along the normalised direction.
 // FUN_004A3640
 void FallingFunnelWindUpdateStrip(u8 *effect)
@@ -1152,7 +1156,9 @@ check:
         ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
-#pragma pop
+#pragma push
+/* measured: unit loop-invariants-on changes FallingFunnelWindPackColors by 669 normalized bytes. */
+#pragma opt_loop_invariants off
 // Packs the falling funnel vertex colours from the inner and outer colour words.
 // FUN_004A4000
 void FallingFunnelWindPackColors(u8 *effect)
@@ -1313,6 +1319,7 @@ void FallingFunnelWindPackColors(u8 *effect)
         mdlEffectAppendGeometryPrimitive(instance, ((WindConfig *)config)->unk28);
     }
 }
+#pragma pop
 
 /* measured: same loop-shape as FunnelWindUpdateEntries; without #pragma
  * opt_loop_invariants on, mwcc rematerializes the 0xFF/0xFE/-1 constants
@@ -1320,7 +1327,7 @@ void FallingFunnelWindPackColors(u8 *effect)
  * loop matches retail exactly (0x2C stride variant). */
 // Updates the falling funnel entries in a per-entry loop (0x2C stride variant).
 // FUN_004A4380
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 120B; adjacent-local declaration probe nd 120B; retain settings for owner MATCH. */
 void FallingFunnelWindUpdateEntries(u8 *effect)
 {
     u8 *block;
@@ -1350,7 +1357,6 @@ void FallingFunnelWindUpdateEntries(u8 *effect)
         particle += 0x2C;
     }
 }
-#pragma opt_loop_invariants off
 
 /* measured: structure converges exactly onto retail's shape (preheader
    hoists, both loops, conversion blocks) but mwcc b210 keeps the
@@ -1376,8 +1382,7 @@ void FallingFunnelWindUpdateEntries(u8 *effect)
    four resolved calls and eight zero alignment bytes. This initializes the
    first color/UV strip, then duplicates it for the remaining meshes.
    See docs/probe_archive/Wind_004a4450_shared_initializer.md. */
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 469B; adjacent-local declaration probe nd 469B; retain settings for owner MATCH. */
 // Initialises the spiral wind entries from the config (0x2C stride).
 // FUN_004A4450
 void SpiralWindInitEntries(u8 *block, u8 *config)
@@ -1462,7 +1467,6 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
         }
     }
 }
-#pragma pop
 
 // Allocates a spiral wind block: count * 44 entry bytes plus a 12-byte header.
 // FUN_004A4790
@@ -1542,6 +1546,10 @@ void SpiralWindFreeBlock(u8 *effect) {
     D_008873ec[0](((WindBlock *)block)->allocation.pointer);
 }
 
+#pragma push
+/* measured: unit loop-invariants-on changes SpiralWindUpdateStrip by 801 normalized
+ * bytes and SpiralWindPackColors by 669; retain their shared loop-invariants-off region. */
+#pragma opt_loop_invariants off
 /* Spiral wind strip update. Each live particle samples sampleCount points on a
  * circle (cosf/sinf), transforms them by the VU0 matrix set up by
  * effMiscRotateXVU, effMiscRotateYVU and effMiscCombineRotationVU, and widens the strip along the normalised cross
@@ -1953,6 +1961,7 @@ void SpiralWindPackColors(u8 *effect)
         mdlEffectAppendGeometryPrimitive(instance, ((WindConfig *)config)->unk28);
     }
 }
+#pragma pop
 
 /* measured: same loop-shape as FunnelWindUpdateEntries; without #pragma
  * opt_loop_invariants on, mwcc rematerializes the 0xFF/0xFE/-1 constants
@@ -1961,6 +1970,7 @@ void SpiralWindPackColors(u8 *effect)
 
 // Allocates a wind entry from the kind table (kind below 4), copying the kind's stride-0x1C record.
 // FUN_004A5630
+/* measured: baseline C nd 46B; adjacent-local declaration probe nd 46B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 void *WindAllocKindEntry(s32 kind, void *parameters)
 {

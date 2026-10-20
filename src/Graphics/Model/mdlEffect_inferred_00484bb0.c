@@ -91,6 +91,7 @@ typedef struct Code48InitialState {
 // FUN_00484BB0
 #pragma push
 /* measured: func_00484bb0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 186B; adjacent-local declaration probe nd 186B; retain settings for owner MATCH. */
 #pragma opt_lifetimes on
 /* measured: func_00484bb0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off

@@ -400,6 +400,7 @@ void btlFormationEntryCopySelected(s32 destination, s32 source)
  * inside the donor's opt_loop_invariants on region. Removing it here measured
  * MATCH nd0 -> MISMATCH nd50 (object 100/96), matching the donor's own
  * recorded W161 annotation of nd0 -> nd50. */
+/* measured: baseline nd50; typed pointer reuse, typed parameter cache, declaration lifetimes, scoped locals, explicit value caches did not match (best nd28); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Combine the genus bits of every action in the target selection; the result is kept to sixteen bits. */
 // FUN_001D8DF0
@@ -595,9 +596,6 @@ s32 btlAICommandPickNormalCandidateAlt(void)
 }
 
 
-#pragma push
-#pragma opt_rebuildconditionals off
-#pragma pop
 /* Decode the script action ID and command type, then return the command-collection result. */
 // FUN_001E8BB0
 s32 btlAICommandScriptCollectCommands(void) {
@@ -672,16 +670,8 @@ extern s32 btlPacketSetHpRatio(u8 **work);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 extern void btlPacketIncUnitCounterAlt(u8 *work);
 extern void btlPacketDecUnitCounterAlt(u8 *work);
-#pragma opt_propagation off
 #pragma opt_propagation on
-#pragma push
-#pragma opt_propagation off
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma pop
-#pragma opt_rebuildconditionals off
-/* measured: restore conditional rebuilding after callback completion. */
+/* Keep conditional rebuilding enabled for the neighbouring packet constructors. */
 #pragma opt_rebuildconditionals on
 // Intent: allocate the sprite-step packet (type 0x505). [inferred]
 // FUN_00202120

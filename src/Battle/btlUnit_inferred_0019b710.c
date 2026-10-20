@@ -218,6 +218,7 @@ void btlUnitHoldPendingColor(u8 *packetWork)
  * lifetime. Publication remains the actual four-byte color-by-value operation. */
 #pragma push
 /* measured: func_0019b730 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline leaves five merge-order words; reversing operands or naming the interpolation result does not close them. */
 #pragma opt_propagation off
 // FUN_0019B730
 /* Interpolate RGB and alpha on mode-dependent timelines, publishing the combined color each tick. */

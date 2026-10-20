@@ -232,7 +232,7 @@ typedef struct Code45Im2DVertex {
 // Intent: walks the archive directory records and registers each entry under its upper-cased path. singleEntry stops after the first record.
 // FUN_00456530
 #pragma push
-/* measured: func_00456530 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd67; incrementing the uppercase cursor gives nd57. */
 #pragma opt_loop_invariants on
 void H_Cdvd_RegisterArchiveEntries(u8 *basePath, u8 *archive, s32 singleEntry) {
     s32 recordLength;

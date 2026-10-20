@@ -11,6 +11,10 @@
 #include "scene_task_internal.h"
 #include "kwln_view_internal.h"
 
+/* Unit settings: measured scene helpers use loop invariants off and propagation on. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+
 
 
 
@@ -766,8 +770,10 @@ s32 MT_Scene_SetResActiveById(u32 resourceId, s32 enabled) {
 
 
 
+#pragma push
 /* measured: opt_propagation off closes first-target nd 9 -> 0 by preserving
    absolute-global and early source-pointer load order; direct stores remain exact. */
+/* measured: baseline differs by 9 words; packed-vector copy/direct field stores leave nd8/nd29; retain propagation off. */
 #pragma opt_propagation off
 /* Rotate a unit offset by two angles, scale it and add it to the supplied center. */
 // FUN_00269C70
@@ -807,10 +813,9 @@ void MT_Scene_GetAnglePoint(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 sca
     out[1] = transformed[1] + base[1];
     out[2] = transformed[2] + base[2];
 }
-#pragma opt_propagation on
 
 /* measured: opt_propagation off closes nd 5 -> 0 for global-load ordering. */
-#pragma opt_propagation off
+/* measured: baseline differs by 5 words; direct axis stores and scale lifetime changes leave nd14; retain propagation off. */
 /* Build an orthonormal basis and recover Euler angles, including the vertical-direction fallback. */
 // FUN_00269DB0
 void MT_Scene_GetDirectionAngles(f32 *angles, f32 *direction)
@@ -881,7 +886,7 @@ void MT_Scene_GetDirectionAngles(f32 *angles, f32 *direction)
         angles[0] = 180.0f - angles[0];
     }
 }
-#pragma opt_propagation on
+#pragma pop
 
 /* Resource fields recovered from the P4 setters and update retail. */
 
@@ -1432,6 +1437,8 @@ void MT_Scene_UpdateResource(u8 *resourceData)
    with frame 0x60. Argument-materialization + load-position scheduling floor. */
 /* measured: opt_propagation off plus block-scoped stack-address and global-load
    temporaries closes MT_Scene_GetTerrainAtPoint (normalized_diff 0). */
+/* measured: baseline differs by 18 words; aggregate reference copy/direct stores leave nd9/nd50; retain propagation off. */
+#pragma push
 #pragma opt_propagation off
 /* Search both triangles of each type-21 quad within a 100-unit vertical band; otherwise use the field terrain table. */
 /* The field-terrain byte load retains base+index order: array syntax swaps the addu operands (one differing word). */
@@ -1507,7 +1514,7 @@ s32 MT_Scene_GetTerrainAtPoint(u16 *position)
     }
     return terrain;
 }
-#pragma opt_propagation on
+#pragma pop
 
 /* Spawn the selected low-byte icon for an existing resource and report task creation success. */
 // FUN_0026BC10
@@ -1643,6 +1650,8 @@ void MT_Scene_ClearResState(u32 resourceId)
    reproduced by the natural float subtraction. */
 /* measured: opt_propagation off plus axis2 field temporaries and block-scoped
    pointer closes normalized_diff 0; object 460B/window 464B. */
+/* measured: baseline differs by 32 words; aggregate axis copies/direct fields leave nd16/nd80; retain propagation off. */
+#pragma push
 #pragma opt_propagation off
 // FUN_0026BFC0
 
@@ -1729,13 +1738,12 @@ void MT_Scene_OffsetPointByRotation(f32 *input, f32 distance, f32 pitch, f32 yaw
     output.value.z = source.value.z - transformed.value.z * distance;
     *(RwV3d *)result = output.value;
 }
-#pragma opt_propagation on
 
 
 
 /* measured: direction field temporaries plus opt_propagation off close nd 4 -> 0,
    preserving retail ld/lwc1/sd/swc1 ordering; object 376B fits the 384B window. */
-#pragma opt_propagation off
+/* measured: baseline differs by 5 words; aggregate direction copy/direct fields leave nd6/nd13; retain propagation off. */
 /* Resolve an optional anchor resource, apply the 15-unit backward offset and rotate the requested distance. */
 // FUN_0026C190
 void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
@@ -1797,10 +1805,9 @@ void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
     MT_Scene_OffsetPointByRotation(base, scale, axis[0], axis[1], axis[2], output);
     *(RwV3d *)out = *(RwV3d *)output;
 }
-#pragma opt_propagation on
 
 /* measured: opt_propagation off closes 15 load-order differences; lverify MATCH. */
-#pragma opt_propagation off
+/* measured: baseline differs by 12 words; aggregate camera-axis copies/direct fields leave nd16/nd32; retain propagation off. */
 /* Apply resource orientation or look-at basis, screen shake and field of view to the active camera. */
 /* measured: a shared typed local for the look-at flag/position accesses preserves MATCH; access-site casts alone grow this body beyond its 880-byte window. */
 // FUN_0026C310
@@ -1960,10 +1967,12 @@ void MT_Scene_UpdateCameraResource(u8 *resource)
     func_003e0f40(matrix);
     K_View_SetFov(scene, *(f32 *)&((SceneCameraUpdate *)resource)->fov);
 }
-#pragma opt_propagation on
+#pragma pop
 
+#pragma push
 /* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bb9b0 (verified MATCH there). */
 /* Removing this loses FUN_003bb9b0 (MATCH nd0 -> MISMATCH nd143) - measured W161. */
+/* measured: baseline differs by 46 words; component-pointer traversal leaves nd144; retain hoisting. */
 #pragma opt_loop_invariants on
 
 /* Normalize each degree-valued component into the half-open interval [0, 360). */
@@ -1990,7 +1999,6 @@ void MT_Scene_WrapAngles(f32 *angles)
     angles[2] = wrapped[2];
     return;
 }
-#pragma opt_loop_invariants off
 
 
 
@@ -2005,7 +2013,7 @@ void MT_Scene_WrapObjectAngles(s32 object)
 // there). 003bb9b0 -> MT_Scene_WrapAngles.
 
 /* opt_loop_invariants on: measured off nd 95, object 236/240; on nd 0, object 228/240 (MATCH); retain on. */
-#pragma opt_loop_invariants on
+/* measured: baseline differs by 33 words; component-pointer traversal leaves nd92; retain hoisting. */
 
 /* Return the shortest signed degree difference on each axis, keeping positive 180 unchanged. */
 // FUN_0026C770
@@ -2034,7 +2042,7 @@ void MT_Scene_GetAngleDelta(f32 *start, f32 *end, f32 *output)
     output[1] = adjusted[1];
     output[2] = adjusted[2];
 }
-#pragma opt_loop_invariants off
+#pragma pop
 
 
 // The volatile-qualified staging of the D_0063b1a0/D_0063b1a8 header into the
@@ -2126,8 +2134,7 @@ void MT_Scene_EvalCubicBezier(f32 t, f32 *x, f32 *y, f32 *z, f32 *outX,
 }
 
 
-/* opt_lifetimes on: measured nd 62 -> 0, object 400/400 -> 400/400. */
-#pragma opt_lifetimes on
+/* measured: branch-local control-point counters retain the 400-byte MATCH under baseline lifetimes. */
 
 /* Sample a packed cubic path; neighboring segments share their endpoint and use a 0x24-byte stride. */
 // FUN_0026CA10
@@ -2135,7 +2142,6 @@ void MT_Scene_SampleCurve(char *path, f32 time, f32 *output)
 {
     char segmentCount;
     s32 segmentIndex;
-    s32 controlIndex;
     f32 segmentDuration;
     f32 controlX [4];
     f32 controlY [4];
@@ -2144,6 +2150,7 @@ void MT_Scene_SampleCurve(char *path, f32 time, f32 *output)
     segmentCount = *path;
     if ('\0' < segmentCount) {
         if (!(time < 1.0f)) {
+            s32 controlIndex;
             controlIndex = 0;
             segmentIndex = segmentCount - 1;
             path += segmentIndex * 0x24;
@@ -2155,6 +2162,7 @@ void MT_Scene_SampleCurve(char *path, f32 time, f32 *output)
             MT_Scene_EvalCubicBezier(1.0f, controlX, controlY, controlZ, output, output + 1, output + 2);
         }
         else {
+            s32 controlIndex;
             segmentDuration = 1.0f / (f32)(s32)segmentCount;
             segmentIndex = (s32)(time / segmentDuration);
             controlIndex = 0;
@@ -2172,7 +2180,6 @@ void MT_Scene_SampleCurve(char *path, f32 time, f32 *output)
     }
     return;
 }
-#pragma opt_lifetimes off
 
 
 

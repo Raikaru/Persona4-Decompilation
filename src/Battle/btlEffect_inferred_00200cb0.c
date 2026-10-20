@@ -350,6 +350,7 @@ void btlUiSetRect(s32 *work, f32 x, f32 y, f32 width, f32 height) {
 /* measured: caching D_00887300 in s0 reproduces retail's one-time
    lui/addiu vtable materialization across these callback calls. */
 /* measured: btlUiSetRenderStates MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd126; explicit value caches did not match (best nd92); retain opt_propagation off. */
 #pragma opt_propagation off
 // Intent: set the fixed battle render-state sequence through the D_00887300 table. [inferred]
 // FUN_00201350
@@ -422,6 +423,7 @@ void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y)
 /* Keep the opacity base ahead of byte promotion, matching retail order. */
 #pragma push
 /* measured: btlUiDrawSpriteFaded MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd5; typed pointer reuse, typed parameter cache, explicit value caches, pointer iteration did not match (best nd5); retain opt_propagation off. */
 #pragma opt_propagation off
 // Intent: draw a battle sprite with per-channel colour and fade parameters. [inferred]
 // FUN_00201650
@@ -599,6 +601,7 @@ void btlPacketHitStatusCheck(u8 *work) {
  * metadata at their retail callback boundaries. */
 #pragma push
 /* measured: btlPacketBuildHitFlags MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd137; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd137); retain opt_propagation off. */
 #pragma opt_propagation off
 // Intent: packet callback; builds the hit display flags from the skill and status fields. [inferred]
 // FUN_00201B00

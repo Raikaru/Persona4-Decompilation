@@ -3,6 +3,9 @@
 #include "h_cdvd_internal.h"
 #include "h_cdvd_slot_internal.h"
 
+/* Unit setting: loop invariants off; path builders and the archive parser retain hoisting. */
+#pragma opt_loop_invariants off
+
 /* Prototypes for helpers defined in this TU but called by units that do not
  * declare them (the internal header uses the func_0045xxxx names; the call
  * sites use these named forms). */
@@ -130,7 +133,8 @@ u32 H_Cdvd_FileExists(const char* path)
 }
 
 
-/* Removing this loses FUN_00454BD0 (MATCH nd0 -> MISMATCH nd122) - measured W161. */
+#pragma push
+/* measured: baseline invariant motion gives nd122; a typed cache cursor gives nd49. */
 #pragma opt_loop_invariants on
 
 // FUN_00454BD0
@@ -187,10 +191,8 @@ u32 H_Cdvd_Destroy(HCdvd* cdvd)
 }
 
 
-#pragma opt_loop_invariants off
-/* Removing this loses FUN_00454D20 (MATCH nd0 -> MISMATCH nd58) - measured W161. */
+/* measured: baseline invariant motion gives nd58; retain the neighbouring path-builder settings. */
 
-#pragma opt_loop_invariants on
 // FUN_00454D20
 void H_Cdvd_BuildPathUppercase(const char* src, char* dst)
 {
@@ -237,10 +239,8 @@ void H_Cdvd_BuildPathUppercase(const char* src, char* dst)
 }
 
 
-#pragma opt_loop_invariants off
-/* Removing this loses FUN_00454E10 (MATCH nd0 -> MISMATCH nd29) - measured W161. */
+/* measured: baseline nd29; backwards pointer traversal gives nd147. */
 
-#pragma opt_loop_invariants on
 /* Splits `path` into a VOL: file name and its directory part. */
 // FUN_00454E10
 void H_Cdvd_SplitPath(const char* path, char* fileNameDst, char* dirDst)
@@ -279,10 +279,8 @@ void H_Cdvd_SplitPath(const char* path, char* fileNameDst, char* dirDst)
 }
 
 
-#pragma opt_loop_invariants off
-/* Removing this loses FUN_00454F50 (MATCH nd0 -> MISMATCH nd29) - measured W161. */
+/* measured: baseline nd29; backwards pointer traversal gives nd240. */
 
-#pragma opt_loop_invariants on
 // FUN_00454F50
 s32 H_Cdvd_BuildVolumePaths(const char* path, char* fileNameDst, char* dirDst)
 {
@@ -336,10 +334,8 @@ s32 H_Cdvd_BuildVolumePaths(const char* path, char* fileNameDst, char* dirDst)
 }
 
 
-#pragma opt_loop_invariants off
-/* Removing this loses FUN_00455100 (MATCH nd0 -> MISMATCH nd216) - measured W161. */
+/* measured: both src + index and &src[index] give nd216 without invariant hoisting. */
 
-#pragma opt_loop_invariants on
 // FUN_00455100
 void H_Cdvd_NormalizePath(const char* src, char* dst)
 {
@@ -408,7 +404,7 @@ advance:
         readIndex++;
     }
 }
-#pragma opt_loop_invariants off
+#pragma pop
 
 
 
@@ -616,6 +612,8 @@ s32 H_Cdvd_IsCached(void* unused, const char* path)
  * Its ordinary signed load preserves the size-before-buffer argument order.
  * measured: 508 bytes plus four zero tail bytes; loop-invariant hoisting also
  * preserves the archive scan's constants and field addresses. */
+#pragma push
+/* measured: array and pointer cursor spellings both give nd121 without invariant hoisting. */
 #pragma opt_loop_invariants on
 
 /* Parses a file request: a whole file is read directly, an archive is walked entry by entry. */
@@ -732,7 +730,7 @@ outer_check:
         offset += fileSize;
     }
 }
-#pragma opt_loop_invariants off
+#pragma pop
 
 
 

@@ -387,7 +387,6 @@ void Vpad_MarkDirty(RuntimeWork* work)
 
 /* Draw each trail atomic, selecting local/world transforms and restoring saved render states. */
 // FUN_004B5C60
-#pragma opt_propagation off
 void Vpad_DrawEntries(RuntimeVpadWork* work)
 {
     s32 savedCullMode;
@@ -458,7 +457,6 @@ void Vpad_DrawEntries(RuntimeVpadWork* work)
         ((void (*)(s32, s32))*(void**)base)(6, savedZTest);
     }
 }
-#pragma opt_propagation on
 // FUN_004B5F20. Activate a field runtime node and its owner.
 void Vpad_Activate(RuntimeWork* work)
 {
@@ -514,6 +512,7 @@ void Vpad_SetColor(RuntimeWork* work, const u8* color)
 
 
 /* measured: opt_propagation off is required for exact COP1 tail register coloring. */
+/* measured: baseline removal differs in 45 bytes; separate first and second edge totals; cache vector arrays with named pointers also differ. */
 #pragma opt_propagation off
 /* Sum both history-edge lengths and apply the configured distance scale. */
 // FUN_004B7300

@@ -146,6 +146,7 @@ void K_Clump_ReadChunks(u8 *directory, s32 *outputPath, u8 *workBytes)
 
 
 /* measured: opt_loop_invariants hoists the '.' and '/' loop constants. */
+/* measured: hoisting-off differs by 191 bytes; for-form scanning is unchanged and a split delimiter guard differs by 204 bytes. */
 #pragma opt_loop_invariants on
 /* Enumerate candidate model files, rewrite their streams, then destroy the temporary clumps. */
 // FUN_001921A0

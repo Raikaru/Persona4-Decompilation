@@ -323,12 +323,9 @@ void mtMiscCollectType19Records(MtMiscSceneSource *source, u8 *eventWork)
   return;
 }
 
-/* Each filtered scan owns its resource and index. With opt_lifetimes on,
- * those local scopes reproduce all 6312 retail code bytes; the 6320-byte
- * function window ends in eight zero alignment bytes. */
-#pragma push
-/* measured: func_00296850 MATCH -> MISMATCH without this pragma. */
-#pragma opt_lifetimes on
+/* Each filtered scan owns its resource and index, as does the final result reset.
+ * measured: a scoped resultIndex removes the four-word lifetime residual under
+ * file-baseline settings; all 6312 code bytes and eight zero tail bytes match. */
 // Build the event scene from source: fixed nodes, filtered record sets, header words, and per-entry nodes.
 /* The +0xD0 header word has no member in the shared EvtEventWork layout.
  * measured: each other remaining raw access loses MATCH when typed independently;
@@ -1174,14 +1171,13 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
   }
   evtRefreshNodeResources(eventWork);
-  index = 0;
-  while (index < 10) {
-      evtResultSet(index, -1);
-      index += 1;
+  {
+    s32 resultIndex;
+    for (resultIndex = 0; resultIndex < 10; resultIndex++) {
+      evtResultSet(resultIndex, -1);
+    }
   }
 
   return 1;
 }
-/* Restore the scoped lifetime analysis after the scene builder. */
-#pragma pop
 

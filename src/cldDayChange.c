@@ -261,6 +261,7 @@ void cldDayChangeDrawMarker(s32 x, s32 y, f32 depth, s32 opacity, u32 month,
 typedef struct { f32 x, y; } DayChangePoint;
 
 /* measured: loop-invariant probe for integer-to-float hoisting in 00265f40. */
+/* measured: baseline casts nd133; explicit pre-loop float origins nd169; retain loop hoisting. */
 #pragma opt_loop_invariants on
 /* Builds vertices and colours from a point array and draws them as a polygon. */
 // FUN_00265F40

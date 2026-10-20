@@ -32,7 +32,8 @@ extern void btlShuffleDrawViewClearGlow(u8 *drawWork);
 extern void btlShuffleDrawViewEndPatternFade(u8 *drawWork);
 extern void btlShuffleDrawCardEndSelection(u8 *drawWork);
 extern void btlShuffleDrawViewEndFrameFade(u8 *drawWork);
-extern s32 btlShuffleSeq5Check(u8 *context);
+extern /* measured: both row-match checks also match with surrounding loop-invariant extraction enabled. */
+s32 btlShuffleSeq5Check(u8 *context);
 extern s32 btlShuffleSeq5Check2(u8 *context);
 extern void btlShuffleSeqSetMode(u8 *context, s32 cardIndex, s32 frames);
 extern void btlShuffleDrawPoll(u8 *context, s32 cardIndex, s32 enabled);
@@ -130,7 +131,6 @@ void btlShuffleSeq5Shuffle(u8 *context) {
         }
     }
 }
-#pragma opt_loop_invariants off
 /* Highlight row cards matching the center card and report whether any row matches. */
 // FUN_0037F430
 s32 btlShuffleSeq5Check(u8 *context)
@@ -208,7 +208,6 @@ s32 btlShuffleSeq5Check2(u8 *context)
    Lifetime splitting preserves the independent state-machine phases, while
    loop-invariant hoisting retains the row products and vector addresses. */
 #pragma push
-#pragma opt_loop_invariants on
 
 /* Return the stop flag for one of the three valid shuffle rows. */
 static inline u16 btlShuffleRowMask(s32 row)
@@ -244,6 +243,7 @@ static inline s32 btlShuffleMovingRowSize(s32 count)
     return count < 6 ? count * 2 : count;
 }
 
+/* measured: baseline nd147; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd147); retain opt_lifetimes on. */
 #pragma opt_lifetimes on
 /* Run the three moving rows, stopping them on input and resolving matching card groups. */
 // FUN_0037F6E0

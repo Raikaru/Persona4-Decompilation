@@ -14,6 +14,9 @@ typedef signed __int128 s128;
 #include "rw/plcore/barenderstate.h"
 #include "mdl_file_internal.h"
 #include "rw_camera_internal.h"
+
+/* Unit setting shared by the title-scene callbacks and model renderers. */
+#pragma opt_propagation on
 extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
 extern s32 mdlCopyIndexedMatrix(void *, s32 , void *);
 extern void mdlApplyModelMatrix(void *, void *, s32 );
@@ -76,8 +79,6 @@ extern void sdkSpritePackDestroy(s32 );
 extern void H_Cdvd_Destroy(s32 );
 extern void sdkSndStopChannel(s32 );
 extern void mdlDestroyModelObject(s32 );
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Choose a title scene variant using weighted random branches and the global progression value. */
 // FUN_00124350
@@ -150,10 +151,7 @@ block_end:
     }
     return selection + 0xB;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Request and prepare all fifteen slot models; return nonzero only when all are ready. */
 // FUN_001246D0
@@ -201,10 +199,7 @@ loop_14:
 done:
     return ready;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Process the three-entry title music selector and retain the previous cursor for animation. */
 // FUN_00124830
@@ -247,10 +242,7 @@ s32 titleMusicStreamStep(u8 *context)
     }
     return -1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Attach the companion slot model to frame 0x64, then apply color and draw flags. */
 // FUN_00124970
@@ -322,7 +314,6 @@ void taskPrepareSlotModel(s32 modelIndex, u32 packedColor, s32 flags, u32 *conte
         }
     }
 }
-#pragma pop
 
 extern void *RwMatrixRotate(void *m, void *src, f32 angle, s32 mode);
 extern void *func_003e4320(void *dst, void *src, void *m);
@@ -339,12 +330,11 @@ typedef struct {
     union { f32 f; s32 zBits; };
 } TitleAxisPair;
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Transform, tint and update a title slot model and its companion passes. */
 // FUN_00124BB0
 /* 956/960 bytes; twenty-five resolved relocations and one zero alignment word. */
+/* measured: baseline propagation with initialized/reordered/staged axis snapshots or direct copies leaves at least 15 differing bytes. */
 #pragma push
 #pragma opt_propagation off
 /* Earlier whole-layout typing probe: TitleScene/model fields changed codegen (nd 307).; access-site and typed-local forms now match. */
@@ -464,7 +454,6 @@ void titleTransformSlotModel(s32 modelIndex,
     }
 }
 #pragma pop
-#pragma pop
 
 /* Floor: 844 differing words (was 900), 967 of 964 instrs (+3, +0.3% well inside 3% band, 26 slack to 993 edge; was 993/+29 edge), 932 fnalign edits (was 1077). Surplus was 6 extra clamped float->u8 (cvt.w.s/mfc1 +12, c.ole/sub/bc1t +6, lui +6) from double-converting white via f intermediates + a2; fix is u32 r/g/b for retail's unsigned bltz/srl doubling, a0 as (s32)(f32)*(s32 *) for lwc1/cvt.s.w/cvt.w.s/mfc1, and 5 of 6 f intermediates folded to direct sums (first f0 double retained to center count). Cheap causes ruled out: all literals f-suffixed, 13 jals both with no __ soft-float relocs, no 2.0f in body (mul.s 3/3). Gate 8 inside 0 outside. Body also at docs/probe_archive/Lane0012_00124f70_body.c; production stays ASM. */
 /* measured 2026-09-18: reconstructed from bare marker (retail 0x00124F70, 3856B window, 964 instrs). v1c baseline 921 (Ghidra-direct, [6] frame exact at 0x360; [8] gave 0x370 at 922). v2 908 (-13: D_5530/40 array not scalar + 002aaf20 640/448 not 512/480,512/1216). v3 904 (-4: flag beqz polarity + col order + buffers address-ascending). v4 903 (-1: buffers descending, first-declared highest per micro stacktest2). v5 900 (-3: explicit p5234/5230/524C/5248/5244/5240/523C/5238 locals, first two spill to 0xA0/0xB0). Free pragmas tie/worse: loopinv 922 (+1), nounroll 921 tie, sched 921 tie, propoff 943 (+22), commonsubs 940 (+19). 7o eight skipped: body already in 7o form (bare decls + statement assigns, no Type name = ...; initialisers). Full proof in archive. */
@@ -515,7 +504,6 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 }
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma always_inline on
 /* Draw the title scene model passes and full-screen palette/brightness layers.
@@ -704,8 +692,6 @@ extern void mdlEffectEmitTagPair(void);
 extern s32 D_005E55E0[];
 extern s8 D_005E5610[];
 extern void (*D_00887300[])(s32 , s32 );
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Translate six point rows and draw the title backdrop with transformed vertex colors. */
 // FUN_00125E80
@@ -791,7 +777,6 @@ void titleBuildPointRows(f32 originX, f32 originY, f32 depth, s32 opacity, u8 *c
     PrimDrawTransformed(colors, points, depth, 6, 4, 0, 0, 0,
                   -20.0f, 1.0f, 1.0f);
 }
-#pragma pop
 
 extern s32 shdSpriteDrawNow(f32 , f32 , f32 , s32 opacity, u8 context, s32 , s32 , u8 *, s32 );
 extern s32 shdSpriteDrawNowEx(f32 , f32 , f32 , s32 opacity, u8 context, s32 , s32 , u8 *, s32 ,
@@ -815,8 +800,6 @@ static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *
                   scale, scale);
 }
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Draw title shade bars and counter-rotating rings on a 200-frame cycle. */
 // FUN_00126090
@@ -890,7 +873,6 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context)
     titleRing(377.0f, 93.0f, 0x808080, 1.0f, angle, (u8 *)(titleScene->sprites));
     titleRing(626.0f, 110.0f, 0x808080, 1.55f, angle, (u8 *)(titleScene->sprites));
 }
-#pragma pop
 
 #include "btl_shuffle_draw_internal.h"
 typedef struct Code12FrameVector { f32 x, y, z; } Code12FrameVector;
@@ -901,8 +883,6 @@ typedef union Code12FrameVectorTransfer {
     Code12FrameVector vector;
 } Code12FrameVectorTransfer;
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Release fifteen models, the sprite pack, the file request and the title work. */
 // FUN_0012B660
@@ -945,10 +925,7 @@ loop_10_test:
     H_Cdvd_Destroy(((TitleScene *)context)->file);
     jtbl_008873EC[0](context);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Allocate the 0x90-byte title work and register its loader callbacks. */
 // FUN_0012B760
@@ -962,10 +939,7 @@ s32 titleStartLoader(void)
     ((TitleScene *)context)->complete = 0;
     kwlnTaskCreate((const void *)(D_005E5720), 0xF, 0, 0, titleTaskUpdate, titleLoaderTeardown, (u8 *)(context));
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Destroy a linked loader once its completion word is nonzero; return that word. */
 // FUN_0012B810
@@ -982,10 +956,7 @@ s32 titleLoaderReap(s32 task)
     }
     return context->complete;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Advance the asynchronous file request and keep its resource until destruction. */
 // FUN_0012B890
@@ -1016,10 +987,7 @@ s32 titleFileLoadStep(u8 *unusedTask)
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Release a loaded resource, if present, then free the file task work. */
 // FUN_0012B940
@@ -1034,4 +1002,3 @@ void titleLoaderDestroy(u8 *unusedTask) {
     }
     jtbl_008873EC[0](work);
 }
-#pragma pop

@@ -190,6 +190,7 @@ loop_test:
 
 #pragma push
 /* measured: btlEffectScriptPickRandomHighestOpposingUnit MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd264; scoped locals, inverted if/else did not match (best nd240); retain opt_rebuildconditionals off. */
 #pragma opt_rebuildconditionals off
 /* AI script command 0x20b7 (p4flow AI.json AI_FUNCTION_00B7). */
 /* Collect living opposing candidates at the highest level, then choose one uniformly and return its encoded ID. */

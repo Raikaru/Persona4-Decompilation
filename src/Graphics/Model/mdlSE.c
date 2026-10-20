@@ -83,6 +83,7 @@ void *mdlSeCreateRecord(u32 type, u16 id, s32 kind)
    preserves the shared sentinel and distinct eviction-loop lifetimes. */
 // FUN_0047DF40
 #pragma push
+/* measured: baseline removal differs in 203 bytes; typed slot cursor; reread tick through table alias also differ. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 s32 mdlSeAcquireSlot(u32 type, u16 id)
@@ -164,6 +165,7 @@ s32 mdlSeAcquireSlot(u32 type, u16 id)
    where retail reads `entry[(u16)i]`, and invented a `default: = 3` arm the
    switch does not have. */
 // FUN_0047E0F0
+/* measured: baseline removal differs in 18 bytes; typed cell reads; for-loop variant scan also differ. */
 #pragma opt_loop_invariants on
 s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
 {

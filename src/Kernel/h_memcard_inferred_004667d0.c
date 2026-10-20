@@ -231,6 +231,7 @@ typedef struct MovieNativeWork {
 /* 512/512 bytes; ten fully resolved relocations.
  * A real interrupt-state local retains the retail spill under register pressure. */
 /* measured: func_004667d0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 25 bytes; typed pool indexing; reread pool slot through typed cursor also differ. */
 #pragma opt_loop_invariants on
 // FUN_004667D0
 /* Allocate a request from the fixed pool and append it under the interrupt lock. */

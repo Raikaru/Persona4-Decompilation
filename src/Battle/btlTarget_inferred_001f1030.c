@@ -304,8 +304,10 @@ s8 btlTargetClassifyTargetResult(u8 *action, u8 *hitResult, s32 hitOutcome, s32 
 #pragma push
 /* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
 /* measured: btlTargetResolveSelectedSkill MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal leaves 795 words different; an indexed skill row and MEMBER attacker reload do not close it. */
 #pragma opt_propagation off
 /* measured: btlTargetResolveSelectedSkill MATCH -> MISMATCH without this pragma. */
+/* measured: isolated removal leaves 4559 differing bytes; the indexed skill-row source has the same residual. */
 #pragma opt_pulloutconstants off
 /* Resolve the selected skill, recording damage, reactions and party follow-ups.
  * Byte/halfword snapshots separate the calculation and record-copy phases. */

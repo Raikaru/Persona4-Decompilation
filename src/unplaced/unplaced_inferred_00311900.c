@@ -59,9 +59,10 @@ s32 cmmCommunityExpRemaining(s32 community, u8 *persona, s8 applyMultiplier)
     return (s32)((f32)total * D_007494D0[cmmCommunityRecordValue(community)]);
 }
 
+/* Match up to eight recipe entries against unused materials; required entries must match and category entries compare arcana. */
 #pragma push
 #pragma opt_loop_invariants on
-/* Match up to eight recipe entries against unused materials; required entries must match and category entries compare arcana. */
+/* measured: typed table, entry cursor and cached recipe flags do not match; baseline retains 59 differing words. */
 // FUN_00311B90
 s32 fclCombineRecipeMatchMask(u16 *recipe, u16 *materials, s32 materialCount, s16 *matchedCount)
 {
@@ -193,9 +194,10 @@ done:
     return result;
 }
 
+/* Report whether any of the 23 flag-gate records refers to the requested community. */
 #pragma push
 #pragma opt_loop_invariants on
-/* Report whether any of the 23 flag-gate records refers to the requested community. */
+/* measured: cached key/table and pointer traversal do not match; baseline retains 13 differing words. */
 // FUN_00311E40
 s32 cmmCommunityHasFlagGate(s32 community)
 {

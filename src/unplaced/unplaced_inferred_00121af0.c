@@ -280,8 +280,7 @@ void fadeDrawMesh(void)
 
 /* Dispatch the active fade renderer while preserving the previous render state. */
 // FUN_001221A0
-/* measured: opt_propagation off preserves the single hoisted D_00887300 base
-   used by retail across this callback's state setup sequence. */
+/* measured: removing opt_propagation off, including a pointer-to-array base, rematerializes the dispatch base (358 differing bytes). */
 #pragma opt_propagation off
 void fadeUpdateCallback(void *unusedContext, u8 *fadeWork)
 {
@@ -356,8 +355,6 @@ void fadeUpdateCallback(void *unusedContext, u8 *fadeWork)
     }
 }
 
-#pragma push
-#pragma opt_propagation on
 /* Queue the shared fade work for the render callback. */
 // FUN_001223D0
 s32 fadeQueueCallback(u8 *unusedTask) {
@@ -374,7 +371,6 @@ s32 fadeQueueCallback(u8 *unusedTask) {
     PrimAppendNode(D_00796340, p);
     return 0;
 }
-#pragma pop
 
 extern s32 RpSkyRenderStateSet(s32 , s32 );
 extern void (*D_00887300[])(s32 , s32 );

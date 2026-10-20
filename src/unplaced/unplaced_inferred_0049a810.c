@@ -8,9 +8,8 @@
 #include "particle_spawn_internal.h"
 #include "effect_vu0_internal.h"
 #pragma push
+/* measured: propagation/common-subexpression toggles are redundant; while/for without hoisting leave -1 inside the loop (17-word removal residual). */
 #pragma opt_loop_invariants on
-#pragma opt_propagation on
-#pragma opt_common_subs on
 /* Clear wind geometry vertices and mark each six-word entry inactive before rebuilding. */
 /* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0049A810

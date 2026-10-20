@@ -10,6 +10,12 @@
 #include "dat_enemy_internal.h"
 #include "g_data_entry_internal.h"
 #include "member_access.h"
+
+/* Unit settings: measured calculation helpers use loop invariants off, common subexpressions on and propagation on. */
+#pragma opt_loop_invariants off
+#pragma opt_common_subs on
+#pragma opt_propagation on
+
 /* DatUnit's calculation state, pinned by the buff getters/setters and hit-result
  * writers below. The two packed tables each use eight bytes for indices 0..15;
  * indices 16..23 are represented by bits in buffFlags instead. */
@@ -240,7 +246,9 @@ void datCalcSetSp(DatUnit *unit, u16 sp)
    table-address load order, and the slti $at clamp guard. */
 // Intent: maximum HP of unit arg0 from its level and skill/equipment bonuses; capped at 999 unless flag 4.
 // FUN_00231F80
+#pragma push
 /* measured: opt_common_subs/opt_propagation plus byteAddressAdd force retail index-first GP addressing; nested guard preserves slti $at branch form. */
+/* measured: baseline differs by 636 bytes; typed enemy-array access still differs by 16 bytes with CSE off. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 u16 datCalcMaxHp(DatUnit *unit)
@@ -298,10 +306,6 @@ u16 datCalcMaxHp(DatUnit *unit)
     }
     return maximumHp & 0xFFFF;
 }
-/* measured: close opt_propagation scope after 00231f80. */
-#pragma opt_propagation on
-/* measured: close opt_common_subs scope after 00231f80. */
-#pragma opt_common_subs on
 
 
 /* MATCHED 2026-08-08: datCalcMaxSp is byte-exact (nd 0, object 784B /
@@ -310,8 +314,7 @@ u16 datCalcMaxHp(DatUnit *unit)
 // Intent: maximum SP of unit arg0 from its level and SP bonuses; capped at 999 unless flag 4.
 // FUN_00232290
 /* measured: sibling of exact 00231f80 template; raw s32 temp, integer GP-base addition, and direct clamp spelling preserve retail. */
-#pragma opt_common_subs off
-#pragma opt_propagation off
+/* measured: baseline differs by 635 bytes; typed enemy-array access still differs by 16 bytes with CSE off. */
 u16 datCalcMaxSp(DatUnit *unit)
 {
     /* Enemy-row offsets +4/+6 are HP/SP within the 0x3C-byte stride; keep index-first GP addressing for the measured load-order requirement above. */
@@ -367,10 +370,8 @@ u16 datCalcMaxSp(DatUnit *unit)
     }
     return maximumSp & 0xFFFF;
 }
-/* measured: close opt_propagation scope after 00232290. */
-#pragma opt_propagation on
-/* measured: close opt_common_subs scope after 00232290. */
-#pragma opt_common_subs on
+/* measured: restore the unit settings after the shared maximum-HP/SP scope. */
+#pragma pop
 // Intent: adds hpDelta arg1 to unit arg0's HP, clamped to 0..max HP; returns the new HP.
 // FUN_002325A0
 s32 datCalcAddHp(DatUnit* unit, s32 hpDelta)
@@ -535,6 +536,7 @@ u16 datCalcCountIdSlotsWithValue(u16 characterId, u16 property)
  * The count is a word-valued query result; callers may test it without narrowing.
  * 58 instructions, zero relocation-masked differences for the whole owner. */
 #pragma push
+/* measured: propagation-on differs by 65 bytes; narrow count and direct increments still differ by 43/62 bytes. */
 #pragma opt_propagation off
 s32 datCalcCountSlotsWithValue(u8 *unit, s32 property)
 {
@@ -736,6 +738,7 @@ done_value:
 #pragma push
 /* measured: 1304B/1312B, eight zero-tail bytes and 24 resolved relocations;
    loop-invariant hoisting preserves the retail six-search preheaders. */
+/* measured: hoisting-off differs by 156 bytes; typed tables, narrow skill/counter and for-search forms do not match. */
 #pragma opt_loop_invariants on
 s32 datCalcGetSkillMask(DatUnit *unit)
 {
@@ -1058,6 +1061,7 @@ void datCalcClearField18(int object)
  * Their third argument is an unused u16 skill ID; preserving that contract
  * avoids caller-side widening before the matching hit and damage routines. */
 #pragma push
+/* measured: propagation-on differs by 70 bytes; splitting the status conditional still differs by 126 bytes. */
 #pragma opt_propagation off
 f32 datCalcBuffMultiplier(u8 *unit, s32 buffIndex, u16 unusedSkill)
 {
@@ -1574,6 +1578,7 @@ void datCalcAdvanceSecondaryBuffs(DatUnit *unit)
 #pragma push
 /* measured: b210 owner profile, 504B/512B, no differing emitted words;
    hoist the signed threshold comparison out of the loop. */
+/* measured: hoisting-off differs by 212 bytes; a word-sized threshold still differs by 286 bytes. */
 #pragma opt_loop_invariants on
 // Intent: index of the first buff level in 0..15 that is active and at or above a threshold (3, doubled for flag-4 units with table bit 0x1000), else -1; [inferred].
 // FUN_00235320
@@ -1610,7 +1615,6 @@ s64 datCalcFindStrongBuff(u8 *unit)
     }
     return -1;
 }
-#pragma pop
 /* Equipment queries shared by damage, hit and critical calculations. */
 /* Count matching equipment properties for party units; enemy units contribute none. */
 static inline u16 datCalcCountEquipmentProperty(u8 *unit, s32 property)
@@ -1644,8 +1648,7 @@ static inline s32 datCalcHasEquipmentProperty(u8 *unit, s32 property)
     return 0;
 }
 
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: hoisting-off differs by 260 bytes in datCalcSkillAmount; typed/narrow/for-form shared searches do not match. */
 /* Read a party unit accessory property; enemy units have no accessory. */
 static inline u16 datCalcAccessoryProperty(DatUnit *unit)
 {
@@ -2314,6 +2317,7 @@ s32 datCalcSkillRoll(s32 skillId, DatUnit *unitArg, s32 targetAddress)
 // Intent: status-infliction roll for skill arg0 from source arg1 on target arg2: picks the skill's status bits (one at random when the row mode is 3), gates them on the target, applies resistance and source-side bonuses unless options bit 1 is set, rolls the chance, and returns the landed bits (0 when resisted or missed; 0x80000 death may be cancelled by a survive flag); [inferred].
 // FUN_00238940
 #pragma push
+/* measured: hoisting-off differs by 280 bytes; typed/narrow/for-form shared searches do not match. */
 #pragma opt_loop_invariants on
 s32 datCalcInflictStatus(skillId, source, target, options)
 u16 skillId;
@@ -2863,6 +2867,7 @@ extern u32 datPersonaGetSkillSlot(u16 partyId, s32 slotIndex);
 extern s32 datCalcIsGuarding(u16 *unitFlags);
 
 #pragma push
+/* measured: hoisting-off differs by 1144 bytes; typed/narrow/for-form shared searches do not match. */
 #pragma opt_loop_invariants on
 // Intent: resistance and nullify flags of unit arg0 against status element arg1; callers test the 0x08000000 and 0x07000000 groups; [inferred].
 // FUN_0023A6B0
@@ -3346,6 +3351,7 @@ s32 datCalcSkillElement(DatUnit *unit, u16 skillId)
 // Intent: SP cost of skill arg1 for unit arg0, after equipment reduction and the cost limit; [inferred].
 // FUN_0023D9B0
 #pragma push
+/* measured: baseline differs by 666 bytes; for-form searches and separate propagation/CSE removals do not match. */
 #pragma opt_common_subs off
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
@@ -3565,8 +3571,8 @@ s32 datCalcDefaultSkillId(DatUnit *unit)
 #pragma push
 /* measured: 320B/320B, nd 0. Unsigned remainders preserve distinct masks
    through CSE; hoisting and selected-before-index match retail registers. */
+/* measured: hoisting-off differs by 196 bytes; for-form scanning and explicit u16 narrowing leave that residual. */
 #pragma opt_loop_invariants on
-#pragma opt_common_subs on
 s32 datCalcPickSpecialItem(DatUnit *unit)
 {
     u16 choices[16];
@@ -3706,8 +3712,10 @@ s32 datCalcSkillValueBase(u8 *unit, s32 slotFlags)
    (nd 7); now matches byte-for-byte. */
 /* Query one of three weapon properties, substituting enemy-row values for enemies. */
 // FUN_0023E3E0
+#pragma push
 /* measured: opt_propagation off + index-first inline helper force the
    single-use iGpffffb3c4 base lw before the *0x3C chain (peer-verified). */
+/* measured: propagation-on differs by 16 bytes; typed enemy-array and base-first addressing leave that residual. */
 #pragma opt_propagation off
 u16 datCalcGetWeaponProperty(u16 *unitWords, s32 propertyKind)
 {
@@ -3754,7 +3762,7 @@ zero:
     return 0;
 }
 /* measured: close opt_propagation scope after func_0023e3e0. */
-#pragma opt_propagation on
+#pragma pop
 /* Query either armor property; enemy units use ten for both selectors. */
 
 // FUN_0023E5B0
@@ -3798,6 +3806,7 @@ ret0:
 
 /* Fixed eight-slot skill search shared by hit and critical checks. */
 #pragma push
+/* measured: hoisting-off differs by 416 bytes in datCalcResolveSkillHit; a narrow shared-search counter differs by 464 bytes. */
 #pragma opt_loop_invariants on
 /* Select the party persona or enemy initialization skill table. */
 static inline u8 *datCalcFixedSkillTable(u8 *unit)
@@ -4168,19 +4177,17 @@ s32 options;
 finish:
     return result;
 }
-#pragma pop
 
 
 /* measured 002411a0: configured b210 emits 2588/2592B with all 70 relocations
  * resolved exactly and four retail zero tail bytes. Declaring idx after lvl
  * restores the initial index/element register assignment. The repeated searches,
  * native conversions and conversion-before-bonus order preserve retail behavior.
- * opt_loop_invariants on scopes the searches; opt_common_subs on scopes the main
- * body. All 79 siblings and allocated data are unchanged.
+ * opt_loop_invariants on scopes the searches; the main body uses the
+ * surrounding opt_common_subs setting. All siblings and allocated data are unchanged.
  * The fifth argument is passed by btlTargetResolveSelectedSkill and unused by retail.
  * See docs/probe_archive/DC_worker3_20260920_recoveries.md. */
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: hoisting-off differs by 1288 bytes; for-form and narrow shared-search counters do not improve it. */
 
 /* The skill is interpreted as u16 inside this C89 definition; its promoted
  * s32 interface preserves the existing callers. measured: 2588/2592 bytes
@@ -4188,7 +4195,6 @@ finish:
 s32 datCalcHitResult(u8 *, u8 *, s32, s32, s32);
 // Intent: skill result for attacker arg0 on target arg1: 2 for a critical (roll under the crit rate; sub == 2 in datCalcSkillAmount), 4 when the affinity is weak (AFF_WEAK), 1 otherwise; [inferred].
 // FUN_002411A0
-#pragma opt_common_subs on
 s32 datCalcHitResult(source, target, skillId, outcome, unusedMode)
 u8 *source;
 u8 *target;
@@ -4358,10 +4364,6 @@ s32 unusedMode;
    s16-extension-pair floor, corroborated. */
 // Intent: true unless the target's level bit for skill arg2 is in 0xE0001 (null, absorb or reflect); other early exits return false; [inferred].
 // FUN_00241BC0
-#pragma push
-/* measured: opt_propagation off keeps arg2 raw in $s2 and the masked u16 in $s0;
-   per-use u16 casts for other masks avoid the 0xffff constant cache. */
-#pragma opt_propagation off
 s32 datCalcSkillAppliesToTarget(source, target, skillId, channel, unusedMode)
 u8 *source;
 u8 *target;
@@ -4421,7 +4423,6 @@ s32 unusedMode;
 one:
     return 1;
 }
-#pragma pop
 // Intent: true when datCalcSkillAppliesToTarget holds and the skill's category is 9 or 10, or mode arg4 is 2 or 4; [inferred].
 // FUN_00241DE0
 s32 datCalcSkillAllowedForMode(DatUnit *source, DatUnit *target, s32 skillId, s32 channel, s32 mode)
@@ -4569,9 +4570,11 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
 
 // Intent: rolls a skill's success for target arg1 from the skill's chance byte (raised for flagged units and for skill 0x21C); [inferred].
 // FUN_00242360
+#pragma push
 /* measured: loop-invariant 0x21C compare constant must be hoisted into
    the preheader (retail addiu $a0,$zero,0x21c before the loop's initial
    branch); mwcc b210 rematerialises it in the body without the pragma. */
+/* measured: hoisting-off differs by 26 bytes; for-form scanning is unchanged and a narrow counter differs by 29 bytes. */
 #pragma opt_loop_invariants on
 s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, s32 outcome)
 {
@@ -4680,7 +4683,7 @@ done:
 }
 /* Closes the measured opt_loop_invariants scope opened for datCalcRollSkillChance above.
    It must stay scoped: leaving it on regresses the neighbouring functions. */
-#pragma opt_loop_invariants off
+#pragma pop
 
 // Intent: chance (0..100) that an ailment of level arg1 lands on unit arg0: 0 for level -1 or bit 0, 100 for bits 0xE0000, else the skill-table result; [inferred].
 // FUN_00242800
@@ -4738,6 +4741,8 @@ u32 datCalcIsLowHp(DatUnit *unit)
    used the helper; this was the one that did not. */
 // Intent: effective skill id for unit arg0 given base skill arg1: a replacement id found in the unit's slots (0x20F-0x231 families, some by random roll), or -1 when none applies; [inferred].
 // FUN_00242990
+#pragma push
+/* measured: hoisting-off differs by 208 bytes; for-form scanning is unchanged and narrow counters differ by 232 bytes. */
 #pragma opt_loop_invariants on
 s32 datCalcResolveSkillId(DatUnit *unit, s32 baseSkill)
 {
@@ -5075,7 +5080,7 @@ tail:
     }
     return replacementSkill;
 }
-#pragma opt_loop_invariants off
+#pragma pop
 
 // Intent: skill value for unit arg0 at slot arg2: a table base plus a random roll within the row's range; [inferred].
 // FUN_00243650

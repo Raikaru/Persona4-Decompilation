@@ -73,6 +73,7 @@ typedef struct TrackVertex
  * bound. The scalar width expression preserves the cap width and VU input
  * as distinct lifetimes; all vector transfers declare their memory operands. */
 /* Shift center history, expand a tapered ribbon and rebuild its cap from the head tangent. */
+/* measured: a cached tail bound and structured tail loop still differ (baseline nd 563 bytes); retain loop hoisting. */
 // FUN_00494740
 void mdlEffectAdvanceRibbon(u8 *track, u16 trackIndex, u8 *point, f32 width) {
     extern void mdlEffectAxisAngleBasisVU(f32 angle);

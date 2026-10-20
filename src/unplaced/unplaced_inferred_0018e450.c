@@ -24,9 +24,10 @@ typedef struct FldTestLauncherWork {
 extern void mdlDestroyModelObject(s32 model);
 extern void (*jtbl_008873EC[])(void *);
 void K_Test_Create(s32 parentTask);
-#pragma push
+/* Unit settings shared by the test launcher routines. */
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+#pragma push
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -57,8 +58,6 @@ s32 K_Test_LauncherUpdate(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off

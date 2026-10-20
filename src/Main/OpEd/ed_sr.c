@@ -137,23 +137,21 @@ void edSrStartPlayback(void) {
 
 // Intent: Queued overlay draw: draw the scroll lines while the work is active [inferred]
 // FUN_0038F0B0
-/* measured: typed D_00887300 base local with opt_propagation off keeps
-   retail's single lui/addiu hoist into $16 (same fix as cmpMain func_0012cd90). */
-#pragma opt_propagation off
+/* measured: a byte-addressed callback-table base retains the retail hoist with baseline propagation enabled. */
 void edSrOverlayDraw(void) {
-    void (**base)(s32, s32);
+    u8 *base;
     s32 previousFogState;
 
     D_00887304[0](0xE, &previousFogState);
-    base = D_00887300;
-    base[0](0xE, 0);
+    base = (u8 *)D_00887300;
+    (*(void (**)(s32, s32))base)(0xE, 0);
     if (iGpffffb5b8 == NULL) {
         kAssertFail(&iGpffffa9f0, 0x64);
     }
     if (!(~*iGpffffb5b8 & 1)) {
         edScrollDrawLines();
     }
-    base[0](0xE, previousFogState);
+    (*(void (**)(s32, s32))base)(0xE, previousFogState);
 }
 #pragma opt_propagation on
 

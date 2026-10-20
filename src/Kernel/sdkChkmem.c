@@ -153,6 +153,7 @@ static void chkmemUntrackBlock(u8 *block)
 void chkmemAllocSiteTag(const void *file, s32 line) {}
 /* measured: func_0044eaa0 matches with propagation disabled. The explicit
    class-size temporary preserves retail's classBytes load order. */
+/* measured: baseline removal differs in 32 bytes; typed class-pool access; MEMBER block size and alignment reloads also differ. */
 #pragma opt_propagation off
 /* Register a block and store its header immediately before the aligned payload. */
 /* The header back-pointer is payload-4 after variable alignment padding,
@@ -224,6 +225,7 @@ void chkmemSetLock(s32 locked) {
    stayed at 34 (worse 51 with cls local). Same class-block scheduling floor as
    func_0044eaa0 (locked->size RHS-first, classCount delta-before-pool-reload). */
 /* measured: preserves retail allocator reload order. */
+/* measured: baseline removal differs in 31 bytes; typed class-pool access; MEMBER block size and alignment reloads also differ. */
 #pragma opt_propagation off
 /* Allocate a sixteen-byte-aligned payload with tracked header and class totals. */
 /* The header back-pointer is payload-4 after variable alignment padding,
@@ -349,6 +351,7 @@ void chkmemFree(u8 *allocation)
    Same class-block pool-reload-before-delta floor as func_0044eaa0 plus the
    saved-register rotation family of func_0044ec60/func_0044f3a0. */
 /* measured: preserves retail expression and class-array reload order. */
+/* measured: baseline removal differs in 23 bytes; typed class-pool access; MEMBER block size and alignment reloads also differ. */
 #pragma opt_propagation off
 /* Allocate and register a payload with caller-specified alignment. */
 /* The header back-pointer is payload-4 after variable alignment padding,

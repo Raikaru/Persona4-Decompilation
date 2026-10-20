@@ -201,6 +201,7 @@ void nLineSetDefaultDuration(void) {
    fields. Row pointers formed inside the loop plus invariant hoisting give
    retail's destination-first address schedule and register allocation.
    measured: object 212B/window 224B; exact instructions, 12B zero tail. */
+/* measured: explicit byte/typed base hoists still leave 22 word differences in address-register allocation. */
 #pragma opt_loop_invariants on
 // Intent: fills the 20 layer records from the compact defaults table; the untouched fields keep their values.
 // FUN_0034BA30
@@ -324,6 +325,7 @@ s32 nLineSelectSet(s32 setIndex) {
 /* measured: without opt_loop_invariants, mwcc rematerializes the 5.0f constant
  * inside the loop ($v0) instead of hoisting it to the preheader like retail
  * (lui $v1 used by both stores), nd 48 -> 0. */
+/* measured: scalar-float and union end-frame snapshots do not recover the baseline preheader hoist (47 original word differences). */
 #pragma opt_loop_invariants on
 s32 nLineSelectSetImmediate(s32 setIndex) {
     s32 i;
@@ -379,12 +381,10 @@ s32 nLineSelectSetImmediate(s32 setIndex) {
 /* measured: see the annotation above the matching `on` pragma (func_0034bd60). */
 #pragma opt_loop_invariants off
 
-/* measured: opt_propagation off with the mode byte loaded into a u8 local before the
-   counter init and masked after it (`flags = ...; recordIndex = 0; wrap = flags & 1;`)
-   gives retail's lbu / move s2,zero / andi preheader; propagation on sinks the load. */
+/* measured: masking the byte before widening it to wrap retains the retail
+   load/counter-init/mask order under the unit's baseline propagation setting. */
 // Intent: per-frame update of the selected set: advances the sine easing of each of the 20 records and wraps their positions.
 // FUN_0034BEA0
-#pragma opt_propagation off
 void nLineWrapRecord(u8 *record);
 void nLineUpdate(void) {
     f32 extentEase;
@@ -407,7 +407,8 @@ void nLineUpdate(void) {
     }
     flags = ((NLineSet *)(D_007523C0 + D_00884670[0] * 0x10))->flags;
     recordIndex = 0;
-    wrap = flags & 1;
+    flags &= 1;
+    wrap = flags;
     for (; recordIndex < 0x14; recordIndex++) {
         recordOffset = recordIndex * 0x54;
         record = (NLineRecord *)(D_00882FF0 + recordOffset);
@@ -445,8 +446,6 @@ void nLineUpdate(void) {
         }
     }
 }
-/* measured: restore propagation for the rest of the unit. */
-#pragma opt_propagation on
 // Intent: wraps one record's position into the 640 by 448 screen by adding or subtracting the screen size.
 // FUN_0034C120
 void nLineWrapRecord(u8 *record) {
@@ -506,9 +505,10 @@ void nLineSetActive(s32 active) {
    wrecked it (nd 97). Lever 1 (u32 arg1) + u32-copy recipe + x+x were the
    big wins. FP-coloring + clamp-comparison floor. */
 /* measured: loop-invariant source recipe from the archived c270 probe. */
-#pragma opt_loop_invariants on
 // Intent: builds the draw records for set arg2 at alpha arg1 around the position, then draws them.
 // FUN_0034C270
+/* measured: moving unsigned-opacity conversion outside the loop still leaves 171 differing bytes; retain invariant hoisting. */
+#pragma opt_loop_invariants on
 void nLineDrawSet(Vec2f position, s32 alpha, s32 setIndex, f32 depthOffset) {
     u8 table[0x16A0];
     s32 opacity;
@@ -825,6 +825,7 @@ void nLineDrawFullFrame(u8 *table) {
 // Intent: sweeps the frame horizontally from the leftmost record edge with an eased fraction. Returns through the frame draw.
 // FUN_0034D070
 /* measured: opens d070's exact loop-invariant scope. */
+/* measured: named mutable/const screen-width locals leave the baseline's 71-word constant-hoist residual. */
 #pragma opt_loop_invariants on
 void nLineSweepHorizontal(u8 *table, s32 entering) {
     f32 coordinate;
@@ -887,6 +888,7 @@ void nLineSweepHorizontal(u8 *table, s32 entering) {
 // Intent: the horizontal sweep with the opposite edge scan (same algorithm as nLineSweepHorizontal).
 // FUN_0034D280
 /* measured: opens d280's exact loop-invariant scope. */
+/* measured: named mutable/const screen-width locals leave the baseline's 93-word constant-hoist residual. */
 #pragma opt_loop_invariants on
 void nLineSweepHorizontalAlt(u8 *table, s32 entering) {
     f32 coordinate;
@@ -956,6 +958,7 @@ void nLineSweepHorizontalAlt(u8 *table, s32 entering) {
 // FUN_0034D490
 /* measured: opt_loop_invariants hoists the shared 448.0f/4.0f constants for
    this exact loop-index spelling. */
+/* measured: named mutable/const screen-height locals leave the baseline's 86-word constant-hoist residual. */
 #pragma opt_loop_invariants on
 void nLineSweepVertical(u8 *table, s32 entering) {
     f32 coordinate;
@@ -1021,6 +1024,7 @@ void nLineSweepVertical(u8 *table, s32 entering) {
 // Intent: the vertical sweep with the opposite edge scan (same algorithm as nLineSweepVertical).
 // FUN_0034D690
 /* measured: opens the exact d690 loop-invariant scope. */
+/* measured: named mutable/const screen-height locals leave the baseline's 108-word constant-hoist residual. */
 #pragma opt_loop_invariants on
 void nLineSweepVerticalAlt(u8 *table, s32 entering) {
     f32 coordinate;
@@ -1190,15 +1194,13 @@ void nLineDrawScaledFrame(NLineTable *table, f32 durationScale, s32 entering) {
 /* Measured: the initialized output helper keeps the height lifetime separate
  * from alpha conversion. The body uses common-subexpression elimination;
  * the helper preserves the retail multiply and floating-point register use. */
-#pragma opt_common_subs off
 /* Set the eased band height from the referenced animation amount. */
 /* measured: plain multiplication changes band-height/alpha FPR allocation and shortens the owning function. */
+/* measured: the helper and band renderer also retain MATCH under the unit's common-subexpression baseline. */
 static inline void nLineScaleBandHeight(f32 *height, const f32 *amount)
 {
     *height = 171.0f * *amount;
 }
-#pragma push
-#pragma opt_common_subs on
 // Intent: draws the horizontal band whose height follows a sine ease.
 // FUN_0034DDF0
 void nLineDrawBand(u8 *table, s32 entering) {
@@ -1247,11 +1249,7 @@ void nLineDrawBand(u8 *table, s32 entering) {
     nLineSetLayer(table + 0x710, operandOrderAddFloat(x, 580.0f), height, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, alphaByte);
     nLineSetLayer(table + 0x750, operandOrderAddFloat(x, 580.0f), y, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, alphaByte);
 }
-#pragma opt_propagation on
 
-#pragma pop
-/* Restore the common-subexpression setting for the following callbacks. */
-#pragma opt_common_subs on
 /* measured: snapshot alpha before the camera callback, then narrow for the
    vertex calls. addF keeps each translated corner addition separate. */
 // Intent: draws the 640 by 480 frame at the given offset and scale, then registers its bounds.
@@ -1313,15 +1311,13 @@ s16 nLineRollStyle(u8 *table, s32 setIndex) {
  * See the 2026-09-27 recovery note for the setter and retail-table audit. */
 /* measured: this index reference retains the previous-entry address
    recomputation, separately from the current distance/color lookup. */
-#pragma push
-#pragma opt_common_subs off
 /* Load the preceding strip distance and add the fixed decoration margin. */
 /* measured: plain lookup removes a previous-entry recomputation and shortens nLineBuildDecoration by four bytes. */
+/* measured: removing the helper's common-subexpression override leaves the whole decoration builder exact. */
 static inline void nLineLoadPreviousMargin(f32 *out, const NLineDecorationStyle *style, const s32 *index)
 {
     *out = 30.0f + style->offsets[*index - 1];
 }
-#pragma pop
 
 /* measured: shared operandOrderAddLoaded retains extent-plus-coordinate
    add.s order when the destination reuses that coordinate. */
@@ -1329,15 +1325,13 @@ static inline void nLineLoadPreviousMargin(f32 *out, const NLineDecorationStyle 
 
 /* measured: the value index and output distance retain the current
    style-base-plus-index address used by both record fields. */
-#pragma push
-#pragma opt_common_subs off
 /* Read the current decoration strip distance into its output coordinate. */
 /* measured: plain lookup reverses the current-distance addu sources in nLineBuildDecoration. */
+/* measured: this helper likewise retains the whole decoration builder under baseline common-subexpression elimination. */
 static inline void nLineLoadCurrentDistance(f32 *out, const NLineDecorationStyle *style, s32 index)
 {
     *out = style->offsets[index];
 }
-#pragma pop
 
 // Intent: builds the decoration mesh for the given rectangle from its style: V strips for styles 1 to 4, nested rectangles for style 5. Returns the vertex count.
 // FUN_0034E360

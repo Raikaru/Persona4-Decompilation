@@ -103,7 +103,7 @@ extern void btlCameraSetupActionGeometry(u8 *, u8 *, f32 *, f32, u16);
 extern u8 *iGpffffb3ac;
 extern s32 datCalcIsGuarding(u16 *unitFlags);
 extern f32 btlTargetQuatAngle(void *right, void *left);
-#pragma push
+/* Unit setting: propagate ordinary local values. */
 #pragma opt_propagation on
 // Intent: Result summary event callback (same body as the overlay callback). [inferred]
 // FUN_00223ED0
@@ -113,10 +113,7 @@ void btlResultSummaryOnEventAlt(s32 event, u16 *flags, s32 eventData)
         return;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Destroy the result summary task work. [inferred]
 /* b210: typing the persona-window zero-store adds four bytes; its read remains typed. */
 // FUN_00223EE0
@@ -134,10 +131,7 @@ void btlResultSummaryDestroy(u8 *sdkTaskBytes)
     }
     (*jtbl_008873EC)(work);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Create the result summary task. [inferred]
 // FUN_00223F40
 s32 btlResultSummaryCreate(s32 parent)
@@ -159,10 +153,7 @@ s32 btlResultSummaryCreate(s32 parent)
     ((BtlResultSummaryWork *)work)->flags = (u16)(((BtlResultSummaryWork *)work)->flags | 1);
     return task;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Start the result summary task. [inferred]
 // FUN_00224040
 void btlResultSummaryStart(KwlnTask *task)
@@ -173,27 +164,20 @@ void btlResultSummaryStart(KwlnTask *task)
     btlShuffleStartOverlay();
     ((BtlResultSummaryWork *)work)->state = 5;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Report whether the result summary is ready. [inferred]
 // FUN_00224080
 s32 btlResultSummaryIsReady(KwlnTask *task)
 {
     return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Report whether the result summary task exists by name. [inferred]
 // FUN_002240B0
 s32 btlResultSummaryExists(void)
 {
     return kwlnTaskGetTaskByName((s8 *)D_00629700) != 0;
 }
-#pragma pop
 
 /* Select the encounter camera's eye/focus preset from the actor's party
  * ordinal and the roster's highest-priority status. Preserve both complete
@@ -211,11 +195,12 @@ extern u8 D_00634870[];
 extern f32 D_00634874[];
 extern f32 D_00634878[];
 extern u8 D_0063487C[];
-#pragma push
-#pragma opt_propagation off
 // Intent: Select the encounter camera preset from the party ordinal and roster status. [inferred]
 /* b210: remaining reset-store and action/DatUnit reloads individually differ when typed. */
 // FUN_002240E0
+/* measured: baseline differs by 16 bytes; aggregate eye copy differs by 134 bytes. */
+#pragma push
+#pragma opt_propagation off
 void btlCameraSelectEncounterPreset(u8 *camera)
 {
     struct CameraPosePair {
@@ -326,8 +311,6 @@ void btlCameraSelectEncounterPreset(u8 *camera)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Select a skill camera preset from the roster status and actor party index.
  * The word-sized priority predicate and the later halfword preset have
  * separate lifetimes, preserving the retail narrowing and register reuse.
@@ -523,10 +506,7 @@ group1_party_done:
     btlMainCurveSetPoses((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
     btlCameraSetDuration(camera, 0.75f);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Per-frame camera tick, run while the camera flag is set. [inferred]
 // FUN_00224970
 void btlCameraTickFrame(void)
@@ -535,10 +515,7 @@ void btlCameraTickFrame(void)
         btlCameraUpdateFrame();
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Apply actor and target pair height offsets and return the framing distance. [inferred]
 // FUN_002249A0
 /* measured: ordinary C, 1780/1792 bytes, 32 code relocations and zero
@@ -668,15 +645,11 @@ f32 btlCameraApplyPairOffsets(u8 *actor, u8 *target, RwV3d *actorPosition, RwV3d
     }
     return 3.5f;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Frame the camera on the target with a distance offset and duration. [inferred]
 /* b210: remaining sphere scale/radius and action reloads individually differ when typed. */
 // FUN_002250A0
 /* 1688/1696 bytes; all 36 resolved code relocations exact. */
-#pragma opt_scalarize off
 void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration)
 {
     RwV3d actorPosition;
@@ -855,11 +828,7 @@ void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration)
         btlCameraSetDuration(camera, duration);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_scalarize on
 // Intent: Choose the camera frame mode for a unit pair from the party flags. [inferred]
 /* b210: typing the action reload before the hit-row query changes instructions. */
 // FUN_00225740
@@ -893,11 +862,7 @@ void btlCameraFrameUnitPair(u8 *camera)
         ((BtlCameraControl *)(DAT_0076449c + 0xC00))->aimMode = 1;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_scalarize on
 // Intent: Tick the camera aim for the active action. [inferred]
 // FUN_00225860
 void btlCameraTickAim(u8 *camera)
@@ -913,16 +878,14 @@ void btlCameraTickAim(u8 *camera)
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_scalarize on
 // Intent: Frame the camera on a wrapping target walk. [inferred]
 /* b210: typing the wrapping target-slot reload changes instructions; BtlTarget defines its proven layout. */
 // FUN_002258B0
 /* Measured: 800/800 bytes, 20 resolved relocations, zero differences.
  * Disabling common-subexpression folding preserves the wrapping target walk. */
+/* measured: baseline differs by 607 bytes; removing the redundant null check leaves 85 bytes. */
+#pragma push
 #pragma opt_common_subs off
 void btlCameraFrameWrapTargetWalk(u8 *camera, f32 distanceOffset, f32 duration)
 {
@@ -1037,22 +1000,13 @@ void btlCameraFrameWrapTargetWalk(u8 *camera, f32 distanceOffset, f32 duration)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_scalarize on
-#pragma opt_common_subs on
 // Intent: Frame the camera on a wrapped target with a default duration. [inferred]
 // FUN_00225BD0
 void btlCameraFrameWrapTarget(u8 *camera)
 {
     btlCameraFrameWrapTargetWalk(camera, 0.0f, 2.0f);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_scalarize on
-#pragma opt_common_subs on
 // Intent: Tick the camera while waiting for the target motion. [inferred]
 /* b210: remaining action reloads individually differ when typed; outer unit/target members are typed. */
 // FUN_00225C00
@@ -1082,12 +1036,8 @@ void btlCameraTickTargetWait(u8 *cameraOrMotion)
         btlCameraWaitMotionFrames(self);
     }
 }
-#pragma pop
 
 #pragma push
-#pragma opt_propagation on
-#pragma opt_scalarize on
-#pragma opt_common_subs on
 #pragma optimization_level 1
 // Intent: Tick the camera preset selection after the action flag. [inferred]
 // FUN_00225D00

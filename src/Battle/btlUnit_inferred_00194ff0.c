@@ -211,6 +211,7 @@ void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outT
    named scaled index (`slotOffset = slotIndex * 6`) from being folded into one address. */
 /* measured: func_001951f0 MATCH -> MISMATCH without this pragma. */
 // FUN_001951F0
+/* measured: baseline leaves 32 differing words; indexed slot/character records still differ in address and FP order. */
 #pragma opt_propagation off
 void btlUnitGetSlotPose(u8 *unit, u8 *anchorUnit, u8 *targetUnit, s32 motion, f32 *outPosition, f32 *outRotation, s32 slot)
 {

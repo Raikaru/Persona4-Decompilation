@@ -18,8 +18,6 @@ typedef struct BlurFilterTaskWork {
     s32 unk0C;
     s32 tableBase;
 } BlurFilterTaskWork;
-#pragma push
-#pragma opt_propagation on
 // Intent: Task update for a blur filter task: advances the direct or copied blur filter and syncs it [inferred]
 // FUN_0025F960
 s32 effBlurFilterTaskUpdate(u8 *task) {
@@ -48,10 +46,7 @@ s32 effBlurFilterTaskUpdate(u8 *task) {
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Task destroy for a blur filter task: destroys the direct or copied blur filter, then frees the work block [inferred]
 // FUN_0025FA30
 void effBlurFilterTaskDestroy(u8 *task)
@@ -71,4 +66,3 @@ void effBlurFilterTaskDestroy(u8 *task)
     }
     jtbl_008873EC[0](work);
 }
-#pragma pop

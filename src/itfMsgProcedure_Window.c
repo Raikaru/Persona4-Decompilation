@@ -503,6 +503,7 @@ void msgWinDrawShape(s32 x, s32 y, s32 rgb, s32 opacity, s16 pivotX, s16 pivotY,
  * opt_loop_invariants on and opt_lifetimes on are measured: without them
  * the body is 463+ edits. */
 #pragma push
+/* measured: removing either toggle still changes choice loops or lifetime allocation; explicit scan-base initialization alone is insufficient. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 typedef struct { u32 w[20]; } MsgProcWindowCopy10;
@@ -518,12 +519,16 @@ static inline s32 msgWinReady(void)
 }
 
 /* Find the first inactive entry in the eight-slot message-window pool. */
+/* measured: initialize the index before the array base to retain both phase dispatchers' baseline preheader order. */
 static inline MsgProcWindowEntry *msgWinFreeEntry(void)
 {
     s32 j;
+    MsgProcWindowEntry *entries;
 
-    for (j = 0; j < 8; j++) {
-        MsgProcWindowEntry *e = &D_008820B0[j];
+    j = 0;
+    entries = D_008820B0;
+    for (; j < 8; j++) {
+        MsgProcWindowEntry *e = entries + j;
 
         if ((e->flags & 1) == 0) {
             return e;
@@ -1102,9 +1107,10 @@ static inline s32 msgWinSelectionResource(void)
 }
 
 #pragma push
+/* measured: split lifetimes alone leaves an 88-byte selection-renderer excess; both settings retain MATCH. */
+#pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 /* measured: lifetime splitting and invariant hoisting retain the exact selection renderer. */
-#pragma opt_loop_invariants on
 
 
 
@@ -1864,13 +1870,11 @@ void msgWinStoreSlot(s32 window, s32 value) {
 }
 
 
-#pragma push
 /* measured: byte-exact (602/602 instructions, 0 differing words).  The frame
    counter is read straight from D_00882044 at each test (retail reloads it
    after every call), the `> 3` bound keeps the first test in $at, and the
    case 8/10 handles are tested as they come back in $v0.
-   opt_loop_invariants hoists the entry-table base out of the free-entry scan. */
-#pragma opt_loop_invariants on
+   The free-entry helper explicitly initializes its table base outside the scan. */
 /* Dispatch the compact window phases; its user-data slot selects the portrait sprite. */
 // FUN_002818E0
 s32 msgWinRunPhase(u8 *window, s32 operation)
@@ -2020,7 +2024,6 @@ s32 msgWinRunPhase(u8 *window, s32 operation)
     }
     return completed;
 }
-#pragma pop
 
 /* Choice-window phases share the existing readiness predicate.
  * b210 propagates a local with a single definition into its use, so retail's
@@ -2410,6 +2413,7 @@ s32 msgCalResourceGet(s32 index)
  * load/inline-return temporaries (docs/matching.md, repeated-conversion
  * lever). */
 #pragma push
+/* measured: baseline has 158 differing words; per-phase alpha/frame/phase/resource locals still leave 195 differing bytes. */
 #pragma opt_lifetimes on
 /* Return an indexed calendar resource, starting the resource task when absent. */
 static inline u8 *msgCalendarResource(s32 index)
@@ -2721,14 +2725,12 @@ void msgCalendarDraw(u8 *unusedTask, u8 *parameters)
 }
 #pragma pop
 
-#pragma push
 /* measured: byte-exact (522/522 instructions, 0 differing words).  The three
    small helpers are inlined by retail: the free-entry scan's `return e` is the
    unthreaded `bnez`/`b` pair, the resource check (the body of func_002833b0
    for slot 0) and the two-flag ready test each leave their own join.  Case 17
    keeps its `ret = 0` arm, which is the double branch after func_0027bec0.
-   opt_loop_invariants is worth 9 words here (hoists the scan-loop base). */
-#pragma opt_loop_invariants on
+   Explicit index/base initialization now retains the scan without an optimizer override. */
 /* Return the first ready calendar resource, creating its loading task when absent. */
 static inline u32 msgWinResource(void)
 {
@@ -2922,4 +2924,3 @@ s32 msgWinRunPhaseAux(void *window, s32 operation)
     }
     return completed;
 }
-#pragma pop

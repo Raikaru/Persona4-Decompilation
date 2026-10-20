@@ -12,6 +12,11 @@
 #include "rw/plcore/barenderstate.h"
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
+
+/* Unit settings: measured movie/pool helpers use loop invariants off and propagation on. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+
 typedef struct {
 	s32 mode;               /* 0x00 file type (1: Sofdec, 2: MPEG video only, 3: video-only Sofdec; 2: no additional-info stream) */
 	s32 max_bps;            /* 0x04 maximum bit rate */
@@ -124,7 +129,7 @@ typedef struct MovieResourceList {
 typedef struct MoviePoolEntry { u32 address; u32 size; } MoviePoolEntry;
 
 #pragma push
-#pragma opt_propagation on
+/* measured: baseline hoisting-off and a while-form path scan both differ by 66 bytes; retain loop extraction. */
 #pragma opt_loop_invariants on
 /* Advance queued archive requests ten slots at a time and register their loaded archive entries. */
 /* measured: retained byte-alias state/entry/request accesses changed codegen even individually (8..488 differing bytes); the archive path remains a byte stream from its native header. */
@@ -322,9 +327,6 @@ typedef struct MovieEnginePrefix {
     MovieDevicePrefix device;
 } MovieEnginePrefix;
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Queue the movie renderer with the task work and its configured primitive-list name. */
 // FUN_00468FA0
 s32 mwPlayerUpdate(u8 *owner) {
@@ -338,13 +340,11 @@ s32 mwPlayerUpdate(u8 *owner) {
     PrimAppendNode(*(char * *)&((MovieNativeWork *)work)->path, queueNode);
     return 0;
 }
-#pragma pop
 
 extern u32 ourGlobals[4096];
 #pragma push
-#pragma opt_propagation on
+/* measured: hoisting-off differs by 2193 bytes; explicit fade-conversion hoisting still differs by 2165 bytes. */
 #pragma opt_loop_invariants on
-#pragma opt_common_subs on
 /* Raw movie-table reads preserve separately linked interior labels and the native 0x28-byte definition stride; rebasing them would change symbol/addend provenance. The primitive-list header is opaque here. */
 /* Advance native movie playback, copy decoded frames, apply fades and submit the display quad. */
 // FUN_00468FF0
@@ -868,9 +868,6 @@ movieComplete:
 }
 #pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Release decoder, image and raster resources, then return movie work to its allocation pool. */
 /* measured: retained byte-alias player reads/resource clears changed codegen individually (41..186 differing bytes); keep byte-pointer aliasing across release calls. */
 // FUN_0046A020
@@ -911,11 +908,7 @@ void mwPlayerTaskDestroy(u8 *task)
     }
     poolFree((u32)work);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Allocate movie work and create a playback task with the requested movie and queue name. */
 // FUN_0046A110
 s32 mwPlayerCreate(s32 parent, s16 movieIndex, s32 queueName) {
@@ -936,21 +929,13 @@ s32 mwPlayerCreate(s32 parent, s16 movieIndex, s32 queueName) {
     iGpffffbaf8 = 0;
     return result;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 // FUN_0046A1E0
 s32 mwPlayerGetTaskName(void)
 {
     return iGpffffb034;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Create a playback task with explicit primitive-list ownership reset. */
 // FUN_0046A1F0
 s32 mwPlayerCreateReset(s32 parent, s16 movieIndex, s32 queueName) {
@@ -972,21 +957,13 @@ s32 mwPlayerCreateReset(s32 parent, s16 movieIndex, s32 queueName) {
     iGpffffbaf8 = 0;
     return result;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 // FUN_0046A2C0
 s32 mwPlayerGetCurrent(void)
 {
     return iGpffffbaf8;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Record the allocation file and line used by pool failure diagnostics. */
 // FUN_0046A2D0
 void poolSetAllocationSite(s32 allocationFile, s32 allocationLine)
@@ -994,11 +971,7 @@ void poolSetAllocationSite(s32 allocationFile, s32 allocationLine)
     D_00724BEC = allocationFile;
     D_00724BF0 = allocationLine;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Initialize the fixed 500-entry allocation metadata table at the supplied buffer. */
 // FUN_0046A2E0
 void initEntryTable(u8 *buffer, s32 size) {
@@ -1016,11 +989,7 @@ void initEntryTable(u8 *buffer, s32 size) {
     D_00724BF8 = 0;
     D_00724BF4 = 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Free external allocations normally or clear the matching in-pool allocation record. */
 // FUN_0046A340
 void poolFree(u32 address) {
@@ -1062,7 +1031,6 @@ loop_done:
         func_0042ba70(count);
     }
 }
-#pragma pop
 
 extern void kwlnTaskDumpAll(void);
 extern char *kwlnTaskGetCurrent(void);
@@ -1108,9 +1076,6 @@ static inline u32 sdkMallocFindOverlap(u32 candidate, u32 size)
     return candidate;
 }
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Allocate aligned pool storage by skipping occupied intervals and claiming an empty metadata entry. */
 // FUN_0046A430
 u8 *poolAlloc(s32 requestedSize)
@@ -1173,7 +1138,6 @@ allocated:
     }
     goto retry;
 }
-#pragma pop
 
 extern u32 ourGlobals[4096];
 extern void chkmemAllocSiteTag(void *, s32);

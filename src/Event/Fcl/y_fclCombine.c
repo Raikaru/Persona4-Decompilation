@@ -21,6 +21,9 @@ extern s32 fclCombineMenuUpdate(u8 *task);
 extern void fclCombineMenuDestroy(u8 *task);
 #include "type.h"
 
+/* Unit settings: loop-invariant motion enabled; measured: all 41 owner functions remain MATCH. */
+#pragma opt_loop_invariants on
+
 typedef struct {
     u8 b0;
     u8 b1;
@@ -638,6 +641,7 @@ s32 fclCombineMenuCreate(u8 *parentTask) {
 // Fcl combine menu root (state 0): opens the screen (intro 0x11-0x17), runs the command bar (0x18) and the row list (0x1A), and routes each row to its target state; state 0x0B leaves the screen.
 // FUN_002E90D0
 #pragma push
+/* measured: baseline C nd 173B; adjacent-local declaration probe nd 183B; retain settings for owner MATCH. */
 #pragma opt_lifetimes on
 /* Historical whole-layout probe: 8 normalized bytes differed (2026-10-18).
    Access-site typing now isolates only the measured raw exceptions below. */
@@ -2522,8 +2526,7 @@ typedef struct {
 } while (0)
 // Fcl combine menu fusion triple (state 2): a fusion with a second source. Picks the second persona from the roster and the third through the grid (0x38-0x47), then rolls the rare chance (0x4D), builds the result list with inherited skills (0x4F-0x50), and hands to the result handler (state 0x0D, sub-state 0xC5).
 // FUN_002F0F00
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 74B; adjacent-local declaration probe nd 74B; retain settings for owner MATCH. */
 /* Historical whole-layout probe: 17054 normalized bytes differed (2026-10-18).
    Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuFusionTriple(u8 *task) {
@@ -3807,7 +3810,6 @@ restoreTripleResultGrid:
     }
 
 }
-#pragma pop
 #undef FCL0F00_GRID_ROW
 /* measured: 12084 executable bytes / 12096-byte window, verify MATCH, 391 relocations.
    Rewritten from the retail assembly with opt_lifetimes (each loop and case keeps
@@ -3821,6 +3823,7 @@ restoreTripleResultGrid:
 // Fcl combine menu material pick (states 3-5): picks the roster persona for material slot p[0x1A] (0-2), shows its detail with d-pad paging, and plays the cue; the 0x5C-0x5E path hands to the result handler (state 0x0D, sub-state 0xC5). Cancel returns to the menu root.
 // FUN_002F6CF0
 #pragma push
+/* measured: baseline C nd 104B; adjacent-local declaration probe nd 114B; retain settings for owner MATCH. */
 #pragma opt_lifetimes on
 /* Historical whole-layout probe: 8417 normalized bytes differed (2026-10-18).
    Access-site typing now isolates only the measured raw exceptions below. */
@@ -4979,6 +4982,7 @@ void fclCombineMenuPreview(u8 *task) {
 /* measured: all 26320 bytes match; distinct caption origin and mutable
  * iterator lifetimes retain the retail loop allocation. */
 #pragma push
+/* measured: baseline C nd 17217B; adjacent-local declaration probe nd 17217B; retain settings for owner MATCH. */
 #pragma opt_lifetimes on
 typedef struct {
     u8 f0;
@@ -6432,8 +6436,7 @@ void fclCombineMenuDetailPanels(u8 *task) {
    lifetimes. The existing loop-invariant pragma hoists the flag constant. */
 // Fcl combine rule check: tests the ids against the combine's three category rules; 1 when they pass or no rule is set.
 // FUN_00303610
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 294B; adjacent-local declaration probe nd 294B; retain settings for owner MATCH. */
 s32 fclCombineCheckRules(u8 *task, s8 sourceCount, u16 *personaIds)
 {
     u8 *rule;
@@ -6554,7 +6557,6 @@ s32 fclCombineCheckRules(u8 *task, s8 sourceCount, u16 *personaIds)
     }
     return 1;
 }
-#pragma pop
 
 // Fcl combine id check: gathers the item ids for the combine's stage count and validates them; 1 when they pass.
 // FUN_00303A20
@@ -6622,7 +6624,7 @@ s32 fclCombineCheckIds(u8 *task) {
    compact-store pointer and the s16 value cast preserve retail address lifetimes. */
 // Fcl combine outcome list: appends to the outcome list at p+0x2DA (count at p+0x2DF) from either the current calendar row (selector -1) or the selected entry's five candidates. Candidates with weight 100 are appended directly; the rest are weighted and one is drawn with RpRandom.
 // FUN_00303DE0
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 154B; adjacent-local declaration probe nd 154B; retain settings for owner MATCH. */
 void fclCombineRollOutcomeList(u8 *task)
 {
     s32 weights[5];
@@ -6705,7 +6707,6 @@ void fclCombineRollOutcomeList(u8 *task)
         }
     }
 }
-#pragma opt_loop_invariants reset
 /* Defined below.  The selector is a signed byte that fclCombineRollOutcome forwards
    without re-extending it. */
 s32 fclCombineStageValue(s32 count, s8 stageKind);
@@ -6878,9 +6879,8 @@ typedef struct {
     u16 replacement;
 } FclSkillPair;
 
-#pragma push
 /* Preserve signed loop induction and row-coordinate invariants from retail. */
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 322B; adjacent-local declaration probe nd 329B; retain settings for owner MATCH. */
 /* Both grid transitions share the header/row draw sequence; mode 0 preserves cell positions. */
 /* The provider-relative slot animation layout also preserves this inlined
    roster-grid sequence, including its original argument evaluation shape. */
@@ -8009,7 +8009,6 @@ finishRosterFusionMessage:
     }
 }
 #undef FCL_COMBINE_GRID_ROW
-#pragma pop
 /* measured: same stack-lookup-table floor as fclCombineFindMatchIndex — retail loads
    tbl[i] via sll/addu($sp)/addiu(0x48)/lh ($v0); mwcc b210 folds the 0x48
    into the load displacement in every spelling (array-index nd 42,
@@ -8314,7 +8313,7 @@ static inline void fclCombineStartFade(u8 *task)
    every inlined search, as retail does. */
 // Fcl combine menu result (state 0x0D): tallies the slot outcome, shows the result text and cues, then hands off to skill pick (sub-state 0xA0) or finish (state 0x0E, sub-state 0xD2); the fade ends the sequence.
 // FUN_003097E0
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 799B; adjacent-local declaration probe nd 799B; retain settings for owner MATCH. */
 /* Historical whole-layout probe: 4469 normalized bytes differed (2026-10-18).
    Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuResult(u8 *task) {
@@ -8766,7 +8765,6 @@ void fclCombineMenuResult(u8 *task) {
         break;
     }
 }
-#pragma opt_loop_invariants reset
 
 /* MATCHED: switch on the state byte (C2/C3/C4) with s16 loop counters;
    colours are FclDrawColor struct returns copied whole to te+0x85 (lbu x4,
@@ -9178,23 +9176,18 @@ static inline s16 fclCombinePickItem(s8 kind, s8 roll)
    Item values narrow at their halfword consumers; the skill replacement
    provider and every caller use a signed-halfword previous-skill ID.
    The progress value is explicitly forwarded to the child setter. */
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_propagation off
-#pragma opt_common_subs off
 /* Read the low item identifier from a full-width stored value. */
 /* measured: plain load-and-truncate expressions lose one of the 41 owner MATCHes; retain the word-load conversion boundary. */
 static inline u16 fclItemHalf(const s32 *value)
 {
     return *value;
 }
-#pragma pop
 // Fcl combine menu result growth (state 0x0C): handed off from the fusion result (state 0x0D, via 0xA0). Experience and level-up (0xA0-0xA4), stat boosts on the highest then lowest stat (0xA8-0xAB),
 // skill roll, learn, or replace (0xAC-0xBB), then finish (0xBF-0xC1 -> 0xD2).
 // FUN_0030C3C0
 #pragma push
 /* measured: hoists each slot scan's count and kind out of its loop. */
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 8223B; adjacent-local declaration probe nd 8223B; retain settings for owner MATCH. */
 /* measured: keeps the 0xAC slot pointer as its own index-first address. */
 #pragma opt_propagation off
 /* Historical whole-layout probe: 9513 normalized bytes differed (2026-10-18).
@@ -10206,8 +10199,7 @@ void fclCombineMenuResultGrowth(u8 *task) {
  * an explicit second identifier local instead rotates three saved registers. */
 // Fcl combine consume materials: removes the material personas in materials (count at work+0x1A, where 7 means 12) from the roster, except the lead persona, then inserts the result record. If the lead persona was a material, the result is selected in its place and the lead is removed; the selected roster member is removed last.
 // FUN_0030F4F0
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline C nd 160B; adjacent-local declaration probe nd 160B; retain settings for owner MATCH. */
 /* Historical whole-layout probe: 250 normalized bytes differed (2026-10-18).
    Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineConsumeMaterials(u8 *task, s16 *materials) {
@@ -10245,7 +10237,6 @@ void fclCombineConsumeMaterials(u8 *task, s16 *materials) {
     }
     datPersonaRemoveSelectedRosterMember();
 }
-#pragma pop
 /* MATCHED: struct colour copies straight into fclSpriteEntry(...) + 0x85;
    evtGetEventFrame takes no argument and fclSpriteStartTweenAt ends in two floats
    (0.0f, -360.0f); the second constructor coordinates for 0x20C are

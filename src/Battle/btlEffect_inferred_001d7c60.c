@@ -60,12 +60,8 @@ extern f32 fGpffff8110;
 
 /* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
 /* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
-#pragma push
-#pragma pop
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
 /* measured: restore optimization_level 2 after func_001d5990. */
-#pragma push
-#pragma pop
 /* measured: opt_propagation off is required for the default GP load/store register order. */
 /* measured: close opt_propagation after btlEffectFlagToColor. */
 /* 680/688 bytes; five resolved relocations and eight zero alignment bytes.
@@ -205,8 +201,10 @@ u16 btlSkillClassifyTargets(u8 *action, u8 *selection, u16 skillId, u32 reverseS
 /* measured: 25 -> 18 -> 11 -> 0. Hoisting retains the live-count bound copies;
  * opt_lifetimes splits the reused gather counters after those bounds. */
 /* measured: btlEffectSelectNeighbourTarget MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd1095; typed pointer reuse, typed parameter cache, inverted if/else did not match (best nd1095); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* measured: btlEffectSelectNeighbourTarget MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd1095; typed pointer reuse, typed parameter cache, inverted if/else did not match (best nd1095); retain opt_lifetimes on. */
 #pragma opt_lifetimes on
 /* Select a neighbouring battle target by screen position, facing, or chain order. */
 /* measured: site, typed-local, array and explicit member-address forms lose MATCH

@@ -158,6 +158,7 @@ s32 FldHbnReadData(u8 *request, u16 **destination, s32 fieldId, s32 roomId)
 // FUN_0015FB00
 #pragma push
 /* measured: FldHbnSpawnLights MATCH -> MISMATCH without this pragma. */
+/* measured: baseline 95 differing words; typed access, block lifetimes did not match; retain scoped settings. */
 #pragma opt_lifetimes on
 void FldHbnSpawnLights(u8 *header, s32 mode)
 {

@@ -195,23 +195,10 @@ extern s32 iGpffffb264;
 extern u8 *iGpffff9db0;
 extern s32 iGpffffb884;
 
-/* measured: loop-invariant hoisting keeps the retail stride/base preheader for
-   the 0x750 slot scan. */
-#pragma opt_loop_invariants on
-/* measured: close loop-invariant hoisting around the slot scan. */
-#pragma opt_loop_invariants off
 typedef struct {
     f32 x, y, z;
 } FldAreaNormal;
-/* measured probe: opt_propagation off tests caching the repeated render callback base. */
-#pragma opt_propagation off
-/* measured probe: restore opt_propagation after FldRainRenderStateSet. */
-#pragma opt_propagation on
 
-/* measured: propagation off preserves the cached jtbl_008873EC base for
-   the post-loop callback sequence. */
-/* measured: closing the single-function callback-base bracket. */
-#pragma opt_propagation on
  
 
 /* measured probe: O1 test for target byte-copy register allocation. */
@@ -240,23 +227,10 @@ typedef struct {
 #pragma vu0_mmi_reg_binding off
 #pragma enable_vu0_registers off
 
-/* measured: the saved callback argument and D_00887300 base reproduce the
-   retail s17/s16 frame layout under opt_propagation off. */
-/* measured: closing the single-function address-hoist bracket. */
-#pragma opt_propagation on
-/* measured: the saved callback argument and D_00887300 base reproduce the
-   retail s17/s16 frame layout under opt_propagation off. */
-/* measured: closing the single-function address-hoist bracket. */
-#pragma opt_propagation on
+/* Unit setting: propagation off; reapply it after the preserved optimization-level resets. */
+#pragma opt_propagation off
 
-/* measured: the saved callback argument and D_00887300 base reproduce the
-   retail s17/s16 frame layout under opt_propagation off. */
-/* measured: closing the single-function address-hoist bracket. */
-#pragma opt_propagation on
-/* measured: retail hoists the D_00887300 base across nine indirect calls;
-   opt_propagation off preserves the saved-register address materialization. */
-/* measured: closing the single-function address-hoist bracket. */
-#pragma opt_propagation on
+
 
 /* Sky2's complete 0x40-byte vertex record, with its native quadword
  * alignment. Fields follow rw/sky2/rwplcore.h; unused components stay intact. */
@@ -281,11 +255,6 @@ typedef struct {
     u8 *raster;
 } GridDrawWork;
 
-/* measured: retail hoists the D_00887300 base across seven indirect calls;
-   opt_propagation off preserves the saved-register address materialization. */
-/* measured: closing the single-function address-hoist bracket. */
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 
 /* measured: the inner mode/index selection assigns a scratch `p` and `base = p`
    follows the if/else: that copy keeps the join block alive so the two inner
@@ -306,10 +275,11 @@ static inline s32 fldBothReady(void)
  * vector lifetimes preserve retail's frame and register allocation. CSE shares
  * constants; disabling constant pullout avoids cross-phase hoists. */
 #pragma push
+/* measured: baseline removal gives nd4536; lifetimes remains required after common-subexpression toggle removal. */
 #pragma opt_lifetimes on
-#pragma opt_common_subs on
+/* measured: restoring constant pullout changes nd4341 back to MATCH; whole-baseline removal was nd4536. */
 #pragma opt_pulloutconstants off
-#pragma opt_propagation off
+/* measured: baseline propagation leaves nd13 in look-state argument setup; inline flag expression is unchanged. */
 extern float D_00756520[];
 extern float D_00756524[];
 extern float D_00756528[];
@@ -1082,12 +1052,14 @@ s32 FldNpcControlUpdate(u8 *task)
 #pragma optimization_level 1
 /* measured: close optimization_level 1 FPU accumulator probe. */
 #pragma optimization_level 2
+/* measured: the level reset restores propagation; retaining the unit setting avoids nd8. */
+#pragma opt_propagation off
 /* measured: opt_propagation off probe preserves retail's handle-load/result
    initialization order for the state predicate. */
-#pragma opt_propagation off
 // Kept in bucket: diff 8 when moved; cause not diagnosed (pragma replay checked, no explanation found).
 // FUN_0018BEA0
 /* Return whether the actor is turning toward or away from its stored heading. */
+/* measured: baseline original nd8; typed work and earlier state snapshot nd9; retain propagation off. */
 s32 fldNpcControlIsTurning(u8 *task)
 {
     u8 *work;
@@ -1110,8 +1082,6 @@ ready:
 done:
     return result;
 }
-/* measured: opt_propagation on closes the state-predicate probe. */
-#pragma opt_propagation on
 
 typedef struct MaterialTextureContext {
     s32 found;
@@ -1127,6 +1097,8 @@ typedef struct MaterialTextureContext {
 #pragma optimization_level 1
 /* measured: restore optimization level after FldMipmapSetFixedParam. */
 #pragma optimization_level 2
+/* measured: reapply the unit setting after the level reset (support/map residuals nd7/142). */
+#pragma opt_propagation off
 /* MATCHED from a 40-word reconstruction.  Two source shapes carried it.
    The dungeon chain's dead final arm is `else if (dungeon < 0xA0) { res = 0; }`,
    not an empty arm: b210 drops the redundant store (res is already 0 on that
@@ -1158,14 +1130,13 @@ typedef struct FldSupporterWork {
     s32 frame;
     s32 scriptTask;
 } FldSupporterWork;
-#pragma push
-#pragma opt_propagation off
 // Kept in bucket: diff 7 when moved; cause not diagnosed.
 /* Run the support procedure after its delay, then wait for that script to finish. */
 // FUN_0018DDE0
 /* Historical all-access-site typing produced 360B in the 336B window (normalized_diff 240).
  * The separate support pointer keeps the three remaining stores matched;
  * timerBits preserves the unsigned timer store and elapsed subtraction wraps. */
+/* measured: baseline removal leaves nd7 in script argument load order; retain propagation off. */
 s32 FldSupporterUpdate(u8 *task)
 {
     u8 *work;
@@ -1209,7 +1180,6 @@ s32 FldSupporterUpdate(u8 *task)
     }
     return 0;
 }
-#pragma pop
 
 /* One 0x4A-byte pad record; the pads start at 0x8C0240 (sdkPadInit). */
 typedef struct {
@@ -1248,16 +1218,14 @@ typedef struct FldMapShape {
 /* k_maptest.c: dungeon map generation test. The input image contains the
    button halfword; the map uses 16-byte cells and RGBA colors. Keep the
    row byte offset alive across its sixteen columns. */
-#pragma opt_propagation off
-#pragma opt_propagation on
 // measured: probe propagation-off code shape with typed 16-bit operands
-#pragma opt_propagation off
 // Kept in bucket: diff 142 when moved; cause not diagnosed.
 // FUN_0018F7B0
 /* Fill the unoccupied cells of a rotated map-test shape at (x, y).
  * Cell rows are 0x100 bytes; pattern flags and attributes have distinct strides.
  * measured: cell-pointer and cell-array stores differ; MapTestGrid member stores
  * preserve the original 240-byte function. The separate shape local keeps header loads matched. */
+/* measured: baseline removal leaves nd142 in row/cell address materialization; retain propagation off. */
 void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation)
 {
     s32 rowIndex;
@@ -1301,8 +1269,6 @@ void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation)
         rowIndex += 1;
     }
 }
-// measured: restore propagation for following functions
-#pragma opt_propagation on
 extern u16 D_008C0252[];
 extern u16 D_008C0298[];
 extern const KWindowEntryDescriptor D_005F5FD0[];

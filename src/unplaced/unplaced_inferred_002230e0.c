@@ -1,3 +1,5 @@
+/* Unit setting: propagate ordinary local values. */
+#pragma opt_propagation on
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002230e0-002238c0 */
 
 #include "rw_types_internal.h"
@@ -105,6 +107,8 @@ s32 btlLogoTitleExists(void)
 /* b210: remaining state writes, child-handle reloads and roster counters individually differ when typed. */
 // FUN_002232A0
 /* 1036/1040 bytes; 26 code relocations and all nine switch entries exact. */
+/* measured: baseline differs by 556 bytes; cached roster index differs by 692 bytes. */
+#pragma push
 #pragma opt_propagation off
 s32 btlResultOverlayTick(u8 *sdkTaskBytes)
 {
@@ -239,9 +243,8 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
     }
     return 0;
 }
+#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Result overlay event callback; ignores events once the flag is set. [inferred]
 // FUN_002236B0
 void btlResultOverlayOnEvent(s32 event, u16 *flags, s32 eventData)
@@ -250,10 +253,7 @@ void btlResultOverlayOnEvent(s32 event, u16 *flags, s32 eventData)
         return;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Destroy the result overlay task work. [inferred]
 /* b210: typing the persona-window zero-store adds four bytes; its read remains typed. */
 // FUN_002236C0
@@ -273,10 +273,7 @@ void btlResultOverlayDestroy(u8 *sdkTaskBytes)
     }
     (*jtbl_008873EC)(work);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Create the result overlay task. [inferred]
 // FUN_00223730
 s32 btlResultOverlayCreate(s32 parent)
@@ -298,10 +295,7 @@ s32 btlResultOverlayCreate(s32 parent)
     ((BtlResultOverlayWork *)work)->flags = (u16)(((BtlResultOverlayWork *)work)->flags | 1);
     return task;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Start the result overlay and set its state. [inferred]
 // FUN_00223830
 void btlResultOverlayStart(KwlnTask *task) {
@@ -316,24 +310,17 @@ void btlResultOverlayStart(KwlnTask *task) {
     }
     ((BtlResultOverlayWork *)work)->state = 7;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Report whether the result overlay is ready. [inferred]
 // FUN_00223890
 s32 btlResultOverlayIsReady(KwlnTask *task)
 {
     return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // Intent: Report whether the result overlay task exists by name. [inferred]
 // FUN_002238C0
 s32 btlResultOverlayExists(void)
 {
     return kwlnTaskGetTaskByName((s8 *)D_006296B0) != 0;
 }
-#pragma pop

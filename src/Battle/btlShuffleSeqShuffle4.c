@@ -157,6 +157,7 @@ typedef struct ShuffleSlotPos { f32 x; f32 y; } ShuffleSlotPos;
 
 // FUN_0037CA60
 #pragma push
+/* measured: baseline nd175; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd175); retain opt_propagation off. */
 #pragma opt_propagation off
 void btlShuffleSeq4Layout(u8 *context, s32 slotIndex, f32 *screen) {
     ShuffleSlotPos pos;
@@ -534,6 +535,7 @@ static inline u16 btlShuffleGridPickFree(u8 *context)
 
 /* measured: without loop-invariant hoisting the pick loop keeps its work base
    in the loop body (674 differing words). */
+/* measured: baseline nd2272; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd2272); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Run the grid reveal, two-card matching and result sequence. */
 // FUN_0037DA60

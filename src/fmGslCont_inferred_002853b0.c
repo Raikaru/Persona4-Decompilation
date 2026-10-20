@@ -72,6 +72,7 @@ void evtLookupTask(void) {
 
 /* measured: retail hoists the lookup table address before the search loop. */
 /* measured: evtKeyIndex MATCH -> MISMATCH without this pragma. */
+/* measured: baseline and named table-pointer probes differ; retain retail table-address hoisting. */
 #pragma opt_loop_invariants on
 // Event key table: index of 'arg0' in the 58-entry key table, 0 when absent.
 // FUN_002853F0

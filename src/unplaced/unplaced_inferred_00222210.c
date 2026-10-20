@@ -163,11 +163,12 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_propagation off
 // Intent: Draw the logo scene and title for one frame. [inferred]
 /* b210: remaining frame and wipe-pointer reloads individually change instructions when typed. */
 // FUN_00222D20
+/* measured: baseline and direct opaque-alpha assignment each differ by one instruction (addiu versus daddiu). */
+#pragma push
+#pragma opt_propagation off
 void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
 {
     typedef struct { f32 x, y; } Vec2fLocal;

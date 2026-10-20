@@ -101,13 +101,19 @@ bytes match:
 Legitimate compiler inputs are allowed:
 
 - **Pragmas.** Optimization and scheduling pragmas recognized by the
-  compiler are real source settings. Record the measurement that justifies a
-  nonbaseline setting (H003 is a review warning) and prefer scoped
-  push/pop for one function. On/off directives set state; they are not pairs
-  to balance. `optimization_level 2` may restore a previous setting.
-  `tools/pragma_audit.py` checks spellings. `#pragma schedule on` inside a
-  guarded body is an error (H010): the first-party build is unscheduled, so
-  it only deletes delay-slot `nop`s.
+  compiler are real source settings. Settings most functions of a unit share
+  are stated once near the top of the file, commented as the unit's
+  settings, and not repeated around each function. A per-function optimizer
+  toggle (`opt_propagation`, `opt_loop_invariants`, `opt_common_subs`, ...)
+  is a last resort: first look for plain C that matches under the unit's
+  settings, and keep the toggle only with a `measured:` comment naming what
+  was tried (H003 is a review warning). Use scoped push/pop for a single
+  function. On/off directives set state; they are not pairs to balance.
+  An `optimization_level` directive can reset optimizer toggles (measured in
+  several units), so a unit setting may need restating after one.
+  `tools/pragma_audit.py` checks spellings.
+  `#pragma schedule on` inside a guarded body is an error (H010): the
+  first-party build is unscheduled, so it only deletes delay-slot `nop`s.
 - **`register`** is valid C and is not a violation.
 - **`volatile`** for hardware registers, symbolic MMIO and state shared with
   interrupt handlers.

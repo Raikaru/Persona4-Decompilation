@@ -1,3 +1,5 @@
+/* Unit setting: retain explicit expression loads. */
+#pragma opt_propagation off
 #include "effect_geometry_internal.h"
 #include "polygon_ring_internal.h"
 #include "rw_geometry_internal.h"
@@ -119,8 +121,6 @@ void RingDestroyHandle(void **handle)
 /* measured: b210 -O2 matches with signed vertex-count division, the
    work/parameter/geometry load order, and propagation disabled for
    the unsigned segment-count conversion. */
-#pragma push
-#pragma opt_propagation off
 // Rebuilds a ring circle: locks the geometry, samples cos and sin around the fade radius, writes the vertex rows, then unlocks.
 // FUN_00498F10
 void RingRebuildCircle(u8 *instance)
@@ -274,7 +274,6 @@ void RingRebuildCircle(u8 *instance)
         }
     }
 }
-#pragma pop
 
 /* Ported from P3FES mdlEffect.c 0x00338360 (twin of RingUpdateRowColourAlt).
    The VU0 colour-modulate block is genuine hardware asm (Category B) ported
@@ -459,10 +458,11 @@ void RingDestroyBlock(u8 *block)
 /* measured: loop invariants hoist the vector-scratch bases. Keeping
    the wrap stride at its use preserves its lifetime through the
    FPU-to-VU bridge, which declares its actual scratch output. */
-#pragma push
-#pragma opt_loop_invariants on
 // Rebuilds the ring strip vertices from the two geometry handles, locking and unlocking each geometry around the vertex loop.
 // FUN_00499730
+/* measured: baseline strip rebuild differs by 505 normalized bytes; retain scratch-base hoisting. */
+#pragma push
+#pragma opt_loop_invariants on
 void RingRebuildStrip(u8 *instance)
 {
     /* Earlier whole-layout probe: normalized_diff 428; separate typed locals now preserve the original reload lifetimes. */
@@ -778,8 +778,6 @@ void RingDestroyHandleAlt(void **handle)
 /* measured: quadword locals retain the VU copy storage. Store each
    trig result before the next call, and defer the middle-vector
    store until the independent outer-vector multiply completes. */
-#pragma push
-#pragma opt_propagation off
 // Rebuilds a scaled ring circle: samples cos and sin around the fade radius and writes the vertex and colour rows.
 // FUN_00499E40
 void RingRebuildCircleScaled(u8 *instance)
@@ -913,7 +911,6 @@ void RingRebuildCircleScaled(u8 *instance)
         }
     }
 }
-#pragma pop
 
 /* Ported from P3FES mdlEffect.c 0x00338360 (twin of RingUpdateRowColour).
    Same VU0 inline-asm + constraint-pointer shape as its twin. MATCH. */
@@ -1010,7 +1007,6 @@ void RingUpdateRowColourAlt(u8 *instance)
 // FUN_0049A370
 /* measured: opt_propagation off keeps the named D_00713CE0 pointer's
    lui/addiu/lq sequence instead of folding the low half into lq. */
-#pragma opt_propagation off
 u8 *RingCreateKindInstance(u16 kind, u8 *parameters)
 {
     u8 *instance;
@@ -1044,7 +1040,6 @@ u8 *RingCreateKindInstance(u16 kind, u8 *parameters)
     ((void (*)(u8 *))D_00713F10[kind * 6])(instance);
     return instance;
 }
-#pragma opt_propagation on
 // Creates a kind instance for an object: resolves the object's record, then builds the instance for its kind (asserts on a missing record).
 // FUN_0049A4E0
 void *RingCreateKindInstanceFromObject(void *source) {

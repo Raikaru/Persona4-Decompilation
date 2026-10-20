@@ -26,6 +26,7 @@ void btlPacketCallbackRun(BtlPacketCallbackWork* work)
 
 
 /* measured probe: opt_loop_invariants on hoists the wait-type constant into the loop preheaders. */
+/* measured: baseline nd18; scoped locals did not match (best nd18); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 // FUN_00194C90
 /* Allocate a callback packet and its payload, initialize wait modes, and install the callback

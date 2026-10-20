@@ -67,7 +67,7 @@ extern void datScreenWipeSetTextureId(u8 *task, u16 textureId);
 extern s32 nLineIsIdle(void);
 extern void datPortraitSetValue(u8 *task, s8 portraitId, s32 flags);
 extern void datPortraitSetLabel(s32 taskAddress, u16 labelId, s32 flags);
-#pragma push
+/* Unit settings: community menu code uses O2, propagation and no invariant hoisting. */
 #pragma optimization_level 2
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
@@ -92,7 +92,6 @@ void datCommunityOverlayDestroy(u8 *task)
     ((DatCommunityOverlayWork *)base)->unk24 = 0;
     (*D_008873EC)(base);
 }
-#pragma pop
 
 void datCommunityCursorFeedback(s32 direction);
 void datCommunityFillVisibleRecords(u8 *menuWork);
@@ -109,10 +108,6 @@ void datScreenWipeSetupSlot(u8 *task, s32 slotIndex, s32 initialize, s32 reverse
 void resrcMngSuppressRender(void);
 void resrcMngUnsuppressRender(void);
 
-#pragma push
-#pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Community menu state machine: open the menu, wait for it to be ready, run its list and cursor actions, and return 1 when it closes or 2 when the fade ends [inferred]
 // FUN_0035E8B0
 s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
@@ -259,12 +254,7 @@ s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Set the community portrait's value from the selected record's state and kind flags [inferred]
 // FUN_0035EF80
 void datCommunityPortraitSetRecord(u8 *listWork)
@@ -291,12 +281,7 @@ void datCommunityPortraitSetRecord(u8 *listWork)
     }
     datPortraitSetValue((u8 *)((DatCommunityListWork *)listWork)->portraitTask, state, flags);
 }
-#pragma pop
 
-#pragma push
-#pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Set the community portrait for the selected entry: its label id and kind flags [inferred]
 // FUN_0035F020
 void datCommunityPortraitSetSelected(u8 *listWork)
@@ -324,16 +309,11 @@ void datCommunityPortraitSetSelected(u8 *listWork)
     }
     datPortraitSetLabel(((DatCommunityListWork *)listWork)->labelTask, id, flags);
 }
-#pragma pop
 
 s32 datCommunityRequestExit(void);
 void resrcMngSuppressRender(void);
 void resrcMngUnsuppressRender(void);
 
-#pragma push
-#pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Community detail state machine: open the detail panel, handle its cursor and actions, and return 1 when it closes or 2 when the fade ends [inferred]
 // FUN_0035F0C0
 s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
@@ -462,4 +442,3 @@ s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
     }
     return 0;
 }
-#pragma pop

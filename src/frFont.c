@@ -15,6 +15,11 @@ typedef struct FrFontSlotObject { u32 object; u8 pad04[0x1C]; } FrFontSlotObject
 #include "fr_font_objects.h"
 #include "h_cdvd.h"
 
+/* Unit settings: propagation and conditional rebuilding on; loop invariants off. */
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma opt_loop_invariants off
+
 extern void frFontSlotLoad(s32 slotId, u8 *header, u8 *fontData);
 
 typedef int (*code)();
@@ -183,6 +188,7 @@ typedef struct FrFontRasterEntry {
    and 62 resolved relocations; the final retail word is alignment padding. */
 // FUN_00270FB0
 #pragma push
+/* measured: baseline, individual-toggle and scaled-row probes differ (best nd 119); retain propagation and hoisting. */
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 s32 frFontInitSlotGrid(s32 unused, s32 columns, s32 rows, s32 width, s32 height, s32 auxSize)
@@ -306,6 +312,7 @@ void frFontSlotLoadData(s32 slot, u8 *fontData)
 
 // FUN_002713B0
 #pragma push
+/* measured: baseline and direct slot-array probes differ (nd 266/267); retain propagation off. */
 #pragma opt_propagation off
 void frFontInitManager(s32 gridCapacity, s32 cacheCapacity)
 {
@@ -385,7 +392,6 @@ void frFontInitManager(s32 gridCapacity, s32 cacheCapacity)
     D_007645BC = rows * 0x10;
     frFontRasterCreateCache(cacheCapacity);
 }
-#pragma opt_propagation on
 #pragma pop
 
 
@@ -537,6 +543,8 @@ void frFontLoadTables(void)
    the free-slot pointer computed into a saved local BEFORE func_00454bd0 (retail addiu s1 before
    the jal); the table base stays in $a1 for both the par load and the slot address. */
 // FUN_00271A40
+#pragma push
+/* measured: baseline and shared slot-index probes differ (nd 74/182); retain propagation off. */
 #pragma opt_propagation off
 void frFontReleaseSlots(void)
 {
@@ -572,7 +580,7 @@ void frFontReleaseSlots(void)
         MEMBER(u32, slot, FrFontSlot4, object) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
     }
 }
-#pragma opt_propagation on
+#pragma pop
 
 /* Keeps the list if it is still in use, otherwise releases it. */
 // FUN_00271B70
@@ -1338,9 +1346,10 @@ u16 frFontClearFlagBits(u16 bits)
 // measured nd102 at 136B instead of nd1 at 140B (P3 donor annotation).
 
 // FUN_00272CB0
-#pragma push
-#pragma opt_loop_invariants on
 
+#pragma push
+/* measured: baseline and per-node constant-lifetime probes both differ (nd 102); retain invariant hoisting. */
+#pragma opt_loop_invariants on
 u32 frFontFadeNodes(int list)
 {
     FrFontGlyphData *colorFields;
@@ -1379,7 +1388,6 @@ u32 frFontFadeNodes(int list)
     }
     return result;
 }
-#pragma opt_loop_invariants off
 #pragma pop
 
 
@@ -1565,7 +1573,6 @@ extern code D_00887300_abs[];
    saved-register mirrors. All 824 executable bytes and 11 relocations
    match; the remaining eight retail bytes are alignment padding. */
 // FUN_00273170
-#pragma opt_propagation off
 s32 frFontDrawList(void *list, u32 drawMode, u32 unused)
 {
     /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
@@ -1674,7 +1681,6 @@ s32 frFontDrawList(void *list, u32 drawMode, u32 unused)
     }
     return total;
 }
-#pragma opt_propagation on
 /* Returns the total advance of a list if no node is still animating, otherwise 0. Measures without drawing. */
 /* measured: reconstructed from the matched frFontReadyNode case logic. Reusing
    arg0 as the walking node and declaring flag before sum gives retail's
@@ -1808,6 +1814,7 @@ extern int frFontCountRuns(int node);
    common-substitution setting is required for MATCH nd 0. */
 #pragma push
 #pragma optimization_level 1
+/* measured: baseline and early-return range probes both differ at preserved O1 (nd 34); retain common substitutions. */
 #pragma opt_common_subs on
 u8 *frFontSplitRun(u8 **listAddress, s32 runIndex)
 {
@@ -2019,6 +2026,7 @@ int frFontCountRuns(int node)
 // FUN_002739E0
 #pragma push
 #pragma no_branch_likely on
+/* measured: baseline and signed-byte conditional probes differ (nd 46/351); retain conditional rebuilding off. */
 #pragma opt_rebuildconditionals off
 void frFontLayoutSlotText(u8 index, u8 *context)
 {
@@ -2160,7 +2168,6 @@ text_test:
         }
     }
 }
-#pragma opt_rebuildconditionals on
 #pragma no_branch_likely off
 #pragma pop
 
@@ -2176,6 +2183,7 @@ extern s32 strlen(const void *value);
 // FUN_00273CC0
 #pragma push
 #pragma no_branch_likely on
+/* measured: baseline and signed-byte conditional probes differ (nd 46/351); retain conditional rebuilding off. */
 #pragma opt_rebuildconditionals off
 void frFontLayoutText(u8 *text, u8 *context)
 {
@@ -2323,7 +2331,6 @@ loop_test_30:
         }
     }
 }
-#pragma opt_rebuildconditionals on
 #pragma no_branch_likely off
 #pragma pop
 /* Applies pending text work: when active, builds the text list from the string buffer, appends it, sets its codes and height, then applies the pending values. */
@@ -2331,7 +2338,6 @@ loop_test_30:
 /* measured: full frFontSplitRun recipe stack. */
 #pragma push
 #pragma optimization_level 1
-#pragma opt_common_subs on
 void frFontUpdateTextWork(u8 *context)
 {
     s8 character;
@@ -2371,9 +2377,11 @@ void frFontUpdateTextWork(u8 *context)
     u8 *result;
 
     work = (struct FrFontWork2 *)context;
-    node = work->list_14;
-    if ((node != NULL) && (node->flag_1C == 0)) {
-        work->active_1C = 0;
+    {
+        struct FrFontNode2 *pendingList = work->list_14;
+        if ((pendingList != NULL) && (pendingList->flag_1C == 0)) {
+            work->active_1C = 0;
+        }
     }
     if (work->active_1C == 0) {
         goto done;
@@ -2439,6 +2447,7 @@ return_point:
 // FUN_002740B0
 #pragma push
 #pragma no_branch_likely on
+/* measured: baseline and reversed guard-order probes differ (nd 26/44); retain conditional rebuilding off. */
 #pragma opt_rebuildconditionals off
 u8 *frFontBuildText(void *data)
 {

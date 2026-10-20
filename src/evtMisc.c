@@ -151,6 +151,7 @@ void evtBlurFilterEnsureBlock(s32 *slot) {
 /* measured: without opt_loop_invariants on, MWCC rematerializes the loop
  * comparison constant (addiu v1,zero,1) inside the body instead of the
  * preheader, shifting every temp register (nd 18). */
+/* measured: baseline while/for copy-loop probes both differ (nd 31); retain invariant hoisting. */
 #pragma opt_loop_invariants on
 
 
@@ -482,9 +483,10 @@ void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
  * its two qwords, doubleword tail, and final float on advancing cursors. */
 // Intent: Blur-filter task builder for event command types 1, 2, 3 and 5: fills one filter parameter block per type and creates the task under arg0 [inferred]
 // FUN_0028DC30
-#pragma push
-#pragma opt_lifetimes on
 /* Only the filter reference slot at +0x28 is known here; the direct/copy filter allocation layout remains opaque. */
+#pragma push
+/* measured: removing lifetime optimization changes 106 bytes with the existing per-type parameter locals. */
+#pragma opt_lifetimes on
 s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
 {
     /* Packed RGB/options occupy +0x18..0x2B and signed halfwords +0x10/+0x2C..0x36; typed access changed MWCC allocation. */
@@ -928,8 +930,8 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
         return (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
     }
 }
-
 #pragma pop
+
 
 /* 0x30-byte tint allocation; the five target words are copied from the command. */
 typedef struct EvtTintWork {

@@ -130,6 +130,7 @@ extern void EffConeAngleEmitterUpdate(u8 *emitterData);
  * declared before the clamped distance. */
 #pragma push
 /* measured: EffBezierEmitterUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 2205B; adjacent-local declaration probe nd 2205B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 /* measured: EffBezierEmitterUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on

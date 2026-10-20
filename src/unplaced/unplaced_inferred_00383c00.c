@@ -1632,6 +1632,7 @@ void btlShuffleDrawViewSetFade(u8 *drawWork, s8 input, s8 green, s8 blue) {
 }
 
 #pragma push
+/* measured: baseline early-return/shared-result forms differ by 7 words; a switch also changes size. */
 #pragma opt_rebuildconditionals off
 /* Report completion when fading is disabled or its clock reaches thirty-five frames. */
 // FUN_00389280
@@ -1651,17 +1652,12 @@ s32 btlShuffleDrawViewIsFadeDone(u8 *drawWork)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
 // FUN_003892C0
 void btlShuffleDrawViewClearFade(u8 *drawWork)
 {
     ((BtlShuffleDrawViewWork *)((KwlnTask *)drawWork)->work)->flags = ((BtlShuffleDrawViewWork *)((KwlnTask *)drawWork)->work)->flags & 0xFDFF;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
 /* Clear the shared fade/reveal state and enable the reveal component. */
 // FUN_003892E0
 void btlShuffleDrawViewStartReveal(u8 *drawWork) {
@@ -1671,28 +1667,19 @@ void btlShuffleDrawViewStartReveal(u8 *drawWork) {
     memset(work + 0x46, 0, 6);
     ((BtlShuffleDrawViewWork *)work)->flags = (u16) (((BtlShuffleDrawViewWork *)work)->flags | BTL_SHUFFLE_VIEW_FLAG_REVEAL);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
 // FUN_00389330
 s32 btlShuffleDrawViewIsRevealFinished(u8 *drawWork) {
     return !(((BtlShuffleDrawViewWork *)((KwlnTask *)drawWork)->work)->flags & BTL_SHUFFLE_VIEW_FLAG_REVEAL);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
 /* Request the reveal animation exit phase. */
 // FUN_00389350
 void btlShuffleDrawViewEndReveal(u8 *drawWork)
 {
     ((BtlShuffleDrawViewWork *)((KwlnTask *)drawWork)->work)->fade.payload.words[1] = ((BtlShuffleDrawViewWork *)((KwlnTask *)drawWork)->work)->fade.payload.words[1] | 0x2;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
 /* Draw a cosine-scaled background sprite using the wrapping eight-hundred-frame clock. */
 // FUN_00389370
 void btlShuffleDrawBackgroundPulse(u8 **drawWork)
@@ -1746,10 +1733,7 @@ void btlShuffleDrawBackgroundPulse(u8 **drawWork)
                       0.0f, (s16)size0, (s16)size1);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
 /* Spawn four staggered randomized rings and animate their size, rotation and opacity. */
 // FUN_00389640
 void btlShuffleDrawBackgroundRings(u8 **drawWork)
@@ -1834,10 +1818,9 @@ void btlShuffleDrawBackgroundRings(u8 **drawWork)
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
-#pragma pop
 
 #pragma push
-#pragma opt_rebuildconditionals on
+/* measured: byte-base and typed-array caching still rematerialize conversion constants; baseline is 372/352 bytes. */
 #pragma opt_loop_invariants on
 /* Initialize four wave strips from the read-only defaults, scaling periods and amplitudes. */
 // FUN_00389CB0
@@ -1893,9 +1876,6 @@ typedef struct BtlShuffleWaveWorkspace {
     Vec2f delta;
 } BtlShuffleWaveWorkspace;
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 /* Native b210 O2: 1488/1488 bytes, 26 resolved relocations. The
  * 62-vertex workspace preserves the original allocation and vector
  * lifetimes. Its explicit gap has no read or written value.
@@ -2049,11 +2029,7 @@ void btlShuffleDrawWave(u8 **drawWork)
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 /* Ring work starts four bytes into the 0x28-byte state cleared by its initializer. */
 typedef struct BtlShuffleCounter {
     u16 frame;
@@ -2100,7 +2076,6 @@ void btlShuffleInitRing(u8 *drawWork)
     ((BtlShuffleRing *)rec)->color[2] = 0x15;
     ((BtlShuffleRing *)rec)->color[3] = 0xFF;
 }
-#pragma pop
 
 /* Ring samples use complete three-component vectors and two vertices per
  * sample. The 65 samples occupy the entire 130-vertex buffer. */
@@ -2127,9 +2102,6 @@ static inline void btlShuffleSetRingVertex(BtlShuffleRingVertex *vertex,
     vertex->reciprocalZ = reciprocalZ;
 }
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 /* Native b210 O2: 1204/1216 bytes, 19 resolved relocations, 12 zero tail bytes. */
 /* Build and draw two vertices for each of sixty-five ring samples. */
 /* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
@@ -2206,12 +2178,7 @@ void btlShuffleDrawRing(u8 *drawWork)
     D_00887310[0](4, vertices, count);
     shdDisableBlendFlag();
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation off
 /* Update the ring center and shape for its active, exit or idle phase, then draw it. */
 // FUN_0038A940
 void btlShuffleUpdateRing(u8 **drawWork)
@@ -2229,10 +2196,12 @@ void btlShuffleUpdateRing(u8 **drawWork)
     u16 flags = *(u16 *)state;
     f32 t;
     if (flags & 1) {
-        f32 c10 = 317.0f;
-        f32 old10 = ((BtlShuffleRing *)work)->centerX.value;
-        f32 diff10 = c10 - old10;
-        f32 k = D_00761288;
+        f32 diff10 = 317.0f;
+        f32 old10;
+        f32 k;
+        diff10 -= ((BtlShuffleRing *)work)->centerX.value;
+        old10 = ((BtlShuffleRing *)work)->centerX.value;
+        k = D_00761288;
         ((BtlShuffleRing *)work)->centerX.value = k * diff10 + old10;
         {
             f32 old14 = ((BtlShuffleRing *)work)->centerY.value;
@@ -2278,16 +2247,14 @@ void btlShuffleUpdateRing(u8 **drawWork)
     }
     btlShuffleDrawRing(work);
 }
-#pragma pop
 
 typedef struct BtlShuffleRevealWeight {
     f32 value;
 } BtlShuffleRevealWeight;
 
 #pragma push
-#pragma opt_rebuildconditionals on
+/* measured: scalar fill caching retains a 4-word hoist residual; aggregate fill changes 1264 bytes to 1276. */
 #pragma opt_loop_invariants on
-#pragma opt_propagation on
 /* Animate five paired reveal bands and their center fill for the current pattern. */
 /* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038ACD0
@@ -2391,10 +2358,6 @@ void btlShuffleDrawRevealBands(u8 *drawWork)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Draw eleven timed sprites with sliding positions and two color groups. */
 // FUN_0038B1C0
 void btlShuffleDrawSpriteCues(u8 *drawWork)
@@ -2460,11 +2423,9 @@ void btlShuffleDrawSpriteCues(u8 *drawWork)
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
-#pragma pop
 
 #pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
+/* measured: typed-context and MEMBER loads retain a 4-word resource/zero argument-order residual at baseline. */
 #pragma opt_propagation off
 /* Draw the card-task background pulse, rings, wave strips and sprite cues. */
 // FUN_0038B490
@@ -2482,10 +2443,6 @@ void btlShuffleDrawCardBackground(s32 drawWork, u8 **input)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Draw the detail-kind sprite group translated by the supplied XY offset. */
 // FUN_0038B530
 void btlShuffleDrawDetailSprites(u8 *drawWork, s32 input, const Vec2f *offset)
@@ -2551,12 +2508,7 @@ void btlShuffleDrawDetailSprites(u8 *drawWork, s32 input, const Vec2f *offset)
         break;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Native b210 O2: 1608/1616 bytes with eight zero alignment bytes.
  * The complete point owns the centered X coordinate before it is retained
  * for the second strip. The detail renderer consumes the same two-float point.
@@ -2683,12 +2635,7 @@ void btlShuffleDrawDetailBars(u8 *drawWork)
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Eight-frame count transition; five-frame fade-out. Extent and remainder
  * values preserve the two independently scaled sprite coordinates. */
 /* Native b210 O2: 1640/1648 bytes, 12 resolved relocations, eight zero tail bytes. */
@@ -2776,12 +2723,7 @@ void btlShuffleDrawCountTransition(u8 *drawWork)
     drawY = (f32)407 + (remainderY * extentY) / 2.0f;
     sdkSpriteDrawOnceScaled(handle, (infoFields->countHalves.high + 0x2D) - ((BtlShuffleCount *)(state))->count, drawX, drawY, 0, 0, 0, 0, alpha, (u16)(4096.0f * scale), (u16)(4096.0f * scaleY), 0.0f, 0, 0);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Project each card, offset its screen position, and draw a fading colored copy. */
 /* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038C770
@@ -2874,7 +2816,6 @@ void btlShuffleDrawCardShadow(u8 *drawWork)
         }
     }
 }
-#pragma pop
 
 typedef union BtlShuffleSelectionValue { f32 value; s32 bits; } BtlShuffleSelectionValue;
 typedef struct BtlShuffleSelection {
@@ -2896,10 +2837,6 @@ typedef struct {
     u32 tail[4];
 } BtlShuffleSelectionVertex;
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Ease the selected column position and width and render its full-height quad. */
 // FUN_0038CAB0
 void btlShuffleDrawSelectionColumn(u8 *drawWork)
@@ -2978,12 +2915,7 @@ void btlShuffleDrawSelectionColumn(u8 *drawWork)
     D_00887310[0](4, &work[0], 4);
     shdDisableBlendFlag();
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Dispatch enabled card-task foreground components after restoring render state. */
 /* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038CD70
@@ -3011,12 +2943,7 @@ void btlShuffleDrawCardForeground(u8 *drawWork, u8 *input)
         btlShuffleDrawSelectionColumn(p);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Append the card task background and foreground primitive nodes to their queues. */
 // FUN_0038CE30
 s32 btlShuffleDrawCardStep(u8 *drawWork) {
@@ -3030,23 +2957,13 @@ s32 btlShuffleDrawCardStep(u8 *drawWork) {
     PrimAppendNode(D_00794E40, p + 0x38);
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // FUN_0038CE90
 void btlShuffleDrawCardDestroy(u8 *drawWork)
 {
     jtbl_008873EC[0](((KwlnTask *)drawWork)->work);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Allocate 0x1B8 bytes of card work, initialize its ring and waves, and register both drawing callbacks. */
 // FUN_0038CEC0
 u8 *btlShuffleDrawCardCreate(s32 drawWork)
@@ -3075,12 +2992,7 @@ u8 *btlShuffleDrawCardCreate(s32 drawWork)
     btlShuffleDrawCardReset(task);
     return task;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // FUN_0038D020
 void btlShuffleDrawCardReset(u8 *drawWork)
 {
@@ -3098,12 +3010,7 @@ void btlShuffleDrawCardReset(u8 *drawWork)
         field[2] = 0;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Enable detail drawing and reset the complete sixteen-byte detail animation. */
 // FUN_0038D060
 void btlShuffleDrawCardActivate(u8 *drawWork)
@@ -3114,12 +3021,7 @@ void btlShuffleDrawCardActivate(u8 *drawWork)
     ((BtlShuffleCardWork *)p)->flags = ((BtlShuffleCardWork *)p)->flags | 1;
     memset(p + 0x190, 0, 0x10);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Request both detail-group and bar exit phases. */
 // FUN_0038D0A0
 void btlShuffleDrawCardEndDetail(u8 *drawWork)
@@ -3133,12 +3035,7 @@ void btlShuffleDrawCardEndDetail(u8 *drawWork)
     value = ((BtlShuffleCardWork *)p)->detailFlags;
     ((BtlShuffleCardWork *)p)->detailFlags = value | 4;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Change detail kind, preserve the previous kind and reset both animation clocks. */
 // FUN_0038D0D0
 void btlShuffleDrawCardSetDetail(u8 *drawWork, s32 input)
@@ -3172,12 +3069,7 @@ void btlShuffleDrawCardSetDetail(u8 *drawWork, s32 input)
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Reset count animation state and latch the current sequence count. */
 // FUN_0038D160
 void btlShuffleDrawCardStartCount(u8 *drawWork) {
@@ -3190,24 +3082,14 @@ void btlShuffleDrawCardStartCount(u8 *drawWork) {
     ((BtlShuffleCount *)params)->count = (u16) ((BtlShuffleContext *)((BtlShuffleCardWork *)work)->context)->sequenceCount.low;
     ((BtlShuffleCardWork *)work)->flags = (u16) (((BtlShuffleCardWork *)work)->flags | 2);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Request the count component exit phase. */
 // FUN_0038D1D0
 void btlShuffleDrawCardEndCount(u8 *drawWork)
 {
     ((BtlShuffleCounter *)(((KwlnTask *)drawWork)->work + 0x1A4))->flags = ((BtlShuffleCounter *)(((KwlnTask *)drawWork)->work + 0x1A4))->flags | 0x2;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Initialize the selection column for pattern four and enable its draw bit. */
 // FUN_0038D1F0
 void btlShuffleDrawCardStartSelection(u8 *drawWork)
@@ -3226,12 +3108,7 @@ void btlShuffleDrawCardStartSelection(u8 *drawWork)
     ((BtlShuffleSelection *)selection)->targetWidth.bits = 0x42C40000;
     *(s16 *)selection = 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Set the column target width to zero and restart its clock. */
 // FUN_0038D280
 void btlShuffleDrawCardEndSelection(u8 *drawWork)
@@ -3242,24 +3119,14 @@ void btlShuffleDrawCardEndSelection(u8 *drawWork)
     ((BtlShuffleSelection *)(p + 0x1A0))->targetWidth.bits = 0;
     ((BtlShuffleSelection *)(p + 0x1A0))->counter = 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Enable the ring active phase. */
 // FUN_0038D2A0
 void btlShuffleDrawCardActivateRing(u8 *drawWork)
 {
     ((BtlShuffleCardWork *)((KwlnTask *)drawWork)->work)->ringFlags = ((BtlShuffleCardWork *)((KwlnTask *)drawWork)->work)->ringFlags | 0x1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Reset reveal-band timing and enable the component. */
 // FUN_0038D2C0
 void btlShuffleDrawCardStartBands(u8 *drawWork) {
@@ -3269,24 +3136,14 @@ void btlShuffleDrawCardStartBands(u8 *drawWork) {
     memset(work + 0x1B4, 0, 4);
     ((BtlShuffleCardWork *)work)->flags = (u16) (((BtlShuffleCardWork *)work)->flags | 0x20);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Request the reveal-band exit phase. */
 // FUN_0038D310
 void btlShuffleDrawCardEndBands(u8 *drawWork)
 {
     ((BtlShuffleCardWork *)((KwlnTask *)drawWork)->work)->revealFlags = ((BtlShuffleCardWork *)((KwlnTask *)drawWork)->work)->revealFlags | 0x2;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Six timed effect handles expire at 90 frames; three additional handles persist. */
 typedef struct BtlShuffleTimedEffect {
     u16 frame;
@@ -3407,4 +3264,3 @@ void btlShuffleUpdateRewardEffects(s32 *effectWork)
         mdlEffectAdvanceAndFlushWithTable(D_005DC824, ((BtlShuffleEffects *)drawWork)->handle4C);
     }
 }
-#pragma pop

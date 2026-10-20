@@ -211,31 +211,13 @@ typedef struct Code45Im2DVertex {
     f32 pad2;
 } Code45Im2DVertex;
 
-#pragma push
-
-
-#pragma pop
-#pragma push
-
-#pragma pop
-
-
-
-#pragma push
-#pragma pop
-
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00458ce0-00458ce0 */
 
 extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
-#pragma push
-#pragma pop
-#pragma push
-#pragma pop
-/* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
+/* Scale a material's surface properties by data's x/y/z, clamped to 1. The first call
+   saves the original ambient/specular/diffuse in a three-float user-data array so that
+   later scales always start from the authored values. */
 // FUN_00458CE0
-/* measured: opt_scalarize off keeps the prop triple in stack spill slots with direct sp-relative accesses. */
-#pragma push
 u8 *K_ClumpMatPropScale(u8 *material, u8 *data) {
     RwSurfaceProperties prop;
     s32 created;

@@ -1,5 +1,10 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0015d270-0015d310 */
 
+/* Unit optimizer settings shared by all field-step functions. */
+#pragma opt_loop_invariants on
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 #include "model_motion_internal.h"
@@ -35,10 +40,6 @@ typedef struct {
  * twelve excluded flags +34, field/room +64/+66. The active location stores
  * two s32 values at +0/+4. The release handle is at work +0x14.
  * Typed record cursors preserve the reverse traversal and calendar cutoffs. */
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
 // Intent: Release the handle at the work block's +0x14 through the hook table and clear it [inferred]
 // FUN_0015D270
 /* Keep the original byte cursor alongside typed object access for retail alias behavior. */
@@ -53,12 +54,7 @@ void FldStepReleaseHandle(u8 *work)
         stepWork->handle = 0;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
 // Intent: Return the step record at the given count of empty records (id 0xFFFF) in the record table [inferred]
 // FUN_0015D2C0
 u16 *FldStepFindEmptySlot(u32 emptyIndex)
@@ -87,12 +83,7 @@ u16 *FldStepFindEmptySlot(u32 emptyIndex)
     }
     return record;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
 /* Select the last step whose location, calendar masks and flag requirements pass; return NULL if none do. */
 // FUN_0015D310
 /* Keep the original byte cursor alongside typed object access for retail alias behavior. */
@@ -262,4 +253,3 @@ loop_test:
     }
     return (u8 *)recordAddress;
 }
-#pragma pop

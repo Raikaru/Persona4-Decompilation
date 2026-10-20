@@ -45,9 +45,10 @@ typedef struct MaterialTextureContext {
     RwTexture *texture;
 } MaterialTextureContext;
 
-#pragma push
+/* Unit settings shared by material parameters and area audio selection. */
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+#pragma push
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -65,8 +66,6 @@ s32 FldRcClumpSetMipmapTex(u8 *clump, s32 textureHandle)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -83,8 +82,6 @@ void FldMipmapSetFloatParam(f32 mipmapK) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 1
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -112,8 +109,6 @@ done:
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -227,8 +222,6 @@ s32 sndPlayAreaCue(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off

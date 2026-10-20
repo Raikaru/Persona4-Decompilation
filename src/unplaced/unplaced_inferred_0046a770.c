@@ -60,9 +60,6 @@ extern f32 fGpffff81c0;
 extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Search the linked resource list for an exact name; return NULL when the name is absent. */
 // FUN_0046A770
 /* The list walk is written with an explicit goto loop: retail tests the
@@ -82,11 +79,10 @@ loop:
     p = ((SdkSpriteResourceLink *)p)->next;
     goto loop;
 }
-#pragma pop
 
 #pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
+/* measured: baseline wrap constants yield 864/848 bytes; while-range and named-limit forms still differ. */
+#pragma opt_loop_invariants on
 /* measured: b210 -O2 emits 844/848 native bytes with all nineteen
  * relocations resolved and four zero alignment bytes. Keep the negated
  * upper-limit result separate from its branch and the Y subtotal separate
@@ -95,8 +91,6 @@ loop:
 /* Rotate four attachment points when needed, then add attachment and resource-segment positions. */
 /* measured: a dedicated attachment alias preserves index reloads; resource-table loads retain MEMBER byte-base aliasing. */
 // FUN_0046A7F0
-#pragma push
-#pragma opt_loop_invariants on
 void sdkSpriteTransformPoints(u8 *attachment, u8 *points)
 {
     SdkSpriteAttachment *attachmentFields = (SdkSpriteAttachment *)(attachment);
@@ -186,9 +180,6 @@ void sdkSpriteTransformPoints(u8 *attachment, u8 *points)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 /* Advance sprite loading for each linked resource in list order. */
 // FUN_0046AB40
 void resourceLoadSprites(void)
@@ -201,6 +192,3 @@ loop_1:
         goto loop_1;
     }
 }
-#pragma pop
-/* Close the outer attachment-transform settings scope. */
-#pragma pop

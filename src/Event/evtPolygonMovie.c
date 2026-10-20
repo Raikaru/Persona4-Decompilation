@@ -38,6 +38,7 @@ extern s128 D_0063C790;
    result in $f0) vs retail's $f1 with the mtc1 hoisted to the preheader;
    expression variants (temps, product-first, (int)-cast addressing) never
    moved the allocation. measured: pragma on nd ~110 -> 0. */
+/* measured: baseline 83 differing words; short component counter 101, separate blend product 83. */
 #pragma opt_loop_invariants on
 
 /* Blend pose vectors and shortest-path angles; a missing toPose copies fromPose. */
@@ -137,6 +138,7 @@ u8 *evtPolygonMovieAlloc(void)
  * one separate typed work local preserves all section reloads and MATCH. */
 // FUN_0028FC40
 #pragma push
+/* measured: baseline 209 differing words; access-site movie 663, reused typed movie local 209. */
 #pragma opt_propagation off
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on

@@ -229,6 +229,7 @@ void fclBankQueueRequest(s32 descriptor, s64 flags)
 /* Marks the other slots with matching request flags; returns 0 if any lacks flag 4. */
 // FUN_002E12E0
 /* measured: retail keeps the invariant key mask in the loop preheader. */
+/* measured: baseline 24 differing words; unsigned descriptor shift 45, indexed slots 47, named mask 24. */
 #pragma opt_loop_invariants on
 s32 fclBankScanOthers(FclBankSlot *currentSlot)
 {
@@ -264,6 +265,7 @@ s32 fclBankScanOthers(FclBankSlot *currentSlot)
 /* Measured: explicit idle case retains the six-entry switch table, while
    propagation off keeps the fade ratio across position getters. Direct
    float-to-u8 conversion retains both retail conversion branches. */
+/* measured: baseline 198 differing words; ratio at call and scoped ratio 198. */
 #pragma opt_propagation off
 /* Advances each bank's fade state (switch on the state halfword) once per frame. */
 // FUN_002E13B0
@@ -352,6 +354,7 @@ void fclBankUpdateFades(void)
 
 /* measured: 1236/1248B, 54 resolved relocations, zero executable differences,
    twelve zero tail bytes. Keep the inlined peer mask in its loop preheader. */
+/* measured: baseline 19 differing words; for-loop slot cursor 21; retain peer-mask hoisting. */
 #pragma opt_loop_invariants on
 /* Test for a visible peer on the same side with the same descriptor high half. */
 /* Test whether another visible allocated slot shares the descriptor class and bank flag. */

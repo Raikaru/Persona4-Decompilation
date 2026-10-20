@@ -2444,7 +2444,7 @@ void fclShopDrawSetMode(void *task, s8 state) {
    alignment bytes. Separate glyph acquisition/release scopes preserve
    the saved-register allocation and callback order. */
 #pragma push
-#pragma opt_loop_invariants off
+/* measured: baseline C nd 314B; adjacent-local declaration probe nd 314B; retain settings for owner MATCH. */
 #pragma opt_common_subs off
 /* Draw a right-aligned sprite number with a comma every three digits, measuring the two glyph widths from the resource. */
 // FUN_002CAA10
@@ -2715,6 +2715,7 @@ typedef struct {
 } ShopSpinParam;
 
 #pragma push
+/* measured: baseline C nd 5740B; adjacent-local declaration probe nd 5746B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 /* Draw the five-row purchase list; drawOnly suppresses its navigation, confirmation and comparison input handling. */
 // FUN_002CB6C0
@@ -3293,6 +3294,7 @@ static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 colo
 
 
 #pragma push
+/* measured: baseline C nd 9016B; adjacent-local declaration probe nd 9016B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 /* Draw the sale inventory and process tab/list/detail input according to inputMode; proceeds use one fifth of retail price. */
@@ -5456,6 +5458,7 @@ typedef struct {
     s8 scroll[3];
 } FclShopListWork;
 #pragma push
+/* measured: baseline C nd 4314B; adjacent-local declaration probe nd 4314B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 /* Draw up to five inventory rows for a sliding tab, advancing each row's delay/timer and preserving its saved selection. */
 // FUN_002D8A60
@@ -6818,6 +6821,7 @@ void fclShopItemPanelDestroy(u8 *task) {
  * initialize pivots from the selected sprite's dimensions. */
 // FUN_002E0300
 /* measured: retail hoists the loop-invariant 0xFF and 1.0f into the preheader. */
+/* measured: baseline C nd 59B; adjacent-local declaration probe nd 59B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 s32 fclShopItemPanelCreate(s32 parent, s16 spriteIndex, u32 spriteResource) {
     s32 childTask;

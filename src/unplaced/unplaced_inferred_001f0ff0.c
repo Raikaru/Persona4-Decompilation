@@ -16,6 +16,7 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 #include "datPersona_internal.h"
+/* Unit setting for action target classification. */
 #pragma push
 #pragma opt_loop_invariants off
 #pragma optimization_level 1

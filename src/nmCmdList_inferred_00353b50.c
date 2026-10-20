@@ -12,6 +12,11 @@
 #include "rw_camera_internal.h"
 #include "camp_menu_internal.h"
 #include "sdk_ot_node.h"
+
+/* Unit settings: configured optimizer baseline; the optimization_level scopes below
+ * reset optimizer state, so their measured exceptions must remain after each reset.
+ * measured: hoisting lifetime splitting leaves only 69/72 functions MATCH. */
+
 extern void datCommunityEntryStep(u8 *);
 extern void nmMesWindowDestroySlot(s8 );
 extern void (*D_008873EC[])(void *);
@@ -1587,6 +1592,7 @@ void datGridEffectDestroy(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
+/* measured: baseline removal differs by 3 words; unstaged segments and a conditional mask expression also fail. */
 #pragma opt_propagation off
 // Intent: Draw a grid effect strip at the packed position with the given opacity and size [inferred]
 /* measured: replacing the stack color-word alias with savedColor[0] loses whole-owner MATCH under the scoped propagation setting. */
@@ -1616,7 +1622,6 @@ void datGridEffectDrawStrip(s64 positionBits, f32 depth, f32 radius, s32 color,
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation off
 // Intent: Draw a grid effect cell at the given position with the given opacity and size [inferred]
 // FUN_003561D0
 void datGridEffectDrawCell(Vec2f position, s32 color, f32 dummy,
@@ -1662,8 +1667,8 @@ void datGridEffectDrawCell(Vec2f position, s32 color, f32 dummy,
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
 // FUN_00356250
+/* measured: baseline removal differs by 293 words; reordered layout addresses and pointer traversal also fail. */
 #pragma opt_loop_invariants on
 void datCommunityMenuInit(u8 *menuWork)
 {
@@ -1802,8 +1807,6 @@ void datCommunityMenuInit(u8 *menuWork)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Community panel open step: move the panel from its closed state to open and report it as ready [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00356820
@@ -1826,8 +1829,6 @@ s32 datCommunityPanelOpenStep(u8 *menuWork) {
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Community panel update: animate the panel's radar values, advance its rotation, update its helpers and draw the community list; returns 0 while any entry is still animating [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00356870
@@ -1883,8 +1884,6 @@ loop_test:
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 /* Community-list renderer: 10536/10544 bytes, all 115 relocations exact.
  * Native byte-opacity contracts, the Vec2f output, and real RGBA/rectangle
  * objects replace the former decompiler carriers and expanded conversions.
@@ -1897,6 +1896,7 @@ loop_test:
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00356A10
 #pragma push
+/* measured: baseline removal differs by 1508 words; named-member snapshots and independent lifetime/propagation/literal probes fail. */
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
@@ -2457,8 +2457,6 @@ void datCommunityListDraw(u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Step each of the community menu's 108 entries once through their update function [inferred]
 // FUN_00359340
 void datCommunityEntriesStep(u8 *menuWork) {
@@ -2472,8 +2470,6 @@ void datCommunityEntriesStep(u8 *menuWork) {
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Bounce step: halve the community menu's vertical velocity and reverse its direction [inferred]
 // FUN_003593B0
 void datCommunityBounceStep(u8 *menuWork)
@@ -2485,8 +2481,6 @@ void datCommunityBounceStep(u8 *menuWork)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Push a value into a community history slot: move the current value to the previous one and store the new value [inferred]
 /* measured: replacing the two-array byte cursor with direct selection/history indexing loses whole-owner MATCH. */
 // FUN_003593E0
@@ -2503,8 +2497,8 @@ s32 datCommunityPushValue(s32 menuAddress, s32 selectionIndex, s16 value)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
 #pragma opt_loop_invariants on
+/* measured: baseline removal differs by 66 words; a named animation pointer still fails. */
 // Intent: Select the community table for a mode: fill its 43 entries and the table's count and width; returns 0 when the mode is already set [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00359400
@@ -2595,8 +2589,6 @@ table_loop_test:
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Report whether every community entry's threshold is met and the external check passes; returns 1 when the community list is ready [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_003596A0
@@ -2617,8 +2609,6 @@ s32 datCommunityIsReady(u8 *menuWork) {
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Release the community menu: free its sprite nodes, destroy its wipe and helper tasks, and reset its count [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00359720
@@ -2668,8 +2658,6 @@ loop_test:
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Fill the community menu's visible record list from the kind table, keeping entries with a value and a passing flag [inferred]
 /* The kind-record tail is consumed here as eight flag/value pairs; its wider record variant is not established. Retain that tail cursor; typed output indexing was measured separately. */
 // FUN_003597F0
@@ -2707,8 +2695,8 @@ loop_test:
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
 #pragma opt_loop_invariants on
+/* measured: baseline removal differs by 50 words; a structured for-loop still fails. */
 // Intent: Set the five community slot positions: the active slots move to the off-screen start and the current slot to its resting position [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_003598D0
@@ -2759,8 +2747,6 @@ loop_test:
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Reset the community entry's vertical offset and its target to fixed values [inferred]
 // FUN_003599A0
 void datCommunityResetOffset(u8 *menuWork)
@@ -2816,8 +2802,8 @@ typedef struct {
 
 #pragma push
 #pragma optimization_level 2
+/* measured: baseline removal differs by 908 words; named-member origin snapshots and independent switch probes fail. */
 #pragma opt_propagation off
-#pragma opt_loop_invariants off
 #pragma opt_pulloutconstants off
 #pragma opt_lifetimes on
 // Intent: Draw the party HUD panel: the three panel groups with their names, counts and modes, using the HUD sprite table [inferred]
@@ -3015,8 +3001,6 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Set up a screen wipe slot from one of the two slot entries: initialise its positions or move it to its target, then set its offset and colour [inferred]
 /* measured: the typed 0x1C-byte start/target/offset/color record changes address materialization; retain the color-table alias. */
 // FUN_0035AC60
@@ -3056,8 +3040,6 @@ void datScreenWipeSetupSlot(u8 *task, s32 slotIndex, s32 initialize, s32 reverse
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Create the portrait task with its update and destroy callbacks and set up its first slot [inferred]
 // FUN_0035ADC0
 u8 *datPortraitTaskCreate(s32 parentAddress, s64 portraitId, s32 flags)
@@ -3084,8 +3066,6 @@ u8 *datPortraitTaskCreate(s32 parentAddress, s64 portraitId, s32 flags)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Portrait task update: start the portrait's text load when the portrait is active and not yet loaded [inferred]
 // FUN_0035AEC0
 s32 datPortraitUpdate(u8 *task)
@@ -3102,8 +3082,6 @@ s32 datPortraitUpdate(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Portrait task destroy: release the portrait's text slot and the work block [inferred]
 // FUN_0035AF10
 void datPortraitDestroy(u8 *task)
@@ -3118,8 +3096,6 @@ void datPortraitDestroy(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Report whether the portrait is loaded and active [inferred]
 // FUN_0035AF60
 s32 datPortraitIsLoaded(u8 *task)
@@ -3136,8 +3112,6 @@ s32 datPortraitIsLoaded(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Return the portrait's value once it is loaded and active, otherwise 0 [inferred]
 // FUN_0035AFA0
 s32 datPortraitValue(u8 *task) {
@@ -3159,8 +3133,6 @@ s32 datPortraitValue(u8 *task) {
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 /* Community portrait and selected-state passes. Measured whole-owner MATCH:
  * 2772 bytes plus twelve retail zero bytes; byte-opacity/RGBA and the complete
  * Sky2 vertex layout retain the actual ABI. The work pointer is captured on
@@ -3173,6 +3145,7 @@ s32 datPortraitValue(u8 *task) {
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035AFF0
 #pragma push
+/* measured: baseline removal differs by 427 words; precomputed vertex colors and independent switch probes fail. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 #pragma opt_pulloutconstants off
@@ -3424,8 +3397,6 @@ f32 datCommunityPortraitDraw(u8 *task, u8 opacity)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Advance the portrait's move step: count its timer, step its interpolation ratio to a maximum of 1 and move its position along an arc to the target [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035BAD0
@@ -3461,8 +3432,6 @@ f32 datPortraitMoveStep(u8 *portraitWork)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Set the portrait's text value: reset its position and step, and write its text slot as a placeholder, a blank, or a numbered label when the value changes [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035BC10
@@ -3514,8 +3483,6 @@ unchanged: ;
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Blend the direction of two portrait points against a fixed normal, returning the clamped weighted projection [inferred]
 // FUN_0035BD20
 // MATCH: 332B/336B; retail ends with four zero bytes.
@@ -3548,8 +3515,6 @@ f32 datPortraitDirectionBlend(Float2 first, Float2 second, Float2 origin)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Portrait text task update: start the text load once the portrait is active and not yet loaded [inferred]
 // FUN_0035BE70
 s32 datPortraitTextLoadUpdate(u8 *task)
@@ -3566,8 +3531,6 @@ s32 datPortraitTextLoadUpdate(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Portrait text task destroy: release the text slot and the work block [inferred]
 // FUN_0035BEC0
 void datPortraitTextDestroy(u8 *task)
@@ -3582,8 +3545,6 @@ void datPortraitTextDestroy(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Create the portrait text task with its update and destroy callbacks and place it at its start position [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035BF10
@@ -3613,8 +3574,6 @@ u8 *datPortraitTextTaskCreate(s32 parentAddress, u16 labelId, s32 flags)
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Draw the portrait text: its sprite pass with the portrait's colour, offset and opacity [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035C040
@@ -3737,8 +3696,8 @@ f32 datPortraitTextDraw(u8 *task, u8 opacity)
 
 #pragma push
 #pragma optimization_level 2
+/* measured: baseline removal differs by 4 words; separate position snapshots and reversed declarations still fail. */
 #pragma opt_propagation off
-#pragma opt_loop_invariants off
 // Intent: Set the portrait label for an id and flag set: choose the colour and suffix from the flags and write the label text, blank for ids without a day label [inferred]
 /* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035C480
@@ -3839,8 +3798,6 @@ done:
 
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Copy the portrait's stored position into the caller's vector [inferred]
 /* Float2 work and the Vec2f output have the same packed two-float representation; keep the aggregate copy ABI. */
 // FUN_0035C670
