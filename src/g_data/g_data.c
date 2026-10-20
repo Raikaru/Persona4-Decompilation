@@ -488,6 +488,7 @@ s16 datRankForPoints(s16 category, s16 points)
  * comparison's narrowed temporary for subtraction. Scoped propagation preserves
  * the short progress stages; greater-than selects retail's AT comparison. */
 #pragma push
+/* measured: baseline propagation gives nd86; narrowed remaining/threshold gives nd87. */
 #pragma opt_propagation off
 // FUN_00105010
 s16 datCategoryRankProgress(s16 category, f32 scale)
@@ -1467,21 +1468,17 @@ s64 datItemBankOffset(s16 encodedItemId)
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
-/* The "load-sinking floor" here needed the word local AND the pragma together.
-   The note was right that a word local alone still sinks the f30 load (nd 11),
-   which is why one-liner / mask-order / GDataEntry* spellings all stalled there;
-   `#pragma opt_propagation off` is what keeps that single-use load right after
-   the base addu, and only then does the local hold it in place. Measured 11 -> 3
-   (the 3 are the window's trailing padding), verify reports MATCH. */
+/* measured: applying the mask to flags in a separate statement preserves the
+   early category-mask load under baseline propagation (nd22 -> MATCH). */
 // Intent: tests bit (arg1 + 4) of the 32-bit flag word at +0x30 of a g_data entry; callers are the equipment screen and the new-game script.
 // FUN_00106C30
-#pragma opt_propagation off
 s32 datEntryHasFlag(s16 itemId, s16 flagIndex)
 {
     u32 flags;
 
     flags = ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->categoryMask;
-    return (flags & (1 << ((s32)flagIndex + 4))) != 0;
+    flags &= 1 << ((s32)flagIndex + 4);
+    return flags != 0;
 }
 #pragma opt_propagation on
 
@@ -1880,8 +1877,8 @@ typedef char DatSaveMetadataSize[(sizeof(DatSaveMetadata) == 12) ? 1 : -1];
 typedef char DatSaveSummarySize[(sizeof(DatSaveSummary) == 52) ? 1 : -1];
 
 #pragma push
+/* measured: without invariant hoisting nd2451; updating total directly removes the propagation override. */
 #pragma opt_loop_invariants on
-#pragma opt_propagation off
 // FUN_0010D7C0
 u8 *datSaveBuildImage(s32 version, s32 *outSize, s32 compact)
 {
@@ -1894,7 +1891,6 @@ u8 *datSaveBuildImage(s32 version, s32 *outSize, s32 compact)
     u8 *cursor;
     u8 *unit;
     s32 total;
-    s32 eventEnd;
     u32 nameIndex;
     u32 surnameIndex;
     u32 unitIndex;
@@ -2122,10 +2118,10 @@ level_done:
     length = FldStepTableSize();
     memcpy(cursor + 212, &length, 4);
     cursor += 216;
-    eventEnd = total + 216;
+    total += 216;
     memcpy(cursor, FldStepTable(), FldStepTableSize());
     cursor += FldStepTableSize();
-    total = eventEnd + FldStepTableSize();
+    total += FldStepTableSize();
     for (unitIndex = 0; unitIndex < 10; unitIndex++) {
         tag = (unitIndex << 8) + 0x100;
         memcpy(cursor, &tag, 4);
@@ -2495,6 +2491,7 @@ u32 datTestBitmapBit(u32 entryIndex, u32 bitIndex)
 /* measured: opt_loop_invariants on hoists the sllv constant 1 and keeps the
    D_007973A0 base in $a3 like retail; without it mwcc rematerializes addiu
    $v1,0,1 in the loop body (nd 18 -> 0). */
+/* measured: explicit mask local still gives nd33 without invariant hoisting. */
 #pragma opt_loop_invariants on
 
 // FUN_0010F460

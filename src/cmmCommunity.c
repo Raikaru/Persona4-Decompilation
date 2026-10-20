@@ -1003,9 +1003,7 @@ ret:
 
 
 /* measured: object 604 bytes against the 592-byte retail window, normalized_diff 206, first differing offsets 42,44,46,47,50,51,54-59,62,63,66,67; archived in build/CMMC_00108590_body.c. Retail's int-to-float bltz/mtc1/cvt.s.w and srl/andi/or/mtc1/cvt.s.w/add.s paths are represented by (f32)(u32)option, and its c.le.s/trunc.w.s/mfc1/andi or sub.s/trunc.w.s/mfc1/lui 0x8000/or/andi paths by (u16)temp_f1. Corrected block-scope callee declarations; direct/aggregate layouts, aliases, parameter mutation, O1, loop forms, floating guard polarity, explicit branch labels, and declaration variants were ruled out. */
-/* measured: opt_loop_invariants on hoists the u16->int widening of the earned value into both
-   predecessors of the threshold loop (retail `move v1,zero` / `andi v1,v1` before the join). */
-#pragma opt_loop_invariants on
+/* measured: explicit earned-value widening after effect-index initialization matches with loop invariants at baseline. */
 // Add points: adds option scaled by cmmCommunityEarnScale to value's point counter at +8, plays the threshold effect (sdkSndStartStream) and the resource check (MT_Scene_SpawnResIconTask) when selection is not -1, and returns the new counter. A zero value uses the current community.
 // FUN_00108590
 u16 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId) {
@@ -1026,6 +1024,7 @@ u16 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId) {
     f32 basePoints;
     CmmCommunityRecord *record;
     u32 effectIndex;
+    s32 earnedValue;
     *(Vec3 *)vals.thresholds = *(Vec3 *)D_005E42D8;
     *(Vec3 *)vals.durations = *(Vec3 *)D_005E42E8;
     *(Vec3 *)vals.bytes = *(Vec3 *)D_005E42F8;
@@ -1050,8 +1049,9 @@ u16 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId) {
         }
     }
     effectIndex = 0;
+    earnedValue = earnedPoints;
     while (effectIndex < 3U) {
-        if (earnedPoints > *(s32 *)&vals.thresholds[effectIndex]) {
+        if (earnedValue > *(s32 *)&vals.thresholds[effectIndex]) {
             effectIndex += 1;
             continue;
         }
@@ -1069,8 +1069,6 @@ u16 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId) {
     }
     return record->points;
 }
-/* measured: restore the unit default after cmmCommunityAddPoints. */
-#pragma opt_loop_invariants off
 // Can rank up: returns 1 when value has a record below max rank 0xA and its point counter reaches the threshold for its current rank in the kind record's table, else 0.
 // FUN_001087E0
 s32 cmmCommunityCanRankUp(s32 communityId) {

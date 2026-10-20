@@ -79,9 +79,9 @@ extern void yTimeNameDrawSelections(u8 *task, s32 preserveStatus);
 
 
 #pragma push
-/* measured: func_002a12e0 MATCH -> MISMATCH without this pragma. */
+/* measured: removing both toggles gives nd195; separate glyph/row lifetimes reach nd10 with invariants on. */
 #pragma opt_lifetimes on
-/* measured: func_002a12e0 MATCH -> MISMATCH without this pragma. */
+/* measured: glyph/row lifetime separation alone leaves nd176 when invariant hoisting is also removed. */
 #pragma opt_loop_invariants on
 /* Array-member accesses retain the row's animation address across glyph
  * calls. The grid index is reused by the later, disjoint glyph loop.

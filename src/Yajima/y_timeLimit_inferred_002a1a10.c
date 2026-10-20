@@ -124,6 +124,7 @@ done:
 /* measured: disabling common-subexpression propagation prevents the repeated
    tween target from being held in a saved register across calls. */
 /* measured: func_002a1b20 MATCH -> MISMATCH without this pragma. */
+/* measured: removing both reveal settings gives nd109/119/117 for background/origin/rows. */
 #pragma opt_common_subs off
 /* measured: disabling propagation preserves the retail call-site materialization. */
 // FUN_002A1B20
