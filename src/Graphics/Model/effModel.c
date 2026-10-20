@@ -2,6 +2,7 @@
 #include "include_asm.h"
 /* Original translation unit effModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "member_access.h"
 #include "effect_instance_internal.h"
 
 typedef struct RwMatrix RwMatrix;
@@ -188,17 +189,17 @@ void *EffModelClone(void *effect)
 // FUN_004AC170
 void EffModelRebindModel(u8 *dst, u8 *src)
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 191 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 191 differing bytes.
+     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     void *work;
 
-    if (*(void **)(src + 0x94) == 0) {
+    if (((MdlEffectInstance *)src)->model.pointer == 0) {
         kAssertFail(D_007144A8, 0xBB);
     }
-    if (*(void **)(dst + 0x94) != 0) {
-        mdlDestroyModelObject(*(u32 *)(dst + 0x94));
+    if (((MdlEffectInstance *)dst)->model.pointer != 0) {
+        mdlDestroyModelObject(((MdlEffectInstance *)dst)->model.word);
     }
-    work = mdlFindOrCreateModelObject(*(u16 *)(*(u32 *)(src + 0x94) + 0xD4), *(u16 *)(*(u32 *)(src + 0x94) + 0xD6), 0);
+    work = mdlFindOrCreateModelObject(((MdlEffectModel *)MEMBER(u32, src, MdlEffectInstance, model.word))->id, ((MdlEffectModel *)MEMBER(u32, src, MdlEffectInstance, model.word))->subId, 0);
     if (work == 0) {
         kAssertFail(D_007144A8, 0xC5);
     }
@@ -207,9 +208,9 @@ void EffModelRebindModel(u8 *dst, u8 *src)
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         mdlSetLayerWeight(work, 0, 1.0f);
     }
-    *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
+    ((MdlEffectModel *)(u8 *)work)->flags.word &= 0xFFFFFFFD;
     mdlSetResetCallback(work, EffModelResetCallback, work);
-    *(void **)(dst + 0x94) = work;
+    MEMBER(void *, dst, MdlEffectInstance, model.pointer) = work;
 }
 
 // FUN_004AC290
@@ -223,11 +224,14 @@ void EffModelResetLayerTime(u8 *effect) {
 // FUN_004AC2C0
 void EffModelRollCycle(u32 *effect)
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 44 differing bytes). Offsets remain as observed. */
-  if ((effect[0x23] >= effect[0x26]) || (effect[0x23] == 0)) {
-    *(f32 *)(effect + 9) = 1.0f;
-    effect[0x26] = effect[0x26] + 1;
+    MdlEffectInstance *ageFields3;
+    MdlEffectInstance *ageFields4;
+
+    /* Earlier whole-layout comparison: 44 differing bytes.
+     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
+  if ((((MdlEffectInstance *)effect)->duration >= ((MdlEffectInstance *)effect)->elapsed.word) || (((MdlEffectInstance *)effect)->duration == 0)) {
+    ((MdlEffectInstance *)effect)->layerWeight.scalar = 1.0f;
+    (ageFields3 = (MdlEffectInstance *)(effect))->elapsed.word = (ageFields4 = (MdlEffectInstance *)(effect))->elapsed.word + 1;
   }
 }
 
@@ -252,8 +256,8 @@ extern f32 D_00761134;
 // FUN_004AC300
 void EffModelUpdate(s32 drawList, u8 *effect)
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 428 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 428 differing bytes.
+     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     /* VU/MMI packing writes combinedColor via its retail stack slot; retain this order. */
     s32 outputColor;
     s32 tintColor;
@@ -272,14 +276,14 @@ void EffModelUpdate(s32 drawList, u8 *effect)
     u8 *disabledModel;
     f32 scale;
 
-    elapsed = *(u32 *)(effect + 0x98);
-    duration = *(u32 *)(effect + 0x8C);
+    elapsed = ((MdlEffectInstance *)effect)->elapsed.word;
+    duration = ((MdlEffectInstance *)effect)->duration;
     if ((duration >= elapsed) || (duration == 0)) {
         if (duration == 0x4C9) {
-            mdlSetAlphaBlend(*(u8 **)(effect + 0x94));
+            mdlSetAlphaBlend(((MdlEffectInstance *)effect)->model.bytes);
         }
         color = mdlEffectSamplePackedColor(effect + 0x2C, effect + 0x50, elapsed, duration);
-        tintColor = *(s32 *)(effect + 0x28);
+        tintColor = ((MdlEffectInstance *)effect)->tint.signedWord;
         pt = &tintColor;
         scale = D_00761134;
         __asm__ volatile(
@@ -320,30 +324,30 @@ void EffModelUpdate(s32 drawList, u8 *effect)
             : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         outputColor = *(s32 *)&combinedColor;
-        mdlSetColor(*(u8 **)(effect + 0x94), &outputColor);
+        mdlSetColor(((MdlEffectInstance *)effect)->model.bytes, &outputColor);
         keyScale = mdlEffectSampleScalarKeys(effect + 0x60, elapsed, duration) / 10.0f;
         mdlEffectBuildBasisRows(matrix, effect + 0x10);
-        mdlApplyModelMatrix(*(u8 **)(effect + 0x94), matrix, 0);
-        uniformScale = *(f32 *)(effect + 0x20) * keyScale;
+        mdlApplyModelMatrix(MEMBER(u8 *, effect, MdlEffectInstance, model.bytes), matrix, 0);
+        uniformScale = ((MdlEffectInstance *)effect)->scale * keyScale;
         vector[2] = uniformScale;
         vector[1] = uniformScale;
         vector[0] = uniformScale;
-        mdlScale(*(u8 **)(effect + 0x94), vector, 2);
-        vector[0] = *(f32 *)(effect + 0);
-        vector[1] = *(f32 *)(effect + 4);
-        vector[2] = *(f32 *)(effect + 8);
-        mdlTranslateMatrix((RwMatrix *)*(u8 **)(effect + 0x94), (const RwV3d *)vector, 2);
-        if (*(u8 *)(effect + 0x90) != 0) {
-            enabledModel = *(u8 **)(effect + 0x94);
-            *(s32 *)(enabledModel + 0xD8) = *(s32 *)(enabledModel + 0xD8) | 0x18;
+        mdlScale(MEMBER(u8 *, effect, MdlEffectInstance, model.bytes), vector, 2);
+        vector[0] = ((MdlEffectInstance *)effect)->positionX;
+        vector[1] = ((MdlEffectInstance *)effect)->positionY;
+        vector[2] = ((MdlEffectInstance *)effect)->positionZ;
+        mdlTranslateMatrix((RwMatrix *)MEMBER(u8 *, effect, MdlEffectInstance, model.bytes), (const RwV3d *)vector, 2);
+        if (((MdlEffectInstance *)effect)->drawFlags != 0) {
+            enabledModel = MEMBER(u8 *, effect, MdlEffectInstance, model.bytes);
+            ((MdlEffectModel *)enabledModel)->flags.signedWord = ((MdlEffectModel *)enabledModel)->flags.signedWord | 0x18;
         } else {
-            disabledModel = *(u8 **)(effect + 0x94);
-            *(s32 *)(disabledModel + 0xD8) = *(s32 *)(disabledModel + 0xD8) & ~0x18;
+            disabledModel = MEMBER(u8 *, effect, MdlEffectInstance, model.bytes);
+            ((MdlEffectModel *)disabledModel)->flags.signedWord = ((MdlEffectModel *)disabledModel)->flags.signedWord & ~0x18;
         }
-        mdlSetLayerWeight(*(u8 **)(effect + 0x94), 0, *(f32 *)(effect + 0x24));
-        mdlSetAttachedOwner(*(u8 **)(effect + 0x94), TnGetTableBase());
-        mdlQueueModelForDraw(drawList, *(u8 **)(effect + 0x94));
-        *(s32 *)(effect + 0x24) = 0;
+        mdlSetLayerWeight(MEMBER(u8 *, effect, MdlEffectInstance, model.bytes), 0, ((MdlEffectInstance *)effect)->layerWeight.scalar);
+        mdlSetAttachedOwner(MEMBER(u8 *, effect, MdlEffectInstance, model.bytes), TnGetTableBase());
+        mdlQueueModelForDraw(drawList, MEMBER(u8 *, effect, MdlEffectInstance, model.bytes));
+        MEMBER(s32, effect, MdlEffectInstance, layerWeight.signedWord) = 0;
     }
 }
 // FUN_004AC550
@@ -356,13 +360,16 @@ void EffModelUpdateByOffset(void *effect)
 // FUN_004AC590
 void EffModelRollAndUpdate(u32 *effect)
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 73 differing bytes). Offsets remain as observed. */
-    if ((effect[0x23] >= effect[0x26]) || (effect[0x23] == 0)) {
-        *(f32 *)(effect + 9) = 1.0f;
-        effect[0x26] = effect[0x26] + 1;
+    MdlEffectInstance *ageFields3;
+    MdlEffectInstance *ageFields4;
+
+    /* Earlier whole-layout comparison: 73 differing bytes.
+     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
+    if ((((MdlEffectInstance *)effect)->duration >= ((MdlEffectInstance *)effect)->elapsed.word) || (((MdlEffectInstance *)effect)->duration == 0)) {
+        ((MdlEffectInstance *)effect)->layerWeight.scalar = 1.0f;
+        (ageFields3 = (MdlEffectInstance *)(effect))->elapsed.word = (ageFields4 = (MdlEffectInstance *)(effect))->elapsed.word + 1;
     }
-    EffModelUpdate(TnGetOffset1C(*(u16 *)&effect[0x15]), (u8 *)effect);
+    EffModelUpdate(TnGetOffset1C(((MdlEffectInstance *)effect)->drawSlot), (u8 *)effect);
 }
 
 // FUN_004AC600
@@ -393,8 +400,8 @@ void EffModelSetLookupIndex(int effect, int packedColor)
 /* Allocates a 0xBC-byte drawable effect, creates the embedded model and configures its draw callback and frame range. */
 // FUN_004AC640
 void *EffModelCreateDrawable(void *source) {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 130 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 130 differing bytes.
+     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     s32 resourceSize;
     s32 modelResource;
     s32 lastFrame;
@@ -411,7 +418,7 @@ void *EffModelCreateDrawable(void *source) {
     if (effect == NULL) {
         kAssertFail(D_007144A8, 0x18A);
     }
-    *(s32 *)(effect + 0xC) = -1;
+    ((MdlDrawableEffect *)effect)->tint = -1;
     if (source != NULL) {
         parameters = mdlEffectResolveRelPtrA(source);
         if (parameters == NULL) {
@@ -420,10 +427,10 @@ void *EffModelCreateDrawable(void *source) {
         memcpy(effect + 0x10, parameters, 0xA4);
         modelResource = (s32)mdlEffectResolveRelPtrB(source);
         if (modelResource != 0) {
-            if (*(u16 *)((u8 *)source + 0x1C) != 3) {
+            if (((EffSourceDescriptor *)(u8 *)source)->kind != 3) {
                 kAssertFail(D_007144A8, 0x19D);
             }
-            resourceSize = *(s32 *)((u8 *)source + 0x24);
+            resourceSize = ((EffSourceDescriptor *)(u8 *)source)->clumpInput;
             while ((lookupType = 6, mdlFindModelObject(lookupType, iGpffffbb90, 0)) != 0) {
                 iGpffffbb90 += 1;
             }
@@ -433,23 +440,23 @@ void *EffModelCreateDrawable(void *source) {
                 mdlDispatchAnimIfPresent(model, 0, 0, 0, 0);
                 mdlSetLayerWeight(model, 0, 1.0f);
             }
-            *(u32 *)(model + 0xD8) &= ~2U;
+            ((MdlEffectModel *)model)->flags.word &= ~2U;
             mdlSetResetCallback(model, EffModelResetCallback, model);
             iGpffffbb90 += 1;
-            *(u8 **)(effect + 0xB4) = model;
+            ((MdlDrawableEffect *)effect)->model.bytes = model;
             mdlSetDrawCallback(model, EffModelDrawCallback, effect);
-            if (*(u8 *)(effect + 0xA0) == 0) {
-                mdlClearAtomicFlags(*(u8 **)(effect + 0xB4), 0x20);
+            if (((MdlDrawableEffect *)effect)->visible == 0) {
+                mdlClearAtomicFlags(MEMBER(u8 *, effect, MdlDrawableEffect, model.bytes), 0x20);
             }
-            if (*(s32 *)(effect + 0xA4) != 0) {
-                flaggedModel = *(u8 **)(effect + 0xB4);
-                *(u32 *)(flaggedModel + 0xD8) |= 0x40000;
+            if (((MdlDrawableEffect *)effect)->modelFlag.signedWord != 0) {
+                flaggedModel = MEMBER(u8 *, effect, MdlDrawableEffect, model.bytes);
+                ((MdlEffectModel *)flaggedModel)->flags.word |= 0x40000;
             }
-            firstFrame = *(s32 *)(effect + 0x70);
-            if ((firstFrame >= 0) && (lastFrame = *(s32 *)(effect + 0x74), lastFrame >= 0) && (lastFrame >= firstFrame)) {
-                *(s8 *)(effect + 0xB8) = 1;
+            firstFrame = ((MdlDrawableEffect *)effect)->firstFrame;
+            if ((firstFrame >= 0) && (lastFrame = ((MdlDrawableEffect *)effect)->lastFrame, lastFrame >= 0) && (lastFrame >= firstFrame)) {
+                ((MdlDrawableEffect *)effect)->validFrameRange.signedByte = 1;
             } else {
-                *(s8 *)(effect + 0xB8) = 0;
+                ((MdlDrawableEffect *)effect)->validFrameRange.signedByte = 0;
             }
         }
     }
@@ -482,17 +489,20 @@ void *EffModelCloneDrawable(void *effect)
 // FUN_004AC9A0
 void EffModelRebindDrawable(u8 *dst, u8 *src)
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 294 differing bytes). Offsets remain as observed. */
+    MdlDrawableEffect *sourceForModelId;
+    MdlDrawableEffect *sourceForModelSubId;
+
+    /* Earlier whole-layout comparison: 294 differing bytes.
+     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     void *work;
 
-    if (*(void **)(src + 0xB4) == 0) {
+    if (((MdlDrawableEffect *)src)->model.pointer == 0) {
         kAssertFail(D_007144A8, 0x1D0);
     }
-    if (*(void **)(dst + 0xB4) != 0) {
-        mdlDestroyModelObject(*(u32 *)(dst + 0xB4));
+    if (((MdlDrawableEffect *)dst)->model.pointer != 0) {
+        mdlDestroyModelObject(((MdlDrawableEffect *)dst)->model.word);
     }
-    work = mdlFindOrCreateModelObject(*(u16 *)(*(u32 *)(src + 0xB4) + 0xD4), *(u16 *)(*(u32 *)(src + 0xB4) + 0xD6), 0);
+    work = mdlFindOrCreateModelObject(((MdlEffectModel *)(sourceForModelId = (MdlDrawableEffect *)(src))->model.word)->id, ((MdlEffectModel *)(sourceForModelSubId = (MdlDrawableEffect *)(src))->model.word)->subId, 0);
     if (work == 0) {
         kAssertFail(D_007144A8, 0x1DA);
     }
@@ -501,19 +511,19 @@ void EffModelRebindDrawable(u8 *dst, u8 *src)
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         mdlSetLayerWeight(work, 0, 1.0f);
     }
-    *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
+    ((MdlEffectModel *)(u8 *)work)->flags.word &= 0xFFFFFFFD;
     mdlSetResetCallback(work, EffModelResetCallback, work);
-    *(void **)(dst + 0xB4) = work;
+    MEMBER(void *, dst, MdlDrawableEffect, model.pointer) = work;
     mdlSetDrawCallback(work, EffModelDrawCallback, dst);
-    if (*(u8 *)(dst + 0xA0) == 0) {
-        mdlClearAtomicFlags(*(void **)(dst + 0xB4), 0x20);
+    if (((MdlDrawableEffect *)dst)->visible == 0) {
+        mdlClearAtomicFlags(MEMBER(void *, dst, MdlDrawableEffect, model.pointer), 0x20);
     }
-    if (*(u32 *)(dst + 0xA4) != 0) {
-        *(u32 *)(*(u32 *)(dst + 0xB4) + 0xD8) |= 0x40000;
+    if (((MdlDrawableEffect *)dst)->modelFlag.word != 0) {
+        ((MdlEffectModel *)MEMBER(u32, dst, MdlDrawableEffect, model.word))->flags.word |= 0x40000;
     }
-    if ((*(s32 *)(dst + 0x70) >= 0) && (*(s32 *)(dst + 0x74) >= 0) && (*(s32 *)(dst + 0x74) >= *(s32 *)(dst + 0x70))) {
-        *(u8 *)(dst + 0xB8) = 1;
+    if ((((MdlDrawableEffect *)dst)->firstFrame >= 0) && (((MdlDrawableEffect *)dst)->lastFrame >= 0) && (((MdlDrawableEffect *)dst)->lastFrame >= ((MdlDrawableEffect *)dst)->firstFrame)) {
+        ((MdlDrawableEffect *)dst)->validFrameRange.byte = 1;
     } else {
-        *(u8 *)(dst + 0xB8) = 0;
+        ((MdlDrawableEffect *)dst)->validFrameRange.byte = 0;
     }
 }
