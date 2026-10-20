@@ -8,6 +8,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "member_access.h"
 #include "kwln_task_internal.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
@@ -15,7 +16,13 @@
 #include "field_panel_internal.h"
 #include "field_npc_control_internal.h"
 #include "rw_types_internal.h"
+#include "resrc_manager_internal.h"
+#include "scene_light_override_internal.h"
+#include "kwln_view_internal.h"
+#include "primitive_queue_internal.h"
 typedef RwV3d RainVector;
+
+typedef struct FldLmapPresetColumn { f32 value; u8 pad04[0x14]; } FldLmapPresetColumn;
 
 /* Camera move work: two Vec3s, per-frame speeds, frame counters and preset IDs. */
 typedef struct FldLmapCameraWork {
@@ -83,8 +90,8 @@ extern u8 *iGpffff9db0;
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_00189600
 /* Move eye and target toward a preset at the requested speed, or snap when speed is zero. */
+// FUN_00189600
 void FldLmapCameraMoveTo(u8 *task, s32 mode, s32 preset, f32 speed)
 {
     /* Separate preset/global and matrix aliases retain their measured access widths. */
@@ -97,33 +104,31 @@ void FldLmapCameraMoveTo(u8 *task, s32 mode, s32 preset, f32 speed)
     f32 targetDirection[4];
     f32 targetDistance;
     f32 eyeDistance;
-    s32 presetOffset;
     s32 snapOffset;
     s32 state;
     u8 *eye;
     u8 *target;
     u8 *work;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((KwlnTask *)task)->work;
     kwlnGetCamera();
     state = ((FldLmapCameraWork *)work)->state;
     if ((state != 1) || (((FldLmapCameraWork *)work)->preset != preset)) {
         if (speed != 0.0f) {
             ((FldLmapCameraWork *)work)->mode = mode;
             ((FldLmapCameraWork *)work)->preset = preset;
-            presetOffset = preset * 0x18;
-            eyeDirection[0] = *(f32 *)((u8 *)D_005F2190 + presetOffset) -
+            eyeDirection[0] = ((FldLmapPresetColumn *)D_005F2190)[preset].value -
                      ((FldLmapCameraWork *)work)->eye[0];
-            eyeDirection[1] = *(f32 *)((u8 *)D_005F2194 + presetOffset) -
+            eyeDirection[1] = ((FldLmapPresetColumn *)D_005F2194)[preset].value -
                      ((FldLmapCameraWork *)work)->eye[1];
-            eyeDirection[2] = *(f32 *)((u8 *)D_005F2198 + presetOffset) -
+            eyeDirection[2] = ((FldLmapPresetColumn *)D_005F2198)[preset].value -
                      ((FldLmapCameraWork *)work)->eye[2];
             eyeDistance = RwV3dNormalize((RainVector *)&eyeDirection[0], (const RainVector *)&eyeDirection[0]);
-            targetDirection[0] = *(f32 *)((u8 *)D_005F219C + presetOffset) -
+            targetDirection[0] = ((FldLmapPresetColumn *)D_005F219C)[preset].value -
                      ((FldLmapCameraWork *)work)->target[0];
-            targetDirection[1] = *(f32 *)((u8 *)D_005F21A0 + presetOffset) -
+            targetDirection[1] = ((FldLmapPresetColumn *)D_005F21A0)[preset].value -
                      ((FldLmapCameraWork *)work)->target[1];
-            targetDirection[2] = *(f32 *)((u8 *)D_005F21A4 + presetOffset) -
+            targetDirection[2] = ((FldLmapPresetColumn *)D_005F21A4)[preset].value -
                      ((FldLmapCameraWork *)work)->target[2];
             targetDistance = RwV3dNormalize((RainVector *)&targetDirection[0], (const RainVector *)&targetDirection[0]);
             if (!(eyeDistance <= targetDistance)) {
@@ -142,9 +147,9 @@ void FldLmapCameraMoveTo(u8 *task, s32 mode, s32 preset, f32 speed)
         ((FldLmapCameraWork *)work)->preset = preset;
         snapOffset = preset * 0x18;
         eye = (u8 *)D_005F2190 + snapOffset;
-        *(struct Vec3 *)(work + 4) = *(struct Vec3 *)eye;
+        *(struct Vec3 *)&((FldLmapCameraWork *)work)->eye[0] = *(struct Vec3 *)eye;
         target = (u8 *)D_005F219C + snapOffset;
-        *(struct Vec3 *)(work + 0x10) = *(struct Vec3 *)target;
+        *(struct Vec3 *)&((FldLmapCameraWork *)work)->target[0] = *(struct Vec3 *)target;
         K_ClumpLookAtBasis(((u8 *)(uintptr_t)kwlnGetCamera()), eye, target, 0);
     }
 }
@@ -156,9 +161,9 @@ void FldLmapCameraMoveTo(u8 *task, s32 mode, s32 preset, f32 speed)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
+/* Establish the sky/panel render-state preset before queued primitives draw. */
 // FUN_00189870
 #pragma opt_propagation off
-/* Establish the sky/panel render-state preset before queued primitives draw. */
 void FldSkyApplyDefaultPreset(void)
 {
     void (**base)(s32, s32);
@@ -181,15 +186,15 @@ void FldSkyApplyDefaultPreset(void)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
+/* Animate panel entry and alternating text slots, then queue their quads and labels. */
 // FUN_00189940
 /* Measured: 1348 executable bytes, 26 resolved relocations, 12 zero tail bytes.
  * Preserve integer-to-float conversions and reloads across rendering callbacks.
  * Indexed addresses stay integer-valued until their final pointer conversion. */
 #pragma opt_loop_invariants on
-/* Animate panel entry and alternating text slots, then queue their quads and labels. */
 s32 FldPanel2dUpdate(u8 *task)
 {
-    /* Proven work offsets remain raw: typed field access changes MWCC scheduling/aliasing. */
+    FldPanel2dWork *panelWork;
     u8 *work;
     u8 *primitive;
     f32 depth;
@@ -198,92 +203,93 @@ s32 FldPanel2dUpdate(u8 *task)
     f32 progress;
     s32 i;
 
-    work = *(u8 **)(task + 0x38);
-    if (*(s32 *)(work + 4) == 1) {
+    work = ((KwlnTask *)task)->work;
+    panelWork = (FldPanel2dWork *)work;
+    if (((FldPanel2dWork *)work)->hidden == 1) {
         return 0;
     }
 
-    switch (*(s32 *)work) {
+    switch (((FldPanel2dWork *)work)->state) {
     case 0:
         depth = D_008872F8[0] - (f32)58980;
         reciprocalDepth = 1.0f / depth;
-        *(s32 *)(work + 8) = 0;
-        *(f32 *)(((*(s32 *)(work + 8) << 2) + (u32)work + 0x18)) = 175.0f;
-        *(f32 *)(work + 0x20) = 0.0f;
+        ((FldPanel2dWork *)work)->side = 0;
+        panelWork->slotX[panelWork->side] = 175.0f;
+        ((FldPanel2dWork *)work)->vertices[0].x = 0.0f;
         top = (f32)401;
-        *(f32 *)(work + 0x24) = top;
-        *(f32 *)(work + 0x28) = depth;
-        *(f32 *)(work + 0x60) = 25.0f;
-        *(f32 *)(work + 0x64) = top;
-        *(f32 *)(work + 0x68) = depth;
-        *(f32 *)(work + 0xA0) = 0.0f;
+        ((FldPanel2dWork *)work)->vertices[0].y = top;
+        ((FldPanel2dWork *)work)->vertices[0].z = depth;
+        ((FldPanel2dWork *)work)->vertices[1].x = 25.0f;
+        ((FldPanel2dWork *)work)->vertices[1].y = top;
+        ((FldPanel2dWork *)work)->vertices[1].z = depth;
+        ((FldPanel2dWork *)work)->vertices[2].x = 0.0f;
         progress = (f32)427;
-        *(f32 *)(work + 0xA4) = progress;
-        *(f32 *)(work + 0xA8) = depth;
-        *(f32 *)(work + 0xE0) = 25.0f;
-        *(f32 *)(work + 0xE4) = progress;
-        *(f32 *)(work + 0xE8) = depth;
-        *(f32 *)(work + 0x120) = 326.0f;
-        *(f32 *)(work + 0x124) = top;
-        *(f32 *)(work + 0x128) = depth;
-        *(f32 *)(work + 0x160) = 660.0f;
-        *(f32 *)(work + 0x164) = top;
-        *(f32 *)(work + 0x168) = depth;
-        *(f32 *)(work + 0x1A0) = 326.0f;
-        *(f32 *)(work + 0x1A4) = progress;
-        *(f32 *)(work + 0x1A8) = depth;
-        *(f32 *)(work + 0x1E0) = 660.0f;
-        *(f32 *)(work + 0x1E4) = progress;
-        *(f32 *)(work + 0x1E8) = depth;
+        ((FldPanel2dWork *)work)->vertices[2].y = progress;
+        ((FldPanel2dWork *)work)->vertices[2].z = depth;
+        ((FldPanel2dWork *)work)->vertices[3].x = 25.0f;
+        ((FldPanel2dWork *)work)->vertices[3].y = progress;
+        ((FldPanel2dWork *)work)->vertices[3].z = depth;
+        ((FldPanel2dWork *)work)->vertices[4].x = 326.0f;
+        ((FldPanel2dWork *)work)->vertices[4].y = top;
+        ((FldPanel2dWork *)work)->vertices[4].z = depth;
+        ((FldPanel2dWork *)work)->vertices[5].x = 660.0f;
+        ((FldPanel2dWork *)work)->vertices[5].y = top;
+        ((FldPanel2dWork *)work)->vertices[5].z = depth;
+        ((FldPanel2dWork *)work)->vertices[6].x = 326.0f;
+        ((FldPanel2dWork *)work)->vertices[6].y = progress;
+        ((FldPanel2dWork *)work)->vertices[6].z = depth;
+        ((FldPanel2dWork *)work)->vertices[7].x = 660.0f;
+        ((FldPanel2dWork *)work)->vertices[7].y = progress;
+        ((FldPanel2dWork *)work)->vertices[7].z = depth;
         for (i = 0; i < 4; i++) {
             primitive = work + (i << 6);
-            *(f32 *)(primitive + 0x38) = reciprocalDepth;
-            *(f32 *)(primitive + 0x138) = reciprocalDepth;
-            *(f32 *)(primitive + 0x40) = 255.0f;
-            *(f32 *)(primitive + 0x44) = 0.0f;
-            *(f32 *)(primitive + 0x48) = 0.0f;
-            *(f32 *)(primitive + 0x4C) = 0.0f;
-            *(f32 *)(primitive + 0x140) = 255.0f;
-            *(f32 *)(primitive + 0x144) = 0.0f;
-            *(f32 *)(primitive + 0x148) = 0.0f;
-            *(f32 *)(primitive + 0x14C) = 0.0f;
+            ((FldPanel2dWork *)primitive)->vertices[0].reciprocalZ = reciprocalDepth;
+            ((FldPanel2dWork *)primitive)->vertices[4].reciprocalZ = reciprocalDepth;
+            ((FldPanel2dWork *)primitive)->vertices[0].red = 255.0f;
+            ((FldPanel2dWork *)primitive)->vertices[0].green = 0.0f;
+            ((FldPanel2dWork *)primitive)->vertices[0].blue = 0.0f;
+            ((FldPanel2dWork *)primitive)->vertices[0].alpha = 0.0f;
+            ((FldPanel2dWork *)primitive)->vertices[4].red = 255.0f;
+            ((FldPanel2dWork *)primitive)->vertices[4].green = 0.0f;
+            ((FldPanel2dWork *)primitive)->vertices[4].blue = 0.0f;
+            ((FldPanel2dWork *)primitive)->vertices[4].alpha = 0.0f;
         }
-        *(s32 *)work += 1;
+        ((FldPanel2dWork *)work)->state += 1;
         break;
     case 1:
-        *(f32 *)(work + 0x22C) = sinf((D_00761184 * (f32)*(s32 *)(work + 0x220)) / 10.0f);
-        if (*(s32 *)(work + 0x220) < 10) {
-            *(s32 *)(work + 0x220) += 1;
+        ((FldPanel2dWork *)work)->alpha = sinf((D_00761184 * (f32)((FldPanel2dWork *)work)->animFrame) / 10.0f);
+        if (panelWork->animFrame < 10) {
+            panelWork->animFrame += 1;
         } else {
-            *(s32 *)work += 1;
+            ((FldPanel2dWork *)work)->state += 1;
         }
-        *(f32 *)(work + 0x224) = (-300.0f + 0.0f) + 316.0f * *(f32 *)(work + 0x22C);
-        *(f32 *)(work + 0x228) = ((f32)371 + 0.0f) + 30.0f * *(f32 *)(work + 0x22C);
+        ((FldPanel2dWork *)work)->posX = (-300.0f + 0.0f) + 316.0f * panelWork->alpha;
+        ((FldPanel2dWork *)work)->posY = ((f32)371 + 0.0f) + 30.0f * panelWork->alpha;
         /* fallthrough */
     case 2:
-        sflDataDrawNarrowRoundedFrame((s32)*(f32 *)(work + 0x224), (s32)*(f32 *)(work + 0x228), (f32)59000, 301, 26, 0xFAFF20, 255, 1, 150, 13, D_00794C60, -5.0f, 1.0f, 1.0f);
-        sflDataDrawNarrowRoundedFrame(25, 401, (f32)59000, 301, 26, 0x191919, 255, 1, 150, 13, D_00794C60, 0.0f, 1.0f, *(f32 *)(work + 0x22C));
-        if (!(*(f32 *)(work + 0x22C) < 1.0f)) {
-            if (*(s32 *)((((!(u32)*(s32 *)(work + 8)) << 2) + (u32)work + 0x10)) != 0) {
-                progress = sinf((D_00761184 * (f32)*(s32 *)(work + 0xC)) / 10.0f);
-                *(f32 *)(((*(s32 *)(work + 8) << 2) + (u32)work + 0x18)) = 175.0f + 336.0f * progress;
-                *(f32 *)((((!(u32)*(s32 *)(work + 8)) << 2) + (u32)work + 0x18)) = -161.0f + 336.0f * progress;
-                if (*(s32 *)(work + 0xC) < 10) {
-                    *(s32 *)(work + 0xC) += 1;
+        sflDataDrawNarrowRoundedFrame((s32)((FldPanel2dWork *)work)->posX, (s32)((FldPanel2dWork *)work)->posY, (f32)59000, 301, 26, 0xFAFF20, 255, 1, 150, 13, D_00794C60, -5.0f, 1.0f, 1.0f);
+        sflDataDrawNarrowRoundedFrame(25, 401, (f32)59000, 301, 26, 0x191919, 255, 1, 150, 13, D_00794C60, 0.0f, 1.0f, ((FldPanel2dWork *)work)->alpha);
+        if (!(panelWork->alpha < 1.0f)) {
+            if (panelWork->textHandles[!panelWork->side] != 0) {
+                progress = sinf((D_00761184 * (f32)((FldPanel2dWork *)work)->blinkTimer) / 10.0f);
+                panelWork->slotX[panelWork->side] = 175.0f + 336.0f * progress;
+                panelWork->slotX[!panelWork->side] = -161.0f + 336.0f * progress;
+                if (panelWork->blinkTimer < 10) {
+                    panelWork->blinkTimer += 1;
                 } else {
-                    *(s32 *)(((*(s32 *)(work + 8) << 2) + (u32)work + 0x10)) = 0;
-                    *(s32 *)(work + 8) = !(u32)*(s32 *)(work + 8);
+                    panelWork->textHandles[panelWork->side] = 0;
+                    ((FldPanel2dWork *)work)->side = !(u32)((FldPanel2dWork *)work)->side;
                 }
             }
             primitive = PrimQueueDrawPrimitive(D_00794C60, 4, work + 0x20, 4);
-            *(void (**)(void))(primitive + 8) = FldSkyApplyDefaultPreset;
-            *(s32 *)(primitive + 0x10) = 0;
+            ((PrimQueueNode *)primitive)->callback = FldSkyApplyDefaultPreset;
+            ((PrimQueueNode *)primitive)->argument.handle = 0;
             PrimQueueDrawPrimitive(D_00794C60, 4, work + 0x120, 4);
-            if (*(const char **)(work + 0x10) != NULL) {
-                frFontExDrawTextDeferredWithCharWidth((f32)(s32)*(f32 *)(work + 0x18), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(work + 0x10), 8, 0, D_00794C60, -1);
+            if (((FldPanel2dWork *)work)->text[0] != NULL) {
+                frFontExDrawTextDeferredWithCharWidth((f32)(s32)((FldPanel2dWork *)work)->slotX[0], (f32)399, (f32)58990, -1, 0, 1, ((FldPanel2dWork *)work)->text[0], 8, 0, D_00794C60, -1);
             }
-            if (*(const char **)(work + 0x14) != NULL) {
-                frFontExDrawTextDeferredWithCharWidth((f32)(s32)*(f32 *)(work + 0x1C), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(work + 0x14), 8, 0, D_00794C60, -1);
+            if (((FldPanel2dWork *)work)->text[1] != NULL) {
+                frFontExDrawTextDeferredWithCharWidth((f32)(s32)((FldPanel2dWork *)work)->slotX[1], (f32)399, (f32)58990, -1, 0, 1, ((FldPanel2dWork *)work)->text[1], 8, 0, D_00794C60, -1);
             }
         }
         break;
@@ -301,11 +307,12 @@ s32 FldPanel2dUpdate(u8 *task)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
+/* Release the panel work block through the active allocator. */
 // FUN_00189E90
 void FldPanel2dDestroy(u8 *task)
 {
     /* Keep the allocator-facing void** work load distinct from typed field aliases. */
-    jtbl_008873EC[0](*(void **)(task + 0x38));
+    jtbl_008873EC[0]((void *)((KwlnTask *)task)->work);
 }
 #pragma pop
 
@@ -315,8 +322,8 @@ void FldPanel2dDestroy(u8 *task)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_00189EC0
 /* Lazily allocate the panel task and initialize its text from the current area. */
+// FUN_00189EC0
 void FldPanel2dTaskCreate(void)
 {
     u8 *parent;
@@ -343,8 +350,8 @@ void FldPanel2dTaskCreate(void)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_00189FA0
 /* Destroy the frame-owned panel hierarchy; return whether one was present. */
+// FUN_00189FA0
 s32 FldPanel2dRelease(void) {
     if (((FldFrame *)MT_Scene_GetFrameState())->panelTask == 0) {
         return 0;
@@ -374,8 +381,8 @@ void FldPanel2dSetState(u8 *task, s32 hidden)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018A010
 /* Stage explicit or area-selected text in the inactive slot and restart its slide. */
+// FUN_0018A010
 void FldPanel2dSelectEntry(s32 entryIndex)
 {
     extern u8 D_005F2210[];
@@ -391,7 +398,7 @@ void FldPanel2dSelectEntry(s32 entryIndex)
     s32 slot;
     u8 *selectedText;
 
-    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) == 0) {
+    if ((s32)((FldFrame *)(u8 *)MT_Scene_GetFrameState())->panelTask == 0) {
         return;
     }
     if (entryIndex == -1) {
@@ -404,7 +411,7 @@ void FldPanel2dSelectEntry(s32 entryIndex)
             } else {
                 entry = (s32 *)(D_005F51E0 + *location * 4);
                 if (*entry != 0) {
-                    index = *(u16 *)((u8 *)*entry + *(location + 1) * 2);
+                    index = ((u16 *)*entry)[location[1]];
                 }
                 selectedText = D_005F2210 + index * 0x1A;
             }
@@ -415,12 +422,13 @@ void FldPanel2dSelectEntry(s32 entryIndex)
     } else {
         text = D_005F2210 + entryIndex * 0x1A;
     }
-    panel = *(u8 **)(*(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x30) + 0x38);
-    slot = ((*(s32 *)(panel + 8) != 0) ^ 1) * 4;
-    *(u8 **)(slot + (s32)panel + 0x10) = text;
-    slot = ((*(s32 *)(panel + 8) != 0) ^ 1) * 4;
-    *(s32 *)(slot + (s32)panel + 0x18) = (s32)0xC3210000;
-    *(s32 *)(panel + 0xC) = 0;
+    panel = ((KwlnTask *)((FldFrame *)(u8 *)MT_Scene_GetFrameState())->panelTask)->work;
+    slot = ((((FldPanel2dWork *)panel)->side != 0) ^ 1) * 4;
+    /* Measured: typed slot arrays (including word aliases) and a typed panel local change codegen. */
+    MEMBER(u8 *, slot + (s32)panel, FldPanel2dWork, text[0]) = text;
+    slot = ((((FldPanel2dWork *)panel)->side != 0) ^ 1) * 4;
+    MEMBER(s32, slot + (s32)panel, FldPanel2dWork, slotXBits[0]) = (s32)0xC3210000;
+    ((FldPanel2dWork *)panel)->blinkTimer = 0;
 }
 #pragma pop
 
@@ -430,8 +438,8 @@ void FldPanel2dSelectEntry(s32 entryIndex)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018A170
 /* Mark and stop traversal at an atomic whose bounding sphere reaches the camera frustum. */
+// FUN_0018A170
 s32 FldRcAtomicFrustumTest(s32 atomic, s32 *visible)
 {
     u8 *camera;
@@ -457,16 +465,17 @@ extern s16 mdlGetLayerAnimation(s32, s32);
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018BAD0
 /* Release the auxiliary handle and the NPC control allocation. */
+// FUN_0018BAD0
 void FldNpcControlDestroy(u8 *task) {
+    KwlnTask *taskRecord = (KwlnTask *)task;
     s32 handle = ((FldNpcControlWork *)((KwlnTask *)task)->work)->handle;
 
     if (handle != 0) {
         func_003e0f40(handle);
     }
     /* Keep the allocator-facing void** work load distinct from typed field aliases. */
-    jtbl_008873EC[0](*(void **)(task + 0x38));
+    jtbl_008873EC[0]((void *)taskRecord->work);
 }
 #pragma pop
 
@@ -476,8 +485,8 @@ void FldNpcControlDestroy(u8 *task) {
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018BB20
 /* Create NPC control work and capture the current camera height. */
+// FUN_0018BB20
 s32 FldNpcControlTaskCreate(s32 parent, s32 actor)
 {
     s32 taskHandle;
@@ -489,8 +498,8 @@ s32 FldNpcControlTaskCreate(s32 parent, s32 actor)
         return 0;
     taskHandle = (s32)kwlnTaskCreateChild((void *)((u8 *)parent), (const void *)(&D_005F5350), 0xF, 0, 0, FldNpcControlUpdate, FldNpcControlDestroy, (u8 *)(work));
     ((FldNpcControlWork *)work)->actor = actor;
-    /* Camera is returned as an opaque handle here; preserve the observed float at +80. */
-    ((FldNpcControlWork *)work)->cameraHeight = *(f32 *)(((u8 *)(uintptr_t)kwlnGetCamera()) + 0x80);
+    /* The view float at +0x80 is copied without interpreting its camera-specific meaning. */
+    ((FldNpcControlWork *)work)->cameraHeight = ((KwlnView *)((u8 *)(uintptr_t)kwlnGetCamera()))->unk80;
     return taskHandle;
 }
 #pragma pop
@@ -501,6 +510,7 @@ s32 FldNpcControlTaskCreate(s32 parent, s32 actor)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
+/* Report ready for a missing task or once NPC control reaches state four. */
 // FUN_0018BBF0
 s32 FldNpcControlReady(u8 *task)
 {
@@ -522,16 +532,16 @@ s32 FldNpcControlReady(u8 *task)
 #pragma vu0_mmi_reg_binding off
 /* Shared animation contracts: CSE retains the common transition constant.
  * The O1 profile still preserves the retail FPU accumulator order. */
+/* Compare normalized actor/player headings; select a turn animation when outside tolerance. */
 // FUN_0018BC20
 /* measured: optimization_level 1 preserves retail's FPU scheduling for this
    vector normalize; -O2 reorders it into a mismatching form. */
 #pragma optimization_level 1
 #pragma push
 #pragma opt_common_subs on
-/* Compare normalized actor/player headings; select a turn animation when outside tolerance. */
 void FldNpcControlFacePlayer(u8 *task)
 {
-    /* Proven work offsets remain raw: typed field access changes MWCC scheduling/aliasing. */
+    FldNpcControlWork *controlWork;
     /* Separate preset/global and matrix aliases retain their measured access widths. */
     struct Vec3 {
         f32 x;
@@ -554,44 +564,45 @@ void FldNpcControlFacePlayer(u8 *task)
     void *target;
     s32 zero;
 
-    work = *(u8 **)(task + 0x38);
-    matrix = mdlGetMatrix(*(u32 *)(*(u8 **)(work + 0xC) + 0x164));
+    work = ((KwlnTask *)task)->work;
+    controlWork = (FldNpcControlWork *)work;
+    matrix = mdlGetMatrix((u32)((ResrcRecord *)(u8 *)((FldNpcControlWork *)work)->actor)->modelHandle164Value);
     originalHeading = (f32 *)(work + 0x30);
-    *(struct Vec3 *)originalHeading = *(struct Vec3 *)(matrix + 0x20);
+    *(struct Vec3 *)originalHeading = *(struct Vec3 *)&((SceneLightMatrix *)matrix)->at;
     RwV3dNormalize((RainVector *)originalHeading, (const RainVector *)originalHeading);
-    actorX = *(f32 *)(mdlGetMatrix(
-        *(u32 *)(*(u8 **)(work + 0xC) + 0x164)) + 0x30);
-    *(f32 *)(work + 0x3C) = *(f32 *)(mdlGetMatrix(
-        D_007EFA00[0]) + 0x30) - actorX;
-    actorY = *(f32 *)(mdlGetMatrix(
-        *(u32 *)(*(u8 **)(work + 0xC) + 0x164)) + 0x34);
-    *(f32 *)(work + 0x40) = *(f32 *)(mdlGetMatrix(
-        D_007EFA00[0]) + 0x34) - actorY;
-    actorZ = *(f32 *)(mdlGetMatrix(
-        *(u32 *)(*(u8 **)(work + 0xC) + 0x164)) + 0x38);
-    *(f32 *)(work + 0x44) = *(f32 *)(mdlGetMatrix(
-        D_007EFA00[0]) + 0x38) - actorZ;
+    actorX = ((SceneLightMatrix *)mdlGetMatrix(
+        (u32)((ResrcRecord *)(u8 *)controlWork->actor)->modelHandle164Value))->pos.x;
+    ((FldNpcControlWork *)work)->headingX = ((SceneLightMatrix *)mdlGetMatrix(
+        D_007EFA00[0]))->pos.x - actorX;
+    actorY = ((SceneLightMatrix *)mdlGetMatrix(
+        (u32)((ResrcRecord *)(u8 *)controlWork->actor)->modelHandle164Value))->pos.y;
+    ((FldNpcControlWork *)work)->headingY = ((SceneLightMatrix *)mdlGetMatrix(
+        D_007EFA00[0]))->pos.y - actorY;
+    actorZ = ((SceneLightMatrix *)mdlGetMatrix(
+        (u32)((ResrcRecord *)(u8 *)controlWork->actor)->modelHandle164Value))->pos.z;
+    ((FldNpcControlWork *)work)->headingZ = ((SceneLightMatrix *)mdlGetMatrix(
+        D_007EFA00[0]))->pos.z - actorZ;
     playerHeading = (f32 *)(work + 0x3C);
     RwV3dNormalize((RainVector *)playerHeading, (const RainVector *)playerHeading);
-    originalZ = *(f32 *)(work + 0x38);
-    desiredZ = *(f32 *)(work + 0x44);
-    originalX = *(f32 *)(work + 0x30);
-    desiredX = *(f32 *)(work + 0x3C);
-    originalY = *(f32 *)(work + 0x34);
-    desiredY = *(f32 *)(work + 0x40);
+    originalZ = ((FldNpcControlWork *)work)->savedHeading.z;
+    desiredZ = controlWork->headingZ;
+    originalX = ((FldNpcControlWork *)work)->savedHeading.x;
+    desiredX = controlWork->headingX;
+    originalY = ((FldNpcControlWork *)work)->savedHeading.y;
+    desiredY = controlWork->headingY;
     if ((originalX * desiredX + originalY * desiredY) +
         originalZ * desiredZ <
         fGpffff8218) {
-        *(s32 *)(work + 0x2C) =
-            (s16)mdlGetLayerAnimation(*(u32 *)(*(u8 **)(work + 0xC) + 0x164), 0);
-        target = *(void **)(*(u8 **)(work + 0xC) + 0x164);
+        ((FldNpcControlWork *)work)->savedAnimation =
+            (s16)mdlGetLayerAnimation((u32)((ResrcRecord *)(u8 *)controlWork->actor)->modelHandle164Value, 0);
+        target = ((ResrcRecord *)(u8 *)controlWork->actor)->modelHandle164;
         zero = 0;
         mdlDispatchAnimIfPresent(target, zero, 1, 4, 1);
-        *(s32 *)work = 5;
+        ((FldNpcControlWork *)work)->state = 5;
         return;
     }
-    mdlDispatchAnimIfPresent(*(void **)(*(u8 **)(work + 0xC) + 0x164), 0, 3, 8, 0);
-    *(s32 *)work = 7;
+    mdlDispatchAnimIfPresent(((ResrcRecord *)(u8 *)controlWork->actor)->modelHandle164, 0, 3, 8, 0);
+    ((FldNpcControlWork *)work)->state = 7;
 }
 #pragma pop
 #pragma pop
@@ -604,12 +615,13 @@ void FldNpcControlFacePlayer(u8 *task)
 #pragma vu0_mmi_reg_binding off
 /* Copy the complete direction vector when starting the transition. The
  * aggregate retains all three source loads with shared constants enabled. */
+/* Restore the saved heading, using the turn animation only when outside tolerance. */
 // FUN_0018BDD0
 #pragma push
 #pragma opt_common_subs on
-/* Restore the saved heading, using the turn animation only when outside tolerance. */
 void FldNpcControlTurnBack(u8 *task)
 {
+    FldNpcControlWork *controlWork;
     /* Aggregate heading copies and actor model pointers retain their measured access widths. */
     struct Direction {
         f32 x;
@@ -626,25 +638,26 @@ void FldNpcControlTurnBack(u8 *task)
     f32 desiredY;
     s32 zero;
 
-    work = *(u8 **)(task + 0x38);
-    originalZ = *(f32 *)(work + 0x38);
+    work = ((KwlnTask *)task)->work;
+    controlWork = (FldNpcControlWork *)work;
+    originalZ = ((FldNpcControlWork *)work)->savedHeading.z;
     desiredZ = ((FldNpcControlWork *)work)->headingZ;
-    originalX = *(f32 *)(work + 0x30);
+    originalX = ((FldNpcControlWork *)work)->savedHeading.x;
     desiredX = ((FldNpcControlWork *)work)->headingX;
-    originalY = *(f32 *)(work + 0x34);
+    originalY = ((FldNpcControlWork *)work)->savedHeading.y;
     desiredY = ((FldNpcControlWork *)work)->headingY;
     if ((originalX * desiredX + originalY * desiredY) + originalZ * desiredZ <
         fGpffff8218) {
-        *(struct Direction *)(work + 0x3C) = *(struct Direction *)(work + 0x30);
-        target = *(u8 **)(*(u8 **)(work + 0xC) + 0x164);
+        *(struct Direction *)&controlWork->heading = *(struct Direction *)&controlWork->savedHeading;
+        target = (u8 *)((ResrcRecord *)(u8 *)((FldNpcControlWork *)work)->actor)->modelHandle164;
         zero = 0;
         mdlDispatchAnimIfPresent(target, zero, 1, 4, 1);
-        *(s32 *)work = 6;
+        ((FldNpcControlWork *)work)->state = 6;
         return;
     }
-    mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(work + 0xC) + 0x164),
+    mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)(u8 *)((FldNpcControlWork *)work)->actor)->modelHandle164,
                   0, 0, 8, 1);
-    *(s32 *)work = 4;
+    ((FldNpcControlWork *)work)->state = 4;
 }
 #pragma pop
 #pragma pop
@@ -655,17 +668,18 @@ void FldNpcControlTurnBack(u8 *task)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018BED0
 /* Forward the lock to the NPC resource list and its requested position slot. */
+// FUN_0018BED0
 void FldNpcSetPositionLock(u8 *task, s32 locked) {
-    /* Typed work access changes codegen; +50/+54 select the actor resource and position slot. */
-    u8 *work = *(u8 **)(task + 0x38);
+    FldNpcControlWork *controlWork;
+    u8 *work = ((KwlnTask *)task)->work;
+    controlWork = (FldNpcControlWork *)work;
 
-    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + *(s32 *)(work + 0x50) * 4 + 0x34) == 0) {
+    if ((s32)((FldFrame *)MT_Scene_GetFrameState())->dependentTasks[((FldNpcControlWork *)work)->actorIndex] == 0) {
         return;
     }
-    FldRc_SetPositionSlotLock(*(s32 *)((u8 *)MT_Scene_GetFrameState() + *(s32 *)(work + 0x50) * 4 + 0x34),
-                  *(s32 *)(work + 0x54), locked);
+    FldRc_SetPositionSlotLock((s32)((FldFrame *)MT_Scene_GetFrameState())->dependentTasks[controlWork->actorIndex],
+                  ((FldNpcControlWork *)work)->positionSlot, locked);
 }
 #pragma pop
 
@@ -675,13 +689,13 @@ void FldNpcSetPositionLock(u8 *task, s32 locked) {
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018BF50
 /* Report turn states or the actor state-3 pause as busy. */
+// FUN_0018BF50
 s32 fldNpcControlIsBusy(u8 *task) {
-    /* Keep +24 signed (the shared work type is unsigned); actor state uses the partial +220 layout. */
-    u8 *work = *(u8 **)(task + 0x38);
+    /* Interpret the turn counter as signed; actor state is the low halfword of handle220 on the little-endian EE. */
+    u8 *work = ((KwlnTask *)task)->work;
     s32 busy = 0;
-    s32 state = *(s32 *)work;
+    s32 state = ((FldNpcControlWork *)work)->state;
     if (state == 5) {
         goto set;
     }
@@ -691,8 +705,8 @@ s32 fldNpcControlIsBusy(u8 *task) {
 set:
     busy = 1;
 rest:
-    if (*(u16 *)(*(u8 **)(work + 0xC) + 0x220) == 3) {
-        if (*(s32 *)(work + 0x24) > 0) {
+    if (((u16 *)&((ResrcRecord *)(u8 *)((FldNpcControlWork *)work)->actor)->handle220)[0] == 3) {
+        if ((s32)((FldNpcControlWork *)work)->turnFrames > 0) {
             busy = 1;
         }
     }

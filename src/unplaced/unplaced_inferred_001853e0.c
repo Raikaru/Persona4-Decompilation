@@ -61,7 +61,7 @@ typedef struct {
     GridDrawVertex cover[4];
     GridDrawVertex rings[3][66];
     RwTexture *textures[2];
-    u8 *raster;
+    union { u8 *raster; s32 rasterHandle; };
 } GridDrawWork;
 
 #pragma push
@@ -70,9 +70,9 @@ typedef struct {
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
+/* Install the grid render state and bind the first noise texture raster. */
 // FUN_001853E0
 #pragma opt_propagation off
-/* Install the grid render state and bind the first noise texture raster. */
 void FldNoiseRenderStateA(u8 *task, u8 *work)
 {
     s32 *value;
@@ -99,9 +99,9 @@ void FldNoiseRenderStateA(u8 *task, u8 *work)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
+/* Install the strip render state, bind the second noise texture raster and emit its tag. */
 // FUN_001854F0
 #pragma opt_propagation off
-/* Install the strip render state, bind the second noise texture raster and emit its tag. */
 void FldNoiseRenderStateB(u8 *task, u8 *work)
 {
     s32 *value;
@@ -143,10 +143,9 @@ void FldNoiseFlush(void)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
+/* Install the overlay render state, bind the captured display raster and emit its tag. */
 // FUN_00185620
 #pragma opt_propagation off
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
-/* Install the overlay render state, bind the captured display raster and emit its tag. */
 void FldNoiseOverlayDraw(u8 *task, u8 *work)
 {
     void (**base)(s32, s32);
@@ -161,7 +160,7 @@ void FldNoiseOverlayDraw(u8 *task, u8 *work)
     base[0](2, 3);
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x54);
-    base[0](1, *(s32 *)(work + 0x88C8));
+    base[0](1, ((GridDrawWork *)work)->rasterHandle);
     FldNoiseEmitTagged();
 }
 #pragma pop
@@ -172,9 +171,9 @@ void FldNoiseOverlayDraw(u8 *task, u8 *work)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
+/* Install the untextured ring/cover render state and emit the masked effect tag. */
 // FUN_00185730
 #pragma opt_propagation off
-/* Install the untextured ring/cover render state and emit the masked effect tag. */
 void FldNoiseRenderStateSetup(void)
 {
     void (**base)(s32, s32);
@@ -219,11 +218,11 @@ void FldNoiseEmitRings(void)
  * 1/1000, matching each vertex's depth and the retail literal at 0x761304.
  * Separate loop lifetimes and complete work/vertex records recover the
  * retail 0x90 frame without artificial storage. */
+/* Noise draw nodes carry the second callback payload in PrimQueueDrawNode.endArgument. */
 // FUN_00185850
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-/* Raw access: The queue API has a second callback payload at +0x14, beyond the canonical PrimQueueNode header; retain that packet-specific raw store. */
 s32 FldNoiseUpdate(u8 *task)
 {
     extern u8 D_00794930[];
@@ -513,30 +512,30 @@ s32 FldNoiseUpdate(u8 *task)
         break;
     case 1:
         node = PrimQueueDrawPrimitive(D_00794930,4,work->cover,4);
-        *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
+        ((PrimQueueNode *)node)->callback = FldNoiseRenderStateSetup;
         ((PrimQueueNode *)node)->argument.data = (u8 *)work;
         node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[2],0x42);
-        *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
+        ((PrimQueueNode *)node)->callback = FldNoiseRenderStateSetup;
         ((PrimQueueNode *)node)->argument.data = (u8 *)work;
-        *(void (**)(void))(node + 0xc) = FldNoiseEmitRings;
-        *(GridDrawWork **)(node + 0x14) = work;
+        ((PrimQueueNode *)node)->endCallback = FldNoiseEmitRings;
+        ((PrimQueueDrawNode *)node)->endArgument.data = (u8 *)work;
         node = PrimQueueDrawPrimitive(D_00794930,4,work->overlay,4);
-        *(void (**)(u8 *, u8 *))(node + 8) = FldNoiseOverlayDraw;
+        ((PrimQueueNode *)node)->callback = FldNoiseOverlayDraw;
         ((PrimQueueNode *)node)->argument.data = (u8 *)work;
         callbackNode = (u8 *)PrimAllocQueueNode();
-        *(void (**)(void))(callbackNode + 8) = FldNoiseFlush;
+        ((PrimQueueNode *)callbackNode)->callback = FldNoiseFlush;
         ((PrimQueueNode *)callbackNode)->argument.data = (u8 *)work;
         PrimAppendNode(D_00794930,callbackNode);
         node = PrimQueueDrawPrimitive(D_00794930,4,work->cover,4);
-        *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
+        ((PrimQueueNode *)node)->callback = FldNoiseRenderStateSetup;
         ((PrimQueueNode *)node)->argument.data = (u8 *)work;
         node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[1],0x42);
-        *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
+        ((PrimQueueNode *)node)->callback = FldNoiseRenderStateSetup;
         ((PrimQueueNode *)node)->argument.data = (u8 *)work;
-        *(void (**)(void))(node + 0xc) = FldNoiseEmitRings;
-        *(GridDrawWork **)(node + 0x14) = work;
+        ((PrimQueueNode *)node)->endCallback = FldNoiseEmitRings;
+        ((PrimQueueDrawNode *)node)->endArgument.data = (u8 *)work;
         callbackNode = (u8 *)PrimAllocQueueNode();
-        *(void (**)(u8 *, u8 *))(callbackNode + 8) = FldNoiseRenderStateB;
+        ((PrimQueueNode *)callbackNode)->callback = FldNoiseRenderStateB;
         ((PrimQueueNode *)callbackNode)->argument.data = (u8 *)work;
         PrimAppendNode(D_00794930,callbackNode);
         for (index = 0; index < 0xe; index = index + 1) {
@@ -545,15 +544,15 @@ s32 FldNoiseUpdate(u8 *task)
             }
         }
         callbackNode = (u8 *)PrimAllocQueueNode();
-        *(void (**)(void))(callbackNode + 8) = FldNoiseFlush;
+        ((PrimQueueNode *)callbackNode)->callback = FldNoiseFlush;
         ((PrimQueueNode *)callbackNode)->argument.data = (u8 *)work;
         PrimAppendNode(D_00794930,callbackNode);
         node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[0],0x42);
-        *(void (**)(void))(node + 0xc) = FldNoiseEmitRings;
-        *(GridDrawWork **)(node + 0x14) = work;
+        ((PrimQueueNode *)node)->endCallback = FldNoiseEmitRings;
+        ((PrimQueueDrawNode *)node)->endArgument.data = (u8 *)work;
         uGpffffb314 = uGpffffb314 != 0 ^ 1;
         callbackNode = (u8 *)PrimAllocQueueNode();
-        *(void (**)(u8 *, u8 *))(callbackNode + 8) = FldNoiseRenderStateA;
+        ((PrimQueueNode *)callbackNode)->callback = FldNoiseRenderStateA;
         ((PrimQueueNode *)callbackNode)->argument.data = (u8 *)work;
         PrimAppendNode(D_00794930,callbackNode);
         for (index = 0; index < 7; index = index + 1) {
@@ -608,8 +607,8 @@ void FldNoiseDestroy(u8 *task)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_00186640
 /* Allocate the 0x88D0-byte noise work block and create its child task. */
+// FUN_00186640
 s32 FldNoiseTaskCreate(u8 *task)
 {
     chkmemAllocSiteTag(&D_005F1DF8, 0x299);
