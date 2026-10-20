@@ -1,6 +1,7 @@
 /* Original translation unit y_CmbCardEff.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "fcl_color.h"
 #include "type.h"
+#include "member_access.h"
 #include "sdktask.h"
 #include "h_cdvd_internal.h"
 #include "effect_update_internal.h"
@@ -241,7 +242,7 @@ typedef struct {
 #pragma opt_propagation off
 /* Steps the card loader state machine; returns its status. */
 s32 cmbCardLoaderStep(u8 *task) {
-    /* measured: each typed ID-array load loses MATCH; preserve the three byte-based reads, including the post-setup reload. */
+    /* measured: indexed ID-array members preserve both setup reads and the post-setup reload. */
     s16 cardIndex;
     CmbLoaderState *work;
     s8 state;
@@ -265,15 +266,15 @@ s32 cmbCardLoaderStep(u8 *task) {
             break;
         case 2:
             for (cardIndex = 0; cardIndex < 0xC; cardIndex++) {
-                if (*(u16 *)((u8 *)work + (s32)cardIndex * 2 + 2) == 0)
+                if (((CmbLoaderState *)(u8 *)work)->ids[cardIndex] == 0)
                     goto next_card;
                 btlShuffleCardSetupLayout((u8 *)&work->cards[0][cardIndex],
-                              *(u16 *)((u8 *)work + (s32)cardIndex * 2 + 2));
+                              ((CmbLoaderState *)(u8 *)work)->ids[cardIndex]);
                 {
                     CmbLoaderCard *second;
                     s32 id;
                     second = &work->cards[1][cardIndex];
-                    id = *(u16 *)((u8 *)work + (s32)cardIndex * 2 + 2);
+                    id = ((CmbLoaderState *)(u8 *)work)->ids[cardIndex];
                     btlShuffleCardSetupLayout((u8 *)second, id);
                 }
                 work->loaded += 1;
@@ -296,9 +297,9 @@ s32 cmbCardLoaderStep(u8 *task) {
 // FUN_0033E7C0
 /* Tear down the loader resource scene, then free its state block. */
 void cmbCardControllerDestroy(u8 *task) {
-    /* measured: the final task-work reload must remain byte-based after resource teardown. */
+    /* measured: MEMBER preserves the final task-work reload after resource teardown. */
     pscResTeardown((u8 *)(((SdkTask *)task)->work) + 0x20);
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    jtbl_008873EC[0](MEMBER(u8 *, task, SdkTask, work));
 }
 
 /* The controller keeps twelve complete 0x84-byte card records. Constructor
@@ -565,7 +566,8 @@ void *cmbCardEffWork(u8 *task) {
 #pragma opt_propagation off
 /* Sets the selected card's angle (f32, radians-style value from the caller). */
 void cmbCardSetAngle(u8 *task, s8 cardIndex, f32 angle) {
-    /* measured: the first loaderTask read stays raw; typing it changes the matched instruction stream. */
+    CmbCardController *controller;
+    /* measured: a separate typed controller local preserves the first loader-task read. */
     struct { f32 rotation[4]; s64 axisXY; f32 axisZ; } rotationWork;
     s64 axisXY;
     f32 axisZ;
@@ -577,13 +579,14 @@ void cmbCardSetAngle(u8 *task, s8 cardIndex, f32 angle) {
     u8 *slotBase;
 
     work = ((SdkTask *)task)->work;
+    controller = (CmbCardController *)work;
     axis = (f32 *)&rotationWork.axisXY;
     axisXY = D_0064A5A0[0];
     axisZ = *(f32 *)&D_0064A5A0[1];
     rotationWork.axisXY = axisXY;
     rotationWork.axisZ = axisZ;
     func_003dc740((struct RtQuat *)&rotationWork.rotation, (const struct RwV3d *)axis, angle, 0);
-    loaderWork = ((SdkTask *)*(u8 **)(work + 4))->work;
+    loaderWork = ((SdkTask *)controller->loaderTask)->work;
     if ((s8)*loaderWork == 4) {
         loaderCard = loaderWork + (s32)cardIndex * 0xFB0;
         card = loaderCard + 0x2758;
@@ -601,7 +604,7 @@ void cmbCardSetPosition(u8 *task, s8 cardIndex, CmbVec2f position) {
     /* measured: typing the loader task-work read changes address evaluation (20 differing bytes); the scale read is typed. */
     u8 *work = ((SdkTask *)task)->work;
     u32 slotOffset = (s32)cardIndex * 0x84;
-    btlShuffleCardApplyScale((u8 *)(*(u32 *)(((CmbCardController *)work)->loaderTask + 0x38) + (s32)cardIndex * 0xFB0 + 0x2758), (f32 *)&position, 90.0f * ((CmbCardSlot *)(slotOffset + (u32)work + 0xC))->scale);
+    btlShuffleCardApplyScale((u8 *)(MEMBER(u32, ((CmbCardController *)work)->loaderTask, SdkTask, work) + (s32)cardIndex * 0xFB0 + 0x2758), (f32 *)&position, 90.0f * ((CmbCardSlot *)(slotOffset + (u32)work + 0xC))->scale);
 }
 /* measured: MATCHED this wave. The nd-8 candidate had the correct 0xFB0 stride,
    packed two-float argument, and 90.0f scaling, but fndiff showed the final 0xE398
@@ -636,6 +639,7 @@ void cmbCardApplySlotTransform(u8 *task, s8 cardIndex, CmbVec2f position, f32 sc
    and `#pragma opt_propagation off` forces the single-use base load early into $a2
    (helper alone: nd 9, load sinks to $v1 and the sign-ext chain shifts to $a1;
    pragma alone on the plain expression: nd 3, still base-first addu). */
+/* Begin a timed interpolation between two card positions and enable movement. */
 // FUN_0033FC00
 #pragma opt_propagation off /* measured: see above; forces the base load early (lw $a2,0x38($a0) first) */
 /* Starts the selected card's move: start and target positions, duration in frames; sets the active flag. */
@@ -684,7 +688,9 @@ static inline void cmbAddPath(u8 *task, s8 cardIndex, CmbVec2f position, s16 dur
 // Two-card layout: card-layout state machine for two cards (dispatcher phase 1). States: 0 start the slide at frame 0x50, 6 init slot params at 0x73, 7 spawn the effect, 8 wait for it, 9 converge at 0x1EA, 10 clear colour, 11 cue sound at 0x208-0x347, 12 advance. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_0033FC80
 s32 cmbCardRunTwoCardLayout(u8 *task) {
-    /* measured: the initial layout read stays raw; typing that single read loses MATCH. Task reads retain the inline setters' byte-alias scope. */
+    SdkTask *sdkTask = (SdkTask *)task;
+    CmbCardController *controller;
+    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectTableBase;
     u8 *effectSlot;
@@ -700,7 +706,8 @@ s32 cmbCardRunTwoCardLayout(u8 *task) {
     s32 value;
     f32 coordinate;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((SdkTask *)task)->work;
+    controller = (CmbCardController *)work;
     if (((CmbCardSlot *)(work + 0xC))->flags != 0 || ((CmbCardController *)work)->cards[1].flags != 0) {
         return 0;
     }
@@ -719,7 +726,7 @@ s32 cmbCardRunTwoCardLayout(u8 *task) {
         }
         return 0;
     }
-    state = *(s16 *)(work + 0x63C);
+    state = controller->layout;
     switch (state) {
     case 0:
         if (evtGetEventFrame() >= 0x50) {
@@ -735,7 +742,7 @@ s32 cmbCardRunTwoCardLayout(u8 *task) {
         if (evtGetEventFrame() >= 0x73) {
             setupIndex = 0;
             while (setupIndex < 2) {
-                slotBase = *(u8 **)(task + 0x38);
+                slotBase = sdkTask->work;
                 slotBase += (s32)setupIndex * 0x84;
                 ((CmbCardSlot *)(slotBase + 0xC))->angle = 0.0f;
                 ((CmbCardSlot *)(slotBase + 0xC))->angleStart = 0.0f;
@@ -813,11 +820,12 @@ s32 cmbCardRunTwoCardLayout(u8 *task) {
     }
     return 1;
 }
-
 // Three-card layout: card-layout state machine for three cards (dispatcher phase 2). States as in cmbCardRunTwoCardLayout. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_003407F0
 s32 cmbCardRunThreeCardLayout(u8 *task) {
-    /* measured: the initial layout read stays raw; typing that single read loses MATCH. Task reads retain the inline setters' byte-alias scope. The remaining hideSecondary store also fails an individual typed substitution. */
+    SdkTask *sdkTask = (SdkTask *)task;
+    CmbCardController *controller;
+    /* measured: typed task/controller locals preserve layout and hide-state accesses without changing inline setter aliasing. */
     u8 *effectWork;
     u8 *effectTableBase;
     u8 *effectSlot;
@@ -834,7 +842,8 @@ s32 cmbCardRunThreeCardLayout(u8 *task) {
     s32 index2;
     f32 coordinate;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((SdkTask *)task)->work;
+    controller = (CmbCardController *)work;
     if (((CmbCardSlot *)(work + 0xC))->flags != 0 || ((CmbCardController *)work)->cards[1].flags != 0 || ((CmbCardController *)work)->cards[2].flags != 0) {
         return 0;
     }
@@ -853,7 +862,7 @@ s32 cmbCardRunThreeCardLayout(u8 *task) {
         }
         return 0;
     }
-    state = *(s16 *)(work + 0x63C);
+    state = controller->layout;
     switch (state) {
     case 0:
         if (evtGetEventFrame() >= 0x50) {
@@ -873,7 +882,7 @@ s32 cmbCardRunThreeCardLayout(u8 *task) {
         if (evtGetEventFrame() >= 0x73) {
             setupIndex = 0;
             while (setupIndex < 3) {
-                slotBase = *(u8 **)(task + 0x38);
+                slotBase = sdkTask->work;
                 slotBase += (s32)setupIndex * 0x84;
                 ((CmbCardSlot *)(slotBase + 0xC))->angle = 0.0f;
                 ((CmbCardSlot *)(slotBase + 0xC))->angleStart = 0.0f;
@@ -928,7 +937,7 @@ s32 cmbCardRunThreeCardLayout(u8 *task) {
         }
         break;
     case 10:
-        *(u8 *)(work + 0x6B8) = 1;
+        controller->hideSecondary = 1;
         fadeIndex = 0;
         while (fadeIndex < 3) {
             cmbSetColor(task, fadeIndex, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
@@ -955,7 +964,9 @@ s32 cmbCardRunThreeCardLayout(u8 *task) {
 // Four-card layout: card-layout state machine for four cards (dispatcher phase 3). States as in cmbCardRunTwoCardLayout. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_00341640
 s32 cmbCardRunFourCardLayout(u8 *task) {
-    /* measured: the initial layout read stays raw; typing that single read loses MATCH. Task reads retain the inline setters' byte-alias scope. */
+    SdkTask *sdkTask = (SdkTask *)task;
+    CmbCardController *controller;
+    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectTableBase;
     u8 *effectSlot;
@@ -973,7 +984,8 @@ s32 cmbCardRunFourCardLayout(u8 *task) {
     s32 index3;
     f32 coordinate;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((SdkTask *)task)->work;
+    controller = (CmbCardController *)work;
     if (((CmbCardSlot *)(work + 0xC))->flags != 0 || ((CmbCardController *)work)->cards[1].flags != 0 || ((CmbCardController *)work)->cards[2].flags != 0 || ((CmbCardController *)work)->cards[3].flags != 0) {
         return 0;
     }
@@ -992,7 +1004,7 @@ s32 cmbCardRunFourCardLayout(u8 *task) {
         }
         return 0;
     }
-    state = *(s16 *)(work + 0x63C);
+    state = controller->layout;
     switch (state) {
     case 0:
         if (evtGetEventFrame() >= 0x50) {
@@ -1017,7 +1029,7 @@ s32 cmbCardRunFourCardLayout(u8 *task) {
         if (evtGetEventFrame() >= 0x73) {
             setupIndex = 0;
             while (setupIndex < 4) {
-                slotBase = *(u8 **)(task + 0x38);
+                slotBase = sdkTask->work;
                 slotBase += (s32)setupIndex * 0x84;
                 ((CmbCardSlot *)(slotBase + 0xC))->angle = 0.0f;
                 ((CmbCardSlot *)(slotBase + 0xC))->angleStart = 0.0f;
@@ -1098,7 +1110,9 @@ s32 cmbCardRunFourCardLayout(u8 *task) {
 // Five-card layout: card-layout state machine for five cards (dispatcher phase 4). States as in cmbCardRunTwoCardLayout. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_003427A0
 s32 cmbCardRunFiveCardLayout(u8 *task) {
-    /* measured: the initial layout read stays raw; typing that single read loses MATCH. Task reads retain the inline setters' byte-alias scope. */
+    SdkTask *sdkTask = (SdkTask *)task;
+    CmbCardController *controller;
+    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectSlot;
     u8 *effectTableBase;
@@ -1116,7 +1130,8 @@ s32 cmbCardRunFiveCardLayout(u8 *task) {
     s32 index3;
     f32 coordinate;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((SdkTask *)task)->work;
+    controller = (CmbCardController *)work;
     if (((CmbCardSlot *)(work + 0xC))->flags != 0 || ((CmbCardController *)work)->cards[1].flags != 0 || ((CmbCardController *)work)->cards[2].flags != 0 || ((CmbCardController *)work)->cards[3].flags != 0 || ((CmbCardController *)work)->cards[4].flags != 0) {
         return 0;
     }
@@ -1135,7 +1150,7 @@ s32 cmbCardRunFiveCardLayout(u8 *task) {
         }
         return 0;
     }
-    state = *(s16 *)(work + 0x63C);
+    state = controller->layout;
     switch (state) {
     case 0:
         if (evtGetEventFrame() >= 0x50) {
@@ -1166,7 +1181,7 @@ s32 cmbCardRunFiveCardLayout(u8 *task) {
         if (evtGetEventFrame() >= 0x73) {
             setupIndex = 0;
             while (setupIndex < 5) {
-                slotBase = *(u8 **)(task + 0x38);
+                slotBase = sdkTask->work;
                 slotBase += (s32)setupIndex * 0x84;
                 ((CmbCardSlot *)(slotBase + 0xC))->angle = 0.0f;
                 ((CmbCardSlot *)(slotBase + 0xC))->angleStart = 0.0f;
@@ -1247,7 +1262,9 @@ s32 cmbCardRunFiveCardLayout(u8 *task) {
 // Six-card layout: card-layout state machine for six cards (dispatcher phase 5). States as in cmbCardRunTwoCardLayout. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_00343CF0
 s32 cmbCardRunSixCardLayout(u8 *task) {
-    /* measured: the initial layout read stays raw; typing that single read loses MATCH. Task reads retain the inline setters' byte-alias scope. */
+    SdkTask *sdkTask = (SdkTask *)task;
+    CmbCardController *controller;
+    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectSlot;
     u8 *effectTableBase;
@@ -1264,7 +1281,8 @@ s32 cmbCardRunSixCardLayout(u8 *task) {
     s32 index2;
     f32 coordinate;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((SdkTask *)task)->work;
+    controller = (CmbCardController *)work;
     if (((CmbCardSlot *)(work + 0xC))->flags != 0 || ((CmbCardController *)work)->cards[1].flags != 0 || ((CmbCardController *)work)->cards[2].flags != 0 || ((CmbCardController *)work)->cards[3].flags != 0 || ((CmbCardController *)work)->cards[4].flags != 0 || ((CmbCardController *)work)->cards[5].flags != 0) {
         return 0;
     }
@@ -1283,7 +1301,7 @@ s32 cmbCardRunSixCardLayout(u8 *task) {
         }
         return 0;
     }
-    state = *(s16 *)(work + 0x63C);
+    state = controller->layout;
     switch (state) {
     case 0:
         if (evtGetEventFrame() >= 0x50) {
@@ -1321,7 +1339,7 @@ s32 cmbCardRunSixCardLayout(u8 *task) {
         if (evtGetEventFrame() >= 0x73) {
             setupIndex = 0;
             while (setupIndex < 6) {
-                slotBase = *(u8 **)(task + 0x38);
+                slotBase = sdkTask->work;
                 slotBase += (s32)setupIndex * 0x84;
                 ((CmbCardSlot *)(slotBase + 0xC))->angle = 0.0f;
                 ((CmbCardSlot *)(slotBase + 0xC))->angleStart = 0.0f;
@@ -1404,7 +1422,9 @@ s32 cmbCardRunSixCardLayout(u8 *task) {
 // Full layout: card-layout state machine for all twelve card slots (dispatcher phase 6). Same states as the smaller layouts (0 slide start at frame 0x50, 6 slot init at 0x73, 7 spawn effect, 8 wait, 9 converge at 0x1EA, 10 clear colour, 11 cue at 0x208-0x347). Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_00345700
 s32 cmbCardRunFullLayout(u8 *task) {
-    /* measured: the initial layout read stays raw; typing that single read loses MATCH. Task reads retain the inline setters' byte-alias scope. */
+    SdkTask *sdkTask = (SdkTask *)task;
+    CmbCardController *controller;
+    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectTableBase;
     u8 *effectSlot;
@@ -1420,7 +1440,8 @@ s32 cmbCardRunFullLayout(u8 *task) {
     s32 value;
     f32 coordinate;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((SdkTask *)task)->work;
+    controller = (CmbCardController *)work;
     if (((CmbCardSlot *)(work + 0xC))->flags != 0 || ((CmbCardController *)work)->cards[1].flags != 0 || ((CmbCardController *)work)->cards[2].flags != 0 || ((CmbCardController *)work)->cards[3].flags != 0 || ((CmbCardController *)work)->cards[4].flags != 0 || ((CmbCardController *)work)->cards[5].flags != 0 || ((CmbCardController *)work)->cards[6].flags != 0 || ((CmbCardController *)work)->cards[7].flags != 0 || ((CmbCardController *)work)->cards[8].flags != 0 || ((CmbCardController *)work)->cards[9].flags != 0 || ((CmbCardController *)work)->cards[10].flags != 0 || ((CmbCardController *)work)->cards[11].flags != 0) {
         return 0;
     }
@@ -1439,7 +1460,7 @@ s32 cmbCardRunFullLayout(u8 *task) {
         }
         return 0;
     }
-    state = *(s16 *)(work + 0x63C);
+    state = controller->layout;
     switch (state) {
     case 0:
         if (evtGetEventFrame() >= 0x50) {
@@ -1486,7 +1507,7 @@ s32 cmbCardRunFullLayout(u8 *task) {
         if (evtGetEventFrame() >= 0x73) {
             setupIndex = 0;
             while (setupIndex < 12) {
-                slotBase = *(u8 **)(task + 0x38);
+                slotBase = sdkTask->work;
                 slotBase += (s32)setupIndex * 0x84;
                 ((CmbCardSlot *)(slotBase + 0xC))->angle = 0.0f;
                 ((CmbCardSlot *)(slotBase + 0xC))->angleStart = 0.0f;
@@ -1572,6 +1593,7 @@ s32 cmbCardRunFullLayout(u8 *task) {
     return 1;
 }
 
+/* Recreate the card-effect handles selected by the active controller layout. */
 // FUN_00347940
 /* Clear the twelve effect handles, then create the number required by the layout. */
 void cmbCardClearSlots(u8 *task) {
@@ -1647,7 +1669,8 @@ void cmbCardEffDrawStep(u8 *drawTask, u8 *vertices) {
 #pragma opt_propagation off
 s32 cmbCardEffRenderTask(u8 *task)
 {
-    /* measured: the remaining raw flags, position and timer accesses fail individual typed substitutions; keep their alias/evaluation scope. */
+    CmbCardEffect *effectWork;
+    /* measured: typed effect locals preserve most accesses; MEMBER retains the remaining timer/position evaluation scope. */
     u8 *work;
     f32 reciprocalDepth;
     u8 *vertex;
@@ -1658,9 +1681,10 @@ s32 cmbCardEffRenderTask(u8 *task)
     u8 *camera;
 
     work = ((SdkTask *)task)->work;
+    effectWork = (CmbCardEffect *)work;
     camera = (u8 *)(u32)kwlnGetCamera();
     reciprocalDepth = 1.0f / ((CmbCardCamera *)camera)->depth;
-    if (((( *(s32 *)(work + 0x11C) & 2) >> 1) == 1)) {
+    if (((( effectWork->flags.value & 2) >> 1) == 1)) {
         for (index = 0; index < 4; index++) {
             wideIndex = index;
             vertex = work;
@@ -1675,14 +1699,14 @@ s32 cmbCardEffRenderTask(u8 *task)
         }
         /* Four corners of a square with an unscaled half-width of 64. */
         scale = ((CmbCardEffect *)work)->scale.value;
-        ((CmbCardVertex *)(work + 0x10))->x = *(f32 *)(work + 0x134) - 64.0f * scale;
-        ((CmbCardVertex *)(work + 0x10))->y = *(f32 *)(work + 0x138) - 64.0f * ((CmbCardEffect *)work)->scale.value;
-        ((CmbCardVertex *)(work + 0x50))->x = *(f32 *)(work + 0x134) + 64.0f * ((CmbCardEffect *)work)->scale.value;
-        ((CmbCardVertex *)(work + 0x50))->y = *(f32 *)(work + 0x138) - 64.0f * ((CmbCardEffect *)work)->scale.value;
-        ((CmbCardVertex *)(work + 0x90))->x = *(f32 *)(work + 0x134) - 64.0f * ((CmbCardEffect *)work)->scale.value;
-        ((CmbCardVertex *)(work + 0x90))->y = *(f32 *)(work + 0x138) + 64.0f * ((CmbCardEffect *)work)->scale.value;
-        ((CmbCardVertex *)(work + 0xD0))->x = *(f32 *)(work + 0x134) + 64.0f * ((CmbCardEffect *)work)->scale.value;
-        ((CmbCardVertex *)(work + 0xD0))->y = *(f32 *)(work + 0x138) + 64.0f * ((CmbCardEffect *)work)->scale.value;
+        ((CmbCardVertex *)(work + 0x10))->x = effectWork->position.x - 64.0f * scale;
+        ((CmbCardVertex *)(work + 0x10))->y = effectWork->position.y - 64.0f * ((CmbCardEffect *)work)->scale.value;
+        ((CmbCardVertex *)(work + 0x50))->x = effectWork->position.x + 64.0f * ((CmbCardEffect *)work)->scale.value;
+        ((CmbCardVertex *)(work + 0x50))->y = effectWork->position.y - 64.0f * ((CmbCardEffect *)work)->scale.value;
+        ((CmbCardVertex *)(work + 0x90))->x = effectWork->position.x - 64.0f * ((CmbCardEffect *)work)->scale.value;
+        ((CmbCardVertex *)(work + 0x90))->y = effectWork->position.y + 64.0f * ((CmbCardEffect *)work)->scale.value;
+        ((CmbCardVertex *)(work + 0xD0))->x = effectWork->position.x + 64.0f * ((CmbCardEffect *)work)->scale.value;
+        ((CmbCardVertex *)(work + 0xD0))->y = effectWork->position.y + 64.0f * ((CmbCardEffect *)work)->scale.value;
         if (evtGetEventFrame() < 0x208) {
             u8 *list;
             s32 primitive;
@@ -1697,15 +1721,15 @@ s32 cmbCardEffRenderTask(u8 *task)
             ((CmbCardDrawPacket *)alloc)->draw = (void *)cmbCardEffDrawStep;
             ((CmbCardDrawPacket *)alloc)->work = work;
         }
-        if (((( *(s32 *)(work + 0x11C) & 4) >> 2) == 1)) {
-            f32 elapsed = (f32)*(s16 *)(work + 0x13E);
-            f32 duration = (f32)*(s16 *)(work + 0x13C);
+        if (((( effectWork->flags.value & 4) >> 2) == 1)) {
+            f32 elapsed = (f32)effectWork->moveFrame.value;
+            f32 duration = (f32)effectWork->moveDuration.value;
             ((CmbCardEffect *)work)->position.x = fclEaseInterpolate(0, ((CmbCardEffect *)work)->startPosition.x, ((CmbCardEffect *)work)->endPosition.x, elapsed, duration);
-            elapsed = (f32)*(s16 *)(work + 0x13E);
+            elapsed = (f32)effectWork->moveFrame.value;
             duration = (f32)((CmbCardEffect *)work)->moveDuration.value;
             ((CmbCardEffect *)work)->position.y = fclEaseInterpolate(0, ((CmbCardEffect *)work)->startPosition.y, ((CmbCardEffect *)work)->endPosition.y, elapsed, duration);
-            if (((CmbCardEffect *)work)->moveFrame.value < *(s16 *)(work + 0x13C)) {
-                *(s16 *)(work + 0x13E) = fclAddClamped(((CmbCardEffect *)work)->moveFrame.value, 1, *(s16 *)(work + 0x13C), 0, 1);
+            if (((CmbCardEffect *)work)->moveFrame.value < effectWork->moveDuration.value) {
+                effectWork->moveFrame.value = fclAddClamped(((CmbCardEffect *)work)->moveFrame.value, 1, effectWork->moveDuration.value, 0, 1);
             } else {
                 ((CmbCardEffect *)work)->flags.value &= 0xFFFB;
             }
@@ -1713,12 +1737,12 @@ s32 cmbCardEffRenderTask(u8 *task)
         if (((( ((CmbCardEffect *)work)->flags.value & 0x10) >> 4) == 1)) {
             f32 startAlpha = (f32)((CmbCardEffect *)work)->colors[0].c3;
             f32 endAlpha = (f32)((CmbCardEffect *)work)->colors[1].c3;
-            f32 elapsed = (f32)*(s16 *)(work + 0x19C);
+            f32 elapsed = (f32)effectWork->alphaFrame.value;
             f32 duration = (f32)(((CmbCardEffect *)work)->alphaDuration.value / 2);
             f32 alphaValue = fclEaseInterpolate(1, startAlpha, endAlpha, elapsed, duration);
             ((CmbCardEffect *)work)->colors[2].c3 = (u8)alphaValue;
-            if (*(s16 *)(work + 0x19C) < *(s16 *)(work + 0x19E)) {
-                *(s16 *)(work + 0x19C) = fclAddClamped(((CmbCardEffect *)work)->alphaFrame.value, 1, *(s16 *)(work + 0x19E), 0, 1);
+            if (MEMBER(s16, work, CmbCardEffect, alphaFrame.value) < MEMBER(s16, work, CmbCardEffect, alphaDuration.value)) {
+                effectWork->alphaFrame.value = fclAddClamped(((CmbCardEffect *)work)->alphaFrame.value, 1, MEMBER(s16, work, CmbCardEffect, alphaDuration.value), 0, 1);
             } else {
                 ((CmbCardEffect *)work)->alphaFrame.value = 0;
             }
@@ -1819,9 +1843,11 @@ void cmbCardEffSetPosition(u8 *task, CmbVec2f startPosition, CmbVec2f endPositio
 /* Load/create the primary effect and optional clone, animate alpha, then finish at the lifetime limit. */
 // FUN_00348330
 s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
-    /* measured: the remaining raw state, handle and timer accesses fail individual typed substitutions. */
+    CmbCardSprite *spriteWork;
+    /* measured: a separate typed sprite local preserves state, handle and timer reloads. */
     u8 *work = ((SdkTask *)task)->work;
-    switch (*(s8 *)(work + 4)) {
+    spriteWork = (CmbCardSprite *)work;
+    switch (spriteWork->state) {
     case 0:
         break;
     case 1: {
@@ -1829,7 +1855,7 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
             return 0;
         }
         {
-            u8 *effect = *(u8 **)(work + 8);
+            u8 *effect = spriteWork->effect;
             if (effect != 0) {
                 mdlEffectDestroy(effect);
                 ((CmbCardSprite *)work)->effect = 0;
@@ -1837,17 +1863,17 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
         }
         {
             u8 *effect = mdlEffectCreateFromResource((s32)((HCdvd *)((CmbCardSprite *)work)->file)->fileMemory);
-            *(u8 **)(work + 8) = effect;
+            spriteWork->effect = effect;
             mdlEffectSetChildPositionVec(effect, work + 0x18);
-            mdlEffectSetEulerRotation(*(u8 **)(work + 8), ((CmbCardSprite *)work)->rotationX, ((CmbCardSprite *)work)->rotationY, ((CmbCardSprite *)work)->rotationZ);
-            mdlEffectSetUniformScale(*(u8 **)(work + 8), ((CmbCardSprite *)work)->scale);
-            mdlEffectSetPackedColor(*(u8 **)(work + 8), work + 0x34);
+            mdlEffectSetEulerRotation(spriteWork->effect, ((CmbCardSprite *)work)->rotationX, ((CmbCardSprite *)work)->rotationY, ((CmbCardSprite *)work)->rotationZ);
+            mdlEffectSetUniformScale(spriteWork->effect, ((CmbCardSprite *)work)->scale);
+            mdlEffectSetPackedColor(spriteWork->effect, work + 0x34);
             if (((CmbCardSprite *)work)->hasClone == 1) {
                 u8 *clone = mdlEffectClone(((CmbCardSprite *)work)->effect);
-                *(u8 **)(work + 0x44) = clone;
+                spriteWork->clone = clone;
                 mdlEffectSetChildPositionVec(clone, work + 0x4C);
-                mdlEffectSetEulerRotation(*(u8 **)(work + 0x44), ((CmbCardSprite *)work)->cloneRotationX, ((CmbCardSprite *)work)->cloneRotationY, ((CmbCardSprite *)work)->cloneRotationZ);
-                mdlEffectSetUniformScale(*(u8 **)(work + 0x44), ((CmbCardSprite *)work)->cloneScale);
+                mdlEffectSetEulerRotation(spriteWork->clone, ((CmbCardSprite *)work)->cloneRotationX, ((CmbCardSprite *)work)->cloneRotationY, ((CmbCardSprite *)work)->cloneRotationZ);
+                mdlEffectSetUniformScale(spriteWork->clone, ((CmbCardSprite *)work)->cloneScale);
                 mdlEffectSetPackedColor(((CmbCardSprite *)work)->clone, work + 0x68);
             }
         }
@@ -1856,7 +1882,7 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
         break;
     }
     case 2: {
-        s16 delay = *(s16 *)(work + 0x3E);
+        s16 delay = spriteWork->delay.value;
         if (delay > 0) {
             ((CmbCardSprite *)work)->delay.value = fclSubClamped(delay, 1, 0, 0, 1);
             return 0;
@@ -1867,7 +1893,7 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
                 f32 alphaValue = fclEaseInterpolate(0, 0.0f, ((CmbCardSprite *)work)->maxAlpha.value, (f32)((CmbCardSprite *)work)->alphaFrame.value, (f32)((CmbCardSprite *)work)->alphaDuration.value);
                 ((CmbCardSprite *)work)->alpha = (u8)alphaValue;
             } else if (mode == 1) {
-                f32 alphaValue = fclEaseInterpolate(0, ((CmbCardSprite *)work)->maxAlpha.value, 0.0f, (f32)*(s16 *)(work + 0x3C), (f32)*(s16 *)(work + 0x3A));
+                f32 alphaValue = fclEaseInterpolate(0, ((CmbCardSprite *)work)->maxAlpha.value, 0.0f, (f32)spriteWork->alphaFrame.value, (f32)spriteWork->alphaDuration.value);
                 ((CmbCardSprite *)work)->alpha = (u8)alphaValue;
                 if (((CmbCardSprite *)work)->alphaFrame.value >= ((CmbCardSprite *)work)->alphaDuration.value) {
                     ((CmbCardSprite *)work)->state = 3;
@@ -1882,9 +1908,9 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
             }
         }
         {
-            *(s16 *)(work + 0x3C) = fclAddClamped(*(s16 *)(work + 0x3C), 1, *(s16 *)(work + 0x3A), 0, 1);
+            spriteWork->alphaFrame.value = fclAddClamped(spriteWork->alphaFrame.value, 1, spriteWork->alphaDuration.value, 0, 1);
             if (((CmbCardSprite *)work)->alphaFrame.value < ((CmbCardSprite *)work)->alphaDuration.value) {
-                ((CmbCardSprite *)work)->color.c3 = *(u8 *)(work + 0x38);
+                ((CmbCardSprite *)work)->color.c3 = spriteWork->alpha;
                 mdlEffectSetPackedColor(((CmbCardSprite *)work)->effect, work + 0x34);
                 if (((CmbCardSprite *)work)->hasClone == 1) {
                     ((CmbCardSprite *)work)->cloneColor.c3 = ((CmbCardSprite *)work)->alpha;
@@ -1892,20 +1918,20 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
                 }
             }
         }
-        mdlEffectCommitAndAdvance(*(u8 **)(work + 8));
-        mdlEffectFlushWithTable(&D_005DC7D0[*(u8 *)(work + 0x14) * 0x54], *(u8 **)(work + 8));
+        mdlEffectCommitAndAdvance(spriteWork->effect);
+        mdlEffectFlushWithTable(&D_005DC7D0[spriteWork->drawOrder * 0x54], spriteWork->effect);
         if (((CmbCardSprite *)work)->hasClone == 1) {
-            mdlEffectCommitAndAdvance(*(u8 **)(work + 0x44));
+            mdlEffectCommitAndAdvance(spriteWork->clone);
             mdlEffectFlushWithTable(&D_005DC7D0[((CmbCardSprite *)work)->drawOrder * 0x54], ((CmbCardSprite *)work)->clone);
         }
         {
-            s32 lifetime = *(s32 *)(work + 0x10);
+            s32 lifetime = spriteWork->lifetime.value;
             if (lifetime == -1) {
                 if (mdlEffectIsFinished(((CmbCardSprite *)work)->effect) == 0) {
                     ((CmbCardSprite *)work)->state = 3;
                 }
             } else {
-                *(u16 *)(work + 0xC) = fclAddClamped(*(u16 *)(work + 0xC), 1, lifetime, 0, 1);
+                spriteWork->lifetimeFrame.bits = fclAddClamped(spriteWork->lifetimeFrame.bits, 1, lifetime, 0, 1);
                 if (((CmbCardSprite *)work)->lifetimeFrame.bits >= ((CmbCardSprite *)work)->lifetime.value) {
                     ((CmbCardSprite *)work)->state = 3;
                 }
@@ -1923,22 +1949,25 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
 // FUN_00348840
 /* Frees the handle stored at state+0x8, if any. */
 void cmbCardEffFreeHandle(u8 *task) {
-    /* measured: handle reads and the final task reload stay raw across destruction; the handle-clearing stores are typed. */
+    CmbCardSprite *spriteClone = (CmbCardSprite *)((SdkTask *)task)->work;
+    CmbCardSprite *spriteEffect = (CmbCardSprite *)((SdkTask *)task)->work;
+    SdkTask *sdkTask = (SdkTask *)task;
+    /* measured: entry-initialized sprite pointers preserve handle reloads; MEMBER retains the final task-work reload. */
     u8 *work = ((SdkTask *)task)->work;
-    u8 *effect = *(u8 **)(work + 8);
+    u8 *effect = spriteEffect->effect;
     if (effect != 0) {
         mdlEffectDestroy(effect);
         ((CmbCardSprite *)work)->effect = 0;
     }
     if (((CmbCardSprite *)work)->hasClone == 1) {
-        u8 *clone = *(u8 **)(work + 0x44);
+        u8 *clone = spriteClone->clone;
         if (clone != 0) {
             mdlEffectDestroy(clone);
             ((CmbCardSprite *)work)->clone = 0;
         }
     }
     H_Cdvd_Destroy((HCdvd *)((CmbCardSprite *)work)->file);
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    jtbl_008873EC[0](sdkTask->work);
 }
 
 // Creates a sprite task with a 0x70-byte state block and acquires the requested directory for it [inferred].
@@ -2054,7 +2083,7 @@ s32 cmbFiveSpriteTask(u8 *task) {
     FclDrawColor solidColor;
     /* Initialize once, then wait for the fifth sprite to finish. */
     work = ((SdkTask *)task)->work;
-    switch (*(s8 *)(work + 1)) {
+    switch (MEMBER(s8, work, CmbFiveSprites, state)) {
     case 0:
         /* The task work owns five consecutive sprite handles. */
         index = 0;

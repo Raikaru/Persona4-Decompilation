@@ -30,11 +30,24 @@ typedef struct FclObject {
     u8 unk3C[0x20];
     u8 pad5C[2];
     s16 alphaDuration;
-    u8 targetAlpha;
-    u8 pad61;
-    u8 alpha;
-    u8 unk63[0x16];
-    FclDrawColor color;
+    union {
+        struct {
+            u8 targetAlpha;
+            u8 pad61;
+            u8 alpha;
+        };
+        u8 alphaKeys[3];
+    };
+    u8 unk63[4];
+    s8 unk67; /* reset with the anchor alpha state */
+    u8 pad68[9];
+    union {
+        struct {
+            u8 pad71[8];
+            FclDrawColor color;
+        };
+        FclDrawColor colorKeys[3];
+    };
     u8 unk7D[0x8];
     s8 colorLoop;
     u8 pad86[2];
@@ -55,7 +68,9 @@ typedef struct FclObject {
         };
         f32 scaleYKeys[3];
     };
-    u8 padA4[0x18];
+    u8 padA4[3];
+    s8 unkA7; /* reset with the anchor scale state */
+    u8 padA8[0x14];
     union {
         struct {
             f32 targetTween;
