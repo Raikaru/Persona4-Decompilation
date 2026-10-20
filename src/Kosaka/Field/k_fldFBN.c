@@ -6,6 +6,9 @@
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
 #include "Kosaka/k_model_internal.h"
+#include "scene_resource_internal.h"
+#include "h_cdvd_request_internal.h"
+#include "member_access.h"
 
 typedef struct FbnEntry
 {
@@ -18,6 +21,29 @@ typedef struct FbnEntry
     s32 field_18;  /* 0x18 */
 } FbnEntry;
 
+typedef struct FbnMatrix
+{
+    s32 m[16];
+} FbnMatrix;
+
+/* Fixed FBN header; part records use the stride stored at +0x0C. */
+typedef struct FbnHeader {
+    u32 magic;
+    u32 version;
+    u32 partCount;
+    union { s32 partStride; u32 unsignedPartStride; };
+    u32 placementCount;
+    u32 unk14;
+    u8 parts[1];
+} FbnHeader;
+typedef struct FbnNpcSelection { u8 pad00[0xC]; s32 entryKey; } FbnNpcSelection;
+typedef struct FbnPlacement {
+    u8 pad00[0x10];
+    FbnMatrix matrix;
+    u16 id;
+    u8 pad52[0xE];
+} FbnPlacement;
+
 typedef struct FldPart
 {
     u16 field_0;   /* 0x00 */
@@ -29,9 +55,11 @@ typedef struct FldPart
     u8  field_B;   /* 0x0B */
     f32 field_C;   /* 0x0C */
     s32 field_10;  /* 0x10 */
-    u8  pad14[0x3C];
-    s32 field_50;  /* 0x50 */
-    u8  pad54[0xC];
+    u8 pad14[0xC];
+    union {
+        FbnMatrix matrix; /* 0x20: transform copied into the placed model. */
+        struct { u8 pad20[0x30]; s32 field_50; u8 pad54[0xC]; };
+    };
     u8  field_60;  /* 0x60 */
     u8  field_61;  /* 0x61 */
     u16 field_62;  /* 0x62 */
@@ -60,6 +88,32 @@ typedef struct AnimEntry2
     u16 field_68;  /* 0x68 */
     u16 field_6A;  /* 0x6A */
 } AnimEntry2;
+
+/* NPC resources share the scene-character prefix; FBN application proves the tail. */
+typedef struct FbnNpcResource {
+    SceneCharacterUpdate base;
+    u8 pad168[0xB8];
+    s16 mode;
+    u8 flag222;
+    u8 pad223;
+    s32 parameter;
+    union { u8 *frameTask; s32 frameTaskValue; };
+    union { u32 *shadowModel; u8 *shadowModelBytes; };
+    u8 *shadowTask;
+    s32 kind;
+    u8 pad238[8];
+    FbnMatrix initialMatrix;
+    s32 secondaryEntry;
+    s32 sceneEntry;
+    union { s32 scriptBufferValue; void *scriptBuffer; };
+    u32 scriptSize;
+    s32 unk290;
+    s32 controller;
+    u16 parameter298;
+    u8 pad29A[2];
+    u8 parameters[0xC0];
+    f32 parameter35C;
+} FbnNpcResource;
 
 extern s32 FldRc_GetLoadSource(void);
 extern s16 datGetDateIndex(void);
@@ -151,13 +205,14 @@ u8 *FldFbnOpenData(s32 field, s32 room, s16 variant)
  * separates the loading count from the later transform index. Together
  * with source-ordered index updates this matches all 424 retail words. */
 /* Resolve FBN model references and eligible NPC substitutions, then create placed transform resources. */
-/* The FBN header carries runtime part strides at +0x0C; remaining packed/NPC records lack a single complete fixed-size layout. */
+/* The FBN header supplies the runtime part stride; the typed NPC tail is separate from the packed part layout. */
 // FUN_0015E960
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 variant)
 {
+    FbnHeader *header;
     u32 size;
     SVec3 angles;
     char path[0x40];
@@ -177,7 +232,7 @@ s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 varia
         return 0;
     }
     if (FldRc_GetLoadSource() == 0) {
-        fbn = *(u8 **)(file + 0x110);
+        fbn = ((HCdvdRequest *)(file))->data;
     } else {
         sprintf(path, D_005F10B0, field & 0xFFFF, room & 0xFFFF, (s16)variant);
         fbn = H_Cdvd_LookupRequest(path, &size);
@@ -189,20 +244,21 @@ s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 varia
         }
         *cachedDataOut = fbn;
     }
-    iGpffffb2a8 = *(u32 *)(fbn + 8);
+    iGpffffb2a8 = ((FbnHeader *)(fbn))->partCount;
     if (iGpffffb2a8 != 0) {
         u8 *base;
 
         chkmemAllocSiteTag(D_005F1068, 0x117);
         base = (u8 *)D_008873F4;
-        iGpffffb2a4 = ((void *(*)(size_t, size_t, u32))*(u32 *)base)(1, *(u32 *)(fbn + 8) * sizeof(void *), 0x40000);
+        iGpffffb2a4 = ((void *(*)(size_t, size_t, u32))*(u32 *)base)(1, MEMBER(u32, fbn, FbnHeader, partCount) * sizeof(void *), 0x40000);
         chkmemAllocSiteTag(D_005F1068, 0x118);
-        iGpffffb2a0 = ((void *(*)(size_t, size_t, u32))*(u32 *)base)(1, *(u32 *)(fbn + 8) * sizeof(FbnEntry), 0x40000);
+        iGpffffb2a0 = ((void *(*)(size_t, size_t, u32))*(u32 *)base)(1, MEMBER(u32, fbn, FbnHeader, partCount) * sizeof(FbnEntry), 0x40000);
     }
     p = fbn + 0x18;
     i = 0;
     out = 0;
-    for (; i < *(u32 *)(fbn + 8); ) {
+    header = (FbnHeader *)fbn;
+    for (; i < header->partCount; ) {
         u32 type = ((FldPart *)p)->type;
         if ((type == 4) && (((FldPart *)p)->flags == 0xFFFF)) {
             if (D_00764340 == 1) {
@@ -216,13 +272,13 @@ s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 varia
             out++;
         }
         i++;
-        p += *(s32 *)(fbn + 0xC);
+        p += ((FbnHeader *)(fbn))->partStride;
     }
     if (D_00764340 == 0) {
         u8 *head = NpcTable_FindActiveEntry();
 
         if (head != NULL) {
-            AnimEntry *ae = (AnimEntry *)NpcTable_GetMarkedEntry(*(s32 *)(head + 0xC));
+            AnimEntry *ae = (AnimEntry *)NpcTable_GetMarkedEntry(((FbnNpcSelection *)(head))->entryKey);
 
             for (j = 0; ae->field_0 != 0xFFFF; j++, ae++) {
                 s32 kind;
@@ -244,8 +300,8 @@ s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 varia
                 }
                 q = fbn + 0x18;
                 k = 0;
-                num = *(u32 *)(fbn + 8);
-                for (; k < num; k++, q += *(s32 *)(fbn + 0xC)) {
+                num = MEMBER(u32, fbn, FbnHeader, partCount);
+                for (; k < num; k++, q += ((FbnHeader *)(fbn))->partStride) {
                     if ((((FldPart *)q)->type == 4) && (((FldPart *)q)->flags == 0xFFFF)
                         && (((FldPart *)q)->field_8 == (u16)((ae->field_0 & 0x3FF) | 0xC00))) {
                         if ((ae->field_2 != 0) || (ae->field_4 != 0)) {
@@ -269,8 +325,8 @@ s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 varia
                 u32 num;
 
                 j = 0;
-                num = *(u32 *)(fbn + 8);
-                for (; j < num; j++, q += *(s32 *)(fbn + 0xC)) {
+                num = MEMBER(u32, fbn, FbnHeader, partCount);
+                for (; j < num; j++, q += ((FbnHeader *)(fbn))->partStride) {
                     if ((((FldPart *)q)->type == 4) && (((FldPart *)q)->flags == 0xFFFF)
                         && (((FldPart *)q)->field_8 == (u16)((e2->field_0 & 0x3FF) | 0xC00))) {
                         if ((e2->field_68 != 0) || (e2->field_6A != 0)) {
@@ -290,8 +346,8 @@ s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 varia
         }
         iGpffffb2a8 = out;
     }
-    for (out = 0; out < *(u32 *)(fbn + 0x10); ) {
-        u16 id = MT_Scene_CreateRes08(*(u16 *)(p + 0x50) & 0x3FF);
+    for (out = 0; out < ((FbnHeader *)(fbn))->placementCount; ) {
+        u16 id = MT_Scene_CreateRes08(((FbnPlacement *)(p))->id & 0x3FF);
 
         angles.x = KDraw_MatrixPitchDeg(p + 0x10);
         angles.y = KDraw_MatrixYawDeg(p + 0x10);
@@ -305,10 +361,7 @@ s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 varia
 #pragma pop
 
 /* A 64-byte transform record copied between FBN parts and model matrices. */
-typedef struct FbnMatrix
-{
-    s32 m[16];
-} FbnMatrix;
+
 
 /* Retail passes the yaw at sp+0xC4 (0x0015F224) to the four-argument
  * rotation wrapper before the first yaw store at 0x0015F344, so the first
@@ -316,7 +369,7 @@ typedef struct FbnMatrix
  * angles.y exactly as retail does; later iterations see the previous
  * kind-0 store. */
 /* Wait for models and NPC blocks, instantiate their resources, and release the temporary FBN tables. */
-/* FBN versions select different part tails, and NPC resource tails extend beyond FldPart; remaining casts preserve those versioned partial layouts. */
+/* FBN versions select different part tails; FbnNpcResource describes the distinct runtime resource allocation. */
 // FUN_0015F000
 s32 FldFbnApplyTable(u8 *file, u8 *cachedData)
 {
@@ -337,7 +390,7 @@ s32 FldFbnApplyTable(u8 *file, u8 *cachedData)
         }
     }
     if (FldRc_GetLoadSource() == 0) {
-        fbn = *(u8 **)(file + 0x110);
+        fbn = ((HCdvdRequest *)(file))->data;
     } else if (cachedData != NULL) {
         fbn = cachedData;
     } else {
@@ -355,8 +408,8 @@ s32 FldFbnApplyTable(u8 *file, u8 *cachedData)
         s32 kind;
         f32 *size;
 
-        rec = &base[*(u32 *)(fbn + 0xC) * FBN_ENTRY(i)->field_8];
-        if (*(u32 *)(fbn + 4) > 0x10000) {
+        rec = &base[((FbnHeader *)(fbn))->unsignedPartStride * FBN_ENTRY(i)->field_8];
+        if (((FbnHeader *)(fbn))->version > 0x10000) {
             mode = rec[0x60];
         }
         rid = MT_Scene_CreateModelNpcShadowRes(((FldPart *)rec)->field_8 & 0x3FF, mode, (s32)iGpffffb2a4[i]);
@@ -364,30 +417,30 @@ s32 FldFbnApplyTable(u8 *file, u8 *cachedData)
         SceneDraw_SetResVisibleChecked(rid, 1);
         res = MT_Scene_GetRes(rid);
         size = (f32 *)(rec + 0xC);
-        FldFrameTask_SetHeight(*(u8 **)(res + 0x228), *size);
-        FldShadow_SetRingParticles(*(u8 **)(res + 0x230), 40.0f);
+        FldFrameTask_SetHeight(((FbnNpcResource *)(res))->frameTask, *size);
+        FldShadow_SetRingParticles(((FbnNpcResource *)(res))->shadowTask, 40.0f);
         scale.z = scale.y = scale.x = *size;
-        *(u32 **)(res + 0x22C) = mdlCloneModelObject((u8 *)D_00764364);
+        ((FbnNpcResource *)(res))->shadowModel = mdlCloneModelObject((u8 *)D_00764364);
         /* Retail passes the yaw slot before this iteration writes it. */
-        mdlRotateMatrix(*(u32 **)(res + 0x22C), &axis, angles.y, 2);
-        mdlScale(*(u32 **)(res + 0x22C), &scale, 2);
+        mdlRotateMatrix(MEMBER(u32 *, res, FbnNpcResource, shadowModel), &axis, angles.y, 2);
+        mdlScale(MEMBER(u32 *, res, FbnNpcResource, shadowModel), &scale, 2);
         if (rec[0xB] & 1) {
-            *(u32 *)(res + 0x28) |= 0x80000000;
+            ((FbnNpcResource *)(res))->base.base.flags |= 0x80000000;
         } else {
-            *(u32 *)(res + 0x28) &= 0x7FFFFFFF;
+            ((FbnNpcResource *)(res))->base.base.flags &= 0x7FFFFFFF;
         }
-        *(s16 *)(res + 0x220) = rec[0xA];
-        *(s32 *)(res + 0x224) = ((FldPart *)rec)->field_10;
+        ((FbnNpcResource *)(res))->mode = rec[0xA];
+        ((FbnNpcResource *)(res))->parameter = ((FldPart *)rec)->field_10;
         res[0x222] = rec[0x61];
-        *(u16 *)(res + 0x298) = ((FldPart *)rec)->field_62;
+        ((FbnNpcResource *)(res))->parameter298 = ((FldPart *)rec)->field_62;
         memcpy(res + 0x29C, rec + 0x74, 0xC0);
-        *(f32 *)(res + 0x35C) = ((FldPart *)rec)->field_70;
+        ((FbnNpcResource *)(res))->parameter35C = ((FldPart *)rec)->field_70;
         kind = FBN_ENTRY(i)->kind;
-        *(s32 *)(res + 0x234) = kind;
+        ((FbnNpcResource *)(res))->kind = kind;
         if (kind == 0) {
             u8 *mtx;
 
-            mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
+            mdlAdvanceModelFromFlags(MEMBER(u8 *, res, FbnNpcResource, shadowModelBytes));
             mtx = rec + 0x20;
             *(FbnMatrix *)mdlGetMatrix(iGpffffb2a4[i]) = *(FbnMatrix *)mtx;
             angles.x = KDraw_MatrixPitchDeg(mtx);
@@ -396,24 +449,24 @@ s32 FldFbnApplyTable(u8 *file, u8 *cachedData)
             MT_Scene_SetResPlacement(rid, rec + 0x50, (u8 *)&angles);
             RwMatrixUpdate(mdlGetMatrix(iGpffffb2a4[i]));
         } else if (kind == 1) {
-            *(s32 *)(res + 0x280) = FBN_ENTRY(i)->field_4;
-            mdlTranslateMatrix(*(u8 **)(res + 0x22C), rec + 0x50, 2);
-            mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
-            *(u32 *)(res + 0x28) &= ~0x10000000;
-            *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);
-            *(s32 *)(res + 0x294) = FldNpcControlTaskCreate(*(s32 *)(res + 0x228), (s32)res);
+            ((FbnNpcResource *)(res))->secondaryEntry = FBN_ENTRY(i)->field_4;
+            mdlTranslateMatrix(MEMBER(u8 *, res, FbnNpcResource, shadowModelBytes), rec + 0x50, 2);
+            mdlAdvanceModelFromFlags(MEMBER(u8 *, res, FbnNpcResource, shadowModelBytes));
+            MEMBER(u32, res, FbnNpcResource, base.base.flags) &= ~0x10000000;
+            ((FbnNpcResource *)(res))->initialMatrix = ((FldPart *)(rec))->matrix;
+            ((FbnNpcResource *)(res))->controller = FldNpcControlTaskCreate(MEMBER(s32, res, FbnNpcResource, frameTaskValue), (s32)res);
         } else if (kind == 2) {
-            *(s32 *)(res + 0x284) = FBN_ENTRY(i)->field_4;
-            mdlTranslateMatrix(*(u8 **)(res + 0x22C), rec + 0x50, 2);
-            mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
-            *(u32 *)(res + 0x28) &= ~0x10000000;
-            *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);
-            *(s32 *)(res + 0x294) = FldNpcControlTaskCreate(*(s32 *)(res + 0x228), (s32)res);
-            *(u32 *)(res + 0x28C) = FBN_ENTRY(i)->field_18;
-            *(s32 *)(res + 0x288) = FBN_ENTRY(i)->field_14;
+            ((FbnNpcResource *)(res))->sceneEntry = FBN_ENTRY(i)->field_4;
+            mdlTranslateMatrix(MEMBER(u8 *, res, FbnNpcResource, shadowModelBytes), rec + 0x50, 2);
+            mdlAdvanceModelFromFlags(MEMBER(u8 *, res, FbnNpcResource, shadowModelBytes));
+            MEMBER(u32, res, FbnNpcResource, base.base.flags) &= ~0x10000000;
+            ((FbnNpcResource *)(res))->initialMatrix = ((FldPart *)(rec))->matrix;
+            ((FbnNpcResource *)(res))->controller = FldNpcControlTaskCreate(MEMBER(s32, res, FbnNpcResource, frameTaskValue), (s32)res);
+            ((FbnNpcResource *)(res))->scriptSize = FBN_ENTRY(i)->field_18;
+            ((FbnNpcResource *)(res))->scriptBufferValue = FBN_ENTRY(i)->field_14;
             chkmemAllocSiteTag(D_005F1068, 0x26F);
-            *(void **)(res + 0x288) = D_008873F4[0](1, *(u32 *)(res + 0x28C), 0x40000);
-            memcpy(*(void **)(res + 0x288), (void *)FBN_ENTRY(i)->field_14, *(u32 *)(res + 0x28C));
+            MEMBER(void *, res, FbnNpcResource, scriptBuffer) = D_008873F4[0](1, MEMBER(u32, res, FbnNpcResource, scriptSize), 0x40000);
+            memcpy(MEMBER(void *, res, FbnNpcResource, scriptBuffer), (void *)FBN_ENTRY(i)->field_14, MEMBER(u32, res, FbnNpcResource, scriptSize));
             FldStepReleaseHandle((u8 *)FBN_ENTRY(i));
         }
     }

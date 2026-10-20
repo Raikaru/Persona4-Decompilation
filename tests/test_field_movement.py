@@ -110,7 +110,7 @@ class FieldMovementTests(unittest.TestCase):
         with self.assertRaises(AttributeError):
             generator('idle_threshold')(changed)
         copy = ('        modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)mdlGetClumpFrame('
-                '((ResrcRecord *)(*(s32 *)(h + 0x18)))->modelHandle164)))->modelling;')
+                '((ResrcRecord *)(MEMBER(s32, h, FldEventWork, resource)))->modelHandle164)))->modelling;')
         self.assertEqual(source.count(copy), 1)
         changed = source.replace(copy, '/*' + copy + '*/\n' + copy.replace('mdlGetClumpFrame', 'wrongFrame'))
         with self.assertRaises(AssertionError):
