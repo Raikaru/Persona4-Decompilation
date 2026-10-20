@@ -529,11 +529,6 @@ static inline s32 radarNextGroupStart(u8 *work, s32 total, s32 count, s32 wrap)
     return index;
 }
 
-static inline s32 radarSelectionSum(s32 row, s32 column)
-{
-    return row + column;
-}
-
 #pragma push
 #pragma opt_loop_invariants off
 #pragma optimization_level 2
@@ -554,7 +549,7 @@ s32 radarAdvanceGroupSelection(u8 *work)
     {
         s32 column = ((RadarItemMenuWork *)work)->unk24;
         s32 row = ((RadarItemMenuWork *)work)->unk22;
-        total = radarSelectionSum(row, column);
+        total = ((row) + (column));
     }
     if (D_008C024E[0] & 4) {
         index = total;

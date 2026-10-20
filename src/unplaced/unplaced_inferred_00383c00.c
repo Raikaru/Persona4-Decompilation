@@ -6,6 +6,7 @@
 #include "btl_effect_internal.h"
 #include "mdl_effect_internal.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "member_access.h"
 #include "btl_shuffle_state_internal.h"
 #include "rw/plcore/barenderstate.h"
@@ -93,11 +94,6 @@ typedef struct BtlShuffleWaveDefault {
     f32 amplitude;
     u8 color[4];
 } BtlShuffleWaveDefault;
-
-static inline u32 btlShuffleAddWorkOffset(u32 offset, u32 base)
-{
-    return offset + base;
-}
 
 /* Test whether the roster task has a nonzero result. */
 // FUN_00383C00
@@ -787,13 +783,6 @@ void btlShuffleDrawSideQuads(u8 *drawWork)
     RpSkyRenderStateSet(2, (void *)0x44);
 }
 
-/* This helper retains the radius-scale operation with the same operand
- * order as the other circular drawing primitives. */
-static inline f32 btlShuffleScaleRadius(f32 value, f32 scale)
-{
-    return scale * value;
-}
-
 /* Native b210 O2: 2228/2240 bytes, 27 resolved relocations, 12 zero tail
  * bytes. Entry/exit radius values and sprite opacity keep distinct
  * lifetimes; the final alpha is converted once at the byte provider.
@@ -879,14 +868,14 @@ void btlShuffleDrawMenuBatch(u8 *drawWork)
     pos.y = 211.0f;
     if (outerRadius > 0.0f) {
         outerAngle = fGpffff837c * (1.0f + outerRadius);
-        outerRadius = btlShuffleScaleRadius(outerRadius, 111.5f);
+        outerRadius = operandOrderMultiplyReversed(outerRadius, 111.5f);
         RpSkyRenderStateSet(3, (void *)0x71801);
         RpSkyRenderStateSet(2, (void *)0x48);
         shdDrawRectOutline(pos, 0.0f, 0xAE545AFF, outerAngle, outerRadius, 92.0f, 0);
     }
     if (innerRadius > 0.0f) {
         innerAngle = fGpffff837c * (1.0f + innerAngleScale);
-        innerRadius = btlShuffleScaleRadius(innerRadius, 98.0f);
+        innerRadius = operandOrderMultiplyReversed(innerRadius, 98.0f);
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
         shdDrawRectOutline(pos, 0.0f, 0x4A2400FF, innerAngle, innerRadius, 18.0f, 1);
@@ -997,6 +986,8 @@ void btlShuffleDrawViewBackground(s32 drawWork, u8 *input)
     }
 }
 
+/* Convert a ring vertex index into its quarter-turn angular offset. */
+/* measured: expanding the loaded angular scale changes conversion/multiply instruction bytes. */
 static inline f32 btlShuffleQuarterTurnOffset(s32 index)
 {
     extern f32 fGpffff83d8;
@@ -2095,7 +2086,7 @@ void btlShuffleInitRing(u8 *drawWork)
     u8 *rec;
 
     drawWork += 0x168;
-    rec = (u8 *)btlShuffleAddWorkOffset(4, (u32)drawWork);
+    rec = (u8 *)((4) + ((u32)drawWork));
     memset(drawWork, 0, 0x28);
     *(s16 *)rec = 0;
     ((BtlShuffleRing *)rec)->centerX.value = (f32)0x13D;
@@ -2122,6 +2113,7 @@ typedef struct BtlShuffleRingVertex {
     u32 tail[4];
 } BtlShuffleRingVertex;
 
+/* Set ring position, floating-point color channels and reciprocal depth. */
 static inline void btlShuffleSetRingVertex(BtlShuffleRingVertex *vertex,
     f32 x, f32 y, f32 depth, f32 reciprocalZ, u32 r, u32 g, u32 b, u32 a)
 {

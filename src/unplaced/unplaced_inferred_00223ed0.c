@@ -211,11 +211,6 @@ extern u8 D_00634870[];
 extern f32 D_00634874[];
 extern f32 D_00634878[];
 extern u8 D_0063487C[];
-static inline s16 btlCameraPresetPresence(s32 present)
-{
-    return present != 0;
-}
-
 #pragma push
 #pragma opt_propagation off
 // Intent: Select the encounter camera preset from the party ordinal and roster status. [inferred]
@@ -292,7 +287,7 @@ void btlCameraSelectEncounterPreset(u8 *camera)
         }
         enemy = (u8 *)((BtlUnit *)enemy)->nextUnit;
     }
-    variant = hasPriorityStatus != 0 ? 2 : (u16)btlCameraPresetPresence(hasStatus);
+    variant = hasPriorityStatus != 0 ? 2 : (u16)((s16)((hasStatus) != 0));
     if (btlCurrentUnitId() == 0x208 && (u16)variant == 0) {
         ally = ((BtlBattleState *)iGpffffb3ac)->unitLists[0];
         while (ally != NULL) {
@@ -426,7 +421,7 @@ void btlCameraSelectSkillPreset(u8 *camera)
     if (hasPriorityStatus != 0) {
         selectedPreset = 2;
     } else {
-        selectedPreset = (u16)btlCameraPresetPresence(hasStatus);
+        selectedPreset = (u16)((s16)((hasStatus) != 0));
     }
     preset = selectedPreset & 0xFFFF;
     if (btlCurrentUnitId() == 0x208 && (preset & 0xFFFF) == 0) {

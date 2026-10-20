@@ -9,6 +9,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "kwln_task_internal.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
@@ -35,14 +36,11 @@ typedef struct FldMapEditorWork {
     u8 pad1CD18[8];
 } FldMapEditorWork;
 
+/* Convert a map-editor column to its sixteen-byte cell displacement. */
+/* measured: expanding this shift changes selected-cell address calculation instruction bytes. */
 static inline s32 fldMapCellColumnOffset(s32 value)
 {
     return value << 4;
-}
-
-static inline s32 fldMapCellAddOffset(s32 first, s32 second)
-{
-    return first + second;
 }
 
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
@@ -88,7 +86,7 @@ void FldMapTestCellsClear(u8 *work, u16 column, u16 row)
     u8 *selectedBase;
     u8 *occupied;
 
-    selectedBase = (u8 *)fldMapCellAddOffset(
+    selectedBase = (u8 *)operandOrderAdd(
         fldMapCellColumnOffset(column & 0xFFFF),
         ((row & 0xFFFF) << 8) + (s32)work);
     if (((FldFrameCell *)(selectedBase + 0x2C))->occupied != 0 && (((FldFrameCell *)(selectedBase + 0x2C))->flags & 0xF) != 0) {

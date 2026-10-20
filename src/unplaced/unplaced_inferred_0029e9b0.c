@@ -4,6 +4,7 @@
 #include "member_access.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "kwln_task_internal.h"
 #include "name_entry_internal.h"
 #include "scr_internal.h"
@@ -38,10 +39,6 @@ extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
 extern u8 D_00882EDE[];
 extern u8 D_00882EFE[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
-
 extern u8 yTimeTrackClear(s32 );
 extern u32 yTimeTrackAppendKey(s32 , s32 , s32 , s32 ,
                           s32 , f32 , s32 , s32 ,
@@ -185,7 +182,7 @@ void yTimeLimitMoveGridCursor(u8 *task)
                     MEMBER(s32, state, NameEntryWork, cursorRow) = MEMBER(s32, state, NameEntryWork, previousRow);
             }
             entry = D_007485D0 + MEMBER(s32, state, NameEntryWork, cursorRow) * 0x28;
-            entry = code29AddOff(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
+            entry = byteAddressAdd(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
     if (*(u16 *)D_008C027A & 0x1000) {
@@ -199,7 +196,7 @@ void yTimeLimitMoveGridCursor(u8 *task)
                     MEMBER(s32, state, NameEntryWork, cursorRow) = MEMBER(s32, state, NameEntryWork, previousRow);
             }
             entry = D_007485D0 + MEMBER(s32, state, NameEntryWork, cursorRow) * 0x28;
-            entry = code29AddOff(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
+            entry = byteAddressAdd(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
     if (*(u16 *)D_008C027A & 0x2000) {
@@ -213,7 +210,7 @@ void yTimeLimitMoveGridCursor(u8 *task)
                     MEMBER(s32, state, NameEntryWork, cursorColumn) = MEMBER(s32, state, NameEntryWork, previousColumn);
             }
             entry = D_007485D0 + MEMBER(s32, state, NameEntryWork, cursorRow) * 0x28;
-            entry = code29AddOff(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
+            entry = byteAddressAdd(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
     if (*(u16 *)D_008C027A & 0x8000) {
@@ -227,7 +224,7 @@ void yTimeLimitMoveGridCursor(u8 *task)
                     MEMBER(s32, state, NameEntryWork, cursorColumn) = MEMBER(s32, state, NameEntryWork, previousColumn);
             }
             entry = D_007485D0 + MEMBER(s32, state, NameEntryWork, cursorRow) * 0x28;
-            entry = code29AddOff(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
+            entry = byteAddressAdd(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
     value = MEMBER(s32, state, NameEntryWork, cursorColumn) % 5 + MEMBER(s32, state, NameEntryWork, cursorRow) * 5;
@@ -564,7 +561,7 @@ void yTimeLimitDrawIdlePulse(u8 *task)
             }
             y = (f32)(row * 25 + 0xE5);
             yTimeTrackClear((s32)(work + 0xE0));
-            yTimeTrackAppendKey((s32)code29AddOff(0xE0, work),
+            yTimeTrackAppendKey((s32)byteAddressAdd(0xE0, work),
                           (s32)x,
                           (s32)y, (s32)x, (s32)y,
                           fGpffff8204, 0, 0, 0x3C);
@@ -737,7 +734,7 @@ do_copy:
         sdkSpriteDrawNowUnscaled((f32)x, (f32)y, 0.0f, 0x99, overlayAlpha, backgroundSprite, iGpffffb540, 1);
         sdkSpriteDrawNowUnscaled((f32)foregroundDrawX, (f32)foregroundDrawY, 0.0f, 0xCCFFFF, overlayAlpha, foregroundSprite, iGpffffb540, 1);
         {
-            u8 *b2 = code29AddOff(selectionOffset, base);
+            u8 *b2 = byteAddressAdd(selectionOffset, base);
             s32 *pflag = (s32 *)(b2 + 0x1C50);
             if (*pflag != 0) {
                 *pflag = 0;

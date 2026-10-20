@@ -26,6 +26,7 @@ typedef struct LogoColor {
 } LogoColor;
 
 extern void sdkSpriteDrawOnceScaled(s32, s32, f32, f32, f32, u8, u8, u8, u8, u16, u16, f32, s16, s16);
+/* Draw the title logo and its three trailing glyph sprites. */
 static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2 pos)
 {
     s32 res = ((BtlLogoWork *)work)->sprite;

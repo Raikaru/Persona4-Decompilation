@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "primitive_queue_internal.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
@@ -53,10 +54,6 @@ typedef struct LoadingSpinnerDrawState {
     LoadingSpinnerVector pair1;
     LoadingSpinnerVector pair0;
 } LoadingSpinnerDrawState;
-
-static inline f32 loadingSpinnerMultiply(f32 left, f32 right) {
-    return left * right;
-}
 
 struct RwMatrixTag;
 
@@ -154,7 +151,7 @@ void loadingSpinnerDraw(void) {
     phase = (f32)state[2] / 60.0f;
     scale = 10.0f;
     offset = 1.0f - ratio;
-    offset = loadingSpinnerMultiply(scale, offset);
+    offset = operandOrderMultiply(scale, offset);
     offset = -80.0f - offset;
     RwMatrixRotate(work.matrix, &work.pair0, offset, 0);
     func_003e4320(&work.pair3, &work.pair3, work.matrix);

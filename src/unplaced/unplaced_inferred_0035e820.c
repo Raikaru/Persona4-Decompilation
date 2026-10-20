@@ -4,6 +4,7 @@
 #include "member_access.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "scr_internal.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -63,11 +64,6 @@ typedef struct SdkListState {
 extern void (*D_008873EC[])(void *);
 extern void sdkSpriteFreeNode(void *node);
 extern void datScreenWipeSetTextureId(u8 *task, u16 textureId);
-static inline u32 addOffsetFirst(u32 offset, u32 base)
-{
-    return offset + base;
-}
-
 extern s32 nLineIsIdle(void);
 extern void datPortraitSetValue(u8 *task, s8 portraitId, s32 flags);
 extern void datPortraitSetLabel(s32 taskAddress, u16 labelId, s32 flags);
@@ -278,7 +274,7 @@ void datCommunityPortraitSetRecord(u8 *listWork)
     s8 state;
     u8 *record;
 
-    record = (u8 *)addOffsetFirst((s32)(((DatCommunityListWork *)listWork)->cursor + ((DatCommunityListWork *)listWork)->scroll) * 0xC, (u32)listWork);
+    record = (u8 *)(u32)byteAddressAdd((s32)(((DatCommunityListWork *)listWork)->cursor + ((DatCommunityListWork *)listWork)->scroll) * 0xC, (u8 *)((u32)listWork));
     state = ((DatCommunityRecord *)(record + 0x38))->state;
     flags = 0;
     kind = ((DatCommunityRecord *)(record + 0x38))->kind;
@@ -311,9 +307,9 @@ void datCommunityPortraitSetSelected(u8 *listWork)
     u8 *record;
 
     /* measured: direct ids[selected] changes the index/base addu operand order (one differing byte). */
-    id = MEMBER(u16, (u8 *)addOffsetFirst((s32)((DatCommunityListWork *)listWork)->selected * 2, (u32)listWork), DatCommunityListWork, ids[0]);
+    id = MEMBER(u16, (u8 *)(u32)byteAddressAdd((s32)((DatCommunityListWork *)listWork)->selected * 2, (u8 *)((u32)listWork)), DatCommunityListWork, ids[0]);
     flags = 0;
-    record = (u8 *)addOffsetFirst((s32)(((DatCommunityListWork *)listWork)->cursor + ((DatCommunityListWork *)listWork)->scroll) * 0xC, (u32)listWork);
+    record = (u8 *)(u32)byteAddressAdd((s32)(((DatCommunityListWork *)listWork)->cursor + ((DatCommunityListWork *)listWork)->scroll) * 0xC, (u8 *)((u32)listWork));
     kind = ((DatCommunityRecord *)(record + 0x38))->kind;
     switch (kind) {
     case 2:

@@ -7,6 +7,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "btl_panel_internal.h"
@@ -68,21 +69,6 @@ extern f32 fGpffff84a0;
 extern s32 datCalcMaxHp(s32);
 extern void btlDamageDrawPanel(u8 *, u8 *);
 extern void btlTransitionDrawFrame(u8 *, u8 *);
-static inline f32 ws14_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-
-static inline f32 ws14_add(f32 left, f32 right)
-{
-    return left + right;
-}
-
-static inline f32 ws14_sub(f32 left, f32 right)
-{
-    return left - right;
-}
-
 typedef struct BtlUnit BtlUnit;
 
 typedef struct RwV3d RwV3d;
@@ -182,8 +168,8 @@ void btlDamageDrawPanel(u8 *drawState, u8 *entry)
                 rate = btlSelectionEaseCurve(stage, 5, 7, 0);
                 if (!(rate <= 0.0f)) {
                     alpha = 255.0f * rate;
-                    fade = ws14_mul(20.0f, ws14_sub(1.0f, rate));
-                    height = ws14_add(75.0f, fade);
+                    fade = operandOrderMultiply(20.0f, operandOrderSubtract(1.0f, rate));
+                    height = ((75.0f) + (fade));
                     btlUiDrawSpriteFaded((u8 *)icon, 0xA, 0xA, 47.0f, height, 0x15U, 0x15U, 0x15U, (u8)alpha);
                     btlUiDrawSpriteFaded((u8 *)icon, 0xA, 9, 47.0f, height, 0xFFU, 0xFU, 2U, (u8)alpha);
                 }
@@ -399,8 +385,8 @@ void btlDamageDrawGaugeBar(u8 *drawContext, u8 *trail)
         frame.bytes[2] = 0;
         frame.bytes[3] = 0xFF;
         barHeight = 21.0f * scale;
-        barY = ws14_mul(scale, -10.5f);
-        barY = ws14_add(fGpffff84a0, barY);
+        barY = operandOrderMultiply(scale, -10.5f);
+        barY = operandOrderAddFloat(fGpffff84a0, barY);
         btlPanelDrawQuad(14.0f, barY, 0.0f, 12.0f, barHeight,
                       37.0f, 218.0f, 49.0f, 239.0f, frame);
         btlPanelDrawQuad(26.0f, barY, 0.0f, 112.0f, barHeight,
@@ -412,7 +398,7 @@ void btlDamageDrawGaugeBar(u8 *drawContext, u8 *trail)
         frame.bytes[1] = 0x1B;
         frame.bytes[2] = 0;
         frame.bytes[3] = 0xFF;
-        btlPanelDrawQuad(24.0f, fGpffff84a0 + ws14_mul(scale, -9.5f),
+        btlPanelDrawQuad(24.0f, fGpffff84a0 + operandOrderMultiply(scale, -9.5f),
                       0.0f, 116.0f, 19.0f * scale, 136.0f,
                       235.0f, 252.0f, 254.0f, frame);
         return;
@@ -701,6 +687,7 @@ void btlDamageSetSource(u8 *task, s32 source) {
 /* Encounter-transition geometry uses the actual sky-vertex, UV and matrix
  * layouts. Each direction owns its frame ratio; vertex opacity is narrowed
  * independently. See docs/probe_archive/Battle_transition_00212270_20260922.md. */
+/* Evaluate the quadratic radius curve for the transition exit. */
 static inline f32 btlTransitionExitCurve(f32 coefficient, f32 fraction)
 {
     f32 eased = coefficient * fraction - fraction * fraction;
@@ -2718,7 +2705,7 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
                     box.x = 104;
                     box.width = 400;
                     box.height = 20;
-                    boxOffset = ws14_mul(16.0f, fade);
+                    boxOffset = ((16.0f) * (fade));
                     box.y = (s32)(103.0f - (f32)box.height - boxOffset);
                     firstBoxY = (f32)box.y;
                     PrimDrawFlatRectangle(colorBytes, (f32 *)&box, 0.0f, 0);
@@ -2903,7 +2890,7 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
         }
         btlUiSetOrigin((u8 *)hud, 0.0f, -8.0f);
         btlUiSetScale((u8 *)hud, 1.0f, 1.0f);
-        btlUiDrawSpriteFaded((u8 *)hud, 9, 0x52, ws14_add(379.0f, ws14_mul(-400.0f, 1.0f - fade)),
+        btlUiDrawSpriteFaded((u8 *)hud, 9, 0x52, operandOrderAddFloat(379.0f, operandOrderMultiply(-400.0f, 1.0f - fade)),
                       303.0f, 0x21, 0x21, 0x21, 0xFF);
         progress = (f32)(MEMBER(s32, panel, BtlMessagePanel, choiceFrame) - 4) / 6.0f;
         if (progress > 1.0f) {

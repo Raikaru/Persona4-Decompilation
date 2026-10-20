@@ -866,6 +866,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     calDrawWeatherHighlight(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, fallbackHighlight, scaleX, scaleY, font, 1);
 }
 
+/* Clear a positive byte count when the destination pointer is non-null. */
 static inline void calendarZeroBytes(void *memory, s32 count)
 {
     u8 *cursor;
