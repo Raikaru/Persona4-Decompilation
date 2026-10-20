@@ -159,11 +159,12 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off is scoped to func_001990d0. */
 /* measured: func_001990d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-// FUN_001990D0
-/* measured: typing the initial genus load changes MATCH to MISMATCH; the later genus access is typed. */
+/* measured: access-site typing of the later genus reload changes MATCH to MISMATCH; a distinct typed unit alias preserves it. */
 /* Resolve a genus-specific motion, including the formation override and special walking substitution. */
+// FUN_001990D0
 s64 btlUnitGetMotionId(u8 *unit, u16 motion)
 {
+    BtlUnit *unitFields = (BtlUnit *)unit;
     u8 kind;
     s32 index;
     s32 offset;
@@ -179,7 +180,7 @@ s64 btlUnitGetMotionId(u8 *unit, u16 motion)
         }
     case 0:
     case 2:
-        kind = *(u8 *)(unit + 0xA2);
+        kind = unitFields->genus;
         index = kind * 0x1E;
         table = D_005F6CA0 + index;
         offset = motion & 0xFFFF;

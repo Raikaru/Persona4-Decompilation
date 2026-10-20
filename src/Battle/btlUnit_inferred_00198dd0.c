@@ -168,12 +168,13 @@ extern u8 D_00794150[];
    (beq 1, beqz, b default) instead of the inverted two-branch form an
    `||` condition produces.  The case labels are written 0 then 1 because
    the compare chain is emitted in reverse label order. */
-// FUN_00198DD0
-/* measured: remaining model/data-unit reloads change MATCH to MISMATCH at the individually tested call sites. */
+/* measured: a distinct typed unit alias retains the model/data-unit reloads that moved instructions at the measured call sites. */
 /* Choose the rest motion from status/HP/guard/death state; replace playback only when already at rest. */
+// FUN_00198DD0
 #pragma push
 void btlUnitUpdateStatusMotion(u8 *unit, u16 frame)
 {
+    BtlUnit *unitFields = (BtlUnit *)unit;
     s16 restMotion;
     s64 value;
     u16 motionOption;
@@ -192,7 +193,7 @@ void btlUnitUpdateStatusMotion(u8 *unit, u16 frame)
             if (mdlLayerHasAnimation(((BtlUnit *)unit)->layerHandle, 0, motionId) == 0) {
                 available = 0;
             } else {
-                keyEmpty = mdlIsLayerKeyEmpty(*(u8 **)(unit + 0xA00), 0, motionId);
+                keyEmpty = mdlIsLayerKeyEmpty(unitFields->layerHandle, 0, motionId);
                 if (keyEmpty == 1) {
                     available = 0;
                 } else {
@@ -206,25 +207,25 @@ void btlUnitUpdateStatusMotion(u8 *unit, u16 frame)
             restMotion = 0x12;
         }
     }
-    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0xFFFFF) != 0) {
+    if (datCalcChkBadStatus((s32)unitFields->datUnit, 0xFFFFF) != 0) {
         restMotion = 3;
     }
-    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100000) != 0) {
+    if (datCalcChkBadStatus((s32)unitFields->datUnit, 0x100000) != 0) {
         restMotion = 0xA;
     }
-    if (datCalcIsGuarding(*(s32 *)(unit + 0xA64)) != 0) {
+    if (datCalcIsGuarding((s32)unitFields->datUnit) != 0) {
         restMotion = 0x18;
     }
-    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100) != 0) {
+    if (datCalcChkBadStatus((s32)unitFields->datUnit, 0x100) != 0) {
         restMotion = 0;
     }
-    if ((datCalcIsDead(*(u8 **)(unit + 0xA64), 0) != 0) && ((((BtlUnit *)unit)->flags3 & 0x20) != 0)) {
+    if ((datCalcIsDead((u8 *)unitFields->datUnit, 0) != 0) && ((((BtlUnit *)unit)->flags3 & 0x20) != 0)) {
         if ((((BtlUnit *)unit)->flags2 & 2) != 0) {
             motionId = (s16)(btlUnitGetMotionId(unit, 0x13) & 0xFFFF);
             if (mdlLayerHasAnimation(((BtlUnit *)unit)->layerHandle, 0, motionId) == 0) {
                 available = 0;
             } else {
-                keyEmpty = mdlIsLayerKeyEmpty(*(u8 **)(unit + 0xA00), 0, motionId);
+                keyEmpty = mdlIsLayerKeyEmpty(unitFields->layerHandle, 0, motionId);
                 if (keyEmpty == 1) {
                     available = 0;
                 } else {

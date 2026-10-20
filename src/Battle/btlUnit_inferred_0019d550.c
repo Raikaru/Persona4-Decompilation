@@ -182,11 +182,12 @@ extern u8 D_00794150[];
  * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
-// FUN_0019D550
 /* measured: typing the remaining pool clear or the two saved list-link loads changes MATCH to MISMATCH. */
 /* Release owned resources, detach radius/camera state, unlink the genus list and free the unit. */
+// FUN_0019D550
 void btlUnitUnlinkAndFree(u8 *incomingUnit)
 {
+    BtlUnit *typedUnit;
     u8 *unit;
     u8 genus;
     s32 placement;
@@ -197,6 +198,7 @@ void btlUnitUnlinkAndFree(u8 *incomingUnit)
     u8 *child;
 
     unit = incomingUnit;
+    typedUnit = (BtlUnit *)unit;
     genus = ((BtlUnit *)incomingUnit)->genus;
     btlUnitReleaseModel(unit);
     child = (u8 *)((BtlUnit *)unit)->childUnit;
@@ -210,19 +212,19 @@ void btlUnitUnlinkAndFree(u8 *incomingUnit)
     nodePool = ((BtlUnitResources *)(unit + 0xA04))->nodePool;
     if (nodePool != 0) {
         btlEffectFreeNodePool(nodePool);
-        *(s32 *)(unit + 0xA08) = 0;
+        *(s32 *)&((BtlUnit *)unit)->effectNodePool = 0;
     }
     btlTargetRemoveRadiusNode(unit);
     cameraSlot = ((BtlUnit *)unit)->cameraSlot;
     if (cameraSlot >= 0)
         btlCameraSetUnitSlotValue(unit, cameraSlot, 0);
-    next = *(u8 **)(unit + 0xA6C);
+    next = *(u8 * *)&typedUnit->nextUnit;
     if (next != NULL)
         ((BtlUnit *)next)->prevUnit = ((BtlUnit *)unit)->prevUnit;
     else
         btlUnitStoreListEndpoint((u8 *)((BtlUnit *)unit)->prevUnit, iGpffffb3ac,
                       (u32)genus & 0xFF, 0x17C);
-    previous = *(u8 **)(unit + 0xA68);
+    previous = *(u8 * *)&typedUnit->prevUnit;
     if (previous != NULL)
         ((BtlUnit *)previous)->nextUnit = ((BtlUnit *)unit)->nextUnit;
     else

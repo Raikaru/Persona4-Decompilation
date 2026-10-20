@@ -200,6 +200,10 @@ extern u8 D_00794150[];
 // FUN_0019E850
 s32 btlUnitLookAtSidePacketUpdate(u8 *work)
 {
+    BtlUnit *typedUnit;
+    BtlUnit *typedEnemyUnit;
+    BtlUnitLookSideWork *typedWork = (BtlUnitLookSideWork *)work;
+    BtlUnit *typedPartyUnit;
     u16 sideFlags;
     u8 *unit;
     u8 *partyUnit;
@@ -209,38 +213,43 @@ s32 btlUnitLookAtSidePacketUpdate(u8 *work)
     if (sideFlags & 3) {
         if (sideFlags & 1) {
             partyUnit = ((BtlBattleState *)D_0076449C)->unitLists[1];
+            typedPartyUnit = (BtlUnit *)partyUnit;
             while (partyUnit != NULL) {
                 if (((((BtlUnit *)partyUnit)->flags3 & 8) != 0) &&
                     ((((BtlUnit *)partyUnit)->flags2 & 2) != 0) &&
                     (mdlHasActiveMode(((BtlUnit *)partyUnit)->layerHandle) != 0)) {
                     /* measured: repeated typed layer loads hoist +0xA00; preserve the post-call reloads. */
-                    mdlSetLookAtActive(*(u8 **)(partyUnit + 0xA00));
-                    mdlSetLookAtRequested(*(u8 **)(partyUnit + 0xA00));
+                    mdlSetLookAtActive(typedPartyUnit->layerHandle);
+                    mdlSetLookAtRequested(typedPartyUnit->layerHandle);
                 }
                 partyUnit = (u8 *)((BtlUnit *)partyUnit)->prevUnit;
+                typedPartyUnit = (BtlUnit *)partyUnit;
             }
         }
         /* measured: a typed flags reload keeps work+4 in s0, exchanging the party traversal registers. */
-        if ((*(u16 *)(work + 4) & 2) != 0) {
+        if ((typedWork->flags & 2) != 0) {
             enemyUnit = ((BtlBattleState *)D_0076449C)->unitLists[3];
+            typedEnemyUnit = (BtlUnit *)enemyUnit;
             while (enemyUnit != NULL) {
                 if (((((BtlUnit *)enemyUnit)->flags3 & 8) != 0) &&
                     ((((BtlUnit *)enemyUnit)->flags2 & 2) != 0) &&
                     (mdlHasActiveMode(((BtlUnit *)enemyUnit)->layerHandle) != 0)) {
                     /* Same post-call model reload constraint as the party branch. */
-                    mdlSetLookAtActive(*(u8 **)(enemyUnit + 0xA00));
-                    mdlSetLookAtRequested(*(u8 **)(enemyUnit + 0xA00));
+                    mdlSetLookAtActive(typedEnemyUnit->layerHandle);
+                    mdlSetLookAtRequested(typedEnemyUnit->layerHandle);
                 }
                 enemyUnit = (u8 *)((BtlUnit *)enemyUnit)->prevUnit;
+                typedEnemyUnit = (BtlUnit *)enemyUnit;
             }
         }
     } else {
         unit = ((BtlUnitLookSideWork *)work)->unit;
+        typedUnit = (BtlUnit *)unit;
         if (((((BtlUnit *)unit)->flags2 & 2) != 0) &&
             (mdlHasActiveMode(((BtlUnit *)unit)->layerHandle) != 0)) {
             /* Same post-call model reload constraint as the side branches. */
-            mdlSetLookAtActive(*(u8 **)(unit + 0xA00));
-            mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
+            mdlSetLookAtActive(typedUnit->layerHandle);
+            mdlSetLookAtRequested(typedUnit->layerHandle);
         }
     }
     return 1;

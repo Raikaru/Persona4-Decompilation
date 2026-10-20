@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "btl_sound_internal.h"
 #include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -329,8 +331,8 @@ s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius)
 s32 btlRouteBuildArc(u8 *route, const f32 *startXZ,
                   const f32 *endXZ, const f32 *centerXZ)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     BtlTargetRotationInterpolation interpolation;
     BtlCameraQuaternion rotation;
     BtlCameraQuaternion startRotation;
@@ -427,23 +429,24 @@ s32 btlRouteBuildArc(u8 *route, const f32 *startXZ,
         direction[0] = direction[0] * length;
         direction[1] = direction[1] * length;
         direction[2] = direction[2] * length;
-        *(f32 *)(route + index * 8) = center[0] + direction[0];
-        *(f32 *)(route + index * 8 + 4) = center[2] + direction[2];
+        (((BtlTargetRoute *)(route))->points[index].x) = center[0] + direction[0];
+        (((BtlTargetRoute *)(route))->points[index].z) = center[2] + direction[2];
         blend = blend + 0.125f;
         index = index + 1;
     }
     {
         f32 endX = endXZ[0];
         f32 endZ = endXZ[1];
-        *(f32 *)(route + 0x38) = endX;
-        *(f32 *)(route + 0x3C) = endZ;
+        (((BtlTargetRoute *)(route))->points[7].x) = endX;
+        (((BtlTargetRoute *)(route))->points[7].z) = endZ;
     }
-    *(u16 *)(route + 0x400) = 8;
+    MEMBER(u16, route, BtlTargetRoute, count) = 8;
     ((BtlTargetRoute *)route)->state = 2;
     return 1;
 }
 
 #pragma pop
+/* Read the low byte of an ID-indexed four-byte record, returning one when it is zero. */
 // FUN_001EF4A0
 s32 btlUnitSlotValueOrOne(s32 unitId)
 {
@@ -457,6 +460,7 @@ s32 btlUnitSlotValueOrOne(s32 unitId)
     return value;
 }
 
+/* Average levels on the genus-mask sides after excluding statuses; the 16-bit sum wraps and empty results become one. */
 // FUN_001EF4D0
 /* measured: preserve retail count-result branch shape while probing ef4d0. */
 /* Average eligible side levels with 16-bit accumulation; empty and zero results become one. */
@@ -605,7 +609,7 @@ s32 btlEncountRollChance(void)
 /* Combine encounter and setup flags into the movement-state selector. */
 s32 btlUnitGetMoveStateCode(void)
 {
-    /* Raw access: This reads the low halfword of setup +0x00; its packed flag layout is not established in BtlEncounterSetup. */
+    /* Read only the low setup flags halfword, not the full packed setup word. */
     u8 *base;
     u8 *table;
     u16 index;
@@ -625,7 +629,7 @@ s32 btlUnitGetMoveStateCode(void)
         return 2;
     if (flags & 0x800)
         return 1;
-    flags2 = *(u16 *)(base + 0xC70);
+    flags2 = (((BtlBattleState *)(base))->encounter.flags);
     if (flags2 & 4)
         return 0;
     if (flags2 & 1)
@@ -644,8 +648,8 @@ s32 btlCurrentUnitId(void) {
 /* Select a community-enabled status-assistance target, preferring the selected action. */
 s32 btlActionPickStatusTarget(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 rank;
     u8 *status1Targets[4];
     u8 *status100000Targets[4];
@@ -676,11 +680,11 @@ s32 btlActionPickStatusTarget(u8 *action)
         ((BtlAction *)action)->state == 9) {
         return 0;
     }
-    if (datCalcIsGuarding(*(u16 **)(*(u8 **)(action + 0x30) + 0xA64)) != 0) {
+    if (datCalcIsGuarding(((u16 *)(((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)))->datUnit))) != 0) {
         return 0;
     }
     rank = cmmCommunityRecordValue(cmmCommunityForArcana(
-        *(s16 *)(*(u8 **)(action + 0x30) + 0xA4)) & 0xFFFF) & 0xFFFF;
+        ((s16)(((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)))->charId))) & 0xFFFF) & 0xFFFF;
     count1 = 0;
     count100000 = 0;
     count1e = 0;
@@ -703,7 +707,7 @@ loop:
             }
             status1Targets[count1] = node;
             count1++;
-        } else if (datCalcChkBadStatus(*(s32 *)(actor + 0xA64), 0x100000) != 0) {
+        } else if (datCalcChkBadStatus(MEMBER(s32, actor, BtlUnit, datUnit), 0x100000) != 0) {
             if (((BtlBattleState *)iGpffffb3ac)->selectedAction == node) {
                 preferred100000 = node;
             }
@@ -728,21 +732,21 @@ check:
         return 0;
     }
     if (count1 != 0) {
-        *(s16 *)(action + 0x448) = 1;
+        (((BtlAction *)(action))->cooperation.mode) = 1;
         preferred1 = preferred1 != NULL ? preferred1 :
             status1Targets[datCalcRandomBelow(count1)];
         ((BtlTargetAssistance *)(action + 0x444))->action = preferred1;
         return 1;
     }
     if (count100000 != 0) {
-        *(s16 *)(action + 0x448) = 1;
+        (((BtlAction *)(action))->cooperation.mode) = 1;
         preferred100000 = preferred100000 != NULL ? preferred100000 :
             status100000Targets[datCalcRandomBelow(count100000)];
         ((BtlTargetAssistance *)(action + 0x444))->action = preferred100000;
         return 1;
     }
     if (count1e != 0) {
-        *(s16 *)(action + 0x448) = 0;
+        (((BtlAction *)(action))->cooperation.mode) = 0;
         preferred1e = preferred1e != NULL ? preferred1e :
             status1eTargets[datCalcRandomBelow(count1e)];
         ((BtlTargetAssistance *)(action + 0x444))->action = preferred1e;
@@ -755,8 +759,8 @@ check:
 /* Choose an eligible party action, with skill flag 0x80 bypassing the usual community/status filters. */
 u8 *btlActionPickRandomCandidate(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s16 skill;
     u8 *candidate;
     s32 count;
@@ -794,7 +798,7 @@ u8 *btlActionPickRandomCandidate(u8 *action)
                  (datCalcChkBadStatus((s32)(((BtlUnit *)unit)->datUnit), 0x1001FF) == 0)) &&
                 (datCalcIsDead((s32)(((BtlUnit *)unit)->datUnit), 0) == 0) &&
                 ((overrideConditions != 0) ||
-                 ((cmmCommunityRecordValue((cmmCommunityForArcana(*(s16 *)(unit + 0xA4)) &
+                 ((cmmCommunityRecordValue((cmmCommunityForArcana(MEMBER(s16, unit, BtlUnit, charId)) &
                                    0xFFFF)) &
                    0xFFFF) > 0))) {
                 candidates[count] = (s32)candidate;
@@ -813,8 +817,8 @@ u8 *btlActionPickRandomCandidate(u8 *action)
 /* Choose an eligible community counter target after cooldown and per-unit probability checks. */
 s32 btlActionPickCounterTarget(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 bonus;
     s32 roll;
     u8 *candidate;
@@ -833,7 +837,7 @@ s32 btlActionPickCounterTarget(u8 *action)
     }
     if (((BtlAction *)action)->unk_28 < 2) {
         roll = datGetScriptValue(0x79) -
-                 (*(u8 *)(action + 0x28) + 1);
+                 (MEMBER(u8, action, BtlAction, unk_28) + 1);
         if (roll > 0) {
             datSetScriptValue(0x79, roll);
             return 0;
@@ -851,14 +855,14 @@ s32 btlActionPickCounterTarget(u8 *action)
                 (((BtlUnit *)unit)->charId != 1) &&
                 (datCalcChkBadStatus((s32)(((BtlUnit *)unit)->datUnit),
                                 0x1001FF) == 0) &&
-                (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) == 0) &&
-                (datCalcIsGuarding(*(u16 **)(unit + 0xA64)) == 0) &&
+                (datCalcIsDead(MEMBER(s32, unit, BtlUnit, datUnit), 0) == 0) &&
+                (datCalcIsGuarding(MEMBER(u16 *, unit, BtlUnit, datUnit)) == 0) &&
                 ((cmmCommunityRecordValue((cmmCommunityForArcana(
-                                    *(s16 *)(unit + 0xA4)) &
+                                    MEMBER(s16, unit, BtlUnit, charId)) &
                                   0xFFFF)) &
                   0xFFFF) >= 3)) {
                 bonus =
-                    (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xA64), 0x88) &
+                    (datCalcCountSlotsWithValue(MEMBER(u8 *, unit, BtlUnit, datUnit), 0x88) &
                      0xFFFF) *
                     10;
                 roll = datCalcRandomBelow(0x64);

@@ -171,8 +171,8 @@ void btlUnitReleasePendingModelLoad(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + -1;
 }
 
-// FUN_0019B550
 /* Create model-load work, using the boss remap when present and genus/model defaults otherwise. */
+// FUN_0019B550
 u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 modelId, s16 motion)
 {
     u8 *work;
@@ -199,8 +199,8 @@ void btlUnitHoldPendingModelRelease(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019B640
 /* Release the unit model and clear its visibility state. */
+// FUN_0019B640
 s32 btlUnitModelReleasePacketUpdate(u8 *packetWork) {
     u8 *unit;
 

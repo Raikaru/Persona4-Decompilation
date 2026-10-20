@@ -181,11 +181,12 @@ extern u8 D_00794150[];
  * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
-// FUN_0019D3C0
 /* measured: typing the remaining model reloads/clear or scene-ID clear changes MATCH to MISMATCH. */
 /* Release the scene resource and destroy owned models; clear the model-present flag. */
+// FUN_0019D3C0
 void btlUnitReleaseModel(u8 *unit)
 {
+    BtlUnit *typedUnit = (BtlUnit *)unit;
     u16 sceneId;
     s32 index;
     u8 *model;
@@ -199,18 +200,18 @@ void btlUnitReleaseModel(u8 *unit)
             btlUnitClearModelState(unit, 1);
             btlUnitClearModelState(unit, 2);
             btlUnitClearModelState(unit, 3);
-            mdlSetColor(*(u8 **)(unit + 0xA00), (s32 *)&iGpffffa4d8);
-            mdlSetLayerWeight(*(u8 **)(unit + 0xA00), 0, 1.0f);
+            mdlSetColor(typedUnit->layerHandle, (s32 *)&iGpffffa4d8);
+            mdlSetLayerWeight(typedUnit->layerHandle, 0, 1.0f);
             if (index == 1 && (((BtlUnit *)unit)->flags2 & 8) == 0)
-                mdlDestroyModelObject(*(u8 **)(unit + 0xA00));
+                mdlDestroyModelObject(typedUnit->layerHandle);
         }
-        *(u16 *)(unit + 0x9FE) = 0;
+        typedUnit->sceneDrawId = 0;
     } else {
         model = ((BtlUnit *)unit)->layerHandle;
         if (model != NULL)
             mdlDestroyModelObject(model);
     }
-    *(u8 **)(unit + 0xA00) = NULL;
+    typedUnit->layerHandle = NULL;
     ((BtlUnit *)unit)->flags2 &= ~2;
 }
 

@@ -198,6 +198,7 @@ extern u8 D_00794150[];
 // FUN_0019DF20
 s32 btlUnitSetLookAtRanges(u8 *work)
 {
+    BtlUnit *typedUnit;
     u8 *unit;
 
     if ((((BtlUnitLookPointWork *)work)->flags & 1) != 0) {
@@ -208,6 +209,7 @@ s32 btlUnitSetLookAtRanges(u8 *work)
         s32 enabled;
 
         unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[1];
+        typedUnit = (BtlUnit *)unit;
         while (unit != NULL) {
             if ((*(s32 *)&((BtlUnit *)unit)->flags3 & 8) != 0) {
                 if (&pitchLimit != NULL) {
@@ -225,7 +227,7 @@ s32 btlUnitSetLookAtRanges(u8 *work)
                     mdlLookAtSetupSetRange(((BtlUnit *)unit)->layerHandle, callPitch, callYaw);
                 }
                 /* measured: a second typed flags access retains unit+0x98 in s2 (536B vs 528B). */
-        if ((*(s32 *)(unit + 0x98) & 2) != 0) {
+        if ((*(s32 *)&typedUnit->flags2 & 2) != 0) {
                     mdlSetBlendWeight(((BtlUnit *)unit)->layerHandle, 0.25f);
                 }
                 *(s16 *)&((BtlUnit *)unit)->lookAtMode = 1;
@@ -234,6 +236,7 @@ s32 btlUnitSetLookAtRanges(u8 *work)
                 btlUnitApplyModelState(unit, 3);
             }
             unit = *(u8 **)&((BtlUnit *)unit)->prevUnit;
+            typedUnit = (BtlUnit *)unit;
         }
     } else {
         f32 pitchLimit;
@@ -243,6 +246,7 @@ s32 btlUnitSetLookAtRanges(u8 *work)
         s32 enabled;
 
         unit = ((BtlUnitLookPointWork *)work)->unit;
+        typedUnit = (BtlUnit *)unit;
         if (&pitchLimit != NULL) {
             pitchLimit = 70.0f;
         }
@@ -258,7 +262,7 @@ s32 btlUnitSetLookAtRanges(u8 *work)
             mdlLookAtSetupSetRange(((BtlUnit *)unit)->layerHandle, callPitch, callYaw);
         }
         /* measured: a second typed flags access retains unit+0x98 in s2 (536B vs 528B). */
-        if ((*(s32 *)(unit + 0x98) & 2) != 0) {
+        if ((*(s32 *)&typedUnit->flags2 & 2) != 0) {
             mdlSetBlendWeight(((BtlUnit *)unit)->layerHandle, 0.25f);
         }
         *(s16 *)&((BtlUnit *)unit)->lookAtMode = 1;
