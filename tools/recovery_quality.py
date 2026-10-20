@@ -21,6 +21,8 @@ TYPED       the body reaches its data through named types, not raw arithmetic.
             `u8 *` and then indexed. Raw offsets are an acceptable *starting*
             point per docs/style, but once the offsets are established the field
             should be named, and until then the function is not recovered.
+            `MEMBER()`/`MEMBER_OFFSET()` (include/member_access.h) name the
+            member through the proven layout and count as typed.
 
 DOCUMENTED  a non-trivial function carries prose explaining what it does or why a
             constant is what it is. Trivial bodies (a single statement, or a
@@ -59,6 +61,19 @@ PLACEHOLDER_NAME = re.compile(r"^(?:func|FUN)_[0-9A-Fa-f]{8}$")
 
 # `*(u32 *)(base + 0x18)` and `*(u8 **)(p + 4)` -- a cast-and-offset read or write.
 RAW_FIELD = re.compile(r"\*\s*\(\s*[A-Za-z_][\w ]*\**\s*\*\s*\)\s*\(")
+
+
+def raw_field_accesses(code: str) -> int:
+    """Cast-and-offset dereferences whose address does not name its member."""
+    count = 0
+    for match in RAW_FIELD.finditer(code):
+        depth, end = 1, match.end()
+        while end < len(code) and depth:
+            depth += {"(": 1, ")": -1}.get(code[end], 0)
+            end += 1
+        if "MEMBER_OFFSET(" not in code[match.end():end]:
+            count += 1
+    return count
 
 # Decompiler-generated local names, as produced by automated decompilers.
 RESIDUE_NAME = re.compile(
@@ -143,7 +158,7 @@ def score(name: str, before: list[str], body: str) -> dict[str, bool]:
     code = "\n".join(V.sanitize_c_lines(body.splitlines()))
     named = not PLACEHOLDER_NAME.match(name)
     residue = bool(RESIDUE_NAME.search(code))
-    typed = not (RAW_FIELD.search(code) or residue)
+    typed = not (raw_field_accesses(code) or residue)
     documented = has_prose(before, body) or is_trivial(body)
     return {
         "named": named,

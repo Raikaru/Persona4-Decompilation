@@ -126,7 +126,7 @@ void datCarryOverPersistentState(void)
     void datSetMoney(u32);
     void datSetCategoryValueById(s16, s16, s16);
     u32 datGetClearedWord(void);
-    void func_00110470(u32);
+    void datSetClearCount(u32);
     void fclCombineSaveSnapshot(void);
     void fclCombineRestoreSnapshot(void);
     extern float D_005E4700[4];
@@ -307,7 +307,7 @@ loop6_check:
     fclCombineRestoreSnapshot();
     datSetFlag(0x1210, 1);
     datSetScriptValue(0x7C, (u32)value);
-    func_00110470((u32)clearCount);
+    datSetClearCount((u32)clearCount);
     i = 0;
     goto loop7_check;
 loop7:

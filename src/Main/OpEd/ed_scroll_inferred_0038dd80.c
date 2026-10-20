@@ -55,8 +55,9 @@ extern s32 (*D_00887310[])(s32, void *, s32);
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
 #pragma push
 #pragma pop
+/* Empty stop callback in sequence row 0x005DD2A0; the sequence transition requires no teardown here. */
 // FUN_0038DD80
-void func_0038dd80(void)
+void edScrollStopNoop(void)
 {
 }
 

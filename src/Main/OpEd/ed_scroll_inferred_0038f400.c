@@ -57,10 +57,12 @@ extern s32 (*D_00887310[])(s32, void *, s32);
 #pragma push
 #pragma pop
 // Intent: Build an EffectStateHeader from a parameter table: entry table, string block and data block [inferred]
+/* Allocate an effect header and relocate its string entries into copied string and data blocks. */
 // FUN_0038F400
 extern u8 D_0064F240[];
 extern void *memcpy(void *dst, const void *src, u32 size);
-/* The entry-table cursor is a byte offset: typed indexing adds a shift under b210 (404/400 bytes), so retain the word store for MATCH. */
+/* The earlier whole-layout attempt added a shift (404/400 bytes); isolated
+ * entry-array indexing below was remeasured and retains the retail code. */
 EffectStateHeader *edResBuildEffectHeader(const u32 *parameters)
 {
     u32 size;
@@ -111,7 +113,7 @@ EffectStateHeader *edResBuildEffectHeader(const u32 *parameters)
     index = 0;
     while (index < parameters[3]) {
         size = index * 4;
-        *(u32 *)(result->entries + size) = string;
+        ((u32 *)result->entries)[index] = string;
         string += *lengths;
         index += 1;
         lengths += 1;

@@ -1,5 +1,7 @@
 #include "include_asm.h"
+#include "dat_panel_internal.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "message_frame_internal.h"
 #include "primitive_point_buffer.h"
 #include "fr_font_internal.h"
@@ -219,6 +221,7 @@ void sflDataDrawNarrowRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 heigh
     }
 }
 
+/* Build the wider rounded-frame contour and dispatch it through the requested immediate or queued transform. */
 // FUN_00366670
 /* 752/752 bytes, ten resolved relocations. The explicit table copy preserves
  * the entry halfword load; the paired offset assignment preserves both real
@@ -398,8 +401,9 @@ void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
     }
 }
 
+/* Transform a textured screen quad into sky vertices, optionally rejecting its winding before submission. */
 // FUN_00366C70
-/* Draw a transformed textured quad, optionally rejecting the unwanted winding before submitting its sky vertices. Camera +0x80 is the near-plane scalar; its full header conflicts with local matrix tags. */
+/* Draw a transformed textured quad, optionally rejecting the unwanted winding before submitting its sky vertices. The camera prefix supplies its near-plane scalar without importing SDK matrix tags. */
 s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                   s32 alpha, s32 mode, s16 centerX, s16 centerY,
                   struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2])
@@ -466,7 +470,7 @@ s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
     if (uv == NULL) {
         uv = defaultUv;
     }
-    inverse = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
+    inverse = 1.0f / ((MdlEffectCamera *)kwlnGetCamera())->nearPlane;
     depth = D_008872F8[0] - z;
     packed = ((u32)rgb << 8) | (u32)alpha;
     r = (packed >> 24) & 0xFF;
@@ -710,9 +714,10 @@ void sflDataDrawByteValuePanel(s64 position, f32 depth, s32 opacity, u8 *state)
 /* measured: opt_common_subs off keeps the raw alpha argument in $s1 and re-masks it at each of
    its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
    masks once into $s0 (nd 78). */
+/* Draw the stored party member through a kind-three panel command using the full-name style. */
 // FUN_00367940
-/* Draw the stored party entry through a packed 12-byte panel command; the command fields at +0/+6/+8 are preserved because no shared command layout is established here. */
-void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state) { u8 buf[12]; f32 factor; factor = depth; datPanelResetCursor(buf); *(s32 *)(buf + 8) = 3; *(s16 *)(buf + 6) = 1; *(s16 *)buf = ((SflPersonaState *)state)->details.partyId; datPanelDrawByKind(*(s64 *)&position, factor, opacity, buf, 1); }
+/* Draw the stored party entry through a packed 12-byte panel command; DatPanelEntry names its unit, style, and kind fields. */
+void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state) { u8 buf[12]; f32 factor; factor = depth; datPanelResetCursor(buf); ((DatPanelEntry *)buf)->kind = 3; ((DatPanelEntry *)buf)->style = 1; *(s16 *)buf = ((SflPersonaState *)state)->details.partyId; datPanelDrawByKind(*(s64 *)&position, factor, opacity, buf, 1); }
 
 // Intent: Draws a right-aligned number from digit sprites beside an icon, one digit column per 16 px [inferred]
 // FUN_003679C0
