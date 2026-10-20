@@ -193,6 +193,7 @@ void calendarStateTaskDestroy(u8 *task)
    Proof: build/cos20335-continuation/field-ui/review-00122a40-closed. */
 // FUN_00122A40
 #pragma push
+/* measured: baseline and individual propagation/constant-extraction probes differ (nd 2413/2197/2413). */
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
 /* Animate and draw the calendar background, month/day digits and period indicators; restore fog state afterward. */

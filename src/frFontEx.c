@@ -387,6 +387,7 @@ int frFontExDrawTextDeferredOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int
 /* Zero-fill the destination and copy at most maxlen minus one source bytes, retaining a terminating zero. */
 // FUN_00275980
 #pragma push
+/* measured: baseline and reordered-bound copy loops differ (nd 46/48); retain invariant hoisting. */
 #pragma opt_loop_invariants on
 
 void frFontExCopyString(char *src, char *dst, int maxlen)
