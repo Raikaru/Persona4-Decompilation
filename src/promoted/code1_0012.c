@@ -373,6 +373,7 @@ extern TitleRect D_005E55A0;
  * - Record pointers 2-5 go through ((u8 *)((u32)(offset-first addu) + (u32)@1@)).
  */
 #pragma push
+/* measured: baseline lifetimes gives nd8614; the attempted block-local counter is not accepted by b210 C. */
 #pragma opt_lifetimes on
 /* The scene table has a 0x28-byte stride; draw and update read the same rows. */
 typedef struct TitleRecordBlock {
@@ -1782,6 +1783,7 @@ static inline void titleQuaternionMatrix(Code12FrameMatrix *matrix, const Code12
 #pragma pop
 
 #pragma push
+/* measured: removing propagation suppression gives nd1978; retain the callback's scoped setting. */
 #pragma opt_propagation off
 s32 fadeStatus(void);
 
@@ -2203,10 +2205,8 @@ void titleDrawChildImage(s32 unused, s32 task)
 }
 
 #pragma push
-/* measured: opt_loop_invariants on hoists the loop constants into the
-   retail preheader and opt_propagation off keeps the pre-call indexed
-   destination address materialised; 92 differing words -> 0 (532/544). */
-#pragma opt_loop_invariants on
+/* measured: invariant hoisting is redundant here; propagation suppression alone
+   keeps all 532 code bytes matched (both removed: nd246). */
 #pragma opt_propagation off
 // Kept in bucket: diff 207 when moved; cause not diagnosed.
 typedef struct {
@@ -2327,8 +2327,6 @@ void titleSlotTableInit(u8 *menu)
     ((CampMenuWork *)(menu))->optionCount = optionCount;
     titleSlotSetMode(menu, 0);
 }
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 #pragma pop
 /* The menu owns eleven complete tween records and three seven-sprite banks.
  * measured: native b210 -O2 emits 1348 exact bytes plus 12 zero alignment bytes.
@@ -2338,6 +2336,7 @@ void titleSlotTableInit(u8 *menu)
 
 
 #pragma push
+/* measured: delayed alpha loading still gives nd43 without propagation suppression. */
 #pragma opt_propagation off
 // Kept in bucket: diff 43 when moved; cause not diagnosed.
 /* Advance title selector tweens and draw each visible option; return completion. */
@@ -2486,36 +2485,17 @@ s32 titleSlotUpdateAndDraw(u8 *menu)
 }
 
 #pragma pop
-/* measured: opt_loop_invariants on is load-bearing for 0012DC00 -- without it
-   the object grows to 676 bytes against the 672-byte window at nd 243. */
-#pragma opt_loop_invariants on
-/* measured: closes the opt_loop_invariants bracket opened above func_0012dc00. */
-#pragma opt_loop_invariants off
+/* Empty optimizer probes left by moved functions were removed; no body uses them. */
 extern u8 D_005E58C0[];
 extern u8 D_005E59A0[];
 extern u8 D_005E5A80[];
 extern void titleLayoutSlots(u8 *menu);
 
-#pragma push
-/* measured: opt_loop_invariants on is load-bearing: removing it yields MISMATCH nd 383 (obj 684B/window 688B); on yields MATCH nd 0 (obj 680B/window 688B) by hoisting the case-zero constants. */
-#pragma opt_loop_invariants on
-/* measured: closes the opt_loop_invariants bracket for titleSlotSetMode. */
-#pragma opt_loop_invariants off
-#pragma pop
-/* measured: opt_loop_invariants on hoists the conversion constants into the loop preheader. */
-#pragma opt_loop_invariants on
-#pragma opt_rebuildconditionals off
-#pragma opt_rebuildconditionals on
-/* measured: closes the opt_loop_invariants bracket for func_0012e2f0. */
-#pragma opt_loop_invariants off
-/* measured: opt_propagation off probe for temp16 width in func_0012e7c0 */
-#pragma opt_propagation off
-/* measured: opt_propagation on closes the temp16 width probe */
-#pragma opt_propagation on
 /* measured: propagation and constant extraction off preserve cached
  * opacity values and the independent animation-row evaluations. */
 #pragma push
 #pragma opt_propagation off
+/* measured: baseline constant extraction gives nd1452 even with propagation suppressed. */
 #pragma opt_pulloutconstants off
 /* The label renderer reads these fields at offsets 0x00..0x18. */
 typedef struct {
@@ -2864,11 +2844,6 @@ void radarDrawPanel(u8 *state)
 }
 
 #pragma pop
-/* measured: opt_common_subs off preserves the retail base+offset accesses in
-   the two-record callback loop. */
-#pragma opt_common_subs off
-/* measured: opt_common_subs on closes the callback-loop probe. */
-#pragma opt_common_subs on
 extern u8 D_005E5BF0[];
 extern u8 D_005E6290[];
 extern u8 D_005E65E0[];
@@ -2877,8 +2852,3 @@ extern u8 D_005E6C80[];
 extern u8 D_005E6FD0[];
 extern u8 D_005E7320[];
 
-/* measured: opt_common_subs off preserves retail's first-loop base/index
-   addressing and setup order; on reverts immediately after the switch. */
-#pragma opt_common_subs off
-/* measured: closes opt_loop_invariants for func_0012ff60. */
-#pragma opt_loop_invariants off

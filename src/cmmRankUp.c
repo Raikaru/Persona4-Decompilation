@@ -255,10 +255,11 @@ void cmmRankUpCreate(s32 parentTask, u32 *context) {
  * measured: MWCC rematerializes the flag-clear mask (addiu a0,zero,-3) inside
  * the else-branch instead of the loop preheader, shifting every temp register;
  * with the pragma the object is byte-identical (nd 3 = window padding). */
-#pragma opt_loop_invariants on
 
 // Sets (option1 != 0) or clears flag bit 2 on each active entry of the rank-up table; used to hold and release the entries [inferred].
 // FUN_00251FC0
+/* measured: baseline and explicit pre-loop mask both leave nd44; retain mask hoisting. */
+#pragma opt_loop_invariants on
 void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold) {
     extern u32 *kwlnTaskGetWork();
     CmmRankUpEntry *entry;
@@ -278,9 +279,9 @@ void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold) {
         entry++;
     }
 }
+#pragma opt_loop_invariants off
 /* measured: scope closer for the hoist above - leaving it on changes the
    next functions in this file, so it is turned off immediately after. */
-#pragma opt_loop_invariants off
 
 /* Absolute-addressed float data for cmmRankUpCopyState's stack snapshot. */
 extern f32 D_00635D28[];
@@ -306,14 +307,7 @@ extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 extern s32 MT_Scene_IsResEnabled(u8 *resource);
 extern void MT_Scene_SetResEnabledById(s32 resTypeId, s32 enabled);
 
-/* measured: opt_propagation off around func_00252050 batches the D_00635D28/
-   2C/30 lwc1 loads before the spFloat stores; plain float temps under the
-   default propagation setting interleave each load/store pair. Loop 1's
-   value pair and loop 2's counter are value-class locals (v/w/t) so they
-   land in $v1/$v0, and loop 2 uses fresh pointer locals so mwcc
-   re-allocates $a1/$a2 instead of keeping loop 1's $a2/$a3. */
-/* measured: opt_propagation-off bracket pins the retail access-order batch. */
-#pragma opt_propagation off
+/* measured: the contiguous three-float snapshot batches loads before stores under baseline propagation (nd3 -> MATCH). */
 /* Claim an entry, select its step callback by kind, and copy three sprite keyframes from the indexed table. */
 // FUN_00252050
 void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
@@ -332,16 +326,9 @@ void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
     s32 w;
     s32 t;
     s32 stepAddress;
-    f32 fa;
-    f32 fb;
-    f32 fc;
+    typedef struct { f32 x, y, z; } RankUpStepAddresses;
 
-    fa = *(f32 *)D_00635D28;
-    fb = *(f32 *)D_00635D2C;
-    fc = *(f32 *)D_00635D30;
-    stepAddresses[0] = fa;
-    stepAddresses[1] = fb;
-    stepAddresses[2] = fc;
+    *(RankUpStepAddresses *)stepAddresses = *(RankUpStepAddresses *)D_00635D28;
 
     srcp = D_00635D40;
     dstp = (u8 *)copy2;
@@ -394,8 +381,6 @@ void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
         memcpy(((CmmRankUpEntry *)p)->unk_0c, src, 0x6C);
     }
 }
-/* measured: closes opt_propagation-off bracket for func_00252050. */
-#pragma opt_propagation on
 
 
 
@@ -801,13 +786,14 @@ f32 sdkSpriteEntryWidth(void *blob, s32 index);
 void sdkSpriteDrawNowUnscaled(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void *pack, s32 setStates);
 u8 *cmmNameRecord(u32 nameId);
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_pulloutconstants off
 /* measured: keep the banner constants explicit and the label distance
    local; automatic constant extraction joins the two distance evaluations. */
 // Draws the moving-point wipe for the rank-up panel: a fixed quad set plus a moving pair of points that interpolates across the panel [inferred].
 // FUN_00253850
+#pragma push
+#pragma opt_loop_invariants on
+/* measured: removing both toggles gives nd2463; loop-only gives nd3415, so retain both. */
+#pragma opt_pulloutconstants off
 s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 {
     CmmRankUpEntry *entry = (CmmRankUpEntry *)work;
@@ -1116,8 +1102,6 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 typedef struct { u8 r, g, b, a; } RankUpExitColor;
 typedef union {
     RankUpExitColor rgba;
@@ -1141,6 +1125,9 @@ u8 *cmmNameRecord(u32);
    pulloutconstants otherwise retains one across both animation branches. */
 // Draws the exit wipe: copies the clip and reset colours, then draws the sprite strips that slide in with the wipe [inferred].
 // FUN_00254A70
+#pragma push
+#pragma opt_loop_invariants on
+/* measured: removing both toggles gives nd2150; loop-only gives nd3211, so retain both. */
 #pragma opt_pulloutconstants off
 s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 {
@@ -1452,8 +1439,8 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
     }
     return 0;
 }
-
 #pragma pop
+
 // Timed rank-up step: counts the frame up to 0x78, runs phase A below 0x3D and phase B after, and returns 1 when the timer finishes.
 // FUN_00255B00
 s32 cmmRankUpStepTimed(u8 *root, s32 *entry, CmmRankUpCardTask *context) {
@@ -1698,12 +1685,13 @@ void cmmRankUpDrawCenteredText(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha,
  * Both take seven integer arguments and five floats; the callers supply the
  * two offsets explicitly. 612/624 bytes, three resolved relocations and twelve
  * zero alignment bytes. See docs/probe_archive/Rankup_002561f0_palette.md. */
-#pragma push
-#pragma opt_loop_invariants on
 typedef struct { u8 r, g, b, a; } RankUpColor;
 
 // Draws the palette gradient strip: copies the palette table into 16 point rows, then colours the rows by the upper and lower alpha values [inferred].
 // FUN_002561F0
+/* measured: baseline nd410; pre-loop opacity divisions nd442; retain loop-invariant color hoisting. */
+#pragma push
+#pragma opt_loop_invariants on
 void cmmRankUpDrawGradientStrip(f32 translateX, f32 translateY, f32 depth,
                    s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
                    s32 saveState, s32 offsetX, s32 offsetY,
@@ -1808,11 +1796,12 @@ void cmmRankUpDrawGradientStrip(f32 translateX, f32 translateY, f32 depth,
  * 612/624 bytes, three resolved relocations, twelve zero alignment bytes;
  * loop-invariant color divisions retain the retail ordering.
  * See docs/probe_archive/Rankup_00256460_point_rows_20260921.md. */
-#pragma push
-#pragma opt_loop_invariants on
 
 // Second palette gradient strip; same layout as cmmRankUpDrawGradientStrip with its own palette table [inferred].
 // FUN_00256460
+/* measured: baseline removal leaves nd410, matching the first gradient's hoisting dependency. */
+#pragma push
+#pragma opt_loop_invariants on
 void cmmRankUpDrawGradientStripPass2(f32 translateX, f32 translateY, f32 depth,
                    s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
                    s32 saveState, s32 offsetX, s32 offsetY,
@@ -2379,8 +2368,6 @@ static inline void cmmRankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amoun
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 typedef union { RankUpSpriteState states[2]; s32 words[18]; } RankUpRenderKeys;
 typedef union { f32 coordinates[4][2]; s32 words[8]; } RankUpRenderUV;
 /* Native b210 O2: 14308/14320 bytes with twelve zero alignment bytes.
@@ -2390,6 +2377,9 @@ typedef union { f32 coordinates[4][2]; s32 words[8]; } RankUpRenderUV;
  * See docs/probe_archive/Rankup_renderer_00257900_20260923.md. */
 // Rank-up renderer: draws the panel each frame from the task's context and render-state table [inferred].
 // FUN_00257900
+/* measured: baseline removal leaves nd1286 in panel/color hoists; retain loop invariants. */
+#pragma push
+#pragma opt_loop_invariants on
 s32 cmmRankUpRender(u8 *task) {
     /* Camera +4 is the provider handle; persona chunk +0x40 is its row id. Both providers expose byte records. */
 
@@ -3152,8 +3142,8 @@ s32 cmmRankUpRender(u8 *task) {
     }
     return 0;
 }
-
 #pragma pop
+
 /* measured: nd 94 with a full C body, object 320B against a 336B window (wave 7
    ran out of turns here and left it uncommitted). The body is undersized, so work
    is missing rather than merely mis-scheduled; re-attempt from the m2c draft. */
@@ -3166,13 +3156,14 @@ s32 cmmRankUpRender(u8 *task) {
    pointer-store shape improved fndiff from 12 to 11 differing words; the
    remaining residual is retail's hoisted addiu $a0,$sp,0x5C and addiu
    $a1,$sp,0x40 versus MWCC's sunk materializations. */
-#pragma push
 /* measured: opt_propagation off keeps the two argument addresses where they
    are taken - &fbuf before the fbuf store, &arr[16] between the two quad
    stores - reproducing retail's hoisted addiu $a0/$a1 (nd24 -> 0). */
-#pragma opt_propagation off
 // Builds the sprite arguments in a local buffer from the work record and draws them [inferred].
 // FUN_0025B0F0
+/* measured: baseline removal leaves nd24 in rectangle/color argument-address materialization. */
+#pragma push
+#pragma opt_propagation off
 void cmmRankUpDrawSprite(s32 unused, u8 *task) {
     extern u32 *kwlnTaskGetWork();
     CmmRankUpSequence *work;

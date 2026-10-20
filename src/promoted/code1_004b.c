@@ -149,9 +149,6 @@ typedef struct CrossfadeWork {
     u8 pad24[0x1C];
 } CrossfadeWork;
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma pop
 /* measured: opt_propagation off retains the cached D_00887300 base and retail frame. */
 // Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
 /* Capture the display raster into the crossfade camera's 512x256 target.
@@ -161,6 +158,7 @@ typedef struct CrossfadeWork {
  * measured: the first camera load and farPlane access match directly; the two
  * later camera loads match through the separate work pointer. */
 // FUN_004B2780
+/* measured: baseline removal leaves nd438 in camera/callback-base lifetime; retain propagation off. */
 #pragma opt_propagation off
 s32 effCrossfadeCaptureDisplay(u8 *object) {
     BtlShuffleSkyVertex vertices[4];
@@ -240,10 +238,6 @@ s32 effCrossfadeCaptureDisplay(u8 *object) {
     return 1;
 }
 #pragma opt_propagation on
-#pragma push
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma pop
 
 typedef signed __int128 s128;
 
@@ -254,9 +248,6 @@ extern u8 *AfPackCreateInstance();
 extern void AfPackStartSections();
 extern void AfPackListAppend();
 
-#pragma opt_propagation off
-/* measured: restore propagation for the rest of the unit. */
-#pragma opt_propagation on
 typedef struct {
     s32 a;
     s32 b;

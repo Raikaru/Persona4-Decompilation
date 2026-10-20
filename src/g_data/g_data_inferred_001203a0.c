@@ -26,12 +26,8 @@ void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s
  * and shifts the gauges right, while fullName selects the complete name.
  * Only the low opacity byte is used; kind 3 raises the name by five pixels. */
 // FUN_001203A0
-/* measured: b210 -O2 emits all 1856 retail bytes. Lifetime splitting
-   separates the depth and HP row values. Coordinate accumulation and
-   explicit byte conversions retain retail's separate evaluations.
-   Full owner proof: build/cos20335-continuation/field-ui/review-001203a0-final. */
-#pragma push
-#pragma opt_lifetimes on
+/* measured: separate HP marker/gauge Y lifetimes keep all 1856 bytes matched
+   without lifetime splitting; the shared hpY form differs at 19 bytes. */
 void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName)
 {
     extern u8 *resourceFindByName(char *name);
@@ -65,6 +61,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     f32 spMarkerX;
     f32 spY;
     f32 hpY;
+    f32 hpGaugeY;
     s16 entryStyle;
     s32 alpha;
     s32 currentHp;
@@ -150,16 +147,16 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     }
     alpha = (u8)opacity;
     alpha = 0xFF - alpha;
-    hpY = point.y;
-    sdkSpriteDrawOnce(0, panelSprites, 0x4B, point.x, hpY, (u8)alpha, depth, 0);
-    sdkSpriteDrawOnce(0, panelSprites, 0x4C, point.x, hpY, alpha & 0xFF, depth, 0);
+    hpGaugeY = point.y;
+    sdkSpriteDrawOnce(0, panelSprites, 0x4B, point.x, hpGaugeY, (u8)alpha, depth, 0);
+    sdkSpriteDrawOnce(0, panelSprites, 0x4C, point.x, hpGaugeY, alpha & 0xFF, depth, 0);
     currentHp = datCalcGetHpById(unit) & 0xFFFF;
     maximumHp = datCalcMaxHpById(unit) & 0xFFFF;
     missingHpWidth = (s32)((maximumHp - (currentHp & 0xFFFF)) * 0x58) / maximumHp;
     hpRect[2] = missingHpWidth;
     hpRect[3] = 6;
     hpRect[0] = (s32)((95.0f + point.x) - (f32)missingHpWidth);
-    hpRect[1] = (s32)(4.0f + hpY);
+    hpRect[1] = (s32)(4.0f + hpGaugeY);
     emptyColor[2] = emptyColor[1] = emptyColor[0] = 0x2D;
     emptyColor[3] = (u8)opacity;
     PrimDrawFlatRectangle(emptyColor, hpRect, 0.0f, 1);
@@ -206,7 +203,6 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     emptyColor[3] = (u8)opacity;
     PrimDrawFlatRectangle(emptyColor, &spRect[0], 0.0f, 1);
 }
-#pragma pop
 
 /* Draw an unsigned decimal number right-to-left, starting at position.
  * Sprite records 9 through 18 supply digits with sixteen-pixel spacing;
