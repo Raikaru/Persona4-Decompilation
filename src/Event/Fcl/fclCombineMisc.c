@@ -71,6 +71,7 @@ static inline u8 fclTriangleUpperArcana(s32 first, s32 second)
 
 /* Ordered pointer slots and arcana snapshots preserve retail tie-breaking. */
 #pragma push
+/* measured: baseline 159 differing words; wide pair index 162, direct slot reads 170. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 // FUN_00311EA0
@@ -406,11 +407,7 @@ s32 fclFuseTripleByte(u16 *output, u8 *first, u8 *second, u8 *third) {
 
 // Fcl rare chance roll: returns 1 with a 1/64 chance for kind 2 and 1/32 for kind 3, else 0.
 // FUN_00312BC0
-#pragma opt_rebuildconditionals off
-/* measured: without this, mwcc b210 booleanizes `if (roll < 0x40) return 1; return 0;`
-   into slti $v0 + unconditional branch (return value = condition); retail keeps
-   beqz $at -> shared return-0 + addiu $v0,1. Both branch orientations and the
-   if/else forms tried (nd 24); with the pragma the switch body matches exactly. */
+/* measured: the existing switch matches with baseline conditional rebuilding; both override and restore are unnecessary. */
 s32 fclRollRareChance(s8 kind) {
     s32 roll;
     switch (kind) {
@@ -431,7 +428,6 @@ s32 fclRollRareChance(s8 kind) {
     }
     return 0;
 }
-#pragma opt_rebuildconditionals on
 
 typedef struct {
     s8 minCount;
@@ -504,6 +500,7 @@ static inline s32 fclSkillWeight(u16 *persona, s32 id)
 /* The pool count at +0x60 is read as both s16 and its low byte; retain those
    storage views to preserve the narrowing described above. */
 #pragma push
+/* measured: baseline 250 differing words; cached deck count 264, wide counters 240. */
 #pragma opt_loop_invariants on
 // FUN_00312C60
 s8 fclFuseRollPersona(u16 *persona, u8 *deck, s32 deckCount)

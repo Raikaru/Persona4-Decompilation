@@ -541,6 +541,7 @@ void *evtNodeAllocWithRes(s32 kind, u8 *ownerBytes, u16 resourceId, s32 resource
 /* measured: without opt_loop_invariants, MWCC rematerializes the 0x21 loop
  * constant inside the loop body after the entry jump; retail hoists it to the
  * preheader before the jump (same pattern as func_00287ad0). */
+/* measured: baseline 5 differing words; access-site owner 75, named search kind and for-loop search 5. */
 #pragma opt_loop_invariants on
 // Enables or disables the scene resource of each type-1 and type-0x30 node with a resource id; kind == 0 enables, except nodes flagged for a duration are always disabled [inferred].
 // FUN_002871A0
@@ -607,6 +608,7 @@ void evtRefreshNodeResources(u8 *event) {
 struct Resrc;
 
 #pragma push
+/* measured: baseline 328 differing words; access-site object aliases 329-422, reused typed locals 328. */
 #pragma opt_propagation off
 /* Keep the native scaled-address order for the three cut-in task slots. */
 
@@ -893,6 +895,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
 // FUN_00287AD0
 /* measured: without opt_loop_invariants, MWCC rematerializes the 0x22 loop
  * constant inside the loop body; retail hoists it to the preheader. */
+/* measured: baseline 54 differing words; named search kind and for-loop search both 54. */
 #pragma opt_loop_invariants on
 void evtUpdateWaitState(int frame, int eventAddress) {
     u8 *currentKey = NULL;
@@ -1174,6 +1177,7 @@ typedef union EvtDirectionMatrix {
 // FUN_00288170
 /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
 #pragma push
+/* measured: baseline 476 differing words; access-site owner 495, typed child local 476. */
 #pragma opt_propagation off
 s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
 {
@@ -1561,6 +1565,7 @@ typedef struct EvtCameraCommand {
 // FUN_00288AF0
 #pragma push
 #pragma no_branch_likely on
+/* measured: baseline 9 differing words; access-site objects 228-242, inline duration/easing 9. */
 #pragma opt_propagation off
 s32 evtNodeCameraMove(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *commandBytes)
 {

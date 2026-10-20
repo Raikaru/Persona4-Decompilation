@@ -235,6 +235,7 @@ block_23:
  * retail entry order, all 740 code bytes, and the six-way table. */
 #pragma push
 /* measured: func_002bc4b0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline 4 differing words; direct arguments and depth capture after query both 4. */
 #pragma opt_propagation off
 /* Draw the message entry selected by the item category. */
 // FUN_002BC4B0

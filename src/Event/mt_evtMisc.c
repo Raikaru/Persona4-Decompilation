@@ -51,6 +51,7 @@ f32 evtCommandParamF32(s32 param) {
 
 /* measured: required for exact retail loop codegen in sceneLightSlotsReset. */
 #pragma push
+/* measured: baseline 22 differing words; pointer loop 31, constant at store 22. */
 #pragma opt_loop_invariants on
 
 // Resets the first three light slots to default colours, mode 0, and no resource.
