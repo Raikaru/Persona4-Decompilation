@@ -221,7 +221,7 @@ void btlUiUpdateOverlayScale(u8 *command)
 
 /* Empty callback; it does not inspect or change state. */
 // FUN_00200A50
-void btlUiNoOperation(void)
+void btlUiUnitPositionDestroyNoop(void)
 {
 }
 

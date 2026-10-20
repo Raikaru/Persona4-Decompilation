@@ -5453,7 +5453,7 @@ s32 datCalcSkillTypeAllowed(s32 skillIdArg, s32 channelArg)
     return allowed;
 }
 // FUN_00244100
-void datCalcNoOperation(void)
+void datCalcFormulaNoop(void)
 {
 }
 /* Publish skill-power plus term 0x1A; scale the extra term only for an enemy source. */
