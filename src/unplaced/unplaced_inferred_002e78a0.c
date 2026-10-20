@@ -1,5 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002e78a0-002e82b0 */
 
+/* Unit optimizer settings shared by the neighboring functions. */
+#pragma opt_loop_invariants off
+
 #include "list_item_internal.h"
 #include "member_access.h"
 #include "fcl_scale_transition.h"
@@ -25,8 +28,6 @@ s16 datGetDateIndex(void);
 void calSplitDayOfYear(s64 , s32 *, s32 *);
 s32 fclAddClamped(s32 , s32 , s32 , s32 , s32 );
 void datSetMoney(s32 );
-#pragma push
-#pragma opt_loop_invariants off
 /* Split the current calendar date and return its month byte. */
 // FUN_002E78A0
 u8 fclCalendarMonth(void)
@@ -37,10 +38,7 @@ u8 fclCalendarMonth(void)
     calSplitDayOfYear(datGetDateIndex(), &month, &day);
     return month;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Retail returns the low day byte with lbu, defining the full result. */
 // FUN_002E78E0
 s32 fclCalendarDay(void)
@@ -51,10 +49,7 @@ s32 fclCalendarDay(void)
     calSplitDayOfYear(datGetDateIndex(), &month, &day);
     return (u8)day;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Return the next month/day pair, wrapping the month when the current day reaches its month length. */
 // FUN_002E7920
 void fclCalGetNextDate(s32 *month, s32 *day)
@@ -93,25 +88,18 @@ void fclCalGetNextDate(s32 *month, s32 *day)
     calSplitDayOfYear(datGetDateIndex(), &nextMonth, &nextDay);
     *out1 = *(u8 *)&nextDay + 1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // FUN_002E7A60
 u32 fclGetMoney(void)
 {
     return datGetMoney();
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // FUN_002E7A80
 void fclAddMoney(s32 value)
 {
     datSetMoney(fclAddClamped(value, 0, 0x98967F, 0, 1));
 }
-#pragma pop
 
 #define P4_002E7AC0_DRAW() \
     do { \
@@ -122,8 +110,6 @@ void fclAddMoney(s32 value)
         } \
     } while (0)
 
-#pragma push
-#pragma opt_loop_invariants off
 // Fcl combine menu update: runs the menu state machine (draws the text and returns a status).
 // FUN_002E7AC0
 s32 fclCombineMenuUpdate(u8 *task)
@@ -280,12 +266,9 @@ return_minus_one:
 done:
     return 0;
 }
-#pragma pop
 
 #undef P4_002E7AC0_DRAW
 
-#pragma push
-#pragma opt_loop_invariants off
 // Fcl combine menu destroy: releases the slot entries and the slot draw tasks.
 // FUN_002E82B0
 void fclCombineMenuDestroy(u8 *task)
@@ -331,4 +314,3 @@ loop_7_test:
     }
     jtbl_008873EC[0](MEMBER(u8 *, task, KwlnTask, work));
 }
-#pragma pop

@@ -1,5 +1,10 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002b5100-002b5c60 */
 
+/* Unit optimizer settings shared by the neighboring functions. */
+#pragma opt_rebuildconditionals on
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+
 #include "list_item_internal.h"
 #include "fcl_color.h"
 #include "include_asm.h"
@@ -78,9 +83,6 @@ extern u8 *kwlnGetCamera(void);
 extern f32 fclEaseInterpolate(s64 , f32 , f32 , f32 , f32 );
 extern s32 fclAddClamped(s32 , s32 , s32 , s32 , s8 );
 extern s32 fclSubClamped(s32 , s32 , s32 , s32 , s8 );
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 /* Store the task work control byte when a task is supplied. */
 // FUN_002B5100
 void fclFadeRectSetControl(u8 *task, s8 value)
@@ -89,28 +91,23 @@ void fclFadeRectSetControl(u8 *task, s8 value)
         ((FclFadeRect *)((struct KwlnTask *)task)->work)->unk08 = value;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation off
 /* Set the fade-rectangle render states, selecting the alternate blend preset from its work record. */
 // FUN_002B5120
 void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work)
 {
-    void (**base)(s32 unusedQueue, s32 work);
+    void (*(*base)[1])(s32, s32);
     s8 blendMode;
 
-    base = D_00887300;
-    base[0](6, 1);
-    base[0](7, 2);
-    base[0](8, 1);
-    base[0](0xA, 5);
-    base[0](0xB, 6);
-    base[0](9, 2);
-    base[0](0xC, 1);
-    base[0](1, 0);
+    base = (void (*(*)[1])(s32, s32))D_00887300;
+    (*base)[0](6, 1);
+    (*base)[0](7, 2);
+    (*base)[0](8, 1);
+    (*base)[0](0xA, 5);
+    (*base)[0](0xB, 6);
+    (*base)[0](9, 2);
+    (*base)[0](0xC, 1);
+    (*base)[0](1, 0);
     if (((FclFadeRect *)work)->renderMode == 1) {
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
@@ -127,17 +124,14 @@ void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work)
         }
     }
 }
-#pragma pop
 
 
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Advance rectangle movement and alpha transitions, rebuild four projected vertices and queue their draw. */
-// FUN_002B52A0
+#pragma push
 #pragma opt_loop_invariants on
+/* measured: vertex cursor and explicit depth hoist leave differences; baseline retains 141 differing words. */
+// FUN_002B52A0
 s32 fclFadeRectTaskUpdate(u8 *task)
 {
     /* far-plane depth inside the render-state record; sized so that it is
@@ -242,13 +236,8 @@ s32 fclFadeRectTaskUpdate(u8 *task)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // FUN_002B5C60
 void fclFadeRectTaskDestroy(u8 *task)
 {
     jtbl_008873EC[0](((struct KwlnTask *)task)->work);
 }
-#pragma pop

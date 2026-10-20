@@ -1,5 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0028bfb0-0028c080 */
 
+/* Unit optimizer settings shared by the neighboring functions. */
+#pragma opt_loop_invariants on
+
 #include "field_transition_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -12,8 +15,6 @@ extern void evtPolygonMovieLerpPose(s32, f32, f32 *, f32 *, f32 *);
 s32 evtCheckCondition(u8 *);
 typedef struct EvtMatrixPayload { f32 first, second; } EvtMatrixPayload;
 
-#pragma push
-#pragma opt_loop_invariants on
 // Finds the node range for a key: walks the event node list and reports the first and last matching nodes [inferred].
 // FUN_0028BFB0
 void evtFindNodeRange(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3) {
@@ -59,10 +60,7 @@ loop_10_test:
 done:
     return;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Interpolates two matrix pairs between their start and end times, by the ratio of elapsed time [inferred].
 // FUN_0028C080
 void evtInterpolateNodeMatrices(u8 *work, u8 *owner, s32 frame, u8 *output, f32 *firstValue,
@@ -202,4 +200,3 @@ have_matrix:
 done:
     return;
 }
-#pragma pop
