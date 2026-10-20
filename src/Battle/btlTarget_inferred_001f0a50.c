@@ -112,6 +112,7 @@ outer_test:
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
    place the retail `lui` in the preheader. */
 /* measured: func_001f0af0 MATCH -> MISMATCH without this pragma. */
+/* Unit-region setting: invariant hoisting remains enabled for the seven following target predicates. */
 #pragma opt_loop_invariants on
 // FUN_001F0AF0
 /* Report whether any selected target has hit-row status bit 0x100000. */

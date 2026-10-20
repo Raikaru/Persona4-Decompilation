@@ -108,6 +108,7 @@ s32 btlAiGetGlobal(void) {
 #pragma optimization_level 2
 /* measured: opt_propagation off probe for e320 GP-load order. */
 /* measured: btlAiSetGlobal MATCH -> MISMATCH without this pragma. */
+/* Unit-region setting: propagation remains off for the five neighboring setters and record helpers. */
 #pragma opt_propagation off
 /* AI command 0x20AE (p4flow AI.json AI_SET_GLOBAL). */
 // FUN_001EB320

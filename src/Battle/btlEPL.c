@@ -6,6 +6,11 @@
 /* Original translation unit btlEPL.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
+/* Unit settings: hoist loop invariants and retain assignments in EPL fades.
+ * measured: all 27 functions MATCH with these shared settings. */
+#pragma opt_loop_invariants on
+#pragma opt_dead_assignments off
+
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
 
@@ -165,7 +170,6 @@ extern BtlEplUnit *D_00881440_abs[];
 /* Selection predicate for EPL unit loops; see BtlEplSelect.
  * measured: loop-invariant hoisting and the mode-1 branch form are justified above. */
 /* measured: structured selection scanning retains 71 baseline words; either selection toggle alone differs. */
-#pragma opt_loop_invariants on
 #pragma opt_rebuildconditionals off
 static s64 btlEplUnitIsSelected(BtlEplUnit *unit, BtlEplSelect *select)
 {
@@ -245,8 +249,6 @@ block_9:
 }
 /* measured: restore rebuildconditionals after btlEplUnitIsSelected. */
 #pragma opt_rebuildconditionals on
-/* measured: restore the unit default after btlEplUnitIsSelected. */
-#pragma opt_loop_invariants off
 /* Allocate owned model-ID work from kind-3 source data; other kinds retain a zero handle. */
 // FUN_001FC4A0
 s32 *btlEplNewIdHandle(s32 context, s32 kind, s32 source, s32 options) {
@@ -306,8 +308,6 @@ typedef struct BtlEplUnitParam
 /* Fade selected units' normalized colors and position against the EPL model, preserving the distinct fade-in and fade-out snapshots. */
 // FUN_001FC630
 /* measured: typed effect aliases and cached fade complements retain 341 or more baseline words; either toggle alone differs. */
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
 void btlEplStepUnitFadeInOut(u8 *effect)
 {
     u32 count;
@@ -440,8 +440,6 @@ void btlEplStepUnitFadeInOut(u8 *effect)
         }
     }
 }
-#pragma opt_dead_assignments on
-#pragma opt_loop_invariants off
 
 /* Reserve saved-color work for the corresponding EPL fade callback; the allocation size matches its vector count. */
 // FUN_001FCE30
@@ -470,7 +468,6 @@ typedef struct BtlEplFade2Param
 /* Blend the two scene color vectors through the requested fade-in/out interval, saving endpoints at each transition. */
 // FUN_001FCEB0
 /* measured: typed effect aliases and separate second-vector products retain 259 or more baseline words. */
-#pragma opt_dead_assignments off
 void btlEplStepColorPairFade(u8 *effect)
 {
     u32 count;
@@ -605,7 +602,6 @@ void btlEplStepColorPairFade(u8 *effect)
         break;
     }
 }
-#pragma opt_dead_assignments on
 /* Empty retail EPL entry; its intended parameter or update role is not established. */
 // FUN_001FD780
 void btlEplUnitRgbaDestroyNoop(void)
@@ -627,8 +623,6 @@ typedef struct BtlEplUnitRgbaParam
 /* Fade selected units' packed RGBA channels, rounding normalized results back to bytes and setting their explicit-color flag. */
 // FUN_001FD790
 /* measured: typed effect aliases and scalar blend arrays retain 377 baseline words; either toggle alone differs. */
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
 void btlEplStepUnitRgbaFade(u8 *effect)
 {
     u32 count;
@@ -751,8 +745,6 @@ void btlEplStepUnitRgbaFade(u8 *effect)
         }
     }
 }
-#pragma opt_dead_assignments on
-#pragma opt_loop_invariants off
 
 /* Reserve saved-color work for the corresponding EPL fade callback; the allocation size matches its vector count. */
 // FUN_001FE010
@@ -772,7 +764,6 @@ void btlEplFreeColorValueTarget(void *work) {
 /* Fade the resource color value and target vectors after applying the scene color multipliers. */
 // FUN_001FE090
 /* measured: typed effect aliases and separate second-vector products retain 138 or more baseline words. */
-#pragma opt_dead_assignments off
 void btlEplStepColorValueTargetFade(u8 *effect)
 {
     u32 count;
@@ -924,7 +915,6 @@ void btlEplStepColorValueTargetFade(u8 *effect)
         break;
     }
 }
-#pragma opt_dead_assignments on
 /* Reserve saved-color work for the corresponding EPL fade callback; the allocation size matches its vector count. */
 // FUN_001FEB80
 void btlEplAllocColor(void) {
@@ -1117,7 +1107,6 @@ extern BtlEplMatrix D_00922C60;
 /* Fade both light color vectors and, when available, publish the transformed EPL model matrix. */
 // FUN_001FF490
 /* measured: typed effect aliases and separate second-vector products retain 298 baseline words. */
-#pragma opt_dead_assignments off
 void btlEplStepLightFadeInOut(u8 *effect)
 {
     u32 count;
@@ -1275,7 +1264,6 @@ void btlEplStepLightFadeInOut(u8 *effect)
         D_00922C60 = matrix;
     }
 }
-#pragma opt_dead_assignments on
 typedef struct BtlEplMotionParam
 {
     BtlEplSelect select; // 0x00, read by btlEplUnitIsSelected

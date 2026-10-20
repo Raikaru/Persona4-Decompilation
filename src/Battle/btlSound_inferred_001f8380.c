@@ -527,6 +527,7 @@ s32 btlSoundPickStartVoice(u8 *action)
 
 /* measured: opt_propagation off preserves btlSoundPickPartnerCallVoice's loop constants. */
 /* measured: btlSoundPickPartnerCallVoice MATCH -> MISMATCH without this pragma. */
+/* Unit-region setting: propagation remains off for the following nine neighboring voice selectors. */
 #pragma opt_propagation off
 /* Select the unit-relative voice variant after excluding enemy and selected actors. */
 // FUN_001F8EA0

@@ -259,11 +259,10 @@ s32 btlEffectScriptApplyToSideUnit(void)
 }
 
 /* Set one indexed side-list unit position and update its rounded grid coordinates. */
-// FUN_001EAFB0
-/* measured probe: preserve retail conditional branch shape */
 #pragma push
-/* measured: btlEffectScriptSetUnitPositionByIndex MATCH -> MISMATCH without this pragma. */
+/* measured: baseline and if/else nd93, switch selection nd101; retain the explicit branch shape. */
 #pragma opt_rebuildconditionals off
+// FUN_001EAFB0
 /* AI script command 0x20fe (p4flow AI.json AI_FUNCTION_00FE). */
 s32 btlEffectScriptSetUnitPositionByIndex(void) {
     extern void btlTargetPositionToCell();
@@ -307,7 +306,6 @@ done:
     return 1;
 }
 
-/* measured probe: close conditional branch shape */
 #pragma pop
 /* AI script command 0x20ff (p4flow AI.json AI_FUNCTION_00FF). */
 // FUN_001EB0B0

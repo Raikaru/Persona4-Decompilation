@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -116,23 +117,22 @@ u8 *btlTargetCreateProcedurePacket(s32 action, s32 scriptKind, u8 *procedureName
 /* Pick a random usable skill from the supported set, falling back to the default attack. */
 // FUN_001EBC00
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
-/* measured: func_001ebc00 MATCH -> MISMATCH without this pragma. */
-#pragma opt_common_subs off
+/* measured: baseline nd1072; u16 iteration nd124; byte-based action-unit reloads remove CSE's saved address and retain MATCH. */
 /* Pick a usable skill from the supported set; fall back to the default attack when none qualify. */
 void btlAiChooseUsableAttackSkill(u8 *action, u8 *command)
 {
     u16 choices[8];
     u16 *skills;
-    s32 index;
+    u16 index;
     s32 count;
     u32 skill;
     u32 available;
 
-    skills = (u16 *)datCalcSkillList(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit);
+    skills = (u16 *)datCalcSkillList(((BtlUnit *)((u8 *)(MEMBER(u8 *, action, BtlAction, unit))))->datUnit);
     count = 0;
     index = 0;
-    while ((index & 0xFFFF) < 8) {
-        skill = skills[index & 0xFFFF];
+    while (index < 8) {
+        skill = skills[index];
         if (skill != 0) {
             switch (skill) {
             case 0x01:
@@ -232,19 +232,19 @@ void btlAiChooseUsableAttackSkill(u8 *action, u8 *command)
             case 0xAB:
             case 0xAC:
             case 0xAD:
-                if (datCalcThresholdTrigger((u8 *)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit), skill) == 0) {
+                if (datCalcThresholdTrigger((u8 *)(((BtlUnit *)((u8 *)(MEMBER(u8 *, action, BtlAction, unit))))->datUnit), skill) == 0) {
                     choices[count & 0xFFFF] = skill;
                     count = (count + 1) & 0xFFFF;
                 }
                 break;
             }
         }
-        index = (index + 1) & 0xFFFF;
+        index++;
     }
     available = count & 0xFFFF;
     if (available == 0) {
         ((BtlAiCommandWork *)command)->kind = 1;
-        ((BtlAiCommandWork *)command)->command = datCalcDefaultSkillId((u8 *)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit));
+        ((BtlAiCommandWork *)command)->command = datCalcDefaultSkillId((u8 *)(((BtlUnit *)((u8 *)(MEMBER(u8 *, action, BtlAction, unit))))->datUnit));
     } else {
         ((BtlAiCommandWork *)command)->kind = 2;
         ((BtlAiCommandWork *)command)->command = choices[datCalcRandomBelow(available)];

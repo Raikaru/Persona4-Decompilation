@@ -17,6 +17,9 @@
 #include "btl_unit_look_internal.h"
 #include "btl_unit_record_internal.h"
 #include "dat_skill_entry_internal.h"
+
+/* Unit settings: propagate values except in the measured lookup and action predicates below. */
+#pragma opt_propagation on
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
@@ -155,30 +158,19 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off is scoped to func_001949d0. */
 /* measured: closes opt_propagation for func_001949d0. */
 /* measured: optimization_level 1 reproduces the retail loop initialisation order. */
-#pragma push
-#pragma pop
-#pragma push
-#pragma pop
 /* Measured: 1164 instruction bytes in the 1168-byte window, three resolved
  * relocations and a four-byte zero tail. This callback uses the packet creator's
  * u32 (void *) contract. Modes 1..4 initialize every timing value; the retail
  * constructor callers use modes 3 or 4. The packet is 20 bytes.
  * Disabling propagation locally retains the alpha result's memory/merge
  * lifetime. Publication remains the actual four-byte color-by-value operation. */
-#pragma push
-#pragma pop
 /* Retail reloads the 1/255 colour scale (0x3B808081, written here as a
  * literal) for every factor; with default optimisation b210 does the same.
  * `v41` and `chk` are function-scope locals so they keep retail's saved
  * registers. On the `i == 2 && alpha < 0xFE` path retail compares 0xE8
  * against the `mode` left from an earlier entry (0x0019CDE0); the C reads
  * `mode` uninitialised there in the same way. */
-#pragma push
-#pragma pop
 /* measured: opt_propagation off plus named call_angle locals preserve retail's stack reloads before mdlLookAtSetupSetRange. */
-#pragma push
-/* measured: restore pragma state after func_0019df20. */
-#pragma pop
 // FUN_0019E9F0
 u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 sideFlags)
 {
@@ -894,10 +886,8 @@ result_zero_0019fc70:
     return 0;
 }
 
-#pragma pop
 /* measured: baseline leaves 13 differing words; indexed skill/enemy records still reorder the table loads. */
 /* measured: func_0019fe60 MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 // FUN_0019FE60
 s32 btlUnitIsUnavailable(u8 *action, s32 skillId, s32 allowStatus)
 {
@@ -943,7 +933,7 @@ s32 btlUnitIsUnavailable(u8 *action, s32 skillId, s32 allowStatus)
 
 /* measured: closes opt_propagation around func_0019fe60. */
 /* measured: func_0019ff60 MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation on
+#pragma pop
 // FUN_0019FF60
 s32 btlActionCanFollowUpAfterEnemiesDown(u8 *action)
 {
