@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2499 of 13102 symbols carry a recovered name.
+// 2500 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -512,7 +512,7 @@ taskRecordRequestPrimary = 0x00120F20; // type:func
 func_00120f40 = 0x00120F40; // type:func
 func_00120f70 = 0x00120F70; // type:func
 func_00121170 = 0x00121170; // type:func
-func_001211a0 = 0x001211A0; // type:func
+calendarTimeSlotChildNoop = 0x001211A0; // type:func
 func_001211b0 = 0x001211B0; // type:func
 func_00121280 = 0x00121280; // type:func
 func_001212b0 = 0x001212B0; // type:func

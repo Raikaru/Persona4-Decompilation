@@ -7,13 +7,13 @@
 #include "rw_raster_internal.h"
 
 typedef struct RwMatrixTag {
-    RwV3d right;
+    union { RwV3d right; struct { s32 rightXBits, rightYBits, rightZBits; }; };
     u32 flags;
-    RwV3d up;
+    union { RwV3d up; struct { s32 upXBits, upYBits, upZBits; }; };
     u32 pad1;
-    RwV3d at;
+    union { RwV3d at; struct { s32 atXBits, atYBits, atZBits; }; };
     u32 pad2;
-    RwV3d pos;
+    union { RwV3d pos; struct { s32 posXBits, posYBits, posZBits; }; };
     u32 pad3;
 } RwMatrixTag;
 

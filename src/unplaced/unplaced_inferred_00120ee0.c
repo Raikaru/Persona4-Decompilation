@@ -120,9 +120,9 @@ void taskRecordDestroy(u8 *task)
     jtbl_008873EC[0](work);
 }
 
-/* Task callback with no work; keep the registered callback signature. */
+/* Keep the calendar time-slot task child alive without performing any work. */
 // FUN_001211A0
-s32 func_001211a0(u8 *unusedTask)
+s32 calendarTimeSlotChildNoop(u8 *unusedTask)
 {
     return 0;
 }

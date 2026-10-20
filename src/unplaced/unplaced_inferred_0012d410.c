@@ -9,6 +9,23 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
+/* Layout tables supply target position, opacity, scale and transition frames. */
+typedef struct TitleSlotTarget {
+    f32 x, y;
+    u8 alpha;
+    u8 pad9;
+    u16 scale;
+    s32 startFrame, endFrame;
+} TitleSlotTarget;
+
+typedef struct RadarSlotTarget {
+    f32 x, y;
+    f32 scaleX, scaleY;
+    u8 alpha;
+    u8 pad11[3];
+    s32 startFrame, endFrame;
+} RadarSlotTarget;
+
 static inline s32 code1_0012_stride(s32 index, s32 base)
 {
     return index + base;
@@ -230,7 +247,7 @@ extern void titleLayoutSlots(u8 *menu);
 #pragma opt_loop_invariants on
 /* Snapshot eleven slot animations and set the target table for the requested mode. */
 // FUN_0012DEA0
-/* Raw offsets preserve the measured match: TitleSlotMenu access changed codegen (nd 468). */
+/* Earlier whole-layout typing probe: TitleSlotMenu access changed codegen (nd 468).; access-site and typed-local forms now match. */
 s32 titleSlotSetMode(u8 *menu, s32 mode)
 {
     s32 i;
@@ -244,47 +261,48 @@ s32 titleSlotSetMode(u8 *menu, s32 mode)
     u8 *dst1;
     u8 *src3;
     u8 *dst3;
+    TitleSlotMenu *slotMenu = (TitleSlotMenu *)(menu);
 
-    if (*(s32 *)(menu + 0x18) == mode) {
+    if (((TitleSlotMenu *)(menu))->mode == mode) {
         return 0;
     }
-    *(s32 *)(menu + 0x18) = mode;
-    *(s16 *)(menu + 0xC) = 0;
+    slotMenu->mode = mode;
+    ((TitleSlotMenu *)(menu))->frame = 0;
     i = 0;
     while (i < 0xB) {
         p = menu + i * 0x30;
-        *(f32 *)(p + 0x94) = *(f32 *)(p + 0xA4);
-        *(f32 *)(p + 0x98) = *(f32 *)(p + 0xA8);
-        *(u8 *)(p + 0xAC) = *(u8 *)(p + 0xAE);
-        *(u16 *)(p + 0xB0) = *(u16 *)(p + 0xB4);
-        *(u16 *)(p + 0xB6) = *(u16 *)(p + 0xBA);
+        ((TitleSlotMenu *)(p))->slots[0].startX.f = ((TitleSlotMenu *)(p))->slots[0].currentX.f;
+        ((TitleSlotMenu *)(p))->slots[0].startY.f = ((TitleSlotMenu *)(p))->slots[0].currentY.f;
+        ((TitleSlotMenu *)(p))->slots[0].startAlpha.u = ((TitleSlotMenu *)(p))->slots[0].currentAlpha;
+        ((TitleSlotMenu *)(p))->slots[0].startScaleX = ((TitleSlotMenu *)(p))->slots[0].currentScaleX;
+        ((TitleSlotMenu *)(p))->slots[0].startScaleY = ((TitleSlotMenu *)(p))->slots[0].currentScaleY;
         i++;
     }
     switch (mode) {
     case 0:
         i0 = 0;
         while (i0 < 0xB) {
-            if (i0 != *(s32 *)(menu + 0x10)) {
+            if (i0 != ((TitleSlotMenu *)(menu))->selection) {
                 src0 = D_005E58C0 + i0 * 0x14;
                 dst0 = menu + i0 * 0x30;
-                *(f32 *)(dst0 + 0x9C) = *(f32 *)(src0 + 0);
-                *(f32 *)(dst0 + 0xA0) = *(f32 *)(src0 + 4);
-                *(u8 *)(dst0 + 0xAD) = *(u8 *)(src0 + 8);
-                *(u16 *)(dst0 + 0xB8) = *(u16 *)(src0 + 0xA);
-                *(s32 *)(dst0 + 0xBC) = *(s32 *)(src0 + 0xC);
-                *(s32 *)(dst0 + 0xC0) = *(s32 *)(src0 + 0x10);
+                ((TitleSlotMenu *)(dst0))->slots[0].targetX.f = ((TitleSlotTarget *)(src0))->x;
+                ((TitleSlotMenu *)(dst0))->slots[0].targetY.f = ((TitleSlotTarget *)(src0))->y;
+                ((TitleSlotMenu *)(dst0))->slots[0].targetAlpha = ((TitleSlotTarget *)(src0))->alpha;
+                ((TitleSlotMenu *)(dst0))->slots[0].targetScaleY = ((TitleSlotTarget *)(src0))->scale;
+                ((TitleSlotMenu *)(dst0))->slots[0].startFrame.s = ((TitleSlotTarget *)(src0))->startFrame;
+                ((TitleSlotMenu *)(dst0))->slots[0].endFrame.s = ((TitleSlotTarget *)(src0))->endFrame;
             } else {
                 dst0 = menu + i0 * 0x30;
-                *(s32 *)(dst0 + 0x94) = 0;
-                *(s32 *)(dst0 + 0x9C) = 0;
-                *(s32 *)(dst0 + 0x98) = 0x41B80000;
-                *(s32 *)(dst0 + 0xA0) = 0;
-                *(u8 *)(dst0 + 0xAC) = 0;
-                *(u8 *)(dst0 + 0xAD) = 0xFF;
-                *(u16 *)(dst0 + 0xB6) = 1;
-                *(u16 *)(dst0 + 0xB8) = 0x1000;
-                *(s32 *)(dst0 + 0xBC) = 0xB;
-                *(s32 *)(dst0 + 0xC0) = 0xD;
+                ((TitleSlotMenu *)(dst0))->slots[0].startX.s = 0;
+                ((TitleSlotMenu *)(dst0))->slots[0].targetX.s = 0;
+                ((TitleSlotMenu *)(dst0))->slots[0].startY.s = 0x41B80000;
+                ((TitleSlotMenu *)(dst0))->slots[0].targetY.s = 0;
+                ((TitleSlotMenu *)(dst0))->slots[0].startAlpha.u = 0;
+                ((TitleSlotMenu *)(dst0))->slots[0].targetAlpha = 0xFF;
+                ((TitleSlotMenu *)(dst0))->slots[0].startScaleY = 1;
+                ((TitleSlotMenu *)(dst0))->slots[0].targetScaleY = 0x1000;
+                ((TitleSlotMenu *)(dst0))->slots[0].startFrame.s = 0xB;
+                ((TitleSlotMenu *)(dst0))->slots[0].endFrame.s = 0xD;
             }
             i0++;
         }
@@ -294,12 +312,12 @@ s32 titleSlotSetMode(u8 *menu, s32 mode)
         while (i1 < 0xB) {
             src1 = D_005E59A0 + i1 * 0x14;
             dst1 = menu + i1 * 0x30;
-            *(f32 *)(dst1 + 0x9C) = *(f32 *)(src1 + 0);
-            *(f32 *)(dst1 + 0xA0) = *(f32 *)(src1 + 4);
-            *(u8 *)(dst1 + 0xAD) = *(u8 *)(src1 + 8);
-            *(u16 *)(dst1 + 0xB8) = *(u16 *)(src1 + 0xA);
-            *(s32 *)(dst1 + 0xBC) = *(s32 *)(src1 + 0xC);
-            *(s32 *)(dst1 + 0xC0) = *(s32 *)(src1 + 0x10);
+            ((TitleSlotMenu *)(dst1))->slots[0].targetX.f = ((TitleSlotTarget *)(src1))->x;
+            ((TitleSlotMenu *)(dst1))->slots[0].targetY.f = ((TitleSlotTarget *)(src1))->y;
+            ((TitleSlotMenu *)(dst1))->slots[0].targetAlpha = ((TitleSlotTarget *)(src1))->alpha;
+            ((TitleSlotMenu *)(dst1))->slots[0].targetScaleY = ((TitleSlotTarget *)(src1))->scale;
+            ((TitleSlotMenu *)(dst1))->slots[0].startFrame.s = ((TitleSlotTarget *)(src1))->startFrame;
+            ((TitleSlotMenu *)(dst1))->slots[0].endFrame.s = ((TitleSlotTarget *)(src1))->endFrame;
             i1++;
         }
         break;
@@ -310,15 +328,15 @@ s32 titleSlotSetMode(u8 *menu, s32 mode)
         i3 = 0;
         while (i3 < 0xB) {
             dst3 = menu + i3 * 0x30;
-            *(s32 *)(dst3 + 0x94) = 0;
-            *(s32 *)(dst3 + 0x98) = 0;
+            ((TitleSlotMenu *)(dst3))->slots[0].startX.s = 0;
+            ((TitleSlotMenu *)(dst3))->slots[0].startY.s = 0;
             src3 = D_005E5A80 + i3 * 0x14;
-            *(f32 *)(dst3 + 0x9C) = *(f32 *)(src3 + 0);
-            *(f32 *)(dst3 + 0xA0) = *(f32 *)(src3 + 4);
-            *(u8 *)(dst3 + 0xAD) = *(u8 *)(src3 + 8);
-            *(u16 *)(dst3 + 0xB8) = *(u16 *)(src3 + 0xA);
-            *(s32 *)(dst3 + 0xBC) = *(s32 *)(src3 + 0xC);
-            *(s32 *)(dst3 + 0xC0) = *(s32 *)(src3 + 0x10);
+            ((TitleSlotMenu *)(dst3))->slots[0].targetX.f = ((TitleSlotTarget *)(src3))->x;
+            ((TitleSlotMenu *)(dst3))->slots[0].targetY.f = ((TitleSlotTarget *)(src3))->y;
+            ((TitleSlotMenu *)(dst3))->slots[0].targetAlpha = ((TitleSlotTarget *)(src3))->alpha;
+            ((TitleSlotMenu *)(dst3))->slots[0].targetScaleY = ((TitleSlotTarget *)(src3))->scale;
+            ((TitleSlotMenu *)(dst3))->slots[0].startFrame.s = ((TitleSlotTarget *)(src3))->startFrame;
+            ((TitleSlotMenu *)(dst3))->slots[0].endFrame.s = ((TitleSlotTarget *)(src3))->endFrame;
             i3++;
         }
         break;
@@ -417,7 +435,7 @@ block_loop:
 #pragma opt_rebuildconditionals off
 /* Initialize the 0x1BE8-byte radar menu, its animation arrays, inventory and sprite nodes. */
 // FUN_0012E2F0
-/* Raw offsets preserve the measured match: RadarMenu array accesses changed codegen (nd 712). */
+/* Earlier whole-layout typing probe: RadarMenu array accesses changed codegen (nd 712).; access-site and typed-local forms now match. */
 s32 titleStateInit(u8 *menu)
 {
     s16 i;
@@ -442,55 +460,55 @@ s32 titleStateInit(u8 *menu)
     s16 ii;
 
     memset(menu, 0, 0x1BE8);
-    *(s32 *)(menu + 4) = 0;
-    *(s32 *)(menu + 8) = 0;
-    *(u8 *)menu = 0xFF;
-    *(s32 *)(menu + 0x30) = -1;
-    *(s16 *)(menu + 0x1C) = 0;
-    *(s32 *)(menu + 0x18) = 0;
+    ((RadarMenu *)(menu))->x.s = 0;
+    ((RadarMenu *)(menu))->y.s = 0;
+    ((RadarMenu *)menu)->opacity = 0xFF;
+    ((RadarMenu *)(menu))->layout = -1;
+    ((RadarMenu *)(menu))->entryFrame = 0;
+    ((RadarMenu *)(menu))->mode = 0;
     for (i = 0; i < 3; i++) {
-        *(s16 *)(menu + (i * 2) + 0x22) = 0;
+        ((RadarMenu *)(menu + (i * 2)))->selection[0] = 0;
     }
     j = 0;
     defaultTargets = D_005E5F40;
     for (; j < 30; j++) {
         target = defaultTargets + (j * 0x1C);
         slotCursor = menu + (j * 0x30);
-        *(f32 *)(slotCursor + 0x12E8) = *(f32 *)target;
-        *(f32 *)(slotCursor + 0x12EC) = *(f32 *)(target + 4);
-        *(u8 *)(slotCursor + 0x12F2) = *(u8 *)(target + 0x10);
-        scale = (u16)*(f32 *)(target + 8);
-        *(u16 *)(slotCursor + 0x12F8) = scale;
-        scale = (u16)*(f32 *)(target + 0xC);
-        *(u16 *)(slotCursor + 0x12FE) = scale;
+        ((RadarMenu *)(slotCursor))->entries[0].currentX.f = ((RadarSlotTarget *)target)->x;
+        ((RadarMenu *)(slotCursor))->entries[0].currentY.f = ((RadarSlotTarget *)(target))->y;
+        ((RadarMenu *)(slotCursor))->entries[0].currentAlpha = ((RadarSlotTarget *)(target))->alpha;
+        scale = (u16)((RadarSlotTarget *)(target))->scaleX;
+        ((RadarMenu *)(slotCursor))->entries[0].currentScaleX = scale;
+        scale = (u16)((RadarSlotTarget *)(target))->scaleY;
+        ((RadarMenu *)(slotCursor))->entries[0].currentScaleY = scale;
     }
     for (k = 0; k < 12; k++) {
-        *(s32 *)(menu + (k * 0x30) + 0x1888) = 0;
-        *(s32 *)(menu + (k * 0x30) + 0x1878) = 0;
-        *(s32 *)(menu + (k * 0x30) + 0x1884) = -1027080192;
-        *(s32 *)(menu + (k * 0x30) + 0x187C) = -1027080192;
-        *(u8 *)(menu + (k * 0x30) + 0x1891) = 127;
-        *(u8 *)(menu + (k * 0x30) + 0x1890) = 127;
-        *(s32 *)(menu + (k * 0x30) + 0x18A0) = 0;
-        *(s32 *)(menu + (k * 0x30) + 0x18A4) = 10;
+        ((RadarMenu *)(menu + (k * 0x30)))->scatter[0].currentX.s = 0;
+        ((RadarMenu *)(menu + (k * 0x30)))->scatter[0].startX.s = 0;
+        ((RadarMenu *)(menu + (k * 0x30)))->scatter[0].targetY.s = -1027080192;
+        ((RadarMenu *)(menu + (k * 0x30)))->scatter[0].startY.s = -1027080192;
+        ((RadarMenu *)(menu + (k * 0x30)))->scatter[0].targetAlpha = 127;
+        ((RadarMenu *)(menu + (k * 0x30)))->scatter[0].startAlpha.u = 127;
+        ((RadarMenu *)(menu + (k * 0x30)))->scatter[0].startFrame.s = 0;
+        ((RadarMenu *)(menu + (k * 0x30)))->scatter[0].endFrame.s = 10;
     }
     for (m = 0; m < 84; m++) {
-        *(s32 *)(menu + (m * 0x14) + 0xC4C) = m % 7;
-        *(s32 *)(menu + (m * 0x14) + 0xC54) = 7;
-        *(s32 *)(menu + (m * 0x14) + 0xC50) = m / 7;
-        *(s32 *)(menu + (m * 0x14) + 0xC58) = 12;
+        ((RadarMenu *)(menu + (m * 0x14)))->grid[0].column = m % 7;
+        ((RadarMenu *)(menu + (m * 0x14)))->grid[0].columns = 7;
+        ((RadarMenu *)(menu + (m * 0x14)))->grid[0].row = m / 7;
+        ((RadarMenu *)(menu + (m * 0x14)))->grid[0].rows = 12;
     }
     for (n = 0; n < 2; n++) {
-        *(s32 *)(menu + (n * 0x30) + 0x1AC8) = 0;
-        *(s32 *)(menu + (n * 0x30) + 0x1AB8) = 0;
-        *(s32 *)(menu + (n * 0x30) + 0x1AC4) = 0;
-        *(s32 *)(menu + (n * 0x30) + 0x1ABC) = 0;
-        *(u8 *)(menu + (n * 0x30) + 0x1AD1) = 0;
-        *(u8 *)(menu + (n * 0x30) + 0x1AD0) = 0;
-        *(s32 *)(menu + (n * 0x30) + 0x1AE0) = 0;
-        *(s32 *)(menu + (n * 0x30) + 0x1AE4) = 3;
+        ((RadarMenu *)(menu + (n * 0x30)))->indicators[0].currentX.s = 0;
+        ((RadarMenu *)(menu + (n * 0x30)))->indicators[0].startX.s = 0;
+        ((RadarMenu *)(menu + (n * 0x30)))->indicators[0].targetY.s = 0;
+        ((RadarMenu *)(menu + (n * 0x30)))->indicators[0].startY.s = 0;
+        ((RadarMenu *)(menu + (n * 0x30)))->indicators[0].targetAlpha = 0;
+        ((RadarMenu *)(menu + (n * 0x30)))->indicators[0].startAlpha.u = 0;
+        ((RadarMenu *)(menu + (n * 0x30)))->indicators[0].startFrame.s = 0;
+        ((RadarMenu *)(menu + (n * 0x30)))->indicators[0].endFrame.s = 3;
     }
-    *(s16 *)(menu + 0x3C) = datBuildPartyIdList(menu + 0x34);
+    ((RadarMenu *)(menu))->partyCount = datBuildPartyIdList(menu + 0x34);
     itemSprites = (u8 *)resourceFindByName((char *)D_005E5830);
     if (itemSprites == NULL) {
         kAssertFail(D_005E76C8, 0x1FA);
@@ -501,7 +519,7 @@ s32 titleStateInit(u8 *menu)
     }
     resource = (s32)resourceFindByName((char *)D_005E57F0);
     extraSprites = (u8 *)resource;
-    *(u8 **)(menu + 0x1BE4) = (u8 *)resource;
+    ((RadarMenu *)menu)->spritePack = (u8 *)resource;
     if (extraSprites == NULL) {
         kAssertFail(D_005E76C8, 0x1FE);
     }
@@ -584,15 +602,16 @@ guard_done:
 #pragma opt_rebuildconditionals on
 /* Advance mode 0 to 1 and report whether the menu is in either wait mode. */
 // FUN_0012E8B0
-/* Raw offsets preserve the measured match: RadarMenu access changed codegen (nd 45). */
+/* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 45).; access-site and typed-local forms now match. */
 s32 titleAdvanceWait(u8 *menu)
 {
     s32 mode;
+    RadarMenu *radarMenu = (RadarMenu *)(menu);
 
-    mode = *(s32 *)(menu + 0x18);
+    mode = ((RadarMenu *)(menu))->mode;
     switch (mode) {
     case 0:
-        *(s32 *)(menu + 0x18) = mode + 1;
+        radarMenu->mode = mode + 1;
         return 1;
     case 1:
         return 1;
@@ -609,24 +628,25 @@ s32 titleAdvanceWait(u8 *menu)
 #pragma opt_rebuildconditionals on
 /* Advance the thirty entry animations, then the scatter, indicator and draw passes. */
 // FUN_0012E900
-/* Raw offsets preserve the measured match: RadarMenu access changed codegen (nd 162). */
+/* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 162).; access-site and typed-local forms now match. */
 s32 radarStepSlotAnimA(u8 *menu) {
     s16 frame;
     s32 slotIndex;
     s32 settled;
     u8 *slotCursor;
+    RadarMenu *radarMenu = (RadarMenu *)(menu);
 
     settled = 1;
-    frame = *(s16 *)(menu + 0x1C);
+    frame = ((RadarMenu *)(menu))->entryFrame;
     if (frame < 0x64) {
-        *(s16 *)(menu + 0x1C) = frame + 1;
+        radarMenu->entryFrame = frame + 1;
     }
     slotIndex = 0;
     goto loop_test_0012e900;
 loop_body_0012e900:
     slotCursor = menu + (slotIndex * 0x30);
-    radarAnimateValue(slotCursor + 0x12D8, *(s16 *)(menu + 0x1C), 0);
-    if (*(u8 *)(slotCursor + 0x12F2) != 0) {
+    radarAnimateValue(slotCursor + 0x12D8, radarMenu->entryFrame, 0);
+    if (((RadarMenu *)(slotCursor))->entries[0].currentAlpha != 0) {
         settled = 0;
     }
     slotIndex += 1;
@@ -648,22 +668,23 @@ loop_test_0012e900:
 #pragma opt_rebuildconditionals on
 /* Advance twelve scatter animations and update all 84 grid entries. */
 // FUN_0012FDF0
-/* Raw offsets preserve the measured match: RadarMenu access changed codegen (nd 147). */
+/* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 147).; access-site and typed-local forms now match. */
 void radarStepSlotAnimB(u8 *menu)
 {
     s16 frame;
     s32 slotIndex;
     s32 gridIndex;
     u8 *slotCursor;
+    RadarMenu *radarMenu = (RadarMenu *)(menu);
 
-    frame = *(s16 *)(menu + 0x1E);
+    frame = ((RadarMenu *)(menu))->scatterFrame;
     if (frame < 0x64) {
         frame += 1;
-        *(s16 *)(menu + 0x1E) = frame;
+        radarMenu->scatterFrame = frame;
     }
     for (slotIndex = 0; slotIndex < 0xC; slotIndex++) {
         slotCursor = menu + (slotIndex * 0x30);
-        radarAnimateValue(slotCursor + 0x1878, *(s16 *)(menu + 0x1E), 0);
+        radarAnimateValue(slotCursor + 0x1878, radarMenu->scatterFrame, 0);
     }
     for (gridIndex = 0; gridIndex < 0x54; gridIndex++) {
         slotCursor = menu + (gridIndex * 0x14);
@@ -706,14 +727,14 @@ void radarStepPairAnim(u8 *menu)
 /* The selection is passed as a word; the field stores its low halfword. */
 /* Push one of three selection halfwords into its previous-selection slot. */
 // FUN_0012FF40
-/* Raw offsets preserve the measured match: RadarMenu selection arrays changed codegen (nd 1). */
+/* Earlier whole-layout typing probe: RadarMenu selection arrays changed codegen (nd 1).; access-site and typed-local forms now match. */
 s32 radarPushHistoryValue(s32 menuAddress, s32 selectionIndex, s32 selection)
 {
     u8 *p;
 
     p = (u8 *)code1_0012_stride(selectionIndex * 2, menuAddress);
-    *(s16 *)(p + 0x28) = *(s16 *)(p + 0x22);
-    *(s16 *)(p + 0x22) = selection;
+    ((RadarMenu *)(p))->previousSelection[0] = ((RadarMenu *)(p))->selection[0];
+    ((RadarMenu *)(p))->selection[0] = selection;
     return 1;
 }
 #pragma pop
@@ -733,7 +754,7 @@ extern u8 D_005E7320[];
 #pragma opt_common_subs off
 /* Snapshot thirty entries and apply the layout table, flags and target animation values. */
 // FUN_0012FF60
-/* Raw offsets preserve the measured match: RadarMenu/RadarSlotTarget access changed codegen (nd 663). */
+/* Earlier whole-layout typing probe: RadarMenu/RadarSlotTarget access changed codegen (nd 663).; access-site and typed-local forms now match. */
 s32 titleSetMenuLayout(u8 *menu, u32 layout)
 {
     s32 i;
@@ -742,71 +763,72 @@ s32 titleSetMenuLayout(u8 *menu, u32 layout)
     u8 *src;
     u8 *dst;
     f32 value;
+    RadarMenu *radarMenu = (RadarMenu *)(menu);
 
     table = 0;
-    if (layout == *(u32 *)(menu + 0x30)) {
+    if (layout == ((RadarMenu *)(menu))->layout) {
         return 0;
     }
     for (i = 0; i < 30; i++) {
         dst = menu + (i * 0x30);
-        *(f32 *)(dst + 0x12d8) = *(f32 *)(dst + 0x12e8);
-        *(f32 *)(dst + 0x12dc) = *(f32 *)(dst + 0x12ec);
-        *(u16 *)(dst + 0x12f4) = *(u16 *)(dst + 0x12f8);
-        *(u16 *)(dst + 0x12fa) = *(u16 *)(dst + 0x12fe);
-        *(u8 *)(dst + 0x12f0) = *(u8 *)(dst + 0x12f2);
+        ((RadarMenu *)(dst))->entries[0].startX.f = ((RadarMenu *)(dst))->entries[0].currentX.f;
+        ((RadarMenu *)(dst))->entries[0].startY.f = ((RadarMenu *)(dst))->entries[0].currentY.f;
+        ((RadarMenu *)(dst))->entries[0].startScaleX = ((RadarMenu *)(dst))->entries[0].currentScaleX;
+        ((RadarMenu *)(dst))->entries[0].startScaleY = ((RadarMenu *)(dst))->entries[0].currentScaleY;
+        ((RadarMenu *)(dst))->entries[0].startAlpha.u = ((RadarMenu *)(dst))->entries[0].currentAlpha;
     }
     switch (layout) {
     case 0:
-        *(s32 *)(menu + 0x14) = 0x447;
+        ((RadarMenu *)(menu))->flags = 0x447;
         table = D_005E5BF0;
-        *(s16 *)(menu + 0xc40) = 0x13;
+        ((RadarMenu *)(menu))->unkC40 = 0x13;
         break;
     case 1:
         table = D_005E5F40;
         break;
     case 2:
-        *(s32 *)(menu + 0x14) = 0x547;
+        ((RadarMenu *)(menu))->flags = 0x547;
         table = D_005E6290;
-        *(s16 *)(menu + 0xc40) = 0x13;
+        ((RadarMenu *)(menu))->unkC40 = 0x13;
         break;
     case 3:
-        *(s32 *)(menu + 0x14) = 0x447;
+        ((RadarMenu *)(menu))->flags = 0x447;
         table = D_005E6290;
-        *(s16 *)(menu + 0xc40) = 0x13;
+        ((RadarMenu *)(menu))->unkC40 = 0x13;
         break;
     case 4:
-        *(s32 *)(menu + 0x14) = 0x2dd;
+        ((RadarMenu *)(menu))->flags = 0x2dd;
         table = D_005E65E0;
-        *(s16 *)(menu + 0x2c) = *(s16 *)(menu + 0x26);
-        *(s16 *)(menu + 0x26) = 0;
-        *(f32 *)(menu + 0x145c) = 34.0f * (f32)*(s16 *)(menu + 0x22);
-        *(s16 *)(menu + 0xc40) = 0;
+        ((RadarMenu *)(menu))->previousSelection[2] = ((RadarMenu *)(menu))->selection[2];
+        ((RadarMenu *)(menu))->selection[2] = 0;
+        ((RadarMenu *)(menu))->entries[8].startY.f = 34.0f * (f32)((RadarMenu *)(menu))->selection[0];
+        ((RadarMenu *)(menu))->unkC40 = 0;
         break;
     case 5:
-        *(s32 *)(menu + 0x14) = 0x2ed;
+        ((RadarMenu *)(menu))->flags = 0x2ed;
         table = D_005E6C80;
-        *(f32 *)(menu + 0x145c) = 34.0f * (f32)*(s16 *)(menu + 0x22);
-        *(s16 *)(menu + 0xc40) = 0;
+        ((RadarMenu *)(menu))->entries[8].startY.f = 34.0f * (f32)((RadarMenu *)(menu))->selection[0];
+        ((RadarMenu *)(menu))->unkC40 = 0;
         break;
     case 6:
-        *(s32 *)(menu + 0x14) = 0x29d;
+        ((RadarMenu *)(menu))->flags = 0x29d;
         table = D_005E6930;
-        *(s16 *)(menu + 0xc40) = 0;
+        ((RadarMenu *)(menu))->unkC40 = 0;
         break;
     case 7:
-        *(s32 *)(menu + 0x14) = 0x2ad;
+        ((RadarMenu *)(menu))->flags = 0x2ad;
         table = D_005E6FD0;
-        *(s16 *)(menu + 0xc40) = 0;
+        ((RadarMenu *)(menu))->unkC40 = 0;
         break;
     case 8:
-        *(s32 *)(menu + 0x14) = 0x547;
+        ((RadarMenu *)(menu))->flags = 0x547;
         table = D_005E7320;
-        *(s16 *)(menu + 0xc40) = 0x14;
+        ((RadarMenu *)(menu))->unkC40 = 0x14;
         break;
     case 9:
-        *(s32 *)(menu + 0x14) = 0x547;
+        ((RadarMenu *)(menu))->flags = 0x547;
         table = D_005E7320;
-        *(s16 *)(menu + 0xc40) = 0x14;
+        ((RadarMenu *)(menu))->unkC40 = 0x14;
         break;
     default:
         kAssertFail(D_005E76C8, 0x4ab);
@@ -820,18 +842,18 @@ s32 titleSetMenuLayout(u8 *menu, u32 layout)
         for (j = 0; j < 30; j++) {
             src = table + (j * 0x1c);
             dst = menu + (j * 0x30);
-            *(f32 *)(dst + 0x12e0) = *(f32 *)(src + 0);
-            *(f32 *)(dst + 0x12e4) = *(f32 *)(src + 4);
-            *(u8 *)(dst + 0x12f1) = *(u8 *)(src + 0x10);
-            value = *(f32 *)(src + 8);
-            *(u16 *)(dst + 0x12f6) = (u16)value;
-            value = *(f32 *)(src + 0xc);
-            *(u16 *)(dst + 0x12fc) = (u16)value;
-            *(s32 *)(dst + 0x1300) = *(s32 *)(src + 0x14);
-            *(s32 *)(dst + 0x1304) = *(s32 *)(src + 0x18);
+            ((RadarMenu *)(dst))->entries[0].targetX.f = ((RadarSlotTarget *)(src))->x;
+            ((RadarMenu *)(dst))->entries[0].targetY.f = ((RadarSlotTarget *)(src))->y;
+            ((RadarMenu *)(dst))->entries[0].targetAlpha = ((RadarSlotTarget *)(src))->alpha;
+            value = ((RadarSlotTarget *)(src))->scaleX;
+            ((RadarMenu *)(dst))->entries[0].targetScaleX = (u16)value;
+            value = ((RadarSlotTarget *)(src))->scaleY;
+            ((RadarMenu *)(dst))->entries[0].targetScaleY = (u16)value;
+            ((RadarMenu *)(dst))->entries[0].startFrame.s = ((RadarSlotTarget *)(src))->startFrame;
+            ((RadarMenu *)(dst))->entries[0].endFrame.s = ((RadarSlotTarget *)(src))->endFrame;
         }
-        *(u32 *)(menu + 0x30) = layout;
-        *(s16 *)(menu + 0x1c) = 0;
+        radarMenu->layout = layout;
+        ((RadarMenu *)(menu))->entryFrame = 0;
     }
     return 1;
 }

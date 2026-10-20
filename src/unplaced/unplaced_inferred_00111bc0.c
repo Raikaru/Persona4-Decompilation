@@ -459,7 +459,7 @@ void datEntryReset(u8 *entry) {
 #pragma opt_rebuildconditionals on
 // Intent: Draw the entry's icons when the flag bits in the state word at 0x14 are set, using the colours from the two colour tables [inferred]
 // FUN_00112610
-/* Raw offsets preserve the measured match: DatItemEntry access changed codegen (nd 415). */
+/* Earlier whole-layout typing probe: DatItemEntry access changed codegen (nd 415).; access-site and typed-local forms now match. */
 void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 itemTexture, s32 badgeTexture)
 {
     typedef struct {
@@ -476,10 +476,11 @@ void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 it
     s32 selected;
     u8 *table;
     s32 alpha;
+    DatItemEntry *itemEntry = (DatItemEntry *)(entry);
 
-    flags = datEntryGetFlags(*(s16 *)(entry + 0));
-    if (*(u16 *)(entry + 0x14) & 2) {
-        table = &D_005E4710[(*(s16 *)(entry + 0x16)) * 4];
+    flags = datEntryGetFlags(((DatItemEntry *)entry)->itemId);
+    if (((DatItemEntry *)entry)->badgeFlags & 2) {
+        table = &D_005E4710[(((DatItemEntry *)entry)->colorIndex) * 4];
         categoryColor = *(Color4 *)table;
         mode = -1;
         if (flags & 0x3FFF) {
@@ -507,14 +508,14 @@ void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 it
                           depth, 0);
         }
     }
-    if (*(u16 *)(entry + 0x14) & 1) {
-        table = &D_005E4730[(*(s16 *)(entry + 0x16)) * 4];
+    if (itemEntry->badgeFlags & 1) {
+        table = &D_005E4730[(((DatItemEntry *)entry)->colorIndex) * 4];
         flagColor = *(Color4 *)table;
         flagColor.b[3] = opacity;
         pos.x = position.x + 3.0f;
         pos.y = position.y + 2.0f;
         datEntryDrawFlagIcon(*(s64 *)&pos, depth, flagColor,
-                      *(s16 *)(entry + 0), itemTexture, badgeTexture);
+                      ((DatItemEntry *)entry)->itemId, itemTexture, badgeTexture);
     }
 }
 #pragma pop
@@ -564,49 +565,50 @@ static inline void func_00112830_arrow(Vec2f pos, f32 depth, StatColor color,
 #pragma opt_rebuildconditionals on
 // Intent: Draw a stat value and, when it differs from the previous value, its up or down arrow glyph, then its digits [inferred]
 // FUN_00112830
-/* Raw offsets preserve the measured match: DatItemEntry access changed codegen (nd 1431). */
+/* Earlier whole-layout typing probe: DatItemEntry access changed codegen (nd 1431).; access-site and typed-local forms now match. */
 void datEntryDrawStatValue(Vec2f pos, f32 depth, u8 alpha, u8 *entry, s32 tex)
 {
     extern StatColor D_005E4750[];
     StatColor color;
     u16 value;
     s32 i;
+    DatItemEntry *itemEntry = (DatItemEntry *)(entry);
 
-    color = D_005E4750[*(s16 *)(entry + 0x16)];
+    color = D_005E4750[((DatItemEntry *)entry)->colorIndex];
     color.b[3] = alpha;
-    switch (datIdBand(*(s16 *)entry)) {
+    switch (datIdBand(((DatItemEntry *)entry)->itemId)) {
     case 0:
-        value = datEntryGetPrimaryValue(*(s16 *)entry);
+        value = datEntryGetPrimaryValue(((DatItemEntry *)entry)->itemId);
         func_00112830_number(pos, depth, value, color, tex);
         pos.x += 52.0f;
-        if (*(s16 *)(entry + 6) != -1) {
+        if (((DatItemEntry *)entry)->comparisonId != -1) {
             func_00112830_arrow(pos, depth, color,
-                                datEntryGetPrimaryValue(*(s16 *)(entry + 6)), value, tex);
+                                datEntryGetPrimaryValue(((DatItemEntry *)entry)->comparisonId), value, tex);
         }
         pos.x += 42.0f;
-        value = datEntryGetSecondaryValue(*(s16 *)entry);
+        value = datEntryGetSecondaryValue(((DatItemEntry *)entry)->itemId);
         func_00112830_number(pos, depth, value, color, tex);
         pos.x += 52.0f;
-        if (*(s16 *)(entry + 6) != -1) {
+        if (itemEntry->comparisonId != -1) {
             func_00112830_arrow(pos, depth, color,
-                                datEntryGetSecondaryValue(*(s16 *)(entry + 6)), value, tex);
+                                datEntryGetSecondaryValue(itemEntry->comparisonId), value, tex);
         }
         break;
     case 1:
-        value = datEntryGetMiddleBandValue(*(s16 *)entry);
+        value = datEntryGetMiddleBandValue(((DatItemEntry *)entry)->itemId);
         func_00112830_number(pos, depth, value, color, tex);
         pos.x += 52.0f;
-        if (*(s16 *)(entry + 6) != -1) {
+        if (((DatItemEntry *)entry)->comparisonId != -1) {
             func_00112830_arrow(pos, depth, color,
-                                datEntryGetMiddleBandValue(*(s16 *)(entry + 6)), value, tex);
+                                datEntryGetMiddleBandValue(((DatItemEntry *)entry)->comparisonId), value, tex);
         }
         pos.x += 42.0f;
-        value = datEntryGetLastBandValue(*(s16 *)entry);
+        value = datEntryGetLastBandValue(((DatItemEntry *)entry)->itemId);
         func_00112830_number(pos, depth, value, color, tex);
         pos.x += 52.0f;
-        if (*(s16 *)(entry + 6) != -1) {
+        if (itemEntry->comparisonId != -1) {
             func_00112830_arrow(pos, depth, color,
-                                datEntryGetLastBandValue(*(s16 *)(entry + 6)), value, tex);
+                                datEntryGetLastBandValue(itemEntry->comparisonId), value, tex);
         }
         break;
     case 2:
@@ -789,29 +791,30 @@ void datStopPadRumble(void) {
 #pragma opt_rebuildconditionals on
 // Intent: Fill a skill cost row from the table entry at the index: the skill id at +2, and the cost at +4 or +8 by the threshold kind; return 1 when the entry is present [inferred]
 // FUN_00113520
-/* Raw offsets preserve the measured match: DatSkillCostRow/DatPersonaRecord access changed codegen (nd 187). */
+/* Earlier whole-layout typing probe: DatSkillCostRow/DatPersonaRecord access changed codegen (nd 187).; access-site and typed-local forms now match. */
 s32 datPersonaFillSkillCostRow(s32 unitId, struct DatPersonaRecord *persona, s32 skillIndex, u8 *row)
 {
     s32 costKind;
     u16 skillId;
     u16 rowSkillId;
+    DatSkillCostRow *costRow = (DatSkillCostRow *)(row);
 
-    *(u16 *)(row + 2) = 0;
-    *(s32 *)(row + 4) = 0;
-    *(s32 *)(row + 8) = 0;
-    skillId = *(u16 *)(datAddSkillByteOffset(skillIndex * 2, (s32)persona) + 0xC);
+    ((DatSkillCostRow *)row)->skillId = 0;
+    ((DatSkillCostRow *)row)->costA = 0;
+    ((DatSkillCostRow *)row)->costB = 0;
+    skillId = ((DatPersonaRecord *)(datAddSkillByteOffset(skillIndex * 2, (s32)persona)))->skills[0];
     if (skillId != 0) {
-        *(u16 *)(row + 2) = skillId;
+        costRow->skillId = skillId;
         if (unitId != 0) {
-            rowSkillId = *(u16 *)(row + 2);
+            rowSkillId = costRow->skillId;
             if ((s32)rowSkillId < 0x1B8) {
                 costKind = datCalcThresholdKindById((s16)unitId, rowSkillId) & 0xFFFF;
                 switch (costKind) {
                 case 1:
-                    *(s32 *)(row + 4) = datCalcSkillCostById((s16)unitId, *(u16 *)(row + 2));
+                    costRow->costA = datCalcSkillCostById((s16)unitId, costRow->skillId);
                     break;
                 case 2:
-                    *(s32 *)(row + 8) = datCalcSkillCostById((s16)unitId, *(u16 *)(row + 2));
+                    costRow->costB = datCalcSkillCostById((s16)unitId, costRow->skillId);
                     break;
                 }
             }
