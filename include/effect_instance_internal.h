@@ -23,7 +23,9 @@ typedef struct ObjectParticleInstance {
     u8 *list;                /* +0x58: record list; count at +0x8, entries at +0x18 */
     u8 *entries;             /* +0x5C: per-entry table walked by the update and draw paths */
     u8 *recordTable;         /* +0x60: owned allocation with 0x18 bytes per record; ObjectParticleFree releases it */
-    u8 field_0x64[0x7C - 0x64];
+    s32 previous;            /* +0x64: embedded draw-list link, cleared before append */
+    s32 next;                /* +0x68 */
+    u8 field_0x6C[0x7C - 0x6C];
     u16 recordStride;        /* +0x7C: 0x18 at create, the per-record size of recordTable */
     u8 field_0x7E[0x80 - 0x7E];
     struct ObjectParticleInstance *self;  /* +0x80: self back-pointer written at create */
@@ -95,6 +97,8 @@ typedef struct DistortParticleInstance {
     u8 *texture;             /* +0x60: texture object, refcount at its +0x54 */
     u8 *field_0x64;
     u8 *table;               /* +0x68: record table released through the allocator table */
+    s32 previous;            /* +0x6C: embedded draw-list link, cleared before append */
+    s32 next;                /* +0x70: allocator reserves 0x9C bytes */
 } DistortParticleInstance;
 
 /* Effect RNG state (effMisc.c). A NULL state selects the global generator. */

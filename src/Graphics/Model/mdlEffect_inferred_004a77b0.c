@@ -108,7 +108,7 @@ void mdlEffectInitializeShakeFrame(void) {
     D_00724C7C = 0.0f;
     D_00724C70 = func_003e9320();
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    func_003e9830(D_00724C70, *(s32 *)(((u8 *)(u32)kwlnGetCamera()) + 4));
+    func_003e9830(D_00724C70, *(s32 *)&((MdlEffectCamera *)(u32)kwlnGetCamera())->frame);
 }
 
 /* Matched: 7 -> 2 -> 0 fnalign edits; 532/544 bytes, frame 0x70.
@@ -144,6 +144,8 @@ void mdlEffectInitializeShakeFrame(void) {
 #pragma opt_propagation off
 void mdlEffectUpdateShakeFrame(void)
 {
+    f32 *axisThreshold;
+
     extern f32 fabsf(f32 input);
     f32 delta[2];
     f32 initial[2] = {0.6f, 0.6f};
@@ -185,7 +187,7 @@ void mdlEffectUpdateShakeFrame(void)
             displacement = *axisDisplacement;
             magnitude = fabsf(displacement);
             /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            if (!(magnitude < (amplitude * *(f32 *)((u8 *)initial + axisOffset)))) {
+            if (!(magnitude < (amplitude * *(axisThreshold = (f32 *)((u8 *)initial + axisOffset))))) {
                 if (displacement <= signZero) {
                     *axisDisplacement = displacement + step;
                 } else {

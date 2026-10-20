@@ -41,6 +41,20 @@ typedef struct BtlUiSprite {
     u8 pad97;
 } BtlUiSprite;
 
+/* btlSelectionInitTransition clears this embedded 0x1C-byte target state. */
+typedef struct BtlSelectionTransition {
+    u16 flags;
+    u16 state;
+    u16 delay;
+    u8 pad06[2];
+    u8 *action;
+    u8 *previousAction;
+    u8 *targets;
+    u16 skill;
+    u8 pad16[2];
+    s32 task;
+} BtlSelectionTransition;
+
 typedef struct BtlUiTaskWork {
     BtlUiSprite sprite;
     s32 messageWindow;           /* 0x98 */
@@ -49,7 +63,10 @@ typedef struct BtlUiTaskWork {
     BtlRenderNode backdropNode;   /* 0x680 */
     BtlRenderNode detailNode;     /* 0x6B0 */
     BtlRenderNode skyFrameNode;   /* 0x6E0 */
-    u8 selection[0x1C];           /* 0x710 */
+    union {
+        u8 selection[0x1C];      /* 0x710: byte interface for component helpers */
+        BtlSelectionTransition targetSelection;
+    };
     BtlRenderNode selectionNode;  /* 0x72C */
     u8 damage[0x20];             /* 0x75C */
     BtlRenderNode damageNode;     /* 0x77C */

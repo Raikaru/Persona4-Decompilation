@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "mdl_effect_dispatch_internal.h"
 #include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
@@ -88,23 +90,23 @@ void *FlashQuadCopyAllocFromRecord(void *source) {
     s32 parameters;
 
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    index = *(s32 *)(sourceBytes + 0x38);
+    index = MEMBER(s32, sourceBytes, MdlEffectVectorInstance, kind.value);
     /* The kind table contains both source-record and direct-parameter constructors, so this dispatch slot stays byte-addressed. */
-    if (*(s32 *)(D_0071401C + (index * 0x1C)) == 0) {
+    if (((MdlEffectRecordConstructor *)D_0071401C)[index].constructor.value == 0) {
         parameters = (s32)((MdlEffectVectorInstance *)sourceBytes)->parameters;
         index = (u16)index;
         result = FlashQuadCopyAlloc((u16)index, parameters);
         stride = (u16)index * 0x1C;
         /* The constructor result is stored as an integer handle; the shared instance exposes this slot only as a child pointer. */
-        *(s32 *)(result + 0x3C) =
+        *(s32 *)&((MdlEffectVectorInstance *)result)->child =
             (*(s32 (**)(s32, s32))(D_00714014 + stride))(parameters, 0);
         (*(void (**)(u8 *))(D_00714010 + stride))(result);
     } else {
         result = FlashQuadCopyAlloc((u16)index, (s32)((MdlEffectVectorInstance *)sourceBytes)->parameters);
         /* The constructor result is stored as an integer handle; the shared instance exposes this slot only as a child pointer. */
-        *(s32 *)(result + 0x3C) =
+        *(s32 *)&((MdlEffectVectorInstance *)result)->child =
             /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            (*(s32 (**)(u8 *))(D_0071401C + (*(s32 *)(sourceBytes + 0x38) * 0x1C)))(sourceBytes);
+            (*(s32 (**)(u8 *))(D_0071401C + (MEMBER(s32, sourceBytes, MdlEffectVectorInstance, kind.value) * 0x1C)))(sourceBytes);
         (*(void (**)(u8 *))(D_00714010 + (((MdlEffectVectorInstance *)sourceBytes)->kind.value * 0x1C)))(result);
     }
     return result;

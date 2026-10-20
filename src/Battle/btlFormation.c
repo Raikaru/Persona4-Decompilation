@@ -143,8 +143,8 @@ u32 btlUiBeginSequence(void);
 
 
 
-// FUN_001D1EB0
 /* Create packet 0xB00 for a unit-pair separation/rotation request. */
+// FUN_001D1EB0
 BtlPacket *btlFormationCreateMovePacket(u32 source, u32 target, f32 distance, u16 mode)
 {
     u32 *work;
@@ -179,13 +179,15 @@ static inline f32 formationRadius(const u8 *unit)
 #pragma push
 #pragma opt_propagation off
 #pragma opt_lifetimes on
-// FUN_001D1F30
 /* Place the actor, companion and selected groups using their world-space bounds. */
-/* measured: the remaining raw actor/target, radius/scale and target-count reads each changed MATCH
- * to MISMATCH when typed independently. Typed indexed target reads each changed two compared
- * bytes; retain their byte-address order. */
+// FUN_001D1F30
+/* measured: typed actor/action aliases and indexed target records preserve the original load order and MATCH. */
 u32 btlFormationPlaceUnits(u32 *work)
 {
+    BtlAction *actionState;
+    BtlUnit *actorUnit;
+    BtlAction *targetActionState;
+
     extern void btlUnitSetPos(struct BtlUnit *, const struct RwV3d *);
     extern void btlUnitSetRot(struct BtlUnit *, const struct RtQuat *);
     extern void btlUnitGetAnchorPose(u8 *, u8 *, f32 *, f32 *);
@@ -268,6 +270,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     f32 groupDistance;
 
     action = *(u8 **)work;
+    actionState = (BtlAction *)action;
     skill = ((BtlAction *)action)->unk_6e;
     genus = ((BtlAction *)action)->unit->genus;
     switch (genus) {
@@ -284,7 +287,8 @@ u32 btlFormationPlaceUnits(u32 *work)
             if (btlBossTargetBlocked(action) == 0) {
                 return 1;
             }
-            actor = *(u8 **)(action + 0x30);
+            actor = (u8 *)actionState->unit;
+            actorUnit = (BtlUnit *)actor;
             targetUnit = (u8 *)((BtlAction *)targetAction)->unit;
             companion = (u8 *)((BtlUnit *)actor)->childUnit;
             if (btlBossUnitsSameGenus((struct BtlUnit *)(actor), (struct BtlUnit *)(targetUnit)) != 0) {
@@ -327,14 +331,14 @@ u32 btlFormationPlaceUnits(u32 *work)
                 direction[2] = actorCenter[2] - targetCenter.v[2];
                 direction[1] = 0.0f;
                 distance = RwV3dNormalize(direction, direction);
-                actorRadius = *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
+                actorRadius = actorUnit->sphereRadius * actorUnit->scale;
                 extraDistance = 0.0f;
                 /* The null-companion path supplies no isClose value in
                  * retail; only the later distance clamp may set it. */
                 if (companion != NULL) {
                     isClose = btlTargetCanSelectEntry(companion, (s16)skill, 1);
                     motionCategory = (s16)btlUnitOpeningMotionMode((s32)((s32)companion), actor, (s16)skill, 1);
-                    distance = (0.0f + distance) - *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
+                    distance = (0.0f + distance) - actorUnit->sphereRadius * actorUnit->scale;
                     if (isClose == 0) {
                         motionKind = (s16)btlUnitOpeningMotionMode((s32)((s32)companion), actor, (s16)skill, 1);
                         switch (motionKind) {
@@ -427,15 +431,17 @@ u32 btlFormationPlaceUnits(u32 *work)
             }
         } else {
             if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x200000) == 0) {
-                actor = *(u8 **)(action + 0x30);
+                actor = (u8 *)actionState->unit;
+                actorUnit = (BtlUnit *)actor;
                 if (work[2] == 1) {
                     for (targetIndex = 0; targetIndex < ((BtlAction *)action)->unk_6a; targetIndex++) {
-                        actionTarget = *(u8 **)(action + (u32)targetIndex * 4 + 0x38);
+                        actionTarget = ((BtlAction *)action)->targets[targetIndex];
+                        targetActionState = (BtlAction *)actionTarget;
                         if ((((BtlAction *)actionTarget)->unk_1a & 1) != 0 && actionTarget != action) {
                             btlTargetBlendVectors((u8 *)(rotation), (u8 *)((u8 *)((BtlAction *)actionTarget)->unit + 4), (u8 *)(actor + 4));
-                            btlUnitSetRot((struct BtlUnit *)(*(u8 **)(actionTarget + 0x30)), (const struct RtQuat *)(rotation));
-                            btlUnitClearRotateFlags(*(u8 **)(actionTarget + 0x30));
-                            btlUnitRequestLookAt(*(u8 **)(actionTarget + 0x30));
+                            btlUnitSetRot((struct BtlUnit *)((u8 *)targetActionState->unit), (const struct RtQuat *)(rotation));
+                            btlUnitClearRotateFlags((u8 *)targetActionState->unit);
+                            btlUnitRequestLookAt((u8 *)targetActionState->unit);
                         }
                     }
                 }
@@ -470,7 +476,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                         }
                     }
                 }
-                separation = (0.0f + nearestDistance) - *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
+                separation = (0.0f + nearestDistance) - actorUnit->sphereRadius * actorUnit->scale;
                 minimumSpacing = 450.0f;
                 if (separation < minimumSpacing) {
                     direction[0] = actorCenter[0] - nearestCenter.v[0];
@@ -526,7 +532,7 @@ u32 btlFormationPlaceUnits(u32 *work)
             break;
         }
         movedAny = 0;
-        groupUnit = *(u8 **)(action + 0x30);
+        groupUnit = (u8 *)actionState->unit;
         btlUnitGetSphereWorldCenter((struct BtlUnit *)(groupUnit), (struct RwV3d *)(actorCenter));
         groupRadius = ((BtlUnit *)groupUnit)->sphereRadius * ((BtlUnit *)groupUnit)->scale;
         if (work[2] == 1) {
@@ -534,8 +540,8 @@ u32 btlFormationPlaceUnits(u32 *work)
             /* farthestCenter is written only for a qualifying farther target.
              * Retail still consumes its stack slot after an empty scan. */
             farthestDistance = 0.0f;
-            for (targetIndex = 0; targetIndex < *(u16 *)(action + 0x6A); targetIndex++) {
-                groupTarget = *(u8 **)(action + (u32)targetIndex * 4 + 0x38);
+            for (targetIndex = 0; targetIndex < actionState->unk_6a; targetIndex++) {
+                groupTarget = ((BtlAction *)action)->targets[targetIndex];
                 if ((((BtlAction *)groupTarget)->unk_1a & 1) != 0) {
                     btlUnitGetGridSphereCenter((struct BtlUnit *)((u8 *)((BtlAction *)groupTarget)->unit), (struct RwV3d *)((f32 *)&candidateCenter));
                     direction[0] = targetCenter.v[0] - candidateCenter.v[0];
@@ -585,8 +591,8 @@ u32 btlFormationPlaceUnits(u32 *work)
 }
 
 #pragma pop
-// FUN_001D2D90
 /* Create packet 0xB01 with independent actor-placement and target-rotation switches. */
+// FUN_001D2D90
 BtlPacket* btlFormationCreateStepPacket(u32 action, u32 moveActor, u32 rotateTargets)
 {
     u32 *work;
@@ -603,8 +609,8 @@ BtlPacket* btlFormationCreateStepPacket(u32 action, u32 moveActor, u32 rotateTar
 
 
 
-// FUN_001D2E00
 /* Hold the actor while the placement packet owns its pending-packet reference. */
+// FUN_001D2E00
 void btlFormationEnterTurn(u32 *work)
 {
     ((BtlUnit *)work[0])->pendingPacketCount = ((BtlUnit *)work[0])->pendingPacketCount + 1;
@@ -666,8 +672,8 @@ static inline u32 placeFormation(BtlFormationPlacementWork *work, u8 *node, u8 *
     return 1;
 }
 
-// FUN_001D2E20
 /* Place the actor relative to its target action and optional partner action. */
+// FUN_001D2E20
 u32 btlFormationPlaceFromRaw(u8 *raw)
 {
     BtlFormationPlacementWork *work;
@@ -681,14 +687,14 @@ u32 btlFormationPlaceFromRaw(u8 *raw)
 }
 #pragma pop
 
-// FUN_001D2FE0
 /* Release the placement packet's pending reference on its actor. */
+// FUN_001D2FE0
 void btlFormationLeaveTurn(u32 *work)
 {
     ((BtlUnit *)work[0])->pendingPacketCount = ((BtlUnit *)work[0])->pendingPacketCount - 1;
 }
-// FUN_001D3000
 /* Create packet 0xB02, retaining the actor for the target/partner placement callback. */
+// FUN_001D3000
 BtlPacket* btlFormationCreateTurnPacket(u32 actor, u32 targetAction, u32 partnerAction, u16 skill)
 {
     u32 *work;
@@ -708,8 +714,8 @@ BtlPacket* btlFormationCreateTurnPacket(u32 actor, u32 targetAction, u32 partner
 
 
 
-// FUN_001D3090
 /* Apply one of five relative-pose modes to the stored unit pair. */
+// FUN_001D3090
 u32 btlFormationUpdatePose(u32 *work)
 {
     #include "rw_types_internal.h"
@@ -806,8 +812,8 @@ u32 btlFormationUpdatePose(u32 *work)
     }
     return 1;
 }
-// FUN_001D3530
 /* Create packet 0xB03 to apply a relative-pose mode to two units. */
+// FUN_001D3530
 BtlPacket* btlFormationCreateWaitPacket(u32 actor, u32 target, u16 mode)
 {
     u32 *work;
@@ -821,8 +827,8 @@ BtlPacket* btlFormationCreateWaitPacket(u32 actor, u32 target, u16 mode)
     ((BtlFormationPoseWork *)work)->mode = mode;
     return (BtlPacket*)packet;
 }
-// FUN_001D35A0
 /* Restore anchor position/rotation for selected groups; bit 0x8000 skips moving units. */
+// FUN_001D35A0
 u32 btlFormationUpdateMovement(u16 *options)
 {
     u8 position[0x10];
@@ -866,8 +872,8 @@ u32 btlFormationUpdateMovement(u16 *options)
     }
     return 1;
 }
-// FUN_001D3700
 /* Create packet 0xB04 with group mask and anchor-reset option bits. */
+// FUN_001D3700
 BtlPacket *btlFormationCreateSlotPacket(u16 groupMask, u16 flags)
 {
     u16 *work;
@@ -880,8 +886,8 @@ BtlPacket *btlFormationCreateSlotPacket(u16 groupMask, u16 flags)
     work[1] = flags;
     return packet;
 }
-// FUN_001D3760
 /* Reset camera slots and offset eligible living party units from their anchor poses. */
+// FUN_001D3760
 u32 btlFormationUpdateDeadPosition(u16 *flags)
 {
     f32 position[4];
@@ -928,8 +934,8 @@ u32 btlFormationUpdateDeadPosition(u16 *flags)
     }
     return 1;
 }
-// FUN_001D3900
 /* Create packet 0xB05 for the camera/party anchor-position reset. */
+// FUN_001D3900
 BtlPacket *btlFormationCreateReturnPacket(u16 flags)
 {
     u32 *work;
@@ -944,8 +950,8 @@ BtlPacket *btlFormationCreateReturnPacket(u16 flags)
 /* measured: opt_propagation off required for func_001d3950 (nd 0; default nd 7). */
 #pragma push
 #pragma opt_propagation off
-// FUN_001D3950
 /* Put living party units on the 25-unit grid, reserving the active actor's default slot. */
+// FUN_001D3950
 u32 btlFormationAdvanceSlot(u8 **actionWork)
 {
     typedef union FormationPair {
@@ -1024,8 +1030,8 @@ u32 btlFormationAdvanceSlot(u8 **actionWork)
 }
 /* measured: restore pragma state after func_001d3950. */
 #pragma pop
-// FUN_001D3B50
 /* Create packet 0xB06 to assign grid slots around the supplied action. */
+// FUN_001D3B50
 u8 *btlFormationCreateActionPacket(u8 *action)
 {
     u8 **work;
@@ -1037,8 +1043,8 @@ u8 *btlFormationCreateActionPacket(u8 *action)
     work[0] = action;
     return packet;
 }
-// FUN_001D3BA0
 /* Restore the active actor anchor and distribute its party actions through rotated offsets. */
+// FUN_001D3BA0
 u32 btlFormationApplyDefaultPose(void)
 {
     typedef struct FormationVectors {
@@ -1086,8 +1092,8 @@ u32 btlFormationApplyDefaultPose(void)
     }
     return 1;
 }
-// FUN_001D3D00
 /* Create packet 0xB07 for the active-action party pose restoration. */
+// FUN_001D3D00
 BtlPacket *btlFormationCreateEventPacket(u32 value)
 {
     u32 *work;
@@ -1099,8 +1105,8 @@ BtlPacket *btlFormationCreateEventPacket(u32 value)
     work[0] = value;
     return (BtlPacket *)packet;
 }
-// FUN_001D3D50
 /* Allocate the 0x638-byte resource state with one reference; mode 2 enables deferred loading. */
+// FUN_001D3D50
 s32 btlFormationAllocWork(u32 mode)
 {
     BtlFormationState *state;
@@ -1122,8 +1128,8 @@ s32 btlFormationAllocWork(u32 mode)
     state->value = 0;
     return (s32)state;
 }
-// FUN_001D3E00
 /* Release a resource reference, unloading deferred effects at the reference-count boundary. */
+// FUN_001D3E00
 void btlFormationSetPlacement(u32 formation)
 {
     BtlFormationState *state;
@@ -1143,13 +1149,13 @@ void btlFormationSetPlacement(u32 formation)
 
 
 
-// FUN_001D3EA0
 /* Copy two resource blocks and replace file offsets/references with live cloned or built effects. */
-/* measured: typing only the remaining resource-pointer store produced 348 bytes
- * in the 336-byte retail window and lost MATCH; retain the byte-cursor store
- * beside the typed readers. */
+// FUN_001D3EA0
+/* measured: direct stores grew to 348 bytes in the 336-byte window; placing the
+ * resourceEntry alias after the original declarations preserves MATCH. */
 void btlFormationCopyRecord(int destination, u32 source)
 {
+
     u16 outer;
     u16 index;
     s32 count;
@@ -1160,12 +1166,15 @@ void btlFormationCopyRecord(int destination, u32 source)
     u32 resource;
     u32 continueLoop;
 
+    BtlFormationResourceEntry *resourceEntry;
+
     memcpy(destination, source, 0x630);
     outer = 0;
     while ((s32)(continueLoop = outer) < 2) {
         block = destination + (outer & 0xffff) * 0x314;
         count = ((BtlFormationResourceBlock *)block)->entryCount;
         entry = (u8 *)(block + 0x1c);
+        resourceEntry = (BtlFormationResourceEntry *)entry;
         for (index = 0; index < count; index++) {
             if (entry[0] != 0xfe) {
                 if (entry[0] == 0xff) {
@@ -1177,9 +1186,10 @@ void btlFormationCopyRecord(int destination, u32 source)
                 } else {
                     resource = (u32)mdlEffectBuildFromResource((u8 *)(source + ((BtlFormationResourceEntry *)entry)->resource));
                 }
-                *(u32 *)(entry + 4) = resource;
+                resourceEntry->resource = resource;
             }
             entry += 0x18;
+            resourceEntry = (BtlFormationResourceEntry *)entry;
         }
         outer++;
     }
@@ -1188,8 +1198,8 @@ void btlFormationCopyRecord(int destination, u32 source)
 
 
 
-// FUN_001D3FF0
 /* Destroy owning entries in both resource blocks and clear the loaded flag. */
+// FUN_001D3FF0
 void btlFormationSetState(int state)
 {
     u16 outer;
@@ -1219,8 +1229,8 @@ void btlFormationSetState(int state)
 
 
 
-// FUN_001D40D0
 /* Acquire a resource reference, instantiating deferred effects on the first additional reference. */
+// FUN_001D40D0
 void btlFormationCopyDefault(int formation)
 {
     BtlFormationState *state;
@@ -1234,15 +1244,15 @@ void btlFormationCopyDefault(int formation)
 
 
 
-// FUN_001D4120
 /* Return whether the resource state has instantiated effects (flag 2), not an entry count. */
+// FUN_001D4120
 u32 btlFormationGetCount(void* formation)
 {
     return (((BtlFormationState *)formation)->flags & 2) != 0;
 }
 
-// FUN_001D4140
 /* Read the side-specific timing value; unsupported sides return zero. */
+// FUN_001D4140
 u32 btlFormationGetIndex(int formation, u16 side)
 {
     u32 result;
@@ -1263,8 +1273,8 @@ u32 btlFormationGetIndex(int formation, u16 side)
 
 
 
-// FUN_001D4190
 /* Read the selected 0x314-byte resource block's duration word. */
+// FUN_001D4190
 u32 btlFormationGetEntry(void* formation, u32 index)
 {
     u32 offset;
@@ -1273,8 +1283,8 @@ u32 btlFormationGetEntry(void* formation, u32 index)
     return ((BtlFormationResourceBlock *)(offset + (u32)formation))->duration;
 }
 
-// FUN_001D42E0
 /* Destroy an allocated formation entry's effect instances, then release its work. */
+// FUN_001D42E0
 void btlFormationResetState(BtlFormationWork *work)
 {
     s32 count;
@@ -1296,8 +1306,8 @@ void btlFormationResetState(BtlFormationWork *work)
 
 
 
-// FUN_001D4380
 /* Derive and clamp an effect scale from the unit's scaled sphere dimensions. */
+// FUN_001D4380
 f32 btlFormationGetScale(int unit)
 {
     f32 scale = 0;
@@ -1315,8 +1325,8 @@ f32 btlFormationGetScale(int unit)
 
 
 
-// FUN_001D43F0
 /* Translate descriptor presence words and flag halfwords into the runtime effect mask. */
+// FUN_001D43F0
 u32 btlFormationGetFlags(s32 record)
 {
     u16 flags = 0;
@@ -1358,15 +1368,15 @@ u32 btlFormationGetFlags(s32 record)
     return result;
 }
 
-// FUN_001D4490
 /* Record the source resource address for deferred instantiation. */
+// FUN_001D4490
 void btlFormationSetSlot(s32 formation, u32 resource)
 {
     ((BtlFormationState *)formation)->value = resource;
 }
 
-// FUN_001D4E90
 /* Clear the four-component attachment-vector output; the context arguments are unused. */
+// FUN_001D4E90
 void btlFormationClearAttachVector(u8 *unusedOwner, u8 *unusedEntry, u8 *unusedUnit, f32 *vector) {
     vector[0] = 0.0f;
     vector[1] = 0.0f;
@@ -1374,8 +1384,8 @@ void btlFormationClearAttachVector(u8 *unusedOwner, u8 *unusedEntry, u8 *unusedU
     vector[3] = 0.0f;
 }
 
-// FUN_001D5EB0
 /* Create packet 0x400 with an inline resource-path copy for the BED loader. */
+// FUN_001D5EB0
 BtlPacket *btlFormationCreateNamedPacket(u32 resource, const char *path, u16 mode)
 {
     typedef struct FormationStringWork {
@@ -1402,8 +1412,8 @@ BtlPacket *btlFormationCreateNamedPacket(u32 resource, const char *path, u16 mod
 
 
 
-// FUN_001D5F60
 /* Acquire the formation and both units, then allocate the selected unit's effect-pool node. */
+// FUN_001D5F60
 void btlFormationRefresh(u32 *work)
 {
     s16 mode;
@@ -1423,14 +1433,15 @@ void btlFormationRefresh(u32 *work)
     }
     work[4] = btlEffectAllocEntry(work[5]);
 }
+/* Advance effect timing by two and create the runtime formation entry before fading it out. */
 // FUN_001D6010
 /* measured: opt_propagation off preserves func_001d6010's index-before-value argument-load order (MATCH nd0). */
 #pragma opt_propagation off
-/* Advance effect timing by two and create the runtime formation entry before fading it out. */
-/* measured: typing the remaining work+0x0C selector read independently lost MATCH; keep that word-
- * backed cursor access. */
+/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 u32 btlFormationIsReady(u32 *work)
 {
+    BtlFormationEffectWork *effectWork = (BtlFormationEffectWork *)work;
+
     s16 side;
     u16 *effect;
     int duration;
@@ -1445,7 +1456,7 @@ u32 btlFormationIsReady(u32 *work)
     if ((((BtlEffectNode *)effect)->color & 0xff000000) == 0) {
         return 1;
     }
-    functionIndex = *(u16 *)(work + 3);
+    functionIndex = effectWork->side;
     duration = btlFormationGetIndex(work[functionIndex & 0], functionIndex);
     if ((*effect & 0x40) == 0) {
         if ((int)work[6] >= duration * 2 - 0xd) {
@@ -1510,8 +1521,8 @@ u8 btlFormationHasEntry(u32 *work)
 
 
 
-// FUN_001D61E0
 /* Release the effect-pool node, formation reference and both unit packet references. */
+// FUN_001D61E0
 void btlFormationRelease(u32 *work)
 {
     btlEffectFreeEntry(work[5], (u16 *)work[4]);
@@ -1522,8 +1533,8 @@ void btlFormationRelease(u32 *work)
 
 
 
-// FUN_001D6240
 /* Create packet 0x301 with formation lifecycle callbacks and its two unit addresses. */
+// FUN_001D6240
 BtlPacket* btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags)
 {
     u32 *work;
@@ -1533,8 +1544,8 @@ BtlPacket* btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUni
     ((BtlPacket *)packet)->flags = ((BtlPacket *)packet)->flags & 0xef;
     ((BtlPacket *)packet)->initFunc = (BtlPacketFunc)btlFormationRefresh;
     ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlFormationIsReady;
-    /* +0x74 is the completion predicate; the shared packet keeps it opaque. */
-    *(BtlPacketUpdateFunc *)((u8 *)packet + 0x74) = (BtlPacketUpdateFunc)btlFormationHasEntry;
+    /* The optional condition callback is the packet completion predicate. */
+    ((BtlPacket *)packet)->conditionFunc = (s32 (*)(u8 *))btlFormationHasEntry;
     ((BtlPacket *)packet)->destroyFunc = (BtlPacketFunc)btlFormationRelease;
     work = (u32 *)((BtlPacket *)packet)->workData;
     work[0] = formation;
@@ -1547,8 +1558,8 @@ BtlPacket* btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUni
 
 
 
-// FUN_001D69F0
 /* Format the resource path selected by the battle resource-mode flag. */
+// FUN_001D69F0
 void btlFormationFormatName(u32 value, char *destination)
 {
     if ((((BtlBattleState *)DAT_0076449c)->resourceFlags & 1) != 0)
@@ -1563,8 +1574,8 @@ void btlFormationFormatName(u32 value, char *destination)
 
 
 
-// FUN_001D7BB0
 /* Forward three stored arguments to the formation helper, then complete the packet. */
+// FUN_001D7BB0
 u32 btlFormationDispatchArgs(u32* args)
 {
     mdlSetFileStateTriple(args[0], args[1], args[2]);
@@ -1573,8 +1584,8 @@ u32 btlFormationDispatchArgs(u32* args)
 
 
 
-// FUN_002027E0
 /* Create the zero-work 0x50D packet that starts the battle UI sequence. */
+// FUN_002027E0
 u8 *btlFormationCreateDefaultPacket(void)
 {
     u8 *task;
