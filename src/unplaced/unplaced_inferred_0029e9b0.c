@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0029e9b0-0029fbb0 */
 
 #include "include_asm.h"
+#include "member_access.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "kwln_task_internal.h"
@@ -112,9 +113,9 @@ void mtMiscDrawSpriteAt(s32 image, f32 x, f32 y, f32 scaleX, f32 scaleY,
     if (centered == 1) {
         width = sdkSpriteScaledWidth(sprite);
         height = sdkSpriteScaledHeight(sprite);
-        *(f32 *)(sprite + 8) =
+        MEMBER(f32, sprite, SdkSpriteSample, x) =
             x - ((0.5f + (width - initialWidth)) / 2.0f);
-        *(f32 *)(sprite + 0xC) =
+        MEMBER(f32, sprite, SdkSpriteSample, y) =
             y - ((0.5f + (height - initialHeight)) / 2.0f);
     }
     sdkSpriteDraw(sprite, 1);
@@ -175,68 +176,68 @@ void yTimeLimitMoveGridCursor(u8 *task)
     ((NameEntryWork *)state)->previousCellIndex = ((NameEntryWork *)state)->cellIndex;
     if (*(u16 *)D_008C027A & 0x4000) {
         do {
-            value = *(s32 *)(state + 0x20) + 1;
-            *(s32 *)(state + 0x20) = value;
+            value = ((NameEntryWork *)(state))->cursorRow + 1;
+            ((NameEntryWork *)(state))->cursorRow = value;
             if (value >= 6) {
                 if (*(u16 *)D_008C024E & 0x4000)
-                    *(s32 *)(state + 0x20) = 0;
+                    MEMBER(s32, state, NameEntryWork, cursorRow) = 0;
                 else
-                    *(s32 *)(state + 0x20) = *(s32 *)(state + 0x2C);
+                    MEMBER(s32, state, NameEntryWork, cursorRow) = MEMBER(s32, state, NameEntryWork, previousRow);
             }
-            entry = D_007485D0 + *(s32 *)(state + 0x20) * 0x28;
-            entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
+            entry = D_007485D0 + MEMBER(s32, state, NameEntryWork, cursorRow) * 0x28;
+            entry = code29AddOff(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
     if (*(u16 *)D_008C027A & 0x1000) {
         do {
-            value = *(s32 *)(state + 0x20) - 1;
-            *(s32 *)(state + 0x20) = value;
+            value = MEMBER(s32, state, NameEntryWork, cursorRow) - 1;
+            MEMBER(s32, state, NameEntryWork, cursorRow) = value;
             if (value < 0) {
                 if (*(u16 *)D_008C024E & 0x1000)
-                    *(s32 *)(state + 0x20) = 5;
+                    MEMBER(s32, state, NameEntryWork, cursorRow) = 5;
                 else
-                    *(s32 *)(state + 0x20) = *(s32 *)(state + 0x2C);
+                    MEMBER(s32, state, NameEntryWork, cursorRow) = MEMBER(s32, state, NameEntryWork, previousRow);
             }
-            entry = D_007485D0 + *(s32 *)(state + 0x20) * 0x28;
-            entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
+            entry = D_007485D0 + MEMBER(s32, state, NameEntryWork, cursorRow) * 0x28;
+            entry = code29AddOff(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
     if (*(u16 *)D_008C027A & 0x2000) {
         do {
-            value = *(s32 *)(state + 0x1C) + 1;
-            *(s32 *)(state + 0x1C) = value;
+            value = ((NameEntryWork *)(state))->cursorColumn + 1;
+            ((NameEntryWork *)(state))->cursorColumn = value;
             if (value >= 20) {
                 if (*(u16 *)D_008C024E & 0x2000)
-                    *(s32 *)(state + 0x1C) = 0;
+                    MEMBER(s32, state, NameEntryWork, cursorColumn) = 0;
                 else
-                    *(s32 *)(state + 0x1C) = *(s32 *)(state + 0x28);
+                    MEMBER(s32, state, NameEntryWork, cursorColumn) = MEMBER(s32, state, NameEntryWork, previousColumn);
             }
-            entry = D_007485D0 + *(s32 *)(state + 0x20) * 0x28;
-            entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
+            entry = D_007485D0 + MEMBER(s32, state, NameEntryWork, cursorRow) * 0x28;
+            entry = code29AddOff(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
     if (*(u16 *)D_008C027A & 0x8000) {
         do {
-            value = *(s32 *)(state + 0x1C) - 1;
-            *(s32 *)(state + 0x1C) = value;
+            value = MEMBER(s32, state, NameEntryWork, cursorColumn) - 1;
+            MEMBER(s32, state, NameEntryWork, cursorColumn) = value;
             if (value < 0) {
                 if (*(u16 *)D_008C024E & 0x8000)
-                    *(s32 *)(state + 0x1C) = 19;
+                    MEMBER(s32, state, NameEntryWork, cursorColumn) = 19;
                 else
-                    *(s32 *)(state + 0x1C) = *(s32 *)(state + 0x28);
+                    MEMBER(s32, state, NameEntryWork, cursorColumn) = MEMBER(s32, state, NameEntryWork, previousColumn);
             }
-            entry = D_007485D0 + *(s32 *)(state + 0x20) * 0x28;
-            entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
+            entry = D_007485D0 + MEMBER(s32, state, NameEntryWork, cursorRow) * 0x28;
+            entry = code29AddOff(MEMBER(s32, state, NameEntryWork, cursorColumn) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
-    value = *(s32 *)(state + 0x1C) % 5 + *(s32 *)(state + 0x20) * 5;
-    *(s32 *)(state + 0x24) = value;
-    value += (*(s32 *)(state + 0x1C) / 5) * 30;
-    *(s32 *)(state + 0x24) = value;
-    if (value != *(s32 *)(state + 0x30)) {
-        *(s32 *)(state + 0x34) = *(s32 *)(state + 0x28);
-        *(s32 *)(state + 0x38) = *(s32 *)(state + 0x2C);
-        *(s32 *)(state + 0x3C) = *(s32 *)(state + 0x30);
+    value = MEMBER(s32, state, NameEntryWork, cursorColumn) % 5 + MEMBER(s32, state, NameEntryWork, cursorRow) * 5;
+    MEMBER(s32, state, NameEntryWork, cellIndex) = value;
+    value += (MEMBER(s32, state, NameEntryWork, cursorColumn) / 5) * 30;
+    MEMBER(s32, state, NameEntryWork, cellIndex) = value;
+    if (value != MEMBER(s32, state, NameEntryWork, previousCellIndex)) {
+        ((NameEntryWork *)(state))->changedColumn = MEMBER(s32, state, NameEntryWork, previousColumn);
+        ((NameEntryWork *)(state))->changedRow = MEMBER(s32, state, NameEntryWork, previousRow);
+        ((NameEntryWork *)(state))->changedCellIndex = MEMBER(s32, state, NameEntryWork, previousCellIndex);
         sdkSndStartStream(0, 0, 0, 0);
     }
 }
@@ -542,7 +543,7 @@ void yTimeLimitDrawIdlePulse(u8 *task)
         idleFrames = ((NameEntryWork *)work)->selectionState[0] + 1;
         ((NameEntryWork *)work)->selectionState[0] = idleFrames;
         if (idleFrames >= 0x5A) {
-            *(s32 *)(work + 0x1C30) = 0;
+            MEMBER(s32, work, NameEntryWork, selectionState[0]) = 0;
             row = ((NameEntryWork *)work)->cursorRow;
             column = ((NameEntryWork *)work)->cursorColumn;
             x = (f32)((column % 5) * 27);

@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0035e820-0035f0c0 */
 
 #include "include_asm.h"
+#include "member_access.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "scr_internal.h"
@@ -161,8 +162,8 @@ s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
         if (datCommunityIsReady(listWork) != 0) {
             resrcMngSuppressRender();
             /* measured: typed wipeTask hoists its address across the two calls, adding one instruction. */
-            datScreenWipeSetTextureId((u8 *)*(s32 *)(listWork + 0x1308), 1);
-            datScreenWipeSetupSlot((u8 *)*(s32 *)(listWork + 0x1308), 0, 1, 0);
+            datScreenWipeSetTextureId((u8 *)((DatCommunityListWork *)(listWork))->wipeTask, 1);
+            datScreenWipeSetupSlot((u8 *)MEMBER(s32, listWork, DatCommunityListWork, wipeTask), 0, 1, 0);
             *phase = 4;
         }
         break;
@@ -172,7 +173,7 @@ s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
             *phase = 2;
             resrcMngUnsuppressRender();
             nLineSelectSet(0x1B);
-            datScreenWipeSetupSlot((u8 *)*(s32 *)(listWork + 0x1308), 0, 0, 1);
+            datScreenWipeSetupSlot((u8 *)((DatCommunityListWork *)(listWork))->wipeTask, 0, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
             if (((DatCommunityListWork *)listWork)->count > 0) {
@@ -181,7 +182,7 @@ s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
                 *phase = 5;
                 datCommunityPushValue((s32)listWork, 2, 0);
                 nLineSelectSet(0x1A);
-                datScreenWipeSetupSlot((u8 *)*(s32 *)(listWork + 0x1308), 1, 0, 0);
+                datScreenWipeSetupSlot((u8 *)((DatCommunityListWork *)(listWork))->wipeTask, 1, 0, 0);
                 datCommunityPortraitSetRecord(listWork);
                 datCommunityFillVisibleRecords(listWork);
                 datCommunityPortraitSetSelected(listWork);
@@ -206,7 +207,7 @@ s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
             *phase = 6;
             nLineSelectSet(0x1C);
             datCommunityResetOffset(listWork);
-            datScreenWipeSetTextureId((u8 *)*(s32 *)(listWork + 0x1308), 0);
+            datScreenWipeSetTextureId((u8 *)((DatCommunityListWork *)(listWork))->wipeTask, 0);
         }
         break;
     case 6:
@@ -250,7 +251,7 @@ s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
             resultFlag = 1;
         } else {
             /* measured: typed fadeFrame eliminates the retail post-increment reload. */
-            alphaF = (1.0f - ((f32)*(u16 *)(listWork + 0xC) / 3.0f)) * 255.0f;
+            alphaF = (1.0f - ((f32)MEMBER(u16, listWork, DatCommunityListWork, fadeFrame) / 3.0f)) * 255.0f;
             alpha = (u8)alphaF;
             ((DatCommunityListWork *)listWork)->alpha = alpha;
             resultFlag = 0;
@@ -310,7 +311,7 @@ void datCommunityPortraitSetSelected(u8 *listWork)
     u8 *record;
 
     /* measured: direct ids[selected] changes the index/base addu operand order (one differing byte). */
-    id = *(u16 *)((u8 *)addOffsetFirst((s32)((DatCommunityListWork *)listWork)->selected * 2, (u32)listWork) + 0x136);
+    id = MEMBER(u16, (u8 *)addOffsetFirst((s32)((DatCommunityListWork *)listWork)->selected * 2, (u32)listWork), DatCommunityListWork, ids[0]);
     flags = 0;
     record = (u8 *)addOffsetFirst((s32)(((DatCommunityListWork *)listWork)->cursor + ((DatCommunityListWork *)listWork)->scroll) * 0xC, (u32)listWork);
     kind = ((DatCommunityRecord *)(record + 0x38))->kind;
@@ -392,7 +393,7 @@ s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
     case 4:
         /* measured: typed selected changes reloads across option calls (1256 versus 1264 bytes). */
         if (D_008C024E[0] & 0x40) {
-            kind = *(s32 *)(configWork + 0x30);
+            kind = ((CmpConfigWork *)(configWork))->selected;
             if (kind == 6) {
                 cmpConfigSyncFlags(configWork);
                 cmpConfigSetMode(configWork, 1);
@@ -427,13 +428,13 @@ s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
                 *phase = 5;
             }
         } else {
-            sdkListStateConfigure(query, 7, 7, *(s32 *)(configWork + 0x30), 0);
+            sdkListStateConfigure(query, 7, 7, ((CmpConfigWork *)(configWork))->selected, 0);
             sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
             if (sdkListStateHandleInput(query) != 0) {
                 cmpConfigSetValue(configWork, 0, ((SdkListState *)query)->cursor);
                 sdkSndStartStream(0, 1, 0, 0);
             } else {
-                kind = *(s32 *)(configWork + 0x30);
+                kind = MEMBER(s32, configWork, CmpConfigWork, selected);
                 if (kind != 6) {
                     hit = 0;
                     if (D_008C0276[0] & 0x8000) {
@@ -453,7 +454,7 @@ s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
             resultFlag = 1;
         } else {
             /* measured: typed fadeFrame eliminates the retail post-increment reload. */
-            alpha = (1.0f - ((f32)*(u16 *)(configWork + 0x10) / 3.0f)) * 255.0f;
+            alpha = (1.0f - ((f32)MEMBER(u16, configWork, CmpConfigWork, fadeFrame) / 3.0f)) * 255.0f;
             value = (u8)alpha;
             ((CmpConfigWork *)configWork)->alpha = value;
             resultFlag = 0;

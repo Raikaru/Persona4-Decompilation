@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 003136b0-003142f0 */
 
 #include "include_asm.h"
+#include "member_access.h"
 #include "type.h"
 #include "kwln_task_internal.h"
 #include "shdPersona_internal.h"
@@ -23,6 +24,8 @@ typedef struct CmmDateRecord {
     u8 pad03[5];
     CmmDateOption options[5];
 } CmmDateRecord;
+typedef struct FclMaterialTableEntry { u8 *recipes; s32 unk04; } FclMaterialTableEntry;
+
 typedef struct FclMaterialRecipe {
     u16 result;
     u8 pad02[6];
@@ -69,8 +72,8 @@ static inline s8 findDateEntry(u8 month, u8 day)
     for (;;) {
         index++;
         entry = D_006432B0 + index * 0x1C;
-        if (*(s8 *)entry == -1 && *(s8 *)(entry + 1) == -1) return -1;
-        if (*(s8 *)entry == month && *(s8 *)(entry + 1) == day) return index;
+        if (((CmmDateRecord *)entry)->month == -1 && ((CmmDateRecord *)entry)->day == -1) return -1;
+        if (((CmmDateRecord *)entry)->month == month && ((CmmDateRecord *)entry)->day == day) return index;
     }
 }
 
@@ -135,10 +138,10 @@ void fclCombineMaterialListBuild(s8 materialCount)
 
     selected = 0;
     row = 0;
-    /* D_00642F00 is an interior table label; the primary descriptor extent before it is not established. */
+    /* D_00642F00 labels the third eight-byte descriptor; select the preceding descriptor pair by index. */
     table = (u8 *)D_00642F00 + materialCount * 8;
     for (; row < 6; row++) {
-        entry = *(u8 **)(table - 0x10) + row * 0x20;
+        entry = ((FclMaterialTableEntry *)table)[-2].recipes + row * 0x20;
         if (((FclMaterialRecipe *)entry)->result != 0 && fclCombineMaterialAvailable(((FclMaterialRecipe *)entry)->result) == 1) {
             yListSlotAppend(0, (s16)((FclMaterialRecipe *)entry)->result, 0);
             items = entry + 4;
@@ -369,14 +372,14 @@ s32 fclDrawTaskStep(u8 *ownerTask) {
         displayState = 0;
         task = ((FclPersonaDrawWork *)work)->display.task;
         shdPersonaSetDisplayState(task, displayState, mode, kind);
-        shdPersonaSetExtraValue((int)*(u8 **)(work + 4), 0);
+        shdPersonaSetExtraValue((int)MEMBER(u8 *, work, FclPersonaDrawWork, display.task), 0);
         ((FclPersonaDrawWork *)work)->state = 1;
         /* fallthrough */
     case 1:
         if ((shdPersonaGetAlpha(((FclPersonaDrawWork *)work)->display.task) & 0xFF) == 0xFF) {
             ((FclPersonaDrawWork *)work)->state = 5;
-        } else if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
-            shdPersonaStartSlideIn(*(u8 **)(work + 4));
+        } else if (shdPersonaIsTransitioning(MEMBER(u8 *, work, FclPersonaDrawWork, display.task)) != 1) {
+            shdPersonaStartSlideIn(MEMBER(u8 *, work, FclPersonaDrawWork, display.task));
         } else {
             ((FclPersonaDrawWork *)work)->state = 2;
         }
@@ -388,7 +391,7 @@ s32 fclDrawTaskStep(u8 *ownerTask) {
         goto block_33;
     case 3:
         if (shdPersonaIsTransitioning(((FclPersonaDrawWork *)work)->display.task) != 1) {
-            shdPersonaBeginClose(*(u8 **)(work + 4));
+            shdPersonaBeginClose(MEMBER(u8 *, work, FclPersonaDrawWork, display.task));
         } else {
             ((FclPersonaDrawWork *)work)->state = 4;
         }
@@ -402,15 +405,15 @@ s32 fclDrawTaskStep(u8 *ownerTask) {
         shdPersonaSetDisplayState(((FclPersonaDrawWork *)work)->display.task, 0, ((FclPersonaDrawWork *)work)->mode, ((FclPersonaDrawWork *)work)->kind);
         value = ((FclPersonaDrawWork *)work)->extraValue;
         if (value != 0) {
-            shdPersonaSetExtraValue((int)*(u8 **)(work + 4), value);
+            shdPersonaSetExtraValue((int)MEMBER(u8 *, work, FclPersonaDrawWork, display.task), value);
         }
         ((FclPersonaDrawWork *)work)->state = 9;
         /* fallthrough */
     case 9:
         if ((shdPersonaGetAlpha(((FclPersonaDrawWork *)work)->display.task) & 0xFF) == 0xFF) {
             ((FclPersonaDrawWork *)work)->state = 0xD;
-        } else if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
-            shdPersonaStartSlideIn(*(u8 **)(work + 4));
+        } else if (shdPersonaIsTransitioning(MEMBER(u8 *, work, FclPersonaDrawWork, display.task)) != 1) {
+            shdPersonaStartSlideIn(MEMBER(u8 *, work, FclPersonaDrawWork, display.task));
         } else {
             ((FclPersonaDrawWork *)work)->state = 0xA;
         }
@@ -422,7 +425,7 @@ s32 fclDrawTaskStep(u8 *ownerTask) {
         goto block_33;
     case 11:
         if (shdPersonaIsTransitioning(((FclPersonaDrawWork *)work)->display.task) != 1) {
-            shdPersonaBeginClose(*(u8 **)(work + 4));
+            shdPersonaBeginClose(MEMBER(u8 *, work, FclPersonaDrawWork, display.task));
         } else {
             ((FclPersonaDrawWork *)work)->state = 0xC;
         }

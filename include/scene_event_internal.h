@@ -331,6 +331,11 @@ typedef struct EvtEnvironmentSlot {
     f32 value;
 } EvtEnvironmentSlot;
 
+/* Channel ids occupy the low halfword of four-byte event resource entries.
+ * The partial array describes its first record; release iterates the stored count. */
+typedef struct EvtSoundChannel { s16 id; u8 pad02[2]; } EvtSoundChannel;
+typedef struct EvtSoundChannels { s32 count; EvtSoundChannel entries[1]; } EvtSoundChannels;
+
 /* Event work block (0x7B0 bytes): kwlnTaskGetWork of EvtEventTask.eventTask. */
 struct EvtEventWork {
     s32 waitFlags;            /* +0x00: wait bits cleared by evtUpdateNodeWaitFlags */
@@ -355,9 +360,13 @@ struct EvtEventWork {
     f32 savedCamera[2];       /* +0x98: camera x/y */
     u8 padA0[0x1A];
     s16 resultSlot;           /* +0xBA: message selection result slot */
-    u8 padBC[0x70];
+    u8 padBC[0xD4 - 0xBC];
+    EvtSoundChannels sound;   /* +0xD4: channel-resource list released with the event */
+    u8 padDC[0x12C - 0xDC];
     u8 *cameraResource;       /* +0x12C: camera record owner used by evtNodeLoadCameraRecords */
-    u8 pad130[0x4A0];
+    u8 pad130[0x524 - 0x130];
+    s32 exclusiveKind;        /* +0x524: kind 0/1 selects exclusive scene resource */
+    u8 pad528[0x5D0 - 0x528];
     s32 effectTable;          /* +0x5D0: effect table handle */
     s32 busy;                 /* +0x5D4: nonzero while the event is busy */
     u8 unk5D8[0xA0];
@@ -366,7 +375,8 @@ struct EvtEventWork {
         struct {
             u8 pad00[8];
             s32 manager;        /* +0x680: itfMes manager handle */
-            u8 pad0C[0x14];
+            u8 pad0C[0x10];
+            s32 unk694;         /* +0x694: base preceding the kind-indexed resource slots */
             s32 slots[5];       /* +0x698: EVT_FUNCTION_000C substitution values */
             u8 pad34[0x18];
         } messageControl;
@@ -388,9 +398,17 @@ struct EvtEventWork {
     s32 readerHandle;         /* +0x77C: PM file reader handle (evtPMFileReaderCreate) */
     s32 streamTask;           /* +0x780: sound stream task (sdkSndCreateStreamTask) */
     u8 unk784[0x04];
-    u8 unk788[0x04];          /* +0x788: word passed to evtPMFileReaderCreate, role unknown */
+    s32 readerMode;           /* +0x788: table-allocation mode passed to evtPMFileReaderCreate */
     s32 eventId[3];           /* +0x78C..+0x794: event id words (evtSetId) */
-    u8 unk798[0x18];
+    u8 unk798[8];
+    s32 handleCount;          /* +0x7A0 */
+    union {
+        s32 address;
+        s32 *words;
+        u8 **blocks;
+        u8 *bytes;
+    } handles;               /* +0x7A4: resource copies released by evtClearHandles */
+    u8 pad7A8[8];
 };
 
 /* mt_misc scene source record: the arg0 block of mtMiscBuildScene and its

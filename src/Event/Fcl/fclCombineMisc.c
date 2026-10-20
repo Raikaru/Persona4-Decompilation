@@ -47,7 +47,7 @@ extern s32 datGetFlag(s32 bit);
 extern u8 D_006420A0[];
 extern u8 D_00642F00[];
 extern u8 D_00642F04[];
-extern s8 func_002ac350(void);
+extern s8 yGetAlternateFusionMode(void);
 extern s32 fclFuseLowestCandidateAtMost(u32 arcana, s32 maximumLevel, u16 *excluded);
 extern u8 D_00642147[];
 extern u8 D_00642387[];
@@ -284,7 +284,7 @@ s32 fclFusePair(u16 *output, u16 first, u16 second)
     arcana = iGpffffb3d4 + 2;
     secondArcana = arcana[secondIndex];
     firstArcana = arcana[first * 14];
-    if (func_002ac350() == 0)
+    if (yGetAlternateFusionMode() == 0)
         result = fclNormalPairArcana(firstArcana, secondArcana);
     else
         result = fclAlternatePairArcana(firstArcana, secondArcana);
