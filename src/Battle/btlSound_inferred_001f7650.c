@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -14,20 +15,8 @@
 #include "g_data_internal.h"
 #include "btl_sound_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
-/* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
+
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -299,36 +288,37 @@ void btlSoundRefreshSlotChannel(u8 *work)
 // FUN_001F7B40
 s32 btlSoundSetSlotChannel(u8 *work)
 {
+    BtlSoundCueWork *cueWork = (BtlSoundCueWork *)(work);
     u16 channel;
     u16 cue;
     u8 *slotBase;
     u32 offset;
 
     /* measured: typing this request reload grows SetSlotChannel from 224 to 232 bytes; later cache accesses are typed. */
-    cue = *(u16 *)(work + 2);
+    cue = cueWork->cue;
     channel = ((BtlSoundCueWork *)work)->channel;
     offset = channel * 6;
     slotBase = (u8 *)(offset + (u32)iGpffffb3ac);
     if ((((BtlSoundQueue *)(slotBase + 0xAC8))->channels[0].cue != cue) ||
         (((BtlSoundQueue *)(slotBase + 0xAC8))->channels[0].variant != ((BtlSoundCueWork *)work)->variant)) {
         sdkSndStartStream(1, (s16)channel, (s16)cue,
-                      (s16)*(u16 *)(work + 4));
+                      (s16)cueWork->variant);
         cue = ((BtlSoundCueWork *)work)->cue;
         slotBase = iGpffffb3ac;
         offset = (u32)slotBase;
         channel = ((BtlSoundCueWork *)work)->channel;
-        offset = addOffsetFirst(channel * 6, offset);
+        offset = (u32)byteAddressAdd(channel * 6, (u8 *)(offset));
         *(u16 *)&((BtlSoundQueue *)((u8 *)offset + 0xAC8))->channels[0].cue = cue;
         cue = ((BtlSoundCueWork *)work)->variant;
         slotBase = iGpffffb3ac;
         offset = (u32)slotBase;
         channel = ((BtlSoundCueWork *)work)->channel;
-        offset = addOffsetFirst(channel * 6, offset);
+        offset = (u32)byteAddressAdd(channel * 6, (u8 *)(offset));
         *(u16 *)&((BtlSoundQueue *)((u8 *)offset + 0xAC8))->channels[0].variant = cue;
         slotBase = iGpffffb3ac;
         offset = (u32)slotBase;
         channel = ((BtlSoundCueWork *)work)->channel;
-        offset = addOffsetFirst(channel * 6, offset);
+        offset = (u32)byteAddressAdd(channel * 6, (u8 *)(offset));
         *(u8 *)&((BtlSoundQueue *)((u8 *)offset + 0xAC8))->channels[0].frame = 0;
     }
     return 1;

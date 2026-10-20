@@ -39,11 +39,11 @@ void sdkPadRepeatButtonDispatch(s32 padIndex, u16 buttonMask, s32 timerIndex) {
 
     recordOffset = padIndex * 0x4A;
     maskedButtons = buttonMask & 0xFFFF;
-    if (maskedButtons & *(u16 *)(D_008C0316 + recordOffset)) {
-        *(u8 *)(D_008C031E + recordOffset + timerIndex) = 7;
+    if (maskedButtons & ((u16 *)( D_008C0316 + recordOffset ))[0]) {
+        D_008C031E[recordOffset + timerIndex] = 7;
         return;
     }
-    if (maskedButtons & *(u16 *)(D_008C0314 + recordOffset)) {
+    if (maskedButtons & ((u16 *)( D_008C0314 + recordOffset ))[0]) {
         repeatTimer = D_008C031E + recordOffset;
         repeatTimer = repeatTimer + timerIndex;
         *repeatTimer -= 1;

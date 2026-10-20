@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_camera_framing_internal.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -9,10 +10,6 @@
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
 typedef struct BtlPacket BtlPacket;
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
 
 extern u8 *iGpffffb3ac; /* battle-state allocation */
 extern u8 *iGpffffb414;
@@ -77,7 +74,7 @@ extern f32 fGpffff8110;
 // FUN_001D01C0
 void btlAct_PURSUIT(u8 *camera)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct
     {
@@ -103,11 +100,11 @@ void btlAct_PURSUIT(u8 *camera)
     RwV3d sum;
 
     u8 *queuedAction = (u8 *)btlActionGetQueueFront();
-    action = *(u8 **)(camera + 0xE0);
+    action = MEMBER(u8 *, camera, BtlCamera, action);
     unitA = (u8 *)((BtlAction *)action)->unit;
     unitB = (u8 *)((BtlAction *)queuedAction)->unit;
     btlUnitGetSphereWorldCenter(unitA, (f32 *)&firstCenter);
-    radius = ((BtlUnit *)unitA)->sphereRadius * *(f32 *)(unitA + 0x2C);
+    radius = ((BtlUnit *)unitA)->sphereRadius * MEMBER(f32, unitA, BtlUnit, scale);
     btlUnitGetSphereWorldCenter(unitB, (f32 *)&secondCenter);
     direction.x = firstCenter.x - secondCenter.x;
     direction.y = firstCenter.y - secondCenter.y;

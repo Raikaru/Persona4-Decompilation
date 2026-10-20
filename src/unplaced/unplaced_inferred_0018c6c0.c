@@ -51,8 +51,8 @@ typedef struct MaterialTextureContext {
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018C6C0
 /* Replace tagged material textures in every atomic and report whether any matched. */
+// FUN_0018C6C0
 s32 FldRcClumpSetMipmapTex(u8 *clump, s32 textureHandle)
 {
     MaterialTextureContext context;
@@ -70,8 +70,8 @@ s32 FldRcClumpSetMipmapTex(u8 *clump, s32 textureHandle)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018C700
 /* Apply the floating mipmap parameter to the named texture in the current dictionary. */
+// FUN_0018C700
 void FldMipmapSetFloatParam(f32 mipmapK) {
     s32 dictionary;
     s32 texture;
@@ -88,8 +88,8 @@ void FldMipmapSetFloatParam(f32 mipmapK) {
 #pragma optimization_level 1
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-// FUN_0018C750
 /* Convert the texture parameter to unsigned bits, including the high-bit range. */
+// FUN_0018C750
 void FldMipmapSetFixedParam(f32 value)
 {
     s32 texture;

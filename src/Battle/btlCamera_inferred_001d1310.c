@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "btl_unit_record_internal.h"
 #include "btl_camera_framing_internal.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -8,10 +10,6 @@
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
 typedef struct BtlPacket BtlPacket;
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
 
 extern void btlUnitSetRot(void *unit, void *rot);
 extern void btlTargetBlendVectors(void *rotation, void *first, void *second);
@@ -56,14 +54,7 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
-
 extern s32 btlUnitRealignCells(void);
-
 
 
 extern f32 D_0060A100[];
@@ -74,10 +65,7 @@ extern f32 fGpffff8110;
 /* Source unit: src/promoted/code1_001d.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d1310-001d1cc0 */
 
-static inline f32 formationCapacityLimit(s32 limit)
-{
-    return (f32)limit;
-}
+
 /* Count living enemies into three radius/height capacity bands plus a total. */
 // FUN_001D1310
 void btlCameraCountUnitsByBand(u16 *counts) {
@@ -227,7 +215,7 @@ done:
 // FUN_001D1680
 void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     RwV3d position;
     RwV3d actorCenter;
@@ -283,10 +271,10 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
             }
             switch (actor[0xA2]) {
             case 0:
-                *(s32 *)(iGpffffb3ac + slot * 4 + 0xA74) = 1;
+                ((BtlCameraFormationOccupancy *)(iGpffffb3ac + slot * 4 + 0xA74))->party[0] = 1;
                 break;
             case 1:
-                *(s32 *)(iGpffffb3ac + slot * 4 + 0xA84) = 1;
+                ((BtlBattleState *)(iGpffffb3ac))->cameraEnemyOccupancy[slot] = 1;
                 break;
             }
             actor[0x9FC] = (s8)selectedSlot;
@@ -309,7 +297,7 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                 s32 occupiedOffset;
                 u8 *entry;
                 chosen = 5;
-                leastRadius = formationCapacityLimit(100000000);
+                leastRadius = ((f32)(100000000));
                 leastHeight = leastRadius;
                 scale = ((BtlUnit *)enemy)->scale;
                 radius = (f32)(s32)(((BtlUnit *)enemy)->sphereRadius * scale);
@@ -333,7 +321,7 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                 }
                 if ((u16)chosen >= 5) {
                     chosen = 5;
-                    leastRadius = formationCapacityLimit(100000000);
+                    leastRadius = ((f32)(100000000));
                     leastHeight = leastRadius;
                     for (cursor.index = 0; (u16)cursor.index < 5; cursor.index++) {
                         cursor.current = (u16)cursor.index;
@@ -366,10 +354,10 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                 }
                 switch (enemy[0xA2]) {
                 case 0:
-                    *(s32 *)(iGpffffb3ac + occupiedOffset + 0xA74) = 1;
+                    ((BtlCameraFormationOccupancy *)(iGpffffb3ac + occupiedOffset + 0xA74))->party[0] = 1;
                     break;
                 case 1:
-                    *(s32 *)(iGpffffb3ac + occupiedOffset + 0xA84) = 1;
+                    MEMBER(s32, iGpffffb3ac + occupiedOffset, BtlBattleState, cameraEnemyOccupancy[0]) = 1;
                     break;
                 }
                 enemy[0x9FC] = (s8)chosen;
@@ -403,8 +391,8 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
 // FUN_001D1CC0
 s32 btlCameraNudgeUnitPair(u8 *work)
 {
-    /* Record 0xA exposes a signed extent at +4; its remaining animation-record layout is unrecovered. */
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* Motion record 0xA supplies its signed Z bound for separation. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         f32 value40;
@@ -431,15 +419,15 @@ s32 btlCameraNudgeUnitPair(u8 *work)
     firstUnit = (u8 *)((BtlCameraUnitPair *)work)->first;
     secondUnit = (u8 *)((BtlCameraUnitPair *)work)->second;
     btlUnitGetAnimBoundsWorldCenterTowardUnit(secondUnit, (s32)firstUnit, (u8 *)&frame.value40);
-    frame.value60 = *(f32 *)(firstUnit + 4) - frame.value40;
+    frame.value60 = MEMBER(f32, firstUnit, BtlUnit, pos.x) - frame.value40;
     frame.value64 = 0.0f;
-    frame.value68 = *(f32 *)(firstUnit + 0xC) - frame.value48;
+    frame.value68 = MEMBER(f32, firstUnit, BtlUnit, pos.z) - frame.value48;
     RwV3dNormalize(&frame.value60, &frame.value60);
     if ((frame.value60 == 0.0f) && (frame.value68 == 0.0f)) {
         return 1;
     }
     bounds = btlUnitGetRecordPtr(secondUnit, 0xA);
-    radiusOrX = (f32)*(s16 *)(bounds + 4);
+    radiusOrX = (f32)((BtlUnitBoundsRecord *)(bounds))->z;
     scaleOrY = ((BtlUnit *)secondUnit)->scale;
     distance = ((BtlCameraUnitPair *)work)->separation;
     distance -= radiusOrX * scaleOrY;
@@ -449,7 +437,7 @@ s32 btlCameraNudgeUnitPair(u8 *work)
     frame.value64 = scaleOrY;
     offsetZ = frame.value68 * distance;
     frame.value68 = offsetZ;
-    if ((*(u16 *)(work + 0xC) & 1) != 0) {
+    if ((MEMBER(u16, work, BtlCameraUnitPair, flags) & 1) != 0) {
         frame.value50 = ((BtlUnit *)firstUnit)->pos.x + frame.value60;
         frame.value54 = ((BtlUnit *)firstUnit)->pos.y + frame.value64;
         frame.value58 = ((BtlUnit *)firstUnit)->pos.z + frame.value68;

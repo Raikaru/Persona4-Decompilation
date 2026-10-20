@@ -70,9 +70,11 @@ u8 *sdkFilerTaskCreate(void *parent, const char *path) {
    keys differ and the loads stay separate -- 3 differing words (padding
    only, MATCH), matching the previous spelling exactly. */
 /* Processes character-grid movement, text editing and screen-position input. */
-/* measured: the remaining selector field accesses change whole-owner instructions when typed individually. Character rows remain byte-indexed; button-mask address domains retain the measured reloads. */
+/* measured: direct selector fields change instructions; local selector and character pointers retain MATCH and the button-mask address domains preserve reloads. */
 // FUN_00468260
 s32 sdkFilerSelectorUpdate(u8 *task) {
+    SdkFilerSelector *typedFiler;
+    s8 *selectedCharacter;
     u8 *filer;
     u8 *slot;
     u8 *slotFlag;
@@ -81,6 +83,7 @@ s32 sdkFilerSelectorUpdate(u8 *task) {
     u16 buttons;
 
     filer = ((SdkTask *)task)->work;
+    typedFiler = (SdkFilerSelector *)filer;
     state = ((SdkFilerSelector *)filer)->state;
     switch (state) {
     case 0:
@@ -94,13 +97,15 @@ s32 sdkFilerSelectorUpdate(u8 *task) {
         } else if (buttons & 0x40) {
             if (((SdkFilerSelector *)filer)->textLength == 0x14) {
                 textIndex = ((SdkFilerSelector *)filer)->textLength;
-                *(s8 *)(textIndex + (u32)filer + 0x10) = *(s8 *)(D_00712AA0[((SdkFilerSelector *)filer)->row] + ((SdkFilerSelector *)filer)->column);
+                selectedCharacter = (s8 *)(D_00712AA0[((SdkFilerSelector *)filer)->row] + ((SdkFilerSelector *)filer)->column);
+                typedFiler->text[textIndex] = *selectedCharacter;
             } else {
                 textIndex = ((SdkFilerSelector *)filer)->textLength;
-                *(s8 *)(textIndex + (u32)filer + 0x10) = *(s8 *)(D_00712AA0[((SdkFilerSelector *)filer)->row] + ((SdkFilerSelector *)filer)->column);
-                *(s32 *)(filer + 0xC) += 1;
-                textIndex = *(s32 *)(filer + 0xC);
-                *(s8 *)(textIndex + (u32)filer + 0x10) = 0;
+                selectedCharacter = (s8 *)(D_00712AA0[((SdkFilerSelector *)filer)->row] + ((SdkFilerSelector *)filer)->column);
+                typedFiler->text[textIndex] = *selectedCharacter;
+                typedFiler->textLength += 1;
+                textIndex = typedFiler->textLength;
+                typedFiler->text[textIndex] = 0;
             }
         } else if (buttons & 0x20) {
             if (((SdkFilerSelector *)filer)->textLength == 0) {
@@ -112,44 +117,44 @@ s32 sdkFilerSelectorUpdate(u8 *task) {
                     *(s8 *)slotFlag = 0;
                 }
             } else {
-                *(s8 *)((u8 *)(((SdkFilerSelector *)filer)->textLength + (u32)filer) + 0x10) = 0;
-                *(s32 *)(filer + 0xC) -= 1;
+                typedFiler->text[typedFiler->textLength] = 0;
+                typedFiler->textLength -= 1;
             }
         } else if (D_008C0252[0] & 0x1000) {
             if (((SdkFilerSelector *)filer)->row != 0) {
-                *(s32 *)(filer + 8) -= 1;
+                typedFiler->row -= 1;
             } else if (buttons & 0x1000) {
-                *(s32 *)(filer + 8) = 3;
+                typedFiler->row = 3;
             }
         } else if (D_008C0252[0] & 0x4000) {
             if (((SdkFilerSelector *)filer)->row != 3) {
-                *(s32 *)(filer + 8) += 1;
+                typedFiler->row += 1;
             } else if (buttons & 0x4000) {
-                *(s32 *)(filer + 8) = 0;
+                typedFiler->row = 0;
             }
         } else if (D_008C0252[0] & 0x8000) {
             if (((SdkFilerSelector *)filer)->column != 0) {
-                *(s32 *)(filer + 4) -= 1;
+                typedFiler->column -= 1;
             } else if (buttons & 0x8000) {
-                *(s32 *)(filer + 4) = 9;
+                typedFiler->column = 9;
             }
         } else if (D_008C0252[0] & 0x2000) {
             if (((SdkFilerSelector *)filer)->column != 9) {
-                *(s32 *)(filer + 4) += 1;
+                typedFiler->column += 1;
             } else if (buttons & 0x2000) {
-                *(s32 *)(filer + 4) = 0;
+                typedFiler->column = 0;
             }
         }
         if (*(u16 *)&D_008C0256[0] & 0x1000) {
             ((SdkFilerSelector *)filer)->position.b -= 5.0f;
         }
-        if (*(u16 *)((u8 *)D_008C0256 + 0) & 0x4000) {
+        if (D_008C0256[0] & 0x4000) {
             ((SdkFilerSelector *)filer)->position.b += 5.0f;
         }
-        if (*(u16 *)((u32)&D_008C0256[0]) & 0x8000) {
+        if (((u16 *)((u32)&D_008C0256[0]))[0] & 0x8000) {
             ((SdkFilerSelector *)filer)->position.a -= 5.0f;
         }
-        if (*(u16 *)((s32)&D_008C0256[0]) & 0x2000) {
+        if (((u16 *)((s32)&D_008C0256[0]))[0] & 0x2000) {
             ((SdkFilerSelector *)filer)->position.a += 5.0f;
         }
         break;
@@ -163,9 +168,11 @@ s32 sdkFilerSelectorUpdate(u8 *task) {
 }
 
 /* Draws the selector text, character grid, selection marker and preview glyph. */
-/* measured: the remaining selector field accesses change whole-owner instructions when typed individually. Character rows remain byte-indexed; button-mask address domains retain the measured reloads. */
+/* measured: direct selector fields change instructions; local selector and character pointers retain MATCH and the button-mask address domains preserve reloads. */
 // FUN_004685c0
 void sdkFilerSelectorDraw(u8 *selector) {
+    SdkFilerSelector *typedSelector = (SdkFilerSelector *)selector;
+    s8 *selectedGlyph;
     struct {
         s32 pos[2];
         s32 size[2];
@@ -190,8 +197,8 @@ void sdkFilerSelectorDraw(u8 *selector) {
     work.color.rgba[2] = 0;
     work.color.rgba[0] = 0;
     work.color.rgba[1] = 0x46;
-    work.pos[0] = (s32)*(f32 *)(selector + 0x28);
-    work.pos[1] = (s32)*(f32 *)(selector + 0x2C);
+    work.pos[0] = (s32)typedSelector->position.a;
+    work.pos[1] = (s32)typedSelector->position.b;
     work.size[0] = 0x78;
     work.size[1] = 0x30;
     PrimDrawFlatRectangle(work.color.rgba, work.pos, 0.0f, 1);
@@ -201,35 +208,36 @@ void sdkFilerSelectorDraw(u8 *selector) {
     work.color.rgba[0] = 0x50;
     work.color.rgba[1] = 0x50;
     work.pos[0] = (s32)(12.0f * (f32)((SdkFilerSelector *)selector)->column +
-                        *(f32 *)(selector + 0x28) + 0.0f);
+                        typedSelector->position.a + 0.0f);
     work.pos[1] = (s32)(12.0f * (f32)((SdkFilerSelector *)selector)->row +
-                        *(f32 *)(selector + 0x2C) + 0.0f);
+                        typedSelector->position.b + 0.0f);
     work.size[0] = 0x0C;
     work.size[1] = 0x0C;
     PrimDrawFlatRectangle(work.color.rgba, work.pos, 0.0f, 1);
 
-    work.position.xy.x = *(f32 *)(selector + 0x28);
-    work.position.xy.y = *(f32 *)(selector + 0x2C);
+    work.position.xy.x = typedSelector->position.a;
+    work.position.xy.y = typedSelector->position.b;
     for (i = 0; i < 4; i++) {
         sdkDbprtPrint(work.position, 0.0f, &iGpffffb01c,
                       D_00712AA0[i]);
         work.position.xy.y += 12.0f;
     }
 
-    work.position.xy.x = *(f32 *)(selector + 0x28);
-    work.position.xy.y = *(f32 *)(selector + 0x2C) - 12.0f;
+    work.position.xy.x = typedSelector->position.a;
+    work.position.xy.y = typedSelector->position.b - 12.0f;
     sdkDbprtPrint(work.position, 0.0f, &iGpffffb01c, selector + 0x10);
 
-    work.position.xy.x = (12.0f * (f32)*(s32 *)(selector + 4) +
-                  *(f32 *)(selector + 0x28) + 0.0f);
-    work.position.xy.y = (12.0f * (f32)*(s32 *)(selector + 8) +
-                  *(f32 *)(selector + 0x2C) + 0.0f);
+    work.position.xy.x = (12.0f * (f32)typedSelector->column +
+                  typedSelector->position.a + 0.0f);
+    work.position.xy.y = (12.0f * (f32)typedSelector->row +
+                  typedSelector->position.b + 0.0f);
     work.color.rgba[3] = 0x80;
     work.color.rgba[2] = 0;
     work.color.rgba[0] = 0xFF;
     work.color.rgba[1] = 0;
-    glyph = *(s8 *)(D_00712AA0[*(s32 *)(selector + 8)] +
-                    *(s32 *)(selector + 4));
+    selectedGlyph = (s8 *)(D_00712AA0[typedSelector->row] + typedSelector->column);
+    glyph = *selectedGlyph;
+
     sdkDbprtPrintColor(work.color, work.position, 0.0f,
                   &iGpffffb030, glyph);
 }

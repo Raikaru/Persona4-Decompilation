@@ -3,6 +3,7 @@
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "fr_font_internal.h"
 #include "datUnit_internal.h"
 
@@ -91,11 +92,6 @@ extern u16 datEntryGetMiddleBandValue(s16 );
 extern u16 datEntryGetLastBandValue(s16 );
 extern s32 datIdBand(s16 );
 extern s8 D_005E47F0[];
-static inline s32 datAddSkillByteOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-
 u32 datGetClearedWord(void);
 
 #pragma push
@@ -126,7 +122,7 @@ void datCarryOverPersistentState(void)
     void datSetMoney(u32);
     void datSetCategoryValueById(s16, s16, s16);
     u32 datGetClearedWord(void);
-    void func_00110470(u32);
+    void datSetClearCount(u32);
     void fclCombineSaveSnapshot(void);
     void fclCombineRestoreSnapshot(void);
     extern float D_005E4700[4];
@@ -307,7 +303,7 @@ loop6_check:
     fclCombineRestoreSnapshot();
     datSetFlag(0x1210, 1);
     datSetScriptValue(0x7C, (u32)value);
-    func_00110470((u32)clearCount);
+    datSetClearCount((u32)clearCount);
     i = 0;
     goto loop7_check;
 loop7:
@@ -459,7 +455,7 @@ void datEntryReset(u8 *entry) {
 #pragma opt_rebuildconditionals on
 // Intent: Draw the entry's icons when the flag bits in the state word at 0x14 are set, using the colours from the two colour tables [inferred]
 // FUN_00112610
-/* Raw offsets preserve the measured match: DatItemEntry access changed codegen (nd 415). */
+/* Earlier whole-layout typing probe: DatItemEntry access changed codegen (nd 415).; access-site and typed-local forms now match. */
 void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 itemTexture, s32 badgeTexture)
 {
     typedef struct {
@@ -476,10 +472,11 @@ void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 it
     s32 selected;
     u8 *table;
     s32 alpha;
+    DatItemEntry *itemEntry = (DatItemEntry *)(entry);
 
-    flags = datEntryGetFlags(*(s16 *)(entry + 0));
-    if (*(u16 *)(entry + 0x14) & 2) {
-        table = &D_005E4710[(*(s16 *)(entry + 0x16)) * 4];
+    flags = datEntryGetFlags(((DatItemEntry *)entry)->itemId);
+    if (((DatItemEntry *)entry)->badgeFlags & 2) {
+        table = &D_005E4710[(((DatItemEntry *)entry)->colorIndex) * 4];
         categoryColor = *(Color4 *)table;
         mode = -1;
         if (flags & 0x3FFF) {
@@ -507,14 +504,14 @@ void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 it
                           depth, 0);
         }
     }
-    if (*(u16 *)(entry + 0x14) & 1) {
-        table = &D_005E4730[(*(s16 *)(entry + 0x16)) * 4];
+    if (itemEntry->badgeFlags & 1) {
+        table = &D_005E4730[(((DatItemEntry *)entry)->colorIndex) * 4];
         flagColor = *(Color4 *)table;
         flagColor.b[3] = opacity;
         pos.x = position.x + 3.0f;
         pos.y = position.y + 2.0f;
         datEntryDrawFlagIcon(*(s64 *)&pos, depth, flagColor,
-                      *(s16 *)(entry + 0), itemTexture, badgeTexture);
+                      ((DatItemEntry *)entry)->itemId, itemTexture, badgeTexture);
     }
 }
 #pragma pop
@@ -523,7 +520,8 @@ typedef struct {
     u8 b[4];
 } StatColor;
 
-static inline void func_00112830_number(Vec2f pos, f32 depth, u16 value,
+/* Draw a stat value as right-to-left decimal digit sprites. */
+static inline void datDrawStatNumber(Vec2f pos, f32 depth, u16 value,
                                         StatColor color, s32 tex)
 {
     f32 x;
@@ -541,7 +539,8 @@ static inline void func_00112830_number(Vec2f pos, f32 depth, u16 value,
     } while (value > 0);
 }
 
-static inline void func_00112830_arrow(Vec2f pos, f32 depth, StatColor color,
+/* Draw an up or down arrow when the stat value changes. */
+static inline void datDrawStatChangeArrow(Vec2f pos, f32 depth, StatColor color,
                                        u16 value, u16 prev, s32 tex)
 {
     s32 glyph;
@@ -564,49 +563,50 @@ static inline void func_00112830_arrow(Vec2f pos, f32 depth, StatColor color,
 #pragma opt_rebuildconditionals on
 // Intent: Draw a stat value and, when it differs from the previous value, its up or down arrow glyph, then its digits [inferred]
 // FUN_00112830
-/* Raw offsets preserve the measured match: DatItemEntry access changed codegen (nd 1431). */
+/* Earlier whole-layout typing probe: DatItemEntry access changed codegen (nd 1431).; access-site and typed-local forms now match. */
 void datEntryDrawStatValue(Vec2f pos, f32 depth, u8 alpha, u8 *entry, s32 tex)
 {
     extern StatColor D_005E4750[];
     StatColor color;
     u16 value;
     s32 i;
+    DatItemEntry *itemEntry = (DatItemEntry *)(entry);
 
-    color = D_005E4750[*(s16 *)(entry + 0x16)];
+    color = D_005E4750[((DatItemEntry *)entry)->colorIndex];
     color.b[3] = alpha;
-    switch (datIdBand(*(s16 *)entry)) {
+    switch (datIdBand(((DatItemEntry *)entry)->itemId)) {
     case 0:
-        value = datEntryGetPrimaryValue(*(s16 *)entry);
-        func_00112830_number(pos, depth, value, color, tex);
+        value = datEntryGetPrimaryValue(((DatItemEntry *)entry)->itemId);
+        datDrawStatNumber(pos, depth, value, color, tex);
         pos.x += 52.0f;
-        if (*(s16 *)(entry + 6) != -1) {
-            func_00112830_arrow(pos, depth, color,
-                                datEntryGetPrimaryValue(*(s16 *)(entry + 6)), value, tex);
+        if (((DatItemEntry *)entry)->comparisonId != -1) {
+            datDrawStatChangeArrow(pos, depth, color,
+                                datEntryGetPrimaryValue(((DatItemEntry *)entry)->comparisonId), value, tex);
         }
         pos.x += 42.0f;
-        value = datEntryGetSecondaryValue(*(s16 *)entry);
-        func_00112830_number(pos, depth, value, color, tex);
+        value = datEntryGetSecondaryValue(((DatItemEntry *)entry)->itemId);
+        datDrawStatNumber(pos, depth, value, color, tex);
         pos.x += 52.0f;
-        if (*(s16 *)(entry + 6) != -1) {
-            func_00112830_arrow(pos, depth, color,
-                                datEntryGetSecondaryValue(*(s16 *)(entry + 6)), value, tex);
+        if (itemEntry->comparisonId != -1) {
+            datDrawStatChangeArrow(pos, depth, color,
+                                datEntryGetSecondaryValue(itemEntry->comparisonId), value, tex);
         }
         break;
     case 1:
-        value = datEntryGetMiddleBandValue(*(s16 *)entry);
-        func_00112830_number(pos, depth, value, color, tex);
+        value = datEntryGetMiddleBandValue(((DatItemEntry *)entry)->itemId);
+        datDrawStatNumber(pos, depth, value, color, tex);
         pos.x += 52.0f;
-        if (*(s16 *)(entry + 6) != -1) {
-            func_00112830_arrow(pos, depth, color,
-                                datEntryGetMiddleBandValue(*(s16 *)(entry + 6)), value, tex);
+        if (((DatItemEntry *)entry)->comparisonId != -1) {
+            datDrawStatChangeArrow(pos, depth, color,
+                                datEntryGetMiddleBandValue(((DatItemEntry *)entry)->comparisonId), value, tex);
         }
         pos.x += 42.0f;
-        value = datEntryGetLastBandValue(*(s16 *)entry);
-        func_00112830_number(pos, depth, value, color, tex);
+        value = datEntryGetLastBandValue(((DatItemEntry *)entry)->itemId);
+        datDrawStatNumber(pos, depth, value, color, tex);
         pos.x += 52.0f;
-        if (*(s16 *)(entry + 6) != -1) {
-            func_00112830_arrow(pos, depth, color,
-                                datEntryGetLastBandValue(*(s16 *)(entry + 6)), value, tex);
+        if (itemEntry->comparisonId != -1) {
+            datDrawStatChangeArrow(pos, depth, color,
+                                datEntryGetLastBandValue(itemEntry->comparisonId), value, tex);
         }
         break;
     case 2:
@@ -624,6 +624,7 @@ void datEntryDrawStatValue(Vec2f pos, f32 depth, u8 alpha, u8 *entry, s32 tex)
 
 typedef struct { u8 r, g, b, a; } FontGlyphColor;
 
+/* Draw the leading label glyph and return its inverse opacity. */
 static inline s32 fontDrawLeadingGlyph(const Vec2f *position, f32 depth, u8 opacity, s32 texture,
     const FontGlyphColor *color, u32 *blue, u32 *green)
 {
@@ -789,29 +790,30 @@ void datStopPadRumble(void) {
 #pragma opt_rebuildconditionals on
 // Intent: Fill a skill cost row from the table entry at the index: the skill id at +2, and the cost at +4 or +8 by the threshold kind; return 1 when the entry is present [inferred]
 // FUN_00113520
-/* Raw offsets preserve the measured match: DatSkillCostRow/DatPersonaRecord access changed codegen (nd 187). */
+/* Earlier whole-layout typing probe: DatSkillCostRow/DatPersonaRecord access changed codegen (nd 187).; access-site and typed-local forms now match. */
 s32 datPersonaFillSkillCostRow(s32 unitId, struct DatPersonaRecord *persona, s32 skillIndex, u8 *row)
 {
     s32 costKind;
     u16 skillId;
     u16 rowSkillId;
+    DatSkillCostRow *costRow = (DatSkillCostRow *)(row);
 
-    *(u16 *)(row + 2) = 0;
-    *(s32 *)(row + 4) = 0;
-    *(s32 *)(row + 8) = 0;
-    skillId = *(u16 *)(datAddSkillByteOffset(skillIndex * 2, (s32)persona) + 0xC);
+    ((DatSkillCostRow *)row)->skillId = 0;
+    ((DatSkillCostRow *)row)->costA = 0;
+    ((DatSkillCostRow *)row)->costB = 0;
+    skillId = ((DatPersonaRecord *)((s32)byteAddressAdd(skillIndex * 2, (u8 *)((s32)persona))))->skills[0];
     if (skillId != 0) {
-        *(u16 *)(row + 2) = skillId;
+        costRow->skillId = skillId;
         if (unitId != 0) {
-            rowSkillId = *(u16 *)(row + 2);
+            rowSkillId = costRow->skillId;
             if ((s32)rowSkillId < 0x1B8) {
                 costKind = datCalcThresholdKindById((s16)unitId, rowSkillId) & 0xFFFF;
                 switch (costKind) {
                 case 1:
-                    *(s32 *)(row + 4) = datCalcSkillCostById((s16)unitId, *(u16 *)(row + 2));
+                    costRow->costA = datCalcSkillCostById((s16)unitId, costRow->skillId);
                     break;
                 case 2:
-                    *(s32 *)(row + 8) = datCalcSkillCostById((s16)unitId, *(u16 *)(row + 2));
+                    costRow->costB = datCalcSkillCostById((s16)unitId, costRow->skillId);
                     break;
                 }
             }

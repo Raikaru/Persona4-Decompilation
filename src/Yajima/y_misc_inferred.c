@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "list_item_internal.h"
 #include "fcl_color.h"
 #include "include_asm.h"
@@ -8,7 +9,7 @@
 #include "kwln_task_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
-
+#include "resrc_manager_internal.h"
 /* Marker update reads these bytes from its task work; the prefix is owned
    by the marker drawing routines, not interpreted here. */
 typedef struct YSymbolMarker {
@@ -16,16 +17,10 @@ typedef struct YSymbolMarker {
     s8 mode;
     s8 hidden;
 } YSymbolMarker;
-static inline s32 p4_pack_or(s32 left, s32 right)
-{
-    return left | right;
-}
-static inline f32 p4_mul_left(f32 left, f32 right)
-{
-    return right * left;
-}
-extern void (*jtbl_008873EC[])(void *);
 
+
+extern void (*jtbl_008873EC[])(void *);
+#include "member_access.h"
 
 
 extern u8 *D_0072466C;
@@ -162,10 +157,10 @@ s32 fclPackRgba(u8 red, u8 green, u8 blue, u8 alpha)
     s32 result;
 
     result = alpha & 0xFF;
-    result = p4_pack_or(result, (blue & 0xFF) << 8);
-    result = p4_pack_or((green & 0xFF) << 16, result);
+    result = ((result) | ((blue & 0xFF) << 8));
+    result = operandOrderOr((green & 0xFF) << 16, result);
     /* The high byte must be shifted in unsigned 32-bit arithmetic. */
-    result = p4_pack_or((red & 0xFFU) << 24, result);
+    result = (((red & 0xFFU) << 24) | (result));
     return result;
 }
 
@@ -202,11 +197,11 @@ f32 fclEaseInterpolate(s64 easing, f32 first, f32 second, f32 elapsed, f32 durat
     case 0:
         return start + ((elapsed * (end - start)) / duration);
     case 1:
-        weight = sinf(p4_mul_left(elapsed, iGpffff82fc / (2.0f * duration)));
+        weight = sinf(operandOrderMultiplyReversed(elapsed, iGpffff82fc / (2.0f * duration)));
         difference = end - start;
         return start + difference * weight;
     case 2:
-        weight = cosf(p4_mul_left(elapsed, iGpffff82fc / (2.0f * duration)));
+        weight = cosf(operandOrderMultiplyReversed(elapsed, iGpffff82fc / (2.0f * duration)));
         difference = end - start;
         return end - difference * weight;
     default:
@@ -577,8 +572,8 @@ s32 datItemPriceCompare(const void *left, const void *right) {
     return -(s32)(rightPrice < leftPrice);
 }
 
-// FUN_002B32A0
 /* Return the limit once reached, otherwise the enabled fallback or zero. */
+// FUN_002B32A0
 s32 fclSelectBoundedFallback(s32 value, s32 limit, s32 enabled, s32 fallback)
 {
     s32 result;
@@ -739,7 +734,7 @@ s32 mapSymbolTaskUpdate(u8 *task)
     if (ySymbolIsEnabled() == 0) {
         return 0;
     }
-    /* Player actor +0x220 remains byte-addressed: its owner layout is not established here. */
+    /* The cached player resource owns the field-frame task in handle220. */
     if (((YSymbolMarker *)p)->hidden == 1) {
         return 0;
     }
@@ -754,13 +749,13 @@ s32 mapSymbolTaskUpdate(u8 *task)
                         mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 172.0f;
         out.x = mapPosition -
-                smapPlayerOffsetX(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
+                smapPlayerOffsetX(((ResrcRecord *)((u8 **)D_007EFA04)[0])->handle220,
                               18.0f);
         mapPosition = ((f32)smapWorldToRow(
                         mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 9.0f;
         out.y = mapPosition -
-                smapPlayerOffsetZ(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
+                smapPlayerOffsetZ(((ResrcRecord *)((u8 **)D_007EFA04)[0])->handle220,
                               18.0f) - 2.0f;
     }
     color = fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF);

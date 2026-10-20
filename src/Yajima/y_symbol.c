@@ -6,6 +6,9 @@
 #include "type.h"
 #include "g_data_internal.h"
 #include "kwln_task_internal.h"
+#include "member_access.h"
+#include "rw_camera_internal.h"
+#include "resrc_manager_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -36,12 +39,27 @@ extern u8 D_00794D20[];
 extern u8 D_00794DB0[];
 extern u8 D_00794DE0[];
 extern u8 D_007E80A0[];
-extern u8 D_007E80A8[];
-extern u8 D_007E8C50[];
-extern u8 D_007E8C54[];
+/* +8 interior alias of the 0x168-byte target slots; one disables its marker. */
+typedef struct MapSymbolTargetState {
+    s32 state;
+    u8 pad04[0x164];
+} MapSymbolTargetState;
+extern MapSymbolTargetState D_007E80A8[];
+/* Linker aliases start at the model and resource words of 0x750-byte actor slots. */
+typedef struct MapSymbolActorHandles {
+    u32 model;
+    u8 *resource;
+    u8 pad08[0x748];
+} MapSymbolActorHandles;
+typedef struct MapSymbolActorResource {
+    u8 *resource;
+    u8 pad04[0x74C];
+} MapSymbolActorResource;
+extern MapSymbolActorHandles D_007E8C50[];
+extern MapSymbolActorResource D_007E8C54[];
 
 extern u32 D_007EFA00[];
-extern u8 D_007EFA04[];
+extern u8 *D_007EFA04[];
 
 extern void chkmemAllocSiteTag(void *file, s32 line);
 
@@ -107,8 +125,8 @@ typedef struct MapSymbolTarget {
     s8 mode;
     u8 column, row, targetIndex;
 } MapSymbolTarget;
-// FUN_002B3990
 /* Create the player-direction marker and cache the sprite half-size used as its rotation center. */
+// FUN_002B3990
 s32 mapSymbolMarkerCreate(s32 parent)
 {
     s32 taskHandle;
@@ -134,9 +152,8 @@ s32 mapSymbolMarkerCreate(s32 parent)
    build/WBHygiene_func_002b3ae0_archive.txt for provenance; this body is
    verified MATCH after correcting the callee ABI and arithmetic statement
    order. */
-// FUN_002B3AE0
 /* Rotate the player marker relative to model yaw, with the selected highlight palette. */
-/* Preserve raw packed-coordinate/work accesses: the typed marker batch changed renderer codegen. */
+// FUN_002B3AE0
 void mapSymbolMarkerDraw(u8 *task, s64 position, f32 depth, s32 color)
 {
     f32 savedDepth;
@@ -145,7 +162,7 @@ void mapSymbolMarkerDraw(u8 *task, s64 position, f32 depth, s32 color)
     f32 drawAngle;
 
     savedDepth = depth;
-    marker = *(u8 **)(task + 0x38);
+    marker = ((KwlnTask *)task)->work;
     angle = KDraw_MatrixYawDeg((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]));
     if (angle >= 0.0f) {
         drawAngle = angle - 180.0f;
@@ -153,14 +170,15 @@ void mapSymbolMarkerDraw(u8 *task, s64 position, f32 depth, s32 color)
         drawAngle = angle;
         drawAngle += 180.0f;
     }
-    drawAngle += *(f32 *)(marker + 0x10);
+    drawAngle += ((MapSymbolMarker *)marker)->angle.value;
     drawAngle *= -1.0f;
-    if (*(s8 *)(marker + 0x20) == 1) {
-        sdkSpriteDrawQueued(*(f32 *)&position, *((f32 *)&position + 1), savedDepth, color, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, *(s16 *)(marker + 0x14), *(s16 *)(marker + 0x16), drawAngle, 1.0f, 1.0f, D_00794D20);
+    if ((s8)((MapSymbolMarker *)marker)->mode == 1) {
+        sdkSpriteDrawQueued(*(f32 *)&position, *((f32 *)&position + 1), savedDepth, color, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, ((MapSymbolMarker *)marker)->centerX, ((MapSymbolMarker *)marker)->centerY, drawAngle, 1.0f, 1.0f, D_00794D20);
         return;
     }
-    sdkSpriteDrawQueued(*(f32 *)&position, *((f32 *)&position + 1), savedDepth, color, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, *(s16 *)(marker + 0x14), *(s16 *)(marker + 0x16), drawAngle, 1.0f, 1.0f, D_00794DE0);
+    sdkSpriteDrawQueued(*(f32 *)&position, *((f32 *)&position + 1), savedDepth, color, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, ((MapSymbolMarker *)marker)->centerX, ((MapSymbolMarker *)marker)->centerY, drawAngle, 1.0f, 1.0f, D_00794DE0);
 }
+/* Select the directional marker palette without changing its hidden state. */
 // FUN_002B3C50
 void mapSymbolMarkerSetHighlight(u8 *task, u8 mode)
 {
@@ -170,6 +188,7 @@ void mapSymbolMarkerSetHighlight(u8 *task, u8 mode)
     ((MapSymbolMarker *)marker)->mode = mode;
 }
 
+/* Set the player marker suppression byte consumed by the marker task callback. */
 // FUN_002B3C60
 void mapSymbolMarkerSetVariant(u8 *task, u8 hidden)
 {
@@ -179,12 +198,12 @@ void mapSymbolMarkerSetVariant(u8 *task, u8 hidden)
     ((MapSymbolMarker *)marker)->hidden = hidden;
 }
 
+/* Packed float pairs preserve sprite ABI snapshots; typed interior aliases retain native actor/target strides. */
 // FUN_002B3C70
-/* Packed float-pair casts preserve sprite ABI snapshots; interior table aliases retain their linker-relative byte strides. */
 /* Draw a revealed scene point in the scrolling minimap or fixed full-map coordinate system. */
-/* Preserve raw packed-coordinate/work accesses: the typed marker batch changed renderer codegen. */
 s32 mapSymbolPointUpdate(u8 *task)
 {
+    MapSymbolPoint *pointData;
     u8 *point;
     u8 origin[8];
     s64 position;
@@ -197,48 +216,49 @@ s32 mapSymbolPointUpdate(u8 *task)
     s32 columnDelta;
     s32 rowDelta;
 
-    point = *(u8 **)(task + 0x38);
+    point = ((KwlnTask *)task)->work;
+    pointData = (MapSymbolPoint *)point;
     fclAnchorOffset((f32 *)&anchor, 0, 136.0f, 136.0f, 21.0f, 22.0f);
-    *(f32 *)(origin + 0) = (anchorX = anchor.x, anchorY = anchor.y, anchorX);
-    *(f32 *)(origin + 4) = anchorY;
+    ((Vec2 *)origin)->x = (anchorX = anchor.x, anchorY = anchor.y, anchorX);
+    ((Vec2 *)origin)->y = anchorY;
     if (ySymbolIsEnabled() == 0) {
         return 0;
     }
-    if (*(s8 *)point == 0) {
+    if (((MapSymbolPoint *)point)->mode == 0) {
         if (K_FldEvent_ArePosWithinDist(point + 0xC,
                           (u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30,
                           4800.0f) == 1 &&
-            (s8)smapRevealTestBit(point[0x18], point[0x19]) == 1) {
-            columnDelta = (s8)(point[0x18] -
-                      smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
-            rowDelta = (s8)(point[0x19] -
-                      smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
-            *(f32 *)(origin + 0) += 17.0f;
-            *(f32 *)(origin + 4) += 264.0f;
-            coordinate = *(f32 *)(origin + 0) + 18.0f * (f32)columnDelta -
+            (s8)smapRevealTestBit(((MapSymbolPoint *)point)->column, ((MapSymbolPoint *)point)->row) == 1) {
+            columnDelta = (s8)(pointData->column -
+                      smapWorldToColumn(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007EFA00[0]))->pos));
+            rowDelta = (s8)(pointData->row -
+                      smapWorldToRow(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007EFA00[0]))->pos));
+            ((Vec2 *)origin)->x += 17.0f;
+            MEMBER(f32, origin, Vec2, y) += 264.0f;
+            coordinate = ((Vec2 *)origin)->x + 18.0f * (f32)columnDelta -
                    smapPositionOffsetX(18.0f, (YVec3f *)(point + 0xC));
             coordinate +=
                 smapPlayerOffsetX(
-                    *(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+                    (u8 *)((ResrcRecord *)D_007EFA04[0])->handle220, 18.0f);
             coordinate -= 10.0f;
             *(f32 *)&position = coordinate;
-            coordinate = *(f32 *)(origin + 4) + 18.0f * (f32)rowDelta -
+            coordinate = MEMBER(f32, origin, Vec2, y) + 18.0f * (f32)rowDelta -
                    smapPositionOffsetZ(18.0f, (YVec3f *)(point + 0xC));
             coordinate +=
                 smapPlayerOffsetZ(
-                    *(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+                    (u8 *)((ResrcRecord *)D_007EFA04[0])->handle220, 18.0f);
             coordinate -= 10.0f;
             *((f32 *)&position + 1) = coordinate;
             scrollPosition = position;
             sdkSpriteDrawQueued(*(f32 *)&scrollPosition, *((f32 *)&scrollPosition + 1), (f32)0xEA63, fclPackRgba(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
         }
-    } else if (*(s8 *)point == 1 &&
-               (s8)smapRevealTestBit(point[0x18], point[0x19]) == 1) {
-        coordinate = 172.0f + 18.0f * (f32)point[0x18] -
+    } else if (((MapSymbolPoint *)point)->mode == 1 &&
+               (s8)smapRevealTestBit(((MapSymbolPoint *)point)->column, ((MapSymbolPoint *)point)->row) == 1) {
+        coordinate = 172.0f + 18.0f * (f32)pointData->column -
                smapPositionOffsetX(18.0f, (YVec3f *)(point + 0xC));
         coordinate -= 2.0f;
         *(f32 *)&position = coordinate;
-        coordinate = 9.0f + 18.0f * (f32)point[0x19] -
+        coordinate = 9.0f + 18.0f * (f32)pointData->row -
                smapPositionOffsetZ(18.0f, (YVec3f *)(point + 0xC));
         coordinate -= 2.0f;
         *((f32 *)&position + 1) = coordinate;
@@ -253,8 +273,8 @@ void mapSymbolPointDestroy(u8 *task)
     jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
-// FUN_002B4140
 /* Create a scene-point marker and cache its world position and minimap coordinates. */
+// FUN_002B4140
 s32 mapSymbolPointCreate(s32 parent, s32 index, Vec3 *position)
 {
     s32 taskHandle;
@@ -272,6 +292,7 @@ s32 mapSymbolPointCreate(s32 parent, s32 index, Vec3 *position)
     return taskHandle;
 }
 
+/* Choose scrolling or fixed-map coordinates for a scene-point marker task. */
 // FUN_002B4240
 void mapSymbolPointSetState(u8 *task, s8 mode)
 {
@@ -281,12 +302,12 @@ void mapSymbolPointSetState(u8 *task, s8 mode)
     ((MapSymbolPoint *)point)->mode = mode;
 }
 
+/* Packed float pairs preserve sprite ABI snapshots; typed interior aliases retain native actor/target strides. */
 // FUN_002B4250
-/* Packed float-pair casts preserve sprite ABI snapshots; interior table aliases retain their linker-relative byte strides. */
 /* Draw an active actor marker when it is in range and its map cell is revealed. */
-/* Preserve raw packed-coordinate/work accesses: the typed marker batch changed renderer codegen. */
 s32 mapSymbolEntityUpdate(u8 *task)
 {
+    MapSymbolEntity *entityData;
     s8 *entity;
     u8 origin[8];
     s64 position;
@@ -306,16 +327,17 @@ s32 mapSymbolEntityUpdate(u8 *task)
     u8 *actorPosition;
     u8 *playerPosition;
 
-    entity = *(s8 **)(task + 0x38);
+    entity = (s8 *)((KwlnTask *)task)->work;
+    entityData = (MapSymbolEntity *)entity;
     fclAnchorOffset((f32 *)&anchor, 0, 136.0f, 136.0f, 21.0f, 22.0f);
-    *(f32 *)(origin + 0) = (anchorX = anchor.x, anchorY = anchor.y, anchorX);
-    *(f32 *)(origin + 4) = anchorY;
+    ((Vec2 *)origin)->x = (anchorX = anchor.x, anchorY = anchor.y, anchorX);
+    ((Vec2 *)origin)->y = anchorY;
     if (ySymbolIsEnabled() == 0) {
         return 0;
     }
-    if (*entity == 0) {
+    if (((MapSymbolEntity *)entity)->mode == 0) {
         playerPosition = (u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30;
-        actorPosition = (u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + entity[1] * 0x750)) + 0x30;
+        actorPosition = (u8 *)mdlGetMatrix((void *)(u32)D_007E8C50[((MapSymbolEntity *)entity)->actorIndex].model) + 0x30;
         if (datGetFlag(0x1012) == 0) {
             if (K_FldEvent_ArePosWithinDist(actorPosition, playerPosition, 2400.0f) == 1) {
                 visible = 1;
@@ -330,8 +352,8 @@ s32 mapSymbolEntityUpdate(u8 *task)
         visible = 0;
 vtest1:
         if (visible == 1) {
-            column = smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + entity[1] * 0x750)) + 0x30)) & 0xFF;
-            row = smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + entity[1] * 0x750)) + 0x30)) & 0xFF;
+            column = smapWorldToColumn(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007E8C50[entityData->actorIndex].model))->pos) & 0xFF;
+            row = smapWorldToRow(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007E8C50[entityData->actorIndex].model))->pos) & 0xFF;
             if (datGetFlag(0x1012) == 0) {
                 if ((s8)smapRevealTestBit(column, row) == 1) {
                     visible = 1;
@@ -344,27 +366,27 @@ vtest1:
             visible = 0;
 vtest2:
             if (visible == 1) {
-                columnDelta = (s8)((column & 0xFF) - smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
-                rowDelta = (s8)((row & 0xFF) - smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
-                *(f32 *)(origin + 0) += 17.0f;
-                *(f32 *)(origin + 4) += 264.0f;
-                coordinate = *(f32 *)(origin + 0) + 18.0f * (f32)columnDelta -
-                       smapPlayerOffsetX(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + entity[1] * 0x750) + 0x220), 18.0f);
-                coordinate += smapPlayerOffsetX(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+                columnDelta = (s8)((column & 0xFF) - smapWorldToColumn(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007EFA00[0]))->pos));
+                rowDelta = (s8)((row & 0xFF) - smapWorldToRow(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007EFA00[0]))->pos));
+                ((Vec2 *)origin)->x += 17.0f;
+                MEMBER(f32, origin, Vec2, y) += 264.0f;
+                coordinate = ((Vec2 *)origin)->x + 18.0f * (f32)columnDelta -
+                       smapPlayerOffsetX((u8 *)((ResrcRecord *)D_007E8C54[entityData->actorIndex].resource)->handle220, 18.0f);
+                coordinate += smapPlayerOffsetX((u8 *)((ResrcRecord *)D_007EFA04[0])->handle220, 18.0f);
                 coordinate -= 10.0f;
                 *(f32 *)&position = coordinate;
-                coordinate = *(f32 *)(origin + 4) + 18.0f * (f32)rowDelta -
-                       smapPlayerOffsetZ(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + entity[1] * 0x750) + 0x220), 18.0f);
-                coordinate += smapPlayerOffsetZ(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+                coordinate = MEMBER(f32, origin, Vec2, y) + 18.0f * (f32)rowDelta -
+                       smapPlayerOffsetZ((u8 *)((ResrcRecord *)D_007E8C54[entityData->actorIndex].resource)->handle220, 18.0f);
+                coordinate += smapPlayerOffsetZ((u8 *)((ResrcRecord *)D_007EFA04[0])->handle220, 18.0f);
                 coordinate -= 10.0f;
                 *((f32 *)&position + 1) = coordinate;
                 scrollPosition = position;
                 sdkSpriteDrawQueued(*(f32 *)&scrollPosition, *((f32 *)&scrollPosition + 1), (f32)0xEA64, fclPackRgba(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
             }
         }
-    } else if (*entity == 1) {
+    } else if (((MapSymbolEntity *)entity)->mode == 1) {
         playerPosition = (u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30;
-        actorPosition = (u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + entity[1] * 0x750)) + 0x30;
+        actorPosition = (u8 *)mdlGetMatrix((void *)(u32)D_007E8C50[((MapSymbolEntity *)entity)->actorIndex].model) + 0x30;
         if (datGetFlag(0x1012) == 0) {
             if (K_FldEvent_ArePosWithinDist(actorPosition, playerPosition, 2400.0f) == 1) {
                 visible = 1;
@@ -379,8 +401,8 @@ vtest2:
         visible = 0;
 vtest3:
         if (visible == 1) {
-            fixedColumn = smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + entity[1] * 0x750)) + 0x30)) & 0xFF;
-            fixedRow = smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + entity[1] * 0x750)) + 0x30)) & 0xFF;
+            fixedColumn = smapWorldToColumn(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007E8C50[entityData->actorIndex].model))->pos) & 0xFF;
+            fixedRow = smapWorldToRow(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007E8C50[entityData->actorIndex].model))->pos) & 0xFF;
             if (datGetFlag(0x1012) == 0) {
                 if ((s8)smapRevealTestBit(fixedColumn, fixedRow) == 1) {
                     visible = 1;
@@ -393,12 +415,12 @@ vtest3:
             visible = 0;
 vtest4:
             if (visible == 1) {
-                coordinate = 172.0f + 18.0f * (f32)smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + entity[1] * 0x750)) + 0x30)) -
-                       smapPlayerOffsetX(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + entity[1] * 0x750) + 0x220), 18.0f);
+                coordinate = 172.0f + 18.0f * (f32)smapWorldToColumn(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007E8C50[entityData->actorIndex].model))->pos) -
+                       smapPlayerOffsetX((u8 *)((ResrcRecord *)D_007E8C54[entityData->actorIndex].resource)->handle220, 18.0f);
                 coordinate -= 2.0f;
                 *(f32 *)&position = coordinate;
-                coordinate = 9.0f + 18.0f * (f32)smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + entity[1] * 0x750)) + 0x30)) -
-                       smapPlayerOffsetZ(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + entity[1] * 0x750) + 0x220), 18.0f);
+                coordinate = 9.0f + 18.0f * (f32)smapWorldToRow(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007E8C50[entityData->actorIndex].model))->pos) -
+                       smapPlayerOffsetZ((u8 *)((ResrcRecord *)D_007E8C54[entityData->actorIndex].resource)->handle220, 18.0f);
                 coordinate -= 2.0f;
                 *((f32 *)&position + 1) = coordinate;
                 fixedPosition = position;
@@ -414,8 +436,8 @@ void mapSymbolEntityDestroy(u8 *task)
     jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
-// FUN_002B4A10
 /* Create a minimap marker bound to an actor-slot index. */
+// FUN_002B4A10
 s32 mapSymbolEntityCreate(s32 parent, s32 actorIndex)
 {
     u8 *work;
@@ -428,6 +450,7 @@ s32 mapSymbolEntityCreate(s32 parent, s32 actorIndex)
     return taskHandle;
 }
 
+/* Set an actor-marker coordinate mode through the entity work record. */
 // FUN_002B4AC0
 void mapSymbolTargetSetState(u8 *task, s8 mode)
 {
@@ -441,14 +464,14 @@ void mapSymbolTargetSetState(u8 *task, s8 mode)
  * twelve zero alignment bytes. Preserve complete coordinate
  * snapshots and the providers' float-first argument order.
  * See docs/probe_archive/Map_symbol_002b4ad0_20260924.md. */
+/* Packed float pairs preserve sprite ABI snapshots; typed interior aliases retain native actor/target strides. */
 // FUN_002B4AD0
-/* Packed float-pair casts preserve sprite ABI snapshots; interior table aliases retain their linker-relative byte strides. */
 /* Draw a revealed target marker; scrolling mode clips it to the minimap rectangle. */
-/* Preserve raw packed-coordinate/work accesses: the typed marker batch changed renderer codegen. */
 s32 mapSymbolTargetUpdate(u8 *task)
 {
+    MapSymbolTarget *targetData;
     u8 *target;
-    union { u8 bytes[8]; f32 values[2]; } origin;
+    union { u8 bytes[8]; f32 values[2]; Vec2 point; } origin;
     union { Vec2 point; s64 packed; } position;
     Vec2 anchor;
     union { f32 values[2]; s64 packed; } drawPosition;
@@ -463,20 +486,21 @@ s32 mapSymbolTargetUpdate(u8 *task)
     s32 visible;
     Vec2 fixedPosition;
 
-    target = *(u8 **)(task + 0x38);
+    target = ((KwlnTask *)task)->work;
+    targetData = (MapSymbolTarget *)target;
     fclAnchorOffset((f32 *)&anchor, 0, 136.0f, 136.0f, 21.0f, 22.0f);
-    *(f32 *)(origin.bytes + 0) = (anchorX = anchor.x, anchorY = anchor.y, anchorX);
-    *(f32 *)(origin.bytes + 4) = anchorY;
+    ((Vec2 *)origin.bytes)[0].x = (anchorX = anchor.x, anchorY = anchor.y, anchorX);
+    origin.values[1] = anchorY;
     if (ySymbolIsEnabled() == 0) {
         return 0;
     }
-    if (*(s32 *)((u8 *)&D_007E80A8 + target[0xB] * 0x168) == 1) {
+    if (D_007E80A8[((MapSymbolTarget *)target)->targetIndex].state == 1) {
         return 0;
     }
-    mode = target[8];
+    mode = MEMBER(u8, target, MapSymbolTarget, mode);
     if (mode == 0) {
-        row = target[0xA];
-        column = target[9];
+        row = ((MapSymbolTarget *)target)->row;
+        column = ((MapSymbolTarget *)target)->column;
         if (datGetFlag(0x1013) == 0) {
             if ((s8)smapRevealTestBit(column, row) == 1) {
                 visible = 1;
@@ -489,18 +513,18 @@ s32 mapSymbolTargetUpdate(u8 *task)
         visible = 0;
 vtest1:
         if (visible == 1) {
-            columnDelta = (s8)(target[9] - smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
-            rowDelta = (s8)(target[0xA] - smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
-            *(f32 *)(origin.bytes + 0) += 17.0f;
-            *(f32 *)(origin.bytes + 4) += 264.0f;
-            coordinate = *(f32 *)(origin.bytes + 0) + 18.0f * (f32)columnDelta -
-                   smapPositionOffsetX(18.0f, (YVec3f *)((u8 *)&D_007E80A0 + target[0xB] * 0x168 + 0x150));
-            coordinate += smapPlayerOffsetX(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+            columnDelta = (s8)(targetData->column - smapWorldToColumn(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007EFA00[0]))->pos));
+            rowDelta = (s8)(targetData->row - smapWorldToRow(((RwMatrixTag *)mdlGetMatrix((void *)(u32)D_007EFA00[0]))->pos));
+            origin.values[0] += 17.0f;
+            origin.values[1] += 264.0f;
+            coordinate = origin.values[0] + 18.0f * (f32)columnDelta -
+                   smapPositionOffsetX(18.0f, (YVec3f *)((u8 *)&D_007E80A0 + targetData->targetIndex * 0x168 + 0x150));
+            coordinate += smapPlayerOffsetX((u8 *)((ResrcRecord *)D_007EFA04[0])->handle220, 18.0f);
             coordinate -= 13.0f;
             position.point.x = coordinate;
-            coordinate = *(f32 *)(origin.bytes + 4) + 18.0f * (f32)rowDelta -
-                   smapPositionOffsetZ(18.0f, (YVec3f *)((u8 *)&D_007E80A0 + target[0xB] * 0x168 + 0x150));
-            coordinate += smapPlayerOffsetZ(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+            coordinate = origin.values[1] + 18.0f * (f32)rowDelta -
+                   smapPositionOffsetZ(18.0f, (YVec3f *)((u8 *)&D_007E80A0 + targetData->targetIndex * 0x168 + 0x150));
+            coordinate += smapPlayerOffsetZ((u8 *)((ResrcRecord *)D_007EFA04[0])->handle220, 18.0f);
             coordinate -= 13.0f;
             position.point.y = coordinate;
             if (!(position.point.x < 1.0f) &&
@@ -516,8 +540,8 @@ vtest1:
             }
         }
     } else if (mode == 1) {
-        row = target[0xA];
-        column = target[9];
+        row = ((MapSymbolTarget *)target)->row;
+        column = ((MapSymbolTarget *)target)->column;
         if (datGetFlag(0x1013) == 0) {
             if ((s8)smapRevealTestBit(column, row) == 1) {
                 visible = 1;
@@ -530,7 +554,7 @@ vtest1:
         visible = 0;
 vtest2:
         if (visible == 1) {
-            fixedPosition = *(Vec2 *)target;
+            fixedPosition = ((MapSymbolTarget *)target)->position;
             sdkSpriteDrawQueued(
                 fixedPosition.x, fixedPosition.y, (f32)0xEA65,
                 fclPackRgba(255, 255, 255, 255), 0xFF, 0x12,
@@ -547,8 +571,8 @@ void mapSymbolTargetDestroy(u8 *task)
     jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
-// FUN_002B4FE0
 /* Create a target marker with a fixed-map position and cached reveal-cell coordinates. */
+// FUN_002B4FE0
 s32 mapSymbolTargetCreate(s32 parent, Vec2 position, s32 targetIndex)
 {
     s32 taskHandle;

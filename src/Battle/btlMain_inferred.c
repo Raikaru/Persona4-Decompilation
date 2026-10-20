@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "rw_camera_internal.h"
 #include "list_item_internal.h"
 #include "rw_geometry_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -49,14 +51,6 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
 extern u32 iGpffffa0b8;
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern void *SceneDraw_GetList4Matrix(void);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
@@ -94,7 +88,7 @@ extern f32 fGpffff8108;
 
 typedef struct { u8 r; u8 g; u8 b; u8 a; } BlendColor;
 typedef struct ColorBlendWork {
-    BlendColor target;
+    union { BlendColor target; s32 targetPacked; };
     BlendColor start;
     u32 frames;
     u32 frame;
@@ -106,7 +100,8 @@ typedef struct BtlQuatMatrixWork {
     u32 totalFrames;
     u32 currentFrame;
 } BtlQuatMatrixWork;
-static inline u8 blendChannel(u8 start, u8 target, f32 t, f32 inv)
+/* Blend normalized channel endpoints and round the result back to a color byte. */
+static inline u8 btlMainBlendChannel(u8 start, u8 target, f32 t, f32 inv)
 {
     f32 s = (1.0f / 255.0f) * (f32)start;
     f32 e = (1.0f / 255.0f) * (f32)target;
@@ -135,9 +130,9 @@ struct RwV3d;
 /* measured: MATCH. The 1/255 scale is the pooled literal, not a global;
    with it written as a literal no pragmas are needed. The start colour is
    one struct copy (retail loads all four bytes, then stores them). */
-// FUN_001BA0E0
 /* Blend the current window RGBA toward the packet color, rounding each normalized channel back to a
  * byte. */
+// FUN_001BA0E0
 s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
 {
     extern u8 *kwlnGetColorRgb(void);
@@ -155,10 +150,10 @@ s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
     if (work->frame < work->frames) {
         t = (f32)work->frame / (f32)work->frames;
         inv = 1.0f - t;
-        r = blendChannel(work->start.r, work->target.r, t, inv);
-        g = blendChannel(work->start.g, work->target.g, t, inv);
-        b = blendChannel(work->start.b, work->target.b, t, inv);
-        a = blendChannel(work->start.a, work->target.a, t, inv);
+        r = btlMainBlendChannel(work->start.r, work->target.r, t, inv);
+        g = btlMainBlendChannel(work->start.g, work->target.g, t, inv);
+        b = btlMainBlendChannel(work->start.b, work->target.b, t, inv);
+        a = btlMainBlendChannel(work->start.a, work->target.a, t, inv);
         kwlnSetColorRgba(r, g, b, a);
     } else {
         kwlnSetColorRgba(work->target.r, work->target.g, work->target.b, work->target.a);
@@ -168,24 +163,22 @@ s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
     return 0;
 }
 
+/* Create a packed window-color blend packet with its frame duration and four target channels. */
 // FUN_001BA530
-/* Create a packed window-color blend packet with its frame duration. The raw packed-color write spans
- * the four target channel bytes. */
 u8 *btlColorBlendPacketCreate(s32 targetColor, s32 duration) {
     u8 *packet = btlPacketAlloc(0x608, 0x10);
     u8 *work;
 
     *(void (**)(void))&((BtlPacket *)packet)->updateFunc = (void (*)(void))btlColorBlendPacketUpdate;
     work = (u8 *)((BtlPacket *)packet)->workData;
-    *(s32 *)work = targetColor;
-    *(s32 *)(work + 8) = duration;
+    ((ColorBlendWork *)work)->targetPacked = targetColor;
+    *(s32 *)&((ColorBlendWork *)work)->frames = duration;
     return packet;
 }
 
+/* Capture the initial scene quaternion, then publish the target rotation matrix when its duration ends.
+ * Measured: access-site, local-pointer and array forms of the MEMBER timer accesses change MATCH. */
 // FUN_001BA590
-/* Capture the initial scene quaternion, wait for the duration, then publish the target rotation
- * matrix. Measured: typing the first frame test adds a +0x24 address temporary; paired raw words
- * preserve the matrix copy order. */
 s32 btlQuatMatrixPacketUpdate(u8 *work)
 {
     typedef struct {
@@ -222,13 +215,9 @@ s32 btlQuatMatrixPacketUpdate(u8 *work)
     f32 productZW;
     f32 productYW;
     u32 currentFrame;
-    s32 secondWord;
-    s32 firstWord;
-    u8 *source;
-    s32 copyCount;
     u8 *destination;
 
-    if (*(s32 *)(work + 0x24) == 0) { destination = (u8 *)iGpffffb3ac;
+    if (MEMBER(s32, work, BtlQuatMatrixWork, currentFrame) == 0) { destination = (u8 *)iGpffffb3ac;
     quatW = ((BtlBattleState *)destination)->list4.rotation.imag.x;
     scaledX = ((BtlBattleState *)destination)->list4.rotation.imag.y;
     scaledY = ((BtlBattleState *)destination)->list4.rotation.imag.z;
@@ -274,26 +263,15 @@ s32 btlQuatMatrixPacketUpdate(u8 *work)
     matrix.pos.z = 0.0f;
     matrix.flags = 3;
     destination = SceneDraw_GetList4Matrix();
-    source = (u8 *)&matrix;
-    copyCount = 8;
-    do {
-        firstWord = *(s32 *)(source + 0);
-        secondWord = *(s32 *)(source + 4);
-        source += 8;
-        copyCount -= 1;
-        *(s32 *)(destination + 0) = firstWord;
-        *(s32 *)(destination + 4) = secondWord;
-        destination += 8;
-    } while (copyCount > 0);
+    *(Ba590Matrix *)destination = matrix;
     return 1;
     }
-    *(s32 *)(work + 0x24) = currentFrame + 1;
+    MEMBER(s32, work, BtlQuatMatrixWork, currentFrame) = currentFrame + 1;
     return 0;
 }
 
+/* Create the quaternion-to-matrix packet with four target components and a frame duration. */
 // FUN_001BA710
-/* Create the quaternion-to-matrix packet and copy its four target components. The raw duration store
- * follows the original float-array payload shape. */
 u8 *btlQuatMatrixPacketCreate(f32 *rotation, s32 duration) {
     struct F4 {
         f32 x0;
@@ -308,7 +286,7 @@ u8 *btlQuatMatrixPacketCreate(f32 *rotation, s32 duration) {
     work = (f32 *)((BtlPacket *)packet)->workData;
     value = *(struct F4 *)rotation;
     *(struct F4 *)work = value;
-    *(s32 *)(work + 8) = duration;
+    *(s32 *)&((BtlQuatMatrixWork *)work)->totalFrames = duration;
     return packet;
 }
 

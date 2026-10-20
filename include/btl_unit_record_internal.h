@@ -15,7 +15,8 @@ typedef struct BtlUnitBoundsRecord {
 typedef struct BtlUnitPartyRecord {
     BtlUnitBoundsRecord bounds[2];
     u16 scalePercent;             /* 0x14 */
-    u8 pad16[0x3C - 0x16];
+    u8 pad16[4];
+    s16 hitIntervals[17];         /* 0x1A: motion-class stride 0x12, hit-ordinal stride 2 */
     BtlMotionRate motions[27];    /* 0x3C */
     u8 pad14A[2];
 } BtlUnitPartyRecord;
@@ -25,22 +26,34 @@ typedef struct BtlUnitEnemyRecord {
     u16 scalePercent;             /* 0x14 */
     u16 unk16;
     s16 flags;                   /* 0x18: 0x100 tested when target hit rows are flagged */
-    u8 pad1A[8];
+    struct {
+        s16 classValue;          /* 0x1A + class * 4 */
+        s16 hitInterval;         /* 0x1C + class * 4 */
+    } hitClasses[2];
     s16 unk22;                   /* 1 rejects the skill flags00 & 2 path */
-    u8 pad24[2];
+    u16 homeMove;                /* 0x24: home movement motion, skill flag 2 set */
     s16 unk26;                   /* 1 rejects the active-entry path */
-    u8 pad28[2];
+    u16 homeMoveAlternate;       /* 0x28: home movement motion, skill flag 2 clear */
     BtlMotionRate motions[19];    /* 0x2A */
 } BtlUnitEnemyRecord;
+
+/* Formation offsets are signed XYZ halfwords; slot arithmetic advances by six bytes. */
+typedef struct BtlUnitSlotOffset {
+    s16 x, y, z;
+} BtlUnitSlotOffset;
 
 typedef struct BtlUnitChildRecord {
     u16 unk00;
     BtlUnitBoundsRecord bounds;   /* 0x02 */
-    u8 pad0C[0x18 - 0x0C];
+    BtlUnitSlotOffset slots[2];   /* 0x0C: two six-byte formation offsets */
     u16 scalePercent;             /* 0x18 */
     BtlMotionRate motions[6];     /* 0x1A */
     u8 pad56[2];
 } BtlUnitChildRecord;
+
+typedef char BtlUnitSlotOffsetSizeCheck[sizeof(BtlUnitSlotOffset) == 6 ? 1 : -1];
+typedef char BtlUnitChildSlotsOffsetCheck[(u32)&((BtlUnitChildRecord *)0)->slots == 0x0C ? 1 : -1];
+typedef char BtlUnitChildRecordSizeCheck[sizeof(BtlUnitChildRecord) == 0x58 ? 1 : -1];
 
 /* The body-size scale gate indexes a separate 0x3C-byte data table. */
 typedef struct BtlUnitBodySizeRecord {

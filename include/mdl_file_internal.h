@@ -71,9 +71,19 @@ typedef struct MdlFileModel {
     s32 skyTest; /* +0xE8: RpSkyRenderStateSet state 3 */
     u8 padEC[2];
     u8 finished; /* +0xEE */
-    u8 padEF[0x21D];
+    u8 padEF[0x108 - 0xEF];
+    f32 unk108; /* +0x108: held-frame mode compares this playback value to one */
+    u8 pad10C[0x280 - 0x10C];
+    u8 colorRed; /* +0x280: model-load flag 0x100 clears RGB */
+    u8 colorGreen;
+    u8 colorBlue;
+    u8 pad283[0x30C - 0x283];
     u8 * auxiliary; /* +0x30C */
 } MdlFileModel;
+
+typedef char MdlFileModelPlaybackOffsetCheck[(u32)&((MdlFileModel *)0)->unk108 == 0x108 ? 1 : -1];
+typedef char MdlFileModelColorOffsetCheck[(u32)&((MdlFileModel *)0)->colorRed == 0x280 ? 1 : -1];
+typedef char MdlFileModelSizeCheck[sizeof(MdlFileModel) == 0x310 ? 1 : -1];
 
 typedef struct MdlFileTrack {
     s32 count; /* +0x0 */
@@ -97,5 +107,13 @@ typedef struct MdlFileReference {
 typedef struct MdlFileScalarKey {
     f32 time, value;
 } MdlFileScalarKey;
+
+/* mdlAppendU32Entry reads a pointer word and a halfword count at +4.
+ * The upper halfword is preserved by the count update. */
+typedef struct MdlFileU32Table {
+    u32 *entries;
+    u16 count;
+    u16 unk6;
+} MdlFileU32Table;
 
 #endif

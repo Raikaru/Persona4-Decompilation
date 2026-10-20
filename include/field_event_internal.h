@@ -36,9 +36,13 @@ typedef struct FldEventActor {
     u8 *encounterData;
     u32 model;
     u32 active;
-    u8 unknown58[0x158];
+    u8 unknown58[0x144];
+    struct { f32 x, y, z; } origin; /* 0x19C: saved actor placement */
+    u8 unknown1a8[8];
     u8 *auxiliaryTask; /* +0x1B0: chaser/patrol task; FldSlotBroadcastState writes its pause word. */
-    u8 unknown1b4[0x14];
+    u8 unknown1b4[0xC];
+    s32 level; /* 0x1C0: accumulated by FldEvent_AverageEntryValue. */
+    u8 unknown1c4[4];
     u16 kind;
     u8 unknown1ca[0x55E];
     s16 partyId;

@@ -11,6 +11,7 @@ typedef struct BtlFadeWork {
 
 extern BtlFadeWork D_00764558;
 
+/* Restart the fade controller with the caller's delay before its active phase. */
 // FUN_001FC230
 void btlFadeStart(u16 delay)
 {
@@ -19,6 +20,7 @@ void btlFadeStart(u16 delay)
     D_00764558.state = 1;
 }
 
+/* Restart the fade controller without waiting before its active phase. */
 // FUN_001FC250
 void btlFadeStartImmediate(void)
 {

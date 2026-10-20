@@ -1,5 +1,7 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "member_access.h"
 #include "fr_font_internal.h"
 #include "shd_skill_internal.h"
 typedef struct {
@@ -12,9 +14,7 @@ typedef struct {
     u8 b2;
     u8 b3;
 } Color4;
-static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
-    return (u8 *)(offset + (s32)base);
-}
+
 
 u16 ShdSkill_GetPendingSkill(u8 *pool);
 void kAssertFail(void *file, s32 line);
@@ -221,7 +221,7 @@ void ShdSkill_DrawEntryName(Vec2f position, f32 scale, u8 alpha, void *descripto
 /* 1384/1392 bytes, 20 resolved relocations; eight zero tail bytes.
    The caller draws entries 0..7. Preserve byte promotion, coordinate-field
    updates, and the plain-char font lookup with scalar propagation disabled. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00113EF0
 #pragma push
 #pragma opt_propagation off
@@ -283,7 +283,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
     descriptor.flags = 0;
     descriptor.kind = 2;
     index = entry;
-    descriptor.data.vector = *(PayloadVector *)(shdSkill_addOff(index * 12, state) + 8);
+    descriptor.data.vector = MEMBER(PayloadVector, byteAddressAdd((index * 12), state), ShdSkillState, pool.active[0].vector);
     descriptor.style = style;
     position.x = 18.0f + (base.x + (f32)((s32)(index >> 2) * 198));
     drawY = 304.0f + (baseY + (f32)(((s32)index % 4) * 25));
@@ -325,7 +325,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
    2116/2128 bytes, 37 resolved relocations and 12 zero alignment bytes.
    Compound u16 narrowing and the local declaration order preserve the
    digit/label lifetimes across sprite submissions. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00114460
 #pragma push
 #pragma opt_propagation off
@@ -431,7 +431,7 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
         nameY = (f32)325 + baseY;
         color = ((u32)(alphaWord * 255) / 255U) | ~0xFF;
         starsY = 354.0f + baseY;
-        while (index < *(u16 *)(state + 0x22C)) {
+        while (index < MEMBER(u16, state, ShdSkillState, pool.pendingCount)) {
             if (index == 0) {
                 position.x = nameX;
                 position.y = nameY;
@@ -607,7 +607,7 @@ void ShdSkill_DrawSelectionFrame(Vec2f position, f32 scale, u8 alpha, u16 messag
    The fallback-first ternary keeps active/previous in the retail registers
    without adding a caller argument or a conditional trampoline. */
 /* Move between two four-row columns and the optional pending-skill slot. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00115020
 s32 ShdSkill_MoveCursor(u8 *state, s32 force) {
     extern u16 D_008C027A[];
@@ -664,8 +664,8 @@ s32 ShdSkill_MoveCursor(u8 *state, s32 force) {
         }
     }
     if (next != current) {
-        *(s8 *)(state + 5) = current;
-        *(s8 *)(state + 4) = next;
+        MEMBER(s8, state, ShdSkillState, previousCursor) = current;
+        MEMBER(s8, state, ShdSkillState, cursor) = next;
         return 1;
     }
     return 0;
@@ -732,7 +732,7 @@ s16 ShdSkill_FindSlot(u8 *pool, s32 skill) {
    plus the extra dsll32/dsra32 re-extension the call path needs; temp-register
    rotation floor. */
 /* Append a skill to the eight active rows and remove its pending-pool entry. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+
 // FUN_00115420
 void ShdSkill_AddActiveSkill(u16 skill, u8 *pool) {
     s32 target;
@@ -744,9 +744,9 @@ void ShdSkill_AddActiveSkill(u16 skill, u8 *pool) {
     if (((ShdSkillPool *)pool)->activeCount >= 8) {
         kAssertFail(D_005E4800, 0x472);
     }
-    count = *(u16 *)(pool + 0x60);
-    *(u16 *)(pool + 0x60) = count + 1;
-    ((ShdSkillEntry *)shdSkill_addOff(count * 12, pool))->fields.id = (s16)skill;
+    count = ((ShdSkillPool *)pool)->activeCount;
+    ((ShdSkillPool *)pool)->activeCount = count + 1;
+    ((ShdSkillEntry *)byteAddressAdd((count * 12), pool))->fields.id = (s16)skill;
     i = 0;
     target = skill & 0xFFFF;
     bound = ((ShdSkillPool *)pool)->pendingCount;
@@ -771,7 +771,7 @@ loop_test:
    definition remain unchanged so neighboring ShdSkill_AddActiveSkill and
    ShdSkill_RemovePoolEntry stay MATCH. */
 /* Replace the matching active skill and remove the replacement from the pending pool. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00115500
 void ShdSkill_ReplaceActiveSkill(u16 oldSkill, u16 newSkill, u8 *pool) {
     extern void ShdSkill_RemovePoolEntry(u8 *, s16, s32, s32);
@@ -800,10 +800,10 @@ first_test:
         index = -1;
     }
 index_done:
-    if ((index == -1) || (index >= (s32)*(u16 *)(pool + 0x60))) {
+    if ((index == -1) || (index >= (s32)MEMBER(u16, pool, ShdSkillPool, activeCount))) {
         kAssertFail(D_005E4800, 0x4A1);
     }
-    ((ShdSkillEntry *)shdSkill_addOff(index * 12, pool))->fields.id = newSkill;
+    ((ShdSkillEntry *)byteAddressAdd((index * 12), pool))->fields.id = newSkill;
     {
         s16 j;
         j = 0;
@@ -827,7 +827,7 @@ second_test:
 }
 
 /* Discard the first pending row and compact the parallel row/value arrays. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 /* Tail clearing also uses end-relative integer cursors for the last row and parallel value. */
 // FUN_00115760
 void ShdSkill_PopPoolEntry(u8 *pool) {
@@ -841,22 +841,23 @@ void ShdSkill_PopPoolEntry(u8 *pool) {
     if (((ShdSkillPool *)pool)->pendingCount <= 0) {
         kAssertFail(D_005E4800, 0x4B7);
     }
-    for (i = 0; i < *(u16 *)(pool + 0x224) - 1; i++) {
+    for (i = 0; i < MEMBER(u16, pool, ShdSkillPool, pendingCount) - 1; i++) {
         ((ShdSkillPool *)pool)->pending[i].vector = ((ShdSkillPool *)pool)->pending[i + 1].vector;
         ((ShdSkillPool *)pool)->values[i] = ((ShdSkillPool *)pool)->values[i + 1];
     }
-    offset = *(u16 *)(pool + 0x224) * 12;
+    offset = MEMBER(u16, pool, ShdSkillPool, pendingCount) * 12;
     address = offset + (s32)pool;
     ((ShdSkillEntry *)(address + 0x58))->fields.id = 0;
-    offset = *(u16 *)(pool + 0x224) * 2;
+    offset = MEMBER(u16, pool, ShdSkillPool, pendingCount) * 2;
     address = offset + (s32)pool;
-    *(u16 *)(address + 0x1E2) = 0;
-    *(u16 *)(pool + 0x224) -= 1;
+    /* The integer cursor is one halfword beyond the last parallel value. */
+    *(u16 *)(address + MEMBER_OFFSET(ShdSkillPool, values) - (s32)sizeof(u16)) = 0;
+    MEMBER(u16, pool, ShdSkillPool, pendingCount) -= 1;
 }
 
 /* measured: live MATCH, object 220B/window 224B, normalized_diff 0. Corrected kAssertFail to (void *, s32). The trampoline form initializes a named input local before the guard and assigns the loop counter after the guard; this makes retail's entry branch target the loop pre-jump instead of b210 threading directly to loop_test. */
 /* Remove a pending row at index and compact the row and parallel halfword arrays. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 /* Tail clearing also uses end-relative integer cursors for the last row and parallel value. */
 // FUN_00115670
 void ShdSkill_RemovePoolEntry(u8 *pool, s32 index, s32 unusedCount, s32 unusedSkill) {
@@ -884,14 +885,15 @@ loop_body_15670:
     ((ShdSkillPool *)valueCursor)->values[0] = ((ShdSkillPool *)valueCursor)->values[1];
     i += 1;
 loop_test_15670:
-    count = *(u16 *)(pool + 0x224);
+    count = MEMBER(u16, pool, ShdSkillPool, pendingCount);
     if (i < (s32)(count - 1)) {
         goto loop_body_15670;
     }
-    entryCursor = shdSkill_addOff(count * 12, pool);
+    entryCursor = byteAddressAdd((count * 12), pool);
     ((ShdSkillEntry *)(entryCursor + 0x58))->fields.id = 0;
-    entryCursor = shdSkill_addOff(*(u16 *)(pool + 0x224) * 2, pool);
-    *(u16 *)(entryCursor + 0x1E2) = 0;
+    entryCursor = byteAddressAdd((((ShdSkillPool *)pool)->pendingCount * 2), pool);
+    /* The integer cursor is one halfword beyond the last parallel value. */
+    *(u16 *)(entryCursor + MEMBER_OFFSET(ShdSkillPool, values) - (s32)sizeof(u16)) = 0;
     ((ShdSkillPool *)pool)->pendingCount = ((ShdSkillPool *)pool)->pendingCount - 1;
 }
 

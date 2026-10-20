@@ -13,21 +13,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
-/* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
-/* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -90,8 +76,8 @@ extern u8 D_00624FA0[];
 /* Report whether any selected target has hit-row flag 4. */
 s32 btlActionAnyTargetHitRowFlagged(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 j;
     s32 n;
@@ -102,7 +88,7 @@ s32 btlActionAnyTargetHitRowFlagged(u8 *action)
     n = ((BtlAction *)action)->unk_6a;
     goto outer_test;
 outer:
-    target = *(u8 **)(action + ((u16)i * 4) + 0x38);
+    target = (((BtlAction *)(action))->targets[(u16)i]);
     j = 0;
     innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
     goto inner_test;
@@ -131,8 +117,8 @@ outer_test:
 /* Report whether any selected target has hit-row status bit 0x100000. */
 s32 btlActionAnyTargetHitRowStatus(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 j;
     s32 n;
@@ -145,7 +131,7 @@ s32 btlActionAnyTargetHitRowStatus(u8 *action)
     mask = 0x100000;
     goto outer_test;
 outer:
-    target = *(u8 **)(action + ((u16)i * 4) + 0x38);
+    target = (((BtlAction *)(action))->targets[(u16)i]);
     j = 0;
     innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
     goto inner_test;
@@ -174,8 +160,8 @@ outer_test:
    (nd 57, one word short). */
 /* Report whether any selected target records a special hit. */
 s32 btlActionAnyTargetSpecialHit(u8 *action) {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 n;
 
@@ -183,7 +169,7 @@ s32 btlActionAnyTargetSpecialHit(u8 *action) {
     n = ((BtlAction *)action)->unk_6a;
     goto test;
 loop:
-    if (*(s32 *)(*(u8 **)(action + ((u16)i * 4) + 0x38) + 0xE4) != 0) {
+    if ((((BtlAction *)((((BtlAction *)(action))->targets[(u16)i])))->targetBlock.specialHitFlag) != 0) {
         return 1;
     }
     i = (i + 1) & 0xFFFF;
@@ -200,8 +186,8 @@ test:
    instructions into one. */
 /* Report whether any selected target has critical/weak hit flags. */
 s32 btlActionAnyTargetFlagged(u8 *action) {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 n;
 
@@ -209,7 +195,7 @@ s32 btlActionAnyTargetFlagged(u8 *action) {
     n = ((BtlAction *)action)->unk_6a;
     goto test;
 loop:
-    if ((*(u16 *)(*(u8 **)(action + ((u16)i * 4) + 0x38) + 0xDE) & 6) != 0) {
+    if (((((BtlAction *)((((BtlAction *)(action))->targets[(u16)i])))->targetBlock.targetFlags) & 6) != 0) {
         return 1;
     }
     i = (i + 1) & 0xFFFF;
@@ -225,8 +211,8 @@ test:
 /* Require same-genus non-self targets and detect positive HP/SP or status-clear changes. */
 s32 btlActionSameGenusTargetsHaveDelta(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 result;
     s32 i;
     s32 n;
@@ -240,7 +226,7 @@ s32 btlActionSameGenusTargetsHaveDelta(u8 *action)
     n = ((BtlAction *)action)->unk_6a;
     one = 0x10000 >> 16;
     while ((i & 0xFFFF) < n) {
-        target = *(u8 **)(action + ((u16)i << 2) + 0x38);
+        target = (((BtlAction *)(action))->targets[(u16)i]);
         if (target != action) {
             if (((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->genus !=
                 ((BtlUnit *)((u8 *)(((BtlAction *)target)->unit)))->genus) {
@@ -250,13 +236,13 @@ s32 btlActionSameGenusTargetsHaveDelta(u8 *action)
                 j = 0;
                 innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
                 while ((j & 0xFFFF) < innerCount) {
-                    if (*(s32 *)(target + ((u16)j << 5) + 0xF0) > 0) {
+                    if ((((BtlAction *)(target))->targetBlock.hitRows[(u16)j].hpDelta) > 0) {
                         result = one;
                     }
-                    if (*(s32 *)(target + ((u16)j << 5) + 0xF4) > 0) {
+                    if ((((BtlAction *)(target))->targetBlock.hitRows[(u16)j].spDelta) > 0) {
                         result = one;
                     }
-                    if (*(s32 *)(target + ((u16)j << 5) + 0xFC) != 0) {
+                    if (((s32)(((BtlAction *)(target))->targetBlock.hitRows[(u16)j].removedStatus)) != 0) {
                         result = one;
                     }
                     j = (j + 1) & 0xFFFF;
@@ -275,8 +261,8 @@ s32 btlActionSameGenusTargetsHaveDelta(u8 *action)
 /* Report whether any target hit row clears status bit 0x80000. */
 s32 btlActionAnyTargetClearsDeathStatus(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 j;
     s32 n;
@@ -289,7 +275,7 @@ s32 btlActionAnyTargetClearsDeathStatus(u8 *action)
     mask = 0x80000;
     goto outer_test;
 outer:
-    target = *(u8 **)(action + ((u16)i * 4) + 0x38);
+    target = (((BtlAction *)(action))->targets[(u16)i]);
     j = 0;
     innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
     goto inner_test;
@@ -316,9 +302,9 @@ outer_test:
 /* Test target result rows for a negative HP change or status result, with mode-specific exclusions. */
 s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode)
 {
-    /* Raw layout: The target control halfword at +0xDC remains inside the shared target-block opaque prefix. */
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Hit outcomes occupy the control halfword preceding the per-target hit rows. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 result;
     s32 one;
     s32 targetIndex;
@@ -338,12 +324,12 @@ targetIndex = 0;
 n = ((BtlAction *)action)->unk_6a;
 one = 1;
 while ((targetIndex & 0xFFFF) < n) {
-    target = *(u8 **)(action + ((u16)targetIndex * 4) + 0x38);
+    target = (((BtlAction *)(action))->targets[(u16)targetIndex]);
     if (((BtlAction *)target)->targetBlock.specialHitFlag != 0) {
         result = 0;
         goto done;
     }
-    if ((*(u16 *)(target + 0xDC) & 0x500) != 0) {
+    if (((((BtlAction *)(target))->targetBlock.hitOutcome) & 0x500) != 0) {
         result = 0;
         goto done;
     }
@@ -372,8 +358,8 @@ path_zero:
     n = ((BtlAction *)action)->unk_6a;
     goto outer_test_zero;
 outer_zero:
-    target = *(u8 **)(action + ((u16)otherTargetIndex * 4) + 0x38);
-    if ((*(u16 *)(target + 0xDC) & 0x106) != 0) {
+    target = (((BtlAction *)(action))->targets[(u16)otherTargetIndex]);
+    if (((((BtlAction *)(target))->targetBlock.hitOutcome) & 0x106) != 0) {
         result = 1;
         goto done;
     }
@@ -410,9 +396,9 @@ done:
 /* Report a special-hit target or target flags 0x500. */
 u32 btlActionAnyTargetHasSpecialResult(u8 *action)
 {
-    /* Raw layout: The target control halfword at +0xDC remains inside the shared target-block opaque prefix. */
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* Hit outcomes occupy the control halfword preceding the per-target hit rows. */
+    /* Measured site, typed-local and stride forms changed retail code generation;
+     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     u8 *target;
     s32 targetCount;
     s32 targetIndex;
@@ -422,11 +408,11 @@ u32 btlActionAnyTargetHasSpecialResult(u8 *action)
     for (; (u16)targetIndex < targetCount;
          targetIndex = (u16)(targetIndex + 1))
     {
-        target = *(u8 **)(action + 0x38 + (u32)(u16)targetIndex * 4);
+        target = (((BtlAction *)(action))->targets[(u32)(u16)targetIndex]);
         if (((BtlAction *)target)->targetBlock.specialHitFlag != 0) {
             return 1;
         }
-        if ((*(u16 *)(target + 0xDC) & 0x500) != 0) {
+        if (((((BtlAction *)(target))->targetBlock.hitOutcome) & 0x500) != 0) {
             return 1;
         }
     }

@@ -124,6 +124,7 @@ void btlSoundStopChannel(u16* work)
 
 
 
+/* Start the packet cue on stream group zero and finish the packet immediately. */
 // FUN_001F7CD0
 u32 btlSoundPlayCue(s16* work)
 {
@@ -398,9 +399,7 @@ void btlSoundCreateWaitPacket(void)
 }
 extern s32 btlCdvdLoadPoll(void);
 extern s32 btlSoundLoadPoll(s32 *progress);
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
+
 extern u8 *iGpffffb3b8;
 extern s32 btlSoundLoadPoll(s32 *progress);
 extern s32 btlSoundStopStep(void);
@@ -555,7 +554,7 @@ void btlSoundLoadTaskStart(void) {
     ((BtlPacket *)packetBytes)->flags &= 0xEE;
     *(void **)&((BtlPacket *)packetBytes)->updateFunc = (void *)btlSoundLoadPoll;
     /* The typed packet payload is one progress word; this dereference is not an object-offset access. */
-    *(s32 *)((BtlPacket *)packetBytes)->workData = 0;
+    *((s32 *)((BtlPacket *)packetBytes)->workData) = 0;
 }
 
 
@@ -795,7 +794,7 @@ s32 btlActionEscapeCondition(u8 *action, s32 skillId)
     if (((BtlTargetSelection *)targetBuffer)->count == 0) {
         return 2;
     }
-    switch (((BtlSoundSkill *)((u8 *)addOffsetFirst((u32)skillOffset, (u32)iGpffffb3b8)))->condition) {
+    switch (((BtlSoundSkill *)((u8 *)(((u32)skillOffset) + ((u32)iGpffffb3b8))))->condition) {
     case 2:
         if (btlCond_ESCAPE(action, 0) == 0) {
             return 6;
@@ -812,6 +811,7 @@ s32 btlActionEscapeCondition(u8 *action, s32 skillId)
 // FUN_001FAF70
 s32 btlActionBuffCondition(u8 *action, s32 skillId, s32 targetMode)
 {
+    BtlAction *actionState = (BtlAction *)(action);
     extern s32 datCalcSkillEffectFlags(s32 skillId, u8 *source, u8 *target, s32 options);
     s32 effectMask;
     u32 bitIndex;
@@ -840,9 +840,8 @@ loop_outer_body:
             goto loop_inner_test;
 loop_inner_body:
             if (datCalcHasBuffMask(
-                    /* measured: typed target-list links change offset-first address operands at these retained sites. */
-                    *(DatUnit **)(*(u8 **)(*(u8 **)(action + (targetIndex * 4) + 0x38) +
-                                      0x30) + 0xA64),
+                    /* Resolve the target action, its unit and the unit data separately. */
+                    ((BtlUnit *)(u8 *)(((BtlAction *)((BtlAction *)action)->targets[targetIndex])->unit))->datUnit,
                     effectBit) != 0) {
                 targetIndex += 1;
                 goto loop_inner_test;
@@ -850,8 +849,8 @@ loop_inner_body:
                 goto loop_inner_exit;
             }
 loop_inner_test:
-            /* measured: typed loop-bound reloads alter allocation across the target calls; the final count comparisons are typed. */
-            if (targetIndex < *(u16 *)(action + 0x6A)) {
+            /* measured: the action alias retains the loop-bound reload across target calls. */
+            if (targetIndex < actionState->unk_6a) {
                 goto loop_inner_body;
             }
 loop_inner_exit:
@@ -881,8 +880,7 @@ loop_24_body:
     result = datCalcSkillEffectFlags(
         skillId & 0xFFFF,
         (u8 *)*(s32 *)&((BtlUnit *)*(u8 **)&((BtlAction *)action)->unit)->datUnit,
-        (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(action + (targetCursor * 4) + 0x38) +
-                            0x30) + 0xA64),
+        (u8 *)*(s32 *)&((BtlUnit *)(u8 *)(((BtlAction *)((BtlAction *)action)->targets[targetCursor])->unit))->datUnit,
         targetMode);
     if (result != 0 && result != 0xFFFF) {
         targetCursor += 1;
@@ -891,7 +889,7 @@ loop_24_body:
         goto loop_24_exit;
     }
 loop_24_test:
-    if (targetCursor < *(u16 *)(action + 0x6A)) {
+    if (targetCursor < actionState->unk_6a) {
         goto loop_24_body;
     }
 loop_24_exit:
@@ -931,6 +929,7 @@ s32 btlConditionMessageId(s32 condition) {
 // FUN_001FB1F0
 s32 btlBuffMaskCheckEntries(u8 *action, s32 skillId)
 {
+    BtlAction *actionState = (BtlAction *)(action);
     s32 effectMask;
     u32 bitIndex;
     u32 targetIndex;
@@ -956,8 +955,8 @@ loop_outer_body:
             goto loop_inner_test;
 loop_inner_body:
             if (datCalcHasBuffMask(
-                /* measured: typed target-list links change offset-first address operands at these retained sites. */
-                *(DatUnit **)(*(u8 **)(*(u8 **)(action + (targetIndex * 4) + 0x38) + 0x30) + 0xA64),
+                /* Resolve the target action, its unit and the unit data separately. */
+                ((BtlUnit *)(u8 *)(((BtlAction *)((BtlAction *)action)->targets[targetIndex])->unit))->datUnit,
                 effectBit) != 0) {
                 targetIndex += 1;
                 goto loop_inner_test;
@@ -965,8 +964,8 @@ loop_inner_body:
                 goto loop_inner_exit;
             }
 loop_inner_test:
-            /* measured: typed loop-bound reloads alter allocation across the target calls; the final count comparisons are typed. */
-            if (targetIndex < *(u16 *)(action + 0x6A)) {
+            /* measured: the action alias retains the loop-bound reload across target calls. */
+            if (targetIndex < actionState->unk_6a) {
                 goto loop_inner_body;
             }
 loop_inner_exit:

@@ -11,7 +11,8 @@ extern void kAssertFail(const char* file, u32 line);
 #define K_ASSERT(condition, line) \
     if (!(condition)) { kAssertFail(D_00635980, (line)); }
 
-
+#include "dat_skill_entry_internal.h"
+#include "btl_effect_internal.h"
 extern u16* D_00881460[];   /* current command target unit 1 */
 extern u16* D_00881464[];   /* current command target unit 2 */
 extern s32 D_00881468[];    /* last calculation result */
@@ -36,9 +37,9 @@ s32 datCalcSkillElement(u8* unit, u16 skillId);
 s32 datCalcGetWeaponProperty(u16* unitWords, s32 propertyKind);
 s32 datCalcGetArmorProperty(u16* unit, s32 propertyKindArg);
 s32 datCalcEnemyHasTableFlag(u16* unit);
-
+/* Install source, target and skill context, dispatch the integer formula, and require it to publish a result. */
 // FUN_00244F60
-/* Stores the command's unit pointers and parameters, then runs calculation kind arg0 and returns its result. */
+
 s32 datScriptRunCalc(u32 calculationKind, u16* sourceUnit, u16* targetUnit, u16 commandId, s32 parameter)
 {
     D_0088146C[0] = commandId;
@@ -54,7 +55,7 @@ s32 datScriptRunCalc(u32 calculationKind, u16* sourceUnit, u16* targetUnit, u16 
 
 /* MATCHED: three shapes carried the 34-arm dispatch.  The level-difference
    and parameter tables are typed arrays - `((f32 *)(DAT_007644E8 + 0x18))[i]`,
-   not `*(f32 *)(base + i * 4)` - which is what puts the base load ahead of the
+   not `((BtlBattleState *)DAT_0076449c)->escapeCount` - which is what puts the base load ahead of the
    index extension.  The three ids that fall back to 100 are a switch, not an
    `||` chain, so the last compare stays a `beq` with an explicit branch to the
    default arm instead of being inverted.  And every clamp is written `>` a
@@ -62,8 +63,9 @@ s32 datScriptRunCalc(u32 calculationKind, u16* sourceUnit, u16* targetUnit, u16 
    keep the compared value in $v0 with the test in $at, where the `>=` form
    moves it to $v1.  The count divisions are compound (`step /= 3`), which
    extends once instead of truncating and re-extending. */
+/* Evaluate a floating-point formula term from the current command context; unsupported terms assert. */
 // FUN_00245030
-/* Floating-point calculation dispatch: runs kind arg0 with param and returns the f32 result. */
+
 /* The skill bytes +0x12/+0x16 follow DatSkillEntry; retain the byte-table ABI because datCalc_internal.h also declares incompatible accessor contracts. The battle-global +0xC58/+0xC5E fields have no complete owning layout here. */
 f32 datScriptCalcFloat(u32 term, s32 parameter)
 {
@@ -183,9 +185,9 @@ f32 datScriptCalcFloat(u32 term, s32 parameter)
             K_ASSERT(D_00881460[0] != 0, 0x118);
             result = (f32)(u32)datCalcGetWeaponProperty(D_00881460[0], 0);
         } else if (D_00881470[0] == 1) {
-            result = (f32)*(s16 *)(command + 0x12);
+            result = (f32)((DatSkillEntry *)command)->power;
         } else if (D_00881470[0] == 2) {
-            result = (f32)*(s16 *)(command + 0x16);
+            result = (f32)((DatSkillEntry *)command)->spPower;
         } else {
             kAssertFail(D_00635980, 0x123);
         }
@@ -259,7 +261,7 @@ f32 datScriptCalcFloat(u32 term, s32 parameter)
         result = (f32)((s16 *)DAT_007644F4)[tier];
         break;
     case 27:
-        result = (f32)(*(u16 *)(DAT_0076449c + 0xC58) + 1);
+        result = (f32)(((BtlBattleState *)DAT_0076449c)->partyActionCount + 1);
         break;
     case 28:
         result = (f32)D_00881468[0];
@@ -298,7 +300,7 @@ f32 datScriptCalcFloat(u32 term, s32 parameter)
         }
         break;
     case 34:
-        result = (f32)(u32)*(u16 *)(DAT_0076449c + 0xC5E);
+        result = (f32)(u32)((BtlBattleState *)DAT_0076449c)->escapeCount;
         break;
     default:
         kAssertFail(D_00635980, 0x1C3);
@@ -317,17 +319,17 @@ void datScriptSetResult(s32 value)
     D_00881468[0] = value;
 }
 #pragma pop
-
+/* Report whether the current source unit is not an enemy; a missing source asserts. */
 // FUN_00246480
-/* Returns 1 when the current command target does not have flag 0x4 set. */
+
 s32 datScriptTargetIsNotEnemy(void)
 {
     K_ASSERT(D_00881460[0] != 0, 0x1FD);
     return !(*D_00881460[0] & 4);
 }
-
+/* Test whether the selected skill takes its properties from the source weapon; out-of-range IDs assert. */
 // FUN_002464E0
-/* Returns 1 when the current command table entry has flag 0x2 set. */
+
 s32 datScriptCmdFlag2Set(void)
 {
     K_ASSERT(D_0088146C[0] < 0x1B8, 0x21A);

@@ -12,9 +12,6 @@ extern u16 D_008C024E[];
 
 extern s32 D_008815B0[];
 
-static inline u32 add_retail_ptr(u32 offset, u32 base) {
-    return offset + base;
-}
 
 extern u16 D_008817E8[];
 extern u8 D_007964C0[];
@@ -38,6 +35,8 @@ extern s8 D_0063BAB0[];
  * normalized_diff 131; retain their original address/alias expressions. */
 // FUN_0027B100
 void itfMesWindowMoveSelection(u8 *selection, s32 direction) {
+    ItfMesSelection *cursorFields;
+
     s32 oldCursor;
     s32 remaining;
     u32 hiddenMask;
@@ -55,7 +54,7 @@ void itfMesWindowMoveSelection(u8 *selection, s32 direction) {
             remaining = 0;
         }
     }
-    *(s16 *)(selection + 0xE) = (s16)remaining;
+    (cursorFields = (ItfMesSelection *)(selection), cursorFields)->cursor = (s16)remaining;
     hiddenMask = ((ItfMesSelection *)selection)->hiddenMask.bits;
     entryIndex = 0;
     goto loop_test;

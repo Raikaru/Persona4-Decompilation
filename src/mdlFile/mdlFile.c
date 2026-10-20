@@ -38,11 +38,17 @@ typedef struct MdlCallbackObject {
     s32 callbackIndex;
 } MdlCallbackObject;
 
+typedef struct MdlCallbackState {
+    u8 pad00[0x34];
+    s32 count;
+    s32 callbackIndex;
+} MdlCallbackState;
 
 
 
+
+/* Publish the paired file-state words without changing the adjacent triple. */
 // FUN_001FC2C0
-/* Stores two words in the file-state globals at 0x881440 and 0x881444. */
 void mdlSetFileStatePair(u32 first, u32 second)
 {
     DAT_00881440_abs[0] = first;
@@ -52,8 +58,8 @@ void mdlSetFileStatePair(u32 first, u32 second)
 
 
 
+/* Publish the three-word file state independently of the paired state. */
 // FUN_001FC2E0
-/* Stores three words in the next three file-state globals. */
 void mdlSetFileStateTriple(u32 first, u32 second, u32 third)
 {
     DAT_00881448_abs[0] = first;
@@ -113,41 +119,39 @@ void mdlSetObjectHeaderValue(void* object, u32 value)
 
 
 /* Invoke the selected pre-callback, increment the count, then invoke its object callback when positive. */
-/* Raw fields retain MATCH: typed count/index accesses enlarged this body from 144 to 152 bytes.
- * The proven s32 count/index pair is at 0x28/0x2C. */
 // FUN_00498C50
 void mdlAdvanceObjectCallback(int object)
 {
     int count;
     int address;
+    MdlCallbackObject *callbackObject = (MdlCallbackObject *)object;
 
     address = object;
-    D_00713e7c[*(int *)(address + 0x2c)].callback();
-    count = *(int *)(address + 0x28) + 1;
-    *(int *)(address + 0x28) = count;
+    D_00713e7c[((MdlCallbackObject *)address)->callbackIndex].callback();
+    count = ((MdlCallbackObject *)address)->count + 1;
+    ((MdlCallbackObject *)address)->count = count;
     if (count > 0)
     {
-        D_00713e80[*(int *)(address + 0x2c)].callback(object);
+        D_00713e80[callbackObject->callbackIndex].callback(object);
     }
 }
 
 
 
 /* Advance the alternate callback state's count between its two callback stages. */
-/* Raw fields retain MATCH: typed count/index accesses enlarged this body from 144 to 152 bytes.
- * The proven s32 count/index pair is at 0x34/0x38. */
 // FUN_0049A710
 void mdlAdvanceStateCallback(int object)
 {
     int count;
     int address;
+    MdlCallbackState *callbackState = (MdlCallbackState *)object;
 
     address = object;
-    D_00713f1c[*(int *)(address + 0x38)].callback();
-    count = *(int *)(address + 0x34) + 1;
-    *(int *)(address + 0x34) = count;
+    D_00713f1c[((MdlCallbackState *)address)->callbackIndex].callback();
+    count = ((MdlCallbackState *)address)->count + 1;
+    ((MdlCallbackState *)address)->count = count;
     if (count > 0)
     {
-        D_00713f20[*(int *)(address + 0x38)].callback(object);
+        D_00713f20[callbackState->callbackIndex].callback(object);
     }
 }

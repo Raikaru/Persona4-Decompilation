@@ -10,14 +10,6 @@
 #include "type.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
-static inline s32 p4_pack_or(s32 left, s32 right)
-{
-    return left | right;
-}
-static inline f32 p4_mul_left(f32 left, f32 right)
-{
-    return right * left;
-}
 /* Digit slots retain the shared FclObject prefix at +0x100. The digit
  * variant interprets its resource tail as a floating glyph rectangle instead
  * of the generic resource/index/mode words. Every slot advances 0x220 bytes. */
@@ -100,10 +92,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002ba080-002baa50 */
 
 extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
-static inline s32 fclDigitIsZero(const s16 *value)
-{
-    return *value == 0;
-}
+
 /* measured: opt_rebuildconditionals off probe for min/max */
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */
@@ -137,6 +126,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
                    FclDrawColor color, s32 duration, s32 delay, f32 depth,
                    s32 layer, s8 mode)
 {
+    SdkTask *typedTask = (SdkTask *)task;
     typedef struct {
         u32 word;
     } DigitStoredWord __attribute__((packed));
@@ -158,7 +148,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
     bounds = fclMakeBoundsPacket(22.0f, 17.0f);
     origin = fclMakeVec2(position.x + 284.0f, position.y + 6.0f);
     value = number;
-    if ((value == -1) || fclDigitIsZero(&value)) {
+    if ((value == -1) || (value == 0)) {
         ones = 10;
         tens = 10;
     } else {
@@ -198,7 +188,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
         ((NmMesDigitSlot *)slot)->bounds.representation = firstBounds;
         ((NmMesDigitSlot *)slot)->draw.layer = layer;
         slot = ((SdkTask *)task)->work + offset + 0x104;
-        fclSpriteStartEntrance(slot, origin, *(u32 *)&color, *(u32 *)((u32)&color), 0,
+        fclSpriteStartEntrance(slot, origin, *(u32 *)&color, ((DigitStoredWord *)(u32)&color)->word, 0,
                       ((u8 *)&color)[3], (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
     } else {
         u8 *draw = ((SdkTask *)task)->work + (s32)firstIndex * 0x220 + 0x104;
@@ -219,7 +209,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
             glyphHeight = ((NmMesDigitGlyph *)digit)->height;
             glyphWidth = ((NmMesDigitGlyph *)digit)->width;
             glyphY = ((NmMesDigitGlyph *)digit)->y;
-            slot = *(u8 **)(task + 0x38);
+            slot = typedTask->work;
             offset = (s32)secondIndex * 0x220;
             glyphX = ((NmMesDigitGlyph *)digit)->x;
             ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.x = glyphX;
@@ -239,7 +229,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
                 secondPosition.y = pointY;
             }
             secondBounds = bounds.representation;
-            slot = *(u8 **)(task + 0x38);
+            slot = typedTask->work;
             secondColor = color;
             slot += offset;
             ((NmMesDigitSlot *)slot)->draw.object.anchorPosition = secondPosition;
@@ -253,15 +243,15 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
             ((NmMesDigitSlot *)slot)->bounds.representation = secondBounds;
             ((NmMesDigitSlot *)slot)->draw.layer = layer;
             {
-                u8 *draw = *(u8 **)(task + 0x38) + offset + 0x104;
+                u8 *draw = typedTask->work + offset + 0x104;
 
                 redrawn = fclMakeVec2(origin.x - 18.0f, origin.y);
-                fclSpriteStartEntrance(draw, redrawn, *(u32 *)&color, *(u32 *)((u32)&color), 0,
+                fclSpriteStartEntrance(draw, redrawn, *(u32 *)&color, ((DigitStoredWord *)(u32)&color)->word, 0,
                               ((u8 *)&color)[3], (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
             }
         }
     } else {
-        u8 *draw = *(u8 **)(task + 0x38) + (s32)secondIndex * 0x220 + 0x104;
+        u8 *draw = typedTask->work + (s32)secondIndex * 0x220 + 0x104;
 
         if ((((FclObject *)(draw - 4))->spriteFlags & 1) == 1) {
             retrace = fclMakeVec2(origin.x - 18.0f, ((FclObject *)(draw - 4))->anchorPosition.y);
@@ -287,6 +277,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
 void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
                     FclDrawColor color, f32 depth, s64 layer)
 {
+    SdkTask *typedTask = (SdkTask *)task;
     FclBoundsPacket bounds;
     FclBoundsBytes firstBounds, secondBounds;
     FclVec2 origin, shifted, secondPosition;
@@ -301,7 +292,7 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
     bounds = fclMakeBoundsPacket(22.0f, 17.0f);
     origin = fclMakeVec2(position.x + 284.0f, position.y + 6.0f);
     value = (s16)number;
-    if ((value == -1) || fclDigitIsZero(&value)) {
+    if ((value == -1) || (value == 0)) {
         ones = 10;
         tens = 10;
     } else {
@@ -351,7 +342,7 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
         glyphHeight = ((NmMesDigitGlyph *)digit)->height;
         glyphWidth = ((NmMesDigitGlyph *)digit)->width;
         glyphY = ((NmMesDigitGlyph *)digit)->y;
-        slot = *(u8 **)(task + 0x38);
+        slot = typedTask->work;
         offset = (s32)secondIndex * 0x220;
         glyphX = ((NmMesDigitGlyph *)digit)->x;
         ((NmMesDigitSlot *)(u8 *)((u32)offset + (u32)slot))->draw.region.glyph.x = glyphX;
@@ -367,7 +358,7 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
             secondPosition.y = pointY;
         }
         secondBounds = bounds.representation;
-        slot = *(u8 **)(task + 0x38);
+        slot = typedTask->work;
         secondColor = color;
         slot += offset;
         ((NmMesDigitSlot *)slot)->draw.object.anchorPosition = secondPosition;
@@ -380,13 +371,13 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
         ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags | 1;
         ((NmMesDigitSlot *)slot)->bounds.representation = secondBounds;
         ((NmMesDigitSlot *)slot)->draw.layer = layer;
-        ((NmMesDigitSlot *)(*(u8 **)(task + 0x38) + offset))->draw.object.spriteFlags = 0;
-        slot = *(u8 **)(task + 0x38) + offset;
+        ((NmMesDigitSlot *)(typedTask->work + offset))->draw.object.spriteFlags = 0;
+        slot = typedTask->work + offset;
         ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags | 1;
     } else {
         u8 *slot; s32 offset;
         offset = (s32)secondIndex * 0x220;
-        slot = *(u8 **)(task + 0x38) + offset;
+        slot = typedTask->work + offset;
         ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags & ~1;
     }
 }

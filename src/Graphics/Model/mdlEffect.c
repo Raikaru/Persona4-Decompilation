@@ -3,6 +3,7 @@
 #include "rw_geometry_internal.h"
 /* Source unit: src/Graphics/Model/mdlFile_0047d2d0.c (1 function markers) */
 #include "type.h"
+#include "member_access.h"
 #include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_update_internal.h"
@@ -84,6 +85,11 @@ struct RwFrame { u8 objectAndDirtyLink[0x10]; RwMatrix modelling; };
 typedef struct RwTexture RwTexture;
 typedef struct RpMaterial RpMaterial;
 typedef struct RpGeometry RpGeometry;
+/* Projection scratch holds an input vector at +0x30 and its projected result at +0x40. */
+typedef struct MdlEffectProjectionScratch { u8 pad0[0x30]; RwV3d input; u8 pad3C[4]; RwV3d projected; u8 pad4C[4]; } MdlEffectProjectionScratch;
+/* One pointer-sized entry in a model material table. */
+typedef struct MdlEffectMaterialSlot { RpMaterial *material; } MdlEffectMaterialSlot;
+
 /* Same combine contract as the existing frame-transform provider. */
 typedef enum RwOpCombineType {
     rwCOMBINEREPLACE = 0,
@@ -97,7 +103,9 @@ extern f32 D_00713D14[];
 extern f32 D_00713D18[];
 extern f32 cosf(void);
 extern f32 sinf(f32 value);
-static inline u8 *mdlEffect_camera_matrix(u8 *base)
+/* Address the camera matrix following the camera object header. */
+/* measured: plain base-plus-header expressions change owner instruction bytes at all three call sites. */
+static inline u8 *mdlEffectCameraMatrix(u8 *base)
 {
     return base + 0x20;
 }
@@ -381,7 +389,7 @@ u32 *mdlEffectListAppendNode(u32 *list, u32 *sourceNode, u16 matrixIndex)
 // FUN_0047D540
 void mdlEffectListBuildTransforms(u8 **list, u8 *model)
 {
-    /* measured: The remaining +4 matrix-index and +8 handle loads intentionally stay byte-addressed: replacing each with MdlEffectListNode members changed the owning-file instruction bytes (measured individually). */
+    /* measured: Direct fields, typed aliases and indexed forms for the remaining matrix-index/handle loads differ; MEMBER preserves the original aliasing. */
     extern f32 sqrtf(f32 x);
     f32 in[16];
     struct Vec3 { f32 x; f32 y; f32 z; };
@@ -427,7 +435,7 @@ void mdlEffectListBuildTransforms(u8 **list, u8 *model)
                 dst += 2;
             } while (count > 0);
             }
-            if (*(u16 *)(node + 4) >= 1000) {
+            if (MEMBER(u16, node, MdlEffectListNode, matrixIndex) >= 1000) {
                 out[2].z = 1.0f;
                 out[1].y = 1.0f;
                 out[0].x = 1.0f;
@@ -480,8 +488,8 @@ void mdlEffectListBuildTransforms(u8 **list, u8 *model)
                 out[0].flag = 3;
                 *(struct Vec3 *)&out[3] = *(struct Vec3 *)&in[12];
             }
-            mdlEffectSetMatrixPose((u8 *)*(u32 *)(node + 8), (u8 *)out);
-            mdlEffectCommitAndAdvance(*(u8 **)(node + 8));
+            mdlEffectSetMatrixPose((u8 *)MEMBER(u32, node, MdlEffectListNode, handle), (u8 *)out);
+            mdlEffectCommitAndAdvance(MEMBER(u8 *, node, MdlEffectListNode, handle));
             node = (u8 *)((MdlEffectListNode *)node)->next;
     }
 }
@@ -690,9 +698,7 @@ extern void mdlEffectAdvanceEmitter(void *object);
 extern void ParticleUpdateScaled(u8 *particle, f32 scale);
 void GeometryMatrixBuildCombined();
 extern char D_00713CE0[];
-static inline f32 MulF32(f32 left, f32 right) {
-    return left * right;
-}
+
 typedef struct Code48InitialState {
     f32 vector00[4];
     f32 vector10[4];
@@ -1314,7 +1320,7 @@ f32 mdlEffectProjectAnchorDepth(void)
     input.y = D_00713D14[0];
     input.z = D_00713D18[0];
     func_003e42a0(&transformed, &input,
-                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)kwlnGetCamera()));
+                  (const RwMatrix *)mdlEffectCameraMatrix((u8 *)(u32)kwlnGetCamera()));
     depth = transformed.z;
     output[0] = 640.0f * (transformed.x / depth);
     output[1] = 448.0f * (transformed.y / depth);
@@ -1347,7 +1353,7 @@ s32 mdlEffectAnchorOnScreen(void)
     ((MdlEffectFloatWord *)raw)[9].value = D_00713D14[0];
     ((MdlEffectFloatWord *)raw)[10].value = D_00713D18[0];
     func_003e42a0((RwV3d *)(raw + 0x30), (const RwV3d *)(raw + 0x20),
-                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)kwlnGetCamera()));
+                  (const RwMatrix *)mdlEffectCameraMatrix((u8 *)(u32)kwlnGetCamera()));
     ptr = (u8 *)(u32)kwlnGetCamera();
     nearPlane = ((MdlEffectCamera *)ptr)->nearPlane;
     ptr = (u8 *)(u32)kwlnGetCamera();
@@ -1379,7 +1385,7 @@ s32 mdlEffectAnchorOnScreen(void)
 // FUN_0048A650
 f32 mdlEffectAnchorScreenScale(f32 inputScale)
 {
-    /* measured: The scratch +0x44 Y load stays raw: typing this one lane changed the instruction bytes; the other scratch lanes and camera/frame fields are typed (measured individually). */
+    /* measured: The projected Y load needs MEMBER; direct, local and indexed scratch-member forms change instructions. */
     u8 raw[0x50];
     f32 depth;
     f32 nearPlane;
@@ -1403,12 +1409,12 @@ f32 mdlEffectAnchorScreenScale(f32 inputScale)
     ((MdlEffectFloatWord *)raw)[13].value = D_00713D14[0];
     ((MdlEffectFloatWord *)raw)[14].value = D_00713D18[0];
     func_003e42a0((RwV3d *)(raw + 0x40), (const RwV3d *)(raw + 0x30),
-                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)kwlnGetCamera()));
+                  (const RwMatrix *)mdlEffectCameraMatrix((u8 *)(u32)kwlnGetCamera()));
     depth = ((MdlEffectFloatWord *)raw)[18].value;
     distanceOrRatio = ((MdlEffectFloatWord *)raw)[16].value / depth;
     scaledValue = 640.0f * distanceOrRatio;
     ((MdlEffectFloatWord *)raw)[0].value = scaledValue;
-    distanceOrRatio = *(f32 *)(raw + 0x44) / depth;
+    distanceOrRatio = MEMBER(f32, raw, MdlEffectProjectionScratch, projected.y) / depth;
     scaledValue = 448.0f * distanceOrRatio;
     ((MdlEffectFloatWord *)raw)[1].value = scaledValue;
     ((MdlEffectFloatWord *)raw)[2].bits = 0;
@@ -1596,7 +1602,7 @@ void EffWaveApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1625,7 +1631,7 @@ void EffMotionApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1639,7 +1645,7 @@ void EffMotionApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_0048D820
 void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1653,7 +1659,7 @@ void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1668,7 +1674,7 @@ void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_0048E270
 void EffEmitterKind4ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1682,7 +1688,7 @@ void EffEmitterKind4ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1709,7 +1715,7 @@ void EffConeApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1737,7 +1743,7 @@ void EffConeAngleApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1773,7 +1779,7 @@ void EffBezierApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
 }
@@ -1783,7 +1789,7 @@ void EffBezierApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
-/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_00490BB0
 void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1797,7 +1803,7 @@ void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1812,7 +1818,7 @@ void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_00491660
 void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1826,7 +1832,7 @@ void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1840,7 +1846,7 @@ void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_00492080
 void EffEmitterKind10ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1854,7 +1860,7 @@ void EffEmitterKind10ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1881,7 +1887,7 @@ void EffSwayParticleApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1913,7 +1919,10 @@ void mdlEffectResetEmitterTicks(u8 *instance)
 /* On the first tick, marks samples inactive; dispatches the kind update and advances the tick counter. */
 // FUN_00492D10
 void mdlEffectAdvanceEmitter(void *object) {
-    /* measured: The final +0x10 tick read/write stays raw: the typed increment changed instruction bytes, while the earlier tick test and all sample fields remained MATCH (measured). */
+    EffTrackPath *tickDestination;
+    EffTrackPath *tickSource;
+
+    /* measured: Separate typed aliases at the final tick read and write preserve MATCH where direct fields differ. */
     u8 *emitter = object;
     extern void (*D_00713D50[])(u8 *emitter);
     u32 count;
@@ -1931,7 +1940,7 @@ void mdlEffectAdvanceEmitter(void *object) {
         }
     }
     D_00713D50[*(u16 *)emitter * 4](emitter);
-    *(s32 *)(emitter + 0x10) = *(s32 *)(emitter + 0x10) + 1;
+    (tickDestination = (EffTrackPath *)(emitter))->ticks.signedValue = (tickSource = (EffTrackPath *)(emitter))->ticks.signedValue + 1;
 }
 
 
@@ -2329,7 +2338,7 @@ extern void EffSpriteUpdate(u8 *instance);
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 *WindAllocKindEntry(u16 kind, u8 *parameters);
 extern u8 D_0071413C[];
-extern void func_004adb50();
+extern void mdlEffectUpdateModelChildTransforms();
 extern void mdlEffectDrawModelChildren(u8 *instance);
 extern f32 iGpffff8080;
 extern void (*D_008873ec[])(void *);
@@ -2395,11 +2404,11 @@ void FlashQuadUpdateIfActive(u8 *instance) {
 /* Calls kind slot +0x10, increments the counter at +0x34, then calls kind slot +0x14 with input when the counter is positive. */
 // FUN_004A1BA0
 void FlashQuadAdvanceAndUpdate(u8 *instance) {
-    /* measured: The second kind load at +0x38 stays raw: its typed form changes instruction bytes after the callback; the first dispatch and age accesses are typed (measured individually). */
+    /* measured: The post-callback kind reload uses MEMBER; direct, local and indexed fields change instructions. */
     (*(void (**)(void))(D_00714020 + (((MdlEffectVectorInstance *)instance)->kind.value * 0x1C)))();
     (((MdlEffectVectorInstance *)instance)->age)++;
     if (((MdlEffectVectorInstance *)instance)->age > 0) {
-        (*(void (**)(u8 *))(D_00714024 + (*(s32 *)(instance + 0x38) * 0x1C)))(instance);
+        (*(void (**)(u8 *))(D_00714024 + (MEMBER(s32, instance, MdlEffectVectorInstance, kind.value) * 0x1C)))(instance);
     }
 }
 
@@ -2467,14 +2476,14 @@ void WindInstanceDestroy(u8 *instance)
 // FUN_004A5910
 void *WindCreateKindEntryAlt(void *source)
 {
-    /* measured: The two callback kind loads at +0x38 stay raw: typing either changed instruction bytes; the initial kind/parameter reads and child write are typed (measured individually). */
+    /* measured: Both callback kind reloads need MEMBER after direct, local and indexed field probes. */
     u8 *descriptor = (u8 *)source;
     u8 *instance;
 
     instance = WindAllocKindEntry(((MdlEffectVectorInstance *)descriptor)->kind.low, ((MdlEffectVectorInstance *)descriptor)->parameters);
     ((MdlEffectVectorInstance *)instance)->child = (u8 *)
-        (*(s32 (**)(u8 *))(D_0071413C + (*(s32 *)(descriptor + 0x38) * 0x1C)))(descriptor);
-    (*(void (**)(u8 *))(D_00714130 + (*(s32 *)(descriptor + 0x38) * 0x1C)))(instance);
+        (*(s32 (**)(u8 *))(D_0071413C + (MEMBER(s32, descriptor, MdlEffectVectorInstance, kind.value) * 0x1C)))(descriptor);
+    (*(void (**)(u8 *))(D_00714130 + (MEMBER(s32, descriptor, MdlEffectVectorInstance, kind.value) * 0x1C)))(instance);
     return instance;
 }
 
@@ -2511,14 +2520,14 @@ void WindInstanceUpdateIfActive(u8 *instance)
 // FUN_004A5AB0
 void WindInstanceAdvanceAndUpdate(u8 *instance)
 {
-    /* measured: The final kind load at +0x38 stays raw: typing it changed instruction bytes; the first dispatch and age accesses are typed (measured individually). */
+    /* measured: The final kind reload needs MEMBER after direct, local and indexed field probes. */
     s32 age;
 
     (*(void (**)(void))(D_00714140 + (((MdlEffectVectorInstance *)instance)->kind.value * 0x1C)))();
     age = ((MdlEffectVectorInstance *)instance)->age + 1;
     ((MdlEffectVectorInstance *)instance)->age = age;
     if (age > 0) {
-        (*(void (**)(u8 *))(D_00714144 + (*(s32 *)(instance + 0x38) * 0x1C)))(instance);
+        (*(void (**)(u8 *))(D_00714144 + (MEMBER(s32, instance, MdlEffectVectorInstance, kind.value) * 0x1C)))(instance);
     }
 }
 
@@ -2620,7 +2629,7 @@ void *mdlEffectCloneInstance(void *source)
 // FUN_004A5EF0
 void mdlEffectCopyReferences(u8 *destination, u8 *source)
 {
-    /* measured: The reference assignment lines retain raw +0xCC/+0xD0 loads/stores: typing either source or destination separately changed instruction bytes; all reference tests are typed (measured individually). */
+    /* measured: Reference assignments use MEMBER after separate source/destination direct, local and indexed field probes changed instructions. */
     s32 oldTrackInstance;
     s32 oldTlpRef;
 
@@ -2629,7 +2638,7 @@ void mdlEffectCopyReferences(u8 *destination, u8 *source)
         if (oldTrackInstance != 0) {
             mdlEffectReleaseTrackInstance((u8 **)oldTrackInstance);
         }
-        *(s32 *)(destination + 0xD0) = mdlEffectShareTrackInstance(*(s32 *)(source + 0xD0));
+        MEMBER(s32, destination, MdlEffectSpriteInstance, tracks) = mdlEffectShareTrackInstance(MEMBER(s32, source, MdlEffectSpriteInstance, tracks));
         return;
     }
     if (((MdlEffectSpriteInstance *)source)->tlpRef != 0) {
@@ -2637,7 +2646,7 @@ void mdlEffectCopyReferences(u8 *destination, u8 *source)
         if (oldTlpRef != 0) {
             TlpRelease(oldTlpRef);
         }
-        *(s32 *)(destination + 0xCC) = TlpAddRef(*(s32 *)(source + 0xCC));
+        MEMBER(s32, destination, MdlEffectSpriteInstance, tlpRef) = TlpAddRef(MEMBER(s32, source, MdlEffectSpriteInstance, tlpRef));
     }
 }
 
@@ -2759,7 +2768,11 @@ void mdlEffectIncrementCounter(int instance)
 #pragma opt_loop_invariants off
 void mdlEffectRenderFlares(u8 *instance)
 {
-    /* measured: Remaining byte-addressed geometry/material reloads and entry-color load preserve MATCH: whole-line and inner-pointer typing each changed instruction bytes; other model fields, entries and native vertices are typed (measured individually). */
+    MdlEffectMaterialSlot *textureMaterialSlot;
+    MdlEffectMaterialSlot *colorMaterialSlot;
+    MdlEffectMaterialSlot *alphaMaterialSlot;
+
+    /* measured: Material-slot aliases preserve MATCH; remaining geometry/material reloads and entry color require MEMBER after direct, local and indexed probes. */
     extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
     extern RpGeometry *func_003c22f0(RpGeometry *geometry);
     extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture);
@@ -2870,10 +2883,10 @@ void mdlEffectRenderFlares(u8 *instance)
         u8 *p = ((MdlEffectRenderModel *)listBase)->atomic;
         u8 *q = (u8 *)((RpAtomic *)p)->geometry;
         RpGeometryLock((RpGeometry *)q, 0xFF2);
-        vtxCur = *(u8 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x5C);
+        vtxCur = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)MEMBER(u8 *, listBase, MdlEffectRenderModel, atomic))->geometry)->morphTarget;
         vtxCur = (u8 *)((RpMorphTarget *)vtxCur)->vertices;
         vtxBase = vtxCur;
-        auxCur = *(u32 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x34);
+        auxCur = (u32 *)((RpGeometry *)(u8 *)((RpAtomic *)MEMBER(u8 *, listBase, MdlEffectRenderModel, atomic))->geometry)->texCoords[0];
         entry = D_007141B0 + (s32)((MdlEffectFlareInstance *)instance)->variant * 0xD0;
         outer = 0;
         while (outer < 13) {
@@ -2909,7 +2922,7 @@ void mdlEffectRenderFlares(u8 *instance)
                 s32 idx;
                 s32 dev = TnSlotObject(((MdlEffectFlareEntry *)entry)->texture);
                 idx = (outer & 0xFFFF) * 4;
-                RpMaterialSetTexture(*(RpMaterial **)(*(u8 **)(listBase + 0x54) + idx), (RwTexture *)(u32)dev);
+                RpMaterialSetTexture((RpMaterial *)(textureMaterialSlot = (MdlEffectMaterialSlot *)(MEMBER(u8 *, listBase, MdlEffectRenderModel, materials) + idx))->material, (RwTexture *)(u32)dev);
                 fx = dx * ((MdlEffectFlareEntry *)entry)->positionFactor;
                 fy = dy * ((MdlEffectFlareEntry *)entry)->positionFactor;
                 tmpX = (s32)(320.0f + fx);
@@ -2936,7 +2949,7 @@ void mdlEffectRenderFlares(u8 *instance)
                     :
                     : "r"(&packed), "f"(normalization), "m"(packed)
                     : "$2", "$vf11", "$vf2", "memory");
-                entryColor = *(s32 *)(entry + 0xC);
+                entryColor = MEMBER(s32, entry, MdlEffectFlareEntry, packedColor);
                 __asm__ volatile(
                     "lw $2, 0(%0)\n"
                     "pextlb $2, $zero, $2\n"
@@ -2971,11 +2984,11 @@ void mdlEffectRenderFlares(u8 *instance)
                 {
                     color.word = outWord;
                     if (color.rgba.c3 != 0xFF) {
-                        slot = *(u8 **)(((MdlEffectRenderModel *)listBase)->materials + idx);
+                        slot = (u8 *)(colorMaterialSlot = (MdlEffectMaterialSlot *)(((MdlEffectRenderModel *)listBase)->materials + idx))->material;
                         *(MdlCol *)&((RpMaterial *)slot)->color = color.rgba;
                     } else {
                         color.rgba.c3 = 0xFE;
-                        slot = *(u8 **)(((MdlEffectRenderModel *)listBase)->materials + idx);
+                        slot = (u8 *)(alphaMaterialSlot = (MdlEffectMaterialSlot *)(((MdlEffectRenderModel *)listBase)->materials + idx))->material;
                         *(MdlCol *)&((RpMaterial *)slot)->color = color.rgba;
                         color.rgba.c3 = 0xFF;
                     }
@@ -3091,7 +3104,7 @@ void mdlEffectRenderFlares(u8 *instance)
         }
     }
     {
-        u8 *p = *(u8 **)(listBase + 0x10);
+        u8 *p = MEMBER(u8 *, listBase, MdlEffectRenderModel, atomic);
         u8 *q = (u8 *)((RpAtomic *)p)->geometry;
         func_003c22f0((RpGeometry *)q);
         if ((*(u16 *)listBase & 4) != 0) {
@@ -3316,7 +3329,7 @@ void mdlEffectDrawModelChildren(u8 *instance)
 /* Runs the model-effect update pass followed by the child drawing pass. */
 // FUN_004ADFA0
 void mdlEffectUpdateAndDrawModelChildren(u8 *instance) {
-    func_004adb50();
+    mdlEffectUpdateModelChildTransforms();
     mdlEffectDrawModelChildren(instance);
 }
 
@@ -3757,7 +3770,7 @@ void mdlEffectStoreWord(u32 *instance, u32 value)
 /* Detaches and releases camera frame/raster resources, then unlocks and releases the texture raster. */
 // FUN_004B2E00
 void mdlEffectReleaseCameraTexture(u8 *object) {
-    /* measured: Repeated camera/raster loads and clearing stores remain raw: individually typed versions changed instruction bytes; the initial ownership reads and camera fields are typed (measured individually). */
+    /* measured: Repeated camera/raster accesses use MEMBER; direct, local and indexed forms changed instructions. */
     u8 *base;
     u8 *cameraWithRaster;
     u8 *cameraWithDepth;
@@ -3776,26 +3789,26 @@ void mdlEffectReleaseCameraTexture(u8 *object) {
             func_003efd20(camera, 0);
             func_003e9390(frame);
         }
-        cameraWithDepth = *(u8 **)(base + 0xC);
+        cameraWithDepth = MEMBER(u8 *, base, MdlEffectCameraTexture, camera);
         slot_1 = (s32 *)(cameraWithDepth + 0x64);
         depthRaster = ((MdlEffectCamera *)cameraWithDepth)->depthRaster;
         if (depthRaster != 0) {
             *slot_1 = 0;
             func_003ec330(depthRaster);
         }
-        cameraWithRaster = *(u8 **)(base + 0xC);
+        cameraWithRaster = MEMBER(u8 *, base, MdlEffectCameraTexture, camera);
         slot_2 = (s32 *)(cameraWithRaster + 0x60);
         if (((MdlEffectCamera *)cameraWithRaster)->raster != 0) {
             *slot_2 = 0;
         }
-        func_003e8440(*(u8 **)(base + 0xC));
-        *(u8 **)(base + 0xC) = NULL;
+        func_003e8440(MEMBER(u8 *, base, MdlEffectCameraTexture, camera));
+        MEMBER(u8 *, base, MdlEffectCameraTexture, camera) = NULL;
     }
     textureRaster = ((MdlEffectCameraTexture *)base)->raster;
     if (textureRaster != 0) {
         RpSkyTexCacheRasterLock(textureRaster, 0);
-        func_003ec330(*(s32 *)(base + 8));
-        *(s32 *)(base + 8) = 0;
+        func_003ec330(MEMBER(s32, base, MdlEffectCameraTexture, raster));
+        MEMBER(s32, base, MdlEffectCameraTexture, raster) = 0;
     }
 }
 
@@ -3830,14 +3843,14 @@ void LineNovaInstanceUpdateIfActive(u8 *instance)
 /* Calls kind slot +0x0C, increments the counter at +0x14, then calls kind slot +0x10 when the counter is positive. The kind index is at +0x18. */
 // FUN_004B5040
 void LineNovaInstanceAdvanceAndUpdate(void *instance) {
-    /* measured: The final +0x18 kind reload stays raw: typing it changed instruction bytes after the first callback; both callback tables and the age accesses are typed (measured individually). */
+    /* measured: The final kind reload uses MEMBER; direct, local and indexed forms changed instructions after the callback. */
     u8 *object;
 
     object = instance;
     ((void (**)(void *))D_0071465C)[((MdlEffectLineNovaInstance *)object)->kind * 6](object);
     ((MdlEffectLineNovaInstance *)object)->age += 1;
     if (((MdlEffectLineNovaInstance *)object)->age > 0) {
-        ((void (**)(void *))D_00714660)[*(s32 *)(object + 0x18) * 6](object);
+        ((void (**)(void *))D_00714660)[MEMBER(s32, object, MdlEffectLineNovaInstance, kind) * 6](object);
     }
 }
 

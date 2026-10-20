@@ -49,12 +49,6 @@ extern f32 fGpffff8044;
 
 
 extern void (*jtbl_008873EC[])(void *);
-static inline f32 code1_0048_mul(f32 left, f32 right) {
-    return left * right;
-}
-static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
-    fn(value);
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00486780-00486970 */
 
@@ -134,7 +128,7 @@ u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output)
         flags = ((MdlEffectState *)effect)->flags.signedValue;
         mask = flags & 0x18;
         if (mask == 0) {
-            value = *(u_long128 *)((MdlEffectState *)effect)->offset; /* Transfer the complete quadword representation, including the VU W lane. */
+            value = *(u_long128 *)&((MdlEffectState *)effect)->offset; /* Transfer the complete quadword representation, including the VU W lane. */
             *(u_long128 *)output = value;
             return value;
         }
@@ -238,18 +232,21 @@ u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output)
 // FUN_00486970
 u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output)
 {
+    MdlEffectState *orientationState;
+    MdlEffectState *aimState;
+
     u32 flags;
     u_long128 direction;
     u_long128 value;
     f32 pitch;
 
-    if (((flags = *(s32 *)(effect + 0x68)) & 0x60) == 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-        value = *(u_long128 *)((MdlEffectState *)effect)->orientation; /* Transfer the complete quadword representation, including the VU W lane. */
+    if (((flags = (orientationState = (MdlEffectState *)effect)->flags.signedValue) & 0x60) == 0) { /* measured: the separate typed pointer preserves MATCH under b210. */
+        value = *(u_long128 *)&((MdlEffectState *)effect)->orientation; /* Transfer the complete quadword representation, including the VU W lane. */
         *output = value;
         return value;
     }
     mdlEffectAimDirection(target, (u8 *)&direction);
-    if (*(s32 *)(effect + 0x68) & 0x40) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    if ((aimState = (MdlEffectState *)effect)->flags.signedValue & 0x40) { /* measured: the separate typed pointer preserves MATCH under b210. */
         pitch = 0.0f;
     } else {
         pitch = -func_0044b920(-((EffectVuVector *)&direction)->lane[1]);

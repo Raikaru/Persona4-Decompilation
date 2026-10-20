@@ -4,6 +4,7 @@
 #include "sdk_task_registration.h"
 /* Source unit: src/Kosaka/k_clump/k_clumpInstance.c */
 #include "type.h"
+#include "member_access.h"
 #include "Kosaka/k_clump_internal.h"
 #include "texture_callback_internal.h"
 
@@ -80,13 +81,14 @@ void K_Clump_ReadChunks(u8 *directory, s32 *outputPath, u8 *workBytes)
     void *inputStream;
     void *outputStream;
     void *chunkData;
+    ClumpWork *work = (ClumpWork *)workBytes;
 
     streamContext[7] = 0;
     streamContext[4] = (s32)((HCdvd *)directory)->fileMemory;
     streamContext[5] = (s32)((HCdvd *)directory)->fileSize;
     inputStream = func_003e2f60(3, 1, &streamContext[4]);
     outputStream = func_003e2f60(2, 2, outputPath);
-    *(s32 *)(workBytes + 0x14C) = 0;
+    work->count = 0;
     for (i = 0; i < 0x80; i++)
     {
         ((ClumpWork *)workBytes)->items[i] = 0;
@@ -104,11 +106,11 @@ void K_Clump_ReadChunks(u8 *directory, s32 *outputPath, u8 *workBytes)
                 func_003ef1b0(chunkData);
                 break;
             case 0x10:
-                ((ClumpWork *)workBytes)->items[*(s32 *)(workBytes + 0x14C)] =
+                ((ClumpWork *)workBytes)->items[work->count] =
                     (s32)func_003c0f20(inputStream);
-                if (K_Clump_ClumpHasMatUsrData((void *)((ClumpWork *)workBytes)->items[*(s32 *)(workBytes + 0x14C)],
+                if (K_Clump_ClumpHasMatUsrData((void *)((ClumpWork *)workBytes)->items[work->count],
                                   D_005F64C0) == 0 &&
-                    K_Clump_ClumpHasMatUsrData((void *)((ClumpWork *)workBytes)->items[*(s32 *)(workBytes + 0x14C)],
+                    K_Clump_ClumpHasMatUsrData((void *)((ClumpWork *)workBytes)->items[work->count],
                                   D_005F64E0) == 0)
                 {
                     if (((ClumpWork *)workBytes)->count != 0)
@@ -117,7 +119,7 @@ void K_Clump_ReadChunks(u8 *directory, s32 *outputPath, u8 *workBytes)
                                              K_Clump_RenderAtomicCallBack, NULL);
                     }
                 }
-                func_003c0960((void *)((ClumpWork *)workBytes)->items[*(s32 *)(workBytes + 0x14C)], outputStream);
+                func_003c0960((void *)((ClumpWork *)workBytes)->items[work->count], outputStream);
                 ((ClumpWork *)workBytes)->count = ((ClumpWork *)workBytes)->count + 1;
                 break;
             case 0xF0F000E0:
@@ -255,7 +257,7 @@ void K_Clump_LoadDestroy(u8 *task)
 {
     s32 handle;
 
-    handle = ((ClumpWork *)*(u8 **)(task + 0x38))->field_4;
+    handle = ((ClumpWork *)MEMBER(u8 *, task, KwlnTask, work))->field_4;
     if (handle >= 0)
     {
         func_00428618(handle);

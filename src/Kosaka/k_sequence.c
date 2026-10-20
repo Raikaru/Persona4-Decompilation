@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "Kosaka/k_field_state_internal.h"
 /* Original translation unit k_sequence.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -74,14 +75,14 @@ s32 K_SeqFrameTaskLinked(void)
 }
 
 /* Create a root field task from the alternate payload words and record its handle. */
-/* measured: typing the remaining first payload-word guard loses MATCH; subsequent root-creation operands use
- * the proven payload layout. */
+/* measured: access-site, typed-local, and indexed payload guard forms enlarge this function from
+ * 160 to 172 bytes. MEMBER preserves the retail guard while naming the proven payload member. */
 // FUN_00170350
 void K_SeqFieldPosStart(u8 *parameters)
 {
     s32 task;
 
-    if (*(s32 *)(parameters + 0xC) == 0) {
+    if (MEMBER(s32, parameters, KSeqPositionParameters, values[0]) == 0) {
         kAssertFail(D_005F16F8, 0x69);
     }
     task = FldRootCreate(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ((KSeqPositionParameters *)parameters)->values[0],

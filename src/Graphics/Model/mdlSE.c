@@ -11,8 +11,13 @@ typedef struct MdlSeRecord {
         MdlFileObject base;
         struct { u8 pad00[0x0E]; s16 id; } identity;
     };
-    void *primaryRequest;
-    void *secondaryRequest;
+    union {
+        struct {
+            void *primaryRequest;
+            void *secondaryRequest;
+        };
+        void *requests[2];
+    };
     u8 unk1C[0x0C];
 } MdlSeRecord;
 typedef struct MdlSeCell {
@@ -30,6 +35,11 @@ typedef struct MdlSeBankHeader {
     u8 unk00[0xFC];
     s32 size;
 } MdlSeBankHeader;
+/* Interior aliases start at the type/id halfword of an eight-byte slot. */
+typedef struct MdlSeSlotIdentifier {
+    u16 value;
+    u8 pad02[6];
+} MdlSeSlotIdentifier;
 
 extern void chkmemAllocSiteTag();
 extern void memset(void *dest, s32 value, s32 size);
@@ -38,8 +48,8 @@ extern u8 D_007241D8;
 extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
 extern s32 iGpffffbb40;
 extern u8 D_00922C10[];
-extern u8 D_00922C14[];
-extern u8 D_00922C16[];
+extern MdlSeSlotIdentifier D_00922C14[];
+extern MdlSeSlotIdentifier D_00922C16[];
 extern void memcpy(void *dst, const void *src, u32 size);
 extern s32 sdkSndQueueSlotRequest(s32 slotIndex, void *input, u32 inputSize, void *intermediate, u32 intermediateSize, void *output, u32 outputSize);
 extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
@@ -128,8 +138,8 @@ s32 mdlSeAcquireSlot(u32 type, u16 id)
     iGpffffbb40 = (u32)iGpffffbb40 + 1;
     ((MdlSeSlot *)((s32)D_00922C10 + byteOffset))->signedTick = iGpffffbb40;
     /* Keep linker-visible interior aliases for type/id rather than repointing relocations to D_00922C10. */
-    *(u16*)((s32)D_00922C14 + byteOffset) = type;
-    *(u16*)((s32)D_00922C16 + byteOffset) = id;
+    ((MdlSeSlotIdentifier *)((s32)D_00922C14 + byteOffset))->value = type;
+    ((MdlSeSlotIdentifier *)((s32)D_00922C16 + byteOffset))->value = id;
     return selectedSlot + 3;
 }
 #pragma pop
@@ -175,6 +185,7 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
     s32 flags;
     u8 *owner;
     s8 variants[4];
+    MdlSeCell *cell;
 
     row = (s16)rowIndex;
     if (row >= 0x1B) {
@@ -186,6 +197,7 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
     }
     entry = (u8 *)((col * 3) * 4);
     entry = *(u8 **)&((MdlMotionState *)state)->request + (row * 3) * 32 + (u32)entry;
+    cell = (MdlSeCell *)entry;
     slotId = ((MdlSeCell *)entry)->slotId;
     if (slotId == -1) {
         return 0;
@@ -220,16 +232,17 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
         }
         ((MdlMotionState *)state)->requestValue = **(s32 **)state;
     }
-    /* measured: typed cell flags cache across state writes (852B); raw reloads retain 848B MATCH. */
-    flags = *(s32 *)(entry + 4);
+    /* measured: retaining the cell pointer preserves the five flags reloads;
+     * access-site casts alone change the whole-file instruction comparison. */
+    flags = cell->flags;
     if (flags != -1) {
         owner = *(u8 **)state;
         if (((MdlFileObject *)owner)->type == 1) {
             ((MdlMotionState *)state)->pendingSlot = ((flags & 0x20000000) != 0) ^ 1;
             ((MdlMotionState *)state)->pendingChannel = 11;
             ((MdlMotionState *)state)->pendingTicks = slotValue;
-            ((MdlMotionState *)state)->pendingFlags = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
-            ((MdlMotionState *)state)->pendingKind = *(s32 *)(entry + 4);
+            ((MdlMotionState *)state)->pendingFlags = (cell->flags >> 16) & 0xFFF;
+            ((MdlMotionState *)state)->pendingKind = cell->flags;
         } else {
             if ((flags & 0x20000000) != 0) {
                 ((MdlMotionState *)state)->pendingSlot = 0;
@@ -250,8 +263,8 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
                 break;
             }
             ((MdlMotionState *)state)->pendingTicks = slotValue;
-            ((MdlMotionState *)state)->pendingFlags = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
-            ((MdlMotionState *)state)->pendingKind = *(s32 *)(entry + 4);
+            ((MdlMotionState *)state)->pendingFlags = (cell->flags >> 16) & 0xFFF;
+            ((MdlMotionState *)state)->pendingKind = cell->flags;
         }
     } else if (col == 0) {
         ((MdlMotionState *)state)->pendingTicks = -2;
@@ -362,7 +375,8 @@ void mdlSeRequestLoad(void **owner, u32 type, u16 id, s32 source, u32 size)
    Inlining the shared copy operation separates its local lifetimes from
    the callback and reproduces the retail saved-register allocation.
    Bank sizes stay unsigned for the consumer's argument-load ordering. */
-static inline void copyLoadedRequest(void **owner, s32 requestOffset)
+/* Copy a completed asynchronous request into newly allocated sound-record storage. */
+static inline void mdlSeCopyLoadedRequest(void **owner, s32 requestIndex)
 {
     void *node;
     void *request;
@@ -371,8 +385,8 @@ static inline void copyLoadedRequest(void **owner, s32 requestOffset)
     u32 fileSize;
 
     node = *owner;
-    /* The shared inline copy selects the +0x14 or +0x18 request by byte offset. */
-    request = *(void **)((u8 *)node + requestOffset);
+    /* Copy either of the record's two completed asynchronous requests. */
+    request = ((MdlSeRecord *)node)->requests[requestIndex];
     fileSize = ((HCdvdRequest *)request)->size;
     source = ((HCdvdRequest *)request)->data;
     chkmemAllocSiteTag(&D_007241D8, 0x49);
@@ -411,7 +425,7 @@ s32 mdlSeUpdateRecord(void **owner)
     switch (mode) {
     case 1:
         if (H_Cdvd_IsFileLoaded(((MdlSeRecord *)current)->primaryRequest) != 0) {
-            copyLoadedRequest(owner, 0x14);
+            mdlSeCopyLoadedRequest(owner, 0);
             request = ((MdlSeRecord *)*owner)->primaryRequest;
             if (request != NULL) {
                 H_Cdvd_Destroy(request);
@@ -428,7 +442,7 @@ s32 mdlSeUpdateRecord(void **owner)
             if (H_Cdvd_IsFileLoaded(request) == 0) {
                 return 0;
             }
-            copyLoadedRequest(owner, 0x18);
+            mdlSeCopyLoadedRequest(owner, 1);
             H_Cdvd_Destroy(((MdlSeRecord *)*owner)->secondaryRequest);
             ((MdlSeRecord *)*owner)->secondaryRequest = NULL;
         }

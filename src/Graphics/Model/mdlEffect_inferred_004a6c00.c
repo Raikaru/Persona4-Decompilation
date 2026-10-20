@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
@@ -18,10 +19,6 @@ typedef struct {
     u8 c2;
     u8 c3;
 } PolygonWindColor;
-static inline u32 p4_add_u32(u32 left, u32 right)
-{
-    return left + right;
-}
 extern PolygonWindColor iGpffffbb64;
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
@@ -115,16 +112,16 @@ u8 *mdlEffectCreateGridForRecord(u8 *parameters)
     memcpy(instance + 0x18, parameters, 0x40);
     createdGeometry = GeometryCreateTableGridMultiPart(0xD, 4, 2, 4, D_00713408, 0x4C);
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    *(u16 **)(instance + 0x58) = createdGeometry;
+    MEMBER(u16 *, instance, MdlEffectGridInstance, geometry) = createdGeometry;
     *createdGeometry = *createdGeometry & 0xFFFE;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    geometryWord = *(u16 **)(instance + 0x58);
+    geometryWord = MEMBER(u16 *, instance, MdlEffectGridInstance, geometry);
     *geometryWord = *geometryWord & 0xFFFB;
     RpGeometryLock(
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        ((RpAtomic *)((EffGeometryBlock *)*(u8 **)(instance + 0x58))->atomic)->geometry, 8);
+        ((RpAtomic *)((EffGeometryBlock *)MEMBER(u8 *, instance, MdlEffectGridInstance, geometry))->atomic)->geometry, 8);
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    colors = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)((EffGeometryBlock *)*(u8 **)(instance + 0x58))->atomic)->geometry)->colors;
+    colors = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)((EffGeometryBlock *)MEMBER(u8 *, instance, MdlEffectGridInstance, geometry))->atomic)->geometry)->colors;
     geometryWord = (u16 *)(s32)-1;
     colorGroup = 0;
     goto loop_004a6c00_check;

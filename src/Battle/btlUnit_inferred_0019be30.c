@@ -1,3 +1,4 @@
+#include "model_battle_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_target_state_packet_internal.h"
@@ -64,62 +65,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
-
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -134,10 +80,6 @@ extern s32 btlUnitResourceFreePacketUpdate(u8 *packetWork);
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -178,8 +120,8 @@ void btlUnitHoldPendingResourceFree(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019BE50
 /* Clear the resource-node pool flag when the held unit has a pool. */
+// FUN_0019BE50
 s32 btlUnitResourceFreePacketUpdate(u8 *packetWork) {
     s32 nodePool;
 
@@ -196,8 +138,8 @@ void btlUnitReleasePendingResourceFree(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + -1;
 }
 
-// FUN_0019BEB0
 /* Create resource-free work with pending-unit lifecycle callbacks. */
+// FUN_0019BEB0
 u8 *btlUnitCreateResourceFreePacket(u8 *packetWork)
 {
     u8 *packet;
@@ -210,9 +152,9 @@ u8 *btlUnitCreateResourceFreePacket(u8 *packetWork)
     return packet;
 }
 
-// FUN_0019BF10
-/* The shared model layout does not expose the callback record at +0x2D0; retain its word-sized presence test. */
+/* The model motion object is the callback record tested before starting data work. */
 /* Hold the unit and optionally start its model data callback immediately. */
+// FUN_0019BF10
 void btlUnitResourceLoadPacketInit(u8 *packetWork) {
     u8 *model;
     u8 *unit;
@@ -221,27 +163,28 @@ void btlUnitResourceLoadPacketInit(u8 *packetWork) {
     ((BtlUnit *)unit)->pendingPacketCount = (u16) (((BtlUnit *)unit)->pendingPacketCount + 1);
     if (!(((BtlUnitResourceLoadPacket *)packetWork)->flags & 0x10)) {
         model = (u8 *)(((BtlUnit *)unit)->layerHandle);
-        if (*(s32 *)(model + 0x2D0) == 0) {
+        if (*(s32 *)&((Model *)model)->motion.object == 0) {
             mdlRunDataCallback(model);
         }
         ((BtlUnitResourceLoadPacket *)packetWork)->initialized = 1;
     }
 }
 
-// FUN_0019BF80
-/* The +0x2D0 model callback record lacks a shared field; measured: typing the final initialized store loses MATCH. */
+/* The initialized word distinguishes starting a callback from waiting on its motion record. */
 /* Start a deferred model callback, then wait for its resource record to finish. */
+// FUN_0019BF80
 s32 btlUnitResourceLoadPacketUpdate(u8 *packetWork) {
+    BtlUnitResourceLoadPacket *typedPacketWork = (BtlUnitResourceLoadPacket *)packetWork;
     u8 *unit;
     u8 *model;
 
     unit = ((BtlUnitResourceLoadPacket *)packetWork)->unit;
     if (((BtlUnitResourceLoadPacket *)packetWork)->initialized == 0) {
         model = ((BtlUnit *)unit)->layerHandle;
-        if (*(s32 *)(model + 0x2D0) == 0) {
+        if (*(s32 *)&((Model *)model)->motion.object == 0) {
             mdlRunDataCallback(model);
         }
-        *(s32 *)(packetWork + 0xC) = 1;
+        typedPacketWork->initialized = 1;
         goto block_6;
     }
     if (mdlSeUpdateRecord((void **)(((BtlUnit *)unit)->layerHandle + 0x2D0)) != 0) {

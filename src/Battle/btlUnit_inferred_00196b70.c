@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_unit_movement_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_target_state_packet_internal.h"
@@ -64,62 +65,8 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
 
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -133,10 +80,6 @@ extern f32 DAT_0076112c;
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -177,11 +120,12 @@ void btlUnitClearRotateFlags(u8 *unit) {
     ((BtlUnit *)unit)->movementFlags &= ~BTLUNIT_MOVEMENTFLAGS_ROTATE;
 }
 
-// FUN_00196BD0
-/* measured: typing the final unit+0x2C scale reload changes MATCH to MISMATCH. */
+/* measured: access-site scale typing changes MATCH to MISMATCH; a distinct typed unit alias preserves the final reload. */
 /* Combine the scaled motion-table distance with the target anchor or bounding sphere fallback. */
+// FUN_00196BD0
 f32 btlUnitGetMotionDistance(u8 *unit, u8 *target, u16 motion)
 {
+    BtlUnit *unitFields = (BtlUnit *)unit;
     f32 distance;
     f32 anchorHeight;
     u8 *table;
@@ -191,8 +135,7 @@ f32 btlUnitGetMotionDistance(u8 *unit, u8 *target, u16 motion)
     if (motionId < (s32)((BtlUnit *)unit)->motionCount) {
         table = (u8 *)((BtlUnit *)unit)->motionRates;
         distance = ((BtlUnit *)unit)->scale *
-                   (f32)((BtlMotionRate *)btlUnitAddBaseToOffset(
-                       motionId * 0xA, (s32)(table, table)))->unk6;
+                   (f32)((BtlMotionRate *)(s32)byteAddressAdd(motionId * 0xA, (u8 *)((s32)(table, table))))->unk6;
         anchorHeight = btlUnitGetActionAnchorHeight(unit, target, motion);
         if (!(anchorHeight < 0.0f)) {
             distance += anchorHeight;
@@ -202,7 +145,7 @@ f32 btlUnitGetMotionDistance(u8 *unit, u8 *target, u16 motion)
         distance += ((BtlUnit *)target)->sphereCenter.z * ((BtlUnit *)target)->scale;
 add_base_00196bd0:
         distance += ((BtlUnit *)unit)->sphereCenter.z *
-                    *(f32 *)(unit + 0x2C);
+                    unitFields->scale;
     } else {
         distance = 0.0f;
     }
@@ -218,11 +161,13 @@ void btlUnitHoldPendingMove(u8 *packetWork)
 /* The vector snapshot preserves all three coordinates before flattening Y.
    Separate vector/pair objects retain their natural stack lifetimes. Native
    proof: 1736 executable bytes, ten resolved calls, 150 unchanged siblings. */
-// FUN_00196D00
-/* measured: the remaining unit/work scalar sites change MATCH to MISMATCH when typed individually; retain their aliasing. */
+/* measured: distinct typed unit/work aliases preserve scalar accesses that moved instructions with access-site fields. */
 /* Advance direct or routed movement; completion waits until both move and rotate activity clear. */
+// FUN_00196D00
 u32 btlUnitMovePacketUpdate(void *workData)
 {
+    BtlUnit *unitFields;
+    BtlUnitMovePacket *packetWorkFields;
     union MovementVector {
         RwV3d vector;
         f32 values[3];
@@ -243,7 +188,9 @@ u32 btlUnitMovePacketUpdate(void *workData)
     u16 index;
 
     packetWork = (u8 *)workData;
+    packetWorkFields = (BtlUnitMovePacket *)packetWork;
     unit = ((BtlUnitMovePacket *)packetWork)->unit;
+    unitFields = (BtlUnit *)unit;
     flags = ((BtlUnitMovePacket *)packetWork)->flags;
     if ((flags & 8) != 0) {
         state = ((BtlUnitMovePacket *)packetWork)->state;
@@ -258,7 +205,7 @@ u32 btlUnitMovePacketUpdate(void *workData)
         case 1:
             btlTargetResetWork(unit + 0xEC);
             ((BtlUnit *)unit)->stoppingDistance = ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
-            ((BtlUnit *)unit)->stateFlags = *(s32 *)(packetWork + 0x10);
+            ((BtlUnit *)unit)->stateFlags = packetWorkFields->flags;
             ((BtlUnitMovement *)(unit + 0xC4))->speed = 2.0f * (13.5f * ((BtlUnitMovePacket *)packetWork)->speed);
             if ((((BtlUnit *)unit)->stateFlags & 1) == 0) {
                 ((BtlTargetRoute *)(unit + 0xEC))->points[0].x = ((BtlUnit *)unit)->pos.x;
@@ -269,37 +216,37 @@ u32 btlUnitMovePacketUpdate(void *workData)
                 ((BtlUnit *)unit)->movementFlags &= 0xFFDF;
                 ((BtlUnit *)unit)->movementFlags |= 1;
                 ((BtlUnit *)unit)->movementFlags |= 0x10;
-                direction.values[0] = *(f32 *)(unit + 4) - ((BtlUnitMovePacket *)packetWork)->destination.x;
+                direction.values[0] = ((BtlUnit *)unit)->pos.x - ((BtlUnitMovePacket *)packetWork)->destination.x;
                 direction.values[1] = ((BtlUnit *)unit)->pos.y - ((BtlUnitMovePacket *)packetWork)->destination.y;
-                direction.values[2] = *(f32 *)(unit + 0xC) - ((BtlUnitMovePacket *)packetWork)->destination.z;
+                direction.values[2] = ((BtlUnit *)unit)->pos.z - ((BtlUnitMovePacket *)packetWork)->destination.z;
                 direction.values[1] = 0.0f;
                 RwV3dNormalize(direction.values, direction.values);
-                direction.values[0] *= *(f32 *)(packetWork + 0x1C);
-                direction.values[1] *= *(f32 *)(packetWork + 0x1C);
-                direction.values[2] *= *(f32 *)(packetWork + 0x1C);
-                ((BtlUnit *)unit)->moveDestination.x = *(f32 *)(packetWork + 4) + direction.values[0];
-                ((BtlUnit *)unit)->moveDestination.y = *(f32 *)(packetWork + 8) + direction.values[1];
-                ((BtlUnit *)unit)->moveDestination.z = *(f32 *)(packetWork + 0xC) + direction.values[2];
+                direction.values[0] *= ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
+                direction.values[1] *= ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
+                direction.values[2] *= ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
+                ((BtlUnit *)unit)->moveDestination.x = packetWorkFields->destination.x + direction.values[0];
+                ((BtlUnit *)unit)->moveDestination.y = packetWorkFields->destination.y + direction.values[1];
+                ((BtlUnit *)unit)->moveDestination.z = packetWorkFields->destination.z + direction.values[2];
             } else {
-                if (*(f32 *)(packetWork + 0x1C) != 0.0f) {
+                if (packetWorkFields->stoppingDistance != 0.0f) {
                     direction.values[0] = ((BtlUnit *)unit)->pos.x - ((BtlUnitMovePacket *)packetWork)->destination.x;
                     direction.values[1] = ((BtlUnit *)unit)->pos.y - ((BtlUnitMovePacket *)packetWork)->destination.y;
                     direction.values[2] = ((BtlUnit *)unit)->pos.z - ((BtlUnitMovePacket *)packetWork)->destination.z;
                     direction.values[1] = 0.0f;
                     RwV3dNormalize(direction.values, direction.values);
-                    direction.values[0] *= *(f32 *)(packetWork + 0x1C);
-                    direction.values[1] *= *(f32 *)(packetWork + 0x1C);
-                    direction.values[2] *= *(f32 *)(packetWork + 0x1C);
-                    position.values[0] = *(f32 *)(packetWork + 4) + direction.values[0];
-                    position.values[1] = *(f32 *)(packetWork + 8) + direction.values[1];
-                    position.values[2] = *(f32 *)(packetWork + 0xC) + direction.values[2];
+                    direction.values[0] *= ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
+                    direction.values[1] *= ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
+                    direction.values[2] *= ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
+                    position.values[0] = packetWorkFields->destination.x + direction.values[0];
+                    position.values[1] = packetWorkFields->destination.y + direction.values[1];
+                    position.values[2] = packetWorkFields->destination.z + direction.values[2];
                 } else {
                     position.vector = ((BtlUnitMovePacket *)packetWork)->destination;
                 }
                 position.values[1] = ((BtlUnit *)unit)->pos.y;
                 ((BtlUnit *)unit)->pos = position.vector;
                 ((BtlUnit *)unit)->flags2 |= 4;
-                *(s32 *)(unit + 0xC4) &= ~1;
+                unitFields->stateFlags &= ~1;
                 ((BtlUnit *)unit)->movementFlags &= 0xFFDF;
                 ((BtlUnit *)unit)->movementFlags &= 0xFFFE;
                 ((BtlUnit *)unit)->movementFlags &= 0xFFEF;
@@ -336,13 +283,13 @@ u32 btlUnitMovePacketUpdate(void *workData)
         case 1:
             btlTargetResetWork(unit + 0xEC);
             ((BtlUnit *)unit)->stoppingDistance = ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
-            ((BtlUnit *)unit)->stateFlags = *(s32 *)(packetWork + 0x10);
+            ((BtlUnit *)unit)->stateFlags = packetWorkFields->flags;
             ((BtlUnitMovement *)(unit + 0xC4))->speed = 2.0f * (13.5f * ((BtlUnitMovePacket *)packetWork)->speed);
             routeStart[0] = ((BtlUnit *)unit)->pos.x;
             routeStart[1] = ((BtlUnit *)unit)->pos.z;
-            routeEnd[0] = *(f32 *)(packetWork + 4);
+            routeEnd[0] = packetWorkFields->destination.x;
             routeEnd[1] = ((BtlUnitMovePacket *)packetWork)->destination.z;
-            if ((*(s32 *)(packetWork + 0x10) & 0x80) == 0) {
+            if ((packetWorkFields->flags & 0x80) == 0) {
                 btlRouteFindPath(unit + 0xEC, routeStart, routeEnd, 50.0f);
             } else {
                 btlUnitGetGroupBounds(3, 1, &position.vector, NULL, NULL, 1);
@@ -355,19 +302,19 @@ u32 btlUnitMovePacketUpdate(void *workData)
                 ((BtlUnit *)unit)->moveDestination = ((BtlUnitMovePacket *)packetWork)->destination;
             } else {
                 /* The route tail uses a pre-offset byte cursor to preserve the indexed address helper. */
-                work = (u8 *)btlUnitAddBaseToOffset(index * 8, (s32)unit);
-                direction.values[0] = *(f32 *)(work + 0xDC);
+                work = (u8 *)((index * 8) + ((s32)unit));
+                direction.values[0] = ((BtlTargetRoute *)(unit + 0xEC))->points[index - 2].x;
                 direction.values[1] = 0.0f;
-                direction.values[2] = *(f32 *)(work + 0xE0);
+                direction.values[2] = ((BtlTargetRoute *)(unit + 0xEC))->points[index - 2].z;
                 flatTarget.vector = ((BtlUnitMovePacket *)packetWork)->destination;
                 flatTarget.values[1] = 0.0f;
                 direction.values[0] = direction.values[0] - flatTarget.values[0];
                 direction.values[1] = direction.values[1] - flatTarget.values[1];
                 direction.values[2] = direction.values[2] - flatTarget.values[2];
                 RwV3dNormalize(direction.values, direction.values);
-                direction.values[0] *= *(f32 *)(packetWork + 0x1C);
-                direction.values[1] *= *(f32 *)(packetWork + 0x1C);
-                direction.values[2] *= *(f32 *)(packetWork + 0x1C);
+                direction.values[0] *= ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
+                direction.values[1] *= ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
+                direction.values[2] *= ((BtlUnitMovePacket *)packetWork)->stoppingDistance;
                 flatTarget.values[0] += direction.values[0];
                 flatTarget.values[1] += direction.values[1];
                 flatTarget.values[2] += direction.values[2];

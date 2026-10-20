@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -6,10 +7,7 @@
 #include "datCalc_unit_internal.h"
 #include "btl_formation_attach_internal.h"
 typedef struct BtlPacket BtlPacket;
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
+
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -46,13 +44,6 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
-
-
 typedef struct RwV3d RwV3d;
 struct RwV3d
 {
@@ -83,9 +74,8 @@ extern f32 fGpffff8110;
 #pragma push
 #pragma pop
 /* Allocate the attachment work prefix followed by one handle per table entry. */
+/* Allocate the attachment prefix and its handle tail from the selected 0x314-byte resource block. */
 // FUN_001D41B0
-/* Allocate the 0x68-byte attachment prefix and one handle per selected table entry. The raw count
- * reload retains the measured three-word table-address alias behavior. */
 u8 *btlFormationAllocEntry(u8 *table, s32 tableIndex, u32 unit, s32 target, s32 flags)
 {
     u32 unitAddress;
@@ -98,14 +88,14 @@ u8 *btlFormationAllocEntry(u8 *table, s32 tableIndex, u32 unit, s32 target, s32 
     offset = (u16)tableIndex * 0x314;
     base = (u32)table;
     /* The table consists of 0x314-byte records; only its count is known here. */
-    size = *(u16 *)((u8 *)p4_001d7f10_add((s32)offset, (s32)base) + 0x10) * 4 + 0x68;
+    size = ((BtlFormationResourceBlock *)(u8 *)(((s32)offset) + ((s32)base)))->entryCount * 4 + 0x68;
     chkmemAllocSiteTag(D_00609498, 0x51);
     result = jtbl_008873E8[0](size, 0x40000);
     memset(result, 0, size);
     ((BtlAttachWork *)result)->owner = table;
     ((BtlAttachWork *)result)->table = table + offset + 8;
-    /* measured: typed table reload folds the +8 into +0x10 and changes three words. */
-    ((BtlAttachWork *)result)->count = *(u16 *)(*(u8 **)(result + 4) + 8);
+    /* Measured: access-site, local-pointer and array typing fold +8 into +0x10; retain this named byte reload. */
+    ((BtlAttachWork *)result)->count = ((BtlAttachTable *)MEMBER(u8 *, result, BtlAttachWork, table))->count;
     ((BtlAttachWork *)result)->handles = (u8 **)(result + 0x68);
     ((BtlAttachWork *)result)->color = -1;
     ((BtlAttachWork *)result)->unit = (u8 *)unitAddress;

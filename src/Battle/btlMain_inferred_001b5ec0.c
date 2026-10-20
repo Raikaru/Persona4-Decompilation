@@ -1,3 +1,6 @@
+#include "member_access.h"
+#include "rw_atomic_layout_internal.h"
+#include "rw_geometry_layout_internal.h"
 #include "list_item_internal.h"
 #include "rw_geometry_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -16,6 +19,20 @@
 #include "btl_formation_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_unit_internal.h"
+
+/* SDK light color at +0x18; K_Clump light getters supply this RpLight. */
+typedef struct RpLight { u8 pad00[0x18]; BtlSceneColor color; } RpLight;
+/* Prefix of effGeometry.c's 0x48-byte allocation (frame/atomic/material). */
+typedef struct EffGeometryBlock {
+    u16 kind, unk02;
+    s32 flags;
+    u32 vertexCount;
+    u8 *frame;
+    struct RpAtomic *atomic;
+    struct RpMaterial *material;
+    u8 pad18[0x30];
+} EffGeometryBlock;
+
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
@@ -64,14 +81,6 @@ extern void btlMainSetupCameraAndEffects(void);
 extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern void *SceneDraw_GetList4Matrix(void);
 extern u8 *resrcMngGetColorValue(void);
 extern u8 *resrcMngGetColorTarget(void);
@@ -130,6 +139,7 @@ void btlMainTestInit(void)
 {
 }
 
+/* Start the test fade and request phase two on the next update. */
 // FUN_001B5ED0
 s32 btlMainTestUpdate(void)
 {
@@ -143,6 +153,7 @@ void btlMainMcInit(void)
     ((BtlBattleState *)D_0076449C)->mcIconTask = mcIconTaskCreate(0, 0);
 }
 
+/* Wait for memory-card work, then clear effect slots and request phase 0x12. */
 // FUN_001B5F30
 s32 btlMainMcUpdate(void)
 {
@@ -153,8 +164,8 @@ s32 btlMainMcUpdate(void)
     return 0;
 }
 
-// FUN_001B5F70
 /* Install a phase immediately, reset its elapsed frame, and call its initializer. */
+// FUN_001B5F70
 void btlMainSetPhase(s32 phase)
 {
     u8 *battle;
@@ -172,9 +183,9 @@ s32 btlMainGetPhase(void)
     return ((BtlBattleState *)iGpffffb3ac)->phase.state;
 }
 
-// FUN_001B5FE0
 /* Apply a pending phase, run the current phase update, defer its returned transition, and increment
  * elapsed frames. */
+// FUN_001B5FE0
 void btlMainUpdate(void)
 {
     u8 *battle;
@@ -200,8 +211,8 @@ void btlMainUpdate(void)
     ((BtlBattleState *)battle)->phase.frame = ((BtlBattleState *)battle)->phase.frame + 1;
 }
 
-// FUN_001B60A0
 /* Start phase one immediately and clear any pending transition after its initializer returns. */
+// FUN_001B60A0
 void btlMainReset(void)
 {
     u8 *battle;
@@ -214,8 +225,8 @@ void btlMainReset(void)
     ((BtlBattleState *)(u8 *)iGpffffb3ac)->phase.field04 = 0;
 }
 
-// FUN_001B6110
 /* Empty retail release hook invoked by btlRelease after field snapshot/unload. */
+// FUN_001B6110
 void btlMainRelease(void)
 {
 }
@@ -230,7 +241,7 @@ void btlMainRelease(void)
 /* measured: func_001b6120 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 /* Snapshot field lighting and scene colors, build the battle transform, and configure the optional
- * textured sky grid. Raw SDK light/geometry handles and vertex cursors retain their external layouts. */
+ * textured sky grid, copying positions, UVs and white vertex colors into its locked geometry. */
 void btlMainSetupCameraAndEffects(void)
 {
     extern u8 *K_Clump_GetLightA(void);
@@ -310,16 +321,16 @@ void btlMainSetupCameraAndEffects(void)
     typedef struct { f32 r, g, b, a; } RgbaReal;
     cam = (u8 *)K_Clump_GetLightA();
     base = D_0076449C;
-    *(RgbaReal *)&((BtlBattleState *)base)->savedLightA = *(RgbaReal *)(cam + 0x18);
+    *(RgbaReal *)&((BtlBattleState *)base)->savedLightA = *(RgbaReal *)&((RpLight *)cam)->color;
     cam = (u8 *)K_Clump_GetLightC();
     base = D_0076449C;
-    *(RgbaReal *)&((BtlBattleState *)base)->savedLightC = *(RgbaReal *)(cam + 0x18);
+    *(RgbaReal *)&((BtlBattleState *)base)->savedLightC = *(RgbaReal *)&((RpLight *)cam)->color;
     vec = resrcMngGetColorValue();
     base = D_0076449C;
-    *(RgbaReal *)&((BtlBattleState *)base)->scene.first = *(RgbaReal *)(vec + 0x0);
+    *(RgbaReal *)&((BtlBattleState *)base)->scene.first = *(RgbaReal *)vec;
     vec = resrcMngGetColorTarget();
     base = D_0076449C;
-    *(RgbaReal *)&((BtlBattleState *)base)->scene.second = *(RgbaReal *)(vec + 0x0);
+    *(RgbaReal *)&((BtlBattleState *)base)->scene.second = *(RgbaReal *)vec;
     tmp = resrcMngGetTransform();
     base = D_0076449C;
     RtQuatConvertFromMatrix(base + 0x1DC, tmp);
@@ -333,10 +344,10 @@ void btlMainSetupCameraAndEffects(void)
     ((BtlBattleState *)base)->colorFactors.w = fGpffff81f4 * (f32)iGpffffa4db;
     vec = (u8 *)SceneDraw_GetList4FirstColor();
     base = D_0076449C;
-    *(RgbaReal *)&((BtlBattleState *)base)->list4.first = *(RgbaReal *)(vec + 0x0);
+    *(RgbaReal *)&((BtlBattleState *)base)->list4.first = *(RgbaReal *)vec;
     vec = (u8 *)SceneDraw_GetList4SecondColor();
     base = D_0076449C;
-    *(RgbaReal *)&((BtlBattleState *)base)->list4.second = *(RgbaReal *)(vec + 0x0);
+    *(RgbaReal *)&((BtlBattleState *)base)->list4.second = *(RgbaReal *)vec;
     tmp = (u8 *)SceneDraw_GetList4Matrix();
     base = D_0076449C;
     RtQuatConvertFromMatrix(base + 0x20C, tmp);
@@ -393,30 +404,30 @@ void btlMainSetupCameraAndEffects(void)
     ((BtlBattleState *)base)->flags |= 0x2000002;
     base = D_0076449C;
     sprintf(buf, D_005F7270, ((BtlBattleState *)base)->formation, ((BtlBattleState *)base)->formationVariant);
-    *(u8 **)(D_0076449C + 0xE78) = (u8 *)func_003ef650(func_003ef6d0(), buf);
-    if (*(u32 *)(D_0076449C + 0xE78) != 0) {
-        *(u32 *)(D_0076449C + 0xE80) = 0;
+    *(u8 **)&((BtlBattleState *)D_0076449C)->skyActive = (u8 *)func_003ef650(func_003ef6d0(), buf);
+    if (*(u32 *)&((BtlBattleState *)D_0076449C)->skyActive != 0) {
+        *(u32 *)&((BtlBattleState *)D_0076449C)->skyScroll = 0;
         ((BtlBattleState *)D_0076449C)->sky = (u8 *)GeometryCreateTableGrid(1, 0x76, 0x59, D_0060A140, 0x4C);
         base = D_0076449C;
-        func_003c42b0(*(void **)(((BtlBattleState *)base)->sky + 0x14), *(void **)(base + 0xE78));
+        func_003c42b0(((EffGeometryBlock *)((BtlBattleState *)base)->sky)->material, *(void **)&((BtlBattleState *)base)->skyActive);
         base = D_0076449C;
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(((BtlBattleState *)base)->sky + 0x10) + 0x18), 0xFF2);
+        RpGeometryLock(((struct RpAtomic *)((EffGeometryBlock *)((BtlBattleState *)base)->sky)->atomic)->geometry, 0xFF2);
         base = D_0076449C;
-        p = *(u8 **)(*(u8 **)(((BtlBattleState *)base)->sky + 0x10) + 0x18);
-        dstPos = *(u8 **)(*(u8 **)(p + 0x5C) + 0x14);
-        dstUv = *(u8 **)(p + 0x34);
-        dstCol = *(u8 **)(p + 0x30);
+        p = (u8 *)((struct RpAtomic *)((EffGeometryBlock *)((BtlBattleState *)base)->sky)->atomic)->geometry;
+        dstPos = (u8 *)((struct RpGeometry *)p)->morphTarget->verts;
+        dstUv = (u8 *)((struct RpGeometry *)p)->texCoords[0];
+        dstCol = (u8 *)((struct RpGeometry *)p)->preLitLum;
         i = 0;
         tblA = D_0060A410;
         tblB = D_0060A840;
         uvScale = 8.0f;
         white = 0xFF;
         for (; i < 0x59; i++) {
-            *(f32 *)(dstPos + 0) = tblA[i * 3 + 0];
-            *(f32 *)(dstPos + 4) = tblA[i * 3 + 1];
-            *(f32 *)(dstPos + 8) = tblA[i * 3 + 2];
-            *(f32 *)(dstUv + 0) = tblB[i * 2 + 0];
-            *(f32 *)(dstUv + 4) = uvScale * tblB[i * 2 + 1];
+            ((RwV3d *)dstPos)->x = tblA[i * 3 + 0];
+            ((RwV3d *)dstPos)->y = tblA[i * 3 + 1];
+            ((RwV3d *)dstPos)->z = tblA[i * 3 + 2];
+            ((RwTexCoords *)dstUv)->u = tblB[i * 2 + 0];
+            ((RwTexCoords *)dstUv)->v = uvScale * tblB[i * 2 + 1];
             dstCol[0] = white;
             dstCol[1] = white;
             dstCol[2] = white;
@@ -427,30 +438,29 @@ void btlMainSetupCameraAndEffects(void)
         }
         base = D_0076449C;
         work = ((BtlBattleState *)base)->sky;
-        p = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+        p = (u8 *)((struct RpAtomic *)((EffGeometryBlock *)work)->atomic)->geometry;
         func_003c22f0(p);
         if ((*(u16 *)work & 4) != 0) {
-            *(u16 *)(p + 0xC) |= 1;
+            ((struct RpGeometry *)p)->lockedSinceLastInst |= 1;
         }
         base = D_0076449C;
         handle = ((BtlBattleState *)base)->sky;
-        work = *(u8 **)(handle + 0x14);
-        *(Rgba *)(work + 4) = D_007635C8;
+        work = (u8 *)((EffGeometryBlock *)handle)->material;
+        *(Rgba *)&((struct RpMaterial *)work)->color = D_007635C8;
         pos[0] = 0.0f;
         pos[1] = 5.0f;
         pos[2] = 0.0f;
         base = D_0076449C;
-        func_003e9c10(*(u8 **)(((BtlBattleState *)base)->sky + 0xC), pos, 0);
+        func_003e9c10(((EffGeometryBlock *)((BtlBattleState *)base)->sky)->frame, pos, 0);
     }
 }
 
 #pragma pop
-// FUN_001B68D0
 /* measured: opt_propagation off probes the retail ordered second float load group. */
+// FUN_001B68D0
 /* measured: func_001b68d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-/* Restore saved light-color snapshots, destroy the optional sky geometry, then unload the field scene.
- * Raw sky handle words retain the original integer handle representation. */
+/* Restore saved light-color snapshots, destroy optional sky geometry, and unload the field scene. */
 void btlMainSaveFieldSnapshotAndUnload(void)
 {
     f32 d;
@@ -477,10 +487,10 @@ void btlMainSaveFieldSnapshotAndUnload(void)
     D_00922CBC[0] = a;
     D_00922CC0[0] = 1;
     ((BtlBattleState *)D_0076449C)->skyActive = 0;
-    value = *(s32 *)(D_0076449C + 0xE7C);
+    value = *(s32 *)&((BtlBattleState *)D_0076449C)->sky;
     if (value != 0) {
         GeometryBlockDestroy((void *)(u32)value);
-        *(s32 *)(D_0076449C + 0xE7C) = 0;
+        *(s32 *)&((BtlBattleState *)D_0076449C)->sky = 0;
     }
     fieldSceneUnload();
 }
@@ -495,8 +505,8 @@ void btlMainLoadBattleFieldScene(void)
                   ((BtlBattleState *)D_0076449C)->formationVariant);
 }
 
-// FUN_001B69C0
 /* Clear the sky handle and scene-loaded flag before asking the field layer to unload. */
+// FUN_001B69C0
 void btlMainUnloadFieldScene(void)
 {
     u8 *p;
@@ -513,8 +523,8 @@ s32 btlMainStepFieldSceneLoad(void)
     return fieldSceneLoadStep();
 }
 
-// FUN_001B6A20
 /* Publish the two saved battle scene colors into scene-draw list four when the scene is active. */
+// FUN_001B6A20
 void btlMainSyncSceneDrawColors(void)
 {
     struct P4Vec4 {
@@ -541,8 +551,8 @@ void btlMainSyncSceneDrawColors(void)
 
 /* measured (this session): cold reconstruction v2 object 380/retail 348 instrs (9% over, not short); probe_variants 357 words/79 edits; probe_search 120 orders flat (propagation/rebuild/no_branch/dead/loop/lifetimes/strength/size/unroll all 357, common_subs worse 397); fnalign $at none (float/bltz tail, slti $at lever N/A); residual is stack layout (0x160 frame pads) and u32->float halving (bltz) vs dead-store elimination; banked guarded floor. */
 /* measured 001b6ab0 2026-09-19: invented f60/f64 pair removed (retail has constants at buf+0x40, not floats; 18 -> 16 float stores) and schedule pragmas removed (retail is unscheduled with nop after every branch/jal); object 350/retail 348 +0.6% INSIDE, 328 words, 48 edits (+3 reloc-only) via fnalign --candidate (was 311/347 -10.4%, 332 words, 228 edits with schedule on). Remaining pure deletes: 0x1b6afc lui $s0,0x88 + addiu $s0,$s0,0x7300 (table-base copy; candidate materialises per site) and 0x1b6c0c sw $zero,0x24($sp) + sw $zero,0x60($sp) (frame 0x120 vs 0x160 offset shift, same 8 constant stores). Frame offsets differ but counts match. */
-// FUN_001B6AB0
 /* Draw the full-screen sky-color overlay with the retail render states and four primitive vertices. */
+// FUN_001B6AB0
 void btlMainDrawSkyOverlay(void) {
     extern s32 RpSkyRenderStateSet(s32 state, s32 value);
     extern void (*D_00887300[])(u32 state, u32 value);
@@ -671,9 +681,8 @@ void btlMainSkillColorPairDefaultsAlt(u32 skill, s32 *color, s32 *tint) {
 // FUN_001B70C0
 #pragma push
 /* Preserve the position/color snapshots and the two cross-product phases. */
-/* Build a unit light basis toward its sphere center and publish tint and matrix by scene ID. Measured:
- * typed scene-ID reloads change MATCH across provider calls; raw tint lanes retain the existing
- * quaternion storage. */
+/* Build a light basis toward the unit sphere center and publish its tint and matrix by scene ID.
+ * Measured: MEMBER scene-ID reloads differ in access-site, local-pointer and array forms across provider calls. */
 void btlUnitUpdateModelLight(u8 *unit)
 {
     extern void *SceneDraw_GetLightColorA(u16 resTypeId);
@@ -731,15 +740,15 @@ void btlUnitUpdateModelLight(u8 *unit)
     u8 mode;
 
     if (((((BtlBattleState *)iGpffffb3ac)->flags & 2) != 0) &&
-        (*(u16 *)(unit + 0x9FE) != 0)) {
+        (((BtlUnit *)unit)->sceneDrawId != 0)) {
         mode = ((BtlUnit *)unit)->genus;
         switch (mode) {
         case 0:
         case 1: {
             f32 *dstf;
-            red = *(f32 *)(unit + 0x54);
-            green = *(f32 *)(unit + 0x58);
-            blue = *(f32 *)(unit + 0x5C);
+            red = ((BtlUnit *)unit)->unk_54.x;
+            green = ((BtlUnit *)unit)->unk_54.y;
+            blue = ((BtlUnit *)unit)->unk_54.z;
             position.x = red;
             position.y = green;
             position.z = blue;
@@ -760,7 +769,7 @@ void btlUnitUpdateModelLight(u8 *unit)
             cross_z = at.z;
             axis_y = *(f32 *)D_0060A0E4;
             right.x = axis_y * cross_z - axis_z * cross_y;
-            axis_x = *(f32 *)(u8 *)D_0060A0E0;
+            axis_x = ((BtlCameraPosition *)D_0060A0E0)->x;
             cross_x = at.x;
             right.y = axis_z * cross_x - axis_x * cross_z;
             right.z = axis_x * cross_y - axis_y * cross_x;
@@ -774,23 +783,23 @@ void btlUnitUpdateModelLight(u8 *unit)
             up.y = at.z * right.x - at.x * right.z;
             up.z = at.x * right.y - at.y * right.x;
             light.up = up;
-            dstf = (f32 *)SceneDraw_GetLightTint(*(u16 *)(unit + 0x9FE));
-            red = *(f32 *)(unit + 0x70);
-            green = *(f32 *)(unit + 0x74);
-            blue = *(f32 *)(unit + 0x78);
-            alpha = *(f32 *)(unit + 0x7C);
+            dstf = (f32 *)SceneDraw_GetLightTint(MEMBER(u16, unit, BtlUnit, sceneDrawId));
+            red = ((BtlUnit *)unit)->unk_70.imag.x;
+            green = ((BtlUnit *)unit)->unk_70.imag.y;
+            blue = ((BtlUnit *)unit)->unk_70.imag.z;
+            alpha = ((BtlUnit *)unit)->unk_70.real;
             dstf[0] = red;
             dstf[1] = green;
             dstf[2] = blue;
             dstf[3] = alpha;
-            *(Matrix *)SceneDraw_GetLightMatrixB(*(u16 *)(unit + 0x9FE)) = light;
+            *(Matrix *)SceneDraw_GetLightMatrixB(MEMBER(u16, unit, BtlUnit, sceneDrawId)) = light;
             break;
         }
         case 2: {
             f32 *dstf;
 
             RwMatrixRotate(&light, D_0060A0D0, -90.0f, 0);
-            dstf = (f32 *)SceneDraw_GetLightColorA(*(u16 *)(unit + 0x9FE));
+            dstf = (f32 *)SceneDraw_GetLightColorA(MEMBER(u16, unit, BtlUnit, sceneDrawId));
             red = *(f32 *)D_005F7290;
             green = *(f32 *)D_005F7294;
             blue = *(f32 *)D_005F7298;
@@ -799,7 +808,7 @@ void btlUnitUpdateModelLight(u8 *unit)
             dstf[1] = green;
             dstf[2] = blue;
             dstf[3] = alpha;
-            dstf = (f32 *)SceneDraw_GetLightTint(*(u16 *)(unit + 0x9FE));
+            dstf = (f32 *)SceneDraw_GetLightTint(MEMBER(u16, unit, BtlUnit, sceneDrawId));
             red = *(f32 *)D_005F72A0;
             green = *(f32 *)D_005F72A4;
             blue = *(f32 *)D_005F72A8;
@@ -808,7 +817,7 @@ void btlUnitUpdateModelLight(u8 *unit)
             dstf[1] = green;
             dstf[2] = blue;
             dstf[3] = alpha;
-            *(Matrix *)SceneDraw_GetLightMatrixB(*(u16 *)(unit + 0x9FE)) = light;
+            *(Matrix *)SceneDraw_GetLightMatrixB(MEMBER(u16, unit, BtlUnit, sceneDrawId)) = light;
             break;
         }
         default:
@@ -818,9 +827,8 @@ void btlUnitUpdateModelLight(u8 *unit)
 }
 
 #pragma pop
+/* Restore opaque alpha for one unit or all drawable units on both sides, preserving base RGB. */
 // FUN_001B73F0
-/* Restore opaque alpha for one unit or all drawable units on both sides. Raw base-color bytes retain
- * the existing packed-color call ABI. */
 void btlMainApplyUnitBaseColors(u8 *unit)
 {
     s32 index;
@@ -832,9 +840,9 @@ void btlMainApplyUnitBaseColors(u8 *unit)
         goto done;
     }
     if (unit != NULL) {
-        color[0] = *(u8 *)(unit + 0x30);
-        color[1] = *(u8 *)(unit + 0x31);
-        color[2] = *(u8 *)(unit + 0x32);
+        color[0] = ((BtlUnit *)unit)->cols[0].red;
+        color[1] = ((BtlUnit *)unit)->cols[0].green;
+        color[2] = ((BtlUnit *)unit)->cols[0].blue;
         color[3] = 0xFF;
         btlUnitSetColor(unit, *(s32 *)color);
         goto done;
@@ -843,14 +851,14 @@ void btlMainApplyUnitBaseColors(u8 *unit)
     goto outer_check;
 outer_loop:
     masked = (u16)index;
-    unit = *(u8 **)((u8 *)iGpffffb3ac + ((u32)masked << 3) + 0x178);
+    unit = ((BtlBattleState *)(u8 *)iGpffffb3ac)->unitLists[masked * 2];
     goto inner_check;
 inner_loop:
-    if (*(u16 *)(unit + 0x9FE) == 0) goto next;
+    if (((BtlUnit *)unit)->sceneDrawId == 0) goto next;
     if ((((BtlUnit *)unit)->flags3 & 1) != 0) goto next;
-    color[0] = *(u8 *)(unit + 0x30);
-    color[1] = *(u8 *)(unit + 0x31);
-    color[2] = *(u8 *)(unit + 0x32);
+    color[0] = ((BtlUnit *)unit)->cols[0].red;
+    color[1] = ((BtlUnit *)unit)->cols[0].green;
+    color[2] = ((BtlUnit *)unit)->cols[0].blue;
     color[3] = 0xFF;
     btlUnitSetColor(unit, *(s32 *)color);
 next:
@@ -870,9 +878,9 @@ done:
 #pragma push
 /* measured: func_001b7520 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-// FUN_001B7520
 /* Snapshot both field colors, form componentwise products, and blend to those products for the packet
  * duration. */
+// FUN_001B7520
 u32 btlMainFieldColorFadePacketUpdate(void *workData)
 {
     typedef struct { f32 x; f32 y; f32 z; f32 w; } FadeV4;

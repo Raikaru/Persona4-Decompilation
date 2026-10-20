@@ -2,24 +2,7 @@
 #include "type.h"
 #include "include_asm.h"
 
-/* The initializer clears exactly 0x2C bytes; setters establish each field. */
-typedef struct SdkListState {
-    s32 flags;
-    u16 primaryForward;
-    u16 primaryBack;
-    u16 primaryRepeatForward;
-    u16 primaryRepeatBack;
-    u16 secondaryForward;
-    u16 secondaryBack;
-    u16 secondaryRepeatForward;
-    u16 secondaryRepeatBack;
-    s32 visibleRows;
-    s32 reservedRows;
-    s32 unk1C;
-    s32 itemCount;
-    s32 cursor;
-    s32 scroll;
-} SdkListState;
+#include "sdk_list_state.h"
 
 extern void kAssertFail(void* file, u32 line);
 extern s32 sdkListStateSeek(u8* state, s32 value);
@@ -59,10 +42,11 @@ void sdkListStateInit(u8* state, s32 value, s32 itemCount)
 }
 
 // Intent: fully configures the list state: visible rows, item count, cursor and scroll offset, then sets the active and refresh flags.
-/* measured: typing each remaining byte-offset access loses whole-owner MATCH; keep those accesses while using the proven state fields elsewhere. */
+/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
 // FUN_00453670
 void sdkListStateConfigure(u8* state, s32 value, s32 itemCount, s32 cursor, s32 scroll)
 {
+    SdkListState *typedState = (SdkListState *)state;
     if (state == NULL) {
         kAssertFail(D_007105E8, 0x4F);
     }
@@ -75,7 +59,7 @@ void sdkListStateConfigure(u8* state, s32 value, s32 itemCount, s32 cursor, s32 
     ((SdkListState *)state)->itemCount = itemCount;
     ((SdkListState *)state)->cursor = cursor;
     ((SdkListState *)state)->scroll = scroll;
-    *(s32 *)(state + 0x1C) = value;
+    typedState->unk1C = value;
     if (value < 0) {
         ((SdkListState *)state)->unk1C = 0;
     }
@@ -216,14 +200,15 @@ void sdkListStateAddItem(u8* state)
     sdkListStateSetCount(state, ((SdkListState *)state)->itemCount + 1);
 }
 // Intent: sets the item count; if the count shrinks, re-seeks the cursor inside the new range.
-/* measured: typing each remaining byte-offset access loses whole-owner MATCH; keep those accesses while using the proven state fields elsewhere. */
+/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
 // FUN_00453CE0
 void sdkListStateSetCount(u8* state, s32 value)
 {
+    SdkListState *typedState = (SdkListState *)state;
     if (state == NULL) {
         kAssertFail(D_007105E8, 0xF4);
     }
-    if (value < *(s32 *)(state + 0x20)) {
+    if (value < typedState->itemCount) {
         ((SdkListState *)state)->itemCount = value;
         sdkListStateSeek(state, ((SdkListState *)state)->scroll + ((SdkListState *)state)->cursor);
         return;
@@ -280,17 +265,18 @@ s32 sdkListStateGetVisible(u8* state)
 }
 
 // Intent: moves the cursor to the given item index, clamped to the valid range, and recomputes the scroll offset.
-/* measured: typing each remaining byte-offset access loses whole-owner MATCH; keep those accesses while using the proven state fields elsewhere. */
+/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
 // FUN_00453EB0
 s32 sdkListStateSeek(u8* state, s32 value)
 {
+    SdkListState *typedState = (SdkListState *)state;
     s32 hi;
     s32 diff;
     s32 remainingRows;
     if (state == NULL) {
         kAssertFail(D_007105E8, 0x125);
     }
-    if (*(s32 *)(state + 0x20) == 0) {
+    if (typedState->itemCount == 0) {
         ((SdkListState *)state)->scroll = 0;
         ((SdkListState *)state)->cursor = 0;
         return 1;
@@ -300,13 +286,13 @@ s32 sdkListStateSeek(u8* state, s32 value)
     } else if (((SdkListState *)state)->itemCount < value) {
         value = ((SdkListState *)state)->itemCount - 1;
     }
-    if (value - *(s32 *)(state + 0x24) >= 0) {
+    if (value - typedState->cursor >= 0) {
         hi = ((SdkListState *)state)->visibleRows;
-        if (*(s32 *)(state + 0x20) < hi) {
-            hi = *(s32 *)(state + 0x20);
+        if (typedState->itemCount < hi) {
+            hi = typedState->itemCount;
         }
-        diff = value - *(s32 *)(state + 0x24);
-        *(s32 *)(state + 0x28) = diff;
+        diff = value - typedState->cursor;
+        typedState->scroll = diff;
         remainingRows = ((SdkListState *)state)->itemCount - hi;
         if (remainingRows < diff) {
             ((SdkListState *)state)->scroll = remainingRows;
@@ -360,10 +346,11 @@ void sdkListStateDisableClamp(u8* state)
 }
 
 // Intent: steps the cursor forward one row, scrolling when it reaches the bottom of the window. Returns 1 when it moved.
-/* measured: typing each remaining byte-offset access loses whole-owner MATCH; keep those accesses while using the proven state fields elsewhere. */
+/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
 // FUN_004540E0
 s32 sdkListStateStepForward(u8* state)
 {
+    SdkListState *typedState = (SdkListState *)state;
     s32 cur;
     s32 hi;
     s32 pos;
@@ -380,7 +367,7 @@ s32 sdkListStateStepForward(u8* state)
     if (remainingRows <= 0) {
         remainingRows = 1;
     }
-    pos = *(s32 *)(state + 0x24);
+    pos = typedState->cursor;
     nextCursor = pos + 1;
     if (nextCursor < remainingRows) {
         if (nextCursor < cur) {
@@ -398,7 +385,7 @@ s32 sdkListStateStepForward(u8* state)
         }
         return 0;
     }
-    scrollOffset = *(s32 *)(state + 0x28);
+    scrollOffset = typedState->scroll;
     if (scrollOffset + hi < cur) {
         ((SdkListState *)state)->scroll = scrollOffset + 1;
         goto done;
@@ -421,10 +408,11 @@ done:
     return 1;
 }
 // Intent: steps the cursor back one row, scrolling when it reaches the top of the window. Returns 1 when it moved.
-/* measured: typing each remaining byte-offset access loses whole-owner MATCH; keep those accesses while using the proven state fields elsewhere. */
+/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
 // FUN_00454250
 s32 sdkListStateStepBack(u8* state)
 {
+    SdkListState *typedState = (SdkListState *)state;
     s32 cur;
     s32 hi;
     s32 lo;
@@ -433,7 +421,7 @@ s32 sdkListStateStepBack(u8* state)
     s32 scrollOffset;
     s32 previousScroll;
     s32 flag;
-    cur = *(s32 *)(state + 0x20);
+    cur = typedState->itemCount;
     if (cur < 2) {
         return 0;
     }
@@ -445,7 +433,7 @@ s32 sdkListStateStepBack(u8* state)
     if (lo <= 0) {
         lo = 0;
     }
-    pos = *(s32 *)(state + 0x24);
+    pos = typedState->cursor;
     nextCursor = pos - 1;
     if (nextCursor >= lo) {
         if (pos > 0) {
@@ -463,7 +451,7 @@ s32 sdkListStateStepBack(u8* state)
         }
         return 0;
     }
-    scrollOffset = *(s32 *)(state + 0x28);
+    scrollOffset = typedState->scroll;
     previousScroll = scrollOffset - 1;
     if (previousScroll >= 0) {
         ((SdkListState *)state)->scroll = previousScroll;

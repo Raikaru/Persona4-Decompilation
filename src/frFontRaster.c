@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "include_asm.h"
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
@@ -289,15 +290,15 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
     corners[5] = bottom;
     corners[6] = right;
     corners[7] = bottom;
-    if (*(u8 **)(glyph + 0x1C) == NULL) {
+    if (MEMBER(u8 *, glyph, FrFontGlyphData, raster) == NULL) {
         kAssertFail(&D_0063BC88, 0x9B);
     }
-    raster = (u8 *)((FrFontGlyphRaster *)*(u8 **)(glyph + 0x1C))->cacheEntry;
+    raster = (u8 *)((FrFontGlyphRaster *)MEMBER(u8 *, glyph, FrFontGlyphData, raster))->cacheEntry;
     if (((FrFontRasterEntry *)raster)->palette != palette) {
         replacement = frFontAcquireGlyph(glyph, ((FrFontRasterEntry *)raster)->key);
-        ((FrFontGlyphRaster *)*(u8 **)(glyph + 0x1C))->references -= 1;
+        ((FrFontGlyphRaster *)MEMBER(u8 *, glyph, FrFontGlyphData, raster))->references -= 1;
         {
-            u8 *previous = *(u8 **)(glyph + 0x1C);
+            u8 *previous = MEMBER(u8 *, glyph, FrFontGlyphData, raster);
             if ((previous != NULL) && (((FrFontGlyphRaster *)previous)->references == 0)) {
                 u8 *previousRaster = (u8 *)((FrFontGlyphRaster *)previous)->cacheEntry;
                 if (previousRaster != NULL) {
@@ -467,6 +468,10 @@ u8 *frFontRasterAllocEntry(u32 key, u8 *bitmap, u32 palette)
 // FUN_00276420
 void frFontRasterUploadGlyph(int entryAddress, u8 *bitmap, int palette)
 {
+    FrFontRasterEntry *textureFields;
+    FrFontRasterEntry *textureFieldsReload;
+    FrFontRasterEntry *textureFieldsNextReload;
+
     short firstIndex;
     short secondIndex;
     u32 paletteAddress;
@@ -530,12 +535,12 @@ void frFontRasterUploadGlyph(int entryAddress, u8 *bitmap, int palette)
             column = column + 1;
         }
     }
-    func_003ec2a0(*(u32 *)(entryAddress + 0x14));
-    paletteAddress = func_003ec3d0(*(u32 *)(entryAddress + 0x14), 1);
+    func_003ec2a0((textureFields = (FrFontRasterEntry *)(entryAddress), textureFields)->texture);
+    paletteAddress = func_003ec3d0((textureFieldsReload = (FrFontRasterEntry *)(entryAddress), textureFieldsReload)->texture, 1);
     if (paletteAddress == 0) {
         kAssertFail(D_0063bc88, 0x1b1);
     }
     memcpy(paletteAddress, (u32)D_0063b5f0 + palette * 0x40, 0x40);
-    func_003ec2e0(*(u32 *)(entryAddress + 0x14));
+    func_003ec2e0((textureFieldsNextReload = (FrFontRasterEntry *)(entryAddress), textureFieldsNextReload)->texture);
     ((FrFontRasterEntry *)entryAddress)->palette = (short)palette;
 }

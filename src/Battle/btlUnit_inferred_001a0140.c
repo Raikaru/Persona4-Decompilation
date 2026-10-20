@@ -17,44 +17,13 @@ extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
 extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument, u32 extraArgument, u32 flags);
-static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
-{
-    return (u8 *)btlTargetCreateTargetPacket((u32)action, kind, a, b, c);
-}
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
-static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)
-{
-    btlActionSetStateWithDelay((BtlAction *)action, (u16)state, (u16)delay);
-}
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
-static inline u8 *actionRotatePacketBytes(u8 *unit, void *rot, s32 flags)
-{
-    return (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, (const RwV3d *)rot, (u32)flags);
-}
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
-static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
-{
-    return (u8 *)btlUnitCreateMotionSettlePacket(unit);
-}
 extern BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit);
-static inline void *actionMessagePacketBytes(s32 unit, s32 message)
-{
-    return btlPacketCreateEffectCounter(unit, message);
-}
 extern u8 *iGpffffb3cc; /* enemy visual records, stride 0xE8 */
 extern f32 D_005F6D20[];
 
-static inline s32 func_001a_add_offset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline s32 func_001a_fix_var(s32 value)
-{
-    if (value == 0) {
-        value = -1;
-    }
-    return value;
-}
 
 
 
@@ -69,10 +38,6 @@ BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 extern u8 *iGpffffb3b8; /* skill table, DatSkillEntry rows */
 u8 datCalcGetCharacterTableKind(u8 *unit);
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u16 flags);
-static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
-{
-    return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
-}
 u8 *btlUnitCreateMotionRequestPacket(u8 *unit, u16 value);
 extern f32 fGpffff811c;
 BtlPacket *btlMainCreateColorSetPacket(s32 arg);
@@ -90,9 +55,9 @@ extern f32 D_0076144C;
 /* Returns 1 when a target row of the action's target list carries a flag: kind 0
    scans row +0xF8 for BTL_STATUS_DOWN (0x100000); kind 1 scans row +0x10E for 0x4
    (the 0x4 setter is not identified; the damage calc writes 0x8/0x20/0x40 there). */
-// FUN_001A0140
 /* measured: loop-invariant probe for 001A0140 preheader materialization. */
 /* measured: func_001a0140 MATCH -> MISMATCH without this pragma. */
+// FUN_001A0140
 #pragma opt_loop_invariants on
 s32 btlActionAnyTargetDownOrHitFlagged(u8 *action)
 {
@@ -115,7 +80,7 @@ s32 btlActionAnyTargetDownOrHitFlagged(u8 *action)
         targetCount = ((BtlAction *)action)->unk_6a;
         statusMask = 0x100000;
         while ((targetIndex & 0xFFFF) < targetCount) {
-            target = *(u8 **)(action + ((u16)targetIndex * 4) + 0x38);
+            target = ((BtlAction *)action)->targets[(u16)targetIndex];
             hitCount = ((BtlAction *)target)->targetBlock.hitRowCount;
             hitIndex = 0;
             while ((hitIndex & 0xFFFF) < hitCount) {
@@ -139,7 +104,7 @@ s32 btlActionAnyTargetDownOrHitFlagged(u8 *action)
         enemyTargetIndex = 0;
         enemyTargetCount = *(u16 *)&((BtlAction *)action)->unk_6a;
         while ((enemyTargetIndex & 0xFFFF) < enemyTargetCount) {
-            enemyTarget = *(u8 **)(action + ((u16)enemyTargetIndex * 4) + 0x38);
+            enemyTarget = ((BtlAction *)action)->targets[(u16)enemyTargetIndex];
             enemyHitCount = ((BtlAction *)enemyTarget)->targetBlock.hitRowCount;
             enemyHitIndex = 0;
             while ((enemyHitIndex & 0xFFFF) < enemyHitCount) {
@@ -163,6 +128,8 @@ s32 btlActionAnyTargetDownOrHitFlagged(u8 *action)
 // FUN_001A0290
 void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices)
 {
+    s16 *outputIndices = (s16 *)effectIndices;
+
     /* measured: repeated typed output[1] stores retain output+2 in a saved
      * register (300B vs 288B); keep the second output byte-addressed. */
     s32 slotOffset;
@@ -171,11 +138,11 @@ void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices
 
     if (action->flags & 0x4000) {
         ((s16 *)effectIndices)[0] = 0x24;
-        *(s16 *)(effectIndices + 2) = -1;
+        ((s16 *)effectIndices)[1] = -1;
         return;
     }
     ((s16 *)effectIndices)[0] = 0;
-    *(s16 *)(effectIndices + 2) = 3;
+    ((s16 *)effectIndices)[1] = 3;
     slotOffset = (skillId & 0xFFFF) * 0x28;
     if (((DatSkillEntry *)(iGpffffb3b8 + slotOffset))->flags00 & 2) {
         battleUnit = action->unit;
@@ -186,11 +153,11 @@ void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices
             case 1:
             case 6:
                 ((s16 *)effectIndices)[0] = 1;
-                *(s16 *)(effectIndices + 2) = 4;
+                outputIndices[1] = 4;
                 return;
             case 5:
                 ((s16 *)effectIndices)[0] = 2;
-                *(s16 *)(effectIndices + 2) = 5;
+                outputIndices[1] = 5;
                 return;
             case 2:
             case 3:
@@ -201,7 +168,7 @@ void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices
             switch (battleUnit->charId) {
             case 0x109:
                 ((s16 *)effectIndices)[0] = 2;
-                *(s16 *)(effectIndices + 2) = 5;
+                outputIndices[1] = 5;
                 break;
             }
         }
@@ -212,6 +179,7 @@ void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices
 // FUN_001A03B0
 void btlActionFinishPresentation(BtlAction *action)
 {
+    BtlAction *typedListUnit;
     /* measured: a repeated typed unit load saves listUnit+0x30 in s2
      * (580B versus the 576B window); retain the second unit reload. */
     u8 *lookAtDeactivatePacket;
@@ -241,14 +209,16 @@ void btlActionFinishPresentation(BtlAction *action)
         battleCtxAlt = D_0076449C;
         if (((BtlBattleState *)battleCtxAlt)->actionEndFlags & 1) {
             listUnit = ((BtlBattleState *)battleCtxAlt)->actions;
+            typedListUnit = (BtlAction *)listUnit;
             while (listUnit != NULL) {
                 if ((((BtlAction *)listUnit)->unk_1a & 1) &&
                     datCalcIsDead(*(s32 *)&((BtlUnit *)(*(u8 **)&((BtlAction *)listUnit)->unit))->datUnit, 0) == 0) {
-                    unitPacket = btlUnitCreateMotionRequestPacket(*(u8 **)(listUnit + 0x30), 0);
+                    unitPacket = btlUnitCreateMotionRequestPacket(*(u8 * *)&typedListUnit->unit, 0);
                     *(s64 *)&((BtlPacket *)unitPacket)->actionUID = *(s64 *)action;
                     btlPacketEnqueue(unitPacket, 0);
                 }
                 listUnit = *(u8 **)&((BtlAction *)listUnit)->next;
+                typedListUnit = (BtlAction *)listUnit;
             }
         }
         if (*(u16 *)&((BtlBattleState *)D_0076449C)->actionEndFlags & 0x10) {

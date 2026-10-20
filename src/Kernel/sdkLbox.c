@@ -119,39 +119,39 @@ void sdkLboxSetSelection(u8 *task, s32 selection) {
 }
 
 /* Change the row limit and resize to the effective visible row count. */
-/* SdkLboxWork proves these window/list fields; retain byte accesses where
- * the typed pointer rewrite changed the measured matching instruction order. */
+/* The separate typed alias retains the measured window/list address lifetimes. */
 // FUN_00470430
 void sdkLboxSetVisibleRows(u8 *task, s32 visibleRows) {
+    SdkLboxWork *listbox = (SdkLboxWork *)((KwlnTask *)task)->work;
     u8 *work = ((KwlnTask *)task)->work;
 
-    sdkListStateSetVisible(work + 0x164, visibleRows);
-    ((SdkLboxWork *)work)->visibleRows = sdkListStateGetVisible(work + 0x164);
+    sdkListStateSetVisible(((SdkLboxWork *)work)->list, visibleRows);
+    ((SdkLboxWork *)work)->visibleRows = sdkListStateGetVisible(listbox->list);
     sdkLboxRecalcLayout(task);
 }
 
 /* Move the listbox and update the existing window rectangle. */
-/* SdkLboxWork proves these window/list fields; retain byte accesses where
- * the typed pointer rewrite changed the measured matching instruction order. */
+/* The separate typed alias retains the measured window/list address lifetimes. */
 // FUN_00470490
 void sdkLboxSetOrigin(u8 *task, s32 x, s32 y) {
+    SdkLboxWork *listbox = (SdkLboxWork *)((KwlnTask *)task)->work;
     u8 *work = ((KwlnTask *)task)->work;
     u8 *window;
 
     ((SdkLboxWork *)work)->x = x;
     ((SdkLboxWork *)work)->y = y;
-    window = *(u8 **)(work + 0x130);
+    window = ((SdkLboxWork *)work)->window;
     if (window != NULL) {
-        sdkWindowSetRect(window, work + 0x18);
+        sdkWindowSetRect(window, (u8 *)&listbox->x);
     }
 }
 
 /* Measure each entry and its optional value, then fit the visible rows. */
-/* The listbox/entry layouts are proven above; retain byte accesses here
- * because typed members changed field-address hoisting and lost MATCH. */
+/* The separate typed alias retains the measured entry-field address hoisting. */
 // FUN_004704D0
 void sdkLboxRecalcLayout(u8 *task)
 {
+    SdkLboxWork *listbox = (SdkLboxWork *)((KwlnTask *)task)->work;
     u8 text[0x100];
     s32 cellWidth;
     s32 visibleHeight;
@@ -166,64 +166,64 @@ void sdkLboxRecalcLayout(u8 *task)
     u8 *work;
     u8 *window;
 
-    work = *(u8 **)(task + 0x38);
-    entry = *(u8 **)(work + 0x144);
+    work = ((KwlnTask *)task)->work;
+    entry = ((SdkLboxWork *)work)->entries;
     maxWidth = 0;
     goto loop_29_check;
 loop_29_body:
-    if (*(s32 *)(work + 0x154) != 0) {
-        entryWidth = (*(s32 (**)(u8 *))(work + 0x158))(entry + 8);
-        valueType = *(s32 *)(entry + 4);
+    if (((SdkLboxWork *)work)->useMeasure != 0) {
+        entryWidth = (((SdkLboxWork *)work)->measure)(((SdkLboxEntry *)entry)->name);
+        valueType = ((SdkLboxEntry *)entry)->type;
         switch (valueType) {
         case 0:
             break;
         case 1:
-            sprintf(text, &iGpffffb06c, entry + 0x108);
-            entryWidth += *(s32 *)(work + 0x28) +
-                     (*(s32 (**)(u8 *))(work + 0x158))(text);
+            sprintf(text, &iGpffffb06c, ((SdkLboxEntry *)entry)->text);
+            entryWidth += ((SdkLboxWork *)work)->cellWidth +
+                     (listbox->measure)(text);
             break;
         case 2:
             strcpy(text, &iGpffffb070);
-            entryWidth += *(s32 *)(work + 0x28) +
-                     (*(s32 (**)(u8 *))(work + 0x158))(text);
+            entryWidth += ((SdkLboxWork *)work)->cellWidth +
+                     (listbox->measure)(text);
             break;
         case 3:
-            if (*(s32 *)(entry + 0x218) == 0) {
+            if (((SdkLboxEntry *)entry)->valueFormat == 0) {
                 sprintf(text, &iGpffffb0c0,
-                              *(u8 **)(entry + 0x208));
-                entryWidth += *(s32 *)(work + 0x28) +
-                         (*(s32 (**)(u8 *))(work + 0x158))(text);
+                              ((SdkLboxEntry *)entry)->unk208);
+                entryWidth += ((SdkLboxWork *)work)->cellWidth +
+                         (listbox->measure)(text);
             } else {
                 sprintf(text, &iGpffffb090,
-                              *(u8 **)(entry + 0x208));
-                entryWidth += *(s32 *)(work + 0x28) +
-                         (*(s32 (**)(u8 *))(work + 0x158))(text);
+                              ((SdkLboxEntry *)entry)->unk208);
+                entryWidth += ((SdkLboxWork *)work)->cellWidth +
+                         (listbox->measure)(text);
             }
             break;
         case 4:
-            cellWidth = fptodp(*(f32 *)(entry + 0x20C));
+            cellWidth = fptodp(((SdkLboxEntry *)entry)->floatValue);
             sprintf(text, &iGpffffb0c8, cellWidth);
-            entryWidth += *(s32 *)(work + 0x28) +
-                     (*(s32 (**)(u8 *))(work + 0x158))(text);
+            entryWidth += ((SdkLboxWork *)work)->cellWidth +
+                     (listbox->measure)(text);
             break;
         }
     } else {
-        cellWidth = *(s32 *)(work + 0x28);
-        entryWidth = cellWidth * strlen(entry + 8);
-        fixedValueType = *(s32 *)(entry + 4);
+        cellWidth = ((SdkLboxWork *)work)->cellWidth;
+        entryWidth = cellWidth * strlen(((SdkLboxEntry *)entry)->name);
+        fixedValueType = ((SdkLboxEntry *)entry)->type;
         switch (fixedValueType) {
         case 0:
             break;
         case 1:
-            entryWidth += *(s32 *)(work + 0x28) *
-                     (strlen(entry + 0x108) + 1);
+            entryWidth += listbox->cellWidth *
+                     (strlen(((SdkLboxEntry *)entry)->text) + 1);
             break;
         case 2:
-            entryWidth += *(s32 *)(work + 0x28) *
+            entryWidth += listbox->cellWidth *
                      (strlen(&iGpffffb0a8) + 1);
             break;
         case 3:
-            if (*(s32 *)(entry + 0x218) == 0) {
+            if (((SdkLboxEntry *)entry)->valueFormat == 0) {
                 entryWidth += cellWidth * 9;
             } else {
                 entryWidth += cellWidth * 0xB;
@@ -238,22 +238,22 @@ loop_29_body:
     if (maxWidth < paddedWidth) {
         maxWidth = paddedWidth;
     }
-    entry = *(u8 **)(entry + 0x228);
+    entry = ((SdkLboxEntry *)entry)->next;
 loop_29_check:
     if (entry != NULL) {
         goto loop_29_body;
     }
-    *(u32 *)(work + 0x20) = maxWidth;
-    lineHeight = *(s32 *)(work + 0x2C);
-    contentHeight = *(s32 *)(work + 0x140) * lineHeight + 4;
-    visibleHeight = *(s32 *)(work + 0x13C) * lineHeight + 4;
-    *(s32 *)(work + 0x24) = visibleHeight;
+    ((SdkLboxWork *)work)->width = maxWidth;
+    lineHeight = ((SdkLboxWork *)work)->lineHeight;
+    contentHeight = ((SdkLboxWork *)work)->count * lineHeight + 4;
+    visibleHeight = ((SdkLboxWork *)work)->visibleRows * lineHeight + 4;
+    ((SdkLboxWork *)work)->height = visibleHeight;
     if (contentHeight < visibleHeight) {
-        *(s32 *)(work + 0x24) = contentHeight;
+        listbox->height = contentHeight;
     }
-    window = *(u8 **)(work + 0x130);
+    window = ((SdkLboxWork *)work)->window;
     if (window != NULL) {
-        sdkWindowSetRect(window, work + 0x18);
+        sdkWindowSetRect(window, (u8 *)&((SdkLboxWork *)work)->x);
     }
 }
 
@@ -265,7 +265,7 @@ loop_29_check:
    Unlike sdkLboxCreateEx above (and sdkWrap func_004672c0, sdkUttmx tmxLoadFile),
    this mirror is NOT declaration-order drivable: node-first, p-first,
    work-last, and the initialised-declaration idiom this file uses elsewhere
-   (`u8 *work = *(u8 **)(task + 0x38);`) all score 18. Retail gives $s0 to the
+   (`u8 *work = ((KwlnTask *)task)->work;`) all score 18. Retail gives $s0 to the
    more heavily used of the two pointers; b210 gives it to whichever is assigned
    first, and no source ordering flips that here. Seven spellings.
 
@@ -278,37 +278,37 @@ loop_29_check:
    local afterwards, rather than casting inline at the store. That single hoist
    fixes the whole $s0/$s1 mirror. Nothing else about the body changed. */
 /* Append a text entry, returning its monotonically assigned identifier. */
-/* The listbox/entry layouts are proven above; retain byte accesses here
- * because typed members changed field-address hoisting and lost MATCH. */
+/* The separate typed alias retains the measured entry-field address hoisting. */
 // FUN_00470970
 s32 sdkLboxAddEntry(u8 *task, u8 *text)
 {
+    SdkLboxWork *listbox = (SdkLboxWork *)((KwlnTask *)task)->work;
     u8 *work;
     u8 *node;
     s32 *link;
     s32 handle;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((KwlnTask *)task)->work;
     chkmemAllocSiteTag(D_00713118, 0x37D);
     node = D_008873F4[0](1, 0x22C, 0x40000);
     if (node == NULL) {
         kAssertFail(D_00713118, 0x37F);
     }
-    strcpy(node + 8, text);
-    *(s32 *)(node + 4) = 0;
-    *(s32 *)node = *(s32 *)(work + 0x148);
-    *(s32 *)(work + 0x148) = *(s32 *)(work + 0x148) + 1;
+    strcpy(((SdkLboxEntry *)node)->name, text);
+    ((SdkLboxEntry *)node)->type = 0;
+    ((SdkLboxEntry *)node)->id = ((SdkLboxWork *)work)->nextId;
+    ((SdkLboxWork *)work)->nextId = ((SdkLboxWork *)work)->nextId + 1;
     handle = (s32)node;
-    link = (s32 *)(work + 0x144);
+    link = (s32 *)&((SdkLboxWork *)work)->entries;
     while (*link != 0) {
-        *(s32 *)(node + 0x224) = *link;
-        link = (s32 *)(*link + 0x228);
+        ((SdkLboxEntry *)node)->previousAddress = *link;
+        link = (s32 *)&((SdkLboxEntry *)*link)->next;
     }
     *link = handle;
-    *(s32 *)(work + 0x140) = *(s32 *)(work + 0x140) + 1;
+    ((SdkLboxWork *)work)->count = ((SdkLboxWork *)work)->count + 1;
     sdkLboxRecalcLayout(task);
-    sdkListStateAddItem(work + 0x164);
-    *(s32 *)(work + 0x140) = sdkListStateGetCount(work + 0x164);
-    return *(s32 *)node;
+    sdkListStateAddItem(((SdkLboxWork *)work)->list);
+    listbox->count = sdkListStateGetCount(listbox->list);
+    return ((SdkLboxEntry *)node)->id;
 }
 

@@ -82,10 +82,10 @@ void DistortParticleAppendNode(u8 *instance)
     node = ((DistortParticleInstance *)instance)->list;
     if (node != NULL) {
         inner = ((MdlEffectEmitter *)node)->parameters;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x6C) = 0;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x70) = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((DistortParticleInstance *)instance)->previous = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((DistortParticleInstance *)instance)->next = 0;
         PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x6C);
     }
 }
@@ -101,10 +101,10 @@ void DistortParticleUpdateAndAppendNode(u8 *instance)
     node = ((DistortParticleInstance *)instance)->list;
     if (node != NULL) {
         inner = ((MdlEffectEmitter *)node)->parameters;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x6C) = 0;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x70) = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((DistortParticleInstance *)instance)->previous = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((DistortParticleInstance *)instance)->next = 0;
         PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x6C);
     }
 }

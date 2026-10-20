@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Battle/btlShuffleDraw.c); members 00370290-00371160 */
 
 #include "include_asm.h"
+#include "member_access.h"
 #include "type.h"
 #include "btl_shuffle_motion_internal.h"
 extern void *func_003e0f80(void);
@@ -37,10 +38,10 @@ void btlShuffleCalcBuildBezierTangents(u8 *points, f32 *displacement, f32 tangen
     curve->controlA.y = curve->start.y + displacement[1];
     curve->controlA.z = curve->start.z + displacement[2];
 
-    /* measured: typed endpoint reads reverse each endpoint/zero-buffer load pair (six instructions). */
-    first[0] = ((f32 *)buf)[0] - *(f32 *)(points + 0x24);
-    first[1] = ((f32 *)buf)[1] - ((f32 *)(points + 0x24))[1];
-    first[2] = ((f32 *)buf)[2] - ((f32 *)(points + 0x24))[2];
+    /* Form the first tangent direction from the zero vector and endpoint. */
+    first[0] = ((f32 *)buf)[0] - ((BtlShuffleBezierPoints *)points)->end.x;
+    first[1] = ((f32 *)buf)[1] - ((f32 *)(points + MEMBER_OFFSET(BtlShuffleBezierPoints, end)))[1];
+    first[2] = ((f32 *)buf)[2] - ((f32 *)(points + MEMBER_OFFSET(BtlShuffleBezierPoints, end)))[2];
     second[0] = curve->end.x - curve->start.x;
     second[1] = curve->end.y - curve->start.y;
     second[2] = curve->end.z - curve->start.z;

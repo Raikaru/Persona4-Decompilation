@@ -1,9 +1,12 @@
+#include "member_access.h"
+#include "byte_address_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "rw_texture_internal.h"
 #include "h_cdvd_internal.h"
 #include "field_event_internal.h"
 #include "mdl_effect_internal.h"
@@ -163,13 +166,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline u8 *p4_e740_add(s32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 p4_0014_recip(f32 value)
-{
-    return 1.0f / value;
-}
 typedef struct {
     u8 b0;
     u8 b1;
@@ -216,10 +212,6 @@ extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
-static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
 
 
 
@@ -387,19 +379,22 @@ typedef struct FldRcScreenQuad {
     s32 orientation;
 } FldRcScreenQuad;
 
-static inline void fieldTransitionScaleVector(SVec3 *destination, SVec3 *source, f32 scale)
+/* Scale all three transition-vector components into the destination. */
+static inline void fldTransitionScaleVector(SVec3 *destination, SVec3 *source, f32 scale)
 {
     destination->x = source->x * scale;
     destination->y = source->y * scale;
     destination->z = source->z * scale;
 }
-static inline s32 fieldTransitionChildReady(u8 *child)
+/* Treat a missing transition child or a positive child state as ready. */
+static inline s32 fldTransitionChildReady(u8 *child)
 {
     if (child == NULL) return 1;
     if (((FldRcEffectWork *)((KwlnTask *)child)->work)->state > 0) return 1;
     return 0;
 }
-static inline u32 fieldTransitionEntryActive(u32 index)
+/* Test whether the indexed field actor has both unit and active state. */
+static inline u32 fldTransitionEntryActive(u32 index)
 {
     s32 active = 0;
     u8 *entry = D_007EF9B0 + index * 0x750;
@@ -429,6 +424,7 @@ void FldRc_SetAxesTargeted(u8 *task, s32 targeted)
     ((FldRcAxesWork *)((KwlnTask *)task)->work)->targeted = targeted;
 }
 
+/* Copy the packed RGBA color into the axes task without changing its targeting state. */
 // FUN_0014DCE0
 void FldRc_SetAxesColor(u8 *task, u8 *color)
 {
@@ -454,9 +450,10 @@ void FldRc_SetAxesPosition(u8 *task, u8 *position) {
 /* measured: FldRc_DrawScreenQuad MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* Configure textured screen-quad render state and fill UVs from the stored bounds. */
-/* measured: typing the final texture pointer read changed 116 bytes; retain the raw pointer reload after writing vertex UVs. */
+/* measured: typing the final texture pointer read changed 116 bytes; retain the measured pointer reload after writing vertex UVs. */
 // FUN_0014DD80
 void FldRc_DrawScreenQuad(u8 *context, u8 *quad) {
+    FldRcScreenQuad *screenQuad = (FldRcScreenQuad *)quad;
     void (**base)(u32, u32);
 
     base = D_00887300;
@@ -478,7 +475,7 @@ void FldRc_DrawScreenQuad(u8 *context, u8 *quad) {
         ((FldRcScreenQuad *)quad)->vertices[2].u.els.v = ((FldRcScreenQuad *)quad)->vMax;
         ((FldRcScreenQuad *)quad)->vertices[3].u.els.u = ((FldRcScreenQuad *)quad)->uMax;
         ((FldRcScreenQuad *)quad)->vertices[3].u.els.v = ((FldRcScreenQuad *)quad)->vMax;
-        base[0](1, *(u32 *)(*(s32 **)(quad + 0x100)));
+        base[0](1, MEMBER(u32, (s32 *)(screenQuad->texture), RwTexture, raster));
         return;
     }
     base[0](1, 0);
@@ -607,9 +604,10 @@ void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
 }
 
 /* Load an effect template, then advance primary and cloned effects until their duration expires. */
-/* measured: remaining raw file/template/counter accesses changed codegen individually (256..402 differing bytes); keep byte-pointer aliasing across effect calls. */
+/* measured: retained byte-alias file/template/counter accesses changed codegen individually (256..402 differing bytes); keep byte-pointer aliasing across effect calls. */
 // FUN_0014E2A0
 s32 FldRc_FileLoadStep(u8 *task) {
+    FldRcEffectWork *effectWork;
     extern s32 H_Cdvd_LookupRequest(u8 *pathAddress, s32 *slot);
 
     extern void mdlEffectFlushWithTable();
@@ -627,17 +625,19 @@ s32 FldRc_FileLoadStep(u8 *task) {
     s32 *elapsedSlot;
 
     work = ((KwlnTask *)task)->work;
+
+    effectWork = (FldRcEffectWork *)work;
     state = ((FldRcEffectWork *)work)->state;
     switch (state) {
     case 0:
         if (((FldRcEffectWork *)work)->archiveSource == 0) {
             if (H_Cdvd_IsFileLoaded((HCdvd *)*(u8 * *)&((FldRcEffectWork *)work)->file) != 0) {
-                file = *(u8 **)(work + 4);
+                file = (u8 *)(effectWork->file);
                 if (file != NULL) {
                     ((FldRcEffectWork *)work)->templateEffect =
                         mdlEffectCreateFromResource(*(s32 *)&((HCdvd *)file)->fileMemory);
-                    H_Cdvd_Destroy((HCdvd *)*(u8 **)(work + 4));
-                    *(u8 **)(work + 4) = NULL;
+                    H_Cdvd_Destroy((HCdvd *)(u8 *)(effectWork->file));
+                    effectWork->file = (s32)NULL;
                 }
                 goto block_10;
             }
@@ -663,11 +663,11 @@ block_10:
                     mdlEffectFlushWithTable(
                         (s32)&D_005DC7D0 +
                         (*(u16 *)&((FldRcEffectWork *)work)->primaryPriority * 0x54),
-                        *(s32 *)(work + 0x14));
-                    *(u32 *)(work + 0x18) =
-                        *(u32 *)(work + 0x18) + 1;
+                        effectWork->templateEffect);
+                    effectWork->primaryElapsed =
+                        effectWork->primaryElapsed + 1;
                 } else {
-                    *(s32 *)(work + 0x10) = 0;
+                    effectWork->primaryActive = 0;
                 }
             }
             slotIndex = 0;
@@ -717,11 +717,12 @@ block_31:
 /* measured: typing either task-work access changed 10 bytes; retain those raw task-pointer loads around effect destruction. */
 // FUN_0014E540
 void FldRc_FileLoadDestroy(u8 *task) {
+    KwlnTask *ownerTask = (KwlnTask *)task;
     s32 i;
     u8 *work;
     s32 effect;
 
-    work = *(u8 **)(task + 0x38);
+    work = ownerTask->work;
     for (i = 0; i < 8; i++) {
         effect = ((FldRcEffectWork *)work)->effects[i];
         if (effect != 0) {
@@ -732,7 +733,7 @@ void FldRc_FileLoadDestroy(u8 *task) {
     if (effect != 0) {
         mdlEffectDestroy(effect);
     }
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
 /* Create the effect-loader task from a path or an already selected load source. */
@@ -801,13 +802,13 @@ loop_done_4:
             kAssertFail(&iGpffff9de0, 0x100);
         }
         slotOffset = slotIndex * 4;
-        effectSlot = p4_e740_add(slotOffset, work) + 0x24;
+        effectSlot = byteAddressAdd(slotOffset, work) + 0x24;
         effect = mdlEffectClone(((FldRcEffectWork *)work)->templateEffect);
         *(s32 *)effectSlot = effect;
         mdlEffectSetChildPositionVec((void *)effect, position);
-        *(s32 *)(p4_e740_add(slotOffset, work) + 0x44) = 0;
+        ((FldRcEffectWork *)byteAddressAdd(slotOffset, work))->elapsed[0] = 0;
         priority = 1;
-        *(s16 *)(p4_e740_add(slotIndex * 2, work) + 0x64) = priority;
+        ((FldRcEffectWork *)byteAddressAdd(slotIndex * 2, work))->priority[0] = priority;
         ((FldRcEffectWork *)work)->cloneCount = ((FldRcEffectWork *)work)->cloneCount + 1;
     } else {
         mdlEffectStart(((FldRcEffectWork *)work)->templateEffect);
@@ -831,8 +832,8 @@ void FldRc_SetPositionSlotPriority(u8 *task, s32 slotIndex, s16 priority) {
 
     work = ((KwlnTask *)task)->work;
     if (slotIndex >= 0) {
-        if (*(s32 *)(p4_00141cf0_add((u32)(slotIndex * 4), work) + 0x24) != 0) {
-            *(s16 *)(p4_00141cf0_add((u32)(slotIndex * 2), work) + 0x64) = priority;
+        if (((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->effects[0] != 0) {
+            ((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 2), work))->priority[0] = priority;
         }
     } else {
         ((FldRcEffectWork *)work)->primaryPriority = priority;
@@ -847,7 +848,7 @@ s32 FldRc_GetPositionSlotCount(u8 *task, s32 slotIndex) {
 
     work = ((KwlnTask *)task)->work;
     if (slotIndex >= 0) {
-        return *(s32 *)(p4_00141cf0_add((u32)(slotIndex * 4), work) + 0x44);
+        return (s32)(((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->elapsed[0]);
     }
     return *(s32 *)&((FldRcEffectWork *)work)->primaryElapsed;
 }
@@ -862,7 +863,7 @@ void FldRc_SetPositionSlotLock(u8 *task, s32 slotIndex, s32 locked) {
         ((FldRcEffectWork *)work)->primaryLock = locked;
         return;
     }
-    *(s32 *)(p4_00141cf0_add((u32)(slotIndex * 4), work) + 0x78) = locked;
+    ((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->locks[0] = locked;
 }
 
 /* measured: typing the indexed visibility access changed one normalized byte; retain its raw integer-address helper shape. */
@@ -875,7 +876,7 @@ void FldRc_SetPositionSlotVisibility(u8 *task, s32 slotIndex, s32 hidden) {
         ((FldRcEffectWork *)work)->primaryHidden = hidden;
         return;
     }
-    *(s32 *)(p4_00141cf0_add((u32)(slotIndex * 4), work) + 0x9C) = hidden;
+    ((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->hidden[0] = hidden;
 }
 
 /* 712/720 bytes; ten resolved relocations; eight zero alignment bytes.
@@ -887,6 +888,7 @@ void FldRc_SetPositionSlotVisibility(u8 *task, s32 slotIndex, s32 hidden) {
 // FUN_0014E950
 s32 FldRc_TransitionStep(u8 *task)
 {
+    FldRcTransitionWork *transitionWork;
     SVec3 direction;
     SVec3 position;
     u8 color[8];
@@ -895,12 +897,14 @@ s32 FldRc_TransitionStep(u8 *task)
     u32 i;
 
     work = ((KwlnTask *)task)->work;
+
+    transitionWork = (FldRcTransitionWork *)work;
     state = *(s32 *)work;
     switch (state) {
         case 0:
         {
             u8 *child = ((FldRcTransitionWork *)work)->child;
-            if (fieldTransitionChildReady(child)) {
+            if (fldTransitionChildReady(child)) {
                 s32 *source = (s32 *)func_003e9700((s32)((MdlEffectCamera *)(u32)kwlnGetCamera())->frame);
                 s32 *destination = (s32 *)(work + 0x10);
                 s32 count = 8;
@@ -915,12 +919,12 @@ s32 FldRc_TransitionStep(u8 *task)
                 } while (count > 0);
                 direction = ((FldRcTransitionWork *)work)->direction;
                 RwV3dNormalize(&direction.x, &direction.x);
-                fieldTransitionScaleVector(&direction, &direction, 700.0f);
+                fldTransitionScaleVector(&direction, &direction, 700.0f);
                 position = ((FldRcTransitionWork *)work)->position;
                 position.x += direction.x;
                 position.y += direction.y;
                 position.z += direction.z;
-                FldRc_RequestPositionSlot(*(u8 **)(work + 0xC), &position.x);
+                FldRc_RequestPositionSlot(transitionWork->child, &position.x);
                 sdkSndStartStream(1, 0xB, 3, 4);
                 ((FldRcTransitionWork *)work)->frame = 0;
                 ++*(s32 *)work;
@@ -933,7 +937,7 @@ s32 FldRc_TransitionStep(u8 *task)
             if (frame < 84) {
                 if (frame > 40) {
                     for (i = 0; i < 4; i++) {
-                        if (fieldTransitionEntryActive(i)) {
+                        if (fldTransitionEntryActive(i)) {
                             u8 *entry = D_007EF9B0 + i * 0x750;
                             u8 *object = (u8 *)(u32)((FldEventActor *)entry)->active;
                             ((ResrcRecord *)object)->unk28 &= ~2U;
@@ -957,7 +961,7 @@ s32 FldRc_TransitionStep(u8 *task)
                         ++*(s32 *)work;
                     }
                 }
-                ++*(s32 *)(work + 8);
+                ++transitionWork->frame;
             } else {
                 *(s32 *)work = state + 1;
             }

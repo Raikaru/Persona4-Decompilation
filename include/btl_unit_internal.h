@@ -15,6 +15,20 @@ typedef struct BtlMotionRate
     s16 unk8;
 } BtlMotionRate;
 
+/* Unit subobject at +0xA10, initialized by btlEncounterInitParams.
+ * Flags 1/2 run ring/pulse; 4/0x10 grow/shrink flash; 0x20/0x80 fade rotation. */
+typedef struct BtlPortraitState {
+    s32 flags;
+    s16 emphasisFrame;
+    s16 slideFrame;
+    s16 ringFrame;
+    s16 pulseFrame;
+    s16 flashFrame;
+    u8 pad0E[2];
+    f32 pulsePhase;
+    f32 angle;
+} BtlPortraitState;
+
 /* Typed prefix of the retail BtlUnit. Offsets through 0xC8 agree with the
    P4 battle TUs; later fields are still reached through raw offsets. */
 typedef struct BtlUnit BtlUnit;
@@ -52,18 +66,29 @@ struct BtlUnit
     RwV3d lookAtTargetPos;   /* 0xB8 */
     u32 stateFlags;          /* 0xC4 */
     u16 movementFlags;       /* 0xC8 */
-    u8 unk_ca[0x00DC - 0x00CA];
+    u8 unk_ca[2];
+    f32 moveSpeed;               /* 0xCC: requested speed multiplied by 27 */
+    RwV3d rotationTarget;        /* 0xD0 */
     RwV3d moveDestination;        /* 0xDC. Written by btlUnitMovePacketUpdate, including the stopping-distance adjustment */
     f32 stoppingDistance;         /* 0xE8. Move-packet separation; btlUnitUpdateFollowPath stops this far from the route end */
-    u8 unk_ec[0x09D8 - 0x00EC];
+    u8 unk_ec[0x04F4 - 0x00EC];
+    f32 turnDivisor;             /* 0x4F4: divides the remaining facing angle */
+    RwV3d fixedFacingTarget;     /* 0x4F8: used when stateFlags bit 0x100 is set */
+    u8 pad504[0x09D4 - 0x0504];
+    struct BtlTargetObstacle *radiusNext; /* 0x9D4: embedded obstacle list link */
     u16 unk_9d8;                  /* 0x9D8. Motion-mode bits: 0x10 adds 0x100 to the packet flags, 0x20 zeroes the frame, 0x40 forces motion 27 */
     s16 currentMotion;            /* 0x9DA. Valid while flags2 bit 1 (0x2) is set; written by btlUnitSetMotion */
     s16 motionOption;             /* 0x9DC. Option argument of btlUnitSetMotion */
-    f32 motionRate;               /* 0x9E0. Playback rate, scaled by the motion table's rate */
+    union {
+        f32 motionRate;          /* 0x9E0. Playback rate, scaled by the motion table's rate */
+        s32 motionRateBits;
+    };
     u16 motionCount;              /* 0x9E4. Entries in motionRates */
-    u8 unk_9e6[0x09EC - 0x09E6];
+    s16 holdMotionFrame;         /* 0x9E6 */
+    s16 holdMotionTicks;         /* 0x9E8 */
+    u8 pad9EA[2];
     s16 restMotion;               /* 0x9EC. Motion for the at-rest state */
-    u8 unk_9ee[0x09F0 - 0x09EE];
+    s16 restBlendFrames;         /* 0x9EE */
     f32 restRate;                 /* 0x9F0 */
     s8 restOption;                /* 0x9F4 */
     u8 unk_9f5[0x09F8 - 0x09F5];
@@ -72,9 +97,13 @@ struct BtlUnit
     u8 pad9FD;
     u16 sceneDrawId;              /* 0x9FE. Scene draw id from MT_Scene_CreateModelCharRes, passed to SceneDraw_SetDirectionalOnly */
     u8 *layerHandle;              /* 0xA00. Model object passed to the mdl layer helpers */
-    u8 unk_a04[0x0A0C - 0x0A04];
+    u8 unk_a04[4];
+    struct BtlEffectNodePool *effectNodePool; /* 0xA08: owned 48-node effect pool */
     BtlUnit *childUnit;           /* 0xA0C. Child unit allocated by btlUnitCreate(2) in btlUnitInitChild */
-    u8 unk_a10[0x0A28 - 0x0A10];
+    union {
+        u8 unk_a10[0x0A28 - 0x0A10];
+        BtlPortraitState portrait; /* HUD animation state, also used for selection bit 0x200 */
+    };
     union {
         f32 ratio;
         s32 bits;               /* Reset to the -1.0f bit pattern by the gauge packet */
@@ -82,7 +111,9 @@ struct BtlUnit
     f32 hpRatio;                /* 0xA2C. Current HP / maximum HP */
     u8 unk_a30[8];
     s16 hpGaugeMarker;          /* 0xA38. Reset to -1 with hpGauge */
-    u8 unk_a3a[0x0A64 - 0x0A3A];
+    u8 unk_a3a[0x0A44 - 0x0A3A];
+    u16 statusPulseFrame;       /* 0xA44. Bad-status icon pulse wraps at 25 */
+    u8 padA46[0x0A64 - 0x0A46];
     DatUnit *datUnit;             /* 0xA64. Passed to datCalc accessors */
     BtlUnit *prevUnit;            /* 0xA68. Previous unit in the battle unit list */
     BtlUnit *nextUnit;            /* 0xA6C. Next unit in the battle unit list */

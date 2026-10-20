@@ -114,8 +114,9 @@ extern s16 D_008D2F34[];
 #pragma push
 #pragma opt_scalarize off
 #pragma pop
+/* Return channel three's requested track identifier, or minus one when its request is inactive. */
 // FUN_0045B400
-s16 func_0045b400(void)
+s16 hsndGetCurrentTrack(void)
 {
     if (D_008D2F2C[0] == 0) {
         return -1;

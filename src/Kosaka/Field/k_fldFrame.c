@@ -1,9 +1,31 @@
 /* Source unit: src/Kosaka/Field/k_fldFrame.c */
 #include "include_asm.h"
+#include "byte_address_internal.h"
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "field_frame_internal.h"
+#include "field_scene_internal.h"
+#include "field_event_internal.h"
+#include "resrc_manager_internal.h"
+#include "rw_frame_internal.h"
+#include "member_access.h"
+
+typedef struct FldSelectionResource
+{
+    u32 flags;
+    u32 unknown04;
+    union { void *fallback; s32 fallbackValue; };
+    union { u32 unknown0c; void *world; s32 worldValue; };
+    u32 unknown10;
+    void* preferred;
+} FldSelectionResource;
+
+/* The second pointer list starts eight native words after the actor list. */
+typedef struct FldFrameObjectTable {
+    u8 *actors[8];
+    u8 *objects[1];
+} FldFrameObjectTable;
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef struct RwFrame RwFrame;
@@ -60,6 +82,8 @@ struct RpIntersection
 typedef char FldFrameIntersectionSizeCheck[sizeof(RpIntersection) == 28 ? 1 : -1];
 typedef char FldFramePayloadSizeCheck[sizeof(((RpIntersection *)0)->t) == 24 ? 1 : -1];
 
+/* A byte cursor advanced by one element reads normals[i], distances[i], or
+ * corrections[i] through the corresponding zero-index member below. */
 /* Shared field collision state; the world and atomic producers use the same
  * parallel arrays and retain the atomic beside the intersection copy. */
 typedef struct FldFrameCollisionCollector
@@ -162,6 +186,7 @@ RwV3d* FldFrame_ClosestPointOnSegment(RwV3d* dst, const RwV3d* point,
 
 /* Find an exactly equal normal in the collected world-space planes. */
 /* The collector normal array starts at +0x300; typed count access changed the inlined sphere callback by four bytes in verification. */
+/* Find an exactly equal collision normal in the byte-addressed collector. */
 static inline s32 fldFrameFindPlane(u8 *context, const RwV3d *normal)
 {
     s32 index;
@@ -169,7 +194,7 @@ static inline s32 fldFrameFindPlane(u8 *context, const RwV3d *normal)
     f32 *record;
 
     index = 0;
-    count = *(s32 *)(context + 0xB04);
+    count = MEMBER(s32, context, FldFrameCollisionCollector, count);
     while (index < count) {
         record = (f32 *)(context + 12 * index);
         if (record[192] == normal->x && record[193] == normal->y && record[194] == normal->z)
@@ -183,11 +208,12 @@ static inline s32 fldFrameFindPlane(u8 *context, const RwV3d *normal)
  * all three call relocations resolve. The shared plane search preserves the
  * separate failed-comparison and found-index exits. Edge records use the
  * collector base first; interior records retain their scaled-index order. */
-/* Raw collector/collision cursor shape retained: typed count/vertex accesses changed four instruction bytes despite the proven layouts above. */
+/* Byte-base count fallbacks preserve aliasing across the inlined collector search and triangle stores. */
 // FUN_00169320
 RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWorldSector *sector,
                     RpCollisionTriangle *collision, f32 callbackDistance, void *data)
 {
+    FldFrameCollisionCollector *normalRecord;
     /* A sphere center begins the intersection input union. */
     RwV3d *point = (RwV3d *)intersection;
     RwV3d *triangle = &collision->normal;
@@ -227,7 +253,7 @@ RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWo
         f32* record;
         f32* fraction;
         index = fldFrameFindPlane(context, triangle);
-        count = *(s32 *)(context + 0xB04);
+        count = MEMBER(s32, context, FldFrameCollisionCollector, count);
         if (index >= 0)
         {
             fraction = (f32*)((u8*)(4 * index) + (u32)context + 0x600);
@@ -235,7 +261,7 @@ RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWo
             {
                 record = (f32*)(context + 12 * index);
                 *(RwV3d*)record = projected;
-                *(RwV3d*)(record + 192) = *triangle;
+                ((FldFrameCollisionCollector *)(record))->normals[0] = *triangle;
                 *fraction = distance;
             }
         }
@@ -246,11 +272,12 @@ RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWo
             {
                 record = (f32*)(context + 12 * count);
                 *(RwV3d*)record = projected;
-                record = (f32*)((u8*)(12 * *(s32*)(context + 0xb04)) + (u32)context);
-                *(RwV3d*)(record + 192) = *triangle;
-                fraction = (f32*)((u8*)(4 * *(s32*)(context + 0xb04)) + (u32)context + 0x600);
+                record = (f32*)((u8*)(12 * ((FldFrameCollisionCollector *)(context))->count) + (u32)context);
+                normalRecord = (FldFrameCollisionCollector *)record;
+    normalRecord->normals[0] = *triangle;
+                fraction = (f32*)((u8*)(4 * ((FldFrameCollisionCollector *)(context))->count) + (u32)context + 0x600);
                 *fraction = distance;
-                (*(s32*)(context + 0xb04))++;
+                (((FldFrameCollisionCollector *)(context))->count)++;
             }
         }
     }
@@ -259,7 +286,7 @@ RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWo
     {
         for (i = 0; i < 3; i++)
         {
-            FldFrame_ClosestPointOnSegment(&edgePoint, &projected, *(RwV3d**)((u8*)collision + 0x1c + 4 * i), *(RwV3d**)((u8*)collision + 0x1c + 4 * ((i + 1) % 3)));
+            FldFrame_ClosestPointOnSegment(&edgePoint, &projected, ((RpCollisionTriangle *)((u8*)collision))[0].vertices[i], ((RpCollisionTriangle *)((u8*)collision))[0].vertices[(i + 1) % 3]);
             delta.x = point->x - edgePoint.x;
             delta.y = point->y - edgePoint.y;
             delta.z = point->z - edgePoint.z;
@@ -270,7 +297,7 @@ RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWo
             f32* record;
             f32* fraction;
             index = fldFrameFindPlane(context, triangle);
-            count = *(s32 *)(context + 0xB04);
+            count = MEMBER(s32, context, FldFrameCollisionCollector, count);
             if (index >= 0)
             {
                 fraction = (f32*)(context + 4 * index + 0x600);
@@ -278,7 +305,7 @@ RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWo
                 {
                     record = (f32*)(context + 12 * index);
                     *(RwV3d*)record = edgePoint;
-                    *(RwV3d*)(record + 192) = *triangle;
+                    ((FldFrameCollisionCollector *)(record))->normals[0] = *triangle;
                     *fraction = edgeDistance;
                 }
             }
@@ -289,11 +316,11 @@ RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWo
                 {
                     record = (f32*)(context + 12 * count);
                     *(RwV3d*)record = projected;
-                    record = (f32*)(context + 12 * *(s32*)(context + 0xb04));
-                    *(RwV3d*)(record + 192) = *triangle;
-                    fraction = (f32*)(context + 4 * *(s32*)(context + 0xb04) + 0x600);
+                    record = (f32*)(context + 12 * ((FldFrameCollisionCollector *)(context))->count);
+                    ((FldFrameCollisionCollector *)context)->normals[((FldFrameCollisionCollector *)context)->count] = *triangle;
+                    fraction = (f32*)(context + 4 * ((FldFrameCollisionCollector *)(context))->count + 0x600);
                     *fraction = edgeDistance;
-                    (*(s32*)(context + 0xb04))++;
+                    (((FldFrameCollisionCollector *)(context))->count)++;
                 }
             }
             }
@@ -314,6 +341,8 @@ RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWo
 #pragma opt_propagation off
 s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin, f32* vector, f32 radius)
 {
+    FldFrameCollisionCollector *distanceRecord;
+    FldFrameCollisionCollector *correctionRecord;
     typedef struct FldFrameSphereWork
     {
         FldFrameCollisionCollector collector;
@@ -371,7 +400,8 @@ s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin, f32* vector, f3
     {
         const u8* distanceEntry;
         distanceEntry = (const u8*)&work + i * sizeof(f32);
-        if (*(const f32*)(distanceEntry + 0x600) < fGpffff82b4)
+        distanceRecord = (FldFrameCollisionCollector *)distanceEntry;
+    if (distanceRecord->distances[0] < fGpffff82b4)
         {
             RwV3d* point = &work.collector.points[i];
             f32 dx;
@@ -389,7 +419,8 @@ s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin, f32* vector, f3
             RwV3dNormalize(direction, direction);
             /* The signed contact displacement is recomputed after normalization. */
             distanceEntry = (const u8*)&work + i * (s32)sizeof(f32);
-            correction = work.query.intersection.t.sphere.radius - *(const f32*)(distanceEntry + 0x600);
+            correctionRecord = (FldFrameCollisionCollector *)distanceEntry;
+    correction = work.query.intersection.t.sphere.radius - correctionRecord->distances[0];
             dx = work.delta.vector.x;
             adjustX = dx * correction;
             dy = work.delta.vector.y;
@@ -428,20 +459,13 @@ s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin, f32* vector, f3
 }
 
 #pragma pop
-/* Keep the scaled offset and collector address in the integer domain
- * until the resulting address points into the collector storage. */
-static inline u8 *fldFrameCollectorOffset(u32 offset, FldFrameCollisionCollector *collector)
-{
-    return (u8 *)(offset + (uintptr_t)collector);
-}
-
 /* Find an exactly equal transformed normal in the collision collector. */
-/* Normal cursors preserve independent X/Y/Z comparison lifetimes over the collector's +0x300 array. */
+/* Compare named normal-array components while retaining independent X/Y/Z value lifetimes. */
+/* Find an exactly equal normal in the local collision collector. */
 static inline s32 fldFrameFindLocalPlane(FldFrameCollisionCollector *collector, const RwV3d *normal)
 {
     s32 index;
     s32 count;
-    const u8 *record;
     f32 nx;
     f32 ny;
     f32 nz;
@@ -453,10 +477,9 @@ static inline s32 fldFrameFindLocalPlane(FldFrameCollisionCollector *collector, 
     count = collector->count;
     while (index < count)
     {
-        record = (const u8 *)collector + sizeof(RwV3d) * index;
-        if (*(const f32 *)(record + 0x300) == nx &&
-            *(const f32 *)(record + 0x304) == ny &&
-            *(const f32 *)(record + 0x308) == nz)
+        if (collector->normals[index].x == nx &&
+            collector->normals[index].y == ny &&
+            collector->normals[index].z == nz)
         {
             return index;
         }
@@ -509,7 +532,7 @@ RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
     f32 nz;
 
     normal = triangle->normal;
-    matrix = func_003e9700(*(RwFrame **)((u8 *)collector->atomic + 4));
+    matrix = func_003e9700((RwFrame *)((RwObject *)((u8 *)collector->atomic))->parent);
     func_003e4360(&normal, &triangle->normal, 1, matrix);
     RwV3dNormalize(&normal.x, &normal.x);
     for (i = 0; i < 3; i++)
@@ -555,13 +578,14 @@ RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
         count = collector->count;
         if (index >= 0)
         {
-            fbase = fldFrameCollectorOffset(4 * index, collector);
+        /* measured: plain collector addressing swaps the offset/base addu sources. */
+            fbase = byteAddressAdd(4 * index, (u8 *)collector);
             fraction = (f32 *)(fbase + 0x600);
             if (distance < *fraction)
             {
                 record = (u8 *)collector + 12 * index;
                 *(RwV3d *)record = projected;
-                *(RwV3d *)(record + 0x300) = normal;
+                ((FldFrameCollisionCollector *)(record))->normals[0] = normal;
                 *fraction = distance;
                 if (collector->mode == 1)
                 {
@@ -576,24 +600,24 @@ RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
         }
         else
         {
-            fraction = (f32 *)(fldFrameCollectorOffset(4 * count, collector) + 0x600);
+            fraction = (f32 *)(byteAddressAdd(4 * count, (u8 *)collector) + 0x600);
             if (distance < *fraction)
             {
                 record = (u8 *)collector + 12 * count;
                 *(RwV3d *)record = projected;
-                record = fldFrameCollectorOffset(12 * collector->count, collector);
-                *(RwV3d *)(record + 0x300) = normal;
-                fraction = (f32 *)(fldFrameCollectorOffset(4 * collector->count, collector) + 0x600);
+                record = ((u8 *)collector + (12 * collector->count));
+                collector->normals[collector->count] = normal;
+                fraction = (f32 *)(byteAddressAdd(4 * collector->count, (u8 *)collector) + 0x600);
                 *fraction = distance;
                 if (collector->mode == 1)
                 {
-                    if (*(s32 *)(fldFrameCollectorOffset(4 * collector->count, collector) + 0xA00) == 0)
+                    if (collector->flags[collector->count] == 0)
                     {
                         collector->hitCount++;
                     }
                     {
                         s32 hitFlag = 1;
-                        *(s32 *)(fldFrameCollectorOffset(4 * collector->count, collector) + 0xA00) = hitFlag;
+                        collector->flags[collector->count] = hitFlag;
                     }
                 }
                 collector->count++;
@@ -626,7 +650,7 @@ RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
                 {
                     record = (u8 *)collector + 12 * index;
                     *(RwV3d *)record = edgePoint;
-                    *(RwV3d *)(record + 0x300) = normal;
+                    ((FldFrameCollisionCollector *)(record))->normals[0] = normal;
                     *fraction = edgeDistance;
                     if (collector->mode == 1)
                     {
@@ -647,16 +671,16 @@ RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
                     record = (u8 *)collector + 12 * count;
                     *(RwV3d *)record = projected;
                     record = (u8 *)collector + 12 * collector->count;
-                    *(RwV3d *)(record + 0x300) = normal;
+                    collector->normals[collector->count] = normal;
                     fraction = (f32 *)((u8 *)collector + 4 * collector->count + 0x600);
                     *fraction = edgeDistance;
                     if (collector->mode == 1)
                     {
-                        if (*(s32 *)((u8 *)collector + 4 * collector->count + 0xA00) == 0)
+                        if (collector->flags[collector->count] == 0)
                         {
                             collector->hitCount++;
                         }
-                        *(s32 *)((u8 *)collector + 4 * collector->count + 0xA00) = 1;
+                        collector->flags[collector->count] = 1;
                     }
                     collector->count++;
                 }
@@ -691,9 +715,12 @@ void* FldFrame_SphereAtomicCallback(void* collisionWorld, void* state)
 #pragma opt_loop_invariants on
 s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s32 fieldId)
 {
+    FldFrameCollisionCollector *distanceRecord;
+    FldFrameCollisionCollector *correctionDistanceRecord;
+    FldFrameCollisionCollector *correctionRecord;
     extern void *mdlGetClump(void *model);
     extern f32 RwV3dLength(f32 *vec);
-    extern u8 D_007E8020[];
+    extern FldFrameObjectTable D_007E8020;
     extern u32 FldFrame_RaycastWorld(void *collisionWorld, const RwV3d *line, RwV3d *hitPointDst);
     typedef struct FldFrameWork6A110
     {
@@ -766,21 +793,21 @@ s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f
     RpClumpForAllAtomics((void *)collisionWorld, FldFrame_SphereAtomicCallback, &work.collector);
     while (list10 != NULL)
     {
-        if (((*(s32 *)(list10 + 0x28) & 2) != 0) && (*(s32 *)(list10 + 0x150) == 1))
+        if ((((s32)((ResrcRecord *)(list10))->unk28 & 2) != 0) && ((s32)((ResrcRecord *)(list10))->value150 == 1))
         {
-            void *target = mdlGetClump(*(void **)(list10 + 0x144));
+            void *target = mdlGetClump(((ResrcRecord *)(list10))->slotHandle[1]);
             RpClumpForAllAtomics(target, FldFrame_SphereAtomicCallback, &work.collector);
             line[1] = *(RwV3d *)origin;
             line[0] = line[1];
             line[0].y += 400.0f;
             line[1].y -= 600.0f;
-            target = mdlGetClump(*(void **)(list10 + 0x144));
+            target = mdlGetClump(MEMBER(void *, list10, ResrcRecord, slotHandle[1]));
             if (FldFrame_RaycastWorld(target, line, &hit) == 1)
             {
                 vector[1] = -((origin[1] - fraction) - hit.y);
             }
         }
-        list10 = *(u8 **)(list10 + 0x138);
+        list10 = (u8 *)((ResrcRecord *)(list10))->next;
     }
     /* Mode one appends the flagged prefix. Mode zero preserves those flags, so
      * each flagged correction is written before an unflagged contact reads it. */
@@ -793,23 +820,23 @@ s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f
         {
             for (j = 0; ; j++)
             {
-                u8 *entry = *(u8 **)(D_007E8020 + j * 4);
+                u8 *entry = D_007E8020.actors[j];
                 if (entry == NULL)
                 {
                     break;
                 }
                 {
-                    s32 present = *(s32 *)(entry + 0x48) != 0;
+                    s32 present = (s32)((FldEventActor *)(entry))->unit != 0;
                     if (present != 0)
                     {
-                        present = *(s32 *)(entry + 0x54) != 0;
+                        present = (s32)((FldEventActor *)(entry))->active != 0;
                     }
                     if (present != 0)
                     {
-                        u8 *other = *(u8 **)(entry + 0x54);
-                        if (((*(s32 *)(other + 0x28) & 2) != 0) && ((*(s32 *)(entry + 0x40) & 2) == 0))
+                        u8 *other = (u8 *)((FldEventActor *)(entry))->active;
+                        if ((((s32)((ResrcRecord *)(other))->unk28 & 2) != 0) && (((s32)((FldEventActor *)(entry))->flags & 2) == 0))
                         {
-                            void *id = *(void **)(other + 0x228);
+                            void *id = ((ResrcRecord *)(other))->handle228;
                             if (id != 0)
                             {
                                 void *target = mdlGetClump(id);
@@ -823,20 +850,20 @@ s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f
     }
     while (list3 != NULL)
     {
-        if (((*(s32 *)(list3 + 0x28) & 2) != 0) && (*(s32 *)(list3 + 0x22c) != 0))
+        if ((((s32)((ResrcRecord *)(list3))->unk28 & 2) != 0) && ((s32)((ResrcRecord *)(list3))->handle22C != 0))
         {
-            void *target = mdlGetClump(*(void **)(list3 + 0x22c));
+            void *target = mdlGetClump(((ResrcRecord *)(list3))->handle22C);
             RpClumpForAllAtomics(target, FldFrame_SphereAtomicCallback, &work.collector);
         }
-        list3 = *(u8 **)(list3 + 0x138);
+        list3 = (u8 *)((ResrcRecord *)(list3))->next;
     }
     {
         u8 *entry;
-        for (k = 0; (entry = *(u8 **)(D_007E8020 + k * 4 + 0x20)) != NULL; k++)
+        for (k = 0; (entry = D_007E8020.objects[k]) != NULL; k++)
         {
             if (*(s32 *)entry != 0)
             {
-                void *id = *(void **)(entry + 0x164);
+                void *id = ((ResrcRecord *)(entry))->modelHandle164;
                 if (id != 0)
                 {
                     void *target = mdlGetClump(id);
@@ -863,16 +890,18 @@ s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f
     for (; p < work.collector.count; p++)
     {
         u8 *fbase = (u8 *)&work.collector + p * sizeof(f32);
-        if (*(f32 *)(fbase + 0x600) < fGpffff82b4)
+        distanceRecord = (FldFrameCollisionCollector *)fbase;
+    if (distanceRecord->distances[0] < fGpffff82b4)
         {
             u8 *rec = (u8 *)&work.collector + 12 * p;
             s32 *flag;
             delta.vector.x = work.query.t.sphere.center.x - *(f32 *)rec;
-            delta.vector.y = qy - *(f32 *)(rec + 4);
-            delta.vector.z = qz - *(f32 *)(rec + 8);
+            delta.vector.y = qy - work.collector.points[p].y;
+            delta.vector.z = qz - work.collector.points[p].z;
             RwV3dNormalize(delta.components, delta.components);
             fbase = (u8 *)&work.collector + p * (s32)sizeof(f32);
-            scale = qfrac - *(f32 *)(fbase + 0x600);
+            correctionDistanceRecord = (FldFrameCollisionCollector *)fbase;
+    scale = qfrac - correctionDistanceRecord->distances[0];
             {
                 const f32 dx = delta.vector.x;
                 scaled.x = dx * scale;
@@ -885,7 +914,8 @@ s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f
                         flag = (s32 *)(fbase + 0xA00);
                         if (*flag == 1)
                         {
-                            *(RwV3d *)(rec + 0x700) = scaled;
+                            correctionRecord = (FldFrameCollisionCollector *)rec;
+    correctionRecord->corrections[0] = scaled;
                         }
                         else
                         {
@@ -957,7 +987,7 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
 {
     u8* object;
     s32 collisionWorld;
-    object = *(u8**)(iGpffff9db0 + 0x28);
+    object = (u8 *)((FieldSceneState *)(iGpffff9db0))->templates[0].resource;
 
     if (object == NULL)
     {
@@ -965,7 +995,7 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
     }
     if ((*(s32*)object & 1) != 0)
     {
-        return FldFrame_SphereSweepWorld((void*)(*(s32*)(object + 0xc)), origin, vector, fraction);
+        return FldFrame_SphereSweepWorld((void*)(((FldSelectionResource *)(object))->worldValue), origin, vector, fraction);
     }
 
     collisionWorld = 0;
@@ -983,9 +1013,9 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
         if (fieldFlags == 0xffff)
         {
             object = (u8*)((u8*)func_003e9700((RwFrame*)(
-                *(u8**)((u8*)((u8*)(uintptr_t)kwlnGetCamera()) + 4))));
-            fieldX = (s32)((*(f32*)(object + 0x30) + 600.0f) / 1200.0f);
-            fieldY = (s32)((*(f32*)(object + 0x38) + 600.0f) / 1200.0f);
+                (u8 *)((RwObject *)((u8*)((u8*)(uintptr_t)kwlnGetCamera())))->parent)));
+            fieldX = (s32)((((RwMatrixTag *)(object))->pos.x + 600.0f) / 1200.0f);
+            fieldY = (s32)((((RwMatrixTag *)(object))->pos.z + 600.0f) / 1200.0f);
         }
         else
         {
@@ -1011,16 +1041,16 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
             {
                 if (*(u16*)entry == key)
                 {
-                    collisionWorld = *(s32*)(*(u8**)(entry + 0x1a0) + 8);
+                    collisionWorld = ((FldSelectionResource *)((u8 *)((ResrcRecord *)(entry))->handle1A0))->fallbackValue;
                     break;
                 }
-                entry = *(u8**)(entry + 0x138);
+                entry = (u8 *)((ResrcRecord *)(entry))->next;
             }
         }
     }
     else
     {
-        collisionWorld = *(s32*)(*(u8**)(iGpffff9db0 + 0x28) + 8);
+        collisionWorld = ((FldSelectionResource *)((u8 *)((FieldSceneState *)(iGpffff9db0))->templates[0].resource))->fallbackValue;
     }
     return FldFrame_RaycastFieldObjects(collisionWorld, origin, vector, fraction, fieldId);
 }
@@ -1089,8 +1119,8 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
         u8* rec = ((u8 *)&work.collector) + 12 * i;
         memset(rec, 0, 12);
         memset(rec + 0x300, 0, 12);
-        *(f32*)(((u8 *)&work.collector) + 0x600 + 4 * i) = D_007615DC;
-        *(s32*)(((u8 *)&work.collector) + 0xa00 + 4 * i) = 0;
+        work.collector.distances[i] = D_007615DC;
+        work.collector.flags[i] = 0;
     }
     work.collector.hitCount = 0;
     work.collector.count = 0;
@@ -1109,35 +1139,35 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
         s32 x;
         s32 z;
         s32 j;
-        dimensions = (const u8*)((u8*)func_003e9700((RwFrame*)(*(u8**)((u8*)((u8*)(uintptr_t)kwlnGetCamera()) + 4))));
-        positionX = *(const f32*)(dimensions + 0x30);
+        dimensions = (const u8*)((u8*)func_003e9700((RwFrame*)((u8 *)((RwObject *)((u8*)((u8*)(uintptr_t)kwlnGetCamera())))->parent)));
+        positionX = ((RwMatrixTag *)(dimensions))->pos.x;
         translatedX = 600.0f + positionX;
         x = (s32)(translatedX / 1200.0f);
-        z = (s32)((*(const f32*)(dimensions + 0x38) + 600.0f) / 1200.0f);
+        z = (s32)((((RwMatrixTag *)(dimensions))->pos.z + 600.0f) / 1200.0f);
         for (j = 0; j < 4; j++)
         {
             s32* offsets = &D_005F1650[2 * j];
             s32* zOffset = offsets + 1;
             void* table;
             table = MT_Scene_GetFrameState();
-            if (*(u8*)((u8*)table + ((z + *zOffset) * 256) + 16 * (x + offsets[0]) + 84) == 1)
+            if (((FldFrame *)((u8*)table + ((z + *zOffset) * 256) + 16 * (x + offsets[0])))[0].cells[0][0].occupied == 1)
             {
                 u16 id;
                 void* target;
                 u8* node;
                 offsets = &D_005F1650[2U * j];
                 table = MT_Scene_GetFrameState();
-                id = *(u16*)((u8*)table + ((z + *zOffset) * 256) + 16 * (x + offsets[0]) + 86);
+                id = ((FldFrame *)((u8*)table + ((z + *zOffset) * 256) + 16 * (x + offsets[0])))[0].cells[0][0].resourceId;
                 target = 0;
                 node = MT_Scene_GetResListHead(12);
                 while (node != 0)
                 {
                     if (*(u16*)node == id)
                     {
-                        target = *(void**)(*(u8**)(node + 0x1a0) + 8);
+                        target = ((FldSelectionResource *)((u8 *)((ResrcRecord *)(node))->handle1A0))->fallback;
                         break;
                     }
-                    node = *(u8**)(node + 0x138);
+                    node = (u8 *)((ResrcRecord *)(node))->next;
                 }
                 if (target != 0)
                     RpClumpForAllAtomics(target, FldFrame_SphereAtomicCallback, ((u8 *)&work.collector));
@@ -1145,12 +1175,12 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
         }
         while (list != 0)
         {
-            if ((*(s32*)(list + 0x28) & 2) != 0 && *(s32*)(list + 0x150) == 1)
+            if (((s32)((ResrcRecord *)(list))->unk28 & 2) != 0 && (s32)((ResrcRecord *)(list))->value150 == 1)
             {
-                RpClumpForAllAtomics(mdlGetClump(*(void**)(list + 0x144)),
+                RpClumpForAllAtomics(mdlGetClump(((ResrcRecord *)(list))->slotHandle[1]),
                                      FldFrame_SphereAtomicCallback, &work.collector);
             }
-            list = *(u8**)(list + 0x138);
+            list = (u8 *)((ResrcRecord *)(list))->next;
         }
     }
     normal->x = 0.0f;
@@ -1167,19 +1197,19 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
         threshold = D_007615DC;
         for (; contact < work.collector.count; contact++)
         {
-            if (*(f32*)(((u8 *)&work.collector) + 0x600 + 4 * contact) < threshold)
+            if (work.collector.distances[contact] < threshold)
             {
                 const u8 *entry = (const u8 *)&work + 12 * contact;
-                normal->x += *(const f32 *)(entry + 0x300);
-                normal->y += *(const f32 *)(entry + 0x304);
-                normal->z += *(const f32 *)(entry + 0x308);
+                normal->x += work.collector.normals[contact].x;
+                normal->y += work.collector.normals[contact].y;
+                normal->z += work.collector.normals[contact].z;
                 {
                     f32 currentX = vector->x;
-                    f32 contactX = *(const f32 *)(entry + 0x0);
+                    f32 contactX = work.collector.points[contact].x;
                     vector->x = currentX + contactX;
                 }
-                vector->y += *(const f32 *)(entry + 0x4);
-                vector->z += *(const f32 *)(entry + 0x8);
+                vector->y += work.collector.points[contact].y;
+                vector->z += work.collector.points[contact].z;
                 foundCount++;
                 result = accepted;
             }
@@ -1205,15 +1235,7 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
 extern s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 radius,
                          RwV3d* normal, RwV3d* vector);
 
-typedef struct FldSelectionResource
-{
-    u32 flags;
-    u32 unknown04;
-    void* fallback;
-    u32 unknown0c;
-    u32 unknown10;
-    void* preferred;
-} FldSelectionResource;
+
 typedef struct FldSelectionNode
 {
     u16 id;
@@ -1223,6 +1245,7 @@ typedef struct FldSelectionNode
     FldSelectionResource* resource;
 } FldSelectionNode;
 
+/* Choose the preferred world or fallback; same preferred/fallback rule as fldRaySelectWorld. */
 static inline void fldFrameSelectWorld(FldSelectionResource* selected, void** dst)
 {
     void* world = selected->preferred;
@@ -1234,7 +1257,7 @@ static inline void fldFrameSelectWorld(FldSelectionResource* selected, void** ds
     *dst = selected->fallback;
 }
 
-/* The remaining casts read scene-global and camera roots, separate from the typed FldSelectionResource/FldSelectionNode records. */
+/* Select the preferred collision world from the scene root or camera cell before collecting sphere contacts. */
 // FUN_0016B080
 s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 {
@@ -1246,7 +1269,7 @@ s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal
 
     FldSelectionResource* object;
     result = 0;
-    object = *(FldSelectionResource**)(iGpffff9db0 + 0x28);
+    object = (FldSelectionResource *)((FieldSceneState *)(iGpffff9db0))->templates[0].resource;
     if (object == NULL)
         return result;
     if ((object->flags & 1) == 0)
@@ -1256,7 +1279,7 @@ s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal
         {
             u8* map;
             FldSelectionNode* node;
-            map = ((u8*)func_003e9700((RwFrame*)(*(u8**)(((u8*)(uintptr_t)kwlnGetCamera()) + 4))));
+            map = ((u8*)func_003e9700((RwFrame*)((u8 *)((RwObject *)(((u8*)(uintptr_t)kwlnGetCamera())))->parent)));
             fieldX = (s32)((((const RwV3d*)(map + 0x30))->x + 600.0f) / 1200.0f);
             fieldZ = (s32)((((const RwV3d*)(map + 0x30))->z + 600.0f) / 1200.0f);
             key = ((FldFrame *)MT_Scene_GetFrameState())->cells[fieldZ][fieldX].resourceId;
@@ -1274,7 +1297,7 @@ s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal
         }
         else
         {
-            FldSelectionResource* selected = *(FldSelectionResource**)(iGpffff9db0 + 0x28);
+            FldSelectionResource* selected = (FldSelectionResource *)((FieldSceneState *)(iGpffff9db0))->templates[0].resource;
             void* fallbackWorld;
             fldFrameSelectWorld(selected, &fallbackWorld);
             result = FldFrame_CollideWorldSphere(fallbackWorld, point, radius, normal, vector);
@@ -1448,7 +1471,7 @@ u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst)
     void* collisionWorld;
 
     lineCopy = *(const FldFrameLine*)line;
-    object = *(u8**)(iGpffff9db0 + 0x28);
+    object = (u8 *)((FieldSceneState *)(iGpffff9db0))->templates[0].resource;
     if (object == NULL)
     {
         return 0;
@@ -1458,7 +1481,7 @@ u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst)
         FldFrameIntersection intersection;
         FldFrameRaycast raycast;
         u32 result;
-        collisionWorld = *(void**)(object + 0xc);
+        collisionWorld = ((FldSelectionResource *)(object))->world;
         raycast.hitPointDst = hitPointDst;
         raycast.didHit = 0;
         intersection.type = 1;
@@ -1489,15 +1512,15 @@ u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst)
             {
                 if (*(u16*)entry == key)
                 {
-                    collisionWorld = *(void**)(*(u8**)(entry + 0x1a0) + 8);
+                    collisionWorld = ((FldSelectionResource *)((u8 *)((ResrcRecord *)(entry))->handle1A0))->fallback;
                     break;
                 }
-                entry = *(u8**)(entry + 0x138);
+                entry = (u8 *)((ResrcRecord *)(entry))->next;
             }
         }
         else
         {
-            collisionWorld = *(void**)(*(u8**)(iGpffff9db0 + 0x28) + 8);
+            collisionWorld = ((FldSelectionResource *)((u8 *)((FieldSceneState *)(iGpffff9db0))->templates[0].resource))->fallback;
         }
         raycast.hitPointDst = hitPointDst;
         raycast.didHit = 0;

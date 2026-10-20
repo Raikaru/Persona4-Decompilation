@@ -18,10 +18,6 @@ typedef struct {
     u8 c2;
     u8 c3;
 } PolygonWindColor;
-static inline u32 p4_add_u32(u32 left, u32 right)
-{
-    return left + right;
-}
 extern PolygonWindColor iGpffffbb64;
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
@@ -104,6 +100,7 @@ void *mdlEffectCreateInstance(void *source)
     u8 *geometry;
     u8 *parameters;
     u8 *colors;
+    MdlEffectAnimatedSprite *sprite;
 
     chkmemAllocSiteTag(D_007141A0, 0x1C);
     instance = (u8 *)jtbl_008873E8[0](0xD4, 0x40000);
@@ -111,6 +108,7 @@ void *mdlEffectCreateInstance(void *source)
         kAssertFail(D_007141A0, 0x1D);
     }
     memset(instance, 0, 0xD4);
+    sprite = (MdlEffectAnimatedSprite *)instance;
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(instance) : "memory");
     __asm__ volatile ("sqc2 vf0, 0x10(%0)" : : "r"(instance) : "memory");
     ((MdlEffectAnimatedSprite *)instance)->packedColor = -1;
@@ -119,8 +117,7 @@ void *mdlEffectCreateInstance(void *source)
         return instance;
     }
     geometry = GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    *(u8 **)(instance + 0xC8) = geometry;
+    sprite->geometry = geometry;
     colors = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry)->colors;
     ((s32 *)colors)[0] = -1;
     ((s32 *)colors)[1] = -1;
@@ -144,8 +141,7 @@ void *mdlEffectCreateInstance(void *source)
             break;
         case 4:
             func_003c42b0(
-                /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-                ((EffGeometryBlock *)*(u8 **)(instance + 0xC8))->material,
+                ((EffGeometryBlock *)sprite->geometry)->material,
                 TnSlotObject(*textureSource));
             break;
         case 7:

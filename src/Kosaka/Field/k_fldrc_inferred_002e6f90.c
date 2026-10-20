@@ -63,6 +63,7 @@ s32 fclListAddUnique(u8 *list, s32 itemId) {
 // FUN_002E7010
 s32 fclListRemoveId(u8 *list, s16 itemId)
 {
+    FclItemIdList *itemList = (FclItemIdList *)list;
     u8 retainedCount;
     s16 clearIndex;
     s16 removeIndex;
@@ -81,12 +82,12 @@ s32 fclListRemoveId(u8 *list, s16 itemId)
         retainedIds[clearIndex] = emptyId;
     }
     emptyId = -1;
-    for (removeIndex = 0, removedId = itemId; removeIndex < *(s16 *)(list + 0x60); removeIndex++) {
+    for (removeIndex = 0, removedId = itemId; removeIndex < itemList->count; removeIndex++) {
         if (removedId == ((FclItemIdList *)list)->ids[removeIndex]) {
             ((FclItemIdList *)list)->ids[removeIndex] = emptyId;
         }
     }
-    for (readIndex = 0; readIndex < *(s16 *)(list + 0x60); readIndex++) {
+    for (readIndex = 0; readIndex < itemList->count; readIndex++) {
         retainedId = ((FclItemIdList *)list)->ids[readIndex];
         if (retainedId != emptyId) {
             retainedIds[retainedCount++] = retainedId;
@@ -99,7 +100,7 @@ s32 fclListRemoveId(u8 *list, s16 itemId)
             ((FclItemIdList *)list)->ids[writeIndex++] = retainedIds[copyIndex];
         }
     }
-    *(s16 *)(list + 0x60) = ((FclItemIdList *)list)->count - 1;
+    itemList->count = ((FclItemIdList *)list)->count - 1;
     return 1;
 }
 #pragma pop
@@ -152,10 +153,11 @@ loop_test:
 #pragma push
 #pragma opt_loop_invariants off
 /* Drive shop scene loading, fades, shop task creation and eventual scene unloading. */
-/* measured: typing the two remaining shop-task writes changed 136/338 bytes; retain the raw work accesses across shop creation. */
+/* measured: typing the two remaining shop-task writes changed 136/338 bytes; retain the measured work pointers across shop creation. */
 // FUN_002E72C0
 s32 shopSystemUpdate(u8 *task)
 {
+    ShopSystemWork *shopWork;
     void fieldSceneLoad(s32 fieldId, s32 roomId);
     s32 fadeBeginTransition(s32 mode, s32 duration);
     s32 fadeBeginReturnTransition(s32 mode, s32 duration);
@@ -177,6 +179,8 @@ s32 shopSystemUpdate(u8 *task)
     u8 *view;
 
     work = ((KwlnTask *)task)->work;
+
+    shopWork = (ShopSystemWork *)work;
     state = ((ShopSystemWork *)work)->state;
     switch (state) {
     case 1:
@@ -200,9 +204,9 @@ s32 shopSystemUpdate(u8 *task)
     case 4:
         if (fadeStatus() != 0) {
             if (((ShopSystemWork *)work)->shopTask != 0) {
-                *(s32 *)(work + 4) = 0;
+                shopWork->shopTask = 0;
             }
-            *(s32 *)(work + 4) = fclItemShopCreate(task);
+            shopWork->shopTask = fclItemShopCreate(task);
             ((ShopSystemWork *)work)->state = 0x22;
         }
         goto block_24;

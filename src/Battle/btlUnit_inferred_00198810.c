@@ -61,62 +61,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
-
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -131,10 +76,6 @@ extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 btlUnitArcMovePacketUpdate(u8 *packetWork);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -173,9 +114,10 @@ s32 btlUnitGetMotionState(BtlUnit *unit) {
     return 0;
 }
 
-// FUN_00198840
+/* Report whether a party or enemy unit is playing its configured rest motion. */
 /* Ported from P3FES btlUnit00282c60: the P4 genus/flag/value fields retain
    the donor layout at 0xA2/0x98/0x9DA, with the result comparing unk_9EC. */
+// FUN_00198840
 u32 btlUnitIsAtRestMotion(BtlUnit *unit)
 {
     s16 val;
@@ -194,9 +136,10 @@ u32 btlUnitIsAtRestMotion(BtlUnit *unit)
     return 0;
 }
 
-// FUN_001988B0
+/* Report walking motion one only for party and enemy unit kinds. */
 /* Ported from P3FES btlUnit00282cd0: the P4 genus/flag/value fields retain
    the donor layout at 0xA2/0x98/0x9DA, with the result testing val == 1. */
+// FUN_001988B0
 u32 btlUnitIsWalkingMotion(BtlUnit *unit)
 {
     s16 val;

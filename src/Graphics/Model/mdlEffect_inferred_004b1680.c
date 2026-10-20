@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -109,10 +110,10 @@ void *mdlEffectCreateScreenSprite(void *opaqueSource) {
     memcpy(instance + 0xC, parameters, 0x98);
     geometry = (u16 *)GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
     /* The constructor stores a halfword-addressable geometry pointer in the byte-shaped shared geometry slot. */
-    *(u16 **)(instance + 0xA4) = geometry;
+    MEMBER(u16 *, instance, MdlEffectScreenSprite, geometry) = geometry;
     *geometry = *geometry & 0xFFFB;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)*(u8 **)(instance + 0xA4))->atomic)->geometry;
+    colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)MEMBER(u8 *, instance, MdlEffectScreenSprite, geometry))->atomic)->geometry;
     colors = (u8 *)((RpGeometry *)colors)->colors;
     ((s32 *)colors)[0] = -1;
     ((s32 *)colors)[1] = -1;

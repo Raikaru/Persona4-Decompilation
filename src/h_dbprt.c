@@ -16,6 +16,7 @@ extern void* memcpy(void* destination, const void* source, size_t count);
 
 
 
+/* Format and append a diagnostic line, discarding the oldest when fifteen lines are retained. */
 // FUN_004504F0
 void H_Dbprt_FmtLog(const char* fmt, ...)
 {

@@ -40,7 +40,16 @@ struct CmmKindRecord
     u16 reverseThreshold;    /* 0x0A. Reverse-progress threshold; zero disables it */
     u16 tierBits;            /* 0x0C. Bit (tier - 1) tested by cmmCommunityHasTierBit */
     u16 category;            /* 0x0E. Category id (cmmCommunityCategory) */
-    u16 rankThreshold[0x2A]; /* 0x10. Points needed for each rank level; indexed by level as an element (u16), not a byte offset */
+    union {
+        u16 rankThreshold[0x2A]; /* 0x10. Points needed for each rank level */
+        struct {
+            u8 pad10[0x14];
+            struct {
+                u32 gate;
+                union { u32 word; s8 value; } result;
+            } eventSlots[8]; /* 0x24. Optional flag gate and event value */
+        };
+    };
 };
 
 /* Earn-scale table: chunk 14 of cmm.bin, returned by cmmEarnScaleTable (chunk +8).
@@ -99,7 +108,10 @@ struct CmmRankUpEntry
     u32 flags;               /* 0x00. CmmRankUpEntryFlag bits */
     s32 frame;              /* 0x04. Per-entry animation timer */
     CmmRankUpEntryStep step; /* 0x08. Run each frame; a nonzero return clears ACTIVE */
-    u8 unk_0c[0x6C];         /* 0x0C */
+    union {
+        u8 unk_0c[0x6C];     /* 0x0C */
+        s32 spriteKind;      /* first RankUpSpriteState.kind for sprite steps */
+    };
 };
 
 typedef struct CmmRankUpWork CmmRankUpWork;

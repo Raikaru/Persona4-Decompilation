@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "g_data_internal.h"
 #include "btl_shuffle_draw_internal.h"
 #include "btl_target_state_packet_internal.h"
@@ -43,10 +44,6 @@ typedef struct {
     s32 field1C;
     s32 field20;
 } Code1_00263220State;
-static inline f32 mtSceneMulF32(f32 left, f32 right)
-{
-    return left * right;
-}
 extern void PrimDrawContour(f32 x, f32 y, f32 depth,
                           s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
                           s32 originX, s32 originY,
@@ -56,14 +53,7 @@ extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-static inline u32 *rbRingNextNode(s32 offset, u32 *base)
-{
-    return (u32 *)((u8 *)base + offset + 8);
-}
-static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
-{
-    return base + index;
-}
+
 
 
 extern u8 D_00637420[];
@@ -237,9 +227,10 @@ s32 frFontCommandSetPalette(s32 command, u8 *context)
 }
 
 /* measured: closing opt_propagation off probe for func_0026e4c0. */
+/* Accept the no-op dispatch entry after palette assignment; sample mode and continue command parsing. */
 // FUN_0026E560
 /* Probe the current mode without stopping script parsing. */
-s32 func_0026e560(void)
+s32 frFontCommandPostPaletteNoop(void)
 {
     frFontGetMode();
     return 0;
@@ -307,9 +298,10 @@ s32 frFontCommandSetIntensity(s32 command, u8 *context)
 }
 
 /* measured: closing opt_propagation off for func_0026e630. */
+/* Accept the no-op dispatch entry after intensity assignment; sample mode and continue command parsing. */
 // FUN_0026E6D0
 /* Probe the current mode without stopping script parsing. */
-s32 func_0026e6d0(void)
+s32 frFontCommandPostIntensityNoop(void)
 {
     frFontGetMode();
     return 0;
@@ -332,8 +324,8 @@ s32 frFontCommandSetIntensityAndHeight(s32 command, u8 *context)
     if (frFontGetMode() != 0) {
         return 0;
     }
-    streamOffset = *(s32 *)(context + 0x18);
-    streamAddress = *(s32 *)(context + 0x10);
+    streamOffset = ((FrFontContext *)(context))->position;
+    streamAddress = ((FrFontContext *)(context))->stream;
     operandBytes = (u8 *)(streamAddress + streamOffset);
     lowByte = (operandBytes[0] - 1) & 0xFF;
     highByte = operandBytes[1];
@@ -343,9 +335,9 @@ s32 frFontCommandSetIntensityAndHeight(s32 command, u8 *context)
         highPart = (highByte - 1) & 0xFF;
     }
     highPart &= 0xFF;
-    *(s8 *)(context + 0xF) = (s8)(s16)((highPart << 8) | (u8)lowByte);
-    streamOffset = *(s32 *)(context + 0x18);
-    streamAddress = *(s32 *)(context + 0x10);
+    ((FrFontContext *)(context))->intensity = (s8)(s16)((highPart << 8) | (u8)lowByte);
+    streamOffset = MEMBER(s32, context, FrFontContext, position);
+    streamAddress = MEMBER(s32, context, FrFontContext, stream);
     operandBytes = (u8 *)(streamOffset + streamAddress);
     lowByte = (operandBytes[2] - 1) & 0xFF;
     highByte = operandBytes[3];
@@ -355,7 +347,7 @@ s32 frFontCommandSetIntensityAndHeight(s32 command, u8 *context)
         highPart = (highByte - 1) & 0xFF;
     }
     highPart &= 0xFF;
-    *(s16 *)(context + 0x1E) = (s16)((highPart << 8) | (u8)lowByte);
+    ((FrFontContext *)(context))->height = (s16)((highPart << 8) | (u8)lowByte);
     return 0;
 }
 
@@ -487,8 +479,8 @@ s32 frFontBeginDeferredLayout(s32 command, u8 *context)
     s32 runCount;
     s32 scaledRunCount;
 
-    streamOffset = *(s32 *)(context + 0x18);
-    streamAddress = *(s32 *)(context + 0x10);
+    streamOffset = ((FrFontContext *)(context))->position;
+    streamAddress = ((FrFontContext *)(context))->stream;
     operandBytes = (u8 *)(streamAddress + streamOffset);
     lowByte = (operandBytes[0] - 1) & 0xFF;
     highByte = operandBytes[1];
@@ -505,21 +497,21 @@ s32 frFontBeginDeferredLayout(s32 command, u8 *context)
     if (datGetFlag(0x3B) == 0) {
         return 0;
     }
-    if (*(s32 *)(*(u8 **)(context + 0x14) + 0x34) != 0) {
-        *(s32 *)(*(u8 **)(context + 0x14) + 0x38) = 1;
+    if (((FrFontTextRun *)(*(u8 * *)&((FrFontContext *)(context))->list))->unk34 != 0) {
+        ((FrFontTextRun *)(*(u8 * *)&((FrFontContext *)(context))->list))->unk38 = 1;
     }
-    *(s32 *)(*(u8 **)(context + 0x14) + 0x30) = command;
+    ((FrFontTextRun *)(MEMBER(u8 *, context, FrFontContext, list)))->command = command;
     if (iGpffffa730 != 0) {
         goto direct_store;
     }
-    runCount = frFontCountRuns(*(u8 **)(context + 0x14));
+    runCount = frFontCountRuns(MEMBER(u8 *, context, FrFontContext, list));
     scaledRunCount = runCount << 4;
     runCount = scaledRunCount - runCount;
     scaledRunCount = runCount << 2;
-    *(s32 *)(*(u8 **)(context + 0x14) + 0x3C) = scaledRunCount;
+    ((FrFontTextRun *)(MEMBER(u8 *, context, FrFontContext, list)))->duration = scaledRunCount;
     goto after_store;
 direct_store:
-    *(s32 *)(*(u8 **)(context + 0x14) + 0x3C) = (s32)(s16)firstOperand;
+    ((FrFontTextRun *)(MEMBER(u8 *, context, FrFontContext, list)))->duration = (s32)(s16)firstOperand;
 after_store:
     iGpffffa730 = -1;
     iGpffffb4bc = 1;
@@ -559,8 +551,8 @@ s32 frFontCommandCopyLine(s32 command, u8 *context)
         return 0;
     }
     byteCount = 0;
-    streamOffset = *(s32 *)(context + 0x18);
-    terminator = *(s32 *)(context + 0x10);
+    streamOffset = ((FrFontContext *)(context))->position;
+    terminator = ((FrFontContext *)(context))->stream;
     streamBytes = (u8 *)(terminator + streamOffset);
     goto scan_loop;
 decode:
@@ -576,19 +568,19 @@ decode:
 scan_loop:
     byteIndex = byteCount;
     byteCount += 1;
-    byte = *(s8 *)(streamBytes + byteIndex);
+    byte = ((s8 *)streamBytes)[byteIndex];
     terminator = 0xA;
     if (byte != terminator) {
         goto decode;
     }
     memset(&D_00881530, 0, 0x80);
     memcpy(&D_00881530,
-                  (void *)(*(s32 *)(context + 0x10) + *(s32 *)(context + 0x18)),
+                  (void *)(MEMBER(s32, context, FrFontContext, stream) + MEMBER(s32, context, FrFontContext, position)),
                   byteCount);
     /* The terminator uses the linker symbol one byte before the text buffer. */
     *((u8 *)((s32)&D_0088152F + byteCount)) = 0;
     frFontSetStateBits(4, 1);
-    *(s32 *)(context + 0x18) = *(s32 *)(context + 0x18) + byteCount;
+    MEMBER(s32, context, FrFontContext, position) = MEMBER(s32, context, FrFontContext, position) + byteCount;
     return 0;
 }
 
@@ -610,15 +602,15 @@ s32 frFontCommandSetConditionalWait(s32 command, u8 *context)
     if (frFontGetMode() != 0) {
         return 0;
     }
-    if (*(s32 *)(*(u8 **)(context + 0x14) + 0x34) != 0) {
-        *(s32 *)(*(u8 **)(context + 0x14) + 0x38) = 1;
+    if (((FrFontTextRun *)(MEMBER(u8 *, context, FrFontContext, list)))->unk34 != 0) {
+        ((FrFontTextRun *)(*(u8 * *)&((FrFontContext *)(context))->list))->unk38 = 1;
     }
-    *(s32 *)(*(u8 **)(context + 0x14) + 0x30) = command;
+    ((FrFontTextRun *)(MEMBER(u8 *, context, FrFontContext, list)))->command = command;
     if (datGetFlag(0x3A) == 0) {
-        *(s32 *)(*(u8 **)(context + 0x14) + 0x3C) = 0x23;
+        ((FrFontTextRun *)(*(u8 * *)&((FrFontContext *)(context))->list))->duration = 0x23;
     } else {
-        streamOffset = *(s32 *)(context + 0x18);
-        streamAddress = *(s32 *)(context + 0x10);
+        streamOffset = ((FrFontContext *)(context))->position;
+        streamAddress = ((FrFontContext *)(context))->stream;
         operandBytes = (u8 *)(streamAddress + streamOffset);
         lowByte = (operandBytes[0] - 1) & 0xFF;
         highByte = operandBytes[1];
@@ -628,7 +620,7 @@ s32 frFontCommandSetConditionalWait(s32 command, u8 *context)
             highPart = (highByte - 1) & 0xFF;
         }
         highPart &= 0xFF;
-        *(s32 *)(*(u8 **)(context + 0x14) + 0x3C) =
+        ((FrFontTextRun *)(*(u8 * *)&((FrFontContext *)(context))->list))->duration =
             (s32)(s16)((highPart << 8) | (u8)lowByte);
     }
     return 0;
@@ -862,7 +854,7 @@ s32 frFontLayoutSlotIfBound(s32 command, u32 contextAddress, s32 unused)
     context = (u8 *)contextAddress;
     streamOffset = ((FrFontContext *)context)->position;
     streamAddress = ((FrFontContext *)context)->stream;
-    operandBytes = mtSceneBytePairAt((u8 *)streamAddress, (u32)streamOffset);
+    operandBytes = (((u8 *)streamAddress) + (u32)streamOffset);
     lowByte = (operandBytes[0] - 1) & 0xFF;
     highByte = operandBytes[1];
     if (highByte == 0xFF) {
@@ -915,7 +907,7 @@ s32 frFontLayoutSlotCommand(s32 command, u8 *context)
 
     streamOffset = ((FrFontContext *)context)->position;
     streamAddress = ((FrFontContext *)context)->stream;
-    stream = mtSceneBytePairAt((u8 *)streamAddress, (u32)streamOffset);
+    stream = (((u8 *)streamAddress) + (u32)streamOffset);
     low = (stream[0] - 1) & 0xFF;
     highByte = stream[1];
     if (highByte == 0xFF) {

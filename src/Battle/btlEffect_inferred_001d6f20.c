@@ -19,8 +19,7 @@ extern void memset(void* dst, s32 value, u32 size);
 /* Source unit: src/btlFormation/btlFormation_grouped.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/btlFormation/btlFormation_grouped.c; members 001d6f20-001d7040 */
 
-/* Allocate a 0x18-byte placement and its fade node, initialize the hidden slot, and link the node globally.
- * Raw offsets retained: Member access changes MWCC code generation; retain the proven offsets and original access types. */
+/* Allocate a 0x18-byte placement and its fade node, initialize the hidden slot, and link the node globally. */
 // FUN_001D6F20
 u8* btlEffectCreatePlacementEntry(s32 unit)
 {
@@ -45,55 +44,57 @@ u8* btlEffectCreatePlacementEntry(s32 unit)
     *(s32*)&((BtlEffectNode *)node)->counter = 0;
     ((BtlEffectNode *)node)->flags = 0x200;
     *(s32*)&((BtlEffectNode *)node)->previous = 0;
-    head = *(u8**)((u8*)DAT_0076449c + 0x1B8);
+    head = *(u8* *)&((BtlBattleState *)((u8*)DAT_0076449c))->effectNodes;
     if (head != 0)
     {
         *(u8**)&((BtlEffectNode *)head)->previous = node;
-        *(u8**)&((BtlEffectNode *)node)->next = *(u8**)((u8*)DAT_0076449c + 0x1B8);
+        *(u8**)&((BtlEffectNode *)node)->next = *(u8* *)&((BtlBattleState *)((u8*)DAT_0076449c))->effectNodes;
     }
     else
     {
         *(u8**)&((BtlEffectNode *)node)->next = 0;
     }
-    *(u8**)((u8*)DAT_0076449c + 0x1B8) = node;
+    *(u8* *)&((BtlBattleState *)((u8*)DAT_0076449c))->effectNodes = node;
     *(u8**)&((BtlEffectPlacement *)placement)->node = node;
     return placement;
 }
 
-/* Reset and unlink the placement's node, release its optional formation, and free both allocations.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Reset and unlink the placement's node, release its optional formation, and free both allocations. */
 // FUN_001D7040
 void btlEffectDestroyPlacementEntry(u8* placement)
 {
+    BtlEffectNode *nodeState;
+    BtlEffectPlacement *placementState = (BtlEffectPlacement *)(placement);
     u8* node;
     u8* next;
     u8* previous;
     u32 formation;
     u32 table;
 
-    node = *(u8**)(placement + 8);
+    node = *(u8* *)&((BtlEffectPlacement *)(placement))->node;
+    nodeState = (BtlEffectNode *)(node);
     btlEffectResetEntry(node);
-    next = *(u8**)(node + 0x20);
+    next = *(u8* *)&((BtlEffectNode *)(node))->next;
     if (next != 0)
     {
-        *(u8**)(next + 0x1C) = *(u8**)(node + 0x1C);
+        *(u8* *)&((BtlEffectNode *)(next))->previous = *(u8* *)&((BtlEffectNode *)(node))->previous;
     }
-    previous = *(u8**)(node + 0x1C);
+    previous = *(u8* *)&((BtlEffectNode *)(node))->previous;
     if (previous != 0)
     {
-        *(u8**)(previous + 0x20) = *(u8**)(node + 0x20);
+        *(u8* *)&((BtlEffectNode *)(previous))->next = *(u8* *)&nodeState->next;
     }
     else
     {
-        *(u8**)((u8*)DAT_0076449c + 0x1B8) = *(u8**)(node + 0x20);
+        *(u8* *)&((BtlBattleState *)((u8*)DAT_0076449c))->effectNodes = *(u8* *)&nodeState->next;
     }
     table = (u32)jtbl_008873EC;
     ((void (**)(void*))table)[0](node);
-    formation = *(u32*)(placement + 0xC);
+    formation = *(u32 *)&((BtlEffectPlacement *)(placement))->formation;
     if (formation != 0)
     {
         btlFormationSetPlacement(formation);
-        *(u32*)(placement + 0xC) = 0;
+        *(u32 *)&placementState->formation = 0;
     }
     ((void (**)(void*))table)[0](placement);
 }

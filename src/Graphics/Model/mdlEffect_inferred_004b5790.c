@@ -1,3 +1,4 @@
+#include "effect_after_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
@@ -81,8 +82,8 @@ u8 *AfPackCreateAndStartInstance(void *object, s32 context) {
     u8 *resource;
 
     resource = AfPackBindResource(object);
-    /* The pack allocates a 0x24-byte header, but its private RuntimeWork type does not expose this final context word. */
-    *(s32 *)(resource + 0x20) = context;
+    /* The shared pack header keeps this effect's owner context at +0x20. */
+    ((RuntimeWork *)resource)->owner = context;
     instance = AfPackCreateInstance(resource);
     AfPackListAppend(instance);
     AfPackStartSections(instance);

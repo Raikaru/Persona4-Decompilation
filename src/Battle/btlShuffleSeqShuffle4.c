@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - btlShuffleSeqShuffle4.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "member_access.h"
 #include "sdk_snd_internal.h"
 #include "btl_shuffle_sequence_internal.h"
 
@@ -76,6 +77,8 @@ extern f32 iGpffff83ec;
 /* Choose the grid attempt limit and initial held-card count for this difficulty. */
 // FUN_0037C720
 void btlShuffleSeq4Init(u8 *context) {
+    BtlShuffleContext *shuffleContext = (BtlShuffleContext *)(context);
+    BtlShuffleGridState *gridState = (BtlShuffleGridState *)(context + 0x1F1D0);
     u8 *base;
     s32 idx;
     s32 minAttempts;
@@ -100,12 +103,12 @@ void btlShuffleSeq4Init(u8 *context) {
     attemptSpan = maxAttempts - minAttempts + 1;
     attemptValue = (f32)attemptSpan * attemptFraction + (f32)minAttempts;
     attemptLimit = (u16)attemptValue;
-    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
-    *(u16 *)(base + 0xA) = attemptLimit;
+    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
+    gridState->attemptLimit = attemptLimit;
     if (((BtlShuffleGridState *)base)->attemptLimit > 0x10) {
         kAssertFail(&D_0064EB20[0], 0x32);
     }
-    if (*(s32 *)(context + 0x1F300) == 3) {
+    if (shuffleContext->difficulty == 3) {
         *(s16 *)&((BtlShuffleGridState *)base)->cardCount = 0;
     } else {
         minCards = D_0064E6CA[idx * 2];
@@ -134,7 +137,7 @@ void btlShuffleSeq4Init(u8 *context) {
         }
         *(s16 *)&((BtlShuffleGridState *)base)->cardCount = cardCount;
     }
-    if (*(u16 *)(base + 0x2C) > 0x10) {
+    if (gridState->cardCount > 0x10) {
         kAssertFail(&D_0064EB20[0], 0x4E);
     }
 }
@@ -310,6 +313,7 @@ s32 btlShuffleSeq4Dist(u8 *context, s64 packedDirection, s64 packedOrigin) {
 /* Read directional input and move the grid cursor to a neighboring card. */
 // FUN_0037D460
 void btlShuffleSeq4Step(u8 *context) {
+    BtlShuffleGridState *gridState = (BtlShuffleGridState *)(context + 0x1F1D0);
     u8 *base = context + 0x1F1D0;
     f32 direction[2];
     s64 position;
@@ -330,8 +334,8 @@ void btlShuffleSeq4Step(u8 *context) {
     if (((BtlShuffleContext *)context)->pattern != 3) {
         kAssertFail(&D_0064EB20[0], 0x1A6);
     }
-    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
-    cur = *(u16 *)(base + 4);
+    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
+    cur = gridState->cursor;
     btlShuffleCalcUpdateSpeed(context + cur * 0xE8 + 0x1D6B8, (f32 *)&position);
     if (D_008C027A[0] & 0x1000) {
         direction[1] -= 1.0f;
@@ -372,11 +376,11 @@ void btlShuffleSeq4Move(u8 *context, s32 cardIndex, u16 startFrame, u16 endFrame
 
     off = cardIndex * 0xE8;
     p = (u8 *)(off + (s32)context);
-    /* Track kind five selects an alternate position in the pose prefix; the complete variant union is not yet known. */
-    if (*(s32 *)(p + 0x1D6A4) == 5) {
-        *(Vec3f *)position = *(Vec3f *)(p + 0x1D6C4);
+    /* Track kind five selects the alternate position overlapping the pose axis. */
+    if (((BtlShuffleContext *)p)->cards[0].kind == 5) {
+        *(Vec3f *)position = *(Vec3f *)&((BtlShuffleContext *)p)->cards[0].alternatePosition;
     } else {
-        *(Vec3f *)position = *(Vec3f *)(p + 0x1D6B8);
+        *(Vec3f *)position = *(Vec3f *)&((BtlShuffleContext *)p)->cards[0].position;
     }
     startTime = startFrame;
     endTime = endFrame;
@@ -423,8 +427,8 @@ void btlShuffleSeq4Shuffle(u8 *context) {
     f32 randomValue;
     f32 randomFraction;
 
-    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
-    if (*(s32 *)(context + 0x1F2FC) != 3) {
+    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
+    if (MEMBER(s32, context, BtlShuffleContext, pattern) != 3) {
         kAssertFail(&D_0064EB20[0], 0x23B);
     }
     n = btlShuffleDrawTableLookup(((BtlShuffleContext *)context)->cardCount, ((BtlShuffleContext *)context)->pattern);
@@ -486,7 +490,8 @@ void btlShuffleSeq4Shuffle(u8 *context) {
    helpers that retail expands in place.  The frame arguments of the card
    animation setters are u16 throughout, so the (u16) conversions happen at
    each call.  measured: 4904B of code in the 4912B window (two zero words). */
-static inline void shuffle4Release(u8 *context, s32 card, u16 frames)
+/* Animate a held card back to the grid and clear its selected-slot flags. */
+static inline void btlShuffleGridRelease(u8 *context, s32 card, u16 frames)
 {
     u8 *base = context + 0x1F1D0;
     f32 rot[4];
@@ -512,14 +517,15 @@ static inline void shuffle4Release(u8 *context, s32 card, u16 frames)
     }
 }
 
-static inline u16 shuffle4PickFree(u8 *context)
+/* Choose a random grid card not already present in the held-card mask. */
+static inline u16 btlShuffleGridPickFree(u8 *context)
 {
     u8 *base = context + 0x1F1D0;
     s32 n;
     u16 c;
 
-    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
-    n = btlShuffleDrawTableLookup(((BtlShuffleContext *)context)->cardCount, *(s32 *)(context + 0x1F2FC));
+    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
+    n = btlShuffleDrawTableLookup(((BtlShuffleContext *)context)->cardCount, MEMBER(s32, context, BtlShuffleContext, pattern));
     do {
         c = n * ((f32)(RpRandom() & 0xFFF) / 4096.0f);
     } while (((BtlShuffleGridState *)base)->heldMask & (u16)(1 << c));
@@ -533,6 +539,8 @@ static inline u16 shuffle4PickFree(u8 *context)
 // FUN_0037DA60
 s32 btlShuffleSeq4Run(u8 *context)
 {
+    BtlShuffleGridState *gridState;
+    BtlShuffleContext *shuffleContext = (BtlShuffleContext *)(context);
     f32 pos[2];
     f32 vec[3];
     f32 rot[4];
@@ -550,12 +558,13 @@ s32 btlShuffleSeq4Run(u8 *context)
     u16 limit;
     u16 speed;
 
-    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
-    scale = 1.0f - (0.5f * (f32)(*(s32 *)(context + 0x1F304) - 3)) / 5.0f;
+    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
+    scale = 1.0f - (0.5f * (f32)(shuffleContext->cardCount - 3)) / 5.0f;
     sbase = context + 0x1F1D0;
-    total = btlShuffleDrawTableLookup(*(s32 *)(context + 0x1F304), ((BtlShuffleContext *)context)->pattern);
+    gridState = (BtlShuffleGridState *)sbase;
+    total = btlShuffleDrawTableLookup(shuffleContext->cardCount, ((BtlShuffleContext *)context)->pattern);
     /* measured: typing only this dispatch read shrinks Run to 4684 bytes and changes its allocation; stores remain typed. */
-    switch (*(u32 *)(context + 0x1F2F8)) {
+    switch (shuffleContext->phase) {
     case 0:
         if (btlShuffleSeqPick(context, ((BtlShuffleContext *)context)->cardCount) == 0) {
             break;
@@ -589,8 +598,8 @@ s32 btlShuffleSeq4Run(u8 *context)
             ((BtlShuffleGridState *)sbase)->attempts = 0;
             for (i = 0; i < ((BtlShuffleContext *)context)->cardCount; i++) {
                 btlShuffleDrawSetPose(context, i, (u16)i, (u16)i + 10);
-                /* The flag halfword belongs to the variant motion/grid prefix, not a field of the shared partial pose type. */
-                *(u16 *)(context + 0x1F1D6) ^= (u16)(1 << i);
+                /* This grid halfword tracks which cards have been turned over. */
+                ((BtlShuffleContext *)context)->sequenceHeldMask ^= (u16)(1 << i);
             }
             sdkSndStartStream(0, 4, 0, 1);
             sdkSndStartStream(1, 0, 5, 1);
@@ -600,7 +609,7 @@ s32 btlShuffleSeq4Run(u8 *context)
         }
         break;
     case 4:
-        if (btlShuffleSeqCountB(context, *(s32 *)(context + 0x1F304)) == 0) {
+        if (btlShuffleSeqCountB(context, shuffleContext->cardCount) == 0) {
             break;
         }
         ((BtlShuffleContext *)context)->elapsed = 0;
@@ -651,8 +660,8 @@ s32 btlShuffleSeq4Run(u8 *context)
         }
         btlShuffleSeq4Shuffle(context);
         if (((BtlShuffleGridState *)sbase)->cardCount > 0) {
-            for (k = 0; k < *(u16 *)(sbase + 0x2C); k++) {
-                ((BtlShuffleGridState *)sbase)->cards[k] = shuffle4PickFree(context);
+            for (k = 0; k < gridState->cardCount; k++) {
+                ((BtlShuffleGridState *)sbase)->cards[k] = btlShuffleGridPickFree(context);
                 btlShuffleSeq4Move(context, ((BtlShuffleGridState *)sbase)->cards[k], 0, ((BtlShuffleGridState *)sbase)->frames);
             }
             sdkSndStartStream(1, 0, 5, 1);
@@ -681,13 +690,13 @@ s32 btlShuffleSeq4Run(u8 *context)
             limit = 0;
             break;
         }
-        if (++*(u16 *)(context + 0x1F2F0) < limit) {
+        if (++shuffleContext->elapsed < limit) {
             break;
         }
-        for (j = 0; j < *(u16 *)(sbase + 0x2C); j++) {
+        for (j = 0; j < gridState->cardCount; j++) {
             speed = ((BtlShuffleGridState *)sbase)->frames;
             card = ((BtlShuffleGridState *)sbase)->cards[j];
-            shuffle4Release(context, card, speed);
+            btlShuffleGridRelease(context, card, speed);
         }
         sdkSndStartStream(1, 0, 5, 1);
         ((BtlShuffleContext *)context)->phase = 8;
@@ -702,10 +711,10 @@ s32 btlShuffleSeq4Run(u8 *context)
         btlShuffleDrawViewStartCue(((BtlShuffleContext *)context)->viewTask);
         ((BtlShuffleContext *)context)->phase = 0xA;
     case 10:
-        if (btlShuffleDrawViewIsCueIdle(*(u8 **)(context + 0x1F294)) == 0) {
+        if (btlShuffleDrawViewIsCueIdle(shuffleContext->viewTask) == 0) {
             break;
         }
-        btlShuffleDrawCardStartCount(*(u8 **)(context + 0x1F298));
+        btlShuffleDrawCardStartCount(shuffleContext->cardTask);
         btlShuffleDrawViewSetHold(((BtlShuffleContext *)context)->viewTask);
         deck = ((BtlShuffleContext *)context)->cardTask;
         btlShuffleDrawCardActivate(deck);
@@ -735,9 +744,9 @@ s32 btlShuffleSeq4Run(u8 *context)
         }
         break;
     case 13:
-        if (btlShuffleSeqCheck(context, *(s32 *)(sbase + 0x30), *(s32 *)(sbase + 0x34)) != 0 &&
+        if (btlShuffleSeqCheck(context, gridState->firstCard, gridState->secondCard) != 0 &&
             btlShuffleCardGetKind(context + ((BtlShuffleGridState *)sbase)->firstCard * 0xFB0) != 2) {
-            btlShuffleDrawCardEndDetail(*(u8 **)(context + 0x1F298));
+            btlShuffleDrawCardEndDetail(shuffleContext->cardTask);
             btlShuffleDrawCardEndCount(((BtlShuffleContext *)context)->cardTask);
             btlShuffleDrawViewClearHold(((BtlShuffleContext *)context)->viewTask);
             ((BtlShuffleContext *)context)->phase = 0xE;
@@ -746,11 +755,11 @@ s32 btlShuffleSeq4Run(u8 *context)
         if (++((BtlShuffleContext *)context)->elapsed < 0xA) {
             break;
         }
-        shuffle4Release(context, ((BtlShuffleGridState *)sbase)->secondCard, 0xA);
-        shuffle4Release(context, ((BtlShuffleGridState *)sbase)->firstCard, 0xA);
+        btlShuffleGridRelease(context, ((BtlShuffleGridState *)sbase)->secondCard, 0xA);
+        btlShuffleGridRelease(context, ((BtlShuffleGridState *)sbase)->firstCard, 0xA);
         sdkSndStartStream(1, 0, 5, 1);
         if (++((BtlShuffleGridState *)sbase)->attempts >= ((BtlShuffleGridState *)sbase)->attemptLimit) {
-            btlShuffleDrawCardEndDetail(*(u8 **)(context + 0x1F298));
+            btlShuffleDrawCardEndDetail(shuffleContext->cardTask);
             btlShuffleDrawCardEndCount(((BtlShuffleContext *)context)->cardTask);
             btlShuffleDrawViewClearHold(((BtlShuffleContext *)context)->viewTask);
             btlShuffleSeqCardCount(context, -1);
@@ -782,13 +791,13 @@ s32 btlShuffleSeq4Run(u8 *context)
         if (btlShuffleSeqPick(context, total) == 0) {
             break;
         }
-        *(u16 *)((u8 *)(((BtlShuffleGridState *)sbase)->secondCard * 0xE8) + (u32)context + 0x1D6A0) &= 0xFFFD;
+        shuffleContext->cards[((BtlShuffleGridState *)sbase)->secondCard].flags &= 0xFFFD;
         btlShuffleSeqMoveB(context, ((BtlShuffleGridState *)sbase)->firstCard);
         ((BtlShuffleGridState *)sbase)->flags |= 8;
         sdkSndStartStream(1, 0, 5, 1);
         ((BtlShuffleContext *)context)->phase = 0x11;
     case 17:
-        if (btlShuffleDrawStateA(context + *(s32 *)(sbase + 0x30) * 0xE8 + 0x1D6A0) != 0) {
+        if (btlShuffleDrawStateA(context + gridState->firstCard * 0xE8 + 0x1D6A0) != 0) {
             break;
         }
         btlShuffleSeqCardCount(context, ((BtlShuffleGridState *)sbase)->firstCard);
@@ -814,8 +823,8 @@ s32 btlShuffleSeq4Run(u8 *context)
         if (btlShuffleSeqFlag(context) == 0) {
             break;
         }
-        if (*(u16 *)(context + 0x1F2F4) & 2) {
-            *(u16 *)(context + 0x1F2F4) = ((BtlShuffleContext *)context)->flags & 0xFFFD;
+        if (shuffleContext->flags & 2) {
+            shuffleContext->flags = ((BtlShuffleContext *)context)->flags & 0xFFFD;
         }
         if (++((BtlShuffleContext *)context)->elapsed < 0x1E) {
             break;

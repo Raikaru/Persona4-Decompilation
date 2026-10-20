@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 #include "field_event_internal.h"
@@ -201,12 +202,13 @@ typedef struct FldEventFieldRecord {
     s32 flags;
 } FldEventFieldRecord;
 /* measured: typing this table-base load makes FldEvent_HighlightEntry MISMATCH (normalized_diff 203). */
-#define FLD_EVT_TABLE() (*(FldEvtEntry **)((u8 *)(s32)MT_Scene_GetFrameState() + 0x18DC))
+#define FLD_EVT_TABLE() MEMBER(FldEvtEntry *, (u8 *)(s32)MT_Scene_GetFrameState(), FldFrame, eventTable)
 #define FLD_EVT_ENTRY(h) (&FLD_EVT_TABLE()[((FldEventWork *)(h))->selectedEvent & 0x3FF])
 /* Select paired nearby grid resources when the interaction button is pressed. */
 // FUN_00171610
 s32 FldEvent_ScanNearbyEntries(u8 *task)
 {
+    ResrcRecord *nearbyResource;
     s32 *h;
     u8 *p;
     u8 *q;
@@ -240,15 +242,16 @@ s32 FldEvent_ScanNearbyEntries(u8 *task)
     o = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
     vec = *(FldEventVec3 *)&((RwMatrixTag *)(o))->pos;
     while (p != 0) {
-        if ((((ResrcRecord *)(p))->unk28 & 2) != 0 &&
-            /* measured: typing the retained access changes b210 output (normalized_diff 793); keep raw. */
-            K_Clump_ClumpHasMatUsrData((u8 *)mdlGetClump(*(s32 *)(p + 0x144)),
+        nearbyResource = (ResrcRecord *)p;
+    if ((((ResrcRecord *)(p))->unk28 & 2) != 0 &&
+            /* Previous measurement: typing this access changed b210 output (normalized_diff 793); the access form below preserves MATCH. */
+            K_Clump_ClumpHasMatUsrData((u8 *)mdlGetClump(nearbyResource->slotHandleValue[1]),
                           D_005F1770) != 0) {
-            /* measured: typing the retained access changes b210 output (normalized_diff 793); keep raw. */
-            cx = (s32)((600.0f + ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(p + 0x144)))))->pos.x) /
+            /* Previous measurement: typing this access changed b210 output (normalized_diff 793); the access form below preserves MATCH. */
+            cx = (s32)((600.0f + ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, slotHandleValue[1])))))->pos.x) /
                        1200.0f);
-            /* measured: typing the retained access changes b210 output (normalized_diff 793); keep raw. */
-            cy = (s32)((600.0f + ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(p + 0x144)))))->pos.z) /
+            /* Previous measurement: typing this access changed b210 output (normalized_diff 793); the access form below preserves MATCH. */
+            cy = (s32)((600.0f + ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, slotHandleValue[1])))))->pos.z) /
                        1200.0f);
             flag = 0;
             t21 = cy << 8;
@@ -259,8 +262,8 @@ s32 FldEvent_ScanNearbyEntries(u8 *task)
             if (flag == 1 &&
                 !(((FldFrameCell *)((u8 *)(s32)MT_Scene_GetFrameState() + t21 + t22 + 0x54))->unk0B & 0xF0)) {
                 o2 = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
-                /* measured: typing the retained access changes b210 output (normalized_diff 793); keep raw. */
-                if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(o2), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(p + 0x144))) + 0x30), 120.0f) !=
+                /* Previous measurement: typing this access changed b210 output (normalized_diff 793); the access form below preserves MATCH. */
+                if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(o2), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, slotHandleValue[1]))) + 0x30), 120.0f) !=
                         0 &&
                     K_FldEvent_ArePosWithinDist((const struct RwV3d *)((u8 *)&vec), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)((s32)((ResrcRecord *)(p))->slotHandle[1])) + 0x30), 250.0f) == 1) {
                     h[5] = 1;
@@ -282,16 +285,16 @@ s32 FldEvent_ScanNearbyEntries(u8 *task)
 found:
     q = (u8 *)MT_Scene_GetResListHead(0xA);
     while (q != 0) {
-        /* measured: typing the retained access changes b210 output (normalized_diff 323); keep raw. */
-        if (K_Clump_ClumpHasMatUsrData((u8 *)mdlGetClump(*(s32 *)(q + 0x144)),
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 323); the access form below preserves MATCH. */
+        if (K_Clump_ClumpHasMatUsrData((u8 *)mdlGetClump(MEMBER(s32, q, ResrcRecord, slotHandleValue[1])),
                           D_005F1780) != 0) {
             cx2 = (s32)((600.0f +
-                         /* measured: typing the retained access changes b210 output (normalized_diff 323); keep raw. */
-                         ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(q + 0x144)))))->pos.x) /
+                         /* Previous measurement: typing this access changed b210 output (normalized_diff 323); the access form below preserves MATCH. */
+                         ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, q, ResrcRecord, slotHandleValue[1])))))->pos.x) /
                          1200.0f);
             cy2 = (s32)((600.0f +
-                         /* measured: typing the retained access changes b210 output (normalized_diff 323); keep raw. */
-                         ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(q + 0x144)))))->pos.z) /
+                         /* Previous measurement: typing this access changed b210 output (normalized_diff 323); the access form below preserves MATCH. */
+                         ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, q, ResrcRecord, slotHandleValue[1])))))->pos.z) /
                          1200.0f);
             flag2 = 0;
             t20 = cy2 << 8;
@@ -302,8 +305,8 @@ found:
             if (flag2 == 1 &&
                 !(((FldFrameCell *)((u8 *)(s32)MT_Scene_GetFrameState() + t20 + t19 + 0x54))->unk0B & 0xF0)) {
                 o = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
-                /* measured: typing the retained access changes b210 output (normalized_diff 323); keep raw. */
-                if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(o), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(q + 0x144))) + 0x30), 120.0f) !=
+                /* Previous measurement: typing this access changed b210 output (normalized_diff 323); the access form below preserves MATCH. */
+                if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(o), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, q, ResrcRecord, slotHandleValue[1]))) + 0x30), 120.0f) !=
                         0 &&
                     K_FldEvent_ArePosWithinDist((const struct RwV3d *)((u8 *)&vec), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)((s32)((ResrcRecord *)(q))->slotHandle[1])) + 0x30), 250.0f) == 1) {
                     h[5] = 1;
@@ -440,14 +443,14 @@ s32 FldEvent_FindNearbyEntry(void)
                 g = (void *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
                 t2 = (s32 *)(u8 *)mdlGetMatrix((void *)((s32)((ResrcRecord *)(p))->modelHandle164));
                 if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(g), (const struct RwV3d *)(t2 + 0xC), 120.0f) == 1) {
-                    /* measured: typing the retained access changes b210 output (normalized_diff 294); keep raw. */
-                    f20 = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(*(s32 *)(p + 0x164)))))->pos.x;
+                    /* Previous measurement: typing this access changed b210 output (normalized_diff 294); the access form below preserves MATCH. */
+                    f20 = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, modelHandle164Value)))))->pos.x;
                     vec[0] = f20 - ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(D_007EFA00[0]))))->pos.x;
-                    /* measured: typing the retained access changes b210 output (normalized_diff 294); keep raw. */
-                    f20 = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(*(s32 *)(p + 0x164)))))->pos.y;
+                    /* Previous measurement: typing this access changed b210 output (normalized_diff 294); the access form below preserves MATCH. */
+                    f20 = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, modelHandle164Value)))))->pos.y;
                     vec[1] = f20 - ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(D_007EFA00[0]))))->pos.y;
-                    /* measured: typing the retained access changes b210 output (normalized_diff 294); keep raw. */
-                    f20 = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(*(s32 *)(p + 0x164)))))->pos.z;
+                    /* Previous measurement: typing this access changed b210 output (normalized_diff 294); the access form below preserves MATCH. */
+                    f20 = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, modelHandle164Value)))))->pos.z;
                     vec[2] = f20 - ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(D_007EFA00[0]))))->pos.z;
                     r = RwV3dLength(vec);
                     if (r < 150.0f && r < D_007615DC) {
@@ -507,8 +510,8 @@ s32 FldEvent_RunKindSequence(u8 *task)
 
     h = ((SdkTask *)task)->work;
     i = 0;
-    /* measured: typing the retained access changes b210 output (normalized_diff 581); keep raw. */
-    s = *(u8 **)(h + 0x20);
+    /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
+    s = MEMBER(u8 *, h, FldEventWork, npcResource);
     if (((FldEventNpcResource *)(s))->scriptKind == 1) {
         if (!(((FldEventSecondaryEntry *)(((FldEventNpcResource *)(s))->secondaryEntry))->flags & 1)) {
             i = 1;
@@ -520,11 +523,11 @@ s32 FldEvent_RunKindSequence(u8 *task)
     } else if (((FldEventNpcResource *)(s))->scriptKind == 3) {
         i = 1;
     }
-    /* measured: typing the retained access changes b210 output (normalized_diff 591); keep raw. */
-    switch (*(s32 *)(h + 4)) {
+    /* Previous measurement: typing this access changed b210 output (normalized_diff 591); the access form below preserves MATCH. */
+    switch (MEMBER(s32, h, FldEventWork, state)) {
     case 0:
-        /* measured: typing the retained access changes b210 output (normalized_diff 581); keep raw. */
-        v = ((ResrcRecord *)(*(u8 **)(h + 0x20)))->handle294;
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
+        v = ((ResrcRecord *)(MEMBER(u8 *, h, FldEventWork, npcResource)))->handle294;
         if (v != 0 && i == 1) {
             if (fldNpcControlIsTurning(v, s) == 1) {
                 goto ret1;
@@ -534,11 +537,11 @@ s32 FldEvent_RunKindSequence(u8 *task)
         FldSlotBroadcastState(1);
         (((FldEventWork *)h)->state)++;
     case 1:
-        /* measured: typing the retained access changes b210 output (normalized_diff 581); keep raw. */
-        v = ((ResrcRecord *)(*(u8 **)(h + 0x20)))->handle294;
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
+        v = ((ResrcRecord *)(MEMBER(u8 *, h, FldEventWork, npcResource)))->handle294;
         if (v == 0 || i != 1 || fldNpcControlIsTurning(v) != 1) {
-            /* measured: typing the retained access changes b210 output (normalized_diff 581); keep raw. */
-            FldNpcSetPositionLock(((ResrcRecord *)(*(u8 **)(h + 0x20)))->handle294, 1);
+            /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
+            FldNpcSetPositionLock(((ResrcRecord *)(MEMBER(u8 *, h, FldEventWork, npcResource)))->handle294, 1);
             s2 = ((FldEventWork *)h)->npcResource;
             if (((FldEventNpcResource *)(s2))->scriptKind == 1) {
                 t = ((FldEventSecondaryEntry *)(((FldEventNpcResource *)(s2))->secondaryEntry))->procedure;
@@ -546,8 +549,8 @@ s32 FldEvent_RunKindSequence(u8 *task)
                     tmp = (u8 *)(s32)MT_Scene_GetFrameState();
                     t2 = (s32)((FldFrame *)((s32)MT_Scene_GetFrameState()))->secondaryTableSize;
                     ((FldEventWork *)h)->scriptTask = scrStartProcedureChecked(
-                        /* measured: typing the retained access changes b210 output (normalized_diff 8); keep raw. */
-                        0xF, *(s32 *)(tmp + 0x18E0), t2, t);
+                        /* Previous measurement: typing this access changed b210 output (normalized_diff 8); the access form below preserves MATCH. */
+                        0xF, MEMBER(s32, tmp, FldFrame, secondaryTable), t2, t);
                 } else {
                     kAssertFail(D_005F1798, 0x3F6);
                 }
@@ -577,8 +580,8 @@ s32 FldEvent_RunKindSequence(u8 *task)
         goto ret1;
     case 2:
         if (kwlnTaskIsLinked((void *)(((FldEventWork *)h)->scriptTask)) != 1) {
-            /* measured: typing the retained access changes b210 output (normalized_diff 581); keep raw. */
-            v = ((ResrcRecord *)(*(u8 **)(h + 0x20)))->handle294;
+            /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
+            v = ((ResrcRecord *)(MEMBER(u8 *, h, FldEventWork, npcResource)))->handle294;
             if (v != 0 && i == 1) {
                 FldNpcControlTurnBack(v);
             }
@@ -617,12 +620,12 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
     s32 ambience;
 
     h = ((SdkTask *)task)->work;
-    /* measured: typing the retained access changes b210 output (normalized_diff 883); keep raw. */
-    *(u16 *)(h + 0x2C) = FldFrame_PickSurfaceAtPoint(
+    /* Previous measurement: typing this access changed b210 output (normalized_diff 883); the access form below preserves MATCH. */
+    MEMBER(u16, h, FldEventWork, selectedEvent) = FldFrame_PickSurfaceAtPoint(
         (u8 *)(u8 *)mdlGetMatrix((void *)((s32)((ResrcRecord *)(((FldEventWork *)h)->resource))->modelHandle164)) + 0x30,
         &out);
-    /* measured: typing the retained access changes b210 output (normalized_diff 883); keep raw. */
-    id = *(u16 *)(h + 0x2C);
+    /* Previous measurement: typing this access changed b210 output (normalized_diff 883); the access form below preserves MATCH. */
+    id = MEMBER(u16, h, FldEventWork, selectedEvent);
     if (id != 0xFFFF) {
         index = id & 0x3FF;
         if (index >= 0x3FE) {
@@ -633,8 +636,8 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
             kAssertFail(D_005F1798, 0x454);
         }
 
-        /* measured: typing the retained access changes b210 output (normalized_diff 883); keep raw. */
-        id = *(u16 *)(h + 0x2C);
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 883); the access form below preserves MATCH. */
+        id = MEMBER(u16, h, FldEventWork, selectedEvent);
         entry = ((FldFrame *)MT_Scene_GetFrameState())->eventTable +
                 (id & 0x3FF) * 0x2C;
         if ((entry[0xD] == 1 || ((FldEvtEntry *)entry)->triggerMode == 3) &&
@@ -665,8 +668,8 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
         }
 
         ambience = ((FldEvtEntry *)entry)->ambience;
-        /* measured: typing the retained access changes b210 output (normalized_diff 607); keep raw. */
-        if (*(s32 *)(h + 0x130) != ambience) {
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 607); the access form below preserves MATCH. */
+        if (MEMBER(s32, h, FldEventWork, unknown130) != ambience) {
             ((FldEventWork *)h)->unknown130 = ambience;
             if (ambience != 0) {
                 FldPanel2dSelectEntry(ambience);
@@ -726,8 +729,8 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
             return 1;
         }
     } else {
-        /* measured: typing the retained access changes b210 output (normalized_diff 607); keep raw. */
-        if (*(s32 *)(h + 0x130) != 0) {
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 607); the access form below preserves MATCH. */
+        if (MEMBER(s32, h, FldEventWork, unknown130) != 0) {
             ((FldEventWork *)h)->unknown130 = 0;
             FldPanel2dSelectEntry(-1);
         }
@@ -761,8 +764,8 @@ s32 FldEvent_HighlightEntry(u8 *task)
                 while ((node = ((FldEventWork *)h)->selectedResource) != NULL) {
                     node = ((FldEventWork *)h)->selectedResource;
                     id = *(u16 *)node;
-                    /* measured: typing the retained access changes b210 output (normalized_diff 29); keep raw. */
-                    if (id == *(u16 *)((((FldEventWork *)h)->selectedEvent & 0x3FF) * sizeof(FldEvtEntry) + (u8 *)FLD_EVT_TABLE() + 0x18)) {
+                    /* Previous measurement: typing this access changed b210 output (normalized_diff 29); the access form below preserves MATCH. */
+                    if (id == ((FldEvtEntry *)((((FldEventWork *)h)->selectedEvent & 0x3FF) * sizeof(FldEvtEntry) + (u8 *)FLD_EVT_TABLE()))->unk18) {
                         break;
                     }
                     ((FldEventWork *)h)->selectedResource = (u8 *)((ResrcRecord *)(node))->next;
@@ -779,8 +782,8 @@ s32 FldEvent_HighlightEntry(u8 *task)
             fclMiscStopAndClose();
             fclMiscSetDoneFlag();
             FldFrameObjSetActive((s32)((FldFrame *)((u8 *)(s32)MT_Scene_GetFrameState()))->supporterTask, 1);
-            /* measured: typing the retained access changes b210 output (normalized_diff 8); keep raw. */
-            ((FldEventWork *)h)->scriptTask = scrStartProcedureChecked(0xF, *(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1854),
+            /* Previous measurement: typing this access changed b210 output (normalized_diff 8); the access form below preserves MATCH. */
+            ((FldEventWork *)h)->scriptTask = scrStartProcedureChecked(0xF, MEMBER(s32, (u8 *)(s32)MT_Scene_GetFrameState(), FldFrame, auxBuffer),
                                                ((FldFrame *)((u8 *)(s32)MT_Scene_GetFrameState()))->auxSize, FLD_EVT_ENTRY(h)->unk10);
             ((FldEventWork *)h)->state = 3;
         }
@@ -1660,16 +1663,16 @@ s32 FldEvent_TriggerUpdate(u8 *task)
     s32 v;
 
     h = ((SdkTask *)task)->work;
-    /* measured: typing the retained access changes b210 output (normalized_diff 446); keep raw. */
-    *(s32 *)(h + 0x14) = 0;
-    /* measured: typing the retained access changes b210 output (normalized_diff 452); keep raw. */
-    t = *(s32 *)(h + 0x24);
+    /* Previous measurement: typing this access changed b210 output (normalized_diff 446); the access form below preserves MATCH. */
+    MEMBER(s32, h, FldEventWork, unknown14) = 0;
+    /* Previous measurement: typing this access changed b210 output (normalized_diff 452); the access form below preserves MATCH. */
+    t = MEMBER(s32, h, FldEventWork, interactionCooldown);
     if (t > 0) {
         ((FldEventWork *)h)->interactionCooldown = t - 1;
     }
     FldUnit_UpdateFieldState();
-    /* measured: typing the retained access changes b210 output (normalized_diff 428); keep raw. */
-    if (*(s32 *)(h + 0x154) == 0) {
+    /* Previous measurement: typing this access changed b210 output (normalized_diff 428); the access form below preserves MATCH. */
+    if (MEMBER(s32, h, FldEventWork, resourcesReady) == 0) {
         ((FldEventWork *)h)->resourcesReady = MT_Scene_AllResFlagSet();
     }
     switch (((FldEventWork *)h)->mode) {
@@ -1696,8 +1699,8 @@ s32 FldEvent_TriggerUpdate(u8 *task)
             break;
         }
     case 1:
-        /* measured: typing the retained access changes b210 output (normalized_diff 183); keep raw. */
-        if (((s32 (*)(u8 *))D_005F17D4[*(s32 *)(h + 0xC) * 2])(task) != 1) {
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 183); the access form below preserves MATCH. */
+        if (((s32 (*)(u8 *))D_005F17D4[MEMBER(s32, h, FldEventWork, unknown0c) * 2])(task) != 1) {
             if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
                 FldFrame_ClearStateFlags((s32)((FldFrame *)MT_Scene_GetFrameState())->cameraTask, 2);
             }
@@ -1842,6 +1845,7 @@ void FldEvent_StepGridCell(void)
 // FUN_00174E10
 s32 FldEvent_StepMoveToward(u8 *task)
 {
+    FldEventWork *movementWork;
     typedef struct {
         FldEventVec3 right;
         u32 flags;
@@ -1925,8 +1929,8 @@ s32 FldEvent_StepMoveToward(u8 *task)
     }
     f20 = 0.0f;
     {
-        /* measured: typing the retained access changes b210 output (normalized_diff 2742); keep raw. */
-        s32 t = *(s32 *)(h + 0x138);
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 2742); the access form below preserves MATCH. */
+        s32 t = MEMBER(s32, h, FldEventWork, unknown138);
         if (t != 0 && kwlnTaskIsLinked((void *)(t)) == 0) {
             ((FldEventWork *)h)->unknown138 = 0;
             ((FldEventWork *)h)->cameraYaw = KDraw_MatrixYawDeg(func_003e9700(((RwObject *)(kwlnGetCamera()))->parent));
@@ -2049,8 +2053,8 @@ bigmove:
             f32 ang = -func_0044b950(cameraMatrix.right.z, cameraMatrix.right.x);
             f21 = (180.0f * ang) / gPI;
         }
-        /* measured: typing the retained access changes b210 output (normalized_diff 56); keep raw. */
-        modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)mdlGetClumpFrame(((ResrcRecord *)(*(s32 *)(h + 0x18)))->modelHandle164)))->modelling;
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 56); the access form below preserves MATCH. */
+        modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)mdlGetClumpFrame(((ResrcRecord *)(MEMBER(s32, h, FldEventWork, resource)))->modelHandle164)))->modelling;
         func_003e0670(&modelMatrix, &modelMatrix);
         {
             f32 ang = -func_0044b950(modelMatrix.right.z, modelMatrix.right.x);
@@ -2072,8 +2076,8 @@ bigmove:
         if (f20 < 0.0f) {
             f20 += 360.0f;
         }
-        /* measured: typing the retained access changes b210 output (normalized_diff 902); keep raw. */
-        if (FldEvent_IsHeadingTurning(*(u8 **)(h + 0x13C)) == 1) {
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 902); the access form below preserves MATCH. */
+        if (FldEvent_IsHeadingTurning(MEMBER(u8 *, h, FldEventWork, fieldEffect)) == 1) {
             return 0;
         }
         f23 = FldEvent_GetStickHeading(0, 0);
@@ -2089,11 +2093,11 @@ bigmove:
         RwMatrixRotate(&mat, &D_00756510, f21, 1);
         RwMatrixRotate(&mat, &D_00756510, f23, 1);
         {
-            /* measured: typing the retained access changes b210 output (normalized_diff 902); keep raw. */
-            ret16 = FldEvent_BeginHeadingTurn(*(u8 **)(h + 0x13C), f20, &mat, f21 + f23);
+            /* Previous measurement: typing this access changed b210 output (normalized_diff 902); the access form below preserves MATCH. */
+            ret16 = FldEvent_BeginHeadingTurn(MEMBER(u8 *, h, FldEventWork, fieldEffect), f20, &mat, f21 + f23);
             if (FldEvent_IsHeadingTurning((u8 *)((FldEventWork *)h)->fieldEffect) == 0) {
-                /* measured: typing the retained access changes b210 output (normalized_diff 56); keep raw. */
-                FldFrameTask_SetOrientation((u8 *)((ResrcRecord *)(*(s32 *)(h + 0x18)))->handle220, (u8 *)&mat);
+                /* Previous measurement: typing this access changed b210 output (normalized_diff 56); the access form below preserves MATCH. */
+                FldFrameTask_SetOrientation((u8 *)((ResrcRecord *)(MEMBER(s32, h, FldEventWork, resource)))->handle220, (u8 *)&mat);
                 {
                     f32 len = RwV3dLength(&move.x);
                     f32 cl = len;
@@ -2114,11 +2118,11 @@ bigmove:
         D_007243DC = f22;
         if (ret16 == 0) {
             if (f22 <= 13.0f) {
-                /* measured: typing the retained access changes b210 output (normalized_diff 592); keep raw. */
-                s32 cur = *(s32 *)(h + 0x144);
+                /* Previous measurement: typing this access changed b210 output (normalized_diff 592); the access form below preserves MATCH. */
+                s32 cur = MEMBER(s32, h, FldEventWork, movementAnimation);
                 if (cur != FldMoveAnimPrimary(1)) {
-                    /* measured: typing the retained access changes b210 output (normalized_diff 571); keep raw. */
-                    s32 c = *(s32 *)(h + 0x14C);
+                    /* Previous measurement: typing this access changed b210 output (normalized_diff 571); the access form below preserves MATCH. */
+                    s32 c = MEMBER(s32, h, FldEventWork, animationDelay);
                     if (c < 2) {
                         ((FldEventWork *)h)->animationDelay = c + 1;
                     } else {
@@ -2128,11 +2132,11 @@ bigmove:
                     }
                 }
             } else {
-                /* measured: typing the retained access changes b210 output (normalized_diff 592); keep raw. */
-                s32 cur = *(s32 *)(h + 0x144);
+                /* Previous measurement: typing this access changed b210 output (normalized_diff 592); the access form below preserves MATCH. */
+                s32 cur = MEMBER(s32, h, FldEventWork, movementAnimation);
                 if (cur != FldMoveAnimSecondary(1)) {
-                    /* measured: typing the retained access changes b210 output (normalized_diff 571); keep raw. */
-                    s32 c = *(s32 *)(h + 0x14C);
+                    /* Previous measurement: typing this access changed b210 output (normalized_diff 571); the access form below preserves MATCH. */
+                    s32 c = MEMBER(s32, h, FldEventWork, animationDelay);
                     if (c < 2) {
                         ((FldEventWork *)h)->animationDelay = c + 1;
                     } else {
@@ -2142,8 +2146,8 @@ bigmove:
                     }
                 }
             }
-            /* measured: typing the retained access changes b210 output (normalized_diff 460); keep raw. */
-            if (*(s32 *)(h + 0x134) == 0) {
+            /* Previous measurement: typing this access changed b210 output (normalized_diff 460); the access form below preserves MATCH. */
+            if (MEMBER(s32, h, FldEventWork, motionState) == 0) {
                 mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164, 0, (s16)((FldEventWork *)h)->movementAnimation, 6, 1);
                 ((FldEventWork *)h)->motionState = 1;
             }
@@ -2158,20 +2162,20 @@ smallmove:
         s32 c148;
         ret16 = 0;
         D_007243DC = 0.0f;
-        /* measured: typing the retained access changes b210 output (normalized_diff 403); keep raw. */
-        c150 = *(s32 *)(h + 0x150);
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 403); the access form below preserves MATCH. */
+        c150 = MEMBER(s32, h, FldEventWork, stopFrames);
         if (c150 < 4) {
             ((FldEventWork *)h)->stopFrames = c150 + 1;
             return 0;
         }
-        /* measured: typing the retained access changes b210 output (normalized_diff 376); keep raw. */
-        if (*(s32 *)(h + 0x148) == 0) {
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 376); the access form below preserves MATCH. */
+        if (MEMBER(s32, h, FldEventWork, idleFrames) == 0) {
             mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164, 0, (s16)FldCharacterAnimSelect(1), 4, 1);
         }
-        /* measured: typing the retained access changes b210 output (normalized_diff 376); keep raw. */
-        c148 = *(s32 *)(h + 0x148) + 1;
-        /* measured: typing the retained access changes b210 output (normalized_diff 376); keep raw. */
-        *(s32 *)(h + 0x148) = c148;
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 376); the access form below preserves MATCH. */
+        c148 = MEMBER(s32, h, FldEventWork, idleFrames) + 1;
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 376); the access form below preserves MATCH. */
+        MEMBER(s32, h, FldEventWork, idleFrames) = c148;
         if (c148 == 0x3C) {
             ((FldEventWork *)h)->motionState = 1;
         } else if (c148 > 360) {
@@ -2180,20 +2184,21 @@ smallmove:
             }
             ((FldEventWork *)h)->idleFrames = 0x3D;
         }
-        if (FldStepIndex() != 0) {
-            /* measured: typing the retained access changes b210 output (normalized_diff 56); keep raw. */
-            s16 cur = mdlGetLayerAnimation((s32)((ResrcRecord *)(*(s32 *)(h + 0x18)))->modelHandle164, 0);
+        movementWork = (FldEventWork *)h;
+    if (FldStepIndex() != 0) {
+            /* Previous measurement: typing this access changed b210 output (normalized_diff 56); the access form below preserves MATCH. */
+            s16 cur = mdlGetLayerAnimation((s32)((ResrcRecord *)(MEMBER(s32, h, FldEventWork, resource)))->modelHandle164, 0);
             if (cur == FldPlayerRandomIdleAnimId(1) && ((MdlFileModel *)((s32)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164))->finished == 1) {
                 ((FldEventWork *)h)->motionState = 1;
             }
-        /* measured: typing the retained access changes b210 output (normalized_diff 56); keep raw. */
-        } else if (mdlGetLayerAnimation((s32)((ResrcRecord *)(*(s32 *)(h + 0x18)))->modelHandle164, 0) < 6) {
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 56); the access form below preserves MATCH. */
+        } else if (mdlGetLayerAnimation((s32)((ResrcRecord *)((s32)movementWork->resource))->modelHandle164, 0) < 6) {
         } else if (((MdlFileModel *)((s32)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164))->finished != 1) {
         } else {
             ((FldEventWork *)h)->motionState = 1;
         }
-        /* measured: typing the retained access changes b210 output (normalized_diff 460); keep raw. */
-        if (*(s32 *)(h + 0x134) == 1) {
+        /* Previous measurement: typing this access changed b210 output (normalized_diff 460); the access form below preserves MATCH. */
+        if (MEMBER(s32, h, FldEventWork, motionState) == 1) {
             mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164, 0, (s16)FldCharacterAnimSelect(1), 8, 1);
             ((FldEventWork *)h)->motionState = 0;
         }

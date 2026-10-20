@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0018f8a0-0018f950 */
 
 #include "field_transition_internal.h"
+#include "member_access.h"
 #include "sdk_lbox_internal.h"
 #include "sdk_dbprt.h"
 #include "model_motion_internal.h"
@@ -8,6 +9,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "kwln_task_internal.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
@@ -16,14 +18,29 @@
 #include "field_npc_control_internal.h"
 #include "rw_types_internal.h"
 #include "scene_event_internal.h"
+#include "h_cdvd_request_internal.h"
+/* Allocated as 0x1CD20 bytes by K_MapEdit_Create. Cell rows occupy 0x100 bytes. */
+typedef struct FldMapEditorWork {
+    s32 state;
+    s32 dictionaries[9];
+    union { s16 signedId; u16 id; } field;
+    union { s16 signedId; u16 id; } room;
+    FldFrameCell cells[24][16];
+    u8 pad182C[0x1AB0 - 0x182C];
+    s32 cursorColumn, cursorRow, rotation;
+    u8 pad1ABC[0x1D00 - 0x1ABC];
+    s32 tileType;
+    u8 pad1D04[0x1CD10 - 0x1D04];
+    union { KwlnTask *task; u8 *bytes; s32 handle; } list;
+    u8 *loadHandle;
+    u8 pad1CD18[8];
+} FldMapEditorWork;
+
+/* Convert a map-editor column to its sixteen-byte cell displacement. */
+/* measured: expanding this shift changes selected-cell address calculation instruction bytes. */
 static inline s32 fldMapCellColumnOffset(s32 value)
 {
     return value << 4;
-}
-
-static inline s32 fldMapCellAddOffset(s32 first, s32 second)
-{
-    return first + second;
 }
 
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
@@ -57,8 +74,9 @@ typedef struct {
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
+/* Clear occupied cells in the selected shape's rectangular footprint.
+ * Empty selections and cells without shape flags leave the grid unchanged. */
 // FUN_0018F8A0
-/* Clear the rectangular footprint described by the selected cell width and height. */
 void FldMapTestCellsClear(u8 *work, u16 column, u16 row)
 {
     s32 rowIndex;
@@ -68,7 +86,7 @@ void FldMapTestCellsClear(u8 *work, u16 column, u16 row)
     u8 *selectedBase;
     u8 *occupied;
 
-    selectedBase = (u8 *)fldMapCellAddOffset(
+    selectedBase = (u8 *)operandOrderAdd(
         fldMapCellColumnOffset(column & 0xFFFF),
         ((row & 0xFFFF) << 8) + (s32)work);
     if (((FldFrameCell *)(selectedBase + 0x2C))->occupied != 0 && (((FldFrameCell *)(selectedBase + 0x2C))->flags & 0xF) != 0) {
@@ -121,9 +139,9 @@ s32 K_MapEditTask(u8 *task)
     extern FieldPanelShape D_005F5AC0[];
     static PanelColor boardColor = {0x40, 0x40, 0x40, 0xFF};
     static PanelColor iconColor = {0x40, 0x40, 0x40, 0xFF};
-    /* Scalar work offsets are proven by the cursor/menu uses; struct access loses MATCH. */
+    /* The editor fields are proven by cursor/menu uses; MEMBER preserves measured reloads. */
     u8 *work;
-    /* File IDs at +28/+2A and loader +110/+118 lack a complete record contract here. */
+    /* HCdvdRequest supplies the loaded cell payload and its byte size. */
     u8 *image;
     s32 value;
     u8 text[0x48];
@@ -135,92 +153,92 @@ s32 K_MapEditTask(u8 *task)
     switch (*(s32 *)work) {
     case 0:
         kwlnSetColorRgba(0, 0x52, 0x76, 0xFF);
-        *(s32 *)(work + 0x1D00) = 1;
+        ((FldMapEditorWork *)(work))->tileType = 1;
         *(s32 *)work += 1;
         break;
     case 1:
-        *(KwlnTask **)(work + 0x1CD10) = sdkLboxCreate((KwlnTask *)task, 0xDC, 0xC8);
-        sdkLboxAddDescriptors(*(KwlnTask **)(work + 0x1CD10), D_005F5FD0, 2);
-        sdkLboxSetSelection(*(u8 **)(work + 0x1CD10), 1);
+        ((FldMapEditorWork *)(work))->list.task = sdkLboxCreate((KwlnTask *)task, 0xDC, 0xC8);
+        sdkLboxAddDescriptors(MEMBER(KwlnTask *, work, FldMapEditorWork, list.task), D_005F5FD0, 2);
+        sdkLboxSetSelection(MEMBER(u8 *, work, FldMapEditorWork, list.bytes), 1);
         *(s32 *)work += 1;
         break;
     case 2:
         if (D_008C0240[0].trigger & 0x40) {
-            *(s16 *)(work + 0x28) = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1CD10), 0);
-            *(s16 *)(work + 0x2A) = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1CD10), 1);
-            kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x1CD10));
-            *(u8 **)(work + 0x1CD14) = FldStepLoadFilePair(*(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
-            *(s32 *)(work + 0x1CD10) = sdkLboxCreateEx(task, 0x22E, 0x28, 2);
-            sprintf(text, "%d-%d", *(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
-            sdkLboxSetState(*(u8 **)(work + 0x1CD10), 1);
-            sdkLboxAddEntry(*(u8 **)(work + 0x1CD10), text);
-            sdkLboxSetSelection(*(u8 **)(work + 0x1CD10), 1);
+            ((FldMapEditorWork *)(work))->field.signedId = *sdkLboxGetValuePtr(((FldMapEditorWork *)(work))->list.task, 0);
+            ((FldMapEditorWork *)(work))->room.signedId = *sdkLboxGetValuePtr(MEMBER(KwlnTask *, work, FldMapEditorWork, list.task), 1);
+            kwlnTaskDestroyWithHierarchy(MEMBER(KwlnTask *, work, FldMapEditorWork, list.task));
+            ((FldMapEditorWork *)(work))->loadHandle = FldStepLoadFilePair(MEMBER(u16, work, FldMapEditorWork, field.id), MEMBER(u16, work, FldMapEditorWork, room.id));
+            MEMBER(s32, work, FldMapEditorWork, list.handle) = sdkLboxCreateEx(task, 0x22E, 0x28, 2);
+            sprintf(text, "%d-%d", MEMBER(u16, work, FldMapEditorWork, field.id), MEMBER(u16, work, FldMapEditorWork, room.id));
+            sdkLboxSetState(MEMBER(u8 *, work, FldMapEditorWork, list.bytes), 1);
+            sdkLboxAddEntry(MEMBER(u8 *, work, FldMapEditorWork, list.bytes), text);
+            sdkLboxSetSelection(MEMBER(u8 *, work, FldMapEditorWork, list.bytes), 1);
             *(s32 *)work += 1;
         }
         break;
     case 3:
-        if (FldStepLoadHandleIsDone(*(u8 **)(work + 0x1CD14)) != 0) {
-            image = *(u8 **)(work + 0x1CD14);
+        if (FldStepLoadHandleIsDone(((FldMapEditorWork *)(work))->loadHandle) != 0) {
+            image = MEMBER(u8 *, work, FldMapEditorWork, loadHandle);
             if (image != NULL) {
-                memcpy(work + 0x2C, *(u8 **)(image + 0x110) + 4, *(s32 *)(image + 0x118) - 4);
-                FldStepLoadHandleDestroy(*(u8 **)(work + 0x1CD14));
-                *(u8 **)(work + 0x1CD14) = NULL;
+                memcpy(work + 0x2C, (u8 *)((HCdvdRequest *)(image))->data + 4, ((HCdvdRequest *)(image))->signedSize - 4);
+                FldStepLoadHandleDestroy(MEMBER(u8 *, work, FldMapEditorWork, loadHandle));
+                MEMBER(u8 *, work, FldMapEditorWork, loadHandle) = NULL;
             }
             *(s32 *)work += 1;
         }
         break;
     case 4:
         if (D_008C0240[0].repeat & 0x1000) {
-            if (*(s32 *)(work + 0x1AB4) > 0) {
-                *(s32 *)(work + 0x1AB4) -= 1;
+            if (((FldMapEditorWork *)(work))->cursorRow > 0) {
+                MEMBER(s32, work, FldMapEditorWork, cursorRow) -= 1;
             }
         } else if (D_008C0240[0].repeat & 0x4000) {
-            if (*(s32 *)(work + 0x1AB4) < 0x17) {
-                *(s32 *)(work + 0x1AB4) += 1;
+            if (((FldMapEditorWork *)(work))->cursorRow < 0x17) {
+                MEMBER(s32, work, FldMapEditorWork, cursorRow) += 1;
             }
         }
         if (D_008C0240[0].repeat & 0x8000) {
-            if (*(s32 *)(work + 0x1AB0) > 0) {
-                *(s32 *)(work + 0x1AB0) -= 1;
+            if (((FldMapEditorWork *)(work))->cursorColumn > 0) {
+                MEMBER(s32, work, FldMapEditorWork, cursorColumn) -= 1;
             }
         } else if (D_008C0240[0].repeat & 0x2000) {
-            if (*(s32 *)(work + 0x1AB0) < 0xF) {
-                *(s32 *)(work + 0x1AB0) += 1;
+            if (((FldMapEditorWork *)(work))->cursorColumn < 0xF) {
+                MEMBER(s32, work, FldMapEditorWork, cursorColumn) += 1;
             }
         }
         if (D_008C0240[0].repeat & 1) {
-            value = *(s32 *)(work + 0x1D00) - 1;
-            *(s32 *)(work + 0x1D00) = value;
+            value = ((FldMapEditorWork *)(work))->tileType - 1;
+            ((FldMapEditorWork *)(work))->tileType = value;
             if (value <= 0) {
-                *(s32 *)(work + 0x1D00) = 0xE;
+                MEMBER(s32, work, FldMapEditorWork, tileType) = 0xE;
             }
         } else if (D_008C0240[0].repeat & 2) {
-            value = *(s32 *)(work + 0x1D00) + 1;
-            *(s32 *)(work + 0x1D00) = value;
+            value = ((FldMapEditorWork *)(work))->tileType + 1;
+            ((FldMapEditorWork *)(work))->tileType = value;
             if (value > 0xE) {
-                *(s32 *)(work + 0x1D00) = 1;
+                MEMBER(s32, work, FldMapEditorWork, tileType) = 1;
             }
         }
         if (D_008C0240[0].repeat & 8) {
-            value = *(s32 *)(work + 0x1AB8) - 1;
-            *(s32 *)(work + 0x1AB8) = value;
+            value = ((FldMapEditorWork *)(work))->rotation - 1;
+            ((FldMapEditorWork *)(work))->rotation = value;
             if (value < 0) {
-                *(s32 *)(work + 0x1AB8) = 3;
+                MEMBER(s32, work, FldMapEditorWork, rotation) = 3;
             }
         } else if (D_008C0240[0].repeat & 4) {
-            value = *(s32 *)(work + 0x1AB8) + 1;
-            *(s32 *)(work + 0x1AB8) = value;
+            value = ((FldMapEditorWork *)(work))->rotation + 1;
+            ((FldMapEditorWork *)(work))->rotation = value;
             if (value > 3) {
-                *(s32 *)(work + 0x1AB8) = 0;
+                MEMBER(s32, work, FldMapEditorWork, rotation) = 0;
             }
         }
         if (D_008C0240[0].trigger & 0x40) {
-            shape = D_005F5AC0[*(s32 *)(work + 0x1D00)];
-            FldTileRotateAttributes(&shape, 1 << *(s32 *)(work + 0x1AB8));
-            FldMapTestCellsFill(work, shape.data, *(s32 *)(work + 0x1AB0), *(s32 *)(work + 0x1AB4),
-                          *(s32 *)(work + 0x1AB8));
+            shape = D_005F5AC0[((FldMapEditorWork *)(work))->tileType];
+            FldTileRotateAttributes(&shape, 1 << ((FldMapEditorWork *)(work))->rotation);
+            FldMapTestCellsFill(work, shape.data, ((FldMapEditorWork *)(work))->cursorColumn, ((FldMapEditorWork *)(work))->cursorRow,
+                          MEMBER(s32, work, FldMapEditorWork, rotation));
         } else if (D_008C0240[0].trigger & 0x20) {
-            FldMapTestCellsClear(work, *(s32 *)(work + 0x1AB0), *(s32 *)(work + 0x1AB4));
+            FldMapTestCellsClear(work, ((FldMapEditorWork *)(work))->cursorColumn, ((FldMapEditorWork *)(work))->cursorRow);
         } else if (D_008C0240[1].trigger & 0x40) {
             fldStepLoadHandleAlwaysReady(work + 0x28);
         }
@@ -230,8 +248,8 @@ s32 K_MapEditTask(u8 *task)
         icon = iconColor;
         FldRc_QueueScreenQuad(D_007966D0, work + 0x1BE0, 452.0f, 52.0f, 0.0f, 70.0f, 70.0f,
                       (u8 *)&icon, 0, 0.0f, 0.0f, 0.0f, 0, 0.0f);
-        FldSmapTileQueueQuad(D_007966D0, work + 0x1AC0, *(s32 *)(work + 0x1D00), 0, 0x36, 0x36,
-                      *(s32 *)(work + 0x1AB8), 460.0f, 60.0f, 0.0f);
+        FldSmapTileQueueQuad(D_007966D0, work + 0x1AC0, ((FldMapEditorWork *)(work))->tileType, 0, 0x36, 0x36,
+                      ((FldMapEditorWork *)(work))->rotation, 460.0f, 60.0f, 0.0f);
         {
             s32 y;
 
@@ -251,9 +269,9 @@ s32 K_MapEditTask(u8 *task)
                 }
             }
         }
-        FldSmapTileQueueByType(D_007966D0, work + 0x1990, *(s32 *)(work + 0x1D00), 0,
-                      80.0f + 18.0f * (f32)*(s32 *)(work + 0x1AB0),
-                      6.0f + 18.0f * (f32)*(s32 *)(work + 0x1AB4), 0.0f, *(s32 *)(work + 0x1AB8));
+        FldSmapTileQueueByType(D_007966D0, work + 0x1990, MEMBER(s32, work, FldMapEditorWork, tileType), 0,
+                      80.0f + 18.0f * (f32)((FldMapEditorWork *)(work))->cursorColumn,
+                      6.0f + 18.0f * (f32)((FldMapEditorWork *)(work))->cursorRow, 0.0f, MEMBER(s32, work, FldMapEditorWork, rotation));
         break;
     case 5:
         return -1;

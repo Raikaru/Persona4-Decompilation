@@ -8,6 +8,11 @@ typedef union FldNpcMotionValue {
     f32 value;
 } FldNpcMotionValue;
 
+/* Three-component heading copied from the model matrix before a turn. */
+typedef struct FldNpcHeading {
+    f32 x, y, z;
+} FldNpcHeading;
+
 /* Field npc control task work, the 0x58-byte block at task+0x38 (allocated in
  * FldNpcControlTaskCreate). FldNpcControlUpdate establishes the path, facing,
  * fade, pause and position-slot fields; gaps have no established meaning. */
@@ -24,10 +29,11 @@ typedef struct FldNpcControlWork {
     u32 turnFrames;
     u32 pauseFrames;
     s32 savedAnimation;
-    u8 unk30[0x0C];
-    f32 headingX;
-    f32 headingY;
-    f32 headingZ;
+    FldNpcHeading savedHeading; /* 0x30: normalized heading before facing the player */
+    union {
+        FldNpcHeading heading; /* 0x3C: desired normalized heading */
+        struct { f32 headingX, headingY, headingZ; };
+    };
     f32 cameraHeight;      /* 0x48: camera height copied at create */
     u32 cameraNear;        /* 0x4C: camera-distance fade latch */
     s32 actorIndex;        /* 0x50: scene resource-list index */

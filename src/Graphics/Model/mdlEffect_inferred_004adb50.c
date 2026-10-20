@@ -7,6 +7,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
+#include "member_access.h"
 #include "effect_vu0_internal.h"
 
 typedef struct RwMatrix RwMatrix;
@@ -19,14 +20,10 @@ typedef struct {
     u8 c2;
     u8 c3;
 } PolygonWindColor;
-static inline u32 p4_add_u32(u32 left, u32 right)
-{
-    return left + right;
-}
 extern PolygonWindColor iGpffffbb64;
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
-extern void func_004adb50();
+extern void mdlEffectUpdateModelChildTransforms();
 extern f32 iGpffff8080;
 
 
@@ -104,6 +101,7 @@ extern void mdlEffectUpdateAndDrawModelChildren(u8 *instance);
 /* Measured: scoped propagation preserves constant-first model lookup arguments. */
 #pragma push
 #pragma pop
+/* Animate the source model and propagate its indexed transforms, sampled scale and color to child trees. */
 // FUN_004ADB50
 /* measured: object 816B/window 816B, nd 0. K&R definition so the unprototyped
    caller func_004adfa0 stays byte-exact. The VU0 colour-pack island and the
@@ -114,7 +112,7 @@ extern void mdlEffectUpdateAndDrawModelChildren(u8 *instance);
    read left the load floating and flipped the whole ranking). Locals in
    declaration order; the loop is a goto loop with `objs++`; `zero` is a hoisted
    0.0f local ($f20); `t = call / 10.0f; speed = t * field` for the mul.s order. */
-void func_004adb50(instance)
+void mdlEffectUpdateModelChildTransforms(instance)
 u8 *instance;
 {
     extern void mdlEffectBuildBasisRows(void *output, void *orientation);
@@ -151,28 +149,26 @@ u8 *instance;
     f32 zero;
     f32 t;
     s32 *pt;
+    MdlEffectSpriteInstance *sprite;
 
+    sprite = (MdlEffectSpriteInstance *)instance;
     count = ((MdlEffectSpriteInstance *)instance)->age;
     total = ((MdlEffectSpriteInstance *)instance)->duration;
     n = ((MdlEffectSpriteInstance *)instance)->childCount;
     objs = ((MdlEffectSpriteInstance *)instance)->children;
     if (count < total || total == 0) {
         mdlEffectBuildBasisRows(frame, instance + 0x10);
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlApplyModelMatrix(*(void **)(instance + 0xA0), frame, 0);
+        mdlApplyModelMatrix((void *)sprite->model, frame, 0);
         uniformScale = ((MdlEffectSpriteInstance *)instance)->scale;
         vec[2] = uniformScale;
         vec[1] = uniformScale;
         vec[0] = uniformScale;
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlScale(*(void **)(instance + 0xA0), vec, 2);
+        mdlScale((void *)sprite->model, vec, 2);
         vec[0] = ((f32 *)((MdlEffectSpriteInstance *)instance)->position)[0];
         vec[1] = ((f32 *)((MdlEffectSpriteInstance *)instance)->position)[1];
         vec[2] = ((f32 *)((MdlEffectSpriteInstance *)instance)->position)[2];
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlTranslateMatrix((RwMatrix *)*(void **)(instance + 0xA0), (const RwV3d *)vec, 2);
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlSetLayerWeight(*(void **)(instance + 0xA0), 0, *(f32 *)&((MdlEffectSpriteInstance *)instance)->unk94);
+        mdlTranslateMatrix((RwMatrix *)sprite->model, (const RwV3d *)vec, 2);
+        mdlSetLayerWeight((void *)sprite->model, 0, *(f32 *)&((MdlEffectSpriteInstance *)instance)->unk94);
         mdlAdvanceModelFromFlags((void *)((MdlEffectSpriteInstance *)instance)->model);
         if (((MdlEffectSpriteInstance *)instance)->drawable != 0) {
             color = mdlEffectSamplePackedColor(instance + 0x30, instance + 0x54, count, total);
@@ -225,12 +221,10 @@ u8 *instance;
 loop_body:
 
                 if (mdlCopyIndexedMatrix(((MdlEffectSpriteInstance *)instance)->model, i, frame) != 0) {
-                    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-                    pos[0] = *(f32 *)(frame + 0x30);
-                    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-                    pos[1] = *(f32 *)(frame + 0x34);
-                    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-                    pos[2] = *(f32 *)(frame + 0x38);
+                    /* measured: field, typed-local and array forms change whole-file codegen. */
+                    pos[0] = MEMBER(f32, frame, RwMatrixTag, pos.x);
+                    pos[1] = MEMBER(f32, frame, RwMatrixTag, pos.y);
+                    pos[2] = MEMBER(f32, frame, RwMatrixTag, pos.z);
                     pos[3] = zero;
                     mdlEffectSetChildPositions((void *)*objs, pos);
                     mat[0] = ((RwMatrixTag *)frame)->right.x;

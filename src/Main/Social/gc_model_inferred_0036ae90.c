@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "message_frame_internal.h"
 #include "primitive_point_buffer.h"
 #include "fr_font_internal.h"
@@ -37,10 +38,6 @@ extern char D_005E5830[];
 extern char D_0064E460[];
 extern char D_0064E280[];
 
-static inline f32 p4_00362f00_add(f32 left, f32 right)
-{
-    return left + right;
-}
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern u16 D_008C024E[];
@@ -99,9 +96,12 @@ struct PanelTransform;
 /* measured: func_0036ae90 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // Intent: Builds a panel's tile vertex list: the camera-facing flip, the 9-row grid of tiles and their colours [inferred]
+/* Orient the card mesh toward the camera and shade its alternating tile rows using diffuse and specular weights. */
 // FUN_0036AE90
-/* Typed PscModel/PscTileMesh access changes b210 address lifetimes (1528/1504 bytes); retain their proven byte offsets for MATCH. */
+/* Initial whole-layout typing changed address lifetimes (1528/1504 bytes);
+ * per-access forms retain the retail code without raw object offsets. */
 void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
+    RwV3d *cameraPosition;
     extern u8 *func_003e9700(u8 *frame);
     extern struct RwMatrixTag *func_003e0f80(void);
     extern void pscBuildModelMatrix(struct PanelMatrix *output,
@@ -149,7 +149,8 @@ void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
 
     lightAxis = D_0064E490;
     view = kwlnGetCamera();
-    mtx = func_003e9700(*(u8 **)(view + 4)) + 0x30;
+    mtx = func_003e9700(((MdlEffectCamera *)view)->frame) + 0x30;
+    cameraPosition = (RwV3d *)mtx;
     modelNormal = D_0064E4A0;
     flipAxis = D_0064E4B0;
     worldNormal = D_0064E4C0;
@@ -157,14 +158,14 @@ void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
     pscBuildModelMatrix((struct PanelMatrix *)cam,
                   (const struct PanelTransform *)model);
     func_003e4320(&modelNormal, &modelNormal, cam);
-    lightPosition = *(RwV3d *)(mesh + 0x994);
-    if (*(u8 **)(model + 0x38) != NULL) {
+    lightPosition = *(RwV3d *)&((PscTileMesh *)mesh)->lightPosition;
+    if (((PscModel *)model)->frame != NULL) {
         func_003e42a0(&position, (RwV3d *)(model + 0x20),
-                      (struct RwMatrixTag *)func_003e9700(*(u8 **)(model + 0x38)));
+                      (struct RwMatrixTag *)func_003e9700(((PscModel *)model)->frame));
     } else {
-        position = *(RwV3d *)(model + 0x20);
+        position = *(RwV3d *)&((PscModel *)model)->position;
     }
-    dot = modelNormal.x * (*(f32 *)mtx - position.x) + modelNormal.y * (*(f32 *)(mtx + 4) - position.y) + modelNormal.z * (*(f32 *)(mtx + 8) - position.z);
+    dot = modelNormal.x * (*(f32 *)mtx - position.x) + modelNormal.y * (((RwV3d *)mtx)->y - position.y) + modelNormal.z * (((RwV3d *)mtx)->z - position.z);
     *(s32 *)mesh &= ~1;
     if (dot < 0.0f) {
         RwMatrixRotate(cam, &flipAxis, 180.0f, 1);
@@ -203,8 +204,8 @@ void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
                 position.z = 0.0f;
                 func_003e42a0(&worldPosition, &position, cam);
                 eyeDirection.x = worldPosition.x - *(f32 *)mtx;
-                eyeDirection.y = worldPosition.y - *(f32 *)(mtx + 4);
-                eyeDirection.z = worldPosition.z - *(f32 *)(mtx + 8);
+                eyeDirection.y = worldPosition.y - cameraPosition->y;
+                eyeDirection.z = worldPosition.z - cameraPosition->z;
                 RwV3dNormalize(&eyeDirection, &eyeDirection);
                 lightDirection.x = worldPosition.x - lightPosition.x;
                 lightDirection.y = worldPosition.y - lightPosition.y;
@@ -235,7 +236,7 @@ void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
                 } else {
                     clamped = dot3;
                 }
-                combined = pow6 * *(f32 *)(mesh + 0x9A0) + clamped * *(f32 *)(mesh + 0x9A4);
+                combined = pow6 * ((PscTileMesh *)mesh)->specularWeight + clamped * ((PscTileMesh *)mesh)->diffuseWeight;
                 if (!(combined <= 1.0f)) {
                     combined = 1.0f;
                 }

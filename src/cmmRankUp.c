@@ -2,6 +2,8 @@
 #include "mt_scene_internal.h"
 /* Original translation unit cmmRankUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "model_battle_internal.h"
+#include "rw_object_internal.h"
 #include "primitive_point_buffer.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
@@ -81,6 +83,9 @@ struct RwMatrixTag {
 };
 typedef struct RwMatrixTag RankUpMatrix __attribute__((aligned(16)));
 
+/* Chunk 25 uses 66-byte records; the final halfword selects the persona name. */
+typedef struct CmmPersonaNameRecord { u8 pad00[0x40]; u16 personaId; } CmmPersonaNameRecord;
+
 typedef struct {
     s32 kind;
     f32 x;
@@ -117,7 +122,7 @@ extern s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s
                           struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
 
 extern s32 shdEffectTaskCreate(s32 parentTask, s32 resource, s32 frameLimit, void *context);
-extern s32 func_0025ff60(s32 task);
+extern s32 cmmScriptTaskGetWorkValue(s32 task);
 extern void mdlEffectSetMatrixPose(s32 effect, s32 matrix);
 extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 extern void mdlEffectGetPackedColor(void *object, s32 *color);
@@ -398,9 +403,9 @@ void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
  * Named float snapshots preserve interpolation order. Packed channels use
  * unsigned word shifts and byte truncation, including the high channel. */
 // Linear interpolation of two sprite states by t into out: position, scale and axis fields.
-// FUN_00252230
 /* All retail references are from this source unit. Internal linkage lets
  * MWCC retain the caller values in registers this leaf does not write. */
+// FUN_00252230
 static void cmmRankUpLerpState(RankUpSpriteState *out, RankUpSpriteState *a, RankUpSpriteState *b, f32 t)
 {
     f32 fa;
@@ -480,10 +485,10 @@ s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
     if (context->mode == 0xA) {
         special = 1;
     }
-    if (!(*(s32 *)(work + 0) & 2)) {
-        *(s32 *)(work + 4) += 1;
+    if (!(((CmmRankUpEntry *)work)->flags & 2)) {
+        ((CmmRankUpEntry *)work)->frame += 1;
     }
-    frame = *(s32 *)(work + 4);
+    frame = ((CmmRankUpEntry *)work)->frame;
     if (frame >= 0x3C) {
         complete = 1;
     }
@@ -496,7 +501,7 @@ s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
     }
     if (special != 0) {
         if (state.color == 0xFFE92CFF) {
-            *(s32 *)(work + 0xC) = 0;
+            ((CmmRankUpEntry *)work)->spriteKind = 0;
             state.color = -1;
         } else {
             state.color = 0xBFBFBFFF;
@@ -516,7 +521,7 @@ s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
     } while (pairs > 0);
     texture = shdSpriteSlotHandle(0x18, 0, context->slot10.sprites);
     RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
-    if (*(s32 *)(work + 0xC) == 1) {
+    if (((CmmRankUpEntry *)work)->spriteKind == 1) {
         work = (u8 *)D_00887300;
         (*(void (**)(u32, u32))work)(7, 2);
         (*(void (**)(u32, u32))work)(9, 2);
@@ -556,6 +561,8 @@ typedef struct {
 // FUN_00252A60
 s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
 {
+    CmmRankUpEntry *entry = (CmmRankUpEntry *)work;
+
     /* CmmRankUpEntry/three sprite-state offsets retained: typed access changes MWCC allocation (nd 2523). */
     RankUpVectorCopy axis;
     PrimPoint displacement;
@@ -584,17 +591,17 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
         is10 = 1;
     }
     if (!(*(s32 *)work & 2)) {
-        *(s32 *)(work + 4) += 1;
+        ((CmmRankUpEntry *)work)->frame += 1;
     }
-    if (*(s32 *)(work + 4) >= 60) {
+    if (entry->frame >= 60) {
         done = 1;
     }
-    if (*(s32 *)(work + 4) > 30) {
+    if (entry->frame > 30) {
         cmmRankUpLerpState(&state, (RankUpSpriteState *)(work + 0x30), (RankUpSpriteState *)(work + 0x54),
-            (f32)(*(s32 *)(work + 4) - 30) / 30.0f);
+            (f32)(entry->frame - 30) / 30.0f);
     } else {
         cmmRankUpLerpState(&state, (RankUpSpriteState *)(work + 0xC), (RankUpSpriteState *)(work + 0x30),
-            sinf(D_00761184 * (f32)*(s32 *)(work + 4) / 30.0f));
+            sinf(D_00761184 * (f32)entry->frame / 30.0f));
     }
     {
         const u8 *source;
@@ -634,10 +641,10 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
             destination += 8;
         } while (count > 0);
     }
-    if (*(s32 *)(work + 4) < 31) {
+    if (((CmmRankUpEntry *)work)->frame < 31) {
         RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
     } else {
-        frame = *(s32 *)(work + 4) - 30;
+        frame = ((CmmRankUpEntry *)work)->frame - 30;
         axisTemplate.vector = D_00636250;
         axis = axisTemplate;
         RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
@@ -645,13 +652,13 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
     }
     textureA = datPortraitValue(context->unk_14);
     textureB = datPortraitValue(context->slot18.word);
-    if (*(s32 *)(work + 4) >= 25) {
+    if (entry->frame >= 25) {
         f32 factor;
         overlay = shdSpriteSlotHandle(25, 0, context->slot10.sprites);
-        if (*(s32 *)(work + 4) < 31) {
-            factor = (f32)(*(s32 *)(work + 4) - 25) / 5.0f;
+        if (entry->frame < 31) {
+            factor = (f32)(entry->frame - 25) / 5.0f;
         } else {
-            factor = (f32)(*(s32 *)(work + 4) - 30);
+            factor = (f32)(entry->frame - 30);
             if (factor < 5.0f) {
                 factor = 1.0f - factor / 5.0f;
             } else {
@@ -723,7 +730,7 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
     }
     displacement.v[0] = radius * cosf(angle);
     displacement.v[1] = -radius * sinf(angle);
-    if (*(s32 *)(work + 4) < 41) {
+    if (entry->frame < 41) {
         RankUpParticlePrefix *particle;
         f32 y = state.y + displacement.v[1];
         f32 x = state.x + displacement.v[0];
@@ -761,7 +768,7 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
             particle->y = y;
         }
     }
-    if (*(s32 *)(work + 4) == 20) {
+    if (entry->frame == 20) {
         RankUpParticlePrefix *particle = (RankUpParticlePrefix *)cmmRankUpReserveSparkle(root, 1);
         if (particle != NULL) {
             particle->flags |= 2;
@@ -776,7 +783,7 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
             particle->x = 68.0f;
             particle->y = 419.0f;
         }
-    } else if (*(s32 *)(work + 4) == 31) {
+    } else if (entry->frame == 31) {
         cmmRankUpFadeSparklePools((u8 *)root);
     }
     return done;
@@ -803,6 +810,8 @@ u8 *cmmNameRecord(u32 nameId);
 // FUN_00253850
 s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 {
+    CmmRankUpEntry *entry = (CmmRankUpEntry *)work;
+
     /* CmmRankUpEntry/three sprite-state offsets retained: typed access changes MWCC allocation (nd 142). */
     PrimPoint positions[8];
     PrimPoint movingPoints[4];
@@ -822,8 +831,8 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
     if (context->mode == 10) {
         special = 1;
     }
-    if (*(s32 *)(work + 4) > 15) {
-        if (*(s32 *)(work + 4) < 32) {
+    if (((CmmRankUpEntry *)work)->frame > 15) {
+        if (((CmmRankUpEntry *)work)->frame < 32) {
             s32 i;
             const u8 *source;
             u8 *destination;
@@ -843,7 +852,7 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
                 destination += 8;
             } while (count > 0);
             for (i = 0; i < 8; i++) {
-                s32 elapsed = *(s32 *)(work + 4) - 15;
+                s32 elapsed = entry->frame - 15;
                 if (!(elapsed < i)) {
                     if (elapsed - i < 9) {
                         f32 value = sinf(D_00761174 * (f32)(elapsed - i) / 8.0f);
@@ -876,8 +885,8 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
                 603.0f, 340.0f, 0.0f, 0xFFFFFF, 255, 19, 0, context->slot10.sprites, 1);
         }
     }
-    if (*(s32 *)(work + 4) < 16) {
-        f32 value = sinf(D_00761184 * (f32)*(s32 *)(work + 4) / 15.0f);
+    if (entry->frame < 16) {
+        f32 value = sinf(D_00761184 * (f32)entry->frame / 15.0f);
         white = 0xFFFFFF;
         bannerY = 375.0f;
         shdSpriteDrawNow(
@@ -888,9 +897,9 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
         shdSpriteDrawNow(
             0.0f, bannerY, 0.0f, white, 255, 41, 0, context->slot10.sprites, 1);
     }
-    if (*(s32 *)(work + 4) > 7) {
-        if (*(s32 *)(work + 4) < 16) {
-            f32 value = sinf(D_00761184 * ((f32)*(s32 *)(work + 4) - 7.0f) / 8.0f);
+    if (entry->frame > 7) {
+        if (entry->frame < 16) {
+            f32 value = sinf(D_00761184 * ((f32)entry->frame - 7.0f) / 8.0f);
             shdSpriteDrawNowEx(
                 0.0f, (0.0f + 380.0f) + 10.0f * (1.0f - value), 0.0f, white, 255, special + 42, 0,
                 context->slot10.sprites, 1, 0, 0, 0.0f, 1.0f, value);
@@ -899,8 +908,8 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
                 0.0f, 380.0f, 0.0f, white, 255, special + 42, 0, context->slot10.sprites, 1);
         }
     }
-    if (*(s32 *)(work + 4) > 18) {
-        if (*(s32 *)(work + 4) < 27) {
+    if (entry->frame > 18) {
+        if (entry->frame < 27) {
             f32 value;
             f32 displacement;
             f32 distance;
@@ -916,7 +925,7 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
             u8 *font;
             s32 offset;
             s32 width;
-            value = sinf(D_00761184 * (f32)(*(s32 *)(work + 4) - 18) / 8.0f);
+            value = sinf(D_00761184 * (f32)(entry->frame - 18) / 8.0f);
             if (special == 0) {
                 displacement = 1.0f - value;
                 distance = 450.0f;
@@ -1024,9 +1033,9 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
             frFontExDrawText(392.0f, 403.0f, 0.0f, -1, 0, 1, (const char *)cmmNameRecord((u16)relation), 0, 0);
         }
     }
-    if (*(s32 *)(work + 4) > 30) {
-        if (*(s32 *)(work + 4) < 39) {
-            f32 value = sinf(D_00761174 * (f32)(*(s32 *)(work + 4) - 30) / 8.0f);
+    if (entry->frame > 30) {
+        if (entry->frame < 39) {
+            f32 value = sinf(D_00761174 * (f32)(entry->frame - 30) / 8.0f);
             if (special == 0) {
                 shdSpriteDrawNow(
                     277.0f, (0.0f + 350.0f) - 17.0f * value, 0.0f, white, 255, context->mode + 1, 0,
@@ -1038,11 +1047,11 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
         }
     }
     /* A star color is assigned before the glow can use it below. */
-    if (*(s32 *)(work + 4) > 23) {
-        if (*(s32 *)(work + 4) < 39) {
+    if (entry->frame > 23) {
+        if (entry->frame < 39) {
             s32 i;
             for (i = 0; i < 10; i++) {
-                s32 elapsed = *(s32 *)(work + 4) - 23;
+                s32 elapsed = entry->frame - 23;
                 if (!(elapsed < i)) {
                     f32 value;
                     if (context->mode <= i) {
@@ -1075,7 +1084,7 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
             }
         }
     }
-    if (*(s32 *)(work + 4) > 30) {
+    if (entry->frame > 30) {
         s32 index;
         context->pulse45 += 1;
         if (context->pulse45 >= 45) {
@@ -1085,8 +1094,8 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
         pulse = sinf(D_007612CC + D_007612D0 * (f32)context->pulse45 / 45.0f);
         pulse = (0.0f + D_00761288) + D_0076118C * ((1.0f + pulse) / 2.0f);
         progress = 1.0f;
-        if (*(s32 *)(work + 4) < 61) {
-            progress = (f32)(*(s32 *)(work + 4) - 30) / 30.0f;
+        if (entry->frame < 61) {
+            progress = (f32)(entry->frame - 30) / 30.0f;
             shdSpriteDrawNowEx(
                 (f32)(index * 23 + 357) - 58.0f * progress, 385.0f - 62.0f * progress, 0.0f, white,
                 (u8)(255.0f * (1.0f - progress)), 27, 0, context->slot10.sprites, 1,
@@ -1510,7 +1519,7 @@ u8 *cmmRankUpFindResEntry(void) {
         RankUpResourceState *snapshot = (RankUpResourceState *)(entry + count * 0x10);
         snapshot->model = (u8 *)node1->modelHandle164;
         snapshot->enabled = MT_Scene_IsResEnabled((u8 *)node1);
-        snapshot->weight = *(f32 *)((u8 *)node1->modelHandle164 + 0xF4);
+        snapshot->weight = ((Model *)(u8 *)node1->modelHandle164)->layerSpeed;
         snapshot->resource = (u8 *)node1;
         count++;
         mdlSetLayerWeight((u8 *)node1->modelHandle164, 0, 0.0f);
@@ -1522,7 +1531,7 @@ u8 *cmmRankUpFindResEntry(void) {
         RankUpResourceState *snapshot = (RankUpResourceState *)(entry + count * 0x10);
         snapshot->model = (u8 *)node2->modelHandle158;
         snapshot->enabled = MT_Scene_IsResEnabled((u8 *)node2);
-        snapshot->weight = *(f32 *)((u8 *)node2->modelHandle158 + 0xF4);
+        snapshot->weight = ((Model *)(u8 *)node2->modelHandle158)->layerSpeed;
         snapshot->resource = (u8 *)node2;
         count++;
         mdlSetLayerWeight((u8 *)node2->modelHandle158, 0, 0.0f);
@@ -1534,7 +1543,7 @@ u8 *cmmRankUpFindResEntry(void) {
         RankUpResourceState *snapshot = (RankUpResourceState *)(entry + count * 0x10);
         snapshot->model = (u8 *)node3->modelHandle164;
         snapshot->enabled = MT_Scene_IsResEnabled((u8 *)node3);
-        snapshot->weight = *(f32 *)((u8 *)node3->modelHandle164 + 0xF4);
+        snapshot->weight = ((Model *)(u8 *)node3->modelHandle164)->layerSpeed;
         snapshot->resource = (u8 *)node3;
         count++;
         mdlSetLayerWeight((u8 *)node3->modelHandle164, 0, 0.0f);
@@ -1546,7 +1555,7 @@ u8 *cmmRankUpFindResEntry(void) {
         RankUpResourceState *snapshot = (RankUpResourceState *)(entry + count * 0x10);
         snapshot->model = (u8 *)node4->slotHandle[1];
         snapshot->enabled = MT_Scene_IsResEnabled((u8 *)node4);
-        snapshot->weight = *(f32 *)((u8 *)node4->slotHandle[1] + 0xF4);
+        snapshot->weight = ((Model *)(u8 *)node4->slotHandle[1])->layerSpeed;
         snapshot->resource = (u8 *)node4;
         count++;
         mdlSetLayerWeight((u8 *)node4->slotHandle[1], 0, 0.0f);
@@ -2321,7 +2330,8 @@ extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline RankUpPackedColor *rankUpCapturePackedColor(RankUpPackedColor *color, const f32 *packed)
+/* Capture a float-backed packed palette value for subsequent byte-channel edits. */
+static inline RankUpPackedColor *cmmRankUpCapturePackedColor(RankUpPackedColor *color, const f32 *packed)
 {
     color->bits = *packed;
     return color;
@@ -2332,7 +2342,9 @@ static inline RankUpPackedColor *rankUpCapturePackedColor(RankUpPackedColor *col
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline void rankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor *input)
+/* Copy the palette alpha channel without replacing its other color components. */
+/* measured: plain assignment removes the alpha load/store pair and shortens cmmRankUpRender by eight bytes. */
+static inline void cmmRankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor *input)
 {
     output->a = input->a;
 }
@@ -2342,7 +2354,8 @@ static inline void rankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline void rankUpDrawSpriteState(const RankUpSpriteState *state, RankUpMatrix *matrix,
+/* Draw a centered sprite using keyframe dimensions, packed color and opacity. */
+static inline void cmmRankUpDrawSpriteState(const RankUpSpriteState *state, RankUpMatrix *matrix,
                                          s32 texture, f32 uv[4][2], f32 opacity)
 {
     s32 height = state->height;
@@ -2358,7 +2371,9 @@ static inline void rankUpDrawSpriteState(const RankUpSpriteState *state, RankUpM
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline void rankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amount)
+/* Scale only the alpha byte of the packed effect color. */
+/* measured: plain assignment reverses the mul.s sources at cmmRankUpRender offset 5228. */
+static inline void cmmRankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amount)
 {
     color->channels[3] = (u8)((f32)(u32)color->channels[3] * amount);
 }
@@ -2524,38 +2539,38 @@ s32 cmmRankUpRender(u8 *task) {
         if (context->mode == 0) {
             startTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
-            startEffect = func_0025ff60(startTask);
-            mdlEffectSetMatrixPose(startEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            startEffect = cmmScriptTaskGetWorkValue(startTask);
+            mdlEffectSetMatrixPose(startEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(startEffect), position);
         }
         if (context->mode == 0) {
             secondaryTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xB4, 300.0f);
-            secondaryEffect = func_0025ff60(secondaryTask);
-            mdlEffectSetMatrixPose(secondaryEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            secondaryEffect = cmmScriptTaskGetWorkValue(secondaryTask);
+            mdlEffectSetMatrixPose(secondaryEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(secondaryEffect), position);
         }
         if (context->mode == 0x78) {
             midpointTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xB4, 300.0f);
-            midpointEffect = func_0025ff60(midpointTask);
-            mdlEffectSetMatrixPose(midpointEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            midpointEffect = cmmScriptTaskGetWorkValue(midpointTask);
+            mdlEffectSetMatrixPose(midpointEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(midpointEffect), position);
         }
         if (context->mode == 0x23A) {
             leavingTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
-            leavingEffect = func_0025ff60(leavingTask);
-            mdlEffectSetMatrixPose(leavingEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            leavingEffect = cmmScriptTaskGetWorkValue(leavingTask);
+            mdlEffectSetMatrixPose(leavingEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(leavingEffect), position);
         }
         if ((context->mode == 0x258) && (cmmRankUpAttachResMatrix(context->unk_20, (u8 *)position) != 0)) {
-            attachedEffect = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
-            mdlEffectSetMatrixPose(attachedEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            attachedEffect = (s32)(cmmScriptTaskGetWorkValue(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
+            mdlEffectSetMatrixPose(attachedEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(attachedEffect), position);
         }
         if ((context->mode == 0x280) && (cmmRankUpAttachResMatrix(context->unk_20, (u8 *)position) != 0)) {
-            mdlEffectSetChildPositionVec((void *)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974))), position);
+            mdlEffectSetChildPositionVec((void *)(cmmScriptTaskGetWorkValue(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974))), position);
         }
         mode0Frame = (s32)(context->mode);
         if (mode0Frame >= 0xA) {
@@ -2732,8 +2747,8 @@ s32 cmmRankUpRender(u8 *task) {
         if (context->mode == 0) {
             maxStartTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
-            maxStartEffect = func_0025ff60(maxStartTask);
-            mdlEffectSetMatrixPose(maxStartEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            maxStartEffect = cmmScriptTaskGetWorkValue(maxStartTask);
+            mdlEffectSetMatrixPose(maxStartEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(maxStartEffect), position);
         }
         if (context->mode == 0xA) {
@@ -2743,28 +2758,28 @@ s32 cmmRankUpRender(u8 *task) {
         if (((effectFrame % 10) == 0) && (effectFrame < 0x1CD)) {
             maxParticleTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
-            maxParticleEffect = func_0025ff60(maxParticleTask);
-            mdlEffectSetMatrixPose(maxParticleEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            maxParticleEffect = cmmScriptTaskGetWorkValue(maxParticleTask);
+            mdlEffectSetMatrixPose(maxParticleEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(maxParticleEffect), position);
             mdlEffectGetPackedColor((void *)maxParticleEffect, &drawColorValue.packed);
-            rankUpScaleEffectAlpha(&drawColorValue, 0.5f);
+            cmmRankUpScaleEffectAlpha(&drawColorValue, 0.5f);
             mdlEffectSetPackedColor((void *)maxParticleEffect, &drawColorValue.packed);
         }
         if (context->mode == 0x21C) {
             maxLeavingTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
-            maxLeavingEffect = func_0025ff60(maxLeavingTask);
-            mdlEffectSetMatrixPose(maxLeavingEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            maxLeavingEffect = cmmScriptTaskGetWorkValue(maxLeavingTask);
+            mdlEffectSetMatrixPose(maxLeavingEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(maxLeavingEffect), position);
         }
         if ((context->mode == 0x23A) && (cmmRankUpAttachResMatrix(context->unk_20, (u8 *)position) != 0)) {
-            maxAttachedEffect = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
-            mdlEffectSetMatrixPose(maxAttachedEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            maxAttachedEffect = (s32)(cmmScriptTaskGetWorkValue(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
+            mdlEffectSetMatrixPose(maxAttachedEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(maxAttachedEffect), position);
         }
         if ((context->mode == 0x262) && (cmmRankUpAttachResMatrix(context->unk_20, (u8 *)position) != 0)) {
-            maxAttachEffect = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
-            mdlEffectSetMatrixPose(maxAttachEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            maxAttachEffect = (s32)(cmmScriptTaskGetWorkValue(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
+            mdlEffectSetMatrixPose(maxAttachEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(maxAttachEffect), position);
         }
         mode10Frame = (s32)(context->mode);
@@ -2778,7 +2793,7 @@ s32 cmmRankUpRender(u8 *task) {
             cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, maxExpansion, firstTexture, secondTexture);
             maxTextElapsed = (s32)(context->mode - 0x96);
             itfMesWindowSetString(context->pulse120.low, 0, func_002438b0(cmmCommunityArcana(context->slot18.communityId) & 0xFF));
-            itfMesWindowSetString(context->pulse120.low, 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(context->slot18.communityId)) + 0x40)));
+            itfMesWindowSetString(context->pulse120.low, 1, datPersonaGetRow(((CmmPersonaNameRecord *)(u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(context->slot18.communityId)))->personaId));
             maxFirstTextFrame = (s32)(context->unk_0c);
             if (maxFirstTextFrame > 0) {
                 context->unk_0c = (s32) (maxFirstTextFrame + 1);
@@ -2884,7 +2899,7 @@ s32 cmmRankUpRender(u8 *task) {
             cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, maxExpansion, firstTexture, secondTexture);
             cmmRankUpDrawGradientStripPass2(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
             itfMesWindowSetString(context->pulse120.low, 0, func_002438b0(cmmCommunityArcana(context->slot18.communityId) & 0xFF));
-            itfMesWindowSetString(context->pulse120.low, 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(context->slot18.communityId)) + 0x40)));
+            itfMesWindowSetString(context->pulse120.low, 1, datPersonaGetRow(((CmmPersonaNameRecord *)(u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(context->slot18.communityId)))->personaId));
             cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, context->pulse120.low, 1, 0);
             cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, context->pulse120.low, 1, 1);
             cmmRankUpDrawCenteredText(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, context->pulse120.low, 1, 2);
@@ -2900,7 +2915,7 @@ s32 cmmRankUpRender(u8 *task) {
             maxPanelExitAlpha = 153.0f * maxExitOpacity;
             cmmRankUpDrawGradientStripPass2(0.0f, 40.0f, 0.0f, 0, (s32)( maxPanelExitAlpha), (s32)( maxPanelExitAlpha), (s32)( maxPanelExitAlpha), 1, 0, 0, 1.0f, 1.0f);
             itfMesWindowSetString(context->pulse120.low, 0, func_002438b0(cmmCommunityArcana(context->slot18.communityId) & 0xFF));
-            itfMesWindowSetString(context->pulse120.low, 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(context->slot18.communityId)) + 0x40)));
+            itfMesWindowSetString(context->pulse120.low, 1, datPersonaGetRow(((CmmPersonaNameRecord *)(u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(context->slot18.communityId)))->personaId));
             maxTextExitAlpha = 255.0f * maxExitOpacity;
             cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 0);
             cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 1);
@@ -2934,15 +2949,15 @@ s32 cmmRankUpRender(u8 *task) {
         if (context->mode == 0) {
             spriteStartTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
-            spriteStartEffect = func_0025ff60(spriteStartTask);
-            mdlEffectSetMatrixPose(spriteStartEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            spriteStartEffect = cmmScriptTaskGetWorkValue(spriteStartTask);
+            mdlEffectSetMatrixPose(spriteStartEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(spriteStartEffect), position);
         }
         if (context->mode == 0xBE) {
             spriteExitTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
-            spriteExitEffect = func_0025ff60(spriteExitTask);
-            mdlEffectSetMatrixPose(spriteExitEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            spriteExitEffect = cmmScriptTaskGetWorkValue(spriteExitTask);
+            mdlEffectSetMatrixPose(spriteExitEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(spriteExitEffect), position);
         }
         mode11Frame = (s32)(context->mode);
@@ -2981,7 +2996,7 @@ s32 cmmRankUpRender(u8 *task) {
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
             RpSkyRenderStateSet(3, 0x31003);
             RpSkyRenderStateSet(2, 0x48);
-            rankUpDrawSpriteState(&steadySprite, &steadyMatrix, spriteTexture, steadyUv.coordinates, 1.0f);
+            cmmRankUpDrawSpriteState(&steadySprite, &steadyMatrix, spriteTexture, steadyUv.coordinates, 1.0f);
         } else if (mode11Frame < 0xD3) {
             spriteExitAlpha = 255.0f * (1.0f - ((f32) (mode11Frame - 0xAA) / 40.0f));
             cmmRankUpDrawFadedExpansionPass2(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( spriteExitAlpha), 1.0f, 0, firstTexture, secondTexture);
@@ -3011,15 +3026,15 @@ s32 cmmRankUpRender(u8 *task) {
         if (context->mode == 0) {
             wipeStartTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
-            wipeStartEffect = func_0025ff60(wipeStartTask);
-            mdlEffectSetMatrixPose(wipeStartEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            wipeStartEffect = cmmScriptTaskGetWorkValue(wipeStartTask);
+            mdlEffectSetMatrixPose(wipeStartEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(wipeStartEffect), position);
         }
         if (context->mode == 0x9B) {
             wipeEndTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
             datScreenPointToWorldPosition((u8 *)position, 0x140, 0xB4, 300.0f);
-            wipeEndEffect = func_0025ff60(wipeEndTask);
-            mdlEffectSetMatrixPose(wipeEndEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            wipeEndEffect = cmmScriptTaskGetWorkValue(wipeEndTask);
+            mdlEffectSetMatrixPose(wipeEndEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(wipeEndEffect), position);
         }
         mode12Frame = (s32)(context->mode);
@@ -3062,7 +3077,7 @@ s32 cmmRankUpRender(u8 *task) {
                         amount * (f32)(maximum - (s32)original->g));
                     palette->b = (u8)((f32)(u32)original->b +
                         amount * (f32)(maximum - (s32)original->b));
-                    rankUpCopyPaletteAlpha(palette, palette);
+                    cmmRankUpCopyPaletteAlpha(palette, palette);
                     palette++;
                     original++;
                 }
@@ -3071,7 +3086,7 @@ s32 cmmRankUpRender(u8 *task) {
             cmmRankUpDrawWipeRect(0, 0, 0, 0xFFFFFF, 0xFF, 0.0f, firstTexture);
         } else if (mode12Frame < 0xA1) {
             drawColor = &drawColorValue.bits;
-            drawColorValue = *rankUpCapturePackedColor(&steadyColor, &fGpffffa670);
+            drawColorValue = *cmmRankUpCapturePackedColor(&steadyColor, &fGpffffa670);
             *(u_long128 *)&steadyRectangle = D_00636600;
             drawRectangle = (u_long128 *)&drawRectangleValue;
             *(u_long128 *)&drawRectangleValue = *(u_long128 *)&steadyRectangle;
@@ -3079,7 +3094,7 @@ s32 cmmRankUpRender(u8 *task) {
             cmmRankUpDrawWipeRect(0, 0, 0, 0xFFFFFF, 0xFF, 0.0f, firstTexture);
         } else if (mode12Frame < 0xA4) {
             drawColor = &drawColorValue.bits;
-            drawColorValue = *rankUpCapturePackedColor(&pulseColor, &fGpffffa674);
+            drawColorValue = *cmmRankUpCapturePackedColor(&pulseColor, &fGpffffa674);
             *(u_long128 *)&pulseRectangle = D_00636610;
             drawRectangle = (u_long128 *)&drawRectangleValue;
             *(u_long128 *)&drawRectangleValue = *(u_long128 *)&pulseRectangle;
@@ -3245,8 +3260,8 @@ extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path, s32
 extern void *memcpy(void *destination, const void *source, u32 size);
 extern void *memset(void *destination, s32 value, u32 size);
 extern u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue);
-extern s32 func_00459760();
-extern s32 func_0045b400();
+extern s32 hsndGetCurrentCue();
+extern s32 hsndGetCurrentTrack();
 extern s32 sdkSndFadeMainChannel();
 extern void sdkSndFadeOutChannelFrames();
 extern void shdEffectSetRenderParams(u8 *effect, s32 parameter, u8 flags);
@@ -3294,7 +3309,8 @@ typedef struct { s32 values[5]; } RankUpUnlockFlags;
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline s32 rankUpAnimationComplete(u8 *task)
+/* Report whether the rank-up task work has set its completion flag. */
+static inline s32 cmmRankUpAnimationComplete(u8 *task)
 {
     CmmRankUpSequence *context = (CmmRankUpSequence *)kwlnTaskGetWork(task);
     s32 complete = 0;
@@ -3396,8 +3412,8 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         context->loadRequest = NULL;
         goto tail;
     case 5:
-        iGpffffa664 = func_00459760();
-        iGpffffa668 = func_0045b400();
+        iGpffffa664 = hsndGetCurrentCue();
+        iGpffffa668 = hsndGetCurrentTrack();
         sdkSndFadeMainChannel();
         sdkSndFadeOutChannelFrames(3, 0, 10);
         context->relation = 6;
@@ -3467,7 +3483,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         /* fallthrough */
     case 10:
     case10tail:
-        if (rankUpAnimationComplete(taskBytes) == 0) {
+        if (cmmRankUpAnimationComplete(taskBytes) == 0) {
             goto tail;
         }
         context->relation = 0xB;
@@ -3497,7 +3513,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
             nmMesWindowSetSlotString(context->pulse120.low, 1, (char *)func_002438b0((u8)cmmCommunityArcana(context->slot18.communityId)));
             frFontExCopyString((char *)cmmPersonaRecord((s8)cmmCommunityArcana(context->slot18.communityId)), (char *)text, 0x20);
             nmMesWindowSetSlotString(context->pulse120.low, 2, text);
-            strcpy((char *)text, (char *)datPersonaGetRow(*(u16 *)(cmmPersonaRecord((s8)cmmCommunityArcana(context->slot18.communityId)) + 0x40)));
+            strcpy((char *)text, (char *)datPersonaGetRow(((CmmPersonaNameRecord *)cmmPersonaRecord((s8)cmmCommunityArcana(context->slot18.communityId)))->personaId));
             nmMesWindowSetSlotString(context->pulse120.low, 3, text);
             nmMesWindowShowSlotRecord(context->pulse120.low, 4);
         } else if (rankOrFlags == 11) {

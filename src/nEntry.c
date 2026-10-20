@@ -32,6 +32,7 @@ typedef struct TimeLimitEntryWork {
     s32 unk14;
 } TimeLimitEntryWork;
 
+/* Load the timer sprite, start its display task, and finish after that child exits. */
 // FUN_002A2420
 /* Case values decoded from jtbl_007486C0 with tools/jtbl.py: a 0/1/2/3/5/6
    state machine with case 4 and the out-of-range default both falling to the

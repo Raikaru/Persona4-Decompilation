@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "mdl_file_internal.h"
 #include "btl_action_internal.h"
 #include "btl_skill_target_internal.h"
@@ -117,17 +118,15 @@ extern s32 btlUnitGetMotionState(u8 *unit);
 extern u32 btlUnitIsAtRestMotion(u8 *unit);
 extern u32 btlUnitIsWalkingMotion(u8 *unit);
 extern s64 btlUnitModelAnimFrame(u8 *unit);
-static inline u32 btlUnitAddMotionOffset(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
 /* measured: opt_propagation off is scoped to func_001949d0. */
 /* measured: closes opt_propagation for func_001949d0. */
 /* measured: declaration-corrected C candidate for func_00198380. */
 /* Update motion-layer weight and walking/rest transitions, including completion and held-frame modes. */
-/* measured: remaining motion/handle reloads changed MATCH when typed. Hold counters at +0x9E6/+0x9E8/+0x9EE and model +0x108 remain in opaque shared spans. */
+/* measured: separate typed aliases retain the motion/handle reloads that moved instructions with access-site fields. */
 // FUN_00198380
 void btlUnitUpdateMotionLayer(u8 *unit) {
+    BtlUnit *unitFields = (BtlUnit *)unit;
     f32 walkRate;
     s16 restMotion;
     s16 blendOverride;
@@ -147,13 +146,13 @@ void btlUnitUpdateMotionLayer(u8 *unit) {
             mdlSetLayerWeight(model, 0, 0.0f);
             return;
         }
-        if ((motionFlags & 4) && ((s16)btlUnitModelAnimFrame(unit) >= *(s16 *)(unit + 0x9E6)) && (*(s16 *)(unit + 0x9E8) > 0)) {
+        if ((motionFlags & 4) && ((s16)btlUnitModelAnimFrame(unit) >= ((BtlUnit *)unit)->holdMotionFrame) && (((BtlUnit *)unit)->holdMotionTicks > 0)) {
             mdlSetLayerWeight(model, 0, 0.0f);
-            *(s16 *)(unit + 0x9E8) = (s16) (*(s16 *)(unit + 0x9E8) - 1);
+            unitFields->holdMotionTicks = (s16) (unitFields->holdMotionTicks - 1);
             return;
         }
-        mdlSetLayerWeight(*(u8 **)(unit + 0xA00), 0, ((BtlUnit *)unit)->motionRate);
-        if (!(*(u16 *)(unit + 0x9D8) & 8)) {
+        mdlSetLayerWeight(unitFields->layerHandle, 0, ((BtlUnit *)unit)->motionRate);
+        if (!(unitFields->unk_9d8 & 8)) {
             movementFlags = (u16)(((BtlUnit *)unit)->movementFlags);
             if ((movementFlags & 1) && !(movementFlags & 4)) {
                 if (btlUnitIsWalkingMotion(unit) == 0) {
@@ -177,7 +176,7 @@ void btlUnitUpdateMotionLayer(u8 *unit) {
             if (((MdlFileModel *)model)->finished == 1) {
                 restMotion = (s16)(((BtlUnit *)unit)->restMotion);
                 if (restMotion != (s16)btlUnitGetMotionState(unit)) {
-                    blendOverride = (s16)(*(s16 *)(unit + 0x9EE));
+                    blendOverride = (s16)(((BtlUnit *)unit)->restBlendFrames);
                     if (blendOverride > 0) {
                         blendFrames = blendOverride & 0xFFFF;
                     } else {
@@ -188,7 +187,7 @@ void btlUnitUpdateMotionLayer(u8 *unit) {
                         case 0x18:
                             motionIndex = (u16)btlUnitGetMotionId(unit, restMotion & 0xFFFF);
                             if ((s32)motionIndex < (s32)(((BtlUnit *)unit)->motionCount)) {
-                                blendFrames = (u16)((u16)((BtlMotionRate *)btlUnitAddMotionOffset(motionIndex * 0xA, (u32)(s32)((BtlUnit *)unit)->motionRates))->unk8);
+                                blendFrames = (u16)((u16)((BtlMotionRate *)(u32)byteAddressAdd(motionIndex * 0xA, (u8 *)((u32)(s32)((BtlUnit *)unit)->motionRates)))->unk8);
                             } else {
                                 blendFrames = 6;
                             }
@@ -198,12 +197,12 @@ void btlUnitUpdateMotionLayer(u8 *unit) {
                             break;
                         }
                     }
-                    btlUnitSetMotion(unit, *(s16 *)(unit + 0x9EC), blendFrames, ((BtlUnit *)unit)->restRate, ((BtlUnit *)unit)->restOption);
+                    btlUnitSetMotion(unit, unitFields->restMotion, blendFrames, ((BtlUnit *)unit)->restRate, ((BtlUnit *)unit)->restOption);
                 }
             }
             break;
         case 3:
-            if (!(*(f32 *)(model + 0x108) < 1.0f)) {
+            if (!(((MdlFileModel *)model)->unk108 < 1.0f)) {
                 currentMotion = (s16)btlUnitGetMotionState(unit);
                 currentFrame = (s16)btlUnitModelAnimFrame(unit);
                 if (currentFrame >= (s16)btlUnitMotionFrames(unit, currentMotion & 0xFFFF, 1.0f)) {
@@ -222,7 +221,7 @@ void btlUnitUpdateMotionLayer(u8 *unit) {
             }
             break;
         }
-        *(u16 *)(unit + 0x9D8) = (u16) (*(u16 *)(unit + 0x9D8) & 0xFFF7);
+        ((BtlUnit *)unit)->unk_9d8 = (u16) (((BtlUnit *)unit)->unk_9d8 & 0xFFF7);
     }
 }
 

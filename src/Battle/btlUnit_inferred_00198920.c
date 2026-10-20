@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
@@ -63,63 +64,9 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
 
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
 extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -136,10 +83,6 @@ extern void mdlSetLayerHandleFlag(void *model);
 extern void mdlClearLayerHandleFlag(void *model);
 extern void btlUnitInitChild(u8 *unit, u16 characterId);
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern void (*jtbl_008873EC[])(void *data);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -162,7 +105,8 @@ typedef struct MotionTableEntry {
     s16 unknown6;
     s16 nextMotion;
 } MotionTableEntry;
-static inline u16 motionModeFlags(u16 option)
+/* Classify motion options that require the alternate playback-mode flag. */
+static inline u16 btlUnitMotionModeFlags(u16 option)
 {
     switch (option) {
     case 0:
@@ -181,11 +125,12 @@ static inline u16 motionModeFlags(u16 option)
  * tail bytes. Animation and blend frames retain their halfword domains through
  * the model dispatcher. The table views keep rate and follow-up lifetimes
  * separate; the shared motion contracts preserve all existing callers. */
-// FUN_00198920
-/* measured: remaining mode/count/model/table reloads and the rate bit-pattern store change MATCH to MISMATCH when typed. */
+/* measured: distinct typed unit aliases retain mode/count/model/table reloads and the named rate bit-pattern store. */
 /* Resolve motion and playback rate, publish bounds, and configure follow-up animation state. */
+// FUN_00198920
 void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
 {
+    BtlUnit *unitFields = (BtlUnit *)unit;
     extern f32 iGpffff80d4;
     extern f32 iGpffff812c;
     extern u8 *btlUnitGetRecordPtr(u8 *unit, s32 motion);
@@ -205,10 +150,10 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
             table = (MotionTableEntry *)((BtlUnit *)unit)->motionRates;
             ((BtlUnit *)unit)->motionRate = rate * ((f32)table[motionId].ratePercent / 100.0f);
         } else {
-            *(s32 *)(unit + 0x9E0) = 0x3F800000;
+            unitFields->motionRateBits = 0x3F800000;
         }
         option = option & 0xFFFF;
-        modeFlags = motionModeFlags(option);
+        modeFlags = btlUnitMotionModeFlags(option);
         if (rate < iGpffff80d4 || !(rate <= iGpffff812c)) {
             switch (motion) {
             case 4:
@@ -228,14 +173,14 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
         } else {
             mdlSetLayerHandleFlag(((BtlUnit *)unit)->layerHandle);
         }
-        if ((*(u16 *)(unit + 0x9D8) & 0x20) != 0) {
+        if ((unitFields->unk_9d8 & 0x20) != 0) {
             frame = 0;
         }
-        if ((*(u16 *)(unit + 0x9D8) & 0x40) != 0) {
+        if ((unitFields->unk_9d8 & 0x40) != 0) {
             motionId = 27;
         }
-        mdlDispatchAnimIfPresent(*(u8 **)(unit + 0xA00), 0, (s32)(s16)motionId, frame, modeFlags);
-        mdlSetLayerWeight(*(u8 **)(unit + 0xA00), 0, ((BtlUnit *)unit)->motionRate);
+        mdlDispatchAnimIfPresent(unitFields->layerHandle, 0, (s32)(s16)motionId, frame, modeFlags);
+        mdlSetLayerWeight(unitFields->layerHandle, 0, ((BtlUnit *)unit)->motionRate);
         bounds = (s16 *)btlUnitGetRecordPtr(unit, motionIndex);
         ((BtlUnit *)unit)->sphereCenter.x = (f32)bounds[0];
         ((BtlUnit *)unit)->sphereCenter.y = (f32)bounds[1];
@@ -245,17 +190,17 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
         switch (motion) {
         case 8:
         case 16:
-            if ((u16)motionId < *(u16 *)(unit + 0x9E4)) {
+            if ((u16)motionId < unitFields->motionCount) {
                 base = &((MotionTableEntry *)(u8 *)((BtlUnit *)unit)->motionRates)[(u16)motionId];
                 if (base->followMotion >= 0 && base->followFrame > 0) {
-                    *(u16 *)(unit + 0x9D8) = *(u16 *)(unit + 0x9D8) | 4;
-                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->motion = ((MotionTableEntry *)*(u8 **)(unit + 0x9F8))[(u16)motionId].followMotion;
-                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->frame = ((MotionTableEntry *)btlUnitAddBaseToOffset((u16)motionId * sizeof(MotionTableEntry), *(s32 *)(unit + 0x9F8)))->followFrame;
+                    unitFields->unk_9d8 = unitFields->unk_9d8 | 4;
+                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->motion = ((MotionTableEntry *)(u8 *)unitFields->motionRates)[(u16)motionId].followMotion;
+                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->frame = ((MotionTableEntry *)(s32)byteAddressAdd((u16)motionId * sizeof(MotionTableEntry), (u8 *)((s32)unitFields->motionRates)))->followFrame;
                 }
             }
             break;
         default:
-            *(u16 *)(unit + 0x9D8) = *(u16 *)(unit + 0x9D8) & 0xFFFB;
+            unitFields->unk_9d8 = unitFields->unk_9d8 & 0xFFFB;
             break;
         }
         if (option == 0) {
@@ -274,7 +219,7 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
                 ((BtlUnitRestMotion *)(unit + 0x9EC))->nextMotion = 0;
                 break;
             default:
-                if ((u16)motionId < *(u16 *)(unit + 0x9E4)) {
+                if ((u16)motionId < unitFields->motionCount) {
                     table = (MotionTableEntry *)((BtlUnit *)unit)->motionRates;
                     ((BtlUnitRestMotion *)(unit + 0x9EC))->nextMotion = table[motionId].nextMotion;
                 } else {

@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "include_asm.h"
@@ -22,9 +23,6 @@ typedef struct {
 } Code1_0049Color;
 extern Code1_0049Color iGpffffbb64;
 
-static inline f32 code1_0049_mul(f32 left, f32 right) {
-    return left * right;
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 004940d0-004941f0 */
 
@@ -50,6 +48,11 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 // FUN_004940D0
 void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049Color *color)
 {
+    u8 **ribbonMaterialEntry;
+    u8 **opaqueRibbonMaterialEntry;
+    u8 **capMaterialEntry;
+    u8 **opaqueCapMaterialEntry;
+
     u32 materialOffset;
     u32 max_1;
     u32 max_2;
@@ -70,7 +73,7 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
     if (c3 != max_1) {
         materialOffset = (materialIndex & 0xFFFF) * 4;
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        ribbonMaterial = *(u8 **)(((MdlEffectMultipartGeometry *)ribbonModel)->materials + materialOffset);
+        ribbonMaterial = *(ribbonMaterialEntry = (u8 **)(((MdlEffectMultipartGeometry *)ribbonModel)->materials + materialOffset));
         c0 = color->c0;
         c1 = color->c1;
         c2 = color->c2;
@@ -83,7 +86,7 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
         color->c3 = 0xFE;
         materialOffset = (materialIndex & 0xFFFF) * 4;
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        opaqueRibbonMaterial = *(u8 **)(((MdlEffectMultipartGeometry *)ribbonModel)->materials + materialOffset);
+        opaqueRibbonMaterial = *(opaqueRibbonMaterialEntry = (u8 **)(((MdlEffectMultipartGeometry *)ribbonModel)->materials + materialOffset));
         c0 = color->c0;
         c1 = color->c1;
         c2 = color->c2;
@@ -99,7 +102,7 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
     max_2 = 0xFF;
     if (c3 != max_2) {
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        capMaterial = *(u8 **)(((MdlEffectMultipartGeometry *)capModel)->materials + materialOffset);
+        capMaterial = *(capMaterialEntry = (u8 **)(((MdlEffectMultipartGeometry *)capModel)->materials + materialOffset));
         c0 = color->c0;
         c1 = color->c1;
         c2 = color->c2;
@@ -112,7 +115,7 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
     }
     color->c3 = 0xFE;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    opaqueCapMaterial = *(u8 **)(((MdlEffectMultipartGeometry *)capModel)->materials + materialOffset);
+    opaqueCapMaterial = *(opaqueCapMaterialEntry = (u8 **)(((MdlEffectMultipartGeometry *)capModel)->materials + materialOffset));
     c0 = color->c0;
     c1 = color->c1;
     c2 = color->c2;
@@ -183,10 +186,10 @@ void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors)
     RpGeometryLock(((RpAtomic *)((MdlEffectMultipartGeometry *)work)->model)->geometry, 8);
     rowCount = ((MdlEffectMultipartGeometry *)work)->partCount.signedValue;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    vertexCount = *(s16 *)(work + 8);
+    vertexCount = *(s16 *)&((MdlEffectMultipartGeometry *)work)->vertexCount;
     segmentCount = vertexCount / 3U;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    destination = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)*(u8 **)(work + 0x10))->geometry)->colors;
+    destination = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)MEMBER(u8 *, work, MdlEffectMultipartGeometry, model))->geometry)->colors;
     firstRow = destination;
     fractionStep = 1.0f / (f32)segmentCount;
     fraction = 0.0f;
@@ -272,9 +275,9 @@ void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors)
     }
     cap = (u8 *)((EffTrackRibbons *)track)->cap;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    RpGeometryLock(((RpAtomic *)*(u8 **)(cap + 0x10))->geometry, 8);
+    RpGeometryLock(((RpAtomic *)MEMBER(u8 *, cap, MdlEffectMultipartGeometry, model))->geometry, 8);
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    capColors = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)*(u8 **)(cap + 0x10))->geometry)->colors;
+    capColors = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)MEMBER(u8 *, cap, MdlEffectMultipartGeometry, model))->geometry)->colors;
     *(u32 *)capColors = colors[0];
     ((u32 *)capColors)[1] = colors[1];
     ((Code1_0049Color *)capColors)[2] = ((Code1_0049Color *)capColors)[1];

@@ -3,21 +3,15 @@
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
+#include "radar_menu_internal.h"
 extern s32 nLineIsIdle(void);
 extern u32 datEntryGetFlags(s16);
 extern void (*D_00887300[])(u32 state, u32 value);
-/* Keep the unsigned integer address addition order used by the matching indexed loads. */
-static inline u8 *radarOffsetAddress(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
-
-static inline f32 radarAddCoordinates(f32 left, f32 right) {
-    return left + right;
-}
-
 extern void sdkSpriteFreeNode(void *node);
 extern void datClampUnitHpSp(s16);
 extern void radarBeginSlideOut(u8 *);
@@ -127,55 +121,56 @@ typedef struct {
 #pragma opt_propagation off
 // Intent: Reset the layout state, choosing the target and start positions by comparing the counters at +0x2C and +0x34 [inferred]
 // FUN_00134890
-/* Measured: typed float/integer aliases in this reset changed 32 bytes; retain the raw stores to the proven RadarTransferWork offsets. */
+/* Earlier typed float/integer aliases changed 32 bytes; a separate typed work pointer preserves the reset. */
 void radarResetLayout(u8 *work)
 {
     f32 zeroOffset;
     f32 startPosition;
+    RadarTransferWork *transferWork = (RadarTransferWork *)(work);
 
     zeroOffset = 0.0f;
-    *(s32 *)(work + 0x13D0) = 0;
-    *(u8 *)(work + 0x13E8) = 0xFF;
-    *(s8 *)(work + 0x1418) = 0;
-    *(s8 *)(work + 0x1388) = 0;
-    *(u8 *)(work + 0x1028) = 0xFF;
-    *(s32 *)(work + 0x1014) = 0;
-    *(s32 *)(work + 0x13D0) = 0;
-    *(u8 *)(work + 0x13E8) = 0xFF;
-    *(s8 *)(work + 0x1418) = 0;
+    ((RadarTransferWork *)(work))->unk13D0 = 0;
+    ((RadarTransferWork *)(work))->unk13E8.byte = 0xFF;
+    ((RadarTransferWork *)(work))->unk1418.signedByte = 0;
+    ((RadarTransferWork *)(work))->unk1388.signedByte = 0;
+    ((RadarTransferWork *)(work))->unk1028.byte = 0xFF;
+    ((RadarTransferWork *)(work))->unk1014 = 0;
+    ((RadarTransferWork *)(work))->unk13D0 = 0;
+    ((RadarTransferWork *)(work))->unk13E8.byte = 0xFF;
+    ((RadarTransferWork *)(work))->unk1418.signedByte = 0;
     startPosition = 122.0f;
-    *(s32 *)(work + 0x1430) = 0x42F40000;
-    *(s32 *)(work + 0x1438) = 0x42F40000;
-    *(s32 *)(work + 0x1440) = 0x42F40000;
-    *(u8 *)(work + 0x1448) = 0xFF;
-    *(u8 *)(work + 0x144A) = 0xFF;
-    *(s8 *)(work + 0x1449) = 0;
-    *(s32 *)(work + 0x1490) = 0;
-    *(s32 *)(work + 0x1498) = 0;
-    *(s32 *)(work + 0x14A0) = 0;
-    *(u8 *)(work + 0x14A8) = 0xFF;
-    *(u8 *)(work + 0x14AA) = 0xFF;
-    *(s8 *)(work + 0x14A9) = 0;
-    *(s32 *)(work + 0x146C) = 0;
-    if (*(s16 *)(work + 0x2C) > *(s16 *)(work + 0x34)) {
-        *(s32 *)(work + 0x1444) = 0x43090000;
-        *(s32 *)(work + 0x1434) = 0x43090000;
-        *(f32 *)(work + 0x143C) = startPosition;
-        *(f32 *)(work + 0x14A4) = zeroOffset;
-        *(f32 *)(work + 0x1494) = zeroOffset;
-        *(s32 *)(work + 0x149C) = 0xC1A80000;
-        *(s32 *)(work + 0x1464) = 0xC1200000;
+    ((RadarTransferWork *)(work))->unk1430 = 0x42F40000;
+    ((RadarTransferWork *)(work))->unk1438 = 0x42F40000;
+    ((RadarTransferWork *)(work))->unk1440 = 0x42F40000;
+    ((RadarTransferWork *)(work))->unk1448 = 0xFF;
+    ((RadarTransferWork *)(work))->unk144A = 0xFF;
+    ((RadarTransferWork *)(work))->unk1449 = 0;
+    ((RadarTransferWork *)(work))->unk1490 = 0;
+    ((RadarTransferWork *)(work))->unk1498 = 0;
+    ((RadarTransferWork *)(work))->unk14A0 = 0;
+    ((RadarTransferWork *)(work))->unk14A8 = 0xFF;
+    ((RadarTransferWork *)(work))->unk14AA = 0xFF;
+    ((RadarTransferWork *)(work))->unk14A9 = 0;
+    ((RadarTransferWork *)(work))->unk146C = 0;
+    if (((RadarTransferWork *)(work))->unk2C > ((RadarTransferWork *)(work))->unk34) {
+        ((RadarTransferWork *)(work))->unk1444.integer = 0x43090000;
+        ((RadarTransferWork *)(work))->unk1434.integer = 0x43090000;
+        ((RadarTransferWork *)(work))->unk143C.scalar = startPosition;
+        ((RadarTransferWork *)(work))->unk14A4 = zeroOffset;
+        ((RadarTransferWork *)(work))->unk1494 = zeroOffset;
+        ((RadarTransferWork *)(work))->unk149C = 0xC1A80000;
+        ((RadarTransferWork *)(work))->unk1464 = 0xC1200000;
     } else {
         startPosition = (f32)0x111;
-        *(f32 *)(work + 0x1444) = startPosition;
-        *(f32 *)(work + 0x1434) = startPosition;
-        *(s32 *)(work + 0x143C) = 0x43950000;
-        *(f32 *)(work + 0x1494) = zeroOffset;
-        *(s32 *)(work + 0x149C) = 0x41A80000;
-        *(f32 *)(work + 0x143C) = 10.0f + *(f32 *)(work + 0x1444);
-        *(s32 *)(work + 0x1464) = 0x41200000;
+        ((RadarTransferWork *)(work))->unk1444.scalar = startPosition;
+        ((RadarTransferWork *)(work))->unk1434.scalar = startPosition;
+        ((RadarTransferWork *)(work))->unk143C.integer = 0x43950000;
+        ((RadarTransferWork *)(work))->unk1494 = zeroOffset;
+        ((RadarTransferWork *)(work))->unk149C = 0x41A80000;
+        ((RadarTransferWork *)(work))->unk143C.scalar = 10.0f + transferWork->unk1444.scalar;
+        ((RadarTransferWork *)(work))->unk1464 = 0x41200000;
     }
-    *(s16 *)(work + 0x24) = 0;
+    ((RadarTransferWork *)(work))->unk24 = 0;
 }
 #pragma pop
 
@@ -213,7 +208,7 @@ void radarResetAndSetIndices(u8 *work, s16 sourceIndex, s16 targetIndex) {
 #pragma opt_propagation on
 // Intent: Reset the state and begin a slide in from the +50 offset, copying the entry at +0x30 [inferred]
 // FUN_001349F0
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Earlier direct-field typing changed codegen; the indexed/stride access below preserves the retail image. */
 void radarBeginSlideIn(u8 *work) {
     ((RadarTransferWork *)work)->unk13D0 = 0;
     ((RadarTransferWork *)work)->unk13E8.byte = 0xff;
@@ -228,7 +223,7 @@ void radarBeginSlideIn(u8 *work) {
     ((RadarTransferWork *)work)->unk13E8.signedByte = 0;
     ((RadarTransferWork *)work)->unk1400 = 0xc2480000;
     ((RadarTransferWork *)work)->unk1418.byte = 0xff;
-    ((RadarTransferWork *)work)->slideUnitId = *(s16 *)(radarOffsetAddress(((RadarTransferWork *)work)->unk30 * 2, work) + 0x38);
+    ((RadarTransferWork *)work)->slideUnitId = ((RadarTransferWork *)(byteAddressAdd(((RadarTransferWork *)work)->unk30 * 2, work)))->unitIds[0];
     ((RadarTransferWork *)work)->unk20 = 0;
 }
 #pragma pop
@@ -239,7 +234,7 @@ void radarBeginSlideIn(u8 *work) {
 #pragma opt_propagation on
 // Intent: Reset the state and begin a slide out to the -50 offset, copying the entry at +0x30 [inferred]
 // FUN_00134A50
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Earlier direct-field typing changed codegen; the indexed/stride access below preserves the retail image. */
 void radarBeginSlideOut(u8 *work) {
     ((RadarTransferWork *)work)->unk13D0 = 0;
     ((RadarTransferWork *)work)->unk13E8.byte = 0xff;
@@ -254,7 +249,7 @@ void radarBeginSlideOut(u8 *work) {
     ((RadarTransferWork *)work)->unk13E8.signedByte = 0;
     ((RadarTransferWork *)work)->unk1400 = 0x42480000;
     ((RadarTransferWork *)work)->unk1418.byte = 0xff;
-    ((RadarTransferWork *)work)->slideUnitId = *(s16 *)(radarOffsetAddress(((RadarTransferWork *)work)->unk30 * 2, work) + 0x38);
+    ((RadarTransferWork *)work)->slideUnitId = ((RadarTransferWork *)(byteAddressAdd(((RadarTransferWork *)work)->unk30 * 2, work)))->unitIds[0];
     ((RadarTransferWork *)work)->unk20 = 0;
 }
 #pragma pop
@@ -298,14 +293,14 @@ void radarReleaseSpritesAndEntries(u8 *work) {
 #pragma opt_propagation on
 // Intent: Return 1 when the value at +0x20 is at least the threshold of every one of the 41 entries and the external check passes [inferred]
 // FUN_00134B60
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Earlier direct-field typing changed codegen; the indexed/stride access below preserves the retail image. */
 s32 radarWideEntriesCoverValue(u8 *work) {
     s32 covered = 1;
     s32 entryIndex = 0;
     s32 value = ((RadarTransferWork *)work)->unk20;
 
     while (entryIndex < 41) {
-        if (value < *(s32 *)(work + entryIndex * 48 + 0xcac)) {
+        if (value < ((MenuSlotAnimation *)(work + entryIndex * 48 + 0xC80))->endFrame.s) {
             covered = 0;
         }
         entryIndex++;
@@ -414,7 +409,7 @@ void radarDrawPaletteSet(u8 *work, s64 position, s64 mode, u8 alpha)
                       36.0f + ((f32 *)&position)[0], 24.0f + drawY,
                       D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], alpha);
         sprite = ((RadarTransferWork *)work)->unk1500;
-        drawY = radarAddCoordinates(9.0f, drawY);
+        drawY = operandOrderAddFloat(9.0f, drawY);
         sdkSpriteDrawAt((void *)sprite,
                       419.0f + ((f32 *)&position)[0], drawY,
                       D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], alpha);
@@ -551,7 +546,7 @@ void radarDrawHeaderFrame(u8 *work, PackedVec2f position, u8 alpha, u16 flags)
     red = D_0064B2E8[0];
     green = D_0064B2E8[1];
     blue = D_0064B2E8[2];
-    topY = radarAddCoordinates(position.xy.y, 26.0f);
+    topY = operandOrderAddFloat(position.xy.y, 26.0f);
     position.xy.y = topY;
     drawFlags = (u16)flags;
     if (drawFlags & 2) {

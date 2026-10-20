@@ -1,8 +1,12 @@
 /* Source unit: src/Script/scrScriptProcess_0029d900.c */
 #include "type.h"
 #include "scr_internal.h"
+#include "scr_data_internal.h"
 #include "sdk_task_registration.h"
 #include "kwln_task_internal.h"
+#include "member_access.h"
+#include "byte_address_internal.h"
+#include "sdk_pad_mask_column.h"
 
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -12,56 +16,14 @@ typedef struct KwlnTask KwlnTask;
 
 void* dds3GetProcessWorkData(KwlnTask* task);
 void dds3SetProcessWorkData(KwlnTask* task, void* workData);
-void scrReleaseScript(ScrData* scr);
+void scrReleaseScript(ScrScriptWork* scr);
 void scrDestroyTask(u8 *sdkTaskBytes);
 extern s32 scrRunTaskStep(u8 *task);
 extern void scrPoolFree(void* pool, void* payload);
 
-typedef enum
-{
-    SCR_CONTENT_TYPE_PROCEDURE,
-    SCR_CONTENT_TYPE_LABEL,
-    SCR_CONTENT_TYPE_INSTR,
-    SCR_CONTENT_TYPE_MSG,
-    SCR_CONTENT_TYPE_STRINGS,
-    SCR_CONTENT_TYPE_MAX
-} ScrContentType;
-
-// 16 bytes
-typedef struct
-{
-    u32 contentType;  // 0x00. See enum 'ScrContentType'
-    u32 unk_04;
-    s32 elementCount; // 0x08
-    u32 offset;       // 0x0c
-} ScrContentEntry;
-
-// 112 bytes
-typedef struct ScrHeader
-{
-    s32 unk_00;                                    // 0x00
-    u32 scrSize;                                   // 0x04
-    char magic[4];                                 // 0x08. "FLW0"
-    u32 unk_0c;
-    u32 totalEntries;                              // 0x10
-    s16 localIntNum;                               // 0x14
-    s16 localFloatNum;                             // 0x16
-    s32 unk_18;                                    // 0x18
-    s32 unk_1c;                                    // 0x1c
-    ScrContentEntry entries[SCR_CONTENT_TYPE_MAX]; // 0x20
-} ScrHeader;
-
-// 32 bytes. Label or procedure (this name is horrible)
-typedef struct
-{
-    char name[24]; // 0x00
-    u32 addr;      // 0x18
-    s32 unk_1c;    // 0x1c
-} ScrLblPrcd;
 
 typedef struct ScrPool ScrPool;
 typedef struct ScrPoolElem ScrPoolElem;
-typedef struct ScrScriptWork ScrScriptWork;
 
 struct ScrPoolElem
 {
@@ -77,30 +39,6 @@ struct ScrPool
     u8* freeList;   // 0x0C
 };
 
-struct ScrScriptWork
-{
-    ScrLblPrcd label; // 0x00
-    u8 stackTypes[0x30]; // 0x20
-    u32 stackValues[0x30]; // 0x50
-    u8* header;       // 0x110
-    u8* entries;      // 0x114
-    u8* procedure;    // 0x118
-    u8* unk_11C;      // 0x11C
-    u8* unk_120;      // 0x120
-    u8* unk_124;      // 0x124
-    u8* unk_128;      // 0x128
-    s32 index;        // 0x12C
-    s32 soundHandle;  // 0x130
-    s32 unk_134;      // 0x134
-    s32 unk_138;      // 0x138
-    u8* textBuf;      // 0x13C
-    u8* msgA;         // 0x140
-    u8* msgB;         // 0x144
-    s32 taskId;       // 0x148
-    ScrScriptWork* prev; // 0x14C
-    ScrScriptWork* next; // 0x150
-    u8* proc;         // 0x154
-};
 
 typedef struct ScrTaskData
 {
@@ -112,8 +50,13 @@ typedef struct ScrTaskData
     s32 unk_210;      // 0x210
     ScrScriptWork* unk_214; // 0x214
     s32 unk_218;      // 0x218
-    f32 unk_21C;      // 0x21C
-    f32 unk_220;      // 0x220
+    union {
+        struct {
+            f32 unk_21C;
+            f32 unk_220;
+        };
+        s64 coordinates __attribute__((aligned(4)));
+    } __attribute__((packed));
     s32 unk_224;      // 0x224
 } ScrTaskData;
 typedef unsigned int ScrE040U128 __attribute__((mode(TI)));
@@ -159,7 +102,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32); // Allocator slot.
 extern void (*jtbl_008873EC[])(void *);
 extern u16 D_008C024E[];
 extern u16 D_008C0252[];
-extern u16 D_008C0256[];
+extern SdkPadMaskColumn D_008C0256[];
 
 void chkmemAllocSiteTag(char* file, s32 line);
 void kAssertFail(char* file, s32 line);
@@ -171,8 +114,8 @@ void poolSetAllocationSite(char* allocationFile, s32 allocationLine);
 u8* poolAlloc(s32 requestedSize);
 void poolFree(void* address);
 u32 kwlnTaskGetWork(void* task);
-s32 func_0029e970(void);
-void func_0029e960(s32);
+s32 scrProcessGetHandleNoop(void);
+void scrProcessInitNoop(s32);
 void func_00440b68(char* fmt, ...);
 void H_Dbprt_FmtLog(char* fmt, ...);
 void itfMesWindowReleaseIfActive(s32 handle);
@@ -192,10 +135,6 @@ s32 sdkFilerPollResult(u8* task, s8* resultPath);
 void strcpy(void*, void*);
 s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
-static inline u8 *scrAddOff(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
 
 
 
@@ -320,7 +259,6 @@ s32 scrGetWorkCount(void)
 
 // Allocates a script work block for a header, its content entries and the procedure at index; the work is bound to those inputs [inferred].
 // FUN_0029D2F0
-/* Raw accesses retain MATCH: replacing these proven offsets with fields changed instruction selection. */
 ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* procedure, u8* labels, u8* instructions, u8* messages, u8* strings, s32 index)
 {
     ScrScriptWork* work;
@@ -330,6 +268,7 @@ ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* pr
     s32 j;
     s8 c;
     s32 handle;
+    ScrLblPrcd* sourceProcedure;
 
     if (header == NULL || entries == NULL || procedure == NULL || instructions == NULL)
     {
@@ -353,16 +292,18 @@ ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* pr
     }
     i = 0;
     src = procedure + (index << 5);
-    while ((work->label.name[i] = *(s8*)((s32)src + i)) != 0)
+    sourceProcedure = (ScrLblPrcd*)src;
+    while ((work->label.name[i] = sourceProcedure->name[i]) != 0)
     {
         i++;
     }
     work->label.addr = ((ScrLblPrcd*)((u32)(index << 5) + (u32)procedure))->addr;
     work->label.unk_1c = 0;
+    /* Measured: field and typed-local array forms reverse addu operands; separate array bases add instructions. */
     for (j = 0; j < 0x30; j++)
     {
-        *(u8*)((s32)work + j + 0x20) = 0;
-        *(u32*)((s32)work + j * 4 + 0x50) = 0;
+        MEMBER(u8, (s32)work + j, ScrScriptWork, stackTypes) = 0;
+        MEMBER(u32, (s32)work + j * 4, ScrScriptWork, stackValues) = 0;
     }
     work->header = (u8*)header;
     work->entries = (u8*)entries;
@@ -516,14 +457,14 @@ s32 scrRunTaskStep(u8 *task)
     return 0;
 }
 
-// FUN_0029D900
 /* Release the script attached to a scheduler task and clear its process-work pointer. */
+// FUN_0029D900
 void scrDestroyTask(u8 *sdkTaskBytes)
 {
     KwlnTask* scrTask = (KwlnTask*)sdkTaskBytes;
-    ScrData* scr;
+    ScrScriptWork* scr;
 
-    scr = (ScrData*)dds3GetProcessWorkData(scrTask);
+    scr = (ScrScriptWork*)dds3GetProcessWorkData(scrTask);
     if (scr != NULL)
     {
         scrReleaseScript(scr);
@@ -538,9 +479,9 @@ void scrInitPools(void)
 {
     D_00764610 = scrPoolCreate(0x160, 3);
     D_00764614 = scrPoolCreate(0x340, 3);
-    if (func_0029e970() == 0)
+    if (scrProcessGetHandleNoop() == 0)
     {
-        func_0029e960(0);
+        scrProcessInitNoop(0);
     }
 }
 
@@ -671,8 +612,8 @@ void scrDebugDumpWorkList(void)
     func_00440b68(D_0063E5C8, D_00764604);
 }
 
-// FUN_0029DE20
 /* Find the procedure content section, then return the matching procedure-name index or -1. */
+// FUN_0029DE20
 s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
 {
     ScrContentEntry* entries;
@@ -783,6 +724,7 @@ typedef union ScrPreviewRectangle {
     f32 transport[4];
 } ScrPreviewRectangle;
 
+/* Construct the float-transport color object used by preview drawing. */
 static inline ScrPreviewColor scrPreviewColorValue(f32 bits)
 {
     ScrPreviewColor value;
@@ -790,18 +732,13 @@ static inline ScrPreviewColor scrPreviewColorValue(f32 bits)
     return value;
 }
 
-static inline ScrPreviewRectangle scrPreviewRectangleValue(const ScrPreviewRectangle *source)
-{
-    ScrPreviewRectangle value = *source;
-    return value;
-}
+
 
 /* Native b210 O2: 1284/1296 bytes, 41 resolved relocations and
  * twelve zero alignment bytes. See
  * docs/probe_archive/Script_selection_0029e040_20260924.md. */
 // Task step that loads the script file named by the task's text, then creates the procedure work once the file is ready [inferred].
 // FUN_0029E040
-/* Raw accesses retain MATCH: replacing these proven offsets with fields changed instruction selection. */
 s32 scrLoadScriptStep(u8 *sdkTask)
 {
     ScrTaskData *task;
@@ -820,7 +757,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
     s8 *selectionText;
     char *prefix;
 
-    task = *(ScrTaskData **)(sdkTask + 0x38);
+    task = (ScrTaskData *)((KwlnTask *)sdkTask)->work;
     if (sdkFilerPollResult(task->unk_04, (s8 *)task->text) == 1) {
         switch (task->state) {
         case 0:
@@ -844,26 +781,27 @@ s32 scrLoadScriptStep(u8 *sdkTask)
             }
             break;
         case 2:
-            if (*(u16 *)&D_008C0256[0] & 0x1000) {
+            /* Linker interior alias of SdkPadRecord.directionPressed; distinct address forms retain retail reloads. */
+            if (D_008C0256[0].mask & 0x1000) {
                 coordinate = task->unk_220;
                 if (coordinate >= 2.0f) {
                     task->unk_220 = coordinate - 1.0f;
                 }
             }
-            if (*(u16 *)((u8 *)D_008C0256 + 0) & 0x4000) {
+            if (((SdkPadMaskColumn *)((u8 *)D_008C0256 + 0))->mask & 0x4000) {
                 coordinate = task->unk_220;
                 if (coordinate < 30.0f) {
                     coordinate += 1.0f;
                     task->unk_220 = coordinate;
                 }
             }
-            if (*(u16 *)((u32)&D_008C0256[0]) & 0x8000) {
+            if (((SdkPadMaskColumn *)((u32)&D_008C0256[0]))->mask & 0x8000) {
                 coordinate = task->unk_21C;
                 if (coordinate >= 2.0f) {
                     task->unk_21C = coordinate - 1.0f;
                 }
             }
-            if (*(u16 *)((s32)&D_008C0256[0]) & 0x2000) {
+            if (((SdkPadMaskColumn *)((s32)&D_008C0256[0]))->mask & 0x2000) {
                 coordinate = task->unk_21C;
                 if (coordinate < 45.0f) {
                     coordinate += 1.0f;
@@ -891,13 +829,13 @@ s32 scrLoadScriptStep(u8 *sdkTask)
 
                 entries = scriptBytes + 0x20;
                 entryIndex = 0;
-                entryCount = *(s32 *)(scriptBytes + 0x10);
+                entryCount = ((ScrHeader *)scriptBytes)->totalEntries;
                 while (entryIndex < entryCount) {
                     u8 *entry;
 
                     entry = entries + entryIndex * 16;
-                    if (*(s32 *)entry == 0) {
-                        procedureBytes = scriptBytes + *(s32 *)(entry + 0xC);
+                    if (((ScrContentEntry *)entry)->contentType == 0) {
+                        procedureBytes = scriptBytes + ((ScrContentEntry *)entry)->offset;
                         break;
                     }
                     entryIndex++;
@@ -906,7 +844,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
                     procedureCount = 0;
                 } else {
                     entryOffset = (u32)(entryIndex * 16);
-                    procedureCount = *(s32 *)(entryOffset + (u32)entries + 8);
+                    procedureCount = ((ScrContentEntry *)(entryOffset + (u32)entries))->elementCount;
                 }
             }
             if (task->unk_218 < 0) {
@@ -915,14 +853,15 @@ s32 scrLoadScriptStep(u8 *sdkTask)
                 task->unk_218 = procedureCount - 1;
             }
             procedureRecord = scrFindContentEntry((u8 *)task->unk_224, task->unk_218);
-            H_Dbprt_FmtAt(*(s64 *)((u8 *)task + 0x21C), &iGpffffa7d8, task->unk_218, procedureRecord);
+            /* Packed record: transport the adjacent floats at 0x21C/0x220 as one unaligned 64-bit argument. */
+            H_Dbprt_FmtAt(task->coordinates, &iGpffffa7d8, task->unk_218, procedureRecord);
             pixelX = 12.0f * task->unk_21C;
             pixelY = 12.0f * task->unk_220;
             color = scrPreviewColorValue(iGpffffa7cc);
             rectangle.packed = D_0063E5E0;
             rectangle.coordinates[0] = (s32)pixelX;
             rectangle.coordinates[1] = (s32)pixelY;
-            drawRectangle = scrPreviewRectangleValue(&rectangle);
+            drawRectangle = (*(&rectangle));
             PrimDrawFlatRectangle((u8 *)&color, drawRectangle.transport, 0.0f, 1);
             break;
         case 3:
@@ -972,7 +911,7 @@ s32 scrStartScriptTask(u8 *sdkTask)
     switch (task->unk_0C) {
     case 0:
         sprintf(task->text, &D_007638D0, D_0063E5F0,
-                      scrAddOff(strlen(D_0063E5F0), (u8 *)task) + 0x10);
+                      byteAddressAdd(strlen(D_0063E5F0), (u8 *)task) + MEMBER_OFFSET(ScrTaskData, text));
         n = strlen(task->text) - 1;
         while (n > 0) {
             if (task->text[n] == 0x2F) {

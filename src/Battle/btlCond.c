@@ -1,21 +1,26 @@
+#include "member_access.h"
+#include "btl_sound_internal.h"
 #include "btl_effect_internal.h"
 /* Source units: src/promoted/code1_001d.c (btlCond_MYHP..btlCond_ENALLHP) and
  * src/Battle/btlEffect.c (btlCond_FRLV_O..btlCond_MYID), merged in retail address order. */
 #include "btl_action_internal.h"
 #include "btl_skill_target_internal.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "include_asm.h"
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
 
+/* Encounter rule rows have a 0x18-byte stride; escape tests flag bit 0. */
+typedef struct BtlEncounterRule {
+    s32 flags;
+    u8 pad04[0x14];
+} BtlEncounterRule;
+
 typedef u8 bool;
 typedef int (*code)();
 
-static inline s32 p4_001da5f0_xor(s32 left, s32 right)
-{
-    return left ^ right;
-}
 
 extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern s32 datCalcGetLevel(u8 *unit);
@@ -160,7 +165,6 @@ done:
 #pragma opt_rebuildconditionals on
 
 
-
 /* Accept when the living allied unit count does not exceed conditionValue. */
 // FUN_001D9AA0
 bool btlCond_FRCNT(int action, u32 conditionValue)
@@ -247,18 +251,18 @@ void btlCond_ENBAD(u8 *action, u32 conditionValue)
 #pragma opt_rebuildconditionals on
 /* measured: opt_rebuildconditionals off forces the retail mode branch. */
 #pragma opt_rebuildconditionals off
-/* Return true only when no living opposing unit fails the supplied status-mask test.
- * Raw offsets retained: Canonical action/unit member access changes MWCC code generation; retain the observed offsets. */
+/* Return true only when no living opposing unit fails the supplied status-mask test. */
 // FUN_001D9CA0
 s32 btlCond_ENBAD_ALL(u8 *action, s32 conditionValue)
 {
+    BtlUnit *candidateUnit;
     u8 *unit;
     s32 mode;
     s32 mask;
     u16 flags;
     u8 *temp;
 
-    if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) != 0)
+    if (((BtlUnit *)(*(u8 * *)&((BtlAction *)(action))->unit))->genus != 0)
         goto nonzero;
     mode = 1;
     goto done;
@@ -267,18 +271,19 @@ nonzero:
 done:
     ;
     mask = (1 << (mode & 0xFFFF)) & 0xFFFF;
-    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    unit = ((BtlBattleState *)(iGpffffb3ac))->actions;
     while (unit != NULL) {
-        flags = *(u16 *)(unit + 0x1A);
+        flags = ((BtlAction *)(unit))->unk_1a;
         if ((flags & 1) != 0 && (flags & 8) != 0) {
-            temp = *(u8 **)(unit + 0x30);
-            if ((mask & (1 << *(u8 *)(temp + 0xA2))) != 0 &&
-                datCalcIsDead(*(u8 **)(temp + 0xA64), 0) == 0 &&
-                datCalcChkBadStatus(*(s32 *)(temp + 0xA64), conditionValue) == 0) {
+            temp = *(u8 * *)&((BtlAction *)(unit))->unit;
+            candidateUnit = (BtlUnit *)(temp);
+            if ((mask & (1 << ((BtlUnit *)(temp))->genus)) != 0 &&
+                datCalcIsDead(*(u8 * *)&((BtlUnit *)(temp))->datUnit, 0) == 0 &&
+                datCalcChkBadStatus(*(s32 *)&candidateUnit->datUnit, conditionValue) == 0) {
                 break;
             }
         }
-        unit = *(u8 **)(unit + 0x450);
+        unit = *(u8 * *)&((BtlAction *)(unit))->next;
     }
     if (unit != NULL)
         goto found;
@@ -351,46 +356,47 @@ done:
 }
 /* measured: restore opt_rebuildconditionals after func_001d9e80. */
 #pragma opt_rebuildconditionals on
-/* Search active other allied actions for the requested buff mask, excluding KO status.
- * Raw offsets retained: Canonical action/unit member access changes MWCC code generation; retain the observed offsets. */
+/* Search active other allied actions for the requested buff mask, excluding KO status. */
 // FUN_001D9F60
 s32 btlCond_FRHOJO(u8 *action, s32 conditionValue)
 {
+    BtlUnit *candidateUnit;
     u16 flags;
     u8 *temp;
     u8 *unit;
 
-    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    unit = ((BtlBattleState *)(iGpffffb3ac))->actions;
     while (unit != NULL) {
         if (action != unit) {
-            flags = *(u16 *)(unit + 0x1A);
+            flags = ((BtlAction *)(unit))->unk_1a;
             if ((flags & 1) != 0 && (flags & 8) != 0) {
-                temp = *(u8 **)(unit + 0x30);
-                if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == *(u8 *)(temp + 0xA2) &&
-                    datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
-                    datCalcHasBuffMask(*(DatUnit **)(temp + 0xA64), conditionValue) != 0) {
+                temp = *(u8 * *)&((BtlAction *)(unit))->unit;
+                candidateUnit = (BtlUnit *)(temp);
+                if (((BtlUnit *)(*(u8 * *)&((BtlAction *)(action))->unit))->genus == ((BtlUnit *)(temp))->genus &&
+                    datCalcChkBadStatus(*(s32 *)&((BtlUnit *)(temp))->datUnit, 0x80000) == 0 &&
+                    datCalcHasBuffMask(candidateUnit->datUnit, conditionValue) != 0) {
                     return 1;
                 }
             }
         }
-        unit = *(u8 **)(unit + 0x450);
+        unit = *(u8 * *)&((BtlAction *)(unit))->next;
     }
     return 0;
 }
 /* measured: opt_rebuildconditionals off forces the retail mode branch. */
 #pragma opt_rebuildconditionals off
-/* Search active opposing actions for the requested buff mask, excluding KO status.
- * Raw offsets retained: Canonical action/unit member access changes MWCC code generation; retain the observed offsets. */
+/* Search active opposing actions for the requested buff mask, excluding KO status. */
 // FUN_001DA040
 s32 btlCond_ENHOJO(u8 *action, s32 conditionValue)
 {
+    BtlUnit *candidateUnit;
     u8 *unit;
     s32 value;
     s32 mode;
     u16 flags;
     u8 *temp;
 
-    if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) != 0)
+    if (((BtlUnit *)(*(u8 * *)&((BtlAction *)(action))->unit))->genus != 0)
         goto nonzero;
     value = 1;
     goto done;
@@ -399,25 +405,25 @@ nonzero:
 done:
     ;
     mode = value & 0xFFFF;
-    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    unit = ((BtlBattleState *)(iGpffffb3ac))->actions;
     while (unit != NULL) {
-        flags = *(u16 *)(unit + 0x1A);
+        flags = ((BtlAction *)(unit))->unk_1a;
         if ((flags & 1) != 0 && (flags & 8) != 0) {
-            temp = *(u8 **)(unit + 0x30);
-            if (*(u8 *)(temp + 0xA2) == mode &&
-                datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
-                datCalcHasBuffMask(*(DatUnit **)(temp + 0xA64), conditionValue) != 0) {
+            temp = *(u8 * *)&((BtlAction *)(unit))->unit;
+            candidateUnit = (BtlUnit *)(temp);
+            if (((BtlUnit *)(temp))->genus == mode &&
+                datCalcChkBadStatus(*(s32 *)&((BtlUnit *)(temp))->datUnit, 0x80000) == 0 &&
+                datCalcHasBuffMask(candidateUnit->datUnit, conditionValue) != 0) {
                 return 1;
             }
         }
-        unit = *(u8 **)(unit + 0x450);
+        unit = *(u8 * *)&((BtlAction *)(unit))->next;
     }
     return 0;
 }
 /* measured: restore opt_rebuildconditionals after func_001da040. */
 #pragma opt_rebuildconditionals on
-/* Reject escape-blocking statuses before consulting the encounter flags for the active group.
- * Raw offsets retained: The encounter-group pointer and 0x18-byte encounter rows have no complete shared layout here; their nested offsets remain explicit. */
+/* Reject escape-blocking statuses before consulting the encounter flags for the active group. */
 // FUN_001DA130
 s32 btlCond_ESCAPE(u8 *action, s32 conditionValue) {
     s32 r;
@@ -425,7 +431,7 @@ s32 btlCond_ESCAPE(u8 *action, s32 conditionValue) {
     if (datCalcChkBadStatus((s32)((BtlAction *)action)->unit->datUnit, 0x180010) != 0) {
         r = 0;
     } else {
-        r = (*(s32 *)(iGpffffb414 + *(u16 *)(*(u8 **)(D_0076449C + 0xC68) + 8) * 0x18) & 1) != 0;
+        r = (((BtlEncounterRule *)iGpffffb414)[((BtlSoundEncounterRecord *)(*(u8 * *)&((BtlBattleState *)(D_0076449C))->encounterRecord))->trackRule].flags & 1) != 0;
     }
     return r;
 }
@@ -463,13 +469,11 @@ s32 btlCond_MYHANSYA(u8 *action, s16 conditionValue) {
 }
 
 
-
 /* Test the requested element affinity for absorption (0x04000000). */
 // FUN_001DA270
 s32 btlCond_MYKYUSYU(u8 *action, s16 conditionValue) {
     return (s32)((datCalcGetAffinity((u8 *)((BtlAction *)action)->unit->datUnit, (s32)conditionValue) & 0x04000000) != 0);
 }
-
 
 
 /* Test the requested element affinity for nullification (0x01000000). */
@@ -479,13 +483,11 @@ s32 btlCond_MYMUKOU(u8 *action, s16 conditionValue) {
 }
 
 
-
 /* Test the requested element affinity for weakness (0x08000000). */
 // FUN_001DA2F0
 s32 btlCond_MYWEAK(u8 *action, s16 conditionValue) {
     return (s32)((datCalcGetAffinity((u8 *)((BtlAction *)action)->unit->datUnit, (s32)conditionValue) & 0x08000000) != 0);
 }
-
 
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
@@ -596,14 +598,13 @@ void btlCond_ENWEAK(u8 *action, u32 conditionValue) {
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
-/* Compare the selected skill element with conditionValue; the XOR expression implements equality.
- * Raw offsets retained: The action command union at +0x7C/+0x7E is not named in the shared BtlAction layout yet. */
+/* Compare the selected skill element with conditionValue; the XOR expression implements equality. */
 // FUN_001DA5F0
 s32 btlCond_MYUSEATTR(u8 *action, s32 conditionValue)
 {
-    return p4_001da5f0_xor((s16)datCalcSkillElement(
+    return operandOrderXor((s16)datCalcSkillElement(
         (u8 *)((BtlAction *)action)->unit->datUnit,
-        *(u16 *)(action + 0x7E)), conditionValue) < 1U;
+        ((BtlAction *)(action))->parameters.skill), conditionValue) < 1U;
 }
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA640
@@ -631,26 +632,24 @@ void btlCond_ENUSEATTR(u8 *action, u32 conditionValue) {
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
-/* Accept the requested skill ID only for command kinds 1 and 2.
- * Raw offsets retained: The action command union at +0x7C/+0x7E is not named in the shared BtlAction layout yet. */
+/* Accept the requested skill ID only for command kinds 1 and 2. */
 // FUN_001DA6F0
 bool btlCond_MYUSESKIL(int action, int conditionValue)
 {
     bool result;
 
-    switch (*(u16*)(action + 0x7c))
+    switch (((BtlAction *)(action))->parameters.commandKind)
     {
     default:
         result = 0;
         break;
     case 1:
     case 2:
-        result = *(u16*)(action + 0x7e) == conditionValue;
+        result = ((BtlAction *)(action))->parameters.skill == conditionValue;
         break;
     }
     return result;
 }
-
 
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
@@ -678,14 +677,13 @@ done:
 }
 /* measured: closes the function-local conditional rebuild setting. */
 #pragma opt_rebuildconditionals on
-/* Accept target classifications 1 and 2 for the action's selected skill.
- * Raw offsets retained: The selected-skill halfword at action+0x7E belongs to the still-unmodeled command union. */
+/* Accept target classifications 1 and 2 for the action's selected skill. */
 // FUN_001DA7E0
 u32 btlCond_MYGROUP(int action)
 {
   u16 result;
 
-  result = btlSkillClassifyTargets((u8 *)action, 0, *(u16 *)(action + 0x7e), 0);
+  result = btlSkillClassifyTargets((u8 *)action, 0, ((BtlAction *)(action))->parameters.skill, 0);
   switch (result) {
   case 1:
   case 2:
@@ -694,7 +692,6 @@ u32 btlCond_MYGROUP(int action)
     return 0;
   }
 }
-
 
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
@@ -730,7 +727,6 @@ bool btlCond_TURN(int action, u32 conditionValue)
 }
 
 
-
 /* Test the action turn counter against an inclusive lower bound. */
 // FUN_001DA910
 bool btlCond_TURN_O(int action, u32 conditionValue)
@@ -738,8 +734,9 @@ bool btlCond_TURN_O(int action, u32 conditionValue)
     return conditionValue <= ((BtlAction *)action)->unk_20;
 }
 /* Twin port from P3 Battle/btlEffect.c func_002c2510; P4 constants and callees recovered from retail asm. */
-/* Scan the unit's nonzero skills below 0x1B8 for one accepted by the recovery-skill predicate.
- * Raw offsets retained: Canonical action/unit member access changes MWCC code generation; retain the observed offsets. */
+/* Scan the unit's nonzero skills below 0x1B8 for one accepted by the recovery-skill predicate. */
+/* measured: site, typed-local, array, explicit member-address and slot-pointer forms
+ * lose MATCH on the final DatUnit reload; MEMBER preserves its byte-cursor alias domain. */
 // FUN_001DA930
 s32 btlCond_MYHREC(u8 *action)
 {
@@ -748,9 +745,9 @@ s32 btlCond_MYHREC(u8 *action)
     u16 *skills;
     u16 index;
 
-    data = *(s32 *)(action + 0x30);
-    count = (u16)datCalcGetTableLength(*(DatUnit **)(data + 0xA64));
-    skills = (u16 *)datCalcSkillList(*(DatUnit **)(data + 0xA64));
+    data = *(s32 *)&((BtlAction *)(action))->unit;
+    count = (u16)datCalcGetTableLength(((BtlUnit *)(data))->datUnit);
+    skills = (u16 *)datCalcSkillList(MEMBER(DatUnit *, data, BtlUnit, datUnit));
     index = 0;
     count = (u16)count;
     while (index < count) {
@@ -866,18 +863,17 @@ void btlCond_ENWEAK_ST(u8 *action, u32 conditionValue) {
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
-/* Compare the acting unit character ID with conditionValue.
- * Raw offsets retained: The remaining integer-based unit chain preserves the command callback's original load domain. */
+/* Compare the acting unit character ID with conditionValue. */
 // FUN_001DACC0
 bool btlCond_MYID(int action, int conditionValue)
 {
-    return *(u16*)((s32)((BtlAction *)action)->unit + 0xa4) == conditionValue;
+    return ((BtlUnit *)((s32)((BtlAction *)action)->unit))->charId == conditionValue;
 }
-/* Sum living allied HP and maximum HP, then compare the totals against the supplied percentage.
- * Raw offsets retained: Canonical action/unit member access changes MWCC code generation; retain the observed offsets. */
+/* Sum living allied HP and maximum HP, then compare the totals against the supplied percentage. */
 // FUN_001DACE0
 s32 btlCond_FRALLHP(u8 *action, s32 conditionValue)
 {
+    BtlUnit *sideUnit;
     extern u16 datCalcGetHp(u8 *unit);
     u8 *currentAction;
     u8 *unitWork;
@@ -888,22 +884,23 @@ s32 btlCond_FRALLHP(u8 *action, s32 conditionValue)
     s32 limit;
 
     limit = conditionValue;
-    sideMask = (1 << (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2))) & 0xFFFF;
+    sideMask = (1 << (((BtlUnit *)(*(u8 * *)&((BtlAction *)(action))->unit))->genus)) & 0xFFFF;
     totalHp = 0;
     totalMaxHp = 0;
-    currentAction = *(u8 **)(iGpffffb3ac + 0x174);
+    currentAction = ((BtlBattleState *)(iGpffffb3ac))->actions;
     goto loop_test;
 loop_body:
-    actionFlags = *(u16 *)(currentAction + 0x1A);
+    actionFlags = ((BtlAction *)(currentAction))->unk_1a;
     if ((actionFlags & 1) != 0 && (actionFlags & 8) != 0) {
-        unitWork = *(u8 **)(currentAction + 0x30);
-        if ((sideMask & (1 << *(u8 *)(unitWork + 0xA2))) != 0 &&
-            datCalcIsDead(*(u8 **)(unitWork + 0xA64), 0) == 0) {
-            totalHp += datCalcGetHp(*(u8 **)(unitWork + 0xA64)) & 0xFFFF;
-            totalMaxHp += datCalcMaxHp(*(u8 **)(unitWork + 0xA64)) & 0xFFFF;
+        unitWork = *(u8 * *)&((BtlAction *)(currentAction))->unit;
+        sideUnit = (BtlUnit *)(unitWork);
+        if ((sideMask & (1 << ((BtlUnit *)(unitWork))->genus)) != 0 &&
+            datCalcIsDead(*(u8 * *)&((BtlUnit *)(unitWork))->datUnit, 0) == 0) {
+            totalHp += datCalcGetHp(*(u8 * *)&sideUnit->datUnit) & 0xFFFF;
+            totalMaxHp += datCalcMaxHp(*(u8 * *)&sideUnit->datUnit) & 0xFFFF;
         }
     }
-    currentAction = *(u8 **)(currentAction + 0x450);
+    currentAction = *(u8 * *)&((BtlAction *)(currentAction))->next;
 loop_test:
     if (currentAction != NULL)
         goto loop_body;
@@ -911,11 +908,11 @@ loop_test:
 }
 /* Opening state measured: opt_rebuildconditionals off is required for this mode branch. */
 #pragma opt_rebuildconditionals off
-/* Sum living opposing HP and maximum HP, then compare the totals against the supplied percentage.
- * Raw offsets retained: Canonical action/unit member access changes MWCC code generation; retain the observed offsets. */
+/* Sum living opposing HP and maximum HP, then compare the totals against the supplied percentage. */
 // FUN_001DAE00
 s32 btlCond_ENALLHP(u8 *action, s32 conditionValue)
 {
+    BtlUnit *sideUnit;
     extern u16 datCalcGetHp(u8 *unit);
     u8 *currentAction;
     u8 *unitWork;
@@ -927,7 +924,7 @@ s32 btlCond_ENALLHP(u8 *action, s32 conditionValue)
 
     limit = conditionValue;
     {
-        if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) != 0)
+        if (((BtlUnit *)(*(u8 * *)&((BtlAction *)(action))->unit))->genus != 0)
             goto nonzero;
         sideMask = 1;
         goto done;
@@ -939,19 +936,20 @@ s32 btlCond_ENALLHP(u8 *action, s32 conditionValue)
     sideMask = (1 << (sideMask & 0xFFFF)) & 0xFFFF;
     totalHp = 0;
     totalMaxHp = 0;
-    currentAction = *(u8 **)(iGpffffb3ac + 0x174);
+    currentAction = ((BtlBattleState *)(iGpffffb3ac))->actions;
     goto loop_test;
 loop_body:
-    actionFlags = *(u16 *)(currentAction + 0x1A);
+    actionFlags = ((BtlAction *)(currentAction))->unk_1a;
     if ((actionFlags & 1) != 0 && (actionFlags & 8) != 0) {
-        unitWork = *(u8 **)(currentAction + 0x30);
-        if ((sideMask & (1 << *(u8 *)(unitWork + 0xA2))) != 0 &&
-            datCalcIsDead(*(u8 **)(unitWork + 0xA64), 0) == 0) {
-            totalHp += datCalcGetHp(*(u8 **)(unitWork + 0xA64)) & 0xFFFF;
-            totalMaxHp += datCalcMaxHp(*(u8 **)(unitWork + 0xA64)) & 0xFFFF;
+        unitWork = *(u8 * *)&((BtlAction *)(currentAction))->unit;
+        sideUnit = (BtlUnit *)(unitWork);
+        if ((sideMask & (1 << ((BtlUnit *)(unitWork))->genus)) != 0 &&
+            datCalcIsDead(*(u8 * *)&((BtlUnit *)(unitWork))->datUnit, 0) == 0) {
+            totalHp += datCalcGetHp(*(u8 * *)&sideUnit->datUnit) & 0xFFFF;
+            totalMaxHp += datCalcMaxHp(*(u8 * *)&sideUnit->datUnit) & 0xFFFF;
         }
     }
-    currentAction = *(u8 **)(currentAction + 0x450);
+    currentAction = *(u8 * *)&((BtlAction *)(currentAction))->next;
 loop_test:
     if (currentAction != NULL)
         goto loop_body;

@@ -51,10 +51,20 @@ extern s32 *MT_Scene_GetFrameState(void);
 extern s32 iGpffffb284;
 extern s32 iGpffffb300;
 extern s32 iGpffffb304;
+/* These linker aliases begin inside FldPartySlot, at active and resource respectively.
+ * Each array advances by the complete 0x750-byte slot stride without rebasing the symbol. */
+typedef struct FldPartyActiveColumn {
+    s32 active;
+    u8 stridePad04[0x74C];
+} FldPartyActiveColumn;
+typedef struct FldPartyResourceColumn {
+    union { s32 address; u16 *id; };
+    u8 stridePad04[0x74C];
+} FldPartyResourceColumn;
+extern FldPartyActiveColumn D_007EF9F8[];
+extern FldPartyResourceColumn D_007EFA04[];
 extern u8 gMtScene[];
 extern u8 *iGpffff9db0;
-extern s32 D_007EF9F8[];
-extern u32 D_007EFA04[];
 extern u8 D_007EF9B0[];
 extern u8 D_005F18C0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -132,12 +142,10 @@ extern s32 iGpffffba48;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 001768e0-00176bc0 */
 
 /* Resolve a party slot to its active field resource and return its resource identifier. */
-/* measured: rebasing the remaining GP-anchored presence/resource loads through FldPartySlot loses MATCH;
- * preserve the interior symbol anchors. */
+/* measured: typed 0x750-stride columns preserve the GP interior aliases without rebasing to the slot start. */
 // FUN_001768E0
 s32 Cmd_GetFieldPartyValue(void)
 {
-    s32 slotOffset;
     s32 slotAddress;
     s32 candidatePresent;
     s32 slotIndex;
@@ -179,13 +187,12 @@ loop_8_found:
     }
 block_12:
     selectedPresent = 0;
-    slotOffset = partyIndex * 0x750;
-    if ((*(s32 *)((u8 *)D_007EF9F8 + slotOffset) != 0) &&
-        (*(s32 *)((u8 *)D_007EFA04 + slotOffset) != 0))
+    if ((D_007EF9F8[partyIndex].active != 0) &&
+        (D_007EFA04[partyIndex].address != 0))
         selectedPresent = 1;
     selectedPresent = (selectedPresent != 0);
     if (selectedPresent == 1)
-        resourceId = **(u16 **)((u8 *)D_007EFA04 + slotOffset);
+        resourceId = *D_007EFA04[partyIndex].id;
     scrSetReturnInt(resourceId & 0xFFFF);
     return 1;
 }

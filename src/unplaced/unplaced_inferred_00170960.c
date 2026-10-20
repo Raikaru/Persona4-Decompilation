@@ -11,6 +11,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "scr_internal.h"
 #include "field_shadow_internal.h"
 #include "rw_atomic_internal.h"
@@ -51,8 +52,8 @@ extern s32 kwlnTaskIsLinked(s32);
 extern void *mdlGetMatrix(void *);
 extern void fclMiscStopAndClose(void);
 extern void fclMiscSetDoneFlag(void);
-// FUN_00170960
 /* Start map-view input handling when the map exists and the map button is pressed. */
+// FUN_00170960
 s32 FldSmapViewTriggerTest(u8 *task)
 {
     u8 *work;
@@ -65,43 +66,45 @@ s32 FldSmapViewTriggerTest(u8 *task)
     return 0;
 }
 
-// FUN_001709C0
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 /* Open the map view, suspend field controls, then restore them when the close input arrives. */
+// FUN_001709C0
+/* Trigger work fields share the existing field-event task layout. */
 s32 FldSmapViewTriggerRun(u8 *task)
 {
+    FldEventWork *eventWork;
     s32 state;
     u8 *work;
     u8 *frame;
 
-    work = *(u8 **)(task + 0x38);
-    state = *(s32 *)(work + 4);
+    work = ((SdkTask *)task)->work;
+    eventWork = (FldEventWork *)work;
+    state = ((FldEventWork *)work)->state;
     switch (state) {
     case 0:
         FldSlotBroadcastState(1);
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         frame = (u8 *)MT_Scene_GetFrameState();
-        FldFrameObjSetActive(*(s32 *)(frame + 0x1C), 1);
+        FldFrameObjSetActive((s32)((FldFrame *)frame)->supporterTask, 1);
         sdkSndStartStream(0, 0, 0, 3);
         frame = (u8 *)MT_Scene_GetFrameState();
-        FldPanel2dSetState(*(s32 *)(frame + 0x30), 1);
+        FldPanel2dSetState((s32)((FldFrame *)frame)->panelTask, 1);
         frame = (u8 *)MT_Scene_GetFrameState();
-        smapRefreshCells(*(u8 **)(frame + 0x18), 1);
-        *(s32 *)(work + 4) += 1;
+        smapRefreshCells(((FldFrame *)frame)->smapObject, 1);
+        eventWork->state += 1;
         break;
     case 1:
         if (D_008C024E[0] & 0x820) {
             FldSlotBroadcastState(0);
             frame = (u8 *)MT_Scene_GetFrameState();
-            FldFrameObjSetActive(*(s32 *)(frame + 0x1C), 0);
+            FldFrameObjSetActive((s32)((FldFrame *)frame)->supporterTask, 0);
             frame = (u8 *)MT_Scene_GetFrameState();
-            FldPanel2dSetState(*(s32 *)(frame + 0x30), 0);
+            FldPanel2dSetState((s32)((FldFrame *)frame)->panelTask, 0);
             frame = (u8 *)MT_Scene_GetFrameState();
-            smapRefreshCells(*(u8 **)(frame + 0x18), 0);
+            smapRefreshCells(((FldFrame *)frame)->smapObject, 0);
             sdkSndStartStream(0, 0, 0, 4);
-            *(s32 *)(work + 0x10) = 0;
-            *(s32 *)(work + 4) += 1;
+            ((FldEventWork *)work)->scriptTask = 0;
+            eventWork->state += 1;
         }
         break;
     case 2:
@@ -112,8 +115,8 @@ s32 FldSmapViewTriggerRun(u8 *task)
     return 1;
 }
 
-// FUN_00170B50
 /* Start the camp menu on its button unless flag 0x37 blocks access. */
+// FUN_00170B50
 s32 FldCampTriggerTest(u8 *task)
 {
     u8 *work;
@@ -129,17 +132,18 @@ s32 FldCampTriggerTest(u8 *task)
     return 0;
 }
 
-// FUN_00170BC0
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 /* Run the camp task and restore field controls, or launch the requested field script on exit. */
+// FUN_00170BC0
 s32 FldCampTriggerRun(u8 *task)
 {
+    FldEventWork *eventWork;
     s32 scriptData;
     s32 state;
     u8 *work;
 
-    work = *(u8 **)(task + 0x38);
-    state = *(s32 *)(work + 4);
+    work = ((SdkTask *)task)->work;
+    eventWork = (FldEventWork *)work;
+    state = ((FldEventWork *)work)->state;
     switch (state) {
     case 0:
         if (((FldFrame *)MT_Scene_GetFrameState())->panelTask != 0)
@@ -147,14 +151,14 @@ s32 FldCampTriggerRun(u8 *task)
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
-        *(s32 *)(work + 0x10) = cmpMainTaskCreate((s32)task, 1);
+        ((FldEventWork *)work)->scriptTask = cmpMainTaskCreate((s32)task, 1);
         if (((FldFrame *)MT_Scene_GetFrameState())->smapObject != 0)
             smapSetPhase((s32)((FldFrame *)MT_Scene_GetFrameState())->smapObject, 1);
         FldSlotBroadcastState(1);
-        *(s32 *)(work + 4) += 1;
+        eventWork->state += 1;
         break;
     case 1:
-        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) != 1) {
+        if (kwlnTaskIsLinked(((FldEventWork *)work)->scriptTask) != 1) {
             if (((FldFrame *)MT_Scene_GetFrameState())->panelTask != 0)
                 FldPanel2dSetState((s32)((FldFrame *)MT_Scene_GetFrameState())->panelTask, 0);
             if (datGetFlag(0x1401) != 0) {
@@ -162,14 +166,14 @@ s32 FldCampTriggerRun(u8 *task)
                 datSetFlag(0x1401, 0);
                 scriptData = FldStepGetScriptData();
                 scrStartProcedureChecked(0xF, scriptData, FldStepGetScriptSize(), 5);
-                *(s32 *)(work + 4) = 3;
+                eventWork->state = 3;
             } else {
                 if (((FldFrame *)MT_Scene_GetFrameState())->smapObject != 0)
                     smapSetPhase((s32)((FldFrame *)MT_Scene_GetFrameState())->smapObject, 0);
                 FldSlotBroadcastState(0);
                 FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
-                *(s32 *)(work + 0x10) = 0;
-                *(s32 *)(work + 4) += 1;
+                eventWork->scriptTask = 0;
+                eventWork->state += 1;
             }
         }
         break;
@@ -183,8 +187,8 @@ s32 FldCampTriggerRun(u8 *task)
     return 1;
 }
 
-// FUN_00170E10
 /* Reset the trigger state when the field-script button is pressed. */
+// FUN_00170E10
 s32 FldFieldScriptTriggerTest(u8 *task)
 {
     u8 *work;
@@ -197,34 +201,35 @@ s32 FldFieldScriptTriggerTest(u8 *task)
     return 0;
 }
 
-// FUN_00170E50
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 /* Run the indexed field procedure while field controls are suspended; finish when its task exits. */
+// FUN_00170E50
 s32 FldFieldScriptTriggerRun(u8 *task)
 {
+    FldEventWork *eventWork;
     s32 state;
     u8 *work;
     u8 *frame;
 
-    work = *(u8 **)(task + 0x38);
-    state = *(s32 *)(work + 4);
+    work = ((SdkTask *)task)->work;
+    eventWork = (FldEventWork *)work;
+    state = ((FldEventWork *)work)->state;
     switch (state) {
     case 0:
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         frame = (u8 *)MT_Scene_GetFrameState();
-        FldFrameObjSetActive(*(s32 *)(frame + 0x1C), 1);
-        *(s32 *)(work + 0x10) = scrStartProcedureIndex(0xF, (u8 *)iGpffffb284, 1);
+        FldFrameObjSetActive((s32)((FldFrame *)frame)->supporterTask, 1);
+        ((FldEventWork *)work)->scriptTask = scrStartProcedureIndex(0xF, (u8 *)iGpffffb284, 1);
         FldSlotBroadcastState(1);
-        *(s32 *)(work + 4) += 1;
+        eventWork->state += 1;
         break;
     case 1:
-        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) == 1)
+        if (kwlnTaskIsLinked(((FldEventWork *)work)->scriptTask) == 1)
             break;
         frame = (u8 *)MT_Scene_GetFrameState();
-        FldFrameObjSetActive(*(s32 *)(frame + 0x1C), 0);
+        FldFrameObjSetActive((s32)((FldFrame *)frame)->supporterTask, 0);
         FldSlotBroadcastState(0);
-        *(s32 *)(work + 4) += 1;
+        eventWork->state += 1;
     case 2:
         return 0;
     default:
@@ -233,8 +238,8 @@ s32 FldFieldScriptTriggerRun(u8 *task)
     return 1;
 }
 
-// FUN_00170F60
 /* Test the model position against each resource quad and a 200-unit vertical band; filter by area kind. */
+// FUN_00170F60
 s32 FldResAreaHitTest(u8 *unit, s32 areaKind)
 {
     FldAreaPosition position;
@@ -308,8 +313,8 @@ loop_21_done:
     return hit;
 }
 
-// FUN_001711B0
 /* Arm the step-area script for resource id 0x3FF when the action button is pressed. */
+// FUN_001711B0
 s32 FldStepAreaTriggerTest(u8 *task)
 {
     s32 ready;
@@ -333,17 +338,18 @@ s32 FldStepAreaTriggerTest(u8 *task)
     return 0;
 }
 
-// FUN_00171280
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 /* Run the step script with mode zero while field controls are suspended. */
+// FUN_00171280
 s32 FldStepAreaTriggerRun(u8 *task)
 {
+    FldEventWork *eventWork;
     s32 scriptData;
     s32 state;
     u8 *work;
 
-    work = *(u8 **)(task + 0x38);
-    state = *(s32 *)(work + 4);
+    work = ((SdkTask *)task)->work;
+    eventWork = (FldEventWork *)work;
+    state = ((FldEventWork *)work)->state;
     switch (state) {
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
@@ -352,16 +358,16 @@ s32 FldStepAreaTriggerRun(u8 *task)
         fclMiscSetDoneFlag();
         FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
         scriptData = FldStepGetScriptData();
-        *(s32 *)(work + 0x10) =
+        ((FldEventWork *)work)->scriptTask =
             scrStartProcedureChecked(0xF, scriptData, FldStepGetScriptSize(), 0);
         FldSlotBroadcastState(1);
-        *(s32 *)(work + 4) += 1;
+        eventWork->state += 1;
         break;
     case 1:
-        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) != 1) {
+        if (kwlnTaskIsLinked(((FldEventWork *)work)->scriptTask) != 1) {
             FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
             FldSlotBroadcastState(0);
-            *(s32 *)(work + 4) += 1;
+            eventWork->state += 1;
         }
         break;
     case 2:
@@ -372,8 +378,8 @@ s32 FldStepAreaTriggerRun(u8 *task)
     return 1;
 }
 
-// FUN_001713E0
 /* Arm the alternate step-area script for resource id 0x3FE on action input. */
+// FUN_001713E0
 s32 FldStepAreaAltTriggerTest(u8 *task)
 {
     s32 ready;
@@ -397,17 +403,18 @@ s32 FldStepAreaAltTriggerTest(u8 *task)
     return 0;
 }
 
-// FUN_001714B0
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 /* Run the alternate step script with mode one and restore field controls after its task exits. */
+// FUN_001714B0
 s32 FldStepAreaAltTriggerRun(u8 *task)
 {
+    FldEventWork *eventWork;
     s32 scriptData;
     s32 state;
     u8 *work;
 
-    work = *(u8 **)(task + 0x38);
-    state = *(s32 *)(work + 4);
+    work = ((SdkTask *)task)->work;
+    eventWork = (FldEventWork *)work;
+    state = ((FldEventWork *)work)->state;
     switch (state) {
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
@@ -416,17 +423,17 @@ s32 FldStepAreaAltTriggerRun(u8 *task)
         fclMiscSetDoneFlag();
         FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
         scriptData = FldStepGetScriptData();
-        *(s32 *)(work + 0x10) =
+        ((FldEventWork *)work)->scriptTask =
             scrStartProcedureChecked(0xF, scriptData, FldStepGetScriptSize(), 1);
         FldSlotBroadcastState(1);
-        *(s32 *)(work + 4) += 1;
+        eventWork->state += 1;
         break;
     case 1:
-        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) != 1) {
+        if (kwlnTaskIsLinked(((FldEventWork *)work)->scriptTask) != 1) {
             FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
             FldSlotBroadcastState(0);
-            *(s32 *)(work + 0x10) = 0;
-            *(s32 *)(work + 4) += 1;
+            eventWork->scriptTask = 0;
+            eventWork->state += 1;
         }
         break;
     case 2:

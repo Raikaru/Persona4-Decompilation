@@ -1,11 +1,15 @@
 #include "btl_equipment_count_internal.h"
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "datCalc_internal.h"
 #include "datCalc_unit_internal.h"
 #include "datScript_internal.h"
 #include "type.h"
 #include "include_asm.h"
 #include "datPersona_internal.h"
-
+#include "dat_enemy_internal.h"
+#include "g_data_entry_internal.h"
+#include "member_access.h"
 /* DatUnit's calculation state, pinned by the buff getters/setters and hit-result
  * writers below. The two packed tables each use eight bytes for indices 0..15;
  * indices 16..23 are represented by bits in buffFlags instead. */
@@ -20,14 +24,37 @@ typedef struct DatCalcUnitState
     u8 pad2E[2];
 } DatCalcUnitState;
 
+/* Character and extended-enemy strides are pinned by their indexed readers. */
+typedef struct DatCharacterTable
+{
+    u8 pad00[0x18];
+    u8 skillValue;
+    u8 pad19[0x131];
+    u8 kind;
+    u8 pad14B;
+} DatCharacterTable;
+
+typedef struct DatEnemyExtendedTable
+{
+    u8 pad00[0x18];
+    u16 flags;
+    u8 skillValue;
+    u8 pad1B[0xCD];
+} DatEnemyExtendedTable;
 
 extern u32 RpRandom(void);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_00635938[];
-
 extern u32 RpRandom(void);
 
 extern void memset(void *, s32, s32);
+
+/* Each percentage bank holds party/enemy rows indexed by signed level plus one. */
+typedef struct DatBuffPercent
+{
+    u8 primary[2][3];
+    u8 secondary[2][3];
+} DatBuffPercent;
 
 
 extern u32 datGetLevelTableFirstValue(s16 unitId);
@@ -37,14 +64,6 @@ extern s32 datScriptTargetIsNotEnemy(void);
 extern f32 datScriptCalcFloat(u32 term, s32 parameter);
 extern f32 D_00761260;
 extern f32 fGpffff811c;
-static inline f32 mul_f32_ordered(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline f32 add_f32_ordered(f32 left, f32 right)
-{
-    return left + right;
-}
 
 extern s32 datItemCount(s16 itemId);
 
@@ -119,7 +138,6 @@ extern u16 datEntryGetSecondaryValue(s16 itemId);
 extern u8 datEntryGetPropertyByte(s16 itemId);
 extern u16 datGetLevelTableSecondValue(s16 unitId);
 
-static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base) { return offset + base; }
 
 
 // Intent: uniform random value in 0..arg0-1 (RpRandom modulo); fatal when arg0 is zero.
@@ -222,7 +240,7 @@ void datCalcSetSp(DatUnit *unit, u16 sp)
    table-address load order, and the slti $at clamp guard. */
 // Intent: maximum HP of unit arg0 from its level and skill/equipment bonuses; capped at 999 unless flag 4.
 // FUN_00231F80
-/* measured: opt_common_subs/opt_propagation plus PTDatCalcOffsetAdd force retail index-first GP addressing; nested guard preserves slti $at branch form. */
+/* measured: opt_common_subs/opt_propagation plus byteAddressAdd force retail index-first GP addressing; nested guard preserves slti $at branch form. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 u16 datCalcMaxHp(DatUnit *unit)
@@ -241,7 +259,7 @@ u16 datCalcMaxHp(DatUnit *unit)
             kAssertFail(D_00635938, 0xBF);
         }
         base = iGpffffb3c4;
-        tableHp = *(u16 *)((u8 *)PTDatCalcOffsetAdd((u32)((baseHp & 0xFFFF) * 0x3C), (u32)base) + 4);
+        tableHp = ((DatEnemyUnitInit *)((u8 *)((u32)byteAddressAdd((u32)((baseHp & 0xFFFF) * 0x3C), (u8 *)((u32)base)))))->hp;
     } else {
         if ((baseHp & 0xFFFF) >= 0xB) {
             kAssertFail(D_00635938, 0xC2);
@@ -310,7 +328,7 @@ u16 datCalcMaxSp(DatUnit *unit)
             kAssertFail(D_00635938, 0xD9);
         }
         base = iGpffffb3c4;
-        tableSp = *(u16 *)((u8 *)PTDatCalcOffsetAdd((u32)((baseSp & 0xFFFF) * 0x3C), (u32)base) + 6);
+        tableSp = ((DatEnemyUnitInit *)((u8 *)((u32)byteAddressAdd((u32)((baseSp & 0xFFFF) * 0x3C), (u8 *)((u32)base)))))->sp;
     } else {
         if ((baseSp & 0xFFFF) >= 0xB) {
             kAssertFail(D_00635938, 0xDC);
@@ -398,9 +416,10 @@ s32 datCalcAddSp(DatUnit* unit, s32 spDelta)
 
 
 /* Shared skill search, including the equipment fallback. */
-static inline s32 PTDatCalcHasSkill(DatUnit *unit, s32 requestedSkill)
+/* Search learned skills and then the accessory-granted skill for a unit. */
+static inline s32 datCalcHasRequestedSkill(DatUnit *unit, s32 requestedSkill)
 {
-    /* Raw signed/unsigned unit loads are retained in this inline helper: struct access changed codegen in its expanded hit/damage callers. */
+    /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
     s32 skill;
     s32 count;
     s32 index;
@@ -414,13 +433,13 @@ static inline s32 PTDatCalcHasSkill(DatUnit *unit, s32 requestedSkill)
     skill = requestedSkill & 0xFFFF;
     limit = count & 0xFFFF;
     while ((index & 0xFFFF) < limit) {
-        if (skill == *(u16 *)(base + ((u16)index * 2))) {
+        if (skill == ((u16 *)base)[(u16)index]) {
             return 1;
         }
         index = (index + 1) & 0xFFFF;
     }
-    if (!(*(u16 *)unit & 4)) {
-        result = (s32)((u32)(u16)datGetEquippedItemByUnit(*(s16 *)((u8 *)unit + 2), 2) & 0xFFFF);
+    if (!(unit->flags & 4)) {
+        result = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)((DatUnit *)((u8 *)unit))->id, 2) & 0xFFFF);
         if (result >= 0) {
             if (skill == datItemGrantedSkill((s16)result)) {
                 return 1;
@@ -467,11 +486,11 @@ u32 datCalcChkBadStatus(DatUnit *unit, u32 badStatus)
     return (unit->bad & badStatus) != 0;
 }
 
-// Intent: whether unit arg0 has skill arg1; wrapper over PTDatCalcHasSkill.
+// Intent: whether unit arg0 has skill arg1; wrapper over datCalcHasRequestedSkill.
 // FUN_00232730
 s32 datCalcHasSkill(DatUnit *unit, s32 skillId)
 {
-    return PTDatCalcHasSkill(unit, skillId);
+    return datCalcHasRequestedSkill(unit, skillId);
 }
 
 // Intent: true when unit arg0 lacks flag 4 and its id has a table entry (datItemCount > 0); [inferred].
@@ -617,7 +636,7 @@ s32 datCalcIsFlaggedPersonaSkill(s32 skillId)
    Tried: inline, base-local (`u8 *base = iGpffffb3c4;`), elem-pointer
    local, chain-first/base-first addition order -- all nd 9. */
 /* measured this pass: the load-sinking half IS the same defect func_0023e3e0
-   solved, and `#pragma opt_propagation off` plus nested PTDatCalcOffsetAdd calls
+   solved, and `#pragma opt_propagation off` plus nested byteAddressAdd calls
    (offset-first for both the *0x3C chain and the arg1 mask) is the recipe that
    worked there. It could not be applied here because the recorded nd-9 body is
    not reconstructable from this note: a fresh reconstruction of the guards and
@@ -632,7 +651,7 @@ s32 datCalcIsFlaggedPersonaSkill(s32 skillId)
 // FUN_00232B40
 u8 datCalcGetUnitStat(DatUnit *unit, s32 statIndex)
 {
-    /* The GP-table stride and accessed offsets are evidenced below; the complete table-row layout is not established, so byte addressing is retained. */
+    /* Preserve index-first GP cursor construction; the fields follow the established table layouts. */
     s32 temp;
     u8 value;
     u32 index;
@@ -648,7 +667,7 @@ u8 datCalcGetUnitStat(DatUnit *unit, s32 statIndex)
         index = (u32)(u16)temp * 0x3C;
         base = (u8 *)(index + (u32)base);
         base = (u8 *)(((u32)statIndex & 0xFFFF) + (u32)base);
-        value = *(u8 *)(base + 8);
+        value = ((DatEnemyUnitInit *)(base))->stats[0];
     } else {
         if ((u16)temp >= 0xB)
             kAssertFail(D_00635938, 0x2FA);
@@ -722,22 +741,22 @@ s32 datCalcGetSkillMask(DatUnit *unit)
 {
     s32 result;
     result = 0;
-    if (PTDatCalcHasSkill(unit, 0x1F9) != 0) {
+    if (datCalcHasRequestedSkill(unit, 0x1F9) != 0) {
         result |= 0x1;
     }
-    if (PTDatCalcHasSkill(unit, 0x1FA) != 0) {
+    if (datCalcHasRequestedSkill(unit, 0x1FA) != 0) {
         result |= 0x2;
     }
-    if (PTDatCalcHasSkill(unit, 0x1FB) != 0) {
+    if (datCalcHasRequestedSkill(unit, 0x1FB) != 0) {
         result |= 0x4;
     }
-    if (PTDatCalcHasSkill(unit, 0x1FC) != 0) {
+    if (datCalcHasRequestedSkill(unit, 0x1FC) != 0) {
         result |= 0x8;
     }
-    if (PTDatCalcHasSkill(unit, 0x1FD) != 0) {
+    if (datCalcHasRequestedSkill(unit, 0x1FD) != 0) {
         result |= 0x10;
     }
-    if (PTDatCalcHasSkill(unit, 0x1FE) != 0) {
+    if (datCalcHasRequestedSkill(unit, 0x1FE) != 0) {
         result |= 0x20;
     }
     return result;
@@ -759,10 +778,10 @@ s8 datCalcGetBuffLevel(DatUnit *unit, s32 buffIndex)
     index = buffIndex;
     offset = index >> 1;
     if (index & 1) {
-        value = *(u8 *)(PTDatCalcOffsetAdd(offset, (u32)unit) + 0x1c) >> 4;
+        value = ((DatCalcUnitState *)((offset + (u32)unit)))->buffLevels[0] >> 4;
     }
     else {
-        value = *(u8 *)(PTDatCalcOffsetAdd(offset, (u32)unit) + 0x1c) & 0xf;
+        value = ((DatCalcUnitState *)((offset + (u32)unit)))->buffLevels[0] & 0xf;
     }
     if (7 < value) {
         value = (s8)(value - 0xf);
@@ -864,9 +883,9 @@ s64 datCalcAddBuffLevel(DatUnit *unit, s32 buffIndex, s64 delta)
         offset = halfIndex;
         odd = byteIndex & 1;
         if (odd) {
-            value = (s8)(*(u8 *)(PTDatCalcOffsetAdd(offset, (u32)unit) + 28) >> 4);
+            value = (s8)(((DatCalcUnitState *)((offset + (u32)unit)))->buffLevels[0] >> 4);
         } else {
-            value = (s8)(*(u8 *)(PTDatCalcOffsetAdd(offset, (u32)unit) + 28) & 15);
+            value = (s8)(((DatCalcUnitState *)((offset + (u32)unit)))->buffLevels[0] & 15);
         }
         value = (s8)value;
         if (value > 7) {
@@ -895,10 +914,10 @@ s64 datCalcAddBuffLevel(DatUnit *unit, s32 buffIndex, s64 delta)
             packed = (s8)(checked + 15);
         }
         if (odd) {
-            ptr = (u8 *)PTDatCalcOffsetAdd(offset, (u32)unit);
+            ptr = (u8 *)(offset + (u32)unit);
             ptr[28] = (ptr[28] & 15) | ((packed & 15) << 4);
         } else {
-            ptr = (u8 *)PTDatCalcOffsetAdd(offset, (u32)unit);
+            ptr = (u8 *)(offset + (u32)unit);
             ptr[28] = (ptr[28] & 240) | (packed & 15);
         }
         if (result == 0) {
@@ -911,10 +930,10 @@ s64 datCalcAddBuffLevel(DatUnit *unit, s32 buffIndex, s64 delta)
         }
         offset = halfIndex;
         if (odd) {
-            ptr = (u8 *)PTDatCalcOffsetAdd(offset, (u32)unit);
+            ptr = (u8 *)(offset + (u32)unit);
             ptr[36] &= 15;
         } else {
-            ptr = (u8 *)PTDatCalcOffsetAdd(offset, (u32)unit);
+            ptr = (u8 *)(offset + (u32)unit);
             ptr[36] &= 240;
         }
     } else {
@@ -1010,10 +1029,10 @@ s8 datCalcGetBuffStatus(DatUnit *unit, s32 buffIndex)
         index = buffIndex;
         offset = index >> 1;
         if (index & 1) {
-            nibble = *(u8 *)(PTDatCalcOffsetAdd(offset, (u32)unit) + 0x1c) >> 4;
+            nibble = ((DatCalcUnitState *)((offset + (u32)unit)))->buffLevels[0] >> 4;
         }
         else {
-            nibble = *(u8 *)(PTDatCalcOffsetAdd(offset, (u32)unit) + 0x1c) & 0xf;
+            nibble = ((DatCalcUnitState *)((offset + (u32)unit)))->buffLevels[0] & 0xf;
         }
         if (7 < nibble) {
             nibble = (s8)(nibble - 0xf);
@@ -1024,12 +1043,12 @@ s8 datCalcGetBuffStatus(DatUnit *unit, s32 buffIndex)
     return result;
 }
 
-// FUN_00233BB0
 /* Clears the word at byte offset 0x18 of the object block. */
+// FUN_00233BB0
 void datCalcClearField18(int object)
 {
-    /* The integer object interface is shared with callers; +0x18 is DatCalcUnitState.consumedFlags, retained as byte addressing to preserve that ABI. */
-    *(u32 *)(object + 0x18) = 0;
+    /* The integer object transport is shared with callers; its consumed-flags word belongs to the calculation state. */
+    ((DatCalcUnitState *)object)->consumedFlags = 0;
 }
 
 // Intent: multiplier for stat index arg1 on unit arg0: indices 0-4 read a buff level, 18-19 read a status bit; scaled by the enemy/party table, lead boost and the 0x40000/0x80000 flags; [inferred].
@@ -1073,8 +1092,7 @@ f32 datCalcBuffMultiplier(u8 *unit, s32 buffIndex, u16 unusedSkill)
     switch (index) {
     case 0:
         table = iGpffffb408;
-        value = *(u8 *)(PTDatCalcOffsetAdd((u32)status,
-            PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table)) + 1U);
+        value = ((DatBuffPercent *)((u32)status + ((u32)byteAddressAdd((enemy & 0xFFFF) * 3, (u8 *)((u32)table)))))->primary[0][1];
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
         active = (((DatCalcUnitState *)unit)->buffFlags & 0x40000U) != 0;
@@ -1087,8 +1105,7 @@ f32 datCalcBuffMultiplier(u8 *unit, s32 buffIndex, u16 unusedSkill)
         break;
     case 1:
         table = iGpffffb408;
-        value = *(u8 *)(PTDatCalcOffsetAdd((u32)status,
-            PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table)) + 1U);
+        value = ((DatBuffPercent *)((u32)status + ((u32)byteAddressAdd((enemy & 0xFFFF) * 3, (u8 *)((u32)table)))))->primary[0][1];
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
         active = (((DatCalcUnitState *)unit)->buffFlags & 0x80000U) != 0;
@@ -1100,8 +1117,9 @@ f32 datCalcBuffMultiplier(u8 *unit, s32 buffIndex, u16 unusedSkill)
         }
         break;
     case 2:
-        table = iGpffffb408;
-        value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + 7U - (u32)status);
+        table = iGpffffb408; /* Interleaved side rows: bank center 7, indexed by minus signed status. */
+        /* measured: typed row arrays and site/local fields change address formation; preserve add-center then subtract-status. */
+        value = *(u8 *)(((u32)byteAddressAdd((enemy & 0xFFFF) * 3, (u8 *)((u32)table))) + MEMBER_OFFSET(DatBuffPercent, secondary[0][1]) - (u32)status);
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
         if (enemyFlag == 0 && datPersonaLeadBoosted(((DatUnit *)unit)->id) != 0) {
@@ -1109,8 +1127,9 @@ f32 datCalcBuffMultiplier(u8 *unit, s32 buffIndex, u16 unusedSkill)
         }
         break;
     case 3:
-        table = iGpffffb408;
-        value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + 1U - (u32)status);
+        table = iGpffffb408; /* Interleaved side rows: bank center 1, indexed by minus signed status. */
+        /* measured: typed row arrays and site/local fields change address formation; preserve add-center then subtract-status. */
+        value = *(u8 *)(((u32)byteAddressAdd((enemy & 0xFFFF) * 3, (u8 *)((u32)table))) + MEMBER_OFFSET(DatBuffPercent, primary[0][1]) - (u32)status);
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
         if (enemyFlag == 0 && datPersonaLeadBoosted(((DatUnit *)unit)->id) != 0) {
@@ -1119,8 +1138,7 @@ f32 datCalcBuffMultiplier(u8 *unit, s32 buffIndex, u16 unusedSkill)
         break;
     case 4:
         table = iGpffffb408;
-        value = *(u8 *)(PTDatCalcOffsetAdd((u32)status,
-            PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table)) + 7U);
+        value = ((DatBuffPercent *)((u32)status + ((u32)byteAddressAdd((enemy & 0xFFFF) * 3, (u8 *)((u32)table)))))->secondary[0][1];
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
         if (enemyFlag == 0 && datPersonaLeadBoosted(((DatUnit *)unit)->id) != 0) {
@@ -1465,12 +1483,13 @@ void datCalcApplyBuffMask(DatUnit *unit, s32 mask, s64 delta)
 // FUN_00235020
 void datCalcClearFlaggedBuffs(u8 *unit)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatCalcUnitState *calcState = (DatCalcUnitState *)unit;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     u32 i;
     s32 i8;
     u32 mask;
 
-    mask = *(s32 *)(unit + 0x18);
+    mask = ((DatCalcUnitState *)unit)->consumedFlags;
     if (mask != 0) {
         for (i = 0; i < 0x18; i++) {
             if (mask & (1 << i)) {
@@ -1482,14 +1501,15 @@ void datCalcClearFlaggedBuffs(u8 *unit)
                     datCalcSetBuffLevel((DatUnit *)unit, i, 0);
                     datCalcSetSecondaryBuffLevel((DatUnit *)unit, i, 0);
                 }
-                *(s32 *)(unit + 0x14) &= ~(1 << i8);
+                ((DatCalcUnitState *)unit)->buffFlags &= ~(1 << i8);
             }
         }
-        *(s32 *)(unit + 0x18) = 0;
+        calcState->consumedFlags = 0;
     }
 }
 
-static inline s8 P4CalcLevel(DatUnit *unit, u8 index)
+/* Read a signed secondary level from the indexed packed nibble. */
+static inline s8 datCalcGetSecondaryLevel(DatUnit *unit, u8 index)
 {
     /* Packed-byte addressing is intentional: getters/setters accept 24 indices, so indices 16..23 overlap the next state field rather than a separate bounded array. */
     u16 offset;
@@ -1499,13 +1519,14 @@ static inline s8 P4CalcLevel(DatUnit *unit, u8 index)
         kAssertFail(D_00635938, 0x42A);
     offset = index >> 1;
     if (index & 1)
-        level = (s8)(*(u8 *)((u8 *)unit + offset + 0x24) >> 4);
+        level = (s8)(((DatCalcUnitState *)((u8 *)unit + offset))->secondaryLevels[0] >> 4);
     else
-        level = (s8)(*(u8 *)((u8 *)unit + offset + 0x24) & 15);
+        level = (s8)(((DatCalcUnitState *)((u8 *)unit + offset))->secondaryLevels[0] & 15);
     return (s8)level;
 }
 
-static inline void P4CalcSetLevel(DatUnit *unit, u8 index, s8 level)
+/* Update the indexed secondary-level nibble while retaining its neighbor. */
+static inline void datCalcSetSecondaryLevel(DatUnit *unit, u8 index, s8 level)
 {
     /* Packed-byte addressing is intentional: getters/setters accept 24 indices, so indices 16..23 overlap the next state field rather than a separate bounded array. */
     u16 offset;
@@ -1517,10 +1538,10 @@ static inline void P4CalcSetLevel(DatUnit *unit, u8 index, s8 level)
     offset = index >> 1;
     if (index & 1) {
         ptr = (u8 *)unit + offset;
-        ptr[0x24] = (ptr[0x24] & 15) | ((level & 15) << 4);
+        ((DatCalcUnitState *)ptr)->secondaryLevels[0] = (((DatCalcUnitState *)ptr)->secondaryLevels[0] & 15) | ((level & 15) << 4);
     } else {
         ptr = (u8 *)unit + offset;
-        ptr[0x24] = (ptr[0x24] & 240) | (level & 15);
+        ((DatCalcUnitState *)ptr)->secondaryLevels[0] = (((DatCalcUnitState *)ptr)->secondaryLevels[0] & 240) | (level & 15);
     }
 }
 
@@ -1544,9 +1565,9 @@ void datCalcAdvanceSecondaryBuffs(DatUnit *unit)
             u8 result = (((DatCalcUnitState *)unit)->buffFlags & (1U << checked)) != 0;
             active = result;
         }
-        level = P4CalcLevel(unit, index);
+        level = datCalcGetSecondaryLevel(unit, index);
         if (active != 0 && level < 15)
-            P4CalcSetLevel(unit, index, level + 1);
+            datCalcSetSecondaryLevel(unit, index, level + 1);
     }
 }
 
@@ -1558,7 +1579,8 @@ void datCalcAdvanceSecondaryBuffs(DatUnit *unit)
 // FUN_00235320
 s64 datCalcFindStrongBuff(u8 *unit)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatUnit *unitRecord = (DatUnit *)unit;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     s32 checked;
     s8 threshold;
     u32 index;
@@ -1566,9 +1588,9 @@ s64 datCalcFindStrongBuff(u8 *unit)
     s8 level;
     threshold = 3;
     if (*(u16 *)unit & 4) {
-        if (*(u16 *)(unit + 2) >= 0x150)
+        if (((DatUnit *)unit)->id >= 0x150)
             kAssertFail(D_00635938, 0x6D8);
-        if (*(u16 *)(iGpffffb3c4 + *(u16 *)(unit + 2) * 0x3C) & 0x1000)
+        if (((DatEnemyUnitInit *)(iGpffffb3c4 + unitRecord->id * 0x3C))->flags & 0x1000)
             threshold *= 2;
     }
     for (index = 0; index < 16; index++) {
@@ -1579,10 +1601,10 @@ s64 datCalcFindStrongBuff(u8 *unit)
             /* Keep the independently narrowed getter argument. */
             active = datCalcGetBuffLevel((DatUnit *)unit, index % 256U);
         else {
-            u8 result = (*(u32 *)(unit + 0x14) & (1 << checked)) != 0;
+            u8 result = (((DatCalcUnitState *)unit)->buffFlags & (1 << checked)) != 0;
             active = result;
         }
-        level = P4CalcLevel((DatUnit *)unit, index);
+        level = datCalcGetSecondaryLevel((DatUnit *)unit, index);
         if (active != 0 && level >= threshold)
             return (s8)index;
     }
@@ -1590,24 +1612,26 @@ s64 datCalcFindStrongBuff(u8 *unit)
 }
 #pragma pop
 /* Equipment queries shared by damage, hit and critical calculations. */
-static inline u16 DCHitEquipmentCount(u8 *unit, s32 property)
+/* Count matching equipment properties for party units; enemy units contribute none. */
+static inline u16 datCalcCountEquipmentProperty(u8 *unit, s32 property)
 {
-    /* Raw signed/unsigned unit loads are retained in this inline helper: struct access changed codegen in its expanded hit/damage callers. */
-    if (*(u16 *)unit & 4) {
+    /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
+    if (((DatUnit *)unit)->flags & 4) {
         return 0;
     }
-    return datCalcCountIdSlotsWithValue(*(u16 *)(unit + 2), property);
+    return datCalcCountIdSlotsWithValue(((DatUnit *)unit)->id, property);
 }
 
-static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
+/* Test the two equipment slots for a party-unit item property. */
+static inline s32 datCalcHasEquipmentProperty(u8 *unit, s32 property)
 {
-    /* Raw signed/unsigned unit loads are retained in this inline helper: struct access changed codegen in its expanded hit/damage callers. */
+    /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
     u16 character;
 
-    if (*(u16 *)unit & 4) {
+    if (((DatUnit *)unit)->flags & 4) {
         return 0;
     }
-    character = *(u16 *)(unit + 2);
+    character = ((DatUnit *)unit)->id;
     if ((s32)character >= 0xB) {
         kAssertFail(D_00635938, 0x23B);
     }
@@ -1622,30 +1646,32 @@ static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
 
 #pragma push
 #pragma opt_loop_invariants on
-static inline u16 DCDamageAccessoryProperty(DatUnit *unit)
+/* Read a party unit accessory property; enemy units have no accessory. */
+static inline u16 datCalcAccessoryProperty(DatUnit *unit)
 {
-    /* Raw signed/unsigned unit loads are retained in this inline helper: struct access changed codegen in its expanded hit/damage callers. */
+    /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
     s16 character;
-    if (*(u16 *)unit & 4) {
+    if (unit->flags & 4) {
         return 0;
     }
-    character = *(s16 *)((u8 *)unit + 2);
+    character = (s16)((DatUnit *)((u8 *)unit))->id;
     if (character >= 11) {
         kAssertFail(D_00635938, 0x291);
     }
     return datItemValue(datGetEquippedItemByUnit(character, 2)) & 0xFFFF;
 }
 
-static inline f32 DCDamageAccessoryFraction(DatUnit *unit)
+/* Convert a checked party accessory percentage into a fractional multiplier. */
+static inline f32 datCalcAccessoryFraction(DatUnit *unit)
 {
-    /* Raw signed/unsigned unit loads are retained in this inline helper: struct access changed codegen in its expanded hit/damage callers. */
+    /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
     extern u16 datItemAccessoryPercent(s16 itemId);
     s16 character;
     s32 percent;
-    if (*(u16 *)unit & 4) {
+    if (unit->flags & 4) {
         return 0.0f;
     }
-    character = *(s16 *)((u8 *)unit + 2);
+    character = (s16)((DatUnit *)((u8 *)unit))->id;
     if (character >= 11) {
         kAssertFail(D_00635938, 0x2A7);
     }
@@ -1656,16 +1682,6 @@ static inline f32 DCDamageAccessoryFraction(DatUnit *unit)
     return (f32)percent / 100.0f;
 }
 
-static inline s32 DCDamageAddBonus(s32 base, s16 bonus)
-{
-    return base + bonus;
-}
-
-static inline u8 DCDamageSkillKind(u16 skill)
-{
-    u8 *table = iGpffffb3b8;
-    return table[(u32)skill * 0x28 + 2];
-}
 
 /* measured: b210 emits all 12176 retail bytes, with all code
  * relocations resolved, and the 17-entry effect table at 00747bc0. The native
@@ -1685,7 +1701,9 @@ u16 hitKind;
 s32 options;
 u8 channel;
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatUnit *sourceRecord = (DatUnit *)source;
+    DatUnit *targetRecord = (DatUnit *)target;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     extern s32 datCalcElementBit(s16 element);
     extern f32 iGpffff8170;
     extern f32 fGpffff82c0;
@@ -1735,19 +1753,19 @@ u8 channel;
     fixed = 1;
     switch ((u32)channel) {
     case 1:
-        record = (u8 *)PTDatCalcOffsetAdd(((u32)skillId % 0x10000U) * 0x28, (u32)iGpffffb3b8);
+        record = (u8 *)((u32)byteAddressAdd(((u32)skillId % 0x10000U) * 0x28, (u8 *)((u32)iGpffffb3b8)));
         power = ((DatSkillEntry *)record)->power;
         effect = ((DatSkillEntry *)record)->effectKind;
         bonus = 0;
-        current = *(u16 *)(target + 8);
+        current = ((DatUnit *)target)->hp;
         maximum = datCalcMaxHp((DatUnit *)target);
         break;
     case 2:
-        record = (u8 *)PTDatCalcOffsetAdd(((u32)skillId % 0x10000U) * 0x28, (u32)iGpffffb3b8);
+        record = (u8 *)((u32)byteAddressAdd(((u32)skillId % 0x10000U) * 0x28, (u8 *)((u32)iGpffffb3b8)));
         power = ((DatSkillEntry *)record)->spPower;
         effect = ((DatSkillEntry *)record)->spEffectKind;
         bonus = 0;
-        current = *(u16 *)(target + 10);
+        current = ((DatUnit *)target)->sp;
         maximum = datCalcMaxSp((DatUnit *)target);
         break;
     default:
@@ -1765,22 +1783,24 @@ u8 channel;
         if (healing == 0) {
             kAssertFail(D_00635938, 0x17);
         }
-        healing = DCDamageAddBonus((s32)(RpRandom() % healing), bonus);
+        healing = operandOrderAdd((s32)(RpRandom() % healing), (s16)bonus);
         break;
     case 9:
-        healing = DCDamageAddBonus((s32)(current * power / 100), bonus);
+        healing = operandOrderAdd((s32)(current * power / 100), (s16)bonus);
         if (healing <= 0) {
             healing = 1;
         }
         break;
     case 11:
-        healing = DCDamageAddBonus((s32)(maximum * power / 100), bonus);
+        healing = operandOrderAdd((s32)(maximum * power / 100), (s16)bonus);
         if (healing <= 0) {
             healing = 1;
         }
         break;
     case 2:
-        switch (DCDamageSkillKind(skillId)) {
+/* Read the damage class. measured: array/site/local fields change 32 bytes in
+ * datCalcSkillAmount; retain the byte-table index with a named member offset. */
+        switch ((iGpffffb3b8[(u32)(u16)skillId * sizeof(DatSkillEntry) + MEMBER_OFFSET(DatSkillEntry, damageClass)])) {
         case 1:
             /* Kind 1 is the PHYSICAL_DAMAGE handler, reused here for healing (dual use, see DatScriptCalcKind). */
             healing = datScriptRunCalc(DAT_SCRIPT_CALC_PHYSICAL_DAMAGE, (u16 *)source, (u16 *)target, skillId, channel);
@@ -1814,13 +1834,13 @@ u8 channel;
         }
         break;
     case 8:
-        damage = DCDamageAddBonus((s32)(current * power / 100), bonus);
+        damage = operandOrderAdd((s32)(current * power / 100), (s16)bonus);
         if (damage <= 0 && power > 0) {
             damage = 1;
         }
         break;
     case 10:
-        damage = DCDamageAddBonus((s32)(maximum * power / 100), bonus);
+        damage = operandOrderAdd((s32)(maximum * power / 100), (s16)bonus);
         if (damage <= 0 && power > 0) {
             damage = 1;
         }
@@ -1828,7 +1848,7 @@ u8 channel;
     case 1:
     case 12:
     case 14:
-        switch (DCDamageSkillKind(skillId)) {
+        switch ((iGpffffb3b8[(u32)(u16)skillId * sizeof(DatSkillEntry) + MEMBER_OFFSET(DatSkillEntry, damageClass)])) {
         case 1:
             damage = datScriptRunCalc(DAT_SCRIPT_CALC_PHYSICAL_DAMAGE, (u16 *)source, (u16 *)target, skillId, channel);
             break;
@@ -1870,7 +1890,7 @@ u8 channel;
         }
         break;
     case 16:
-        damage = DCDamageAddBonus((s32)datScriptRunCalc(DAT_SCRIPT_CALC_PHYSICAL_DAMAGE_SCALED, (u16 *)source, (u16 *)target, skillId, channel), bonus);
+        damage = operandOrderAdd((s32)datScriptRunCalc(DAT_SCRIPT_CALC_PHYSICAL_DAMAGE_SCALED, (u16 *)source, (u16 *)target, skillId, channel), (s16)bonus);
         if (damage <= 0) {
             damage = 1;
         }
@@ -1891,7 +1911,7 @@ u8 channel;
             }
             defense = datCalcBuffMultiplier(target, 3, skillId);
             if (effect != 16) {
-                *(u32 *)(source + 0x18) |= 0x40000;
+                ((DatCalcUnitState *)source)->consumedFlags |= 0x40000;
             }
             break;
         case 2:
@@ -1900,7 +1920,7 @@ u8 channel;
             }
             defense = datCalcBuffMultiplier(target, 3, skillId);
             if (effect != 16) {
-                *(u32 *)(source + 0x18) |= 0x80000;
+                ((DatCalcUnitState *)source)->consumedFlags |= 0x80000;
             }
             break;
         default:
@@ -1911,13 +1931,13 @@ u8 channel;
         switch (element) {
         case 1:
             elemental = 1.0f;
-            if ((DCDamageAccessoryProperty((DatUnit *)source) & 0xFFFF) == 0xBD) {
-                elemental *= 1.0f + DCDamageAccessoryFraction((DatUnit *)source);
+            if ((datCalcAccessoryProperty((DatUnit *)source) & 0xFFFF) == 0xBD) {
+                elemental *= 1.0f + datCalcAccessoryFraction((DatUnit *)source);
             }
-            if (PTDatCalcHasSkill((DatUnit *)source, 0x1E7) || (DCHitEquipmentCount(source, 0x44) & 0xFFFF)) {
+            if (datCalcHasRequestedSkill((DatUnit *)source, 0x1E7) || (datCalcCountEquipmentProperty(source, 0x44) & 0xFFFF)) {
                 elemental *= 1.25f;
             }
-            if (PTDatCalcHasSkill((DatUnit *)source, 0x1E8)) {
+            if (datCalcHasRequestedSkill((DatUnit *)source, 0x1E8)) {
                 elemental *= 1.5f;
             }
             if (elemental > 1.875f) {
@@ -1934,13 +1954,13 @@ u8 channel;
             break;
         case 2:
             elemental = 1.0f;
-            if ((DCDamageAccessoryProperty((DatUnit *)source) & 0xFFFF) == 0xBE) {
-                elemental *= 1.0f + DCDamageAccessoryFraction((DatUnit *)source);
+            if ((datCalcAccessoryProperty((DatUnit *)source) & 0xFFFF) == 0xBE) {
+                elemental *= 1.0f + datCalcAccessoryFraction((DatUnit *)source);
             }
-            if (PTDatCalcHasSkill((DatUnit *)source, 0x1E9) || (DCHitEquipmentCount(source, 0x45) & 0xFFFF)) {
+            if (datCalcHasRequestedSkill((DatUnit *)source, 0x1E9) || (datCalcCountEquipmentProperty(source, 0x45) & 0xFFFF)) {
                 elemental *= 1.25f;
             }
-            if (PTDatCalcHasSkill((DatUnit *)source, 0x1EA)) {
+            if (datCalcHasRequestedSkill((DatUnit *)source, 0x1EA)) {
                 elemental *= 1.5f;
             }
             if (elemental > 1.875f) {
@@ -1957,13 +1977,13 @@ u8 channel;
             break;
         case 3:
             elemental = 1.0f;
-            if ((DCDamageAccessoryProperty((DatUnit *)source) & 0xFFFF) == 0xC0) {
-                elemental *= 1.0f + DCDamageAccessoryFraction((DatUnit *)source);
+            if ((datCalcAccessoryProperty((DatUnit *)source) & 0xFFFF) == 0xC0) {
+                elemental *= 1.0f + datCalcAccessoryFraction((DatUnit *)source);
             }
-            if (PTDatCalcHasSkill((DatUnit *)source, 0x1EB) || (DCHitEquipmentCount(source, 0x46) & 0xFFFF)) {
+            if (datCalcHasRequestedSkill((DatUnit *)source, 0x1EB) || (datCalcCountEquipmentProperty(source, 0x46) & 0xFFFF)) {
                 elemental *= 1.25f;
             }
-            if (PTDatCalcHasSkill((DatUnit *)source, 0x1EC)) {
+            if (datCalcHasRequestedSkill((DatUnit *)source, 0x1EC)) {
                 elemental *= 1.5f;
             }
             if (elemental > 1.875f) {
@@ -1980,13 +2000,13 @@ u8 channel;
             break;
         case 4:
             elemental = 1.0f;
-            if ((DCDamageAccessoryProperty((DatUnit *)source) & 0xFFFF) == 0xBF) {
-                elemental *= 1.0f + DCDamageAccessoryFraction((DatUnit *)source);
+            if ((datCalcAccessoryProperty((DatUnit *)source) & 0xFFFF) == 0xBF) {
+                elemental *= 1.0f + datCalcAccessoryFraction((DatUnit *)source);
             }
-            if (PTDatCalcHasSkill((DatUnit *)source, 0x1ED) || (DCHitEquipmentCount(source, 0x47) & 0xFFFF)) {
+            if (datCalcHasRequestedSkill((DatUnit *)source, 0x1ED) || (datCalcCountEquipmentProperty(source, 0x47) & 0xFFFF)) {
                 elemental *= 1.25f;
             }
-            if (PTDatCalcHasSkill((DatUnit *)source, 0x1EE)) {
+            if (datCalcHasRequestedSkill((DatUnit *)source, 0x1EE)) {
                 elemental *= 1.5f;
             }
             if (elemental > 1.875f) {
@@ -2002,7 +2022,7 @@ u8 channel;
             }
             break;
         }
-        if (PTDatCalcHasSkill((DatUnit *)target, 0x209)) {
+        if (datCalcHasRequestedSkill((DatUnit *)target, 0x209)) {
             passive *= 0.5f;
         }
         if (datGetFlag(0x1011)) {
@@ -2022,14 +2042,14 @@ u8 channel;
         if (datCalcIsGuarding((u16 *)target)) {
             defense *= fGpffff82cc;
         }
-        targetStatus = *(u32 *)(target + 0xC);
+        targetStatus = ((DatUnit *)target)->bad;
         if ((u8)((targetStatus & 0x100000) != 0)) {
             status *= 1.25f;
         }
-        if ((elementMask & 2) && (u8)((*(u32 *)(source + 0xC) & 0x20) != 0)) {
+        if ((elementMask & 2) && (u8)((((DatUnit *)source)->bad & 0x20) != 0)) {
             status *= 0.5f;
         }
-        if ((u8)((*(u32 *)(source + 0xC) & 2) != 0)) {
+        if ((u8)((((DatUnit *)source)->bad & 2) != 0)) {
             status *= 2.0f;
         }
         if ((u8)((targetStatus & 0x40) != 0)) {
@@ -2038,16 +2058,16 @@ u8 channel;
             status *= 2.0f;
         }
         if (*(u16 *)source & 4) {
-            if (*(u16 *)(source + 2) >= 0x150) {
+            if (((DatUnit *)source)->id >= 0x150) {
                 kAssertFail(D_00635938, 0x8C0);
             }
-            if (*(u16 *)(iGpffffb3c4 + *(u16 *)(source + 2) * 0x3C) & 0x20) {
+            if (((DatEnemyUnitInit *)(iGpffffb3c4 + sourceRecord->id * 0x3C))->flags & 0x20) {
                 attack *= 0.75f;
             }
         }
         switch (iGpffffb3b8[offset + 0x24]) {
         case 3:
-            if ((u8)((*(u32 *)(target + 0xC) & 0x100000) != 0)) {
+            if ((u8)((targetRecord->bad & 0x100000) != 0)) {
                 attack *= 2.0f;
             }
             break;
@@ -2055,13 +2075,13 @@ u8 channel;
         if (!(*(u16 *)target & 4)) {
             switch (element) {
             case 0:
-                if (DC411HasEquipmentProperty(target, 0x5F)) {
+                if (datCalcHasEquipmentProperty(target, 0x5F)) {
                     attack *= fGpffff82c0;
                 }
-                if (DC411HasEquipmentProperty(target, 0x60)) {
+                if (datCalcHasEquipmentProperty(target, 0x60)) {
                     attack *= fGpffff811c;
                 }
-                if (DC411HasEquipmentProperty(target, 0x61)) {
+                if (datCalcHasEquipmentProperty(target, 0x61)) {
                     attack *= fGpffff809c;
                 }
                 break;
@@ -2071,71 +2091,71 @@ u8 channel;
             case 2:
             case 3:
             case 4:
-                if (DC411HasEquipmentProperty(target, 0x6E)) {
+                if (datCalcHasEquipmentProperty(target, 0x6E)) {
                     attack *= fGpffff82c0;
                 }
-                if (DC411HasEquipmentProperty(target, 0x6F)) {
+                if (datCalcHasEquipmentProperty(target, 0x6F)) {
                     attack *= fGpffff811c;
                 }
-                if (DC411HasEquipmentProperty(target, 0x70)) {
+                if (datCalcHasEquipmentProperty(target, 0x70)) {
                     attack *= fGpffff809c;
                 }
                 break;
             }
             switch (element) {
             case 1:
-                if ((DCDamageAccessoryProperty((DatUnit *)target) & 0xFFFF) == 0xC1) {
-                    attack *= 1.0f - DCDamageAccessoryFraction((DatUnit *)target);
+                if ((datCalcAccessoryProperty((DatUnit *)target) & 0xFFFF) == 0xC1) {
+                    attack *= 1.0f - datCalcAccessoryFraction((DatUnit *)target);
                 }
-                if (DC411HasEquipmentProperty(target, 0x62)) {
+                if (datCalcHasEquipmentProperty(target, 0x62)) {
                     attack *= fGpffff82c0;
                 }
-                if (DC411HasEquipmentProperty(target, 0x63)) {
+                if (datCalcHasEquipmentProperty(target, 0x63)) {
                     attack *= fGpffff811c;
                 }
-                if (DC411HasEquipmentProperty(target, 0x64)) {
+                if (datCalcHasEquipmentProperty(target, 0x64)) {
                     attack *= fGpffff809c;
                 }
                 break;
             case 2:
-                if ((DCDamageAccessoryProperty((DatUnit *)target) & 0xFFFF) == 0xC2) {
-                    attack *= 1.0f - DCDamageAccessoryFraction((DatUnit *)target);
+                if ((datCalcAccessoryProperty((DatUnit *)target) & 0xFFFF) == 0xC2) {
+                    attack *= 1.0f - datCalcAccessoryFraction((DatUnit *)target);
                 }
-                if (DC411HasEquipmentProperty(target, 0x65)) {
+                if (datCalcHasEquipmentProperty(target, 0x65)) {
                     attack *= fGpffff82c0;
                 }
-                if (DC411HasEquipmentProperty(target, 0x66)) {
+                if (datCalcHasEquipmentProperty(target, 0x66)) {
                     attack *= fGpffff811c;
                 }
-                if (DC411HasEquipmentProperty(target, 0x67)) {
+                if (datCalcHasEquipmentProperty(target, 0x67)) {
                     attack *= fGpffff809c;
                 }
                 break;
             case 3:
-                if ((DCDamageAccessoryProperty((DatUnit *)target) & 0xFFFF) == 0xC4) {
-                    attack *= 1.0f - DCDamageAccessoryFraction((DatUnit *)target);
+                if ((datCalcAccessoryProperty((DatUnit *)target) & 0xFFFF) == 0xC4) {
+                    attack *= 1.0f - datCalcAccessoryFraction((DatUnit *)target);
                 }
-                if (DC411HasEquipmentProperty(target, 0x6B)) {
+                if (datCalcHasEquipmentProperty(target, 0x6B)) {
                     attack *= fGpffff82c0;
                 }
-                if (DC411HasEquipmentProperty(target, 0x6C)) {
+                if (datCalcHasEquipmentProperty(target, 0x6C)) {
                     attack *= fGpffff811c;
                 }
-                if (DC411HasEquipmentProperty(target, 0x6D)) {
+                if (datCalcHasEquipmentProperty(target, 0x6D)) {
                     attack *= fGpffff809c;
                 }
                 break;
             case 4:
-                if ((DCDamageAccessoryProperty((DatUnit *)target) & 0xFFFF) == 0xC3) {
-                    attack *= 1.0f - DCDamageAccessoryFraction((DatUnit *)target);
+                if ((datCalcAccessoryProperty((DatUnit *)target) & 0xFFFF) == 0xC3) {
+                    attack *= 1.0f - datCalcAccessoryFraction((DatUnit *)target);
                 }
-                if (DC411HasEquipmentProperty(target, 0x68)) {
+                if (datCalcHasEquipmentProperty(target, 0x68)) {
                     attack *= fGpffff82c0;
                 }
-                if (DC411HasEquipmentProperty(target, 0x69)) {
+                if (datCalcHasEquipmentProperty(target, 0x69)) {
                     attack *= fGpffff811c;
                 }
-                if (DC411HasEquipmentProperty(target, 0x6A)) {
+                if (datCalcHasEquipmentProperty(target, 0x6A)) {
                     attack *= fGpffff809c;
                 }
                 break;
@@ -2157,7 +2177,7 @@ u8 channel;
         }
     }
     if (fixed == 0 && healing > 0 && !(options & 1)) {
-        if (PTDatCalcHasSkill((DatUnit *)source, 0x20E)) {
+        if (datCalcHasRequestedSkill((DatUnit *)source, 0x20E)) {
             passive *= 1.5f;
         }
         work = (s32)(passive * (status * (defense * ((f32)healing * attack))));
@@ -2335,7 +2355,7 @@ s32 options;
     }
     multiplier = 1.0f;
     success = 0;
-    statuses = *(u32 *)(entry + 0x1C) & 0xFFFFFFU;
+    statuses = ((DatSkillEntry *)(entry))->statusMask & 0xFFFFFFU;
     if (entry[0x18] == 3) {
         count = 0;
         index = 0;
@@ -2352,8 +2372,10 @@ s32 options;
         }
         statuses = 1U << choices[RpRandom() % choiceCount];
     }
+    /* measured: direct mode18 access changes status-load allocation (2516 bytes differ);
+     * the named member offset and existing comma evaluation keep whole-file MATCH. */
     if (statuses != 0 &&
-        ((entry = iGpffffb3b8, mode = *(u8 *)PTDatCalcOffsetAdd((u32)entry + 0x18U, (u32)offset), mode == 1) || mode == 3)) {
+        ((entry = iGpffffb3b8, mode = *(u8 *)((u32)entry + MEMBER_OFFSET(DatSkillEntry, mode18) + (u32)offset), mode == 1) || mode == 3)) {
         switch (entry[offset + 0x24]) {
         case 14: {
             if ((u8)(((u8 *)target)[0xC] != 0)) {
@@ -2427,34 +2449,34 @@ return_zero_1:
             element = (s16)datCalcSkillElement(source, skillId);
             switch (element) {
             case 9:
-                if (PTDatCalcHasSkill(source, 0x217)) multiplier *= 1.25f;
+                if (datCalcHasRequestedSkill(source, 0x217)) multiplier *= 1.25f;
                 break;
             case 8:
-                if (PTDatCalcHasSkill(source, 0x216)) multiplier *= 1.25f;
+                if (datCalcHasRequestedSkill(source, 0x216)) multiplier *= 1.25f;
                 break;
             case 10:
-                if (PTDatCalcHasSkill(source, 0x21A)) multiplier *= 1.25f;
+                if (datCalcHasRequestedSkill(source, 0x21A)) multiplier *= 1.25f;
                 break;
             case 6:
-                if (PTDatCalcHasSkill(source, 0x21F)) multiplier *= 1.25f;
+                if (datCalcHasRequestedSkill(source, 0x21F)) multiplier *= 1.25f;
                 break;
             case 7:
-                if (PTDatCalcHasSkill(source, 0x220)) multiplier *= 1.25f;
+                if (datCalcHasRequestedSkill(source, 0x220)) multiplier *= 1.25f;
                 break;
             case 13:
-                if (PTDatCalcHasSkill(source, 0x218)) multiplier *= 1.25f;
+                if (datCalcHasRequestedSkill(source, 0x218)) multiplier *= 1.25f;
                 break;
             case 15:
-                if (PTDatCalcHasSkill(source, 0x219)) multiplier *= 1.25f;
+                if (datCalcHasRequestedSkill(source, 0x219)) multiplier *= 1.25f;
                 break;
             case 11:
-                if (PTDatCalcHasSkill(source, 0x21B)) multiplier *= 1.25f;
+                if (datCalcHasRequestedSkill(source, 0x21B)) multiplier *= 1.25f;
                 break;
             case 14:
-                if (PTDatCalcHasSkill(source, 0x21D)) multiplier *= 1.25f;
+                if (datCalcHasRequestedSkill(source, 0x21D)) multiplier *= 1.25f;
                 break;
             }
-            if (death == 0 && PTDatCalcHasSkill(source, 0x21E)) {
+            if (death == 0 && datCalcHasRequestedSkill(source, 0x21E)) {
                 multiplier *= 1.25f;
             }
         }
@@ -2632,6 +2654,7 @@ s32 datCalcSureHitResult(s32 skillId, DatUnit *source, DatUnit *target, s32 chan
 // FUN_00239F50
 s32 datCalcApplySkillEffect(s32 skillId, u8 *source, u8 *target, s32 options)
 {
+    DatUnit *targetRecord = (DatUnit *)(target);
     /* Skill-row byte addressing retains the measured offset/load order; DatSkillEntry documents the proven 0x28-byte layout (see datCalc_internal.h). */
     s32 hpDelta;
     u32 statuses;
@@ -2661,7 +2684,7 @@ s32 datCalcApplySkillEffect(s32 skillId, u8 *source, u8 *target, s32 options)
         ((DatUnit *)target)->bad |= statuses & 0xFFF00000;
         ((DatUnit *)target)->bad &= ~result;
         if (options != 0) {
-            options = (u32)*(u16 *)(target + 0xA) + (u32)options;
+            options = (u32)targetRecord->sp + (u32)options;
             if (options < 0) {
                 options = 0;
             }
@@ -2845,7 +2868,8 @@ extern s32 datCalcIsGuarding(u16 *unitFlags);
 // FUN_0023A6B0
 s32 datCalcGetAffinity(u8 *unit, s32 elementIndex)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatUnit *unitRecord = (DatUnit *)unit;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     s32 element;
     s32 found;
     u32 affinity;
@@ -2877,12 +2901,12 @@ s32 datCalcGetAffinity(u8 *unit, s32 elementIndex)
         kAssertFail(D_00635938, 0xCC2);
     }
     if ((*(u16 *)unit & 4) == 0) {
-        affinity = datPersonaGetSkillSlot(*(u16 *)(unit + 2), (u16)elementIndex);
+        affinity = datPersonaGetSkillSlot(((DatUnit *)unit)->id, (u16)elementIndex);
     } else {
-        if (*(u16 *)(unit + 4) >= 0x150) {
+        if (((DatUnit *)unit)->id2 >= 0x150) {
             kAssertFail(D_00635938, 0xCCD);
         }
-        raw = ((u16 *)(iGpffffb3c8 + *(u16 *)(unit + 4) * 0x20))[element];
+        raw = ((u16 *)(iGpffffb3c8 + unitRecord->id2 * 0x20))[element];
         high = (u32)(raw & 0xFF00) << 16;
         low = (raw & 0xFFFF00FF) * 5;
         affinity = high | low;
@@ -2901,19 +2925,19 @@ s32 datCalcGetAffinity(u8 *unit, s32 elementIndex)
     }
     switch (element) {
     case 0:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1B8);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1B8);
         if (found != 0) {
             passiveFlags |= 0x10000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1B9);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1B9);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1BA);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1BA);
         if (found != 0) {
             passiveFlags |= 0x2000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1BB);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1BB);
         if (found != 0) {
             passiveFlags |= 0x4000000;
         }
@@ -2921,19 +2945,19 @@ s32 datCalcGetAffinity(u8 *unit, s32 elementIndex)
     }
     switch (element) {
     case 1:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1BC);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1BC);
         if (found != 0) {
             passiveFlags |= 0x10000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1BD);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1BD);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1BE);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1BE);
         if (found != 0) {
             passiveFlags |= 0x2000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1BF);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1BF);
         if (found != 0) {
             passiveFlags |= 0x4000000;
         }
@@ -2945,19 +2969,19 @@ s32 datCalcGetAffinity(u8 *unit, s32 elementIndex)
         }
         break;
     case 2:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C0);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C0);
         if (found != 0) {
             passiveFlags |= 0x10000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C1);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C1);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C2);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C2);
         if (found != 0) {
             passiveFlags |= 0x2000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C3);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C3);
         if (found != 0) {
             passiveFlags |= 0x4000000;
         }
@@ -2969,19 +2993,19 @@ s32 datCalcGetAffinity(u8 *unit, s32 elementIndex)
         }
         break;
     case 3:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C4);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C4);
         if (found != 0) {
             passiveFlags |= 0x10000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C5);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C5);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C6);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C6);
         if (found != 0) {
             passiveFlags |= 0x2000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C7);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C7);
         if (found != 0) {
             passiveFlags |= 0x4000000;
         }
@@ -2993,19 +3017,19 @@ s32 datCalcGetAffinity(u8 *unit, s32 elementIndex)
         }
         break;
     case 4:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C8);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C8);
         if (found != 0) {
             passiveFlags |= 0x10000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1C9);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1C9);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1CA);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1CA);
         if (found != 0) {
             passiveFlags |= 0x2000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1CB);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1CB);
         if (found != 0) {
             passiveFlags |= 0x4000000;
         }
@@ -3017,165 +3041,165 @@ s32 datCalcGetAffinity(u8 *unit, s32 elementIndex)
         }
         break;
     case 6:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1CC);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1CC);
         if (found != 0) {
             passiveFlags |= 0x10000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1CD);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1CD);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1CE);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1CE);
         if (found != 0) {
             passiveFlags |= 0x2000000;
         }
         break;
     case 7:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1CF);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1CF);
         if (found != 0) {
             passiveFlags |= 0x10000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D0);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D0);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D1);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D1);
         if (found != 0) {
             passiveFlags |= 0x2000000;
         }
         break;
     case 9:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x225);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x225);
         if (found != 0) {
             goto acc_9_b;
         }
-        found = DC411HasEquipmentProperty(unit, 0x4C);
+        found = datCalcHasEquipmentProperty(unit, 0x4C);
         if (found == 0) {
             goto skp_9_b;
         }
 acc_9_b:
         passiveFlags |= 0x10000000;
 skp_9_b:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D7);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D7);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
         break;
     case 8:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x226);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x226);
         if (found != 0) {
             goto acc_8_b;
         }
-        found = DC411HasEquipmentProperty(unit, 0x4B);
+        found = datCalcHasEquipmentProperty(unit, 0x4B);
         if (found == 0) {
             goto skp_8_b;
         }
 acc_8_b:
         passiveFlags |= 0x10000000;
 skp_8_b:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D2);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D2);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
         break;
     case 10:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x227);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x227);
         if (found != 0) {
             goto acc_10_b;
         }
-        found = DC411HasEquipmentProperty(unit, 0x4D);
+        found = datCalcHasEquipmentProperty(unit, 0x4D);
         if (found == 0) {
             goto skp_10_b;
         }
 acc_10_b:
         passiveFlags |= 0x10000000;
 skp_10_b:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D5);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D5);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
         break;
     case 13:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x228);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x228);
         if (found != 0) {
             goto acc_13_b;
         }
-        found = DC411HasEquipmentProperty(unit, 0x50);
+        found = datCalcHasEquipmentProperty(unit, 0x50);
         if (found == 0) {
             goto skp_13_b;
         }
 acc_13_b:
         passiveFlags |= 0x10000000;
 skp_13_b:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D3);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D3);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
         break;
     case 15:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x22C);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x22C);
         if (found != 0) {
             goto acc_15_b;
         }
-        found = DC411HasEquipmentProperty(unit, 0x52);
+        found = datCalcHasEquipmentProperty(unit, 0x52);
         if (found == 0) {
             goto skp_15_b;
         }
 acc_15_b:
         passiveFlags |= 0x10000000;
 skp_15_b:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D4);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D4);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
         break;
     case 11:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x22A);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x22A);
         if (found != 0) {
             goto acc_11_b;
         }
-        found = DC411HasEquipmentProperty(unit, 0x4E);
+        found = datCalcHasEquipmentProperty(unit, 0x4E);
         if (found == 0) {
             goto skp_11_b;
         }
 acc_11_b:
         passiveFlags |= 0x10000000;
 skp_11_b:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D6);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D6);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
         break;
     case 14:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x229);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x229);
         if (found != 0) {
             goto acc_14_b;
         }
-        found = DC411HasEquipmentProperty(unit, 0x51);
+        found = datCalcHasEquipmentProperty(unit, 0x51);
         if (found == 0) {
             goto skp_14_b;
         }
 acc_14_b:
         passiveFlags |= 0x10000000;
 skp_14_b:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D9);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D9);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
         break;
     case 12:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x22B);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x22B);
         if (found != 0) {
             goto acc_12_b;
         }
-        found = DC411HasEquipmentProperty(unit, 0x4F);
+        found = datCalcHasEquipmentProperty(unit, 0x4F);
         if (found == 0) {
             goto skp_12_b;
         }
 acc_12_b:
         passiveFlags |= 0x10000000;
 skp_12_b:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1D8);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1D8);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
@@ -3191,14 +3215,14 @@ skp_12_b:
     case 0xF:
     case 0xB:
     case 0xE:
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1DA);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1DA);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
         break;
     }
     if (element != 5) {
-        found = PTDatCalcHasSkill((DatUnit *)unit, 0x1DB);
+        found = datCalcHasRequestedSkill((DatUnit *)unit, 0x1DB);
         if (found != 0) {
             passiveFlags |= 0x1000000;
         }
@@ -3347,7 +3371,7 @@ u32 datCalcSkillCost(DatUnit *unit, s32 skillId)
     }
     result = 0;
     offset = (u16)skillId * 0x28;
-    switch (*(u8 *)(offset + (u32)iGpffffb3b8 + 3)) {
+    switch (((DatSkillEntry *)(offset + (u32)iGpffffb3b8))->kind03) {
     case 1:
         if (unit->flags & 4) {
             if (unit->id >= 0x150) {
@@ -3358,8 +3382,8 @@ u32 datCalcSkillCost(DatUnit *unit, s32 skillId)
         maximum = datCalcMaxHp(unit);
         field_offset = (u16)skillId * 0x28;
         table = (u8 *)(field_offset + (u32)iGpffffb3b8);
-        product = (s32)((u32)maximum * *(u16 *)(table + 4));
-        result = product / 100 + *(u16 *)(table + 6);
+        product = (s32)((u32)maximum * ((DatSkillEntry *)(table))->costPercent);
+        result = product / 100 + ((DatSkillEntry *)(table))->costFlat;
         count = (u16)datCalcGetTableLength(unit);
         table = datCalcSkillList(unit);
         index = 0;
@@ -3392,21 +3416,21 @@ u32 datCalcSkillCost(DatUnit *unit, s32 skillId)
             if (unit->id >= 0x150) {
                 kAssertFail(D_00635938, 0xED7);
             }
-            if (*(u16 *)(iGpffffb3c4 + unit->id * 0x3C) & 2) {
+            if (((DatEnemyUnitInit *)(iGpffffb3c4 + unit->id * 0x3C))->flags & 2) {
                 return 0;
             }
         }
         table = iGpffffb3b8;
-        if ((*(u8 *)(table + offset) & 0x10) == 0) {
+        if ((((DatSkillEntry *)(table + offset))->flags00 & 0x10) == 0) {
             field_offset = (u16)skillId * 0x28;
             table = (u8 *)(field_offset + (u32)table);
-            result = *(u16 *)(table + 4) + *(u16 *)(table + 6);
+            result = ((DatSkillEntry *)(table))->costPercent + ((DatSkillEntry *)(table))->costFlat;
         } else {
             maximum = datCalcMaxSp(unit);
             field_offset = (u16)skillId * 0x28;
             table = (u8 *)(field_offset + (u32)iGpffffb3b8);
-            product = (s32)((u32)maximum * *(u16 *)(table + 4));
-            result = product / 100 + *(u16 *)(table + 6);
+            product = (s32)((u32)maximum * ((DatSkillEntry *)(table))->costPercent);
+            result = product / 100 + ((DatSkillEntry *)(table))->costFlat;
         }
         if (result == 0) break;
         count = (u16)datCalcGetTableLength(unit);
@@ -3445,8 +3469,8 @@ u32 datCalcSkillCost(DatUnit *unit, s32 skillId)
 u16 datCalcThresholdKind(DatUnit *unusedUnit, s32 skillId)
 {
     /* Skill-row byte addressing retains the measured offset/load order; DatSkillEntry documents the proven 0x28-byte layout (see datCalc_internal.h). */
-    u8 *base = iGpffffb3b8 + 3;
-    return *(u8 *)(base + (skillId & 0xFFFF) * 0x28);
+    DatSkillEntry *base = (DatSkillEntry *)iGpffffb3b8;
+    return base[(skillId & 0xFFFF)].kind03;
 }
 
 
@@ -3493,7 +3517,7 @@ s32 datCalcThresholdTrigger(DatUnit *unit, s32 skillId)
     }
     return trigger;
 }
-
+/* Recognize the six special skill IDs accepted by the special-item picker; all other IDs return zero. */
 // FUN_0023DF20
 u32 datCalcIsSpecialItem(u16 itemId)
 {
@@ -3586,8 +3610,8 @@ s32 datCalcPickSpecialItem(DatUnit *unit)
 
 
 /* Retail callers pass the unit pointer even though the count is constant. */
-// FUN_0023E130
 /* Returns the fixed skill-table length (8) used by every unit's table. */
+// FUN_0023E130
 u32 datCalcGetTableLength(DatUnit *unused)
 {
     return 8;
@@ -3597,35 +3621,36 @@ u32 datCalcGetTableLength(DatUnit *unused)
 // FUN_0023E140
 u8 *datCalcSkillList(DatUnit *unit)
 {
-    /* The GP-table stride and accessed offsets are evidenced below; the complete table-row layout is not established, so byte addressing is retained. */
+    DatUnit *skillUnit = unit;
+    /* Preserve index-first GP cursor construction; the fields follow the established table layouts. */
     u8 *unitBytes = (u8 *)unit;
 
     if (!(*(u16 *)unitBytes & 4)) {
-        if (*(u16 *)(unitBytes + 2) >= 0xB) {
+        if (((DatUnit *)unitBytes)->id >= 0xB) {
             kAssertFail(D_00635938, 0xFA5);
         }
-        return datPersonaGetSkillsByPcId(*(u16 *)(unitBytes + 2));
+        return datPersonaGetSkillsByPcId(skillUnit->id);
     }
-    if (*(u16 *)(unitBytes + 2) >= 0x150) {
+    if (((DatUnit *)unitBytes)->id >= 0x150) {
         kAssertFail(D_00635938, 0xFA8);
     }
-    return iGpffffb3c4 + *(u16 *)(unitBytes + 2) * 0x3C + 0xE;
+    return iGpffffb3c4 + skillUnit->id * 0x3C + 0xE;
 }
 
 /* Party-character table kind byte; support-hit checks reject kinds 3 and 5. */
 // FUN_0023E1F0
 u8 datCalcGetCharacterTableKind(DatUnit *unit)
 {
-    /* The GP-table stride and accessed offsets are evidenced below; the complete table-row layout is not established, so byte addressing is retained. */
-    u8 *base;
+    /* Preserve index-first GP cursor construction; the fields follow the established table layouts. */
+    DatCharacterTable *base;
     if (unit->flags & 4) {
         return 0;
     }
     if (unit->id >= 0xB) {
         kAssertFail(D_00635938, 0xFBB);
     }
-    base = iGpffffb3c0 + 0x14A;
-    return *(u8 *)(base + unit->id * 0x14C);
+    base = (DatCharacterTable *)iGpffffb3c0;
+    return base[unit->id].kind;
 }
 
 
@@ -3648,25 +3673,26 @@ u16 datCalcPrimaryPersonaId(DatUnit *unit)
 // FUN_0023E2F0
 s32 datCalcSkillValueBase(u8 *unit, s32 slotFlags)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatUnit *unitRecord = (DatUnit *)unit;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     u8 *b;
     u16 v;
     s32 idx;
 
     if (*(u16 *)unit & 4) {
-        if (*(u16 *)(unit + 2) >= 0x150) {
+        if (((DatUnit *)unit)->id >= 0x150) {
             kAssertFail(D_00635938, 0xFE2);
         }
-        idx = *(u16 *)(unit + 2) * 0xE8;
+        idx = unitRecord->id * 0xE8;
         b = (u8 *)iGpffffb3cc;
         return b[idx + 0x1A];
     }
-    if (*(u16 *)(unit + 2) >= 0xB) {
+    if (((DatUnit *)unit)->id >= 0xB) {
         kAssertFail(D_00635938, 0xFE6);
     }
     v = (u16)slotFlags;
     if (v & 6) {
-        idx = *(u16 *)(unit + 2) * 0x14C;
+        idx = unitRecord->id * 0x14C;
         b = (u8 *)iGpffffb3c0;
         return b[idx + 0x18];
     }
@@ -3675,7 +3701,7 @@ s32 datCalcSkillValueBase(u8 *unit, s32 slotFlags)
 
 /* MATCHED 2026-08-03 (wave 14): the goto-form shared zero block + array
    spelling for the lbu case + `#pragma opt_propagation off` + the index-first
-   PTDatCalcOffsetAdd helper on the case-0 lhu path together reproduced
+   byteAddressAdd helper on the case-0 lhu path together reproduced
    retail's early iGpffffb3c4 base load. Was a documented load-sinking floor
    (nd 7); now matches byte-for-byte. */
 /* Query one of three weapon properties, substituting enemy-row values for enemies. */
@@ -3694,11 +3720,11 @@ u16 datCalcGetWeaponProperty(u16 *unitWords, s32 propertyKind)
         }
         switch (propertyKind & 0xFF) {
         case 0:
-            return *(u16 *)(PTDatCalcOffsetAdd((field0 & 0xFFFF) * 0x3C, (u32)iGpffffb3c4) + 0x3A);
+            return ((DatEnemyUnitInit *)(((u32)byteAddressAdd((field0 & 0xFFFF) * 0x3C, (u8 *)((u32)iGpffffb3c4)))))->weaponPower;
         case 1:
             return iGpffffb3c4[(field0 & 0xFFFF) * 0x3C + 0x39];
         case 2:
-            return *(u8 *)(iGpffffb3b8 + 0x25);
+            return ((DatSkillEntry *)(iGpffffb3b8))->critRate;
         default:
             kAssertFail(D_00635938, 0x100D);
             goto zero;
@@ -3730,6 +3756,7 @@ zero:
 /* measured: close opt_propagation scope after func_0023e3e0. */
 #pragma opt_propagation on
 /* Query either armor property; enemy units use ten for both selectors. */
+
 // FUN_0023E5B0
 s32 datCalcGetArmorProperty(DatUnit *unit, s32 propertyKindArg)
 {
@@ -3772,30 +3799,35 @@ ret0:
 /* Fixed eight-slot skill search shared by hit and critical checks. */
 #pragma push
 #pragma opt_loop_invariants on
-static inline u8 *DC411SkillTable(u8 *unit)
+/* Select the party persona or enemy initialization skill table. */
+static inline u8 *datCalcFixedSkillTable(u8 *unit)
 {
-    /* Raw signed/unsigned unit loads are retained in this inline helper: struct access changed codegen in its expanded hit/damage callers. */
-    if (!(*(u16 *)unit & 4)) {
-        if (*(u16 *)(unit + 2) >= 0xB) {
+    /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
+    if (!(((DatUnit *)unit)->flags & 4)) {
+        if (((DatUnit *)unit)->id >= 0xB) {
             kAssertFail(D_00635938, 0xFA5);
         }
-        return datPersonaGetSkillsByPcId(*(u16 *)(unit + 2));
+        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+        return datPersonaGetSkillsByPcId(MEMBER(u16, unit, DatUnit, id));
     }
-    if (*(u16 *)(unit + 2) >= 0x150) {
+    /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+    if (MEMBER(u16, unit, DatUnit, id) >= 0x150) {
         kAssertFail(D_00635938, 0xFA8);
     }
-    return iGpffffb3c4 + *(u16 *)(unit + 2) * 0x3C + 0xE;
+    /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+    return (u8 *)((DatEnemyUnitInit *)iGpffffb3c4)[MEMBER(u16, unit, DatUnit, id)].skills;
 }
 
-static inline s32 DC411HasFixedSkill(u8 *unit, s32 requestedSkill)
+/* Search eight fixed skills and then the party accessory-granted skill. */
+static inline s32 datCalcHasFixedSkill(u8 *unit, s32 requestedSkill)
 {
-    /* Raw signed/unsigned unit loads are retained in this inline helper: struct access changed codegen in its expanded hit/damage callers. */
+    /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
     s32 skill;
     s32 index;
     u8 *table;
     s32 equipment;
 
-    table = DC411SkillTable(unit);
+    table = datCalcFixedSkillTable(unit);
     index = 0;
     skill = requestedSkill & 0xFFFF;
     while ((index & 0xFFFF) < 8) {
@@ -3804,8 +3836,8 @@ static inline s32 DC411HasFixedSkill(u8 *unit, s32 requestedSkill)
         }
         index = (index + 1) & 0xFFFF;
     }
-    if (!(*(u16 *)unit & 4)) {
-        equipment = (u32)(u16)datGetEquippedItemByUnit(*(s16 *)(unit + 2), 2);
+    if (!(((DatUnit *)unit)->flags & 4)) {
+        equipment = (u32)(u16)datGetEquippedItemByUnit((s16)((DatUnit *)(unit))->id, 2);
         if (equipment >= 0) {
             if (skill == datItemGrantedSkill((s16)equipment)) {
                 return 1;
@@ -3829,7 +3861,8 @@ u8 *target;
 u16 skillId;
 s32 options;
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatUnit *targetRecord = (DatUnit *)target;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     extern f32 iGpffff8170;
     extern f32 fGpffff80cc;
     s32 result;
@@ -3858,15 +3891,15 @@ s32 options;
     }
     targetFlags = *(u16 *)target;
     if (((*(u16 *)source & 4) != (targetFlags & 4)) &&
-        (s8)(active = (*(u32 *)(source + 0x14) & 0x100000) != 0) > 0) {
-        *(s16 *)(target + 0x2C) = 0xB2;
+        (s8)(active = (((DatCalcUnitState *)source)->buffFlags & 0x100000) != 0) > 0) {
+        ((DatCalcUnitState *)target)->message = 0xB2;
         return 4;
     }
     skill = (u32)skillId % 0x10000U;
     offset = skill * 0x28;
     switch (iGpffffb3b8[offset + 0x24]) {
     case 1:
-        if ((u8)((*(u32 *)(target + 0xC) & 4) != 0)) {
+        if ((u8)((((DatUnit *)target)->bad & 4) != 0)) {
             result = 1;
             goto finish;
         } else {
@@ -3887,7 +3920,7 @@ s32 options;
         }
         return (datCalcGetElementAffinity(target, 7) & 0x08000000) ? 1 : 4;
     case 14:
-        if ((u8)(*(u8 *)(target + 0xC) != 0)) {
+        if ((u8)(((u8 *)&((DatUnit *)target)->bad)[0] != 0)) {
             result = 1;
             goto finish;
         } else {
@@ -3897,15 +3930,14 @@ s32 options;
     if (source != NULL && checkedSkill < 0x1B8 &&
         (iGpffffb3b8[offset] & 2)) {
         if (*(u16 *)source & 4) {
-            enemyElement = *(u8 *)(PTDatCalcOffsetAdd(
-                *(u16 *)(source + 2) * 0x3C, (u32)iGpffffb3c4) + 0x38);
+            enemyElement = ((DatEnemyUnitInit *)((u32)byteAddressAdd(((DatUnit *)source)->id * 0x3C, (u8 *)((u32)iGpffffb3c4))))->weaponElement;
             rawElement = (s16)enemyElement;
         } else {
             rawElement = (s16)datItemElement(
-                (s16)(u16)datGetEquippedItemByUnit(*(s16 *)(source + 2), 0));
+                (s16)(u16)datGetEquippedItemByUnit((s16)((DatUnit *)(source))->id, 0));
         }
     } else {
-        rawElement = *(s8 *)(iGpffffb3b4 + skill * 2);
+        rawElement = ((s8 *)iGpffffb3b4)[(skill * 2)];
     }
     element = (s16)rawElement;
     if (element >= 0x13) {
@@ -3914,24 +3946,24 @@ s32 options;
     elementMask = 1 << (element + 1);
     if (!(elementMask & 0xE0001)) {
         if (elementMask & 2) {
-            if ((s8)(active = (*(u32 *)(target + 0x14) & 0x10000) != 0) > 0) {
-                *(u32 *)(target + 0x18) |= 0x10000;
+            if ((s8)(active = (((DatCalcUnitState *)target)->buffFlags & 0x10000) != 0) > 0) {
+                ((DatCalcUnitState *)target)->consumedFlags |= 0x10000;
                 return 0x200;
             }
             if (!(options & 2) && !(iGpffffb3b8[offset] & 0x40)) {
                 counterRate = 0;
-                if (DC411HasFixedSkill(target, 0x1F8) ||
-                    (DCHitEquipmentCount(target, 0x4A) & 0xFFFF)) {
+                if (datCalcHasFixedSkill(target, 0x1F8) ||
+                    (datCalcCountEquipmentProperty(target, 0x4A) & 0xFFFF)) {
                     counterRate = 20;
                     evadeCause = 0x11F8;
                 } else {
-                    if (DC411HasFixedSkill(target, 0x1F7) ||
-                        (DCHitEquipmentCount(target, 0x49) & 0xFFFF)) {
+                    if (datCalcHasFixedSkill(target, 0x1F7) ||
+                        (datCalcCountEquipmentProperty(target, 0x49) & 0xFFFF)) {
                         counterRate = 15;
                         evadeCause = 0x11F7;
                     } else {
-                        if (DC411HasFixedSkill(target, 0x1F6) ||
-                            (DCHitEquipmentCount(target, 0x48) & 0xFFFF)) {
+                        if (datCalcHasFixedSkill(target, 0x1F6) ||
+                            (datCalcCountEquipmentProperty(target, 0x48) & 0xFFFF)) {
                             counterRate = 10;
                             evadeCause = 0x11F6;
                         }
@@ -3940,13 +3972,13 @@ s32 options;
                 counterRate = (s16)counterRate;
                 if (counterRate != 0 &&
                     (s32)(RpRandom() % 100U) < counterRate) {
-                    *(s16 *)(target + 0x2C) = evadeCause;
+                    ((DatCalcUnitState *)target)->message = evadeCause;
                     return 0x200;
                 }
             }
         } else if (!(elementMask & 0x40) &&
-            (s8)(active = (*(u32 *)(target + 0x14) & 0x20000) != 0) > 0) {
-            *(u32 *)(target + 0x18) |= 0x20000;
+            (s8)(active = (((DatCalcUnitState *)target)->buffFlags & 0x20000) != 0) > 0) {
+            ((DatCalcUnitState *)target)->consumedFlags |= 0x20000;
             return 0x200;
         }
         resistance = datCalcGetElementAffinity(target, rawElement);
@@ -3963,7 +3995,7 @@ s32 options;
     if (iGpffffb3b8[offset + 0xE] == 0) {
         return 4;
     }
-    if ((u8)((*(u32 *)(target + 0xC) & 0x100000) != 0)) {
+    if ((u8)((((DatUnit *)target)->bad & 0x100000) != 0)) {
         return 1;
     }
     if (datCalcIsGuarding((u16 *)target) != 0) {
@@ -3975,7 +4007,7 @@ s32 options;
     if (*(u16 *)target & 0x40) {
         return 1;
     }
-    switch (*(u32 *)(target + 0xC) & 0xFFFFF) {
+    switch (targetRecord->bad & 0xFFFFF) {
     case 1:
         return 1;
     }
@@ -3988,61 +4020,61 @@ s32 options;
     if (!(options & 2)) {
         switch (element) {
         case 0:
-            if (DC411HasFixedSkill(target, 0x1DD)) {
+            if (datCalcHasFixedSkill(target, 0x1DD)) {
                 evadeMultiplier *= iGpffff8170;
                 evadeCause = 0x11DD;
-            } else if (DC411HasFixedSkill(target, 0x1DC)) {
+            } else if (datCalcHasFixedSkill(target, 0x1DC)) {
                 evadeMultiplier *= fGpffff80cc;
                 evadeCause = 0x11DC;
             }
             break;
         case 1:
-            if (DC411HasFixedSkill(target, 0x1DF)) {
+            if (datCalcHasFixedSkill(target, 0x1DF)) {
                 evadeMultiplier *= iGpffff8170;
                 evadeCause = 0x11DF;
-            } else if (DC411HasFixedSkill(target, 0x1DE)) {
+            } else if (datCalcHasFixedSkill(target, 0x1DE)) {
                 evadeMultiplier *= fGpffff80cc;
                 evadeCause = 0x11DE;
             }
             break;
         case 2:
-            if (DC411HasFixedSkill(target, 0x1E1)) {
+            if (datCalcHasFixedSkill(target, 0x1E1)) {
                 evadeMultiplier *= iGpffff8170;
                 evadeCause = 0x11E1;
-            } else if (DC411HasFixedSkill(target, 0x1E0)) {
+            } else if (datCalcHasFixedSkill(target, 0x1E0)) {
                 evadeMultiplier *= fGpffff80cc;
                 evadeCause = 0x11E0;
             }
             break;
         case 4:
-            if (DC411HasFixedSkill(target, 0x1E3)) {
+            if (datCalcHasFixedSkill(target, 0x1E3)) {
                 evadeMultiplier *= iGpffff8170;
                 evadeCause = 0x11E3;
-            } else if (DC411HasFixedSkill(target, 0x1E2)) {
+            } else if (datCalcHasFixedSkill(target, 0x1E2)) {
                 evadeMultiplier *= fGpffff80cc;
                 evadeCause = 0x11E2;
             }
             break;
         case 3:
-            if (DC411HasFixedSkill(target, 0x1E5)) {
+            if (datCalcHasFixedSkill(target, 0x1E5)) {
                 evadeMultiplier *= iGpffff8170;
                 evadeCause = 0x11E5;
-            } else if (DC411HasFixedSkill(target, 0x1E4)) {
+            } else if (datCalcHasFixedSkill(target, 0x1E4)) {
                 evadeMultiplier *= fGpffff80cc;
                 evadeCause = 0x11E4;
             }
             break;
         }
         if (evadeMultiplier == 1.0f && (elementMask & 0x3C)) {
-            if (DC411HasFixedSkill(target, 0x1E6)) {
+            if (datCalcHasFixedSkill(target, 0x1E6)) {
                 evadeMultiplier *= fGpffff80cc;
                 evadeCause = 0x11E6;
             }
         }
-        if (DC411HasFixedSkill(target, 0x209)) {
+        if (datCalcHasFixedSkill(target, 0x209)) {
             return 1;
         }
-        if (DC411HasFixedSkill(target, 0x208)) {
+        if (datCalcHasFixedSkill(target, 0x208)) {
             evadeMultiplier *= 0.5f;
         }
     }
@@ -4050,72 +4082,72 @@ s32 options;
     if (!(*(u16 *)target & 4)) {
         switch (element) {
         case 0:
-            if (DC411HasEquipmentProperty(target, 0x74)) {
+            if (datCalcHasEquipmentProperty(target, 0x74)) {
                 equipmentBonus += 10;
             }
-            if (DC411HasEquipmentProperty(target, 0x75)) {
+            if (datCalcHasEquipmentProperty(target, 0x75)) {
                 equipmentBonus += 15;
             }
-            if (DC411HasEquipmentProperty(target, 0x76)) {
+            if (datCalcHasEquipmentProperty(target, 0x76)) {
                 equipmentBonus += 20;
             }
             break;
         }
         switch (element) {
         case 1: case 2: case 3: case 4:
-            if (DC411HasEquipmentProperty(target, 0x83)) {
+            if (datCalcHasEquipmentProperty(target, 0x83)) {
                 equipmentBonus += 10;
             }
-            if (DC411HasEquipmentProperty(target, 0x84)) {
+            if (datCalcHasEquipmentProperty(target, 0x84)) {
                 equipmentBonus += 15;
             }
-            if (DC411HasEquipmentProperty(target, 0x85)) {
+            if (datCalcHasEquipmentProperty(target, 0x85)) {
                 equipmentBonus += 20;
             }
             break;
         }
         switch (element) {
         case 1:
-            if (DC411HasEquipmentProperty(target, 0x77)) {
+            if (datCalcHasEquipmentProperty(target, 0x77)) {
                 equipmentBonus += 10;
             }
-            if (DC411HasEquipmentProperty(target, 0x78)) {
+            if (datCalcHasEquipmentProperty(target, 0x78)) {
                 equipmentBonus += 15;
             }
-            if (DC411HasEquipmentProperty(target, 0x79)) {
+            if (datCalcHasEquipmentProperty(target, 0x79)) {
                 equipmentBonus += 20;
             }
             break;
         case 2:
-            if (DC411HasEquipmentProperty(target, 0x7A)) {
+            if (datCalcHasEquipmentProperty(target, 0x7A)) {
                 equipmentBonus += 10;
             }
-            if (DC411HasEquipmentProperty(target, 0x7B)) {
+            if (datCalcHasEquipmentProperty(target, 0x7B)) {
                 equipmentBonus += 15;
             }
-            if (DC411HasEquipmentProperty(target, 0x7C)) {
+            if (datCalcHasEquipmentProperty(target, 0x7C)) {
                 equipmentBonus += 20;
             }
             break;
         case 3:
-            if (DC411HasEquipmentProperty(target, 0x80)) {
+            if (datCalcHasEquipmentProperty(target, 0x80)) {
                 equipmentBonus += 10;
             }
-            if (DC411HasEquipmentProperty(target, 0x81)) {
+            if (datCalcHasEquipmentProperty(target, 0x81)) {
                 equipmentBonus += 15;
             }
-            if (DC411HasEquipmentProperty(target, 0x82)) {
+            if (datCalcHasEquipmentProperty(target, 0x82)) {
                 equipmentBonus += 20;
             }
             break;
         case 4:
-            if (DC411HasEquipmentProperty(target, 0x7D)) {
+            if (datCalcHasEquipmentProperty(target, 0x7D)) {
                 equipmentBonus += 10;
             }
-            if (DC411HasEquipmentProperty(target, 0x7E)) {
+            if (datCalcHasEquipmentProperty(target, 0x7E)) {
                 equipmentBonus += 15;
             }
-            if (DC411HasEquipmentProperty(target, 0x7F)) {
+            if (datCalcHasEquipmentProperty(target, 0x7F)) {
                 equipmentBonus += 20;
             }
             break;
@@ -4129,7 +4161,7 @@ s32 options;
         baseRate = 50;
     }
     if ((s32)(RpRandom() % 100U) >= baseRate) {
-        *(s16 *)(target + 0x2C) = evadeCause;
+        ((DatCalcUnitState *)target)->message = evadeCause;
         return 4;
     }
     return 1;
@@ -4204,7 +4236,7 @@ s32 unusedMode;
         }
     } else {
         idx = (u32)skillId % 0x10000U;
-        lvl = *(s8 *)(iGpffffb3b4 + idx * 2);
+        lvl = ((s8 *)iGpffffb3b4)[(idx * 2)];
     }
     bits = (s16)lvl;
     if (bits >= 0x13) {
@@ -4251,10 +4283,10 @@ s32 unusedMode;
         if (base == 0) {
             base = datScriptRunCalc(DAT_SCRIPT_CALC_SCALED_RATIO, (u16 *)(source), (u16 *)(target), skillId, 0);
         }
-        if (DC411HasFixedSkill(target, 0x206)) {
+        if (datCalcHasFixedSkill(target, 0x206)) {
             f20 = f20 * 0.5f;
         }
-        if (DC411HasFixedSkill(source, 0x207)) {
+        if (datCalcHasFixedSkill(source, 0x207)) {
             f20 = f20 * 2.0f;
         }
         scaled = (s32)((f32)base * f20);
@@ -4263,13 +4295,13 @@ s32 unusedMode;
             kAssertFail(D_00635938, 0xF5E);
         }
         if ((u8)((((DatSkillEntry *)(iGpffffb3b8 + idx))->flags00 & 2) != 0)) {
-            if (DC411HasEquipmentProperty(source, 0x3C)) {
+            if (datCalcHasEquipmentProperty(source, 0x3C)) {
                 bonus += 5;
             }
-            if (DC411HasEquipmentProperty(source, 0x3D)) {
+            if (datCalcHasEquipmentProperty(source, 0x3D)) {
                 bonus += 10;
             }
-            if (DC411HasEquipmentProperty(source, 0x3E)) {
+            if (datCalcHasEquipmentProperty(source, 0x3E)) {
                 bonus += 15;
             }
         }
@@ -4362,10 +4394,10 @@ s32 unusedMode;
     offset = (u32)(u16)skillId * 0x28;
     base = iGpffffb3b8;
     entry = (u8 *)(offset + (u32)base);
-    if (entry[0x11] == 0 && (entry[0x18] != 1 || ((*(u32 *)(entry + 0x1C) & 0x80000) == 0))) {
+    if (entry[0x11] == 0 && (entry[0x18] != 1 || ((((DatSkillEntry *)(entry))->statusMask & 0x80000) == 0))) {
         return 0;
     }
-    if (source != 0 && idx < 0x1B8 && ((*(u8 *)(base + offset) & 2))) {
+    if (source != 0 && idx < 0x1B8 && ((((DatSkillEntry *)(base + offset))->flags00 & 2))) {
         if ((((DatUnit *)source)->flags & 4)) {
             s32 partyOffset;
             u8 *partyPtr;
@@ -4377,7 +4409,7 @@ s32 unusedMode;
             value = (s16)datItemElement((s16)((u16)datGetEquippedItemByUnit((s16)((DatUnit *)source)->id, 0) & 0xFFFF));
         }
     } else {
-        value = *(s8 *)(iGpffffb3b4 + (u32)(u16)skillId * 2);
+        value = ((s8 *)iGpffffb3b4)[((u32)(u16)skillId * 2)];
     }
     if (value >= 0x13) {
         kAssertFail(D_00635938, 0xE47);
@@ -4406,7 +4438,7 @@ s32 datCalcSkillAllowedForMode(DatUnit *source, DatUnit *target, s32 skillId, s3
     entry = (u8 *)iGpffffb3b8;
     offset = (u16)skillId * 0x28;
     entry = (u8 *)((u32)offset + (u32)entry);
-    switch (*(u8 *)(entry + 0x24)) {
+    switch (((DatSkillEntry *)(entry))->kind24) {
     case 9:
     case 10:
         return 1;
@@ -4421,7 +4453,8 @@ s32 datCalcSkillAllowedForMode(DatUnit *source, DatUnit *target, s32 skillId, s3
 // FUN_00241F00
 s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatUnit *sourceRecord = (DatUnit *)source;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     u16 sourceFlags;
     u8 tactic;
     s32 tacticValue;
@@ -4440,7 +4473,7 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
     if (!(((DatSkillEntry *)(iGpffffb3b8 + ((skillId & 0xFFFF)) * 0x28))->flags00 & 2)) {
         return 0;
     }
-    if ((s32)((*(s32 *)(target + 0xC) & 0x100000) != 0) != 0) {
+    if ((s32)(((s32)((DatUnit *)(target))->bad & 0x100000) != 0) != 0) {
         return 0;
     }
     sourceFlags = *(u16 *)source;
@@ -4448,16 +4481,16 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
         return 0;
     }
     if (!(sourceFlags & 4)) {
-        if (*(u16 *)(source + 2) >= 0xB) {
+        if (((DatUnit *)source)->id >= 0xB) {
             kAssertFail(D_00635938, 0x1371);
         }
         if (*(u16 *)source & 4) {
             tactic = 0;
         } else {
-            if (*(u16 *)(source + 2) >= 0xB) {
+            if (sourceRecord->id >= 0xB) {
                 kAssertFail(D_00635938, 0xFBB);
             }
-            tactic = iGpffffb3c0[*(u16 *)(source + 2) * 0x14C + 0x14A];
+            tactic = iGpffffb3c0[sourceRecord->id * 0x14C + 0x14A];
         }
         tacticValue = tactic & 0xFF;
         if (tacticValue == 3 || tacticValue == 5) {
@@ -4477,7 +4510,7 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
     if (*(u16 *)source & 4) {
         hasHighChance = 0;
     } else {
-        characterId = *(u16 *)(source + 2);
+        characterId = ((DatUnit *)source)->id;
         if ((s32)characterId >= 0xB) {
             kAssertFail(D_00635938, 0x23B);
         }
@@ -4495,7 +4528,7 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
     if (*(u16 *)source & 4) {
         hasMediumChance = 0;
     } else {
-        characterId = *(u16 *)(source + 2);
+        characterId = ((DatUnit *)source)->id;
         if ((s32)characterId >= 0xB) {
             kAssertFail(D_00635938, 0x23B);
         }
@@ -4513,7 +4546,7 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
     if (*(u16 *)source & 4) {
         hasNoChance = 0;
     } else {
-        characterId = *(u16 *)(source + 2);
+        characterId = ((DatUnit *)source)->id;
         if ((s32)characterId >= 0xB) {
             kAssertFail(D_00635938, 0x23B);
         }
@@ -4542,7 +4575,9 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
 #pragma opt_loop_invariants on
 s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, s32 outcome)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatUnit *sourceRecord = (DatUnit *)source;
+    DatUnit *targetRecord = (DatUnit *)(target);
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     f32 scaledChance;
     f32 boostedChance;
     f32 baseChanceFloat;
@@ -4563,7 +4598,7 @@ s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, 
     u8 *skills;
     u16 chance;
 
-    flag1 = (*(s32 *)(target + 0xC) & 1) != 0;
+    flag1 = ((s32)((DatUnit *)(target))->bad & 1) != 0;
     if (flag1) {
         return 0;
     }
@@ -4579,7 +4614,7 @@ s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, 
         return 0;
     }
     chance = 0;
-    flag2 = (*(s32 *)(target + 0xC) & 0x100000) != 0;
+    flag2 = ((s32)targetRecord->bad & 0x100000) != 0;
     if (flag2) {
         if (skillId >= 0x1B8) {
             kAssertFail(D_00635938, 0xF5E);
@@ -4602,15 +4637,15 @@ s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, 
             scaledChance = baseChanceFloat * resistanceScale;
             chance = (u16)scaledChance;
             if (!(*(u16 *)source & 4)) {
-                if (*(u16 *)(source + 2) >= 0xB) {
+                if (((DatUnit *)source)->id >= 0xB) {
                     kAssertFail(D_00635938, 0xFA5);
                 }
-                skills = datPersonaGetSkillsByPcId(*(u16 *)(source + 2));
+                skills = datPersonaGetSkillsByPcId(sourceRecord->id);
             } else {
-                if (*(u16 *)(source + 2) >= 0x150) {
+                if (((DatUnit *)source)->id >= 0x150) {
                     kAssertFail(D_00635938, 0xFA8);
                 }
-                skills = *(u16 *)(source + 2) * 0x3C + iGpffffb3c4 + 0xE;
+                skills = sourceRecord->id * 0x3C + iGpffffb3c4 + 0xE;
             }
             skillIndex = 0;
             while ((skillIndex & 0xFFFF) < 8) {
@@ -4620,7 +4655,7 @@ s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, 
                 }
                 skillIndex = (skillIndex + 1) & 0xFFFF;
             }
-            if (!(*(u16 *)source & 4) && (queryValue = (u16)datGetEquippedItemByUnit((s16)*(u16 *)(source + 2), 2) & 0xFFFF, (s32)queryValue >= 0) &&
+            if (!(*(u16 *)source & 4) && (queryValue = (u16)datGetEquippedItemByUnit((s16)sourceRecord->id, 2) & 0xFFFF, (s32)queryValue >= 0) &&
                 (datItemGrantedSkill((s16)queryValue) == 0x21C)) {
                 hasChanceBoost = 1;
             } else {
@@ -4673,7 +4708,7 @@ s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex)
     }
     return datCalcGetAffinity(unit, elementIndex);
 }
-
+/* Test the KO status or whether current HP plus the proposed delta would be nonpositive. */
 // FUN_002428F0
 u32 datCalcIsDead(DatUnit *unit, s32 hpDelta)
 {
@@ -4682,7 +4717,7 @@ u32 datCalcIsDead(DatUnit *unit, s32 hpDelta)
     }
     return (unit->hp + hpDelta) <= 0;
 }
-
+/* Report HP below 26 percent of the computed maximum, using integer percentage division. */
 // FUN_00242930
 u32 datCalcIsLowHp(DatUnit *unit)
 {
@@ -4695,7 +4730,7 @@ u32 datCalcIsLowHp(DatUnit *unit)
 /* measured: fndiff 1 word (reloc-masked), fnalign 2 edits (plus 43 reloc-only), obj 813 instrs / retail 813 instrs (window 3264B, 12B under, 0.4% inside 3% gate). Baseline 172 edits / 750 words at 812/812; all-fresh counters 172->68 edits; loopinv 68->20; head temp_16 reuse 20->14; s16 value 14->3 edits / 558->2 words; tail (u16) mask 2->1 word / 3->2 edits. Free pragmas: loopinv 752, unroll/sched tie 750, commonsubs 578 words but 207 edits (rejected for edits). Subscript P[i] neutral 172; reuse temp_16 alone 246 edits (rejected). Decl swaps tie 172; fresh-first 159. All 8 skill-search loops match (while+goto-done, (u16)var_5 masks, fresh counters per loop, loopinv hoist); 0x231/0x232 early returns, 0x20/0x800/0x400 guards, 6/7 dispatch with 0x340/0x3C-0x38 checks, 0x211/0x221 + 0x212/0x222 with 50% random, 0x210/0x20F tail and 47cb0/107ac0 >=9 all in retail shape. Remaining: single addu $v0,$v1,$v0 vs $v0,$v0,$v1 orientation (commutative, source-invariant across both orders, floor) + lw addend masked as reloc-only. Supersedes prior nd-170 layout floor. */
 /* MATCHED 2026-09-19.  The single differing word at 0x00242CEC - retail
    `addu $v0, $v1, $v0` against b210's `addu $v0, $v0, $v1` - was not a compiler floor.
-   Routing the monster-attribute load through the file's existing `PTDatCalcOffsetAdd`
+   Routing the monster-attribute load through the file's existing `byteAddressAdd`
    helper fixes the operand order: the parameter boundary forces the offset to be the
    first addend, which is what retail emits.  Ten spellings had been measured without
    the helper and all tied at one differing word, which is what produced the incorrect
@@ -4799,12 +4834,12 @@ done2:
     }
     if ((unit != 0) && (skillId < 0x1B8) && ((iGpffffb3b8[(u16)baseSkill * 0x28] & 2) != 0)) {
         if (unit->flags & 4) {
-            value = *(u8 *)((u8 *)PTDatCalcOffsetAdd(unit->id * 0x3C, (u32)iGpffffb3c4) + 0x38);
+            value = ((DatEnemyUnitInit *)((u8 *)((u32)byteAddressAdd(unit->id * 0x3C, (u8 *)((u32)iGpffffb3c4)))))->weaponElement;
         } else {
             value = (s16)datItemElement((s16)((u16)datGetEquippedItemByUnit((s16)unit->id, 0) & 0xFFFF));
         }
     } else {
-        value = *(s8 *)(iGpffffb3b4 + (u32)(u16)baseSkill * 2);
+        value = ((s8 *)iGpffffb3b4)[((u32)(u16)baseSkill * 2)];
     }
     if ((s16)value == 6) {
         if (unit->flags & 4) {
@@ -5046,7 +5081,8 @@ tail:
 // FUN_00243650
 u8 datCalcRollSkillValue(u8 *unit, s32 skillId, s32 slotFlags)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatUnit *unitRecord = (DatUnit *)unit;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     s32 value;
     s32 maximumValue;
     s32 rowOffset;
@@ -5065,20 +5101,20 @@ u8 datCalcRollSkillValue(u8 *unit, s32 skillId, s32 slotFlags)
         value = (s32)(*(u16 *)unit & 4);
         if (value == 0) {
             if (value != 0) {
-                if (*(u16 *)(unit + 2) >= 0x150) {
+                if (((DatUnit *)unit)->id >= 0x150) {
                     kAssertFail(D_00635938, 0xFE2);
                 }
-                rowOffset = *(u16 *)(unit + 2) * 0xE8;
+                rowOffset = unitRecord->id * 0xE8;
                 tableAddress = (s32)iGpffffb3cc;
-                baseValue = *(u8 *)(rowOffset + tableAddress + 0x1A);
+                baseValue = ((DatEnemyExtendedTable *)(rowOffset + tableAddress))->skillValue;
             } else {
-                if (*(u16 *)(unit + 2) >= 0xB) {
+                if (((DatUnit *)unit)->id >= 0xB) {
                     kAssertFail(D_00635938, 0xFE6);
                 }
                 if ((u16)slotFlags & 6) {
-                    rowOffset = *(u16 *)(unit + 2) * 0x14C;
+                    rowOffset = unitRecord->id * 0x14C;
                     tableAddress = (s32)iGpffffb3c0;
-                    baseValue = *(u8 *)(rowOffset + tableAddress + 0x18);
+                    baseValue = ((DatCharacterTable *)(rowOffset + tableAddress))->skillValue;
                 } else {
                     baseValue = 1;
                 }
@@ -5087,8 +5123,8 @@ u8 datCalcRollSkillValue(u8 *unit, s32 skillId, s32 slotFlags)
         }
         return 1;
     }
-    minimum = *(u8 *)(skillEntry + 0xF);
-    maximum = *(u8 *)(skillEntry + 0x10);
+    minimum = ((DatSkillEntry *)(skillEntry))->unknown0F[0];
+    maximum = ((DatSkillEntry *)(skillEntry))->unknown0F[1];
     if ((s32)minimum <= 0 || (maximum & 0xFF) <= 0) {
         kAssertFail(D_00635938, 0x14D3);
     }
@@ -5128,8 +5164,8 @@ u8 *datCalcGetSlotRecord(s32 slotIndex)
 // FUN_00243920
 u16 datCalcUnderlyingSkillId(s64 personaSkillId)
 {
-    /* The returned datEntryAt record has no established complete layout here; only its skill halfword at +0x24 is evidenced. */
-    return *(u16 *)((u8 *)datEntryAt((s16)personaSkillId) + 0x24);
+    /* This query reads only the low halfword of GDataEntry.grantedSkill. */
+    return ((u16 *)&((GDataEntry *)((u8 *)datEntryAt((s16)personaSkillId)))->grantedSkill)[0];
 }
 
 
@@ -5140,32 +5176,37 @@ u16 datCalcUnderlyingSkillId(s64 personaSkillId)
 // FUN_00243950
 u16 datCalcEnemyExp(u8 *unit)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
-    if (*(u16 *)(unit + 2) >= 0x150) {
+    DatUnit *unitRecord = (DatUnit *)unit;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
+    if (((DatUnit *)unit)->id >= 0x150) {
         kAssertFail(D_00635938, 0x1515);
     }
-    return *(u16 *)(iGpffffb3c4 + *(u16 *)(unit + 2) * 0x3C + 0x1E);
+    return ((DatEnemyUnitInit *)(iGpffffb3c4 + unitRecord->id * 0x3C))->exp;
 }
 
 /* Enemy reward halfword used as the base of the kind-six money roll. */
 // FUN_002439C0
 u16 datCalcEnemyMoney(u8 *unit)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
-    if (*(u16 *)(unit + 2) >= 0x150) {
+    DatUnit *unitRecord = (DatUnit *)unit;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
+    if (((DatUnit *)unit)->id >= 0x150) {
         kAssertFail(D_00635938, 0x152A);
     }
-    return *(u16 *)(iGpffffb3c4 + *(u16 *)(unit + 2) * 0x3C + 0x20);
+    return ((DatEnemyUnitInit *)(iGpffffb3c4 + unitRecord->id * 0x3C))->money;
 }
 
 /* Measured: 688/688 bytes and 16 fully resolved relocations.
  * Loop guards mask promoted counters independently of narrowed indexing;
  * the weighted random choice retains its unsigned-halfword boundary. */
 // Intent: picks a skill id for a unit: first a flagged entry at +0x34 (chance from +0x36), else a weighted choice over the four slots (weight +0x24); *arg1 is 1 when the flagged entry was taken; [inferred].
+
 // FUN_00243A30
 u16 datCalcPickWeightedSkill(u8 *unit, s32 *usedFlaggedSkill)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatEnemyUnitInit *enemyEntry;
+    DatUnit *unitRecord = (DatUnit *)unit;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     u8 *entry;
     u16 result;
     s32 total;
@@ -5179,19 +5220,21 @@ u16 datCalcPickWeightedSkill(u8 *unit, s32 *usedFlaggedSkill)
     if (!(*(u16 *)unit & 4)) {
         kAssertFail(D_00635938, 0x153F);
     }
-    if (*(u16 *)(unit + 2) >= 0x150) {
+    if (((DatUnit *)unit)->id >= 0x150) {
         kAssertFail(D_00635938, 0x1540);
     }
-    entry = iGpffffb3c4 + *(u16 *)(unit + 2) * 0x3C;
+    entry = iGpffffb3c4 + unitRecord->id * 0x3C;
+    enemyEntry = (DatEnemyUnitInit *)entry;
     result = 0;
     if (usedFlaggedSkill != 0) {
         *usedFlaggedSkill = 0;
     }
-    if (*(u16 *)(entry + 0x34) != 0) {
-        value = *(u16 *)(entry + 0x32);
+    if (((DatEnemyUnitInit *)(entry))->specialSkill != 0) {
+        value = ((DatEnemyUnitInit *)(entry))->specialFlag;
         if (value != 0 && datGetFlag(value) != 0 &&
-            (s32)((RpRandom() % 100U) & 0xFF) < (s32)*(u8 *)(entry + 0x36)) {
-            result = *(u16 *)(entry + 0x34);
+            (s32)((RpRandom() % 100U) & 0xFF) < (s32)((DatEnemyUnitInit *)(entry))->specialChance) {
+
+            result = enemyEntry->specialSkill;
             if (usedFlaggedSkill != 0) {
                 *usedFlaggedSkill = 1;
             }
@@ -5202,11 +5245,11 @@ u16 datCalcPickWeightedSkill(u8 *unit, s32 *usedFlaggedSkill)
         i = 0;
         while ((i & 0xFFFF) < 4) {
             slot = entry + (u16)i * 4;
-            value = *(u16 *)(slot + 0x22);
+            value = ((DatEnemyUnitInit *)(slot))->choices[0].skill;
             if (value != 0 &&
                 (value < 0x400 || value >= 0x500 ||
                  datGetFlag(0x600 - value) == 0)) {
-                total = (total + *(u8 *)(slot + 0x24)) & 0xFFFF;
+                total = (total + ((DatEnemyUnitInit *)(slot))->choices[0].weight) & 0xFFFF;
             }
             i = (i + 1) & 0xFFFF;
         }
@@ -5227,7 +5270,7 @@ u16 datCalcPickWeightedSkill(u8 *unit, s32 *usedFlaggedSkill)
                     (value < 0x400 || value >= 0x500 ||
                      datGetFlag(0x600 - value) == 0)) {
                     second_total =
-                        (second_total + *(u8 *)(slot + 0x24)) & 0xFFFF;
+                        (second_total + ((DatEnemyUnitInit *)(slot))->choices[0].weight) & 0xFFFF;
                     if (total < second_total) {
                         result = *field;
                         goto done;
@@ -5245,14 +5288,15 @@ done:
 // FUN_00243CE0
 s32 datCalcEnemyHasTableFlag(u8 *unit)
 {
-    /* Raw unit/table addressing is retained: the typed unit rewrite changed retail codegen in the whole-file comparison. */
+    DatUnit *unitRecord = (DatUnit *)unit;
+    /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
     if (!(*(u16 *)unit & 4)) {
         return 0;
     }
-    if (*(u16 *)(unit + 2) >= 0x150) {
+    if (((DatUnit *)unit)->id >= 0x150) {
         kAssertFail(D_00635938, 0x15C5);
     }
-    if (*(u16 *)(iGpffffb3c4 + *(u16 *)(unit + 2) * 0x3C) & 4) {
+    if (((DatEnemyUnitInit *)(iGpffffb3c4 + unitRecord->id * 0x3C))->flags & 4) {
         return 1;
     }
     return 0;
@@ -5262,7 +5306,7 @@ s32 datCalcEnemyHasTableFlag(u8 *unit)
 // FUN_00243D80
 s32 datCalcEnemyHasExtendedFlag(DatUnit *unit)
 {
-    /* The GP-table stride and accessed offsets are evidenced below; the complete table-row layout is not established, so byte addressing is retained. */
+    /* Preserve index-first GP cursor construction; the fields follow the established table layouts. */
     s16 *b;
 
     if (!(unit->flags & 4)) {
@@ -5409,12 +5453,12 @@ s32 datCalcSkillTypeAllowed(s32 skillIdArg, s32 channelArg)
     return allowed;
 }
 // FUN_00244100
-void datCalcNoOperation(void)
+void datCalcFormulaNoop(void)
 {
 }
-
+/* Publish skill-power plus term 0x1A; scale the extra term only for an enemy source. */
 // FUN_002447C0
-/* Result = calc 0x13 + calc 0x1A; 0x1A is scaled by D_00761260 when the target lacks flag 0x4. */
+
 void datCalcFormulaTerms13And1A(void)
 {
     f32 result;
@@ -5429,9 +5473,9 @@ void datCalcFormulaTerms13And1A(void)
     }
     datScriptSetResult(result);
 }
-
+/* Publish the base critical-rate term times the source/target luck ratio, with enemy-source scaling. */
 // FUN_002449C0
-/* Result = calc 0x14 times (50+0xD,4)/(50+0xE,4); the product is scaled by fGpffff811c when the target has flag 0x4. */
+
 void datCalcFormulaScaledRatio(void)
 {
     f32 ratio;
@@ -5445,21 +5489,21 @@ void datCalcFormulaScaledRatio(void)
     } else {
         ratio = (50.0f + datScriptCalcFloat(0xD, 4)) /
                    (50.0f + datScriptCalcFloat(0xE, 4));
-        result = fGpffff811c * mul_f32_ordered(datScriptCalcFloat(0x14, 0), ratio);
+        result = fGpffff811c * operandOrderMultiply(datScriptCalcFloat(0x14, 0), ratio);
     }
     datScriptSetResult(result);
 }
-
+/* Publish term 0x15 after the source-side predicate runs its required nonnull assertion. */
 // FUN_00244AD0
-/* Result = calc 0x15; the flag-4 check runs only for its side effect. */
+
 void datCalcFormulaPassCalc15(void)
 {
     datScriptTargetIsNotEnemy();
     datScriptSetResult(datScriptCalcFloat(0x15, 0));
 }
-
+/* Publish the weighted agility and luck ratios plus five times the encounter escape count. */
 // FUN_00244B10
-/* Result = 75 * ratio(0xD,3 / 0xE,3) * ratio(0xD,4 / 0xE,4) + 5 * calc 0x22. */
+
 void datCalcFormulaWeightedRatio(void)
 {
     f32 firstRatio;
@@ -5472,9 +5516,9 @@ void datCalcFormulaWeightedRatio(void)
     result += 5.0f * datScriptCalcFloat(0x22, 0);
     datScriptSetResult(result);
 }
-
+/* Publish the source-luck ratio over the level/status divisor; nonpositive divisors produce one. */
 // FUN_00244C10
-/* Result = 50 * calc 0xD(4) / ((3 * (calc 1 - 1) + 2) * calc 0x10), or 1.0 when that divisor is not positive. */
+
 void datCalcFormulaInverseRatio(void)
 {
     f32 result;
@@ -5488,9 +5532,9 @@ void datCalcFormulaInverseRatio(void)
     }
     datScriptSetResult(result);
 }
-
+/* Publish the status chance and affinity product times the source/target luck ratio, scaling enemy sources. */
 // FUN_00244E20
-/* Result = calc 0x12 * calc 0x10 * (100+0xD,4) / (100+0xE,4), scaled by fGpffff811c when the target has flag 0x4. */
+
 void datCalcFormulaRatioOfProducts(void)
 {
     f32 numerator;
@@ -5501,18 +5545,18 @@ void datCalcFormulaRatioOfProducts(void)
         numerator = datScriptCalcFloat(0x12, 0);
         numerator *= datScriptCalcFloat(0x10, 0);
         result = datScriptCalcFloat(0xD, 4);
-        result = add_f32_ordered(100.0f, result);
+        result = operandOrderAddFloat(100.0f, result);
         numerator *= result;
         result = datScriptCalcFloat(0xE, 4);
-        result = add_f32_ordered(100.0f, result);
+        result = operandOrderAddFloat(100.0f, result);
         result = numerator / result;
     } else {
         numerator = datScriptCalcFloat(0x12, 0);
         numerator *= datScriptCalcFloat(0x10, 0);
         result = datScriptCalcFloat(0xD, 4);
-        result = add_f32_ordered(100.0f, result);
+        result = operandOrderAddFloat(100.0f, result);
         numerator *= result;
-        result = add_f32_ordered(100.0f, datScriptCalcFloat(0xE, 4));
+        result = (100.0f + datScriptCalcFloat(0xE, 4));
         quotient = numerator / result;
         result = fGpffff811c * quotient;
     }

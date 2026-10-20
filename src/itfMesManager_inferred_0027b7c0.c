@@ -7,16 +7,16 @@
 #include "message_handle.h"
 #include "message_procedure_api.h"
 #include "sdk_snd_internal.h"
-extern s32 func_0027bd40(s32 handle);
-extern s32 func_0027bda0(s32 handle);
-extern s32 func_0027be00(s32 handle);
+extern s32 itfMesWindowSendRowTransitionEnter(s32 handle);
+extern s32 itfMesWindowSendRowTransitionActive(s32 handle);
+extern s32 itfMesWindowSendRowTransitionLeave(s32 handle);
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Send op 0 before building a newly bound text row; absent handlers return completion. */
 // FUN_0027B7C0
-s32 func_0027b7c0(s32 handle)
+s32 itfMesWindowSendRecordBound(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -33,10 +33,10 @@ s32 func_0027b7c0(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-// The itfMes op wrappers below stay unnamed: each sends one op number, and op meanings differ across window kinds (see ItfMesWindowOp).
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Dispatch roles below follow manager call sites; implementations remain window-kind specific. */
+/* Send op 1 while clearing a manager entry; absent handlers return completion. */
 // FUN_0027B830
-s32 func_0027b830(s32 handle)
+s32 itfMesWindowSendClear(s32 handle)
 {
     u8 *base;
     s32 (*procedure)(s32, s32);
@@ -55,9 +55,9 @@ s32 func_0027b830(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Send op 2 after setting the styled-open script parameter; absent handlers return completion. */
 // FUN_0027B8A0
-s32 func_0027b8a0(s32 handle)
+s32 itfMesWindowSendStyledParameter(s32 handle)
 {
     u8 *base;
     s32 (*procedure)(s32, s32);
@@ -76,9 +76,9 @@ s32 func_0027b8a0(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Send op 3 before drawing the window lists; absent handlers return completion. */
 // FUN_0027B910
-s32 func_0027b910(s32 handle)
+s32 itfMesWindowSendDrawLists(s32 handle)
 {
     u8 *base;
     s32 (*procedure)(s32, s32);
@@ -97,9 +97,9 @@ s32 func_0027b910(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Poll op 4 while the main transition group is opening; absent handlers return completion. */
 // FUN_0027B980
-s32 func_0027b980(s32 handle)
+s32 itfMesWindowSendOpeningStep(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -116,9 +116,9 @@ s32 func_0027b980(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Send op 5 while the main transition group is active; absent handlers return completion. */
 // FUN_0027B9E0
-s32 func_0027b9e0(s32 handle)
+s32 itfMesWindowSendActiveStep(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -135,9 +135,9 @@ s32 func_0027b9e0(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Poll op 6 while the main transition group is closing; absent handlers return completion. */
 // FUN_0027BA40
-s32 func_0027ba40(s32 handle)
+s32 itfMesWindowSendClosingStep(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -154,9 +154,9 @@ s32 func_0027ba40(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Send op 7 before requesting row and choice groups to close; absent handlers return completion. */
 // FUN_0027BAA0
-s32 func_0027baa0(s32 handle)
+s32 itfMesWindowSendRelease(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -193,9 +193,9 @@ s32 itfMesWindowSendLayoutLists(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Send op 9 with visible choice count before reading layout parameters; absent handlers return completion. */
 // FUN_0027BB60
-s32 func_0027bb60(s32 handle)
+s32 itfMesWindowSendChoiceMeasure(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -212,9 +212,9 @@ s32 func_0027bb60(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Send op 10 after creating the choice glyph list; absent handlers return completion. */
 // FUN_0027BBC0
-s32 func_0027bbc0(s32 handle)
+s32 itfMesWindowSendChoiceBuilt(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -231,9 +231,9 @@ s32 func_0027bbc0(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Poll op 11 while the choice transition group is opening; absent handlers return completion. */
 // FUN_0027BC20
-s32 func_0027bc20(s32 handle)
+s32 itfMesWindowSendChoiceOpeningStep(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -250,9 +250,9 @@ s32 func_0027bc20(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Send op 12 while the choice transition group is active; absent handlers return completion. */
 // FUN_0027BC80
-s32 func_0027bc80(s32 handle)
+s32 itfMesWindowSendChoiceActiveStep(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -269,9 +269,9 @@ s32 func_0027bc80(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Poll op 13 while the choice transition group is closing; absent handlers return completion. */
 // FUN_0027BCE0
-s32 func_0027bce0(s32 handle)
+s32 itfMesWindowSendChoiceClosingStep(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -288,9 +288,9 @@ s32 func_0027bce0(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Poll op 16 in row transition state 1 before advancing to state 2; absent handlers return completion. */
 // FUN_0027BD40
-s32 func_0027bd40(s32 handle)
+s32 itfMesWindowSendRowTransitionEnter(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -307,9 +307,9 @@ s32 func_0027bd40(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Send op 17 while row transition state 2 is active; absent handlers return completion. */
 // FUN_0027BDA0
-s32 func_0027bda0(s32 handle)
+s32 itfMesWindowSendRowTransitionActive(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
@@ -326,9 +326,9 @@ s32 func_0027bda0(s32 handle)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+/* Poll op 18 in row transition state 3 before clearing that state; absent handlers return completion. */
 // FUN_0027BE00
-s32 func_0027be00(s32 handle)
+s32 itfMesWindowSendRowTransitionLeave(s32 handle)
 {
     s32 (*procedure)(s32, s32);
 
