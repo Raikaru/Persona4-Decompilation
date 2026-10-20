@@ -10,6 +10,8 @@ typedef signed __int128 s128;
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
+#include "mdl_file_internal.h"
+#include "rw_camera_internal.h"
 extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
 extern s32 mdlCopyIndexedMatrix(void *, s32 , void *);
 extern void mdlApplyModelMatrix(void *, void *, s32 );
@@ -208,7 +210,7 @@ done:
 #pragma optimization_level 2
 /* Process the three-entry title music selector and retain the previous cursor for animation. */
 // FUN_00124830
-/* Raw offsets preserve the measured match: TitleScene access changed codegen (nd 229). */
+/* Earlier whole-layout typing probe: TitleScene access changed codegen (nd 229).; access-site and typed-local forms now match. */
 s32 titleMusicStreamStep(u8 *context)
 {
     u8 listState[0x30];
@@ -216,9 +218,10 @@ s32 titleMusicStreamStep(u8 *context)
     s32 inputResult;
     s32 cursor;
     s32 confirmed;
+    TitleScene *titleScene = (TitleScene *)(context);
 
     confirmed = 0;
-    sdkListStateConfigure(listState, 3, 3, *(s32 *)(context + 0x20), 0);
+    sdkListStateConfigure(listState, 3, 3, ((TitleScene *)(context))->cursor, 0);
     sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0, 0);
     inputResult = sdkListStateHandleInput(listState);
     switch (inputResult) {
@@ -229,16 +232,16 @@ s32 titleMusicStreamStep(u8 *context)
         confirmed = 1;
         break;
     }
-    previousCursor = *(s32 *)(context + 0x20);
+    previousCursor = titleScene->cursor;
     cursor = sdkListStateGetCursor(listState);
-    *(s32 *)(context + 0x20) = cursor;
+    titleScene->cursor = cursor;
     if (cursor != previousCursor) {
-        *(s32 *)(context + 0x24) = previousCursor;
-        *(s32 *)(context + 0x28) = previousCursor << 16;
+        ((TitleScene *)(context))->previousCursor = previousCursor;
+        ((TitleScene *)(context))->cursorFixed = previousCursor << 16;
     }
     if (D_008C024E[0] & 0x40) {
         sdkSndStartStream(0, 0, 0, 1);
-        return *(s32 *)(context + 0x20) + 1;
+        return titleScene->cursor + 1;
     }
     if (confirmed != 0) {
         sdkSndStartStream(0, 0, 0, 0);
@@ -253,7 +256,7 @@ s32 titleMusicStreamStep(u8 *context)
 #pragma optimization_level 2
 /* Attach the companion slot model to frame 0x64, then apply color and draw flags. */
 // FUN_00124970
-/* Raw offsets preserve the measured match: model flags at +0xD8 changed codegen (nd 229). */
+/* Earlier whole-layout typing probe: model flags at +0xD8 changed codegen (nd 229).; access-site and typed-local forms now match. */
 void taskPrepareSlotModel(s32 modelIndex, u32 packedColor, s32 flags, u32 *context)
 {
     u8 color[4];
@@ -262,6 +265,7 @@ void taskPrepareSlotModel(s32 modelIndex, u32 packedColor, s32 flags, u32 *conte
     u8 *attachedCursor;
     u8 *baseModel;
     u8 *attachedModel;
+    MdlFileModel *attachedObject;
 
     if (modelIndex >= 0xF) {
         baseModel = NULL;
@@ -292,25 +296,26 @@ void taskPrepareSlotModel(s32 modelIndex, u32 packedColor, s32 flags, u32 *conte
             color[2] = packedColor >> 8;
             color[3] = packedColor;
             mdlApplyModelMatrix(attachedModel, matrix, 0);
+            attachedObject = (MdlFileModel *)(attachedModel);
             if (flags & 1) {
-                *(s32 *)(attachedModel + 0xD8) |= 8;
+                ((MdlFileModel *)(attachedModel))->flags |= 8;
             } else {
-                *(s32 *)(attachedModel + 0xD8) &= ~8;
+                ((MdlFileModel *)(attachedModel))->flags &= ~8;
             }
             if (flags & 2) {
-                *(s32 *)(attachedModel + 0xD8) |= 0x10;
+                attachedObject->flags |= 0x10;
             } else {
-                *(s32 *)(attachedModel + 0xD8) &= ~0x10;
+                attachedObject->flags &= ~0x10;
             }
             if (flags & 0x10) {
-                *(s32 *)(attachedModel + 0xD8) |= 0x100000;
+                attachedObject->flags |= 0x100000;
             } else {
-                *(s32 *)(attachedModel + 0xD8) &= ~0x100000;
+                attachedObject->flags &= ~0x100000;
             }
             if (flags & 0x40) {
-                *(s32 *)(attachedModel + 0xD8) |= 0x40000;
+                attachedObject->flags |= 0x40000;
             } else {
-                *(s32 *)(attachedModel + 0xD8) &= ~0x40000;
+                attachedObject->flags &= ~0x40000;
             }
             titleVisualDrawTintedModel(attachedModel, color);
             if (!(flags & 0x10000)) {
@@ -332,8 +337,8 @@ extern u8 D_005E55C8[];
 extern u8 D_005E55D0[];
 extern u8 D_005E55D8[];
 typedef struct {
-    u8 q[8];
-    f32 f;
+    union { u8 q[8]; struct { s32 xBits, yBits; }; };
+    union { f32 f; s32 zBits; };
 } TitleAxisPair;
 
 #pragma push
@@ -344,7 +349,7 @@ typedef struct {
 /* 956/960 bytes; twenty-five resolved relocations and one zero alignment word. */
 #pragma push
 #pragma opt_propagation off
-/* Raw offsets preserve the measured match: TitleScene/model fields changed codegen (nd 307). */
+/* Earlier whole-layout typing probe: TitleScene/model fields changed codegen (nd 307).; access-site and typed-local forms now match. */
 void titleTransformSlotModel(s32 modelIndex,
                    f32 x, f32 y, f32 z, f32 pitch,
                    f32 yaw, f32 roll,
@@ -354,12 +359,15 @@ void titleTransformSlotModel(s32 modelIndex,
 {
     u8 color[4];
     TitleAxisPair yawAxis;
+    /* Packed XYZ axes use component 2 for Z; integer stores preserve their float bit patterns. */
     u8 pitchAxis[0x10];
     u8 rollAxis[0x10];
+    /* This packed XYZ vector is reused for scale, then translation. */
     u8 transformVector[0x10];
     u8 matrix[0x40];
     u8 *modelCursor;
     u8 *model;
+    MdlFileModel *modelObject;
 
     {
         s64 q = *(s64 *)D_005E55B0;
@@ -371,13 +379,13 @@ void titleTransformSlotModel(s32 modelIndex,
         s64 q = *(s64 *)D_005E55C0;
         f32 f = *(f32 *)D_005E55C8;
         *(s64 *)pitchAxis = q;
-        *(f32 *)(pitchAxis + 8) = f;
+        ((TitleAxisPair *)(pitchAxis))->f = f;
     }
     {
         s64 q = *(s64 *)D_005E55D0;
         f32 f = *(f32 *)D_005E55D8;
         *(s64 *)rollAxis = q;
-        *(f32 *)(rollAxis + 8) = f;
+        ((TitleAxisPair *)(rollAxis))->f = f;
     }
     if (modelIndex >= 0xF) {
         model = NULL;
@@ -391,62 +399,63 @@ void titleTransformSlotModel(s32 modelIndex,
         }
     }
     if (model != NULL) {
-        *(s32 *)(matrix + 0x28) = 0x3F800000;
-        *(s32 *)(matrix + 0x14) = 0x3F800000;
-        *(s32 *)(matrix + 0x00) = 0x3F800000;
-        *(s32 *)(matrix + 0x10) = 0;
-        *(s32 *)(matrix + 0x08) = 0;
-        *(s32 *)(matrix + 0x04) = 0;
-        *(s32 *)(matrix + 0x24) = 0;
-        *(s32 *)(matrix + 0x20) = 0;
-        *(s32 *)(matrix + 0x18) = 0;
-        *(s32 *)(matrix + 0x38) = 0;
-        *(s32 *)(matrix + 0x34) = 0;
-        *(s32 *)(matrix + 0x30) = 0;
-        *(s32 *)(matrix + 0x0C) |= 0x20003;
+        ((RwMatrixTag *)(matrix))->atZBits = 0x3F800000;
+        ((RwMatrixTag *)(matrix))->upYBits = 0x3F800000;
+        ((RwMatrixTag *)(matrix))->rightXBits = 0x3F800000;
+        ((RwMatrixTag *)(matrix))->upXBits = 0;
+        ((RwMatrixTag *)(matrix))->rightZBits = 0;
+        ((RwMatrixTag *)(matrix))->rightYBits = 0;
+        ((RwMatrixTag *)(matrix))->atYBits = 0;
+        ((RwMatrixTag *)(matrix))->atXBits = 0;
+        ((RwMatrixTag *)(matrix))->upZBits = 0;
+        ((RwMatrixTag *)(matrix))->posZBits = 0;
+        ((RwMatrixTag *)(matrix))->posYBits = 0;
+        ((RwMatrixTag *)(matrix))->posXBits = 0;
+        ((RwMatrixTag *)(matrix))->flags |= 0x20003;
         RwMatrixRotate(matrix, &yawAxis, yaw, 0);
-        *(s32 *)(pitchAxis + 0x00) = 0x3F800000;
-        *(s32 *)(pitchAxis + 0x04) = 0;
-        *(s32 *)(pitchAxis + 0x08) = 0;
+        ((TitleAxisPair *)(pitchAxis))->xBits = 0x3F800000;
+        ((TitleAxisPair *)(pitchAxis))->yBits = 0;
+        ((s32 *)pitchAxis)[2] = 0;
         func_003e4320(pitchAxis, pitchAxis, matrix);
         RwMatrixRotate(matrix, pitchAxis, pitch, 2);
-        *(s32 *)(rollAxis + 0x00) = 0;
-        *(s32 *)(rollAxis + 0x04) = 0;
-        *(s32 *)(rollAxis + 0x08) = 0x3F800000;
+        ((TitleAxisPair *)(rollAxis))->xBits = 0;
+        ((TitleAxisPair *)(rollAxis))->yBits = 0;
+        ((s32 *)rollAxis)[2] = 0x3F800000;
         func_003e4320(rollAxis, rollAxis, matrix);
         RwMatrixRotate(matrix, rollAxis, roll, 2);
-        *(f32 *)(transformVector + 0x00) = scale;
-        *(f32 *)(transformVector + 0x04) = scale;
-        *(f32 *)(transformVector + 0x08) = scale;
+        ((RwV3d *)(transformVector))->x = scale;
+        ((RwV3d *)(transformVector))->y = scale;
+        ((RwV3d *)(transformVector))->z = scale;
         RwMatrixScale(matrix, transformVector, 2);
-        *(f32 *)(transformVector + 0x00) = x;
-        *(f32 *)(transformVector + 0x04) = y;
-        *(f32 *)(transformVector + 0x08) = z;
+        ((RwV3d *)(transformVector))->x = x;
+        ((f32 *)transformVector)[1] = y;
+        ((f32 *)transformVector)[2] = z;
         RwMatrixTranslate(matrix, transformVector, 2);
         mdlApplyModelMatrix(model, matrix, 0);
+        modelObject = (MdlFileModel *)(model);
         color[0] = baseColor >> 0x18;
         color[1] = baseColor >> 0x10;
         color[2] = baseColor >> 8;
         color[3] = baseColor;
         if (flags & 1) {
-            *(s32 *)(model + 0xD8) |= 8;
+            ((MdlFileModel *)(model))->flags |= 8;
         } else {
-            *(s32 *)(model + 0xD8) &= ~8;
+            ((MdlFileModel *)(model))->flags &= ~8;
         }
         if (flags & 2) {
-            *(s32 *)(model + 0xD8) |= 0x10;
+            modelObject->flags |= 0x10;
         } else {
-            *(s32 *)(model + 0xD8) &= ~0x10;
+            modelObject->flags &= ~0x10;
         }
         if (flags & 0x10) {
-            *(s32 *)(model + 0xD8) |= 0x100000;
+            modelObject->flags |= 0x100000;
         } else {
-            *(s32 *)(model + 0xD8) &= ~0x100000;
+            modelObject->flags &= ~0x100000;
         }
         if (flags & 0x40) {
-            *(s32 *)(model + 0xD8) |= 0x40000;
+            modelObject->flags |= 0x40000;
         } else {
-            *(s32 *)(model + 0xD8) &= ~0x40000;
+            modelObject->flags &= ~0x40000;
         }
         if (!(flags & 0x10000)) {
             mdlAdvanceModelFromFlags(model);
@@ -489,7 +498,7 @@ static inline u8 titlePaletteChannel(u32 value, u32 target, f32 blend)
     return (u8)titleBlend((f32)(target - value), blend, (f32)value);
 }
 
-typedef struct { u32 words[6]; } TitlePalette;
+typedef union { u32 words[6]; u8 bytes[24]; } TitlePalette;
 
 static inline void titlePaletteCopy(TitlePalette *destination, const TitlePalette *source)
 {
@@ -511,7 +520,7 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 {
     *(TitlePalette *)destination = *(const TitlePalette *)source;
     /* Indexed-word selection changed titleDrawScene (nd 2808); retain the byte offset. */
-    return *(u32 *)(destination + byteOffset);
+    return *(u32 *)&((TitlePalette *)destination)->bytes[byteOffset];
 }
 
 #pragma push
@@ -519,7 +528,7 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 #pragma optimization_level 2
 #pragma always_inline on
 /* Draw the title scene model passes and full-screen palette/brightness layers.
- * Raw palette offsets retain the measured copy/selection codegen (indexed words: nd 2808). */
+ * Packed palette byte members retain the measured copy/selection codegen (indexed words: nd 2808). */
 // FUN_00124F70
 void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext)
 {
@@ -603,7 +612,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     layoutOffset = titleIndex * 0x28;
     paletteSelection = (s32 *)(D_005E524C + layoutOffset);
     paletteOffset = *paletteSelection * 4;
-    packedColor = *(u32 *)((u8 *)firstHighlight.words + paletteOffset);
+    packedColor = *(u32 *)&firstHighlight.bytes[paletteOffset];
     packedBaseColor = titleCopySelect((u8 *)&firstBase, (const u8 *)&firstPalette, paletteOffset);
     scaleField = D_005E5248 + layoutOffset;
     green = (packedColor >> 0x10) & 0xFF;
@@ -624,7 +633,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     secondPalette = D_005E5530;
     titlePaletteCopy(&secondHighlight, &secondPalette);
     paletteOffset = *paletteSelection * 4;
-    packedColor = *(u32 *)((u8 *)secondHighlight.words + paletteOffset);
+    packedColor = *(u32 *)&secondHighlight.bytes[paletteOffset];
     packedBaseColor = titleCopySelect((u8 *)&secondBase, (const u8 *)&secondPalette, paletteOffset);
     green = (packedColor >> 0x10) & 0xFF;
     red = (packedColor >> 0x18) & 0xFF;
@@ -638,7 +647,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     flatPalette = D_005E5530;
     titlePaletteCopy(&flatRed, &flatPalette);
     paletteOffset = *paletteSelection * 4;
-    color.bytes[0] = (u8)(*(u32 *)((u8 *)flatRed.words + paletteOffset) >> 0x18);
+    color.bytes[0] = (u8)(*(u32 *)&flatRed.bytes[paletteOffset] >> 0x18);
     color.bytes[1] = (u8)(titleCopySelect((u8 *)&flatGreen, (const u8 *)&flatPalette, paletteOffset) >> 0x10);
     color.bytes[2] = (u8)(titleCopySelect((u8 *)&flatBlue, (const u8 *)&flatPalette, paletteOffset) >> 8);
     color.bytes[3] = (u8)titleCopySelect((u8 *)&flatAlpha, (const u8 *)&flatPalette, paletteOffset);
@@ -657,7 +666,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     shadePalette = D_005E5530;
     titlePaletteCopy(&shadeRed, &shadePalette);
     paletteOffset = *paletteSelection * 4;
-    color.bytes[0] = (u8)(*(u32 *)((u8 *)shadeRed.words + paletteOffset) >> 0x18);
+    color.bytes[0] = (u8)(*(u32 *)&shadeRed.bytes[paletteOffset] >> 0x18);
     color.bytes[1] = (u8)(titleCopySelect((u8 *)&shadeGreen, (const u8 *)&shadePalette, paletteOffset) >> 0x10);
     color.bytes[2] = (u8)(titleCopySelect((u8 *)&shadeBlue, (const u8 *)&shadePalette, paletteOffset) >> 8);
     color.bytes[3] = (u8)titleCopySelect((u8 *)&shadeAlpha, (const u8 *)&shadePalette, paletteOffset);
@@ -676,7 +685,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     titlePaletteCopy(&opacityRed, &opacityPalette);
     paletteOffset = *paletteSelection * 4;
     {
-        u32 w0 = *(u32 *)((u8 *)opacityRed.words + paletteOffset);
+        u32 w0 = *(u32 *)&opacityRed.bytes[paletteOffset];
         color.bytes[0] = (u8)(((u32)brightness | (w0 & 0xFFFFFF00)) >> 0x18);
     }
     {
@@ -819,7 +828,7 @@ static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *
 #pragma optimization_level 2
 /* Draw title shade bars and counter-rotating rings on a 200-frame cycle. */
 // FUN_00126090
-/* Raw offsets preserve the measured match: TitleScene access changed codegen (nd 663). */
+/* Earlier whole-layout typing probe: TitleScene access changed codegen (nd 663).; access-site and typed-local forms now match. */
 void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context)
 {
     TitleColor fillColor;
@@ -834,6 +843,7 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context)
     f32 angle;
     u8 *p;
     s32 n;
+    TitleScene *titleScene = (TitleScene *)(context);
 
     p = (u8 *)&black;
     n = 4;
@@ -847,7 +857,7 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context)
     fillColor = black;
     titleRectangle((u8 *)&fillColor, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, NULL);
     mdlEffectEmitMaskedTagPair();
-    shdSpriteDrawNow(0.0f, 0.0f, 0.0f, 0xFFFFFF, opacity & 0xFF, 0x1000C, 0, (u8 *)(*(s32 *)(context + 0x3C)), 1);
+    shdSpriteDrawNow(0.0f, 0.0f, 0.0f, 0xFFFFFF, opacity & 0xFF, 0x1000C, 0, (u8 *)(((TitleScene *)(context))->sprites), 1);
     mdlEffectEmitTagPair();
     mdlEffectEmitMaskedTagPair();
     p = (u8 *)&clear;
@@ -868,25 +878,25 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context)
     rect = lower;
     PrimDrawFlatRectangle(&shade, &rect, 0.0f, 0);
     mdlEffectEmitTagPair();
-    frame = *(s32 *)(context + 0x80) + 1;
-    *(s32 *)(context + 0x80) = frame;
+    frame = ((TitleScene *)(context))->ringFrame + 1;
+    ((TitleScene *)(context))->ringFrame = frame;
     if (frame >= 200) {
-        *(s32 *)(context + 0x80) = 0;
+        titleScene->ringFrame = 0;
     }
-    phase = (f32)*(s32 *)(context + 0x80) / 200.0f;
+    phase = (f32)titleScene->ringFrame / 200.0f;
     titleSkyApplyBasePreset();
     RpSkyRenderStateSet(3, 0x53001);
     RpSkyRenderStateSet(2, 0x58);
     angle = 360.0f * phase;
-    titleRing(35.0f, 152.0f, 0x202020, 2.4f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
-    titleRing(233.0f, 102.0f, 0x808080, 1.8f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
-    titleRing(377.0f, 93.0f, 0x808080, 1.4f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
-    titleRing(626.0f, 110.0f, 0x808080, 1.1f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
+    titleRing(35.0f, 152.0f, 0x202020, 2.4f, angle, (u8 *)(titleScene->sprites));
+    titleRing(233.0f, 102.0f, 0x808080, 1.8f, angle, (u8 *)(titleScene->sprites));
+    titleRing(377.0f, 93.0f, 0x808080, 1.4f, angle, (u8 *)(titleScene->sprites));
+    titleRing(626.0f, 110.0f, 0x808080, 1.1f, angle, (u8 *)(titleScene->sprites));
     angle = -360.0f * phase;
-    titleRing(35.0f, 152.0f, 0x808080, 2.2f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
-    titleRing(233.0f, 102.0f, 0x808080, 1.45f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
-    titleRing(377.0f, 93.0f, 0x808080, 1.0f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
-    titleRing(626.0f, 110.0f, 0x808080, 1.55f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
+    titleRing(35.0f, 152.0f, 0x808080, 2.2f, angle, (u8 *)(titleScene->sprites));
+    titleRing(233.0f, 102.0f, 0x808080, 1.45f, angle, (u8 *)(titleScene->sprites));
+    titleRing(377.0f, 93.0f, 0x808080, 1.0f, angle, (u8 *)(titleScene->sprites));
+    titleRing(626.0f, 110.0f, 0x808080, 1.55f, angle, (u8 *)(titleScene->sprites));
 }
 #pragma pop
 
@@ -987,24 +997,26 @@ s32 titleLoaderReap(s32 task)
 #pragma optimization_level 2
 /* Advance the asynchronous file request and keep its resource until destruction. */
 // FUN_0012B890
-/* Raw offsets preserve the measured match: TitleFileWork access changed codegen (nd 116). */
+/* Earlier whole-layout typing probe: TitleFileWork access changed codegen (nd 116).; access-site and typed-local forms now match. */
 s32 titleFileLoadStep(u8 *unusedTask)
 {
     s32 complete;
     u8 *work;
     s32 state;
+    TitleFileWork *fileWork;
     work = (u8 *)kwlnTaskGetWork();
-    state = *(s32 *)(work + 0);
+    fileWork = (TitleFileWork *)(work);
+    state = ((TitleFileWork *)(work))->state;
     switch (state) {
     case 0:
-        *(s32 *)(work + 0) = 1;
+        ((TitleFileWork *)(work))->state = 1;
     case 1:
-        *(s32 *)(work + 0) = 2;
+        ((TitleFileWork *)(work))->state = 2;
     case 2:
-        *(s32 *)(work + 8) = filerTakeCompletedRequest(*(s32 *)(work + 4), &complete, 0);
+        ((TitleFileWork *)(work))->resource = filerTakeCompletedRequest(((TitleFileWork *)(work))->request, &complete, 0);
         if (complete != 0) {
-            *(s32 *)(work + 0) = 3;
-            *(s32 *)(work + 4) = 0;
+            ((TitleFileWork *)(work))->state = 3;
+            fileWork->request = 0;
         }
         break;
     case 3:
