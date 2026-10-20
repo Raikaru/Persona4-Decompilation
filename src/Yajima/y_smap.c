@@ -1339,7 +1339,7 @@ u8 *smapCreateSymbols(u8 *parent)
         nodeMatrix = mdlGetMatrix(((SceneCharacterUpdate *)sceneNode)->model);
         ((SMapWork *)work)->pointMarkers[nodeIndex] = (u8 *)(mapSymbolPointCreate((s32)task, (s8)nodeIndex, (YVec3f *)(nodeMatrix + 0x30)));
         nodeIndex++;
-        sceneNode = (u8 *)((SceneUpdateResource *)sceneNode)->next;
+        sceneNode = (u8 *)((ResrcHeader *)sceneNode)->next;
     }
     return task;
 }

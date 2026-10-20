@@ -156,7 +156,7 @@ outer_body:
     goto inner_test;
 inner_body:
     MT_Scene_UpdateResource(resource);
-    resource = *(u8 * *)&((SceneUpdateResource *)resource)->next;
+    resource = *(u8 * *)&((ResrcHeader *)resource)->next;
 inner_test:
     if (resource != NULL) {
         goto inner_body;
@@ -175,7 +175,7 @@ second_body:
         MT_Scene_UpdateCameraResource(camera);
         goto second_exit;
     }
-    camera = *(u8 * *)&((SceneUpdateResource *)camera)->next;
+    camera = *(u8 * *)&((ResrcHeader *)camera)->next;
 second_test:
     if (camera != NULL) {
         goto second_body;
@@ -269,7 +269,7 @@ void mtSceneDrawSortedUnits(u8 *resource)
     base = resource;
     goto loop_7_test;
 loop_7_body:
-    if (*(s32 *)&((SceneUpdateResource *)resource)->flags & 2) {
+    if (*(s32 *)&((ResrcHeader *)resource)->flags & 2) {
         if (*(s32 *)&((ResrcRecord *)resource)->slotHandle[1] != 0) {
             switch (*(s8 *)&((ResrcRecord *)resource)->slotHandle[0]) {
             case 0:
@@ -279,7 +279,7 @@ loop_7_body:
         }
     }
 loop_7_next:
-    resource = *(u8 * *)&((SceneUpdateResource *)resource)->next;
+    resource = *(u8 * *)&((ResrcHeader *)resource)->next;
 loop_7_test:
     if (resource != NULL) {
         goto loop_7_body;
@@ -291,7 +291,7 @@ loop_7_test:
         resource = base;
         goto loop_16_test;
 loop_16_body:
-        if (*(s32 *)&((SceneUpdateResource *)resource)->flags & 2) {
+        if (*(s32 *)&((ResrcHeader *)resource)->flags & 2) {
             if (*(s32 *)&((ResrcRecord *)resource)->slotHandle[1] != 0) {
                 switch (*(s8 *)&((ResrcRecord *)resource)->slotHandle[0]) {
                 case 0:
@@ -302,7 +302,7 @@ loop_16_body:
             }
         }
 loop_16_next:
-        resource = *(u8 * *)&((SceneUpdateResource *)resource)->next;
+        resource = *(u8 * *)&((ResrcHeader *)resource)->next;
         goto loop_16_test;
 loop_16_test:
         if (resource != NULL) {
@@ -335,7 +335,7 @@ s32 MT_SceneManager_DrawUpdate(u8 *unusedTask)
     mtSceneDrawSortedUnits(resource);
     goto loop_test;
 loop_body:
-    if (*(s32 *)&((SceneUpdateResource *)resource)->flags & 2) {
+    if (*(s32 *)&((ResrcHeader *)resource)->flags & 2) {
         effectHandle = *(s32 *)&((ResrcRecord *)resource)->slotHandle[1];
         if (effectHandle != 0) {
             drawMode = *(s8 *)&((ResrcRecord *)resource)->slotHandle[0];
@@ -348,7 +348,7 @@ loop_body:
             }
         }
     }
-    resource = *(u8 * *)&((SceneUpdateResource *)resource)->next;
+    resource = *(u8 * *)&((ResrcHeader *)resource)->next;
 loop_test:
     if (resource != NULL) {
         goto loop_body;

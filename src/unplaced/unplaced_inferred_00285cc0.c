@@ -186,7 +186,7 @@ s32 evtStepEventTask(u8 *sdkTaskBytes) {
         *(s32 *)(data + 0x76C) = 9;
         node = MT_Scene_GetResListHead(3);
         while (node != NULL) {
-            node = (u8 *)((SceneUpdateResource *)node)->next;
+            node = (u8 *)((ResrcHeader *)node)->next;
         }
     case 9:
         *(s32 *)(data + 0x76C) = 10;
