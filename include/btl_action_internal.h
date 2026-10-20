@@ -42,10 +42,15 @@ typedef struct BtlActionResolutionMessage
  * capacity is 25 (0xF0 + 25*0x20 = 0x410, inside the 0x41C end). */
 typedef struct BtlActionTargetBlock
 {
-    u8 unk_d8;
-    u8 hitRowCount;               /* 0xD9 */
-    u8 hitRepeatCount;           /* 0xDA. Secondary repetition count from skill resolution */
-    u8 resultFlags;              /* 0xDB. Bit 0 critical, bit 1 other outcomes */
+    union {
+        struct {
+            u8 unk_d8;
+            u8 hitRowCount;      /* 0xD9 */
+            u8 hitRepeatCount;   /* 0xDA. Secondary repetition count from skill resolution */
+            u8 resultFlags;     /* 0xDB. Bit 0 critical, bit 1 other outcomes */
+        };
+        s32 packedHitHeader;    /* 0xD8. Word interpretation used by the strided status scan. */
+    };
     u16 hitOutcome;              /* 0xDC. datCalcResolveSkillHit result */
     u16 targetFlags;              /* 0xDE. Tested with mask 6 */
     s32 reactionFlag;             /* 0xE0. Nonzero marks a reacting target */
@@ -117,11 +122,17 @@ struct BtlAction
     };
     s32 unk_428;             /* 0x428 */
     s32 unk_42c;             /* 0x42C */
-    s16 unk_430;             /* 0x430 */
+    union {
+        s16 unk_430;         /* 0x430 */
+        u16 endureResumeState; /* EndureUpdate resumes this state after its packet chain. */
+    };
     u8 unk_432[0x02];        /* 0x432 */
     s32 unk_434;             /* 0x434 */
     u8 unk_438[0x04];        /* 0x438 */
-    s16 unk_43c;             /* 0x43C */
+    union {
+        s16 unk_43c;         /* 0x43C */
+        u16 eventResumeState; /* EventUpdate resumes this state after its callback completes. */
+    };
     u8 unk_43e[0x02];        /* 0x43E */
     void *unk_440;           /* 0x440. Callback slot set beside state changes */
     union {
