@@ -8,13 +8,11 @@
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "effect_instance_internal.h"
 
 /* Preserve source operand order in the camera's height products. */
-static inline f32 p4_cacd0_mul(f32 left, f32 right)
-{
-    return left * right;
-}
+
 
 typedef struct BtlUnitStateWork BtlUnitStateWork;
 typedef struct BtlUnit BtlUnit;
@@ -117,11 +115,6 @@ extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 thir
 
 /* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
 
-static inline f32 cameraSideRadius(f32 first, f32 second)
-{
-    if (first > second) return first;
-    return second;
-}
 
 /* Source unit: src/promoted/code1_001c.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001c79e0-001c9820 */
@@ -220,7 +213,7 @@ void btlCameraFrameStatus(u8 *camera, s32 unused)
         {
             f32 tmpLen;
             tmpLen = RwV3dNormalize((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128);
-            tmpLen = p4_cacd0_mul(fGpffff8128, tmpLen);
+            tmpLen = operandOrderMultiply(fGpffff8128, tmpLen);
             frame.dir128[0] = frame.dir128[0] * tmpLen;
             frame.dir128[1] = frame.dir128[1] * tmpLen;
             frame.dir128[2] = frame.dir128[2] * tmpLen;
@@ -236,7 +229,7 @@ void btlCameraFrameStatus(u8 *camera, s32 unused)
         frame.dir128[0] = frame.dir128[0] * distance;
         frame.dir128[1] = frame.dir128[1] * distance;
         frame.dir128[2] = frame.dir128[2] * distance;
-        distance = p4_cacd0_mul(distance * tanf(fGpffff8110 * (0.5f * ((BtlCamera *)savedCamera)->fovRad)), 0.21875f);
+        distance = operandOrderMultiply(distance * tanf(fGpffff8110 * (0.5f * ((BtlCamera *)savedCamera)->fovRad)), 0.21875f);
         distance = distance * fGpffff812c;
         frame.horizE0[0] = frame.dir128[0];
         frame.horizE0[1] = frame.dir128[2];
@@ -294,7 +287,7 @@ void btlCameraFrameStatus(u8 *camera, s32 unused)
         RtQuatTransformVectors((RwV3d *)frame.dir128, (const RwV3d *)(&D_0060A0F0), 1, (const RtQuat *)(unit + 0x1C));
         RwMatrixRotate((RwMatrix *)frame.mat60, (const RwV3d *)D_0060A0E0, angleOrOffset, 0);
         func_003e4320((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128, (const RwMatrix *)frame.mat60);
-        angleOrOffset = p4_cacd0_mul(distance * tanf(fGpffff8110 * (0.5f * ((BtlCamera *)savedCamera)->fovRad)), 0.21875f);
+        angleOrOffset = operandOrderMultiply(distance * tanf(fGpffff8110 * (0.5f * ((BtlCamera *)savedCamera)->fovRad)), 0.21875f);
         angleOrOffset = angleOrOffset * fGpffff8118;
         frame.horizE0[0] = frame.dir128[0];
         frame.horizE0[1] = frame.dir128[2];
@@ -399,7 +392,7 @@ void btlCameraFrameSideView(u8 *camera, s32 immediate)
         minimumDistance = (fGpffff811c * distance) / tanf(halfFov);
     }
     distance = heightDistance + separation;
-    distance = cameraSideRadius(distance, minimumDistance);
+    distance = btlCameraMaxRadius(distance, minimumDistance);
     RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&endpoints[0].rot);
     scale = distance * tanf(fGpffff8110 * (0.5f * ((BtlCamera *)camera)->fovRad));
     scale *= 0.109375f;
@@ -780,8 +773,8 @@ void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *sec
     actorPosition.y = ((BtlUnit *)actor)->sphereCenter.y * MEMBER(f32, actor, BtlUnit, scale);
     actorPosition.z = MEMBER(f32, actor, BtlUnit, moveDestination.z);
     btlUnitGetSphereCenterTowardTarget((BtlUnit *)target, (BtlUnit *)actor, &targetPosition);
-    height = 0.0f + actorPosition.y + p4_cacd0_mul(((BtlUnit *)actor)->unk_8c, MEMBER(f32, actor, BtlUnit, scale)) * fGpffff8118;
-    height += 0.0f + targetPosition.y + p4_cacd0_mul(((BtlUnit *)target)->unk_8c, MEMBER(f32, target, BtlUnit, scale)) * fGpffff8118;
+    height = 0.0f + actorPosition.y + operandOrderMultiply(((BtlUnit *)actor)->unk_8c, MEMBER(f32, actor, BtlUnit, scale)) * fGpffff8118;
+    height += 0.0f + targetPosition.y + ((((BtlUnit *)target)->unk_8c) * (MEMBER(f32, target, BtlUnit, scale))) * fGpffff8118;
     span = 0.0f + MEMBER(f32, actor, BtlUnit, stoppingDistance);
     span += MEMBER(f32, actor, BtlUnit, sphereRadius) * MEMBER(f32, actor, BtlUnit, scale);
     span += MEMBER(f32, target, BtlUnit, sphereRadius) * MEMBER(f32, target, BtlUnit, scale);
@@ -1131,7 +1124,7 @@ void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 pres
     }
     difference = btlTargetQuatAngle(&frames[0].rot, &frames[1].rot);
     if (angleLimit > 0.0f) {
-        angleLimit = p4_cacd0_mul(fGpffff816c, angleLimit);
+        angleLimit = operandOrderMultiply(fGpffff816c, angleLimit);
         if (difference <= angleLimit) goto limitedTransition;
     }
     {

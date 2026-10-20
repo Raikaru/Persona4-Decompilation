@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 /* Original translation unit btlShuffleDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
@@ -1706,10 +1707,7 @@ void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba
  * The four 64-byte sky2 vertices retain the PS2 screen/color/reciprocal-Z layout.
  * measured b210 -O2: 1236/1248 bytes, complete resolved retail instructions.
  * See docs/probe_archive/Shuffle_00377930_recovery.md. */
-static inline u8 *shuffleVertexSource377930(s32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 // FUN_00377930
 void btlShuffleDrawCardSprites(u8 *context, s32 cardIndex, const BtlShuffleVec3 *position, u8 *color, s32 restoreAlpha)
 {
@@ -1742,10 +1740,10 @@ void btlShuffleDrawCardSprites(u8 *context, s32 cardIndex, const BtlShuffleVec3 
     if (position != 0) {
         positionCopy = *(BtlShuffleVec3 *)position;
     } else {
-        chain = shuffleVertexSource377930(cardIndex * 0xE8, context);
+        chain = byteAddressAdd(cardIndex * 0xE8, (u8 *)(context));
         positionCopy = ((ShuffleContext *)chain)->records[0].motion.wander.output;
     }
-    chain = shuffleVertexSource377930(cardIndex * 0xE8, context);
+    chain = byteAddressAdd(cardIndex * 0xE8, (u8 *)(context));
     rotation = *(ShuffleVec4 *)&((ShuffleContext *)chain)->records[0].rotation.quaternion.output;
     card = context + cardIndex * 0xFB0;
     halfW = btlShuffleCardWidth(card) / 2.0f;

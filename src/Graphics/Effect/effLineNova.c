@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "effect_vu0_internal.h"
 #include "rw_geometry_internal.h"
 #include "effect_geometry_internal.h"
@@ -342,8 +343,9 @@ void LineNovaReseedParticles(u8 *effect) {
 }
 
 
-static inline f32 novaMultiply(f32 first, f32 second) { return first * second; }
-static inline f32 novaAdd(f32 first, f32 second) { return first + second; }
+
+
+/* Project a camera-relative displacement using depth and the screen scale. */
 static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 screen, f32 origin)
 {
     f32 difference = origin - center;
@@ -358,7 +360,7 @@ static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 
  * edge-length cfc2/mtc1) name $2: the retail call result moves to $v1 before
  * the first unpack, and no loop invariant takes $v0. The call's last two
  * arguments are (s32) conversions so they load before the first two; the
- * screen products use novaMultiply for retail's operand order. */
+ * screen products use operandOrderMultiply for retail's operand order. */
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
@@ -477,17 +479,17 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
     case 1: {
         f32 x, y;
         f32 half, two;
-        farClip = novaMultiply(300.0f, farClip);
+        farClip = operandOrderMultiply(300.0f, farClip);
         xScale = xScale * farClip;
         yScale = yScale * farClip;
         half = 0.5f;
         two = 2.0f;
         x = (f32)settings->unk7C.signedHalf[1];
         x = (x / 640.0f) - half;
-        projected.lane[0] = novaMultiply(two * -xScale, x);
+        projected.lane[0] = operandOrderMultiply(two * -xScale, x);
         y = (f32)settings->unk80.signedHalf[0];
         y = (y / 448.0f) - half;
-        projected.lane[1] = novaMultiply(two * -yScale, y);
+        projected.lane[1] = operandOrderMultiply(two * -yScale, y);
         projected.lane[2] = farClip;
     } break;
     }
@@ -959,7 +961,7 @@ void LineNovaUpdateVertices(u8 *unused, u8 *effect)
     }
     cameraDimensions = kwlnGetCamera() + 0x68;
     window = (LineNovaCameraWindow *)cameraDimensions;
-    depth = novaAdd(((RwCamera *)kwlnGetCamera())->nearPlane, 1.0f);
+    depth = operandOrderAddFloat(((RwCamera *)kwlnGetCamera())->nearPlane, 1.0f);
     screenX = 640.0f;
     {
         f32 x = extentX * (*(f32 *)cameraDimensions * depth) / screenX;
@@ -968,8 +970,8 @@ void LineNovaUpdateVertices(u8 *unused, u8 *effect)
         y = extentY * (window->y.scalar * depth) / screenY;
         bottom.lane[0] = -x; bottom.lane[1] = -y; bottom.lane[2] = depth;
         top.lane[0] = -x; top.lane[1] = y; top.lane[2] = depth;
-        extentX = novaMultiply(y, 2.0f);
-        extentY = novaMultiply(x, 2.0f);
+        extentX = operandOrderMultiply(y, 2.0f);
+        extentY = operandOrderMultiply(x, 2.0f);
     }
     particle = *(u8 **)state;
     count = settings->particleCount.unsignedValue;

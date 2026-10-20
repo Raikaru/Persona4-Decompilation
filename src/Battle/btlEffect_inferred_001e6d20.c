@@ -6,6 +6,7 @@
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
@@ -32,10 +33,7 @@ extern s64 scrGetParamInt();
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
 extern s32 scrGetParamIntS32(s32 index);
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 extern s32 datCalcGetHp();
 
 extern u8 *scrGetAiState();
@@ -63,7 +61,6 @@ extern f32 D_00761438;
 
 
 extern u32 datCalcRandomBelow(u32 limit);
-
 
 
 extern void *D_00609CE0[];
@@ -172,7 +169,7 @@ s32 btlEffectScriptPickWeakCandidateUnit(void) {
             if (flags & 2) {
                 result = btlAICommandPickUnitByHpWeight(work);
             } else {
-                result = ((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
+                result = ((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
             }
             scrSetReturnInt((s32)((BtlAction *)result)->id | 0x80000000);
         }

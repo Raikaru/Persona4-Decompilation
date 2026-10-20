@@ -35,7 +35,8 @@ typedef struct BtlPanelCursor
 } BtlPanelCursor;
 extern u8 D_00626C00[];
 
-static inline void drawCursorSegment(u8 *work, CursorColor color, f32 x, f32 y,
+/* Draw one asserted cursor segment and restore the sprite tile offset. */
+static inline void btlPanelDrawCursorSegment(u8 *work, CursorColor color, f32 x, f32 y,
                                       s32 index, f32 rotation, f32 distance)
 {
     if (index >= 8) {
@@ -156,7 +157,7 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
         color.b = 0;
         color.a = (u8)(150.0f * alpha);
         for (i = 0; i < count; i++) {
-            drawCursorSegment(work, color, position[0], position[1], i,
+            btlPanelDrawCursorSegment(work, color, position[0], position[1], i,
                               (f32)typedCursor->animation.ring.segmentAngle, 0.0f);
         }
         btlUiSetRenderMode(0);
@@ -289,7 +290,7 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
         color.b = 0;
         color.a = (u8)(150.0f * alpha);
         for (i = 0; i < count; i++) {
-            drawCursorSegment(work, color, position[0], position[1], i,
+            btlPanelDrawCursorSegment(work, color, position[0], position[1], i,
                               (f32)typedCursor->animation.ring.segmentAngle, 0.0f);
         }
         btlUiSetRenderMode(0);
@@ -420,7 +421,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
         color.b = 0;
         color.a = (u8)(150.0f * alpha);
         for (i = 0; i < 4; i++) {
-            drawCursorSegment(work, color, position[0], position[1], i * 2,
+            btlPanelDrawCursorSegment(work, color, position[0], position[1], i * 2,
                               0.0f, ((BtlPanelCursor *)cursor)->shape.distance);
         }
         btlUiSetRenderMode(0);
@@ -569,7 +570,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
         color.a = (u8)(200.0f * alpha);
         /* Four segments use the even indices of the eight-slot ring. */
         for (i = 0; i < 4; i++) {
-            drawCursorSegment(work, color, position[0], position[1], i * 2,
+            btlPanelDrawCursorSegment(work, color, position[0], position[1], i * 2,
                               45.0f, ((BtlPanelCursor *)cursor)->shape.distance);
         }
         btlUiSetRenderMode(0);

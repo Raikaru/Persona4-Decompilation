@@ -8276,6 +8276,7 @@ s32 fclCombineFindRandomSkillIndex(u8 *task)
 /* Membership test over the work's slot list (count at +0x2DF, entries at
    +0x2DA). Retail inlines it at every use and re-reads the work pointer. */
 /* Count and IDs are typed; the measured reload uses the named task member. */
+/* Search the outcome identifiers stored in the combination task. */
 static inline s32 fclCombineHasEntry(u8 *task, s8 id)
 {
     /* measured: direct field typing changes 4535 normalized bytes in the full owner. */
@@ -8292,6 +8293,7 @@ static inline s32 fclCombineHasEntry(u8 *task, s8 id)
 
 /* Starts the 20-frame fade used when the combine result is confirmed. */
 /* The pointer-valued sprite handle uses the measured named-member form. */
+/* Spawn the white card sprite and reset its fade progress. */
 static inline void fclCombineStartFade(u8 *task)
 {
     extern u8 *datScreenPointToWorldPosition(u8 *, s32, s32, f32);
@@ -9135,6 +9137,7 @@ typedef struct {
 /* Nonzero when the task's slot list (count at 0x2DF, kinds from 0x2DA)
    holds the given kind.  Retail inlines this at every use. */
 /* The task-work reload retains its measured inlined-owner difference below. */
+/* Search the combination task for a matching slot kind. */
 static inline s32 fclCombineHasSlotKind(u8 *task, s8 kind)
 {
     /* measured: direct field typing changes 9087 normalized bytes in the full owner. */
@@ -9151,6 +9154,7 @@ static inline s32 fclCombineHasSlotKind(u8 *task, s8 kind)
 
 /* The item table lookup of fclCombineStageValue, which retail inlines into
    fclCombineMenuResultGrowth with the kind read before the roll is made. */
+/* Select an item reward from the table corresponding to its slot kind. */
 static inline s16 fclCombinePickItem(s8 kind, s8 roll)
 {
     switch (kind) {
@@ -9178,6 +9182,8 @@ static inline s16 fclCombinePickItem(s8 kind, s8 roll)
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma opt_common_subs off
+/* Read the low item identifier from a full-width stored value. */
+/* measured: plain load-and-truncate expressions lose one of the 41 owner MATCHes; retain the word-load conversion boundary. */
 static inline u16 fclItemHalf(const s32 *value)
 {
     return *value;

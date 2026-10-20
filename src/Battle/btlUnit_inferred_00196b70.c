@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_unit_movement_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_target_state_packet_internal.h"
@@ -64,10 +65,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
+
 
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -137,8 +135,7 @@ f32 btlUnitGetMotionDistance(u8 *unit, u8 *target, u16 motion)
     if (motionId < (s32)((BtlUnit *)unit)->motionCount) {
         table = (u8 *)((BtlUnit *)unit)->motionRates;
         distance = ((BtlUnit *)unit)->scale *
-                   (f32)((BtlMotionRate *)btlUnitAddBaseToOffset(
-                       motionId * 0xA, (s32)(table, table)))->unk6;
+                   (f32)((BtlMotionRate *)(s32)byteAddressAdd(motionId * 0xA, (u8 *)((s32)(table, table))))->unk6;
         anchorHeight = btlUnitGetActionAnchorHeight(unit, target, motion);
         if (!(anchorHeight < 0.0f)) {
             distance += anchorHeight;
@@ -305,7 +302,7 @@ u32 btlUnitMovePacketUpdate(void *workData)
                 ((BtlUnit *)unit)->moveDestination = ((BtlUnitMovePacket *)packetWork)->destination;
             } else {
                 /* The route tail uses a pre-offset byte cursor to preserve the indexed address helper. */
-                work = (u8 *)btlUnitAddBaseToOffset(index * 8, (s32)unit);
+                work = (u8 *)((index * 8) + ((s32)unit));
                 direction.values[0] = ((BtlTargetRoute *)(unit + 0xEC))->points[index - 2].x;
                 direction.values[1] = 0.0f;
                 direction.values[2] = ((BtlTargetRoute *)(unit + 0xEC))->points[index - 2].z;

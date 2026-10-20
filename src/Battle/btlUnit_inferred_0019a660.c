@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_skill_target_internal.h"
@@ -63,10 +64,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
+
 
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -149,7 +147,7 @@ s32 btlUnitEnemyDodgePacketUpdate(u8 *packetWork)
         typedPacketWork->velocity = velocity + fGpffff82d8;
         progress = ((BtlUnitDodgePacket *)packetWork)->progress;
         offset = distance * progress;
-        nextOutProgress = btlUnitAddProgress(progress, nextOutProgress);
+        nextOutProgress = operandOrderAddFloat(progress, nextOutProgress);
         ((BtlUnitDodgePacket *)packetWork)->progress = nextOutProgress;
         if (!(nextOutProgress < fGpffff82d4))
             typedPacketWork->velocity = fGpffff82dc;

@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 /* Original translation unit sdkChkmem.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -55,10 +56,6 @@ extern void memset(void *dst, s32 value, u32 size);
 
 extern ChkMemPool *D_00763D1C; /* sdkChkmem pool */
 extern s32 D_00764AC0;         /* sdkChkmem lock */
-static inline u32 e8Slot(u32 offset, u32 base)
-{
-    return offset + base;
-}
 
 /* Append an allocation header node to the tracked-block chain. */
 // FUN_0044E8D0
@@ -118,7 +115,7 @@ done:
 /* Measured: object 168B / retail window 176B / normalized_diff 0; the final
  * 8B are retail zero-tail words. Keeping the allocator unlink helper static
  * in its recovered sdkChkmem translation unit preserves its narrow clobber
- * set. Staging the pool load before e8Slot preserves the retail load and
+ * set. Staging the pool load before byteAddressAdd preserves the retail load and
  * offset-first addu order at both class-index updates. */
 /* Remove allocation and class accounting before unlinking its header. */
 /* Separate typed header aliases retain the measured class-accounting reload order. */
@@ -141,12 +138,11 @@ static void chkmemUntrackBlock(u8 *block)
     classIndex = ((ChkMemEntry *)block)->classInfo.bytes.index;
     if ((s32)classIndex < 8) {
         classPool = (u8 *)D_00763D1C;
-        classPool = (u8 *)e8Slot(classIndex * 4, (u32)classPool);
+        classPool = (u8 *)((u32)byteAddressAdd(classIndex * 4, (u8 *)((u32)classPool)));
         ((ChkMemPool *)classPool)->classBytes[0] =
             ((ChkMemPool *)classPool)->classBytes[0] - ((ChkMemEntry *)block)->size;
         bytes = ((ChkMemEntry *)block)->size - (((ChkMemEntry *)block)->alignment + 0x18);
-        classPayload = (u8 *)e8Slot(header->classInfo.bytes.index * 4,
-                              (u32)D_00763D1C);
+        classPayload = (u8 *)((u32)byteAddressAdd(header->classInfo.bytes.index * 4, (u8 *)((u32)D_00763D1C)));
         ((ChkMemPool *)classPayload)->classPayloadBytes[0] = ((ChkMemPool *)classPayload)->classPayloadBytes[0] - bytes;
     }
     chkmemPoolUnlink(&((ChkMemEntry *)block)->link);

@@ -59,6 +59,7 @@ extern s8 iGpffffa8d0[6];
 extern u8 D_00642727[];
 extern u8 D_00642967[];
 
+/* Look up the triangle-fusion result using the ordered upper-table pair. */
 static inline u8 fclTriangleUpperArcana(s32 first, s32 second)
 {
     if (first == 0 || second == 0)
@@ -239,6 +240,7 @@ flag_done:
     return 0;
 }
 
+/* Look up the normal-fusion result using the ordered arcana pair. */
 static inline u8 fclNormalPairArcana(s32 first, s32 second)
 {
     if (first == 0 || second == 0)
@@ -248,6 +250,7 @@ static inline u8 fclNormalPairArcana(s32 first, s32 second)
     return *(first + (D_00642147 + second * 24));
 }
 
+/* Look up the alternate-fusion result using the ordered arcana pair. */
 static inline u8 fclAlternatePairArcana(s32 first, s32 second)
 {
     if (first == 0 || second == 0)
@@ -452,6 +455,7 @@ extern s8 D_00641E60[];
 extern char D_00642F50[];
 
 /* Select the highest pool-size tier whose minimum has been reached. */
+/* Select the inherited skill pick count from descending minimum-count thresholds. */
 static inline s32 fclSkillPickCount(s16 count)
 {
     s32 step;
@@ -465,6 +469,7 @@ static inline s32 fclSkillPickCount(s16 count)
 }
 
 /* Scale the persona inheritance-table weight by the skill's signed rate. */
+/* Compute a skill inheritance weight from persona inheritance class and skill rate. */
 static inline s32 fclSkillWeight(u16 *persona, s32 id)
 {
     s32 arcana;

@@ -187,7 +187,8 @@ extern u8 *btlFormationGetRecord(s32 index);
 extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 extern s32 datCalcIsGuarding(u16 *unitFlags);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
-static inline s32 func_00225ec0_flag(u8 *action)
+/* Allow camera cuts unless the action genus and current battle state prohibit them. */
+static inline s32 btlVoiceAllowsCameraCut(u8 *action)
 {
     u16 battle;
 
@@ -211,6 +212,7 @@ static inline s32 func_00225ec0_flag(u8 *action)
     }
     return 1;
 }
+/* Find a player unit in the second battle roster, returning zero for other genera. */
 static inline u16 btlUnitRosterIndex(u8 *unit)
 {
     u8 *node;
@@ -301,7 +303,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
     u32 frames;
 
     action = *(u8 **)&((BtlCamera *)camera)->action;
-    allowCut = func_00225ec0_flag(action);
+    allowCut = btlVoiceAllowsCameraCut(action);
     specialPose = 0;
     unit = *(u8 **)&((BtlAction *)action)->unit;
     unitOwner = (BtlUnit *)unit;

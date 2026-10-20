@@ -141,7 +141,6 @@ extern void btlSoundStopBgmIfEnabled(void);
 u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
 
 
-
 extern void (*jtbl_008873EC[])(void *value);
 extern void btlSoundFadeOutBgm(s16 fadeDuration);
 extern void sdkSndPlayCue(s32 value, s32 option);
@@ -223,10 +222,7 @@ extern void btlEncounterStartCameraState(u8 *action);
 extern s32 btlEncounterWaitReleaseEvents(s64 *actionUid);
 extern void btlEncounterResetSlots(u8 *action);
 extern s32 btlEncounterWaitIdle(s64 *actionUid);
-static inline u8 *cb90AddBaseIndex(u32 base, u32 index)
-{
-    return (u8 *)(base + index);
-}
+
 #pragma push
 #pragma pop
 /* 896/896 bytes and all 17 relocations resolve exactly.
@@ -1032,9 +1028,8 @@ s32 btlFormationLookupSlot(u8 *unit, u16 slotIndex)
         }
         return ((u8 *)slotTable)[slotIndex & 0xFFFF];
     default:
-        /* measured: direct boss cue-array lookup loses MATCH (nd36); keep the index-add helper. */
-        overrideSlot = *(s8 *)cb90AddBaseIndex((u32)battle + 0xC10,
-                                         (u32)(slotIndex & 0xFFFF));
+        /* measured: direct boss cue-array lookup loses MATCH (nd36); retain the byte-address sum. */
+        overrideSlot = ((s8 *)((u32)&((BtlBattleState *)battle)->bossCuePrefix[0] + (u32)(slotIndex & 0xFFFF)))[0];
         if (overrideSlot >= 0) {
             return overrideSlot;
         }

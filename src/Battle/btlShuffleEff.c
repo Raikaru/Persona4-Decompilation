@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -31,10 +32,7 @@ extern void btlShuffleCalcLookAt(f32 *output, f32 *point);
 /* measured: the operands must travel through this helper's parameters to get
    retail's index-first `addu $v1,$v1,$s0`; rewriting the callsite expression as
    `offset + (u32)base` is canonicalized straight back to the base-first form. */
-static inline u32 bseSlot(u32 offset, u32 contextAddress)
-{
-    return offset + contextAddress;
-}
+
 
 /* Destroy every live trail effect and release the task work allocation. */
 // FUN_0038D6C0
@@ -226,8 +224,8 @@ void btlShuffleEffSetup(u8 *task, s32 slotIndex)
         kAssertFail(&D_0064F210[0], 0x55);
     }
     /* measured: typing only the slot address grows Setup from 160 to 164 bytes; the effect load is typed. */
-    slot = (u8 **)(bseSlot(slotIndex * 8, (u32)eff) + 0xC);
-    held = ((BtlShuffleEffectSlot *)(bseSlot(slotIndex * 8, (u32)eff) + 8))->effect;
+    slot = (u8 **)((u32)byteAddressAdd(slotIndex * 8, (u8 *)((u32)eff)) + 0xC);
+    held = ((BtlShuffleEffectSlot *)(((slotIndex * 8) + ((u32)eff)) + 8))->effect;
     if (held != 0) {
         mdlEffectDestroy(held);
         *slot = 0;

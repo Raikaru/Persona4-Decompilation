@@ -399,9 +399,7 @@ void btlSoundCreateWaitPacket(void)
 }
 extern s32 btlCdvdLoadPoll(void);
 extern s32 btlSoundLoadPoll(s32 *progress);
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
+
 extern u8 *iGpffffb3b8;
 extern s32 btlSoundLoadPoll(s32 *progress);
 extern s32 btlSoundStopStep(void);
@@ -796,7 +794,7 @@ s32 btlActionEscapeCondition(u8 *action, s32 skillId)
     if (((BtlTargetSelection *)targetBuffer)->count == 0) {
         return 2;
     }
-    switch (((BtlSoundSkill *)((u8 *)addOffsetFirst((u32)skillOffset, (u32)iGpffffb3b8)))->condition) {
+    switch (((BtlSoundSkill *)((u8 *)(((u32)skillOffset) + ((u32)iGpffffb3b8))))->condition) {
     case 2:
         if (btlCond_ESCAPE(action, 0) == 0) {
             return 6;

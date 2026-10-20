@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "memcard_summary_internal.h"
 #include "member_access.h"
 #include "primitive_queue_internal.h"
@@ -68,7 +69,6 @@ extern char D_007638F8;
 extern char D_00763918;
 typedef struct { u64 lo, hi; } Qword;
 extern Qword D_0063ED70;
-static inline f32 mc_add(f32 a, f32 b) { return a + b; }
 extern f32 D_00761184;
 extern f32 D_00761174;
 extern f32 iGpffff8214;
@@ -1574,10 +1574,6 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
 #pragma opt_lifetimes on
 
 /* Displacement from the whole row to the animated 16.16 scroll position. */
-static inline s32 mcRowDisplacement(s32 base, s32 position)
-{
-    return (s32)((u32)base << 16) - position;
-}
 
 /* 1540 native bytes, followed by 12 retail alignment bytes. The drawing loops
  * expose their shared row origin to loop-invariant extraction. Keep pulse
@@ -1631,7 +1627,7 @@ s32 mcDrawScreenSettled(s32 taskAddress)
             mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
             mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
             mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
-            diff = mcRowDisplacement(base, MEMBER(s32, work, McScreenState, scrollPosition));
+            diff = ((s32)((u32)(base) << 16) - (MEMBER(s32, work, McScreenState, scrollPosition)));
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             mcDrawSlotDial(x, y, 0.0f, 0xFF, work + 0x14, slot, 0, 1.0f, work);
@@ -1644,7 +1640,7 @@ s32 mcDrawScreenSettled(s32 taskAddress)
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16) {
-            diff = mcRowDisplacement(base, MEMBER(s32, work, McScreenState, scrollPosition));
+            diff = ((s32)((u32)(base) << 16) - (MEMBER(s32, work, McScreenState, scrollPosition)));
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             if (slot == base || slot == base + 1) {
@@ -2012,6 +2008,8 @@ s32 mcTableClear(u8 *entries) {
     return 0;
 }
 
+/* Select the signed word indexed by a circle entry from its local lookup table. */
+/* measured: direct indexing changes lookup/load allocation at all three sites; byteAddressAdd also loses MATCH (249 differing bytes). */
 static inline const s32 *mcTableAt(s32 index, const s32 *base)
 {
     return base + index;
@@ -2184,30 +2182,8 @@ void mcSeedEntryTable(s32 alpha, u8 *screen) {
 }
 
 /* Coordinate, layer and scale operations used by the slot's digits and icon. */
-static inline f32 mcScaleProduct(f32 factor, f32 value)
-{
-    return factor * value;
-}
-static inline f32 mcDigitAdvance(f32 x, f32 spacing)
-{
-    return x + spacing;
-}
-static inline f32 mcCoordinateBefore(const f32 *position, f32 offset)
-{
-    return *position - offset;
-}
-static inline f32 mcSpriteOrigin(f32 origin, f32 distance)
-{
-    return origin - distance;
-}
-static inline f32 mcPlaneDepth(const f32 *depth, f32 layer)
-{
-    return layer + *depth;
-}
-static inline f32 mcCoordinate(const f32 *coordinate, f32 offset)
-{
-    return offset + *coordinate;
-}
+/* Extract unsigned RGB from the slot color after dropping its low alpha byte. */
+/* measured: direct extraction at the two retained sites changes slot-dial load/register ordering. */
 static inline u32 mcUnsignedColorRgb(const u32 *rgba)
 {
     return *rgba >> 8;
@@ -2319,76 +2295,76 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
         slotNumber = slotIndex + 1;
         if (slotNumber < 0xA) {
             if (slotNumber < 0xA) {
-                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, borderDepth, (*(&col) >> 8), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
             } else if (slotNumber < 0x14) {
                 u32 digitRgb;
                 glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
-                digitRgb = mcUnsignedColorRgb(&col);
-                narrowDigitDepth = mcPlaneDepth(&depth, 9.0f);
+                digitRgb = (*(&col) >> 8);
+                narrowDigitDepth = operandOrderAddLoaded(&depth, 9.0f);
                 tmp = 21.0f * scale;
-                heightOrY = mcCoordinate(&y, 49.0f);
+                heightOrY = operandOrderAddLoaded(&y, 49.0f);
                 heightOrY -= tmp;
                 tmp = 53.0f * scale;
-                widthOrX = mcCoordinate(&x, 53.0f);
+                widthOrX = operandOrderAddLoaded(&x, 53.0f);
                 widthOrX -= tmp;
                 shdSpriteDrawNowEx(widthOrX, heightOrY, narrowDigitDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
                 tmp = 40.0f * scale;
-                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, (s16)operandOrderSubtract(0.0f, tmp), 0, 30.0f, scale, scale);
             }
         } else if (slotNumber < 0xA) {
-            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, borderDepth, (*(&col) >> 8), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
         } else if (slotNumber < 0x14) {
             u32 digitRgb;
             glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
-            digitRgb = mcUnsignedColorRgb(&col);
-            wideDigitDepth = mcPlaneDepth(&depth, 9.0f);
+            digitRgb = (*(&col) >> 8);
+            wideDigitDepth = operandOrderAddLoaded(&depth, 9.0f);
             tmp = 32.0f * scale;
-            heightOrY = mcCoordinate(&y, 49.0f);
+            heightOrY = operandOrderAddLoaded(&y, 49.0f);
             heightOrY -= tmp;
             tmp = 70.0f * scale;
-            widthOrX = mcCoordinate(&x, 53.0f);
+            widthOrX = operandOrderAddLoaded(&x, 53.0f);
             widthOrX -= tmp;
             shdSpriteDrawNowEx(widthOrX, heightOrY, wideDigitDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
             tmp = 40.0f * scale;
-            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, (s16)operandOrderSubtract(0.0f, tmp), 0, 30.0f, scale, scale);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         slotNumber = slotIndex + 1;
         if (slotNumber < 0xA) {
             if (slotNumber < 0xA) {
-                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, fillDepth, (*(&col) >> 8), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
             } else if (slotNumber < 0x14) {
                 u32 digitRgb;
                 glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
-                digitRgb = mcUnsignedColorRgb(&col);
-                narrowDigitDepth = mcPlaneDepth(&depth, 10.0f);
+                digitRgb = (*(&col) >> 8);
+                narrowDigitDepth = operandOrderAddLoaded(&depth, 10.0f);
                 tmp = 21.0f * scale;
-                heightOrY = mcCoordinate(&y, 49.0f);
+                heightOrY = operandOrderAddLoaded(&y, 49.0f);
                 heightOrY -= tmp;
                 tmp = 53.0f * scale;
-                widthOrX = mcCoordinate(&x, 53.0f);
+                widthOrX = operandOrderAddLoaded(&x, 53.0f);
                 widthOrX -= tmp;
                 shdSpriteDrawNowEx(widthOrX, heightOrY, narrowDigitDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
                 tmp = 40.0f * scale;
-                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, (s16)operandOrderSubtract(0.0f, tmp), 0, 30.0f, scale, scale);
             }
         } else if (slotNumber < 0xA) {
-            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, fillDepth, (*(&col) >> 8), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
         } else if (slotNumber < 0x14) {
             u32 digitRgb;
             glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
-            digitRgb = mcUnsignedColorRgb(&col);
-            wideDigitDepth = mcPlaneDepth(&depth, 10.0f);
+            digitRgb = (*(&col) >> 8);
+            wideDigitDepth = operandOrderAddLoaded(&depth, 10.0f);
             tmp = 32.0f * scale;
-            heightOrY = mcCoordinate(&y, 49.0f);
+            heightOrY = operandOrderAddLoaded(&y, 49.0f);
             heightOrY -= tmp;
             tmp = 70.0f * scale;
-            widthOrX = mcCoordinate(&x, 53.0f);
+            widthOrX = operandOrderAddLoaded(&x, 53.0f);
             widthOrX -= tmp;
             shdSpriteDrawNowEx(widthOrX, heightOrY, wideDigitDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
             tmp = 40.0f * scale;
-            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, (s16)operandOrderSubtract(0.0f, tmp), 0, 30.0f, scale, scale);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
@@ -2402,10 +2378,10 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
             RpSkyRenderStateSet(2, 0x44);
             iconRgb = col >> 8;
             tmp = 53.0f * scale;
-            iconY = mcCoordinate(&y, 49.0f);
+            iconY = operandOrderAddLoaded(&y, 49.0f);
             iconY -= tmp;
             tmp = 11.0f * scale;
-            iconX = mcCoordinate(&x, 53.0f);
+            iconX = operandOrderAddLoaded(&x, 53.0f);
             iconX -= tmp;
             shdSpriteDrawNowEx(iconX, iconY, borderDepth, iconRgb, alpha, 0x3E, 0, (u8 *)(screenState->spritePack), 0, 0, 0, 0.0f, scale, scale);
             RpSkyRenderStateSet(3, 0x50805);
@@ -2427,54 +2403,54 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
         slotNumber = slotIndex + 1;
         if (slotNumber < 0xA) {
             if (slotNumber < 0xA) {
-                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, borderDepth, (*(&col) >> 8), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
             } else if (slotNumber < 0x14) {
                 u32 digitRgb;
                 glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
-                digitRgb = mcUnsignedColorRgb(&col);
-                inactiveNarrowDepth = mcPlaneDepth(&depth, 9.0f);
+                digitRgb = (*(&col) >> 8);
+                inactiveNarrowDepth = operandOrderAddLoaded(&depth, 9.0f);
                 centerY = 33.0f + y;
                 centerX = 14.0f + x;
                 shdSpriteDrawNowEx(centerX, centerY, inactiveNarrowDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
-                shdSpriteDrawNowEx(mcDigitAdvance(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(operandOrderAddFloat(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
             }
         } else if (slotNumber < 0xA) {
-            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, borderDepth, (*(&col) >> 8), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
         } else if (slotNumber < 0x14) {
             u32 digitRgb;
             glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
-            digitRgb = mcUnsignedColorRgb(&col);
-            inactiveWideDepth = mcPlaneDepth(&depth, 9.0f);
+            digitRgb = (*(&col) >> 8);
+            inactiveWideDepth = operandOrderAddLoaded(&depth, 9.0f);
             centerY = 22.0f + y;
-            shdSpriteDrawNowEx(mcCoordinateBefore(&x, 5.0f), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&x, 5.0f), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx((*(&x) - (5.0f)), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(operandOrderAddFloat((*(&x) - (5.0f)), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         slotNumber = slotIndex + 1;
         if (slotNumber < 0xA) {
             if (slotNumber < 0xA) {
-                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, fillDepth, (*(&col) >> 8), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
             } else if (slotNumber < 0x14) {
                 u32 digitRgb;
                 glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
-                digitRgb = mcUnsignedColorRgb(&col);
-                inactiveNarrowDepth = mcPlaneDepth(&depth, 10.0f);
+                digitRgb = (*(&col) >> 8);
+                inactiveNarrowDepth = operandOrderAddLoaded(&depth, 10.0f);
                 centerY = 33.0f + y;
                 centerX = 14.0f + x;
                 shdSpriteDrawNowEx(centerX, centerY, inactiveNarrowDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
-                shdSpriteDrawNowEx(mcDigitAdvance(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(operandOrderAddFloat(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
             }
         } else if (slotNumber < 0xA) {
-            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, fillDepth, (*(&col) >> 8), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
         } else if (slotNumber < 0x14) {
             u32 digitRgb;
             glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
-            digitRgb = mcUnsignedColorRgb(&col);
-            inactiveWideDepth = mcPlaneDepth(&depth, 10.0f);
+            digitRgb = (*(&col) >> 8);
+            inactiveWideDepth = operandOrderAddLoaded(&depth, 10.0f);
             centerY = 22.0f + y;
-            shdSpriteDrawNowEx(mcCoordinateBefore(&x, 5.0f), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&x, 5.0f), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx((*(&x) - (5.0f)), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(operandOrderAddFloat((*(&x) - (5.0f)), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, (u8 *)(screenState->spritePack), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
         }
         glyphOrRgb = mcUnsignedColorRgb(&col);
         shdSpriteDrawNow((3.0f + ((4.0f + x) - 5.0f)) - 2.0f, 20.0f + y, borderDepth, glyphOrRgb, alpha, 0x20, 0, (u8 *)(((McScreenState *)work)->spritePack), 0);
@@ -2504,8 +2480,8 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
         } while (n != 0);
     }
     tmp = 1.0f - scale;
-    tmp = mcScaleProduct(160.0f, tmp);
-    tmp = mcScaleProduct(0.5f, tmp);
+    tmp = operandOrderMultiply(160.0f, tmp);
+    tmp = operandOrderMultiply(0.5f, tmp);
     rectangle.a = (s32)((x - 16.0f) + tmp);
     rectangle.b = (s32)((y - 16.0f) + tmp);
     tmp = 160.0f * scale;
@@ -2648,6 +2624,8 @@ void mcDrawLocationText(f32 x, f32 y, f32 depth,
 typedef struct McColorWord {
     s32 rgba;
 } McColorWord;
+/* Extract signed RGB from the detail color after dropping its low alpha byte. */
+/* measured: direct member extraction changes the date/header draw instruction allocation. */
 static inline s32 mcColorRgb(const McColorWord *color)
 {
     return color->rgba >> 8;
@@ -2655,6 +2633,7 @@ static inline s32 mcColorRgb(const McColorWord *color)
 #pragma push
 #pragma opt_lifetimes on
 
+/* Find the matching area and room name, falling back to the first table entry. */
 static inline const char *mcLocationName(s32 area, s32 room)
 {
     s32 i;
@@ -2899,7 +2878,7 @@ void mcScreenStep(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex
             }
             specialRgb = specialColor >> 8;
             shdSpriteDrawNow(5.0f + (113.0f + x), 10.0f + y, depth, specialRgb, (u8)alpha, 0x43, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
-            mcDrawLocationText(mc_add(x, 107.0f), mc_add(y, 17.0f), depth,
+            mcDrawLocationText(operandOrderAddFloat(x, 107.0f), operandOrderAddFloat(y, 17.0f), depth,
                           specialRgb, alpha, (u8 *)records, slotIndex, work);
             return;
         }

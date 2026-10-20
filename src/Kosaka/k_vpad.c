@@ -190,7 +190,9 @@ void Vpad_BuildRotatedQuad(RuntimeVec3* vertices, const RuntimeVec3* translation
 /* measured: site/union indexing differs by 10 bytes and a typed flat local by
  * 18 in Vpad_RefreshSelection. Byte-cursor MEMBER keeps the load/shift order;
  * eight-byte pairs contain two four-byte signed indices selected by side. */
-static inline s32 vpad_pair_index(RuntimeWork* work, s32 index, s32 side)
+/* Select one signed matrix index from a two-index configuration record. */
+/* measured: expanding the first-index call changes eight refresh bytes; the second-index call expands without a difference. */
+static inline s32 vpadPairIndex(RuntimeWork* work, s32 index, s32 side)
 {
     return MEMBER(s32, (u8 *)((VpadConfig *)(uintptr_t)work->requestFlags)->pairs +
                   index * 8 + side * 4, RuntimeVpadPair, first);
@@ -218,11 +220,11 @@ void Vpad_RefreshSelection(RuntimeWork* work)
     {
         mdlCopyIndexedMatrix(
             (void*)((VpadConfig*)(uintptr_t)work->requestFlags)->model,
-            vpad_pair_index(work, i, 0),
+            vpadPairIndex(work, i, 0),
             firstMatrix);
         mdlCopyIndexedMatrix(
             (void*)((VpadConfig*)(uintptr_t)work->requestFlags)->model,
-            vpad_pair_index(work, i, 1),
+            MEMBER(s32, (u8 *)((VpadConfig *)(uintptr_t)(work)->requestFlags)->pairs + (i) * 8 + (1) * 4, RuntimeVpadPair, first),
             secondMatrix);
         ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2] =
             *(RuntimeVec3*)&firstMatrix->values[12];

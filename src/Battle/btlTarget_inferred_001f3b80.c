@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_target_message_internal.h"
 #include "btl_sound_internal.h"
 #include "h_cdvd_request_internal.h"
@@ -19,14 +20,10 @@
 #include "g_data_internal.h"
 #include "datPersona_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
+
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
+
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -119,9 +116,8 @@ s32 btlTargetGetMessageRecord(s32 messageId) {
     s32 value;
 
     messageTable = ((s32)(((HCdvdRequest *)(((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->handle))->data));
-    value = (((BtlTargetMessageEntry *)((u8 *)addOffsetFirst((u32)((messageId & 0xFFFF) * 0xC),
-                                          (u32)messageTable)))->offset);
-    return (s32)addBaseFirst((u32)messageTable, (u32)value);
+    value = (((BtlTargetMessageEntry *)((u8 *)(u32)byteAddressAdd((u32)((messageId & 0xFFFF) * 0xC), (u8 *)((u32)messageTable))))->offset);
+    return (s32)(((u32)messageTable) + ((u32)value));
 }
 
 /* Native b210 -O2 recovery: 932 bytes plus 12 zero tail bytes.

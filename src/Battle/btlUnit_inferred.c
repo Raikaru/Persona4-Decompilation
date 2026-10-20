@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "mdl_file_internal.h"
 #include "btl_action_internal.h"
 #include "btl_skill_target_internal.h"
@@ -117,10 +118,7 @@ extern s32 btlUnitGetMotionState(u8 *unit);
 extern u32 btlUnitIsAtRestMotion(u8 *unit);
 extern u32 btlUnitIsWalkingMotion(u8 *unit);
 extern s64 btlUnitModelAnimFrame(u8 *unit);
-static inline u32 btlUnitAddMotionOffset(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
 /* measured: opt_propagation off is scoped to func_001949d0. */
 /* measured: closes opt_propagation for func_001949d0. */
 /* measured: declaration-corrected C candidate for func_00198380. */
@@ -189,7 +187,7 @@ void btlUnitUpdateMotionLayer(u8 *unit) {
                         case 0x18:
                             motionIndex = (u16)btlUnitGetMotionId(unit, restMotion & 0xFFFF);
                             if ((s32)motionIndex < (s32)(((BtlUnit *)unit)->motionCount)) {
-                                blendFrames = (u16)((u16)((BtlMotionRate *)btlUnitAddMotionOffset(motionIndex * 0xA, (u32)(s32)((BtlUnit *)unit)->motionRates))->unk8);
+                                blendFrames = (u16)((u16)((BtlMotionRate *)(u32)byteAddressAdd(motionIndex * 0xA, (u8 *)((u32)(s32)((BtlUnit *)unit)->motionRates)))->unk8);
                             } else {
                                 blendFrames = 6;
                             }

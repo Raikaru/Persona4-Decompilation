@@ -101,16 +101,14 @@ typedef struct BtlEplFadeParam
     BtlEplRgba color; // 0x08
 } BtlEplFadeParam;
 
-static inline void btlEplRgbaToV4(V4 *out, const BtlEplColor *rgba)
+/* Normalize packed effect color channels into a four-component vector. */
+static inline void btlEplColorToVector(V4 *out, const BtlEplColor *rgba)
 {
     out->v[0] = (1.0f / 255.0f) * (f32)(u32)rgba->r;
     out->v[1] = (1.0f / 255.0f) * (f32)(u32)rgba->g;
     out->v[2] = (1.0f / 255.0f) * (f32)(u32)rgba->b;
     out->v[3] = (1.0f / 255.0f) * (f32)(u32)rgba->a;
 }
-
-
-
 
 
 typedef struct BtlEplSelect
@@ -291,7 +289,6 @@ void btlEplFreeIdHandle(s32 *work) {
 }
 
 
-
 typedef struct BtlEplUnitParam
 {
     BtlEplSelect select;   // 0x00, read by btlEplUnitIsSelected
@@ -377,7 +374,7 @@ void btlEplStepUnitFadeInOut(u8 *effect)
                 case 0:
                     if (count == 0) {
                         rgba.rgba = param->fade.color.rgba;
-                        btlEplRgbaToV4(&node->color, &rgba.c);
+                        btlEplColorToVector(&node->color, &rgba.c);
                     }
                     break;
                 case 1:
@@ -390,7 +387,7 @@ void btlEplStepUnitFadeInOut(u8 *effect)
                         f32 a0, a1, a2, a3;
                         f32 b0, b1, b2, b3;
 
-                        btlEplRgbaToV4(&color, &rgba.c);
+                        btlEplColorToVector(&color, &rgba.c);
                         a0 = node->startColor.v[0] * (1.0f - scale);
                         a1 = node->startColor.v[1] * (1.0f - scale);
                         a2 = node->startColor.v[2] * (1.0f - scale);
@@ -414,7 +411,7 @@ void btlEplStepUnitFadeInOut(u8 *effect)
                         f32 a0, a1, a2, a3;
                         f32 b0, b1, b2, b3;
 
-                        btlEplRgbaToV4(&color, &D_00764C54);
+                        btlEplColorToVector(&color, &D_00764C54);
                         a0 = color.v[0] * (1.0f - scale);
                         a1 = color.v[1] * (1.0f - scale);
                         a2 = color.v[2] * (1.0f - scale);
@@ -516,9 +513,9 @@ void btlEplStepColorPairFade(u8 *effect)
             return;
         }
         rgba.rgba = param->color[0].rgba;
-        btlEplRgbaToV4(&dst[0], &rgba.c);
+        btlEplColorToVector(&dst[0], &rgba.c);
         rgba.rgba = param->color[1].rgba;
-        btlEplRgbaToV4(&dst[1], &rgba.c);
+        btlEplColorToVector(&dst[1], &rgba.c);
         break;
     case 1:
         if (count == 0) {
@@ -532,7 +529,7 @@ void btlEplStepColorPairFade(u8 *effect)
             f32 b0, b1, b2, b3;
 
             rgba.rgba = param->color[0].rgba;
-            btlEplRgbaToV4(&color, &rgba.c);
+            btlEplColorToVector(&color, &rgba.c);
             inv = 1.0f - scale;
             a0 = target[0].v[0] * inv;
             a1 = target[0].v[1] * inv;
@@ -688,8 +685,8 @@ void btlEplStepUnitRgbaFade(u8 *effect)
                     V4 from;
                     V4 to;
 
-                    btlEplRgbaToV4(&color, &rgba.c);
-                    btlEplRgbaToV4(&start, &node->startRgba);
+                    btlEplColorToVector(&color, &rgba.c);
+                    btlEplColorToVector(&start, &node->startRgba);
                     from.v[0] = start.v[0] * inv;
                     from.v[1] = start.v[1] * inv;
                     from.v[2] = start.v[2] * inv;
@@ -815,14 +812,14 @@ void btlEplStepColorValueTargetFade(u8 *effect)
             return;
         }
         rgba.rgba = param->color[0].rgba;
-        btlEplRgbaToV4(&color, &rgba.c);
+        btlEplColorToVector(&color, &rgba.c);
         color.v[0] = color.v[0] * mul[0].v[0];
         color.v[1] = color.v[1] * mul[0].v[1];
         color.v[2] = color.v[2] * mul[0].v[2];
         color.v[3] = color.v[3] * mul[0].v[3];
         *(V4 *)resrcMngGetColorValue() = color;
         rgba.rgba = param->color[1].rgba;
-        btlEplRgbaToV4(&color, &rgba.c);
+        btlEplColorToVector(&color, &rgba.c);
         color.v[0] = color.v[0] * mul[1].v[0];
         color.v[1] = color.v[1] * mul[1].v[1];
         color.v[2] = color.v[2] * mul[1].v[2];
@@ -840,7 +837,7 @@ void btlEplStepColorValueTargetFade(u8 *effect)
             f32 b0, b1, b2, b3;
 
             rgba.rgba = param->color[0].rgba;
-            btlEplRgbaToV4(&color, &rgba.c);
+            btlEplColorToVector(&color, &rgba.c);
             color.v[0] = color.v[0] * mul[0].v[0];
             color.v[1] = color.v[1] * mul[0].v[1];
             color.v[2] = color.v[2] * mul[0].v[2];
@@ -861,7 +858,7 @@ void btlEplStepColorValueTargetFade(u8 *effect)
             *(V4 *)resrcMngGetColorValue() = color;
 
             rgba.rgba = param->color[1].rgba;
-            btlEplRgbaToV4(&color, &rgba.c);
+            btlEplColorToVector(&color, &rgba.c);
             color.v[0] = color.v[0] * mul[1].v[0];
             color.v[1] = color.v[1] * mul[1].v[1];
             color.v[2] = color.v[2] * mul[1].v[2];
@@ -992,7 +989,7 @@ void btlEplStepColorFade(u8 *effect)
             return;
         }
         rgba.rgba = param->color.rgba;
-        btlEplRgbaToV4(&color, &rgba.c);
+        btlEplColorToVector(&color, &rgba.c);
         color.v[3] = 1.0f;
         *heap = color;
         resrcMngApplyColorFactors(&color);
@@ -1002,7 +999,7 @@ void btlEplStepColorFade(u8 *effect)
             *target = *heap;
         }
         rgba.rgba = param->color.rgba;
-        btlEplRgbaToV4(&color, &rgba.c);
+        btlEplColorToVector(&color, &rgba.c);
         inv = 1.0f - scale;
         a0 = target->v[0] * inv;
         a1 = target->v[1] * inv;
@@ -1021,7 +1018,7 @@ void btlEplStepColorFade(u8 *effect)
         if (count == total - param->fadeOut) {
             *target = *heap;
         }
-        btlEplRgbaToV4(&color, &D_007641F8);
+        btlEplColorToVector(&color, &D_007641F8);
         inv = 1.0f - scale;
         a0 = color.v[0] * inv;
         a1 = color.v[1] * inv;
@@ -1177,9 +1174,9 @@ void btlEplStepLightFadeInOut(u8 *effect)
             break;
         }
         rgba.rgba = param->color[0].rgba;
-        btlEplRgbaToV4((V4 *)&D_00922CA0[0], &rgba.c);
+        btlEplColorToVector((V4 *)&D_00922CA0[0], &rgba.c);
         rgba.rgba = param->color[1].rgba;
-        btlEplRgbaToV4((V4 *)&D_00922CA0[4], &rgba.c);
+        btlEplColorToVector((V4 *)&D_00922CA0[4], &rgba.c);
         D_00922CC0[0] = 1;
         break;
     case 1:
@@ -1194,7 +1191,7 @@ void btlEplStepLightFadeInOut(u8 *effect)
             f32 b0, b1, b2, b3;
 
             rgba.rgba = param->color[0].rgba;
-            btlEplRgbaToV4(&color, &rgba.c);
+            btlEplColorToVector(&color, &rgba.c);
             inv = 1.0f - scale;
             a0 = target->start[0].v[0] * inv;
             a1 = target->start[0].v[1] * inv;

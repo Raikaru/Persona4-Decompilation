@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "member_access.h"
 #include "h_cdvd_request_internal.h"
 #include "btl_effect_internal.h"
@@ -93,14 +94,8 @@ extern void memset(void *, s32, s32);
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
-static inline s32 *btlPacketAddListByteOffset(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlPacketAddBaseOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
+
+
 
 extern u8 iGpffffa4d8;
 extern void btlPacketStep(u8 *context);
@@ -196,10 +191,7 @@ static inline u8 *btlPacketFindFlaggedByType(u16 key)
     }
     return NULL;
 }
-static inline u32 packetListOffset(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
 typedef struct {
     u8 *head;
     u8 *tail;
@@ -657,20 +649,17 @@ s64 btlPacketEnqueue(u8 *context, u32 value)
     }
     ((BtlPacket *)context)->previous = 0;
     index = ((u8)value) * 8;
-    selectedPacketList = (BtlPacketList *)((u8 *)btlPacketAddListByteOffset(0x198, (s32 *)iGpffffb3ac) + index);
+    selectedPacketList = (BtlPacketList *)((u8 *)((s32 *)((s32)((s32 *)iGpffffb3ac) + (0x198))) + index);
     next = selectedPacketList->head;
     if (next != NULL) {
         ((BtlPacket *)next)->previous = context;
         ((BtlPacket *)context)->next =
-            ((BtlBattleState *)(u8 *)btlPacketAddBaseOffset(index,
-                                                 (s32)iGpffffb3ac))->packetLists[0].head;
+            ((BtlBattleState *)(u8 *)((index) + ((s32)iGpffffb3ac)))->packetLists[0].head;
     } else {
-        ((BtlBattleState *)(u8 *)btlPacketAddBaseOffset(index,
-                                             (s32)iGpffffb3ac))->packetLists[0].tail = context;
+        ((BtlBattleState *)(u8 *)((index) + ((s32)iGpffffb3ac)))->packetLists[0].tail = context;
         ((BtlPacket *)context)->next = NULL;
     }
-    ((BtlBattleState *)(u8 *)btlPacketAddBaseOffset(index,
-                                         (s32)iGpffffb3ac))->packetLists[0].head = context;
+    ((BtlBattleState *)(u8 *)((index) + ((s32)iGpffffb3ac)))->packetLists[0].head = context;
     return (s64)contextFields->uid;
 }
 
@@ -814,7 +803,7 @@ void btlPacketStepSide(s32 side)
     u8 *packet;
 
     btl = iGpffffb3ac;
-    packet = ((BtlBattleState *)(u8 *)packetListOffset((side & 0xFF) * 8, (u32)btl))->packetLists[0].tail;
+    packet = ((BtlBattleState *)(u8 *)(u32)byteAddressAdd((side & 0xFF) * 8, (u8 *)((u32)btl)))->packetLists[0].tail;
     while (packet != NULL) {
         next = ((BtlPacket *)packet)->previous;
         btlPacketStep(packet);

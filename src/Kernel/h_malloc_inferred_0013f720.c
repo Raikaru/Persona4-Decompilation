@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "member_access.h"
 #include "btl_target_state_packet_internal.h"
 #include "datPersona_internal.h"
@@ -14,9 +15,6 @@ extern u32 datCalcGetSpById(s16 unitId);
 extern s32 cmpSkillApplySelected(s16 casterId, s16 targetId, s32 skillIndex, u8 *menu);
 struct GDataEntry;
 extern s32 datCalcSkillEffectFlagsById(s16 sourceId, s16 targetId, u32 skillId, u32 flags);
-static inline u8 *code13AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 extern void radarDrawFrame(u8 *work);
 extern void radarResetEntries(u8 *work);
 extern void radarAnimateValue(void *work, s32 frame, s32 mode);
@@ -136,7 +134,7 @@ s32 cmpSkillApplySelected(s16 casterId, s16 targetId, s32 skillIndex, u8 *menu) 
 
     result = 1;
     previousPersona = -1;
-    skillEntry = code13AddOff(skillIndex * 0xC, menu);
+    skillEntry = byteAddressAdd((u32)(skillIndex * 0xC), menu);
     skillIdField = skillEntry + 0x102;
     skillId = ((CmpSkillEntry *)(skillEntry + 0x100))->skillId;
     personaIdField = skillEntry + 0x100;

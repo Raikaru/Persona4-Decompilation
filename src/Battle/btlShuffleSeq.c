@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 /* Original translation unit btlShuffleSeq.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
 #include "include_asm.h"
@@ -34,10 +35,7 @@ extern s32 btlShuffleDrawTableLookup(s32 cardCount, s32 pattern);
    retail's offset-first `addu $v1,$v0,$s2` at the reused record base; writing
    `arg0 + offset` gives base-first, and naming the offset in an s32 local fixes
    the order but costs a fourth saved register and grows the frame to 0x80. */
-static inline u32 seqRecord(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
 extern void btlShuffleDrawViewReset(u8 *context);
 extern s32 btlShuffleSeq1Run(u8 *context);
 extern s32 btlShuffleSeq2Run(u8 *context);
@@ -321,11 +319,11 @@ s32 btlShuffleSeqRecord(u8 *context, s32 cardIndex, s32 frames)
            at every use so b210 emits retail's `addu $v1,$v0,$s2`; a named local or
            an inline helper fixes the order too but costs a fourth saved register
            and grows the frame from 0x70 to 0x80. */
-        *(Vec3f *)&axis[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)))->cards[0].axis;
-        *(Vec3f *)&eye[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)))->cards[0].eye;
-        *(Vec3f *)&origin[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)))->cards[0].origin;
+        *(Vec3f *)&axis[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)(u32)byteAddressAdd(cardIndex * 0xE8, (u8 *)((u32)context))))->cards[0].axis;
+        *(Vec3f *)&eye[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)((cardIndex * 0xE8) + ((u32)context))))->cards[0].eye;
+        *(Vec3f *)&origin[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)((cardIndex * 0xE8) + ((u32)context))))->cards[0].origin;
         /* The circular-motion angle overlaps the alternate-position vector. */
-        angle = ((BtlShuffleContext *)((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)))->cards[0].angle;
+        angle = ((BtlShuffleContext *)((u8 *)((cardIndex * 0xE8) + ((u32)context))))->cards[0].angle;
         if (!(angle <= 360.0f)) {
             angle = angle - 360.0f;
         }
@@ -381,7 +379,7 @@ void btlShuffleSeqSetMode(u8 *context, s32 cardIndex, s32 frames) {
     f32 duration;
     s32 halfFrames;
 
-    *(Vec3f *)&position[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)))->cards[0].position;
+    *(Vec3f *)&position[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)(u32)byteAddressAdd(cardIndex * 0xE8, (u8 *)((u32)context))))->cards[0].position;
     position[2] = position[2] + 800.0f;
     if (frames >= 0) {
         duration = (f32)frames;
