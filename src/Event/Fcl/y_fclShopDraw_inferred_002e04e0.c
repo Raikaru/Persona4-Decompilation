@@ -229,9 +229,9 @@ void fclObjSetAnchorAlphaFull(u8 *task, s32 mode, f32 value)
     *(s32 *)&work->scaleX = 0x3F800000;
     work = fclObjWork(task);
     work->tweenLoop = 0;
-    /* Reset bytes +0xA7/+0x67 have no named fields in the shared object layout. */
-    *(s8 *)((u8 *)work + 0xA7) = 0;
-    *(s8 *)((u8 *)work + 0x67) = 0;
+    /* Reset the two otherwise unidentified anchor-state bytes. */
+    ((FclObject *)(u8 *)work)->unkA7 = 0;
+    ((FclObject *)(u8 *)work)->unk67 = 0;
     work->mode = 0;
 }
 

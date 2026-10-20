@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
 #include "scene_resource_internal.h"
@@ -73,6 +74,7 @@ extern void mtMiscCollectType2Records(u8 *);
 // FUN_00294280
 void mtMiscBuildSceneNodes(u8 *eventWork)
 {
+    ResrcHeader *firstHeader;
     typedef struct Resrc Resrc;
     typedef struct ResrcManager ResrcManager;
     extern u32 MT_Scene_GetResManager(void);
@@ -116,6 +118,7 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
     resourceManager = MT_Scene_GetResManager();
     if (resourceManager != 0) {
         firstResource = (u16 *)MT_Scene_GetRes(0x400);
+        firstHeader = (ResrcHeader *)firstResource;
         if (firstResource != NULL) {
             nodeValue = (s32)evtNodeAlloc(1, (s32)eventWork);
             evtNodeSetRes(nodeValue, 0x400, (s32)firstResource);
@@ -133,10 +136,10 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             ((MtMiscSceneNode *)nodeValue)->unk_44.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_44.z = componentFirst;
             firstX = fptodp(((ResrcHeader *)firstResource)->position.x);
-            /* measured: typed diagnostic coordinate reads lose MATCH; retain their reloads. */
-            firstY = fptodp(*(f32 *)(firstResource + 4));
+            /* measured: a typed resource local preserves these diagnostic coordinate reloads. */
+            firstY = fptodp(firstHeader->position.y);
             func_00440b68(D_0063CAC0, firstX, firstY,
-                          fptodp(*(f32 *)(firstResource + 6)));
+                          fptodp(firstHeader->position.z));
             firstColor = mdlGetColor(((SceneCharacterUpdate *)firstResource)->model);
             red = firstColor[0];
             value = firstColor[1];
@@ -171,9 +174,9 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             ((MtMiscSceneNode *)nodeValue)->unk_44.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_44.z = componentFirst;
             diagnosticX = fptodp(((ResrcHeader *)modelResource)->position.x);
-            diagnosticY = fptodp(*(f32 *)(modelResource + 8));
+            diagnosticY = fptodp(MEMBER(f32, modelResource, ResrcHeader, position.y));
             func_00440b68(D_0063CAC0, diagnosticX, diagnosticY,
-                          fptodp(*(f32 *)(modelResource + 0xC)));
+                          fptodp(MEMBER(f32, modelResource, ResrcHeader, position.z)));
             color = mdlGetColor(((SceneCharacterUpdate *)modelResource)->model);
             red = color[0];
             value = color[1];
@@ -220,11 +223,11 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             do {
                 /* The light matrix is copied in eight word pairs, preserving its reserved words. */
                 value = *(s32 *)sourceWords;
-                red = *(s32 *)(sourceWords + 4);
+                red = ((s32 *)sourceWords)[1];
                 sourceWords += 8;
                 pairsRemaining--;
                 *(s32 *)destinationWords = value;
-                *(s32 *)(destinationWords + 4) = red;
+                ((s32 *)destinationWords)[1] = red;
                 destinationWords += 8;
             } while (pairsRemaining > 0);
         }
