@@ -9,7 +9,7 @@
 /* Store the preserved game-clear count, saturating unsigned values above ninety-nine. */
 // FUN_00110470
 #pragma optimization_level 1
-void FUN_00110470(u32 value)
+void datSetClearCount(u32 value)
 {
     *(u32*)0x0079bef4 = value;
     if (*(u32*)0x0079bef4 > 99)
