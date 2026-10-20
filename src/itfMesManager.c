@@ -58,7 +58,7 @@ void memset();
 void itfMesEntryReset();
 void itfMesClearSlots();
 void itfMesWindowClearStateField(s32 window); /* lint: allow H011 -- caller passes the stored pointer as s32 (*(s32 *)(row + 0x28)); the definition takes s32 *, and retyping the caller's load is unmeasured */
-void func_0027b830(s32 handle);
+void itfMesWindowSendClear(s32 handle);
 void fmGslContPoolUnlink();
 s8 frFontRunCommand(int stream, int mode, int command);
 u8 *frFontBuildTextSimple(u32 x, u32 y, u32 style, u32 palette, u32 effect, u32 intensity, u32 stream, u32 list);
@@ -85,7 +85,7 @@ void frFontSetGlyphColor(u8 *list, s32 color);
 void frFontExSetScale(u8 *font, f32 scale);
 void *fmGslContPoolAlloc(void *pool);
 extern char D_0063BE60[];
-void func_0027b7c0(s32 handle);
+void itfMesWindowSendRecordBound(s32 handle);
 void itfMesWindowSetSelectionText(u8 *window, u8 *record);
 void itfMesWindowBuildRow(u8 *window);
 s32 frFontNodeWidth(u8 *node);
@@ -95,8 +95,8 @@ extern char D_0063BEA0[];
 typedef signed __int128 s128;
 u32 frFontMaskFlags(u32 value);
 s32 itfMesWindowGetProcedureParam(s32 handle, s32 index);
-void func_0027bb60(s32 handle);
-void func_0027bbc0(s32 handle);
+void itfMesWindowSendChoiceMeasure(s32 handle);
+void itfMesWindowSendChoiceBuilt(s32 handle);
 int itfMesCountClearBits(int count, u32 mask);
 u8 *itfMesBuildGlyphRun(u32 *texts, s32 count, u32 hiddenMask, s32 x, s32 y, s32 value, s32 spacing, s32 style);
 s32 frFontListTail(int list);
@@ -122,7 +122,7 @@ void itfMesWindowSetFlagBits(s32 handle, s32 flags);
 void itfMesWindowClearFlagBits(s32 handle, s32 flags);
 extern s32 DAT_007245C4;
 void itfMesWindowSetProcedureParam(s32 handle, s32 index, s32 value);
-void func_0027b8a0(s32 handle);
+void itfMesWindowSendStyledParameter(s32 handle);
 void itfMesWindowClear(s32 handle, s32 clearLabel);
 void itfMesWindowLayout(s32 handle, s32 recordIndex);
 void itfMesWindowEnd(s32 handle);
@@ -135,7 +135,7 @@ extern u8 DAT_008817E0_abs[];
 s32 frFontListKeepOrRelease(s32 list);
 void itfMesSlotReset(void *value, s32 index);
 void itfMesRecordReset(void *value, s32 index);
-void func_0027baa0(s32 handle);
+void itfMesWindowSendRelease(s32 handle);
 void itfMesWindowClearObject(u8 *window, s32 clearLabel);
 void frFontMoveListTo(s32 list, s32 x, s32 y);
 void itfMesWindowResetObject(u8 *window);
@@ -261,7 +261,7 @@ s32 itfMesCmdWindowOpenStyled(void)
         itfMesWindowSetFlagBits(index, 0x200000);
         result = itfMesWindowBindRecord(index, handle, 0);
         itfMesWindowSetProcedureParam(index, 0, scrGetParamInt(1));
-        func_0027b8a0(index);
+        itfMesWindowSendStyledParameter(index);
         if (result == 0)
             return 1;
     } else if (flag < 0) {
@@ -550,7 +550,7 @@ void itfMesWindowRelease(s32 handle)
     }
     v = -1;
 out:
-    func_0027baa0(v);
+    itfMesWindowSendRelease(v);
 
     w = ((ItfMesWindow *)obj)->flags.bits;
     if (w & 0x300) {
@@ -768,7 +768,7 @@ s32 itfMesWindowBindRecord(s32 handle, s32 recordIndex, s32 rowIndex)
     v = ((ItfMesWindow *)obj)->font.value;
     if (v != 0)
         frFontLoadSystemSlot((u8 *)v);
-    func_0027b7c0(handle);
+    itfMesWindowSendRecordBound(handle);
     itfMesWindowBuildRow(obj);
     bits = ((ItfMesWindow *)obj)->flags.value;
     m3 = bits & 0x300;
@@ -903,7 +903,7 @@ void itfMesWindowLayout(s32 handle, s32 recordIndex)
     ((ItfMesSelection *)(base))->hiddenMask.bits = mask;
     visibleCount = itfMesCountClearBits((countFields = (ItfMesChoiceRecord *)(data), countFields)->count, mask);
     itfMesWindowSetProcedureParam(handle, 0, visibleCount);
-    func_0027bb60(handle);
+    itfMesWindowSendChoiceMeasure(handle);
     x = itfMesWindowGetProcedureParam(handle, 0);
     y = itfMesWindowGetProcedureParam(handle, 1);
     spacing = itfMesWindowGetProcedureParam(handle, 2);
@@ -920,7 +920,7 @@ void itfMesWindowLayout(s32 handle, s32 recordIndex)
         (hiddenmaskBitsFields = (ItfMesSelection *)(base), hiddenmaskBitsFields)->hiddenMask.bits,
         x, y, ((ItfMesWindow *)object)->value.value, spacing, 0);
     iGpffffb4b0 = savedFont;
-    func_0027bbc0(handle);
+    itfMesWindowSendChoiceBuilt(handle);
     ((ItfMesSelection *)base)->count = (s16)visibleCount;
     flags = ((ItfMesWindow *)object)->flags.value & ~0x38;
     ((ItfMesWindow *)object)->flags.value = flags;
@@ -1318,7 +1318,7 @@ void itfMesWindowFree(s32 handle)
     base = row + 0x1C;
     if (((ItfMesManagerEntry *)(row + 0x1C))->object.value != 0)
         itfMesWindowClearStateField(((ItfMesManagerEntry *)(row + 0x1C))->object.value);
-    func_0027b830(handle);
+    itfMesWindowSendClear(handle);
     ((ItfMesManagerEntry *)base)->object.value = 0;
     for (i = 0; i < 4; i++) {
         if (base == NULL || i < 0 || i >= 4)
