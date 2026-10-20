@@ -15,23 +15,6 @@ typedef struct BtlTargetRotationInterpolation {
     s32 mode;
 } BtlTargetRotationInterpolation;
 
-/* Cleared as 0x5C bytes; the AI selectors and procedure commands share this work. */
-typedef struct BtlTargetRecord {
-    u32 targets[12];
-    u8 procedureActive;
-    u8 pad31;
-    u16 count;
-    u16 kind;
-    u16 command;
-    u16 skill;
-    u8 pad3A[4];
-    u16 plan[3];
-    u8 pad44[0x0C];
-    u32 unk50;
-    u32 unk54;
-    u32 unk58;
-} BtlTargetRecord;
-
 /* Packet 0xD00 allocates 0x10 bytes, consumed by btlTargetSpawnActionProc. */
 typedef struct BtlTargetProcedure {
     s32 action;
@@ -124,7 +107,6 @@ typedef struct BtlTargetNavigation {
     BtlTargetPathNode *closed;
 } BtlTargetNavigation;
 
-typedef char BtlTargetRecordSizeCheck[sizeof(BtlTargetRecord) == 0x5C ? 1 : -1];
 typedef char BtlTargetProcedureSizeCheck[sizeof(BtlTargetProcedure) == 0x10 ? 1 : -1];
 typedef char BtlTargetCornerSizeCheck[sizeof(BtlTargetCorner) == 0x130 ? 1 : -1];
 typedef char BtlTargetPathNodeSizeCheck[sizeof(BtlTargetPathNode) == 0x130 ? 1 : -1];

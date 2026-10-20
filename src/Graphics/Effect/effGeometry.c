@@ -1,5 +1,6 @@
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
+#include "eff_geometry_block_internal.h"
 #include "include_asm.h"
 /* Original translation unit effGeometry.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -87,44 +88,9 @@ struct RpGeometry {
     RpMorphTarget *morphTarget;  /* +0x5C */
 };
 
-/* Module-owned blocks are 0x48 bytes; multipart blocks extend this prefix
- * to 0x58 and append one material pointer per part. Triangle records have
- * three 16-bit indices plus the material slot at the eight-byte stride. */
-typedef struct EffGeometryBlock {
-    union {
-        s16 signedHalf[2];
-        u16 half[2];
-    } kind; /* +0x00 */
-    s32 flags; /* +0x04 */
-    union {
-        s16 signedHalf[2];
-        u16 half[2];
-    } vertexCount; /* +0x08 */
-    union {
-        s32 signedValue;
-        void * pointer;
-    } frame; /* +0x0C */
-    union {
-        s32 signedValue;
-        s32 * words;
-        u8 * bytes;
-    } atomic; /* +0x10 */
-    union {
-        s32 signedValue;
-        s32 * words;
-        u8 * bytes;
-    } material; /* +0x14 */
-    s32 nodeNext; /* +0x18 */
-    s32 nodePrevious; /* +0x1C */
-    u8 pad20[0x10];
-    s16 tag; /* +0x30 */
-    u8 pad32[0x2];
-    union {
-        u8 * bytes;
-        void * pointer;
-    } owner; /* +0x34 */
-    u8 pad38[0x10];
-} EffGeometryBlock;
+/* Multipart blocks extend the shared 0x48-byte prefix to 0x58 and append one
+ * material pointer per part. Triangle records have three 16-bit indices plus
+ * the material slot at the eight-byte stride. */
 
 typedef struct EffGeometryMultiPart {
     EffGeometryBlock base;
@@ -221,16 +187,16 @@ u8 *GeometryBlockCreate(s32 vertexCount, s32 triangleCount, s32 flags) {
     }
     func_003c0210((RpAtomic *)atomic, (RpGeometry *)geometry, 0);
     func_003c2a80((RpGeometry *)geometry);
-    ((EffGeometryBlock *)block)->kind.signedHalf[0] = 5;
+    ((EffGeometryBlock *)block)->kindData.signedHalf[0] = 5;
     ((EffGeometryBlock *)block)->flags = flags;
-    ((EffGeometryBlock *)block)->vertexCount.signedHalf[0] = (s16)vertexCount;
-    ((EffGeometryBlock *)block)->vertexCount.signedHalf[1] = (s16)triangleCount;
-    ((EffGeometryBlock *)block)->frame.signedValue = frame;
-    ((EffGeometryBlock *)block)->atomic.signedValue = atomic;
-    ((EffGeometryBlock *)block)->material.signedValue = material;
+    ((EffGeometryBlock *)block)->vertexCounts.signedHalf[0] = (s16)vertexCount;
+    ((EffGeometryBlock *)block)->vertexCounts.signedHalf[1] = (s16)triangleCount;
+    ((EffGeometryBlock *)block)->frameData.signedValue = frame;
+    ((EffGeometryBlock *)block)->atomicData.signedValue = atomic;
+    ((EffGeometryBlock *)block)->materialData.signedValue = material;
     memset((u8 *)block + 0x18, 0, 0x30);
     ((EffGeometryBlock *)block)->tag = 0x15;
-    ((EffGeometryBlock *)block)->owner.pointer = block;
+    ((EffGeometryBlock *)block)->drawOwner.pointer = block;
     return block;
 }
 
@@ -263,8 +229,8 @@ u8 *GeometryCreateStripGrid(u16 rowCount, void *indices, s32 verticesPerRow, s32
     block = (u8 *)GeometryBlockCreate((rows + 1) * (verticesPerRow & 0xFFFF),
                                    rows * (segmentCount * 2), flags);
     result = block;
-    geometry = ((EffGeometryAtomic *)((EffGeometryBlock *)block)->atomic.bytes)->geometry;
-    material = ((EffGeometryBlock *)block)->material.signedValue;
+    geometry = ((EffGeometryAtomic *)((EffGeometryBlock *)block)->atomicData.bytes)->geometry;
+    material = ((EffGeometryBlock *)block)->materialData.signedValue;
     triangle = ((RpGeometry *)geometry)->triangles;
     vertexOffset = 0;
     rowIndex = 0;
@@ -313,8 +279,8 @@ u8 *GeometryCreateTableGrid(s32 rowCount, s32 trianglesPerRow, s32 verticesPerRo
     indicesPerRow = triangleCount * 3;
     rows = rowCount & 0xFFFF;
     block = (u8 *)GeometryBlockCreate(rows * columns, rows * triangleCount, flags);
-    geometry = ((EffGeometryAtomic *)((EffGeometryBlock *)block)->atomic.bytes)->geometry;
-    material = ((EffGeometryBlock *)block)->material.signedValue;
+    geometry = ((EffGeometryAtomic *)((EffGeometryBlock *)block)->atomicData.bytes)->geometry;
+    material = ((EffGeometryBlock *)block)->materialData.signedValue;
     result = block;
     triangle = ((RpGeometry *)geometry)->triangles;
     vertexOffset = 0;
@@ -346,26 +312,26 @@ u8 *GeometryCreateAtomicFromResource(u16 resourceId, s32 flags) {
     chkmemAllocSiteTag(D_00713448, 0xA6);
     block = jtbl_008873E8[0](0x48, 0x40000);
     geometryBlock = (EffGeometryBlock *)block;
-    ((EffGeometryBlock *)block)->kind.signedHalf[0] = 3;
+    ((EffGeometryBlock *)block)->kindData.signedHalf[0] = 3;
     ((EffGeometryBlock *)block)->flags = flags;
-    ((EffGeometryBlock *)block)->vertexCount.signedHalf[0] = 0;
-    ((EffGeometryBlock *)block)->vertexCount.half[1] = resourceId;
-    ((EffGeometryBlock *)block)->material.signedValue = 0;
-    ((EffGeometryBlock *)block)->atomic.signedValue = func_003a2340(resourceId & 0xFFFF, flags, 2);
+    ((EffGeometryBlock *)block)->vertexCounts.signedHalf[0] = 0;
+    ((EffGeometryBlock *)block)->vertexCounts.half[1] = resourceId;
+    ((EffGeometryBlock *)block)->materialData.signedValue = 0;
+    ((EffGeometryBlock *)block)->atomicData.signedValue = func_003a2340(resourceId & 0xFFFF, flags, 2);
     frame = (s32)func_003e9320();
-    ((EffGeometryBlock *)block)->frame.signedValue = frame;
-    RpAtomicSetFrame((RpAtomic *)geometryBlock->atomic.bytes, (RwFrame *)frame);
+    ((EffGeometryBlock *)block)->frameData.signedValue = frame;
+    RpAtomicSetFrame((RpAtomic *)geometryBlock->atomicData.bytes, (RwFrame *)frame);
     /* RenderWare registers the pointer slot at a runtime plugin displacement. */
-    ((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->unkB4 = 1;
+    ((EffGeometryAtomicPlugin **)(geometryBlock->atomicData.bytes + iGpffffb610))[0]->unkB4 = 1;
     if (flags & 0x80000) {
-        memcpy(((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->color, D_00713460, 0x10);
-        ((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->flags |= 0x80000;
+        memcpy(((EffGeometryAtomicPlugin **)(geometryBlock->atomicData.bytes + iGpffffb610))[0]->color, D_00713460, 0x10);
+        ((EffGeometryAtomicPlugin **)(geometryBlock->atomicData.bytes + iGpffffb610))[0]->flags |= 0x80000;
     }
-    ((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->flags |= 0x800000;
-    ((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->unk04 = 0;
+    ((EffGeometryAtomicPlugin **)(geometryBlock->atomicData.bytes + iGpffffb610))[0]->flags |= 0x800000;
+    ((EffGeometryAtomicPlugin **)(geometryBlock->atomicData.bytes + iGpffffb610))[0]->unk04 = 0;
     memset(block + 0x18, 0, 0x30);
     ((EffGeometryBlock *)block)->tag = 0x15;
-    ((EffGeometryBlock *)block)->owner.bytes = block;
+    ((EffGeometryBlock *)block)->drawOwner.bytes = block;
     return block;
 }
 
@@ -387,20 +353,20 @@ u8 *GeometryCloneBlock(u8 *source) {
     u8 *copyTriangle;
     self = source;
 
-    if (((EffGeometryBlock *)self)->kind.half[0] & 2) {
-        copy = GeometryCreateAtomicFromResource(((EffGeometryBlock *)self)->vertexCount.half[1], ((EffGeometryBlock *)self)->flags);
-        sourceTexture = ((EffGeometryMaterial *)((RpGeometry *)((EffGeometryAtomic *)((EffGeometryBlock *)self)->atomic.bytes)->geometry)->materials[0])->texture;
+    if (((EffGeometryBlock *)self)->kindData.half[0] & 2) {
+        copy = GeometryCreateAtomicFromResource(((EffGeometryBlock *)self)->vertexCounts.half[1], ((EffGeometryBlock *)self)->flags);
+        sourceTexture = ((EffGeometryMaterial *)((RpGeometry *)((EffGeometryAtomic *)((EffGeometryBlock *)self)->atomicData.bytes)->geometry)->materials[0])->texture;
         if (sourceTexture != 0) {
-            copyGeometry = ((RpGeometry *)((EffGeometryAtomic *)((EffGeometryBlock *)copy)->atomic.bytes)->geometry)->materials[0];
+            copyGeometry = ((RpGeometry *)((EffGeometryAtomic *)((EffGeometryBlock *)copy)->atomicData.bytes)->geometry)->materials[0];
             func_003c42b0(copyGeometry, sourceTexture);
         }
     } else {
-        copy = GeometryBlockCreate(((EffGeometryBlock *)self)->vertexCount.signedHalf[0], ((EffGeometryBlock *)self)->vertexCount.signedHalf[1],
+        copy = GeometryBlockCreate(((EffGeometryBlock *)self)->vertexCounts.signedHalf[0], ((EffGeometryBlock *)self)->vertexCounts.signedHalf[1],
                                ((EffGeometryBlock *)self)->flags);
-        material = ((EffGeometryBlock *)copy)->material.signedValue;
-        sourceGeometry = ((EffGeometryAtomic *)((EffGeometryBlock *)self)->atomic.bytes)->geometry;
-        copyGeometry = ((EffGeometryAtomic *)((EffGeometryBlock *)copy)->atomic.bytes)->geometry;
-        materialTexture = ((EffGeometryMaterial *)((EffGeometryBlock *)self)->material.bytes)->texture;
+        material = ((EffGeometryBlock *)copy)->materialData.signedValue;
+        sourceGeometry = ((EffGeometryAtomic *)((EffGeometryBlock *)self)->atomicData.bytes)->geometry;
+        copyGeometry = ((EffGeometryAtomic *)((EffGeometryBlock *)copy)->atomicData.bytes)->geometry;
+        materialTexture = ((EffGeometryMaterial *)((EffGeometryBlock *)self)->materialData.bytes)->texture;
         if (materialTexture != 0) {
             func_003c42b0((void *)(u32)material, materialTexture);
         }
@@ -408,7 +374,7 @@ u8 *GeometryCloneBlock(u8 *source) {
         sourceTriangle = ((RpGeometry *)sourceGeometry)->triangles;
         copyTriangle = ((RpGeometry *)copyGeometry)->triangles;
         triangleIndex = 0;
-        while (triangleIndex < ((EffGeometryBlock *)self)->vertexCount.signedHalf[1]) {
+        while (triangleIndex < ((EffGeometryBlock *)self)->vertexCounts.signedHalf[1]) {
             ((EffGeometryTriangle *)copyTriangle)->firstVertex.half[0] = ((EffGeometryTriangle *)sourceTriangle)->firstVertex.half[0];
             ((EffGeometryTriangle *)copyTriangle)->firstVertex.half[1] = ((EffGeometryTriangle *)sourceTriangle)->firstVertex.half[1];
             ((EffGeometryTriangle *)copyTriangle)->thirdVertex = ((EffGeometryTriangle *)sourceTriangle)->thirdVertex;
@@ -425,19 +391,19 @@ u8 *GeometryCloneBlock(u8 *source) {
 // Releases the block's atomic or geometry (chosen by flag 2), its frame and its texture slot, then the block.
 // FUN_004833F0
 void GeometryBlockDestroy(void *block) {
-    s32 resource = ((EffGeometryBlock *)block)->atomic.signedValue;
+    s32 resource = ((EffGeometryBlock *)block)->atomicData.signedValue;
     if (resource != 0) {
-        if (((EffGeometryBlock *)block)->kind.half[0] & 2) {
+        if (((EffGeometryBlock *)block)->kindData.half[0] & 2) {
             func_003a2760(resource);
         } else {
             func_003c02e0(resource);
         }
     }
-    resource = ((EffGeometryBlock *)block)->frame.signedValue;
+    resource = ((EffGeometryBlock *)block)->frameData.signedValue;
     if (resource != 0) {
         func_003e9390(resource);
     }
-    resource = ((EffGeometryBlock *)block)->material.signedValue;
+    resource = ((EffGeometryBlock *)block)->materialData.signedValue;
     if (resource != 0) {
         func_003c4220(resource);
     }
@@ -459,29 +425,29 @@ void GeometryBlockBindResource(u8 *block, s32 resourceId) {
 void GeometryBlockSetPartState(u8 *block, s32 state) {
     EffGeometryBlock *geometryBlock = (EffGeometryBlock *)block;
     /* Keep the byte cursor and typed local distinct: access-site casts change allocation across calls. */
-    if (((EffGeometryBlock *)block)->kind.half[0] & 2) {
+    if (((EffGeometryBlock *)block)->kindData.half[0] & 2) {
         switch (state & 0xFFFF) {
         case 0:
-            func_003a2950(geometryBlock->atomic.words, 2, 0x717FB);
-            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 0x44);
+            func_003a2950(geometryBlock->atomicData.words, 2, 0x717FB);
+            func_003a2950(((EffGeometryBlock *)block)->atomicData.words, 1, 0x44);
             break;
         case 1:
-            func_003a2950(geometryBlock->atomic.words, 2, 0x71801);
-            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 0x44);
+            func_003a2950(geometryBlock->atomicData.words, 2, 0x71801);
+            func_003a2950(((EffGeometryBlock *)block)->atomicData.words, 1, 0x44);
             break;
         case 2:
-            func_003a2950(geometryBlock->atomic.words, 2, 0x71801);
-            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 0x48);
+            func_003a2950(geometryBlock->atomicData.words, 2, 0x71801);
+            func_003a2950(((EffGeometryBlock *)block)->atomicData.words, 1, 0x48);
             break;
         case 3:
         case 4:
-            func_003a2950(geometryBlock->atomic.words, 2, 0x71801);
-            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 0x42);
+            func_003a2950(geometryBlock->atomicData.words, 2, 0x71801);
+            func_003a2950(((EffGeometryBlock *)block)->atomicData.words, 1, 0x42);
             break;
         case 5:
         case 6:
-            func_003a2950(geometryBlock->atomic.words, 2, 0x71801);
-            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 6);
+            func_003a2950(geometryBlock->atomicData.words, 2, 0x71801);
+            func_003a2950(((EffGeometryBlock *)block)->atomicData.words, 1, 6);
             break;
         default:
             kAssertFail(D_00713448, 0x14C);
@@ -498,7 +464,7 @@ void GeometryBlockSetFrameMatrix(u8 *block)
     void GeometryMatrixBuild();
 
     GeometryMatrixBuild(&matrix);
-    func_003e9cb0(((EffGeometryBlock *)block)->frame.pointer, &matrix, 0);
+    func_003e9cb0(((EffGeometryBlock *)block)->frameData.pointer, &matrix, 0);
 }
 
 
@@ -511,7 +477,7 @@ void GeometryBlockSetFrameMatrixCombined(u8 *block)
     void GeometryMatrixBuildCombined();
 
     GeometryMatrixBuildCombined(&matrix);
-    func_003e9cb0(((EffGeometryBlock *)block)->frame.pointer, &matrix, 0);
+    func_003e9cb0(((EffGeometryBlock *)block)->frameData.pointer, &matrix, 0);
 }
 
 
@@ -612,7 +578,7 @@ void GeometryMatrixBuildCombined(RwMatrix *matrix, RwV3d *translation, void *bas
 void GeometryBlockSetTextureFromHandle(u8 *block, u8 *handle) {
     s32 texture = TnUploadStreamTagged(handle);
 
-    func_003c42b0(((EffGeometryBlock *)block)->material.words, texture);
+    func_003c42b0(((EffGeometryBlock *)block)->materialData.words, texture);
     func_003ef3a0(texture);
 }
 
@@ -623,7 +589,7 @@ void GeometryBlockGetTextureInfo(int block, u32 *info)
   int *texture;
   int raster;
 
-  texture = (int *)((EffGeometryMaterial *)((EffGeometryBlock *)block)->material.bytes)->texture;
+  texture = (int *)((EffGeometryMaterial *)((EffGeometryBlock *)block)->materialData.bytes)->texture;
   info[2] = (u32)texture;
 
   if (texture != (int *)0x0) {
@@ -676,13 +642,13 @@ u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPer
         morphTarget->boundingSphere = sphere;
         func_003c0210(atomic, geometry, 0);
         func_003c2a80(geometry);
-        ((EffGeometryBlock *)effect)->kind.signedHalf[0] = 5;
+        ((EffGeometryBlock *)effect)->kindData.signedHalf[0] = 5;
         ((EffGeometryBlock *)effect)->flags = flags;
-        ((EffGeometryBlock *)effect)->vertexCount.signedHalf[0] = (s16)verticesPerPart;
-        ((EffGeometryBlock *)effect)->vertexCount.signedHalf[1] = (s16)trianglesPerPart;
-        ((EffGeometryBlock *)effect)->frame.pointer = frame;
-        ((EffGeometryBlock *)effect)->atomic.bytes = (u8 *)atomic;
-        ((EffGeometryBlock *)effect)->material.signedValue = 0;
+        ((EffGeometryBlock *)effect)->vertexCounts.signedHalf[0] = (s16)verticesPerPart;
+        ((EffGeometryBlock *)effect)->vertexCounts.signedHalf[1] = (s16)trianglesPerPart;
+        ((EffGeometryBlock *)effect)->frameData.pointer = frame;
+        ((EffGeometryBlock *)effect)->atomicData.bytes = (u8 *)atomic;
+        ((EffGeometryBlock *)effect)->materialData.signedValue = 0;
         ((EffGeometryMultiPart *)effect)->partCount.signedHalf[0] = (s16)partCount;
         ((EffGeometryMultiPart *)effect)->partCount.signedHalf[1] =
             (s16)(s32)((u32)(verticesPerPart & 0xFFFF) * (partCount & 0xFFFF));
@@ -693,7 +659,7 @@ u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPer
             ((EffGeometryMultiPart *)effect)->totalTriangles.byte[3] = ((EffGeometryMultiPart *)effect)->totalTriangles.byte[2] = 0xFF;
         memset(effect + 0x18, 0, 0x30);
         ((EffGeometryBlock *)effect)->tag = 0x15;
-        ((EffGeometryBlock *)effect)->owner.bytes = effect;
+        ((EffGeometryBlock *)effect)->drawOwner.bytes = effect;
         return effect;
     }
 }
@@ -729,7 +695,7 @@ u8 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesP
     rows = rowCount & 0xFFFF;
     block = (u8 *)GeometryCreateMultiPart(partCount, (rows * columns) & 0xFFFF, (rows * triangles) & 0xFFFF, flags);
     result = block;
-    geometry = ((EffGeometryAtomic *)((EffGeometryBlock *)block)->atomic.bytes)->geometry;
+    geometry = ((EffGeometryAtomic *)((EffGeometryBlock *)block)->atomicData.bytes)->geometry;
     materials = ((EffGeometryMultiPart *)block)->materials;
     triangle = ((RpGeometry *)geometry)->triangles;
     vertexOffset = 0;
@@ -795,7 +761,7 @@ u8 *GeometryCreateStripGridMultiPart(s32 partCount, s32 rowCount, s32 indices, s
                                    (rows * (segmentCount * 2)) & 0xFFFF,
                                    flags);
     result = block;
-    geometry = ((EffGeometryAtomic *)((EffGeometryBlock *)block)->atomic.bytes)->geometry;
+    geometry = ((EffGeometryAtomic *)((EffGeometryBlock *)block)->atomicData.bytes)->geometry;
     materials = ((EffGeometryMultiPart *)block)->materials;
     triangle = ((RpGeometry *)geometry)->triangles;
     vertexOffset = 0;
