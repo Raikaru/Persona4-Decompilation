@@ -49,7 +49,7 @@ static s32 mdlFindTrackKeyIndex(u8 *track, f32 sampleTime)
     base = ((MdlFileTrack *)track)->keys;
     do {
         mid = (lo + hi + 1) >> 1;
-        if (sampleTime < *(f32 *)(base + (stride * mid))) {
+        if (sampleTime < ((MdlFileScalarKey *)(base + (stride * mid)))->time) {
             mid = mid - 1;
             hi = mid;
         } else {

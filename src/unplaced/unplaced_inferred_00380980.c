@@ -15,10 +15,11 @@ extern void memset(void *dst, s32 value, u32 size);
 extern void nmMesWindowShowCurrentRecord(s32 recordIndex);
 extern void nmMesWindowSetCurrentString(s32 variable, void *text);
 /* Build the selected reward roster and populate its message substitutions and trail. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 413..413); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00380980
 s32 btlShuffleShowRosterMessage(u8 *rosterWork)
 {
+    BtlShuffleRosterState *stateFields;
     typedef struct {
         s32 active;
         u16 value0;
@@ -52,6 +53,7 @@ s32 btlShuffleShowRosterMessage(u8 *rosterWork)
 
     base = ((BtlShuffleRosterWork *)rosterWork)->context;
     state = rosterWork + 0x18;
+    stateFields = (BtlShuffleRosterState *)(state);
     id = ((BtlShuffleRosterWork *)rosterWork)->rosterId;
     if (id == 1) {
         id = ((BtlShuffleRosterState *)state)->rosterId;
@@ -59,7 +61,7 @@ s32 btlShuffleShowRosterMessage(u8 *rosterWork)
     id &= 0xFF;
     index = id - 1;
     channel = index * 4 + 0x15;
-    packed = (id << 16) | ((*(s32 *)(state + 0x10) != 0) ? 1 : 0);
+    packed = (id << 16) | ((((BtlShuffleRosterState *)(state))->mode != 0) ? 1 : 0);
     result = btlShuffleBuildRoster(packed, (s32 *)&output);
     high = ((u32)(result & 0xFFFF0000) >> 16) & 0xFFFF;
     if (high != 0) {
@@ -88,7 +90,7 @@ s32 btlShuffleShowRosterMessage(u8 *rosterWork)
         nmMesWindowShowCurrentRecord(channel + 3);
         return 1;
     }
-    if (*(s32 *)(state + 0x10) != 0) {
+    if (stateFields->mode != 0) {
         entry = D_0064EB80 + index * 2;
         resource = ((BtlShuffleContext *)base)->trailTask;
         btlShuffleEffInitTrail(resource, *entry);

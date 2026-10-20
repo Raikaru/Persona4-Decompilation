@@ -5,6 +5,8 @@
 #include "sdk_task_registration.h"
 #include "sdk_lbox_internal.h"
 #include "type.h"
+#include "member_access.h"
+#include "btl_ui_task_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -91,12 +93,13 @@ loop:
  * from the attachment-table load. Loop invariants retain the retail wrap
  * constants; see docs/probe_archive/Sprite_attachment_0046a7f0_20260924.md. */
 /* Rotate four attachment points when needed, then add attachment and resource-segment positions. */
-/* measured: typing the segment index changes point-translation scheduling (normalized_diff 51); keep the index and dependent segment-coordinate byte accesses. */
+/* measured: a dedicated attachment alias preserves index reloads; resource-table loads retain MEMBER byte-base aliasing. */
 // FUN_0046A7F0
 #pragma push
 #pragma opt_loop_invariants on
 void sdkSpriteTransformPoints(u8 *attachment, u8 *points)
 {
+    SdkSpriteAttachment *attachmentFields = (SdkSpriteAttachment *)(attachment);
     RwV3d source[4];
     RwV3d transformed[4];
     s32 copyIndex;
@@ -172,11 +175,11 @@ void sdkSpriteTransformPoints(u8 *attachment, u8 *points)
         f32 *o = (f32 *)(points + pointIndex * 8);
 
         o[0] = ((SdkSpriteAttachment *)attachment)->x + ((f32)((SdkSpriteAttachment *)attachment)->offsetX + p->x) +
-               (f32)*(s32 *)(*(s32 *)(((SdkSpriteAttachment *)attachment)->resource + 0x204) + (*(s32 *)(attachment + 4) << 7) + 0x44);
+               (f32)((SdkSpriteSegment *)(MEMBER(s32, ((SdkSpriteAttachment *)attachment)->resource, SdkSpriteResource, segments) + (((SdkSpriteAttachment *)(attachment))->segment << 7)))->offsetX;
         {
             f32 subtotal;
             subtotal = ((SdkSpriteAttachment *)attachment)->y + ((f32)((SdkSpriteAttachment *)attachment)->offsetY + p->y);
-            subtotal += (f32)*(s32 *)(*(s32 *)(((SdkSpriteAttachment *)attachment)->resource + 0x204) + (*(s32 *)(attachment + 4) << 7) + 0x48);
+            subtotal += (f32)((SdkSpriteSegment *)(MEMBER(s32, ((SdkSpriteAttachment *)attachment)->resource, SdkSpriteResource, segments) + (attachmentFields->segment << 7)))->offsetY;
             o[1] = subtotal;
         }
     }

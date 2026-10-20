@@ -307,7 +307,7 @@ void kwlnInitIop(void)
 // FUN_00100670
 void kwlnInitEngine(void)
 {
-    extern s32 func_0044f510(void);
+    extern s32 chkmemInitRenderWareMemoryFunctions(void);
     extern s32 RwEngineInit(s32, s32, s32);
     extern s32 func_0039b5a0(s32);
     extern s32 func_0039b680(s32);
@@ -408,7 +408,7 @@ void kwlnInitEngine(void)
     s32 ok;
 
 
-    RwEngineInit((s32)func_0044f510(), 0, 0x800000);
+    RwEngineInit((s32)chkmemInitRenderWareMemoryFunctions(), 0, 0x800000);
     func_0039b5a0(7);
 
     pipeline1001[0] = (s32)D_0064F2F0;

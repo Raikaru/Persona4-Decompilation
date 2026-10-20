@@ -12,11 +12,11 @@
 #pragma opt_propagation on
 #pragma opt_common_subs on
 /* Clear wind geometry vertices and mark each six-word entry inactive before rebuilding. */
-/* Clear wind geometry vertices and reset the six-word entry records. */
-/* measured: typing the geometry-block atomic field changes its reload schedule (normalized_diff 131); retain only those byte-base atomic loads. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0049A810
 void mdlEffectWindClearGeometry(u8 *instance)
 {
+    EffGeometryBlock *workFields;
     extern void func_003c22f0(void *);
     u8 *state;
     u8 *work;
@@ -30,11 +30,12 @@ void mdlEffectWindClearGeometry(u8 *instance)
     state = ((MdlEffectVectorInstance *)instance)->child;
     entry = (s32 *)((MdlEffectWindWork *)state)->entries;
     work = ((MdlEffectWindWork *)state)->geometry;
+    workFields = (EffGeometryBlock *)(work);
     count = (s32)((MdlEffectWindParameters *)((MdlEffectVectorInstance *)instance)->parameters)->meshCount;
-    RpGeometryLock(((RpAtomic *)*(u8 **)(work + 0x10))->geometry, 2);
-    tex = (s32 **)((RpAtomic *)*(u8 **)(work + 0x10))->geometry->morphTarget;
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)(work))->atomic)->geometry, 2);
+    tex = (s32 **)((RpAtomic *)workFields->atomic)->geometry->morphTarget;
     memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
-    model = (u8 *)((RpAtomic *)*(u8 **)(work + 0x10))->geometry;
+    model = (u8 *)((RpAtomic *)workFields->atomic)->geometry;
     func_003c22f0(model);
     if (((EffGeometryBlock *)work)->kind & 4) {
         ((RpGeometry *)model)->lockedSinceLastInst = ((RpGeometry *)model)->lockedSinceLastInst | 1;
