@@ -400,42 +400,41 @@ void evtNodeRemoveFree(u8 *ownerBytes, u8 *nodeBytes) {
 
 // Event list: inserts 'node' into the owner list in ascending key order.
 // FUN_00286D80
-/* Raw list views retained: EvtNode next/prev are +0x90/+0x94 and the
-   work head/tail are +0x4C/+0x50; the struct rewrite lost the MWCC match. */
+/* measured: the retained ownerWords[0x13] and node[0x25] reads each change instructions when typed alone. */
 void evtListInsertSorted(u32 *inserted, u32 *ownerWords) {
     u32 *node = (u32 *)ownerWords[0x13];
     if (node == 0) {
-        ownerWords[0x13] = (u32)inserted;
-        ownerWords[0x14] = (u32)inserted;
-        inserted[0x24] = 0;
-        inserted[0x25] = 0;
+        ((EvtEventWork *)ownerWords)->nodeList = (EvtNode *)((u32)inserted);
+        ((EvtEventWork *)ownerWords)->nodeTail = (EvtNode *)((u32)inserted);
+        ((EvtNode *)inserted)->next = (EvtNode *)(0);
+        ((EvtNode *)inserted)->prev = (EvtNode *)(0);
     } else {
         while (node != 0) {
-            if (evtKeyIndex(inserted[0]) < evtKeyIndex(node[0])) {
+            if (evtKeyIndex(((EvtNode *)inserted)->kind) < evtKeyIndex(((EvtNode *)node)->kind)) {
                 if (node[0x25] == 0) {
-                    ownerWords[0x13] = (u32)inserted;
-                    node[0x25] = (u32)inserted;
-                    inserted[0x25] = 0;
-                    inserted[0x24] = (u32)node;
+                    ((EvtEventWork *)ownerWords)->nodeList = (EvtNode *)((u32)inserted);
+                    ((EvtNode *)node)->prev = (EvtNode *)((u32)inserted);
+                    ((EvtNode *)inserted)->prev = (EvtNode *)(0);
+                    ((EvtNode *)inserted)->next = (EvtNode *)((u32)node);
                 } else {
-                    *(u32 *)(node[0x25] + 0x90) = (u32)inserted;
-                    inserted[0x25] = node[0x25];
-                    inserted[0x24] = (u32)node;
-                    node[0x25] = (u32)inserted;
+                    ((EvtNode *)(u32)((EvtNode *)node)->prev)->next = (EvtNode *)inserted;
+                    ((EvtNode *)inserted)->prev = (EvtNode *)((u32)((EvtNode *)node)->prev);
+                    ((EvtNode *)inserted)->next = (EvtNode *)((u32)node);
+                    ((EvtNode *)node)->prev = (EvtNode *)((u32)inserted);
                 }
                 goto tail;
             }
-            node = (u32 *)node[0x24];
+            node = (u32 *)(u32)((EvtNode *)node)->next;
         }
     tail:
         if (node == 0) {
-            *(u32 *)(ownerWords[0x14] + 0x90) = (u32)inserted;
-            inserted[0x25] = ownerWords[0x14];
-            inserted[0x24] = 0;
-            ownerWords[0x14] = (u32)inserted;
+            ((EvtNode *)(u32)((EvtEventWork *)ownerWords)->nodeTail)->next = (EvtNode *)inserted;
+            ((EvtNode *)inserted)->prev = (EvtNode *)((u32)((EvtEventWork *)ownerWords)->nodeTail);
+            ((EvtNode *)inserted)->next = (EvtNode *)(0);
+            ((EvtEventWork *)ownerWords)->nodeTail = (EvtNode *)((u32)inserted);
         }
     }
-    ownerWords[0x12] += 1;
+    ((EvtEventWork *)ownerWords)->nodeCount += 1;
 }
 
 // Event list: unlinks 'node' from its sibling links (does not free).
@@ -622,8 +621,7 @@ static inline u8 *evtCutinAddress(u32 index, u8 *work)
    Current proof: docs/probe_archive/Event_duration_current_5a1bcf7_20260921.md. */
 // Updates the cut-in polygon each frame from its duration gate and enable state, using the packed position and colour values [inferred].
 // FUN_00287360
-/* Raw event/node/key views retained: replacing these with typed members
-   changed MWCC alias/reload or register decisions in the whole-file match. */
+/* measured: each remaining raw event/node/key access changes instructions when typed alone. */
 void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event) {
     union {
         struct { s16 first, second; } halves;
@@ -643,16 +641,16 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
     s32 kind;
 
     poseMode = 1;
-    waitFlags = *(s32 *)(event + 0);
+    waitFlags = ((EvtEventWork *)event)->waitFlags;
     if (currentKey != NULL) {
-        startFrame = *(u16 *)(currentKey + 0);
+        startFrame = ((EvtChildNode *)currentKey)->start;
     } else {
-        startFrame = *(u32 *)(event + 0xC);
+        startFrame = (u32)((EvtEventWork *)event)->startFrame;
     }
     if (nextKey != NULL) {
-        endFrame = *(u16 *)(nextKey + 0);
+        endFrame = ((EvtChildNode *)nextKey)->start;
     } else {
-        endFrame = *(u32 *)(event + 0x10);
+        endFrame = (u32)((EvtEventWork *)event)->frameLimit;
     }
     duration = endFrame - startFrame;
     if (duration != 0) {
@@ -660,7 +658,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
     } else {
         fraction = 0.0f;
     }
-    kind = *(s32 *)(owner + 0);
+    kind = (s32)((EvtNode *)owner)->kind;
     switch (kind) {
     case 6: {
         s32 skipFade;
@@ -674,32 +672,32 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
         s8 *copiedColors;
         s32 colorPairsLeft;
         if (currentKey == NULL) {
-            if ((waitFlags & 0x80000000) != 0 && *(s32 *)(event + 0x758) == 1) {
+            if ((waitFlags & 0x80000000) != 0 && ((EvtEventWork *)event)->fadeActive == 1) {
                 func_00440b68((char *)D_0063C3F0);
                 fadeBeginReturnTransition(1, 1);
                 *(s32 *)(event + 0x758) = 0;
             }
         } else {
             skipFade = (waitFlags & 0x10) != 0;
-            if ((skipFade != 1) && (*(u16 *)(currentKey + 0) == frame) && (fadeStatus() != 0)) {
-                fadeOperation = *(s16 *)(currentKey + 0x10);
+            if ((skipFade != 1) && (((EvtChildNode *)currentKey)->start == frame) && (fadeStatus() != 0)) {
+                fadeOperation = ((EvtChildNode *)currentKey)->payload.fade.operation;
                 switch (fadeOperation) {
                 case 0:
                     if (fadeState() != 0) {
-                        *(s32 *)(event + 0x758) = 1;
-                        if (*(s16 *)(currentKey + 0x12) == -1) {
+                        ((EvtEventWork *)event)->fadeActive = 1;
+                        if (((EvtChildNode *)currentKey)->payload.fade.mode == -1) {
                             *(s16 *)(currentKey + 0x12) = 0;
                         }
-                        fadeBeginReturnTransition(*(s16 *)(currentKey + 0x12), *(u16 *)(currentKey + 2));
+                        fadeBeginReturnTransition(*(s16 *)(currentKey + 0x12), ((EvtChildNode *)currentKey)->unk02);
                     }
                     break;
                 case 1: {
-                    fadeMode = *(s16 *)(currentKey + 0x12);
+                    fadeMode = ((EvtChildNode *)currentKey)->payload.fade.mode;
                     if (fadeMode == 7) {
-                        *(s8 *)(event + 0x44) |= 4;
+                        ((EvtEventWork *)event)->flags44 |= 4;
                     } else {
-                        fadeColorIndex = *(s8 *)(currentKey + 0x14);
-                        *(s32 *)(event + 0x758) = 1;
+                        fadeColorIndex = ((EvtChildNode *)currentKey)->payload.fade.colorIndex;
+                        ((EvtEventWork *)event)->fadeActive = 1;
                         if ((fadeMode != 0) || (fadeState() != 0)) {
                             sourceColors = D_00763888;
                             copiedColors = fadeColors;
@@ -713,7 +711,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
                                 copiedColors[1] = secondColorByte;
                                 copiedColors += 2;
                             } while (colorPairsLeft > 0);
-                            fadeBeginTransition(fadeMode, *(u16 *)(currentKey + 2));
+                            fadeBeginTransition(fadeMode, ((EvtChildNode *)currentKey)->unk02);
                             if ((fadeColorIndex != 0) && ((u32)fadeColorIndex < 3U)) {
                                 H_Fade_SetCustomColor((u8)fadeColors[fadeColorIndex * 4 - 4],
                                     (u8)fadeColors[fadeColorIndex * 4 - 3], (u8)fadeColors[fadeColorIndex * 4 - 2]);
@@ -736,13 +734,13 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
         u8 *linkedObject;
         s32 enabled;
         if (currentKey != NULL) {
-            currentPose = *(s32 *)(currentKey + 0x48);
-            poseMode = *(s32 *)(currentKey + 4);
+            currentPose = (s32)((EvtChildNode *)currentKey)->ownedBlock48;
+            poseMode = ((EvtChildNode *)currentKey)->unk04;
         } else {
             currentPose = 0;
         }
         if (nextKey != NULL) {
-            nextPose = *(s32 *)(nextKey + 0x48);
+            nextPose = (s32)((EvtChildNode *)nextKey)->ownedBlock48;
         } else {
             nextPose = 0;
         }
@@ -750,7 +748,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
             evtPolygonMovieLerpPose(poseMode, fraction, (f32 *)currentPose, (f32 *)nextPose, D_008821B0);
             linkedObject = NULL;
             enabled = 0;
-            lightMode = *(s8 *)(owner + 0x1E);
+            lightMode = ((EvtNode *)owner)->lightMode;
             switch (lightMode) {
             case 0:
                 break;
@@ -762,11 +760,11 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
                 break;
             case 3:
                 if (currentKey != NULL) {
-                    linkedObject = (u8 *)MT_Scene_GetRes(*(u16 *)(owner + 0x20));
+                    linkedObject = (u8 *)MT_Scene_GetRes(((EvtNode *)owner)->lightResource);
                     if (linkedObject != NULL) {
                         enabled = 1;
                         /* A timed key keeps this resource enabled too. */
-                        if (*(u16 *)(currentKey + 2) != 0) {
+                        if (((EvtChildNode *)currentKey)->unk02 != 0) {
                             enabled = 1;
                         }
                     }
@@ -780,7 +778,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
                 break;
             }
             if (enabled != 0) {
-                sceneLightSlotSet(*(s32 *)(owner + 4), *(s8 *)(owner + 0x1E), (s32)linkedObject, D_008821B0, D_008821C0, D_008821D0);
+                sceneLightSlotSet(((EvtNode *)owner)->param04, *(s8 *)(owner + 0x1E), (s32)linkedObject, D_008821B0, D_008821C0, D_008821D0);
             }
         }
         break;
@@ -797,13 +795,13 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
     case 25:
         break;
     case 39:
-        if ((currentKey != NULL) && (*(u16 *)(currentKey + 0) == frame)) {
-            if (*(s8 *)(currentKey + 0x10) == 0) {
+        if ((currentKey != NULL) && (((EvtChildNode *)currentKey)->start == frame)) {
+            if (((EvtChildNode *)currentKey)->payload.cutin.operation == 0) {
                 DAT_007645DC = 0;
                 evtMainSetFlag(0);
             } else {
                 evtMainSetFlag(1);
-                DAT_007645DC = *(s16 *)(currentKey + 0x14);
+                DAT_007645DC = ((EvtChildNode *)currentKey)->payload.cutin.firstCode;
             }
             func_00440b68((char *)D_0063C400, DAT_007645D8, DAT_007645DC);
         }
@@ -816,69 +814,69 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
         u8 *linkedObject;
         if (currentKey == NULL) {
             if ((waitFlags & 0x80000000) != 0) {
-                if (*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4) != NULL) {
-                    if (kwlnTaskIsLinked(*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4)) != 0) {
-                        taskRecordRequestPrimary(*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4));
-                        if (taskRecordIsDone(*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4)) != 0) {
-                            kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4));
+                if ((u8 *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0] != NULL) {
+                    if (kwlnTaskIsLinked((u8 *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0]) != 0) {
+                        taskRecordRequestPrimary((u8 *)((EvtEventWork *)evtCutinAddress(*(u32 *)(owner + 4), event))->waitTask[0]);
+                        if (taskRecordIsDone((u8 *)((EvtEventWork *)evtCutinAddress(*(u32 *)(owner + 4), event))->waitTask[0]) != 0) {
+                            kwlnTaskDestroyWithHierarchy((struct KwlnTask *)((EvtEventWork *)evtCutinAddress(*(u32 *)(owner + 4), event))->waitTask[0]);
                         }
                     }
                     *(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4) = NULL;
                 }
             }
         } else {
-            if (frame == *(u16 *)(currentKey + 0)) {
-                taskOperation = *(s8 *)(currentKey + 0x10);
+            if (frame == ((EvtChildNode *)currentKey)->start) {
+                taskOperation = ((EvtChildNode *)currentKey)->payload.cutin.operation;
                 switch (taskOperation) {
                 case 0: {
                     firstCode = 0;
                     secondCode = 0;
-                    if (*(s8 *)(currentKey + 0x20) == 0) {
-                        firstCode = *(s16 *)(currentKey + 0x14);
-                        secondCode = *(s16 *)(currentKey + 0x16);
+                    if (((EvtChildNode *)currentKey)->payload.cutin.noCodes == 0) {
+                        firstCode = ((EvtChildNode *)currentKey)->payload.cutin.firstCode;
+                        secondCode = ((EvtChildNode *)currentKey)->payload.cutin.secondCode;
                     }
                     cutinCode.halves.first = (s16)firstCode;
                     cutinCode.halves.second = (s16)secondCode;
-                    linkedObject = (u8 *)*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4);
+                    linkedObject = (u8 *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0];
                     if ((linkedObject != NULL) && (kwlnTaskIsLinked((void *)linkedObject) != 0)) {
                         taskRecordRequestPrimary(linkedObject);
                     }
                     {
                         s32 createdTask = cutinDrawTaskCreate((s32)evtFindTask(), cutinCode.packed);
-                        *(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4) = createdTask;
+                        ((EvtEventWork *)evtCutinAddress(*(u32 *)(owner + 4), event))->waitTask[0] = createdTask;
                     }
-                    cutinPosition.vector.x = (f32)*(s16 *)(currentKey + 0x1C);
-                    cutinPosition.vector.y = (f32)*(s16 *)(currentKey + 0x1E);
-                    taskRecordSetPosition((u8 *)*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4), cutinPosition.packed);
+                    cutinPosition.vector.x = (f32)((EvtChildNode *)currentKey)->payload.cutin.x;
+                    cutinPosition.vector.y = (f32)((EvtChildNode *)currentKey)->payload.cutin.y;
+                    taskRecordSetPosition((u8 *)((EvtEventWork *)evtCutinAddress(*(u32 *)(owner + 4), event))->waitTask[0], cutinPosition.packed);
                     break;
                 }
                 case 1:
-                    if (*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4) != 0) {
-                        if (taskRecordIsDone((void *)*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4)) == 0) {
+                    if (((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0] != 0) {
+                        if (taskRecordIsDone((void *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0]) == 0) {
                             taskSlot = *(s32 *)(owner + 4);
                             switch (taskSlot) {
                             case 0:
-                                *(s32 *)event |= 0x200;
+                                ((EvtEventWork *)event)->waitFlags |= 0x200;
                                 break;
                             case 1:
-                                *(s32 *)event |= 0x400;
+                                ((EvtEventWork *)event)->waitFlags |= 0x400;
                                 break;
                             case 2:
-                                *(s32 *)event |= 0x800;
+                                ((EvtEventWork *)event)->waitFlags |= 0x800;
                                 break;
                             default:
                                 break;
                             }
                         }
-                        taskRecordRequestSecondary((void *)*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4));
+                        taskRecordRequestSecondary((void *)((EvtEventWork *)evtCutinAddress(*(u32 *)(owner + 4), event))->waitTask[0]);
                     }
                     break;
                 case 2:
-                    currentKey = (u8 *)*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4);
+                    currentKey = (u8 *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0];
                     if ((currentKey != NULL) && (kwlnTaskIsLinked((void *)currentKey) != 0)) {
                         taskRecordRequestPrimary(currentKey);
                     }
-                    *(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4) = 0;
+                    ((EvtEventWork *)evtCutinAddress(*(u32 *)(owner + 4), event))->waitTask[0] = 0;
                     break;
                 default:
                     break;
@@ -1175,8 +1173,7 @@ typedef union EvtDirectionMatrix {
    Command snapshots preserve full vector objects and call argument order. */
 // Intent: Event node type 1 and 48 handler: resource command (motion, scale, colour, shadow, model slot) for the node's resource [inferred]
 // FUN_00288170
-/* Raw resource/command payload reads retained: the typed union rewrite
-   changed MWCC alias/register decisions and lost the whole-file match. */
+/* measured: each retained raw resource-id reload changes instructions when typed alone; command operands are typed. */
 #pragma push
 #pragma opt_propagation off
 s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
@@ -1239,7 +1236,7 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
             return 0;
         }
         {
-            u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
+            u8 *r = MT_Scene_GetRes(((EvtNode *)resource)->flags);
             if (r == NULL) {
                 return 1;
             }
@@ -1253,10 +1250,10 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
                     scale.z = 1.0f;
                     MT_Scene_SetResAngles(*(u16 *)(resource + 0xC), (u8 *)&scale);
                     MT_Scene_ResetResMotion(*(u16 *)(resource + 0xC));
-                    MT_Scene_SetResColorParamById(*(u16 *)(resource + 0xC), *(u8 *)(resource + 0x53), 0, 0);
-                    *(s32 *)(resource + 0x60) = 0;
+                    MT_Scene_SetResColorParamById(*(u16 *)(resource + 0xC), ((EvtNode *)resource)->color.b3, 0, 0);
+                    ((EvtNode *)resource)->timedFlag = 0;
                     evtModelDestroy();
-                    if ((*(s32 *)(resource + 0x54) & 2) != 0) {
+                    if (((s32)((EvtNode *)resource)->resData & 2) != 0) {
                         MT_Scene_SetResActiveById(*(u16 *)(resource + 0xC), 1);
                     } else {
                         MT_Scene_SetResActiveById(*(u16 *)(resource + 0xC), 0);
@@ -1269,35 +1266,35 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
     case 1:
         return 1;
     case 2: {
-        if (*(u16 *)command == frame) {
-            switch (*(s8 *)(command + 0x10)) {
+        if (((EvtChildNode *)command)->start == frame) {
+            switch (((EvtChildNode *)command)->payload.resCommand.operation) {
             case 0:
-                if (*(s8 *)(command + 0x14) == 0) {
-                    MT_Scene_SetResActiveById(*(u16 *)(resource + 0xC), 1);
+                if (((EvtChildNode *)command)->payload.resCommand.value04.argument == 0) {
+                    MT_Scene_SetResActiveById(((EvtNode *)resource)->flags, 1);
                 } else {
-                    MT_Scene_SetResActiveById(*(u16 *)(resource + 0xC), 0);
+                    MT_Scene_SetResActiveById(((EvtNode *)resource)->flags, 0);
                 }
                 break;
             case 1:
-                switch (*(s8 *)(command + 0x14)) {
+                switch (((EvtChildNode *)command)->payload.resCommand.value04.argument) {
                 case 0: {
-                    target.x = *(f32 *)(command + 0x18);
-                    target.y = *(f32 *)(command + 0x1C);
-                    target.z = *(f32 *)(command + 0x20);
-                    if (*(s8 *)(command + 0x15) == 0) {
-                        f32 f = evtCommandParamF32(*(s16 *)(command + 0x16));
-                        if (MT_Scene_BeginResMoveToward(*(u16 *)(resource + 0xC), (u8 *)&target, f) == 1) {
-                            *(s32 *)(resource + 0x60) = (*(s8 *)(command + 0x25) != 0);
-                            if ((*(s8 *)(command + 0x34) & 1) != 0) {
+                    target.x = ((EvtChildNode *)command)->payload.resCommand.value08.position.x;
+                    target.y = ((EvtChildNode *)command)->payload.resCommand.value08.position.y;
+                    target.z = ((EvtChildNode *)command)->payload.resCommand.value08.position.z;
+                    if (((EvtChildNode *)command)->payload.resCommand.value04.move.mode == 0) {
+                        f32 f = evtCommandParamF32(((EvtChildNode *)command)->payload.resCommand.value04.move.speed);
+                        if (MT_Scene_BeginResMoveToward(((EvtNode *)resource)->flags, (u8 *)&target, f) == 1) {
+                            ((EvtNode *)resource)->timedFlag = (((EvtChildNode *)command)->payload.resCommand.value14.path.timed != 0);
+                            if ((((EvtChildNode *)command)->motionSound.flags & 1) != 0) {
                                 {
-                                    u8 sound = (*(s8 *)(command + 0x35) + 1) & 0xFF;
-                                    s16 start = *(s8 *)(command + 0x36);
-                                    s16 end = *(s8 *)(command + 0x37);
-                                    s16 flags = *(s8 *)(command + 0x34) >> 1;
+                                    u8 sound = (((EvtChildNode *)command)->motionSound.sound + 1) & 0xFF;
+                                    s16 start = ((EvtChildNode *)command)->motionSound.period;
+                                    s16 end = ((EvtChildNode *)command)->motionSound.delay;
+                                    s16 flags = ((EvtChildNode *)command)->motionSound.flags >> 1;
                                     MT_Scene_SetResSoundRange(*(u16 *)(resource + 0xC), 1, sound, start, end, flags);
                                 }
                             }
-                            if (*(s8 *)(command + 0x26) == 1) {
+                            if (((EvtChildNode *)command)->payload.resCommand.value14.path.rotate == 1) {
                                 u8 *res2 = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
                                 if (MT_Scene_GetSegmentHeadingAngle((float *)(res2 + 4), (f32 *)&target, &heading) == 1) {
                                     rotation.y = heading;
@@ -1309,36 +1306,36 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
                     break;
                 }
                 case 1: {
-                    evtBlurFilterCopyPoints(*(u8 **)(command + 0x40), (u8 *)&path, 0);
-                    if (*(s8 *)(command + 0x15) == 0) {
-                        f32 f = evtCommandParamF32(*(s16 *)(command + 0x16));
-                        s32 a = (*(s8 *)(command + 0x24) != 0);
-                        s32 b = (*(s8 *)(command + 0x25) != 0);
-                        if ((*(s8 *)(command + 0x34) & 1) != 0) {
+                    evtBlurFilterCopyPoints((u8 *)((EvtChildNode *)command)->ownedBlock40, (u8 *)&path, 0);
+                    if (((EvtChildNode *)command)->payload.resCommand.value04.move.mode == 0) {
+                        f32 f = evtCommandParamF32(((EvtChildNode *)command)->payload.resCommand.value04.move.speed);
+                        s32 a = (((EvtChildNode *)command)->payload.resCommand.value14.path.loop != 0);
+                        s32 b = (((EvtChildNode *)command)->payload.resCommand.value14.path.timed != 0);
+                        if ((((EvtChildNode *)command)->motionSound.flags & 1) != 0) {
                             {
-                                u8 sound = (*(s8 *)(command + 0x35) + 1) & 0xFF;
-                                s16 start = *(s8 *)(command + 0x36);
-                                s16 end = *(s8 *)(command + 0x37);
-                                s16 flags = *(s8 *)(command + 0x34) >> 1;
-                                MT_Scene_SetResSoundRange(*(u16 *)(resource + 0xC), 1, sound, start, end, flags);
+                                u8 sound = (((EvtChildNode *)command)->motionSound.sound + 1) & 0xFF;
+                                s16 start = ((EvtChildNode *)command)->motionSound.period;
+                                s16 end = ((EvtChildNode *)command)->motionSound.delay;
+                                s16 flags = ((EvtChildNode *)command)->motionSound.flags >> 1;
+                                MT_Scene_SetResSoundRange(((EvtNode *)resource)->flags, 1, sound, start, end, flags);
                             }
                         }
                         if (path.count > 0) {
-                            MT_Scene_BeginResPathAnimById(*(u16 *)(resource + 0xC), (u32)(uintptr_t)(u8 *)&path, f, a);
-                            *(s32 *)(resource + 0x60) = b;
+                            MT_Scene_BeginResPathAnimById(((EvtNode *)resource)->flags, (u32)(uintptr_t)(u8 *)&path, f, a);
+                            ((EvtNode *)resource)->timedFlag = b;
                             func_00440b68(D_0063C510);
                         }
                     }
                     break;
                 }
                 case 2: {
-                    u8 *res = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
+                    u8 *res = MT_Scene_GetRes(((EvtNode *)resource)->flags);
                     if (res != NULL) {
-                        position.x = *(f32 *)(command + 0x18);
-                        position.y = *(f32 *)(command + 0x1C);
-                        position.z = *(f32 *)(command + 0x20);
-                        angles.x = *(f32 *)(command + 0x28);
-                        angles.y = *(f32 *)(command + 0x2C);
+                        position.x = ((EvtChildNode *)command)->payload.resCommand.value08.position.x;
+                        position.y = ((EvtChildNode *)command)->payload.resCommand.value08.position.y;
+                        position.z = ((EvtChildNode *)command)->payload.resCommand.value08.position.z;
+                        angles.x = ((EvtChildNode *)command)->payload.resCommand.pitch;
+                        angles.y = ((EvtChildNode *)command)->payload.resCommand.yaw;
                         angles.z = 0.0f;
                         MT_Scene_ApplyResTransform(res, (u8 *)&position, (u8 *)&angles, 0);
                     }
@@ -1352,17 +1349,17 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
                 {
                     u32 duration;
                     rotation.x = factor;
-                    rotation.y = *(f32 *)(command + 0x14);
+                    rotation.y = ((EvtChildNode *)command)->payload.resCommand.value04.yaw;
                     rotation.z = factor;
-                    duration = *(s16 *)(command + 0x24);
-                    MT_Scene_BeginResRotation(*(u16 *)(resource + 0xC), &rotation, duration, 0);
+                    duration = ((EvtChildNode *)command)->payload.resCommand.value14.duration;
+                    MT_Scene_BeginResRotation(((EvtNode *)resource)->flags, &rotation, duration, 0);
                 }
-                if ((*(s8 *)(command + 0x34) & 1) != 0) {
+                if ((((EvtChildNode *)command)->motionSound.flags & 1) != 0) {
                     {
-                        u8 sound = (*(s8 *)(command + 0x35) + 1) & 0xFF;
-                        s16 start = *(s8 *)(command + 0x36);
-                        s16 end = *(s8 *)(command + 0x37);
-                        s16 flags = *(s8 *)(command + 0x34) >> 1;
+                        u8 sound = (((EvtChildNode *)command)->motionSound.sound + 1) & 0xFF;
+                        s16 start = ((EvtChildNode *)command)->motionSound.period;
+                        s16 end = ((EvtChildNode *)command)->motionSound.delay;
+                        s16 flags = ((EvtChildNode *)command)->motionSound.flags >> 1;
                         MT_Scene_SetResSoundRange(*(u16 *)(resource + 0xC), 2, sound, start, end, flags);
                     }
                     func_00440b68(D_0063C530);
@@ -1378,23 +1375,23 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
                         bytesLeft -= 1;
                     } while (bytesLeft != 0);
                 }
-                settings.sound = *(s8 *)(command + 0x35);
-                settings.period = *(s8 *)(command + 0x36);
-                settings.delay = *(s8 *)(command + 0x37);
-                settings.surface = *(s8 *)(command + 0x30);
-                if (*(s8 *)(command + 0x34) != 0) {
-                    evtModelQueueMotionAt(*(u16 *)(resource + 0xC), 4, 0.0f, 0.0f, *(f32 *)(command + 0x14), 0.0f, *(s8 *)(command + 0x24), (u8 *)&settings);
+                settings.sound = ((EvtChildNode *)command)->motionSound.sound;
+                settings.period = ((EvtChildNode *)command)->motionSound.period;
+                settings.delay = ((EvtChildNode *)command)->motionSound.delay;
+                settings.surface = ((EvtChildNode *)command)->motionSound.surface;
+                if (((EvtChildNode *)command)->motionSound.flags != 0) {
+                    evtModelQueueMotionAt(((EvtNode *)resource)->flags, 4, 0.0f, 0.0f, ((EvtChildNode *)command)->payload.resCommand.value04.yaw, 0.0f, ((EvtChildNode *)command)->payload.resCommand.value14.path.loop, (u8 *)&settings);
                 } else {
-                    evtModelQueueMotionAt(*(u16 *)(resource + 0xC), 4, 0.0f, 0.0f, *(f32 *)(command + 0x14), 0.0f, *(s8 *)(command + 0x24), NULL);
+                    evtModelQueueMotionAt(((EvtNode *)resource)->flags, 4, 0.0f, 0.0f, ((EvtChildNode *)command)->payload.resCommand.value04.yaw, 0.0f, ((EvtChildNode *)command)->payload.resCommand.value14.path.loop, NULL);
                 }
                 break;
             }
             case 5:
-                switch (*(s8 *)(command + 0x15)) {
+                switch (((EvtChildNode *)command)->payload.resCommand.value04.move.mode) {
                 case 0:
                     {
-                        u32 commandValue = *(u8 *)(command + 0x14);
-                        MT_Scene_SpawnResIconTask(*(u16 *)(resource + 0xC), commandValue);
+                        u32 commandValue = ((EvtChildNode *)command)->payload.resCommand.value04.color;
+                        MT_Scene_SpawnResIconTask(((EvtNode *)resource)->flags, commandValue);
                     }
                     break;
                 case 1:
@@ -1402,25 +1399,25 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
                 }
                 break;
             case 6: {
-                s32 t = (*(u16 *)(resource + 0xC) & 0xFFC00) >> 10;
+                s32 t = (((EvtNode *)resource)->flags & 0xFFC00) >> 10;
                 switch (t) {
                 case 3: {
-                    u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
+                    u8 *r = MT_Scene_GetRes(((EvtNode *)resource)->flags);
                     if (r != NULL) modelData = ((ResrcRecord *)r)->modelHandle164;
                     break;
                 }
                 case 1: {
-                    u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
+                    u8 *r = MT_Scene_GetRes(((EvtNode *)resource)->flags);
                     if (r != NULL) modelData = ((ResrcRecord *)r)->modelHandle164;
                     break;
                 }
                 }
-                switch (*(s8 *)(command + 0x15)) {
+                switch (((EvtChildNode *)command)->payload.resCommand.value04.move.mode) {
                 case 0: factor = fGpffff8218; break;
                 case 1: factor = fGpffff809c; break;
                 case 2: factor = fGpffff8504; break;
                 }
-                lookAtOperation = *(s8 *)(command + 0x14);
+                lookAtOperation = ((EvtChildNode *)command)->payload.resCommand.value04.argument;
                 if (lookAtOperation == 0) {
                     if (modelData != NULL) {
                         evtModelFlushResource(*(u16 *)(resource + 0xC));
@@ -1433,8 +1430,8 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
                                 bytesLeft -= 1;
                             } while (bytesLeft != 0);
                         }
-                        direction.x = *(f32 *)(command + 0x18);
-                        direction.y = *(f32 *)(command + 0x1C);
+                        direction.x = ((EvtChildNode *)command)->payload.resCommand.value08.position.x;
+                        direction.y = ((EvtChildNode *)command)->payload.resCommand.value08.position.y;
                         direction.z = 0.0f;
                         MT_Scene_BuildResMatrix(matrix.words, &origin, (u32 *)&direction);
                         mdlSetBlendWeight(modelData, factor);
@@ -1454,7 +1451,7 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
                     evtModelQueueMotion(*(u16 *)(resource + 0xC), 2, factor / fGpffff8218);
                 } else if (lookAtOperation == 4) {
                     {
-                        u16 duration = *(u16 *)(command + 0x18);
+                        u16 duration = ((EvtChildNode *)command)->payload.resCommand.value08.duration;
                         f32 speed = factor / fGpffff8218;
                         evtModelQueueTimedMotion(*(u16 *)(resource + 0xC), duration, 3, speed);
                     }
@@ -1462,50 +1459,50 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
                 break;
             }
             case 7: {
-                s32 t = (*(u16 *)(resource + 0xC) & 0xFFC00) >> 10;
+                s32 t = (((EvtNode *)resource)->flags & 0xFFC00) >> 10;
                 switch (t) {
                 case 3: {
-                    u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
+                    u8 *r = MT_Scene_GetRes(((EvtNode *)resource)->flags);
                     if (r != NULL) modelData = ((ResrcRecord *)r)->modelHandle164;
                     break;
                 }
                 case 1: {
-                    u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
+                    u8 *r = MT_Scene_GetRes(((EvtNode *)resource)->flags);
                     if (r != NULL) modelData = ((ResrcRecord *)r)->modelHandle164;
                     break;
                 }
                 }
-                if (*(s8 *)(command + 0x14) == 0) {
+                if (((EvtChildNode *)command)->payload.resCommand.value04.argument == 0) {
                     if (modelData != NULL) {
-                        mtMiscAttachSlotModel(event, modelData, *(s8 *)(command + 0x15), *(s8 *)(command + 0x16), *(s32 *)(command + 0x18));
+                        mtMiscAttachSlotModel(event, modelData, ((EvtChildNode *)command)->payload.resCommand.value04.move.mode, (s8)((EvtChildNode *)command)->payload.resCommand.value04.move.speed, ((EvtChildNode *)command)->payload.resCommand.value08.attachment);
                     }
-                } else if ((*(s8 *)(command + 0x14) == 1) && (modelData != NULL)) {
-                    mtMiscDetachSlotModel(modelData, *(s8 *)(command + 0x15));
+                } else if ((((EvtChildNode *)command)->payload.resCommand.value04.argument == 1) && (modelData != NULL)) {
+                    mtMiscDetachSlotModel(modelData, ((EvtChildNode *)command)->payload.resCommand.value04.move.mode);
                 }
                 break;
             }
             case 8: {
                 s32 v = 0;
-                if (*(s8 *)(command + 0x19) != 0) {
+                if (((EvtChildNode *)command)->payload.resCommand.value08.tint.mode != 0) {
                     v = 1;
                 }
                 {
-                    u32 duration = *(s16 *)(command + 0x14);
-                    MT_Scene_SetResColorParamById(*(u16 *)(resource + 0xC), *(u8 *)(command + 0x18), duration, v);
+                    u32 duration = ((EvtChildNode *)command)->payload.resCommand.value04.duration;
+                    MT_Scene_SetResColorParamById(((EvtNode *)resource)->flags, ((EvtChildNode *)command)->payload.resCommand.value08.tint.color, duration, v);
                 }
                 break;
             }
             case 9:
                 {
-                    s32 enabled = *(s8 *)(command + 0x14) == 0;
-                    MT_Scene_SetResShadowCasterById(*(u16 *)(resource + 0xC), enabled);
+                    s32 enabled = ((EvtChildNode *)command)->payload.resCommand.value04.argument == 0;
+                    MT_Scene_SetResShadowCasterById(((EvtNode *)resource)->flags, enabled);
                 }
                 break;
             case 10:
                 {
-                    s32 duration = *(s16 *)(command + 0x14);
-                    scale.x = scale.y = scale.z = *(f32 *)(command + 0x18);
-                    MT_Scene_BeginResScale(*(u16 *)(resource + 0xC), (u8 *)&scale, duration);
+                    s32 duration = ((EvtChildNode *)command)->payload.resCommand.value04.duration;
+                    scale.x = scale.y = scale.z = ((EvtChildNode *)command)->payload.resCommand.value08.position.x;
+                    MT_Scene_BeginResScale(((EvtNode *)resource)->flags, (u8 *)&scale, duration);
                 }
                 break;
             default:
@@ -1776,8 +1773,7 @@ s32 evtCmdResEnable(s32 action, s32 frame, s32 event, s32 owner, u8 *command) {
 
 // Event command (resource placement): case 2 sets placement, motion, slot or material.
 // FUN_002891D0
-/* Raw event/resource views retained: replacing these with typed members
-   changed MWCC alias/reload or register decisions in the whole-file match. */
+/* measured: each remaining raw event/resource access changes instructions when typed alone. */
 s32 evtCmdResPlace(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     SVec3 position;
     SVec3 angles;
@@ -1796,8 +1792,8 @@ s32 evtCmdResPlace(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
         case 1:
             break;
         }
-        if (frame == *(u32 *)(event + 0xC)) {
-            mtMiscClearAllSlotRes(*(u32 *)(event + 0x5D0));
+        if (frame == (u32)((EvtEventWork *)event)->startFrame) {
+            mtMiscClearAllSlotRes((u32)((EvtEventWork *)event)->effectTable);
         }
         return 1;
     case 1:
@@ -1809,7 +1805,7 @@ s32 evtCmdResPlace(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
                 switch (((EvtChildNode *)command)->payload.placement.operation) {
                 case 0:
                     mtMiscSetSlotRes(*(u32 *)(event + 0x5D0), slotOrResource, ((EvtChildNode *)command)->payload.placement.value02.spawn.resource, ((EvtChildNode *)command)->payload.placement.value02.spawn.enabled != 0);
-                    resourceId = mtMiscGetSlotRes(*(u32 *)(event + 0x5D0), slotOrResource) & 0xFFFF;
+                    resourceId = mtMiscGetSlotRes((u32)((EvtEventWork *)event)->effectTable, slotOrResource) & 0xFFFF;
                     if (resourceId != 0) {
                         position.x = ((EvtChildNode *)command)->payload.placement.value04.position.x;
                         position.y = ((EvtChildNode *)command)->payload.placement.value04.position.y;
@@ -1822,7 +1818,7 @@ s32 evtCmdResPlace(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
                     }
                     break;
                 case 1:
-                    slotOrResource = mtMiscGetSlotRes(*(u32 *)(event + 0x5D0), slotOrResource) & 0xFFFF;
+                    slotOrResource = mtMiscGetSlotRes((u32)((EvtEventWork *)event)->effectTable, slotOrResource) & 0xFFFF;
                     if (slotOrResource != 0) {
                         targetPosition.x = ((EvtChildNode *)command)->payload.placement.value04.position.x;
                         targetPosition.y = ((EvtChildNode *)command)->payload.placement.value04.position.y;
@@ -1837,15 +1833,15 @@ s32 evtCmdResPlace(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
                     }
                     break;
                 case 2:
-                    mtMiscClearSlotRes(*(u32 *)(event + 0x5D0), slotOrResource);
+                    mtMiscClearSlotRes((u32)((EvtEventWork *)event)->effectTable, slotOrResource);
                     break;
                 case 3:
-                    MT_Scene_SetResColorParamById(mtMiscGetSlotRes(*(u32 *)(event + 0x5D0), slotOrResource) & 0xFFFF, ((EvtChildNode *)command)->payload.placement.value02.color, ((EvtChildNode *)command)->payload.placement.value04.colorDuration, 0);
+                    MT_Scene_SetResColorParamById(mtMiscGetSlotRes((u32)((EvtEventWork *)event)->effectTable, slotOrResource) & 0xFFFF, ((EvtChildNode *)command)->payload.placement.value02.color, ((EvtChildNode *)command)->payload.placement.value04.colorDuration, 0);
                     break;
                 case 4:
-                    resource = MT_Scene_GetRes(mtMiscGetSlotRes(*(u32 *)(event + 0x5D0), slotOrResource));
+                    resource = MT_Scene_GetRes(mtMiscGetSlotRes((u32)((EvtEventWork *)event)->effectTable, slotOrResource));
                     if (resource != NULL) {
-                        mdlEffectSetUniformScale(*(u8 **)(resource + 0x144), (f32)((EvtChildNode *)command)->scalePercent / 100.0f);
+                        mdlEffectSetUniformScale((u8 *)((ResrcRecord *)resource)->slotHandle[1], (f32)((EvtChildNode *)command)->scalePercent / 100.0f);
                     }
                     break;
                 }
@@ -1955,8 +1951,7 @@ s32 evtNodeMessageSelect(s32 action, s32 frame, s32 event, u8 *owner, u8 *comman
 }
 // Event command (label text): formats a label from two counters and a letter onto text slot 0xF.
 // FUN_00289780
-/* Raw event/resource views retained: replacing these with typed members
-   changed MWCC alias/reload or register decisions in the whole-file match. */
+/* measured: each remaining raw event/resource access changes instructions when typed alone. */
 s32 evtCmdLabelText(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     u8 label[0x100];
 
@@ -1973,10 +1968,10 @@ s32 evtCmdLabelText(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     case 2:
         if (((EvtChildNode *)command)->start == frame) {
             s32 letter;
-            *(u32 *)event |= 0x80000;
+            ((EvtEventWork *)event)->waitFlags |= 0x80000;
             letter = ((EvtChildNode *)command)->payload.label.letter + 0x41;
             sprintf(label, D_0063C5C0, *(u32 *)(event + 0x78C), *(u32 *)(event + 0x790), letter);
-            if (*(u32 *)(event + 0x760) == 0) {
+            if ((u32)((EvtEventWork *)event)->scriptLoad == 0) {
                 *(u32 *)(event + 0x760) = evtStartScriptLoad(evtFindTask());
             }
             if (*(u32 *)(event + 0x760) == 0) {
@@ -1999,8 +1994,7 @@ s32 evtCmdLabelText(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
 /* measured: retail reuses event's dead register for the case-2 slot pointer and keeps the dispatcher result in a separate saved register; mwcc b210 assigns the slot and argument registers differently in the final call sequence. Tried declaration orders and parameter reuse; all closed at nd 8. Committed at nd 8. */
 // Event command (task slot): case 2 replaces the slot at +0x6D0 with a task of kind 0-6.
 // FUN_002898B0
-/* Raw key reads retained: the per-kind struct rewrite changed MWCC
-   reload/register decisions and lost the whole-file match. */
+/* measured: each remaining raw key access changes instructions when typed alone. */
 s32 evtCmdTaskSlot(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     s32 result;
     s32 parentTask;
@@ -2019,7 +2013,7 @@ s32 evtCmdTaskSlot(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
         if (frame == ((EvtEventWork *)event)->startFrame) {
             frame = 0;
             while (frame < 3U) {
-                slot = event + frame * 4 + 0x6D0;
+                slot = (u8 *)&((EvtEventWork *)event)->taskSlots[frame];
                 if (*(s32 *)slot != 0) {
                     kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(s32 *)slot);
                 }
@@ -2031,8 +2025,8 @@ s32 evtCmdTaskSlot(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     case 1:
         return 1;
     case 2:
-        if (*(u16 *)command == frame) {
-            offset = (*(u8 *)(command + 0x12) >> 4) * 4;
+        if (((EvtChildNode *)command)->start == frame) {
+            offset = (((EvtChildNode *)command)->payload.kind34.unk02 >> 4) * 4;
             slot = (u8 *)((u32)offset + (u32)event + 0x6D0);
             if (*(s32 *)slot != 0) {
                 kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(s32 *)slot);
@@ -2141,8 +2135,7 @@ s32 evtCmdScreenColor(int action, int frame, int eventAddress, int ownerAddress,
 
 // Event command (task handle): creates the task at +0x768 when flag 0x10 is set, else clears it.
 // FUN_00289D70
-/* Raw event/resource views retained: replacing these with typed members
-   changed MWCC alias/reload or register decisions in the whole-file match. */
+/* measured: each remaining raw event/resource access changes instructions when typed alone. */
 s32 evtCmdTaskHandle(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     s32 parentTask;
 
@@ -2162,12 +2155,12 @@ s32 evtCmdTaskHandle(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
             goto ret;
         }
         if (((EvtChildNode *)command)->payload.toggle.enabled != 0) {
-            if (*(u32 *)(event + 0x768) != 0 && kwlnTaskIsLinked((void *)*(u32 *)(event + 0x768)) != 0) {
+            if (((EvtEventWork *)event)->noiseTask != 0 && kwlnTaskIsLinked((void *)((EvtEventWork *)event)->noiseTask) != 0) {
                 kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u32 *)(event + 0x768));
             }
             *(u32 *)(event + 0x768) = FldNoiseTaskCreate((u8 *)parentTask);
         } else {
-            if (*(u32 *)(event + 0x768) != 0 && kwlnTaskIsLinked((void *)*(u32 *)(event + 0x768)) != 0) {
+            if (((EvtEventWork *)event)->noiseTask != 0 && kwlnTaskIsLinked((void *)((EvtEventWork *)event)->noiseTask) != 0) {
                 kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u32 *)(event + 0x768));
             }
             *(u32 *)(event + 0x768) = 0;
@@ -2208,8 +2201,7 @@ s32 evtCmdCamPos(int action, int frame, int eventAddress, int ownerAddress, u16 
 
 // Event command for cue playback: action 2 plays the node's cue (formatted or by id) once per matching node; actions 0 and 1 only report readiness [inferred].
 // FUN_00289FB0
-/* Raw key reads retained: the per-kind struct rewrite changed MWCC
-   reload/register decisions and lost the whole-file match. */
+/* measured: each remaining raw key access changes instructions when typed alone. */
 s32 evtCmdPlayCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     s8 operation;
     u32 skipSound;
@@ -2226,16 +2218,16 @@ s32 evtCmdPlayCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     case 1:
         return 1;
     case 2:
-        if ((*(u16 *)command == frame) && (skipSound = ((((EvtEventWork *)event)->waitFlags & 0x10) != 0), skipSound != 1)) {
+        if ((((EvtChildNode *)command)->start == frame) && (skipSound = ((((EvtEventWork *)event)->waitFlags & 0x10) != 0), skipSound != 1)) {
             func_00440b68((char *)D_0063C3C0, frame);
-            operation = *(s8 *)(command + 0x12);
+            operation = ((EvtChildNode *)command)->payload.channelCue.operation;
             switch (operation) {
             case 0:
-                mtMiscPlayFormattedCue(((EvtEventWork *)event)->eventId[0], *(s16 *)(command + 0x10), 2);
+                mtMiscPlayFormattedCue(((EvtEventWork *)event)->eventId[0], ((EvtChildNode *)command)->payload.channelCue.cue, 2);
                 func_00440b68((char *)D_0063C3E0, *(s16 *)(command + 0x10));
                 break;
             case 1:
-                mtMiscStopSoundChannel(2, *(s16 *)(command + 0x10));
+                mtMiscStopSoundChannel(2, ((EvtChildNode *)command)->payload.channelCue.cue);
                 break;
             }
             return 1;
@@ -2246,8 +2238,7 @@ s32 evtCmdPlayCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
 }
 // Intent: Event node type 54 handler: soundtrack request or channel fade for the node's id, chosen by the node kind [inferred]
 // FUN_0028A100
-/* Raw key reads retained: the per-kind struct rewrite changed MWCC
-   reload/register decisions and lost the whole-file match. */
+/* measured: each remaining raw key access changes instructions when typed alone. */
 s32 evtNodeSoundTrack(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     s8 operation;
     u32 skipSound;
@@ -2265,18 +2256,18 @@ s32 evtNodeSoundTrack(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) 
     case 1:
         return 1;
     case 2:
-        if ((*(u16 *)command == frame) && (skipSound = ((((EvtEventWork *)event)->waitFlags & 0x10) != 0), skipSound != 1)) {
+        if ((((EvtChildNode *)command)->start == frame) && (skipSound = ((((EvtEventWork *)event)->waitFlags & 0x10) != 0), skipSound != 1)) {
             func_00440b68((char *)D_0063C5F0, frame);
-            operation = *(s8 *)(command + 0x12);
+            operation = ((EvtChildNode *)command)->payload.channelCue.operation;
             switch (operation) {
             case 0:
                 break;
             case 1:
-                mtMiscRequestSoundTrack(((EvtEventWork *)event)->eventId[0], *(s16 *)(command + 0x10), 3);
+                mtMiscRequestSoundTrack(((EvtEventWork *)event)->eventId[0], ((EvtChildNode *)command)->payload.channelCue.cue, 3);
                 func_00440b68((char *)D_0063C610, *(s16 *)(command + 0x10));
                 break;
             case 2:
-                mtMiscFadeOutSoundChannel(3, *(s16 *)(command + 0x10));
+                mtMiscFadeOutSoundChannel(3, ((EvtChildNode *)command)->payload.channelCue.cue);
                 break;
             }
             return 1;
@@ -2319,8 +2310,7 @@ s32 evtCmdPlayStream(s32 action, s32 frame, s32 event, s32 owner, u8 *command) {
 
 // Intent: Event node type 19 handler: sound cue for the node's id: plays a cue, queues a sound, or stops a channel [inferred]
 // FUN_0028A3B0
-/* Raw event/resource views retained: replacing these with typed members
-   changed MWCC alias/reload or register decisions in the whole-file match. */
+/* measured: each remaining raw event/resource access changes instructions when typed alone. */
 s32 evtNodeSoundCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     u16 commandFrame;
     s16 operation;
@@ -2332,7 +2322,7 @@ s32 evtNodeSoundCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
         if (D_008821E0[0] != 2) {
             return 0;
         }
-        if ((*(u32 *)event & 0x80000000) && (command == NULL) && (frame == 0)) {
+        if (((u32)((EvtEventWork *)event)->waitFlags & 0x80000000) && (command == NULL) && (frame == 0)) {
             sdkSndStopMainChannel(2);
         }
         return 1;
@@ -2340,14 +2330,14 @@ s32 evtNodeSoundCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
         return 1;
     case 2:
         commandFrame = ((EvtChildNode *)command)->start;
-        if ((commandFrame == frame) && (skipSound = ((*(u32 *)event & 0x10) != 0), skipSound != 1) && (frame == commandFrame)) {
+        if ((commandFrame == frame) && (skipSound = (((u32)((EvtEventWork *)event)->waitFlags & 0x10) != 0), skipSound != 1) && (frame == commandFrame)) {
             operation = ((EvtChildNode *)command)->payload.soundCue.operation;
             switch (operation) {
             case 0:
                 sdkSndPlayCue(((EvtChildNode *)command)->payload.soundCue.cue, 1);
                 break;
             case 1:
-                hsndQueueSound(*(s16 *)(event + 0x78C), ((EvtChildNode *)command)->payload.soundCue.cue);
+                hsndQueueSound((s16)((EvtEventWork *)event)->eventId[0], ((EvtChildNode *)command)->payload.soundCue.cue);
                 break;
             case 2:
                 sdkSndStopChannel(0x78, 1);
@@ -2371,8 +2361,7 @@ s32 evtNodeSoundCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
    window 320B. */
 // Event command (range flag): sets or clears flag 0x2 on the node for ids in the range.
 // FUN_0028A560
-/* Raw key reads retained: the per-kind struct rewrite changed MWCC
-   reload/register decisions and lost the whole-file match. */
+/* measured: each remaining raw key access changes instructions when typed alone. */
 s32 evtCmdRangeFlag(s32 action, s32 frame, s32 *event, s32 owner, u8 *command) {
     u16 duration;
     u16 shakeFrames;
@@ -2389,17 +2378,17 @@ s32 evtCmdRangeFlag(s32 action, s32 frame, s32 *event, s32 owner, u8 *command) {
     case 1:
         return 1;
     case 2:
-        duration = *(u16 *)(command + 2);
-        if (((duration == 0) && (frame == *(u16 *)command)) ||
-            ((duration > 0) && ((frame < (s32)*(u16 *)command) == 0) &&
-             (frame < (*(u16 *)command + duration)))) {
-            if ((duration == 0) && (*(s16 *)(command + 0x10) == 0)) {
+        duration = ((EvtChildNode *)command)->unk02;
+        if (((duration == 0) && (frame == ((EvtChildNode *)command)->start)) ||
+            ((duration > 0) && ((frame < (s32)((EvtChildNode *)command)->start) == 0) &&
+             (frame < (((EvtChildNode *)command)->start + duration)))) {
+            if ((duration == 0) && (((EvtChildNode *)command)->payload.kind16.unk00 == 0)) {
                 *event &= ~2;
                 MT_Scene_StopShake();
-            } else if (frame == *(u16 *)command) {
+            } else if (frame == ((EvtChildNode *)command)->start) {
                 *event |= 2;
                 shakeFrames = *(u16 *)(command + 2);
-                MT_Scene_StartShake(shakeFrames, *(s16 *)(command + 0x10));
+                MT_Scene_StartShake(shakeFrames, ((EvtChildNode *)command)->payload.kind16.unk00);
             }
         }
         return 1;
@@ -2635,8 +2624,7 @@ void evtResetEventScene(s32 frame, u8 *event) {
 
 // Destroys the event scene: kills the tint task, destroys the model, and releases the child tasks and nodes [inferred].
 // FUN_0028AD90
-/* Raw event/resource views retained: replacing these with typed members
-   changed MWCC alias/reload or register decisions in the whole-file match. */
+/* measured: each remaining raw event/resource access changes instructions when typed alone. */
 void evtDestroyEventScene(u8 *event, s32 stopSound) {
     s32 waitTask;
     s32 scriptTask;
@@ -2653,7 +2641,7 @@ void evtDestroyEventScene(u8 *event, s32 stopSound) {
     slotIndex = 0;
     goto loop_6_test;
 loop_6_body:
-    taskSlot = (s32 *)(event + (slotIndex * 4) + 0x6C4);
+    taskSlot = &((EvtEventWork *)event)->waitTask[slotIndex];
     waitTask = *taskSlot;
     if (waitTask != 0) {
         if (kwlnTaskIsLinked((void *)waitTask) != 0) {
@@ -2670,17 +2658,17 @@ loop_6_test:
     datStopPadRumble();
     MT_Scene_StopShake();
     sceneLightSlotsReset();
-    if ((*(s32 *)(event + 4) != 0) && (evtMessageWindowIsOpen((u32 *)(event + 0x678)) != 0)) {
+    if (((s32)((EvtEventWork *)event)->sceneSource != 0) && (evtMessageWindowIsOpen((u32 *)(event + 0x678)) != 0)) {
         evtMessageWindowResetTyped((u32 *)(event + 0x678));
     }
     evtReleaseRes(event);
     mtMiscStopSoundChannel(2, 0);
-    scriptTask = (s32)(*(s32 *)(event + 0x760));
+    scriptTask = (s32)(((EvtEventWork *)event)->scriptLoad);
     if ((scriptTask != 0) && (kwlnTaskIsLinked((void *)scriptTask) != 0)) {
         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(s32 *)(event + 0x760));
         *(s32 *)(event + 0x760) = 0;
     }
-    noiseTask = (s32)(*(s32 *)(event + 0x768));
+    noiseTask = (s32)((s32)((EvtEventWork *)event)->noiseTask);
     if ((noiseTask != 0) && (kwlnTaskIsLinked((void *)noiseTask) != 0)) {
         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(s32 *)(event + 0x768));
         *(s32 *)(event + 0x768) = 0;
@@ -2688,7 +2676,7 @@ loop_6_test:
     if (stopSound != 0) {
         sdkSndStopMainChannel();
     }
-    linkedTask = (s32)(*(s32 *)(event + 0x75C));
+    linkedTask = (s32)(((EvtEventWork *)event)->linkedTask);
     if (linkedTask != 0) {
         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)linkedTask);
         *(s32 *)(event + 0x75C) = 0;
@@ -2698,7 +2686,7 @@ loop_6_test:
     }
     evtCustomEventReleaseRes();
     mtMiscDestroyIconResources();
-    evtEffectTableDestroy(*(u8 **)(event + 0x5D0));
+    evtEffectTableDestroy((u8 *)((EvtEventWork *)event)->effectTable);
     *(s32 *)(event + 0x5D0) = 0;
     goto loop_27_test;
 loop_27_body:
@@ -2782,15 +2770,14 @@ u8 *evtCreateEventState(void) {
 
 // Event teardown: restores env/camera state, releases the scene task, frees the node.
 // FUN_0028B160
-/* Raw event/resource views retained: replacing these with typed members
-   changed MWCC alias/reload or register decisions in the whole-file match. */
+/* measured: each remaining raw event/resource access changes instructions when typed alone. */
 void evtDestroy(int eventAddress, s32 stopSound) {
     u32 readerTask;
     evtDestroyEventScene((u8 *)eventAddress, stopSound);
     evtEnvSlotRestore(eventAddress, 0);    evtCamPosRestore(eventAddress);
     MT_Scene_ClearExclusiveRes();
-    if ((*(u32 *)eventAddress & 0x40000000) == 0) {
-        readerTask = *(u32 *)(eventAddress + 0x77C);
+    if (((u32)((EvtEventWork *)eventAddress)->waitFlags & 0x40000000) == 0) {
+        readerTask = (u32)((EvtEventWork *)eventAddress)->readerHandle;
         if (readerTask != 0) {
             kwlnTaskDestroyWithHierarchy((struct KwlnTask *)readerTask);
             *(u32 *)(eventAddress + 0x77C) = 0;

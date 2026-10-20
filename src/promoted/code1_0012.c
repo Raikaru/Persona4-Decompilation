@@ -22,15 +22,15 @@ extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
 extern f32 sinf();
-extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 fparg0, s32 preserveState);
-extern void PrimDrawPoints(void *colors, void *positions, f32 fparg0, s32 count,
-                          s32 primitiveType, s32 preserveState);
+extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+extern void PrimDrawPoints(void *arg0, void *arg1, f32 fparg0, s32 arg2,
+                          s32 arg3, s32 arg4);
 extern f32 fGpffff8478;
 extern f32 cosf(f32 fparg0);
-extern s32 mdlCopyIndexedMatrix(void *model, s32 index, void *destination);
-extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
-extern void titleVisualDrawTintedModel(void *model, void *color);
-extern void mdlAdvanceModelFromFlags(void *model);
+extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
+extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
+extern void titleVisualDrawTintedModel(void *arg0, void *arg1);
+extern void mdlAdvanceModelFromFlags(void *arg0);
 static inline s32 code1_0012_stride(s32 index, s32 base)
 {
     return index + base;
@@ -48,7 +48,7 @@ extern s32 D_00796670[];
 extern u8 D_005E50D0[];
 extern u8 D_005E5870[];
 extern u8 *resourceFindByName(char *filename);
-extern void calendarSetMode(s32 mode);
+extern void calendarSetMode(s32 arg0);
 
 extern void cldTimeChangeCreate();
 
@@ -61,13 +61,13 @@ extern void fclBankTableReset(void);
 extern s32 tickerInitBankTable(u8 *task);
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(char *name, u8 *task);
-extern void fadeUpdateCallback(void *unusedContext, u8 *fadeWork);
+extern void fadeUpdateCallback(void *arg0, u8 *arg1);
 extern void calendarDrawBackdrop(void *unusedNode, void *work);
 extern char D_00796340[];
 extern char D_00795F50[];
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern s32 calGetDayTableValue(s16 day, s16 phase);
+extern s32 calGetDayTableValue(s16 arg0, s16 arg1);
 extern s32 FldStepIndex(void);
 extern s32 evtHasTaskHandle(void);
 extern s32 iGpffffb1c8;
@@ -82,31 +82,31 @@ extern void cldSchedulerStart(void);
 extern s16 clndGetPeriod(void);
 extern s16 clndGetDaysSinceApr5(void);
 extern void calendarSyncFromDate(void);
-extern s32 cldDungeonInStart(s32 parentTask);
+extern s32 cldDungeonInStart(s32 arg0);
 extern void fclBankTableInit(void);
-extern void poolFree(s32 address);
-extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
-extern void sdkListStateConfigure(void *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
-extern void sdkListStateSetSecondaryMasks(void *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
-extern s32 sdkListStateHandleInput(void *state);
-extern s32 sdkListStateGetCursor(void *state);
+extern void poolFree(s32 arg0);
+extern void sequenceRequest(s32 arg0, void *arg1, s32 arg2, s32 arg3);
+extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 sdkListStateHandleInput(void *arg0);
+extern s32 sdkListStateGetCursor(void *arg0);
 extern u16 D_008C024E[];
-extern void sprintf(void *, const char *, ...);
-extern s32 H_Cdvd_LookupRequest(void *pathAddress, s32 *slot);
-extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *memory, u32 size, u32 flags);
-extern s32 mdlPrepareModel(void *model);
+extern void sprintf(void *arg0, const char *arg1, ...);
+extern s32 H_Cdvd_LookupRequest(void *arg0, s32 *arg1);
+extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
+extern s32 mdlPrepareModel(void *arg0);
 extern u8 D_005E5560[];
 extern u8 D_005E5570[];
 extern void datCarryOverPersistentState(void);
-extern s32 shdWindowTaskCreate(u8 *parentTask, s32 value, s32 entryIndex);
-extern void shdWindowMarkDone(s32);
-extern s32 shdWindowQueryState(s32);
-extern s32 mcIconTaskCreate(u8 *parent, s32 mode);
+extern s32 shdWindowTaskCreate(u8 *arg0, s32 arg1, s32 arg2);
+extern void shdWindowMarkDone(s32 arg0);
+extern s32 shdWindowQueryState(s32 arg0);
+extern s32 mcIconTaskCreate(u8 *arg0, s32 arg1);
 extern s32 mcIconTaskPoll(void);
-extern s32 titleSlotSetMode(u8 *menu, s32 mode);
+extern s32 titleSlotSetMode(u8 *arg0, s32 arg1);
 extern void sdkSpriteFreeNode(void *node);
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
-                          u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+                          u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
 extern s32 nLineIsIdle(void);
 
 typedef struct {
@@ -127,18 +127,18 @@ typedef struct {
     f32 y;
 } SVec2_0012;
 
-extern void func_003ef3a0(void *);
-extern void radarAnimateValue(u8 *work, s32 frame, s32 mode);
-extern void datCommunityEntryStep(u8 *communityEntry);
+extern void func_003ef3a0(void *arg0);
+extern void radarAnimateValue(u8 *arg0, s32 arg1, s32 arg2);
+extern void datCommunityEntryStep(u8 *arg0);
 extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005E57B8[];
 extern u8 D_005E57D0[];
-extern s32 titleSoundStartStep(u8 *task);
-extern void radarDrawPanel(u8 *state);
-extern void radarStepSlotAnimB(u8 *menu);
-extern void radarStepPairAnim(u8 *menu);
+extern s32 titleSoundStartStep(u8 *arg0);
+extern void radarDrawPanel(u8 *arg0);
+extern void radarStepSlotAnimB(u8 *arg0);
+extern void radarStepPairAnim(u8 *arg0);
 extern s32 calendarStateTask(u8 *task);
 /* Calendar state block at iGpffffb1dc: header fields, five 0x30-byte records from 0x20, owner pointer at 0x110. */
 typedef struct CalendarRecord {
@@ -172,40 +172,40 @@ typedef struct CalendarState {
 } CalendarState;
 
 extern u8 *iGpffffb1dc;
-extern s32 clndPromptUpdate(u8 *task);
+extern s32 clndPromptUpdate(u8 *arg0);
 extern u8 D_005E5170[];
 extern u8 D_005E5180[];
 extern u8 D_005E5190[];
 extern u8 D_005E51A0[];
 extern u8 D_005E51B0[];
-extern void clndPromptDestroy(u8 *task);
-extern s32 filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
+extern void clndPromptDestroy(u8 *arg0);
+extern s32 filerTakeCompletedRequest(s32 arg0, s32 *arg1, s32 arg2);
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
 extern s32 datItemCount(s16 id);
 extern u8 D_005E76C8[];
 extern u8 D_005E5720[];
-extern s32 titleTaskUpdate(u8 *task);
+extern s32 titleTaskUpdate(u8 *arg0);
 extern void titleLoaderTeardown(u8 *task);
-extern void sdkSpritePackDestroy(s32 pack);
-extern void H_Cdvd_Destroy(s32 cdvd);
-extern void sdkSndStopChannel(s32 fadeFrames);
-extern void mdlDestroyModelObject(s32 model);
-extern void memset(void *, s32, s32);
-extern s16 datBuildPartyIdList(void *ids);
+extern void sdkSpritePackDestroy(s32 arg0);
+extern void H_Cdvd_Destroy(s32 arg0);
+extern void sdkSndStopChannel(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
+extern s16 datBuildPartyIdList(void *arg0);
 extern u8 *sdkSpriteNewNode(u32 sprites, u32 index);
 extern u8 D_005E5F40[];
 extern u8 D_005E7670[];
 extern u8 D_005E5830[];
 extern u8 D_005E5850[];
 extern u8 D_005E57F0[];
-extern s32 datGetFlag(s32 bit);
+extern s32 datGetFlag(s32 arg0);
 extern u8 D_005E5810[];
 extern s32 D_005E5B60[];
 extern u8 D_005E5BB8[];
 extern u8 D_005E76C8[];
-extern void titleCollectFlaggedIds(u8 *menu);
-extern s32 titleSetMenuLayout(u8 *menu, u32 layout);
+extern void titleCollectFlaggedIds(u8 *arg0);
+extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
 typedef struct {
     u8 b[4];
 } PanelRgba;
@@ -302,21 +302,21 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 #pragma push
 #pragma always_inline on
 #pragma pop
-extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags);
+extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
 extern void titleSkyApplyBasePreset(void);
-extern s32 RpSkyRenderStateSet(s32, s32);
+extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern s32 D_005E55E0[];
 extern s8 D_005E5610[];
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 
-extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags);
-extern s32 shdSpriteDrawNowEx(f32 farg0, f32 farg1, f32 farg2, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags,
-                         s16 width, s16 height, f32 farg3, f32 farg5, f32 farg4);
+extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
+extern s32 shdSpriteDrawNowEx(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5,
+                         s16 arg6, s16 arg7, f32 farg3, f32 farg5, f32 farg4);
 
 extern void titleSkyApplyBasePreset(void);
-extern s32 RpSkyRenderStateSet(s32, s32);
+extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 typedef struct { u8 c0, c1, c2, c3; } __attribute__((aligned(4))) TitleColor;
@@ -441,13 +441,13 @@ typedef struct TitleTask {
     s32 savedDayFlags;
 } TitleTask;
 #include "btl_shuffle_draw_internal.h"
-void titleTransformSlotModel(s32 modelIndex, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, u32 baseColor, u32 highlightColor, f32 fparg6, s32 flags, u32 *context);
+void titleTransformSlotModel(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, u32 arg1, u32 arg2, f32 fparg6, s32 arg3, u32 *arg4);
 
-void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 opacity, u8 *context);
+void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1);
 
 void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext);
 
-void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context);
+void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1);
 
 /* Render title scenes, animated logos, palette highlights and transition bars.
  * The draw queue supplies node+0x1C, then the task stored at node+0x10.
@@ -1799,9 +1799,9 @@ static inline void code12QuaternionMatrix(Code12FrameMatrix *matrix, const Code1
 #pragma opt_propagation off
 s32 fadeStatus(void);
 
-s32 taskLoadSlotModels(u8 *context);
+s32 taskLoadSlotModels(u8 *arg0);
 
-s32 titleMusicStreamStep(u8 *context);
+s32 titleMusicStreamStep(u8 *arg0);
 
 /* Native b210 O2: 3056/3056 bytes, 105 resolved relocations and the
  * complete 17-entry switch table at 0x00746770. Complete vector and
@@ -2504,7 +2504,7 @@ s32 titleSlotUpdateAndDraw(u8 *menu)
 extern u8 D_005E58C0[];
 extern u8 D_005E59A0[];
 extern u8 D_005E5A80[];
-extern void titleLayoutSlots(u8 *menu);
+extern void titleLayoutSlots(u8 *arg0);
 
 #pragma push
 /* measured: opt_loop_invariants on is load-bearing: removing it yields MISMATCH nd 383 (obj 684B/window 688B); on yields MATCH nd 0 (obj 680B/window 688B) by hoisting the case-zero constants. */

@@ -2,6 +2,7 @@
 #define SCENE_EVENT_INTERNAL_H
 
 #include "type.h"
+#include "evt_record_collection_internal.h"
 
 typedef struct SVec3 {
     f32 x, y, z;
@@ -177,7 +178,48 @@ typedef struct EvtWaitPayload {
     s8 operation;
 } EvtWaitPayload;
 
+/* Resource-command operands have different widths for each operation. */
+typedef struct EvtResCommandPayload {
+    s8 operation;
+    u8 pad01[3];
+    union {
+        f32 yaw;
+        s16 duration;
+        u8 color;
+        s8 argument;
+        struct { s8 argument, mode; s16 speed; } move;
+    } value04;
+    union {
+        SVec3 position;
+        u16 duration;
+        s32 attachment;
+        struct { u8 color; s8 mode; } tint;
+    } value08;
+    union {
+        struct { s8 loop, timed, rotate; u8 pad17; } path;
+        s16 duration;
+    } value14;
+    f32 pitch;
+    f32 yaw;
+} EvtResCommandPayload;
+
+typedef struct EvtCutinPayload {
+    s8 operation;
+    u8 pad01[3];
+    s16 firstCode, secondCode;
+    u8 pad08[4];
+    s16 x, y;
+    s8 noCodes;
+} EvtCutinPayload;
+
+typedef struct EvtChannelCuePayload { s16 cue; s8 operation; } EvtChannelCuePayload;
+typedef struct EvtFadePayload { s16 operation, mode; s8 colorIndex; } EvtFadePayload;
+
 typedef union EvtChildPayload {
+    EvtResCommandPayload resCommand;
+    EvtCutinPayload cutin;
+    EvtChannelCuePayload channelCue;
+    EvtFadePayload fade;
     EvtPayloadKind01 kind01;
     EvtPayloadKind02 kind02;
     EvtPayloadKind03 kind03;
@@ -219,11 +261,22 @@ struct EvtChildNode {
     u16 unk02;                /* +0x02: cleared by kind 0x35 */
     s32 unk04;                /* +0x04: -1 on create, 0 for kind 0x0A */
     u8 unk08[0x08];
-    EvtChildPayload payload;  /* +0x10..+0x2F: payload typed by the parent kind */
-    u8 unk30;                 /* +0x30: kind 0x30 stores the parent's param04 here */
-    u8 unk31[3];
-    s16 scalePercent;         /* +0x34: resource-placement uniform scale */
-    u8 pad36[2];
+    union {
+        struct {
+            EvtChildPayload payload;  /* +0x10..+0x2F: payload typed by the parent kind */
+            u8 unk30;                 /* +0x30: kind 0x30 stores the parent's param04 here */
+            u8 unk31[3];
+            s16 scalePercent;         /* +0x34: resource-placement uniform scale */
+            u8 pad36[2];
+        };
+        EvtRecordParameters recordPayload; /* +0x10..+0x37: serialized words before per-kind narrowing */
+        struct {
+            u8 pad10[0x20];
+            s8 surface;
+            u8 pad31[3];
+            s8 flags, sound, period, delay;
+        } motionSound;
+    };
     u32 kind;                 /* +0x38: the parent's kind */
     u8 unk3C[0x04];
     u32 ownedBlock40;         /* +0x40: heap block freed with the child */
@@ -302,7 +355,9 @@ struct EvtEventWork {
     f32 savedCamera[2];       /* +0x98: camera x/y */
     u8 padA0[0x1A];
     s16 resultSlot;           /* +0xBA: message selection result slot */
-    u8 padBC[0x514];
+    u8 padBC[0x70];
+    u8 *cameraResource;       /* +0x12C: camera record owner used by evtNodeLoadCameraRecords */
+    u8 pad130[0x4A0];
     s32 effectTable;          /* +0x5D0: effect table handle */
     s32 busy;                 /* +0x5D4: nonzero while the event is busy */
     u8 unk5D8[0xA0];
@@ -349,7 +404,7 @@ struct MtMiscSceneRecord16
     u16 type;                 /* 0x00. Compared with 4 */
     u16 id;                   /* 0x02 */
     u16 unk_04;               /* 0x04 */
-    u8 unk_06[2];
+    union { u8 unk_06[2]; s16 value06; };
     s16 unk_08;               /* 0x08 */
     s16 unk_0a;               /* 0x0A */
     s8 unk_0c;                /* 0x0C */
@@ -367,7 +422,10 @@ struct EvtSceneRecord
     u16 type;                 /* 0x00. Compared with 5, 0x13 and 4 */
     u16 id;                   /* 0x02 */
     u16 unk_04;               /* 0x04 */
-    u8 unk_06[6];
+    union {
+        u8 unk_06[6];
+        struct { s16 value06; u16 count08; s16 value0A; };
+    };
     s16 position[4];          /* 0x0C. Four halfwords copied into the scene node */
     s16 unk_14;               /* 0x14 */
     union {
