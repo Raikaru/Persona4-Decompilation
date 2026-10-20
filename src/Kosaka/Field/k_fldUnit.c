@@ -16,6 +16,10 @@
 #include "rw/std/stddef.h"
 #include "field_frame_internal.h"
 
+/* Unit settings: measured common-subexpression elimination and propagation are on outside the update scopes. */
+#pragma opt_common_subs on
+#pragma opt_propagation on
+
 typedef struct HCdvd HCdvd;
 typedef struct Model Model;
 typedef struct Resrc Resrc;
@@ -512,9 +516,9 @@ checked_party:
 /* measured: disable common-subexpression elimination to preserve the retail
    second unit-base materialization after the allocator call. */
 /* measured: FldUnit_UpdateTable MATCH -> MISMATCH without this pragma. */
+#pragma push
 /* Wait for party models and animation slots, then copy loaded per-unit resource data. */
 // FUN_00162C30
-#pragma push
 /* measured: baseline 106 differing words; block lifetimes did not match; retain scoped settings. */
 #pragma opt_common_subs off
 s32 FldUnit_UpdateTable(void)
@@ -1320,6 +1324,7 @@ s32 FldUnit_SpawnEncounter(u32 limit, s32 refill)
     return spawnCount;
 }
 
+/* measured: one shared update scope also preserves the intervening count, dispatch and animation wrappers. */
 #pragma push
 /* measured: FldUnit_FindNearestUnits MATCH -> MISMATCH without this pragma. */
 /* measured: FldUnit_FindNearestUnits MATCH -> MISMATCH without this pragma. */
@@ -1530,7 +1535,6 @@ done:
     return best;
 }
 
-#pragma pop
 // FUN_00164F40
 s32 FldUnit_GetActiveCount(void)
 {
@@ -1549,15 +1553,12 @@ void FldUnit_UpdateSlots(s32 includeLeader)
 
 /* 708/720 bytes; forty resolved relocations; twelve zero alignment bytes.
  * Preserve repeated unit-base multiplies and the link destination lifetime. */
-#pragma push
 /* measured: FldUnit_UpdateSlot MATCH -> MISMATCH without this pragma. */
 /* measured: FldUnit_UpdateSlot MATCH -> MISMATCH without this pragma. */
 /* Reattach a party slot from its saved matrix and recreate its marker and follower controller. */
 /* Raw word cursors copy the saved 64-byte matrix; interior linker labels retain per-slot character/icon addresses without rebasing symbols. */
 // FUN_00164FA0
 /* measured: baseline 74 differing words; block lifetimes did not match; retain scoped settings. */
-#pragma opt_common_subs off
-#pragma opt_propagation off
 void FldUnit_UpdateSlot(s32 slotIndex)
 {
     f32 markerScale[3];
@@ -1632,7 +1633,6 @@ void FldUnit_UpdateSlot(s32 slotIndex)
     }
 }
 
-#pragma pop
 /* Request each occupied encounter slot model using its stored variant. */
 // FUN_00165270
 void FldUnit_StartSlotAnims(void)
@@ -1672,10 +1672,7 @@ s32 FldUnit_AllSlotAnimsDone(void)
    opt_propagation off keeps the pointer bump out of the store offset. */
 /* measured: FldUnit_UpdateSlotModels MATCH -> MISMATCH without this pragma. */
 /* measured: FldUnit_UpdateSlotModels MATCH -> MISMATCH without this pragma. */
-#pragma push
 /* measured: baseline 143 differing words; block lifetimes did not match; retain scoped settings. */
-#pragma opt_common_subs off
-#pragma opt_propagation off
 void FldUnit_UpdateSlotModels(void)
 {
     s32 i;
@@ -1753,7 +1750,7 @@ void FldUnit_UpdateSlotModels(void)
 }
 #pragma pop
 
-/* measured: closes the two brackets above; the file default is on. */
+/* measured: restore the unit settings after the shared slot-update scope. */
 /* measured: FldUnit_ApplySlotTint, FldUnit_FindNearestSlot, FldUnit_InstallResources, FldUnit_PulseTintBlend, FldUnit_PulseTintPeriod, FldUnit_PulseTintStep, FldUnit_RequestSceneResource, FldUnit_RequestUnitResource, FldUnit_SetSlotModel, FldUnit_SetupEncounter, FldUnit_SpawnPartyTask, FldUnit_UpdateAllEnemySlots, FldUnit_UpdateEnemySlot MATCH -> MISMATCH without this pragma. */
 /* measured: FldUnit_ApplySlotTint, FldUnit_FindNearestSlot, FldUnit_SetSlotModel, FldUnit_SetupEncounter MATCH -> MISMATCH without this pragma. */
 /* Save the current model matrix before detaching scene resources and optional model ownership. */
@@ -2796,12 +2793,13 @@ void FldUnit_ClearFlagBlock(void)
     memset(D_007E8020, 0, 0x40);
 }
 
+/* measured: the field and party state updates share the reload settings; party lifetimes remain scoped below. */
+#pragma push
 /* Preserve the per-site unit addresses and the readiness value used by each
    scan. The grid coordinates are signed integers; the second scan shares its
    center and grid size while retaining the original coordinate before addition. */
 /* measured: indexing the second nearby-pointer list as an array changed one normalized byte; retain its original base-plus-offset address order. */
 // FUN_00167560
-#pragma push
 /* measured: FldUnit_UpdateFieldState MATCH -> MISMATCH without this pragma. */
 /* measured: FldUnit_UpdateFieldState MATCH -> MISMATCH without this pragma. */
 /* measured: baseline 197 differing words; block lifetimes did not match; retain scoped settings. */
@@ -2906,7 +2904,6 @@ void FldUnit_UpdateFieldState(void)
     }
 }
 
-#pragma pop
 /* Model replacement waits for all selected units before completing the task.
  * Measured: 904 relocated bytes plus eight zero suffix bytes. The scoped
  * lifetime/reload profile preserves the kind field across model teardown. */
@@ -2918,8 +2915,6 @@ void FldUnit_UpdateFieldState(void)
 /* measured: FldUnit_UpdatePartyState MATCH -> MISMATCH without this pragma. */
 /* measured: baseline 212 differing words; typed access, block lifetimes did not match; retain scoped settings. */
 #pragma opt_lifetimes on
-#pragma opt_common_subs off
-#pragma opt_propagation off
 s32 FldUnit_UpdatePartyState(u8 *task)
 {
     u8 *entry;
@@ -3039,6 +3034,7 @@ s32 FldUnit_UpdatePartyState(u8 *task)
     return 0;
 }
 
+#pragma pop
 #pragma pop
 // FUN_00167D60
 void FldUnit_FreePartyState(u8 *task)
