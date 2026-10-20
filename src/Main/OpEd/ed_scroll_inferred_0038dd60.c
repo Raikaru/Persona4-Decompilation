@@ -55,8 +55,9 @@ extern s32 (*D_00887310[])(s32, void *, s32);
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
 #pragma push
 #pragma pop
+/* Empty start callback in sequence row 0x005DD2A0; sequenceRequest selects the callback at row offset four. */
 // FUN_0038DD60
-void func_0038dd60(void)
+void edScrollStartNoop(void)
 {
 }
 

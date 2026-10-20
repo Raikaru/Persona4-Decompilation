@@ -55,8 +55,9 @@ extern s32 (*D_00887310[])(s32, void *, s32);
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
 #pragma push
 #pragma pop
+/* Empty poll callback in sequence row 0x005DD2A0; unlike ordinary polls this entry does not define a result. */
 // FUN_0038DD70
-void func_0038dd70(void)
+void edScrollPollNoop(void)
 {
 }
 
