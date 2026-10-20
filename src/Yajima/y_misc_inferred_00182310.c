@@ -183,6 +183,7 @@ extern s32 iGpffffb884;
 #pragma opt_loop_invariants on
 /* Broadcast a pause value to the linked chaser/patrol task of each occupied, active actor slot. */
 // FUN_00182310
+/* measured: inline and explicit actor-table base; best baseline residual 94 differing bytes. */
 void FldSlotBroadcastState(s32 state)
 {
     s32 slotIndex;
@@ -357,6 +358,7 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
 #pragma opt_propagation off
 /* Install the depth, shade and blend states used for the rain PTank draw. */
 // FUN_00182B40
+/* measured: local table pointer and direct callback-table calls; best baseline residual 59 differing bytes. */
 void FldRainRenderStateSet(void)
 {
     void (**fn)(s32, s32);
@@ -380,6 +382,7 @@ void FldRainRenderStateSet(void)
 #pragma opt_loop_invariants on
 /* Initialize the camera-facing rain pool, then spawn columns and update each drop trail before queueing its PTank. */
 /* PTank plugin slots use a runtime offset; fixed frame, texture, material and strided-lock fields are typed. */
+/* measured: access-site fields and existing typed rain alias; best baseline residual 664 differing bytes. */
 s32 FldRainUpdate(u8 *task)
 {
     FldRainWork *rainWork;
@@ -695,6 +698,7 @@ s32 FldRainUpdate(u8 *task)
 /* Release each drop motion buffer, the rain pool, timers and RenderWare handles before freeing task work. */
 #pragma opt_propagation off
 // FUN_001837F0
+/* measured: typed task alias and direct task-work reload; best baseline residual 80 differing bytes. */
 void FldRainDestroy(u8 *task)
 {
     KwlnTask *rainTask = (KwlnTask *)task;
@@ -810,6 +814,7 @@ void FldRainRenderStateReset(u8 *unused, u8 *work)
 #pragma opt_loop_invariants on
 /* Build a two-by-two fog mesh with vertically interpolated colors, then scroll and wrap its texture coordinates. */
 /* Typed quad fields retain the measured signed/unsigned cursor address trees documented above. */
+/* measured: typed fog alias and independent lifetime/invariant bisection; best baseline residual 4588 differing bytes. */
 s32 FldFogUpdate(u8 *task)
 {
     FldFogWork *fogWork;

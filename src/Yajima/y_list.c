@@ -292,7 +292,6 @@ s8 yListKindFor(void *task) {
 
 
 #pragma push
-#pragma opt_common_subs on
 #pragma opt_loop_invariants on
 /* Apply the optional category and flag masks to an item identifier. */
 static inline s32 yListAcceptsItem(u8 *owner, s16 id)
@@ -321,6 +320,7 @@ static inline s32 yListAcceptsItem(u8 *owner, s16 id)
    common-subexpression and loop-invariant settings preserve all siblings. */
 // FUN_002E2A10
 /* Rebuild the active filtered item list, optionally moving flagged IDs first or sorting by price. */
+/* measured: explicit paired-row base and redundant-CSE bisection; best baseline residual 431 differing bytes. */
 void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
     /* Fields use access-site typing where it preserves retail output;
        MEMBER retains byte-access aliasing only at measured culprits. */
@@ -492,11 +492,11 @@ void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
 #pragma opt_common_subs on
 
 #pragma push
-#pragma opt_common_subs on
 #pragma opt_loop_invariants on
 /* measured: all 2864 code bytes match with the same scoped settings. */
 // FUN_002E3560
 /* Rebuild a task-owned filtered item list with the selected ordering mode. */
+/* measured: explicit paired-row base and redundant-CSE bisection; best baseline residual 434 differing bytes. */
 void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
     /* Fields use access-site typing where it preserves retail output;
        MEMBER retains byte-access aliasing only at measured culprits. */
@@ -668,6 +668,7 @@ void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
 // FUN_002E4090
 #pragma push
 #pragma opt_lifetimes on
+/* measured: scoped counters, cached-ID snapshot and narrowed wider counter; best baseline residual 12 differing bytes. */
 s32 yListSlotRefresh(u8 *task) {
     /* Fields use access-site typing where it preserves retail output;
        MEMBER retains byte-access aliasing only at measured culprits. */
@@ -979,6 +980,7 @@ static inline u8 *yListEntryInWork(u8 *work, s16 index) {
 // FUN_002E4AC0
 #pragma push
 #pragma opt_loop_invariants on
+/* measured: row-base calculation before inner-counter initialization; best baseline residual 969 differing bytes. */
 void yListBuildAvailability(s32 modeOrResult, s32 selectedIndex) {
     u8 *base;
     u8 *row;
@@ -1057,6 +1059,7 @@ extern s32 fclFuseSpecialPartner(u8 *, s32 , s32 );
 // FUN_002E5000
 #pragma push
 #pragma opt_loop_invariants on
+/* measured: row-base calculation before inner-counter initialization; best baseline residual 473 differing bytes. */
 void yListBuildPairFlags(void) {
     u8 *base;
     u8 *row;
@@ -1118,6 +1121,7 @@ s32 yListRecordsDiffer(u8 *left, u8 *right) {
 /* measured: without `opt_loop_invariants on` the switch jump-table base is
    rematerialized in the loop body instead of hoisted to the preheader (nd 30+). */
 // FUN_002E53B0
+/* measured: equivalent kind if/else dispatch; best baseline residual 55 differing bytes. */
 s32 yListSlotContainsId(s8 list, s16 id) {
     u8 **slot = &D_00882F70[list];
     u8 *task;
@@ -1168,6 +1172,7 @@ s32 yListSlotContainsId(s8 list, s16 id) {
    the preheader as retail does, giving nd 30+. */
 #pragma opt_loop_invariants on
 /* Find the first matching persona ID, returning minus one when absent. */
+/* measured: equivalent kind if/else dispatch; best baseline residual 76 differing bytes. */
 s16 yListSlotIndexOf(s8 list, s16 id) {
     s16 rowIndex = 0;
     u8 **slot = &D_00882F70[list];
@@ -1218,6 +1223,7 @@ s16 yListSlotIndexOf(s8 list, s16 id) {
 #pragma opt_common_subs off
 // FUN_002E55C0
 /* Append a default or roster-derived persona record and increment the list count. */
+/* measured: typed and MEMBER task-work reloads; best baseline residual 620 differing bytes. */
 void yListSlotAppend(s8 list, s32 id, s8 useRoster) {
     u8 **slot;
     u8 *task;
@@ -1388,6 +1394,7 @@ void yListSlotClear(s8 list) {
 #pragma opt_lifetimes on
 extern s32 yListIsExcludedId(u16 , u16 *);
 /* Fill eligible persona IDs around the requested level, widening an empty search until it yields more than five. */
+/* measured: separate initial and expanded-search counters; best baseline residual 25 differing bytes. */
 void yListSlotFillNearLevel(s8 list, u16 *exclude, s8 requestedLevel)
 {
     YListPersonaWork *nearLevelList;
@@ -1690,6 +1697,7 @@ static inline s32 yListContains(s8 list, s16 id)
 #pragma opt_loop_invariants on
 // FUN_002E6280
 /* Fill eligible arcana-one personas up to level plus three, excluding supplied IDs. */
+/* measured: typed and MEMBER task-work loads; best baseline residual 39 differing bytes. */
 void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
 {
     YListPersonaWork *levelList;
@@ -1835,6 +1843,7 @@ s32 yListCompareByWeightedKeyDesc(const void *left, const void *right) {
    into the preheader as retail does. */
 #pragma opt_loop_invariants on
 /* Sort indices by the weighted key, then rebuild records from their cached persona IDs. */
+/* measured: typed and MEMBER task-work loads; best baseline residual 110 differing bytes. */
 void yListSlotSortWeighted(s8 list) {
     /* Fields use access-site typing where it preserves retail output;
        MEMBER retains byte-access aliasing only at measured culprits. */
@@ -1995,6 +2004,7 @@ s32 yListCompareByKeyDesc(const void *left, const void *right) {
 /* measured: open opt_loop_invariants scope for func_002e6c90. */
 #pragma opt_loop_invariants on
 /* Sort indices by level, then rebuild records from their cached persona IDs. */
+/* measured: typed and MEMBER task-work loads; best baseline residual 110 differing bytes. */
 void yListSlotSortByKey(s8 list) {
     /* Fields use access-site typing where it preserves retail output;
        MEMBER retains byte-access aliasing only at measured culprits. */
@@ -2067,6 +2077,7 @@ void yListSlotSortByKey(s8 list) {
    preheader as retail does (addiu $a1,$zero,-1 before the initial branch). */
 #pragma opt_loop_invariants on
 /* Allocate forty-eight minus-one indices followed by a zero count. */
+/* measured: indexed and pointer-cursor fill loops; best baseline residual 11 differing bytes. */
 u8 *yListAllocIndexTable(void) {
     s16 *indices;
     s16 index;
