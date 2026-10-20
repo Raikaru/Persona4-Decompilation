@@ -116,16 +116,6 @@ static inline f32 p4_add_0019a680(f32 left, f32 right)
 {
     return left + right;
 }
-static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
-
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    *(u8 **)(address + offset) = stored;
-}
 
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
