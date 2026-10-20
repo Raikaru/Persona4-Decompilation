@@ -1,4 +1,3 @@
-/* Source unit: src/Kernel/kwlnTask_004571d0.c (1 function markers) */
 #include "type.h"
 
 typedef struct Raster Raster;
@@ -48,7 +47,6 @@ extern void* func_003e9320(void);
 extern void func_003efd20(Camera* camera, void* frame);
 extern void func_003e9390(void* frame);
 extern void func_003e8440(Camera* camera);
-
 
 
 /* Resizes the camera's frame and Z buffers to the requested view (or the display size) and sets its view window. */
@@ -176,7 +174,6 @@ update_view_window:
 
     RwCameraSetViewWindow(camera, viewWindow);
 }
-
 
 
 /* Creates a camera with a frame buffer and an optional Z buffer; on failure it frees everything and returns NULL. */

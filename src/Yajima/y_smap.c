@@ -3,7 +3,7 @@
 #include "fcl_color.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit y_smap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit y_smap.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "fcl_draw_types.h"
@@ -17,7 +17,8 @@
 #include "Kosaka/k_fldFilter_internal.h"
 #include "rw_camera_internal.h"
 
-/* Unit setting: loop invariants off; measured reveal and drawing scopes enable hoisting. */
+/* measured: retail builds this unit with hoisting off, and only the reveal and drawing functions
+ * turn it on. */
 #pragma opt_loop_invariants off
 #include "scene_resource_internal.h"
 extern void (*D_00887304[])(s32, void *);
@@ -219,10 +220,6 @@ extern void smapSetActive(u8 *, s8);
 extern void smapSetCellMode(u8 *, s8);
 
 
-
-
-
-
 /* Request the minimap sprite banks and directory, then wait for the map resource file to finish loading. */
 // FUN_002AC400
 s32 smapLoadStep(u8 *task) {
@@ -270,7 +267,8 @@ s32 smapLoadStep(u8 *task) {
     return 0;
 }
 
-// Intent: clears the smap visibility mask. Note: smapCreate also passes this function as the task's second callback (the destroy slot), so it runs at teardown and allocates a fresh mask. The retail behaviour is kept; the name follows the body.
+// Clears the smap visibility mask; smapCreate also installs it as the destroy callback, so teardown
+// allocates a fresh mask.
 // FUN_002AC600
 void smapResetVisibility(u8 *task) {
     s16 rowIndex;
@@ -302,52 +300,7 @@ s32 smapGetSpriteHandle(void) {
     return D_00764644;
 }
 
-/* Reveal the current minimap cell, connected walls, or the matching room footprint.
- * measured: fnalign 327 -> 315 -> 313 edits with typed cell/scan views and offset-first row addresses.
- * measured: fnalign 313 -> 311 edits with an offset-first reveal-row pointer helper.
- * measured: fnalign 311 -> 310 -> 309 edits with per-search signed step locals.
- * measured: fnalign 309 -> 303 edits; the kind-9/10 reveal bit remasks the byte coordinate, as retail.
- * measured: fnalign 303 -> 294 edits; per-phase coordinate masks recover additional retail rematerializations.
- * opt_loop_invariants on retains the retail loop hoists; coordinate CSE and spill allocation remain.
- * fnalign 294 -> 291: two more coordinate sites remask the u8 parameter (retail andi at each use).
- * fnalign 291 -> 290: the search calls read the parameters directly, so b210 hoists the x snapshot
- * (frame 0x160; retail 0x190 also spills the hoisted y and the row result).
- * measured (d7d2f766, reverted for fnalign): per-phase u16/u32/int coordinate conversions recover
- * more retail remasks and frame 0x190 (structural diff 50 -> 32), but fnalign 397; the spill set differed.
- * A native capture now shows that post-colour CSE can replace a fresh row mask with the entry row.
- * Thus the move into retail stack + 0x180 does not, by itself, establish a separate source-level copy.
- * 2026-10-13: the shared masks are frontend CSE shadows (compiler locals r170/r171 holding (s32)arg0/arg1
- * at codegen entry). opt_common_subs off reproduces retail's entry exactly (raw a0/a1 in s4/s3, remask
- * at each use) but also drops the backend's per-call constant sharing (move t0,a2) that retail keeps
- * (465). Micro tests: the shadow survives every cast/mask spelling, s32 parameters, local u8 copies,
- * parameter reassignment on another path and 1200-block functions; no other opt_ pragma moves 290.
- * The allocator's remat predicate (0x0049bb20) clones only constants/LA, so retail's per-use andi are
- * separate source conversions the frontend CSE (candidate test 0x004d06a0) never merged.
- * Dual micro (build/micro_src/pp_*.c): no single opt_ pragma removes the mask shadow while keeping
- * the backend's call-constant sharing; stores, calls and every mask/cast/parameter-type spelling
- * leave the shadow in place (mk_*.c). Only asm store statements kill frontend-CSE availability.
- * measured: fnalign 290 -> 217, frame 0x190; shared room phase and reused working coordinates.
- * measured: fnalign 217 -> 212; keep the rectangle's halfword row snapshot distinct from the final call.
- * measured: fnalign 212 -> 208; the rectangle's visibility-row byte offset is a word, not a halfword.
- * measured: fnalign 208 -> 198; distinct original-row stride restores the rectangle row (frame 0x1A0).
- * measured: fnalign 198 -> 154, frame 0x190; give the rectangle its own halfword column and column limit.
- * measured: fnalign 154 -> 146; form vertical footprint addresses directly from the signed-byte anchor.
- * measured: fnalign 146 -> 142; likewise form the horizontal cell address and reveal bit from the anchor.
- * measured: fnalign 142 -> 115; kinds 13/14 use a single-case early-return guard, not a switch.
- * measured: fnalign 115 -> 112; reveal the current cell before preparing the cached neighbor-row offset.
- * measured: fnalign 112 -> 110; the three-cell reveal copies an unsigned halfword row, not a row offset.
- * measured: fnalign 110 -> 106; reuse the offset-first pointer helper for the two following reveal rows.
- * measured: fnalign 106 -> 96; separate room preparation from reveal and retain caller-owned search snapshots.
- * measured: fnalign 96 -> 89; prepare a word-sized vertical reveal mask before the kind guard.
- * measured: fnalign 89 -> 81; the rectangle query uses a signed halfword column, distinct from its first snapshot.
- * measured: fnalign 81 -> 79; prepare the horizontal map/visibility offsets at the phase entrance.
- * measured: fnalign 79 -> 73; each square-scan row likewise prepares its map and visibility byte offsets.
- * measured: fnalign 73 -> 45; preserve the later scans' signed column snapshots and model-derived coordinate/counter order.
- * measured: fnalign 45 -> 43; apply the rectangle's current-cell row offset before its column offset.
- * measured: fnalign 43 -> 39; enclosing case exits replace redundant returns and restore threaded helper branches.
- * measured: fnalign 39 -> 0, frame 0x190; caller-owned three-cell preparation preserves the unsigned offset web.
- */
-/* Reuse the field subsystem's 0x10-byte cells at frame + 0x54. */
+/* Reveal the current minimap cell, connected walls, or the matching room footprint. */
 
 /* Do not cache the map provider: every retail field access calls it again. */
 #define SMAP_GRID_MAP_VIEW(address) (&((FldFrame *)(address))->cells[0][0])
@@ -361,9 +314,8 @@ s32 smapGetSpriteHandle(void) {
     (SMAP_GRID_CELL_AT(rowOffset, columnOffset) + (cellOffset))
 
 
-
 #pragma push
-/* measured: fnalign 0 with the retail loop-invariant row/column preheaders. */
+/* measured: retail hoists the row/column loop invariants into preheaders. */
 #pragma opt_loop_invariants on
 /* Scan matching room cells and retain their anchor coordinates for reveal. */
 static inline s32 smapPrepareRoomReveal(u8 column, u8 row, s32 extent,
@@ -468,9 +420,8 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
     }
 }
 
-/* Visibility-row casts retain the measured offset-first bitmap address trees; these are packed halfword rows, not object fields. */
+/* Visibility rows are packed halfword bitmaps addressed by byte offset, not object fields. */
 // FUN_002AC750
-/* measured: literal and named room-scan extent; best baseline residual 3044 differing bytes. */
 void smapRevealCell(u8 column, u8 row) {
     extern s32 fclSubClamped(s32, s32, s32, s32, s8);
     extern s64 smapCellKind(u8);
@@ -719,9 +670,9 @@ void smapRevealCell(u8 column, u8 row) {
         }
     } else {
         expandedKind = SMAP_GRID_CELL_AT(cellRowOffset, cellColumnOffset)->type;
-        switch (expandedKind) {                         /* switch 2 */
-        case 9:                                     /* switch 2 */
-        case 10:                                    /* switch 2 */
+        switch (expandedKind) {
+        case 9:
+        case 10:
             if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(cellRowOffset, cellColumnOffset)->flags))) == 1) {
                 roomVisibility9 = (u16 *)((u8 *)D_00764658 + (rowValue * 2));
                 *roomVisibility9 |= (1 << (column & 0xFF)) & 0xFFFF;
@@ -753,8 +704,8 @@ void smapRevealCell(u8 column, u8 row) {
                 return;
             }
             break;
-        case 11:                                    /* switch 2 */
-        case 12:                                    /* switch 2 */
+        case 11:
+        case 12:
             if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(cellRowOffset, cellColumnOffset)->flags))) == 1) {
                 if ((SMAP_GRID_CELL_AT(cellRowOffset, cellColumnOffset)->flags & 0xF) == 1) {
                     longRoomVisibility = (u16 *)((u8 *)D_00764658 + (rowValue * 2));
@@ -830,8 +781,8 @@ void smapRevealCell(u8 column, u8 row) {
                 return;
             }
             break;
-        case 13:                                    /* switch 2 */
-        case 14:                                    /* switch 2 */
+        case 13:
+        case 14:
             if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(cellRowOffset, cellColumnOffset)->flags))) == 1) {
                 passageVisibility = (u16 *)((u8 *)D_00764658 + (rowValue * 2));
                 *passageVisibility |= (1 << (column & 0xFF)) & 0xFFFF;
@@ -886,14 +837,6 @@ s64 smapCellKind(u8 cellFlags) {
 }
 
 
-
-/* measured: re-tested wave 4 (nd 4, unchanged) — call 1 arg setup is the
-   only diff: retail materialises addiu $a0,$0,0xE before the addiu
-   $a1,$a1,0xB4; mwcc b210 emits the arithmetic arg first (call 2 (0xE,0)
-   already matches). Tried old-style () fn-ptr local, dual s32 temps,
-   s32 arg1 typing, cached fn-ptr — all nd 4. Matched sibling
-   func_002add60 emits const-first because its 2nd arg is a load.
-   Argument-scheduling floor. */
 // FUN_002ADD10
 void smapSetPrimitiveState(s32 unused, u8 *work) {
     D_00887304[0](0xE, work + 0xB4);
@@ -906,12 +849,8 @@ void smapSetStateValue(u8 *unused, u8 *work) {
 }
 
 
-
-/* Map cells occupy 0x10 bytes in rows of 0x100 bytes. Read from the
- * complete map allocation so a neighboring cell can cross a logical row.
- * Signed neighbor offsets preserve integer promotion before +/- 1; ordinary
- * byte coordinates use unsigned offsets. Both stay in the same byte domain.
- */
+/* Map cells occupy 0x10 bytes in rows of 0x100 bytes; neighbor reads index the whole map
+ * allocation, so they can cross a logical row. */
 #define SMAP_FIELD_CELL(row, column, offset) \
     (&((FldFrame *)MT_Scene_GetFrameState())->cells[(row)][(column) + ((offset) - 0x54) / 0x10])
 
@@ -937,7 +876,8 @@ s32 smapUpdateEntities(u8 *taskObject)
     map = (SMapWork *)work;
     /* Kind-specific scene tail; the embedded shared character prefix ends at 0x168. */
     FldFrameTask_GetPosition((u8 *)&positionSnapshot, (u8 *)((ResrcRecord *)D_007EFA04[0])->handle220);
-    /* The provider writes all three floats; measured: an address-source copy matches, direct struct assignment does not. */
+    /* The provider writes all three floats; retail copies them through the buffer address rather
+     * than by struct assignment. */
     pos = *(YVec3f *)&positionSnapshot;
     task = PrimAllocQueueNode();
     ((PrimQueueNode *)task)->callback = smapSetPrimitiveState;
@@ -947,7 +887,6 @@ s32 smapUpdateEntities(u8 *taskObject)
     ((PrimQueueNode *)task)->callback = smapSetStateValue;
     ((PrimQueueNode *)task)->argument.data = work;
     PrimAppendNode(D_00794E10, task);
-    /* measured: direct, typed-local and array member forms change retail instructions. */
     switch ((s8)MEMBER(u8, work, SMapWork, phase)) {
     case 0:
         smapUpdateItems(taskObject);
@@ -1088,10 +1027,8 @@ void smapFreeSprites(u8 *task) {
     jtbl_008873EC[0](owner->work);
 }
 
-/* Each map query remains independent. The native row address and byte
- * column/field offsets refer to the complete allocation, while neighbor
- * tables contain signed byte pairs for each orientation.
- */
+/* Row and column offsets index the whole map allocation; neighbor tables hold signed byte pairs for
+ * each orientation. */
 #define SMAP_SCAN_CELL(rowOffset, column) \
     (&((FldFrame *)((u8 *)((rowOffset) + (u32)MT_Scene_GetFrameState()) + (u32)(column) * 0x10))->cells[0][0])
 /* Four orientation pairs per tile portion; subsequent portions begin eight bytes later. */
@@ -1105,7 +1042,6 @@ typedef struct SMapNeighbor { s8 offset[2]; } SMapNeighbor;
 #pragma opt_pulloutconstants off
 /* Build tiles and marker children for the map, actor slots, scene points and active targets. */
 // FUN_002AE630
-/* measured: existing typed map alias and separate pullout probe; best baseline residual 1828 differing bytes. */
 u8 *smapCreateSymbols(u8 *parent)
 {
     SMapWork *map;
@@ -1355,8 +1291,8 @@ u8 *smapCreateSymbols(u8 *parent)
 // FUN_002AF3E0
 #pragma push
 #pragma opt_loop_invariants on
-/* Access-site marker/cell fields retain the original byte cursors and measured index conversions. */
-/* measured: access-site fields and typed map alias; best baseline residual 1353 differing bytes. */
+/* measured: retail reads marker and cell fields through byte cursors and index conversions, with a
+ * typed alias for the map work. */
 void smapRefreshCells(u8 *task, s8 mode)
 {
     u8 *work = ((KwlnTask *)task)->work;
@@ -1402,19 +1338,15 @@ void smapRefreshCells(u8 *task, s8 mode)
             YVec2f pos = fclMakeVec2(15.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 12);
             fclSpriteStartRevealScaleTask(((SMapWork *)work)->labels[0], 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartPositionTask(MEMBER(u8 *, work, SMapWork, labels[0]), pos,
                 fclMakeVec2(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, 0);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartAlphaTask(MEMBER(u8 *, work, SMapWork, labels[0]), 255, 0, 0, 0, 3);
             sdkSpriteFreeNode(resource);
             pos = fclMakeVec2(104.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 13);
             fclSpriteStartRevealScaleTask(((SMapWork *)work)->labels[1], 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartPositionTask(MEMBER(u8 *, work, SMapWork, labels[1]), pos,
                 fclMakeVec2(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, 0);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartAlphaTask(MEMBER(u8 *, work, SMapWork, labels[1]), 255, 0, 0, 0, 3);
             sdkSpriteFreeNode(resource);
         }
@@ -1426,23 +1358,17 @@ void smapRefreshCells(u8 *task, s8 mode)
             YVec2f pos = fclMakeVec2(15.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 12);
             fclSpriteActivateTask(((SMapWork *)work)->labels[0], pos, 0x4D, 60008);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartRevealScaleTask(MEMBER(u8 *, work, SMapWork, labels[0]), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartPositionTask(MEMBER(u8 *, work, SMapWork, labels[0]),
                 fclMakeVec2(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), pos, 0, 5, 0);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartAlphaTask(MEMBER(u8 *, work, SMapWork, labels[0]), 0, 255, 0, 0, 0);
             sdkSpriteFreeNode(resource);
             pos = fclMakeVec2(104.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 13);
             fclSpriteActivateTask(((SMapWork *)work)->labels[1], pos, 0x4D, 60008);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartRevealScaleTask(MEMBER(u8 *, work, SMapWork, labels[1]), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartPositionTask(MEMBER(u8 *, work, SMapWork, labels[1]),
                 fclMakeVec2(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), pos, 0, 5, 0);
-            /* measured: direct, typed-local and array member forms change retail instructions. */
             fclSpriteStartAlphaTask(MEMBER(u8 *, work, SMapWork, labels[1]), 0, 255, 0, 0, 0);
             sdkSpriteFreeNode(resource);
         }
@@ -1473,7 +1399,6 @@ void smapSetPhase(u8 *task, s8 mode) {
     }
     ((SMapWork *)work)->transitionFrame = 0;
 }
-
 
 
 /* The cell constructor allocates 0x160 bytes. The renderer owns the
@@ -1511,10 +1436,8 @@ typedef struct SMapCell {
 } SMapCell;
 typedef char SMapCellStorageSize[(sizeof(SMapCell) == 0x160) ? 1 : -1];
 
-/* Draw a visible map cell and its optional icon in scrolling or fixed mode.
- * The scrolling draw request is consumed after rendering. Native b210 -O2:
- * 1624/1632 bytes with all 28 relocations resolved and eight zero tail bytes.
- * See docs/probe_archive/Small_map_cell_002afbc0_20260924.md. */
+/* Draw a visible map cell and its optional icon in scrolling or fixed mode; the scrolling draw
+ * request is consumed after rendering. */
 // FUN_002AFBC0
 s32 smapDrawCell(u8 *taskObject) {
     u8 *task;
@@ -1591,18 +1514,14 @@ void smapTaskDestroy(u8 *task) {
 }
 
 
-
-
-/* func_002b0250: `arg3 == -1` is a u8 compared with -1 (retail keeps the never-true test). The 9..14
-   dispatch is a real switch inside `if (arg3 >= 9)`; 7..8, 2 and the default arm are the if/else chain
-   that follows. arg4 is u8 (andi, not a sign extension). opt_loop_invariants on hoists the per-row
-   (arg7 + i) << 8 out of the tile scan's inner loop as retail does (measured: 8 -> 3 differing words;
-   writing `j = 0` before the row offset, as retail emits it, then gives 0). */
-/* Create a tile from its cell type and variant; cache texture bounds and optional room-icon offsets. */
+/* measured: retail hoists the per-row offset out of the tile scan's inner loop. */
+/* Allocate a map tile and create its draw task from the cell type and variant, caching its texture
+ * bounds, size and any room-icon offsets. */
 // FUN_002B0250
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: byte arguments and named anchor-coordinate snapshots; best baseline residual 6 differing bytes. */
+/* measured: retail treats the arguments as bytes and snapshots the anchor coordinates into named
+ * locals. */
 u8 *smapBuildTiles(u8 *parent, u8 column, u8 row, u8 cellType, u8 variant, u8 origin, u8 anchorColumn, u8 anchorRow) {
     SMapCell *tile;
     u8 anchor[8];
@@ -1803,7 +1722,6 @@ void smapDrawLabel(u8 *unused, u8 *cell) {
                 sprintf(textureName, D_0063EFF0, cellType);
                 break;
             }
-        /* measured: direct, typed-local and array member forms change retail instructions. */
         } else if (MEMBER(u8, cell, SMapCell, variant) == 3) {
             sprintf(textureName, D_0063EFF0, cellType);
         } else {
@@ -1838,13 +1756,9 @@ extern u8 D_00793E80[];
 
 #pragma push
 #pragma opt_loop_invariants on
-/* Four map-cell corners are stored as complete X/Y/Z vectors, then copied
- * into the existing 0x40-byte screen-vertex records. Unsigned color conversion
- * and the render-device depth field preserve the original invariant placement.
- * Native b210 -O2: 1412/1424 bytes; all relocations and twelve zero tail bytes.
- * See docs/probe_archive/Map_shape_002b0b10_20260924.md. */
+/* Four corners are stored as X/Y/Z vectors, then copied into the 0x40-byte screen-vertex records. */
 // FUN_002B0B10
-/* measured: direct and named render-device depth source; best baseline residual 349 differing bytes. */
+/* measured: retail reads depth from the named render-device field. */
 void smapDrawQuad(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, u8 origin, f32 scale, s32 color, s8 orientation, s32 layer) {
     YVec3f corners[4];
     typedef struct SMapRenderDevice {
@@ -2054,7 +1968,7 @@ void smapSetActive(u8 *task, s8 pendingDraw) {
     ((SMapCell *)((KwlnTask *)task)->work)->pendingDraw = pendingDraw;
 }
 
-// Intent: sets the visibility flag (+0x143) of a smap symbol; a tile is shown when its mask bit in D_00764658 is set.
+// Sets a map symbol's visibility flag; a tile is shown when its mask bit in D_00764658 is set.
 // FUN_002B10E0
 void smapSetVisible(u8 *task, s8 visible) {
     ((SMapCell *)((KwlnTask *)task)->work)->visible = visible;
@@ -2077,24 +1991,14 @@ void smapCellToWorld(void *output,u32 column,u32 row)
 }
 
 
-
-
-
-/* Return-width audit: retail callers of func_002b11c0 and func_002b1210
-   consume the result directly with andi, sb, or mtc1 and emit no
-   dsll32/dsra32 sign-extension pair. Keep both returns wide (int): changing
-   either to s8 introduces the pair and regresses the caller by two words.
-   A missing pair means a callee return was declared too wide; an extra pair
-   means it was declared too narrow. */
+/* Both world-to-cell helpers return int because retail callers use the result without sign-
+ * extending it. */
 // FUN_002B11C0
 int smapWorldToColumn(RwV3d position)
 
 {
   return (int)((position.x + 600.0f) / 1200.0f);
 }
-
-
-
 
 
 // FUN_002B1210
@@ -2105,18 +2009,8 @@ int smapWorldToRow(RwV3d position)
 }
 
 
-/* measured: re-tested wave 4 (nd 11, was recorded nd 1). The lwc1-copy
-   shape is the u8 buf[0xC] + `v2 = *(YVec3f *)buf` spelling (local-to-local
-   struct copies compile to ld/sd, pointer/buf-source copies to lwc1 x3);
-   with that copy the mul.s $f1,$f2,$f0 (const-in-fs) MATCHES retail — the
-   old note's "mul canonicalization floor" is wrong. The residual is the
-   p-load: retail lwc1 0x40($sp) sits after sub.s $f1,$f1,$f0, mwcc b210
-   hoists it into the post-cvt nop slot (obj 188B vs window 192B), which
-   also rotates the two subs (sub.s $f0,$f1,$f0 / sub.s $f3,$f3,$f0 vs
-   retail $f1/$f0). Tried 6 orderings (q-before-p, k-split, x-local,
-   reversed decls, buf-indexed read, computed ptr) — all nd 11-38.
-   Load-hoist/schedule floor. */
-/* Convert the player position within a 1200-unit grid column to a centered map-pixel offset. */
+/* Copying the position through a byte buffer makes the compiler copy it with three float loads, as
+ * retail does; a struct-to-struct copy would use doubleword moves. */
 // FUN_002B1260
 f32 smapPlayerOffsetX(u8 *task, f32 cellSize) {
     YVec3f position;
@@ -2133,16 +2027,8 @@ f32 smapPlayerOffsetX(u8 *task, f32 cellSize) {
     return cellSize / 2.0f - relativeX * scale;
 }
 
-/* measured: re-tested wave 4 (nd 11, was recorded nd 1) — same result as
-   func_002b1260: u8 buf[0xC] + `v2 = *(YVec3f *)buf` reproduces the lwc1
-   copy and the mul.s $f1,$f2,$f0 (const-in-fs) matches retail; the residual
-   is mwcc b210 hoisting the p-load (lwc1 0x48($sp)) into the FP-latency
-   nop (obj 188B vs window 192B) with the two sub.s registers rotated
-   ($f0/$f3 vs retail $f1/$f0). Self-referential t = t*1200.0f sinks the
-   load to mid-chain but flips const to $f4/result $f2 (nd 10); const-first
-   and named-m variants stay nd 11. Load-hoist/schedule floor, same as
-   func_002b1260. */
-/* Convert the player position within a 1200-unit grid row to a centered map-pixel offset. */
+/* Convert the player's Z position within its 1200-unit grid row into a map-pixel offset centered in
+ * the cell. */
 // FUN_002B1320
 f32 smapPlayerOffsetZ(u8 *task, f32 cellSize) {
     YVec3f position;
@@ -2187,21 +2073,11 @@ f32 smapPositionOffsetZ(f32 cellSize, YVec3f *position) {
     return cellSize / 2.0f - relativeZ * scale;
 }
 
-/* MATCH: 3356B of the 3360B retail window, including resolved relocations and
-   owned data. The final sprite loop uses a size_t slot index beside its signed
-   16-bit counter; these separate conversions reproduce retail's index lifetime.
-   The float->byte guards are plain casts here (`(u8)t4n`, `(u16)sa`; b210 emits the
-   c.le.s/or 0x80000000 unsigned conversion itself), the fill/clear loops are ordinary `for` loops with the
-   entry branch to the test (not do-while), the 255.0f-t and 4096.0f*a results go to fresh locals (t3n/t4n/sa:
-   reusing t3/t4/a picks different $f registers and mul operand order), a is declared before b (retail $f21/$f20),
-   `i1 = 0` and `k = 0` are written before the value they precede in retail (`i1 = 0; t4n = ...`), and the two
-   ld/sd prologue copies write sp+8 from iGpffffa840 then sp+0 from iGpffffa848.
-   opt_loop_invariants on hoists the guard compare/lui out of the loops. */
-/* Animate the map frame and strip sprites between scrolling and fixed-map panel layouts. */
+/* The final sprite loop keeps a size_t slot index beside its signed 16-bit counter, and the 255-t
+ * and 4096*a results use fresh locals. */
 // FUN_002B1520
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: access-site fields and existing typed map alias; best baseline residual 2089 differing bytes. */
 void smapDrawPanel(s32 unused, u8 *work) {
     SMapWork *map = (SMapWork *)work;
     u32 renderStates;
@@ -2345,10 +2221,8 @@ void smapDrawPanel(s32 unused, u8 *work) {
     }
     if (scale > iGpffff84f4) {
         ((SMapItem *)(((SMapWork *)work)->corners[1]))->y = ((SMapPanelPositions *)panelPositions)->points[1].position.y;
-        /* measured: direct, typed-local and array member forms change retail instructions. */
         ((SMapItem *)(((SMapWork *)work)->corners[0]))->y = MEMBER(f32, panelPositions, SMapPanelPositions, points[1].position.y);
         ((SMapItem *)(((SMapWork *)work)->corners[3]))->y = ((SMapPanelPositions *)panelPositions)->points[0].position.y;
-        /* measured: direct, typed-local and array member forms change retail instructions. */
         ((SMapItem *)(((SMapWork *)work)->corners[2]))->y = MEMBER(f32, panelPositions, SMapPanelPositions, points[0].position.y);
         cornerIndex = 0;
         fixedScale = scale * 4096.0f;
@@ -2378,23 +2252,11 @@ void smapClearSelection(u8 *task) {
     }
 }
 
-/* measured: object 620B/window 624B, normalized_diff 0. Levers: (1) the
-   slot pointer is `p = &q->b[j]` (struct-member address), which makes the
-   compiler redo the s16 sign-extension at the loop head instead of reusing
-   the tail's copy; (2) `opt_loop_invariants on` hoists the two loop-3 float
-   constants into `$a0`/`$v1` and fixes loop 1's commutative `addu`; (3) the
-   unfused `add.s $f20,$f0,$f1` is `y = t; z = -99.0f + y;` - the copy stops
-   b210 fusing `c + a*b` into `adda.s`/`madd.s`, and the fresh name `z`
-   gives the constant-first operand order (a self-update `y = -99.0f + y`
-   is variable-first). Prior archive: build/WBYList_y_smap_2290_candidate.c
-   (nd 409). */
-/* measured: opt_loop_invariants on hoists the loop-3 float constants into
-   $a0/$v1 and fixes loop 1 addu operand order (nd 18 -> 0 with it). */
-/* Allocate the map corner, strip and end sprites and initialize their queued panel draw node. */
+/* measured: retail hoists the float constants out of the third loop and keeps the first loop's add
+ * operand order. */
 // FUN_002B2290
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: literal and named end-sprite coordinate constants; best baseline residual 46 differing bytes. */
 void smapUpdateItems(u8 *task)
 {
     s16 cornerIndex;
@@ -2446,7 +2308,6 @@ void smapUpdateItems(u8 *task)
     ((PrimQueueNode *)work->drawNode)->callback = smapDrawPanel;
     ((PrimQueueNode *)work->drawNode)->argument.data = (u8 *)work;
 }
-/* measured: closes the loop-invariant bracket; the file default is off. */
 #pragma pop
 
 /* Install the blend, depth and texture states used by queued map rectangles. */
@@ -2464,22 +2325,16 @@ void smapSetRenderStates(void) {
     ((void (**)(s32, s32))fp)[0](1, 0);
 }
 
-/* measured: four unsigned-byte-to-float sites use plain `(f32)(u32)` casts;
-   spelling the compiler's sign-fixup by hand left the candidate at nd 45.
-   The final body is object 552B/window 560B and verifier MATCH (normalized
-   diff 0). `opt_loop_invariants on`, `schedule off`, and `opt_propagation off`
-   keep the global base hoist, loop reload, and retail load order. */
-// measured: probe loop invariant placement for the target's global load.
-// measured: isolate the target's optimizer probes from following siblings.
+/* measured: loop invariants on, scheduling off and propagation off keep retail's hoisted global
+ * base, loop reload and load order; byte-to-float sites use plain (f32)(u32) casts. */
 #pragma push
 #pragma opt_loop_invariants on
-// measured: probe scheduler-off load ordering.
+// measured: scheduling off keeps retail load ordering.
 #pragma schedule off
-// measured: probe propagation-off load ordering.
+// measured: propagation off keeps retail load ordering.
 #pragma opt_propagation off
 /* Populate four colored rectangle vertices and queue a draw with the map render-state callback. */
 // FUN_002B25D0
-/* measured: explicit depth-source pointer and propagation bisection; best baseline residual 69 differing bytes. */
 s32 smapUpdateOverlay(u8 *task) {
     f32 reciprocalDepth;
     f32 nearDepth;
@@ -2527,7 +2382,6 @@ s32 smapUpdateOverlay(u8 *task) {
     ((PrimQueueNode *)drawNode)->argument.data = work;
     return 0;
 }
-// measured: restore the file optimizer state after the target.
 #pragma pop
 
 // FUN_002B2800
@@ -2535,11 +2389,8 @@ void smapDestroyOverlay(u8 *task)
 {
     jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
-/* The returned task owns the rectangle work. Retail retains this pointer in
-   v0 through the work initialization: 260B/272B, twelve resolved references
-   exact, and every sibling body, reference and owned data section preserved.
-   Proof: build/cos20814/worker3-ui/rectangle_relocation_proof.json. */
-/* Allocate a rectangle work block and register it as a child map-overlay task. */
+/* Allocate a rectangle work block and register it as a child map-overlay task; the returned task
+ * owns the rectangle work. */
 // FUN_002B2830
 u8 *smapCreateOverlay(u8 *parent, YVec2f position, f32 width, f32 height, u32 color) {
     u8 *work;

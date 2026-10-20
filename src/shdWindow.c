@@ -1,4 +1,4 @@
-/* Original translation unit shdWindow.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit shdWindow.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "sdk_task_registration.h"
@@ -66,17 +66,14 @@ extern void sflDataDrawWideRoundedFrame(s32, s32, f32, s32, s32, s32, s32, s32, 
 extern void shdDrawEntryRow(f32, f32, s32, u8 *);
 
 
-// Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
-// in the donor): a typed prototype makes mwcc emit zero-extension codegen
-// retail never has.
+// Matches P3FES comuTimerSequence; kwlnTaskGetWork is left undeclared because a typed prototype
+// adds zero-extensions retail lacks.
 
-// measured: opt_loop_invariants on fixes the parameter allocation and pre-loop
-// mask placement; declaring runIndex after the three list-walk locals gives the
-// retail $s4/$s3/$s2/$s1 allocation (old declaration order was nd 22).
-/* measured: baseline differs by 86 words; pre-loop color masking and run-index lifetime probes still differ. */
+// measured: loop-invariant optimization is needed for retail's parameter allocation and for its
+// color masking before the loop.
 #pragma opt_loop_invariants on
-// Intent: Draw a block of text runs, centred or left-aligned, from a text table entry; returns the block height [inferred]
+// Draw a block of text runs, centred or left-aligned, from a text table entry; returns the block
+// height.
 // FUN_0025DB00
 s32 shdDrawTextBlock(f32 x, f32 y, s32 unusedColor, s32 color, s32 entryIndex,
                   s32 centered)
@@ -123,65 +120,15 @@ s32 shdDrawTextBlock(f32 x, f32 y, s32 unusedColor, s32 color, s32 entryIndex,
     }
     return runIndex * 0x1C;
 }
-// measured: closes the shdDrawTextBlock loop-invariant bracket.
+// measured: restores the unit setting after shdDrawTextBlock.
 #pragma opt_loop_invariants off
 
-// measured: 14 differing words at an exact 269/269.  The previous note on
-// this function claimed a saved-register rotation at nd 216-224 and a later
-// pass reported nd 719; both were measuring something other than the body
-// that is banked here, which scores 14 via
-// `tools/measure_guarded.py src/shdWindow.c shdDrawEntryRow`.  The body was
-// also left LIVE and unguarded, so `verify.py` reported a real MISMATCH on
-// this translation unit; it is behind `#ifdef NON_MATCHING` now.
-// WALL, all 14 words: retail loads D_00637260/64/68/6C into $f3,$f2,$f1,$f0
-// and only then stores the four to sp+0x70..0x7C; b210 reuses $f0 and
-// interleaves each load with its store.  Four separate externs are correct -
-// retail re-emits `lui $v0, 0x63` before every `lwc1`, which a single
-// `f32 D_00637260[4]` would fold into one base.  Measured and rejected:
-// direct `table[i] = D_006372xx[0]` with no temps (14, unchanged), the four
-// temps assigned in reverse (14), the stores emitted in reverse (15), a
-// four-field struct assignment (244), `opt_loop_invariants on` (14),
-// `opt_common_subs off` (165), `schedule on` (246) and `opt_propagation off`
-// (26 words but only 11 edits - it fixes this block and breaks more
-// elsewhere).  The single-use temps are folded into their stores by
-// propagation and rescheduled; nothing short of disabling propagation for
-// the whole function reproduces retail's four live FPRs.
-// measured 2026-09-17 full pragma_sweep --pairs (8 singles + 28 pairs):
-// banked 14 via `python3 -E -s tools/measure_guarded.py src/shdWindow.c shdDrawEntryRow`;
-// best stays 14 (ties: opt_loop_invariants on, opt_strength_reduction off,
-// opt_unroll_loops off and their three pairs; 26-group: prop off and five
-// prop/dead/loopinv/strength pairs; 157 csoff+propoff, 165 csoff group,
-// 220-224 peephole group, 244-247 schedule group). No pair wins; floor stands.
-// `python3 -E -s tools/pragma_sweep.py src/shdWindow.c shdDrawEntryRow --pairs`.
+// measured: retail loads all four D_006372xx floats before storing any, which propagation prevents;
+// the four externs stay separate because retail reloads the base each time.
 extern s8 frFontExGlyphHeight(char index);
 extern void K_SineRingDraw(f32 centerX, f32 centerY, f32 depth, s32 packedColor);
-// MATCH.  The last six words were the emission slot of `mtc1 $zero, $f12`
-// at the two func_00366670 calls: retail materialises that first float
-// argument before the packed-colour shift/mask pair, this file did it after.
-// The fix is in the callee's signature - move ONLY func_00366670's first
-// float, the depth, ahead of the integer arguments, and update the shared
-// prototype at the top of this file, the definition in
-// src/promoted/code1_0036.c and all four call sites together.
-//
-// This overturns the "closed by proof" note that used to sit here.  That
-// note argued two byte-exact MATCHed callers in this same file pin the
-// parameter order (section 7c) and that reordering would not even compile.
-// Both halves were wrong: the prototype is shared, so changing it and every
-// caller at once compiles fine, and those callers' expressions are
-// insensitive to moving the first float - they stay byte-identical.  What
-// the earlier pass actually measured was moving *groups* of floats
-// (positions 5-8 scored 14, positions 2-5 scored 20); moving one float is a
-// different axis.  Section 7c pins a callee's parameter order only when a
-// matched caller's code would change, which has to be measured, not assumed.
-//
-// The whole provider object in code1_0036.c is byte-identical across the
-// change, all 34 functions and both data sections, and this file's other
-// seven functions are unchanged.  The recovery does not uniquely fix the
-// original textual position: the first float placed before the integers, or
-// after one, two, three or four of them, all compile identically.  After
-// five it scores 4, after six or more it scores 6 again.
-// Intent: Draw one entry row: a bar and its text, chosen by the row kind [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Draws one entry row, a bar and its text, chosen by the row kind. func_00366670 takes the depth
+// float before its integer arguments, as retail evaluates it first.
 // FUN_0025DD30
 void shdDrawEntryRow(f32 offsetX, f32 offsetY, s32 color, u8 *data) {
     struct ShdWindowQuad { f32 a, b, c, d; };
@@ -226,8 +173,7 @@ void shdDrawEntryRow(f32 offsetX, f32 offsetY, s32 color, u8 *data) {
         break;
     }
 }
-// Intent: Window task update: run the open and close state machine and queue the draw callback [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Window task update: runs the open and close state machine and queues the draw callback.
 // FUN_0025E170
 s32 shdWindowTaskUpdate(u8 *sdkTaskBytes)
 {
@@ -326,12 +272,7 @@ block_37:
     return 0;
 }
 
-// measured: the two-argument callback type keeps the work pointer in $s0;
-// switch(action), an explicit action=0 for the bit-2 arm, and the ternary
-// count clamp reproduce retail's branch layout. Packing the color channels
-// through (s8)(s32) preserves the retail sign-extension sequence.
-// Intent: Queued window draw: step the open or close counter and draw the bar and its row [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Draws a queued window: steps its open or close counter, then draws the bar and its row.
 // FUN_0025E4A0
 void shdWindowDrawQueued(s32 unusedQueue, s32 taskHandle)
 {
@@ -387,7 +328,7 @@ void shdWindowDrawQueued(s32 unusedQueue, s32 taskHandle)
     }
 }
 
-// Intent: Window task destroy: call the teardown handler for the window's work [inferred]
+// Window task destroy: call the teardown handler for the window's work.
 // FUN_0025E7C0
 void shdWindowTaskDestroy(u8 *unusedTask)
 {
@@ -396,7 +337,7 @@ void shdWindowTaskDestroy(u8 *unusedTask)
     work = kwlnTaskGetWork();
     DAT_008873ec_abs[0](work);
 }
-// Intent: Create the window task with its update and destroy callbacks [inferred]
+// Create the window task with its update and destroy callbacks.
 // FUN_0025E800
 void shdWindowTaskCreate(s32 parentTask, s32 value, s32 entryIndex)
 {
@@ -409,8 +350,7 @@ void shdWindowTaskCreate(s32 parentTask, s32 value, s32 entryIndex)
     (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_00637270), 0xF, 0, 0, shdWindowTaskUpdate, shdWindowTaskDestroy, (u8 *)(work));
 }
 
-// Intent: Mark the window as finished by setting bit 4 of its flags [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Marks the window as finished by setting flag 4 in its flags.
 // FUN_0025E8B0
 void shdWindowMarkDone(void) {
     u8 *work = (u8 *)kwlnTaskGetWork();
@@ -421,7 +361,7 @@ void shdWindowMarkDone(void) {
     }
 }
 
-// Intent: Return the window's completion state: 1 when finished, phase + 1 for the slide kind, 0 otherwise [inferred]
+// Return the window's completion state: 1 when finished, phase + 1 for the slide kind, 0 otherwise.
 // FUN_0025E8F0
 s32 shdWindowQueryState(void)
 {

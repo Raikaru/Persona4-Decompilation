@@ -17,9 +17,7 @@ extern u8 D_00922C50[];
 extern u8 DAT_00922c30_abs[];
 
 
-
 struct MdlFlags78ec0;
-
 
 
 extern s32 mdlSeUpdateRecord(void **owner);
@@ -30,8 +28,6 @@ extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
 extern f32 fGpffffbb54;
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 0047ea40-0047ed60 */
 
 extern void sdkSndStartSourceStream(s16 channelIndex, s32 source, s16 sourceAux);
 /* Retain the source object and store it in the destination slot when non-null. */
@@ -82,7 +78,8 @@ void mdlReleaseObject(u8 *state)
     }
 }
 
-/* Requests animation animation with blend ticks blendTicks on a motion state, restarting it when the state's current request does not match. Requests tied to a starting sound slot are queued in the pending fields and started by mdlTickMotionState. */
+/* Requests an animation with blend ticks on a motion state, restarting it if the current request
+ * differs; sound-tied requests are queued and started by mdlTickMotionState. */
 // FUN_0047EB20
 void mdlRequestMotionAnim(u8 *state, s16 animation, u16 blendTicks)
 {
@@ -147,11 +144,9 @@ void mdlRequestMotionAnim(u8 *state, s16 animation, u16 blendTicks)
     }
 }
 
-/* measured: the retry counter is stored as an s32 sum and re-read through the s16 slot
-   (`n = x + 1; x = n; temp = x;`): the reload forwards to a dsll32/dsra32 after the sh,
-   as retail. The call argument re-reads the typed retry member through the original
-   integer-address cast so it is not CSE'd with the forwarded value (retail lh). */
-/* Advances a motion state by one tick: counts down the wait and pending-start timers, starts a queued request when its timer expires, and retries a failed start up to eight times. */
+/* Advances a motion state by one tick: counts down the wait and pending-start timers, starts a
+ * queued request when its timer expires, and retries a failed start up to eight times. The retry
+ * counter is re-read through its s16 slot after each increment, as retail does. */
 // FUN_0047ED60
 void mdlTickMotionState(u8 *state)
 {
@@ -218,7 +213,8 @@ void mdlTickMotionState(u8 *state)
             retryCount = motion->retries;
             if (retryCount < 8) {
                 requestValue = ((MdlMotionState *)state)->blendTicks;
-                /* measured: the integer-address retry reload must stay separate from the forwarded halfword value, as documented above. */
+                /* measured: retail reloads retries through the integer-address cast instead of
+                 * reusing the forwarded halfword value. */
                 if (mdlSeFillEntryState(state, ((MdlMotionState *)(u32)state)->retries,
                                   ((MdlMotionState *)state)->animation, (u16)requestValue) == 0) {
                     ((MdlMotionState *)state)->retries = -1;

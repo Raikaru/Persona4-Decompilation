@@ -43,8 +43,6 @@ extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
 
-
-
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -71,21 +69,16 @@ extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
 extern void yTimeNameDrawReveal(u8 *task, s32 stage);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a12e0-002a12e0 */
-
 extern void yTimeNameDrawSelections(u8 *task, s32 preserveStatus);
 
 
-
-
 #pragma push
-/* measured: removing both toggles gives nd195; separate glyph/row lifetimes reach nd10 with invariants on. */
+/* measured: retail keeps glyph and row values in separate lifetimes. */
 #pragma opt_lifetimes on
-/* measured: glyph/row lifetime separation alone leaves nd176 when invariant hoisting is also removed. */
+/* measured: retail also hoists loop invariants alongside the separate glyph/row lifetimes. */
 #pragma opt_loop_invariants on
-/* Array-member accesses retain the row's animation address across glyph
- * calls. The grid index is reused by the later, disjoint glyph loop.
- * 1828 matching code bytes; the 1840-byte window has twelve zero tail bytes. */
+/* Array-member accesses keep the row's animation address across glyph calls; the grid index is
+ * reused by the later, separate glyph loop. */
 // FUN_002A12E0
 /* Draw the staged name-entry reveal: rotating background, selection slots, cell fades, then sliding glyph rows. */
 void yTimeNameDrawReveal(u8 *task, s32 stage) {

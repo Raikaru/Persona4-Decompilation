@@ -1,5 +1,4 @@
 #include "mt_scene_internal.h"
-/* Source unit: src/Battle/battle_00192560.c */
 #include "include_asm.h"
 #include "type.h"
 #include "scr_internal.h"
@@ -51,7 +50,6 @@ extern u32 btlSetFlagsPacketUpdate(void* work);
 extern u32 btlClearFlagsPacketUpdate(void* work);
 
 
-
 /* Allocate a nonzero battle UID, wrapping before the reserved upper range. */
 // FUN_00192560
 u64 btlGetUID(void)
@@ -65,7 +63,6 @@ u64 btlGetUID(void)
 
     return iGpffffa090;
 }
-
 
 
 /* Find an unused character resource slot in the rotating 0x100..0x1FF range. */
@@ -82,7 +79,6 @@ u16 btlFindFreeCharResId(void)
 
     return iGpffffa098;
 }
-
 
 
 /* Advance battle systems between packet layers while the battle-active flag is set. */
@@ -138,8 +134,8 @@ s32 btlUpdateDraw2DTask(u8 *task)
 }
 
 
-
-// AI script command 0x20DF (AI command table entry, VA 0x0063DCD8). AI library name: AI_FUNCTION_00DF.
+/* Return 1 if the script command timer is still running and the effect success check passes,
+ * otherwise 0. */
 // FUN_001935F0
 u32 btlScriptHasCmdTimer(void)
 {
@@ -150,7 +146,6 @@ u32 btlScriptHasCmdTimer(void)
 
     return 0;
 }
-
 
 
 /* Apply a queued battle-flag mask and complete the packet. */
@@ -164,7 +159,6 @@ u32 btlSetFlagsPacketUpdate(void* work)
 
     return 1;
 }
-
 
 
 /* Create a one-shot packet that sets battle runtime flags. */
@@ -181,7 +175,7 @@ BtlPacket* btlCreateSetFlagsPacket(u32 flags)
 }
 
 
-/* measured: removing this pragma takes func_001937c0 nd 0 -> nd 13. */
+/* measured: retail was built at optimization level 1 for this packet update. */
 #pragma optimization_level 1
 
 /* Clear a queued battle-flag mask and complete the packet. */
@@ -198,7 +192,6 @@ u32 btlClearFlagsPacketUpdate(void* work)
     return 1;
 }
 #pragma optimization_level 2
-
 
 
 /* Create a one-shot packet that clears battle runtime flags. */

@@ -1,5 +1,5 @@
 #include "include_asm.h"
-/* Original translation unit nmlist.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit nmlist.c (from __FILE__ assert strings). */
 #include "type.h"
 
 void chkmemAllocSiteTag(const void *file, s32 line);

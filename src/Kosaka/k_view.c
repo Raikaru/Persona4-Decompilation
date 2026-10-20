@@ -1,10 +1,8 @@
-/* Source unit: src/Kosaka/k_view_004577d0.c */
 #include "sdk_lbox_internal.h"
 #include "include_asm.h"
 #include "type.h"
 
-/* Ported from P3FES src/Kosaka/k_view.c K_View_SetFov FUN_001a4580 (verified
- * MATCH there). Globals map to P4 retail: gPI 00761174, gAspectRatio 0076111c. */
+/* Matches P3FES func_001a4580 (K_View_SetFov). */
 typedef struct RwV2d
 {
     f32 x;
@@ -30,7 +28,7 @@ extern RwCamera* RwCameraSetViewWindow(RwCamera* camera, const RwV2d* viewWindow
 extern f32 gRadToDegFactor;
 extern f32 atanf(f32 x);
 
-/* Ported from P3FES src/Kosaka/k_view.c FUN_001a4050 (verified MATCH there). */
+/* Matches P3FES func_001a4050. */
 typedef struct KWindowEntry
 {
     s32 id;                         /* 0x000 */
@@ -53,8 +51,6 @@ extern void strcpy(void* destination, const char* source);
 extern void sdkLboxRecalcLayout(KwlnTask* task);
 
 
-
-
 /* Convert vertical FOV degrees to the camera view window using the global aspect ratio. */
 // FUN_004577D0
 void K_View_SetFov(RwCamera* camera, f32 fov)
@@ -68,7 +64,6 @@ void K_View_SetFov(RwCamera* camera, f32 fov)
 }
 
 
-
 // FUN_00457850
 f32 K_View_GetFov(RwCamera* camera)
 {
@@ -77,13 +72,12 @@ f32 K_View_GetFov(RwCamera* camera)
 
     viewWindow = &camera->viewWindow;
 
-    // Retained unused retail call; removing it changes the matched instruction sequence.
+    // Retail calls atanf on the x component and discards the result.
     atanf(viewWindow->x);
     x = atanf(viewWindow->y) * 2.0f;
 
     return RAD_TO_DEG(x);
 }
-
 
 
 /* Replace the callback of an existing list-box entry; missing IDs leave the list unchanged. */
@@ -98,7 +92,6 @@ void sdkLboxSetCallback(KwlnTask* task, u32 id, KWindowEntryCallback callback)
         entry->callback = callback;
     }
 }
-
 
 
 /* Select text-entry mode, optionally replace its text, and recompute the list-box layout. */

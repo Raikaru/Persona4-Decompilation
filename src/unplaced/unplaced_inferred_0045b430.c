@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0045b430-0045b430 */
 
 #include "include_asm.h"
 #include "type.h"
@@ -6,7 +5,7 @@
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
 #include "rw_types_internal.h"
-/* Six 0x44-byte render slots; initialization proves the fields below. */
+/* Six 0x44-byte render slots; only the fields set by initialization are named. */
 typedef struct MdlRenderSlot {
     s16 state;
     u8 pad2[2];
@@ -36,7 +35,7 @@ extern s32 D_008E41C4_abs[];
 extern s32 D_008E4208_abs[];
 #pragma push
 #pragma optimization_level 2
-/* Unit setting, measured: cached byte/typed slot bases still differ; loop hoisting restores the six-slot loop. */
+/* measured: retail hoists the slot base out of the six-slot loop. */
 #pragma opt_loop_invariants on
 /* Initialize render state, reset six slots, and allocate their backing buffers. */
 /* Initialize render state, reset six slots and allocate their backing buffers. */
@@ -64,7 +63,7 @@ void mdlRenderInitializeBuffers(void) {
     }
     j = 0;
     D_008E4018_abs[0] = 0;
-    /* Preserve the retail setup loop even though this recovered body has no loop stores. */
+    /* Retail keeps an empty sixteen-pass setup loop here. */
     for (; j < 0x10; j++) {
     }
     D_008E40B4_abs[0] = func_0043bcb8(0x64000);

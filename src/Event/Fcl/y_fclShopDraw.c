@@ -11,17 +11,15 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "fcl_draw_task.h"
-/* Original translation unit y_fclShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit y_fclShopDraw.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "fr_font_internal.h"
 s32 sdkSndStartStream(s16, s16, s16, s16);
 
 typedef FclVec2 Vec2f;
 typedef struct { u8 r, g, b, a; } RGBA;
-/* Shop task allocation: 002ca830 requests 0x1174 bytes. The panel handles
- * occupy C38..F14, followed by the three yList children. The row fade tables
- * have nine entries; tab slides use 0x20-byte row / 0xA0-byte tab strides.
- * The last tab's last record is only a six-byte prefix, not a full record. */
+/* Shop task work. Panel handles are followed by three yList children; row fade tables have nine
+ * entries, and the last tab's last record is only a six-byte prefix. */
 typedef union FclShopPanel { void *pointer; s32 word; } FclShopPanel;
 
 typedef struct FclShopWork {
@@ -78,10 +76,7 @@ typedef struct FclShopWork {
 typedef char FclShopWorkSize[sizeof(FclShopWork) == 0x1174 ? 1 : -1];
 
 
-
-
-/* Shop's loaded CDVD request supplies the message data at +0x110. The
- * request's remaining fields are not read by this translation unit. */
+/* Shop's loaded CDVD request supplies the message data; its other fields are not read here. */
 typedef struct FclShopMessageFile {
     u8 pad00[0x110];
     void *messages;
@@ -92,8 +87,8 @@ typedef struct FclShopTabPosition {
     f32 width;
 } FclShopTabPosition;
 
-/* Item panel allocation is 0x104 bytes (002e0300); the shared sprite
- * object is followed by pivots initialized from the resource dimensions. */
+/* The item panel is 0x104 bytes: the shared sprite object followed by pivots initialized from the
+ * resource dimensions. */
 typedef struct FclShopItemPanel {
     FclObject object;
     s16 pivotX;
@@ -140,9 +135,8 @@ void memcpy(void *, s32, s32);
 s32 fclSpriteUpdateTweens(void *);
 void *PrimAllocQueueNode(void);
 void PrimAppendNode(void *, void *);
-/* measured: the second parameter is u8 - a u8 lvalue passed to a u8 parameter is a
-   plain load and materialises in slot order (li $a0 before lbu $a1); passed to an
-   s32 parameter it counts as a conversion and is hoisted ahead of the constant. */
+/* measured: the second parameter is u8 so retail loads the byte argument after the constant, in
+ * slot order. */
 s32 fclPackRgba(u8, u8, u8, u8);
 s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 
@@ -174,7 +168,8 @@ s32 fclShopPlaySound(void *, s32, void *, s8);
 s32 fclShopPlaySoundParams(void *, s32, void *, void *, s8);
 u32 RpRandom(void);
 void memset(void *, s32, s32);
-/* measured: floats first - retail materialises $f12-$f14 before $a0..$t1. */
+/* measured: float parameters come first because retail sets up the float arguments before the
+ * integer ones. */
 void sdkSpriteDrawQueuedUnscaled(f32, f32, f32, s32, u8, s32, void *, s32, void *);
 void fclObjStartSlideFade(u8 *, s64, f32, f32, s32, s32, s64);
 void fclObjSetAnchorPosition(u8 *, s32, f32);
@@ -183,11 +178,8 @@ void fclDrawEquipSprite(s32, Vec2f, f32, s32, u8, s32, u8 *);
 u32 datGetItemNameId(s16);
 
 s16 datGetEquippedItemByUnit(s16, s16);
-/* measured: the item getters take s16, as defined in g_data.c (each callee
-   re-extends $a0). A value already typed s16 passes raw; fclShopStateUpdate's int
-   ids are extended at every call, and an explicit (s32) widening before an s16
-   parameter reproduces the single extension retail emits (func_002df020,
-   fclShopDrawScrollThumb, fclShopDrawItemCompare, func_002d5040, fclShopListInputStep). */
+/* measured: the item getters take s16 as defined in g_data.c; an explicit (s32) widening before the
+ * call reproduces retail's single sign extension. */
 u32 datEntryGetFlags(s16);
 u16 datEntryGetPrimaryValue(s16);
 u16 datEntryGetSecondaryValue(s16);
@@ -249,21 +241,10 @@ extern u16 D_008C0276[]; /* cursor input mask used for wraparound steps */
 extern u16 D_008C027A[]; /* navigation repeat and tab input mask */
 extern f32 fGpffff852c;
 
-/* measured: MATCH. Retail builds most positions and colours as struct-return
-   temporaries inside the consuming call (fclObjStartPosition(h, fclMakeVec2(..),
-   fclMakeVec2(..), ..), *(FclDrawColor *)(.. + 0x79) = fclMakeDrawColor(..)),
-   and b210 lays the frame out as named locals, then temporaries in creation
-   order, then arrays: the three second-position copies at sp+0x150..0x167 are
-   one Vec2f[3] declared ahead of the sprintf buffers. Declaration order of the
-   saved-register locals follows the retail registers. */
-/* Advance shop loading, menu animations, purchase/sale transactions and message slots; return -1 when closing finishes. */
-/* measured: the earlier native-layout trial was 49728B yet MISMATCH due to
- * field-address sharing and index/base addu order. Grouped typed-local and
- * array-base probes now retain MATCH without additional pragmas. Only 32
- * indexed accesses still require MEMBER to preserve aliasing/address order;
- * access-site, typed-local and array/stride singleton results are recorded
- * in build/readability_names/FullEvent19.culprits.tsv.
- * The earlier opt_common_subs-off trial was 51212B and still MISMATCH. */
+/* Positions and colours are built as struct-return temporaries inside the consuming call, and the
+ * three second-position copies are one Vec2f[3] declared before the sprintf buffers. Advance shop
+ * loading, menu animations, purchase/sale transactions and message slots; return -1 when closing
+ * finishes. */
 // FUN_002BE530
 s32 fclShopStateUpdate(u8 *task)
 {
@@ -588,14 +569,14 @@ s32 fclShopStateUpdate(u8 *task)
     ((PrimQueueNode *)drawNode)->argument.data = work;
     PrimAppendNode(D_00795FE0, drawNode);
     state = ((FclShopWork *)work)->state;
-    switch (state) {                             /* switch 1 */
-    case 0x9:                                       /* switch 1 */
+    switch (state) {
+    case 0x9:
         (((FclShopWork *)work)->spriteResource.signedWord) = sdkSpriteRequestLoad(&D_0063FAA0);
         func_00440b68(iGpffffa878, D_0063FAC0, 0x147);
         (((FclShopWork *)work)->loadedFile) = H_Cdvd_AcquireDirectory(D_0063FAD0, 0);
         ((FclShopWork *)work)->state = 0xA;
         /* fallthrough */
-    case 0xA:                                       /* switch 1 */
+    case 0xA:
         if ((hMaestroDecodeIsReady((shopWork->spriteResource.signedWord)) != 0) && (H_Cdvd_IsFileLoaded((((FclShopWork *)work)->loadedFile)) != 0)) {
             ((FclShopWork *)work)->state = 0xB;
             ((FclShopWork *)work)->ready = 1;
@@ -690,7 +671,7 @@ s32 fclShopStateUpdate(u8 *task)
             (((FclShopWork *)work)->unitSelection) = 0;
         }
         break;
-    case 0xC:                                       /* switch 1 */
+    case 0xC:
         if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
             nmMesWindowStepSlotRelease((shopWork->messageSlot));
         } else {
@@ -699,7 +680,7 @@ s32 fclShopStateUpdate(u8 *task)
             ((FclShopWork *)work)->state = 0xD;
         }
         break;
-    case 0xD:                                       /* switch 1 */
+    case 0xD:
         if ((yListCountFor((((FclShopWork *)work)->lists[0])) > D_00748908[0]) && (datGetFlag(0x1324) == 0)) {
             (((FclShopWork *)work)->messageSlot) = nmMesWindowAcquire((((FclShopMessageFile *)((FclShopWork *)work)->loadedFile)->messages));
             nmMesWindowShowSlotRecordStyle1((shopWork->messageSlot), 0xB);
@@ -718,7 +699,7 @@ s32 fclShopStateUpdate(u8 *task)
         }
         ((FclShopWork *)work)->state = 0xF;
         break;
-    case 0xF:                                       /* switch 1 */
+    case 0xF:
         if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
             nmMesWindowStepSlotRelease((shopWork->messageSlot));
         } else {
@@ -726,7 +707,7 @@ s32 fclShopStateUpdate(u8 *task)
             ((FclShopWork *)work)->state = 0xE;
         }
         break;
-    case 0xE:                                       /* switch 1 */
+    case 0xE:
         (((FclShopWork *)work)->category) = 0;
         positionTable7 = (f32 *)(D_0063F9F0 + ((((FclShopWork *)work)->category) * 0xC));
         fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x3].pointer), 0x41, 126.0f);
@@ -834,7 +815,7 @@ s32 fclShopStateUpdate(u8 *task)
         ((FclShopWork *)work)->state = 0x10;
         ((FclShopWork *)work)->unkC26 = 1;
         break;
-    case 0x10:                                      /* switch 1 */
+    case 0x10:
         if (D_008C027A[0] & 0x4000) {
             (((FclShopWork *)work)->category) = fclAddClamped((s32) (shopWork->category), 1, 5, 0, 2);
             fclShopStartSelectionShake(task);
@@ -922,7 +903,7 @@ s32 fclShopStateUpdate(u8 *task)
             sdkSndStartStream(0, 0, 0, 2);
         }
         break;
-    case 0x11:                                      /* switch 1 */
+    case 0x11:
         for (index18 = 0x55; index18 < 0x58; index18++) {
             if (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[index18].pointer), 1))) == 0) {
                 fclObjChangeFlagBit((((FclShopWork *)work)->panels[index18].pointer), 3, 0);
@@ -937,7 +918,7 @@ s32 fclShopStateUpdate(u8 *task)
             ((FclShopWork *)work)->state = 0x10;
         }
         break;
-    case 0x12:                                      /* switch 1 */
+    case 0x12:
         for (step = 0; ((s16) (step)) < 2; step = (s16) ((step + 1))) {
             objectWork8 = fclObjectGetWork((((FclShopWork *)work)->panels[((s16) (step)) + 0x3].pointer));
             red2 = (((FclShopWork *)work)->savedColors[(s16) (step)].c0);
@@ -1002,7 +983,7 @@ s32 fclShopStateUpdate(u8 *task)
             ((FclShopWork *)work)->state = 0x13;
         }
         break;
-    case 0x13:                                      /* switch 1 */
+    case 0x13:
         for (index23 = 0x55; index23 < 0x58; index23++) {
             if (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[index23].pointer), 1))) == 0) {
                 fclObjChangeFlagBit((((FclShopWork *)work)->panels[index23].pointer), 3, 0);
@@ -1027,13 +1008,13 @@ s32 fclShopStateUpdate(u8 *task)
             fclObjStartTween((void *) (shopWork->panels[0x91].word), (((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0x91].word)))->tweenValue), 30.0f + (((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0x91].word)))->tweenValue), 0, 7, 3);
             fclObjStartAlpha((void *) (shopWork->panels[0x91].word), 0xFFU, 0U, 0U, 7, 3);
             category = (((FclShopWork *)work)->category);
-            switch (category) {                    /* switch 2 */
-            case 0:                                 /* switch 2 */
-            case 1:                                 /* switch 2 */
-            case 2:                                 /* switch 2 */
+            switch (category) {
+            case 0:
+            case 1:
+            case 2:
                 fclShopSlideInFromAbove(task);
                 break;
-            case 3:                                 /* switch 2 */
+            case 3:
                 fclShopStartRevealSprites(task);
                 (((FclShopWork *)work)->totalPrice) = 0;
                 for (index25 = 1; index25 < yListCountFor((((FclShopWork *)work)->lists[0])); index25++) {
@@ -1046,7 +1027,7 @@ s32 fclShopStateUpdate(u8 *task)
                     (shopWork->totalPriceSigned) = fclAddClamped(price4, 0, 0x98967F, 0, 1);
                 }
                 break;
-            case 4:                                 /* switch 2 */
+            case 4:
                 fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6C].pointer), 0, 1);
                 fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6D].pointer), 0, 1);
                 fclObjStartAlpha((shopWork->panels[0x55].pointer), 0xFFU, 0U, 0U, 0xA, 0);
@@ -1055,7 +1036,7 @@ s32 fclShopStateUpdate(u8 *task)
                 weaponShopTalkCreate(task);
                 ((FclShopWork *)work)->state = 0x35;
                 break;
-            case 5:                                 /* switch 2 */
+            case 5:
                 fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6C].pointer), 0, 1);
                 fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6D].pointer), 0, 1);
                 fclObjStartAlpha((shopWork->panels[0x55].pointer), 0xFFU, 0U, 0U, 0xA, 0);
@@ -1066,14 +1047,14 @@ s32 fclShopStateUpdate(u8 *task)
             }
         }
         break;
-    case 0x14:                                      /* switch 1 */
+    case 0x14:
         if (((s8) (fclObjHasStatusFlags((void *) (((FclShopWork *)work)->panels[0xA7].word)))) == 0) {
             fclObjStartPosition((void *) (shopWork->panels[0xA7].word), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0xA7].word)))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0xA7].word)))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0xA7].word)))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0xA7].word)))->anchorPosition.y)), 1, 4, 0);
             fclObjStartPosition((void *) (((FclShopWork *)work)->panels[0xA8].word), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0xA8].word)))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0xA8].word)))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0xA8].word)))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (shopWork->panels[0xA8].word)))->anchorPosition.y)), 1, 4, 0);
             ((FclShopWork *)work)->state = 0x15;
         }
         /* fallthrough */
-    case 0x15:                                      /* switch 1 */
+    case 0x15:
         if (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x4A].pointer)))) == 0) {
             fclShopDrawItemCompare(task);
         }
@@ -1216,30 +1197,30 @@ s32 fclShopStateUpdate(u8 *task)
             }
         }
         break;
-    case 0x16:                                      /* switch 1 */
+    case 0x16:
         fclShopDrawItemCompare(task);
         for (step = 0; ((s16) (step)) < (((FclShopWork *)work)->unitCount); step = (s16) ((step + 1))) {
-            if ((MEMBER(s16, work + ((s16) step) * 2, FclShopWork, rowDelay[0])) != 0) { /* measured: typing each remaining site here changes 22961 code bytes. */
-                (MEMBER(s16, work + ((s16) step) * 2, FclShopWork, rowDelay[0])) = fclSubClamped((MEMBER(s16, work + ((s16) step) * 2, FclShopWork, rowDelay[0])), 1, 0, 0, 1); /* measured: typing each remaining site here changes 22981-23023 code bytes. */
+            if ((MEMBER(s16, work + ((s16) step) * 2, FclShopWork, rowDelay[0])) != 0) {
+                (MEMBER(s16, work + ((s16) step) * 2, FclShopWork, rowDelay[0])) = fclSubClamped((MEMBER(s16, work + ((s16) step) * 2, FclShopWork, rowDelay[0])), 1, 0, 0, 1);
             } else {
-                (MEMBER(u8, work + ((s16) step), FclShopWork, rowAlpha[0])) = (u8) fclEaseInterpolate(0, 0.0f, 255.0f, (f32) (MEMBER(s16, work + (((s16) step) * 2), FclShopWork, rowFrame[0])), 6.0f); /* measured: typing each remaining site here changes 22921-22930 code bytes. */
-                (MEMBER(s16, work + (((s16) step) * 2), FclShopWork, rowFrame[0])) = fclAddClamped((s32) (MEMBER(s16, work + (((s16) step) * 2), FclShopWork, rowFrame[0])), 1, 6, 0, 1); /* measured: typing each remaining site here changes 22809-22825 code bytes. */
-                textColor2 = fclPackRgba(0xECU, 0x7FU, 0U, (MEMBER(u8, work + ((s16) step), FclShopWork, rowAlpha[0]))); /* measured: typing each remaining site here changes 22807 code bytes. */
+                (MEMBER(u8, work + ((s16) step), FclShopWork, rowAlpha[0])) = (u8) fclEaseInterpolate(0, 0.0f, 255.0f, (f32) (MEMBER(s16, work + (((s16) step) * 2), FclShopWork, rowFrame[0])), 6.0f);
+                (MEMBER(s16, work + (((s16) step) * 2), FclShopWork, rowFrame[0])) = fclAddClamped((s32) (MEMBER(s16, work + (((s16) step) * 2), FclShopWork, rowFrame[0])), 1, 6, 0, 1);
+                textColor2 = fclPackRgba(0xECU, 0x7FU, 0U, (MEMBER(u8, work + ((s16) step), FclShopWork, rowAlpha[0])));
                 if ((((FclShopWork *)work)->unitSelection) == ((s16) step)) {
-                    textColor2 = fclPackRgba(0x2DU, 0x2DU, 0x2DU, (MEMBER(u8, work + ((s16) step), FclShopWork, rowAlpha[0]))); /* measured: typing each remaining site here changes 22779 code bytes. */
+                    textColor2 = fclPackRgba(0x2DU, 0x2DU, 0x2DU, (MEMBER(u8, work + ((s16) step), FclShopWork, rowAlpha[0])));
                 }
-                fclShopDrawItemText(task, (MEMBER(s8, work + ((s16) step), FclShopWork, unitIds[0])), fclMakeVec2(71.0f,  86.0f + 35.0f * (f32) step), (void *) textColor2); /* measured: typing each remaining site here changes 22716 code bytes. */
+                fclShopDrawItemText(task, (MEMBER(s8, work + ((s16) step), FclShopWork, unitIds[0])), fclMakeVec2(71.0f,  86.0f + 35.0f * (f32) step), (void *) textColor2);
             }
         }
         for (index9 = 0; index9 < 2; index9++) {
-            objectWork9 = fclObjectGetWork((MEMBER(void *, work + ((index9) * 4), FclShopWork, panels[0xA7].pointer))); /* measured: typing each remaining site here changes 22631 code bytes. */
-            red3 = (MEMBER(u8, work + ((index9) * 4), FclShopWork, savedColors[0].c0)); /* measured: typing each remaining site here changes 22628 code bytes. */
+            objectWork9 = fclObjectGetWork((MEMBER(void *, work + ((index9) * 4), FclShopWork, panels[0xA7].pointer)));
+            red3 = (MEMBER(u8, work + ((index9) * 4), FclShopWork, savedColors[0].c0));
             channelStart13 = (f32) red3;
             (((FclObject *)objectWork9)->color.c0) = (u8) fclEaseInterpolate(1, channelStart13, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
-            green4 = (MEMBER(u8, work + ((index9) * 4), FclShopWork, savedColors[0].c1)); /* measured: typing each remaining site here changes 22489 code bytes. */
+            green4 = (MEMBER(u8, work + ((index9) * 4), FclShopWork, savedColors[0].c1));
             channelStart14 = (f32) green4;
             (((FclObject *)objectWork9)->color.c1) = (u8) fclEaseInterpolate(1, channelStart14, 226.0f, (f32) (shopWork->colorFrame), 3.0f);
-            blue4 = (MEMBER(u8, work + ((index9) * 4), FclShopWork, savedColors[0].c2)); /* measured: typing each remaining site here changes 22346 code bytes. */
+            blue4 = (MEMBER(u8, work + ((index9) * 4), FclShopWork, savedColors[0].c2));
             channelStart15 = (f32) blue4;
             (((FclObject *)objectWork9)->color.c2) = (u8) fclEaseInterpolate(1, channelStart15, 145.0f, (f32) (shopWork->colorFrame), 3.0f);
         }
@@ -1296,7 +1277,7 @@ s32 fclShopStateUpdate(u8 *task)
             ((FclShopWork *)work)->state = 0x17;
         }
         break;
-    case 0x17:                                      /* switch 1 */
+    case 0x17:
         if (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x4D].pointer), 3))) == 0) {
             fclObjStartTween((shopWork->panels[0x4D].pointer), 27.0f, -14.0f, 0, 3, 0);
             tbl = (f32 *) D_0063F5B8;
@@ -1313,7 +1294,7 @@ s32 fclShopStateUpdate(u8 *task)
             ((FclShopWork *)work)->state = 0x18;
         }
         break;
-    case 0x18:                                      /* switch 1 */
+    case 0x18:
         if (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0xB].pointer)))) == 0) {
             fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x7D].pointer), 0x41, 152.0f);
             fclObjStartAlpha((shopWork->panels[0x7D].pointer), 0U, 0xCCU, 0U, 5, 0);
@@ -1353,42 +1334,42 @@ s32 fclShopStateUpdate(u8 *task)
             (((FclShopWork *)work)->cursor) = 0;
             category2 = (((FclShopWork *)work)->category);
             switch (category2) {                    /* switch 3; irregular */
-            case 0:                                 /* switch 3 */
+            case 0:
                 yListCreate(1 << ((s16) (((((s8 *)(work + MEMBER_OFFSET(FclShopWork, unitIcons[0x0])))[((FclShopWork *)work)->unitSelection]) - 0x14))), 1 << ((((FclShopWork *)work)->unitIds[(((FclShopWork *)work)->unitSelection)]) + 4), 2, 2);
                 break;
-            case 1:                                 /* switch 3 */
+            case 1:
                 yListCreate(0x4000, 1 << ((shopWork->unitIds[((FclShopWork *)work)->unitSelection]) + 4), 2, 2);
                 break;
-            case 2:                                 /* switch 3 */
+            case 2:
                 yListCreate(0x8000, 1 << ((shopWork->unitIds[((FclShopWork *)work)->unitSelection]) + 4), 2, 2);
                 break;
             }
             ((FclShopWork *)work)->state = 0x1B;
         }
         break;
-    case 0x1B:                                      /* switch 1 */
+    case 0x1B:
         fclShopDrawItemList(task, 0);
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         break;
-    case 0x1C:                                      /* switch 1 */
+    case 0x1C:
         fclShopDrawItemList(task, 1);
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         for (index2 = 0; index2 < 2; index2++) {
             objectWork2 = fclObjectGetWork((((FclShopWork *)work)->panels[0x64].pointer));
             objectWork4 = fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer));
-            red4 = (MEMBER(u8, work + ((index2) * 4), FclShopWork, savedColors[0].c0)); /* measured: typing each remaining site here changes 196 code bytes. */
+            red4 = (MEMBER(u8, work + ((index2) * 4), FclShopWork, savedColors[0].c0));
             channelStart16 = (f32) red4;
             channelValue12 = fclEaseInterpolate(1, channelStart16, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
             redChannel140 = (u8) channelValue12;
             (((FclObject *)objectWork4)->color.c0) = redChannel140;
             (((FclObject *)objectWork2)->color.c0) = redChannel140;
-            green5 = (MEMBER(u8, work + ((index2) * 4), FclShopWork, savedColors[0].c1)); /* measured: typing each remaining site here changes 18880 code bytes. */
+            green5 = (MEMBER(u8, work + ((index2) * 4), FclShopWork, savedColors[0].c1));
             channelStart17 = (f32) green5;
             channelValue = fclEaseInterpolate(1, channelStart17, 226.0f, (f32) (shopWork->colorFrame), 3.0f);
             greenChannel124 = (u8) channelValue;
             (((FclObject *)objectWork4)->color.c1) = greenChannel124;
             (((FclObject *)objectWork2)->color.c1) = greenChannel124;
-            blue5 = (MEMBER(u8, work + ((index2) * 4), FclShopWork, savedColors[0].c2)); /* measured: typing each remaining site here changes 18737 code bytes. */
+            blue5 = (MEMBER(u8, work + ((index2) * 4), FclShopWork, savedColors[0].c2));
             channelStart18 = (f32) blue5;
             channelValue2 = fclEaseInterpolate(1, channelStart18, 145.0f, (f32) (shopWork->colorFrame), 3.0f);
             blueChannel125 = (u8) channelValue2;
@@ -1412,7 +1393,7 @@ s32 fclShopStateUpdate(u8 *task)
             fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 1);
         }
         break;
-    case 0x1D:                                      /* switch 1 */
+    case 0x1D:
         fclShopDrawStats(task);
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         fclShopDrawItemText(task, (shopWork->unitIds[((FclShopWork *)work)->unitSelection]), fclMakeVec2(51.0f, 48.0f), (void *) fclPackRgba(0xFFU, 0xFFU, 0xFFU, 0xFFU));
@@ -1434,7 +1415,7 @@ s32 fclShopStateUpdate(u8 *task)
             fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 0);
         }
         break;
-    case 0x1E:                                      /* switch 1 */
+    case 0x1E:
         fclShopDrawStats(task);
         fclShopDrawItemText(task, (shopWork->unitIds[((FclShopWork *)work)->unitSelection]), fclMakeVec2(51.0f, 48.0f), (void *) fclPackRgba(0xFFU, 0xFFU, 0xFFU, 0xFFU));
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
@@ -1462,7 +1443,7 @@ s32 fclShopStateUpdate(u8 *task)
             fclShopStartRowPositions(task);
         }
         break;
-    case 0x1F:                                      /* switch 1 */
+    case 0x1F:
         fclShopDrawStats(task);
         fclShopDrawItemList(task, 1);
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
@@ -1480,7 +1461,7 @@ s32 fclShopStateUpdate(u8 *task)
             ((FclShopWork *)work)->state = 0x1B;
         }
         break;
-    case 0x20:                                      /* switch 1 */
+    case 0x20:
         fclShopDrawItemList(task, 1);
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         if ((((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x64].pointer), 9))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x66].pointer), 9))) == 0)) {
@@ -1534,7 +1515,7 @@ s32 fclShopStateUpdate(u8 *task)
             ((FclShopWork *)work)->state = 0x21;
         }
         break;
-    case 0x21:                                      /* switch 1 */
+    case 0x21:
         if (fclShopListInputStep(task) == 1) {
             if ((D_008C0276[0] & 0x1000) && ((((FclShopWork *)work)->inputBusy) == 0)) {
                 sdkSndStartStream(0, 0, 0, 0);
@@ -1609,13 +1590,13 @@ s32 fclShopStateUpdate(u8 *task)
                 (((FclShopWork *)work)->unitSelection) = fclAddClamped((s32) (shopWork->unitSelection), 1, (((FclShopWork *)work)->unitCount) - 1, 0, 2);
                 category3 = (((FclShopWork *)work)->category);
                 switch (category3) {                /* switch 4; irregular */
-                case 0:                             /* switch 4 */
+                case 0:
                     yListRebuild(1 << ((s16) (((shopWork->unitIcons[shopWork->unitSelection]) - 0x14))), 1 << ((((FclShopWork *)work)->unitIds[(shopWork->unitSelection)]) + 4), 2, 2);
                     break;
-                case 1:                             /* switch 4 */
+                case 1:
                     yListRebuild(0x4000, 1 << ((shopWork->unitIds[shopWork->unitSelection]) + 4), 2, 2);
                     break;
-                case 2:                             /* switch 4 */
+                case 2:
                     yListRebuild(0x8000, 1 << ((shopWork->unitIds[shopWork->unitSelection]) + 4), 2, 2);
                     break;
                 }
@@ -1628,13 +1609,13 @@ s32 fclShopStateUpdate(u8 *task)
                 (((FclShopWork *)work)->unitSelection) = fclSubClamped((s32) (shopWork->unitSelection), 1, 0, (((FclShopWork *)work)->unitCount) - 1, 2);
                 category4 = (((FclShopWork *)work)->category);
                 switch (category4) {                /* switch 5; irregular */
-                case 0:                             /* switch 5 */
+                case 0:
                     yListRebuild(1 << ((s16) (((shopWork->unitIcons[shopWork->unitSelection]) - 0x14))), 1 << ((((FclShopWork *)work)->unitIds[(shopWork->unitSelection)]) + 4), 2, 2);
                     break;
-                case 1:                             /* switch 5 */
+                case 1:
                     yListRebuild(0x4000, 1 << ((shopWork->unitIds[shopWork->unitSelection]) + 4), 2, 2);
                     break;
-                case 2:                             /* switch 5 */
+                case 2:
                     yListRebuild(0x8000, 1 << ((shopWork->unitIds[shopWork->unitSelection]) + 4), 2, 2);
                     break;
                 }
@@ -1673,14 +1654,14 @@ block_368:
             break;
         }
         break;
-    case 0x22:                                      /* switch 1 */
+    case 0x22:
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         fclShopDrawItemList(task, 0);
         if ((((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x4E].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x51].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x15].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x16].pointer)))) == 0)) {
             ((FclShopWork *)work)->state = 0x1B;
         }
         break;
-    case 0x23:                                      /* switch 1 */
+    case 0x23:
         fclShopListInputStep(task);
         if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
             nmMesWindowStepSlotRelease((shopWork->messageSlot));
@@ -1703,31 +1684,31 @@ block_368:
             ((FclShopWork *)work)->state = 0x21;
         }
         break;
-    case 0x24:                                      /* switch 1 */
+    case 0x24:
         (((FclShopWork *)work)->quantity) = 1;
         if (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0xB].pointer)))) == 0) {
             fclShopDrawBuyList(task, 0);
         }
         break;
-    case 0x25:                                      /* switch 1 */
+    case 0x25:
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
         for (step = 0; ((s16) (step)) < 2; step = (s16) ((step + 1))) {
             objectWork5 = fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer));
             objectWork11 = fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer));
-            red5 = (MEMBER(u8, work + (((s16) (step)) * 4), FclShopWork, savedColors[0].c0)); /* measured: typing each remaining site here changes 13132 code bytes. */
+            red5 = (MEMBER(u8, work + (((s16) (step)) * 4), FclShopWork, savedColors[0].c0));
             channelStart2 = (f32) red5;
             channelValue3 = fclEaseInterpolate(1, channelStart2, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
             redChannel126 = (u8) channelValue3;
             (((FclObject *)objectWork11)->color.c0) = redChannel126;
             (((FclObject *)objectWork5)->color.c0) = redChannel126;
-            green6 = (MEMBER(u8, work + (((s16) (step)) * 4), FclShopWork, savedColors[0].c1)); /* measured: typing each remaining site here changes 13131 code bytes. */
+            green6 = (MEMBER(u8, work + (((s16) (step)) * 4), FclShopWork, savedColors[0].c1));
             channelStart3 = (f32) green6;
             channelValue4 = fclEaseInterpolate(1, channelStart3, 226.0f, (f32) (shopWork->colorFrame), 3.0f);
             greenChannel127 = (u8) channelValue4;
             (((FclObject *)objectWork11)->color.c1) = greenChannel127;
             (((FclObject *)objectWork5)->color.c1) = greenChannel127;
-            blue6 = (MEMBER(u8, work + (((s16) (step)) * 4), FclShopWork, savedColors[0].c2)); /* measured: typing each remaining site here changes 12988 code bytes. */
+            blue6 = (MEMBER(u8, work + (((s16) (step)) * 4), FclShopWork, savedColors[0].c2));
             channelStart4 = (f32) blue6;
             channelValue5 = fclEaseInterpolate(1, channelStart4, 145.0f, (f32) (shopWork->colorFrame), 3.0f);
             blueChannel128 = (u8) channelValue5;
@@ -1841,7 +1822,7 @@ block_368:
             }
         }
         break;
-    case 0x27:                                      /* switch 1 */
+    case 0x27:
         itemId5 = yListValueAtFor(((&shopWork->lists[0])[(((FclShopWork *)work)->tab)]), (s32) (((FclShopWork *)work)->cursor));
         tabIndex = yListAuxValueAtFor(((&shopWork->lists[0])[(shopWork->tab)]), (s32) (shopWork->cursor)) & 0xFF;
         fclShopDrawBuyList(task, 2);
@@ -1902,7 +1883,7 @@ block_368:
             }
         }
         break;
-    case 0x28:                                      /* switch 1 */
+    case 0x28:
         fclShopDrawBuyList(task, 2);
         itemId3 = yListValueAtFor(((&shopWork->lists[0])[(((FclShopWork *)work)->tab)]), (s32) (((FclShopWork *)work)->cursor));
         tabIndex3 = (s16) (yListAuxValueAtFor(((&shopWork->lists[0])[(shopWork->tab)]), (s32) (shopWork->cursor)));
@@ -1937,7 +1918,7 @@ block_368:
                 datItemSetCount(itemId3, ((datItemCount(itemId3) & 0xFF) - (shopWork->quantity)) & 0xFF);
                 tabIndex7 = (shopWork->tab);
                 switch (tabIndex7) {                /* switch 6; irregular */
-                case 0:                             /* switch 6 */
+                case 0:
                     yListRebuildFor(((&shopWork->lists[0])[tabIndex7]), 0x40000, 0, 4, 0);
                     (((FclShopWork *)work)->totalPrice) = 0;
                     for (index10 = 1; index10 < yListCountFor((((FclShopWork *)work)->lists[(shopWork->tab)])); index10++) {
@@ -1950,10 +1931,10 @@ block_368:
                         (shopWork->totalPriceSigned) = fclAddClamped(price3, 0, 0x98967F, 0, 1);
                     }
                     break;
-                case 1:                             /* switch 6 */
+                case 1:
                     yListRebuildFor(((&shopWork->lists[0])[tabIndex7]), 0xFFFF, 0x1FE0, 1, 0);
                     break;
-                case 2:                             /* switch 6 */
+                case 2:
                     yListRebuildFor(((&shopWork->lists[0])[tabIndex7]), 0x10000, 0, 1, 0);
                     break;
                 }
@@ -1992,7 +1973,7 @@ block_368:
             }
         }
         break;
-    case 0x2E:                                      /* switch 1 */
+    case 0x2E:
         fclShopDrawBuyList(task, 2);
         if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
             nmMesWindowStepSlotRelease((shopWork->messageSlot));
@@ -2051,7 +2032,7 @@ block_368:
             }
         }
         break;
-    case 0x29:                                      /* switch 1 */
+    case 0x29:
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
         if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
@@ -2062,7 +2043,7 @@ block_368:
             ((FclShopWork *)work)->state = 0x2A;
         }
         break;
-    case 0x2A:                                      /* switch 1 */
+    case 0x2A:
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
         (((FclShopWork *)work)->cueTimer) = fclAddClamped((s32) (shopWork->cueTimer), 1, 0x3C, 0, 1);
@@ -2072,7 +2053,7 @@ block_368:
             (shopWork->cueTimer) = 0;
         }
         break;
-    case 0x2B:                                      /* switch 1 */
+    case 0x2B:
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
         if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
@@ -2085,7 +2066,7 @@ block_368:
             ((FclShopWork *)work)->state = 0x2D;
         }
         break;
-    case 0x2C:                                      /* switch 1 */
+    case 0x2C:
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
         messageItem8.itemId = (s32) ((&shopWork->unlockedItems[0])[(((FclShopWork *)work)->unlockIndex)]);
@@ -2093,7 +2074,7 @@ block_368:
         (((FclShopWork *)work)->messageSlot) = fclShopPlaySound(task, 3, &messageItem8, 0);
         ((FclShopWork *)work)->state = 0x2D;
         break;
-    case 0x2D:                                      /* switch 1 */
+    case 0x2D:
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
         if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
@@ -2115,24 +2096,24 @@ block_368:
             }
         }
         break;
-    case 0x26:                                      /* switch 1 */
+    case 0x26:
         fclShopDrawBuyList(task, 2);
         for (index5 = 0; index5 < 2; index5++) {
             objectWork3 = fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer));
             objectWork6 = fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer));
-            red6 = (MEMBER(u8, work + ((index5) * 4), FclShopWork, savedColors[0].c0)); /* measured: typing each remaining site here changes 5862 code bytes. */
+            red6 = (MEMBER(u8, work + ((index5) * 4), FclShopWork, savedColors[0].c0));
             channelStart5 = (f32) red6;
             channelValue6 = fclEaseInterpolate(1, channelStart5, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
             redChannel129 = (u8) channelValue6;
             (((FclObject *)objectWork6)->color.c0) = redChannel129;
             (((FclObject *)objectWork3)->color.c0) = redChannel129;
-            green = (MEMBER(u8, work + ((index5) * 4), FclShopWork, savedColors[0].c1)); /* measured: typing each remaining site here changes 5865 code bytes. */
+            green = (MEMBER(u8, work + ((index5) * 4), FclShopWork, savedColors[0].c1));
             channelStart6 = (f32) green;
             channelValue7 = fclEaseInterpolate(1, channelStart6, 226.0f, (f32) (shopWork->colorFrame), 3.0f);
             greenChannel130 = (u8) channelValue7;
             (((FclObject *)objectWork6)->color.c1) = greenChannel130;
             (((FclObject *)objectWork3)->color.c1) = greenChannel130;
-            blue = (MEMBER(u8, work + ((index5) * 4), FclShopWork, savedColors[0].c2)); /* measured: typing each remaining site here changes 5724 code bytes. */
+            blue = (MEMBER(u8, work + ((index5) * 4), FclShopWork, savedColors[0].c2));
             channelStart7 = (f32) blue;
             channelValue8 = fclEaseInterpolate(1, channelStart7, 145.0f, (f32) (shopWork->colorFrame), 3.0f);
             blueChannel131 = (u8) channelValue8;
@@ -2152,24 +2133,24 @@ block_368:
             ((FclShopWork *)work)->state = 0x2F;
         }
         break;
-    case 0x2F:                                      /* switch 1 */
+    case 0x2F:
         fclShopDrawBuyList(task, 2);
         for (index6 = 0; index6 < 2; index6++) {
             objectWork = fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer));
             objectWork7 = fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer));
-            red = (MEMBER(u8, work + ((index6) * 4), FclShopWork, savedColors[0].c0)); /* measured: typing each remaining site here changes 5102 code bytes. */
+            red = (MEMBER(u8, work + ((index6) * 4), FclShopWork, savedColors[0].c0));
             channelStart8 = (f32) red;
             channelValue9 = fclEaseInterpolate(1, channelStart8, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
             redChannel132 = (u8) channelValue9;
             (((FclObject *)objectWork7)->color.c0) = redChannel132;
             (((FclObject *)objectWork)->color.c0) = redChannel132;
-            green2 = (MEMBER(u8, work + ((index6) * 4), FclShopWork, savedColors[0].c1)); /* measured: typing each remaining site here changes 5105 code bytes. */
+            green2 = (MEMBER(u8, work + ((index6) * 4), FclShopWork, savedColors[0].c1));
             channelStart9 = (f32) green2;
             channelValue10 = fclEaseInterpolate(1, channelStart9, 226.0f, (f32) (shopWork->colorFrame), 3.0f);
             greenChannel133 = (u8) channelValue10;
             (((FclObject *)objectWork7)->color.c1) = greenChannel133;
             (((FclObject *)objectWork)->color.c1) = greenChannel133;
-            blue2 = (MEMBER(u8, work + ((index6) * 4), FclShopWork, savedColors[0].c2)); /* measured: typing each remaining site here changes 4964 code bytes. */
+            blue2 = (MEMBER(u8, work + ((index6) * 4), FclShopWork, savedColors[0].c2));
             channelStart10 = (f32) blue2;
             channelValue11 = fclEaseInterpolate(1, channelStart10, 145.0f, (f32) (shopWork->colorFrame), 3.0f);
             blueChannel134 = (u8) channelValue11;
@@ -2200,12 +2181,12 @@ block_368:
             ((FclShopWork *)work)->state = 0x30;
         }
         break;
-    case 0x30:                                      /* switch 1 */
+    case 0x30:
         fclShopDrawBuyList(task, 2);
         if ((((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x65].pointer), 9))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x66].pointer), 9))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x86].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x87].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x88].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x89].pointer)))) == 0)) {
             for (index30 = 0; index30 < 3; index30++) {
-                fclObjSetAnchorPosition((MEMBER(void *, work + ((index30) * 4), FclShopWork, panels[0x61].pointer)), 0x41, 95.0f); /* measured: typing each remaining site here changes 49 code bytes. */
-                ((FclObject *)fclObjectGetWork((MEMBER(void *, work + ((index30) * 4), FclShopWork, panels[0x61].pointer))))->color = fclMakeDrawColor(0xFF, 0xEF, 0x80, 0xFF); /* measured: typing each remaining site here changes 49 code bytes. */
+                fclObjSetAnchorPosition((MEMBER(void *, work + ((index30) * 4), FclShopWork, panels[0x61].pointer)), 0x41, 95.0f);
+                ((FclObject *)fclObjectGetWork((MEMBER(void *, work + ((index30) * 4), FclShopWork, panels[0x61].pointer))))->color = fclMakeDrawColor(0xFF, 0xEF, 0x80, 0xFF);
             }
             ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x61].pointer)))->anchorPosition = fclMakeVec2(89.0f, 163.0f);
             ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x62].pointer)))->anchorPosition = fclMakeVec2((f32) 0x1D1, 163.0f);
@@ -2227,7 +2208,7 @@ block_368:
             ((FclShopWork *)work)->state = 0x31;
         }
         break;
-    case 0x31:                                      /* switch 1 */
+    case 0x31:
         fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x1A].pointer), 0, 1);
         fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x1C].pointer), 0, 1);
         fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x19].pointer), 0, 1);
@@ -2250,10 +2231,10 @@ block_368:
             ((FclShopWork *)work)->state = 0x24;
         }
         break;
-    case 0x32:                                      /* switch 1 */
+    case 0x32:
         ((FclShopWork *)work)->state = 0x24;
         break;
-    case 0x33:                                      /* switch 1 */
+    case 0x33:
         if (yListCountFor(((&shopWork->lists[0])[(((FclShopWork *)work)->tab)])) > 5) {
             if (yListCountFor(((&shopWork->lists[0])[tabIndex4 = (shopWork->tab)])) > D_00748908[tabIndex4]) {
                 if (yListCountFor(((&shopWork->lists[0])[tabIndex4])) > 5) {
@@ -2275,7 +2256,7 @@ block_368:
             ((FclShopWork *)work)->state = 0x24;
         }
         break;
-    case 0x34:                                      /* switch 1 */
+    case 0x34:
         if (yListCountFor(((&shopWork->lists[0])[(((FclShopWork *)work)->tab)])) > 5) {
             if (yListCountFor(((&shopWork->lists[0])[tabIndex5 = (shopWork->tab)])) > D_00748908[tabIndex5]) {
                 if (yListCountFor(((&shopWork->lists[0])[tabIndex5])) > 5) {
@@ -2297,7 +2278,7 @@ block_368:
             ((FclShopWork *)work)->state = 0x24;
         }
         break;
-    case 0x35:                                      /* switch 1 */
+    case 0x35:
         if (kwlnTaskGetTaskByName(D_0063FB10) == 0) {
             for (index31 = 0; index31 < 7; index31++) {
                 fclObjChangeFlagBit((((FclShopWork *)work)->panels[(index31) + 0x3A].pointer), 0, 0);
@@ -2339,12 +2320,12 @@ block_368:
             fclObjStartAlpha((void *) (shopWork->panels[0x91].word), 0U, 0xFFU, 0U, 4, 2);
             for (index3 = 0; index3 < 7; index3++) {
                 positionTable3 = (f32 *)(D_0063F560 + ((index3 + 0x3A) * 8));
-                fclObjSetAnchorPosition((MEMBER(void *, work + (index3 * 4), FclShopWork, panels[0x3A].pointer)), 0x56, (f32) (index3 + 0x64)); /* measured: typing each remaining site here changes 67 code bytes. */
+                fclObjSetAnchorPosition((MEMBER(void *, work + (index3 * 4), FclShopWork, panels[0x3A].pointer)), 0x56, (f32) (index3 + 0x64));
                 if (index3 > 0) {
-                    ((FclObject *)fclObjectGetWork((MEMBER(void *, work + (index3 * 4), FclShopWork, panels[0x3A].pointer))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF); /* measured: typing each remaining site here changes 62 code bytes. */
+                    ((FclObject *)fclObjectGetWork((MEMBER(void *, work + (index3 * 4), FclShopWork, panels[0x3A].pointer))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF);
                 }
-                fclObjStartPosition((MEMBER(void *, work + ((index3) * 4), FclShopWork, panels[0x3A].pointer)), fclMakeVec2(80.0f + positionTable3[0], positionTable3[1]), fclMakeVec2(positionTable3[0], positionTable3[1]), 0, 3, index3); /* measured: typing each remaining site here changes 866 code bytes. */
-                fclObjStartAlpha((MEMBER(void *, work + ((index3) * 4), FclShopWork, panels[0x3A].pointer)), 0U, 0xFFU, 0U, 3, index3); /* measured: typing each remaining site here changes 868 code bytes. */
+                fclObjStartPosition((MEMBER(void *, work + ((index3) * 4), FclShopWork, panels[0x3A].pointer)), fclMakeVec2(80.0f + positionTable3[0], positionTable3[1]), fclMakeVec2(positionTable3[0], positionTable3[1]), 0, 3, index3);
+                fclObjStartAlpha((MEMBER(void *, work + ((index3) * 4), FclShopWork, panels[0x3A].pointer)), 0U, 0xFFU, 0U, 3, index3);
             }
             ((FclObject *)fclObjectGetWork(((&shopWork->panels[0x3B].pointer)[(((FclShopWork *)work)->category)])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
             fclObjStartAlpha((shopWork->panels[0x3].pointer), 0U, 0xFFU, 0U, 0, (s64) (shopWork->category));
@@ -2356,7 +2337,7 @@ block_368:
             ((FclShopWork *)work)->state = 0x36;
         }
         break;
-    case 0x36:                                      /* switch 1 */
+    case 0x36:
         for (index33 = 0x55; index33 < 0x58; index33++) {
             if (((s8) (fclObjTestFlagBit(((&((FclShopWork *)work)->panels[0x0])[index33].pointer), 1))) == 0) {
                 fclObjChangeFlagBit(((&((FclShopWork *)work)->panels[0x0])[index33].pointer), 3, 0);
@@ -2371,7 +2352,7 @@ block_368:
             ((FclShopWork *)work)->state = 0x10;
         }
         break;
-    case 0x37:                                      /* switch 1 */
+    case 0x37:
         if ((((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x5].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x6].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((void *) (((FclShopWork *)work)->panels[0x91].word)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x0].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x1].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x2].pointer)))) == 0)) {
             return -1;
         }
@@ -2387,7 +2368,6 @@ void fclShopDrawDestroy(u8 *task) {
     s16 i;
     FclShopWork *work = (FclShopWork*)((struct KwlnTask *)task)->work;
 
-    /* measured: access-site unitIds indexing matches; native work->unitIds[i] had commuted two addu words. */
     for (i = 0; i < work->unitCount; i++) {
         datClampUnitHpSp(((FclShopWork *)work)->unitIds[(i)]);
     }
@@ -2440,11 +2420,10 @@ void fclShopDrawSetMode(void *task, s8 state) {
     ((FclShopWork *)((struct KwlnTask *)task)->work)->state = state;
 }
 
-/* Measured: 696/704 bytes, fourteen resolved relocations, eight zero
-   alignment bytes. Separate glyph acquisition/release scopes preserve
-   the saved-register allocation and callback order. */
+/* Separate glyph acquisition and release scopes keep the retail saved-register allocation and
+ * callback order. */
 #pragma push
-/* measured: baseline C nd 314B; adjacent-local declaration probe nd 314B; retain settings for owner MATCH. */
+/* measured: retail does not reuse common subexpressions in this function. */
 #pragma opt_common_subs off
 /* Draw a right-aligned sprite number with a comma every three digits, measuring the two glyph widths from the resource. */
 // FUN_002CAA10
@@ -2510,15 +2489,8 @@ void fclShopDrawNumber(Vec2f position, f32 depth, RGBA color, u32 inputNumber, s
 }
 #pragma pop
 
-/* measured: object 536B/window 544B, nd 0. Signature (u64, f32, RGBA, s32, s16, u32,
-   s32, s32, s32, s32, s32): fparg0 second so it homes to $f22 right after $a0; RGBA
-   by value so the colour bytes are lbu from the $a1 home slot; arg5/arg6 are s32
-   (dsll32 in place). Stack layout is first-use order high-to-low: 16-byte memset
-   target 0xD0, arg1 0xCC, arg0 0xC0, arg3 0xBE, arg7 0xB8. Byte colour locals
-   agree with the packer and wrapper contracts. `arg4 = arg4_` before `count = 0`
-   so $t0 homes last, comma local declared last for $s7, count s32 with (s8) cast,
-   the three `x -= arg2` branches spelled out. */
-/* Draw a right-aligned number with caller-supplied digit/comma spacing, separate glyph resources and a render-layer index. */
+/* Draw a right-aligned number with caller-supplied digit/comma spacing, separate glyph resources
+ * and a render-layer index. */
 // FUN_002CACD0
 void fclDrawNumber(Vec2f position, f32 depth, FclDrawColor color, s32 digitWidth, s16 commaWidth, u32 inputNumber, s32 digitGlyph, s32 commaGlyph, s32 digitResource, s32 commaResource, s32 style)
 {
@@ -2691,23 +2663,13 @@ void fclShopSlideInFromLeft(void *task) {
     fclObjStartPosition(work->panels[0x10].pointer, position27, position28, 0, 4, 6);
 }
 
-// Returns 1 when the shop draw work's state byte (+0xF30) is 1, meaning the shop draw is ready.
+// Returns 1 when the shop draw work's ready byte is 1.
 // FUN_002CB6A0
 s32 fclShopDrawIsReady(void *task) {
     return ((FclShopWork *)((struct KwlnTask *)task)->work)->ready == 1;
 }
 
-/* MATCHED func_002cb6c0: a ShopMenuWork overlay (object pointers, sel/count,
-   the kind/icon/timer tables) makes `kind[sel]` index as retail's idx+work;
-   FclDrawColor results stored whole and passed by value (func_002e0970 takes
-   two colours); func_002e2740/func_002e26a0 return int (re-narrowed with (s16)
-   where retail re-extends), yListStepIndex takes its real s16 arguments;
-   (u8)clndGetMoonPhase(..) & 1 keeps both masks; pad and D_0063FA40..46
-   globals as arrays (absolute lui addressing, not $gp); the D60 pair stored as
-   `field_100 = field_102 = 0` (retail's dsll32 of $zero); scoped
-   opt_loop_invariants on for the row loop and the table-reset loop. */
-/* Six spin-parameter tables (D_0063FA48..68, 8 bytes each) shared by the
-   shop panel intro setups. */
+/* Six spin-parameter tables (D_0063FA48..68, 8 bytes each) shared by the shop panel intro setups. */
 typedef struct {
     f32 angle;
     s16 speed;
@@ -2715,7 +2677,7 @@ typedef struct {
 } ShopSpinParam;
 
 #pragma push
-/* measured: baseline C nd 5740B; adjacent-local declaration probe nd 5746B; retain settings for owner MATCH. */
+/* measured: retail's row and table-reset loops need loop-invariant hoisting enabled. */
 #pragma opt_loop_invariants on
 /* Draw the five-row purchase list; drawOnly suppresses its navigation, confirmation and comparison input handling. */
 // FUN_002CB6C0
@@ -3230,49 +3192,8 @@ void fclShopDrawItemList(void *task, s8 drawOnly) {
 }
 #pragma pop
 
-/* measured 002cdf80 (owner, width-selected from m2c-adapted V8): 3545 against retail 3460
-   (+2.5%, band 3356-3563 PASS, 18 of headroom), 2042 edits (+36 reloc-only), 3047 differing words.
-   regsave_scan: retail 3460 instrs, frame 0x220 vs object 0x290, body saves spare $f21 $f22.
-   calls 374 matching retail 374 (81x 04e0, 47x 26f0, 34x 2970, 19x 04f0, 18x 0660,
-   17x 09e0, 16x 45af60, 15x 2a60/0620, 13x 0b20, 9x 0700, 8x 0570, 7x 2a30/2d50, 6x 46a770/05a0/3560,
-   5x 2830/2cb0, 4x cacd0/2d00, 3x 46d200/46b260/46d280/0940, 2x 106a90/0ca0/2b2f90/2d4760/2d7c10,
-   1x 2700/2a00/106880/1067f0/275680/106600/2b2e70/2b3050/46b2f0/2dd230); lwc1 66 / swc1 18,
-   mtc1 115, add.s 28, madd 1 / adda 1 (142.0f + work[0xC] * (s16)(work[2]-work[4]) via plain C),
-   cvt.s.w 17, no HW (ldr 9 / ldl 9 as *(u64*)(s1+0x2C) per file rule 1, lq 10 / sq 10 / sd 9 for spills),
-   dsll32/dsra32 80/80 (retail 80/80), nop 589 (17.0%), 177 branches (56 b + 121 cond, all delay slots
-   empty), 1 jr (return, no switch). Adapted from /tmp/cold_cdf80/m2c.c (876 lines) with u8* work,
-   Vec2f/u64 slots, s16/s8 widths via plain casts, RGBA via separate bytes pending, FMA via plain C,
-   0620 u64 via *(u64*)(s1+0x2C), cacd0 11-arg (phantom stack arg dropped), 2670 0-arg, GP floats as 0.0f,
-   D_0063FAA0 local extern. Width selection (individual bisection, cf. 001a7720): V8 all-s64-ish 3581
-   (+3.5%, 18 over top, 1896 edits, 3080 words) FAIL; narrow temp_18 (s64->s32, 10 uses) 3545 (-36, PASS,
-   2042 edits, 3047 words) LANDING; narrow temp_17_4 (9 uses) 3576 (-5, 1888 edits) FAIL. temp_18 models
-   $s2 from $v0 after void 2700 (retail dsll32/dsra32 16, uninitialized in C, saves 36 vs s64); sp1A4/sp1DC
-   added as f32 (Vec2f halves), 35 missing u8 bytes added. Production guarded (edits 2042). */
-/* measured 002cdf80 (owner, 2026-09-19): fnalign **2042 -> 2040 edits**, count
-   3545 -> 3543 against retail 3460, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-/* measured 002cdf80 (owner, 2026-09-20): fnalign **2040 -> 2025 edits** (-15), count
-   3543 -> 3506 against retail 3460 (+46, +1.3%, band 3356-3563 PASS with 57 headroom),
-   frame 0x290 -> 0x280, __floatdisf removed (1 jal). No unsuffixed doubles
-   (grep -nE '[0-9]+\\.[0-9]+([^fFeE0-9]|$)' on extracted body: 0 hits, ruled out first
-   per assignment). The over-long object is recomputation retail hoists (reverse of the
-   usual body-hoists/retail-recomputes direction): hoist work+index*4 duplicate
-   (temp_2_24 = temp_3_10 instead of recomputing work+var_19_5*4, -4/+ -10 edits) and
-   hoist 2830 results with same args in same iteration (369's dispatch + 397/398/404's
-   275680/106a90/106600 chain share one temp_17 via temp_17_4, -19/-7 edits, combined
-   -23/-4 vs baseline), plus narrow var_19_5/temp_18_5 s64->s32 for the 0..7 loop
-   (removes s64->float __floatdisf helper + dsll32/dsra32 extends + daddiu/dsll, -7/-11).
-   Rejected hoists that worsen edits (retail recomputes them, usual direction):
-   46a770(FB50/FAA0) per-branch duplicates (-10 count but +18/+16 edits),
-   D_0063F888/DCC-DD0 float (-5/+16), 2a30 0x2D duplicate (-6/+4), 04e0 E44/E48/E40
-   per-branch duplicates (+5 count from new spill). Repro: measure_guarded
-   --save-candidate + fnalign --candidate <path> --quiet. */
+/* measured: temp_18 is s32 because retail sign-extends the value left in a register after the void
+ * call; the C leaves it uninitialized. */
 
 /* Draw a shop label with the supplied position, size, and packed color. */
 static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 color)
@@ -3280,13 +3201,7 @@ static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 colo
     frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, size, color, 0, 1, text, 0, 0, D_00795E30, -1);
 }
 
-/* func_002cdf80 (shop buy list: draw + input) best draft, 2026-09-26.
-   fnalign: retail 3459 vs object 3459 instrs, 2 edits (+88 reloc-only), measured with
-   `python3 tools/fnalign.py src/Event/Fcl/y_fclShopDraw.c func_002cdf80 --candidate <this file> --quiet`
-   (still 2 edits after the prototypes were reconciled on 2026-09-26).
-   Needs shopDrawLabel (static inline in y_fclShopDraw.c) moved above func_002cdf80.
-   The only residual is the 0x43 loop test: this body tests `j < 6`, retail tests
-   `i < 0x49` and keeps `j` as a dead counter. See ShopDraw_002cdf80_20260926.md. */
+/* Retail tests i < 0x49 for the 0x43 loop and keeps j as a dead counter; this body tests j < 6. */
 
 
 /* Slide timing uses six-byte prefixes at 0x20-byte row / 0xA0-byte tab
@@ -3294,7 +3209,7 @@ static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 colo
 
 
 #pragma push
-/* measured: baseline C nd 9016B; adjacent-local declaration probe nd 9016B; retain settings for owner MATCH. */
+/* measured: retail's loops need loop-invariant hoisting and lifetime analysis enabled. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 /* Draw the sale inventory and process tab/list/detail input according to inputMode; proceeds use one fifth of retail price. */
@@ -3911,16 +3826,8 @@ void fclShopDrawBuyList(void *task, s8 inputMode) {
 #pragma pop
 
 
-/* MATCHED fclShopListInputStep: written over the shared ShopMenuWork overlay with
-   one named slot per retail stack address (27 FclDrawColor, 57 Vec2f, the
-   0x130/0x128/0x110/... label positions copied via *(Vec2f *)&); both
-   work[7] dispatches as 0/1/2 switches; each loop gets its own s16 counter;
-   the DBC/E88 handle arrays addressed as work + i*4 (retail CSEs that sum);
-   stat deltas computed once into `d`; datItemValue takes s16 and the
-   second-switch stat reads widen func_00106cd0's s16 result with (s32), as
-   retail re-extends only there; the E60 handle loaded before the shared
-   fGpffff8530 argument. */
-/* Draw the selected and currently equipped items and their stat differences; return 1 once the detail panels finish entering. */
+/* Draw the selected and currently equipped items and their stat differences; return 1 once the
+ * detail panels finish entering. */
 // FUN_002D1590
 s32 fclShopListInputStep(void *task)
 {
@@ -4359,37 +4266,8 @@ s32 fclShopListInputStep(void *task)
     return 0;
 }
 
-/* measured: fclShopSlideInFromRight's full body was reconstructed (all call shapes,
-   u64 slot pairs, switch, loops) and compiles; nd 462 with inline
-   D_0063F5xx[0]/[1] globals. Retail caches each absolute global base in $s0
-   across the fclMakeVec2/fclObjStartPosition groups; mwcc b210 rematerialises
-   lui/addiu per load (D_00887300-family global-address-hoist floor, cf.
-   func_002d7300 note). A Vec2f* base local makes mwcc cache the base but then
-   work moves to $s2 and the frame grows 0x10 (all 19 u64 slots shift +0x10),
-   nd ~470; tried both declaration orders and block-scoped i/t. Also: the
-   fclObjStartAlpha colour-byte args need a u8 prototype for lbu/0xFF codegen.
-   Four-attempt budget exhausted. */
-/* measured: recipe B re-test 2026-08-03: single Vec2f *b re-assigned per
-   group (retail re-hoists its $s0 base per group) WORKS here: nd 462 -> 9.
-   Also needed: field_4 retyped u32 -> s16 (retail reads it with lh; the u32
-   read produced lw + bltz/dup on (f32)(field_4<<5) AND hoisted a work+4
-   address into a 3rd saved reg, frame 0xD0 -> 0xE0); plain i++ s16 loops
-   (explicit (s16)/(s32) casts double the dsll32/dsra32 pairs). Residual 9
-   words: (1) loop index addu operand order (obj addu $v0,$v0,$s1 vs retail
-   $s1,$v0; u32-arithmetic spelling does not change it); (2) func_002e0690
-   arg materialization - retail f12, $4, mov.s f13, $5-$7; mwcc emits $5-$7
-   then mov.s; (3) the sp58 f32-pair stores: mwcc always loads in reverse
-   store order (lwc1 0x5C before 0x58, first-loaded binds $f1) - tried f32
-   temps in all declaration/assignment orders. Scheduling floor. */
-/* MATCHED 2026-09-18.  The last 4 words were `mov.s $f13, $f12` three slots
-   late.  b210 emits call-argument setup in source order, so retail's copy
-   landing between `lw $a0` and `move $a1` means func_002e0690's two floats
-   are arguments 2 and 3, not 5 and 6; the EABI gives integer and float
-   arguments separate register files, so the reordered prototype is the same
-   ABI and leaves the MATCHed callee in src/promoted/code1_002e.c byte-exact.
-   Everything else here was already exact: switch dispatch, Vec2f-by-value
-   arguments, and the raw u64 stack slots. */
-/* Slide the comparison panels out and restore the inventory cursor and indicator sprites. */
+/* Slide the comparison panels out and restore the inventory cursor and indicator sprites.
+ * func_002e0690 takes its two floats as arguments 2 and 3, matching retail's argument setup order. */
 // FUN_002D3EE0
 void fclShopSlideInFromRight(void *task) {
     Vec2f position;
@@ -4432,7 +4310,6 @@ void fclShopSlideInFromRight(void *task) {
     position5 = fclMakeVec2(basePosition->x, basePosition->y);
     position6 = fclMakeVec2(basePosition->x - 740.0f, basePosition->y);
     fclObjStartPosition(work->panels[0xE].pointer, position5, position6, 0, 4, 0);
-    /* measured: access-site handle indexing matches; native indexed members had commuted four addu words. */
     for (i = 0; i < 3; i++) {
         fclObjChangeFlagBit(((FclShopWork *)work)->panels[(i) + 0x94].pointer, 0, 1);
     }
@@ -4514,11 +4391,8 @@ void fclShopSlideInFromRight(void *task) {
     fclObjChangeFlagBit(work->panels[0x6B].pointer, 0, 0);
 }
 
-/* Colour rows are u8[4] (r, g, b, pad).  Both setters address the g/b
-   bytes through component pointers: the selected-tab path stores through
-   the g/b addresses again after the second yListCountFor call, and retail
-   keeps exactly those addresses live in saved registers ($s0/$s6/$s7/$fp).
-   A local RGBA struct array instead grows the frame by 0x20. */
+/* Colour rows are u8[4] (r, g, b, pad); the setters write g/b through pointers that retail keeps
+ * live across the second yListCountFor call. */
 #define SHOP_SET_RGB(rgb, r, g, b) do { \
     u8 *g_ = &(rgb)[1];                  \
     u8 *b_ = &(rgb)[2];                  \
@@ -4533,9 +4407,8 @@ void fclShopSlideInFromRight(void *task) {
 } while (0)
 #define SHOP_SPRITE(handle) ((FclObject *)fclObjectGetWork(handle))
 
-/* measured: MATCH (1,996 code bytes in the 2,000-byte window).  Sets the
-   three shop tabs' priority, y and colour; the selected tab is highlighted
-   and tabs whose stock is exhausted are greyed out. */
+/* Sets the three shop tabs' priority, y and colour; the selected tab is highlighted and tabs with
+ * no stock are greyed out. */
 // FUN_002D4760
 s8 fclShopUpdateTabs(void *task, s8 selectedTab) {
     u8 colorA[3][4];
@@ -4578,8 +4451,8 @@ s8 fclShopUpdateTabs(void *task, s8 selectedTab) {
     colorB[1][2] = 0x2D;
     secondary[1] = primary[1] + 1;
     thirdY[1] = 0x88;
-    /* The F18 handles are read by byte offset: work->field_F18[i] adds
-       the index before the base (addu v1, v0, work) and misses by one word. */
+    /* The list handles are read by byte offset, so indexing adds the index before the base and
+     * misses by one word. */
     for (i = 0, sel = selectedTab; i < 3; i++) {
         if (yListCountFor(((FclShopWork *)work)->lists[(i)]) <= D_00748908[i]) {
             SHOP_SET_GRAY(colorA[i], 0x2D);
@@ -4696,11 +4569,8 @@ s32 fclShopStatusFlagToCode(s16 flags) {
     return 0;
 }
 
-/* Draws an item label in the D_00795E30 font.  The inlined call binds its
-   arguments right to left: colour, the position constructor (copied into
-   the parameter slot), the name lookup, and finally the size. */
-
-
+/* Draws an item label in the D_00795E30 font; the inlined call evaluates its arguments right to
+ * left. */
 
 
 /* One stat number (22.0f, right-aligned by its digit count). */
@@ -4710,23 +4580,9 @@ static inline void shopDrawStat(u32 value, f32 x, f32 y)
     fclDrawNumber(fclMakeVec2(x + (f32)((s16)(fclDecimalDigitCount(value) - 1) * 8), y), 22.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0xF, 0, value, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
 }
 
-// Draws the item's stat block: stat numbers with their deltas, labels, and the per-row slots.
-/* measured: MATCH, window 1108 words/4432B (1106 code words + 2 alignment).
-   Built on the func_002df020/fclShopDrawItemCompare levers: a switch on work[7]
-   written 0, 1, 2; Vec2f-returning fclMakeVec2 and the colour calls used
-   directly as arguments; labels through the inlined shopDrawLabel.  The
-   stat numbers go through the inlined shopDrawStat, which puts their
-   fclMakeVec2 temporaries below the label parameter copies as in retail,
-   but each stat's x base and value are assigned to the function locals `x`
-   and `value` first (x before value, as retail evaluates them).  Passing
-   the expressions straight to the helper is instruction-exact but colours
-   `work` into $s0 below the short-lived values (95 words, every one the
-   $s0/$s1 swap); writing the draws without the helper fixes the registers
-   but lays the temporaries out in call order (38 words).  The (s32) casts on the stat ids give retail's dsll32/dsra32 before the s16
-   getters (the deltas pass the func_00106cd0 result unextended); the deltas
-   evaluate `cur` first through the signed-halfword subtraction; case 2 zeroes with
-   `dB = dA = 0`. */
-/* Compare the selected item with the selected unit's equipment, drawing category-specific values and signed improvement arrows. */
+// Draws the item's stat block: stat numbers with their deltas, labels, and the per-row slots. Each
+// stat's x base and value go into the locals x and value before the inlined shopDrawStat, in
+// retail's evaluation order.
 // FUN_002D5040
 void fclShopDrawStats(void *task) {
     s16 firstStatDelta;
@@ -4791,19 +4647,6 @@ void fclShopDrawStats(void *task) {
     }
 }
 
-/* measured: full body reconstructed (19 RGBA color groups + 0a60/2a60/04e0/
-   2970/0620 chains, 48 u64 slots, 2 ifs + 3-case switch); frame 0x200 and all
-   slot offsets matched; best nd 895 (obj only 2 words over window). Three
-   residual families: (1) D_0063F658/D_0063F650 (f32[2]) base: retail hoists it
-   into $s0 across the group's calls (lwc1 ($s0)/4($s0)); mwcc b210
-   rematerialises lui+lwc1 per access even with named f32* base locals --
-   same D_00887300 family as the func_002d7300 note. (2) color bytes: retail
-   batches 4 lbu then 4 sb in address order into $a2/$a1/$a0/$v1; mwcc emits
-   scrambled load order (g,b,a,r) for every spelling tried (array, u8 scalars,
-   RGBA struct, explicit r/g/b/a temps). (3) work[7] if/switch: retail reloads
-   lb 7($s1) per site; mwcc hoists addiu $s0,$s1,7. Global-address-hoist +
-   scheduling floor. */
-/* Animate the two comparison headers, stat labels and their supporting sprites into place for the current category. */
 // FUN_002D6190
 void fclShopStartHeaderBars(void *task) {
     FclDrawColor color;
@@ -5055,22 +4898,6 @@ void fclShopStartHeaderBars(void *task) {
     }
 }
 
-/* measured: full body reconstructed (45 u64 slots, 22 2970/0620 chains, 3-case
-   switch on work[7]) with D_0063F650/D_0063F658 redeclared f32[] and read via
-   `Vec2f *base = (Vec2f *)D_0063F658;` - this DOES reproduce retail's $s1 base
-   hoist (frame 0x1A0, ra/s1/s0, all slot offsets byte-match; the func_002d6190
-   note's d658/d650 hoist floor does not apply to this shape). Four variants,
-   best nd 70 (obj 2316B vs window 2320B): every fclObjStartPosition site loads
-   arg1/arg2 (ld *(u64 *)&sp198/*(u64 *)&sp190) BEFORE arg0 (lw 0xCE4($s0)) where retail loads
-   arg0 first - a 2-instruction pre-jal ordering swap at each of 22 sites.
-   func_002df4c0 (matched) has the identical call shape with u64 slots and
-   retail order lw-first, so the s64-vs-u64 slot type or slot offset likely
-   drives the scheduler; untested within budget. Pre-jal arg-order floor. */
-/* lever-1 audit (this wave): func_002d7300 is void (void *arg0) -- confirmed
-   by generated-draft call sites. D_0063F650/D_0063F658 are f32[] (matches
-   the note's Vec2f*(f32[]) reading); fclObjStartPosition (void*,u64,u64,s32,s32,
-   s16) and fclObjectGetWork(void*) match m2c. No extern-width defect. */
-/* MATCHED: Vec2f *base over f32[] D_0063F658/D_0063F650 reproduces the $s1 base hoist; (f32)int casts + float literals reproduce every 2970 chain. */
 /* Slide the comparison headers and category-specific stat labels back out toward the screen edges. */
 // FUN_002D7300
 void fclShopStartRowPositions(void *task) {
@@ -5309,9 +5136,8 @@ void fclShopSlideIndicator(void *task, s8 direction) {
 }
 
 
-/* fclShopDrawSwingCursor's body; fclShopSlideInFromAbove inlines it (retail re-reads the work
-   pointer from the kept arg0 there). */
-/* Start matching cursor tweens with a random signed swing amplitude. */
+/* Body of fclShopDrawSwingCursor, inlined into fclShopSlideInFromAbove; starts cursor tweens with a
+ * random signed swing amplitude. */
 static inline void shopSwingCursor(void *task) {
     FclShopWork *work = (FclShopWork*)((struct KwlnTask *)task)->work;
     s32 sprite;
@@ -5368,7 +5194,8 @@ void fclShopHideSelectionSprites(void *task) {
     fclObjChangeFlagBit(work->panels[0x1B].pointer, 0, 1);
     fclObjChangeFlagBit(work->panels[0x20].pointer, 0, 1);
     fclObjChangeFlagBit(work->panels[0x9D].pointer, 0, 1);
-    /* measured: typed panels[i + 0x61] commutes the loop addu (two bytes). */
+    /* measured: indexing through the FclShopWork cast keeps retail's operand order for the loop
+     * address add. */
     for (i = 0; i < 3; i++) {
         fclObjChangeFlagBit(((FclShopWork *)work)->panels[i + 0x61].pointer, 0, 1);
     }
@@ -5407,21 +5234,12 @@ void fclShopHideSelectionSprites(void *task) {
     work->detailMode = 0;
 }
 
-/* MATCHED func_002d8a60: file-local ShopListWork overlay (list[3] at 0xF18,
-   ShopSlide slides[2][5] at 0xFA0, select/scroll s8[3] at 0x1168/0x116B) so
-   indexed fields fold into base+index with displacement; scoped
-   opt_loop_invariants on hoists the per-list bases and the `start + 5` bound
-   like retail; `idx = arg1` for the list/table accesses, bare `arg1` elsewhere;
-   func_002e2830 is an int-returning callee re-narrowed with (s16) at each use;
-   the second fclDrawNumber value stays an inline argument so only the first
-   (digits) is spilled, as in retail. */
+/* func_002d8a60 uses a file-local ShopListWork overlay so indexed list, slide and select fields
+ * fold into base+index addressing, as in retail. */
 
 
-/* measured: using the complete FclShopWork plus six-byte slide-prefix
- * accesses changes the saved-register allocation (267 differing bytes with
- * typed prefixes, 131 with separate scalar addresses). Retain the existing
- * narrow row-renderer declaration and its 0x20-byte row / 0xA0-byte tab
- * addressing. Only duration/timer/delay are read from each slide record. */
+/* measured: a narrow row-slide overlay is used because the full FclShopWork changes retail's saved-
+ * register allocation; only duration, timer and delay are read. */
 typedef struct {
     s16 duration;
     s16 timer;
@@ -5458,7 +5276,7 @@ typedef struct {
     s8 scroll[3];
 } FclShopListWork;
 #pragma push
-/* measured: baseline C nd 4314B; adjacent-local declaration probe nd 4314B; retain settings for owner MATCH. */
+/* measured: retail code for this function needs loop-invariant hoisting enabled. */
 #pragma opt_loop_invariants on
 /* Draw up to five inventory rows for a sliding tab, advancing each row's delay/timer and preserving its saved selection. */
 // FUN_002D8A60
@@ -5737,12 +5555,8 @@ void fclShopDrawItemRows(void *task, s8 tabIndex, f32 x, f32 y) {
 }
 #pragma pop
 
-/* Start the equipment/unit-selection introduction, including row fades, paired cursors and decorative sprite tweens. */
-/* measured: the earlier native task-work trial hoisted work+8 and changed
- * allocation. Retaining the u32-shaped task address in the typed reload and
- * a typed panel-array base preserves MATCH with the inlined cursor helper.
- * The original u8 * cursor remains alongside the field-only typed alias;
- * the earlier opt_common_subs-off trial was 4988B and still MISMATCH. */
+/* Start the equipment/unit-selection introduction, including row fades, paired cursors and
+ * decorative sprite tweens. */
 // FUN_002DA0A0
 void fclShopSlideInFromAbove(void *task) {
     u8 *work;
@@ -5939,13 +5753,8 @@ void fclShopSlideInFromAbove(void *task) {
     ((FclShopWork *)work)->state = 0x14;
 }
 
-/* MATCHED func_002db400: FclDrawColor results stored whole, Vec2f slots
-   passed to fclObjStartPosition by value, the six spin tables read through a
-   ShopSpinParam view (angle/speed/frames), func_002e09b0 called with its real
-   (void *, f32, s16) order, `func_002e26f0(..) <= D_00748908[n]` with the call
-   first, and each func_0046d200 handle scoped to its own block so the handle
-   takes $s2 and the table base $s1 as in retail. */
-/* Build the three sale lists and their tab/list intro animations, then reset the cursor and select the first tab. */
+/* Build the three sale lists and their tab/list intro animations, then reset the cursor and select
+ * the first tab. */
 // FUN_002DB400
 void fclShopStartRevealSprites(void *task) {
     extern u8 D_0063FA70[];
@@ -6354,34 +6163,15 @@ void fclShopLayoutPanels(void *task) {
     fclObjChangeFlagBit(work->panels[0x55].pointer, 6, 0);
 }
 
-/* A stat number drawn at a precomputed position.  Retail calls the stat
-   getter twice per number and uses only the second result (masked); `raw`
-   keeps the first call.  Nesting shopDrawStat puts its fclMakeVec2 and
-   colour temporaries below all four position-parameter copies, as in
-   retail. */
-/* Draw a shop statistic using the supplied position storage. */
-/* measured: expanding the position forwarding changes owner instruction bytes at all four call sites. */
+/* measured: retail calls the stat getter twice and uses only the second (masked) result; this
+ * wrapper keeps the first in `raw` and places shopDrawStat temporaries after the position copies. */
 static inline void shopDrawStatAt(u32 raw, u32 value, Vec2f pos)
 {
     shopDrawStat(value, pos.x, pos.y);
 }
 
-/* measured: MATCH, window 1148 words/4592B.  Written with the
-   func_002d5040/fclShopDrawItemCompare levers (Vec2f constructor and colour calls as
-   arguments, inlined label and stat helpers).  The prototype set this needs
-   is one consistent contract: the item-table getters (func_001068b0,
-   func_001068e0, func_00106940, func_00106970, func_00106600, datItemValue)
-   take int, as retail passes the int item id to them unextended, and
-   func_00106cd0 returns int; call sites that retail narrows (the
-   datItemPrice argument here, the func_00106cd0 results in
-   func_002d5040/fclShopDrawItemCompare) carry an explicit (s16).  The slot pointer is
-   indexed as ((FclShopWork *)work)->lists[(kind)], which gives retail's
-   `addu idx, idx, work`.  The outer dispatch is a switch written 1, 2, 0
-   (retail tests 0, 2, 1); the inner one owns jtbl_007489F0 (cases 20-28). */
-/* Draw the expanded sale-item description, stats and proportional scroll thumb; do nothing outside detail mode. */
-/* measured: the earlier native task-work trial was 4596B versus the 4592B
- * window. Keeping the byte cursor and adding a field-only typed local
- * preserves MATCH for every shop field and list-array access here. */
+/* Item-table getters take int because retail passes the item id unextended; the outer switch is
+ * written 1, 2, 0 because retail tests 0, 2, 1. */
 // FUN_002DD3B0
 void fclShopDrawScrollThumb(void *task) {
     u8 *work;
@@ -6490,19 +6280,9 @@ void fclShopDrawScrollThumb(void *task) {
     }
 }
 
-/* measured: MATCH, window 672 words/2688B.  Built on the func_002df020
-   levers (Vec2f-returning fclMakeVec2 used as an argument, colour calls
-   as arguments, an inlined label call).  What remained was b210's float
-   register choice: `size` (70.0f, $f22) and `x` ((f32)0x177, $f21) are
-   assigned in both arms of the first dispatch -- two reaching definitions,
-   so they are not propagated and survive into the later groups -- and
-   `labelSize` ($f20) is set at the first group's label call itself, as the
-   last-bound inline argument, then reused by the later groups' labels.
-   Written as plain literals, b210 merges the label and `size` 70.0f values
-   and keeps neither in a register (567 words); with `labelSize` assigned as
-   a statement before the call it loads $f20 before the colour and name
-   calls instead of after them (517). */
-/* Draw the selected unit's three equipment categories, highlighting the currently active category. */
+/* size and x are assigned in both arms of the first dispatch, and labelSize is assigned inside the
+ * first label call, so retail keeps all three live for the later groups. Draw the selected unit's
+ * three equipment categories, highlighting the currently active category. */
 // FUN_002DE5A0
 void fclShopDrawItemCompare(void *task) {
     FclShopWork *work;
@@ -6547,23 +6327,8 @@ void fclShopDrawItemCompare(void *task) {
     }
 }
 
-/* measured: MATCH, window 296 words/1184B.  The levers that closed the old
-   219-word floor: (1) the three-way dispatch is a switch written 0,1,2 (b210
-   tests the last-written case first, giving retail's beq 2 / beq 1 / beqz 0
-   / b join); (2) fclMakeVec2 is a Vec2f-returning constructor used directly
-   as an argument, so each position is a compiler temporary -- that is what
-   puts `work` in $s1 above the call-result values in $s0 and lays the
-   temporaries out below the named `pos`; (3) colours come straight from the
-   u8-parameter fclMakeDrawColor as FclDrawColor values (no byte copy), which
-   also keeps the lbu 0x62 alpha load in argument-slot order; (4) the
-   second counter's base position is the 8-byte gp object uGpffffa888
-   (0x00763978); (5) the name goes through the inlined shopDrawLabel, whose
-   right-to-left argument binding gives retail's colour / constructor copy /
-   name order.
-   arg1 is an s16 item id: it is passed unchanged to datEntryGetFlags and
-   datGetItemNameId, and widened with (s32) for datItemPrice, which retail
-   re-extends. */
-// Draw an item's sale quantity, unit proceeds and category icon, plus the list-supplied auxiliary value.
+/* Draws an item's sale quantity, unit proceeds and category icon, plus the list-supplied auxiliary
+ * value. itemId is widened to s32 only for datItemPrice. */
 // FUN_002DF020
 void fclShopDrawItemDetail(void *task, s16 itemId, s32 auxValue) {
     extern u8 D_0063FAA0[];
@@ -6763,10 +6528,8 @@ void fclShopDrawItemText(void *task, s8 unitId, Vec2f position, void *color) {
                   (const char *)datPersonaNamePart1(unitId), 8, 0, D_00795E60);
 }
 
-// Refresh the 0xF0-byte tween state and submit the panel sprite with its color, scales, pivots and render-layer record.
-/* measured: 452B/464B, only three zero-tail words. Canonical byte color and
-   opacity parameters preserve constant-first loads and the float-first draw
-   argument sequence. Distinct p+4 spellings preserve both retail addresses. */
+// Refresh the 0xF0-byte tween state and submit the panel sprite with its color, scales, pivots and
+// render-layer record.
 // FUN_002E0100
 s32 fclShopItemPanelUpdate(u8 *task) {
     FclShopItemPanel *work = (FclShopItemPanel*)((struct KwlnTask *)task)->work;
@@ -6820,8 +6583,7 @@ void fclShopItemPanelDestroy(u8 *task) {
 /* Seed all three keys of each position, alpha, scale, tween and color channel;
  * initialize pivots from the selected sprite's dimensions. */
 // FUN_002E0300
-/* measured: retail hoists the loop-invariant 0xFF and 1.0f into the preheader. */
-/* measured: baseline C nd 59B; adjacent-local declaration probe nd 59B; retain settings for owner MATCH. */
+/* measured: retail hoists the loop-invariant 0xFF and 1.0f into the loop preheader. */
 #pragma opt_loop_invariants on
 s32 fclShopItemPanelCreate(s32 parent, s16 spriteIndex, u32 spriteResource) {
     s32 childTask;
@@ -6858,6 +6620,6 @@ s32 fclShopItemPanelCreate(s32 parent, s16 spriteIndex, u32 spriteResource) {
     sdkSpriteFreeNode(sprite);
     return childTask;
 }
-// measured: closes the opt_loop_invariants bracket opened above and restores
-// the -O2 baseline for the rest of the file.
+// measured: loop-invariant hoisting is only wanted for the function above, so it is switched back
+// off for the rest of the file.
 #pragma opt_loop_invariants off

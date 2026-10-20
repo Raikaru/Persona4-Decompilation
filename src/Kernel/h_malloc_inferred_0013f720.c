@@ -67,45 +67,21 @@ typedef struct {
     s32 second;
 } code13Pair;
 
- 
 
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
-
-/* Source unit: src/promoted/code1_0013.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0013.c; members 0013f720-0013ffd0 */
-
-/* measured: donor loop shape requires invariant hoisting for the retail preheader and loop register coloring. */
-/* measured: close the donor loop's invariant-hoisting bracket. */
-/* measured: probing O1 for retail's extra saved pointer. */
-/* measured: closing O1 probe. */
-/* measured: 1448B in the 1456B window.  The slot x/y reads are f32-array views
-   (retail adds the row before arg0), and the last sprite pointer is a local
-   loaded ahead of the alpha conversion, which needs opt_propagation off. */
+/* measured: retail hoists loop invariants into the preheader, and loads the last sprite pointer
+ * before the alpha conversion, which needs opt_propagation off. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off probe for radarDrawSpritePair ordering. */
-/* measured: close opt_propagation for radarDrawSpritePair probe. */
-/* measured: second 00134890 probe preserves the retail floating zero and constant materialization. */
-/* measured: close opt_propagation for radarResetLayout. */
-/* measured: loop-invariant hoisting gives 444B / 448B with only zero tail padding. */
+/* measured: radarDrawSpritePair and radarResetLayout need opt_propagation off to keep retail's load
+ * order and floating-zero constant materialization. */
 #pragma push
 #pragma pop
-/* measured: reconstructing the mixed-ABI palette draw pair from the matching 00130C30 shape. */
-/* measured: close mixed-ABI palette draw pair pragma. */
-/* measured: transfer the neighboring mixed-ABI palette branch shape. */
-/* measured: close neighboring mixed-ABI palette branch pragma. */
-/* measured: 1580B in the 1584B window.  Built from the matched twin
-   radarDrawEntryRow (same slot views, same sprite-pointer local under
-   opt_propagation off); the selected entry is a local so the compare keeps
-   retail's operand order. */
+/* measured: modeled on radarDrawEntryRow with opt_propagation off; the selected entry is a local so
+ * the compare keeps retail's operand order. */
 #pragma push
 #pragma pop
-/* The call consumes a complete position and RGBA packet. Keep explicit
-   views of their argument storage: b210 otherwise hoists the Y load before
-   the RGB snapshots. All 176 instruction bytes and 42 sibling images match. */
-/* measured: close family opt_propagation bracket. */
-/* The sum's inline boundary preserves the retail column-before-row loads. */
+/* The call consumes a complete position and RGBA packet; explicit views of their argument storage
+ * keep the Y load from being hoisted before the RGB snapshots. */
 // FUN_0013F720
 /* Apply the selected skill to one/all targets, deduct costs and restore persona
  * context. Return 0 for failure, 1/2 for application outcomes, or 3 for skill 0xF6. */
@@ -236,14 +212,11 @@ s32 cmpSkillApplySelected(s16 casterId, s16 targetId, s32 skillIndex, u8 *menu) 
     return result;
 }
 
-/* measured: b210 -O2 with loop-invariant optimization hoists the table and
-   conversion constants. Resource pointer contracts, the chained third-resource
-   store, and a counter scoped to sprite construction close the saved floor. */
-// Intent: zeroes and initialises the 0x18B0-byte radar state block; called from radarUpdateState.
+/* Zeroes and initialises the 0x18B0-byte radar state block; called from radarUpdateState. */
 // FUN_0013FB50
 #pragma push
-/* measured: func_0013fb50 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 638 bytes; typed indexed layout source; scope each initialization loop counter also differ. */
+/* measured: retail hoists loop-invariant address computations out of the initialization loops;
+ * without this setting they are recomputed each iteration. */
 #pragma opt_loop_invariants on
 void radarInitState(u8 *work) {
     /* Grid/sprite cursors retain their original store order; their complete
@@ -341,7 +314,8 @@ void radarInitState(u8 *work) {
 }
 
 #pragma pop
-// Intent: advances the radar stage from 0 to 1; returns 1 once the stage is 1 or after advancing, 0 otherwise.
+// Advances the radar stage from 0 to 1; returns 1 once the stage is 1 or after advancing, 0
+// otherwise.
 // FUN_0013FF80
 s32 radarAdvanceStage(u8 *work) {
     s32 v = MEMBER(s32, work, CampMenu, stage);
@@ -358,7 +332,8 @@ s32 radarAdvanceStage(u8 *work) {
     }
 }
 
-// Intent: animates the radar entries toward the current counter, resets and draws the frame; returns 0 while any entry is still busy.
+// Animates radar entries toward the current counter, then resets and draws the frame; returns 0
+// while any entry is still busy.
 // FUN_0013FFD0
 s32 radarUpdateFrame(u8 *work) {
     s16 frame;

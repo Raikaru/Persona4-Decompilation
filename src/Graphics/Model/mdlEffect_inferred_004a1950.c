@@ -49,7 +49,6 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
  
@@ -64,7 +63,8 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- the caller's (u16, s32) prototype is needed to reproduce retail code for
+// FlashQuadCopyAllocFromRecord.
 extern u8 *FlashQuadCopyAlloc(u16 input, s32 resource);
 
 extern u16 iGpffffbb90;
@@ -74,9 +74,8 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a1950-004a1950 */
-
-// Allocates a flash quad copy from a record: kind at +0x38 and parameters at +0x40, with the kind's table hooks applied to the result. Unlike FlashQuadCopyAllocFromParent, no relative pointer is resolved.
+// Allocates a flash quad copy from a record's kind and parameters, applying the kind's table hooks;
+// unlike FlashQuadCopyAllocFromParent, no relative pointer is resolved.
 // FUN_004A1950
 void *FlashQuadCopyAllocFromRecord(void *source) {
     u8 *sourceBytes = (u8 *)source;
@@ -85,7 +84,6 @@ void *FlashQuadCopyAllocFromRecord(void *source) {
     u8 *result;
     s32 parameters;
 
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     index = MEMBER(s32, sourceBytes, MdlEffectVectorInstance, kind.value);
     /* The kind table contains both source-record and direct-parameter constructors, so this dispatch slot stays byte-addressed. */
     if (((MdlEffectRecordConstructor *)D_0071401C)[index].constructor.value == 0) {
@@ -101,7 +99,6 @@ void *FlashQuadCopyAllocFromRecord(void *source) {
         result = FlashQuadCopyAlloc((u16)index, (s32)((MdlEffectVectorInstance *)sourceBytes)->parameters);
         /* The constructor result is stored as an integer handle; the shared instance exposes this slot only as a child pointer. */
         *(s32 *)&((MdlEffectVectorInstance *)result)->child =
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
             (*(s32 (**)(u8 *))(D_0071401C + (MEMBER(s32, sourceBytes, MdlEffectVectorInstance, kind.value) * 0x1C)))(sourceBytes);
         (*(void (**)(u8 *))(D_00714010 + (((MdlEffectVectorInstance *)sourceBytes)->kind.value * 0x1C)))(result);
     }

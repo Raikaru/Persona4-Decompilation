@@ -26,9 +26,8 @@ typedef struct RwRaster RwRaster;
 typedef s32 RwBool;
 
 typedef s32 (*WindowRenderStateSet)(RwRenderState state, void *value);
-/* Compatible with s32 (RwRenderState, void *) in C89: both arguments retain
- * their types under default promotions. The explicit argument conversions
- * at the save/restore calls retain retail's address-before-load evaluation. */
+/* Compatible with s32 (RwRenderState, void *) under C89 default promotions; explicit argument casts
+ * at the calls keep retail's address-before-load order. */
 typedef s32 (*WindowRenderStateCall)();
 
 extern s32 iGpffffb034;
@@ -159,8 +158,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 004601c0-00460a80 */
-
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -254,8 +251,6 @@ void primSphereLine3D(u8 *center, f32 radius, u8 *color, s32 preserveState) {
     rotationAxis = D_00712508[0];
     sphere[3] = radius;
     sphere[0] = ((RwV3d *)center)->x;
-    /* measured: a retained typed center keeps both snapshot loads MATCH;
-     * access-site casts independently change the whole-file comparison. */
     sphere[1] = sphereCenter->y;
     sphere[2] = sphereCenter->z;
     if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0, (u8 *)&sphere[0]) != 0) {
@@ -312,10 +307,8 @@ void primSphereLine3D(u8 *center, f32 radius, u8 *color, s32 preserveState) {
     }
 }
 
-/* Draw a wireframe cylinder using circular slices and paired line endpoints.
- * The ring API takes radius second; all native integer/floating arguments keep
- * that order. b210 -O2: 1076 executable bytes plus twelve zero alignment bytes.
- * See docs/Window_render_contract_recovery_20260920.md for the resolved proof. */
+/* Draw a wireframe cylinder using circular slices and paired line endpoints; the ring API takes
+ * radius second. */
 // FUN_004604D0
 void primCylinderLine3D(f32 *position, f32 radius, f32 height, u8 *color, s32 setStates) {
     Code46RingPoint circlePosition;

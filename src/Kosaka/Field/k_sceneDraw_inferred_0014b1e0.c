@@ -105,7 +105,6 @@ extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 
 
-
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -165,12 +164,8 @@ typedef FieldRgba8 Rgba8_0014;
 extern s32 D_007642F0;
 
 
-
-
-
 extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 extern void resrcMngSetDrawEnabled(s32 enabled, s32 includeFieldModels);
-
 
 
 extern s32 iGpffff9dd0;
@@ -195,15 +190,8 @@ extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
 
 
-
-/* Camp display: grid, labels, radar and corner sprites.
- * The radar callees are declared here with u8 opacity parameters (H011):
- * retail narrows each radar alpha with its unsigned conversion and passes
- * it without another mask, while the matched definitions in this file keep
- * s32 because their own bodies use the full word.
- * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
- * call, so the label pointer is loaded before the stack argument. */
+/* Camp display: grid, labels, radar and corner sprites. Radar callees take u8 alpha because retail
+ * passes it unmasked; one shared sprite variable serves both the 0x1834 label and corner sprite. */
 #pragma push
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -234,56 +222,19 @@ extern f32 D_008872F8[];
 #pragma pop
 
 
-
-
-
-
-/* measured: closes the scoped optimization-level-1 probe. */
+#pragma push
+#pragma pop
 
 
 #pragma push
 #pragma pop
 
-
-
+/* measured: the two tail loops share function-scope k and j under opt_lifetimes on, and ent =
+ * &arrB[k] stays a declared local, as in retail. */
 #pragma push
 #pragma pop
-
-/* Source unit: src/promoted/code1_0014.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 0014b1e0-0014b590 */
-
-/* measured: O1 probe for 00146630 register allocation and short tail. */
-/* measured: schedule-off probe for 46630 branch delay slots. */
-/* measured: closes schedule-off probe for 46630. */
-/* measured probe: opt_propagation off for 00147640 float ordering. */
-/* measured probe: restore opt_propagation after 00147640. */
-/* measured probe: opt_propagation off for 00147910 float and vtable order. */
-/* measured probe: restore opt_propagation after 00147910. */
-/* measured probe: opt_propagation off preserves 00148000 vector coloring. */
-/* measured: closes opt_propagation off for resrcMngCompareDistanceArrA. */
-/* measured: opt_propagation off preserves 00148140 vector coloring. */
-/* measured: closes opt_propagation off for resrcMngCompareDistanceArrB. */
-/* Recovered render passes preserve callback-time resource reloads and
-   complete position-vector copies. The two tail k-loops share
-   function-scope `k`/`j` (declared k first) under `opt_lifetimes on`, so
-   IRO_SplitLifetimes numbers each loop's counters after the hoisted
-   `&arrB[k]` temporaries. The first tail loop walks its attachments through
-   `cur = (u8 *)ent`; that copy keeps `ent = &arrB[k]` a declared local, which
-   is retail's $s4. See docs/probe_archive/RenderQueue_00148280_worker1_20261005.md. */
-#pragma push
-#pragma pop
-/* measured: opt_rebuildconditionals off is scoped to resrcMngResetRenderSlots. */
-/* measured: closes opt_rebuildconditionals for resrcMngResetRenderSlots. */
-/* measured: opt_rebuildconditionals off is scoped to resrcMngSetDrawEnabled. */
-/* measured: loop-invariant constants probe for resrcMngSetDrawEnabled. */
-/* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
-/* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
-/* measured: opt_rebuildconditionals off is scoped to FldMap_IsCurrentInEitherBand. */
-/* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
-/* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
-/* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
-/* Integer accesses to float members below preserve the original IEEE-754 word stores. */
-/* Initialize the NPC-light resource colors, tint and pair of rotated direction matrices. */
+/* Integer accesses to float members below preserve the original IEEE-754 word stores. Initialize
+ * the NPC-light resource colors, tint and pair of rotated direction matrices. */
 // FUN_0014B1E0
 void SceneDraw_InitResList5(void) {
     extern f32 fGpffff8198;

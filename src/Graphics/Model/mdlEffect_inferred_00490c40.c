@@ -23,36 +23,20 @@ typedef struct {
 extern Code1_0049Color iGpffffbb64;
 
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 00490c40-00490c40 */
-
-/* Ported from the Cone emitter (EffConeEmitterUpdate): the same
- * owner identity, loop constants, clear-loop and snapshot shapes. The scale
- * locals are declared in retail FPR order (variation, E8, E4, F4, D8). The
- * live-particle height is read from VF10 through $v0 (qmfc2/prot3w), and
- * the floor blend and downward speed use a named product operand. */
+/* Shares the Cone emitter's (EffConeEmitterUpdate) loop constants, clear loop and snapshot shapes. */
 #pragma push
 #pragma pop
-/* Particle emitter update: spawn/respawn bookkeeping, then per-particle
- * motion with VU0 direction, sway and bounce.
- * Matching notes: the config/D_00922D70/prev quad copies go through $2
- * (user-approved, as in func_0048d8c0); swayBase is declared last and also
- * holds the accumulated spawn value earlier (`acc` in the m2c output), which
- * with opt_lifetimes on gives it a late web number so b210 spills it rather
- * than the asm `dot`, as retail does; the trail index `(node - base) >> 5` is
- * a named u32 multiplied by nmult; and `burst = 1` goes through a u8 local
- * (with opt_propagation off the only spelling that gives `daddiu`). The
- * pragmas are measured: opt_lifetimes off leaves 25 edits (dot is spilled),
- * opt_loop_invariants is what hoists the constant block retail loads before
- * the particle loop, and opt_propagation off keeps the u8 copy. */
+/* Particle emitter update: spawn/respawn bookkeeping, then per-particle motion with VU0 direction,
+ * sway and bounce. */
 #pragma push
-/* measured: func_00490c40 MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the constant block out of the particle loop and loads it before the loop
+ * starts. */
 #pragma opt_loop_invariants on
-/* measured: func_00490c40 MATCH -> MISMATCH without this pragma. */
+/* measured: retail spills swayBase rather than the dot product. */
 #pragma opt_lifetimes on
-/* measured: func_00490c40 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the u8 copy used for burst = 1. */
 #pragma opt_propagation off
 /* Emit particles inside a changing radius and reflect directions at its boundary. */
-/* measured: direct fields, a separate emission accumulator and isolated toggles still differ (best isolated nd 1326 bytes); retain all three toggles. */
 // FUN_00490C40
 void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
 {
@@ -113,12 +97,14 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
     if ((flags & 1) == 0) {
         u_long128 *dst = &origin;
 
-        /* lint: allow H009 -- retail copies this quad through $2 at 0x00490CDC; b210 keeps $v0 live (user-approved 2026-10-09) */
+        /* lint: allow H009 -- retail copies this quad through a fixed scratch register that the
+         * compiler would otherwise keep live. */
         __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(parameters) : "$2", "memory");
     } else {
         u_long128 *dst = &origin;
 
-        /* lint: allow H009 -- retail copies this quad through $2 at 0x00490CF8; b210 keeps $v0 live (user-approved 2026-10-09) */
+        /* lint: allow H009 -- retail copies this quad through a fixed scratch register that the
+         * compiler would otherwise keep live. */
         __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(&D_00922D70) : "$2", "memory");
     }
     lifetime = ((MdlEffectEmitterParameters *)parameters)->lifetime;
@@ -137,7 +123,7 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
             on = 1;
             preroll = on;
         }
-        if (!((prerollParameters = (MdlEffectEmitterParameters *)parameters)->emissionVariation <= 0.0f)) { /* measured: the separate typed pointer preserves MATCH under b210. */
+        if (!((prerollParameters = (MdlEffectEmitterParameters *)parameters)->emissionVariation <= 0.0f)) {
             spawnBudget = (s32)((f32)((MdlEffectEmitter *)emitter)->primaryCount.value * ((fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0)));
         } else {
             spawnBudget = ((MdlEffectEmitter *)emitter)->primaryCount.value;
@@ -145,12 +131,12 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
     } else {
 
         preroll = 0;
-        if (!((emissionParameters = (MdlEffectEmitterParameters *)parameters)->emissionVariation <= 0.0f)) { /* measured: the separate typed pointer preserves MATCH under b210. */
+        if (!((emissionParameters = (MdlEffectEmitterParameters *)parameters)->emissionVariation <= 0.0f)) {
             f32 scale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
 
             ((MdlEffectEmitter *)emitter)->emissionAccumulator = ((MdlEffectEmitter *)emitter)->emissionAccumulator + (f32)((MdlEffectEmitterParameters *)parameters)->emissionRate.value * scale;
         } else {
-            MEMBER(f32, emitter, MdlEffectEmitter, emissionAccumulator) = MEMBER(f32, emitter, MdlEffectEmitter, emissionAccumulator) + (f32)((MdlEffectEmitterParameters *)parameters)->emissionRate.value; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            MEMBER(f32, emitter, MdlEffectEmitter, emissionAccumulator) = MEMBER(f32, emitter, MdlEffectEmitter, emissionAccumulator) + (f32)((MdlEffectEmitterParameters *)parameters)->emissionRate.value;
         }
         swayBase = ((MdlEffectEmitter *)emitter)->emissionAccumulator;
         spawnBudget = (s32)fabsf(swayBase);
@@ -166,7 +152,7 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
     swayRange = fGpffff8088;
     swayBase = fGpffff808c;
     for (; i < count; i++, stateData += 0x24, particle += 0x20) {
-        if (!(MEMBER(s32, particle, SpawnParticle, age) < lifetime)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(MEMBER(s32, particle, SpawnParticle, age) < lifetime)) {
             u8 *cfg;
             s32 trailLength;
 
@@ -213,15 +199,15 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
             speed = ((MdlEffectBoundParameters *)parameters)->radius * ((one - t) + t * effMiscRandFloat(0));
             t = ((MdlEffectBoundParameters *)parameters)->endRadiusVariation;
             t = ((MdlEffectBoundParameters *)parameters)->endRadius * ((one - t) + t * effMiscRandFloat(0));
-            MEMBER(f32, stateData, MdlEffectBoundState, radius) = speed; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-            MEMBER(f32, stateData, MdlEffectBoundState, radiusStep) = (t - speed) / (f32)radiusDuration; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            MEMBER(f32, stateData, MdlEffectBoundState, radius) = speed;
+            MEMBER(f32, stateData, MdlEffectBoundState, radiusStep) = (t - speed) / (f32)radiusDuration;
             if (preroll != 0) {
                 f32 step;
 
-                MEMBER(s32, particle, SpawnParticle, age) = effMiscRand(0) % (u32)lifetime; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-                MEMBER(f32, stateData, MdlEffectBoundState, radius) = MEMBER(f32, stateData, MdlEffectBoundState, radius) + MEMBER(f32, stateData, MdlEffectBoundState, radiusStep) * (f32)((SpawnParticle *)particle)->age; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                MEMBER(s32, particle, SpawnParticle, age) = effMiscRand(0) % (u32)lifetime;
+                MEMBER(f32, stateData, MdlEffectBoundState, radius) = MEMBER(f32, stateData, MdlEffectBoundState, radius) + MEMBER(f32, stateData, MdlEffectBoundState, radiusStep) * (f32)((SpawnParticle *)particle)->age;
                 step = ((MdlEffectBoundState *)stateData)->radiusStep;
-                if ((!(step <= zero) && !(MEMBER(f32, stateData, MdlEffectBoundState, radius) <= t)) || /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                if ((!(step <= zero) && !(MEMBER(f32, stateData, MdlEffectBoundState, radius) <= t)) ||
                     ((step < zero) && (((MdlEffectBoundState *)stateData)->radius < t))) {
                     ((MdlEffectBoundState *)stateData)->radius = t;
                 }
@@ -248,13 +234,13 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
             }
             effectVuStore10((EffectVuVector *)particle);
             t = ((MdlEffectEmitterParameters *)parameters)->sizeVariation;
-            MEMBER(f32, stateData, MdlEffectBoundState, sizeScale) = (one - t) + t * effMiscRandFloat(0); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            MEMBER(f32, stateData, MdlEffectBoundState, sizeScale) = (one - t) + t * effMiscRandFloat(0);
             state = angleMode;
             if (state != 2) {
                 t = ((MdlEffectEmitterParameters *)parameters)->angleVariation;
-                MEMBER(f32, stateData, MdlEffectBoundState, angleScale) = (one - t) + t * effMiscRandFloat(0); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                MEMBER(f32, stateData, MdlEffectBoundState, angleScale) = (one - t) + t * effMiscRandFloat(0);
                 if (state == 1) {
-                    MEMBER(f32, stateData, MdlEffectBoundState, angleOffset) = spin * effMiscRandFloat(0); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(f32, stateData, MdlEffectBoundState, angleOffset) = spin * effMiscRandFloat(0);
                     if ((effMiscRand(0) & 1) != 0) {
                         ((MdlEffectBoundState *)stateData)->angleScale = ((MdlEffectBoundState *)stateData)->angleScale * negativeOne;
                     }
@@ -288,10 +274,11 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
         {
             u_long128 *dst = &prev;
 
-            /* lint: allow H009 -- retail copies this quad through $2 at 0x004913DC; b210 keeps $v0 live (user-approved 2026-10-09) */
+            /* lint: allow H009 -- retail copies this quad through a fixed scratch register that the
+             * compiler would otherwise keep live. */
             __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(particle) : "$2", "memory");
         }
-        reach = MEMBER(f32, stateData, MdlEffectBoundState, radius); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        reach = MEMBER(f32, stateData, MdlEffectBoundState, radius);
         if (((SpawnParticle *)particle)->age < radiusDuration) {
             ((MdlEffectBoundState *)stateData)->radius = reach + ((MdlEffectBoundState *)stateData)->radiusStep;
         }
@@ -363,10 +350,6 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
         ((SpawnParticle *)particle)->age = state + 1;
     }
 }
-
-
-
-
 
 
 #pragma pop

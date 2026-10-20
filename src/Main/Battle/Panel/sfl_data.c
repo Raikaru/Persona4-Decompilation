@@ -16,7 +16,7 @@ extern f32 D_0076148C;
 /* Clears a panel work block and sets its default scale and colour. */
 void sflDataInitPanel(u8 *work)
 {
-    /* UV word stores retain the retail IEEE-754 bit patterns through typed members. */
+    /* Float fields are cleared with integer word stores, as in retail. */
     ((PscModel *)work)->flags = 0;
     *(u32 *)&((PscModel *)work)->frame = 0;
     *(u32 *)&((PscModel *)work)->position.x = 0;
@@ -41,7 +41,7 @@ void sflDataInitPanel(u8 *work)
 /* Initialises a type-0 panel and fills its full corner layout. */
 void sflDataSetupLayoutPanel(void* work)
 {
-    /* UV word stores retain the retail IEEE-754 bit patterns through typed members. */
+    /* Float fields are cleared with integer word stores, as in retail. */
     u8* panel = (u8*)work;
 
     PanelVec3 firstUpperRight;
@@ -455,7 +455,7 @@ void sflDataSetupLayoutPanel(void* work)
 /* Initialises a type-1 panel and fills its outer, inner and centre corners. */
 void sflDataSetupFramePanel(void* work)
 {
-    /* UV word stores retain the retail IEEE-754 bit patterns through typed members. */
+    /* Float fields are cleared with integer word stores, as in retail. */
     u8* panel;
     PanelVec3 outerUpperRight;
     PanelVec3 outerLowerRight;
@@ -611,7 +611,7 @@ void sflDataSetupFramePanel(void* work)
 /* Initialises a type-2 panel and fills its four corners. */
 void sflDataSetupQuadPanel(void* work)
 {
-    /* UV word stores retain the retail IEEE-754 bit patterns through typed members. */
+    /* Float fields are cleared with integer word stores, as in retail. */
     u8* panel;
     PanelVec3 upperRight;
     PanelVec3 lowerRight;

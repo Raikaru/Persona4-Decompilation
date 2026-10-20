@@ -1,5 +1,5 @@
 #include "include_asm.h"
-/* Original translation unit evtEffect.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit evtEffect.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "scene_event_internal.h"
 #include "evt_effect_internal.h"
@@ -23,7 +23,7 @@ extern u8 *H_Cdvd_LookupRequest(u8 *pathAddress, u32 *slot);
 extern s32 H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 
 
-// Intent: Allocates a 0x190-byte effect table with its count cleared and accounts the memory [inferred]
+// Allocates a 0x190-byte effect table with its count cleared and accounts the memory.
 // FUN_00290F00
 u8 *evtEffectTableCreate(void)
 {
@@ -40,7 +40,7 @@ u8 *evtEffectTableCreate(void)
     return work;
 }
 
-// Intent: Frees an effect table: destroys its CD requests, releases its sequence and frees the block [inferred]
+// Frees an effect table: destroys its CD requests, releases its sequence and frees the block.
 // FUN_00290FA0
 void evtEffectTableDestroy(u8 *table)
 {
@@ -59,7 +59,7 @@ void evtEffectTableDestroy(u8 *table)
         evtMemAccount(0xB, -0x190);
     }
 }
-// Intent: Resets an effect sequence record to state 1 with an empty entry count [inferred]
+// Resets an effect sequence record to state 1 with an empty entry count.
 // FUN_00291060
 void evtEffectSequenceReset(u32 *sequence)
 {
@@ -69,11 +69,13 @@ void evtEffectSequenceReset(u32 *sequence)
     return;
 }
 
-// Intent: Effect sequence step: advances the load over each entry (direct load, or wait for a CD file to load and look up its request) [inferred]
+// Effect sequence step: advances loading over each entry, either loading directly or waiting for a
+// CD file to load and looking up its request.
 // FUN_00291080
 s32 evtEffectLoadStep(s32 *sequence)
 {
-    /* measured: typed member updates/entry indexing retain extra addresses (0x80 vs 0x60 frame); keep those word accesses. */
+    /* Entry fields are read as raw words because typed member access makes the stack frame larger
+     * than retail's. */
     u32 requestSize;
     s32 result;
     s32 index;

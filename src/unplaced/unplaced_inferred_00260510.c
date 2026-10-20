@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00260510-00264d10 */
 
 #include "include_asm.h"
 #include "member_access.h"
@@ -81,7 +80,7 @@ extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
 extern void mdlEffectEmitTagPair(void);
 extern s32 shdSpriteEntryWidth(s32 , s32 , u8 *);
 extern void shdSpriteDrawUniformNumber(f32, f32, f32, s32, u8, const char *, s32, s16, s16, CalendarGlyphCallback, u8 *);
-// Intent: Sets the enable flag on the sdlScheduler task when it exists [inferred]
+// Sets the enable flag on the sdlScheduler task when it exists.
 // FUN_00260510
 void sdlSchedulerEnable(void)
 {
@@ -95,7 +94,7 @@ void sdlSchedulerEnable(void)
     }
 }
 
-// Intent: Destroys the sdlScheduler task when it exists [inferred]
+// Destroys the sdlScheduler task when it exists.
 // FUN_00260560
 void sdlSchedulerDestroy(void)
 {
@@ -107,7 +106,7 @@ void sdlSchedulerDestroy(void)
     }
 }
 
-// Intent: Draws one character of a day number as a glyph (callback for the shdSpriteDrawUniformNumber text drawer; skips newline codes) [inferred]
+// Draws one day-number character as a glyph for shdSpriteDrawUniformNumber, skipping newlines.
 // FUN_002605A0
 void calDrawDayNumberGlyph(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s8 * text, s32 index, s32 length, u8 * context)
 {
@@ -122,9 +121,9 @@ void calDrawDayNumberGlyph(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s8 * te
 
 typedef struct { u32 w[48]; } CalendarTrailTable;
 
-// Intent: Draws a highlight trail around a weather icon in one of three layouts (variant 0/1/2) [inferred]
+// Draws a highlight trail around a weather icon in one of three layouts (variant 0/1/2).
 // FUN_00260600
-/* measured: baseline differs by 1432 bytes; retaining lifetimes leaves 1420, explicit float origins leave 1605. */
+/* measured: retail keeps value lifetimes and hoists loop invariants in this trail loop. */
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
@@ -240,9 +239,10 @@ typedef struct {
 
 extern CalendarSparkle D_006375C0[30];
 extern void calDrawHighlightTrail(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 );
-// Intent: Draws the weather highlight (sparkle table, colour by highlight kind) for a calendar cell [inferred]
+// Draws the weather highlight for a calendar cell, using the sparkle table and a colour chosen by
+// highlight kind.
 // FUN_00260E60
-/* measured: baseline and direct render-state table calls both differ by 1307 bytes. */
+/* measured: retail does not propagate the render-state table pointer into each call. */
 #pragma push
 #pragma opt_propagation off
 void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32 highlight, f32 scaleX, f32 scaleY, s32 font, s32 setupStates)
@@ -359,8 +359,8 @@ void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 va
 }
 #pragma pop
 
-/* Render the current weather and its transition using complete clip/color records. */
-// Intent: Renders the weather icon for a calendar day, cross-fading old and new weather during a transition [inferred]
+/* Draws the weather icon for a calendar day, cross-fading the old and new weather during a
+ * transition. */
 // FUN_00261560
 #pragma push
 #pragma opt_lifetimes on
@@ -883,9 +883,9 @@ static inline void calendarZeroBytes(void *memory, s32 count)
     }
 }
 
-// Intent: Draws one calendar date cell: day number, weekday colour, opacity and clip state [inferred]
+// Draws one calendar date cell: day number, weekday colour, opacity and clip state.
 // FUN_00262DE0
-/* measured: baseline and direct render-state table calls both differ by 425 bytes. */
+/* measured: retail does not propagate the render-state table pointer into each call. */
 #pragma push
 #pragma opt_propagation off
 void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
@@ -955,9 +955,9 @@ void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f
 #pragma pop
 
 #pragma push
-// Intent: Advances a day-scroll step over 15 frames with a sine ease and returns 1 when finished [inferred]
+// Advances a day-scroll step over 15 frames with a sine ease and returns 1 when finished.
 // FUN_00263220
-/* measured: optimization-level probe for 00263220 register colouring */
+/* measured: retail register allocation here follows the lower optimization level. */
 #pragma optimization_level 1
 s32 calDayScrollStep(CalendarDayChange *work, s32 fromDay, s32 toDay)
 {
@@ -1019,11 +1019,11 @@ block_8:
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Day-change task update: loads the day-change resource, then drives the day-change state task [inferred]
+// Day-change task update: loads the day-change resource, then drives the day-change state task.
 // FUN_00263460
 s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
 {
-    /* measured: remaining CalendarDayChange byte accesses preserve b210 load/address scheduling; individual field substitutions lose MATCH. */
+    /* measured: raw CalendarDayChange byte accesses keep retail's load and address ordering. */
     s32 taskAddress = (s32)sdkTaskBytes;
     s32 month;
     s32 day;
@@ -1137,16 +1137,13 @@ block_25:
 #pragma push
 #pragma optimization_level 2
 #pragma opt_lifetimes on
-/* The scrolling state supplies a fractional-day offset of at most 94 pixels.
- * Blend the weather glyphs on either side of the day boundary; the selected
- * columns are redrawn with their own clip intervals. Opacity is a byte in
- * this function and in both calendar drawing helpers. */
-// Intent: Draws the day strip with a crossfade between two weather columns at the fractional scroll offset [inferred]
+/* Draws the day strip, crossfading between two weather columns at the fractional scroll offset (at
+ * most 94 pixels); opacity is a byte here and in both calendar drawing helpers. */
 // FUN_00263730
 /* Widen opacity once after initializing the column; both crossfade calculations share this value. */
 void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade, u8 *work)
 {
-    /* measured: remaining CalendarDayChange byte accesses preserve b210 load/address scheduling; individual field substitutions lose MATCH. */
+    /* measured: raw CalendarDayChange byte accesses keep retail's load and address ordering. */
     s32 column;
     s32 oldWeather;
     s32 weather;
@@ -1197,13 +1194,13 @@ void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfad
 
 #pragma push
 #pragma optimization_level 2
-/* measured: removing lifetimes changes 97 bytes in the draw callback. */
+/* measured: retail keeps value lifetimes in the draw callback. */
 #pragma opt_lifetimes on
-// Intent: Queued draw callback for the day strip: draws fade rectangles and the strip columns [inferred]
+// Queued draw callback for the day strip: draws fade rectangles and the strip columns.
 // FUN_00263CB0
 void calDrawDayStripCallback(s32 queue, u8 *task)
 {
-    /* measured: remaining CalendarDayChange byte accesses preserve b210 load/address scheduling; individual field substitutions lose MATCH. */
+    /* measured: raw CalendarDayChange byte accesses keep retail's load and address ordering. */
     typedef signed __int128 s128;
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
@@ -1496,7 +1493,7 @@ void calDrawDayStripCallback(s32 queue, u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Queues a day-strip draw task with the strip callback and its state argument [inferred]
+// Queues a day-strip draw task with the strip callback and its state argument.
 // FUN_00264CB0
 void calQueueDayStripDraw(s32 task, s32 queue)
 {
@@ -1511,11 +1508,12 @@ void calQueueDayStripDraw(s32 task, s32 queue)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Day-change task destroy: destroys the child task hierarchy, frees the day-change resource and releases the task work block [inferred]
+// Day-change task destroy: destroys the child task hierarchy, frees the day-change resource and
+// releases the task work block.
 // FUN_00264D10
 void cldDayChangeStopTask(u8 *unusedTask)
 {
-    /* measured: remaining CalendarDayChange byte accesses preserve b210 load/address scheduling; individual field substitutions lose MATCH. */
+    /* measured: raw CalendarDayChange byte accesses keep retail's load and address ordering. */
     s32 spritePack;
     u8 *work;
 

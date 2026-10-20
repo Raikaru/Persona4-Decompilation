@@ -49,11 +49,7 @@ typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
 
-
 extern u8 D_00637420[];
-
-
-
 
 
 extern void (*jtbl_008873EC[])(void *);
@@ -77,57 +73,28 @@ extern u8 iGpffffa734;
 
 extern s32 frFontDataEntryClass(s64 entryId);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026fd90-0026fff0 */
-
 extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern s32 mtSceneUnitDepthCompare(u8 **left, u8 **right);
 extern f32 D_007612C4;
-/* Three trail-segment layouts (mode 0/1/2). The 0xC0-byte point tables are
- * struct copies; each loop's i = 0 precedes the invariant scale products,
- * which opt_loop_invariants hoists while the (s16) conversion of the second
- * product stays in the loop as in retail. The closing call's position
- * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
- * colour parameter is declared u32 here (H011): retail converts count for each
- * call and keeps the per-case colour copies in $fp/$s7. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: optimization-level probe for 00263220 register colouring */
-/* measured: closes optimization-level probe for 00263220 */
-/* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
+/* measured: loop-invariant hoisting is on so (u8)opacity is hoisted out of the fade block into the
+ * stack spill retail has. */
 #pragma push
 #pragma pop
-/* The switch arms are in retail's jump-table order. Locals whose live ranges
- * are disjoint share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2,
- * temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's
- * register reuse across the cases shows. In case 7's day loop the date is
- * `temp_20` and the `* 0x5E` column is `var_2`, both dead outside that loop:
- * retail's register numbering follows which variable each value lives in, and
- * these give the $s3/$s4/$s5 order of the product, date and font word. The
- * render-state table goes through a u32 local, both fade rectangles are
- * {x,y,w,h} structs copied into the 16-byte argument, the case-5 and case-7
- * fallback tails are separate copies, and `temp_3_2 > 1` gives the slti $at
- * form. opt_lifetimes on is measured (102 -> 85 edits without the other levers). */
+/* Switch arms follow retail's jump-table order; locals with disjoint live ranges share one
+ * variable, matching retail's register reuse across cases. */
 #pragma push
 #pragma pop
-/* measured: closes the optimization_level bracket (nd 0). */
-/* Copy complete table objects; renderer callbacks may change the item index. */
-/* measured: 1296B/1296B.  Scalar out-parameters and CefV3 locals give the
-   retail frame; the s8 count local and the named segment index give the
-   hoisted point base under opt_loop_invariants; the control-point counters
-   are block-scoped so the sampling counter k is coloured first. */
+/* measured: copy whole table objects because renderer callbacks may change the item index; the s8
+ * count and block-scoped counters reproduce retail register order. */
 #pragma push
-/* measured: without it the point base is recomputed per iteration (271). */
+/* measured: without loop-invariant hoisting the point base is recomputed every iteration. */
 #pragma pop
-/* measured: optimization_level 1 register-coloring probe for func_0026db60. */
-/* measured: opt_propagation off probe for func_0026db60 loop test ordering. */
-/* measured: closes opt_propagation off probe for func_0026db60. */
-/* measured: closes optimization_level 1 register-coloring probe for func_0026db60. */
-/* measured: opt_propagation off probe for mtSceneUnitDepthCompare float load scheduling. */
-/* measured: closes opt_propagation off probe for mtSceneUnitDepthCompare. */
 #pragma push
 #pragma pop
 #pragma push
@@ -136,14 +103,11 @@ extern f32 D_007612C4;
 #pragma pop
 /* Decode the palette, prefix flag and item ID, then append the item name. */
 // FUN_0026FD90
-/* measured: MWCCPS2 b210 -O2, 596B/window 608B, 10 relocations,
- * 12 zero alignment bytes. Ghidra/IDA and retail agree on the three-byte
- * glyph at sp+0x68: align the real buffer to eight, without enlarging it.
- * The scoped options preserve operand reloads and decode scheduling. */
+/* measured: retail aligns the three-byte glyph buffer to eight bytes. */
 #pragma push
-/* measured: func_0026fd90 MATCH -> MISMATCH without this pragma. */
+/* measured: retail reloads operands instead of reusing common subexpressions. */
 #pragma opt_common_subs off
-/* measured: func_0026fd90 MATCH -> MISMATCH without this pragma. */
+/* measured: retail's decode scheduling needs copy propagation off. */
 #pragma opt_propagation off
 s32 frFontAppendItemNameCommand(s32 unusedCommand, u8 *context)
 {
@@ -238,11 +202,11 @@ s32 frFontAppendItemNameCommand(s32 unusedCommand, u8 *context)
 }
 
 #pragma pop
-/* measured: opt_common_subs off forces func_0026fff0 field reloads. */
-/* measured: func_0026fff0 MATCH -> MISMATCH without this pragma. */
+/* measured: with common-subexpression elimination off, retail reloads the context fields on each
+ * access in func_0026fff0. */
 #pragma opt_common_subs off
-/* measured: opt_propagation off preserves func_0026fff0 decode scheduling. */
-/* measured: func_0026fff0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps decoded values in place instead of propagating copies, which preserves the
+ * decode instruction order. */
 #pragma opt_propagation off
 /* Decode an item ID and byte count and update the inventory in normal mode. */
 // FUN_0026FFF0

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0018c610-0018c610 */
 
 #include "field_transition_internal.h"
 #include "sdk_lbox_internal.h"

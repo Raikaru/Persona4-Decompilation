@@ -2,7 +2,7 @@
 #include "message_window_internal.h"
 #include "shd_sprite_pack.h"
 #include "primitive_queue_internal.h"
-/* Original translation unit itfMsgProcedure_Window.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit itfMsgProcedure_Window.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "message_frame_internal.h"
 #include "message_handle.h"
@@ -145,7 +145,6 @@ extern char D_0063C018[];
 extern char D_0063C120[];
 extern char D_0063C170[];
 extern MsgProcWindowF2 D_0063C030[10];
-
 
 
 /* Advance one queued window exit effect; return nonzero when its frame sequence ends. */
@@ -294,12 +293,9 @@ void msgWinStart(void *parent)
     (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0063C018), 0xF, 0, 0, msgWinUpdateEntries, 0, (u8 *)((void *)0));
 }
 
-/* measured: byte-exact after preserving the mixed ABI order in both the
-   function signature and PrimQueueBatchAlpha declaration: parent,arg1,fparg0,arg2,
-   arg3,arg4,arg5,arg6,arg7,fparg1,fparg2,fparg3,arg_sp0. The call uses the
-   same order, reproducing retail's f12 move before integer setup and stack
-   pointer last. Scoped verify: MATCH nd 0, object 600B/window 608B. */
-/* Build the 42-point filled ring fan, repeating its first perimeter point to close it. */
+/* Parameters interleave integer and float arguments in retail's ABI order, matching the
+ * PrimQueueBatchAlpha declaration. Builds the 42-point filled ring fan, repeating its first
+ * perimeter point to close it. */
 // FUN_0027D3C0
 void msgWinDrawRing(s32 centerX, s32 centerY, f32 depth, s32 radius, s32 rgb, s32 alpha, s32 mode, s16 pivotX, s16 pivotY, f32 rotation, f32 scaleX, f32 scaleY, void *queue)
 {
@@ -401,9 +397,8 @@ void msgWinDrawRect(s32 x, s32 y, s32 width, s32 height, float depth, void *queu
     mdlEffectEmitTagPair();
 }
 
-/* 364/368 bytes; three resolved relocations; four zero alignment bytes.
- * The signed-halfword centers and explicit float arguments preserve the draw ABI. */
-/* Copy the ten-point window outline, scale its height and translate its vertices. */
+/* Copy the ten-point window outline, scale its height and translate its vertices. The signed-
+ * halfword pivots and explicit float arguments follow the draw ABI. */
 // FUN_0027D800
 void msgWinDrawShape(s32 x, s32 y, s32 rgb, s32 opacity, s16 pivotX, s16 pivotY, f32 depth, f32 rotation, f32 scaleX, f32 scaleY, void *queue)
 {
@@ -490,20 +485,10 @@ void msgWinDrawShape(s32 x, s32 y, s32 rgb, s32 opacity, s16 pivotX, s16 pivotY,
   PrimQueueBatchAlpha(&work.colors[0], &work.points[0], depth, 10, 4, 1, pivotX, pivotY, rotation, scaleX, scaleY, queue);
 }
 
-/* Message-window choice phases (cases 0-18). Checked against retail:
- * - case 0 tests and clears the D_00882000 array itself;
- * - case 8 precedes case 7 and the selection cursor sits at 57/338;
- * - point tables are copied as whole structs (retail's 8-byte copy loop);
- * - the free-entry search and readiness test are inline helpers, so retail's
- *   materialised flag and goto-style search come out;
- * - call results tested right away are assigned inside the condition, so
- *   retail tests $v0;
- * - s16 levels, int round trips and unfused products follow retail; the
- *   label sum adds the conversion to a separately named product.
- * opt_loop_invariants on and opt_lifetimes on are measured: without them
- * the body is 463+ edits. */
+/* Message-window choice phases (cases 0-18); case 8 comes before case 7 and point tables are copied
+ * as whole structs. */
 #pragma push
-/* measured: removing either toggle still changes choice loops or lifetime allocation; explicit scan-base initialization alone is insufficient. */
+/* measured: retail's choice loops need both loop-invariant hoisting and lifetime splitting. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 typedef struct { u32 w[20]; } MsgProcWindowCopy10;
@@ -518,8 +503,8 @@ static inline s32 msgWinReady(void)
     return 0;
 }
 
-/* Find the first inactive entry in the eight-slot message-window pool. */
-/* measured: initialize the index before the array base to retain both phase dispatchers' baseline preheader order. */
+/* Find the first inactive entry in the eight-slot message-window pool. measured: retail sets the
+ * index before loading the array base, keeping the loop setup order in both phase dispatchers. */
 static inline MsgProcWindowEntry *msgWinFreeEntry(void)
 {
     s32 j;
@@ -1083,14 +1068,9 @@ void msgWinSelectionPoll(void)
     }
 }
 
-/* Shared by the message-window procedures: the first entry of D_008820B0 whose
-   in-use bit is clear.  Inlined; its `return e` inside the loop is retail's
-   unthreaded bnez/b pair. */
 
-
-/* This resource owns eight bytes, separate from the twelve-byte calendar
- * resource above. Retail 0027F844 clears exactly these two halfwords and word. */
-/* Return the ready selection sprite, starting its child loader when absent. */
+/* Return the ready selection sprite, starting its child loader when absent. Its eight-byte resource
+ * is separate from the twelve-byte calendar resource. */
 static inline s32 msgWinSelectionResource(void)
 {
     MsgProcWindowResource *work = &D_007245D0;
@@ -1107,16 +1087,14 @@ static inline s32 msgWinSelectionResource(void)
 }
 
 #pragma push
-/* measured: split lifetimes alone leaves an 88-byte selection-renderer excess; both settings retain MATCH. */
+/* measured: the selection renderer needs both lifetime splitting and invariant hoisting. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-/* measured: lifetime splitting and invariant hoisting retain the exact selection renderer. */
 
 
-
-
-/* Copy a packed rectangle color without changing the caller's snapshot boundary. */
-/* measured: direct color assignments change msgWinDrawSelection allocation; cast-expanded copies match but hide the typed assignment. */
+/* Copy a packed rectangle color without changing the caller's snapshot boundary. measured: direct
+ * color assignments change register allocation in msgWinDrawSelection, so the copy goes through
+ * this inline wrapper. */
 static inline PrimitiveRectangleColor *msgWinCopyColor(u8 *destination, const u8 *source)
 {
     *(PrimitiveRectangleColor *)destination = *(const PrimitiveRectangleColor *)source;
@@ -1136,8 +1114,6 @@ static inline PrimitiveRectangleWords *msgWinCopyRectangle(u8 *destination, cons
     return (PrimitiveRectangleWords *)destination;
 }
 
-/* measured: 103 -> 0 fnalign edits. Per-phase coordinates and the shared resource
- * handle reproduce retail lifetimes; address-taking copies retain both snapshots. */
 /* Render the selection window phases, including its panel, labels and animated cursor. */
 // FUN_0027F6F0
 s32 msgWinDrawSelection(s32 window, u32 operation)
@@ -1870,12 +1846,8 @@ void msgWinStoreSlot(s32 window, s32 value) {
 }
 
 
-/* measured: byte-exact (602/602 instructions, 0 differing words).  The frame
-   counter is read straight from D_00882044 at each test (retail reloads it
-   after every call), the `> 3` bound keeps the first test in $at, and the
-   case 8/10 handles are tested as they come back in $v0.
-   The free-entry helper explicitly initializes its table base outside the scan. */
-/* Dispatch the compact window phases; its user-data slot selects the portrait sprite. */
+/* Dispatch the compact window phases; its user-data slot selects the portrait sprite. The frame
+ * counter D_00882044 is re-read at each test, as retail reloads it after every call. */
 // FUN_002818E0
 s32 msgWinRunPhase(u8 *window, s32 operation)
 {
@@ -2025,13 +1997,9 @@ s32 msgWinRunPhase(u8 *window, s32 operation)
     return completed;
 }
 
-/* Choice-window phases share the existing readiness predicate.
- * b210 propagates a local with a single definition into its use, so retail's
- * early-computed values are locals with a second definition: case 11's
- * background Y and case 12's baseline share function-scope locals with case
- * 12/13, case 13's next-row offset reuses i2, and its scaled height reuses the
- * block's row local. The case-11 declaration order gives retail's $s1/$s3. */
-/* Dispatch the alternate choice layout, animating the panel and row arrows. */
+/* Choice-window phases share the existing readiness predicate; retail's early-computed values live
+ * in locals shared across cases so they stay assigned twice and are not folded into their uses.
+ * Dispatch the alternate choice layout, animating the panel and row arrows. */
 // FUN_00282250
 s32 msgWinRunPhaseAlt(u8 *window, s32 operation)
 {
@@ -2403,17 +2371,8 @@ s32 msgCalResourceGet(s32 index)
     return 0;
 }
 
-/* Colouring notes (verified MATCH): under opt_lifetimes on a web is numbered
- * with its variable, so which local holds a value reorders the colouring
- * scan. The first tile loop's row offset lives in `i`, the second branch's
- * date base in `today`, and its colour in `phase`; case 4 and 5 share
- * depthColor and one f32 for alpha/rotation. `(s32)frame` and the
- * `(u8 *)(u32)handle` conversions make b210 copy those locals into CSE
- * temporaries, so they keep their own numbers instead of folding into the
- * load/inline-return temporaries (docs/matching.md, repeated-conversion
- * lever). */
 #pragma push
-/* measured: baseline has 158 differing words; per-phase alpha/frame/phase/resource locals still leave 195 differing bytes. */
+/* measured: the calendar renderer needs lifetime splitting to get retail's register allocation. */
 #pragma opt_lifetimes on
 /* Return an indexed calendar resource, starting the resource task when absent. */
 static inline u8 *msgCalendarResource(s32 index)
@@ -2725,13 +2684,9 @@ void msgCalendarDraw(u8 *unusedTask, u8 *parameters)
 }
 #pragma pop
 
-/* measured: byte-exact (522/522 instructions, 0 differing words).  The three
-   small helpers are inlined by retail: the free-entry scan's `return e` is the
-   unthreaded `bnez`/`b` pair, the resource check (the body of func_002833b0
-   for slot 0) and the two-flag ready test each leave their own join.  Case 17
-   keeps its `ret = 0` arm, which is the double branch after func_0027bec0.
-   Explicit index/base initialization now retains the scan without an optimizer override. */
-/* Return the first ready calendar resource, creating its loading task when absent. */
+/* measured: retail inlines the three small helpers, each keeping its own branch join, and case 17
+ * keeps its separate ret = 0 arm. Return the first ready calendar resource, creating its loading
+ * task when absent. */
 static inline u32 msgWinResource(void)
 {
     MsgProcWindowWork *work = &D_00882098;

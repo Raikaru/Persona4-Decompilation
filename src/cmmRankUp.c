@@ -1,6 +1,6 @@
 #include "rw_types_internal.h"
 #include "mt_scene_internal.h"
-/* Original translation unit cmmRankUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit cmmRankUp.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "model_battle_internal.h"
 #include "rw_object_internal.h"
@@ -13,7 +13,8 @@
 #include "resrc_manager_internal.h"
 #include "datPersona_internal.h"
 
-/* Unit setting: loop invariants off; animation and drawing scopes retain measured hoisting. */
+/* measured: retail compiles this unit with loop invariant hoisting off, and only the animation and
+ * drawing functions turn it back on. */
 #pragma opt_loop_invariants off
 extern u8 *PrimAllocQueueNode();
 extern void cmmRankUpRunQueue();
@@ -21,8 +22,8 @@ extern u8 D_007963D0[];
 extern void PrimAppendNode();
 extern void cmmRankUpStepSparklePools();
 
-/* Absolute-addressed data (retail emits lui/addiu for these, so they must be
- * array-typed; scalar spelling would switch them to GPREL16). */
+/* Absolute-addressed data; these must be array-typed so retail's lui/addiu addressing is reproduced
+ * instead of GP-relative access. */
 extern u8 D_00635CF8[];
 extern u8 D_00635D18[];
 extern u8 D_006367C0[];
@@ -59,7 +60,7 @@ extern void H_Cdvd_Destroy(s32 cdvd);
 extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
 extern void *memset(void *destination, s32 value, size_t count);
 
-/* 128-bit object copies (retail lq/sq). */
+/* 128-bit objects copied with quadword loads and stores. */
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern u_long128 D_00636560;
 extern u_long128 D_00636570;
@@ -176,12 +177,8 @@ typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 
-
-// Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
-// in the donor): a typed prototype makes mwcc emit zero-extension codegen
-// retail never has.
-
+// Matches P3FES comuTimerSequence. kwlnTaskGetWork is declared without a prototype because a typed
+// prototype adds zero-extensions retail lacks.
 
 
 /* Run active entry callbacks, clear ACTIVE on completed entries, then update the shared effect pool. */
@@ -209,7 +206,6 @@ void cmmRankUpRunQueue(s32 unused, s32 *task) {
 }
 
 
-
 // Queues cmmRankUpRunQueue on the shared queue with the argument as its context; returns 0.
 // FUN_00251E60
 s32 cmmRankUpEnqueueTask(u8 *sdkTaskBytes) {
@@ -235,7 +231,6 @@ void cmmRankUpDestroy(u8 *unusedTask)
 }
 
 
-
 // Allocates the rank-up work block, records the caller's argument in it, and creates the child task that runs cmmRankUpEnqueueTask and cmmRankUpDestroy.
 // FUN_00251F00
 void cmmRankUpCreate(s32 parentTask, u32 *context) {
@@ -251,18 +246,13 @@ void cmmRankUpCreate(s32 parentTask, u32 *context) {
 }
 
 
+/* measured: retail keeps the flag-clear mask in the loop preheader; without this pragma it is
+ * rematerialized inside the else-branch. */
 
-/* Seven spellings were tried without this pragma - ~2 / 0xFFFFFFFD / -3
- * literals, mask locals before and after the call, for and while forms,
- * |= and &= operators, and a ternary - all stuck at nd 24.
- * measured: MWCC rematerializes the flag-clear mask (addiu a0,zero,-3) inside
- * the else-branch instead of the loop preheader, shifting every temp register;
- * with the pragma the object is byte-identical (nd 3 = window padding). */
-
-// Sets (option1 != 0) or clears flag bit 2 on each active entry of the rank-up table; used to hold and release the entries [inferred].
+// Sets (hold != 0) or clears flag bit 2 on each active entry of the rank-up table, holding or
+// releasing the entries.
 // FUN_00251FC0
 #pragma push
-/* measured: baseline and explicit pre-loop mask both leave nd44; retain mask hoisting. */
 #pragma opt_loop_invariants on
 void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold) {
     extern u32 *kwlnTaskGetWork();
@@ -284,8 +274,6 @@ void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold) {
     }
 }
 #pragma pop
-/* measured: scope closer for the hoist above - leaving it on changes the
-   next functions in this file, so it is turned off immediately after. */
 
 /* Absolute-addressed float data for cmmRankUpCopyState's stack snapshot. */
 extern f32 D_00635D28[];
@@ -311,8 +299,8 @@ extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 extern s32 MT_Scene_IsResEnabled(u8 *resource);
 extern void MT_Scene_SetResEnabledById(s32 resTypeId, s32 enabled);
 
-/* measured: the contiguous three-float snapshot batches loads before stores under baseline propagation (nd3 -> MATCH). */
-/* Claim an entry, select its step callback by kind, and copy three sprite keyframes from the indexed table. */
+/* Claim an entry, select its step callback by kind, and copy three sprite keyframes from the
+ * indexed table. */
 // FUN_00252050
 void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
     extern u8 *kwlnTaskGetWork();
@@ -387,13 +375,8 @@ void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
 }
 
 
-
-/* 1244/1248 bytes; no relocations; four zero alignment bytes.
- * Named float snapshots preserve interpolation order. Packed channels use
- * unsigned word shifts and byte truncation, including the high channel. */
-// Linear interpolation of two sprite states by t into out: position, scale and axis fields.
-/* All retail references are from this source unit. Internal linkage lets
- * MWCC retain the caller values in registers this leaf does not write. */
+/* Linear interpolation of two sprite states by t into out: position, scale and axis fields. Packed
+ * channels use unsigned word shifts and byte truncation. */
 // FUN_00252230
 static void cmmRankUpLerpState(RankUpSpriteState *out, RankUpSpriteState *a, RankUpSpriteState *b, f32 t)
 {
@@ -448,15 +431,12 @@ static void cmmRankUpLerpState(RankUpSpriteState *out, RankUpSpriteState *a, Ran
 }
 
 
-/* Native b210 O2: 836/848 bytes, 12 resolved relocations and 12 zero tail
- * bytes. The two interpolation phases share the real private leaf; the
- * sprite provider takes depth before the width/height integer stream.
- * See docs/probe_archive/Rankup_callback_00252710_20260922.md. */
-// Per-frame rank-up sprite step: advances the frame counter, interpolates the sprite state after frame 30, and emits the sprite through the provider until frame 0x3C [inferred].
+/* Per-frame rank-up sprite step: advances the frame counter, interpolates the sprite state after
+ * frame 30, and emits the sprite through the provider until frame 0x3C. Both interpolation phases
+ * share one private leaf, and the provider takes depth before width and height. */
 // FUN_00252710
 s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
 {
-    /* CmmRankUpEntry/three sprite-state offsets retained: typed access changes MWCC allocation (nd 552). */
     RankUpSpriteState state;
     RankUpMatrix matrix;
     union { s32 words[8]; f32 coordinates[4][2]; } uvBlock;
@@ -531,10 +511,8 @@ s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
     }
     return complete;
 }
-/* Native b210 O2: 3560/3568 bytes, eight zero tail bytes, and the entire
- * emitted 0.8f literal pool at 0076120C match retail. D_00636250 is the
- * complete (0,1,0) vector. Particle timers remain integer stores and
- * random draws retain their original order and unsigned conversions. */
+/* D_00636250 is the (0,1,0) vector; particle timers are integer stores and random draws keep their
+ * original order and unsigned conversions. */
 typedef struct { struct RwV3d vector; } RankUpVectorCopy;
 
 /* The pool provider initializes 0x20 bytes. These are its four fields used
@@ -546,13 +524,13 @@ typedef struct {
     s32 timer;
 } RankUpParticlePrefix;
 
-// Per-frame rank-up effect step: textured particle/overlay draw with pulse and angle, using the matrix and UV blocks [inferred].
+// Per-frame rank-up effect step: draws textured particles and an overlay with pulse and angle,
+// using the matrix and UV blocks.
 // FUN_00252A60
 s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
 {
     CmmRankUpEntry *entry = (CmmRankUpEntry *)work;
 
-    /* CmmRankUpEntry/three sprite-state offsets retained: typed access changes MWCC allocation (nd 2523). */
     RankUpVectorCopy axis;
     PrimPoint displacement;
     RankUpVectorCopy axisTemplate;
@@ -790,19 +768,18 @@ f32 sdkSpriteEntryWidth(void *blob, s32 index);
 void sdkSpriteDrawNowUnscaled(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void *pack, s32 setStates);
 u8 *cmmNameRecord(u32 nameId);
 
-/* measured: keep the banner constants explicit and the label distance
-   local; automatic constant extraction joins the two distance evaluations. */
-// Draws the moving-point wipe for the rank-up panel: a fixed quad set plus a moving pair of points that interpolates across the panel [inferred].
+/* measured: keep the banner constants explicit and the label distance local, because automatic
+ * constant extraction joins the two distance evaluations. Draws the moving-point wipe for the rank-
+ * up panel: a fixed quad set plus a pair of points that move across the panel. */
 // FUN_00253850
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: removing both toggles gives nd2463; loop-only gives nd3415, so retain both. */
+/* measured: retail needs both loop-invariant hoisting on and constant extraction off. */
 #pragma opt_pulloutconstants off
 s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 {
     CmmRankUpEntry *entry = (CmmRankUpEntry *)work;
 
-    /* CmmRankUpEntry/three sprite-state offsets retained: typed access changes MWCC allocation (nd 142). */
     PrimPoint positions[8];
     PrimPoint movingPoints[4];
     RankUpVertexColor movingColors[4];
@@ -1125,13 +1102,13 @@ f32 sdkSpriteEntryWidth(void *, s32);
 void sdkSpriteDrawNowUnscaled(f32, f32, f32, s32, u8, s32, void *, s32);
 u8 *cmmNameRecord(u32);
 
-/* measured: keep the unit scales local to their shrinking-sprite calls;
-   pulloutconstants otherwise retains one across both animation branches. */
-// Draws the exit wipe: copies the clip and reset colours, then draws the sprite strips that slide in with the wipe [inferred].
+/* measured: keep the unit scales local to their shrinking-sprite calls; otherwise one constant
+ * stays live across both animation branches. Draws the exit wipe: copies the clip and reset
+ * colours, then draws the sprite strips that slide in with the wipe. */
 // FUN_00254A70
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: removing both toggles gives nd2150; loop-only gives nd3211, so retain both. */
+/* measured: retail needs both loop-invariant hoisting on and constant extraction off. */
 #pragma opt_pulloutconstants off
 s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 {
@@ -1357,8 +1334,8 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
         if (font == NULL) {
             kAssertFail(D_00635CF8, 0x1E4);
         }
-        /* The width query and glyph lookup use signed and unsigned word
-           masks respectively; this preserves both retail narrowing points. */
+        /* The width query masks the relation as signed and the glyph lookup as unsigned, as retail
+         * does. */
         width = (s32)sdkSpriteEntryWidth(font, ((u8 *)cmmKindRecord(relation & 0xFFFF))[8] + 32);
         sdkSpriteDrawNowUnscaled((f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)cmmKindRecord((u32)relation & 0xFFFF))[8] + 32, font, 1);
         shdSpriteDrawNow(355.0f, 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
@@ -1426,8 +1403,8 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
         if (font == NULL) {
             kAssertFail(D_00635CF8, 0x1E4);
         }
-        /* The width query and glyph lookup use signed and unsigned word
-           masks respectively; this preserves both retail narrowing points. */
+        /* The width query masks the relation as signed and the glyph lookup as unsigned, as retail
+         * does. */
         width = (s32)sdkSpriteEntryWidth(font, ((u8 *)cmmKindRecord(relation & 0xFFFF))[8] + 32);
         origin = 500.0f;
         origin *= value;
@@ -1468,7 +1445,6 @@ s32 cmmRankUpStepTimed(u8 *root, s32 *entry, CmmRankUpCardTask *context) {
 }
 
 
-
 /* Snapshot model weights and visibility for resource types 1, 2, 3 and 10; return a sentinel-terminated array. */
 // FUN_00255B90
 u8 *cmmRankUpFindResEntry(void) {
@@ -1480,7 +1456,7 @@ u8 *cmmRankUpFindResEntry(void) {
     ResrcRecord *node3;
     ResrcRecord *node4;
 
-    /* Model layer weight is private to the model provider at +0xF4; retain its byte-addressed read. */
+    /* The model layer weight is private to the model provider, so it is read by byte offset. */
     count = 0;
     cnt = (ResrcRecord *)MT_Scene_GetResListHead(1);
     while (cnt != NULL) {
@@ -1557,8 +1533,8 @@ u8 *cmmRankUpFindResEntry(void) {
 }
 
 
-
-// Maps the counterpart state and the given index to a rank-up display slot (2 to 9), or 0 when the entry does not show [inferred].
+// Maps the counterpart state and the given index to a rank-up display slot (2 to 9), or 0 when the
+// entry does not show.
 // FUN_00255ED0
 s32 cmmRankUpSelectDisplayIndex(s64 communityId, s32 rank) {
     if (((s32)((CmmKindRecord *)cmmKindRecord((u16)communityId))->flags & 0x10) != 0 &&
@@ -1596,8 +1572,8 @@ s32 cmmRankUpSelectDisplayIndex(s64 communityId, s32 rank) {
 }
 
 
-
-// Draws a message centred on x: splits it into runs, measures them, moves the list and sets the glyph colour from the alpha argument [inferred].
+// Draws a message centred on x: splits it into runs, measures them, moves the list and sets the
+// glyph colour from the alpha argument.
 // FUN_00256040
 void cmmRankUpDrawCenteredText(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha,
                    s32 font, s32 style, s32 flags, s32 messageSlot, s32 stringIndex,
@@ -1633,67 +1609,14 @@ void cmmRankUpDrawCenteredText(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha,
 }
 
 
-
-/* measured: retail frame is -0x140 with ra and $s0-$s5 saved; the two
-   arrays are rgba at sp+0x70 and pairs at sp+0xc0, with an unexplained
-   sixteen-byte slot at sp+0xb0.  The best complete reconstruction is
-   archived in build/WB561_work_gap_pairwalk.json:
-   `struct { RGBA rgba[16]; u8 scratch[16]; Pair pairs[16]; } Work`.
-   This one aggregate reproduces the frame, saved-register set, and both
-   array offsets; its object is 628 bytes against the 624-byte window
-   (nd 484).  Its first fndiff row is offset 0x20: the persistent rgba
-   base emits `addiu $t7,$sp,0x70` where retail starts the global read.
-   Direct indexed variants scalarize the aggregate (frames -0x120/-0x130,
-   objects 608-620), while the persistent base pins the gap at the cost
-   of that one surplus instruction.  Explicit qword/union/alignment
-   variants, separate locals, and branch-local pointer variants were
-   ruled out.  General finding: an unexplained retail stack gap is a real
-   declared object; declaring the complete frame as one struct in source
-   declaration order reproduces offsets that separate locals do not. */
-/* measured: W3CRNK_002561f0_body.c fresh 150wd (obj608B/window624B) vs aggregate 628B/nd484 per owner note; head-start recipe (16x8B down-count loop, colours with trailing andi, 255 round-trip unfolded, sltiu i-14<2/i-6<4/i-10<4 else to sp+0x70+i*4, 0045e6a0(sp+0x70,sp+0xC0,16,4,...)) tried via this body; inclusive-bound/dead-arm/cast/loop-invariant/s64 levers checked (no convertible slt $at range guard; call-setup casts per EABI t0-t3 kept). Honest table/CSE/stack-gap floor; banked. No volatile/asm. */
-/* measured 002561f0: `schedule on` inside the guard is worth 2 words (150 -> 148). */
-/* measured 002561f0 2026-09-19: remove unscheduled-retail `schedule on` guard (was 140 vs 152, -7.9%); unscheduled object 152 vs 152 (exact, inside 147-157), edits 160 -> 154. */
-/* measured 002561f0 (owner, this session): three honest source corrections, edits 154 -> 148,
-   words 150 unchanged, count still exact at 152/152.
-   (a) `packed`/`packed2`/`packed3`/`packed4` are u32, not s32 - retail extracts the bytes with
-       `srl` (R36/R38/R40/R42), the s32 spelling emitted `sra`.
-   (b) the packed3/packed4 component masks are gone: retail masks only the `packed` and
-       `packed2` sets (`andi` at R22/R24/R26/R27 and R41/R43/R45/R46) because b1 is passed to
-       PrimDrawTransformed, and leaves the other two unmasked (R53-R55, R61-R63) since `sb` truncates.
-   (c) the `one = 1` dummy local is deleted - `i == 1` measures identically (154 both ways), and
-       retail's `addiu $s0, $zero, 1` at R47 is the allocator hoisting the constant by itself.
-   Remaining wall is register pressure, not structure: retail saves $s0-$s5 (frame 0x140, ra at
-   0x60), the object saves $s0-$s3 (frame 0x120, ra at 0x40).  Retail keeps the `packed` set in
-   temps ($t4/$t3/$v1/$v0), the `packed2` set in $s4-$s1, the constant 1 in $s0 and the per-
-   iteration element pointer in $s5; the object has two fewer saved registers to spend.  Swapping
-   the packed3/packed4 statement order to match retail's R48-R63 emission order was measured and
-   is worse (155), so the source order is already right and the scheduler is reordering. */
-/* measured 002561f0 (batch, 2026-09-20): per-arm pointer materialization closes the eight.
-   Batch 1 counts (fnalign --candidate, retail 152) / words (probe_variants) / edits:
-   baseline 144/150/148; A u32-direct 144/150/148; B pair-only 145/149/149;
-   C rgba-once 141/147/142; D both-once-s32 142/148/143; E both-once-u32 142/148/143;
-   F per-arm-u32 149/149/132; G addrof-once 142/148/143; H fsplit-once 142/148/143.
-   Batch 2 all per-arm-u32, all 149 counts: J block-scope 149/149/132; K RGBA-star 149/149/132;
-   L addrof-pairs 149/149/132; M separate-locals 149/149/132; N interleave d-before-e
-   149/149/139; O for-loop 149/149/136; P declswap 149/149/132; Q fsplit 149/149/132.
-   Winner F kept as simplest tie: `u32 i` (Ghidra uint, IDA unsigned, retail sltiu at
-   0x563E8), `pairp = work.pairs + i` once per iteration and `p = (u8 *)&work.rgba[i]`
-   per arm (IDA v19-v22, retail sll/addu/addiu 0xC0/0x70 with sb 0/1/2/3 vs object folded
-   0xA0/0x50). Once-hoisted C/D/E/G/H shrink to 141-142; per-arm adds five (144->149,
-   inside 148-157, edits 148->132). Block/struct/addrof/separate/declswap/fsplit all tie;
-   interleave and for-loop cost edits. Remaining three short are the save/restore wall:
-   retail saves $s0-$s5 (frame 0x140) vs object $s0-$s3 (frame 0x120); two sq/lq pairs plus
-   one spill have no honest lever left in this batch. */
-/* The earlier probes above are superseded by the shared panel representation.
- * Retail differs from cmmRankUpDrawGradientStripPass2 only in this palette's table address.
- * Both take seven integer arguments and five floats; the callers supply the
- * two offsets explicitly. 612/624 bytes, three resolved relocations and twelve
- * zero alignment bytes. See docs/probe_archive/Rankup_002561f0_palette.md. */
+/* Same as cmmRankUpDrawGradientStripPass2 except for the palette table address; callers pass both
+ * offsets explicitly. */
 typedef struct { u8 r, g, b, a; } RankUpColor;
 
-// Draws the palette gradient strip: copies the palette table into 16 point rows, then colours the rows by the upper and lower alpha values [inferred].
+// Draws the palette gradient strip: copies the palette table into 16 point rows, then colours the
+// rows by the upper and lower alpha values.
 // FUN_002561F0
-/* measured: baseline nd410; pre-loop opacity divisions nd442; retain loop-invariant color hoisting. */
+/* measured: retail hoists the loop-invariant colour divisions out of the loop. */
 #pragma push
 #pragma opt_loop_invariants on
 void cmmRankUpDrawGradientStrip(f32 translateX, f32 translateY, f32 depth,
@@ -1793,16 +1716,13 @@ void cmmRankUpDrawGradientStrip(f32 translateX, f32 translateY, f32 depth,
                   0.0f, scaleX, scaleY);
 }
 
-/* Draw the 16-point rank-up panel with separate upper and lower alpha.
- * The source palette keeps its 80-byte color allocation. Each point's word
- * copy and float translation use the explicit members of one storage union.
- * 612/624 bytes, three resolved relocations, twelve zero alignment bytes;
- * loop-invariant color divisions retain the retail ordering.
- * See docs/probe_archive/Rankup_00256460_point_rows_20260921.md. */
+/* Draws the 16-point rank-up panel with separate upper and lower alpha; each point's word copy and
+ * float translation share one storage union. */
 
-// Second palette gradient strip; same layout as cmmRankUpDrawGradientStrip with its own palette table [inferred].
+// Second palette gradient strip; same layout as cmmRankUpDrawGradientStrip with its own palette
+// table.
 // FUN_00256460
-/* measured: baseline removal leaves nd410, matching the first gradient's hoisting dependency. */
+/* measured: relies on the same loop-invariant colour hoisting as the first gradient strip. */
 void cmmRankUpDrawGradientStripPass2(f32 translateX, f32 translateY, f32 depth,
                    s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
                    s32 saveState, s32 offsetX, s32 offsetY,
@@ -1902,10 +1822,8 @@ void cmmRankUpDrawGradientStripPass2(f32 translateX, f32 translateY, f32 depth,
 #pragma pop
 
 
-/* Native b210 O2: 1292/1296 bytes, fifteen resolved relocations, and
- * four zero tail bytes. Typed keyframes and separate expansion/centering
- * lifetimes retain the original four-pass draw and fade calculation. */
-// Draws the expanding texture with a fade: four passes of draw and fade computed from the interpolation and expansion values [inferred].
+/* Draws the expanding texture with a fade in four passes, using the interpolation and expansion
+ * values; typed keyframes and separate expansion/centering lifetimes keep that shape. */
 // FUN_002566D0
 void cmmRankUpDrawFadedExpansion(f32 unusedX, f32 unusedY, f32 unusedZ,
                   s32 unusedColor, s32 alpha, f32 interpolation, f32 expansion,
@@ -1996,10 +1914,8 @@ void cmmRankUpDrawFadedExpansion(f32 unusedX, f32 unusedY, f32 unusedZ,
                   (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureB, uv.coordinates);
 }
-/* Native b210 O2: 1292/1296 bytes, fifteen resolved relocations, and
- * four zero tail bytes. Typed keyframes and separate expansion/centering
- * lifetimes retain the original four-pass draw and fade calculation. */
-// Same expanding fade as cmmRankUpDrawFadedExpansion, for the second texture pair [inferred].
+/* Same expanding fade as cmmRankUpDrawFadedExpansion, for the second texture pair; typed keyframes
+ * and separate expansion/centering lifetimes keep the four-pass draw. */
 // FUN_00256BE0
 void cmmRankUpDrawFadedExpansionPass2(f32 unusedX, f32 unusedY, f32 unusedZ,
                   s32 unusedColor, s32 alpha, f32 interpolation, f32 expansion,
@@ -2090,10 +2006,6 @@ void cmmRankUpDrawFadedExpansionPass2(f32 unusedX, f32 unusedY, f32 unusedZ,
                   (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureB, uv.coordinates);
 }
-/* Native b210 O2: 1828/1840 bytes, thirty resolved relocations, and
- * twelve zero tail bytes. Colors, keyframes, UVs and rectangles own their
- * complete initialized storage. The two signed displacements retain the
- * original independent products; the drawing providers take depth third. */
 typedef union {
     u8 channels[4];
     f32 bits;
@@ -2104,7 +2016,8 @@ typedef union {
     u_long128 quad;
 } RankUpRectangle;
 
-// Draws the wipe rectangle: interpolates the first and second screen rectangles by progress and draws them with the texture [inferred].
+// Draws the wipe rectangle: interpolates the first and second screen rectangles by progress and
+// draws them with the texture.
 // FUN_002570F0
 void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
                   s32 unusedColor, s32 alpha, f32 progress, s32 texture)
@@ -2210,8 +2123,7 @@ void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
     mdlEffectEmitMaskedTagPair();
     PrimDrawFlatRectangle((u8 *)(&firstColorCopy), (f32 *)(&firstScreenCopy), 10.0f, 0);
     mdlEffectEmitTagPair();
-    /* Each template and the working rectangle is a complete 16-byte object.
-     * Their addressable representation copies retain the original two stores. */
+    /* Each template and the working rectangle is copied as a whole 16-byte object. */
     *(u_long128 *)&firstTemplate = D_00636560;
     *(u_long128 *)&rectangle = *(u_long128 *)&firstTemplate;
     rectangle.fields.x = (s32)((f32)rectangle.fields.x + deltaX);
@@ -2279,7 +2191,8 @@ void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
                   (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, texture, uv.coordinates);
 }
-// Attaches the rank-up resource's indexed matrix when the resource exists; returns 1 on success, 0 otherwise [inferred].
+// Attaches the rank-up resource's indexed matrix when the resource exists; returns 1 on success, 0
+// otherwise.
 // FUN_00257820
 s32 cmmRankUpAttachResMatrix(s32 resourceIndex, void *matrix) {
     s32 model;
@@ -2311,7 +2224,6 @@ s32 cmmRankUpAttachResMatrix(s32 resourceIndex, void *matrix) {
 }
 
 
-
 extern u8 *func_003ec3d0(void *raster, s32 lockMode);
 extern void *func_003ec2e0(void *raster);
 extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
@@ -2326,8 +2238,8 @@ static inline RankUpPackedColor *cmmRankUpCapturePackedColor(RankUpPackedColor *
     color->bits = *packed;
     return color;
 }
-/* Copy the palette alpha channel without replacing its other color components. */
-/* measured: plain assignment removes the alpha load/store pair and shortens cmmRankUpRender by eight bytes. */
+/* Copy the palette alpha channel without replacing its other color components. measured: retail
+ * does a separate alpha load/store; a plain struct assignment drops it. */
 static inline void cmmRankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor *input)
 {
     output->a = input->a;
@@ -2343,8 +2255,8 @@ static inline void cmmRankUpDrawSpriteState(const RankUpSpriteState *state, Rank
                   (s32)((f32)((u32)state->color & 0xFF) * opacity), 0,
                   (s16)(width >> 1), (s16)(height >> 1), matrix, texture, uv);
 }
-/* Scale only the alpha byte of the packed effect color. */
-/* measured: plain assignment reverses the mul.s sources at cmmRankUpRender offset 5228. */
+/* Scale only the alpha byte of the packed effect color. measured: retail multiplies in this operand
+ * order, and a plain assignment swaps it. */
 static inline void cmmRankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amount)
 {
     color->channels[3] = (u8)((f32)(u32)color->channels[3] * amount);
@@ -2353,14 +2265,11 @@ static inline void cmmRankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amoun
 
 typedef union { RankUpSpriteState states[2]; s32 words[18]; } RankUpRenderKeys;
 typedef union { f32 coordinates[4][2]; s32 words[8]; } RankUpRenderUV;
-/* Native b210 O2: 14308/14320 bytes with twelve zero alignment bytes.
- * Complete keyframe, UV, position, color and rectangle objects preserve the
- * renderer's original phase calculations and argument-copy boundaries.
- * The two local panel providers keep their independent integer/float streams.
- * See docs/probe_archive/Rankup_renderer_00257900_20260923.md. */
-// Rank-up renderer: draws the panel each frame from the task's context and render-state table [inferred].
+/* Rank-up renderer: draws the panel each frame from the task's context and render-state table.
+ * Keyframe, UV, position, color and rectangle are kept as whole objects to preserve the original
+ * phase calculations. */
 // FUN_00257900
-/* measured: baseline removal leaves nd1286 in panel/color hoists; retain loop invariants. */
+/* measured: retail hoists the panel and colour computations out of loops. */
 #pragma push
 #pragma opt_loop_invariants on
 s32 cmmRankUpRender(u8 *task) {
@@ -3127,24 +3036,10 @@ s32 cmmRankUpRender(u8 *task) {
 }
 #pragma pop
 
-/* measured: nd 94 with a full C body, object 320B against a 336B window (wave 7
-   ran out of turns here and left it uncommitted). The body is undersized, so work
-   is missing rather than merely mis-scheduled; re-attempt from the m2c draft. */
-/* measured: best plain-C probe is object 324B against the 336B retail window;
-   verify normalized_diff 24B (fndiff: 11 differing words), with first differing
-   byte offsets 196, 198, 199, 200, 203, 206, 207, 210, 211, 212, 213, 214,
-   215, 220, 222, 223. The exact float-to-unsigned spelling is
-   `f = (f32)*(s32 *)(sp + 0x4C) * 127.5f / 40.0f; buf[3] = (u8)f;`.
-   Best body is archived in build/VRNK_0025b0f0_body.c. The reordered arr16
-   pointer-store shape improved fndiff from 12 to 11 differing words; the
-   remaining residual is retail's hoisted addiu $a0,$sp,0x5C and addiu
-   $a1,$sp,0x40 versus MWCC's sunk materializations. */
-/* measured: opt_propagation off keeps the two argument addresses where they
-   are taken - &fbuf before the fbuf store, &arr[16] between the two quad
-   stores - reproducing retail's hoisted addiu $a0/$a1 (nd24 -> 0). */
-// Builds the sprite arguments in a local buffer from the work record and draws them [inferred].
+/* measured: opt_propagation off keeps the two argument addresses where retail takes them, before
+ * the fbuf store and between the two quad stores. Builds the sprite arguments in a local buffer
+ * from the work record and draws them. */
 // FUN_0025B0F0
-/* measured: baseline removal leaves nd24 in rectangle/color argument-address materialization. */
 #pragma push
 #pragma opt_propagation off
 void cmmRankUpDrawSprite(s32 unused, u8 *task) {
@@ -3201,19 +3096,6 @@ void cmmRankUpDrawSprite(s32 unused, u8 *task) {
     }
 }
 #pragma pop
-/* measured: banked (2026-09-18): de-noised romwright+m2c switch (17 cases 0-0x10, jtbl_00747EC0 numeric order) + m2c frame (sp80 0xD8 at 0x80, sp160 0x20 at 0x160, arr58[7] at 0x58 covering copy dest 0x60, st188/18c). GUARDED_SCORE 654 (reloc-masked via probe_variants); fnalign retail 944 vs object 944 (+0, within 3% gate 916-972) with 276 edits +40 reloc-only, frame both 0x190. Free pragmas: common_off 758 worse, peephole_off 865 worse, loopinv/unroll/sched/dead 676 ties (baseline 676). Subscript: ((s32 *)ctx)[i] 766 worse (+90), raw arr 676 tie, indexed copy for(n<5)arr[n+2]=src[n] 656 best (-20). Fresh counters N/A (single call-free copy loop, n fresh). Address materialisation (p4/p8 split) 656 tie. Colouring: tmp-order swap 656 tie, arr-first decl 654 best (-2). Residuals: s64 second-arg dsll/dsra vs move (0035adc0 x2, 00255ed0 x2), branch polarity beq/bne, saved-GPR/FPR rotation, dropped move $s2,$zero, D_008873F4 rematerialization. No RankUpLocals needed (separate buffers give exact frame); no shdSpriteSlotHandle calls so *(s32*)->*(u8**) fix N/A (as in 00254a70 note). Production stays ASM via guard. */
-/* measured 0025b240 (owner, 2026-09-19): fnalign edits **276 -> 226** by writing the
-   `if (c == c) ... else if` chain as a `switch (c)` with the cases sorted ascending.
-   MWCC lowers a switch as descending comparisons with the arm bodies laid out in
-   ascending case order (handoff 7av), and a chain cannot produce that shape however the
-   arms are ordered in source.  Found by sweeping every first-party floor that carries a
-   four-or-more arm equality chain and measuring both spellings; the sweep also found
-   `func_001adea0` where the switch is *worse* (49 -> 51), so this is measured per
-   function and never assumed. */
-/* measured 0025b240 (owner, 2026-09-19): fnalign **226 -> 221 edits**, count
-   946 -> 944 against retail 944, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 extern u8 D_00636740[];
 extern u8 D_00636760[];
 extern u8 D_00636780[];
@@ -3295,7 +3177,8 @@ static inline s32 cmmRankUpAnimationComplete(u8 *task)
 }
 #pragma pop
 
-// Steps the rank-up CDVD load: creates the portrait tasks, acquires the directory, then waits for the load [inferred].
+// Steps the rank-up CDVD load: creates the portrait tasks, acquires the directory, then waits for
+// the load.
 // FUN_0025B240
 s32 cmmRankUpSequenceUpdate(u8 *task) {
     /* Persona chunk records expose the row id at +0x40; the rest is inline text. */
@@ -3652,13 +3535,8 @@ tail:
 }
 
 
-/* measured: retail hoists the jtbl_008873EC base into $s0 (reusing the dead
- * loop counter) and reloads the element per call; mwcc b210 rematerializes
- * the base at the FIRST call site (lui+lw) even when the base is cached in a
- * local (nd 34 with late assignment, nd 69 with early assignment, nd 28
- * direct). Loop and all other calls match byte-for-byte. Same floor as the
- * confirmed D_00887300 vtable calls. */
-// Releases a CDVD load task: disables and clears the scene resources in its list, frees the list and work blocks, and destroys the CDVD handle.
+/* Releases a CDVD load task: disables and clears the scene resources in its list, frees the list
+ * and work blocks, and destroys the CDVD handle. */
 // FUN_0025C100
 void cmmRankUpSequenceDestroy(u8 *unusedTask) {
     void (**freeWork)(void *);

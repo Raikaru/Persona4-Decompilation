@@ -1,11 +1,10 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00115830-00115830 */
 
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
 
-/* Reset writes prove the two 0x3C-byte blocks and the eight-byte header. */
+/* Panel record: an eight-byte header followed by two 0x3C-byte blocks. */
 typedef struct DatPanel {
     s16 kind;
     s16 unk2;
@@ -19,7 +18,7 @@ extern void memset(u8 *, s32 , s32 );
 #pragma opt_propagation on
 #pragma opt_common_subs on
 #pragma opt_rebuildconditionals on
-// Intent: Reset a panel: zero two 0x3C-byte sub-blocks and set the header to 1, 0, 0 [inferred]
+// Reset a panel: zero both 0x3C-byte sub-blocks and set the header to 1, 0, 0.
 // FUN_00115830
 void datPanelReset(u8 *panelBytes) {
     DatPanel *panel = (DatPanel *)panelBytes;

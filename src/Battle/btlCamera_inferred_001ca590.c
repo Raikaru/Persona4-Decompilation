@@ -102,20 +102,13 @@ extern f32 D_00607E3C[];
 extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 third, const RtQuat *fourth);
 
 
-/* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
+/* Adapted from P3 btlCameraFrameActionSide (002a6ee0). */
 
 
-/* Source unit: src/promoted/code1_001c.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001ca590-001cbf80 */
-
-/* measured: optimization_level 1 probe for c8cf0 argument order. */
-/* measured: close optimization_level after c8cf0. */
-/* Rotate around actor/target focus, resolving the side with the smaller quaternion change. */
 // FUN_001CA590
 void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     f32 xz[2];
     RwV3d alternateEye;
@@ -275,13 +268,11 @@ void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
     btlCameraSetDuration(camera, duration);
 }
 
-/* 1052/1056 bytes; 19 resolved relocations; four zero alignment bytes.
- * Build the current pose plus three orbit keys with a halfword frame index. */
+/* Build the current pose plus three orbit keys with a halfword frame index. */
 // FUN_001CACD0
 void btlCameraFrameFourPoseCurve(u8 *camera, f32 sweepAngle, f32 duration)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Quat {
         f32 x;
@@ -520,7 +511,6 @@ void btlCameraEffectListTickAlt(void) {
 // FUN_001CB460
 void btlCameraFrameRandomCut(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     u16 value;
     s32 flag_offset;
@@ -543,7 +533,6 @@ void btlCameraFrameRandomCut(u8 *camera)
 // FUN_001CB540
 void btlCameraFrameAnimWait(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     u8 *action;
 
@@ -570,13 +559,11 @@ done:
     ;
 }
 
-/* 840/848 bytes; 27 resolved relocations; eight zero alignment bytes.
-   Build both position/quaternion keys before clamping their heights. */
+/* Build both position/quaternion keys before clamping their heights. */
 // FUN_001CB610
 void btlCameraFrameRotateView(u8 *camera)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Vec3 {
         f32 x;
@@ -672,15 +659,12 @@ void btlCameraFrameRotateView(u8 *camera)
 // FUN_001CB960
 void btlCameraAttackScfUpdate(void) {}
 
-/* Frame the two animation-bound centers and retain the selected side
- * between updates. Two complete poses feed the spline submission.
- * b210 -O2:1540 exact bytes,12 zero alignment bytes; comparison
- * lowering is documented in Camera_001cb970_20260920.md. */
+/* Frame the two animation-bound centers and retain the selected side between updates; two poses
+ * feed the spline submission. */
 // FUN_001CB970
 void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     RwV3d actorPosition;
     RwV3d targetPosition;
@@ -838,7 +822,6 @@ void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
 // FUN_001CBF80
 void btlCameraWaitMotionFrames(u8 *camera) {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     ((BtlCameraMotionWaitWork *)(camera + 0x100))->duration =
         btlUnitMotionFrames((u8 *)((BtlAction *)(MEMBER(u8 *, camera, BtlCamera, action)))->unit, 4, 1.0f);

@@ -106,7 +106,6 @@ extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 
 
-
 extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern void resrcMngDestroy(u8 *resManager);
@@ -188,11 +187,7 @@ typedef FieldRgba8 Rgba8_0014;
 extern s32 D_007642F0;
 
 
-
-
-
 extern u8 *MT_Scene_GetResListHead(s32 resourceType);
-
 
 
 extern s32 iGpffff9dd0;
@@ -224,15 +219,9 @@ extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
 
 
-
-/* Camp display: grid, labels, radar and corner sprites.
- * The radar callees are declared here with u8 opacity parameters (H011):
- * retail narrows each radar alpha with its unsigned conversion and passes
- * it without another mask, while the matched definitions in this file keep
- * s32 because their own bodies use the full word.
- * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
- * call, so the label pointer is loaded before the stack argument. */
+/* Camp display: grid, labels, radar and corner sprites. Radar callees take u8 opacity because
+ * retail passes the narrowed alpha unmasked; one sprite variable serves the label and corner
+ * sprites. */
 #pragma push
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -260,30 +249,13 @@ extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
 extern void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 option);
 
-/* Source unit: src/promoted/code1_0014.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001441e0-00145080 */
-
 #pragma pop
-/* measured: opt_loop_invariants on hoists the shared float conversion constants in radarSetMode. */
-/* measured: restore loop-invariant hoisting after radarSetMode. */
-/* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
-/* measured: restore loop-invariant hoisting after radarLayoutSlots. */
-/* measured: optimization level 1 plus base-before-value declaration order
-   keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
-/* measured: closes the scoped optimization-level-1 probe. */
-/* measured: opt_propagation off probe for radarDrawNumber. */
-/* measured: closes opt_propagation off probe for radarDrawNumber. */
+/* measured: retail hoists shared float conversion and loop constants out of the radar loops, and
+ * uses optimization level 1 for its loop arithmetic. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off probe for radarDrawSegment. */
-/* measured: opt_loop_invariants on probe for radarDrawSegment. */
-/* measured: closes opt_loop_invariants on probe for radarDrawSegment. */
-/* measured: restores opt_propagation after radarDrawSegment probe. */
-/* Keep each calendar row live across its four date queries. The third
- * query is combined with the day index before the fourth call.
- * measured: 2268 executable bytes and four zero-tail bytes, all exact. */
-/* measured: a separate fill-row lifetime removes opt_lifetimes on (32 differing bytes -> whole-file MATCH). */
-// Intent: Calendar task update: kind 0 fills a 7-row day table from the date queries; kind 1 draws the rows and skips while input bit 0x800 is held [inferred]
+/* Calendar task update: kind 0 fills a 7-row day table from the date queries, keeping each row live
+ * across its four queries; kind 1 draws the rows, skipping while input bit 0x800 is held. */
 // FUN_001441E0
 s32 calendarTaskUpdate(u8 *task) {
     extern s16 datGetDateIndex(void);
@@ -520,14 +492,14 @@ s32 calendarTaskUpdate(u8 *task) {
     return 0;
 }
 
-// Intent: Free the calendar work block through the free callback [inferred]
+// Free the calendar work block through the free callback.
 // FUN_00144AC0
 void calendarTaskDestroy(u8 *task)
 {
     jtbl_008873EC[0](((struct KwlnTask *)task)->work);
 }
 
-// Intent: Allocate a calendar work block and create its task with the update and destroy callbacks [inferred]
+// Allocate a calendar work block and create its task with the update and destroy callbacks.
 // FUN_00144AF0
 s32 calendarTaskCreate(void)
 {
@@ -541,11 +513,9 @@ s32 calendarTaskCreate(void)
     return (s32)kwlnTaskCreate((const void *)(&D_005EF7B0), 0x100, 0, 0, calendarTaskUpdate, calendarTaskDestroy, (u8 *)((void *)(u32)work));
 }
 
-/* Return zero for a missing path; otherwise retain retail's short-circuited
-   predicate calls and always-one result. Distinct equivalent low-16 forms
-   prevent caching masks across calls without changing the predicate ABI.
-   measured: object 264B/window 272B; exact instructions and 8B zero tail. */
-// Intent: Return 1 when the room file for the field and room exists on disc, 0 otherwise [inferred]
+/* Returns 1 when the room file for the field and room exists on disc, 0 otherwise. Retail short-
+ * circuits the predicate calls and uses distinct low-16 mask forms so masks are not cached across
+ * calls. */
 // FUN_00144B80
 s32 fieldRoomFileExists(s32 fieldId, s32 roomId)
 {
@@ -614,7 +584,8 @@ loop_5_test:
     func_00440b68(&D_005EF800);
 }
 
-// Intent: Request a room change: when the scene is loaded and the room differs, record it, set state bit 2, the timer and open the primary file; otherwise mark the resource lists dirty [inferred]
+// Request a room change: if the scene is loaded and the room differs, record it, set state bit 2,
+// the timer and open the primary file; otherwise mark resource lists dirty.
 // FUN_00144E10
 void fieldSceneRequestRoom(s64 roomId) {
     s32 sceneFlags;
@@ -645,7 +616,8 @@ void fieldSceneRequestRoom(s64 roomId) {
     ((FieldSceneState *)sceneState)->primaryRoom = roomId;
 }
 
-// Intent: Request the secondary room slot (field +0x12): when the scene is loaded and the room differs, record it, set state bit 4 and open the primary file [inferred]
+// Request the secondary room slot: if the scene is loaded and the room differs, record it, set
+// state bit 4 and open the primary file.
 // FUN_00144ED0
 void fieldSceneRequestSecondaryRoom(s64 roomId) {
     s32 sceneFlags;
@@ -673,8 +645,7 @@ void fieldSceneRequestSecondaryRoom(s64 roomId) {
     }
 }
 
-/* Advance scene resource loading; return 1 once no request or pending load remains.
- * Local byte aliases preserve the provider ABI; scalar fields use FieldSceneState. */
+/* Advance scene resource loading; return 1 once no request or pending load remains. */
 // FUN_00144F60
 s32 fieldSceneLoadStep(void)
 {
@@ -718,8 +689,7 @@ s32 fieldSceneLoadStep(void)
     }
 }
 
-/* Destroy scene/filter and room tasks, then all resource lists and scene tables.
- * Task-array byte cursors preserve traversal order; ResrcRecord supplies link layout. */
+/* Destroy scene/filter and room tasks, then all resource lists and scene tables. */
 // FUN_00145080
 void fieldSceneUnload(void) {
     FieldSceneState *fieldSceneStateCursor;

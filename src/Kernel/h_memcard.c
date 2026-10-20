@@ -1,5 +1,4 @@
 #include "memcard_summary_internal.h"
-/* Source unit: src/Kernel/h_memcard_00464650.c (1 function markers) */
 #include "include_asm.h"
 #include "type.h"
 
@@ -43,8 +42,6 @@ extern char D_007128F8[];
 extern char D_00712908[];
 extern char D_00712920[];
 extern char D_00712938[];
- 
-
 
 
 /* Begin a buffered load by resetting the card sequence and recording its inputs. */
@@ -58,7 +55,6 @@ void H_Memcard_BeginLoad(s32 file, void* buffer, s32 size)
     D_00764BB4 = size;
     D_00764BA0 = 0;
 }
-
 
 
 /* Sets the memory-card sequence mode to 9. */
@@ -149,7 +145,6 @@ card_done:
 }
 
 
-
 /* Raises the memory-card abort flag (D_00764B9C). */
 // FUN_004653F0
 void H_Memcard_SetAbort(void)
@@ -168,7 +163,6 @@ void H_Memcard_BeginSave(s32 file, void* buffer, s32 resultAddress)
     D_00764BB0 = resultAddress;
     D_00764BA0 = 0;
 }
-
 
 
 /* Advance the asynchronous save sequence; return 100 on completion or a negative error.
@@ -470,7 +464,9 @@ void H_Memcard_Reset(void)
     D_00764BBC = 0;
     D_00764BB8 = 0;
 }
-/* measured: plain C reproduces the complete 800-byte state machine except for the final-state result setup order (retail loads iGpffffbaa8 before materializing 100; b210 reverses those two instructions). Object 796B/window 800B, normalized_diff 6. Committed at nd 6. */
+/* Run one step of the memory card state machine that checks free space and then creates the
+ * numbered save slot files one by one. Return 100 when all slots are done, or a negative error code
+ * if the card fails. */
 // FUN_00465F40
 /* Probe each save slot when space is low; retain the already matched dispatch shape.
  * The redundant temporaries/constant branch forms predate this pass and are
@@ -594,7 +590,6 @@ s32 H_Memcard_CreateSlotsStep(void)
   return 0;
 
 }
-
 
 
 /* Select a save-slot file and restart its card operation without changing the buffer. */

@@ -24,7 +24,6 @@ extern char D_0063CB30[];
 extern char D_0063D050[];
 
 
-
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
 /* Element addresses for the scene source tables. The helpers keep the
@@ -32,7 +31,7 @@ extern u8 D_0063CFA0[];
    typed array instead reorders the table-base load against the shift. */
 
 
-// lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
+// lint: allow H011 -- measured: a u16 prototype changes the wide id arguments in func_00291a60.
 extern u32 yTimeTrackAppendKey(s32 source, s32 eventWork, s32 nodeData, s32 recordCount,
                           s32, f32, s32, s32,
                           s32);
@@ -50,31 +49,11 @@ extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 002962f0-00296850 */
-
 extern void mtMiscCollectType1Records(u8 *eventWork);
 extern void mtMiscCollectType2Records(u8 *eventWork);
 extern void mtMiscBuildSceneNodes(u8 *eventWork);
-/* measured probe: preserve local constant with opt_propagation off. */
-/* measured probe: close opt_propagation bracket after func_00291530. */
-/* measured: opt_propagation off keeps `weapon` materialised between the index
-   shift and the base add (retail sll/andi/addu); with propagation on the CSE'd
-   address is finished before any argument. The index/five locals must stay
-   literal under this pragma or they take a sixth saved register. Attachment
-   helpers retain block-scoped u16 parameters for per-call masks. */
-/* measured: restore propagation for the rest of the unit. */
-/* measured probe: preserve the retail type constant and close bracket below. */
-/* measured probe: close opt_propagation bracket after func_00291810. */
-/* measured: O1 float-local register mapping probe for func_00293710. */
-/* measured: closes O1 float-local register mapping probe for func_00293710. */
-/* 776/784 bytes; four resolved relocations and eight zero alignment bytes.
- * Preserve the signed readiness gate, callback-visible record reloads, and
- * the complete four-halfword position aggregate. */
-// Collects type-4 records of the current scene into event nodes. Returns early
-// unless the readiness check at +0x678 passes and evtMessageWindowRecordCount reports a
-// positive count.
-/* measured: typing each remaining packed child store individually loses MATCH;
- * source loads are typed while those alias-sensitive stores retain their access shape. */
+/* Collects the current scene's type-4 records into event nodes. Returns early unless the readiness
+ * check passes and evtMessageWindowRecordCount reports a positive count. */
 // FUN_002962F0
 void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
 {
@@ -323,13 +302,10 @@ void mtMiscCollectType19Records(MtMiscSceneSource *source, u8 *eventWork)
   return;
 }
 
-/* Each filtered scan owns its resource and index, as does the final result reset.
- * measured: a scoped resultIndex removes the four-word lifetime residual under
- * file-baseline settings; all 6312 code bytes and eight zero tail bytes match. */
-// Build the event scene from source: fixed nodes, filtered record sets, header words, and per-entry nodes.
-/* The +0xD0 header word has no member in the shared EvtEventWork layout.
- * measured: each other remaining raw access loses MATCH when typed independently;
- * keep those frame/list reloads and packed-payload aliases at their original sites. */
+/* Build the event scene from source: fixed nodes, filtered record sets, header words, and per-entry
+ * nodes. Each filtered scan owns its resource and index, as does the final result reset. The header
+ * word at 0xD0 has no member in the shared EvtEventWork layout, so it and the other raw accesses
+ * stay untyped. */
 // FUN_00296850
 s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
 {

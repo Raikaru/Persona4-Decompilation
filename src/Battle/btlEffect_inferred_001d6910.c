@@ -44,13 +44,6 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
-
-
 typedef struct RwV3d RwV3d;
 struct RwV3d
 {
@@ -73,18 +66,12 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d6910-001d6910 */
-
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
 #pragma push
 #pragma pop
-/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
-/* measured: restore optimization_level 2 after func_001d5990. */
-/* measured: opt_propagation off probe for btlEffectStepFormationPlacement argument setup and register coloring. */
+/* measured: func_001d5990 needs optimization level 1 to reproduce retail's stack reload scheduling.
+ * measured: btlEffectStepFormationPlacement needs opt_propagation off to reproduce retail's
+ * argument setup and register use. */
 #pragma push
-/* measured: restore pragma state after btlEffectStepFormationPlacement. */
 #pragma pop
 /* Release node resources, unlink both neighbours, repair the global head if needed, and free the node. */
 // FUN_001D6910

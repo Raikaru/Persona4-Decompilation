@@ -213,28 +213,13 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 #pragma push
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452870-00452870 */
-
 #pragma pop
-/* measured: restore O2 after func_00450e80. */
-/* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
+/* measured: with constant propagation off, the constant 3 and the computed pointer stay in live
+ * locals, as they do in retail. */
 #pragma push
 #pragma pop
-/* MATCH.  The last three differing words were a frame-slot placement: retail
-   puts the actuator pair at sp+0x40 and b210 put it at sp+0x48, with the
-   pressed pair at sp+0x4C in both.  0x40 is sixteen-byte aligned and 0x48 is
-   not, and `s8 actuator[2] __attribute__((aligned(16)))` is what reproduces
-   it - a two-byte buffer whose address is handed to func_00430630, which is
-   pad-actuator DMA, so the alignment is a real requirement rather than a
-   decoration.  Measured and rejected first: all thirteen declaration
-   positions for the array (3 everywhere except the first two slots, which
-   cost 6), block-scoping it at its use (3), declaring it `u16` and casting
-   (3), `u8` instead of `s8` (3), widening it to `s8[4]` (3), and
-   `aligned(8)` (3).  Aligning the pressed pair as well is also 0, so the
-   actuator alignment alone is the cause. */
-/* Access-site-only typing grew 1136 bytes to 1152; the separate typed record alias
- * retains retail field-address lifetimes without changing the original byte cursor. */
-// Intent: polls the pad hardware for record `arg0`, then updates its port state and its pressed pair.
+/* The actuator buffer is 16-byte aligned because its address goes to func_00430630, the pad-
+ * actuator DMA routine. */
 // FUN_00452870
 void sdkPadUpdateRecord(void *record)
 {

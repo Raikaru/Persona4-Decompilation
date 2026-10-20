@@ -1,4 +1,4 @@
-/* Original translation unit cldDungeonIn.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit cldDungeonIn.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -106,7 +106,7 @@ s32 cldDungeonInStart(s32 parentTask) {
     work = D_008873F4[0](1, 0xC, 0x40000);
     work->state = 0;
     list = nmListAllocManager(0x10, 0, 0, 0);
-    /* The list provider exposes its self-reference at +0x24; its remaining layout is opaque here. */
+    /* The list manager's data field holds a self-reference; the rest of its layout is opaque here. */
     listReference = (u8 **)((NmlistManager *)list)->data;
     *listReference = list;
     work->list = (DungeonInList **)listReference;
@@ -136,11 +136,8 @@ static inline f32 cldDungeonInBezier(f32 t, f32 start, f32 control1, f32 control
          + control2 * (t * (threeU * t)) + end * (t * (t * t));
 }
 
-/* measured: keep the entry base across the initial copy. The explicit byte
-   offsets make the current-vector address a shared expression for both copies.
-   Native b210 -O2 matches 1596/1600 bytes, with all 45 relocations and all 14
-   owned data objects proved against retail; the remaining four bytes are zero. */
-/* Animate the dungeon-entry contour and its 19 interpolated shape entries. */
+/* Animate the dungeon-entry contour and its 19 interpolated shape entries. Explicit byte offsets
+ * keep the current-vector address shared by both copies. */
 // FUN_00268230
 void cldDungeonInDrawFrame(void *unused, void *task)
 {

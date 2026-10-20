@@ -1,5 +1,4 @@
 #include "include_asm.h"
-/* Source unit: src/Battle/btlSound_001f7530.c */
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "btl_packet_create_internal.h"
@@ -64,7 +63,6 @@ extern u32 btlSoundSetUnitFlag10(void* work);
 extern u32 btlVoiceEnablePlaybackPacketUpdate(void* context);
 
 
-
 /* Stop the main battle stream only when the battle-audio flag is enabled. */
 // FUN_001F7530
 void btlSoundStopBgmIfEnabled(void)
@@ -74,7 +72,6 @@ void btlSoundStopBgmIfEnabled(void)
         sdkSndStopMainChannel();
     }
 }
-
 
 
 /* Fade the main battle stream when audio is enabled. */
@@ -88,13 +85,11 @@ void btlSoundFadeOutBgm(s16 fadeDuration)
 }
 
 
-
 // FUN_001F7620
 void btlSoundFadeChannel(s16 channel, s32 fadeFrames)
 {
     sdkSndFadeOutChannelFrames(channel, 0, (u16)fadeFrames);
 }
-
 
 
 /* Allocate a cue packet that refreshes the cached channel before playback. */
@@ -115,13 +110,11 @@ BtlPacket* btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant)
 }
 
 
-
 // FUN_001F7CA0
 void btlSoundStopChannel(u16* work)
 {
     sdkSndStopStream(0, (s16)*work);
 }
-
 
 
 /* Start the packet cue on stream group zero and finish the packet immediately. */
@@ -133,7 +126,6 @@ u32 btlSoundPlayCue(s16* work)
     sdkSndStartStream(0, values[0], values[1], values[2]);
     return 1;
 }
-
 
 
 /* Allocate a cue packet that stops its channel before starting the requested cue. */
@@ -152,7 +144,6 @@ BtlPacket* btlSoundCreateCuePacket(u16 channel, u16 cue, u16 variant)
     work[2] = variant;
     return packet;
 }
-
 
 
 /* Begin loading the skill sound directory unless the caller requested deferred loading. */
@@ -251,7 +242,6 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 }
 
 
-
 /* Play the fixed cue or advance through the available rotating cue channels. */
 // FUN_001F8070
 u32 btlSoundRunCueQueue(u16* work)
@@ -295,7 +285,6 @@ BtlPacket* btlSoundCreateCueQueuePacket(u16 state)
 }
 
 
-
 /* Format the stream path from the packet name and start its channel. */
 // FUN_001F8190
 u32 btlSoundLoadStream(u16* work)
@@ -306,7 +295,6 @@ u32 btlSoundLoadStream(u16* work)
     sdkSndStartChannel((s16)*work, path);
     return 1;
 }
-
 
 
 /* Create a stream packet with an owned, trailing copy of its name. */
@@ -326,7 +314,6 @@ BtlPacket* btlSoundCreateStreamPacket(u16 channel, const char* streamName)
     strcpy((char*)work + 8, streamName);
     return packet;
 }
-
 
 
 /* Clear motion flag 0x10 on units with the motion-state flag set. */
@@ -355,7 +342,6 @@ BtlPacket* btlSoundCreateUnitFlagClearPacket(struct BtlUnit* unit)
 }
 
 
-
 /* Set motion flag 0x10 on units with the motion-state flag set. */
 // FUN_001F8300
 u32 btlSoundSetUnitFlag10(void* work)
@@ -380,7 +366,6 @@ BtlPacket* btlSoundCreateUnitFlagSetPacket(struct BtlUnit* unit)
     *(struct BtlUnit**)packet->workData = unit;
     return packet;
 }
-
 
 
 /* Create the zero-initialized wait packet used by the target-state callback. */
@@ -424,28 +409,8 @@ extern s32 btlSoundPickRandomPartnerVoice(u8 *action);
 extern s32 btlVoiceIdPacketUpdate(u8 *context);
 #pragma push
 #pragma pop
-/* measured: retail materialises this loop's invariant in the preheader; plain
-   -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
-/* measured: closes the hoist bracket opened above and restores the -O2
-   baseline for the rest of the file. */
-/* measured: opt_rebuildconditionals off probe for btlSoundPickStatusTalkVoiceA final branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
-/* measured: opt_rebuildconditionals off preserves btlSoundPickStatusTalkVoiceB's positive flag branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceB. */
-/* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
-/* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
-/* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerCallVoice's loop constants. */
-/* measured: close opt_propagation after btlSoundPickPartnerCallVoice probe. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerReplyVoice's loop constants. */
-/* measured: close opt_propagation after btlSoundPickPartnerReplyVoice probe. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerAssistVoice's loop constants. */
-/* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
-/* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
-/* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
-/* measured: opt_propagation off preserves 9ac0's explicit boolean branch. */
-/* measured: close opt_propagation after btlVoiceIdPacketUpdate probe. */
-/* Polls the CDVD file load for the battle state at +0xB84. Returns the state-5 task result when the state is 5; once the file is loaded it caches the node at +0x110 into +0xB80 (unless flag 2 is set in +0xB4C), destroys the handle and returns 1. */
+/* measured: retail hoists the loop invariant into the preheader. Polls the battle state's CDVD file
+ * load; once loaded, caches the node, destroys the handle and returns 1. */
 // FUN_001FA660
 s32 btlCdvdLoadPoll(void)
 {
@@ -994,7 +959,6 @@ done:
 }
 
 
-/* measured: candidate object 284B/window 288B, normalized_diff 1. Committed at nd 1. */
 /* Check whether the acting unit already carries every relevant requested buff bit. */
 // FUN_001FB360
 s32 btlBuffMaskCheckUnit(u8 *action, s32 skillId)

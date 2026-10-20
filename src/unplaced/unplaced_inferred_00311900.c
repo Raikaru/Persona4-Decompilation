@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00311900-00311e40 */
 
 #include "include_asm.h"
 #include "type.h"
@@ -62,7 +61,7 @@ s32 cmmCommunityExpRemaining(s32 community, u8 *persona, s8 applyMultiplier)
 /* Match up to eight recipe entries against unused materials; required entries must match and category entries compare arcana. */
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: typed table, entry cursor and cached recipe flags do not match; baseline retains 59 differing words. */
+/* measured: retail hoists the recipe table loads out of the loop, so loop invariants are on. */
 // FUN_00311B90
 s32 fclCombineRecipeMatchMask(u16 *recipe, u16 *materials, s32 materialCount, s16 *matchedCount)
 {
@@ -197,7 +196,7 @@ done:
 /* Report whether any of the 23 flag-gate records refers to the requested community. */
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: cached key/table and pointer traversal do not match; baseline retains 13 differing words. */
+/* measured: retail hoists the key and table loads out of the scan loop, so loop invariants are on. */
 // FUN_00311E40
 s32 cmmCommunityHasFlagGate(s32 community)
 {

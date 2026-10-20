@@ -24,8 +24,7 @@ s32 sdkSpriteNewNode(void *, u8);
 void kAssertFail(char *, s32);
 s32 cmpSystemSetMode(u8 *, u32);
 
-/* Layout established by the initializer's 0x708-byte clear and the 0x30/0x14/0xA strides.
- * Integer coordinate stores retain their exact bit representation. */
+/* Coordinates are unions because some stores write integer bit patterns directly. */
 typedef union { f32 value; s32 bits; } CmpSystemCoordinate;
 typedef struct {
     CmpSystemCoordinate startX, startY, targetX, targetY, x, y;
@@ -71,11 +70,8 @@ typedef struct {
 typedef char CmpSystemWorkSize[sizeof(CmpSystemWork) == 0x708 ? 1 : -1];
 
 // FUN_0035F5B0
-/* Initialize the 0x708-byte system menu, its 29 motion records, sprites and message window. */
-/* measured: removing this regresses func_0035f5b0 from nd 0 to nd 118
-   (loop-invariant hoisting of the D_0064D6B0 base and the store-constant
-   3 is required for the retail layout). */
-/* measured: baseline 53 differing words; wide loop counters 220, cached motion-row base 80; retain hoisting. */
+/* Initialize the system menu, its 29 motion records, sprites and message window. measured: retail
+ * hoists the D_0064D6B0 base and the stored constant 3 out of the loops. */
 #pragma opt_loop_invariants on
 void cmpSystemMenuInit(u8 *work)
 {
@@ -171,7 +167,7 @@ void cmpSystemMenuInit(u8 *work)
     ((CmpSystemWork *)work)->unk38 = datCommunityDefaultSetting();
     cmpSystemSetMode(work, 0);
 }
-/* measured: see the annotation above the matching `on` pragma (func_0035f5b0). */
+/* measured: restores the unit setting after func_0035f5b0. */
 #pragma opt_loop_invariants off
 
 /* Save the previous selection before changing one of the three cursor slots. */
@@ -188,9 +184,7 @@ s32 cmpSystemSetSelection(s32 work, s32 mode, s16 selection)
     return 1;
 }
 
-/* Snapshot all current row positions and load the chosen system-menu transition table.
- * measured: access-site-only CmpSystemWork typing
- * changed 362 instruction bytes; a typed root local retains all 544 retail bytes. */
+/* Snapshot all current row positions and load the chosen system-menu transition table. */
 // FUN_0035FA20
 s32 cmpSystemSetMode(u8 *work, u32 mode)
 {

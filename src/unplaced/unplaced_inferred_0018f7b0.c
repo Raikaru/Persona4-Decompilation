@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0018f8a0-0018f950 */
 
 #include "field_transition_internal.h"
 #include "member_access.h"
@@ -36,8 +35,8 @@ typedef struct FldMapEditorWork {
     u8 pad1CD18[8];
 } FldMapEditorWork;
 
-/* Convert a map-editor column to its sixteen-byte cell displacement. */
-/* measured: expanding this shift changes selected-cell address calculation instruction bytes. */
+/* Convert a map-editor column to its sixteen-byte cell displacement. measured: retail computes the
+ * selected-cell address through this helper; writing the shift inline produces different code. */
 static inline s32 fldMapCellColumnOffset(s32 value)
 {
     return value << 4;
@@ -138,7 +137,6 @@ s32 K_MapEditTask(u8 *task)
     extern FieldPanelShape D_005F5AC0[];
     static PanelColor boardColor = {0x40, 0x40, 0x40, 0xFF};
     static PanelColor iconColor = {0x40, 0x40, 0x40, 0xFF};
-    /* The editor fields are proven by cursor/menu uses; MEMBER preserves measured reloads. */
     u8 *work;
     /* HCdvdRequest supplies the loaded cell payload and its byte size. */
     u8 *image;

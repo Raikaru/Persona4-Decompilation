@@ -18,7 +18,6 @@ void calSplitDayOfYear(s64 dateIndex, s32 *monthOut, s32 *dayOut);
 s32 calGetWeekdayOfDay(s64 dateIndex);
 
 
-
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
@@ -28,13 +27,6 @@ extern void PrimDrawPoints(void *colors, void *positions, f32 depth,
 extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
                            f32 angle, f32 depth, s32 preserveState);
 
-
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025c310-0025c3e0 */
 
 // FUN_0025C310
 void K_Cmd_TASK_LOOKUP(void) {

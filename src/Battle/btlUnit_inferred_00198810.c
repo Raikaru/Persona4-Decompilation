@@ -61,15 +61,10 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -85,27 +80,7 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00198810-001988b0 */
-
-/* measured: opt_propagation off is scoped to func_001927c0. */
-/* measured: closes opt_propagation around func_001927c0. */
-/* measured: opt_propagation off is scoped to func_001928c0. */
-/* measured: opt_loop_invariants on is scoped to func_001928c0. */
-/* measured: closes opt_loop_invariants around func_001928c0. */
-/* measured: closes opt_propagation around func_001928c0. */
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
-/* measured: opt_propagation off keeps the per-use u8/u16 conversions and the
-   named scaled index (`off = k * 6`) from being folded into one address. */
-/* measured: closes the propagation bracket; the file default is on. */
-/* measured: opt_propagation off preserves the COP1 chain's intermediate colouring. */
-/* measured: restore opt_propagation after func_00197a80 FPR temporary colouring probe. */
+/* Return the unit's current motion if its motion flag is set, otherwise 0. */
 // FUN_00198810
 s32 btlUnitGetMotionState(BtlUnit *unit) {
     if ((unit->flags2 & 2) != 0) {
@@ -114,9 +89,8 @@ s32 btlUnitGetMotionState(BtlUnit *unit) {
     return 0;
 }
 
-/* Report whether a party or enemy unit is playing its configured rest motion. */
-/* Ported from P3FES btlUnit00282c60: the P4 genus/flag/value fields retain
-   the donor layout at 0xA2/0x98/0x9DA, with the result comparing unk_9EC. */
+/* Report whether a party or enemy unit is playing its configured rest motion. Matches P3FES
+ * btlUnit00282c60. */
 // FUN_00198840
 u32 btlUnitIsAtRestMotion(BtlUnit *unit)
 {
@@ -136,9 +110,7 @@ u32 btlUnitIsAtRestMotion(BtlUnit *unit)
     return 0;
 }
 
-/* Report walking motion one only for party and enemy unit kinds. */
-/* Ported from P3FES btlUnit00282cd0: the P4 genus/flag/value fields retain
-   the donor layout at 0xA2/0x98/0x9DA, with the result testing val == 1. */
+/* Report walking motion one only for party and enemy unit kinds. Matches P3FES btlUnit00282cd0. */
 // FUN_001988B0
 u32 btlUnitIsWalkingMotion(BtlUnit *unit)
 {

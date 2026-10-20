@@ -1,5 +1,4 @@
 #include "datCalc_internal.h"
-/* Source unit: src/Battle/btlAction_001a1100.c */
 #include "include_asm.h"
 #include "type.h"
 #include "btl_action_internal.h"
@@ -15,7 +14,6 @@ extern void btlActionSetState(BtlAction* action, u16 state);
 #define BTLACTION_STATE_START 2
 
 extern BtlPacket* btlPacketFindFirstByActionUID(u64 actionUID, u64 mask);
-
 
 
 /* Wait for movement to finish, restore the anchor rotation, and resume the action state. */
@@ -36,7 +34,6 @@ void btlActionStartHomeUpdate(BtlAction* action)
         btlActionSetState(action, action->state);
     }
 }
-
 
 
 /* Queue formation return and dependent movement, cleanup, rotation and camera packets. */
@@ -152,7 +149,6 @@ void btlActionChangeFormationUpdate(BtlAction* action)
 }
 
 
-
 u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 /* Wait for persona records to finish, clear the party presentation flag, and resume. */
 // FUN_001ADE10
@@ -174,7 +170,6 @@ void btlActionTestUpdate(BtlAction* action)
 }
 
 
-
 /* Record the previous state, reset elapsed time and invoke the new state initializer. */
 // FUN_001B0800
 void btlActionSetState(BtlAction* action, u16 state)
@@ -185,7 +180,6 @@ void btlActionSetState(BtlAction* action, u16 state)
 
     D_005f6e20[state].init(action);
 }
-
 
 
 /* Schedule a delayed transition, or perform it immediately when delay is zero. */
@@ -209,7 +203,6 @@ void btlActionSetStateWithDelay(BtlAction* action, u16 state, u16 delay)
 }
 
 
-
 // FUN_001B08D0
 void btlActionSetCallbackPending(void* action)
 {
@@ -217,13 +210,11 @@ void btlActionSetCallbackPending(void* action)
 }
 
 
-
 // FUN_001B08F0
 void btlActionClearCallbackPending(void* action)
 {
     ((BtlAction *)action)->flags &= ~1;
 }
-
 
 
 /* Attach the unit and mark this action as owning a valid unit. */

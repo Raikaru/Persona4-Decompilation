@@ -1,9 +1,8 @@
-/* Original translation unit fclBankManager.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit fclBankManager.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "scene_event_internal.h"
 #include "include_asm.h"
 #include "fcl_bank_internal.h"
-
 
 
 typedef struct FclBankPosition { f32 x, y; } FclBankPosition;
@@ -43,13 +42,11 @@ typedef struct FclBankRequestNode {
 // whatever tail args they have.
 extern void fclBankLogf(u8 *, ...);
 
-// PS2 SDK va_list: the register-save area is the spill block mwcc emits for
-// __builtin_args_info; mirrors src/h_dbprt.c.
+// PS2 SDK va_list: va_start points into the register-save spill block the compiler emits for
+// __builtin_args_info.
 typedef char *va_list;
 #define va_start(ap, last) (ap = ((va_list)__builtin_next_arg(last) - (__builtin_args_info(2) >= 8 ? 0 : (8 - __builtin_args_info(2)) * 8)))
 #define va_end(ap) ((void)0)
-
-
 
 
 /* Variadic bank log: forwards the format and its varargs to func_00446e88. */
@@ -160,10 +157,8 @@ static inline s16 fclBankFindReusable(FclBankRecord *banks)
     return -1;
 }
 
-/* Measured: wide selection and return retain retail narrowing boundaries;
-   the low-halfword index store keeps the original selected register.
-   Exact 500/512 bytes, with twelve zero tail bytes. */
-/* Places node in a free or reusable bank slot; returns the slot index or -1. */
+/* Places node in a free or reusable bank slot; returns the slot index or -1. The selection and
+ * return stay 64-bit, matching where retail narrows the value. */
 // FUN_002E1030
 s64 fclBankAcquire(int *node)
 {
@@ -216,20 +211,9 @@ void fclBankQueueRequest(s32 descriptor, s64 flags)
     request->flags = (s16)(((s16)flags & 0xFF00) | 3);
 }
 
-/* measured: retail hoists the 0xFFFF0000 mask into the loop preheader
-   (lui $t0,0xffff between i=0 and the branch) and keeps v in $t1; mwcc b210
-   sinks the lui to the first use inside the loop (rematerializing at the
-   first and) and cascades every following register choice/branch offset
-   (nd 26). Tried: inline mask, u32 local mask (declared first/last/mid,
-   assigned at declaration or as a pre-loop statement), 0xFFFF0000U suffix —
-   all give the identical nd 26. This is the load-sinking floor. */
-/* measured: the best exploratory C scored nd 117 (object 184B / window
-   208B); it was size-deficit and discarded. The historical nd 26 note above
-   describes a discarded body, not a retained target. */
 /* Marks the other slots with matching request flags; returns 0 if any lacks flag 4. */
 // FUN_002E12E0
 /* measured: retail keeps the invariant key mask in the loop preheader. */
-/* measured: baseline 24 differing words; unsigned descriptor shift 45, indexed slots 47, named mask 24. */
 #pragma opt_loop_invariants on
 s32 fclBankScanOthers(FclBankSlot *currentSlot)
 {
@@ -262,10 +246,8 @@ s32 fclBankScanOthers(FclBankSlot *currentSlot)
 }
 #pragma opt_loop_invariants off
 
-/* Measured: explicit idle case retains the six-entry switch table, while
-   propagation off keeps the fade ratio across position getters. Direct
-   float-to-u8 conversion retains both retail conversion branches. */
-/* measured: baseline 198 differing words; ratio at call and scoped ratio 198. */
+/* measured: an explicit idle case keeps retail's six-entry switch table, and propagation off keeps
+ * the fade ratio live across the position getter calls. */
 #pragma opt_propagation off
 /* Advances each bank's fade state (switch on the state halfword) once per frame. */
 // FUN_002E13B0
@@ -308,7 +290,8 @@ void fclBankUpdateFades(void)
                     x = (s32)((1.0f - (f32)ticks / 5.0f) * 32.0f + 280.0f);
                 }
                 ratio = (f32)ticks / 5.0f;
-                /* Position accessor has a byte-pointer ABI; the two f32 components are at +0/+4. */
+                /* The position accessor returns a byte pointer; the two f32 components are x then
+                 * y. */
                 *(f32 *)fclBankGetPositionPtr(slot->index) = (f32)x;
                 ((FclBankPosition *)fclBankGetPositionPtr(slot->index))->y = 91.0f;
                 fclBankSetAlpha(slot->index, (u8)(ratio * 255.0f));
@@ -352,9 +335,8 @@ void fclBankUpdateFades(void)
 }
 #pragma opt_propagation on
 
-/* measured: 1236/1248B, 54 resolved relocations, zero executable differences,
-   twelve zero tail bytes. Keep the inlined peer mask in its loop preheader. */
-/* measured: baseline 19 differing words; for-loop slot cursor 21; retain peer-mask hoisting. */
+/* measured: loop invariants stay on so the inlined peer mask is hoisted into the loop preheader, as
+ * retail does. */
 #pragma opt_loop_invariants on
 /* Test for a visible peer on the same side with the same descriptor high half. */
 /* Test whether another visible allocated slot shares the descriptor class and bank flag. */

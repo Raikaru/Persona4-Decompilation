@@ -1,13 +1,12 @@
 #include "byte_address_internal.h"
 #include "include_asm.h"
-/* Original translation unit eff_after.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit eff_after.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "effect_mesh_internal.h"
 #include "rw_object_internal.h"
 
 #include "effect_after_internal.h"
-
 
 
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -53,7 +52,6 @@ extern void effMiscProgressBlendColor(u8 *progress, s32 keyIndex, f32 secondWeig
 /* Finds the section containing `distance` along the path and the fraction of that section it reaches. */
 // FUN_004B7460
 void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction) {
-    /* Earlier whole-layout comparison: 697 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     EffAfterVec leadingDelta;
     EffAfterVec trailingDelta;
     u8 *vectorBase;
@@ -85,7 +83,6 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
         return;
     }
     currentSection = 0;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     while (currentSection < MEMBER(s32, data, EffAfterQueue, count) - 1) {
         cumulative = 0.0f;
         for (leadingIndex = 0; leadingIndex < currentSection + 1; leadingIndex++) {
@@ -424,11 +421,10 @@ typedef RwV3d AfterVector3;
 // Builds the ribbon geometry object for one material: vertex and index counts follow the config mode, and the bounding sphere is stored on the morph target.
 // FUN_004B8350
 #pragma push
-/* measured: baseline C nd 368B; adjacent-local declaration probe nd 368B; retain settings for owner MATCH. */
+/* measured: retail hoists loop-invariant loads out of the ribbon build loops. */
 #pragma opt_loop_invariants on
 u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
 {
-    /* Earlier whole-layout comparison: 2017 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     typedef struct RwSphere {
         AfterVector3 center;
         f32 radius;
@@ -454,7 +450,6 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
     f32 denom;
 
     flags = 0x4A;
-    /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
     if ((((EffAfterMaterial *)((EffAfterConfig *)*(s32 *)work)->material)->flags & 1) != 0) {
         flags |= 4;
     }
@@ -479,7 +474,6 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
     }
     obj = (u8 *)func_003c2630(nVtx, nIdx, flags);
     idx = (struct RpTriangle *)((RpGeometry *)obj)->triangles;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     switch (MEMBER(s16, work, EffAfterQueue, mode)) {
     case 0:
         for (i = 0; i < ((EffAfterQueue *)work)->config->sectionCount - 1; i++) {
@@ -573,24 +567,19 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
     }
     {
         s32 attributeIndex;
-        /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
         materialTriangle = MEMBER(struct RpTriangle *, obj, RpGeometry, triangles);
         for (attributeIndex = 0; attributeIndex < nIdx;) {
             func_003c2150((struct RpGeometry *)obj, (struct RpTriangle *)materialTriangle, material);
             attributeIndex++;
             materialTriangle++;
         }
-        /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
         switch (MEMBER(s16, work, EffAfterQueue, mode)) {
         case 0:
             col = (u8 *)((RpGeometry *)obj)->colors;
-            /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
             for (attributeIndex = 0; attributeIndex < MEMBER(s32, *(u8 **)work, EffAfterConfig, sectionCount);) {
                 if (attributeIndex == 0) {
-                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                     t = (f32)attributeIndex / (f32)(MEMBER(s32, *(u8 **)work, EffAfterConfig, sectionCount) - 1);
                 } else {
-                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                     t = ((f32)attributeIndex - 0.5f) / (f32)(MEMBER(s32, *(u8 **)work, EffAfterConfig, sectionCount) - 1);
                 }
                 effMiscProgressBlendColor(work, 0, t, col);
@@ -601,7 +590,6 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
             {
                 s32 rightIndex;
                 u8 *rightColor;
-                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                 rightColor = MEMBER(u8 *, obj, RpGeometry, colors) + 4;
                 for (rightIndex = 0; rightIndex < ((EffAfterQueue *)work)->config->sectionCount;) {
                     t = (f32)rightIndex / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1);
@@ -646,7 +634,6 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
         }
         cfg = (u8 *)((EffAfterQueue *)work)->config;
         if ((((EffAfterMaterial *)((EffAfterConfig *)cfg)->material)->flags & 1) != 0) {
-            /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
             switch (MEMBER(s16, work, EffAfterQueue, mode)) {
             case 0:
                 uv = (AfterTexCoord *)((RpGeometry *)obj)->texCoords[0];
@@ -668,7 +655,6 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                 {
                     s32 rightIndex;
                     AfterTexCoord *rightUV;
-                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                     rightUV = MEMBER(AfterTexCoord *, obj, RpGeometry, texCoords[0]) + 1;
                     for (rightIndex = 0; rightIndex < ((EffAfterQueue *)work)->config->sectionCount;) {
                         if (((EffAfterQueue *)work)->config->sectionCount - 1 <= 0) {
@@ -803,7 +789,6 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
 /* Allocates six capacity-sized vector arrays in one block and initializes the section's sample ring. */
 // FUN_004B8DF0
 void effAfterAllocVectorBuffers(u8 *work, u8 *config) {
-    /* Earlier whole-layout comparison: 215 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     u8 *p;
     u8 *q;
     s32 size;
@@ -814,19 +799,14 @@ void effAfterAllocVectorBuffers(u8 *work, u8 *config) {
     chkmemAllocSiteTag(D_007146E0, 0x2A5);
     p = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     ((EffAfterQueue *)work)->positions = (EffAfterVec *)(p);
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     q = p + MEMBER(s32, config, EffAfterConfig, capacity) * 0xC;
     ((EffAfterQueue *)work)->normals = (EffAfterVec *)(q);
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     q = q + MEMBER(s32, config, EffAfterConfig, capacity) * 0xC;
     ((EffAfterQueue *)work)->positionOffsets[0] = (EffAfterVec *)(q);
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     q = q + MEMBER(s32, config, EffAfterConfig, capacity) * 0xC;
     ((EffAfterQueue *)work)->positionOffsets[1] = (EffAfterVec *)(q);
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     q = q + MEMBER(s32, config, EffAfterConfig, capacity) * 0xC;
     ((EffAfterQueue *)work)->normalOffsets[0] = (EffAfterVec *)(q);
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     ((EffAfterQueue *)work)->normalOffsets[1] = (EffAfterVec *)(q + MEMBER(s32, config, EffAfterConfig, capacity) * 0xC);
     ((EffAfterQueue *)work)->flags = 0;
     ((EffAfterQueue *)work)->config = (EffAfterConfig *)(config);
@@ -835,42 +815,17 @@ void effAfterAllocVectorBuffers(u8 *work, u8 *config) {
     ((EffAfterQueue *)work)->mode = ((EffAfterConfig *)config)->mode;
 }
 
-/* Frees the vector buffer at work+0x10. */
+/* Frees the positions vector buffer. */
 // FUN_004B8F10
 void effAfterFreeVectorBuffers(void *work) {
     jtbl_008873EC[0]((void *)((EffAfterQueue *)work)->positions);
 }
 
-/* measured: 7728B mesh-builder. Retail asm has 63 mula/madda/madd/msub FPU
-   sequences (the same multiply-accumulate family as effAfterFrameNormal/effAfterSideAxis,
-   which floor on the v5 index register and fp-save set) plus 21 lq/sq quadword
-   ops and 3 large switch statements. Error-marked in the m2c draft at every FPU
-   sequence; the mula/madda/madd dot-product folds cannot be reproduced in plain
-   C by b210. FPU-accumulate + quadword-slot floor. */
-/* Cold 004b8f40 (1932 instrs, frame -0x1A0 s19-s23/s30): no probe_archive */
-/* entry; m2c (u8*,void**) + romwright (u8*,int*) agree on signature (pointer */
-/* + pointer-to-pointer), m2c has 63 error-marked (mula/madd/msub) vs rw 0 errors */
-/* with counted fors (correct, not do/while). Stripped rw skeleton (fn refs->D_, */
-/* true->1, ._4_4_->u32>>32, void*+int->(u8*)*+int, externs stripped): retail */
-/* 1932/object 2721 (+40%, +789) edits 4101+6 gate outside (needs 1874-1990). */
-/* Surplus is one 436-instr pure lump [503] (duplicated phase where retail */
-/* shares) + 21 lq/sq field-by-field (+147) + (u32)float dances (+100) + FPU */
-/* mula folds (+63) =746; 2721-746=1975 inside. Front-load (s32) everywhere */
-/* (<2^31) + whole u_long128 moves + share duplicated block. Not banked. */
-/* Remeasure 2026-09-19: retail 1929 vs object 1877 (-52), words 1895, fnalign 2909 edits. Frame 0x220 vs 0x1A0 (+0x80) with spare $f25-$f31 (7 floats, no GPR diff). Switch spelling on final temp_v0 chain (switch(temp_v0){case 2:{...}break;case 1:{...}break;case 0:{...}break;}) via /var/tmp/effect/after_switch.c measures 2914 edits (+5 vs 2909 if-chain, object 1879 vs 1877) so keep if-chain. Seven live across final-else temp_v0==2 loop calls (func_004b7460 + 3x func_003e40b0): temp_v9 (*(work+0x14)/2.0, retail $f24 at 004BA27C/004BA688), temp_v11 (1/(n+0.5), retail $f21 at 004BA2D0), temp_v7 (0.5/(n+0.5), retail $f20 at 004BA2D4), fStack_28/24/20 (Bezier xyz, retail spills to 0x178/0x17C/0x180 at 004BA4B4 and reloads at 004BA568/004BA6B0), fStack_30 (prev z, retail spills to 0x170 at 004BA320 and reloads at 004BA5C4). First three also held in retail so sinking (duplicate div, cf. distort t0/t1 sink 886->930 +44) would worsen; last four spilled in retail via swc1/lwc1 vs held in regs via scalar promotion (address never taken, so MWCC keeps in callee-saved); legitimate spill without volatile/asm barrier not found (EffAfterVec struct assignment still promotes, volatile banned per lint), and recomputing Bezier after calls duplicates 20+ mula/madd muls vs retail 6 spill loads/stores. Cannot be sunk without worsening; needs declaration/boundary change (array/struct forcing memory) not expression rewrite. */
-/* Accum/guard 2026-09-19 (base 2909 edits/1850 words/1877 instrs vs retail 1929): 9 Bezier sites probed as 3 group1 X/Y/Z factored t*(t*(P*t))+u*(t*((3*Q)*t))+u*(u*(R*u))+u*(u*((3*S)*t)) -> 2910 edits (+1)/1849 words (-1)/1876 instrs (-1) tie; same 3 reversed S+R+Q+P -> 2909/1850 tie; 3 dots reversed e*f+c*d+a*b -> 2909/1850 tie; 3 widths temp*(temp*temp) -> 2909/1850 tie; pragmas noprop/prop_off/inv_off -> 1851 (+1)/1861 (+11)/1851 (+1) words worse; 7n fresh temp_v12 for 3 zero-fills -> 2942 edits (+33)/1849 (-1)/1877 tie worse; guards 0 sites (no 2.1474836e9f/0x80000000 in file, residual_signature 0 conversion). Production rewrote 0 sites (floor untouched per 7l, ties recorded). Remaining -52/edits systematic (frame 0x220 vs 0x1A0, 7 extra f25-f31) per existing note, needs declaration/boundary not expression. */
-/* measured 004b8f40 (owner, 2026-09-19): fnalign **2909 -> 2907 edits**, count
-   1877 -> 1875 against retail 1929, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-/* Trail mesh rebuild. Retail adds some table offsets index-first: those sites
-   go through byteAddressAdd (offset + base), the rest stay base-first u8 *
-   arithmetic. The midpoint row is formed inside its first copy after the
-   source offset, matching retail's evaluation order. */
+/* measured: retail's multiply-accumulate dot-product folds and quadword copies have no plain-C
+ * form, so these optimizer settings stay. Trail mesh rebuild; some table offsets are added index-
+ * first via byteAddressAdd, matching retail's evaluation order. */
 #pragma push
-/* measured: baseline C nd 4691B; adjacent-local declaration probe nd 4691B; retain settings for owner MATCH. */
+/* measured: retail code generation for this function needs these optimizer settings. */
 #pragma opt_dead_assignments off
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
@@ -880,7 +835,7 @@ typedef struct {
     f32 radius;
 } EffAfterSphere;
 
-// Rebuilds the trail mesh from the two vector rings for the current work; the notes above record the measured floor.
+// Rebuilds the trail mesh from the two vector rings for the current work.
 // FUN_004B8F40
 void effAfterRebuildTrailMesh(u8 *work, void **pp)
 
@@ -895,8 +850,6 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     EffAfterQueue *tailSampleQueue;
     EffAfterQueue *wrapSampleQueue;
 
-    /* Earlier whole-layout comparison: 2093 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
-/* irregular: 5 native warning(s); review required */
   s16 mode;
   u8 *byteCursor;
   f32 *cameraPosition;
@@ -1057,7 +1010,6 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     }
     queue->flags = queue->flags | 2;
   }
-  /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
   if ((sampleCountQueue = (EffAfterQueue *)(work))->count < 2) {
     switch (((EffAfterQueue *)work)->mode) {
     case 0:
@@ -1165,12 +1117,10 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
           }
           if (section != cache) {
             cache = section;
-            /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
             ia = (((EffAfterQueue *)(work))->writeIndex - 1) - section;
             if (ia < 0) {
               ia = ia + ((EffAfterQueue *)work)->count;
             }
-            /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
             ib = (((EffAfterQueue *)(work))->writeIndex - 1) - (section + 1);
             if (ib < 0) {
               ib = ib + ((EffAfterQueue *)work)->count;
@@ -1213,12 +1163,10 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         /* Position/normal rings use a 4-byte pointer stride; control-offset pairs use an 8-byte stride. */
         pb = (f32 *)(*(s32 *)((work) + side * 4 + MEMBER_OFFSET(EffAfterQueue, samples)) + jj * 0xc);
         *(EffAfterVec *)out = *(EffAfterVec *)pb;
-        /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
         if ((capacityQueue = (EffAfterQueue *)((work)))->count < ((EffAfterQueue *)work)->config->capacity) {
           section = 0;
         }
         else {
-          /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
           section = (sectionQueue = (EffAfterQueue *)((work)))->writeIndex;
         }
           side++;
@@ -1252,16 +1200,15 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       vertexBase[7] = vertexBase[7] * 0.5f;
       vertexBase[8] = vertexBase[8] * 0.5f;
       countOrAddress = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
-      /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
       index = (oldestSampleQueue = (EffAfterQueue *)((work)))->writeIndex - MEMBER(s32, (work), EffAfterQueue, count);
       if (index < 0) {
-        /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
         index = index + MEMBER(s32, (work), EffAfterQueue, count);
       }
 {
         f32 *row;
         u32 srcOff;
 
+        /* measured: retail computes this row stride even though nothing reads it. */
         srcOff = index * 0xc;
         ((EffAfterVec *)(row = (f32 *)byteAddressAdd((u32)(countOrAddress * 3) * 4, (u8 *)vertexBase)))[-3] = ((EffAfterQueue *)work)->positions[index];
       ((EffAfterVec *)row)[-2] = ((EffAfterQueue *)work)->normals[index];
@@ -1290,12 +1237,10 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
           effAfterSectionFraction(work,sampleFraction,&section,&fraction);
           if (section != cachedSection) {
             cachedSection = section;
-            /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
             firstOffset = (MEMBER(s32, (work), EffAfterQueue, writeIndex) - 1) - section;
             if (firstOffset < 0) {
               firstOffset = firstOffset + ((EffAfterQueue *)work)->count;
             }
-            /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
             secondIndex = (MEMBER(s32, (work), EffAfterQueue, writeIndex) - 1) - (section + 1);
             if (secondIndex < 0) {
               secondIndex = secondIndex + ((EffAfterQueue *)work)->count;
@@ -1369,18 +1314,15 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         effAfterSectionFraction(work,weight,&section,&fraction);
         if (section != cachedSection) {
           cachedSection = section;
-          /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
           sampleIndex = (MEMBER(s32, (work), EffAfterQueue, writeIndex) - 1) - section;
           if (sampleIndex < 0) {
             sampleIndex = sampleIndex + ((EffAfterQueue *)work)->count;
           }
-          /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
           secondIndex = (MEMBER(s32, (work), EffAfterQueue, writeIndex) - 1) - (section + 1);
           if (secondIndex < 0) {
             secondIndex = secondIndex + ((EffAfterQueue *)work)->count;
           }
           sampleIndex = sampleIndex * 0xc;
-          /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
           byteCursor = (u8 *)(positionQueue = (EffAfterQueue *)(work))->positions;
           controlStart = (f32 *)(byteCursor + sampleIndex);
           ctrl[0] = *(EffAfterVec *)controlStart;
@@ -1436,7 +1378,6 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       }
       sampleIndex = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
       vectorCursor = vertexBase + (sampleIndex - 3) * 3;
-      /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
       index = (endSampleQueue = (EffAfterQueue *)((work)))->writeIndex - ((EffAfterQueue *)work)->count;
       if (index < 0) {
         index = index + ((EffAfterQueue *)work)->count;
@@ -1476,10 +1417,8 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       vertexBase[sampleIndex * 3 - 3] = vertexBase[sampleIndex * 3 - 3] * 0.5f;
       vertexBase[sampleIndex * 3 - 2] = vertexBase[sampleIndex * 3 - 2] * 0.5f;
       vertexBase[sampleIndex * 3 - 1] = vertexBase[sampleIndex * 3 - 1] * 0.5f;
-      /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
       index = (tailSampleQueue = (EffAfterQueue *)((work)))->writeIndex - 1;
       if (index < 0) {
-        /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
         index = index + (wrapSampleQueue = (EffAfterQueue *)((work)))->count;
       }
       vectorCursor = (f32 *)(((u8 *)((u8 *)queue->positions)) + index * 0xc);
@@ -2117,28 +2056,7 @@ void effAfterQueueSectionOffsets(EffAfterQueue *queue, s32 section)
     }
 }
 
-/* measured: nd 34 from 49 (obj 288B vs window 304B). Logic confirmed, including
-   that the two ring-index expressions have DIFFERENT shapes in retail --
-   `-2 - arg1 + field0xC` for the first (addiu -2, subu, then addu the field) and
-   `(field0xC - 1) - arg1` for the second -- and that both wrap by adding
-   field0x8 when negative.
-
-   Two things earned the 49 -> 34: hoisting `arg0 + arg2 * 4` into a local, and
-   loading all three floats into temps BEFORE storing any of them, which is
-   retail's batch shape (3x lwc1 then 3x swc1); written as three
-   load-store pairs b210 interleaves them.
-
-   Residual: the three float temps are register-rotated against retail
-   ($f2/$f1/$f0 assigned to offsets +4/+8/+0 rather than +0/+4/+8), one
-   commutative `addu` has its operands swapped, and retail RECOMPUTES
-   `arg2 * 4 + arg0` for the second access instead of reusing the hoisted base.
-   Measured and rejected: inlining the address at both uses (49, worse -- b210
-   then emits a spurious `addiu $a0, $a1, 0x10`), `arg2 * 4 + arg0` operand
-   order, and declaring the temps in reverse (both 34). Register-rotation
-   floor.
-   Committed at nd 70. */
-// Archived C body: build/WBHygiene_func_004bc1e0_archive.txt; no current park body remains.
-/* measured: optimization_level 1 probe for eff_after target. */
+/* measured: retail compiles this function at optimization level 1. */
 #pragma optimization_level 1
 // Length of the segment between two adjacent samples of ring arg2 at section arg1, read through byteAddressAdd.
 // FUN_004BC1E0
@@ -2189,7 +2107,6 @@ f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side)
 // Turn factor of a section: (1 - dot) / 2 of the normalised edge vectors at the section's two ends; 0 for a straight run, 1 for a reversal.
 // FUN_004BC310
 f32 effAfterSectionTurnFactor(u8 *work, s32 section) {
-    /* Earlier whole-layout comparison: 369 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     EffAfterVec v1;
     EffAfterVec v2;
     EffAfterVec *q;
@@ -2204,7 +2121,6 @@ f32 effAfterSectionTurnFactor(u8 *work, s32 section) {
     }
     i = (((EffAfterQueue *)work)->writeIndex - 1) - section;
     if (i < 0) {
-        /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
         i += MEMBER(s32, work, EffAfterQueue, count);
     }
     p = (u8 *)((s32)((EffAfterQueue *)work)->normals + i * 0xC);
@@ -2216,16 +2132,12 @@ f32 effAfterSectionTurnFactor(u8 *work, s32 section) {
     v1.c[1] -= q->c[1];
     v1.c[2] -= q->c[2];
     RwV3dNormalize(&v1.c[0], &v1.c[0]);
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     j = (-2 - section) + MEMBER(s32, work, EffAfterQueue, writeIndex);
     if (j < 0) {
-        /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
         j += MEMBER(s32, work, EffAfterQueue, count);
     }
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     p = (u8 *)(MEMBER(s32, work, EffAfterQueue, normals) + j * 0xC);
     v2 = *(EffAfterVec *)p;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     p = (u8 *)(MEMBER(s32, work, EffAfterQueue, positions) + j * 0xC);
     q = (EffAfterVec *)p;
     t = q->c[0];

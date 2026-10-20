@@ -1,7 +1,6 @@
 #include "mt_scene_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
-/* Source unit: src/Kosaka/Field/k_fldFBN.c */
 #include "type.h"
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
@@ -26,7 +25,7 @@ typedef struct FbnMatrix
     s32 m[16];
 } FbnMatrix;
 
-/* Fixed FBN header; part records use the stride stored at +0x0C. */
+/* Fixed FBN header; part records use the stride stored in partStride. */
 typedef struct FbnHeader {
     u32 magic;
     u32 version;
@@ -201,14 +200,15 @@ u8 *FldFbnOpenData(s32 field, s32 room, s16 variant)
 
 /* Entry addresses are offsets in the loaded 28-byte work table. */
 #define FBN_ENTRY(i) ((FbnEntry *)((u8 *)iGpffffb2a0 + (i) * sizeof(FbnEntry)))
-/* measured: loop invariants retain cached search bounds; the lifetime pass
- * separates the loading count from the later transform index. Together
- * with source-ordered index updates this matches all 424 retail words. */
-/* Resolve FBN model references and eligible NPC substitutions, then create placed transform resources. */
-/* The FBN header supplies the runtime part stride; the typed NPC tail is separate from the packed part layout. */
+/* measured: loop invariants keep the cached search bounds, and the lifetime pass keeps the loading
+ * count separate from the later transform index. Resolve FBN model references and eligible NPC
+ * substitutions, then create placed transform resources. The FBN header supplies the runtime part
+ * stride; the typed NPC tail is separate from the packed part layout. */
+/* Load the room's FBN part table, create model objects for each part along with any active NPC
+ * substitutions, then build their placed transforms. */
 // FUN_0015E960
 #pragma push
-/* measured: baseline 116 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+/* measured: retail's register lifetimes need these scoped optimizer settings. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 variant)
@@ -364,13 +364,10 @@ s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 varia
 /* A 64-byte transform record copied between FBN parts and model matrices. */
 
 
-/* Retail passes the yaw at sp+0xC4 (0x0015F224) to the four-argument
- * rotation wrapper before the first yaw store at 0x0015F344, so the first
- * iteration passes an uninitialised angle. The C keeps that read of
- * angles.y exactly as retail does; later iterations see the previous
- * kind-0 store. */
-/* Wait for models and NPC blocks, instantiate their resources, and release the temporary FBN tables. */
-/* FBN versions select different part tails; FbnNpcResource describes the distinct runtime resource allocation. */
+/* Retail passes the yaw to the rotation wrapper before its first store, so the first iteration
+ * reads an uninitialised angles.y; later iterations see the previous kind-0 store. Wait for models
+ * and NPC blocks, instantiate their resources, and release the temporary FBN tables. FBN versions
+ * select different part tails; FbnNpcResource describes the distinct runtime resource allocation. */
 // FUN_0015F000
 s32 FldFbnApplyTable(u8 *file, u8 *cachedData)
 {

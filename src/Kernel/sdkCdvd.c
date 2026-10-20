@@ -1,4 +1,4 @@
-/* Original translation unit sdkCdvd.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkCdvd.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 
@@ -96,14 +96,11 @@ extern u8* D_008D1B84[];
 extern char D_00710900[];
 extern char D_00710910[];
 
-/* Measured: 1052/1056 bytes, 46 resolved relocations, four zero tail bytes.
- * Typed cache indexing gives the retail request/base hoist order; an explicit
- * base initializer leaves three words different. The compound refCount -=
- * preserves the RHS-first loads and store before the signed comparison. */
-// Intent: per-frame step of the CD request list. Advances each node's read state (open, read blocks, parse the archive) and destroys nodes whose reference count drops to zero.
+/* Per-frame step of the CD request list: advances each node's read state (open, read blocks, parse
+ * archive) and destroys nodes whose reference count reaches zero. */
 // FUN_00454640
 #pragma push
-/* measured: baseline removal differs in 53 bytes; typed cache pointer induction; scoped cache index lifetime also differ. */
+/* measured: retail hoists the loop-invariant cache base out of the request loop. */
 #pragma opt_loop_invariants on
 void H_Cdvd_UpdateRequests(void)
 {
@@ -264,7 +261,7 @@ tail:
 }
 #pragma pop
 
-// Intent: returns the directory node for `arg0`, creating it when needed, and takes a reference on it.
+// Returns the directory node for path, creating it when needed, and takes a reference on it.
 // FUN_00454A60
 u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags) {
     u8 normalizedPath[0x100];
@@ -304,15 +301,14 @@ u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags) {
     return newNode;
 }
 
-// Intent: stream close callback. Nothing to release.
+// Stream close callback; nothing to release.
 // FUN_00455510
 void H_Cdvd_StreamCloseNoop(void) {
 }
 
-/* measured: long128 local with s64 position; reload the just-stored s32
-   fileOffset into out.position so the compiler's lw sign-extend feeds the
-   sd/lq/sq without a separate dsll32/dsrl32 pair. u32 arithmetic for sltu. */
-// Intent: stream seek by mode. Modes 1 and 2 move forward from the current offset; mode 3 seeks from the end. Writes the new position to `resultData`.
+/* measured: the position is a long128 local, and the just-stored fileOffset is reloaded so retail's
+ * sign-extending load feeds the 128-bit store. Seeks the stream by mode (1 and 2 move forward from
+ * the current offset, 3 from the end) and writes the new position to resultData. */
 // FUN_004555D0
 void H_Cdvd_StreamSeek(void* resultData, void* slotData, s32 amount, s32 mode)
 {
@@ -398,13 +394,11 @@ extern u8 iGpffffad78;
 extern u8 iGpffffad80;
 extern s32 iGpffffbaa0;
 
-// Intent: creates a stream device with `arg0` entries of `arg2` bytes each, starting at `arg1`, and registers its callbacks. Returns the device record.
+// Creates a stream device with slotCount entries of slotSize bytes starting at buffer, and
+// registers its callbacks; returns the device record.
 // FUN_004557E0
-/* measured: D_008873F4 is a function-pointer table; retail hoists the TABLE
-   ADDRESS into $s0 (lui/addiu) and loads the function pointer per call
-   (lw $v0,($s0); jalr $v0). Achieved with an integer-cast base local
-   (u32 base = (u32)D_008873F4), and context/owner declared s32 (not u8*) — the
-   pointer arg types mis-coloured device/owner ($s1/$s2 swap, nd 8). */
+/* measured: retail keeps the D_008873F4 function-table address live and reloads the entry per call,
+ * which needs an integer base local and s32 context/owner. */
 u8* H_Cdvd_CreateStreamDevice(s32 slotCount, u8* buffer, s32 slotSize, s32 context, s32 owner) {
     u8* device;
     u32 base;
@@ -439,16 +433,11 @@ u8* H_Cdvd_CreateStreamDevice(s32 slotCount, u8* buffer, s32 slotSize, s32 conte
     return device;
 }
 
-/* measured: opt_propagation off keeps the D_008873AC table address hoisted in
-   $s0 across the first four calls and the final pair after $s0 is reused for
-   the func_004557e0 result; the outer NULL check is written as an
-   assignment-in-condition with an explicit `else { return; }` to place the
-   shared return block at .L00455A4C; a block-scope extern of func_004557e0
-   with u8* 4th/5th parameters makes the call materialise a0,a1,a2,a3,t0
-   left-to-right, while the function still sees the address bits as s32. */
-/* measured: baseline removal differs in 224 bytes; reload callback table at call sites; cache callback entry instead of table address also differ. */
+/* measured: with opt_propagation off, retail keeps the callback table address in one register
+ * across the calls instead of reloading it at each call site. */
 #pragma opt_propagation off
-// Intent: initialises the CD devices (the file device, the stream device and the sound slots), then sets the ready flag.
+// Initialises the CD devices (file device, stream device and sound slots), then sets the ready
+// flag.
 // FUN_004559B0
 void H_Cdvd_InitDevices(void) {
     void (**base)(void*, void*);
@@ -486,7 +475,6 @@ void H_Cdvd_InitDevices(void) {
     }
     iGpffffbaa0 = 1;
 }
-/* measured: restores default propagation after func_004559b0. */
 #pragma opt_propagation on
 
 extern u8 D_008C8784[];
@@ -496,7 +484,8 @@ extern char D_007116F0[];
 extern char D_00710870[];
 void kAssertFailAt(const void* msg, const void* file, u32 line);
 
-// Intent: stores a request record (three words and a 0x80-byte name) in the first free request slot. Asserts when the table is full.
+// Stores a request record (three words and a 0x80-byte name) in the first free request slot;
+// asserts when the table is full.
 // FUN_00455D70
 void H_Cdvd_RegisterRequest(u8* request, u8* value, u8* slot, u8* name) {
     s32 i;
@@ -517,11 +506,9 @@ void H_Cdvd_RegisterRequest(u8* request, u8* value, u8* slot, u8* name) {
     }
 }
 
-/* measured: the rounded advance is a signed `/ 64 * 64` (retail sra + bgez
-   fix-up), and it must be a SECOND `+=` after `entry += 0x100`: one combined
-   expression colours the base into $v1 and the fix-up into $v0, the split
-   keeps entry+0x100 in $a0 and size+0x3f in $v1 as retail. */
-// Intent: returns the data of archive entry `arg1` and writes its length to `arg2`, or to a local when `arg2` is null.
+/* Returns the data of archive entry `entryIndex` and writes its length to `size`, or to a local
+ * when `size` is null. The rounded advance is a signed `/ 64 64`, written as a second `+=` after
+ * `entry += 0x100`. */
 // FUN_00455EA0
 u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size) {
     u8 header[0x100];
@@ -542,7 +529,8 @@ u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size) {
     *size = ((HCdvdArchiveHeader *)header)->size;
     return entry + 0x100;
 }
-// Intent: finds the registered request whose normalised path matches `arg0`. Writes its slot to `arg1` and returns its value, or 0 when none matches.
+// Finds the registered request whose normalised path matches pathAddress; writes its slot to slot
+// and returns its value, or 0 when none matches.
 // FUN_00455F70
 s32 H_Cdvd_LookupRequest(s32 pathAddress, s32* slot) {
     u8 uppercasePath[0x100];
@@ -571,7 +559,7 @@ s32 H_Cdvd_LookupRequest(s32 pathAddress, s32* slot) {
     return 0;
 }
 
-// Intent: starts a stream load of path `arg1` on channel `arg0`, reporting completion through `arg3`. Returns 0.
+// Starts a stream load of path on channel, reporting completion through completion; returns 0.
 // FUN_00456250
 s32 H_Cdvd_StartStreamLoad(s32 channel, void* path, s32 flags, void* completion) {
     H_Cdvd_BuildPathUppercase(path, D_008C0680);
@@ -580,7 +568,8 @@ s32 H_Cdvd_StartStreamLoad(s32 channel, void* path, s32 flags, void* completion)
     return 0;
 }
 
-// Intent: stores an archive entry record (three words and a 0x80-byte name) in the first free request slot. Asserts when the table is full.
+// Stores an archive entry record (three words and a 0x80-byte name) in the first free request slot;
+// asserts when the table is full.
 // FUN_00456400
 void H_Cdvd_RegisterArchiveEntry(s32 requestAddress, s32 value, s32 slot, u8* name) {
     s32 i;

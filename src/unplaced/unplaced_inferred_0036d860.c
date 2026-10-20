@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0036d860-0036d960 */
 
 #include "include_asm.h"
 #include "type.h"

@@ -33,10 +33,8 @@ typedef struct {
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
-
+/* func_004bd628, func_004bd640, func_004bd658, func_004bd670, func_004bd688 and func_004bd6a0 are
+ * framed tail-jump wrappers that plain C cannot emit. */
 
 
 extern u8 D_0071465C[];
@@ -60,9 +58,6 @@ extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 
-/* Source unit: src/promoted/code1_004b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b1ad0-004b1ad0 */
-
 typedef struct EffScreenSpriteFrame {
     f32 rect[4];
     u32 size[2];
@@ -75,7 +70,7 @@ typedef struct EffScreenSpriteRGBA {
     u8 alpha;
 } EffScreenSpriteRGBA;
 #pragma push
-/* measured: removal, named viewport constants, and do/while probes mismatch (73-word removal residual from unhoisted constants). */
+/* measured: retail hoists the loop-invariant viewport constants out of the loop. */
 #pragma opt_loop_invariants on
 /* Sample sprite color, size and texture animation, project its corners through the camera and queue the geometry. */
 // FUN_004B1AD0
@@ -120,7 +115,6 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
 
     total = ((MdlEffectScreenSprite *)instance)->duration;
     count = ((MdlEffectScreenSprite *)instance)->age;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     sprite = *(u8 * *)&(spriteGeometryOwner = (MdlEffectScreenSprite *)instance)->geometry;
     if (count == 0) {
         return;
@@ -164,7 +158,6 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
     scale = mdlEffectSampleScalarKeys(instance + 0x40, count, total) / 100.0f;
     spin = mdlEffectSampleScalarKeys(instance + 0x6C, count, total);
     spin += fGpffff8084;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     if (MEMBER(s32, instance, MdlEffectScreenSprite, tracks) != 0) {
         f32 cellW;
         f32 cellH;
@@ -172,7 +165,6 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
         f32 x0;
         f32 x1;
 
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         mdlEffectWrapTrackFrames(MEMBER(s32, instance, MdlEffectScreenSprite, tracks), count);
         mdlEffectEvalSubPose(((MdlEffectScreenSprite *)instance)->tracks, animation);
         cellW = 16.0f * animation[12];
@@ -196,7 +188,6 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
         info.size[0] = (u32)animation[12];
         info.size[1] = (u32)animation[13];
         spin += animation[4];
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         func_003c42b0(MEMBER(void *, sprite, EffGeometryBlock, material), *(s32 *)&animation[5]);
     } else if ((void *)((MdlEffectScreenSprite *)instance)->tlp != NULL) {
         s32 w;
@@ -221,7 +212,6 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
         info.rect[3] = (f32)(h >> 5);
         info.size[0] = (u32)texture[2];
         info.size[1] = (u32)texture[3];
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         func_003c42b0(MEMBER(void *, sprite, EffGeometryBlock, material), *(s32 *)&texture[4]);
     } else {
         s32 w;
@@ -245,7 +235,6 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
         info.size[0] = frame[0];
         info.size[1] = frame[1];
     }
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     RpGeometryLock(((RpAtomic *)MEMBER(u8 *, sprite, EffGeometryBlock, atomic))->geometry, 0xFF2);
     {
         u8 *geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)sprite)->atomic)->geometry;
@@ -340,7 +329,6 @@ f32 *camera;
     {
         s32 light = TnGetOffset38(((MdlEffectScreenSprite *)instance)->scene);
 
-        /* Clear the geometry block's embedded draw-list link before appending it. */
         ((EffGeometryBlock *)sprite)->previous = 0;
         /* Clear the geometry block's embedded draw-list link before appending it. */
         ((EffGeometryBlock *)sprite)->next = 0;

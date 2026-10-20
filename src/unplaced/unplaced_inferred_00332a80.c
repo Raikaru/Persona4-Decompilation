@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00332a80-00332b60 */
 
 #include "fcl_object_internal.h"
 #include "list_item_internal.h"

@@ -1,4 +1,4 @@
-/* Original translation unit fclCombineMisc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit fclCombineMisc.c (from __FILE__ assert strings). */
 
 #include "include_asm.h"
 #include "type.h"
@@ -71,7 +71,7 @@ static inline u8 fclTriangleUpperArcana(s32 first, s32 second)
 
 /* Ordered pointer slots and arcana snapshots preserve retail tie-breaking. */
 #pragma push
-/* measured: baseline 159 differing words; wide pair index 162, direct slot reads 170. */
+/* measured: retail recomputes pair indexes and slot reads instead of sharing or propagating them. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 // FUN_00311EA0
@@ -171,11 +171,7 @@ u8 fclFuseTripleArcana(u8 *firstPersona, u8 *secondPersona, u8 *thirdPersona)
 }
 #pragma pop
 
-/* Measured: 640/640 bytes and all 16 relocations match retail.
- * Ordinary s32 counters produce the quadword spill; persona/skill inputs
- * use the same halfword contracts as their providers and other callers. */
-/* Search the selected 0x20-byte recipe rows, enforce flag gates, and copy up to four bonus skills.
- * Recipe table aliases and halfword skill cursors retain their external byte layout. */
+/* Search the selected 0x20-byte recipe rows, enforce flag gates, and copy up to four bonus skills. */
 // FUN_00312220
 s32 fclFuseRecipeLookup(u16 *output, s32 recipeKind, u16 *ingredients, s32 ingredientCount) {
     s32 count;
@@ -261,10 +257,8 @@ static inline u8 fclAlternatePairArcana(s32 first, s32 second)
     return *(first + (D_00642387 + second * 24));
 }
 
-/* Measured: 828/832 bytes, 26 resolved relocations, four zero tail bytes.
- * Promoted lookup inputs avoid an extra saved register; byte-return helpers
- * preserve retail narrowing. All ten neighboring owner images remain exact. */
-// Fcl fusion: fuses personas 'first' and 'second' into 'output' (1), returns 2 for an excluded pair, 0 when no result.
+/* Fcl fusion: fuses personas 'first' and 'second' into 'output' (1), returns 2 for an excluded
+ * pair, 0 when no result. */
 // FUN_003124A0
 s32 fclFusePair(u16 *output, u16 first, u16 second)
 {
@@ -407,7 +401,6 @@ s32 fclFuseTripleByte(u16 *output, u8 *first, u8 *second, u8 *third) {
 
 // Fcl rare chance roll: returns 1 with a 1/64 chance for kind 2 and 1/32 for kind 3, else 0.
 // FUN_00312BC0
-/* measured: the existing switch matches with baseline conditional rebuilding; both override and restore are unnecessary. */
 s32 fclRollRareChance(s8 kind) {
     s32 roll;
     switch (kind) {
@@ -487,20 +480,11 @@ static inline s32 fclSkillWeight(u16 *persona, s32 id)
     return base * 10 / rate;
 }
 
-/* Fusion skill picker: pools the deck skills the persona lacks, looks up how
-   many to grant from the pool-size tier table, then draws that many weighted
-   picks into free skill slots. Shaping that matters: the per-pick weight is
-   stored first and then re-read for the running total, the pick loop bound is
-   the byte view of the pool count captured after the roll, the pool entries
-   and deck cells are passed through their signed-halfword views, and the tier
-   test reads table <= count.
-   measured: without `opt_loop_invariants on` the body grows to 1164 bytes
-   (250 differing words); retail hoists the deck-count sign extension and the
-   tier-table base out of their loops. */
-/* The pool count at +0x60 is read as both s16 and its low byte; retain those
-   storage views to preserve the narrowing described above. */
+/* Fusion skill picker: pools the deck skills the persona lacks, uses the pool-size tier table to
+ * get the grant count, then draws that many weighted picks into free skill slots. The pool count is
+ * read both as s16 and as its low byte. */
 #pragma push
-/* measured: baseline 250 differing words; cached deck count 264, wide counters 240. */
+/* measured: retail hoists loop-invariant loads, which needs loop-invariant optimization on. */
 #pragma opt_loop_invariants on
 // FUN_00312C60
 s8 fclFuseRollPersona(u16 *persona, u8 *deck, s32 deckCount)
@@ -587,26 +571,8 @@ s8 fclFuseRollPersona(u16 *persona, u8 *deck, s32 deckCount)
 }
 #pragma pop
 
-/* measured: retail sq's requested arcana & 0xFF into the arcana snapshot (0xA0) and lq's it back in the
-   0xC0 i-loop, comparing via raw bne (lq $2,0xA0 / bne $2,$3). The old
-   "u_long128 aliased scalar read-back" probe (720B window, nd528, "no legal
-   C data-size spelling") was WRONG about the type: `typedef signed __int128
-   s128;` (declared locally, see docs/matching.md's corrected "128-bit lq/sq
-   aggregate copy" entry and effBlurFilter.c/evtPolygonMovie.c/shdSprite.c
-   for the proven pattern) genuinely lowers to lq/sq and reproduces retail's
-   exact -0xB0 frame and register coloring for the store/reload; a narrowing
-   (s64) cast on the reload is required for the actual bne compare (s128
-   itself has no legal == in b210 -- "illegal data size" -- matching that
-   retail's bne is not a real 128-bit compare either). Two focused sessions
-   with this real type got the residual down from nd528/541 to nd163 (712B
-   vs 720B, 63 differing words in the tail/bottom-loop control-flow and
-   CSE layout) but not to an exact MATCH. Still a floor for now, but NOT a
-   type-spelling floor -- the residual is ordinary register-allocation/
-   control-flow shape, the same category as any other near-miss. Worth
-   another attempt with fresh eyes on the bottom-loop layout specifically. */
-/* Select the lowest eligible level at or above the threshold, with the original highest-level fallback.
- * Byte-offset base-table accesses preserve measured alias/load ordering; entries are 14 bytes.
- * The inherited XOR-zero assignments and 128-bit snapshot are retained matching-required source shapes. */
+/* Select the lowest eligible level at or above the threshold, falling back to the highest level;
+ * retail keeps the requested arcana in a 128-bit local. */
 // FUN_003130E0
 s32 fclFuseLowestCandidateAtLeast(u32 arcana, s32 minimumLevel, u16 *excluded) {
     typedef signed __int128 s128;
@@ -735,16 +701,7 @@ loop_28_done:
     return selected;
 }
 
-/* measured: identical 128-bit-slot pattern to fclFuseLowestCandidateAtLeast (retail sq's
-   arcana&0xFF into the arcana snapshot at 0xA0 and lq's it back in the 0xC0 i-loop, raw bne
-   compare; 736B retail window). The corrected technique from docs/matching.md's
-   "128-bit lq/sq aggregate copy" entry closes this target: local
-   `typedef signed __int128 s128;`, a narrowing (s64) reload compare, and
-   source-shaped continue/masked-u16 updates produce an exact MATCH
-   (724B object, relocation-normalized diff 0). */
-/* Select the highest eligible level at or below the threshold, excluding the twelve supplied IDs.
- * Byte-offset base-table accesses preserve measured alias/load ordering; entries are 14 bytes.
- * The inherited XOR-zero assignments and 128-bit snapshot are retained matching-required source shapes. */
+/* Select the highest eligible level at or below the threshold, excluding the twelve supplied IDs. */
 // FUN_003133B0
 s32 fclFuseLowestCandidateAtMost(u32 arcana, s32 maximumLevel, u16 *excluded) {
     typedef signed __int128 s128;

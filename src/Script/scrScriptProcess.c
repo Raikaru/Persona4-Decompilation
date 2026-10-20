@@ -1,4 +1,3 @@
-/* Source unit: src/Script/scrScriptProcess_0029d900.c */
 #include "type.h"
 #include "scr_internal.h"
 #include "scr_data_internal.h"
@@ -137,8 +136,6 @@ s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
 
 
-
-
 // Script pool: allocates a fixed-size element pool and threads its free list.
 // FUN_0029D060
 ScrPool* scrPoolCreate(s32 elemSize, s32 elemCount)
@@ -197,11 +194,9 @@ u8* scrPoolAlloc(ScrPool* pool)
 }
 
 
-/* Measured nd 0 (object 164 / window 176). The offset-0 pool field is
-   materialized through a u32 local and the first call argument through a
-   named pointer local; this reproduces retail's lw $a2 before the two move
-   instructions without barriers or volatile accesses. */
-// Script pool: pushes an element back onto the free list and zeroes its payload.
+/* Script pool: pushes an element back onto the free list and zeroes its payload. The pool's first
+ * field is read through a u32 local and the first call argument through a named pointer local, so
+ * the loads come in retail order. */
 // FUN_0029D1C0
 void scrPoolFree(void *pool, void *payload)
 {
@@ -250,14 +245,14 @@ void scrScriptWorkUnlink(ScrScriptWork* s)
     D_00764604--;
 }
 
-// Returns the number of live script works [inferred].
+// Returns the number of live script works.
 // FUN_0029D2E0
 s32 scrGetWorkCount(void)
 {
     return D_00764604;
 }
 
-// Allocates a script work block for a header, its content entries and the procedure at index; the work is bound to those inputs [inferred].
+// Allocates a script work block for a header, its content entries and the procedure at index.
 // FUN_0029D2F0
 ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* procedure, u8* labels, u8* instructions, u8* messages, u8* strings, s32 index)
 {
@@ -369,8 +364,8 @@ ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* pr
 
 // Creates the procedure work for the header at index, from the header's entry table.
 // FUN_0029D660
-/* Removing the pragma loses this match (19 differing words without, 2 tail-padding with) - measured. */
-/* measured: baseline differs by 23 words; entry-pointer traversal leaves nd162; retain hoisting. */
+/* measured: retail hoists loop-invariant loads out of the entry-table walk, which needs loop-
+ * invariant optimization enabled. */
 #pragma opt_loop_invariants on
 ScrScriptWork* scrCreateProcedureWork(ScrHeader* header, s32 index)
 {
@@ -434,10 +429,11 @@ ScrScriptWork* scrCreateProcedureWork(ScrHeader* header, s32 index)
     work = scrCreateWork((ScrHeader*)header, entries, (u8*)prcd, (u8*)labels, instr, msgs, strings, index);
     return work;
 }
-/* measured: see annotation above (func_0029d660). */
+/* measured: restores the unit setting after scrCreateWork's enclosing function. */
 #pragma opt_loop_invariants off
 
-// Runs one script step for the task: returns -1 to end the task on stop, or on error (error also asserts); returns 0 to continue [inferred].
+// Runs one script step for the task: returns -1 to end the task on stop or error (error also
+// asserts), else 0.
 // FUN_0029D870
 s32 scrRunTaskStep(u8 *task)
 {
@@ -474,7 +470,8 @@ void scrDestroyTask(u8 *sdkTaskBytes)
     dds3SetProcessWorkData(scrTask, NULL);
 }
 
-// Creates the script work pools (three 0x160-byte and three 0x340-byte elements) and runs the conditional init step [inferred].
+// Creates the script work pools (three 0x160-byte and three 0x340-byte elements) and runs the
+// conditional init step.
 // FUN_0029D950
 void scrInitPools(void)
 {
@@ -486,7 +483,7 @@ void scrInitPools(void)
     }
 }
 
-// Starts procedure prcdIdx under a task priority: creates its work from the header and entries [inferred].
+// Starts a procedure under a task priority, creating its work from the header and entries.
 // FUN_0029D9B0
 s32 scrStartProcedureWork(s32 priority, u8* header, u8* entries, u8* procedures, u8* labels, u8* instructions, u8* messages, u8* strings, s32 procedureIndex)
 {
@@ -555,7 +552,8 @@ s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIn
     return task;
 }
 
-// Releases a script work: frees its message, text and sound handle, unlinks it from the work list, decrements the count, and returns it to the pool [inferred].
+// Releases a script work: frees its message, text and sound handle, unlinks it, decrements the
+// count, and returns it to the pool.
 // FUN_0029DC80
 void scrReleaseWork(ScrScriptWork* work)
 {
@@ -598,7 +596,7 @@ void scrReleaseWork(ScrScriptWork* work)
     scrPoolFree(D_00764610, (u8*)work);
 }
 
-// Debug dump: logs the live work count and walks the work list [inferred].
+// Debug dump: logs the live work count and walks the work list.
 // FUN_0029DDB0
 void scrDebugDumpWorkList(void)
 {
@@ -663,7 +661,8 @@ s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
     return -1;
 }
 
-// Looks up content entry arg1 in the table at arg0: finds the first table entry with a zero key and returns its content at arg1 * 32, or NULL when out of range [inferred].
+// Finds the first table entry with a zero key and returns its content entry at procedureIndex 32,
+// or NULL when out of range.
 // FUN_0029DF30
 u8* scrFindContentEntry(u8* script, s32 procedureIndex)
 {
@@ -699,7 +698,7 @@ u8* scrFindContentEntry(u8* script, s32 procedureIndex)
     return found + procedureIndex * 32;
 }
 
-// Sets the work's proc pointer; asserts when the task has no work [inferred].
+// Sets the work's proc pointer; asserts when the task has no work.
 // FUN_0029DFE0
 void scrSetTaskProc(void* task, u8* proc)
 {
@@ -713,11 +712,8 @@ void scrSetTaskProc(void* task, u8* proc)
     work->proc = proc;
 }
 
-/* The preview passes complete color and rectangle values. Returning these
- * small objects preserves the two argument-copy lifetimes measured in the
- * retail frame; the helpers perform no additional arithmetic or side effects.
- * The color is transported as four bytes through its existing float-sized
- * storage. The rectangle has complete packed, integer and transport views. */
+/* The preview passes whole color and rectangle values; returning these small objects reproduces
+ * retail's argument copies without extra work. */
 typedef struct ScrPreviewColor { f32 value; } ScrPreviewColor;
 typedef union ScrPreviewRectangle {
     ScrE040U128 packed;
@@ -734,11 +730,8 @@ static inline ScrPreviewColor scrPreviewColorValue(f32 bits)
 }
 
 
-
-/* Native b210 O2: 1284/1296 bytes, 41 resolved relocations and
- * twelve zero alignment bytes. See
- * docs/probe_archive/Script_selection_0029e040_20260924.md. */
-// Task step that loads the script file named by the task's text, then creates the procedure work once the file is ready [inferred].
+/* Task step that loads the script file named by the task's text, then creates the procedure work
+ * once the file is ready. */
 // FUN_0029E040
 s32 scrLoadScriptStep(u8 *sdkTask)
 {
@@ -782,7 +775,8 @@ s32 scrLoadScriptStep(u8 *sdkTask)
             }
             break;
         case 2:
-            /* Linker interior alias of SdkPadRecord.directionPressed; distinct address forms retain retail reloads. */
+            /* Linker interior alias of SdkPadRecord.directionPressed; the distinct address forms
+             * keep retail's reloads. */
             if (D_008C0256[0].mask & 0x1000) {
                 coordinate = task->unk_220;
                 if (coordinate >= 2.0f) {
@@ -895,11 +889,10 @@ s32 scrLoadScriptStep(u8 *sdkTask)
     }
     return 0;
 }
-/* Measured: all 608 bytes and 35 resolved relocations match retail.
- * Loop invariants hoist the slash constant. */
-/* measured: baseline differs by 6 words; explicit path-separator local leaves nd16; retain hoisting. */
+/* measured: loop-invariant hoisting is needed so the path-separator constant is loaded once outside
+ * the loop, as in retail. */
 #pragma opt_loop_invariants on
-// Starts a script task from its text: creates the task node, then runs the load step [inferred].
+// Starts a script task from its text: creates the task node, then runs the load step.
 // FUN_0029E550
 s32 scrStartScriptTask(u8 *sdkTask)
 {
@@ -973,7 +966,8 @@ s32 scrStartScriptTask(u8 *sdkTask)
 #pragma opt_loop_invariants off
 
 
-// Task destroy callback: releases the task's script work and CDVD handle, then runs the task's destroy hook [inferred].
+// Task destroy callback: releases the task's script work and CDVD handle, then runs the task's
+// destroy hook.
 // FUN_0029E7B0
 void scrTaskDestroyWork(u8* sdkTask)
 {
@@ -1013,7 +1007,8 @@ void scrTaskDestroyWork(u8* sdkTask)
     jtbl_008873EC[0](task);
 }
 
-// Creates a script child task under arg0 with a 0x228-byte task block, running scrStartScriptTask and scrTaskDestroyWork [inferred].
+// Creates a script child task under parent with a 0x228-byte task block, running scrStartScriptTask
+// and scrTaskDestroyWork.
 // FUN_0029E8D0
 void scrCreateScriptChildTask(u8* parent)
 {

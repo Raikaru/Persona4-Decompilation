@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002218e0-00221970 */
 
 #include "rw_types_internal.h"
 #include "btl_skill_target_internal.h"
@@ -19,28 +18,29 @@ extern u8 D_006290F0[];
 u32 kwlnTaskGetWork(void *task);
 extern void datSetFlag(s32 work, s32);
 extern s32 datCalcGetLevelById(s32 unitId);
-// Intent: Report whether a shuffle child task has its cancel-request bit (0x4) set in its flag word [inferred]
+// Report whether a shuffle child task has its cancel-request bit (0x4) set in its flag word.
 // FUN_002218E0
 s32 btlShuffleTaskIsCancelRequestedFor(KwlnTask *task)
 {
     return (*(u16 *)kwlnTaskGetWork(task) & 4) != 0;
 }
 
-// Intent: Report whether the logo task named D_006290F0 exists. [inferred]
+// Report whether the logo task named D_006290F0 exists.
 // FUN_00221910
 s32 btlLogoTaskExists(void)
 {
     return kwlnTaskGetTaskByName((s8 *)D_006290F0) != 0;
 }
 
-// Intent: Report whether a shuffle child task is still loading its sprite blob (flag 0x10 clear; btlShuffle.c sets it when the load completes) [inferred]
+// Report whether a shuffle child task is still loading its sprite blob; btlShuffle.c sets flag 0x10
+// when the load completes.
 // FUN_00221940
 s32 btlShuffleTaskIsLoading(KwlnTask *task)
 {
     return ((*(u16 *)kwlnTaskGetWork(task) & 0x10) != 0) ^ 1;
 }
 
-// Intent: Advance the logo stage flags and set the stage byte from the counter. [inferred]
+// Advance the logo stage flags and set the stage byte from the counter.
 // FUN_00221970
 s32 btlLogoUnlockStage(u8 *work)
 {

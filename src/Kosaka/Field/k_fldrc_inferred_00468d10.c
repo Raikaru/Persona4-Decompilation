@@ -1,5 +1,4 @@
 #include "member_access.h"
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Event/Fcl/fclBankManager.c; members 00468d10-0046a430 */
 
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -13,7 +12,7 @@
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
 
-/* Unit settings: measured movie/pool helpers use loop invariants off and propagation on. */
+/* measured: retail movie/pool helpers are built with loop invariants off and propagation on. */
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 
@@ -118,7 +117,7 @@ typedef struct SdkPakRequest {
     s8 path[0x200];
     s32 handle, headerAddress;
 } SdkPakRequest;
-/* The list provider allocates at +0x10 and resets its count at +0x14. */
+/* The list provider allocates entries and resets count. */
 typedef struct MovieResourceList {
     u8 pad00[0x10];
     struct RwSList *entries;
@@ -129,10 +128,10 @@ typedef struct MovieResourceList {
 typedef struct MoviePoolEntry { u32 address; u32 size; } MoviePoolEntry;
 
 #pragma push
-/* measured: baseline hoisting-off and a while-form path scan both differ by 66 bytes; retain loop extraction. */
+/* measured: retail hoists loop invariants out of the path scan. */
 #pragma opt_loop_invariants on
-/* Advance queued archive requests ten slots at a time and register their loaded archive entries. */
-/* measured: retained byte-alias state/entry/request accesses changed codegen even individually (8..488 differing bytes); the archive path remains a byte stream from its native header. */
+/* Advance queued archive requests ten slots at a time and register their loaded archive entries.
+ * The archive path is kept as a raw byte stream from its native header. */
 // FUN_00468D10
 void movieLoadStep(void)
 {
@@ -227,11 +226,7 @@ void movieLoadStep(void)
 }
 #pragma pop
 
-/* Sofdec playback, fade and quad submission. The task dispatcher supplies
- * the opaque first argument and the allocated 0x220-byte movie context.
- * CRI frame storage and sky2 vertex channels retain their native layouts.
- * See docs/probe_archive/Movie_00468ff0_exact_20261006/README.md. */
-/* Native PS2 Sofdec frame: see 0050a1c0 / 0050a3c0 / 0050a810. */
+/* Native PS2 Sofdec frame layout, as used by func_0050a1c0, func_0050a3c0 and func_0050a810. */
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -343,10 +338,10 @@ s32 mwPlayerUpdate(u8 *owner) {
 
 extern u32 ourGlobals[4096];
 #pragma push
-/* measured: hoisting-off differs by 2193 bytes; explicit fade-conversion hoisting still differs by 2165 bytes. */
+/* measured: retail hoists loop invariants, including the fade conversions. */
 #pragma opt_loop_invariants on
-/* Raw movie-table reads preserve separately linked interior labels and the native 0x28-byte definition stride; rebasing them would change symbol/addend provenance. The primitive-list header is opaque here. */
-/* Advance native movie playback, copy decoded frames, apply fades and submit the display quad. */
+/* Advance native movie playback, copy decoded frames, apply fades and submit the display quad.
+ * Movie table reads use the 0x28-byte definition stride. */
 // FUN_00468FF0
 void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
     s32 *movieFadeEnabledColumn;
@@ -450,8 +445,8 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
     (void)context;
 
     state = work->state;
-    switch (state) {                               /* switch 1 */
-    case 0:                                         /* switch 1 */
+    switch (state) {
+    case 0:
         if (work->ownsList != 0) {
             work->ownsList = 0;
             func_003d5fb0(D_0070B610);
@@ -461,9 +456,9 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
             work->fadeInFrames = 0;
             work->state = 2;
         }
-    default:                                        /* switch 1 */
+    default:
         goto movieComplete;
-    case 2:                                         /* switch 1 */
+    case 2:
         initialReciprocalZ = 1.0f / (((MdlEffectCamera *)kwlnGetCamera())->nearPlane);
         if (++work->startupTicks == 1) {
             work->ownsList = 1;
@@ -618,9 +613,9 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
             goto movieComplete;
         }
         break;
-    case 3:                                         /* switch 1 */
-    case 4:                                         /* switch 1 */
-    case 5:                                         /* switch 1 */
+    case 3:
+    case 4:
+    case 5:
         if (state != 3) {
             switch (work->movieIndex) {
             case 0x15:
@@ -745,7 +740,7 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
         RpSkyTexCacheRasterLock(work->raster, 0);
         ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(0xE), (void *)(savedRenderState));
         goto movieComplete;
-    case 6:                                          /* switch 1 */
+    case 6:
         if (work->field1f4 != 0) {
             kwlnTaskDestroyWithHierarchyByName((const char *)iGpffffb034);
             goto movieComplete;
@@ -777,17 +772,17 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
         work->startupTicks = 0;
         work->state = 0;
         goto movieComplete;
-    case 7:                                         /* switch 1 */
+    case 7:
         work->startupTicks = 0x1E;
         work->state = 8;
         /* fallthrough */
-    case 8:                                         /* switch 1 */
+    case 8:
         work->state = 9;
         /* fallthrough */
-    case 9:                                         /* switch 1 */
+    case 9:
         work->state = 0xA;
         /* fallthrough */
-    case 10:                                        /* switch 1 */
+    case 10:
         if (--work->startupTicks == 0) {
             if (work->field1f4 != 0) {
                 kwlnTaskDestroyWithHierarchyByName((const char *)iGpffffb034);
@@ -822,7 +817,7 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
             goto movieComplete;
         }
         break;
-    case 11:                                        /* switch 1 */
+    case 11:
         debugPosition.xy[0] = 2.0f;
         debugPosition.xy[1] = 10.0f;
         H_Dbprt_FmtAt(debugPosition.packed, (const char*)D_00713050);

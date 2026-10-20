@@ -153,8 +153,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 004673c0-004673c0 */
-
 #include "sdk_filer_internal.h"
 typedef struct FilerStat {
     u32 mode;
@@ -248,14 +246,11 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-/* 512/512 bytes; ten fully resolved relocations.
- * A real interrupt-state local retains the retail spill under register pressure. */
-// Intent: reads a directory into the filer table (up to 2000 entries), sorts them by type and name. Called from sdkFilerTaskUpdate.
+/* Reads a directory into the filer table (up to 2000 entries) and sorts the entries by type and
+ * name. Called from sdkFilerTaskUpdate. */
 // FUN_004673C0
-/* measured: MWCCPS2 b210 -O2, 1204B/window 1216B, 12 resolved relocations,
- * 12 zero alignment bytes. Ghidra and IDA agree on the 2000-entry cap,
- * type/name ordering, and 264-byte record copies; both split the local
- * directory entry, whose complete 324-byte backend layout supplies the frame. */
+/* The full 324-byte local directory entry sets the stack frame; entries are copied as 264-byte
+ * records. */
 void sdkFilerScanDirectory(u8 *work)
 {
     FilerTable *directoryState = (FilerTable *)work;

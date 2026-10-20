@@ -1,4 +1,4 @@
-/* Original translation unit shdPersona.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit shdPersona.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "sdk_task_registration.h"
@@ -54,8 +54,8 @@ typedef struct ShdPersonaBackdrop {
     ShdPersonaParticle particles[10];
 } ShdPersonaBackdrop;
 typedef struct ShdPersonaAcquisition { u16 flags, frame, skill; } ShdPersonaAcquisition;
-/* Renderer view of the existing 0x24-byte animated panels and task work.
- * Unnamed byte spans retain fields outside this renderer's proven interface. */
+/* Renderer view of the 0x24-byte animated panels and task work; unnamed spans hold fields this
+ * renderer does not use. */
 typedef struct PersonaRenderChannel {
     Vec2f start;
     Vec2f target;
@@ -240,10 +240,8 @@ extern u8 D_00793E80[];
 extern void (*jtbl_008873EC[])(void *);
 
 
-
-
-
-// Intent: Return the EXP still needed to reach the next level after arg1 extra levels, or 0 when already past it [inferred]
+// Return the EXP still needed to reach the next level after extraLevels extra levels, or 0 at max
+// level.
 // FUN_00115890
 s32 shdPersonaCalcExpRemaining(DatPersonaRecord *persona, s32 extraLevels)
 {
@@ -266,7 +264,6 @@ s32 shdPersonaCalcExpRemaining(DatPersonaRecord *persona, s32 extraLevels)
 }
 
 
-
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 s8 datPersonaGetLevel(DatPersonaRecord *persona);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
@@ -278,7 +275,8 @@ s8 datPersonaGetTotalStat(DatPersonaRecord *persona, s32 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 s32 datPersonaRunSkillSlot(u8 *persona, u16 slotIndex);
 extern u16 D_007465D0[];
-// Intent: Fill a persona status block with level, EXP to next level, five stats (base, buffed or total by mode) and seven skill slots [inferred]
+// Fill a persona status block with level, EXP to next level, five stats (base, buffed or total by
+// mode) and seven skill slots.
 // FUN_00115940
 void shdPersonaFillStatusBlock(DatPersonaRecord *persona, u8 *status, s32 statMode)
 {
@@ -336,9 +334,7 @@ void shdPersonaFillStatusBlock(DatPersonaRecord *persona, u8 *status, s32 statMo
 }
 
 
-
-// Intent: Copy five stat bytes from the persona record into the status block at offset 0xC [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Copy five stat bytes from the persona record into the status block's added stats.
 // FUN_00115C00
 void shdPersonaCopyStatBytes(u8 *stats, u8 *status)
 {
@@ -352,7 +348,8 @@ void shdPersonaCopyStatBytes(u8 *stats, u8 *status)
 
 void shdPersonaDrawRowName(Vec2f, f32, u8, s16 *);
 
-// Intent: Dispatch a persona panel draw by mode: 0 draws the row name, 1 the detail panel, 2 the row number [inferred]
+// Dispatch a persona panel draw by mode: 0 draws the row name, 1 the detail panel, 2 the row
+// number.
 // FUN_00115C40
 void shdPersonaDrawByMode(Vec2f basePosition, u8 alpha, s16 *descriptor, f32 depth)
 {
@@ -370,15 +367,7 @@ void shdPersonaDrawByMode(Vec2f basePosition, u8 alpha, s16 *descriptor, f32 dep
 }
 
 
-
-/* measured: the 15cb0/15dc0 fp-colour family shares the Vec2f, six-GP/three-float
-   renderer-call shape. The exact 15cb0 source uses the interleaved
-   `(Vec2f,f32,s32,s16*)` formal order and the local interleaved
-   `frFontExDrawTextWithCharWidth(f32,f32,f32,s32,s32,s32,u8*,s32,s32)` declaration, so retail's
-   f14 move precedes the six GP moves. MATCH, object 260B / window 272B; the
-   remaining 12-byte tail is zero padding accepted by the verifier.
-   The prior high-nd probes remain archived in `build/` for family history. */
-// Intent: Draw a persona row number as formatted text, with the mode selecting font 6 or 7 [inferred]
+/* Draws a persona row number as formatted text; the mode selects font 6 or 7. */
 // FUN_00115CB0
 void shdPersonaDrawRowNumber(Vec2f basePosition, f32 depth, u8 alpha, s16 *descriptor)
 {
@@ -404,21 +393,12 @@ void shdPersonaDrawRowNumber(Vec2f basePosition, f32 depth, u8 alpha, s16 *descr
 }
 
 
-
-
-
-
 u8 *datPersonaGetRow(u16 personaId);
-/* measured: shdPersonaDrawRowName closes the 208B fp-colour member. Its final
-   renderer declaration is interleaved as
-   `frFontExDrawText(f32,f32,f32,s32,s8,s32,const char*,s32,s32)`, preserving the
-   six GP register assignments while making the f14 move precede them. Keep
-   `scale = fparg0` before the colour expression; this source shape matches
-   the helper call, mode switch, and final six-GP/three-float setup exactly.
-   MATCH, object 208B / window 208B. */
+/* The text renderer is declared with interleaved float/int parameters, and scale is set from depth
+ * before the colour expression, as in retail. */
 
 
-// Intent: Draw a persona row's name text, with the mode selecting font 0 or 7 [inferred]
+// Draw a persona row's name text, with the mode selecting font 0 or 7.
 // FUN_00115DC0
 void shdPersonaDrawRowName(Vec2f basePosition, f32 depth, u8 alpha, s16 *descriptor)
 {
@@ -445,15 +425,13 @@ void shdPersonaDrawRowName(Vec2f basePosition, f32 depth, u8 alpha, s16 *descrip
 }
 
 
-
-
-/* 768/768 bytes and twenty-two resolved relocations. The shared 24-byte
- * jump table remains exact; packed coordinates retain the retail ABI. */
-/* measured: baseline removal differs by 178 words; hoisted gauge coordinates and single-toggle probes still differ. */
+/* measured: retail hoists the gauge coordinates out of the loops and does not reuse common
+ * subexpressions in this panel draw. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_common_subs off
-// Intent: Draw the persona detail panel: name plate, Arcana badge, EXP row, affinity panel, stat gauges and skill slots [inferred]
+// Draw the persona detail panel: name plate, Arcana badge, EXP row, affinity panel, stat gauges and
+// skill slots.
 // FUN_00115E90
 void shdPersonaDrawDetailPanel(Vec2f basePosition, f32 depth, u8 alpha, s16 *descriptor)
 {
@@ -503,7 +481,7 @@ void shdPersonaDrawDetailPanel(Vec2f basePosition, f32 depth, u8 alpha, s16 *des
 }
 #pragma pop
 u32 datPersonaNamePart1(s16 unitId);
-// Intent: Draw a persona name plate: panel sprite 0x59 and the persona name text from the id lookup [inferred]
+// Draw a persona name plate: panel sprite 0x59 and the persona name text from the id lookup.
 // FUN_00116190
 void shdPersonaDrawNamePlate(s64 packedPosition, f32 depth, u8 opacity, u8 *status, s32 *sprites)
 {
@@ -530,8 +508,7 @@ void shdPersonaDrawNamePlate(s64 packedPosition, f32 depth, u8 opacity, u8 *stat
 }
 
 
-
-// Intent: Draw a pair of frame sprites (0x47 and 0x41) for a persona panel [inferred]
+// Draw a pair of frame sprites (0x47 and 0x41) for a persona panel.
 // FUN_001162F0
 void shdPersonaDrawFramePair(s64 packedPosition, f32 depth, u8 opacity, u8 *status, s32 *sprites)
 {
@@ -552,46 +529,12 @@ void shdPersonaDrawFramePair(s64 packedPosition, f32 depth, u8 opacity, u8 *stat
 }
 
 
-
 u8 datPersonaGetArcana(u16 personaId);
 f32 sdkSpriteEntryWidth(s32, s32);
-/* measured: FP/GP colouring residual, nd 99. The family's real signature
-   IS (s64 arg0, u8 *arg2, s32 *arg3, f32 fparg0) with the color and its
-   float bits coming from arg0's HIGH WORD (the callers clobber $a1 with
-   the color after the 8-byte ld) — this removed the shdPersonaDrawFramePair
-   address-take floor entirely. What remains: (1) retail reads the high
-   word via a plain move ($s3 = $a1) while mwcc emits dsra32 for
-   (s32)(arg0 >> 32) — the untried spelling is c = ((s32 *)&arg0)[1]
-   (pointer read, no shift); (2) the b1 bits local lands in $f22 (3rd FP
-   saved reg, prologue swc1 $f22) instead of retail's $f20, and fparg0 in
-   $f20 instead of $f21 — FP colouring floor family; (3) positionPair/positionY stay
-   in registers instead of retail's store-and-reload (frame 0x90 vs
-   0xA0). Tried s32/s64 arg0 models, param orders, b1/c locals first,
-   inline bit-casts — best nd 99. */
-/* measured: fully decompiled, best nd 6 (obj 552B / window 560B) — the ONLY
-   residual is the shdPersonaDrawLevelDigits call's argument-materialisation ORDER: retail
-   emits [ld $a0,0x90; mov.s $f12,$f21; lw $5,0x9c; lbu $a2,4($s2); move $a3],
-   mwcc emits [lbu $a2 first; ld second; mov.s $f12 last] — pure scheduling
-   swap, no semantics. The real signature IS (s64 arg0, f32 fparg0, s32 arg1,
-   u8 *arg2, s32 *arg3) — colour is a separate 3rd GPR arg (the old 4-arg
-   family notes were wrong); the declaration order (arg0 before fparg0)
-   controls the prologue [sd $a0, 0x88; mov.s $f21] order. Also reproduced:
-   fB = *((f32 *)&arg0 + 1) kept in $f20 with the high word re-read per use
-   (same family idiom as shdPersonaDrawAffinityPanel), the positionPair[2] array for the s64 pair
-   passed to shdPersonaDrawLevelDigits, and the inv as TWO statements
-   (opacitySnapshot = arg1 & 0xFF; opacitySnapshot = 0xFF - opacitySnapshot;) to get retail's
-   [andi, addiu, subu] order. The discarded nd-6 spelling used a stale
-   prototype and was not recovered. */
-/* Measured ABI split for the coupled caller/callee declarations:
-   shdPersonaDrawArcanaBadge needs its block-scope `(s64, f32, s32, u8, s32)`
-   declaration to preserve its exact argument materialisation, while the
-   callee body is exact with `(s64, f32, s32, u32, u32)`. */
-/* measured: corrected-prototype reconstruction is now exact after applying
-   the float-second family declaration and the renderer's `(int,int,int,
-   float,float,u8,u8,u8,u8,float,int)` call order. The added 83/36 coordinate
-   materialisation and two-statement inverse produce object 552B / window
-   560B, MATCH (normalized_diff 0). */
-// Intent: Draw the Arcana badge: sprite sized by Arcana count, persona icon sprite and level digits [inferred]
+/* Draws the Arcana badge: a sprite sized by Arcana count, the persona icon sprite and the level
+ * digits. The block-scope shdPersonaDrawLevelDigits prototype (s64, f32, s32, u8, s32)
+ * intentionally differs from the callee's own (s64, f32, s32, u32, u32) to reproduce retail
+ * argument setup. */
 // FUN_001163E0
 void shdPersonaDrawArcanaBadge(s64 packedPosition, f32 depth, u8 opacity, u8 *status, s32 *sprites)
 {
@@ -635,14 +578,8 @@ void shdPersonaDrawArcanaBadge(s64 packedPosition, f32 depth, u8 opacity, u8 *st
 }
 
 
-
 void shdPersonaDrawDigits(Vec2f, f32, s32, u32, u32, s32);
-/* measured: (Vec2f,f32,s32,u32,u32,s32) plus an unsigned number-field
-   load preserves retail's `ld $a0; mov.s $f12; lw/lw/move/addiu`
-   materialisation. This body uses the float-first frFontExDrawTextWithCharWidth declaration
-   and the direct `iGpffff9c0c` spelling for retail `-0x63F4($gp)`.
-   Object 524B / window 528B, MATCH (nd 0). */
-// Intent: Draw the EXP row: panel sprite, EXP-to-next-level digits and the persona name text [inferred]
+/* Draws the EXP row: panel sprite, EXP-to-next-level digits and the persona name text. */
 // FUN_00116610
 void shdPersonaDrawExpRow(s64 packedPosition, f32 depth, u8 opacity, u8 *status, s32 *sprites)
 {
@@ -683,13 +620,7 @@ void shdPersonaDrawExpRow(s64 packedPosition, f32 depth, u8 opacity, u8 *status,
 }
 
 
-
-/* Draw the affinity icons and five status values with their shared sprite sets.
- * Keep the signed color-byte store before the later unsigned opacity
- * calculation, and retain the number-column and row snapshots.
- * measured: native b210, 1304B/1312B, 17 resolved relocations and eight
- * retail zero-tail bytes. Proof: build/first-party-focus-20260921/persona-w4. */
-// Intent: Draw the affinity icons and the five status values with their shared sprite sets [inferred]
+/* Draw the affinity icons and five status values with their shared sprite sets. */
 // FUN_00116820
 void shdPersonaDrawAffinityPanel(Vec2f position, f32 depth, u8 alpha, u8 *persona, s32 *sprites)
 {
@@ -782,16 +713,12 @@ void shdPersonaDrawAffinityPanel(Vec2f position, f32 depth, u8 alpha, u8 *person
 
 
 extern f32 iGpffff82fc;
-/* Draw the meter background, remaining span and optional bonus span.
- * Keep the original Y snapshot and a separate bonus-width lifetime.
- * The rectangle provider copies four raw words before reading integer
- * coordinates; the union describes its floating-point transport view.
- * Scoped scalarization preserves the complete color and rectangle buffers.
- * measured: native b210, 1144B/1152B, ten resolved relocations and eight
- * retail zero-tail bytes. Proof: build/first-party-focus-20260921/persona-w4. */
-// Intent: Draw one stat gauge: meter background, remaining span and optional bonus span [inferred]
+/* Draw one stat gauge: meter background, remaining span and optional bonus span. The rectangle
+ * provider copies four raw words before reading integer coordinates; the union describes its
+ * floating-point view. */
 // FUN_00116D40
-/* measured: baseline removal differs by 196 words; named MEMBER coordinate accesses still leave 524 differing bytes. */
+/* measured: retail keeps the full color and rectangle buffers in memory instead of splitting them
+ * into scalars. */
 #pragma push
 #pragma opt_scalarize off
 void shdPersonaDrawGaugeBar(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 added,
@@ -872,24 +799,8 @@ void shdPersonaDrawGaugeBar(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 a
 #pragma pop
 
 
-/* measured: retail emits the prologue saves in the order mov.s $f22/$f12 (fparg0),
-   sw $a1,0x7c (cbytes), move $s4,$a2, move $s3,$a3, and sinks the per-iteration
-   lbu cbytes[0] to the middle of func_0046d4c0's argument materialisation
-   (after mov.s $f12/$f13, before move $t3); mwcc b210 always hoists the two GP
-   arg saves above the cbytes store and emits the lbu before the $a0/$a1 moves
-   (nd 15, all pure instruction-order swaps, no semantics). Tried 6 source
-   orderings/type shapes incl. s64 5-arg, Vec2f, s32 5-arg, u8 vs s32 byte
-   locals, statement permutations — all nd >= 15. Scheduling/materialisation
-   order floor, same family as shdPersonaDispCtlUpdate. */
-
-
-
-
-/* measured: callee-side u32/u32 declaration closes shdPersonaDrawLevelDigits at object
-   328B / window 336B, normalized_diff 0. */
-
 void shdPersonaDrawLevelDigits(s64, f32, s32, u32, u32);
-// Intent: Draw a persona level as one or two right-aligned digits, using the sprite set from arg1 [inferred]
+// Draw a persona level as one or two right-aligned digits, using the sprite set given by texture.
 // FUN_001171C0
 void shdPersonaDrawLevelDigits(s64 packedPosition, f32 depth, s32 color, u32 level, u32 texture)
 {
@@ -932,13 +843,14 @@ void shdPersonaDrawLevelDigits(s64 packedPosition, f32 depth, s32 color, u32 lev
         rem = n;
     } while (n > 0);
 }
-/* measured: Vec2f coordinates, direct packed-color parameter access and
-   unsigned number/resource locals reproduce retail's prologue. Scoped
-   loop invariants preserve digit-loop setup; 388B/400B, zero instruction
-   differences and twelve retail zero-tail bytes. */
-// Intent: Draw an unsigned number as right-aligned digit sprites, stepping left per digit, with optional wide spacing [inferred]
+/* measured: Vec2f coordinates, direct packed-color parameter access and unsigned locals reproduce
+ * retail's prologue; scoped loop invariants keep the digit-loop setup. Draws an unsigned number as
+ * right-aligned digit sprites, stepping left per digit, with optional wide spacing. */
+/* Draw an unsigned number as digit sprites from the given texture, starting at the rightmost digit
+ * and stepping left 16 units per digit. The start position depends on rightAligned and on the
+ * number of digits. */
 // FUN_00117310
-/* measured: baseline removal differs by 12 words; narrowed cached inverse alpha still changes loop allocation. */
+/* measured: retail hoists the digit-loop setup constants out of the loop. */
 #pragma push
 #pragma opt_loop_invariants on
 void shdPersonaDrawDigits(Vec2f basePosition, f32 depth, s32 color, u32 number, u32 texture, s32 rightAligned)
@@ -979,7 +891,8 @@ void shdPersonaDrawDigits(Vec2f basePosition, f32 depth, s32 color, u32 number, 
     } while (n != 0);
 }
 #pragma pop
-// Intent: Return an eased progress fraction in [0,1] for frame arg0 over [arg1, arg2), with linear, sine or cosine easing by arg3 [inferred]
+// Return eased progress in [0,1] for frame over [startFrame, endFrame), with linear, sine or cosine
+// easing chosen by mode.
 // FUN_001174A0
 f32 shdPersonaEaseProgress(s32 frame, s32 startFrame, s32 endFrame, s32 mode)
 {
@@ -1004,8 +917,7 @@ f32 shdPersonaEaseProgress(s32 frame, s32 startFrame, s32 endFrame, s32 mode)
 }
 
 
-
-// Intent: Store a persona-list index in the task work block after checking it is below 216 [inferred]
+// Store a persona-list index in the task work block after checking it is below 216.
 // FUN_00117580
 void shdPersonaSetPersonaId(u8 *task, s32 personaId)
 {
@@ -1017,15 +929,14 @@ void shdPersonaSetPersonaId(u8 *task, s32 personaId)
 }
 
 
-
 void shdPersonaDrawPanels(u8 *, u8 *);
 void datRecordResetAll(u8 *record);
 extern char D_005E5810[];
 extern char D_005E5830[];
 extern char D_005E5850[];
 extern char D_005E57F0[];
-// Intent: Initialise a persona panel task: counters, child-task callbacks, texture ids and the ten channel rectangles [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Initialises a persona panel task: counters, child-task callbacks, texture ids and the ten channel
+// rectangles.
 // FUN_001175E0
 void shdPersonaTaskInit(u8 *task, s32 inputState, s32 inputOpenDuration, s32 inputCloseDuration)
 {
@@ -1071,9 +982,8 @@ void shdPersonaTaskInit(u8 *task, s32 inputState, s32 inputOpenDuration, s32 inp
 }
 
 
-
-
-// Intent: Create a persona panel child task with update and destroy callbacks, then initialise it from arg1 to arg4 [inferred]
+// Create a persona panel child task with update and destroy callbacks, then initialise it from the
+// given state and durations.
 // FUN_00117780
 u8 *shdPersonaTaskCreate(s32 parentTask, s32 priority, s32 state, s32 openDuration, s32 closeDuration)
 {
@@ -1094,9 +1004,8 @@ u8 *shdPersonaTaskCreate(s32 parentTask, s32 priority, s32 state, s32 openDurati
 }
 
 
-
-// Intent: Per-frame update of a persona panel task: copy its resource block and advance its state machine [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Per-frame update of a persona panel task: copies its resource block and advances its state
+// machine.
 // FUN_001178A0
 s32 shdPersonaTaskUpdate(u8 *task)
 {
@@ -1128,7 +1037,6 @@ s32 shdPersonaTaskUpdate(u8 *task)
 }
 
 
-
 extern u8 iGpffff9c10;
 extern u8 iGpffff9c11;
 extern u8 iGpffff9c12;
@@ -1150,15 +1058,8 @@ void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
 void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth,
                    u8 red, u8 green, u8 blue, u8 alpha,
                    u16 scaleX, u16 scaleY, f32 angle, s16 pivotX, s16 pivotY);
-/* Measured: 3632B, matching retail. Keep complete draw-position, triangle
-   and radial-table objects, promoted timer snapshots and distinct interpolation
-   lifetimes. Rotation precedes panel scale in the declaration group. The
-   radial style count comes from its table; the final index is independently
-   evaluated after color selection. Native byte opacity conversions preserve
-   retail's masks. opt_loop_invariants on preserves the draw-loop constants.
-   Proof: build/cos20814/worker3-ui/persona_00117980_relocation_proof.json
-   and persona_00117980_siblings.json. */
-/* Ease a bounded frame interval through its configured sine phase. */
+/* measured: retail keeps the draw-loop constants hoisted and rotation declared before panel scale.
+ * Eases a bounded frame interval through its configured sine phase. */
 static inline f32 shdPersonaSinePhase(s32 frame, s32 first, s32 last)
 {
     if (frame < first) {
@@ -1196,8 +1097,8 @@ static inline f32 shdPersonaPulseEnvelope(u16 frame)
     return 1.0f;
 }
 
-/* Combine normalized opacity and the effect factor before converting to a byte. */
-/* measured: plain expansion changes opacity-load timing and normalization FPR allocation. */
+/* measured: combines normalized opacity and the effect factor before byte conversion; retail loads
+ * opacity and normalizes in this order only via the wrapper. */
 static inline u8 shdPersonaModulatedOpacity(u8 opacity, f32 factor)
 {
     return (u8)((255.0f * factor) * ((f32)opacity / 255.0f));
@@ -1217,10 +1118,10 @@ static inline f32 shdPersonaFallingPhase(s32 frame, s32 first, s32 last)
     return 1.0f - progress;
 }
 
-// Intent: Update and draw the card-open effect: growing panel scale, 24 radial particles, four corner marks and a pulse ring [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Updates and draws the card-open effect: growing panel scale, 24 radial particles, four corner
+// marks and a pulse ring.
 // FUN_00117980
-/* measured: baseline removal differs by 207 words; explicit corner rotation/color hoists still leave 353 differing bytes. */
+/* measured: retail hoists the draw-loop constants out of the loops. */
 #pragma push
 #pragma opt_loop_invariants on
 void shdPersonaDrawEffect(u8 *panel)
@@ -1431,14 +1332,11 @@ typedef union PersonaPanelPosition {
     f32 coordinates[2];
     s64 packed;
 } PersonaPanelPosition;
-/* Native b210 O2: 612/624 bytes, four resolved relocations and twelve zero
- * alignment bytes. Preserve the incoming coordinate object and the
- * per-call Y-offset conversion rather than eagerly splitting their values.
- * See docs/probe_archive/Persona_renderer_001187b0_20260923.md. */
-/* measured: access-site aggregate typing removes scalarize override; propagation-on still differs by 343 bytes. */
+/* measured: propagation must stay off so the incoming coordinate object and per-call Y-offset
+ * conversion are kept rather than split into scalars, as retail does. */
 #pragma push
 #pragma opt_propagation off
-// Intent: Draw one persona panel's four sprites at a position offset from the base coordinates [inferred]
+// Draw one persona panel's four sprites at a position offset from the base coordinates.
 // FUN_001187B0
 void shdPersonaDrawPanelSprites(u8 *work, PersonaPanelPosition position, u8 opacity,
                    s64 baseCoordinates, f32 rotation)
@@ -1494,19 +1392,16 @@ void shdPersonaDrawPanelSprites(u8 *work, PersonaPanelPosition position, u8 opac
 #pragma pop
 
 
-
 void shdPersonaDrawPanelSprites(u8 *, PersonaPanelPosition, u8, s64, f32);
 void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
 extern f32 iGpffff8364;
 extern f32 iGpffff8094;
-/* Native b210 O2: 1744/1744 bytes, 18 resolved relocations. The
- * packed-coordinate union and three aligned color objects preserve
- * the actual buffers; each particle loop has its own counter.
- * See docs/probe_archive/Persona_animation_00118a20_20260923.md. */
-// Intent: Draw the sliding background panels for the persona screen; their phases follow the frame counter at 0x520 [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* Draws the sliding background panels for the persona screen; their phases follow the frame
+ * counter. A packed-coordinate union and three aligned color objects hold the buffers, and each
+ * particle loop has its own counter. */
 // FUN_00118A20
-/* measured: baseline removal differs by 32 words; pointer-walk color loops still leave 619 differing bytes. */
+/* measured: retail hoists the loop constants out of the color loops, which needs
+ * opt_loop_invariants on. */
 #pragma push
 #pragma opt_loop_invariants on
 void shdPersonaDrawSlidingPanels(u8 *panel)
@@ -1517,9 +1412,7 @@ void shdPersonaDrawSlidingPanels(u8 *panel)
     f32 f24;
     f32 f23;
     f32 f22;
-    /* Retail leaves these saved-register values unwritten on the admitted
-     * early-frame paths. For frame < 7, f21 remains the incoming $f21; for
-     * frame < 9, f20 remains the incoming $f20. Preserve that omission. */
+    /* Retail leaves f21 unwritten when frame < 7 and f20 unwritten when frame < 9. */
     f32 f21;
     f32 f20;
     f32 x1;
@@ -1687,19 +1580,12 @@ void shdPersonaDrawSlidingPanels(u8 *panel)
 #pragma pop
 
 
-
 void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
-/* measured: rule 2 applied — the madd.s operand order IS source-driven:
-   retail `madd.s $f0,$f4,$f2` (2.0f first) needs `arg0[0] + 2.0f * x` with
-   the CONSTANT first; the old probe batch only transposed the ADD operands
-   (acc += x / x + acc). The FMA fusion (adda.s $f3,$f0 + madd.s) requires
-   #pragma opt_loop_invariants on (the old note's "six loop constants" hoist:
-   2.0f/$f4, 0.0f/$f3, -450.0f/$f1, 0x5A/$7, 0xFF/$6, 1/$3).
-   Removing the pragma was measured at nd 0 -> nd 136: the accumulator seed
-   sinks into the loop and the fusion breaks into add.s + adda.s + madd.s. */
-/* measured: baseline removal differs by 68 words; explicit horizontal/vertical scale locals do not recover the preheader. */
+/* measured: retail sets up the accumulator and scale values before the quad loop starts, which
+ * needs loop-invariant hoisting on. */
 #pragma opt_loop_invariants on
-// Intent: Draw the six-quad particle strip for a persona panel, with per-quad positions and blend alpha from arg1 [inferred]
+// Draw the six-quad particle strip for a persona panel, with per-quad positions and blend alpha
+// from the alpha argument.
 // FUN_001190F0
 void shdPersonaDrawParticleQuads(f32 *origin, u8 alpha)
 {
@@ -1734,10 +1620,8 @@ void shdPersonaDrawParticleQuads(f32 *origin, u8 alpha)
     }
     PrimDrawPoints((u8 *)colors, (u8 *)points, 0.0f, 6, 4, 0);
 }
-/* Closes the measured opt_loop_invariants scope opened for shdPersonaDrawParticleQuads above.
-   It must stay scoped: leaving it on regresses the neighbouring functions. */
+/* measured: restores the unit setting after shdPersonaDrawParticleQuads. */
 #pragma opt_loop_invariants off
-
 
 
 s32 cmmCommunityValueForArcana(s32);
@@ -1745,14 +1629,9 @@ void sdkSpriteDrawOnce(s32, s32, s32, f32, f32, u8, f32, s32);
 void shdPersonaDrawParticleQuads(f32 *, u8);
 extern u8 D_005E4DB0[];
 extern f32 iGpffff8368;
-/* Draw the blue backdrop, ten rising particles, community rank and bonus.
- * Keep each particle's table snapshot and randomized duration expression
- * together: the complete expression retains retail's multiplication order.
- * measured: native b210, 1532B/1536B, 21 fully resolved relocations and
- * four retail zero-tail bytes. Prior renderers, siblings and data stay exact.
- * Proof: build/first-party-focus-20260921/persona-w4/continuation-2. */
-// Intent: Draw the blue backdrop, ten rising particles, community rank and bonus digits [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* Draw the blue backdrop, ten rising particles, community rank and bonus digits. Each particle's
+ * table snapshot and randomized duration stay in one expression to keep retail's multiplication
+ * order. */
 // FUN_00119210
 void shdPersonaDrawBackdrop(u8 *work)
 {
@@ -1874,14 +1753,9 @@ void shdPersonaDrawBackdrop(u8 *work)
 }
 
 
-/* Acquisition animation shares the easing maximum across the rotation,
- * label and glow phases. Keep that bound live through the first draw;
- * it also supplies the completed-phase endpoints and glow complement.
- * measured: native b210 -O2, 1524B/1536B; all 18 code relocations
- * resolve to retail, with a twelve-byte zero suffix and no owned data.
- * Proof: build/game-next-20260921/persona/accepted-acquisition. */
-// Intent: Draw the persona acquisition animation: rotating panel, glow phase and label [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* Draws the persona acquisition animation: rotating panel, glow phase and label. The easing maximum
+ * is shared across all three phases and also supplies the completed-phase endpoints and glow
+ * complement. */
 // FUN_00119810
 void shdPersonaDrawAcquisition(u8 *work)
 {
@@ -2014,16 +1888,10 @@ void shdPersonaDrawAcquisition(u8 *);
 void shdPersonaDrawEffect(u8 *);
 void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
 
-/* Update task counters, callbacks and independently animated Persona panels.
- * Flags are read again after callbacks because they can change draw visibility.
- * The selection counter is intentionally advanced in both update and draw.
- * Packed coordinate snapshots keep complete two-float objects across calls.
- *
- * measured 2026-10-01: native b210, 3208B / 3216B, exact instructions,
- * 58 resolved references and eight zero alignment bytes. The coherent byte
- * opacity interface preserves the real producer ranges and all matched
- * family members. See Persona_alpha_family_00119e10_20261001.md. */
-// Intent: Persona panel draw callback: advance counters, run sub-animations and draw enabled sub-panels by flag [inferred]
+/* Update task counters, callbacks and independently animated Persona panels. Flags are read again
+ * after callbacks because they can change draw visibility. The selection counter is intentionally
+ * advanced in both update and draw. Packed coordinate snapshots keep complete two-float objects
+ * across calls. */
 // FUN_00119E10
 void shdPersonaDrawPanels(u8 *task, u8 *argument)
 {
@@ -2323,9 +2191,8 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
 }
 
 
-
-
-// Intent: Load the ten animated channel targets from one of six preset tables (arg1 0 to 5) with their durations [inferred]
+// Load the ten animated channel targets and durations from one of six preset tables (preset 0 to
+// 5).
 // FUN_0011AAA0
 void shdPersonaSetupChannels(u8 *panel, u32 preset)
 {
@@ -2386,25 +2253,8 @@ void shdPersonaSetupChannels(u8 *panel, u32 preset)
 }
 
 
-
-/* measured: retail keeps the per-iteration element pointer (arg0 + i*0x24) in
-   $a2, surviving the func_0044b7b0 call (mwcc's reloadable-load caching in the
-   arg registers) and saves only $s1=arg0/$s0=i; mwcc b210 colours the element
-   pointer into a saved register $s0 (frame 0x40 vs 0x30, whole body shifted,
-   nd ~40). Tried declaration orders — identical. Same a2-cache colouring floor
-   as shdPersonaSkillReplaceStep. Also: the m2c's 4-arg func_0044b7b0 call and the
-   (u16)-cast element pointer are hallucinated (real call is 1-arg). */
-/* Wave-14 re-measure: frame fix confirmed — lever 6 (inline element
-   pointer `arg0 + i*36 + off` as an integer-domain address, NO named `p`
-   local) drops the frame 0x40 -> 0x30 (retail's) and the element pointer
-   is recomputed in a temp per side of the func_0044b7b0 call like retail
-   (nd 158 -> 126). Remaining 126: (1) the top-of-loop load order — retail
-   [lh 0x508; sll/addu ptr; lwc1 0x2e8; mtc1; cvt] defers the cvt.s.w,
-   mwcc converts immediately after the lh; (2) the post-call element
-   pointer lands in $a3 vs retail $a2; (3) the lerp FMA + iGpffff8094 mul
-   register allocation. opt_propagation off (FLYDraw's lever) is NOT
-   applicable here — multi-use loop, not a single-use base wrapper. */
-// Intent: Tween the ten channels toward their targets over the opening window; clears the opening flag 0x2 when done [inferred]
+/* Tweens the ten channels toward their targets over the opening window, then clears opening flag
+ * 0x2. The real func_0044b7b0 call takes one argument. */
 // FUN_0011AC70
 void shdPersonaTweenChannelsOpen(u8 *panel)
 {
@@ -2459,26 +2309,9 @@ void shdPersonaTweenChannelsOpen(u8 *panel)
 }
 
 
-
 extern f32 iGpffff8094;
-/* measured: the documented a2-cache colouring floor (shdPersonaTweenChannelsOpen /
-   shdPersonaSkillReplaceStep family) — retail keeps the per-iteration element pointer
-   (arg0 + i*36) in a temp register across the func_0044b7b0 call and
-   saves only $s1=arg0/$s0=i (frame 0x30); mwcc b210 colours the element
-   pointer into a saved register (frame 0x40, whole body shifted, nd 158).
-   The if/else-if/else lerp chain additionally lays the else-if body
-   inline where retail places it out of line (bc1t to it after the 1.0f
-   branch). Logic itself decodes cleanly: per-element lerp with the
-   signed-byte abs construct, then the post-loop interpolate-or-clear
-   with the four chained mask clears. */
-/* Wave-14 re-measure: lever 6 (inline integer-domain element pointer
-   `arg0 + i*36 + off`, no named `p` local) applied — measured nd 149
-   (vs recorded 158), same family floor as shdPersonaTweenChannelsOpen (identical loop;
-   the post-loop differs: 0x510 vs 0x50C and the four chained mask clears
-   ~4/~0x80000/~0x200000/~0x800000 + the 0x505==0 ?? 0x400000 clear/or).
-   opt_propagation off (FLYDraw) does NOT apply — multi-use loop base. */
-// Intent: Tween the ten channels toward their targets over the closing window; clears the closing flag 0x4 when done [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* Tweens the ten channels toward their targets over the closing window, then clears the closing
+ * flag 0x4 when done. */
 // FUN_0011AE90
 void shdPersonaTweenChannelsClose(u8 *panel)
 {
@@ -2541,30 +2374,8 @@ void shdPersonaTweenChannelsClose(u8 *panel)
 }
 
 
-
-/* measured: reconstructed plain-C body, nd 18 (obj 444B / window 448B),
-   improved from nd 21 by bracketing only this function with
-   `#pragma opt_common_subs off` (restored after the body). The remaining
-   fndiff rows are the two call-site argument-materialization swaps at offsets
-   88/92 and 120/124 (retail prepares the stack aggregate before loading
-   $f12), the signed-byte negative-path colouring at 192/196 (`or` and `mtc1`
-   use retail $v1 while MWCC uses $v0), and the relocation-owned global-address
-   pair at 360/364. The object remains four bytes short at the tail. No source
-   spelling tested changed these residuals. Committed at nd 18. */
-/* archived body: build/VSHD_0011b110_body.c; object 444B; retail window 448B;
-   normalized_diff 16; differing offsets 0x58, 0x5C, 0x78, 0x7C; retail-only
-   tail 0x1AC. The int-to-float idiom is `(f32)(u32)*(u8 *)(arg0 + 0x505)`.
-   Residual is call-site Vec2f aggregate/float argument materialisation order
-   plus tail padding; declaration, pragma, direct-float, aggregate-dereference,
-   duplicate-local, and initializer alternatives were ruled out. */
-/* measured (supersedes the historical nd18 probe above): the ABI-ordered
-   and matching call spelling reproduce the retail `ld`/`lwc1`/`lbu`/constant
-   materialisation at both call sites. The plain-C arithmetic reproduces both
-   retail COP1 accumulator ops (`adda.s`/`msub.s`) exactly; they are not a
-   residual. Final object is 444B against a 448B window; the remaining four
-   bytes are zero tail padding accepted by the verifier (normalized_diff 0). */
-// Intent: Draw the panel for its current state: states 0, 2 and 4 use draw mode 0x10, state 3 uses 0x23, and state 1 draws a gauge bar scaled by the alpha at 0x505 [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* Draws the panel for its current state: states 0, 2 and 4 use draw mode 0x10, state 3 uses 0x23,
+ * and state 1 draws a gauge bar scaled by the panel alpha. */
 // FUN_0011B110
 void shdPersonaDrawByState(u8 *panel)
 {
@@ -2607,10 +2418,7 @@ void shdPersonaDrawByState(u8 *panel)
 }
 
 
-
-
-
-// Intent: Assert the panel state at 0x52C is 0 to 4, then destroy the task [inferred]
+// Asserts the panel state is 0 to 4, then destroys the task.
 // FUN_0011B2D0
 void shdPersonaDestroy(u8 *task)
 {
@@ -2623,9 +2431,8 @@ void shdPersonaDestroy(u8 *task)
 }
 
 
-
-// Intent: Finish the panel phase: begin the close when the flag 0x1 is set and the phase is 2, else clear flag 0x1, then set the phase to 3 [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Finish the panel phase: begin the close if flag 0x1 is set and the phase is 2, otherwise clear
+// flag 0x1; then set the phase to 3.
 // FUN_0011B360
 void shdPersonaFinishPhase(u8 *task)
 {
@@ -2639,8 +2446,8 @@ void shdPersonaFinishPhase(u8 *task)
 }
 
 
-
-// Intent: Fill a status block from the persona record, with mode 2 for states 0 to 2 and mode 1 for states 3 and 4 [inferred]
+// Fills a status block from the persona record, using mode 2 for states 0 to 2 and mode 1 for
+// states 3 and 4.
 // FUN_0011B3D0
 void shdPersonaFillStatusForState(u8 *panel, u8 *persona)
 {
@@ -2662,13 +2469,12 @@ void shdPersonaFillStatusForState(u8 *panel, u8 *persona)
 }
 
 
-
 void datPersonaFillSkillRows(s32, u8 *);
 void shdPersonaDispCtlReconfigure(u8 *, s32, s32);
 s32 shdPersonaDispCtlGetHandle(u8 *);
 void shdPersonaLevelUpRoute(u8 *);
-// Intent: Set the display state for a target and index: reconfigure the display control, or start the display transition for a nonzero target [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Sets the display state for a target and index: reconfigures the display control, or starts the
+// display transition when the target is nonzero.
 // FUN_0011B480
 void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, s8 cursor)
 {
@@ -2731,11 +2537,9 @@ void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, 
 }
 
 
-
 extern char D_005E4E00[];
 void shdPersonaDispCtlSetGaugeEnabled(u8 *, s32);
-// Intent: Set the persona panel state at 0x52C and reconfigure the panel for the new state [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Sets the persona panel state and reconfigures the panel for the new state.
 // FUN_0011B6D0
 s32 shdPersonaSetState(u8 *task, s32 inputState)
 {
@@ -2837,9 +2641,7 @@ s32 shdPersonaSetState(u8 *task, s32 inputState)
 }
 
 
-
-// Intent: Fill a state block from the persona record pointer, choosing the layout by the panel state at 0x52C [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Fill a state block from the persona record pointer, choosing the layout by the panel state.
 // FUN_0011B8F0
 void shdPersonaFillStateBlock(u8 *task, u8 *stats)
 {
@@ -2871,20 +2673,20 @@ void shdPersonaFillStateBlock(u8 *task, u8 *stats)
 }
 
 
-
-// Intent: Store a handle value at offset 0x44 of the persona block owned by the task [inferred]
+// Stores a value in the first persona's nextExperience field in the task's work block.
 // FUN_0011B9E0
 void shdPersonaSetHandleValue(int task, u32 value)
 {
     ((PersonaRenderWork *)((SdkTask *)task)->work)->persona[0].nextExperience = value;
 }
-// Intent: Store an extra value at offset 0x4C4 of the persona block owned by the task; no in-tree caller [inferred]
+// Stores a value in the backdrop bonus field of the task's work block. Nothing in the tree calls
+// it.
 // FUN_0011B9F0
 void shdPersonaSetExtraValue(int task, u32 value)
 {
     ((PersonaRenderWork *)((SdkTask *)task)->work)->backdrop.bonus = value;
 }
-// Intent: Return whether a persona transition (open 0x2 or close 0x4) is in progress [inferred]
+// Returns whether an open (0x2) or close (0x4) transition is in progress.
 // FUN_0011BA00
 s32 shdPersonaIsTransitioning(u8 *task)
 {
@@ -2896,9 +2698,8 @@ s32 shdPersonaIsTransitioning(u8 *task)
 }
 
 
-
-// Intent: Begin the persona open transition: set the open and active flags and clear the close and selection flags [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Begins the persona open transition: sets the open and active flags and clears the close and
+// selection flags.
 // FUN_0011BA40
 void shdPersonaBeginOpen(u8 *panel)
 {
@@ -2950,9 +2751,7 @@ void shdPersonaBeginOpen(u8 *panel)
 }
 
 
-
-// Intent: Start the persona panel slide-in with its tween and sound [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Start the persona panel slide-in with its tween and sound.
 // FUN_0011BB90
 void shdPersonaStartSlideIn(u8 *task)
 {
@@ -2979,9 +2778,7 @@ void shdPersonaStartSlideIn(u8 *task)
 }
 
 
-
-// Intent: Begin the persona close transition: set the close flag and clear the open and selection flags [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Begin the persona close transition: set the close flag and clear the open and selection flags.
 // FUN_0011BC70
 void shdPersonaBeginClose(u8 *task)
 {
@@ -3035,22 +2832,9 @@ void shdPersonaBeginClose(u8 *task)
 }
 
 
-
 f32 shdPersonaGetBarProgress(u8 *, Vec2f *);
 void shdPersonaDispCtlCommitPosition(u8 *);
-/* measured: fully decompiled, nd 19 (obj 336B / window 336B). The only
-   residual is a six-word FP scheduling/allocation permutation at offsets
-   188, 192, 196, 200, 204, and 208. Retail emits addiu/mtc1/nop/cvt.s.w
-   for integer 0x303 into $f1, then lwc1 0x4FC into $f0, then add.s
-   $f0,$f1,$f0. MWCC emits the same multiset as lwc1 into $f1, addiu/mtc1/
-   nop/cvt.s.w into $f0, then add.s $f0,$f0,$f1. Nothing is missing or
-   extra: the values own the opposite FP temporaries, and retail hoists the
-   conversion chain over the field load to cover the mtc1-to-cvt.s.w hazard.
-   Operand transpositions are canonicalised; naming field/constant locals,
-   integer versus 771.0f spellings, split expressions, address-domain forms,
-   and all thirteen pragma wrappers did not change nd. Function-wide FP
-   liveness/scheduling floor. Committed at nd 19. */
-// Intent: Start the persona panel slide-out, handing off to the close tween [inferred]
+/* Starts the persona panel slide-out and hands off to the close tween. */
 // FUN_0011BDC0
 void shdPersonaStartSlideOut(u8 *task)
 {
@@ -3091,21 +2875,9 @@ void shdPersonaStartSlideOut(u8 *task)
 }
 
 
-
-
-/* measured: fully decompiled, nd 19 (obj 620B / window 624B). Offsets 292,
-   296, 300, 304, 308, and 312 have the same six-word FP permutation as
-   shdPersonaStartSlideOut: retail emits addiu/mtc1/nop/cvt.s.w for integer 0x303 into
-   $f1, then lwc1 0x4FC into $f0, then add.s $f0,$f1,$f0; MWCC emits lwc1
-   into $f1, addiu/mtc1/nop/cvt.s.w into $f0, then add.s $f0,$f0,$f1.
-   Nothing is missing or extra in those six words; the opposite FP
-   temporary ownership prevents operand transposition from changing the
-   result, and retail's conversion-chain hoist covers the mtc1-to-cvt.s.w
-   hazard. The object is four bytes short at tail offset 620. Naming
-   field/constant locals, integer versus 771.0f spellings, split expressions,
-   address-domain forms, and all thirteen pragma wrappers did not change nd.
-   Function-wide FP liveness/scheduling floor. Committed at nd 19. */
-// Intent: Enter the persona close state once (flag 0x1 set, 0x4 clear): set 0x4, clear the open, selection and reveal flags, reset the slot to -1, set up five channels and reposition the display control from the bar progress; the body is a raw Ghidra dump and needs a rewrite [inferred]
+/* Enters the persona close state once: sets the closing flag, clears the open, selection and reveal
+ * flags, resets the slot to -1, sets up five channels, and repositions the display control from the
+ * bar progress. */
 // FUN_0011BF10
 void shdPersonaEnterCloseState(u8 *task)
 {
@@ -3282,8 +3054,8 @@ do { case 3: case 2: case 4: break; default: task++; task--; kAssertFail(D_005E4
 }
 
 
-// Intent: Set up two channels and the start position once, snapshot the 15-word parameter block at 0xC into 0x48, end the selection, then start the display transition [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Sets up two channels and the start position, copies the 15-word parameter block into the work
+// snapshot, ends the selection, then starts the display transition.
 // FUN_0011C180
 void shdPersonaBeginDisplayAndEndSelection(u8 *task, s32 category, s32 personaAddress, s8 cursor)
 {
@@ -3327,9 +3099,10 @@ void shdPersonaBeginDisplayAndEndSelection(u8 *task, s32 category, s32 personaAd
 }
 
 
-
-// Intent: Snapshot the 15-word parameter block at 0xC into 0x48, set up three channels once, then start the display transition with the given target, index and flag [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Snapshots the 15-word parameter block into the saved copy, sets up three channels once, then
+// starts the display transition with the given target, index and flag. measured: retail code
+// changes with direct fields or local object aliases, so fields are accessed through named MEMBER
+// offsets.
 // FUN_0011C2C0
 void shdPersonaBeginDisplay(u8 *task, s32 category, s32 personaAddress, s8 cursor)
 {
@@ -3374,13 +3147,12 @@ void shdPersonaBeginDisplay(u8 *task, s32 category, s32 personaAddress, s8 curso
 }
 
 
-
-/* The ordered halfword observation keeps the retail per-record sample load;
-   loop-invariant motion preserves the accumulator/FMA instruction pairs. */
-/* measured: baseline removal differs by 137 words; channel pointer traversal still leaves 312 differing bytes. */
+/* measured: retail hoists loop-invariant values out of the tween loop to keep its multiply-add
+ * instruction pairs. */
 #pragma push
 #pragma opt_loop_invariants on
-// Intent: Tween the comparison display from its start values toward its targets over the comparison window [inferred]
+// Tweens the comparison display from its start values toward its targets over the comparison
+// window.
 
 // FUN_0011C3E0
 void shdPersonaTweenComparison(u8 *panel)
@@ -3404,22 +3176,8 @@ void shdPersonaTweenComparison(u8 *panel)
     u8 c;
 
     for (i = 0; i < 10; i++) {
-        /* HONEST NOTE: this MATCH rests on a BANNED construct.  `panel + 0x516`
-           is ordinary memory, and `volatile` here exists to force a reload on
-           each of the ten iterations.  Measured alternatives, all of which
-           LOSE the match (91 -> 90 MATCH):
-             - the plain `raw = ((PersonaRenderWork *)panel)->comparisonFrame;` in the loop, 21
-               differing words: b210 computes the index before the `lh`, while
-               retail issues the `lh` first
-             - the load hoisted above the loop, 75 differing words and a loop
-               target of 0x0011C414 against retail's 0x0011C404 - retail really
-               does load ten times in the loop plus once after, so the hoist is
-               factually wrong
-             - plain plus `opt_loop_invariants off`, 449 differing words
-           Retail's per-iteration reload is therefore real, but no legal C
-           spelling found so far reproduces both the reload AND the
-           instruction order.  shdPersonaTweenComparison is a DEMOTION CANDIDATE. */
-        /* lint: allow H001 -- measured: pre-existing per-record volatile load; see demotion note above */
+        /* lint: allow H001 -- retail reloads the comparison frame on every record; see the demotion
+         * note above */
         raw = *(volatile s16 *)&((PersonaRenderWork *)panel)->comparisonFrame;
         lo = ((PersonaRenderWork *)(panel + i * 36))->channels[0].duration;
         ratio = (f32)raw;
@@ -3471,7 +3229,7 @@ void shdPersonaTweenComparison(u8 *panel)
 #pragma pop
 
 
-// Intent: Return whether the persona selection flag 0x800 is set [inferred]
+// Returns whether the persona selection flag 0x800 is set.
 // FUN_0011C610
 u32 shdPersonaIsSelectionActive(u8 *task)
 {
@@ -3479,8 +3237,7 @@ u32 shdPersonaIsSelectionActive(u8 *task)
 }
 
 
-
-// Intent: Begin persona selection: set the selection and selection-active flags [inferred]
+// Begins persona selection: sets the selection and selection-active flags.
 // FUN_0011C630
 void shdPersonaBeginSelection(u8 *task)
 {
@@ -3500,9 +3257,7 @@ void shdPersonaBeginSelection(u8 *task)
 }
 
 
-
-// Intent: End persona selection and set the selection-end flag 0x2000; arg1 selects the end mode [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// End persona selection and set the selection-end flag 0x2000; mode selects how selection ends.
 // FUN_0011C6E0
 void shdPersonaEndSelection(u8 *task, s32 mode)
 {
@@ -3522,37 +3277,12 @@ void shdPersonaEndSelection(u8 *task, s32 mode)
 }
 
 
-
-/* measured: reconstructed plain-C body, nd 18 (obj 428B / window 432B).
-   The raw s16 load ordering (raw; lo; ratio = (f32)raw; hi) first improved
-   nd 48 to 43; `~0x1000` then emitted retail's -0x1001 at offset 396, and
-   `2147483648.0f > acc` emitted retail c.ole.s plus bc1t at 288/292,
-   reaching nd 38. The final nd 38 -> 18 fix nests the high-bound load/test
-   inside the `else` after the low clamp, so the low path emits retail's
-   mtc1 $zero,$f0 / b / nop at offsets 48/52/56 and defers lwc1 0x454 to 60.
-   Remaining fndiff rows are the prologue load swap at 16/20; relocation-owned
-   iGpffff8094 GPREL materialization at 108; negative-path coloring at
-   240/244, 252/256; and output $v1/$a0 coloring at 304, 312, 340, 344, 348.
-   The object remains four bytes short at tail offset 428. In-place OR,
-   compound-assignment, reused-local, dual-result-zero, and all thirteen
-   pragma wrappers were flat or worse. Committed at nd 18. */
-/* archived body: build/VSHD_0011c780_body.c; object 428B; retail window 432B;
-   normalized_diff 13; differing offsets 0x10, 0x14, 0x132, 0x13A, 0x155,
-   0x15A, 0x15E. The int-to-float idiom is `(f32)(u32)a` for the unsigned
-   byte absolute-value site; the signed halfword ratio stays `(f32)raw`.
-   Residual is prologue load order, GPREL relocation, and output colouring. */
-/* superseded: docs/probe_archive/EcD_0011c780_body.c reaches nd 6
-   (object 428B/window 432B) -- measured `#pragma opt_propagation off`
-   reproduces retail's top lh/lwc1 order. Remaining: output GPR colouring
-   ($v1 vs retail $a0) at 0x130/0x138/0x154/0x158/0x15C, plus the
-   relocation-owned GP word at 0x06C. */
-/* measured: baseline differs by two load-order words; MEMBER loads, conversion order and widened frame locals still differ. */
+/* measured: retail's prologue load order needs the optimizer setting below; plain C emits two load-
+ * order words differently. */
 #pragma push
-/* measured: opt_propagation off reproduces the retail lh/lwc1 prologue order;
-   the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
+/* measured: with propagation off, the prologue loads come out in retail order. */
 #pragma opt_propagation off
-// Intent: Tween the persona selection panel open and clear its opening flag when done [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Tweens the persona selection panel open and clears its opening flag when done.
 // FUN_0011C780
 void shdPersonaTweenSelectionOpen(u8 *panel)
 {
@@ -3580,48 +3310,13 @@ void shdPersonaTweenSelectionOpen(u8 *panel)
     if (!((f32)(s16)MEMBER(s16, panel, PersonaRenderWork, selectionFrame) <= 5.0f)) ((PersonaRenderWork *)panel)->flags &= ~0x1000;
 }
 #pragma pop
-/* measured: rule 2 confirmed — with the multiplications written ratio-first
-   (`base + ratio * delta`, `f + ratio * diff`), the adda.s/madd.s pairs match
-   retail byte-for-byte (madd.s $f1,$f0,$f3). Best nd 15 (obj 448B / window
-   448B) with `f32 diff;` declared FIRST (declaration order fixed the whole
-   post-jal FP rotation: diff→$f3, f_abs→$f2, acc→$f1). Remaining floor, all
-   documented scheduling/colouring rows: (1) the top load interleave — retail
-   [lh 0x514; lwc1 0x450; mtc1; nop; cvt], mwcc emits the lwc1 either before
-   the lh (v-local + lo-local order) or after the cvt (inline conversion),
-   never in the lh→mtc1 slot; (2) the neg-path abs: retail or-dest $a0 and
-   in-place cvt $f2/add $f2, mwcc emits or $v1 and cvt $f1/add.s $f2,$f1,$f1;
-   (3) the 0x4F000000 guard: `if (f < 2147483648.0f)` small-first gives
-   retail's layout (small inline, big out of line) but mwcc encodes c.olt.s+
-   bc1f where retail has c.ole.s+bc1t (1 word), and the n local colours $v1
-   vs retail $a0 (the big-first `f >= C` form flips the layout instead —
-   tried, nd 27); (4) the 0x88 store must be `*(s8 *)&0x88 = -1` (addiu -1,
-   not 0xff). The func_0044b7b0 call must sit INSIDE the else-if branch or the
-   div-destination register and the nop-after-div vanish. */
-/* measured: nested high-bound load/test plus the proven constant-left strict
-   guard (`2147483648.0f > acc`) and `~0x800`/`~0x2000` masks reduce this
-   body from nd 49 to nd 23 (obj 448B / window 448B). The nested `else`
-   fixes the pre-interpolation load schedule; the guard and masks reproduce
-   retail c.ole.s/bc1t and -0x801/-0x2001. Remaining fndiff rows are
-   20/24/28/32, relocation-owned 108 (iGpffff8094), 240/244/252/256,
-   and 304/312/340/344/348: prologue FP load interleave, negative-path
-   abs colouring, and output $a0 versus MWCC $v1 colouring. Strict,
-   inclusive, negated-strict, mask-only, constant-left-inclusive, and all
-   pragma-wrapper probes were ruled out or worse. Committed at nd 23. */
-/* archived body: build/VSHD_0011c930_body.c; object 448B; retail window 448B;
-   normalized_diff 13; differing offsets 0x10, 0x14, 0x132, 0x13A, 0x155,
-   0x15A, 0x15E. The int-to-float idiom is `(f32)(u32)a`; the signed halfword
-   ratio stays `(f32)(s16)*(s16 *)`. Source-ordered `lo` load versus halfword
-   conversion leaves the prologue pair; remaining residual is GPREL/output
-   coloring. Retail parameter audit uses only `$a0` (arg0); no hidden args or
-   mixed-class order. Direct stores, raw staging, declaration reorder, and
-   pragma alternatives were ruled out. */
-/* measured: baseline differs by two load-order words; MEMBER loads, conversion order and widened frame locals still differ. */
+/* measured: retail computes ratio-first products (base + ratio delta), declares diff first, and
+ * calls func_0044b7b0 inside the else-if branch. */
 #pragma push
-/* measured: opt_propagation off reproduces the retail lh/lwc1 prologue order;
-   the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
+/* measured: with propagation off, the prologue loads come out in retail order. */
 #pragma opt_propagation off
-// Intent: Tween the persona selection panel closed, clearing the selection flags and resetting the selected index [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Tweens the persona selection panel closed, clearing the selection flags and resetting the
+// selected index.
 // FUN_0011C930
 void shdPersonaTweenSelectionClose(u8 *panel)
 { s32 a; s32 b; s16 raw; f32 diff; f32 f_abs; f32 acc; f32 ratio; f32 lo; f32 hi; f32 base; f32 delta;
@@ -3634,7 +3329,7 @@ void shdPersonaTweenSelectionClose(u8 *panel)
     if (!((f32)(s16)MEMBER(s16, panel, PersonaRenderWork, selectionFrame) <= 5.0f)) { ((PersonaRenderWork *)panel)->flags &= ~0x800; ((PersonaRenderWork *)panel)->flags &= ~0x2000; ((ShdSkillState *)((PersonaRenderWork *)panel)->skills)->cursor = -1; }
 }
 #pragma pop
-// Intent: Advance the persona selection cursor by one step [inferred]
+// Advances the persona selection cursor by one step.
 // FUN_0011CAF0
 void shdPersonaStepSelectionCursor(u8 *task)
 {
@@ -3654,7 +3349,7 @@ void shdPersonaStepSelectionCursor(u8 *task)
         sdkSndStartStream(0, 0, 0, 0);
     }
 }
-// Intent: Add a skill to the persona's skill list and return the add result [inferred]
+// Adds a skill to the persona's skill list and returns 1 on success.
 // FUN_0011CB70
 s32 shdPersonaAddSkill(u8 *task, u16 skill)
 {
@@ -3670,8 +3365,7 @@ s32 shdPersonaAddSkill(u8 *task, u16 skill)
 }
 
 
-
-// Intent: Replace one skill in the persona's skill list with another and return the result [inferred]
+// Replaces one skill in the persona's skill list with another and returns 1 on success.
 // FUN_0011CC00
 s32 shdPersonaReplaceSkill(u8 *task, u16 previousSkill, u16 replacement)
 {
@@ -3687,8 +3381,8 @@ s32 shdPersonaReplaceSkill(u8 *task, u16 previousSkill, u16 replacement)
 }
 
 
-
-// Intent: Return the skill id in the selected slot, or the queued skill id when the queue flag 0x100000 is set [inferred]
+// Returns the skill id in the selected slot, or the pending acquisition skill when flag 0x100000 is
+// set and the cursor is 8.
 // FUN_0011CCB0
 u16 shdPersonaGetSelectedSkillId(u8 *panel)
 {
@@ -3703,8 +3397,7 @@ u16 shdPersonaGetSelectedSkillId(u8 *panel)
 }
 
 
-
-// Intent: Advance the skill-pulse phase and clear the pulse flag 0x8000 when the cycle ends [inferred]
+// Advances the skill-pulse phase and clears the pulse flag 0x8000 when the cycle ends.
 // FUN_0011CD20
 void shdPersonaUpdateSkillPulse(u8 *panel)
 {
@@ -3718,8 +3411,7 @@ void shdPersonaUpdateSkillPulse(u8 *panel)
 }
 
 
-
-// Intent: Set the pending skill id and mark the queue flag 0x100000 [inferred]
+// Sets the pending skill id and sets the queue flag 0x100000.
 // FUN_0011CDD0
 void shdPersonaSetPendingSkill(u8 *task, s32 inputSkill)
 {
@@ -3730,8 +3422,7 @@ void shdPersonaSetPendingSkill(u8 *task, s32 inputSkill)
 }
 
 
-
-// Intent: Reset the reveal counter at 0x4F2 and set the armed bit 0x2 in the flag word at 0x4F0 [inferred]
+// Resets acquisition.frame and sets the armed bit 0x2 in acquisition.flags.
 // FUN_0011CE30
 void shdPersonaArmSkillReveal(u8 *task)
 {
@@ -3741,9 +3432,7 @@ void shdPersonaArmSkillReveal(u8 *task)
 }
 
 
-
-// Intent: Advance the skill-reveal frame and play the reveal sound at the cue frame [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Advances the skill-reveal frame and plays the reveal sound at the cue frame.
 // FUN_0011CE50
 void shdPersonaUpdateReveal(u8 *panel)
 {
@@ -3760,8 +3449,7 @@ void shdPersonaUpdateReveal(u8 *panel)
 }
 
 
-
-// Intent: Choose the level-up route from the count of valid party members and advance its state 0 to 4 [inferred]
+// Picks the level-up route from the number of valid party members and steps its state from 0 to 4.
 // FUN_0011CEE0
 void shdPersonaLevelUpRoute(u8 *task)
 {
@@ -3817,8 +3505,7 @@ void shdPersonaLevelUpRoute(u8 *task)
 }
 
 
-
-// Intent: Set bits in the persona flag word at offset 0x534 [inferred]
+// Sets bits in the persona flags word.
 // FUN_0011D080
 void shdPersonaSetFlags(u8 *task, s32 inputFlags)
 {
@@ -3827,8 +3514,7 @@ void shdPersonaSetFlags(u8 *task, s32 inputFlags)
 }
 
 
-
-// Intent: Clear bits in the persona flag word at offset 0x534 [inferred]
+// Clears bits in the persona flags word.
 // FUN_0011D0A0
 void shdPersonaClearFlags(u8 *task, s32 inputFlags)
 {
@@ -3837,8 +3523,7 @@ void shdPersonaClearFlags(u8 *task, s32 inputFlags)
 }
 
 
-
-// Intent: Return the persona panel alpha at offset 0x505 [inferred]
+// Returns the persona panel alpha.
 // FUN_0011D0C0
 u8 shdPersonaGetAlpha(u8 *task)
 {
@@ -3846,15 +3531,14 @@ u8 shdPersonaGetAlpha(u8 *task)
 }
 
 
-
-// Intent: Refresh the display-control position from the child task [inferred]
+// Refreshes the display-control position from the child model task.
 // FUN_0011D0D0
 void shdPersonaRefreshDispCtlPosition(u8 *task)
 {
     shdPersonaDispCtlSetPosition(*(s32 *)&((PersonaRenderWork *)((SdkTask *)task)->work)->model);
 }
 
-// Intent: Store a two-float origin position at offsets 0x4FC and 0x500 of the persona block [inferred]
+// Stores a two-float origin position, or zeroes it when position is NULL.
 // FUN_0011D100
 void shdPersonaSetOrigin(u8 *task, f32 *position)
 {
@@ -3871,22 +3555,15 @@ void shdPersonaSetOrigin(u8 *task, f32 *position)
 }
 
 
-
-
-
-// Intent: Set the child display-control handle value to color [inferred]
+// Sets the child display-control handle value to color.
 // FUN_0011D140
 void shdPersonaSetChildDispCtlHandle(u8 *task, s32 color)
 {
     shdPersonaDispCtlSetHandle(((PersonaRenderWork *)((SdkTask *)task)->work)->model, color);
 }
 
-// Intent: Set the child display-control handle and colour from arg1 and arg2 [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Sets the child display-control handle and colour from handle and color.
 // FUN_0011D170
-/* measured: SdkTask.work needs MEMBER here: its direct/local forms reuse
-   the task work address across the handle callback instead of reloading it.
-   The outer persona model field itself uses its ordinary typed member. */
 void shdPersonaSetChildDispCtlHandleAndColor(u8 *task, s32 handle, s32 color)
 {
     shdPersonaDispCtlSetHandle(((PersonaRenderWork *)((SdkTask *)task)->work)->model, handle);
@@ -3894,10 +3571,7 @@ void shdPersonaSetChildDispCtlHandleAndColor(u8 *task, s32 handle, s32 color)
 }
 
 
-
-
-
-// Intent: Store the opacity value at offset 0x53C of the persona block [inferred]
+// Stores the persona opacity value.
 // FUN_0011D1D0
 void shdPersonaSetOpacity(u8 *task, f32 inputOpacity)
 {
@@ -3905,14 +3579,12 @@ void shdPersonaSetOpacity(u8 *task, f32 inputOpacity)
 }
 
 
-
-// Intent: Return the persona panel's child task pointer at offset 0x4F8 [inferred]
+// Returns the persona panel's child model task pointer.
 // FUN_0011D1E0
 s32 shdPersonaGetChildTask(u8 *task)
 {
     return *(s32 *)&((PersonaRenderWork *)((SdkTask *)task)->work)->model;
 }
-
 
 
 s32 kwlnTaskGetTaskByName(void *name);
@@ -3922,8 +3594,7 @@ s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s6
 extern char D_005E4E60[];
 extern char D_005E4E90[];
 extern char iGpffff9c18;
-// Intent: Advance the persona model-load state machine one step and return its status [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Advances the persona model-load state machine one step and returns its status.
 // FUN_0011D1F0
 s32 shdPersonaLoadModelStep(u8 *task)
 {
@@ -3976,9 +3647,7 @@ s32 shdPersonaLoadModelStep(u8 *task)
 }
 
 
-
-// Intent: Destroy a persona model-load task, freeing its child and its work block [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Destroys a persona model-load task, freeing its child and its work block.
 // FUN_0011D3C0
 void shdPersonaModelDestroy(u8 *task)
 {
@@ -4002,8 +3671,7 @@ void shdPersonaModelDestroy(u8 *task)
 }
 
 
-
-// Intent: Create a persona model-load child task that loads the 166.ADX stream and its model [inferred]
+// Create a persona model-load child task that loads the 166.ADX stream and its model.
 // FUN_0011D460
 u8 *shdPersonaModelCreate(s32 parentTask, s32 priority, f32 inputDepth, s32 inputResourceId, s32 inputHandle)
 {
@@ -4034,20 +3702,13 @@ u8 *shdPersonaModelCreate(s32 parentTask, s32 priority, f32 inputDepth, s32 inpu
 }
 
 
-
 s32 kwlnGetCamera(void);
 extern f32 D_008872F8[];
 extern s32 (*D_00887310[])(s32, void *, s32);
-/* Submit two adjacent four-vertex strips using the renderer's 64-byte
- * vertex layout. The packet views preserve floating-point fields and
- * the stored UV bit patterns without byte-buffer pointer casts.
- * Loop invariants retain the unsigned color conversion inputs; scoped
- * propagation off retains the near-plane address before its float load.
- * measured: native b210, 1688B/1696B, nine resolved relocations and eight
- * retail zero-tail bytes. Proof: build/first-party-focus-20260921/persona-w4. */
-// Intent: Draw two adjacent quad strips with a 64-byte vertex layout from depth, colour and edge arguments [inferred]
+/* Submit two adjacent four-vertex strips using the renderer's 64-byte vertex layout. */
 // FUN_0011D5B0
-/* measured: baseline removal differs by 299 words; explicit channel-conversion hoists still leave 1031 differing bytes. */
+/* measured: retail keeps the unsigned colour conversion inputs hoisted and loads the near-plane
+ * address before its float load. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
@@ -4176,8 +3837,7 @@ void shdPersonaDrawQuadStrips(f32 depth, s32 color, s32 edgeAlpha, f32 x, f32 y,
 #pragma pop
 
 
-// Intent: Draw a quad whose vertex offset eases from the start value at 0x20 to the end value at 0x30 by a sine lerp [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Draws a quad whose vertex offset eases from the start value to the end value using a sine lerp.
 // FUN_0011DC50
 void shdPersonaDrawSineQuad(u8 *task)
 {
@@ -4207,16 +3867,7 @@ void shdPersonaDrawSineQuad(u8 *task)
 }
 
 
-
-/* measured: everything matches except the work-pointer base register — retail
-   keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12
-   loads/stores; mwcc b210 always colours it $t0 (nd 24, every row is the same
-   instruction with $t0 vs $a1). Tried: declaration order both ways, SdkTask
-   typed form vs raw deref (per assignment note), s32 vs u8 byte locals —
-   identical. Register-colouring floor. */
-/* measured: full body decompiled (guard chain, two float lerps, shdDrawColourQuad + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as shdPersonaDrawSineQuad note). Committed at nd 53. */
-// Intent: Draw the state-3 gauge bar: two lerped spans scaled by one third of the total [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* Draws the state-3 gauge bar: two lerped spans scaled by one third of the total. */
 // FUN_0011DD50
 void shdPersonaDrawSmoothBar(u8 *task)
 {
@@ -4242,10 +3893,7 @@ void shdPersonaDrawSmoothBar(u8 *task)
 }
 
 
-
-
-
-// Intent: Set the low byte of the display-control mode and colour words at offsets 0x8 and 0xC [inferred]
+// Set the low byte of the display-control handle and colour words to the mode.
 // FUN_0011DE40
 void shdPersonaDispCtlSetMode(u8 *task, u8 mode)
 {
@@ -4255,7 +3903,7 @@ void shdPersonaDispCtlSetMode(u8 *task, u8 mode)
     ((ShdPersonaModelWork *)b)->color = (((ShdPersonaModelWork *)b)->color & ~0xFF) | v;
 }
 
-// Intent: Return the progress fraction at offset 0x10 divided by 10.0, and write the value at 0x28 to arg1 [inferred]
+// Returns frame divided by 10.0 as the bar progress and writes the current position to position.
 // FUN_0011DE80
 f32 shdPersonaGetBarProgress(u8 *task, Vec2f *position)
 {
@@ -4267,10 +3915,6 @@ f32 shdPersonaGetBarProgress(u8 *task, Vec2f *position)
 }
 
 
-
-
-
-// Intent: Return the display-control handle stored at offset 0x8 [inferred]
 // FUN_0011DEC0
 s32 shdPersonaDispCtlGetHandle(u8 *task)
 {
@@ -4278,9 +3922,7 @@ s32 shdPersonaDispCtlGetHandle(u8 *task)
 }
 
 
-
-// Intent: Poll the display-control model load and free its resources when the load completes [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Poll the display-control model load and free its resources when the load completes.
 // FUN_0011DED0
 s32 shdPersonaDispCtlUpdate(u8 *task)
 {
@@ -4309,7 +3951,7 @@ s32 shdPersonaDispCtlUpdate(u8 *task)
     return 0;
 }
 
-// Intent: Destroy a display-control task through its registered destroy callback [inferred]
+// Destroy a display-control task through its registered destroy callback.
 // FUN_0011DF90
 void shdPersonaDispCtlDestroy(u8 *task)
 {
@@ -4317,10 +3959,7 @@ void shdPersonaDispCtlDestroy(u8 *task)
 }
 
 
-
-
-
-// Intent: Create a display-control task that loads the named resource with the given format [inferred]
+// Create a display-control task that loads the named resource with the given format.
 // FUN_0011DFC0
 s32 shdPersonaDispCtlCreate(s32 stream, s32 inputDirectory, char *taskName)
 {
@@ -4345,10 +3984,8 @@ s32 shdPersonaDispCtlCreate(s32 stream, s32 inputDirectory, char *taskName)
 }
 
 
-
 s32 shdPersonaDispCtlUpdate(u8 *task);
-// Intent: Reconfigure a display-control task by destroying its child and creating a new one [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Reconfigures a display-control task by destroying its child and creating a new one.
 // FUN_0011E0C0
 void shdPersonaDispCtlReconfigure(u8 *task, s32 inputResourceId, s32 inputHandle)
 {
@@ -4390,7 +4027,7 @@ void shdPersonaDispCtlReconfigure(u8 *task, s32 inputResourceId, s32 inputHandle
         ((ShdPersonaModelWork *)w)->state = 0;
     }
 }
-// Intent: Store a handle value at offset 0x8 of the display-control block [inferred]
+// Store a handle value in the display-control block.
 // FUN_0011E230
 void shdPersonaDispCtlSetHandle(u8 *task, s32 inputHandle)
 {
@@ -4398,9 +4035,7 @@ void shdPersonaDispCtlSetHandle(u8 *task, s32 inputHandle)
 }
 
 
-
-// Intent: Set the display-control position at offsets 0x28 and 0x40 from the source position block [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Sets the display-control target and start positions from the source position block.
 // FUN_0011E240
 void shdPersonaDispCtlSetPosition(u8 *task, u8 *position)
 {
@@ -4424,8 +4059,7 @@ void shdPersonaDispCtlSetPosition(u8 *task, u8 *position)
 }
 
 
-
-// Intent: Set the display-control offsets at 0x20, 0x28 and 0x30 from two two-float vectors [inferred]
+// Set the display-control start, current and target offsets from two two-float vectors.
 // FUN_0011E2B0
 void shdPersonaDispCtlSetOffsets(u8 *task, Vec2f *inputStart, Vec2f *inputTarget)
 {
@@ -4443,7 +4077,6 @@ void shdPersonaDispCtlSetOffsets(u8 *task, Vec2f *inputStart, Vec2f *inputTarget
 }
 
 
-
 // FUN_0011E360
 void shdPersonaDispCtlSetGaugeEnabled(u8 *task, s32 enabled)
 {
@@ -4451,8 +4084,7 @@ void shdPersonaDispCtlSetGaugeEnabled(u8 *task, s32 enabled)
 }
 
 
-
-// Intent: Copy the display-control position at offset 0x28 to the committed position at offset 0x40 [inferred]
+// Copy the current display-control position to the committed position.
 // FUN_0011E370
 void shdPersonaDispCtlCommitPosition(u8 *task)
 {
@@ -4460,7 +4092,6 @@ void shdPersonaDispCtlCommitPosition(u8 *task)
     ((ShdPersonaModelWork *)b)->committed.x = ((ShdPersonaModelWork *)b)->current.x;
     ((ShdPersonaModelWork *)b)->committed.y = ((ShdPersonaModelWork *)b)->current.y;
 }
-
 
 
 /* Offset the model's draw position without changing its tween endpoints. */
@@ -4473,8 +4104,7 @@ void shdPersonaDispCtlSetDrawOffset(u8 *task, Vec2f offset)
 }
 
 
-
-// Intent: Set the low 24 bits of the display-control colour word at offset 0xC [inferred]
+// Set the upper 24 bits of the display-control colour word, keeping the low byte from the handle.
 // FUN_0011E3C0
 void shdPersonaDispCtlSetColor(s32 taskHandle, s32 inputColor)
 {
@@ -4483,8 +4113,7 @@ void shdPersonaDispCtlSetColor(s32 taskHandle, s32 inputColor)
 }
 
 
-
-// Intent: Return whether the display-control task has finished loading (state 3) [inferred]
+// Return whether the display-control task has finished loading (state 3).
 
 // FUN_0011E3E0
 u32 shdPersonaDispCtlIsLoaded(u8 *task)
@@ -4493,8 +4122,7 @@ u32 shdPersonaDispCtlIsLoaded(u8 *task)
 }
 
 
-
-// Intent: Copy the display-control position at offset 0x28 to the caller's buffer [inferred]
+// Copy the current display-control position to the caller's buffer.
 // FUN_0011E400
 void shdPersonaDispCtlGetPosition(u8 *task, u8 *output)
 {
@@ -4506,8 +4134,7 @@ void shdPersonaDispCtlGetPosition(u8 *task, u8 *output)
 }
 
 
-
-// Intent: Return the loaded value at offset 0x50 once the display control has reached state 3, else 0 [inferred]
+// Return the loaded value once the display control has reached state 3, else 0.
 // FUN_0011E460
 s32 shdPersonaDispCtlGetLoadedValue(u8 *task)
 {
@@ -4519,21 +4146,18 @@ s32 shdPersonaDispCtlGetLoadedValue(u8 *task)
 }
 
 
-
 u32 RpRandom(void);
 u16 *datPersonaGetSkills(DatPersonaRecord *persona);
 extern u16 *iGpffffb3ec;
-/* measured: the explicit `bltz`/negative conversion path for
-   `func_003b7060() & 0x1000` is required for retail's COP1 sequence. */
-/* measured: opt_loop_invariants hoists the per-iteration `andi` and the
-   `1` constant into the preheader; disabling it rematerialises both. */
-/* measured: baseline removal differs by 103 words; pointer-walk pair traversal still leaves 309 differing bytes. */
+/* measured: retail hoists loop-invariant values out of the pair-search loop, so this function needs
+ * loop-invariant hoisting on. */
 #pragma opt_loop_invariants on
-/* measured: final reconstruction is byte-exact (object 688B/window 688B,
-   normalized_diff 0). Explicit goto joins preserve the retail false tails,
-   while separate pair values and inner-loop counters preserve the register
-   and load ordering. */
-// Intent: Pick a random skill pair from the pair table and write its two ids into the caller's block [inferred]
+/* measured: explicit goto joins reproduce retail's shared false tails, and separate pair values and
+ * inner-loop counters keep retail's load order. Picks a random skill pair from the pair table and
+ * writes its two ids into the caller's block. */
+/* Choose a random entry from the skill pair table whose first skill the persona knows and whose
+ * second it lacks, then store the pair as the level-up's previousSkill and replacement. Return 1 if
+ * a pair was chosen and 0 otherwise. */
 // FUN_0011E490
 s32 shdPersonaPickRandomSkillPair(u8 *levelUp)
 {
@@ -4612,14 +4236,12 @@ s32 shdPersonaPickRandomSkillPair(u8 *levelUp)
     return 0;
 }
 
-/* Closes the measured opt_loop_invariants scope opened for shdPersonaPickRandomSkillPair
-   above. It must stay scoped: leaving it on regresses neighbours. */
+/* measured: restores the unit setting after shdPersonaPickRandomSkillPair. */
 #pragma opt_loop_invariants off
 
 
-
-// Intent: Advance the skill-list stage: show the next unlocked skill name and level; otherwise move to the next stage, picking a random skill pair when one is needed [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Advances the skill-list stage: shows the next unlocked skill name and level, otherwise moves to
+// the next stage, picking a random skill pair if needed.
 // FUN_0011E740
 void shdPersonaAdvanceSkillList(u8 *levelUp)
 {
@@ -4661,7 +4283,6 @@ void shdPersonaAdvanceSkillList(u8 *levelUp)
 }
 
 
-
 s32 datPersonaAddStat(u8 *, s32, s32);
 s32 datPersonaCountSkills(DatPersonaRecord *);
 s32 datBlockStageIsEight(u8 *);
@@ -4677,11 +4298,8 @@ s32 nmMesWindowCurrentAnimFlag(void);
 u16 datPersonaRecordId(u32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
-/* Level-up messages retain the parent task across skill lookups and read
- * its current work again before changing the selection.
- * measured: native b210, 2780B/2784B, 111 resolved code relocations,
- * complete 36B and 64B switch tables, and four retail zero-tail bytes.
- * Proof: build/game-resume-20260921/persona-w2. */
+/* measured: level-up messages keep the parent task across skill lookups and reread its work before
+ * changing the selection. */
 
 
 /* Replace the persona skill and its active-skill entry when replacement succeeds. */
@@ -4698,8 +4316,7 @@ static inline s32 shdPersonaReplaceLevelSkill(SdkTask *parent, u16 previous, u16
     return 0;
 }
 
-// Intent: Advance the level-up skill-learn state machine one step and return its status [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+// Advances the level-up skill-learn state machine one step and returns its status.
 // FUN_0011E8E0
 s32 shdPersonaLevelUpStep(u8 *task)
 {
@@ -5048,7 +4665,7 @@ s32 shdPersonaLevelUpStep(u8 *task)
 }
 
 
-// Intent: Destroy a level-up task, releasing its pending message and freeing its work block [inferred]
+// Destroy a level-up task, releasing its pending message and freeing its work block.
 // FUN_0011F3C0
 void shdPersonaLevelUpDestroy(u8 *task)
 {
@@ -5061,11 +4678,10 @@ void shdPersonaLevelUpDestroy(u8 *task)
 }
 
 
-
 extern char D_005E4F30[];
 s32 shdPersonaLevelUpStep(u8 *);
 void shdPersonaLevelUpDestroy(u8 *);
-// Intent: Create a level-up child task that copies its parameters and the skill table into its work block [inferred]
+// Create a level-up child task that copies its parameters and the skill table into its work block.
 
 // FUN_0011F410
 u8 *shdPersonaLevelUpCreate(s32 inputParentTask, s32 personaTask, u8 *inputLearnList, s32 messageResource, s32 extraMessage, s32 *messages)
@@ -5096,8 +4712,7 @@ u8 *shdPersonaLevelUpCreate(s32 inputParentTask, s32 personaTask, u8 *inputLearn
 }
 
 
-
-// Intent: Return whether the level-up task has reached its final state 0xE [inferred]
+// Return whether the level-up task has reached its final state 0xE.
 // FUN_0011F560
 u32 shdPersonaLevelUpIsDone(u8 *task)
 {
@@ -5105,14 +4720,11 @@ u32 shdPersonaLevelUpIsDone(u8 *task)
 }
 
 
-
-// Intent: Destroy a task and its hierarchy through the kwln task destroy call [inferred]
 // FUN_0011F580
 s32 shdPersonaDestroyTask(u8 *task)
 {
     return kwlnTaskDestroyWithHierarchy((KwlnTask *)task);
 }
-
 
 
 u16 ShdSkill_GetPendingSkill(u8 *);
@@ -5129,14 +4741,8 @@ s16 ShdSkill_FindSlot(u8 *, s32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
 void shdPersonaBeginSelection(u8 *task);
-/* The replacement and highlight states share the pending halfword. Promote
- * it to a word before refreshing the parent work for the highlight lookup.
- * Each state assigns pendingSkill before reading it.
- * measured: native b210, 1508B/1520B, 53 resolved code relocations,
- * complete 36B switch table, and twelve retail zero-tail bytes.
- * Proof: build/game-resume-20260921/persona-w2/accepted-dialog. */
-// Intent: Advance the skill-replace state machine one step and return its status [inferred]
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* Advances the skill-replace state machine one step and returns its status. The replacement and
+ * highlight states share pendingSkill, which each state assigns before reading. */
 // FUN_0011F5A0
 s32 shdPersonaSkillReplaceStep(u8 *task)
 {
@@ -5336,7 +4942,7 @@ s32 shdPersonaSkillReplaceStep(u8 *task)
 }
 
 
-// Intent: Destroy a skill-replace task through its registered destroy callback [inferred]
+// Destroy a skill-replace task through its registered destroy callback.
 // FUN_0011FB90
 void shdPersonaSkillReplaceDestroy(u8 *task)
 {
@@ -5344,8 +4950,8 @@ void shdPersonaSkillReplaceDestroy(u8 *task)
 }
 
 
-
-// Intent: Create a skill-replace child task that copies its parameters and a 0xB-word table into its work block [inferred]
+// Create a skill-replace child task that copies its parameters and a 0xB-word table into its work
+// block.
 
 // FUN_0011FBC0
 u8 *shdPersonaSkillReplaceCreate(s32 parentTask, u8 *personaTask, s32 messageResource, u8 *messages)

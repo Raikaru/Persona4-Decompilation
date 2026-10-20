@@ -37,8 +37,6 @@ extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
 
-
-
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -65,15 +63,9 @@ extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
 
 
-
-
-
 /* Existing task-work layout. The tween fields are defined by 002a27c0;
  * 0029fbb0 uses the selection pairs, status halfwords and flash flags.
  * State preceding the background tween is outside this renderer's view. */
-
-
-
 
 
 #pragma push
@@ -81,16 +73,8 @@ extern u8 iGpffffa7e8;
 #pragma pop
 extern s32 yTimeNameRevealRows(u8 *task);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a2710-002a2710 */
-
 extern s32 yTimeLimitDraw(u8 *task);
-/* measured: closes opt_propagation around func_002a1c80. */
-/* measured: closes opt_common_subs around func_002a1c80. */
-/* measured: closes no_branch_likely around func_002a1c80. */
-/* measured: opt_loop_invariants on hoists the case-zero store constant into the
-   preheader, matching retail's li $v1 before the loop-entry branch. */
-/* measured: closes opt_loop_invariants around func_002a1fa0. */
-// Intent: Report whether the time limit task exists [inferred]
+/* Report whether the time limit task exists. */
 // FUN_002A2710
 s32 timeLimitTaskExists(void) {
     return (s32)(kwlnTaskGetTaskByName(D_0063E918) != 0);

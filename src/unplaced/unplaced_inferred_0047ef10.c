@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from shared TU with static helper; members 0047ef10-0047f1a0 */
 
 #include "sdk_lbox_internal.h"
 #include "model_motion_internal.h"
@@ -39,13 +38,9 @@ static s32 mdlFindTrackKeyIndex(u8 *track, f32 sampleTime)
     return mid;
 }
 
-/* measured: duplicating the scalar sampler around the static exact
- * mdlFindTrackKeyIndex preserves both track pointers, times, and the blend factor.
- * Assigning each GP result pair to a two-float aggregate forces retail's
- * 0x20 frame and exact stack snapshots across the second call; the staged
- * inline madd helper closes the final blend. Object 340B/window 352B,
- * normalized_diff 0 with three retail zero-tail words. */
-/* Samples two scalar tracks at sampleTime and otherTime and blends the two values by blendFactor. Returns &fGpffffbb50 with the result. */
+/* Each sampled time/value pair is stored in a two-float struct so the stack frame and saved values
+ * across the second call match retail. Samples two scalar tracks at sampleTime and otherTime and
+ * blends the two values by blendFactor. Returns &fGpffffbb50 with the result. */
 // FUN_0047F040
 void *mdlBlendTrackSamples(u8 *track, f32 sampleTime, u8 *other, f32 otherTime,
                    f32 blendFactor)
@@ -119,14 +114,8 @@ void *mdlBlendTrackSamples(u8 *track, f32 sampleTime, u8 *other, f32 otherTime,
     return &fGpffffbb50;
 }
 
-/* measured: keeping the exact mdlFindTrackKeyIndex helper static exposes its narrow
- * clobber set, preserving the caller's $t2/$t1/$f13 values. Caching the track
- * base before the call, scaling `index` in place in each branch, and carrying
- * the GP output address as an integer reproduce retail's register lifetimes.
- * Splitting the final difference/addend before the inline madd helper preserves
- * both evaluation order and FMA operand order. The object is 276B in a 288B
- * retail window with only three retail zero-tail words. */
-/* Samples the scalar track track at sampleTime and moves the value toward (1 - byte 3 of other / 255) by otherTime. Returns the sample pair in fGpffffbb48. */
+/* Samples the scalar track at sampleTime and moves the value toward (1 - byte 3 of other / 255) by
+ * otherTime. Returns the sample pair in fGpffffbb48. */
 // FUN_0047F1A0
 void *mdlBlendTrackWithAlpha(u8 *track, f32 sampleTime, u8 *other, f32 otherTime)
 {

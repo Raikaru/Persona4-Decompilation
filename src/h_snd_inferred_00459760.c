@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/h_snd.c; members 00459760-00459760 */
 
 #include "include_asm.h"
 #include "type.h"

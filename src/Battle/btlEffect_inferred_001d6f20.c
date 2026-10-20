@@ -1,6 +1,4 @@
 #include "btl_effect_internal.h"
-/* Grouped verified Persona 4 source units. */
-/* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
 
@@ -13,11 +11,6 @@ extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern char D_00609558[];
 extern void chkmemAllocSiteTag(const void* file, s32 line);
 extern void memset(void* dst, s32 value, u32 size);
-
-/* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */
-
-/* Source unit: src/btlFormation/btlFormation_grouped.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/btlFormation/btlFormation_grouped.c; members 001d6f20-001d7040 */
 
 /* Allocate a 0x18-byte placement and its fade node, initialize the hidden slot, and link the node globally. */
 // FUN_001D6F20

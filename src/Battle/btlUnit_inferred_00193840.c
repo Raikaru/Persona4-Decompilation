@@ -96,16 +96,11 @@ extern void memset(void *, s32, s32);
    order has to come from an inline's parameter list. */
 
 
-
 extern u8 iGpffffa4d8;
 extern void btlPacketStep(u8 *context);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -126,8 +121,6 @@ extern void btlPanelLoadSync(void);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00193840-00194b60 */
 
 /* Find a flagged packet with the supplied UID, ignoring its two high tag bits. */
 static inline u8 *btlPacketFindFlaggedByUid(u64 uid)
@@ -211,8 +204,8 @@ typedef struct BtlUnitSavedRecord {
     u8 pad04[0x10];
 } BtlUnitSavedRecord;
 
-/* Load packed blocks, align each source/destination span to sixteen bytes, and publish their pointers. */
-/* measured: typing the loaded-directory payload access changed MATCH; load-descriptor destinations are typed. */
+/* Load packed blocks, align each source/destination span to sixteen bytes, and publish their
+ * pointers. */
 // FUN_00193840
 s32 btlUnitLoadBlocksFromFile(u8 *loadTable, s32 synchronous)
 {
@@ -298,10 +291,8 @@ end:
     return result;
 }
 
-/* 80/80 bytes; eight resolved relocations. Retail forwards the incoming
- * a0 to the task constructor as the parent; it is not an uninitialized
- * local left in an incidental register. */
-/* Reset load cursors and create the child task that polls battle-unit assets. */
+/* Reset load cursors and create the child task that polls battle-unit assets; ctx is passed through
+ * as the parent task. */
 // FUN_00193A80
 void btlUnitStartLoad(u8 *ctx) {
     iGpffffb430 = 0;
@@ -310,10 +301,8 @@ void btlUnitStartLoad(u8 *ctx) {
     (s32)kwlnTaskCreateChild((void *)(ctx), (const void *)(D_005F6BF0), 0x10, 0, 0, btlUnitLoadStep, 0, (u8 *)(NULL));
 }
 
-/* Resets the ten 20-byte unit-record slots of save chunk 40 (D_0079BE2C,
-   src/g_data/g_data.c). Called from func_0010f4c0 in src/g_data/g_data.c,
-   which owns the chunk's save/load copy. */
-/* Clear ten saved unit-record slots and initialize their leading halfwords. */
+/* Resets the ten 20-byte unit-record slots of save chunk 40 (D_0079BE2C) and initializes their
+ * leading halfwords; called from func_0010f4c0, which owns the chunk's save/load copy. */
 // FUN_00193AD0
 void btlUnitRecordResetSaveTable(u8 *context)
 {
@@ -334,8 +323,8 @@ void btlUnitRecordResetSaveTable(u8 *context)
     }
 }
 
-/* Find a flagged packet by its masked packet UID across all four lists. */
-/* measured: access-site list-head typing moved instructions; a distinct typed battle-state alias retains MATCH. */
+/* Find a flagged packet by its masked packet UID across all four lists. The battle state goes
+ * through a separate local alias because typing the list heads at each access changed the code. */
 // FUN_00193B70
 u8 *btlUnitRecordFindByUID(u64 uid, u64 mask)
 {
@@ -359,10 +348,8 @@ u8 *btlUnitRecordFindByUID(u64 uid, u64 mask)
     return NULL;
 }
 
-/* Find a flagged packet by its masked action UID across all four lists. */
-/* measured: access-site list-head typing moved instructions; a distinct typed battle-state alias retains MATCH. */
-/* Same packet-list walk as btlUnitRecordFindByUID; this P4 packet stores the
- * UID at offset 0x60 instead of 0x58. */
+/* Find a flagged packet by its masked action UID across all four lists; same walk as
+ * btlUnitRecordFindByUID but this packet stores the UID at a different offset. */
 // FUN_00193BF0
 u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask)
 {
@@ -387,7 +374,6 @@ u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask)
 }
 
 /* Count packets across the four battle lists. */
-/* measured: access-site list-head typing moved instructions; a distinct typed battle-state alias retains MATCH. */
 // FUN_00193C70
 u32 btlCountUnitRecords(void)
 {
@@ -410,7 +396,6 @@ u32 btlCountUnitRecords(void)
 }
 
 /* Count packets whose type matches the low halfword of the supplied id. */
-/* measured: access-site list-head typing moved instructions; a distinct typed battle-state alias retains MATCH. */
 // FUN_00193CD0
 u32 btlCountUnitRecordsById(u32 id)
 {
@@ -435,13 +420,12 @@ u32 btlCountUnitRecordsById(u32 id)
     return total;
 }
 
-/* Unit-record flag byte at packet +0x47. Battle end promotes each pending
-   record to committed (see btlUnitRecordCommitPending). */
+/* Unit-record flag bits; battle end promotes each pending record to committed (see
+ * btlUnitRecordCommitPending). */
 #define BTLUNIT_RECORD_FLAG_PENDING   0x01
 #define BTLUNIT_RECORD_FLAG_COMMITTED 0x04
 
 /* Promote pending unit-record flags to committed while walking the forward links. */
-/* measured: distinct typed aliases retain the list/flag accesses; the proven 0x90-byte packet layout names the forward link. */
 // FUN_00193D30
 void btlUnitRecordCommitPending(void)
 {
@@ -465,7 +449,7 @@ void btlUnitRecordCommitPending(void)
     }
 }
 
-/* measured: func_00193d90 MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists loop-invariant loads out of the dependency checks in this function. */
 #pragma opt_loop_invariants on
 /* Evaluate a packet dependency by elapsed frame, packet/action UID, id, or optional condition callback. */
 // FUN_00193D90
@@ -574,13 +558,11 @@ s32 btlPacketWaitConditionMet(u8 *context, s32 argument)
     return result;
 }
 
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: func_00194470 MATCH -> MISMATCH without this pragma. */
+/* measured: optimization_level 1 keeps the retail initialization order with the index and value
+ * locals declared before the loop; -O2 reorders it. */
 #pragma optimization_level 1
-/* Allocate the packet header and inline work, then initialize its four dependency conditions. */
-/* The four discriminator bytes are in 0x10-byte dependency records; typed array stores preserve the two-loop initialization order. */
+/* Allocate the packet header and inline work, then initialize its four dependency conditions, each
+ * a discriminator byte in a 0x10-byte record. */
 // FUN_00194470
 u8 *btlPacketAlloc(s32 packetType, s32 workSize)
 {
@@ -623,11 +605,9 @@ loop2_check:
     return packet;
 }
 
-/* measured: func_00194590, func_00194670 MATCH -> MISMATCH without this pragma. */
+/* measured: the enqueue and step functions need full level-2 scheduling to follow retail. */
 #pragma optimization_level 2
 /* Assign a UID, initialize packet counters, invoke init, and link into the selected list. */
-/* measured: distinct typed aliases retain packet snapshots and the offset-first selected-list address; the real packet layout includes both links. */
-/* measured: opt_propagation off is scoped to func_00194590. */
 // FUN_00194590
 s64 btlPacketEnqueue(u8 *context, u32 value)
 {
@@ -663,18 +643,14 @@ s64 btlPacketEnqueue(u8 *context, u32 value)
     return (s64)contextFields->uid;
 }
 
-/* measured: closes opt_propagation around func_00194590. */
 /* Empty packet initialization hook called during battle subsystem setup. */
 // FUN_00194660
 void btlPacketInitNoop(void)
 {
 }
 
-/* 852/864 bytes; ten resolved relocations; twelve zero alignment bytes.
- * States fall through only after their conditions complete. Destruction
- * reloads the list flag and links after the callback; counters wrap as u32. */
-/* Advance packet conditions, delays, update, and teardown, reloading links after callbacks. */
-/* measured: distinct typed aliases retain the phase/flag/delay reloads that moved instructions with access-site fields. */
+/* Advances packet conditions, delays, update and teardown; states fall through only once their
+ * conditions complete, and links are reloaded after callbacks. */
 // FUN_00194670
 void btlPacketStep(u8 *context)
 {
@@ -790,11 +766,10 @@ void btlPacketStep(u8 *context)
     }
 }
 
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: func_001949d0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps values in separate temporaries instead of propagating copies in this list
+ * step. */
 #pragma opt_propagation off
-/* Step one packet list while saving the preceding link before a callback can free the packet. */
-/* The typed list-head access preserves the measured offset-first helper ordering for the selected list. */
+/* Step one packet list, saving the preceding link before a callback can free the packet. */
 // FUN_001949D0
 void btlPacketStepSide(s32 side)
 {
@@ -811,9 +786,7 @@ void btlPacketStepSide(s32 side)
     }
 }
 
-/* measured: closes opt_propagation for func_001949d0. */
 /* Destroy and unlink every packet, invoking each destroy callback before releasing memory. */
-/* measured: four teardown link loads change instructions as fields, typed aliases, and indexed fields; MEMBER preserves callback-sensitive reloads. */
 // FUN_00194A30
 void btlPacketFlushAll(void)
 {
@@ -872,7 +845,6 @@ s32 btlPacketConditionAlwaysMet(void)
 }
 
 /* measured: optimization_level 1 reproduces the retail loop initialisation order. */
-/* measured: func_00194b60 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 /* Create a header-only packet whose update callback completes immediately. */
 /* Typed discriminator arrays retain the two-loop initialization; the named callback word retains its integer-address store contract. */

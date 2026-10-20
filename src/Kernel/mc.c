@@ -4,7 +4,7 @@
 #include "primitive_queue_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit mc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit mc.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
@@ -153,7 +153,7 @@ extern s32 D_0063EDB0[];
 extern s32 D_0063EDD0[];
 extern f32 D_00761300;
 
-/* Save-table stride is 0x34; text starts at +0x0C/+0x1E and location at +0x30. */
+/* Each save-table entry holds two text strings followed by a location word. */
 
 typedef struct McCircleEntry {
     u32 flags;
@@ -178,7 +178,7 @@ typedef struct McRecordTable {
 } McRecordTable;
 
 
-/* Screen allocation is 0x56C bytes; card operations share its record table. */
+/* Card operations share the screen state's record table. */
 typedef struct McScreenState {
     s16 phase;
     s16 interactionPhase;
@@ -354,7 +354,8 @@ s32 mcLoadState(u8 *work) {
 }
 
 
-// Intent: memory-card probe dialog. Runs the card probe (state +0xC = 0); a ready card returns 1, an error opens a dialog and waits for it. The later states wait for a second dialog and return 4 when it closes.
+// Memory-card probe dialog: a ready card returns 1, an error opens a dialog and waits; later states
+// wait for a second dialog and return 4 when it closes.
 // FUN_002A32C0
 s32 mcCardProbeStep(u8 *work) {
     McScreenState *screenState = (McScreenState *)work;
@@ -694,11 +695,8 @@ s32 mcMemcardStep(u8 *work) {
 }
 
 
-/* 1544/1552 bytes; 67 resolved text relocations, twelve exact jump-table
- * entries, and eight zero alignment bytes. The payload's byte-pointer ABI
- * preserves retail's load/load/count/version/pointer argument schedule.
- * Cache only the deallocator slot address, not its callback or work pointer. */
-/* Read the selected save image, verify its checksum, and apply valid data. */
+/* Read the selected save image, verify its checksum, and apply valid data. Only the deallocator
+ * slot address is cached, not its callback or work pointer. */
 // FUN_002A3D80
 s32 mcSaveState(s32 address) {
     u8 *work = (u8 *)address;
@@ -948,19 +946,6 @@ s32 mcUpdateCardStatus(s32 workAddress) {
     return 0;
 }
 
-/* measured: retail's 14-entry jump-table dispatch keeps the switch value in
-   $v0 and the table base in $v1 (lh; sltiu; lui/addiu; sll; addu; lw; jr);
-   mwcc b210 colors the same dispatch value into $v1 and the base into $a1,
-   9 words (nd 9). Everything else in the function matches byte-for-byte.
-   Tried: inline switch, s32/s16/u32 locals with (s16)/(s32)/(u32) casts,
-   three declaration orders, explicit empty cases 0xA/0xC, single shared
-   result variable -- all nd 9. Register-allocation floor ($v0/$v1 coloring),
-   not source-drivable. */
-/* Wave-14 re-test: fresh m2c-sourced body (with the shared block_31 goto
-   restored and func_002a2e50(workAddress, n) calls) gives nd 278 — the m2c register
-   allocation is far worse than the recorded nd 9. The m2c body is not a usable
-   base; the previous nd-9 body must be reconstructed by hand. Dispatch
-   register coloring ($v0 value / $v1 base) remains the known floor. */
 /* Drive card operations and user selection, returning nonzero when the screen exits. */
 // FUN_002A4570
 s32 mcStepState(u8 *work) {
@@ -1237,9 +1222,8 @@ void mcIconTaskDestroy(u8 *sdkTaskBytes) {
     mcIconWorkFree(work);
 }
 
-/* Exact under MWCC b210/O2: three one-field values preserve the two source
-   color slots and their shared output slot without synthetic padding. */
-/* Animate the two opening rectangles over twenty frames. */
+/* Animate the two opening rectangles over twenty frames. The one-field ColorValue locals hold the
+ * two source colors and their shared output. */
 // FUN_002A4D10
 s32 mcAnimateTransition(s32 task) {
     typedef struct { f32 value; } ColorValue;
@@ -1285,11 +1269,8 @@ s32 mcAnimateTransition(s32 task) {
     return 0;
 }
 
-/* 1800 native bytes, followed by 8 retail alignment bytes. Each slide uses
- * its own remaining-progress lifetime; wave stays the sine result until the
- * selected-card slide. Keep the pulse multiplication separate from scale. */
-/* measured: baseline removal differs in 77 bytes; typed screen access instead of MEMBER; narrow lifetime of smoothing float temporaries also differ. */
-/* Slide and fade the slot list in while interpolating its 16.16 scroll position. */
+/* Slide and fade the slot list in while interpolating its 16.16 scroll position. Each slide keeps
+ * its own remaining-progress value, and the pulse multiply stays separate from scale. */
 // FUN_002A4F20
 s32 mcRunScreenFrame(s32 taskAddress)
 {
@@ -1408,24 +1389,9 @@ s32 mcRunScreenFrame(s32 taskAddress)
     return 0;
 }
 
-/* Recovered 2026-09-28 (lane 5): exact under MWCC b210/O2, 564/564 instructions.
-   Shape: five frame-driven ramp phases, each with its own float local (retail
-   keeps them in $f1/$f2 temps; one shared local drags them into $f20),
-   `frame > 10` nesting for the first ramp (retail lays the 0.0f arm out last),
-   400.0f * wave slide in the loops and 350.0f * wave in the tail, a
-   two-statement pulse (a single statement fuses into adda.s/madd.s where retail
-   keeps mul.s + add.s), separate x/y and x2/y2 locals per loop, `fdiff`/`half`
-   as named floats (retail converts once and multiplies by a loaded 0.5f), and
-   `fade` (the phase-3 alpha, dead after 6b60/6c30) separate from `alpha` (the
-   phase-5 value that reaches 9f50): one variable with a dominating def plus a
-   conditional redefinition ranks with the loop counters and rotates every
-   saved register (80 edits with the pragma and a single `alpha`).  Saved
-   registers are retail's alpha->$s0 work->$s1 base->$s2 slot->$s3 idx->$s4 row->$s5
-   only with `opt_lifetimes on` and work, alpha, row, idx, slot, base declared in
-   that order (77 edits without the pragma, 0 with it).  mcDrawSlotDial is declared (f32, f32, f32, u8, u8 *, s32, s32,
-   f32, u8 *): that parameter order reproduces retail's argument emission order. */
-/* measured: baseline removal differs in 78 bytes; typed screen access instead of MEMBER; narrow lifetime of smoothing float temporaries also differ. */
-/* Fade screen components out and slide the selected slot offscreen. */
+/* Fade screen components out and slide the selected slot offscreen. Each ramp phase keeps its own
+ * float local, and fade (phase-3 alpha) stays separate from alpha (phase-5 value) to keep retail's
+ * register allocation. */
 // FUN_002A5630
 s32 mcRunScreenExitFrame(s32 taskAddress)
 {
@@ -1575,10 +1541,8 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
 
 /* Displacement from the whole row to the animated 16.16 scroll position. */
 
-/* 1540 native bytes, followed by 12 retail alignment bytes. The drawing loops
- * expose their shared row origin to loop-invariant extraction. Keep pulse
- * separate from scale so multiplication rounds before the addition. */
-/* measured: baseline removal differs in 728 bytes; typed screen access instead of MEMBER; narrow lifetime of smoothing float temporaries also differ. */
+/* measured: loop-invariant extraction hoists the drawing loops' shared row origin; pulse stays
+ * separate from scale so the multiply rounds before the add. */
 #pragma opt_loop_invariants on
 /* Draw the settled slot list and pulse the selection while smoothing scroll. */
 // FUN_002A5F00
@@ -1709,7 +1673,8 @@ void mcQueueDrawJob(s32 taskAddress) {
     PrimAppendNode(&D_00796370, work);
 }
 
-// Intent: draws a ring of 40 segments around a centre as a fan (or a 40-point strip when bit 4 of the mode is set), with the colour packed in taskAddress/arg1.
+// Draws a ring of 40 segments around a centre as a fan, or a 40-point strip when bit 4 of the flags
+// is set.
 // FUN_002A66D0
 void mcDrawCircleFan(f32 centerX, f32 centerY, f32 depth, s32 rgb, s32 alpha,
                    f32 width, f32 height, s32 flags) {
@@ -1823,14 +1788,14 @@ void mcSetSkyRenderState(s32 x, s32 y, s32 width, s32 height, f32 depth) {
     mdlEffectEmitTagPair();
 }
 
-/* The state-table access keeps the measured offset-first address addition. */
 // FUN_002A6AF0
 s32 mcCurrentSlotValue(u8 *work) {
     s32 idx = ((McScreenState *)work)->slot * 4;
     return ((McScreenState *)(idx + (s32)work))->records.states[0];
 }
 
-// Intent: sets the colour with alpha arg2 and draws it through PrimDrawFlatRectangle only when alpha is nonzero.
+// Sets the colour with the given alpha and draws it through PrimDrawFlatRectangle only when alpha
+// is nonzero.
 // FUN_002A6B10
 void mcDrawFadedColor(s32 x, s32 y, s32 alpha, void *work) {
     typedef union { f32 f; u8 b[4]; } U4;
@@ -1887,7 +1852,8 @@ void mcAdvanceMeter(s32 x, s32 y, s32 alpha, u8 *work) {
     }
 }
 
-// Intent: draws the card-status pulse overlay (224 lines). Flag 0x4000 selects the pulsing layout; the caller passes (5, -5, 0xFF, screen state).
+// Draws the card-status pulse overlay; flag 0x4000 selects the pulsing layout. The caller passes
+// (5, -5, 0xFF, screen state).
 // FUN_002A6E30
 void mcDrawCardStatusPulse(s32 x, s32 y, s32 alpha, u8 *work) {
     McScreenState *screenState = (McScreenState *)work;
@@ -2009,16 +1975,13 @@ s32 mcTableClear(u8 *entries) {
     return 0;
 }
 
-/* Select the signed word indexed by a circle entry from its local lookup table. */
-/* measured: direct indexing changes lookup/load allocation at all three sites; byteAddressAdd also loses MATCH (249 differing bytes). */
+/* Select the signed word indexed by a circle entry from its local lookup table. measured: retail
+ * computes the table address separately from the index load at all three sites. */
 static inline const s32 *mcTableAt(s32 index, const s32 *base)
 {
     return base + index;
 }
 
-/* 844/848 bytes; eight resolved relocations; four zero alignment bytes.
- * Keep table indices separate from their bases and reload the stored step.
- * Reuse the table-copy word for width before converting it to float. */
 /* Advance a drifting circle, fading its ends and spawning a delayed successor. */
 // FUN_002A73C0
 s32 mcTableRandomize(s32 screenAddress, u8 *entries, u8 *entry, s32 alpha) {
@@ -2182,19 +2145,15 @@ void mcSeedEntryTable(s32 alpha, u8 *screen) {
     }
 }
 
-/* Coordinate, layer and scale operations used by the slot's digits and icon. */
-/* Extract unsigned RGB from the slot color after dropping its low alpha byte. */
-/* measured: direct extraction at the two retained sites changes slot-dial load/register ordering. */
+/* measured: extracts unsigned RGB from the slot color by dropping the low alpha byte; inlining it
+ * at the call sites changes retail load order. */
 static inline u32 mcUnsignedColorRgb(const u32 *rgba)
 {
     return *rgba >> 8;
 }
-/* measured: baseline removal differs in 228 bytes; reuse named screen alias; reread screen through original pointer also differ. */
-/* The number and optional icon own separate coordinate and RGB values.
- * Border alpha is full-width; sprite interfaces consume its low byte.
- * The inset is evaluated as remaining scale, pixel span, then half span.
- * 6100 matching code bytes; the 6112-byte window has a zero alignment tail. */
-// Intent: draws one card-slot dial. Callers loop over the slots; arg3 selects the active variant, which draws the digit glyphs for the slot index and the card status at +0x3AC.
+/* Draws one card-slot dial; when active is set it draws the slot-index digit glyphs and the card
+ * status. The number and optional icon have separate coordinates and RGB values. Border alpha is
+ * full-width, but sprite interfaces use only its low byte. */
 // FUN_002A7920
 void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex, s32 active, f32 scale, u8 *work) {
     McScreenState *screenState = (McScreenState *)work;
@@ -2502,11 +2461,13 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
 }
 
 
-/* measured: baseline removal differs in 819 bytes; retain separate packed color local; initialize copy cursors at first use also differ. */
+/* measured: retail keeps a separate packed color local, so the common-subexpression setting below
+ * is needed. */
 #pragma opt_common_subs off
-/* measured: #pragma opt_common_subs off preserves retail's saved-register
-   allocation and repeated color shift; plain O2 C is 8 bytes short. */
-/* Draw level, character name, and hours/minutes from a selected save record. */
+/* measured: retail keeps the color in a saved register and repeats the color shift instead of
+ * reusing it. Draws level, character name, and hours/minutes from a selected save record. */
+/* Draw a save record's level, character name and play time in hours and minutes at the given
+ * position, using the given color and alpha. */
 // FUN_002A9100
 void mcDrawLocationText(f32 x, f32 y, f32 depth,
                    s32 rgb, s32 alpha, u8 *records, s32 slotIndex, u8 *work) {
@@ -2622,13 +2583,12 @@ void mcDrawLocationText(f32 x, f32 y, f32 depth,
 typedef struct McColorWord {
     s32 rgba;
 } McColorWord;
-/* Extract signed RGB from the detail color after dropping its low alpha byte. */
-/* measured: direct member extraction changes the date/header draw instruction allocation. */
+/* measured: extracts signed RGB by dropping the low alpha byte; reading the member directly changes
+ * register use in the date/header draw code. */
 static inline s32 mcColorRgb(const McColorWord *color)
 {
     return color->rgba >> 8;
 }
-/* measured: baseline removal differs in 87 bytes; reuse named screen alias; reread screen through original pointer also differ. */
 
 /* Find the matching area and room name, falling back to the first table entry. */
 static inline const char *mcLocationName(s32 area, s32 room)
@@ -2648,10 +2608,8 @@ static inline const char *mcLocationName(s32 area, s32 room)
     }
     return D_0063EA60[0].name;
 }
-/* 2448/2448 bytes. Keep the date record, weekday texture, and packed
- * color as distinct objects. The color accessor preserves the detail RGB
- * lifetime; opt_lifetimes retains the retail allocation across draw calls. */
-// Intent: draws the date (month and day, formatted with sprintf) and the current location name in the header.
+/* Draws the date (month and day, formatted with sprintf) and the current location name in the
+ * header. The date record, weekday texture, and packed color are kept as separate objects. */
 // FUN_002A95C0
 void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress, s32 slotIndex, u8 *active, u8 *work)
 {
@@ -2830,25 +2788,8 @@ void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress
 }
 
 
-/* measured: cyclic saved-register rotation in the 5-int/3-float prologue --
-   retail colors alpha->$s0, recordAddress->$s4, slotIndex->$s3, work->$s2; mwcc b210 always
-   emits slotIndex->$s0, recordAddress->$s3, alpha->$s4 (work->$s2 stable) regardless of
-   signature order (tried FP-first and interleaved signatures, 3 local
-   declaration orders, single-expr vs split p, if/else vs ternary color, all
-   nd 162-181). Scheduler residuals ride along: the `color >>= 8` lands at
-   the call site instead of right after the OR, `add.s` operands are
-   transposed for `x + const`, and the mcDrawDateAndLocation call materializes
-   int args before float args. The float-param-first signature DID fix the
-   FP move order (mov.s f22/f21/f20 before the int moves). Saved-register
-   rotation floor. */
-/* Wave-14 re-test: fresh m2c-sourced body with the mcDrawDateAndLocation call arg
-   order corrected; the m2c had scrambled the 8-arg call (missing the 4th arg).
-   Retail leaves $7 live as active at 0xA0C0, so the call is
-   mcDrawDateAndLocation(alpha,recordAddress,slotIndex,(u8*)active,work,f0,f1,f2); nd 190 (recorded
-   162-181). The call site now matches (the jal relocation aligns) but the
-   prologue register rotation (retail's FP store order vs int) dominates.
-   Rotation floor persists. */
-/* Draw a valid save summary or the invalid/empty slot label. */
+/* Draw a valid save summary or the invalid/empty slot label. Float parameters come first so
+ * retail's FP move order is reproduced; the saved-register assignment still differs from retail. */
 // FUN_002A9F50
 void mcScreenStep(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex, s32 active, u8 *work) {
     McScreenState *screenState = (McScreenState *)work;

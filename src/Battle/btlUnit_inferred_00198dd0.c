@@ -64,15 +64,10 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -90,27 +85,8 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00198dd0-00198dd0 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
-/* Recovered.  Two shapes closed it: the availability flag is an if/else
-   (`if (r == 1) flag = 0; else flag = 1;`) rather than `flag = 1` with a
-   conditional clear - retail reuses the materialised 1 as both the flag
-   value and the comparison constant, and keeps the unreachable clear the
-   else arm leaves behind - and the kind test is a `switch` with `case 0:
-   case 1:` falling into one body, which emits retail's three-branch chain
-   (beq 1, beqz, b default) instead of the inverted two-branch form an
-   `||` condition produces.  The case labels are written 0 then 1 because
-   the compare chain is emitted in reverse label order. */
-/* measured: a distinct typed unit alias retains the model/data-unit reloads that moved instructions at the measured call sites. */
-/* Choose the rest motion from status/HP/guard/death state; replace playback only when already at rest. */
+/* Choose the rest motion from status/HP/guard/death state; replace playback only when already at
+ * rest. */
 // FUN_00198DD0
 #pragma push
 void btlUnitUpdateStatusMotion(u8 *unit, u16 frame)

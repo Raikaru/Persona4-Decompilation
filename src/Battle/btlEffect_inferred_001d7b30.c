@@ -38,10 +38,6 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
 extern s32 fadeBeginReturnTransition(s32 mode, s32 duration);
 
 extern void *btlPacketAlloc();
@@ -70,19 +66,13 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d7b30-001d7b60 */
-
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
+/* measured: opt_propagation off keeps the btlCameraFindFormationForCounts loop masks computed the
+ * way retail does. */
 #pragma push
 #pragma pop
-/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
-/* measured: restore optimization_level 2 after func_001d5990. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off is required for the default GP load/store register order. */
-/* measured: close opt_propagation after btlEffectFlagToColor. */
+/* measured: opt_propagation off is needed so the GP loads and stores stay in retail order. */
 // FUN_001D7B30
 s32 btlEffectSetFadeLevel(u16 *level) {
     fadeBeginReturnTransition(1, *level);

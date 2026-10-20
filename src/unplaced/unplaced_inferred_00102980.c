@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00102980-00102980 */
 
 #include "sdk_dbprt.h"
 #include "include_asm.h"

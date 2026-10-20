@@ -16,8 +16,6 @@ extern void datSetMoney(s32 amount);
 extern s32 iGpffffb480;
 
 
-
-
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
@@ -28,14 +26,8 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
                            f32 angle, f32 depth, s32 preserveState);
 
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025d000-0025d090 */
-
-// Intent: Common script command ADD_PC_MONEY (p4flow Common 0x0050): adds money, clamped to 9,999,999 and at least zero [inferred]
+// Common script command ADD_PC_MONEY (p4flow Common 0x0050): adds money, clamped between zero and
+// 9,999,999.
 // FUN_0025D000
 s32 scrCommonAddPcMoney(void) {
     s32 currentMoney;
@@ -56,7 +48,8 @@ block_1:
     return 1;
 }
 
-// Intent: Common script command CALL_NAME_ENTRY (p4flow Common 0x0051): opens the name entry screen (mode 0x1C) [inferred]
+// Common script command CALL_NAME_ENTRY (p4flow Common 0x0051): opens the name entry screen (mode
+// 0x1C).
 // FUN_0025D090
 s32 scrCommonCallNameEntry(void) {
     if (scrGetCmdTimer() == 0) {

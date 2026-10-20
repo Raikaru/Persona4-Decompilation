@@ -72,10 +72,6 @@ extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-
-
-
-
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
@@ -88,28 +84,18 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00195710-00195730 */
-
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s64 btlPacketEnqueue(u8 *context, u32 value);
 extern void btlPacketStepSide(s32 side);
 extern void btlUnitHoldPendingOverride(u8 *context);
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 // FUN_00195710
 void btlUnitReleasePendingOverride(u8 *packetWork)
 {
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + -1;
 }
 
-/* measured: access-site flag updates change MATCH to MISMATCH; a distinct typed work alias retains all three flag updates. */
-/* Create an override work block; bits 1/2/4 identify supplied position, quaternion and color. */
+/* Allocate a battle packet that overrides a unit's position, rotation and color, copying in
+ * whichever of these are supplied and setting a flag for each one. */
 // FUN_00195730
 u8 *btlUnitCreateOverridePacket(u8 *unit, u8 *position, u8 *rotation, u8 *color)
 {

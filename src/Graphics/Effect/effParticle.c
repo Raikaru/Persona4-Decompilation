@@ -1,4 +1,4 @@
-/* Original translation unit effParticle.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effParticle.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
@@ -133,19 +133,16 @@ void *ParticleCreateFromSource(void *opaqueSource)
         if (resource != NULL) {
             switch (descriptor->kind) {
             case 1:
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 emitter = (WaveSpawnEmitter *)instance->emitter.bytes;
                 ParticleSetMaterialSlot(particle, emitter->signedTotalCount, 1);
                 ParticleSetTextureFromHandle(particle, (s32)resource);
                 break;
             case 2:
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 emitter = (WaveSpawnEmitter *)instance->emitter.bytes;
                 ParticleSetMaterialSlot(particle, emitter->signedTotalCount, 2);
                 ParticleSetLinkedGroup(particle, resource);
                 break;
             case 4:
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 emitter = (WaveSpawnEmitter *)instance->emitter.bytes;
                 ParticleSetMaterialSlot(particle, emitter->signedTotalCount, 4);
                 ParticleSetTextureById(particle, *resource);
@@ -157,7 +154,6 @@ void *ParticleCreateFromSource(void *opaqueSource)
                 ParticleRebuildSubtypeChainAlt(particle, resource);
                 break;
             case 7:
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 emitter = (WaveSpawnEmitter *)instance->emitter.bytes;
                 ParticleSetMaterialSlot(particle, emitter->signedTotalCount, 7);
                 ParticleSetAuxResource(particle, resource);
@@ -172,7 +168,6 @@ void *ParticleCreateFromSource(void *opaqueSource)
                 kAssertFail(D_00713CD0, 0x7E);
                 break;
             }
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             instance->kind = descriptor->kind;
         }
         return particle;
@@ -181,7 +176,6 @@ void *ParticleCreateFromSource(void *opaqueSource)
 
 // Frees a particle block: its records and sub-objects, then the block itself.
 // FUN_00486E10
-/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleFree(u8 *particle)
 {
     EffParticleInstance *instance = (EffParticleInstance *)particle;
@@ -197,7 +191,6 @@ void ParticleFree(u8 *particle)
         for (i = 0; i < count; i++) {
             mdlEffectDestroyPrimitiveRecord(((u8 **)instance->children.bytes)[i]);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         jtbl_008873EC[0](instance->childAllocation.pointer);
     }
     if (instance->modelAllocation.handle != 0) {
@@ -209,7 +202,6 @@ void ParticleFree(u8 *particle)
         for (i = 0; i < count; i++) {
             mdlEffectDestroyWithNodes(((u8 **)instance->models.bytes)[i]);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         jtbl_008873EC[0](instance->modelAllocation.pointer);
     }
     if (instance->animation.handle != 0) {
@@ -231,7 +223,6 @@ void ParticleFree(u8 *particle)
 }
 // Creates a particle block from a parent particle block, copying its records and mode.
 // FUN_00486FB0
-/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void *ParticleCreateFromParent(void *opaqueSource)
 {
     u8 *particle = opaqueSource;
@@ -244,7 +235,6 @@ void *ParticleCreateFromParent(void *opaqueSource)
     if (instance->emitter.handle == 0) {
         kAssertFail(D_00713CD0, 0xE0);
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     parameters = (u8*)((WaveSpawnEmitter *)instance->emitter.bytes)->originalParameters;
     if (parameters == NULL) {
         kAssertFail(D_00713CD0, 0xE2);
@@ -270,7 +260,6 @@ void *ParticleCreateFromParent(void *opaqueSource)
     if (createdParticle == NULL) {
         kAssertFail(D_00713CD0, 0xE4);
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     ParticleAllocRecords(createdParticle, ((WaveSpawnEmitter *)instance->emitter.bytes)->kind, (void *)parameters);
     if (((EffParticleInstance *)createdParticle)->recordCount.signedValue == 0) {
         return createdParticle;
@@ -281,14 +270,10 @@ void *ParticleCreateFromParent(void *opaqueSource)
     ParticleCopyModeFromSource(createdParticle, particle);
     return createdParticle;
 }
-/* measured: case-local count/index pairs make b210 color the loop locals
-   $s2/$s3 and the parameters $s1/$s0, matching retail. The named case-7
-   allocation result remains in $s2 through memset before being stored at
-   particle+0x5C. Shared function-scope counters rotate all four saved registers.
-   Object/window 1136B, normalized_diff 0. */
-// Copies the source's mode into the particle block: dispatches on the source's type word to the matching setter.
+/* Each case declares its own count/index locals because shared function-scope counters change
+ * register allocation from retail. Copies the source's mode into the particle block by dispatching
+ * on the source's type word to the matching setter. */
 // FUN_00487160
-/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleCopyModeFromSource(u8 *particle, u8 *source)
 {
     EffParticleInstance *sourceInstance = (EffParticleInstance *)source;
@@ -309,7 +294,6 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
         if (instance->animation.handle != 0) {
             mdlEffectReleaseTrackInstance(instance->animation.handle);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->animation.handle = mdlEffectShareTrackInstance(sourceInstance->animation.handle);
         break;
     case 5: {
@@ -323,7 +307,6 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
         if (sourceInstance->childAllocation.handle == 0) {
             kAssertFail(D_00713CD0, 0x119);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         if (sourceInstance->emitter.handle == 0) {
             kAssertFail(D_00713CD0, 0x11A);
         }
@@ -331,23 +314,18 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
             for (i5 = 0; i5 < count5; i5++) {
                 mdlEffectDestroyPrimitiveRecord(((u8 **)instance->children.bytes)[i5]);
             }
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             jtbl_008873EC[0](instance->childAllocation.pointer);
             instance->children.bytes = NULL;
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             instance->childAllocation.bytes = NULL;
         }
         if (count5 * 4 == 0) {
             return;
         }
         chkmemAllocSiteTag(D_00713CD0, 0x12C);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->childAllocation.bytes = (u8 *)(*jtbl_008873E8)(count5 * 4, 0x40000);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         if (instance->childAllocation.bytes == NULL) {
             kAssertFail(D_00713CD0, 0x12D);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->children.bytes = instance->childAllocation.bytes;
         for (i5 = 0; i5 < count5; i5++) {
             ((u8 **)instance->children.bytes)[i5] =
@@ -366,7 +344,6 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
         if (sourceInstance->modelAllocation.handle == 0) {
             kAssertFail(D_00713CD0, 0x139);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         if (sourceInstance->emitter.handle == 0) {
             kAssertFail(D_00713CD0, 0x13A);
         }
@@ -374,23 +351,18 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
             for (i6 = 0; i6 < count6; i6++) {
                 mdlEffectDestroyWithNodes(((u8 **)instance->models.bytes)[i6]);
             }
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             jtbl_008873EC[0](instance->modelAllocation.pointer);
             instance->models.bytes = NULL;
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             instance->modelAllocation.bytes = NULL;
         }
         if (count6 * 4 == 0) {
             return;
         }
         chkmemAllocSiteTag(D_00713CD0, 0x14C);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->modelAllocation.bytes = (u8 *)(*jtbl_008873E8)(count6 * 4, 0x40000);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         if (instance->modelAllocation.bytes == NULL) {
             kAssertFail(D_00713CD0, 0x14D);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->models.bytes = instance->modelAllocation.bytes;
         for (i6 = 0; i6 < count6; i6++) {
             ((u8 **)instance->models.bytes)[i6] =
@@ -401,14 +373,12 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
     case 7: {
         u8 *p;
 
-        /* The source handle reads and the store stay as raw offsets: typed forms changed the codegen (measured). */
         if (sourceInstance->tlpRef == 0) {
             kAssertFail(D_00713CD0, 0x156);
         }
         if (instance->tlpRef != 0) {
             TlpRelease(instance->tlpRef);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->tlpRef = TlpAddRef(sourceInstance->tlpRef);
         if (instance->link != NULL) {
             kAssertFail(D_00713CD0, 0x15F);
@@ -425,30 +395,24 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
         kAssertFail(D_00713CD0, 0x16A);
         break;
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     instance->kind = sourceInstance->kind;
 }
 
 // Allocates the particle record block (count times the record size) and marks the block dirty.
 // FUN_004875D0
-/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleAllocRecords(u8 *particle, s32 source, void *options)
 {
     EffParticleInstance *instance = (EffParticleInstance *)particle;
     if (instance->emitter.bits != 0) {
         mdlEffectFreeEmitterAllocation((u8 *)instance->emitter.bits);
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     instance->emitter.bits = (u32)mdlEffectAllocateTrackPath(source & 0xFFFF, instance->recordCount.value, options);
     instance->flags |= 1;
 }
 
 
-
-
 // Sets the material slot from the type: types 1 and 4 take a material by id, type 2 takes the second material id, type 7 leaves it.
 // FUN_00487650
-/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleSetMaterialSlot(u8 *particle, s32 source, s32 options)
 {
     EffParticleInstance *instance = (EffParticleInstance *)particle;
@@ -460,11 +424,9 @@ void ParticleSetMaterialSlot(u8 *particle, s32 source, s32 options)
     switch (options) {
     case 1:
     case 4:
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->geometry.handle = GeometryCreateAtomicFromResource(source & 0xFFFF, 0x20080027);
         return;
     case 2:
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->geometry.handle = GeometryCreateAtomicFromResource(source & 0xFFFF, 0x200000A7);
         /* fallthrough */
     case 7:
@@ -503,11 +465,8 @@ void ParticleSetTextureFromHandle(u8 *particle, s32 source)
 }
 
 
-
-
 // Replaces the linked group handle with the one returned for the given list.
 // FUN_00487860
-/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleSetLinkedGroup(u8 *particle, s32 *source)
 {
     EffParticleInstance *instance = (EffParticleInstance *)particle;
@@ -516,13 +475,11 @@ void ParticleSetLinkedGroup(u8 *particle, s32 *source)
     if (previousHandle != 0) {
         mdlEffectReleaseTrackInstance(previousHandle);
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     instance->animation.handle = mdlEffectCreateTrackInstance(source);
 }
 
 // Rebuilds the subtype chain: releases the old chain, then builds count entries from the resource (entry 0 from the resource, the rest linked).
 // FUN_004878C0
-/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleRebuildSubtypeChain(u8 *particle, void *source)
 {
     EffParticleInstance *instance = (EffParticleInstance *)particle;
@@ -538,32 +495,25 @@ void ParticleRebuildSubtypeChain(u8 *particle, void *source)
         for (i = 0; i < count; i++) {
             mdlEffectDestroyPrimitiveRecord(((u8 **)instance->children.bytes)[i]);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         jtbl_008873EC[0](instance->childAllocation.pointer);
         instance->children.bytes = NULL;
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->childAllocation.bytes = NULL;
     }
     if (count * 4 != 0) {
         chkmemAllocSiteTag(D_00713CD0, 0x21C);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->childAllocation.bytes = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         if (instance->childAllocation.bytes == NULL) {
             kAssertFail(D_00713CD0, 0x21D);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->children.bytes = instance->childAllocation.bytes;
         ((u8 **)instance->children.bytes)[0] = mdlEffectCreatePrimitiveRecord((u8 *)source);
         for (i = 1; i < count; i++) {
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             ((u8 **)instance->children.bytes)[i] = mdlEffectCreateChildRecord(((u8 **)instance->children.bytes)[0]);
         }
     }
 }
 // Rebuilds the alternate subtype chain: releases the old chain, then builds count entries linked from the resource; same shape as ParticleRebuildSubtypeChain.
 // FUN_00487A30
-/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleRebuildSubtypeChainAlt(u8 *particle, void *source)
 {
     EffParticleInstance *instance = (EffParticleInstance *)particle;
@@ -579,31 +529,23 @@ void ParticleRebuildSubtypeChainAlt(u8 *particle, void *source)
         for (i = 0; i < count; i++) {
             mdlEffectDestroyWithNodes(((u8 **)instance->models.bytes)[i]);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         jtbl_008873EC[0](instance->modelAllocation.pointer);
         instance->models.bytes = NULL;
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->modelAllocation.bytes = NULL;
     }
     if (count * 4 != 0) {
         chkmemAllocSiteTag(D_00713CD0, 0x24F);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->modelAllocation.bytes = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         if (instance->modelAllocation.bytes == NULL) {
             kAssertFail(D_00713CD0, 0x250);
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         instance->models.bytes = instance->modelAllocation.bytes;
         ((u8 **)instance->models.bytes)[0] = mdlEffectBuildFromResource((u8 *)source);
         for (i = 1; i < count; i++) {
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             ((u8 **)instance->models.bytes)[i] = mdlEffectCloneWithNodes(((u8 **)instance->models.bytes)[0]);
         }
     }
 }
-
-
 
 
 // Replaces the auxiliary resource handle with the one returned for the given list.
@@ -617,10 +559,8 @@ void ParticleSetAuxResource(u8 *particle, s32 *source)
     if (previousHandle != 0) {
         TlpRelease(previousHandle);
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     instance->tlpRef = TlpCreate(source);
 }
-
 
 
 // Releases the particle record block, if present.
@@ -641,13 +581,6 @@ typedef struct ParticleUpdateRecord
     f32 scale;
     f32 angle;
 } ParticleUpdateRecord __attribute__((aligned(16)));
-
-/* measured: native b210 -O2 emits 892 exact bytes and four zero alignment bytes.
- * Each real loop index is initialized after its emitter/setup phase. The object
- * cursor's initialized scope begins at the existing subtype array lookup.
- * These lifetimes preserve the signed count snapshot, per-record reloads, and
- * all VU0 operations, including the transformed subtype-5 start-call omission.
- * Evidence: build/finish-first-party-20260922/particle-next-03/. */
 
 // Per-frame update: scales each live particle record through the VU0 transform and writes its colour and angle.
 // FUN_00487C30
@@ -905,9 +838,8 @@ typedef struct ParticleAnimationOutput
 } ParticleAnimationOutput;
 typedef char ParticleAnimationOutputSize[(sizeof(ParticleAnimationOutput) == 56) ? 1 : -1];
 
-/* VU0 boundary: VF10 contains the normalized animated particle color.
- * Packing produces the real four-byte scalar consumed by the color stream. */
-/* Convert the animated VU color to a packed byte-channel word. */
+/* Convert the normalized animated particle color held in VU0 to a packed four-byte color word for
+ * the color stream. */
 static inline u32 particlePackAnimatedColor(void)
 {
     u32 result;
@@ -926,8 +858,7 @@ static inline u32 particlePackAnimatedColor(void)
     return result;
 }
 
-/* The transformed pass keeps the color-byte scale in an FPR. */
-/* Scale the animated VU color before packing its byte channels. */
+/* Scale the animated VU color by a float scale before packing its byte channels. */
 static inline u32 particlePackAnimatedColorTransformed(f32 scale)
 {
     u32 result;
@@ -947,15 +878,8 @@ static inline u32 particlePackAnimatedColorTransformed(f32 scale)
     return result;
 }
 
-/* measured: native b210 -O2 emits3516 exact bytes and four alignment bytes.
- * Native lock records, color results, and phase-local matrix/angle/count
- * lifetimes preserve the full renderer and its eight-entry switch table.
- * Evidence: build/finish-first-party-20260922/particle-next-02/. */
-
 // Projects the particle vertices through the VU0 matrix and writes the packed colour per vertex.
 // FUN_00487FB0
-/* Typed emitter/record locals and native PTank stream elements preserve the original traversal lifetimes. */
-/* Separate typed instance locals preserve the original byte-cursor reload lifetimes. */
 void ParticleProjectVertices(u8* particle, f32 scale)
 {
     EffParticleInstance *instance = (EffParticleInstance *)particle;
@@ -1096,7 +1020,6 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                                 f += angleStep;
                             }
                         }
-                        /* measured: this access-site member conversion makes the owning function MISMATCH. */
                         entry->angle = f;
                         *(f32*)rotationLock.data = f;
                         rotationLock.data += rotationLock.stride;
@@ -1184,7 +1107,6 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                                 f += angleStep;
                             }
                         }
-                        /* measured: this access-site member conversion makes the owning function MISMATCH. */
                         entry->angle = f;
                         *(f32*)rotationLock.data = f;
                         rotationLock.data += rotationLock.stride;
@@ -1595,7 +1517,6 @@ void ParticleProjectVertices(u8* particle, f32 scale)
         {
             /* Packed halfword in the shared emitter parameter word span (unknown2c). */
             u8* pb = (u8*)TnGetOffset1C(((WaveSpawnParameters *)t)->resourceId);
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             PrimAppendNode(pb, (u8 *)instance->link);
         }
     }
@@ -1629,14 +1550,10 @@ typedef char ParticleProjectedVertexSize[(sizeof(ParticleProjectedVertex) == 64)
 typedef char ParticleProjectedSelectionSize[(sizeof(TlpSel) == 20) ? 1 : -1];
 
 
-
-/* measured: b210 -O2, full unmasked 4236/4240-byte proof and four zero tail bytes.
- * Native vertex/selection fields and VU outputs preserve the retail memory order.
- * The transformed path reads its unsigned frame index through the accessor before
- * loading the texture resource; both the reload and argument order are significant.
- * Receipt: build/first-party-continue-live/particle/resume-20260922-closure/. */
-/* Camera and billboard code now share the canonical RwMatrixTag declaration. */
-// Draws the particle billboards: builds each quad from the projected corners and submits them with the camera near and far planes.
+/* The transformed path reads its unsigned frame index through the accessor before loading the
+ * texture resource; retail depends on both the reload and the argument order. Draws the particle
+ * billboards: builds each quad from the projected corners and submits them with the camera near and
+ * far planes. */
 // FUN_00488D70
 /* Typed emitter/record locals and native PTank stream elements preserve the original traversal lifetimes. */
 void ParticleDrawBillboards(u8 *particle)
@@ -1753,9 +1670,7 @@ void ParticleDrawBillboards(u8 *particle)
                     f32 height;
                     TlpSelectFrame((TLP *)instance->tlpRef, (u32)entry->age, &selection);
                     D_00887300[0](rwRENDERSTATETEXTURERASTER, *(void **)selection.tex);
-                    /* measured: this access-site member conversion makes the owning function MISMATCH. */
                     width = entry->size * ((selection.w / 32.0f) * selection.a);
-                    /* measured: this access-site member conversion makes the owning function MISMATCH. */
                     height = entry->size * ((selection.h / 32.0f) * selection.b);
                     vertices[0].u.els.color.r = (f32)(u32)packed.bytes.red;
                     vertices[0].u.els.color.g = (f32)(u32)packed.bytes.green;
@@ -1797,7 +1712,6 @@ void ParticleDrawBillboards(u8 *particle)
                             }
                             reciprocalDepth = 1.0f / projectedDepth;
                             cosine = cosf(entry->angle);
-                            /* measured: this access-site member conversion makes the owning function MISMATCH. */
                             sine = sinf(entry->angle);
                             widthCosine = width * cosine;
                             heightCosine = height * cosine;
@@ -1955,7 +1869,6 @@ void ParticleDrawBillboards(u8 *particle)
                                 }
                                 inv2 = one / projectedDepth;
                                 cosine = cosf(entry->angle);
-                                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                                 sine = sinf(entry->angle);
                                 widthCosine = width * cosine;
                                 heightCosine = height * cosine;

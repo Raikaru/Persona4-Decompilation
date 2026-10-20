@@ -26,10 +26,9 @@ extern char D_0063CB30[];
 extern char D_0063D050[];
 
 
-
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-// lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
+// lint: allow H011 -- measured: a u16 prototype changes the wide id arguments in func_00291a60.
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32, s32, s32,
                           s32);
@@ -46,28 +45,11 @@ extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 00294280-00294280 */
-
 extern void mtMiscCollectType1Records(u8 *);
 extern void mtMiscCollectType2Records(u8 *);
-/* measured probe: preserve local constant with opt_propagation off. */
-/* measured probe: close opt_propagation bracket after func_00291530. */
-/* measured: opt_propagation off keeps `weapon` materialised between the index
-   shift and the base add (retail sll/andi/addu); with propagation on the CSE'd
-   address is finished before any argument. The index/five locals must stay
-   literal under this pragma or they take a sixth saved register. Attachment
-   helpers retain block-scoped u16 parameters for per-call masks. */
-/* measured: restore propagation for the rest of the unit. */
-/* measured probe: preserve the retail type constant and close bracket below. */
-/* measured probe: close opt_propagation bracket after func_00291810. */
-/* measured: O1 float-local register mapping probe for func_00293710. */
-/* measured: closes O1 float-local register mapping probe for func_00293710. */
-/* 908/912 bytes; thirty resolved relocations and four zero alignment bytes.
- * Keep separate binary64 diagnostic lifetimes and reload resource links after
- * allocation. Keep binary64 arguments despite the retail format's %d fields. */
-// Builds the scene's fixed event nodes: resource 0x400, one node per kind-3
-// resource, and three icon nodes. Copies the kind-5 resource's transform and
-// two four-float vectors and the 0x40-byte matrix into the event light state.
+/* Builds the scene's fixed event nodes: resource 0x400, one node per kind-3 resource, and three
+ * icon nodes. Copies the kind-5 resource's transform, two four-float vectors and the 0x40-byte
+ * matrix into the event light state. */
 // FUN_00294280
 void mtMiscBuildSceneNodes(u8 *eventWork)
 {
@@ -133,7 +115,6 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             ((MtMiscSceneNode *)nodeValue)->unk_44.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_44.z = componentFirst;
             firstX = fptodp(((ResrcHeader *)firstResource)->position.x);
-            /* measured: a typed resource local preserves these diagnostic coordinate reloads. */
             firstY = fptodp(firstHeader->position.y);
             func_00440b68(D_0063CAC0, firstX, firstY,
                           fptodp(firstHeader->position.z));

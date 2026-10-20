@@ -4,7 +4,7 @@
 #include "kwln_task_internal.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
-/* Original translation unit btlResultSimple.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlResultSimple.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "btl_result_ui_internal.h"
 
@@ -147,15 +147,13 @@ s32 datMemberNoticeTryBegin(s32 stepMode);
 extern s32 btlResultSimpleUpdate(u8 *task);
 
 
-
-/* Matched: 604 bytes, seven resolved relocations and four zero tail bytes.
- * Grouped values are unsigned; the plain retail format is signed "%d".
- * Scoped loop invariants retain the digit-loop constants and allocation. */
+/* Grouped values are unsigned; the plain format is signed "%d". */
 // FUN_0021ED10
-/* measured: baseline nd58; scoped locals, inverted if/else did not match (best nd58); retain opt_loop_invariants on. */
+/* measured: retail hoists the digit-loop constants out of the loop, which needs opt_loop_invariants
+ * on. */
 #pragma opt_loop_invariants on
 /* Draw a signed decimal or grouped unsigned number using digit sprites, updating the supplied pen
- * position. The measured digit lookup names the sprite array through MEMBER. */
+ * position. */
 void btlResultSimpleDrawLabel(u8 *work, f32 *position, f32 unusedDepth, s32 color, u32 value, s32 groupDigits)
 {
     s8 rev[0x40];
@@ -229,17 +227,12 @@ void btlResultSimpleDrawLabel(u8 *work, f32 *position, f32 unusedDepth, s32 colo
 #pragma opt_loop_invariants off
 
 
-
-
-/* Matched: 976 bytes and all 29 relocations. Pointer slots and unsigned
- * resource-bank loads preserve the real constructor contract; scoped loop
- * invariants retain the retail table bases and register allocation. */
+/* Pointer slots and resource-bank loads are unsigned, matching the real constructor contract. */
 // FUN_0021EF70
-/* measured: baseline nd110; object/dispatch locals, inverted if/else did not match (best nd110); retain opt_loop_invariants on. */
+/* measured: retail hoists the table bases out of the loops, which needs opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Initialize twenty animation rows, create forty-two sprites, and seed five particle timers and two
- * pulses. Measured: direct particle traversal changes MATCH; retain its shifted cursor while typing
- * independent record/style fields. */
+ * pulses; the particle traversal keeps a shifted cursor. */
 void btlResultSimpleCreateSprites(BtlResultSimpleWork *work)
 {
     BtlResultSimpleWork *result;
@@ -324,19 +317,8 @@ void btlResultSimpleCreateSprites(BtlResultSimpleWork *work)
     *(s32 *)&result->phase = 0;
 }
 #pragma opt_loop_invariants off
-/* measured 2026-08-07: discarded raw_alias body reached nd 57 with object
-   472B vs the 480B window. Retail precomputes the indexed field400 store
-   address before func_0046af60; b210 keeps the loop/index colouring in the
-   wrong saved registers and recomputes that address after the call. The
-   direct, slot-pointer, reload, and add-base spellings all stayed at nd 254+
-   or nd 275. Register-colouring/pre-call-hoist floor; leave the marker bare. */
-/* measured 2026-08-08: raw u8* alias body reached object 472B / window
-   480B but normalized_diff 57, so the body is discarded rather than parked.
-   Exact residual fndiff offsets are 40, 44, 52, 60, 64, 68, 72, 76, 84, 88,
-   92, 100, 104, 108, 112, 116, 120, 124, 156, 160, 164, 168, 324; first
-   differing row is offset 40 (`lw $s2,0x4bc($s1)` vs retail
-   `lw $a0,0x4bc($s1)`). The discarded body is archived in
-   build/WCBattleUI_btlResultSimple_prepark_validate.c. */
+/* measured: retail computes the indexed field400 store address before calling func_0046af60, but
+ * the compiler recomputes it after the call, so this function is left without a matching body. */
 // FUN_0021F340
 /* Adopt three sprite banks, poll their readiness and the message archive, and set the corresponding
  * work flags. Measured: the archive-entry reload and clear store still change allocation when typed;
@@ -402,8 +384,6 @@ s32 btlResultSimpleLoadAssets(BtlResultSimpleWork *work)
     }
     return 0;
 }
-
-
 
 
 /* Animate result rows, wait for confirmation, then sequence the optional notice before completion.
@@ -577,10 +557,8 @@ s32 btlResultSimpleUpdate(u8 *task) {
 /* measured: the shared product keeps range before sample in the native mul.s operands. */
 
 
-/* Native b210 O2: 1108/1120 bytes, seventeen resolved relocations and
- * twelve zero alignment bytes. Update and draw the five result-screen
- * sprites using their individual motion and random-duration styles.
- * See docs/probe_archive/Result_particles_0021fa40_20260924.md. */
+/* Update and draw the five result-screen sprites using their individual motion and random-duration
+ * styles. */
 // FUN_0021FA40
 /* Advance and draw the five independently timed result particles from their style rows. Parent
  * flags use the shared reward layout. */
@@ -654,16 +632,12 @@ void btlResultSimpleInitAnimRecords(u8 *work)
     shdDisableBlendFlag();
 }
 
-/* Matched 2026-09-30: 5676/5680B, 65 resolved relocations and one zero
- * tail word. Typed flags and by-value positions recover the 0x120 frame;
- * separate position snapshots replace the former overlapping union.
- * Scoped loop invariants retain the interpolation constants. Per-dimension
- * scale lvalue views preserve the retail reloads, while scoped const draw
- * coordinates retain the anchor across both sprites without caching dy.
- */
+/* Separate position snapshots and per-dimension scale views keep the retail reloads; const draw
+ * coordinates keep the anchor across both sprites. */
 // FUN_0021FEA0
 #pragma push
-/* measured: baseline nd1593; pointer iteration, inverted if/else did not match (best nd1593); retain opt_loop_invariants on. */
+/* measured: loop invariants must be hoisted to keep the interpolation constants out of the loop as
+ * retail does. */
 #pragma opt_loop_invariants on
 /* Draw the animated result headings, reward values, particles and conditional banners. Measured: a dedicated
  * work alias preserves coordinate and opacity reloads; only the indexed level-digit lookup needs
@@ -675,7 +649,6 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
     typedef union { Vec2f xy; f32 v[2]; s64 bits; } ResultPosition;
     u8 *w;
     u8 *sprite;
-    /* Typed flags avoid extending a cached byte-address lifetime across calls. */
     struct ResultSubHeader { u8 pad[8]; u16 flags; } *p16;
     u8 labelRed;
     u8 labelGreen;
@@ -1105,12 +1078,6 @@ void btlResultSimpleDraw(u8 *unusedTask, u8 *work)
 }
 
 #pragma pop
-/* measured: retail allocates p=$s0, loop-addr=$s1, counter=$s2; mwcc b210
-   invariantly allocates the named values to $s1/$s0 and the indexed store
-   address temp to $s2 (counter<->addr rotation, nd 12, rest byte-identical).
-   Tried: struct-vs-pointer arith for the 0x4BC block, every declaration order
-   of p/w/i (8 variants), loop-local addr pointers, shared addr var, u16/u32
-   counters; all give the identical 12-word rotation. Register-coloring floor. */
 /* Release the result archive, adopted sprite banks, all sprite nodes and the work allocation. */
 // FUN_002214D0
 void btlResultSimpleTaskDestroy(u8 *unusedTask) {
@@ -1140,8 +1107,8 @@ void btlResultSimpleTaskDestroy(u8 *unusedTask) {
     jtbl_008873EC[0](p);
 }
 // FUN_002215C0
-/* Allocate the complete 0x578-byte simple-result work, register callbacks, and attach the parent
- * result work. Primitive callback words use the established queue payload layout. */
+/* Allocate the 0x578-byte simple-result work, register callbacks, and attach the parent result
+ * work. */
 s32 btlResultSimpleCreateTask(s32 parentTask) {
     BtlResultSimpleWork *result;
     u8 *work;
@@ -1194,11 +1161,6 @@ u16 btlResultSimpleIsDone(void) {
     return work[0] & 1;
 }
 
-/* measured 2026-08-14: retail frame 64B with work=$s0, index=$s1, and
-   field400 destination=$s2. Complete iGp declarations, a u32 masked result
-   local, and the explicit field400 destination expression reproduce the
-   368B window exactly. */
-// Intent: set up the result entries from the date index and asset slot. [inferred]
 // FUN_00221770
 /* Choose date-dependent result resources, acquire both archives and request asynchronous asset setup. */
 void btlResultSimpleSetupEntries(void) {
@@ -1220,7 +1182,8 @@ void btlResultSimpleSetupEntries(void) {
     i = 3;
     for (; i < 5; i++) {
         dst = (s32 *)((u8 *)work + i * 4 + 0x400);
-        /* measured: array indexing changes two bytes; retain the slot-three-relative alias base. */
+        /* measured: the alias base is relative to slot three because plain array indexing changes
+         * the address form. */
         *dst = resourceFindByName(((BtlResultResourceName *)((u8 *)iGpffffa5a8 + i * 4 - 12))->name);
         if (*dst == 0) {
             kAssertFail(&D_00629610, 1419);

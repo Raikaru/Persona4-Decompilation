@@ -67,7 +67,6 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
 extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
 extern void mdlSetColor(void *model, s32 *color);
 extern u8 iGpffffa4d8;
@@ -80,8 +79,6 @@ extern f32 DAT_0076112c;
 extern void btlUnitClearModelState(u8 *unit, s32 mode);
 extern void btlUnitApplyModelState(u8 *unit, s32 mode);
 extern void SceneDraw_SetResVisibleChecked(u16 resTypeId, u32 visible);
-
-
 
 
 extern s32 iGpffffb444;
@@ -98,8 +95,6 @@ extern void btlUnitShowModel(u8 *unit);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019c0d0-0019d0c0 */
 
 extern void btlUnitUpdateMotionLayer(u8 *unit);
 typedef struct {
@@ -129,29 +124,15 @@ static inline void btlUnitMultiplyColor(RwRGBA *dst, const u8 *src)
     dst->blue = (s32)(scale * b + bias);
     dst->alpha = (s32)(scale * a + bias);
 }
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Measured: 1164 instruction bytes in the 1168-byte window, three resolved
- * relocations and a four-byte zero tail. This callback uses the packet creator's
- * u32 (void *) contract. Modes 1..4 initialize every timing value; the retail
- * constructor callers use modes 3 or 4. The packet is 20 bytes.
- * Disabling propagation locally retains the alpha result's memory/merge
- * lifetime. Publication remains the actual four-byte color-by-value operation. */
 #pragma push
 #pragma pop
-/* Retail reloads the 1/255 colour scale (0x3B808081, written here as a
- * literal) for every factor; with default optimisation b210 does the same.
- * `v41` and `chk` are function-scope locals so they keep retail's saved
- * registers. On the `i == 2 && alpha < 0xFE` path retail compares 0xE8
- * against the `mode` left from an earlier entry (0x0019CDE0); the C reads
- * `mode` uninitialised there in the same way. */
 #pragma push
-/* measured: remaining color/flags/model sites lose MATCH when typed; +0xAC is byte-tested and +0x4E is packed RGBA. */
-/* Advance each unit, publish changed transform/color state, and refresh status-effect placement. */
+/* Advance each unit, publish changed transform/color state, and refresh status-effect placement;
+ * the flags byte is tested raw and the color is packed RGBA. */
 // FUN_0019C0D0
 void btlUnitUpdateAll(void)
 {
@@ -170,8 +151,8 @@ void btlUnitUpdateAll(void)
     extern s32 btlEffectFlagToSlotIndex(s32 flag);
     extern s16 btlPacketGetValue(s32 placement);
     extern void btlEffectFlagToColor(s32 flag, u8 *color);
-    /* Retail passes the sign-extended word from (s16)btlEffectFlagToSlotIndex() in $a1
-     * without narrowing; the s16 definition's prototype adds a re-extension. */
+    /* Retail passes the sign-extended slot index without narrowing it again, so the callee is
+     * declared to take an s32. */
     extern void btlPacketSetValue(u8 *packet, s32 value);
     extern void btlPacketSetTag(void *packet, u32 value);
     extern void btlEffectRefreshPlacementState(u8 *placement);
@@ -312,7 +293,6 @@ void btlUnitUpdateAll(void)
 
                             *skyTest = renderTest;
                         for (childIndex = 0; childIndex < 5; childIndex++) {
-                            /* measured: direct and local attachment indexing change UpdateAll codegen; retain byte-address order. */
                             u8 *childModel = MEMBER(u8 *, (u32)typedEntry->layerHandle + childIndex * 12, Model, attachedWpns[0].wpnMdl);
 
                             if (childModel != NULL) {
@@ -389,7 +369,6 @@ loop_7:
     }
 }
 
-/* measured: typing either remaining visibility-bit update changes MATCH to MISMATCH. */
 /* Request model visibility and synchronize the scene resource visibility when one exists. */
 // FUN_0019D040
 void btlUnitShowModel(u8 *unit) {
@@ -404,8 +383,8 @@ void btlUnitShowModel(u8 *unit) {
     *(s32 *)&typedUnit->flags3 |= 2;
 }
 
-/* measured: typing the final visibility-bit clear changes MATCH to MISMATCH. */
-/* Hide both the model and its scene resource, clearing the queued visibility bit. */
+/* Hide both the model and its scene resource, clearing the queued visibility bit. The final clear
+ * stays an s32 cast because retail does a word-wide store there. */
 // FUN_0019D0C0
 void btlUnitHideModel(u8 *unit) {
     BtlUnit *typedUnit = (BtlUnit *)unit;

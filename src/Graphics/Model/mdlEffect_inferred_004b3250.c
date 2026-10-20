@@ -31,10 +31,8 @@ typedef struct {
 extern Code1_004bColor iGpffffbb64;
 extern void LineNovaUpdateCameraQuads(void);
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
-
+/* func_004bd628, func_004bd640, func_004bd658, func_004bd670, func_004bd688 and func_004bd6a0 are
+ * framed tail-jump wrappers that plain C cannot emit. */
 
 
 extern u8 D_0071465C[];
@@ -57,13 +55,9 @@ extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 
-/* Source unit: src/promoted/code1_004b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b3250-004b3260 */
-
 extern s32 effCrossfadeCaptureDisplay(u8 *object);
 #pragma push
 #pragma pop
-/* measured: close the opt_propagation bracket around func_004b2780. */
 #pragma push
 #pragma pop
 /* Store the global battle-effect value. */

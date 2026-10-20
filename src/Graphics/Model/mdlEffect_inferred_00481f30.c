@@ -52,8 +52,6 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00481f30-004824a0 */
-
 /* Select a resource entry and initialize its single, paired or grouped tracks. */
 // FUN_00481F30
 void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex)
@@ -86,18 +84,18 @@ void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex)
         kAssertFail(D_007132F0, 0xCB);
     }
     entryOffset = entryIndex * 0x14;
-    entry = MEMBER(u8 *, resource, MdlEffectTrackResource, entries) + entryOffset; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-    if (MEMBER(u32, entry, MdlEffectResourceEntry, count) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    entry = MEMBER(u8 *, resource, MdlEffectTrackResource, entries) + entryOffset;
+    if (MEMBER(u32, entry, MdlEffectResourceEntry, count) != 0) {
         if (((MdlEffectResourceEntry *)entry)->kind & 0x10000000) {
             ((MdlEffectTrackInstance *)player)->flags = 0x10000000;
             ((MdlEffectTrackInstance *)player)->entryIndex = entryIndex;
-            *(u32 *)&((MdlEffectTrackInstance *)player)->trackCount = MEMBER(u32, entry, MdlEffectResourceEntry, count); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            *(u32 *)&((MdlEffectTrackInstance *)player)->trackCount = MEMBER(u32, entry, MdlEffectResourceEntry, count);
             children = ((MdlEffectTrackResource *)resource)->image + ((MdlEffectResourceEntry *)entry)->payloadOffset;
             trackIndex = 0;
             goto loop_00481f30_check;
 loop_00481f30_body:
             trackOffset = trackIndex * 0x14;
-            track = MEMBER(u8 *, player, MdlEffectTrackInstance, tracks) + trackOffset; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            track = MEMBER(u8 *, player, MdlEffectTrackInstance, tracks) + trackOffset;
             child = children + trackIndex * 0x18;
             childIndex = ((MdlEffectTrackChild *)child)->entryIndex;
             if (((MdlEffectResourceImage *)((MdlEffectTrackResource *)resource)->image)->entryCount <= childIndex) {
@@ -125,11 +123,11 @@ loop_00481f30_check:
                 ((MdlEffectTrackInstance *)player)->flags = flags;
                 ((MdlEffectTrackInstance *)player)->entryIndex = entryIndex;
                 *(u32 *)&((MdlEffectTrackInstance *)player)->trackCount = 2U;
-                firstTrack = MEMBER(u8 *, player, MdlEffectTrackInstance, tracks); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                firstTrack = MEMBER(u8 *, player, MdlEffectTrackInstance, tracks);
                 if (((MdlEffectResourceImage *)((MdlEffectTrackResource *)resource)->image)->entryCount <= entryIndex) {
                     kAssertFail(D_007132F0, 0xB0);
                 }
-                firstEntry = (s32 *)(MEMBER(u8 *, resource, MdlEffectTrackResource, entries) + entryOffset); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                firstEntry = (s32 *)(MEMBER(u8 *, resource, MdlEffectTrackResource, entries) + entryOffset);
                 firstPayload = ((MdlEffectTrackResource *)resource)->image + *firstEntry;
                 *(s32 *)&((MdlEffectTrack *)firstTrack)->frame = 0;
                 *(s32 *)&((MdlEffectTrack *)firstTrack)->active = ((MdlEffectTrackFrame *)firstPayload)->delay;
@@ -167,11 +165,10 @@ loop_00481f30_done:
     }
 }
 
-/* measured: opt_loop_invariants on hoists the second-loop preheader constants. */
-/* measured: func_00482230 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_loop_invariants on hoists the second-loop preheader constants, as retail does. */
 #pragma opt_loop_invariants on
-/* measured: opt_propagation off preserves the target pointer evaluation order. */
-/* measured: func_00482230 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_propagation off preserves the target pointer evaluation order. measured: retail
+ * evaluates the target pointer before propagated copies, which this setting reproduces. */
 #pragma opt_propagation off
 /* Copy the resource image, upload streams and find its maximum simultaneous track count. */
 // FUN_00482230
@@ -206,12 +203,12 @@ u8 *mdlEffectLoadTrackResource(s32 *source)
     image = resource + 0x1C;
     memcpy(image, source, *source);
     ((MdlEffectTrackResource *)resource)->image = image;
-    MEMBER(u8 *, resource, MdlEffectTrackResource, entries) = image + 8; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    MEMBER(u8 *, resource, MdlEffectTrackResource, entries) = image + 8;
     *(s32 *)&((MdlEffectTrackResource *)resource)->streamCount = streamCount;
     header = ((MdlEffectTrackResource *)resource)->image;
     scratch = header + 8;
     offsetOrFlags = *(s32 *)header;
-    MEMBER(u8 *, resource, MdlEffectTrackResource, streams) = /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    MEMBER(u8 *, resource, MdlEffectTrackResource, streams) =
         (u8 *)((s32)scratch + offsetOrFlags);
 
     streamIndex = 0;
@@ -223,7 +220,7 @@ u8 *mdlEffectLoadTrackResource(s32 *source)
         streamIndex += 1;
     }
     ((MdlEffectTrackResource *)resource)->references = 1;
-    MEMBER(s32, resource, MdlEffectTrackResource, trackCount) = 1; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    MEMBER(s32, resource, MdlEffectTrackResource, trackCount) = 1;
     countOrHandle = ((MdlEffectResourceImage *)((MdlEffectTrackResource *)resource)->image)->entryCount;
     entryIndex = 0;
     while (entryIndex < countOrHandle) {
@@ -243,8 +240,6 @@ u8 *mdlEffectLoadTrackResource(s32 *source)
     return resource;
 }
 
-/* measured: restore opt_propagation after func_00482230. */
-/* measured: restore opt_loop_invariants after func_00482230. */
 /* Release one resource reference; the last owner releases every uploaded stream and the allocation. */
 // FUN_004823E0
 void mdlEffectReleaseTrackResource(u8 *resource) {
@@ -293,12 +288,12 @@ void mdlEffectAdvanceTrackQuad(u8 *player, u8 *track, u8 *output)
 
     resource = (u8 *)((MdlEffectTrackInstance *)player)->resource;
     entry = ((MdlEffectTrack *)track)->resource;
-    if ((MEMBER(s32, entry, MdlEffectResourceEntry, kind) & 0x10000000) == 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-        delay = MEMBER(s32, track, MdlEffectTrack, active); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    if ((MEMBER(s32, entry, MdlEffectResourceEntry, kind) & 0x10000000) == 0) {
+        delay = MEMBER(s32, track, MdlEffectTrack, active);
         if (delay <= 0) {
-            nextFrame = MEMBER(u32, track, MdlEffectTrack, frame) + 1; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-            MEMBER(u32, track, MdlEffectTrack, frame) = nextFrame; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-            if (nextFrame >= MEMBER(u32, entry, MdlEffectResourceEntry, count)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            nextFrame = MEMBER(u32, track, MdlEffectTrack, frame) + 1;
+            MEMBER(u32, track, MdlEffectTrack, frame) = nextFrame;
+            if (nextFrame >= MEMBER(u32, entry, MdlEffectResourceEntry, count)) {
                 if ((((MdlEffectResourceEntry *)entry)->kind & 0x10) != 0) {
                     ((MdlEffectTrackInstance *)player)->active = 0;
                     ((MdlEffectTrack *)track)->frame = ((MdlEffectResourceEntry *)entry)->count - 1;
@@ -316,9 +311,9 @@ void mdlEffectAdvanceTrackQuad(u8 *player, u8 *track, u8 *output)
         }
         frameIndex = ((MdlEffectTrack *)track)->frame;
         frame = ((MdlEffectTrack *)track)->payload + (frameIndex * 0x18);
-        flags = MEMBER(s32, entry, MdlEffectResourceEntry, kind); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        flags = MEMBER(s32, entry, MdlEffectResourceEntry, kind);
         if ((flags & 1) != 0) {
-            frameValue = ((s32 *)(((MdlEffectTrackResource *)resource)->image + *(s32 *)&((MdlEffectResourceEntry *)entry)->unk4))[frameIndex]; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            frameValue = ((s32 *)(((MdlEffectTrackResource *)resource)->image + *(s32 *)&((MdlEffectResourceEntry *)entry)->unk4))[frameIndex];
         } else {
             frameValue = -1;
         }
@@ -359,123 +354,5 @@ void mdlEffectAdvanceTrackQuad(u8 *player, u8 *track, u8 *output)
         ((MdlEffectTrackOutput *)output)->texture = (u8 *)texture;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

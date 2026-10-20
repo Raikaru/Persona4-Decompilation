@@ -53,14 +53,11 @@ typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
 
-
 extern u8 *kwlnTaskGetWork();
 extern s32 kwlnTaskIsLinked();
 
 extern s32 sdkSpritePackCreate(u8 *descriptor);
 extern u8 D_00637420[];
-
-
 
 
 extern u8 *PrimAllocQueueNode(void);
@@ -101,33 +98,30 @@ extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 dept
 extern void mdlEffectEmitTagPair(void);
 extern s32 shdSpriteEntryWidth(s32 entryId, s32 entryOffset, u8 *pack);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 00266a40-00267b20 */
-
 extern f32 D_007612C4;
-/* Convert shape elapsed time to its 140-frame interpolation fraction. */
-/* measured: expansion changes 18 normalized bytes in cldShapeListDraw; the other normalization call expands without change. */
+/* Convert shape elapsed time to its 140-frame interpolation fraction. measured: retail calls this
+ * as a helper in cldShapeListDraw; writing the division inline changes that function's code. */
 static inline f32 mtSceneNormalizeShapeTime(f32 value)
 {
     return value / 140.0f;
 }
 
 /* Locate the indexed scalar in the shape parameter table. */
-/* measured: expansion changes cldShapeDraw to 796 executable bytes and 330 normalized bytes; byteAddressAdd also differs. */
 static inline s32 *mtSceneShapeValueAt(s32 *values, s32 index)
 {
     return values + index;
 }
 typedef struct { const PrimPoint *value[19]; } ContourSourceTable;
-/* Select the point-pointer column of an interleaved outline table. */
-/* measured: expanding the remaining call changes PrimDrawContour allocation; byteAddressAdd also differs. */
+/* Select the point-pointer column of an interleaved outline table. measured: retail keeps this
+ * lookup as a call, and expanding it inline changes PrimDrawContour register allocation. */
 static inline const PrimPoint *const *contourOutlinePoints(const PrimPoint *const *sources, s32 shape)
 {
     return sources + shape * 2 + 1;
 }
 typedef struct { s32 value[19]; } ContourCountTable;
 typedef struct { u32 value[4]; } ContourChannels;
-/* Read one component of the expanded contour color. */
-/* measured: each remaining channel expansion changes PrimDrawContour instruction bytes; other channel reads expand unchanged. */
+/* Read one component of the expanded contour color. measured: retail calls this helper for each
+ * channel read, so the read is kept out of line instead of written as a direct array access. */
 static inline u32 contourChannelValue(const ContourChannels *color, s32 component)
 {
     return color->value[component];
@@ -135,40 +129,22 @@ static inline u32 contourChannelValue(const ContourChannels *color, s32 componen
 
 
 /* Select the point-count column of an interleaved outline table. */
-/* measured: expanding the remaining call changes PrimDrawContour allocation; byteAddressAdd also differs. */
 static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
 {
     return words + shape * 2 + 1;
 }
-/* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are
- * struct copies; each loop's i = 0 precedes the invariant scale products,
- * which opt_loop_invariants hoists while the (s16) conversion of the second
- * product stays in the loop as in retail. The closing call's position
- * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
- * colour parameter is declared u32 here (H011): retail converts arg2 for each
- * call and keeps the per-case colour copies in $fp/$s7. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: optimization-level probe for 00263220 register colouring */
-/* measured: closes optimization-level probe for 00263220 */
-/* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
+/* measured: opt_loop_invariants hoists (u8)opacity out of the fade block into the stack spill
+ * retail has. */
 #pragma push
 #pragma pop
-/* The switch arms are in retail's jump-table order. Locals whose live ranges
- * are disjoint share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2,
- * temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's
- * register reuse across the cases shows. In case 7's day loop the date is
- * `temp_20` and the `* 0x5E` column is `var_2`, both dead outside that loop:
- * retail's register numbering follows which variable each value lives in, and
- * these give the $s3/$s4/$s5 order of the product, date and font word. The
- * render-state table goes through a u32 local, both fade rectangles are
- * {x,y,w,h} structs copied into the 16-byte argument, the case-5 and case-7
- * fallback tails are separate copies, and `temp_3_2 > 1` gives the slti $at
- * form. opt_lifetimes on is measured (102 -> 85 edits without the other levers). */
+/* Switch arms follow retail's jump-table order; locals with disjoint live ranges share one
+ * variable, matching retail's register reuse across cases. */
 #pragma push
 #pragma pop
 /* Request a different day by setting bit 0 and recording the requested day. */
@@ -262,7 +238,6 @@ s32 cldTimeChangeUpdate(u8 *task)
 }
 
 /* Draw the sixty-frame period transition: enter, swap labels, then slide and fade away. */
-/* measured: MEMBER retains only individually probed call-crossing period, timer and sprite reloads; access-site, typed-local and array forms change instructions or exceed the 2032-byte window. */
 // FUN_00266CC0
 void cldTimeChangeDraw(s32 unusedQueue, s32 task)
 {
@@ -366,7 +341,7 @@ void mtSceneSpriteTableTaskDestroy(u8 *unusedTask) {
     jtbl_008873EC[0](work);
 }
 
-// Intent: Creates the cldTimeChange child task with its work block (cldTimeChange.c alloc site) [inferred]
+// Creates the cldTimeChange child task with its work block (cldTimeChange.c alloc site).
 // FUN_00267570
 s32 cldTimeChangeCreate(s32 parentTask, s32 firstPeriod, s32 secondPeriod, s32 drawQueue)
 {
@@ -389,7 +364,6 @@ s32 cldTimeChangeCreate(s32 parentTask, s32 firstPeriod, s32 secondPeriod, s32 d
 }
 
 /* Draw each shape, remove completed entries and grow the shared scale along a cubic curve. */
-/* measured: MEMBER retains three elapsed/scale accesses; access-site, typed-local and array forms grow this body from 304 to 308 bytes. */
 // FUN_00267670
 void cldShapeListDraw(u8 **shapeWork)
 {
@@ -439,8 +413,9 @@ loop_test:
     }
 }
 
-/* measured: optimization_level 1 and the right-associated first two terms produce the retail FPU chain; exact match nd 0 (obj 88B/window 96B). */
-/* measured: opens optimization_level 1 to preserve retail's FPU term and accumulator order (nd 0). */
+/* measured: optimization_level 1 with the first two terms right-associated keeps retail's FPU term
+ * and accumulator order. */
+/* Evaluate a one-dimensional cubic Bezier curve with control values p0..p3 at parameter t. */
 // FUN_002677A0
 f32 MT_Scene_CubicBezier(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
     f32 u;
@@ -459,10 +434,8 @@ f32 MT_Scene_CubicBezier(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
     return p0 * c + p1 * d + p2 * b + p3 * a;
 }
 
-/* measured: closes the optimization_level bracket (nd 0). */
-/* Copy complete table objects; renderer callbacks may change the item index. */
-/* measured: cldShapeDraw MATCH -> MISMATCH without this pragma. */
-/* measured: baseline differs by 198 words; explicit position-component copies leave nd643; retain common-subexpression setting. */
+/* measured: retail builds cldShapeDraw with common-subexpression elimination off. Whole table
+ * objects are copied because renderer callbacks may change the item index. */
 #pragma opt_common_subs off
 /* Draw the indexed contour with depth and opacity derived from the transition scale. */
 // FUN_00267800
@@ -532,11 +505,10 @@ s32 cldShapeDraw(u8 **shapeWork, u8 *entry)
     return 0;
 }
 
-/* measured: PrimDrawContour MATCH -> MISMATCH without this pragma. */
+/* measured: PrimDrawContour only reproduces retail's code at optimization level 2. */
 #pragma optimization_level 2
-/* measured: PrimDrawContour MATCH -> MISMATCH without this pragma. */
 // FUN_00267B20
-/* measured: baseline differs by 289 words; cached special-contour origin leaves nd930; retain propagation off. */
+/* measured: retail does not cache the special-contour origin, so propagation stays off. */
 #pragma opt_propagation off
 /* Draw contour fill, outline and closing edge; shape 9 takes the single-pass special path. */
 void PrimDrawContour(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 unusedMode, s32 shape, s32 originX, s32 originY,

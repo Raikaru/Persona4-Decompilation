@@ -53,8 +53,6 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00485b20-004865c0 */
-
 extern u_long128 mdlEffectInitParticleState(u8 *instance);
 extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
 extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
@@ -76,11 +74,8 @@ static inline void mdlEffectNormalizePackedColor(const u32 *source, f32 scale)
         : "r"(source), "f"(scale), "m"(*source)
         : "$2", "$vf2", "$vf10", "memory");
 }
-/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
- * eight zero alignment bytes. IDA retains the result that Ghidra drops:
- * retail leaves the copied quadword in v0 through return. Preserve that
- * live-out; the current C callers discard it. The four hardware vf0 stores
- * produce (0,0,0,1), not a zero quadword. */
+/* measured: retail leaves the copied quadword live in the return register, which callers ignore;
+ * the four vf0 stores produce (0,0,0,1), not zero. */
 #pragma push
 #pragma pop
 #pragma push
@@ -89,7 +84,8 @@ static inline void mdlEffectNormalizePackedColor(const u32 *source, f32 scale)
 #pragma pop
 #pragma push
 #pragma pop
-// Destroys a node tree: walks the list at +0x8C. For each node without the flag at +0x98 bit 0, runs the kind's +0x10 release callback on its payload and frees the payload's two blocks, then frees the node; finally frees the root.
+// Destroys a node tree: for each child without sourceFlags bit 0, runs the kind's destroy callback,
+// frees the payload blocks and node, then frees the root.
 // FUN_00485B20
 void mdlEffectDestroyWithNodes(u8 *effect)
 {
@@ -105,21 +101,21 @@ loop_00485b20_body:
     nextNode = ((MdlEffectNode *)node)->next;
     if ((((MdlEffectNode *)node)->sourceFlags & 1) == 0) {
         record = ((MdlEffectNode *)node)->primitive;
-        if (MEMBER(s32, record, MdlEffectPrimitiveRecord, instance.handle) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-            if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, record, MdlEffectPrimitiveRecord, kind) << 6)))->destroy.value == 0) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+        if (MEMBER(s32, record, MdlEffectPrimitiveRecord, instance.handle) != 0) {
+            if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, record, MdlEffectPrimitiveRecord, kind) << 6)))->destroy.value == 0) {
                 kAssertFail(D_00713470, 0x2EB);
             }
             (*(void (**)(s32))(D_00713480 + (((MdlEffectPrimitiveRecord *)record)->kind << 6) + 0x10))(
                 ((MdlEffectPrimitiveRecord *)record)->instance.handle);
         }
-        primitive = MEMBER(u8 *, record, MdlEffectSource, allocation.pointer); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        primitive = MEMBER(u8 *, record, MdlEffectSource, allocation.pointer);
         if (primitive != NULL) {
             jtbl_008873EC[0](primitive);
             *(s32 *)&((MdlEffectSource *)record)->parameters = 0;
             ((MdlEffectSource *)record)->count = 0;
             ((MdlEffectSource *)record)->allocation.pointer = NULL;
         }
-        secondaryAllocation = MEMBER(u8 *, record, MdlEffectSource, secondaryAllocation.pointer); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        secondaryAllocation = MEMBER(u8 *, record, MdlEffectSource, secondaryAllocation.pointer);
         if (secondaryAllocation != NULL) {
             jtbl_008873EC[0](secondaryAllocation);
             *(s32 *)&((MdlEffectSource *)record)->secondaryParameters = 0;
@@ -137,17 +133,11 @@ loop_00485b20_check:
     jtbl_008873EC[0](effect);
 }
 
-/* measured: object 852B/window 864B, nd 0. The allocator table address lives in
-   a saved register (`alloc = jtbl_008873E8` after the first assert-log call),
-   which needs opt_propagation off so the first call does not fold the constant
-   back in; `> 0xD2` gives retail's `sltiu $at` form where `>= 0xD3` colours
-   into $v0; the 16-byte stack quadword is zeroed with the tree's `sqc2 vf0`
-   idiom before the two calls that read it. */
-// Clones a node tree: copies the root header, then for each source node allocates a clone, rebuilds its primitive record through the kind's +0x14 constructor, and copies the node with mdlEffectCopyRecord.
+/* Clones a node tree: copies the root header, then allocates a clone per source node, rebuilds its
+ * primitive record via the kind's constructor, and copies it with mdlEffectCopyRecord. */
 // FUN_00485C80
-/* measured: opt_propagation off keeps `alloc` live in $s1 across all three
-   allocations instead of re-materialising the table address at the first use. */
-/* measured: mdlEffectCloneWithNodes MATCH -> MISMATCH without this pragma. */
+/* measured: with propagation off, retail keeps the allocator pointer live across all three
+ * allocations instead of reloading the table address at first use. */
 #pragma opt_propagation off
 u8 *mdlEffectCloneWithNodes(u8 *effect)
 {
@@ -163,7 +153,7 @@ u8 *mdlEffectCloneWithNodes(u8 *effect)
     u16 kind;
     void *(**alloc)(u32, u32);
 
-    if ((sourceTree = (MdlEffectTree *)effect)->firstChild == NULL) { /* measured: the separate typed pointer preserves MATCH under b210. */
+    if ((sourceTree = (MdlEffectTree *)effect)->firstChild == NULL) {
         kAssertFail(D_00713470, 0x6B7);
     }
     chkmemAllocSiteTag(D_00713470, 0x546);
@@ -173,7 +163,7 @@ u8 *mdlEffectCloneWithNodes(u8 *effect)
         kAssertFail(D_00713470, 0x547);
     }
     memset(clone, 0, 0x90);
-    (cloneTree = (MdlEffectTree *)clone)->childCount = 0; /* measured: the separate typed pointer preserves MATCH under b210. */
+    (cloneTree = (MdlEffectTree *)clone)->childCount = 0;
     *(s32 *)&((MdlEffectTree *)clone)->frame = 0;
     mdlEffectInitParticleState(clone);
     *(u_long128 *)clone = *(u_long128 *)effect;
@@ -205,10 +195,10 @@ u8 *mdlEffectCloneWithNodes(u8 *effect)
         }
         memset(prim, 0, 0x2C);
         *(s32 *)prim = 0xD2;
-        MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind;
         ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)src)->id;
         ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)src)->sourceKind;
-        if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->clone == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+        if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->clone == NULL) {
             kAssertFail(D_00713470, 0x321);
         }
         ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
@@ -216,7 +206,7 @@ u8 *mdlEffectCloneWithNodes(u8 *effect)
         ((MdlEffectNode *)nodeClone)->primitive = prim;
         mdlEffectCopyRecord(nodeClone, node);
         *(s32 *)&((MdlEffectNode *)nodeClone)->next = 0;
-        if (MEMBER(u8 *, clone, MdlEffectTree, lastChild) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (MEMBER(u8 *, clone, MdlEffectTree, lastChild) != NULL) {
             ((MdlEffectNode *)((MdlEffectTree *)clone)->lastChild)->next = nodeClone;
             ((MdlEffectNode *)nodeClone)->previous = ((MdlEffectTree *)clone)->lastChild;
         } else {
@@ -234,7 +224,6 @@ u8 *mdlEffectCloneWithNodes(u8 *effect)
     return clone;
 }
 
-/* measured: closes the propagation bracket; the file default is on. */
 /* Start every child primitive and reset the parent frame. */
 // FUN_00485FE0
 void mdlEffectStartChildren(u8 *effect) {
@@ -555,8 +544,7 @@ loop_00486400_check:
 
 // Stores value at +0x64 and normalises it into each child node's packed colour (node +0x64), walking the child list at +0x8C.
 // FUN_004865C0
-/* measured: 276B/288B, instruction-exact after relocation normalization; 12B zero tail.
- * Only the packed-word/VU bridges are assembly; locals and traversal remain C. */
+/* Only the packed-word and VU bridges are inline assembly; locals and traversal stay in C. */
 void mdlEffectApplyPackedColor(u8 *effect, s32 value)
 {
     u32 baseColor;
@@ -612,87 +600,5 @@ void mdlEffectApplyPackedColor(u8 *effect, s32 value)
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -216,11 +216,8 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 #pragma push
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 004526a0-00452760 */
-
 #pragma pop
-/* measured: restore O2 after func_00450e80. */
-/* Clear parent/sibling links for the children being detached from this task. */
+/* Walk the task's child list and clear the parent and next links of each child owned by this task. */
 // FUN_004526A0
 void kwlnTaskDetachChildren(u8 *parent) {
     u8 *node;
@@ -241,33 +238,38 @@ loop_004526a0_check:
     }
 }
 
-// Intent: returns the processing task pointer (iGpffffba10) that sdkTask.c sets while a task runs and clears afterwards. The allocator assert paths print it as the current task.
+// Returns the task currently being processed (iGpffffba10), set by the scheduler while a task runs;
+// allocator asserts print it.
 // FUN_004526E0
 s32 kwlnTaskGetCurrent(void)
 {
     return iGpffffba10;
 }
 
-// Intent: task callback. Calls the dispatch slot D_008873FC with (arg1, arg0). Registered for a task by kwlnTaskRegisterCallback.
+// Task callback that calls the dispatch slot D_008873FC with (value, task); registered by
+// kwlnTaskRegisterCallback.
 // FUN_004526F0
 void kwlnTaskDispatchCallback(u8* task, s32 value)
 {
     (*D_008873FC)(value, task);
 }
 
-// Intent: registers kwlnTaskDispatchCallback for the task node `arg0` through func_003e18c0. Called from the primitive node setup in primitive_inferred_004601c0.c.
+// Registers kwlnTaskDispatchCallback for the task node through func_003e18c0; called from primitive
+// node setup.
 // FUN_00452730
 void kwlnTaskRegisterCallback(void *task)
 {
     func_003e18c0(task, kwlnTaskDispatchCallback, (s32)task);
 }
 
-// Intent: clears the pad records and state buffers, initialises the pad library and both ports, then sets each slot's id and default repeat counter (3). Called from kwlnInitIop.
+// Clears pad records and state buffers, initialises the pad library and both ports, then sets each
+// slot's id and default repeat counter (3). Called from kwlnInitIop.
 // FUN_00452760
-/* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
+/* measured: retail keeps the constant 3 and the computed record pointer live in registers instead
+ * of propagating them. */
 #pragma push
-/* measured: func_00452760 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 34 bytes; typed pad array indexing; MEMBER pad field initialization also differ. */
+/* measured: without opt_propagation off, retail's constant 3 and computed pad pointer are not kept
+ * as live locals. */
 #pragma opt_propagation off
 void sdkPadInit(void)
 {

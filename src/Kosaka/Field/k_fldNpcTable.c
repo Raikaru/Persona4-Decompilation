@@ -1,6 +1,6 @@
 #include "member_access.h"
 #include "include_asm.h"
-/* Original translation unit k_fldNpcTable.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldNpcTable.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "h_cdvd_request_internal.h"
 #include "field_frame_internal.h"
@@ -73,9 +73,6 @@ extern void calSplitDayOfYear(s16 dateIndex, s32 *monthOut, s32 *dayOut);
 extern s32 datGetFlag(s32 bit);
 extern s32 clndIsDateInRange(s32 startMonth, s32 startDay, s32 endMonth, s32 endDay);
 
-/* Source unit: src/promoted/k_fldNpcTable.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldNpcTable.c; members 0015c750-0015d1a0 */
-
 /* Request the scene NPC table unless resources are already supplied by the field loader. */
 // FUN_0015C750
 s32 NpcTable_RequestSceneTable(void)
@@ -104,7 +101,7 @@ ret1:
 s32 NpcTable_InstallSceneTable(u8 *request)
 {
     HCdvdRequest *archiveRequest = (HCdvdRequest *)request;
-    /* Typed HCdvd/API rewrite lost MATCH; keep its +0x110 payload and +0x118 size accesses. */
+    /* The request payload and size are read through raw offsets rather than the typed HCdvd API. */
     s32 allocation;
     u8 *table;
     u8 *work;
@@ -220,10 +217,8 @@ void *NpcTable_FindActiveEntry(void)
 
 /* Find a marked section after the dated rows; the caller supplies a valid section index. */
 // FUN_0015CBE0
-/* measured: without opt_loop_invariants on the loop's invariant table base is
-   rematerialized in the body (nd 6); with it the address hoists to the
-   preheader like retail (nd 1, the last word being all-zero padding tail). */
-/* measured: NpcTable_GetMarkedEntry MATCH -> MISMATCH without this pragma. */
+/* measured: without loop-invariant hoisting the table base is rematerialized inside the loop;
+ * retail hoists it to the preheader. */
 #pragma opt_loop_invariants on
 u16 *NpcTable_GetMarkedEntry(s32 sectionIndex)
 {
@@ -242,7 +237,6 @@ u16 *NpcTable_GetMarkedEntry(s32 sectionIndex)
     return (u16 *)entry;
 }
 
-/* measured: see annotation above (NpcTable_GetMarkedEntry). */
 /* Release the owned scene table and clear its derived row pointers. */
 // FUN_0015CC40
 void NpcTable_ReleaseSceneTable(void)
@@ -284,7 +278,7 @@ ret1:
 s32 NpcTable_InstallSecondaryTable(u8 *request)
 {
     HCdvdRequest *archiveSource;
-    /* Typed HCdvd/API rewrite lost MATCH; keep its +0x110 payload and +0x118 size accesses. */
+    /* The request payload and size are read through raw offsets rather than the typed HCdvd API. */
     u8 *source;
     s32 allocation;
     char filePath[0x4C];
@@ -363,13 +357,11 @@ s32 NpcTable_RequestFixedTable(void)
 
 /* Copy the fixed table and count its 0xFFFF section markers at 0x84-byte intervals. */
 // FUN_0015D000
-/* measured: without opt_loop_invariants on, mwcc rematerializes the loop's
-   invariant base inside the body (nd 6); with it it hoists to the preheader
-   like retail (nd 0). */
+/* measured: loop-invariant motion hoists the loop's base address out of the body like retail. */
 s32 NpcTable_InstallFixedTable(u8 *request)
 {
     HCdvdRequest *archiveRequest = (HCdvdRequest *)request;
-    /* Typed HCdvd/API rewrite lost MATCH; keep its +0x110 payload and +0x118 size accesses. */
+    /* The request payload and size are read through raw offsets rather than the typed HCdvd API. */
     s32 handle;
     s32 count;
     FldNpcFixedEntry *work;
@@ -400,7 +392,6 @@ s32 NpcTable_InstallFixedTable(u8 *request)
     return 1;
 }
 
-/* measured: see annotation above (NpcTable_InstallFixedTable). */
 /* Request a numbered block table when its file exists. */
 // FUN_0015D100
 void NpcTable_RequestBlockTable(u8 *block, s32 blockIndex)
@@ -421,8 +412,6 @@ void NpcTable_RequestBlockTable(u8 *block, s32 blockIndex)
 s32 NpcTable_InstallBlockTable(u8 *block, s32 blockIndex)
 {
     FldNpcBlockTable *blockTable = (FldNpcBlockTable *)block;
-    /* Typed HCdvd/API rewrite lost MATCH; keep its +0x110 payload and +0x118 size accesses. */
-    /* FldNpcBlockTable typing changes alias/reload scheduling under MWCC; retain byte access for MATCH. */
     s32 size;
 
     if ((s32)(blockTable->request) == 0) {

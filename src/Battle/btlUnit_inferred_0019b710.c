@@ -63,16 +63,11 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
 extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern s32 iGpffffb444;
@@ -87,8 +82,6 @@ extern void btlUnitShowModel(u8 *unit);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019b710-0019bbc0 */
 
 extern void btlUnitShowModel(u8 *unit);
 typedef struct BattlePacketRgba {
@@ -198,8 +191,6 @@ static inline u32 btlUnitBlendColorWords(const u32 *start, const u32 *target, f3
         : : "$vf2", "$vf10", "memory");
     return packedColor;
 }
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
 #pragma push
 #pragma pop
 #pragma push
@@ -210,15 +201,11 @@ void btlUnitHoldPendingColor(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-/* Measured: 1164 instruction bytes in the 1168-byte window, three resolved
- * relocations and a four-byte zero tail. This callback uses the packet creator's
- * u32 (void *) contract. Modes 1..4 initialize every timing value; the retail
- * constructor callers use modes 3 or 4. The packet is 20 bytes.
- * Disabling propagation locally retains the alpha result's memory/merge
- * lifetime. Publication remains the actual four-byte color-by-value operation. */
+/* Packet callback with the creator's u32 (void *) signature; modes 1..4 initialize every timing
+ * value, and retail constructors use modes 3 or 4. */
 #pragma push
-/* measured: func_0019b730 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline leaves five merge-order words; reversing operands or naming the interpolation result does not close them. */
+/* measured: with propagation enabled the alpha interpolation result merges in a different order
+ * than retail. */
 #pragma opt_propagation off
 // FUN_0019B730
 /* Interpolate RGB and alpha on mode-dependent timelines, publishing the combined color each tick. */

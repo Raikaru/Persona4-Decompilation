@@ -1,4 +1,4 @@
-/* Original translation unit cmmScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit cmmScript.c (from __FILE__ assert strings). */
 #include "operand_order_internal.h"
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
@@ -245,7 +245,6 @@ typedef struct CmmPersonaCandidateRecord {
 // FUN_0024A200
 s32 cmmMsgStreamStart(void)
 {
-    /* Earlier whole-layout typing changed codegen; access-site probes now keep matching fields and annotate individual culprits. */
     s32 a;
     s32 b;
     u8* p;
@@ -265,7 +264,7 @@ s32 cmmMsgStreamStart(void)
     if (q == 0) {
         kAssertFail(D_006359F0, 0xE9);
     }
-    ((cmmMsgState *)p)->view.vec = *(Vec4f *)MEMBER(u8 *, p, cmmMsgState, cur); /* measured: this access-site member rewrite changes instruction bytes. */
+    ((cmmMsgState *)p)->view.vec = *(Vec4f *)MEMBER(u8 *, p, cmmMsgState, cur);
     return 1;
 }
 
@@ -350,14 +349,14 @@ s32 cmmMsgStreamGetResult(void)
     return 1;
 }
 
-/* measured: b210 at -O2 CSEs `a & 0xFFFF` across the 9 call sites into
-   callee-saved copies (frame 0xF0, sq $18/$19); retail re-ANDIs into $a0
-   per site with a 0xD0 frame. optimization_level 1 (scoped back to 2)
-   restores the per-site andi, and then the s8 return of func_002487e0
-   must be held in an s32 local (an s8/u8 local makes level-1 codegen
-   emit a redundant `move` around the dsll32/dsra32 sign-extension). */
-// Script persona detail show: resolves the persona id (0 = current) and fills message slots 0-7 with name, strings, and numbers.
-/* script command 0x3013 (no p4flow name) */
+/* measured: retail re-masks the persona id at each of the nine call sites instead of keeping one
+ * shared copy, and stores the s8 return of func_002487e0 in an s32 local. Fill message window slots
+ * 0-7 with the community's persona name, name, arcana strings, rank value, top persona of the
+ * arcana, next available weekday and description text. A script id of 0 selects the current
+ * community. */
+/* Fill message slots 0-7 with a social link's details: its persona, name, arcana, rank, top persona
+ * of that arcana, next available weekday, and description. A persona id of 0 means the current
+ * community. */
 // FUN_0024A490
 #pragma optimization_level 1
 
@@ -414,16 +413,10 @@ s32 cmmPersonaDetailShow(void)
     return 1;
 }
 
-/* Closes the measured optimization_level 1 scope opened above; -O2 is the
-   baseline everywhere else in this translation unit. */
 #pragma optimization_level 2
-// Persona info lookup and show: resolves the persona entry from the script id, then fills the message slots.
-/* script command 0x301C (no p4flow name) */
-/* measured: -O2 CSEs `entry & 0xFFFF` into a callee-saved copy and sinks
-   the iGpffffb3d4 base load past the multiply (nd 287, object 428 of 416);
-   level 1 restores the per-site andi and retail's load-first order. Same
-   recipe as cmmPersonaInfoShow below, including the integer-domain
-   ((u32)off + (u32)base) add. */
+// Persona info lookup and show: resolves the persona entry from the script id, then fills the
+// message slots. Script command 0x301C. measured: retail masks `entry & 0xFFFF` at each use and
+// loads the base before the multiply; -O2 hoists the mask and sinks the load.
 // FUN_0024A710
 #pragma optimization_level 1
 s32 cmmPersonaInfoLookupShow(void)
@@ -462,16 +455,13 @@ s32 cmmPersonaInfoLookupShow(void)
     scrSetReturnInt(entry);
     return 1;
 }
-/* measured: closes the level 1 scope above; -O2 is the baseline everywhere
-   else in this translation unit. */
 #pragma optimization_level 2
 
-/* measured: -O2 CSEs `entry & 0xFFFF` into a callee-saved copy (andi $s0);
-   level 1 restores the per-site andi. The base hoist (u8 *base = iGpffffb3d4)
-   reproduces retail's load-first-into-$v1 and the integer-domain add
-   ((u32)off + (u32)base) reproduces the index-first addu $v0,$v0,$v1. */
-// Persona info show: fills the message slots (name row, stat strings) for the persona entry in arg 0.
-/* script command 0x3021 (no p4flow name) */
+/* measured: at level 2 the compiler keeps one shared copy of `entry & 0xFFFF`; retail recomputes
+ * the mask at each use. Script command 0x3021: fills the message slots (name row, stat strings) for
+ * the persona entry in arg 0. */
+/* Fill the message window with the level, name and up to three skill names of the persona entry
+ * given in the script parameter, then return the entry id to the script. */
 // FUN_0024A8B0
 #pragma optimization_level 1
 
@@ -520,8 +510,8 @@ s32 cmmScriptSelectEntry(void)
     cmmCommunityAdvanceForm(id & 0xFFFF);
     return 1;
 }
-// Script message-stream check: returns 1 when cmmMsgStreamEntry finds a record for kind arg 0 and community id arg 1 (0 uses the current community), else 0.
-/* script command 0x3015 (no p4flow name) */
+// Script command 0x3015: returns 1 when cmmMsgStreamEntry finds a record for kind arg 0 and
+// community id arg 1 (0 uses the current community), else 0.
 // FUN_0024AA60
 s32 cmmScriptHasMsgStreamEntry(void)
 {
@@ -540,8 +530,7 @@ s32 cmmScriptHasMsgStreamEntry(void)
     }
     return 1;
 }
-// Script set current entry: sets the current entry to arg 0, or clears it when arg 0 is 0.
-/* script command 0x3016 (no p4flow name) */
+// Script command 0x3016: sets the current community entry to arg 0, or clears it when arg 0 is 0.
 // FUN_0024AAF0
 s32 cmmScriptSetCurrentEntry(void)
 {
@@ -557,10 +546,8 @@ s32 cmmScriptSetCurrentEntry(void)
 }
 
 
-
-
-// Script top reversed community: sets the script result to cmmTopReversedCommunity's id (0 when none is reversed and at rank).
-/* script command 0x3017 (no p4flow name) */
+// Script top reversed community: sets the script result to cmmTopReversedCommunity's id (0 when
+// none is reversed and at rank).
 // FUN_0024AB40
 u32 cmmScriptTopReversedCommunity(void)
 {
@@ -571,8 +558,8 @@ u32 cmmScriptTopReversedCommunity(void)
     return 1;
 }
 
-// Script top persona of arcana: sets the script result to cmmTopPersonaOfArcana for the given community id (the current community when 0).
-/* script command 0x3019 (no p4flow name) */
+// Script command 0x3019: sets the script result to cmmTopPersonaOfArcana for the given community id
+// (the current community when 0).
 // FUN_0024AB70
 s32 cmmScriptTopPersonaOfArcana(void)
 {
@@ -593,10 +580,8 @@ s32 cmmScriptTopPersonaOfArcana(void)
 }
 
 
-
-
-// Script fresh reverse candidate: sets the script result to cmmFindFreshReverseCandidate's community id (0 when none).
-/* script command 0x301A (no p4flow name) */
+// Script command 0x301A: sets the script result to cmmFindFreshReverseCandidate's community id (0
+// when none).
 // FUN_0024ABF0
 u32 cmmScriptFindFreshReverseCandidate(void)
 {
@@ -608,9 +593,8 @@ u32 cmmScriptFindFreshReverseCandidate(void)
 }
 
 
-
-// Script reverse candidate: sets the script result to cmmFindReverseCandidate's community id (0 when none).
-/* script command 0x3023 (no p4flow name) */
+// Script command 0x3023: sets the script result to cmmFindReverseCandidate's community id (0 when
+// none).
 // FUN_0024AC20
 u32 cmmScriptFindReverseCandidate(void)
 {
@@ -621,8 +605,8 @@ u32 cmmScriptFindReverseCandidate(void)
     return 1;
 }
 
-// Marks the community named by arg 0, or the current community when arg 0 is 0.
-/* script command 0x301D (no p4flow name) */
+// Marks the community named by arg 0, or the current community when arg 0 is 0. Script command
+// 0x301D.
 // FUN_0024AC50
 s32 cmmScriptSetMarkedCommunity(void)
 {
@@ -645,10 +629,8 @@ s32 cmmScriptResolveCounterpart(void)
 }
 
 
-
-
-// Script slot in group: for group 0 or 1, returns the first set entry of that group (1 or 2 for group 0, 3 or 4 for group 1), or 0 when none is set. Other groups return 1 with 0 as the result.
-/* script command 0x302B (no p4flow name) */
+// Script slot in group: for group 0 or 1, returns the first set entry of that group (1 or 2 for
+// group 0, 3 or 4 for group 1), or 0 when none is set. Other groups return 1 with 0 as the result.
 // FUN_0024ACF0
 s32 cmmScriptFindSlotInGroup(void)
 {
@@ -664,9 +646,7 @@ s32 cmmScriptFindSlotInGroup(void)
 }
 
 
-
-// Script entry total: adds the value of the entry in arg 0 to the running total (D_00797560).
-/* script command 0x301E (no p4flow name) */
+// Script command 0x301E: adds the value of the entry in arg 0 to the running total (D_00797560).
 // FUN_0024AD70
 s32 cmmScriptAddEntryTotal(void)
 {
@@ -675,9 +655,8 @@ s32 cmmScriptAddEntryTotal(void)
 }
 
 
-
-// Script total take: returns the running total (D_00797560), resets it through datResetTotalBtl, and runs the total hook datAddMoney with the value.
-/* script command 0x301F (no p4flow name) */
+// Script command 0x301F: returns the running total, resets it with datResetTotalBtl, then adds that
+// amount as money with datAddMoney.
 // FUN_0024ADB0
 s32 cmmScriptTakeTotal(void)
 {
@@ -691,9 +670,9 @@ s32 cmmScriptTakeTotal(void)
 }
 
 
-
-// Script entry lookup: returns the value stored for the current entry through cmmCommunityGetCurrentEntryValue. The script's argument 0 is passed on, but the definition takes no argument.
-/* script command 0x3020 (no p4flow name) */
+// Script entry lookup: returns the value stored for the current entry through
+// cmmCommunityGetCurrentEntryValue. The script's argument 0 is passed on, but the definition takes
+// no argument.
 // FUN_0024AE00
 s32 cmmScriptGetEntryIndex(void)
 {
@@ -702,9 +681,7 @@ s32 cmmScriptGetEntryIndex(void)
 }
 
 
-
 // Returns the index of the current date in the date table.
-/* script command 0x303C (no p4flow name) */
 // FUN_0024AE40
 s32 cmmScriptDateTableIndex(void)
 {
@@ -713,9 +690,7 @@ s32 cmmScriptDateTableIndex(void)
 }
 
 
-
-// Returns whether the current date has an entry in the date table.
-/* script command 0x3026 (no p4flow name) */
+// Script command 0x3026: returns whether the current date has an entry in the date table.
 // FUN_0024AE80
 s32 cmmScriptDateTableHasEntry(void)
 {
@@ -724,9 +699,7 @@ s32 cmmScriptDateTableHasEntry(void)
 }
 
 
-
-// Returns whether the current date has a special record in the date table.
-/* script command 0x3027 (no p4flow name) */
+// Script command 0x3027: returns whether the current date has a special record in the date table.
 // FUN_0024AEC0
 s32 cmmScriptDateTableHasSpecialRecord(void)
 {
@@ -735,9 +708,8 @@ s32 cmmScriptDateTableHasSpecialRecord(void)
 }
 
 
-
-// Reads a date-table column for the current date: arg 0 picks table 0 or 1, arg 1 picks the field (0 or 1); other values return 0.
-/* script command 0x3028 (no p4flow name) */
+// Script command 0x3028: reads a date-table column for the current date; arg 0 picks table 0 or 1,
+// arg 1 picks the field (0 or 1); other values return 0.
 // FUN_0024AF00
 s32 cmmScriptDateTableReadColumn(void)
 {
@@ -759,9 +731,7 @@ s32 cmmScriptDateTableReadColumn(void)
 }
 
 
-
 // Applies the column delta for arg 0 (0 or 1) to the current date's date-table entry.
-/* script command 0x3029 (no p4flow name) */
 // FUN_0024AFE0
 s32 cmmScriptDateTableApplyColumnDelta(void)
 {
@@ -776,14 +746,13 @@ s32 cmmScriptDateTableApplyColumnDelta(void)
     return 1;
 }
 
-// Script item info show: fills the message window with the item record's names and numbers.
-/* script command 0x302A (no p4flow name) */
+// Script item info show (command 0x302A): fills the message window with the item record's names and
+// numbers.
 // FUN_0024B070
 s32 cmmItemInfoShow(void)
 {
     CmmDateRecord *dateRecord;
 
-    /* Earlier whole-layout typing changed codegen; access-site probes now keep matching fields and annotate individual culprits. */
     s32 rec;
     s32 mesMgr;
     s32 slot;
@@ -809,10 +778,10 @@ s32 cmmItemInfoShow(void)
     itfMesWindowSetString(mesMgr, 2, datGetItemNameId((s16)((CmmDateRecord *)rec)->columns[0].itemSecond));
     itfMesWindowSetString(mesMgr, 4, datGetItemNameId((s16)((CmmDateRecord *)rec)->columns[1].itemFirst));
     itfMesWindowSetString(mesMgr, 6, datGetItemNameId((s16)((CmmDateRecord *)rec)->columns[1].itemSecond));
-    itfMesWindowSetNumber(mesMgr, 0xE, dateRecord->columns[0].itemFirst); /* measured: this access-site member rewrite changes instruction bytes. */
-    itfMesWindowSetNumber(mesMgr, 0xF, dateRecord->columns[0].itemSecond); /* measured: this access-site member rewrite changes instruction bytes. */
-    itfMesWindowSetNumber(mesMgr, 0x10, dateRecord->columns[1].itemFirst); /* measured: this access-site member rewrite changes instruction bytes. */
-    itfMesWindowSetNumber(mesMgr, 0x11, dateRecord->columns[1].itemSecond); /* measured: this access-site member rewrite changes instruction bytes. */
+    itfMesWindowSetNumber(mesMgr, 0xE, dateRecord->columns[0].itemFirst);
+    itfMesWindowSetNumber(mesMgr, 0xF, dateRecord->columns[0].itemSecond);
+    itfMesWindowSetNumber(mesMgr, 0x10, dateRecord->columns[1].itemFirst);
+    itfMesWindowSetNumber(mesMgr, 0x11, dateRecord->columns[1].itemSecond);
     itfMesWindowFormatValue(mesMgr, 1, ((CmmDateRecord *)rec)->columns[0].deltaFirst, 0);
     itfMesWindowFormatValue(mesMgr, 3, ((CmmDateRecord *)rec)->columns[0].deltaSecond, 0);
     itfMesWindowFormatValue(mesMgr, 5, ((CmmDateRecord *)rec)->columns[1].deltaFirst, 0);
@@ -841,8 +810,8 @@ s32 cmmItemInfoShow(void)
     }
     return 1;
 }
-// Starts the rank-up sequence (cmmRankUpSequenceStart) with the three script parameters when no command timer is running; returns 0 while the sequence is pending and 1 once the lookup task has finished [inferred].
-/* script command 0x302C (p4flow CMM_RANKUP) */
+// Script command 0x302C (CMM_RANKUP): starts the rank-up sequence with three script parameters when
+// no command timer runs; returns 0 while pending, 1 when finished.
 // FUN_0024B380
 s32 cmmScriptRankUp(void)
 {
@@ -863,8 +832,7 @@ s32 cmmScriptRankUp(void)
 block_4:
     return 0;
 }
-// Adds arg 1 to the date-table count selected by arg 0.
-/* script command 0x302D (no p4flow name) */
+// Adds arg 1 to the date-table count selected by arg 0 (script command 0x302D).
 // FUN_0024B430
 s32 cmmScriptDateTableAddCount(void)
 {
@@ -876,12 +844,10 @@ s32 cmmScriptDateTableAddCount(void)
     scrSetReturnInt(cmmDateTableAddCount(entryIndex, delta));
     return 1;
 }
-/* measured: -O2 CSEs `id & 0xFFFF` into callee-saved copies (frame 0xF0);
-   level 1 restores the per-site andi/0xD0 frame. Loop temps need decl
-   order src, dst, i (first-declared -> $a1 at level 1) and the s8 loads
-   need an s32 local (s8 adds a move + dsll32/dsra32 re-extension). */
-// Script record info show: fills the message window slots for the record id with its name, the strings from D_00635A20, and its numbers.
-/* script command 0x302E (no p4flow name) */
+/* measured: at -O2 retail's per-site `id & 0xFFFF` masking is shared into saved copies; level 1
+ * keeps it per use. The s8 loads need an s32 local. */
+/* Fill message window slots 0-6 with the item info record's name, values, description and the table
+ * strings selected by its table indices. */
 // FUN_0024B490
 #pragma optimization_level 1
 
@@ -937,8 +903,8 @@ s32 cmmRecordInfoShow(void)
     return 1;
 }
 #pragma optimization_level 2
-// Returns the index of the Nth matching date-table entry (arg 2) for args 0 and 1.
-/* script command 0x302F (no p4flow name) */
+// Script command 0x302F: returns the index of the Nth matching date-table entry (arg 2) for args 0
+// and 1.
 // FUN_0024B6A0
 s32 cmmScriptDateTableFindNthMatch(void)
 {
@@ -952,9 +918,9 @@ s32 cmmScriptDateTableFindNthMatch(void)
     scrSetReturnInt(cmmDateTableFindNthMatch(kind, value, matchIndex));
     return 1;
 }
-// Script record field: returns one field of the record for the id (0 and 3 read 32-bit values, 1, 2, 4, and 5 read bytes; anything else asserts).
-/* script command 0x3030 (no p4flow name) */
-/* The shared CmmItemInfoRecord keeps its leading word byte-backed; read that opaque word without changing the shared header. */
+// Script command 0x3030: returns one field of the record for the id (fields 0 and 3 are 32-bit, 1,
+// 2, 4 and 5 are bytes; any other field asserts). The shared CmmItemInfoRecord keeps its leading
+// word as bytes, so that word is read as raw bytes.
 // FUN_0024B720
 s32 cmmRecordGetField(void)
 {
@@ -1040,7 +1006,6 @@ s32 cmmScriptLoadStep(u8 *task)
 // FUN_0024B990
 void cmmScriptTaskDestroy(u8 *task)
 {
-    /* Earlier whole-layout typing changed codegen; access-site probes now keep matching fields and annotate individual culprits. */
     CmmScriptTask *t;
     s32 h;
     s32 i;
@@ -1082,11 +1047,11 @@ void cmmScriptTaskDestroyHandle(s32 slotIndex)
         }
     }
 }
-// Script handle spawn: replaces the handle in slot arg0 (0-4) with a new sprite for that slot, placed at the stored origin (D_00635A88); slot 3 is raised by 10 units.
-/* measured: O1 probe for global-load scheduling; revert if it does not match. */
+// Script handle spawn: replaces the handle in slot arg0 (0-4) with a new sprite for that slot,
+// placed at the stored origin (D_00635A88); slot 3 is raised by 10 units. measured: retail
+// schedules the global loads as optimization level 1 does.
 // FUN_0024BB00
 #pragma optimization_level 1
-/* Retain the split-stack position transfer and index-first slot addressing used by this measured matching body. */
 s32 cmmScriptSpawnHandle(s32 slotIndex) {
     extern s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask* task);
     extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32* slot);
@@ -1113,7 +1078,7 @@ s32 cmmScriptSpawnHandle(s32 slotIndex) {
     posZ = ((CmmFishingOrigin *)D_00635A88)->value.value[2];
     pos = posXY;
     originZ = posZ;
-    ((CmmFishingPosition *)&pos)->value[2] = originZ; /* measured: complete three-coordinate aggregate changes instruction bytes; retain split-stack transfer. */
+    ((CmmFishingPosition *)&pos)->value[2] = originZ; /* Z is stored separately from the XY pair rather than copied as one three-coordinate aggregate, as retail does. */
     loadTask = (s32)(s32)kwlnTaskGetTaskByName((s8 *)((s8*)&D_00635A78));
     if (loadTask == 0) {
         kAssertFail(&D_006359F0, 0x392);
@@ -1163,15 +1128,11 @@ s32 cmmScriptSpawnHandle(s32 slotIndex) {
     }
     return 0;
 }
-/* measured: restore the translation-unit optimization level after cmmScriptSpawnHandle. */
 #pragma optimization_level 2
-/* The month provider advances by 72 bytes: four rows of six signed weather
-   weights precede four 12-byte attributes (also read by cmmScriptReadMonthProfile).
-   The selection loop walks a `cursor` copy of the weather row. That copy use
-   keeps `weights` a declared local instead of folding into its address
-   temporary, so it takes retail's $s2; `cumulativeWeight` declared before
-   `choiceIndex` gives the $s1/$s0 pair. */
-// Script weather roll: picks the day's weather from the month's weighted weather row (a day-of-week-5 slot and a holiday each move the row by one), stores it in the task, and returns the chosen index. Entry 0 counts only while flag 2703 is set.
+/* Each month's provider entry is 72 bytes: four rows of six signed weather weights, then four
+ * 12-byte attributes (also read by cmmScriptReadMonthProfile). Script weather roll: picks the day's
+ * weather from the month's weighted row (a day-of-week-5 slot and a holiday each shift the row by
+ * one), stores it in the task, and returns the index. Entry 0 counts only while flag 2703 is set. */
 // FUN_0024BE40
 s32 cmmWeatherRoll(void)
 {
@@ -1254,7 +1215,6 @@ typedef struct cmmScriptEntry {
 s32 cmmScriptStepWaveSprite(u8 *unusedParent, u8 *work)
 {
     cmmScriptEntry *waveEntry = (cmmScriptEntry *)work;
-    /* Earlier whole-layout typing changed codegen; access-site probes now keep matching fields and annotate individual culprits. */
     f32 angle;
     f32 wave;
     s32 loadTask;
@@ -1296,7 +1256,7 @@ block_1:
         ((cmmScriptEntry *)work)->timer.frame = nextSlideFrame;
         if (nextSlideFrame >= 10) {
             ((cmmScriptEntry *)work)->flags &= ~2;
-            waveEntry->timer.frame = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            waveEntry->timer.frame = 0;
         }
         goto block_20;
     }
@@ -1314,11 +1274,11 @@ block_1:
                       (u8)(255.0f * (1.0f - wave)),
                       0, (void *)(uintptr_t)data, 1, 0, 0,
                       -30.0f, 1.0f, 1.0f, D_00794E70);
-        nextFadeFrame = waveEntry->timer.frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
-        waveEntry->timer.frame = nextFadeFrame; /* measured: this access-site member rewrite changes instruction bytes. */
+        nextFadeFrame = waveEntry->timer.frame + 1;
+        waveEntry->timer.frame = nextFadeFrame;
         if (nextFadeFrame >= 10) {
             ((cmmScriptEntry *)work)->flags &= ~4;
-            waveEntry->timer.frame = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            waveEntry->timer.frame = 0;
             return 1;
         }
     } else {
@@ -1329,16 +1289,13 @@ block_1:
 block_20:
     return 0;
 }
-/* Native b210 -O2 recovery: 3,464 emitted bytes in the 3,472-byte retail
-   window. Full proof and callback behavior evidence are retained in
-   docs/probe_archive/Community_script_recovery_20260922.md. */
-// Popup banner step: when flag 2 is set, fades and scales the banner sprites in over five frames, then clears the flag.
+/* Popup banner step: when flag 2 is set, fades and scales the banner sprites in over five frames,
+ * then clears the flag. */
 // FUN_0024C460
 s32 cmmScriptStepPopupBanner(u8 *unusedParent, u8 *work)
 {
     cmmScriptEntry *entry = (cmmScriptEntry *)work;
 
-    /* Earlier whole-layout typing changed codegen; access-site probes now keep matching fields and annotate individual culprits. */
     u8 *task;
     u8 *loadTask;
     void *atlas;
@@ -1371,7 +1328,7 @@ s32 cmmScriptStepPopupBanner(u8 *unusedParent, u8 *work)
             sine = 1.0f;
         }
         alpha = (s32)(255.0f * sine);
-        scale = 1.0f + (0.5f * (f32)entry->timer.frame) / 5.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+        scale = 1.0f + (0.5f * (f32)entry->timer.frame) / 5.0f;
         sdkSpriteDrawQueued(433.0f, 163.0f, 0.0f, 0xFFFFFF, alpha, 1, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(433.0f, 139.0f - 5.0f * sine, 0.0f, 0xFFFFFF, alpha, 2, atlas,
@@ -1392,7 +1349,7 @@ s32 cmmScriptStepPopupBanner(u8 *unusedParent, u8 *work)
         ((cmmScriptEntry *)work)->timer.frame = frame;
         if (frame >= 5) {
             ((cmmScriptEntry *)work)->flags &= ~2;
-            entry->timer.frame = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            entry->timer.frame = 0;
         }
         goto done;
     }
@@ -1404,7 +1361,7 @@ s32 cmmScriptStepPopupBanner(u8 *unusedParent, u8 *work)
             sine = 1.0f;
         }
         alpha = (s32)(255.0f * (1.0f - sine));
-        scale = 1.0f + (0.5f * (f32)entry->timer.frame) / 5.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+        scale = 1.0f + (0.5f * (f32)entry->timer.frame) / 5.0f;
         sdkSpriteDrawQueued(433.0f, 163.0f, 0.0f, 0xFFFFFF, alpha, 1, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(433.0f, 139.0f - 5.0f * sine, 0.0f, 0xFFFFFF, alpha, 2, atlas,
@@ -1425,7 +1382,7 @@ s32 cmmScriptStepPopupBanner(u8 *unusedParent, u8 *work)
         ((cmmScriptEntry *)work)->timer.frame = frame;
         if (frame >= 5) {
             ((cmmScriptEntry *)work)->flags &= ~4;
-            entry->timer.frame = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            entry->timer.frame = 0;
             return 1;
         }
         goto done;
@@ -1441,7 +1398,7 @@ s32 cmmScriptStepPopupBanner(u8 *unusedParent, u8 *work)
             steadySine = 1.0f;
         }
         alpha = 255;
-        steadyScale = 1.0f + (0.5f * (f32)entry->timer.frame) / 5.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+        steadyScale = 1.0f + (0.5f * (f32)entry->timer.frame) / 5.0f;
         sdkSpriteDrawQueued(433.0f, 163.0f, 0.0f, 0xFFFFFF, alpha, 1, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(433.0f, 139.0f - 5.0f * steadySine, 0.0f, 0xFFFFFF, alpha, 2, atlas,
@@ -1458,10 +1415,10 @@ s32 cmmScriptStepPopupBanner(u8 *unusedParent, u8 *work)
                        1, 0, 0, 0.0f, steadyScale, steadyScale, D_00794E70);
         sdkSpriteDrawQueued(453.0f, steadyY, 0.0f, 0xECF54D, alpha, 0xB, atlas,
                        1, 0, 0, 0.0f, steadyScale, steadyScale, D_00794E70);
-        frame = entry->timer.frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
-        entry->timer.frame = frame; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.frame + 1;
+        entry->timer.frame = frame;
         if (frame >= 5) {
-            entry->timer.frame = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            entry->timer.frame = 0;
         }
     }
     if (((cmmScriptEntry *)work)->selection.value > 0) {
@@ -1477,39 +1434,36 @@ s32 cmmScriptStepPopupBanner(u8 *unusedParent, u8 *work)
             sine = sinf(iGpffff8094 + (iGpffff8094 * sine) / 10.0f);
             alpha = (s32)(255.0f * sine);
         }
-        sprite = entry->selection.value + 0xD; /* measured: this access-site member rewrite changes instruction bytes. */
+        sprite = entry->selection.value + 0xD;
         sdkSpriteDrawQueued(416.0f, 148.0f, 0.0f, 0xFFFFFF, alpha, sprite, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         if (((s32)((cmmScriptEntry *)work)->flags & 0x10) != 0) {
             f32 pulseScale;
             pulse = ((cmmScriptEntry *)work)->pulseFrame;
             pulseScale = 1.0f + (iGpffff809c * (f32)pulse) / 10.0f;
-            sprite = entry->selection.value + 0x10; /* measured: this access-site member rewrite changes instruction bytes. */
+            sprite = entry->selection.value + 0x10;
             sine = sinf(iGpffff8094 + (iGpffff8094 * (f32)pulse) / 10.0f);
             alpha = (s32)(127.5f * sine);
             sdkSpriteDrawQueued(448.0f - 32.0f * pulseScale, 177.0f - 29.0f * pulseScale, 0.0f,
                            0xFFFFFF, alpha, sprite, atlas, 1, 0, 0, 0.0f, pulseScale, pulseScale, D_00794E70);
-            entry->pulseFrame += 1; /* measured: this access-site member rewrite changes instruction bytes. */
-            if (entry->pulseFrame >= 10) { /* measured: this access-site member rewrite changes instruction bytes. */
-                entry->pulseFrame = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            entry->pulseFrame += 1;
+            if (entry->pulseFrame >= 10) {
+                entry->pulseFrame = 0;
                 ((cmmScriptEntry *)work)->flags &= ~0x10;
             }
         }
-        entry->popupTimer.frame += 1; /* measured: this access-site member rewrite changes instruction bytes. */
-        if (entry->popupTimer.frame >= 30) { /* measured: this access-site member rewrite changes instruction bytes. */
-            entry->popupTimer.frame = 0; /* measured: this access-site member rewrite changes instruction bytes. */
-            entry->selection.value = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+        entry->popupTimer.frame += 1;
+        if (entry->popupTimer.frame >= 30) {
+            entry->popupTimer.frame = 0;
+            entry->selection.value = 0;
             ((cmmScriptEntry *)work)->flags &= ~0x10;
         }
     }
 done:
     return 0;
 }
-/* Keep the displacement product separate from the anchor addition. The
-   retail steady animation rounds this multiplication before adding the
-   sprite baseline, while its bounce expressions use the accumulator. */
-
-
+/* Retail rounds the displacement product before adding the sprite baseline; the bounce expressions
+ * use multiply-accumulate instead. */
 
 
 /* Return the score atlas after asserting that its loading task has completed. */
@@ -1566,7 +1520,6 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
 {
     cmmScriptEntry *entry = (cmmScriptEntry *)work;
 
-    /* Earlier whole-layout typing changed codegen; access-site probes now keep matching fields and annotate individual culprits. */
     extern f32 sinf(f32);
     extern u8 *resourceFindByName(char *name);
     extern s32 datItemCount(s16);
@@ -1598,7 +1551,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 60.0f, 50.0f);
         sdkSpriteDrawQueued(44.0f, bounceHeight + 10.0f, 0.0f, 0x6EB3, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         if (frame < 5) {
             phaseFrame = 0;
         } else if (frame < 0xF) {
@@ -1611,14 +1564,14 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 20.0f, 10.0f);
         sdkSpriteDrawQueued(26.0f, bounceHeight + 135.0f, 0.0f, 0x50B6, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         frame = cmmScoreClamp(frame, 0, 10);
         fadePhase = sinf((iGpffff8094 * (f32)frame) / 10.0f);
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 30.0f, 20.0f);
         sdkSpriteDrawQueued(15.0f, bounceHeight + 199.0f, 0.0f, 0x63B3, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         if (frame < 5) {
             phaseFrame = 0;
         } else if (frame < 0xF) {
@@ -1633,14 +1586,14 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         sdkSpriteDrawQueued(132.0f, bounceHeight + 12.0f, 0.0f, 0x6CB3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(91.0f, bounceHeight + 32.0f, 0.0f, 0x57B3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(34.0f, bounceHeight + 161.0f, 0.0f, 0x2BB3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         frame = cmmScoreClamp(frame, 0, 0x14);
         fadePhase = sinf((iGpffff8094 * (f32)frame) / 20.0f);
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 30.0f, 20.0f);
         sdkSpriteDrawQueued(11.0f, bounceHeight + 27.0f, 0.0f, 0x6AB3, fade, 7, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         if (frame < 5) {
             phaseFrame = 0;
         } else if (frame < 0x14) {
@@ -1653,21 +1606,21 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 30.0f, 20.0f);
         sdkSpriteDrawQueued(67.0f, bounceHeight + 11.0f, 0.0f, 0x2078, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         frame = cmmScoreClamp(frame, 0, 0xF);
         fadePhase = sinf((iGpffff8094 * (f32)frame) / 15.0f);
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 20.0f, 10.0f);
         sdkSpriteDrawQueued(8.0f, bounceHeight + 52.0f, 0.0f, 0x2346, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         frame = cmmScoreClamp(frame, 3, 0x11);
         fadePhase = sinf((iGpffff8094 * (f32)frame) / 17.0f);
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 40.0f, 30.0f);
         sdkSpriteDrawQueued(59.0f, bounceHeight + 121.0f, 0.0f, 0xC52, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         if (frame < 10) {
             fadePhase = 0.0f;
         } else if (frame < 0xF) {
@@ -1676,7 +1629,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
             fadePhase = 1.0f;
         }
         sdkSpriteDrawQueued(30.0f, (1.0f - fadePhase) * 27.5f + 66.0f, 0.0f, 0x7AFEFF, 0xFF, 5, atlas, 1, 0, 0, 0.0f, 1.0f, fadePhase, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         if (frame < 10) {
             fadePhase = 0.0f;
         } else {
@@ -1691,7 +1644,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
             sdkSpriteDrawQueued(59.0f, 83.0f, 0.0f, 0, fade, score % 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         }
         sdkSpriteDrawQueued(70.0f, 55.0f, 0.0f, 0x7AFEFF, fade, 4, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
         frame = cmmScoreClamp(frame, 0, 0x14);
         {
             f32 result;
@@ -1713,7 +1666,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         ((cmmScriptEntry *)work)->timer.word = frame;
         if (frame >= 20) {
             ((cmmScriptEntry *)work)->flags &= ~2;
-            entry->timer.word = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            entry->timer.word = 0;
         }
     } else if ((((cmmScriptEntry *)work)->flags & 4) != 0) {
         frame = ((cmmScriptEntry *)work)->timer.word;
@@ -1733,11 +1686,11 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         }
         sdkSpriteDrawQueued(70.0f, 55.0f, 0.0f, 0x7AFEFF, fade, 4, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(13.0f, -2.0f, 0.0f, 0, fade, 3, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word + 1; /* measured: this access-site member rewrite changes instruction bytes. */
-        entry->timer.word = frame; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word + 1;
+        entry->timer.word = frame;
         if (frame >= 10) {
             ((cmmScriptEntry *)work)->flags &= ~4;
-            entry->timer.word = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            entry->timer.word = 0;
             return 1;
         }
     } else {
@@ -1747,18 +1700,18 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         sdkSpriteDrawQueued(44.0f, 10.0f + cmmScoreDisplacement(phase, 2.0f, 5.0f), 0.0f, 0x6EB3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(26.0f, 135.0f + operandOrderRoundedProduct(phase, 5.0f), 0.0f, 0x50B6, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(15.0f, 199.0f + cmmScoreDisplacement(phase, 6.0f, 3.0f), 0.0f, 0x63B3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(entry->timer.frame % 80)) / 80.0f); /* measured: this access-site member rewrite changes instruction bytes. */
+        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(entry->timer.frame % 80)) / 80.0f);
         phase = (phase + 1.0f) / 2.0f;
         sdkSpriteDrawQueued(132.0f, 12.0f + cmmScoreDisplacement(phase, 5.0f, 3.0f), 0.0f, 0x6CB3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(91.0f, 32.0f + cmmScoreDisplacement(phase, 2.0f, 5.0f), 0.0f, 0x57B3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(34.0f, 161.0f + cmmScoreDisplacement(phase, 4.0f, 2.0f), 0.0f, 0x2BB3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(entry->timer.frame % 100)) / 100.0f); /* measured: this access-site member rewrite changes instruction bytes. */
+        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(entry->timer.frame % 100)) / 100.0f);
         phase = (phase + 1.0f) / 2.0f;
         sdkSpriteDrawQueued(11.0f, 27.0f + cmmScoreDisplacement(phase, 4.0f, 10.0f), 0.0f, 0x6AB3, 0xFF, 7, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(entry->timer.frame % 100)) / 100.0f); /* measured: this access-site member rewrite changes instruction bytes. */
+        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(entry->timer.frame % 100)) / 100.0f);
         phase = (phase + 1.0f) / 2.0f;
         sdkSpriteDrawQueued(67.0f, 11.0f + cmmScoreDisplacement(phase, 10.0f, 4.0f), 0.0f, 0x2078, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(entry->timer.frame % 120)) / 100.0f); /* measured: this access-site member rewrite changes instruction bytes. */
+        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(entry->timer.frame % 120)) / 100.0f);
         phase = (phase + 1.0f) / 2.0f;
         sdkSpriteDrawQueued(8.0f, 52.0f + cmmScoreDisplacement(phase, 8.0f, 2.0f), 0.0f, 0x2346, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(59.0f, 121.0f + cmmScoreDisplacement(phase, 10.0f, 6.0f), 0.0f, 0xC52, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
@@ -1772,10 +1725,10 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         }
         sdkSpriteDrawQueued(70.0f, 55.0f, 0.0f, 0x7AFEFF, 0xFF, 4, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(13.0f, -2.0f, 0.0f, 0, 0xFF, 3, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        frame = entry->timer.word; /* measured: this access-site member rewrite changes instruction bytes. */
-        entry->timer.word = frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
+        frame = entry->timer.word;
+        entry->timer.word = frame + 1;
         if ((s32)(frame + 1) >= 0x7FFFFFFF) {
-            entry->timer.word = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            entry->timer.word = 0;
         }
     }
     return 0;
@@ -1805,10 +1758,6 @@ s32 cmmScriptRunEntries(u8 *task)
     return 0;
 }
 
-
-
-
-// Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
 
 // Script entries destroy: frees the three-entry work block of the entries task.
 // FUN_0024F040
@@ -1852,7 +1801,6 @@ s32 cmmScriptStepFishingRound(u8 *work)
     CmmFishingWork *roundWork = (CmmFishingWork *)work;
     CmmFishingWork *fishingWork = (CmmFishingWork *)work;
 
-    /* Earlier whole-layout typing changed codegen; access-site probes now keep matching fields and annotate individual culprits. */
     s32 result;
     s32 i;
     s32 id;
@@ -1872,7 +1820,7 @@ s32 cmmScriptStepFishingRound(u8 *work)
     result = 0;
     switch (((CmmFishingWork *)work)->phase) {
     case 0:
-        fishingWork->phase = 1; /* measured: this access-site member rewrite changes instruction bytes. */
+        fishingWork->phase = 1;
         ((CmmFishingWork *)work)->flags &= ~4;
         ((CmmFishingWork *)work)->flags &= ~0x10;
         ((CmmFishingWork *)work)->flags &= ~0x20;
@@ -1901,12 +1849,12 @@ s32 cmmScriptStepFishingRound(u8 *work)
     entry = cmmFishingEntryRecord((u16)id);
     ((CmmFishingWork *)work)->frame += 1;
     if (((CmmFishingWork *)work)->frame >= ((CmmFishingWork *)work)->biteDelay) {
-        fishingWork->frame = 0; /* measured: this access-site member rewrite changes instruction bytes. */
-        fishingWork->biteDelay = cmmDateTableRollValue(id); /* measured: this access-site member rewrite changes instruction bytes. */
+        fishingWork->frame = 0;
+        fishingWork->biteDelay = cmmDateTableRollValue(id);
         cmmScriptSpawnHandle(4);
         ((CmmFishingWork *)work)->biteCount += 1;
         cmmDateTableRunEffect(id);
-        state = roundWork->biteCount; /* measured: this access-site member rewrite changes instruction bytes. */
+        state = roundWork->biteCount;
         if (state >= 3) {
             if (state >= 10 ||
                 (random = (u32)RpRandom(),
@@ -1973,14 +1921,14 @@ s32 cmmScriptStepFishingRound(u8 *work)
         rec = (s32)kwlnTaskGetWork((void *)(u32)(rec));
         if (((CmmScriptTask *)rec)->handles[1] != 0) {
             kwlnTaskDestroyWithHierarchy(((CmmScriptTask *)rec)->handles[1]);
-            MEMBER(s32, rec, CmmScriptTask, handles[1]) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            MEMBER(s32, rec, CmmScriptTask, handles[1]) = 0;
         }
     }
     if ((rec = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78))) != 0) {
         rec = (s32)kwlnTaskGetWork((void *)(u32)(rec));
         if (((CmmScriptTask *)rec)->handles[3] != 0) {
             kwlnTaskDestroyWithHierarchy(((CmmScriptTask *)rec)->handles[3]);
-            MEMBER(s32, rec, CmmScriptTask, handles[3]) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            MEMBER(s32, rec, CmmScriptTask, handles[3]) = 0;
         }
     }
     cmmScriptSpawnHandle(2);
@@ -2015,7 +1963,6 @@ s32 cmmScriptStepFishingAim(u8 *work)
     CmmFishingWork *fishingWork = (CmmFishingWork *)work;
     CmmFishingRecord *fishRecord;
 
-    /* Earlier whole-layout typing changed codegen; access-site probes now keep matching fields and annotate individual culprits. */
     s32 i;
     u8 *task;
     u8 *loadTask;
@@ -2039,7 +1986,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
 
     switch (((CmmFishingWork *)work)->phase) {
     case 0:
-        fishingWork->phase = 1; /* measured: this access-site member rewrite changes instruction bytes. */
+        fishingWork->phase = 1;
         ((CmmFishingWork *)work)->flags &= ~8;
         ((CmmFishingWork *)work)->flags &= ~0x80;
         for (i = 0; i < 5; i++) {
@@ -2076,7 +2023,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
         randomFloat = (f32)random;
         scaledRandom = 360.0f * (randomFloat / 2147483648.0f);
         scaledCount = (u32)scaledRandom;
-        fishingWork->directionDelay = (s16)(scaledCount + 90); /* measured: this access-site member rewrite changes instruction bytes. */
+        fishingWork->directionDelay = (s16)(scaledCount + 90);
         random = RpRandom();
         randomFloat = (f32)random;
         scaledRandom = 3.0f * (randomFloat / 2147483648.0f);
@@ -2095,7 +2042,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
         ((CmmFishingWork *)work)->flags |= 0x10;
         ((CmmFishingWork *)work)->promptDelay = 0x19;
     } else {
-        fishingWork->directionDelay = ((CmmFishingWork *)work)->directionDelay - 1; /* measured: this access-site member rewrite changes instruction bytes. */
+        fishingWork->directionDelay = ((CmmFishingWork *)work)->directionDelay - 1;
     }
     if (((s32)((CmmFishingWork *)work)->flags & 0x10) != 0) {
         directionPressed = 0;
@@ -2132,7 +2079,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
         } else {
             ((CmmFishingWork *)work)->promptDelay = ((CmmFishingWork *)work)->promptDelay - 1;
         }
-        if (fishingWork->promptDelay <= 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+        if (fishingWork->promptDelay <= 0) {
             ((CmmFishingWork *)work)->flags &= ~0x10;
         }
     }
@@ -2140,7 +2087,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
         ((CmmFishingWork *)work)->promptFrame += 1;
         if (((CmmFishingWork *)work)->promptFrame >= 10) {
             ((CmmFishingWork *)work)->flags &= ~0x20;
-            fishingWork->promptFrame = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            fishingWork->promptFrame = 0;
         }
         ((CmmFishingWork *)work)->progress = ((CmmFishingWork *)work)->progress + 2;
     }
@@ -2180,20 +2127,20 @@ s32 cmmScriptStepFishingAim(u8 *work)
     mdlEffectSetChildPositionVec((void *)(u32)model, result.value);
     if ((D_008C024E[0] & 0x20) != 0) {
         datEntryDrawGatedByFlag39(3, 0x79, 3, 0);
-        fishingWork->progress = fishingWork->progress + 1; /* measured: this access-site member rewrite changes instruction bytes. */
+        fishingWork->progress = fishingWork->progress + 1;
     }
-    if ((fishingWork->frame % ((CmmFishingRecord *)fishEntry)->decayFrames) == 0) { /* measured: this access-site member rewrite changes instruction bytes. */
-        fishingWork->progress = fishingWork->progress - 1; /* measured: this access-site member rewrite changes instruction bytes. */
+    if ((fishingWork->frame % ((CmmFishingRecord *)fishEntry)->decayFrames) == 0) {
+        fishingWork->progress = fishingWork->progress - 1;
     }
-    frameCount = fishingWork->frame; /* measured: this access-site member rewrite changes instruction bytes. */
-    if (frameCount >= 0x1E && fishingWork->progress >= fishRecord->targetProgress) { /* measured: this access-site member rewrite changes instruction bytes. */
+    frameCount = fishingWork->frame;
+    if (frameCount >= 0x1E && fishingWork->progress >= fishRecord->targetProgress) {
         datEntryDrawGatedByFlag39(5, 0xC9, 5, 0);
         ((CmmFishingWork *)work)->state = 2;
         flags = (s32)((CmmFishingWork *)work)->flags | 8;
         ((CmmFishingWork *)work)->flags = flags;
         ((CmmFishingWork *)work)->flags = flags | 0x80;
         cmmScriptArmEntry(1, 0);
-    } else if (frameCount >= ((CmmFishingRecord *)fishEntry)->roundFrames || fishingWork->progress < -10) { /* measured: this access-site member rewrite changes instruction bytes. */
+    } else if (frameCount >= ((CmmFishingRecord *)fishEntry)->roundFrames || fishingWork->progress < -10) {
         ((CmmFishingWork *)work)->state = 2;
         ((CmmFishingWork *)work)->flags |= 8;
         cmmScriptArmEntry(1, 0);
@@ -2265,8 +2212,8 @@ void cmmScriptEntryDestroy(u8 *task)
     DAT_008873ec_abs[0](record);
 }
 
-// Starts the entry tasks: creates the load task and the entry runner, sets the step callbacks, and destroys any stale entry-task handles.
-/* script command 0x3036 (no p4flow name) */
+// Script command 0x3036: starts the entry tasks by creating the load task and entry runner, setting
+// step callbacks, and destroying stale entry-task handles.
 // FUN_00250120
 s32 cmmScriptStartEntries(void)
 {
@@ -2305,8 +2252,8 @@ s32 cmmScriptStartEntries(void)
     return 1;
 }
 
-// Entry choice: the first call arms the entry (flag 1) and waits; once status bit 4 is set it returns 0, 1 (bit 0x10), or 2 (bit 0x20) and destroys the entry task.
-/* script command 0x3034 (no p4flow name) */
+// Entry choice: the first call arms the entry (flag 1) and waits; once status bit 4 is set it
+// returns 0, 1 (bit 0x10), or 2 (bit 0x20) and destroys the entry task.
 // FUN_002502F0
 s32 cmmScriptPollEntryChoice(void)
 {
@@ -2364,8 +2311,9 @@ s32 cmmScriptPollEntryChoice(void)
     }
     return 0;
 }
-// Entry confirm: the first call arms the entry (flag 2) and waits; once status bit 8 is set it returns 1 if bit 0x80 is also set (0 otherwise) and destroys the entry task.
-/* script command 0x3035 (no p4flow name) */
+// Entry confirm: the first call arms the entry (flag 2) and waits; once status bit 8 is set it
+// returns 1 if bit 0x80 is also set (0 otherwise) and destroys the entry task. Script command
+// 0x3035.
 // FUN_00250560
 s32 cmmScriptPollEntryConfirm(void)
 {
@@ -2421,8 +2369,8 @@ s32 cmmScriptPollEntryConfirm(void)
     }
     return 0;
 }
-// Closes the entry channel: on the first call arms entry 2 and destroys the entry tasks; once the entry timer reaches 30 frames it fades channel 2 out over 30 frames and returns 1.
-/* script command 0x3037 (no p4flow name) */
+// Closes the entry channel: on the first call arms entry 2 and destroys the entry tasks; once the
+// entry timer reaches 30 frames it fades channel 2 out over 30 frames and returns 1.
 // FUN_002507C0
 s32 cmmScriptStopEntries(void)
 {
@@ -2443,8 +2391,8 @@ s32 cmmScriptStopEntries(void)
 ret0:
     return 0;
 }
-// Returns the six-entry table value (table copied from D_00635BB8) selected by the index at +0x20 of the entry record.
-/* script command 0x3038 (no p4flow name) */
+// Returns the value from a six-entry table (copied from D_00635BB8), selected by the index stored
+// in the entry record.
 // FUN_00250870
 s32 cmmScriptReadIndexedValue(void)
 {
@@ -2485,7 +2433,6 @@ s32 cmmScriptReadIndexedValue(void)
 // FUN_00250940
 s32 cmmScriptReadMonthProfile(void)
 {
-    /* Earlier whole-layout typing changed codegen; access-site probes now keep matching fields and annotate individual culprits. */
     s32 field;
     s32 row;
     u8* table;

@@ -34,8 +34,6 @@ typedef struct FrFontRasterCache {
 } FrFontRasterCache;
 
 
-/* Ported from P3FES frFontRaster.c (verified MATCH there), adapted to P4
- * addresses, assert lines, and callee names. */
 typedef int (*code)();
 
 /* Defined below in this file; called at line 347, above its definition. */
@@ -77,20 +75,13 @@ extern void func_003ec2e0(u32 tex);
 extern u8 *frFontAcquireGlyph(u8 *glyph, u32 glyphIndex);
 extern s32 frFontFreeListInsert(u8 *freeNode);
 
-// Ported from P3FES FUN_003b3d60 (verified MATCH there). Calls use the
-// donor's implicit old-style declarations (FUN_003b3e00_raw/FUN_003b3e60_raw)
-// so the arguments are passed without prototype-driven zero-extension.
+// Matches P3FES func_003b3d60. Calls use implicit old-style declarations so arguments are passed
+// without prototype-driven zero-extension.
 
-/* The loop bound is the fresh expression `i < count - 1`; a named `limit`
-   local is coloured first and lands in $a1 (archived at nd 8). */
-/* measured: opt_loop_invariants on hoists that bound AFTER the body's
-   temporaries are coloured, which is what puts the bound in $a0 and the
-   next-node pointer in $a1 as retail. */
-/* measured: baseline and precomputed-loop-bound probes both differ (nd 43); retain invariant hoisting. */
+/* measured: the loop bound stays the plain expression i < count - 1, and loop-invariant hoisting
+ * moves it out after the body temporaries are allocated, as in retail. */
 #pragma opt_loop_invariants on
 /* Creates the glyph cache: count entries, each with a 0x200-byte raster buffer. */
-/* measured: the remaining word-index accesses preserve b210 codegen;
- * individual member substitutions gave normalized_diff 6, 147. */
 // FUN_00275A60
 void frFontRasterCreateCache(s32 count)
 {
@@ -131,7 +122,7 @@ void frFontRasterCreateCache(s32 count)
         }
     }
 }
-/* measured: closes the hoisting scope after frFontRasterCreateCache. */
+/* measured: restores the unit setting after frFontRasterCreateCache. */
 #pragma opt_loop_invariants off
 
 /* Frees the glyph cache. */
@@ -142,9 +133,8 @@ void frFontRasterDestroyCache(void)
     frFontRasterCacheBytes = (u8 *)0x0;
 }
 
-/* Ages every cache entry and moves the expired ones to the free list (LRU eviction). */
-/* measured: the remaining word-index accesses preserve b210 codegen;
- * individual member substitutions gave normalized_diff 72, 135, 136, 211. */
+/* Ages every cache entry and moves the expired ones to the free list (LRU eviction). Entries are
+ * accessed as raw word arrays because typed members changed the output. */
 // FUN_00275C00
 void frFontRasterEvictExpired(void)
 {
@@ -210,18 +200,12 @@ extern u8 D_0063BCC0[];
 extern f32 D_008872F8[];
 extern u8 D_0063BC88[];
 extern s32 D_00881750;
-/* Native b210 O2: 1124/1136 bytes, nineteen resolved relocations and
- * twelve zero alignment bytes. All seven siblings and data are unchanged.
- * See docs/probe_archive/Font_raster_00275d80_20260923.md. */
 #pragma push
-/* measured: propagation off is redundant with invariant hoisting retained (MATCH); without hoisting nd 366. */
+/* measured: retail hoists loop invariants in this function; without hoisting the output diverges. */
 #pragma opt_loop_invariants on
-/* Builds the quad for one glyph at (x, y) with the given palette and colour, and submits it. */
-/* Keep byte-addressed fields here: the typed cache rewrite changed retail register
- * allocation/reloads. Cache entries are 0x21C bytes (palette +8, texture +0x14);
- * glyph +0x1C selects its 16-byte raster record (references +4, cache entry +0xC). */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 462, 476, 512, 530; retain their original address/alias expressions. */
+/* Builds the quad for one glyph at (x, y) with the given palette and colour, and submits it. Cache
+ * entries are 0x21C bytes (palette +8, texture +0x14); glyph +0x1C selects its 16-byte raster
+ * record (references +4, cache entry +0xC). */
 // FUN_00275D80
 s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
                   s32 palette, u32 width, u32 height, u32 rgba)
@@ -266,8 +250,8 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
             destinationBytes += 8;
         } while (pairs > 0);
     }
-    /* Preserve the original bounded byte-clear initializer, including its
-     * null test, before assigning the four rectangle corners. */
+    /* Clears the 0x20-byte corner array with a null-checked byte loop before assigning the four
+     * rectangle corners. */
     {
         u8 *clearCursor = (u8 *)corners;
         u32 byteCount = 0x20;
@@ -319,9 +303,7 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
     }
     memset(vertices, 0, 0x100);
     depthZ = D_008872F8[0] - depth;
-    /* Unpack shifted channels after initializing the iteration. Each byte
-     * converts directly to float at its store; the native invariant pass
-     * hoists its stable mask and conversion inputs in that order. */
+    /* Unpacks the shifted color channels once; each byte is converted to float where it is stored. */
     vertexIndex = 0;
     redShifted = rgba >> 24;
     greenShifted = rgba >> 16;
@@ -351,9 +333,7 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
 }
 #pragma pop
 
-// end FUN_00275D80
-
-/* measured: unprototyped forward declarations keep the retail argument setup for frFontFindOrLoadEntry (prototypes gave nd 7). */
+/* Unprototyped forward declarations keep retail's argument setup for these calls. */
 u8 *frFontRasterFindEntry();
 u8 *frFontRasterAllocEntry();
 
@@ -386,8 +366,7 @@ u32 frFontRasterLookup(u32 key, int palette)
     return result;
 }
 
-// Ported from P3FES FUN_003b3e00 (verified MATCH there). The goto shape is
-// the donor's exact loop layout: test entry!=0 first, then walk entry[6].
+// Matches P3FES FUN_003b3e00; the goto loop tests entry!=0 first, then walks entry[6].
 
 extern u8 *D_007645b8;
 #define frFontRasterCacheBytes D_007645b8
@@ -421,9 +400,8 @@ done:
     return (u8 *)entry;
 }
 
-/* Takes a free entry, stores the key and a copy of the raster source, and returns it (0 if none free). */
-/* measured: the remaining word-index accesses preserve b210 codegen;
- * individual member substitutions gave normalized_diff 143. */
+/* Takes a free entry, stores the key and a copy of the raster source, and returns it (0 if none
+ * free). */
 // FUN_002762F0
 u8 *frFontRasterAllocEntry(u32 key, u8 *bitmap, u32 palette)
 {
@@ -460,12 +438,9 @@ u8 *frFontRasterAllocEntry(u32 key, u8 *bitmap, u32 palette)
     return (u8 *)entry;
 }
 
-/* Unpacks a 4-bit 32x32 glyph source into the texture buffer and copies the palette. */
-/* Keep byte-addressed fields here: the typed cache rewrite changed retail register
- * allocation/reloads. Cache entries are 0x21C bytes (palette +8, texture +0x14);
- * glyph +0x1C selects its 16-byte raster record (references +4, cache entry +0xC). */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 391, 392; retain their original address/alias expressions. */
+/* Unpacks a 4-bit 32x32 glyph source into the texture buffer and copies the palette. Cache entries
+ * are 0x21C bytes (palette +8, texture +0x14); byte-addressed fields are kept because retail's
+ * register reloads depend on them. */
 // FUN_00276420
 void frFontRasterUploadGlyph(int entryAddress, u8 *bitmap, int palette)
 {

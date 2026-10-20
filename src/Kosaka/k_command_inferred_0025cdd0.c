@@ -14,8 +14,6 @@ extern char D_00635C60[];
 extern s32 iGpffffb480;
 
 
-
-
 float scrGetParamFloat(s32 paramIdx);
 s16 datCategoryRankProgress(s16 category, float scale);
 s16 datCategoryRank(s16 category);
@@ -29,13 +27,7 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
                            f32 angle, f32 depth, s32 preserveState);
 
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025cdd0-0025cf70 */
-
+/* Script command: return the rank progress for the given category and float parameter. */
 // FUN_0025CDD0
 s32 scrCommonGetRankProgress(void) {
     s32 category;
@@ -45,14 +37,15 @@ s32 scrCommonGetRankProgress(void) {
     return 1;
 }
 
-// Intent: Common script command GET_PC_PARAM (p4flow Common 0x0044): returns the player character parameter [inferred]
+// Common script command GET_PC_PARAM (p4flow Common 0x0044): returns the player character
+// parameter.
 // FUN_0025CE40
 s32 scrCommonGetPcParam(void) {
     scrSetReturnInt((s32)datCategoryRank((s16)scrGetParamInt(0)));
     return 1;
 }
 
-/* measured: preserving the raw third-call result in s32 before masking the first two arguments reproduces retail's setup order; exact match nd 0 (obj 112B/window 112B). */
+/* The third parameter stays a raw s32 so the first two arguments are masked in retail's order. */
 // FUN_0025CE90
 s32 scrCommonPersonaAddStat(void) {
     s32 statId;

@@ -1,7 +1,5 @@
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
-/* Grouped verified Persona 4 source units. */
-/* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
 
@@ -58,17 +56,11 @@ extern char D_008E4514[];
 extern char D_008E4554[];
 extern char D_008E4594[];
 
-/* Source unit: src/Kernel/h_memcard_grouped.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/Kernel/h_memcard_grouped.c; members 004647c0-004647c0 */
+/* Translation unit boundaries are inferred; no __FILE__ assert strings confirm them. */
 
-/* Memory-card operation states retain retail's poll/response dispatch.
- * The write API consumes unsigned 32-bit byte offsets and lengths.
- * Retail does not check whether the loaded icon archive contains icon.ico:
- * after H_Cdvd_LookupRequest it passes the returned pointer and reads `out` from
- * 0x10($sp) at 0x0046514C even when the lookup did not write it. This body
- * keeps that uninitialised read, as retail does.
- * See docs/probe_archive/Memcard_004647c0_recovery_20260929.md. */
-// Intent: prepare the save file and icon resources through asynchronous card operations; return progress states, 100 on completion, or a negative error.
+/* Prepares the save file and icon resources through asynchronous card operations; returns progress
+ * states, 100 on completion, or a negative error. Like retail, it never checks the icon lookup
+ * result, so `out` may be read uninitialised. */
 // FUN_004647C0
 s32 H_Memcard_PrepareSaveFileStep(void)
 {

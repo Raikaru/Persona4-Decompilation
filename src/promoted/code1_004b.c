@@ -62,9 +62,7 @@ extern void mdlEffectReleaseTrackInstance(s32 instance);
 extern void TlpRelease(s32 work);
 extern s32 TlpAddRef(s32 work);
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
+/* func_004bd628 through func_004bd6a0 are framed tail jumps that plain C cannot reproduce. */
 
 extern u8 D_0071465C[];
 extern u8 D_00714650[];
@@ -115,10 +113,8 @@ typedef signed __int128 s128;
 
 extern void *mdlEffectCreateScreenSprite(void *opaqueSource);
 
-/* Screen-space sprite update, the EffSpriteUpdate sibling. It shares the COP2
- * colour pack (the asm writes the packed frame slot, retail reloads it) and
- * the frame-info struct, then projects the four corners through the camera's
- * depth range onto the 640x448 screen. */
+/* Screen-space sibling of EffSpriteUpdate: packs the colour, then projects the four corners through
+ * the camera depth range onto the 640x448 screen. */
 typedef struct EffScreenSpriteFrame {
     f32 rect[4];
     u32 size[2];
@@ -149,16 +145,9 @@ typedef struct CrossfadeWork {
     u8 pad24[0x1C];
 } CrossfadeWork;
 
-/* measured: opt_propagation off retains the cached D_00887300 base and retail frame. */
-// Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
-/* Capture the display raster into the crossfade camera's 512x256 target.
- * Returns zero if camera begin-update fails, otherwise submits an opaque
- * triangle strip with UVs scaled from the 640x448 display and returns one. */
-/* Historical all-access-site typing cached the camera member address and changed registers.
- * measured: the first camera load and farPlane access match directly; the two
- * later camera loads match through the separate work pointer. */
+/* measured: propagation off keeps the cached D_00887300 base and the retail stack frame. */
 // FUN_004B2780
-/* measured: baseline removal leaves nd438 in camera/callback-base lifetime; retain propagation off. */
+/* measured: propagation off keeps the camera and callback-base values live the way retail does. */
 #pragma opt_propagation off
 s32 effCrossfadeCaptureDisplay(u8 *object) {
     BtlShuffleSkyVertex vertices[4];
@@ -277,10 +266,10 @@ typedef struct AcsFader {
 
 /* Return the active-call counter, including the fade's start and end waits. */
 // FUN_004BD750
-/* measured: schedule on fills func_004bd750's retail jr delay-slot load. */
+/* measured: schedule on fills the return delay slot with the load, as retail does. */
 #pragma schedule on
 s32 acsfdrGetElapsedTicks(u8 *fader) {
     return ((AcsFader *)fader)->elapsedTicks;
 }
-/* measured: close the schedule bracket around func_004bd750. */
+/* measured: restores the unit setting after func_004bd750. */
 #pragma schedule off

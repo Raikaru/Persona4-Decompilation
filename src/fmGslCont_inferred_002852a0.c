@@ -33,7 +33,6 @@ typedef struct {
 } UnkStruct_002865E0;
 
 
-
 extern u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary,
                          u8 *secondary, u8 *overlay);
 extern char D_0063C340[];
@@ -46,15 +45,11 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 
 
-
-
 extern u8 iGpffffa790;
 
 extern s32 D_008825F0[10];
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0028; members 002852a0-002852a0 */
 
 // Add byteCount to the selected memory-accounting slot (negative to release).
 // FUN_002852A0

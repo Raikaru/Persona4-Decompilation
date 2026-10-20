@@ -1,7 +1,6 @@
 #include "member_access.h"
 #include "resrc_manager_internal.h"
 #include "rw_camera_internal.h"
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Event/Fcl/fclBankManager.c; members 00155070-001552a0 */
 
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
@@ -37,8 +36,8 @@ extern void FldFrame_SetSlotVector(s32 , s8 , void *);
 extern u8 *FldFrame_GetSlotBuffer(s32 );
 extern void FldCameraUpdateLookAt(s32 );
 extern s32 kwlnGetCamera(void);
-// Intent: Apply the camera parameters from resource 0x14: field of view, view offset, distance, the slot vectors and the frame slot buffer [inferred]
-/* Resource camera parameters occupy +0x140..0x304; scalar-pair copies retain load/store order, and MEMBER preserves view-distance aliasing. */
+// Applies the camera parameters from resource 0x14: field of view, view offset, distance, the slot
+// vectors and the frame slot buffer. Scalar pairs are copied in retail load/store order.
 // FUN_00155070
 void MT_Scene_ApplyCameraParams(void)
 {
@@ -60,9 +59,9 @@ void MT_Scene_ApplyCameraParams(void)
         FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], cameraResource + 0x150);
         if ((((ResrcRecord *)(cameraResource))->cameraViewDistance == 0.0f) &&
             (FldMap_IsCurrentInEitherBand() == 1)) {
-            MEMBER(f32, cameraResource, ResrcRecord, cameraViewDistance) = 20.0f; /* measured: ResrcRecord.cameraViewDistance: local nd11; MEMBER retains reload behavior. */
+            MEMBER(f32, cameraResource, ResrcRecord, cameraViewDistance) = 20.0f;
         }
-        FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], MEMBER(f32, cameraResource, ResrcRecord, cameraViewDistance)); /* measured: ResrcRecord.cameraViewDistance: local nd11; MEMBER retains reload behavior. */
+        FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], MEMBER(f32, cameraResource, ResrcRecord, cameraViewDistance));
         fldCameraSetFollowHeight(MT_Scene_GetFrameState()[1], ((ResrcRecord *)(cameraResource))->cameraFollowHeight);
         slotIndex = 0;
         goto loop_test;
@@ -94,28 +93,30 @@ loop_test:
     }
 }
 
-// Intent: Clear the scene frame state block [inferred]
+// Clear the scene frame state block.
 // FUN_00155250
 void MT_Scene_ResetFrameState(void)
 {
     memset(D_007D2510, 0, 0x18F8);
 }
 
-// Intent: Return the scene frame state block [inferred]
+// Return the scene frame state block.
 // FUN_00155280
 s32 *MT_Scene_GetFrameState(void)
 {
     return D_007D2510;
 }
 
-// Intent: Return the scene-load ready flag: 0 while a field load is in progress, 1 once the scene has loaded [inferred]
+// Return the scene-load ready flag: 0 while a field load is in progress, 1 once the scene has
+// loaded.
 // FUN_00155290
 s32 FldSceneLoadReady(void)
 {
     return iGpffffb210;
 }
 
-// Intent: Set the three fade globals from the state pair: a scale value for state 7 (and state 6 with 6, state 21 with 1), or the defaults otherwise [inferred]
+// Sets the three fade globals from the state pair: a scale value for state 7 (state 6 with 6, state
+// 21 with 1), otherwise the defaults.
 // FUN_001552A0
 void MT_Scene_SetFadeForState(u16 fieldKind, u16 baseState) {
     f32 value;

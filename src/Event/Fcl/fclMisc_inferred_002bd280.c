@@ -11,7 +11,6 @@
 #include "shd_misc_internal.h"
 
 
-
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
@@ -39,18 +38,14 @@ extern f32 iGpffff82fc;
 extern u8 D_0063F3B0[];
 
 
-
 extern u32 D_007EFA00[];
 extern u8 D_007EFA04[];
 extern u8 *D_0063F110[];
 extern s8 D_007488C0[];
 
 
-
-/* Retail digit RGBA occupies the four bytes at draw+0x75.
-   MWCC requires packed after the typedef name. These guarded
-   storage views preserve the native FclDrawColor call interface.
-   See docs/probe_archive/Fcl_digit_packed_storage_ui_20261006. */
+/* Retail digit RGBA occupies the four unaligned bytes at draw+0x75; these packed views keep the
+ * FclDrawColor call interface. */
 #ifdef NON_MATCHING
 typedef union {
     FclDrawColor channels;
@@ -69,22 +64,9 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 #endif
 
 
-
-
-
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bd280-002bd280 */
-
 extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
-/* measured: a typed vtable base local with propagation disabled reproduces the
-   retail single D_00887300 address hoist and saved-register frame. */
-/* measured: restores opt_propagation after func_002b5120. */
-/* Preserve the signed-halfword zero test without merging it with the
-   preceding sentinel comparison. */
+/* measured: retail hoists the D_00887300 address once, which needs a typed vtable base local with
+ * propagation disabled. */
 #pragma push
 #pragma pop
 #pragma push

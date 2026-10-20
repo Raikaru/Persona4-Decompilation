@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00111bc0-00113800 */
 
 #include "list_item_internal.h"
 #include "include_asm.h"
@@ -101,9 +100,10 @@ extern s8 D_005E47F0[];
 u32 datGetClearedWord(void);
 
 #pragma push
-// Intent: Carry persistent state across a reset: save the flags, category values and money, reset to the defaults, then restore them with the new end date [inferred]
+// Carry persistent state across a reset: save flags, category values and money, reset to defaults,
+// then restore them with the new end date.
 // FUN_00111BC0
-/* measured: baseline propagation folds the first count increment; original s32 and u8 count forms differ by 1264 and 1164 bytes. */
+/* measured: propagation would fold the first count increment that retail keeps separate. */
 #pragma opt_propagation off
 void datCarryOverPersistentState(void)
 {
@@ -322,7 +322,7 @@ loop7_check:
 }
 #pragma pop
 
-// Intent: Draw one entry row: the name text, the stat value, the count, and the badges, at the entry's position and depth [inferred]
+// Draw one entry row: name text, stat value, count and badges at the entry's position and depth.
 // FUN_00112300
 void datEntryDrawRow(Vec2f position, f32 inputDepth, u8 opacity, u8 *inputEntry)
 {
@@ -419,7 +419,7 @@ void datEntryDrawRow(Vec2f position, f32 inputDepth, u8 opacity, u8 *inputEntry)
     }
 }
 
-// Intent: Reset the entry's fields to their defaults: sentinel -1 for the indices and 3 for the state [inferred]
+// Reset the entry's fields to their defaults: -1 sentinels for the indices and 3 for the state.
 // FUN_001125D0
 void datEntryReset(u8 *entry) {
     s32 enabled;
@@ -439,9 +439,8 @@ void datEntryReset(u8 *entry) {
     ((DatItemEntry *)entry)->colorIndex = 0;
 }
 
-// Intent: Draw the entry's icons when the flag bits in the state word at 0x14 are set, using the colours from the two colour tables [inferred]
+// Draw the entry's icons for the set bits in badgeFlags, using colours from the two colour tables.
 // FUN_00112610
-/* Earlier whole-layout typing probe: DatItemEntry access changed codegen (nd 415).; access-site and typed-local forms now match. */
 void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 itemTexture, s32 badgeTexture)
 {
     typedef struct {
@@ -542,11 +541,11 @@ static inline void datDrawStatChangeArrow(Vec2f pos, f32 depth, StatColor color,
 }
 
 #pragma push
-/* measured: explicit color/Y loop snapshots, glyph forms and per-band lifetimes leave 16 differing register-allocation bytes; retain loop hoisting. */
+/* measured: retail hoists loop invariants in this function. */
 #pragma opt_loop_invariants on
-// Intent: Draw a stat value and, when it differs from the previous value, its up or down arrow glyph, then its digits [inferred]
+// Draw a stat value and, when it differs from the previous value, its up or down arrow glyph, then
+// its digits.
 // FUN_00112830
-/* Earlier whole-layout typing probe: DatItemEntry access changed codegen (nd 1431).; access-site and typed-local forms now match. */
 void datEntryDrawStatValue(Vec2f pos, f32 depth, u8 alpha, u8 *entry, s32 tex)
 {
     extern StatColor D_005E4750[];
@@ -621,10 +620,7 @@ static inline s32 fontDrawLeadingGlyph(const Vec2f *position, f32 depth, u8 opac
     return alpha;
 }
 
-/* Native b210 -O2: 440 executable bytes, nine resolved relocations,
- * and eight retail alignment zeros. The leading draw keeps inverse
- * opacity live while the loop retains its blue and green snapshots. */
-// Intent: Draw the entry's count as text glyphs, right to left, after the leading glyph [inferred]
+/* Draws the entry's count as text glyphs, right to left, after the leading glyph. */
 // FUN_001130C0
 void datEntryDrawCount(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 texture)
 {
@@ -666,7 +662,7 @@ void datEntryDrawCount(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 tex
     }
 }
 
-// Intent: Draw the icon for the first set flag bit, with its sprite mode and id, at the given position [inferred]
+// Draw the icon for the first set flag bit, with its sprite mode and id, at the given position.
 // FUN_00113280
 void datEntryDrawFlagIcon(Vec2f position, f32 depth, s32 packedColor, s16 itemId, s32 itemTexture,
                    s32 badgeTexture)
@@ -727,7 +723,7 @@ void datEntryDrawFlagIcon(Vec2f position, f32 depth, s32 packedColor, s16 itemId
     }
 }
 
-// Intent: Forward a draw to the subsystem routine only while flag 0x39 is set [inferred]
+// Start the pad sequence only while flag 0x39 is set.
 // FUN_00113480
 void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags)
 {
@@ -736,15 +732,15 @@ void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags)
     }
 }
 
-// Intent: Stop controller rumble [inferred]
+// Stop controller rumble.
 // FUN_00113500
 void datStopPadRumble(void) {
     H_Pad_StopRumble();
 }
 
-// Intent: Fill a skill cost row from the table entry at the index: the skill id at +2, and the cost at +4 or +8 by the threshold kind; return 1 when the entry is present [inferred]
+// Fill a skill cost row from the table entry at the index, choosing costA or costB by threshold
+// kind; return 1 when the entry is present.
 // FUN_00113520
-/* Earlier whole-layout typing probe: DatSkillCostRow/DatPersonaRecord access changed codegen (nd 187).; access-site and typed-local forms now match. */
 s32 datPersonaFillSkillCostRow(s32 unitId, struct DatPersonaRecord *persona, s32 skillIndex, u8 *row)
 {
     s32 costKind;
@@ -777,7 +773,8 @@ s32 datPersonaFillSkillCostRow(s32 unitId, struct DatPersonaRecord *persona, s32
     return 0;
 }
 
-// Intent: Fill the persona's skill rows: up to eight learned skills first, then the learnable skills, with the counts at 0x60 and 0x224 [inferred]
+// Fill the persona's skill rows: up to eight learned skills first, then the learnable skills, with
+// their counts.
 // FUN_00113610
 void datPersonaFillSkillRows(s32 personaAddress, u8 *rows)
 {
@@ -791,7 +788,8 @@ void datPersonaFillSkillRows(s32 personaAddress, u8 *rows)
     s32 index;
     u16 value;
 
-    // Old-style call: no argument is passed; datPersonaGetSkills reads the record still in $a0 (mwccps2 hidden-argument liveness).
+    // Old-style call with no argument; datPersonaGetSkills reads the record still held from the
+    // caller's first argument.
     table = datPersonaGetSkills();
     i = 0;
     while (i < 8) {
@@ -821,7 +819,7 @@ void datPersonaFillSkillRows(s32 personaAddress, u8 *rows)
     ((DatSkillRows *)rows)->learnableCount = count;
 }
 
-// Intent: Clear the first three halfwords of a record [inferred]
+// Clear the first three halfwords of a record.
 // FUN_00113730
 void datRecordClearHeader(s16 *record) {
     record[0] = 0;
@@ -829,7 +827,8 @@ void datRecordClearHeader(s16 *record) {
     record[2] = 0;
 }
 
-// Intent: Reset a record: zero the two halfword counters, set the two indices at +4 and +5 to -1, and clear the 0x22C bytes from +8 [inferred]
+// Reset a record: zero kind and fontIndex, set indexA and indexB to -1, and clear the 0x22C data
+// bytes.
 // FUN_00113750
 void datRecordResetAll(u8 *record) {
     ((DatEntryRecord *)record)->kind = 0;
@@ -839,7 +838,8 @@ void datRecordResetAll(u8 *record) {
     memset(((DatEntryRecord *)record)->data, 0, 0x22C);
 }
 
-// Intent: Draw an entry by its kind: kind 0 draws the id name, kind 1 the skill descriptor, kind 2 the skill entry name [inferred]
+// Draw an entry by its kind: kind 0 draws the id name, kind 1 the skill descriptor, kind 2 the
+// skill entry name.
 // FUN_00113790
 void datEntryDrawByKind(Vec2f position, u8 opacity, void *entry, s32 flags, f32 depth)
 {
@@ -859,7 +859,7 @@ void datEntryDrawByKind(Vec2f position, u8 opacity, void *entry, s32 flags, f32 
     }
 }
 
-// Intent: Draw the record's id name at a position with the given alpha and the font index from the table [inferred]
+// Draw the record's id name at a position with the given alpha and the font index from the table.
 // FUN_00113800
 void datEntryDrawIdName(Vec2f position, f32 depth, u8 opacity, void *entry, s32 flags)
 {

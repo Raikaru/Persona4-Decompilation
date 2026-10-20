@@ -219,23 +219,19 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 004587d0-004587d0 */
 
 extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
+/* Scale a material's color by the RGBA factors in data, clamping each channel to 255. The original
+ * color is stored in the material's user data the first time, so scaling always starts from it. */
 // FUN_004587D0
-/* Measured: 1136/1136 bytes, 23 resolved relocations, no alignment tail.
-   Separate userdata lifetimes and index-before-color declarations preserve
-   register allocation; unsigned >255 clamps retain the retail branch form. */
+/* Userdata lifetimes are kept separate and index is declared before color; the unsigned >255 clamps
+ * keep retail's branch form. */
 u8 *K_ClumpMatColorScale(u8 *material, u8 *data)
 {
     f32 *scale = (f32 *)data;

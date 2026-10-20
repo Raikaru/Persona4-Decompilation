@@ -1,4 +1,4 @@
-/* Original translation unit cmmMisc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit cmmMisc.c (from __FILE__ assert strings). */
 #include "byte_address_internal.h"
 #include "operand_order_internal.h"
 #include "list_item_internal.h"
@@ -59,7 +59,7 @@ extern s32 cmmCommunityFindRecord(s32 value);
 extern s32 calGetWeekdayOfDay(s32 dateIndex);
 extern s32 calIsCurrentMonthDay(s32 unused, s32 month, s32 day);
 extern s32 calIsDayInRange(s32 dateIndex, s32 startMonth, s32 startDay, s32 endMonth, s32 endDay);
-extern s32 cmmCommunityCounterpart(s64 communityId); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
+extern s32 cmmCommunityCounterpart(s64 communityId); /* lint: allow H011 -- s64 parameter keeps retail's key move at the call site. */
 extern s32 cmmCommunityRecordValue(s32 communityId);
 extern s32 cmmCommunityTestRecordFlags(s32 communityId, s32 mask);
 extern u16 cmmCommunityGetTableHead(void);
@@ -108,14 +108,9 @@ extern u8 *D_008814D0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 
-/* measured: current layouts allow plain record sums; only rank-threshold/read-column addresses
- * retain byteAddressAdd, and the date counter retains operandOrderAdd. Older probe notes below are historical. */
+/* Gp-relative pointer to a table of 14-byte records loaded at runtime. */
 /* gp - 0x4C2C = 0x007644C4: runtime-loaded 14-byte record table. */
 static u8 *iGpffffb3d4;
-
-
-
-
 
 
 // Loads the cmm.bin event file (retail path string at D_006359E0) and fills D_00881480[0..0x1B] with its 28 chunks. Called once from the kwln table init.
@@ -173,15 +168,11 @@ u8 *cmmTextRecord(u32 textId) {
     return (u8 *)((index << 6) + (u32)table + 8);
 }
 
-/* MATCHED (wave 14): `#pragma opt_propagation off` (measured: nd 9 -> 2,
-   forces the single-use D_0088149C load into $a1 before the mul chain) + a
-   hoisted `s32 base` local + the cmmMiscAddOff inline helper (measured:
-   nd 2 -> 1, fixes the `addu $v0,$v0,$a1` mul-first operand order). Retail
-   loads the global into $a1 FIRST, then the x24 chain, then `addu $v0,$v0,$a1`. */
-// Rank name record: 24-byte record from chunk 7 (D_0088149C) for rank index value.
+/* Return a pointer to the rank name record for the given rank index in the D_0088149C table. */
 // FUN_00246910
 #pragma push
-/* measured: baseline integer-base and byte-pointer forms both leave nd22; retain propagation off. */
+/* measured: retail loads the table base before the multiply chain; propagation off keeps that
+ * order. */
 #pragma opt_propagation off
 u8 *cmmRankNameRecord(s16 value) {
     s32 base = D_0088149C[0];
@@ -189,13 +180,8 @@ u8 *cmmRankNameRecord(s16 value) {
     return (u8 *)((mul + base) + 8);
 }
 // Detail record: 20-byte record from chunk 8 (D_008814A0) for detail index value.
-/* MATCHED (wave 14): same recipe as cmmRankNameRecord — `#pragma opt_propagation
-   off` (measured: nd 9 -> 1, forces the single-use D_008814A0 load into $a1
-   before the x20 chain) + hoisted `s32 base` local + cmmMiscAddOff helper
-   (fixes the `addu $v0,$v0,$a1` operand order). Final residual is a benign
-   reloc-masked word. */
 // FUN_00246940
-/* measured: baseline integer-base and byte-pointer forms both leave nd21; retain propagation off. */
+/* measured: retail loads the table base before the multiply chain, same as cmmRankNameRecord. */
 u8 *cmmDetailRecord(s16 value) {
     s32 base = D_008814A0[0];
     s32 mul = (s16)value * 20;
@@ -222,13 +208,8 @@ s32 cmmRankStringAt(s16 value, s16 option) {
     return base + value * 0x41 + (option - 1) * 0xD;
 }
 
-/* Historical MATCHED (wave 14): static inline helper `cmmMiscAddOff(offset, base)`
-   carrying the addu operand order through its parameters fixed the two
-   transposed `addu` residuals (nd 4 -> 0). The `index` local + first helper
-   call fixed the first addu; the second call `cmmMiscAddOff(option*2, mid)`
-   fixed the second. Original residual was `addu $v0,$v1,$v0` vs retail
-   `addu $v0,$v0,$v1` (fresh sll result in rs). */
-// Rank threshold: returns the s16 threshold from chunk 11 (D_008814AC) for category value at level option. g_data.c uses it for rank thresholds.
+/* Returns the s16 rank threshold from chunk 11 (D_008814AC) for category value at level option;
+ * used by g_data.c. */
 // FUN_00246A50
 s32 cmmRankThreshold(s16 value, s16 option) {
     s32 base = D_008814AC[0] + 8;
@@ -243,7 +224,7 @@ s32 cmmRankThreshold(s16 value, s16 option) {
     }
     index = value * 8;
     mid = ((s32)byteAddressAdd(index, (u8 *)base));
-    /* Serialized halfwords retain the measured two-stage address-add order described above. */
+    /* The two-stage byteAddressAdd keeps retail's operand order for both address adds. */
     return ((s16 *)((s32)byteAddressAdd((option * 2), (u8 *)mid)))[-1];
 }
 // Label record: 64-byte label record from chunk 12 (D_008814B0) for id value. cmmPersonaDetailShow copies it as a display string.
@@ -423,19 +404,12 @@ s32 cmmHasPendingUnlock(void) {
     }
     return 0;
 }
-/* Family map (measured): the six related masked-counter/table walkers are
-   FUN_00247270 (0x280/640), FUN_002474F0 (0x280/640), FUN_00247DD0
-   (0xF0/240), FUN_00248240 (0x180/384), FUN_00248A60 (0x120/288), and
-   FUN_00248B80 (0x180/384). Related FUN_002483C0 is 0x220/544. The
-   00247270 C body had exact CFG and measured nd 67 at object 636/640;
-   residuals were mask-CSE at the nested call/tail. The opt_common_subs-off
-   probe measured nd 207 at object 648/640 from duplicated pointer loads, so
-   no pragma or body was retained. */
-// Find fresh reverse candidate: like cmmFindReverseCandidate, but the candidate must fail cmmCommunityHasTierBit(id, 1..9) for the scan tier. Returns the first match, or 0.
-/* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
+/* Find fresh reverse candidate: like cmmFindReverseCandidate, but the candidate must fail
+ * cmmCommunityHasTierBit(id, 1..9) for the scan tier. Returns the first match, or 0. measured:
+ * retail recomputes the mask at each use but shares the base pointer. */
 // FUN_00247270
 #pragma push
-/* measured: baseline masks nd98; narrow loop counter nd147; retain per-use mask generation. */
+/* measured: retail re-masks the community id at every use instead of sharing one mask. */
 #pragma opt_common_subs off
 s32 cmmFindFreshReverseCandidate(void) {
     s32 kindOffset;
@@ -488,15 +462,10 @@ s32 cmmFindFreshReverseCandidate(void) {
     return 0;
 }
 
-/* measured: retail re-issues the var_19&0xFFFF mask into $a0 at every call
-   site (10+ times) while keeping temp_18 ($s2) for the idx checks; mwcc b210
-   CSEs the call-arg masks into $s2 and emits move $a0, $s2 instead of andi
-   (nd 33, all diffs from this one pattern; u32 vs s32 temp_18 unchanged).
-   Mask-CSE floor (same family as FUN_00247DD0/FUN_00248A60). */
-// Find reverse candidate: returns the first rank-up-ready community that is not reversed or broken, passes cmmCommunityHasTierBit for the scan tier, has its kind flags, and passes the marked and condition checks; 0 when none qualifies. The pair with cmmFindFreshReverseCandidate.
-/* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
+/* Returns the first rank-up-ready community that is not reversed or broken, has the scan tier bit
+ * and kind flags, and passes the marked and condition checks; 0 if none. Pairs with
+ * cmmFindFreshReverseCandidate. */
 // FUN_002474F0
-/* measured: baseline removal leaves nd98 from per-call mask CSE; prior mixed-mask trials are recorded above. */
 s32 cmmFindReverseCandidate(void) {
     s32 kindOffset;
     u32 *table;
@@ -547,15 +516,10 @@ s32 cmmFindReverseCandidate(void) {
     }
     return 0;
 }
-/* MATCHED (measured): lever-2 re-masked loop counter. `#pragma opt_common_subs
-   off` (measured) stops mwcc b210 from CSE-ing `i & 0xFFFF` into a saved reg
-   so retail's `andi $a0,$i` is re-emitted at each call site; `i` MUST be
-   declared FIRST (measured: nd 12 -> 0) so the allocator picks
-   best=$s2/bestId=$s1/se=$s0/i=$s3; `target=(s16)value` sign-extends once
-   before the loop; `i=1` is set before the empty-init for. */
-// Top community of arcana: returns the community id whose arcana (cmmCommunityArcana) equals value and whose rank is highest, or 0 when none matches. Event callers pass the class from the Fcl slot table.
+/* Returns the community id whose arcana equals value and whose rank is highest, or 0 if none
+ * matches. Event callers pass the class from the Fcl slot table. */
 // FUN_00247770
-/* measured: baseline masks nd140; narrow loop counter nd161; retain per-call masks. */
+/* The loop counter stays a full int and is masked to 16 bits at each call, as retail does. */
 s16 cmmTopCommunityOfArcana(s32 value) {
     s32 i;
     s32 largest;
@@ -577,14 +541,10 @@ s16 cmmTopCommunityOfArcana(s32 value) {
     }
     return result;
 }
-/* MATCHED (measured): `#pragma opt_common_subs off` stops mwcc b210 from
-   CSE-ing `i & 0xFFFF` into a saved reg so retail's `andi $a0,$i` is
-   re-emitted at each call site; declaration order target/i/largest/result
-   (measured: nd 8 -> 0) yields retail's $s0=target/$s1=result/$s2=largest/
-   $s3=i/$s4=v; `target=(s8)func_00248760(value&0xFFFF)` sign-extends once. */
-// Top persona of arcana: returns the roster persona whose arcana matches the arcana of community value and whose rank is highest, or 0 when none matches.
+/* Returns the roster persona with the highest rank whose arcana matches the arcana of the community
+ * value, or 0 if none matches. */
 // FUN_00247820
-/* measured: baseline masks nd163; narrow loop counter nd169; retain per-call masks. */
+/* The loop counter stays a full int and is masked to 16 bits at each call, as retail does. */
 s16 cmmTopPersonaOfArcana(s32 value) {
     s32 target;
     s32 i;
@@ -609,10 +569,9 @@ s16 cmmTopPersonaOfArcana(s32 value) {
     return (s16)result;
 }
 #pragma pop
-/* measured: 796 executable bytes match all 20 resolved relocations; the
-   800-byte retail window ends with one unreachable alignment word.
-   Ordinary s32 target/threshold lifetimes reproduce both sq/lq spills. */
-// Arcana candidate: for arcana value and level threshold option, lists the personas at or below the threshold plus the nearest one above it, sorted by level. selection of -1 returns the count; otherwise the selection-th entry, or 0.
+/* Arcana candidate: for an arcana value and level threshold option, lists personas at or below the
+ * threshold plus the nearest one above, sorted by level. Selection -1 returns the count; otherwise
+ * the selection-th entry, or 0. */
 // FUN_00247900
 s32 cmmArcanaCandidateAt(s32 value, s32 option, s32 selection) {
     s32 target;
@@ -723,19 +682,9 @@ s32 cmmRosterHasArcana(s16 value) {
     return 0;
 }
 
-/* measured: retail loads each case constant with daddiu ($s0, $zero, imm)
-   and re-materializes it for the call arg (addiu $a0, $zero, imm), while mwcc
-   b210 emits addiu for the variable and CSEs the constant into a move (nd 16)
-   in every spelling tried (s32/s16/s64/u32 vars, L-suffix constants, arg-from-
-   var). 64-bit-constant-load floor. */
-/* nd 0/288 (object 284B in a 288B window). The existing u16 local and
-   matching u16 parameter declaration for cmmCommunityHasRecord reproduce every
-   instruction; changing this function's return type from s32 to u16 removes
-   the redundant `andi $v0,$s0,0xffff` at the epilogue, leaving retail's
-   `move $v0,$s0`. Guard spelling probes (`n >= 4` versus `n > 3`) were
-   measured separately on cmmDateTableAddCount; the base spelling was retained.
-   Committed at nd 0. */
-// Community for arcana: maps arcana value (2 to 8) to its community id, using the alternate id when the primary community has no record. Returns 0 when neither has one.
+/* Community for arcana: maps arcana value (2 to 8) to its community id, using the alternate id when
+ * the primary community has no record. Returns 0 when neither has one. The u16 return type avoids
+ * re-masking the result on return. */
 // FUN_00247CB0
 u16 cmmCommunityForArcana(s64 arcanaValue) {
     u16 communityId;
@@ -783,12 +732,8 @@ u16 cmmCommunityForArcana(s64 arcanaValue) {
     }
     return communityId;
 }
-/* Find the first enabled entry with the requested low-16 category.
-   measured: use a cast for the bounds check and a mask for the address and
-   category call, avoiding a cached masked counter across calls. Reuse the
-   existing address-order helper. Exact 228B instructions plus 12B zero tail;
-   retain the caller's s32 ABI and pass the index omitted by IDA explicitly. */
-// Find community of category: returns the first community that has a record, flag 4 in its kind record, and category value (cmmCommunityCategory). Returns 0 when none matches.
+/* Returns the first community that has a record, flag 4 in its kind record, and the requested
+ * low-16 category; returns 0 when none matches. */
 // FUN_00247DD0
 s32 cmmFindCommunityOfCategory(s32 value)
 {
@@ -840,17 +785,13 @@ s32 cmmDateListed(s32 seed) {
     return 0;
 }
 
-/* MATCHED (measured): `#pragma opt_loop_invariants on` (nd 53 -> 9) hoists
-   the sp3C/sp38 outputs and count into registers before the loop. The
-   goto-sentinel spelling is required: `found` is set to 1 inside the loop
-   (match) with `goto done`, and `found = 0` sits on the loop-exit path —
-   this puts the sentinel in $v0 and yields retail's shared `beqz $v0 ->
-   RET1` check. The inverted guard `if (found != 0) return 0; return 1;`
-   (measured: nd 9 -> 0) matches retail's branch polarity. */
-// Date not listed: returns 1 when the (month, day) pair for the date seed value is absent from the D_00881498 pair list, else 0. Script callers use it as a date-availability gate.
+/* The found flag is set inside the loop before goto done and cleared on the loop-exit path, and the
+ * inverted final guard follows retail's branch shape. Date not listed: returns 1 when the (month,
+ * day) pair for the date seed value is absent from the D_00881498 pair list, else 0. Script callers
+ * use it as a date-availability gate. */
 // FUN_00247F60
 #pragma push
-/* measured: baseline byte cursor and typed date-pair cursor both leave nd30; retain loop hoisting. */
+/* measured: retail hoists the loop-invariant loads out of the date-pair scan loop. */
 #pragma opt_loop_invariants on
 s32 cmmDateNotListed(s32 value) {
     u8 *p;
@@ -881,7 +822,8 @@ done:
     return 1;
 }
 #pragma pop
-// Next unlisted date: returns the next date seed after value (below 0x16D) whose (month, day) pair is not in the D_00881498 list and whose date is valid. Returns 0 when there is none.
+// Next unlisted date: returns the next date seed after startDate (below 0x16D) whose (month, day)
+// pair is not in the D_00881498 list and whose date is valid. Returns 0 when there is none.
 // FUN_00248040
 s32 cmmNextUnlistedDate(s32 startDate) {
     s32 date = startDate + 1;
@@ -906,11 +848,8 @@ body:
     }
     goto incr;
 }
-/* measured: retail booleanizes the match chain (ret in $v0, fail block out
-   of line) with 8 saved regs; mwcc b210 inlines the fail skips and balloons
-   to 10 saved registers (best nd 30 without the ret booleanize, 82 with).
-   Register-pressure + if-chain-layout floor. */
-// Nth eligible community: returns the id of the value-th community in the D_00881490 table for (option, selection) whose rank is inside its bounds, is not rank 10, is not flagged 3, and is not the table head. Returns 0 when there is no such entry.
+/* Returns the id of the value-th community in the D_00881490 table for (option, selection) whose
+ * rank is in bounds, not rank 10, not flagged 3, and not the table head; 0 if none. */
 // FUN_002480E0
 u16 cmmNthEligibleCommunity(s32 requestedIndex, s32 month, s32 day) {
     s32 count;
@@ -956,19 +895,14 @@ loop_15:
     }
     return 0U;
 }
-/* measured (wave 14 retest — nd 73 reproduced exactly; no match): draft-based
-   reconstruction `while (var_20 < 0x1F) { if (cmmCommunityHasRecord(var_20&0xFFFF)
-   && cmmCommunityTestRecordFlags(var_20&0xFFFF,3)==0) { temp_2 = cmmCommunityFindRecord(...); ...
-   *0x64 ladder, D_00881480 bounds, +0x12 flags, cmmCommunitySetReversed } }` scores
-   nd 73 — mwcc b210 CSEs var_20&0xFFFF into a saved register ($s3) at loop
-   top and emits move $a0,$s3 per call, retail re-issues andi per site.
-   Mixed `(u16)`/`& 0xFFFF` spellings regress to nd 90 (normalised away).
-   Mask-CSE floor (same family as FUN_002483C0/FUN_00248B80). */
-// Tick reverse progress: for each community with a record and no flag band 3, adds 1 to its progress counter (+0xA) when its kind record's threshold (+0x12) is set. Sets REVERSED once the counter reaches the threshold. Called from cldScheduler.c.
-/* measured: opt_common_subs off restores retail per-use masks while preserving the two table bases. */
+/* Tick reverse progress: for each community with a record and no flag band 3, increments its
+ * progress counter when its kind's threshold is set, setting REVERSED once reached. Called from
+ * cldScheduler.c. measured: retail re-applies the 0xFFFF mask at each call site instead of reusing
+ * one masked value. */
 // FUN_00248240
 #pragma push
-/* measured: baseline removal leaves nd214; prior mixed-mask forms also fail, as recorded above. */
+/* measured: retail keeps separate per-use masks, which common-subexpression elimination would
+ * merge. */
 #pragma opt_common_subs off
 void cmmTickReverseProgress(void) {
     s32 kindOffset;
@@ -1019,21 +953,11 @@ block_13:
     }
 }
 #pragma pop
-/* measured (wave 14 retest — nd 119 with a fresh draft-based reconstruction,
-   no match): loop of cmmCommunityHasRecord/func_00107ac0==0xA/func_00248a60/
-   cmmCommunityTestRecordFlags guards, the D_00881494 two-u16 table scan into var_20,
-   cmmCommunityFindRecord (real signature s32(s32) — the m2c's 2nd arg is a leftover
-   $5 the callee ignores), +0x12 flags and cmmCommunitySetReversed — mask-CSE
-   dominates (mwcc drills var_21&0xFFFF into a saved register; nd 30+ per the
-   earlier note's better spelling). Same family as FUN_00248240/FUN_00248B80.
-   func_00248a60 extern added as s32(s32). */
-/* measured: corrected target callees to func_00248a60(s32), cmmCommunityTestRecordFlags(s32,s32),
-   kAssertFail(void *,s32), cmmCommunitySetReversed(s32), and
-   cmmCommunityHasRecord(s32); active seed measured 552B vs 544B retail window,
-   normalized_diff 109 (oversized reconstruction); archived without further probes. */
-// Advance reverse progress: for each rank-10 community (other than value) with a record and no flag band 3, adds its paired value from the D_00881494 pair table to its progress counter (+0xA). When the progress reaches the kind record's threshold (+0x12), sets REVERSED through cmmCommunitySetReversed.
+/* Advance reverse progress: for each rank-10 community (other than value) with a record and no flag
+ * band 3, adds its paired value from the D_00881494 pair table to its progress counter (+0xA). When
+ * the progress reaches the kind record's threshold (+0x12), sets REVERSED through
+ * cmmCommunitySetReversed. */
 // FUN_002483C0
-/* measured: current per-use u16 call indices match under baseline propagation; the former off scope is redundant. */
 void cmmAdvanceReverseProgress(u16 excludedCommunity) {
     s32 kindOffset;
     s32 communityId;
@@ -1128,8 +1052,7 @@ block_15:
     }
 }
 
-/* measured: baseline nd81 becomes MATCH with explicit pre-loop community/kind snapshots. */
-// Message-stream entry: returns the chunk 3 record (D_0088148C) for kind value and community id option. When value is 0 it derives the state code from cmmCommunityHasRecord and cmmCommunityCanRankUp (1, 2, 3, or 6). cmmMsgStreamStart stores the record as the stream source.
+/* Community id and kind are snapshotted into locals before the search loop. */
 // FUN_002485E0
 u8 *cmmMsgStreamEntry(s32 requestedKind, s32 communityId) {
     s32 kind = requestedKind;
@@ -1143,8 +1066,8 @@ u8 *cmmMsgStreamEntry(s32 requestedKind, s32 communityId) {
     u8 *entry;
 
     if (!(kind & 0xFFFF)) {
-        /* cmmCommunityHasRecord is narrow at the 00247270-family sites for retail's
-           andi, but 002485e0 passes communityId whole as s32, so override it here. */
+        /* Unlike other callers, this site passes communityId as a full s32, so the prototype is
+         * overridden locally. */
         extern s32 cmmCommunityHasRecord(s32 communityId);
         if (cmmCommunityHasRecord(communityId) == 0) {
             selectedKind = 3;
@@ -1210,7 +1133,7 @@ s8 cmmCommunityEventValue(s32 value, s8 option) {
         idx = option * 8;
         p = idx + elem;
         q = (u8 *)(p + 0x28);
-        /* Eight-byte event slots: gate at +0x24, value at +0x28; a typed slot changes MWCC scheduling (nd 60). */
+        /* Eight-byte event slots: gate at +0x24, value at +0x28, read through a raw byte pointer. */
         if (((CmmKindRecord *)p)->eventSlots[0].result.word != 0) {
             v = ((CmmKindRecord *)p)->eventSlots[0].gate;
             if ((v == 0) || (datGetFlag(v) != 0)) {
@@ -1263,15 +1186,12 @@ u16 cmmCommunityCategory(s32 communityId) {
     return 0;
 }
 
-/* measured: retail keeps value raw in $s3, masks once into $s1 (temp_17)
-   and re-masks into $v1 for the 100-multiply; mwcc b210 CSEs the mask into
-   one register (best nd 37) in every spelling tried ((u16) vs & 0xFFFF vs
-   temp_17 = value). Mask-CSE floor (same family as FUN_00247DD0). */
-// Reversed at rank: returns 1 when community value has a record, the REVERSED bit in its kind record (chunk 0), and a level byte at or above its rank from cmmCommunityRecordValue; else 0.
-/* measured: opt_common_subs off preserves the raw parameter call and per-use table masks. */
+/* measured: retail passes the raw parameter to one call and re-masks the value for each table use,
+ * which common-subexpression elimination would merge. Returns 1 if the community is reversed at or
+ * above its rank, else 0. */
 // FUN_00248A60
 #pragma push
-/* measured: baseline removal leaves nd125; retain separate raw-parameter and per-use masked calls. */
+/* measured: retail keeps separate raw-parameter and per-use masked calls. */
 #pragma opt_common_subs off
 s32 cmmReversedAtRank(s32 communityId) {
     s32 kindOffset;
@@ -1303,16 +1223,9 @@ s32 cmmReversedAtRank(s32 communityId) {
     }
     return 0;
 }
-/* measured: retail re-issues var_18&0xFFFF into $a0 at every call site
-   (3 sites) while keeping temp_21 in $s5 for the bounds checks (6 saved
-   regs); mwcc b210 CSEs the mask into a saved register $s0 at loop top and
-   emits move $a0,$s0 per call (nd 75; tried & 0xFFFF / (u16) mixes at all
-   sites, temp_21 u32 vs s32). Mask-CSE floor (same family as
-   FUN_002474F0/FUN_002483C0/FUN_00248A60). */
-// Top reversed community: returns the id with the highest rank among communities that are reversed and whose level meets their rank (see cmmReversedAtRank), or 0 when none qualifies.
-/* measured: opt_common_subs off restores retail per-use masks while preserving both table bases. */
+/* Returns the id of the highest-ranked community that is reversed and whose level meets its rank
+ * (see cmmReversedAtRank), or 0 if none qualifies. */
 // FUN_00248B80
-/* measured: baseline removal leaves nd211; prior cast/mask mixes are recorded above. */
 s32 cmmTopReversedCommunity(void) {
     s32 kindOffset;
     s32 rank;
@@ -1367,14 +1280,11 @@ block_10:
 }
 #pragma pop
 
-/* measured: retail hoists the 0xFFFF0000 mask constant into $v1 before the
-   loop and keeps the loop count in $t0; without #pragma opt_loop_invariants
-   mwcc b210 rematerializes lui per iteration (nd 16). Declarations must be
-   count/var_10/var_9/temp_7 order for the $t0/$t1/$t2 allocation. */
-// Table lookup value: scans the 12-byte entries at D_008814C0 for the key (value high half, option low half, selection at +4) and returns the value at +8, or -1.
+/* Search the 12-byte entries of the D_008814C0 table for one matching keyHigh, keyLow and kind and
+ * return its value, or -1 if none matches. */
 // FUN_00248D00
 #pragma push
-/* measured: baseline masked high-half nd23; direct unsigned shift nd78; retain loop hoisting. */
+/* measured: retail hoists the high-half mask constant out of the loop. */
 #pragma opt_loop_invariants on
 s32 cmmTableLookupValue(s32 keyHigh, s32 keyLow, s32 kind) {
     s32 count;
@@ -1397,16 +1307,14 @@ s32 cmmTableLookupValue(s32 keyHigh, s32 keyLow, s32 kind) {
 }
 #pragma pop
 
-/* measured: widening the declaration of cmmCommunityCounterpart to s64 is correct:
-   the callee truncates internally without sign-extending on entry. This lets
-   the caller pass the already-masked key in $s1, reproducing the retail move
-   and the complete -0x40 frame/s0-s2 prologue. With propagation disabled,
-   this body is MATCH at nd 0 (object 148B/window 160B). */
-// Resolve counterpart: returns the counterpart of community value when value has no record and its counterpart does; otherwise returns value.
-/* measured: opt_propagation off preserves retail's raw/key lifetimes. */
+/* measured: cmmCommunityCounterpart is declared s64 because the callee truncates internally, and
+ * propagation is off to keep retail's raw/key lifetimes. Returns the counterpart when value has no
+ * record but its counterpart does, otherwise value. */
+/* Return the community's counterpart if the community has no record but the counterpart does;
+ * otherwise return the original value. */
 // FUN_00248D80
 #pragma push
-/* measured: baseline removal leaves nd99 in raw/key lifetimes; retain propagation off. */
+/* measured: retail keeps raw and key lifetimes separate rather than forwarding them. */
 #pragma opt_propagation off
 s64 cmmResolveCounterpart(s64 value)
 {
@@ -1426,7 +1334,6 @@ s64 cmmResolveCounterpart(s64 value)
     return raw;
 }
 #pragma pop
-
 
 
 // Table lookup flagged: scans the 12-byte entries at D_008814C8 for the key (value high half, option low half, selection or 0xFFFF) and returns the u16 at +0xA when its 0x8000 bit is set. Returns -1 otherwise.
@@ -1458,7 +1365,8 @@ s32 cmmTableLookupFlagged(s32 keyHigh, s32 keyLow, s32 kind) {
     }
     return -1;
 }
-// Returns 0 when option is at or below the first threshold of date-table entry value, 1 when it is at or below the second, else 2 [inferred].
+// Returns 0 when value is at or below the first threshold of date-table entry entryId, 1 when at or
+// below the second, else 2.
 // FUN_00248F20
 s32 cmmDateTableRangeKind(s32 entryId, s32 value) {
     u8 *table = (u8 *)(D_008814CC[0] + 8);
@@ -1506,10 +1414,8 @@ s32 cmmDateTableFindIndex(s32 seed) {
     return -1;
 }
 
-/* measured: the hit path copies the index (`k = i; goto found;`) and the exhausted path sets
-   `k = -1` - the copy keeps retail's bne / b-to-found pair; `if (k != -1) return entry; return NULL;`
-   places the NULL return out of line as retail. */
-// Date table find record: returns the ordinary record for the date seed, or NULL when none matches.
+/* Date table find record: returns the ordinary record for the date seed, or NULL when none matches.
+ * The index copy and separate k != -1 test match retail's branch layout. */
 // FUN_002490B0
 u8 *cmmDateTableFindRecord(s32 seed) {
     s32 month;
@@ -1580,10 +1486,9 @@ s32 cmmDateTableHasEntry(void) {
     return 1;
 }
 
-/* measured: both failure paths reach one `p = NULL; t = p;` block (a goto target) and the success
-   path copies `t = p` before the join - the copy keeps retail's b-over-null trampoline; the return
-   is `if (t == NULL) return 0; return 1;` (retail bnez / move v0,zero / li 1 tail). */
-// Date table has special record: returns 1 when the special record for date value is unlocked (flag 0xA61 and its threshold), else 0.
+/* Both failure paths share one goto target that sets p and t to NULL, and the success path copies t
+ * = p before the join, as retail does. Returns 1 when the date's special record is unlocked (flag
+ * 0xA61 and its threshold), else 0. */
 // FUN_002492B0
 s32 cmmDateTableHasSpecialRecord(u32 date) {
     s32 month;
@@ -1611,11 +1516,8 @@ join:
     }
     return 1;
 }
-/* Select an ordinary or special calendar record, then read column 0 or 1.
-   measured: the neighboring shared-NULL join/copy pattern retains retail's
-   branch trampolines; cmmMiscAddOff preserves the final address operand order.
-   Exact 328B instructions plus 8B zero tail; caller-facing s32 ABI unchanged. */
-// Date table read column: returns the 32-bit value at +12 of column selection (0 or 1) of the record selected for date option; special selects the special record, otherwise the ordinary record. Returns 0 when no record is selected.
+/* Returns the 32-bit value at +12 of column 0 or 1 of the special or ordinary calendar record for
+ * the date; returns 0 if no record is selected. */
 // FUN_00249370
 s32 cmmDateTableReadColumn(s32 special, s32 date, s32 column)
 {
@@ -1653,7 +1555,7 @@ selected_record:
     if (selected == NULL) return 0;
     return ((CmmDateColumn *)(((s32)byteAddressAdd((column * 16), (u8 *)(s32)selected)) + 4))->value;
 }
-/* Unsigned address sums stay separate from signed counter deltas; measured plain sums now match. */
+/* Unsigned address sums are kept separate from signed counter deltas. */
 
 
 // Date table apply column: selects the record for date (special record when flag 0xA61 allows it), then applies the column's two counter deltas clamped at 99 through datItemSetCount; asserts column is 0 or 1.
@@ -1703,42 +1605,10 @@ selected_record:
     }
     return 1;
 }
-/* measured: nd 4 (obj 252B vs window 256B, so THREE real words) from 14.
-   Reconstructed from the m2c draft in src/generated/code1_0024.c, which gave the
-   control flow directly; the `(s64)((x + 0x4EA) << 0x30) >> 0x30` it prints is
-   just `(s16)(v + 0x4EA)`.
-
-   Two levers. Declaring `v` before `n` fixes a whole-function $s0/$s1 mirror
-   (14 -> 5) -- m2c's own var_16/var_17 numbering is the hint, var_17 is `v` and
-   retail colours it $s1. Then `#pragma opt_propagation off` (measured: 5 -> 4)
-   stops b210 forwarding `v = value` so the zero test reads the saved $s1 copy the
-   way retail does, instead of testing $a0 directly.
-
-   Residual: the two parameter saves are emitted in register order ($s0 then $s1)
-   where retail emits them in parameter order (value to $s1 first), and one
-   commutative `addu` has its operands transposed. Measured and rejected:
-   `option + func_001064f0(0x57)`, seeding `n = option` at the top, seeding it just
-   before the add, and opt_common_subs off (5). Nine spellings.
-   Parameter-save order floor. */
 
 
-/* nd 6 -> 4. The `+` here is a commutative operand-order row: retail emits
-   addu $s0,$v0,$s0 (call result first) and b210 emits addu $s0,$s0,$v0. Writing it
-   at the callsite does not move it; the operands have to travel through an inline
-   helper's parameter list, and the helper MUST sit above the // FUN_ marker - a
-   definition between the marker and the function body breaks the name parse and the
-   function silently vanishes from the verify report.
-   Remaining 2 words are the prologue parameter saves: retail emits move $s1,$a0
-   then move $s0,$a1, b210 the other way round. Measured unmoved by declaration
-   order (nd 15), by reversing the helper parameters, and by opt_lifetimes,
-   reg_class_allocs, opt_scalarizeliveranges, opt_serializeassignments,
-   opt_repositioncode, opt_movepostops, opt_prelinearize, opt_dead_assignments,
-   opt_marknonregtemps, opt_optimizenonregaccess and no_branch_likely.
-   Committed at nd 4. */
-/* measured: parked body committed at nd 4. */
-/* measured: parked body committed at nd 4. */
-// Date table add count: selects counter slot value (0 = the next free slot), adds option through cmmAddCountFirst, and at 4 completes the slot by setting flag 0x9AF+slot and clearing the counter.
-/* measured: current operand-order addition matches under baseline propagation without the former off scope. */
+/* Operand order of the addition is set by passing it through an inline helper; the helper must sit
+ * above the FUN_ marker or the function is lost from the report. */
 // FUN_00249670
 s32 cmmDateTableAddCount(s32 value, s32 option)
 {
@@ -1819,21 +1689,8 @@ s32 cmmDateTableFindNthMatch(s32 date, s32 status, s32 requestedIndex) {
     return 0;
 }
 
-/* measured: the retail range guard is now byte-exact -- `((s32)(value &
-   0xFFFF) < 0) || ((value & 0xFFFF) > 5)` reproduces `andi; bltz; slti $at,6`
-   (nd 34 -> 21), so the "dead-comparison" half of the old note is solved.
-   Recipe A half-scaler (s32 z; u32 c; fz = (f32)(s32)((c>>1)|(c&1));
-   fz = fz + fz) and retail's `if (z >= 0) direct else half-scaler` layout
-   keep everything through the join correct. Residual 9 words, all FPU:
-   (1) the or folds into $v0 (rd = rt) where retail keeps $v1 (rd = rs) and
-   the following cvt lands in $f0 with add.s $f1,$f0,$f0 instead of retail's
-   cvt into $f1 and add.s $f1,$f1,$f1; (2) mwcc sinks the div.s below the
-   lh/cvt of the second operand, so w and t swap FP registers and the
-   madd.s operands transpose. Twelve spellings measured (inline / cmmMiscOr
-   helper / named or-temp x named-t / inline-div / named-w / parenthesised
-   product) all give exactly nd 21. FPU allocation + scheduling floor.
-   Committed at nd 21. */
-// Date table roll value: returns the entry's base value plus a random fraction of its span (D_008814EC roll table); asserts index is 0-5.
+/* Date table roll value: returns the entry's base value plus a random fraction of its span
+ * (D_008814EC roll table); asserts index is 0-5. */
 // FUN_00249960
 s32 cmmDateTableRollValue(s32 index)
 {
@@ -1868,13 +1725,9 @@ s32 cmmDateTableRollValue(s32 index)
   return (s32) (((f32) baseValue) + (((f32) ((CmmFishingRecord *)record)->span) * scale));
 }
 
-/* The retail range guard tests the MASKED index twice and lowers the upper
-   bound through the $at assembler temp: `andi $v0,$s1,0xffff; bltz $v0;
-   slti $at,$v0,6`. Spelling the bound as `> 5` rather than `>= 6` is what
-   puts the slti result in $at (see docs/matching.md); re-masking in both
-   halves of the || is what makes bltz test the masked value. Same shape as
-   FUN_00246E90. */
-// Date table run effect: runs the effect recorded in roll entry value (D_008814EC) through datEntryDrawGatedByFlag39.
+/* Range guard re-masks the index in both halves and spells the bound as > 5, as retail tests the
+ * masked value twice. Runs the effect recorded in roll entry value (D_008814EC) through
+ * datEntryDrawGatedByFlag39. */
 // FUN_00249A60
 void cmmDateTableRunEffect(s32 entryId) {
     u8 *table = (u8 *)D_008814EC[0];

@@ -1,4 +1,4 @@
-/* Original translation unit pscRes.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit pscRes.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "member_access.h"
@@ -106,7 +106,8 @@ extern const u8 D_0064E4E0[];
 extern void *D_0072469C;
 
 
-// Intent: Initialises the social card resource context: clears slot flags, refcounts and handles, and publishes it as the singleton [inferred]
+// Initialises the social card resource context: clears slot flags, refcounts and handles, and
+// publishes it as the singleton.
 // FUN_0036B650
 void pscResInit(void *context) {
     s32 i;
@@ -138,11 +139,9 @@ void pscResInit(void *context) {
     D_0072469C = context;
 }
 
-// Intent: Polls card resource loads: when a CD file completes, decodes it into its slot and marks the slot ready [inferred]
-/* Poll pending card files, decode completed images into their destination slots, and release each completed file request. */
+// Poll pending card files, decode completed images into their destination slots, and release each
+// completed file request.
 // FUN_0036B750
-/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
- * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResUpdate(void) {
     PscCardRequest *requestFields;
     HCdvd *loadedFile;
@@ -241,7 +240,7 @@ void pscResUpdate(void) {
     }
 }
 
-// Intent: Reports whether any card resource slot is in use [inferred]
+// Reports whether any card resource slot is in use.
 // FUN_0036BB60
 s32 pscResAnySlotInUse(void) {
     s32 i;
@@ -259,11 +258,9 @@ s32 pscResAnySlotInUse(void) {
     return i < 0x20;
 }
 
-// Intent: Frees every card raster and slot in the resource context and clears the singleton [inferred]
-/* Destroy every ready shared raster and occupied card-slot raster before unpublishing the resource context. */
+// Destroys every ready shared raster and occupied card-slot raster, then clears the resource
+// context singleton.
 // FUN_0036BBF0
-/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
- * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResDestroy(void) {
     PscResourceContext *cardContext;
     u8 *p;
@@ -336,7 +333,7 @@ s32 pscResGetBaseRaster(void) {
     return ((PscResourceContext *)p)->baseRaster;
 }
 
-// Intent: Returns the raster of the misc card w_c00 [inferred]
+// Returns the raster of the misc card w_c00.
 // FUN_0036BE70
 s32 pscResGetMiscCardW00Raster(void) {
     void *p;
@@ -351,8 +348,8 @@ s32 pscResGetMiscCardW00Raster(void) {
     return ((PscResourceContext *)p)->miscW00Raster;
 }
 
-// Intent: Returns the raster of the loaded Arcana card for (group, index) [inferred]
-/* Find the requested Arcana group and card index and return its raster only after checking readiness. */
+// Find the requested Arcana group and card index and return its raster only after checking
+// readiness.
 // FUN_0036BEE0
 /* The slot stride and fields follow the shared card layouts above. */
 s32 pscResGetArcanaRaster(s32 group, s32 cardIndex) {
@@ -385,8 +382,8 @@ s32 pscResGetArcanaRaster(s32 group, s32 cardIndex) {
     return cardContext->arcana[i].raster;
 }
 
-// Intent: Returns the raster of the loaded persona card with the given 16-bit id [inferred]
-/* Find the matching sixteen-bit persona identifier and return its raster only after checking readiness. */
+// Returns the raster of the loaded persona card with the given 16-bit id, only after checking that
+// resources are ready.
 // FUN_0036BFF0
 /* The slot stride and fields follow the shared card layouts above. */
 s32 pscResGetPersonaRaster(s32 personaId) {
@@ -416,7 +413,7 @@ s32 pscResGetPersonaRaster(s32 personaId) {
     return cardContext->personas[i].raster;
 }
 
-// Intent: Returns the raster of the misc card w_c01 [inferred]
+// Returns the raster of the misc card w_c01.
 // FUN_0036C0D0
 s32 pscResGetMiscCardW01Raster(void) {
     void *p;
@@ -431,7 +428,7 @@ s32 pscResGetMiscCardW01Raster(void) {
     return ((PscResourceContext *)p)->miscW01Raster;
 }
 
-// Intent: Drops one reference to an Arcana card and frees its raster at zero [inferred]
+// Drops one reference to an Arcana card and frees its raster at zero.
 // FUN_0036C140
 void pscResReleaseArcanaCard(s32 group, s32 cardIndex) {
     void *p;
@@ -456,7 +453,7 @@ void pscResReleaseArcanaCard(s32 group, s32 cardIndex) {
     }
 }
 
-// Intent: Drops one reference to a persona card and frees its raster at zero [inferred]
+// Drops one reference to a persona card and frees its raster at zero.
 // FUN_0036C230
 void pscResReleasePersonaCard(s32 personaId) {
     void *p;
@@ -481,7 +478,7 @@ void pscResReleasePersonaCard(s32 personaId) {
     }
 }
 
-// Intent: Drops one reference to misc card w_c00 and frees its raster at zero [inferred]
+// Drops one reference to misc card w_c00 and frees its raster at zero.
 // FUN_0036C310
 void pscResReleaseMiscCardW00(void) {
     void *p;
@@ -502,7 +499,7 @@ void pscResReleaseMiscCardW00(void) {
     }
 }
 
-// Intent: Drops one reference to misc card w_c01 and frees its raster at zero [inferred]
+// Drops one reference to misc card w_c01 and frees its raster at zero.
 // FUN_0036C3B0
 void pscResReleaseMiscCardW01(void) {
     void *p;
@@ -523,11 +520,9 @@ void pscResReleaseMiscCardW01(void) {
     }
 }
 
-// Intent: Takes a reference to misc card w_c00, starting its CD load (card/misc/w_c00.tmx) on first use [inferred]
-/* Retain the first miscellaneous card, scheduling its image file only when neither ready nor already loading. */
+// Takes a reference to misc card w_c00, starting its CD load (card/misc/w_c00.tmx) only when it is
+// neither ready nor already loading.
 // FUN_0036C450
-/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
- * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResAcquireMiscCardW00(void) {
     PscResourceContext *cardContext;
     void *p;
@@ -558,7 +553,8 @@ void pscResAcquireMiscCardW00(void) {
     }
 }
 
-// Intent: Takes a reference to the Arcana card for (group, index), starting its CD load from card/sarcana on first use [inferred]
+// Takes a reference to the Arcana card for (group, index), starting its CD load from card/sarcana
+// on first use.
 // FUN_0036C570
 void pscResAcquireArcanaCard(s32 group, s32 cardIndex) {
     char buf1[0x10];
@@ -627,7 +623,8 @@ void pscResAcquireArcanaCard(s32 group, s32 cardIndex) {
     ((PscCardRequest *)q)->state = 1;
     ((PscCardRequest *)q)->flags |= 1;
 }
-// Intent: Takes a reference to the persona card with the given id, starting its CD load from card/persona on first use [inferred]
+// Takes a reference to the persona card with the given id, starting its CD load from card/persona
+// on first use.
 // FUN_0036C7E0
 void pscResAcquirePersonaCard(s32 personaId) {
     char buf[0x100];
@@ -658,11 +655,9 @@ void pscResAcquirePersonaCard(s32 personaId) {
     ((PscCardRequest *)q)->flags |= 1;
 }
 
-// Intent: Takes a reference to misc card w_c01, starting its CD load (card/misc/w_c01.tmx) on first use [inferred]
-/* Retain the second miscellaneous card, scheduling its image file only when neither ready nor already loading. */
+/* Add a reference to the w_c01 misc card, queuing a CD load for its image file the first time it is
+ * needed if it is not already ready or loading. */
 // FUN_0036C900
-/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
- * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResAcquireMiscCardW01(void) {
     PscResourceContext *cardContext;
     void *p;
@@ -693,7 +688,7 @@ void pscResAcquireMiscCardW01(void) {
     }
 }
 
-// Intent: Reports whether an Arcana card for (group, index) is in a slot [inferred]
+// Reports whether an Arcana card for (group, index) is in a slot.
 // FUN_0036CA20
 s32 pscResHasArcanaCard(s32 group, s32 cardIndex) {
     s32 i;
@@ -719,7 +714,7 @@ s32 pscResHasArcanaCard(s32 group, s32 cardIndex) {
     return i < 0x10;
 }
 
-// Intent: Returns the slot entry of the Arcana card for (group, index), asserting it exists [inferred]
+// Returns the slot entry of the Arcana card for (group, index), asserting it exists.
 // FUN_0036CAD0
 void *pscResFindArcanaCard(s32 group, s32 cardIndex) {
     s32 i;
@@ -748,7 +743,7 @@ void *pscResFindArcanaCard(s32 group, s32 cardIndex) {
     return (u8 *)p + i * 0x14 + 0x54;
 }
 
-// Intent: Adds a reference to an Arcana card already in a slot [inferred]
+// Adds a reference to an Arcana card already in a slot.
 // FUN_0036CBC0
 void pscResRetainArcanaCard(s32 group, s32 cardIndex) {
     s32 i;
@@ -777,7 +772,7 @@ void pscResRetainArcanaCard(s32 group, s32 cardIndex) {
     *(u32 *)&((PscResourceContext *)p)->arcana[i].references += 1;
 }
 
-// Intent: Returns the first free Arcana slot index, asserting one exists [inferred]
+// Returns the first free Arcana slot index, asserting one exists.
 // FUN_0036CCC0
 s32 pscResFindFreeArcanaSlot(void) {
     s32 i;
@@ -798,7 +793,7 @@ s32 pscResFindFreeArcanaSlot(void) {
     return i;
 }
 
-// Intent: Reports whether a persona card with the given id is in a slot [inferred]
+// Reports whether a persona card with the given id is in a slot.
 // FUN_0036CD70
 s32 pscResHasPersonaCard(s32 personaId) {
     s32 i;
@@ -821,7 +816,7 @@ s32 pscResHasPersonaCard(s32 personaId) {
     return i < 0x10;
 }
 
-// Intent: Returns the slot entry of the persona card with the given id, asserting it exists [inferred]
+// Returns the slot entry of the persona card with the given id, asserting it exists.
 // FUN_0036CE10
 u32 *pscResFindPersonaCard(s32 personaId) {
     s32 i;
@@ -847,7 +842,7 @@ u32 *pscResFindPersonaCard(s32 personaId) {
     return (u32 *)((u8 *)p + i * 0x10 + 0x194);
 }
 
-// Intent: Returns the first free persona slot index, asserting one exists [inferred]
+// Returns the first free persona slot index, asserting one exists.
 // FUN_0036CEE0
 s32 pscResFindFreePersonaSlot(void) {
     s32 i;
@@ -868,7 +863,7 @@ s32 pscResFindFreePersonaSlot(void) {
     return i;
 }
 
-// Intent: Adds a reference to a persona card already in a slot [inferred]
+// Adds a reference to a persona card already in a slot.
 // FUN_0036CF80
 void pscResRetainPersonaCard(s32 personaId) {
     s32 i;
@@ -894,7 +889,7 @@ void pscResRetainPersonaCard(s32 personaId) {
     *(u32 *)&((PscResourceContext *)p)->personas[i].references += 1;
 }
 
-// Intent: Returns the first free load-request block, asserting one exists [inferred]
+// Returns the first free load-request block, asserting one exists.
 // FUN_0036D060
 u32 *pscResFindFreeRequest(void) {
     s32 i;
@@ -915,7 +910,7 @@ u32 *pscResFindFreeRequest(void) {
     return (u32 *)((u8 *)p + i * 0x124 + 0x294);
 }
 
-// Intent: Returns decoded texture i of the w_c00 image set (seven entries) [inferred]
+// Returns decoded texture i of the w_c00 image set (seven entries).
 // FUN_0036D130
 s32 pscResGetMiscCardW00Texture(s32 textureIndex) {
     void *p;
@@ -931,7 +926,7 @@ s32 pscResGetMiscCardW00Texture(s32 textureIndex) {
     q = p;
     return q[textureIndex + 9];
 }
-// Intent: Returns decoded texture i of the w_c00 secondary set (two entries) [inferred]
+// Returns decoded texture i of the w_c00 secondary set (two entries).
 // FUN_0036D1B0
 s32 pscResGetMiscCardW00SubTexture(s32 textureIndex) {
     void *p;
@@ -948,11 +943,9 @@ s32 pscResGetMiscCardW00SubTexture(s32 textureIndex) {
     return q[textureIndex + 0x10];
 }
 
-// Intent: Decodes the w_c00 container's images into the context's texture sets [inferred]
-/* Decode the ten-entry miscellaneous container into seven textures, the base raster, and two secondary textures. */
+// Decode the ten-entry miscellaneous container into seven textures, the base raster, and two
+// secondary textures.
 // FUN_0036D230
-/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
- * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResBuildMiscCardW00(u8 *container) {
     PscImageContainer *imageContainer = (PscImageContainer *)container;
     PscResourceContext *cardContext;
@@ -1009,10 +1002,8 @@ typedef struct PscPalette {
     s32 flags;
 } PscPalette;
 
-/* measured: MWCC b210 -O2, 1144/1152 bytes with an 8-byte zero tail.
- * The input byte cursor is separate from the retained header and palette
- * base; the palette upload advances its own local color cursor. */
-// Intent: Decodes one PSC image (header, palette, pixels) into a new RwRaster [inferred]
+/* Decodes one PSC image (header, palette, pixels) into a new RwRaster. The input cursor is kept
+ * separate from the retained header and palette base. */
 // FUN_0036D3E0
 s32 pscResDecodeImage(const void *input) {
     const u8 *source;

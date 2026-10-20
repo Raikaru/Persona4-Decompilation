@@ -1,9 +1,7 @@
-/* Source unit: src/Scene/mt_scene_00145270.c */
 #include "type.h"
 #include "scene_event_internal.h"
 
-/* Ported from P3FES src/Scene/mt_scene.c FUN_003b5d10 (verified MATCH there).
- * 007cd540 -> PTR_DAT_00762ea0, 003b54c0 -> resrcMngFindResById. */
+/* Matches P3FES func_003b5d10. */
 
 typedef struct Resrc Resrc;
 typedef struct ResrcManager ResrcManager;
@@ -22,15 +20,12 @@ extern MtScene* gMtScene;
 extern u8 *resrcMngFindResById(ResrcManager* manager, u16 resourceId);
 extern void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput);
 
-/* Ported from P3FES src/Scene/mt_scene.c FUN_003b5df0 (verified MATCH there).
- * 007cd540 -> PTR_DAT_00762ea0, 003b5550 -> resrcMngGetTotalResInList. */
+/* Matches P3FES func_003b5df0. */
 
 #define RESRC_TYPE_MAX 22
 extern u32 resrcMngGetTotalResInList(ResrcManager* resLists, u8 resType);
 
-/* Ported from P3FES src/Scene/mt_scene.c FUN_003b63c0 (verified MATCH there).
- * 007cd540 -> PTR_DAT_00762ea0, 006a2bb0 -> D_005EF820, 005225a8 ->
- * func_00440b68, 003b50d0 -> func_00147190. */
+/* Matches P3FES func_003b63c0. */
 
 #define RESRC_ID_MASK 0x3ff
 #define RESRC_MAKE_TYPEID(resId, resType) (((resId) & RESRC_ID_MASK) | ((resType) << 10))
@@ -39,9 +34,7 @@ extern int func_00440b68(const char* format, ...);
 extern Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId);
 #define RESRC_TYPE_LIGHTNPC 5
 
-/* Ported from P3FES src/Scene/mt_scene.c FUN_003b79a0 (verified MATCH there).
- * 006a2a60 -> D_005EFA10, 006a2a70 -> D_005EFA20, 006a2a80 -> D_005EFA30,
- * 004c31b0 -> func_003e0870, 004c35d0 -> func_003e0c90. */
+/* Matches P3FES func_003b79a0. */
 
 typedef struct RwV3d
 {
@@ -57,7 +50,6 @@ extern u8 D_005EFA20[];
 extern u8 D_005EFA30[];
 extern RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
 extern RwMatrix* RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, s32 mode);
-
 
 
 // FUN_00145250
@@ -80,7 +72,6 @@ u8 *MT_Scene_GetRes(u16 resTypeId)
 
     return resrcMngFindResById(gMtScene->resManager, resTypeId);
 }
-
 
 
 /* Return the selected resource list, or NULL when no manager is active. */
@@ -125,7 +116,6 @@ u32 MT_Scene_GetTotalResInList(u32 resType)
 }
 
 
-
 /* Allocate a character-light resource and return its packed type/id, or zero on failure. */
 // FUN_001458B0
 u16 MT_Scene_CreateResLightChar(u16 resId)
@@ -149,7 +139,6 @@ u16 MT_Scene_CreateResLightChar(u16 resId)
 
     return resTypeId;
 }
-
 
 
 /* Allocate an NPC-light resource and return its packed type/id, or zero on failure. */
@@ -177,7 +166,6 @@ u16 MT_Scene_CreateResLightNpc(u16 resId)
 }
 
 
-
 /* Apply position and rotation only when the resource exists. */
 // FUN_00146E60
 void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles)
@@ -200,9 +188,8 @@ void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles)
 }
 
 
-
-/* Forward the optional vector through the transform scale-input slot, as retail does. */
-/* The vector is forwarded to ApplyResTransform's scale slot; despite the current symbol name, this wrapper changes scale. */
+/* Forwards the vector to ApplyResTransform's scale slot; despite the symbol name, this wrapper
+ * changes scale. */
 // FUN_00146EE0
 void MT_Scene_SetResAngles(u16 resourceId, u8 *scale)
 {

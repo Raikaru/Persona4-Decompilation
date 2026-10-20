@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0012db80-0012ff60 */
 
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -59,7 +58,6 @@ typedef union Code12FrameVectorTransfer {
     Code12FrameVector vector;
 } Code12FrameVectorTransfer;
 
-/* Use the preserved optimization-level defaults except for measured scoped overrides. */
 #pragma push
 #pragma optimization_level 2
 /* Change the selected title slot, preserve the old selection and start layout mode 2. */
@@ -79,7 +77,7 @@ s32 titleSelectSlot(u8 *menu, s32 selection)
 
 #pragma push
 #pragma optimization_level 2
-/* measured: goto and while wrap loops both leave 243 differing bytes without invariant hoisting. */
+/* measured: retail hoists loop invariants out of the wrap loop. */
 #pragma opt_loop_invariants on
 /* Set slot transition endpoints for adjacent moves and wraparound selection. */
 // FUN_0012DC00
@@ -234,11 +232,10 @@ extern u8 D_005E5A80[];
 extern void titleLayoutSlots(u8 *menu);
 #pragma push
 #pragma optimization_level 2
-/* measured: byte-stride and typed target indexing both leave 383 differing bytes without hoisting. */
+/* measured: retail hoists loop invariants out of the target-table loops. */
 #pragma opt_loop_invariants on
 /* Snapshot eleven slot animations and set the target table for the requested mode. */
 // FUN_0012DEA0
-/* Earlier whole-layout typing probe: TitleSlotMenu access changed codegen (nd 468).; access-site and typed-local forms now match. */
 s32 titleSlotSetMode(u8 *menu, s32 mode)
 {
     s32 i;
@@ -415,11 +412,10 @@ block_loop:
 
 #pragma push
 #pragma optimization_level 2
-/* measured: typed target indexing and sizeof stride retain 755 differing bytes without hoisting. */
+/* measured: retail hoists loop invariants out of the initialization loops. */
 #pragma opt_loop_invariants on
 /* Initialize the 0x1BE8-byte radar menu, its animation arrays, inventory and sprite nodes. */
 // FUN_0012E2F0
-/* Earlier whole-layout typing probe: RadarMenu array accesses changed codegen (nd 712).; access-site and typed-local forms now match. */
 s32 titleStateInit(u8 *menu)
 {
     s16 i;
@@ -580,7 +576,6 @@ guard_done:
 #pragma optimization_level 2
 /* Advance mode 0 to 1 and report whether the menu is in either wait mode. */
 // FUN_0012E8B0
-/* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 45).; access-site and typed-local forms now match. */
 s32 titleAdvanceWait(u8 *menu)
 {
     s32 mode;
@@ -603,7 +598,6 @@ s32 titleAdvanceWait(u8 *menu)
 #pragma optimization_level 2
 /* Advance the thirty entry animations, then the scatter, indicator and draw passes. */
 // FUN_0012E900
-/* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 162).; access-site and typed-local forms now match. */
 s32 radarStepSlotAnimA(u8 *menu) {
     s16 frame;
     s32 slotIndex;
@@ -640,7 +634,6 @@ loop_test_0012e900:
 #pragma optimization_level 2
 /* Advance twelve scatter animations and update all 84 grid entries. */
 // FUN_0012FDF0
-/* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 147).; access-site and typed-local forms now match. */
 void radarStepSlotAnimB(u8 *menu)
 {
     s16 frame;
@@ -667,8 +660,9 @@ void radarStepSlotAnimB(u8 *menu)
 
 #pragma push
 #pragma optimization_level 2
-/* measured: a typed menu local removes the cached counter address (direct casts differed by 102 bytes). */
-/* Advance the two indicator animations with the shared capped frame counter. */
+/* measured: a typed menu local stops the counter address from being cached, matching retail.
+ * Advance the two indicator animations with the shared capped frame counter. */
+/* Advance the shared indicator frame counter, capped at 100, and animate both indicators with it. */
 // FUN_0012FEB0
 void radarStepPairAnim(u8 *menu)
 {
@@ -693,7 +687,6 @@ void radarStepPairAnim(u8 *menu)
 /* The selection is passed as a word; the field stores its low halfword. */
 /* Push one of three selection halfwords into its previous-selection slot. */
 // FUN_0012FF40
-/* Earlier whole-layout typing probe: RadarMenu selection arrays changed codegen (nd 1).; access-site and typed-local forms now match. */
 s32 radarPushHistoryValue(s32 menuAddress, s32 selectionIndex, s32 selection)
 {
     u8 *p;
@@ -716,7 +709,6 @@ extern u8 D_005E7320[];
 #pragma optimization_level 2
 /* Snapshot thirty entries and apply the layout table, flags and target animation values. */
 // FUN_0012FF60
-/* Earlier whole-layout typing probe: RadarMenu/RadarSlotTarget access changed codegen (nd 663).; access-site and typed-local forms now match. */
 s32 titleSetMenuLayout(u8 *menu, u32 layout)
 {
     s32 i;
@@ -796,7 +788,7 @@ s32 titleSetMenuLayout(u8 *menu, u32 layout)
         kAssertFail(D_005E76C8, 0x4ab);
         break;
     }
-/* measured: byte-stride and typed target indexing leave 195 differing bytes without hoisting. */
+/* measured: retail hoists loop invariants out of the layout-table copy loop. */
 #pragma opt_loop_invariants on
     if (table != 0) {
         for (j = 0; j < 30; j++) {

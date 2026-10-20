@@ -31,10 +31,8 @@ typedef struct {
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
-
+/* func_004bd628, func_004bd640, func_004bd658, func_004bd670, func_004bd688 and func_004bd6a0 are
+ * framed tail-jump wrappers that plain C cannot emit. */
 
 
 extern u8 D_0071465C[];
@@ -58,19 +56,9 @@ extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 
-/* Source unit: src/promoted/code1_004b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b2a00-004b2a00 */
-
 extern s32 effCrossfadeCaptureDisplay(u8 *object);
 #pragma push
 #pragma pop
-/* measured: close the opt_propagation bracket around func_004b2780. */
-/* Native b210 recovery: 1016 executable bytes and eight zero alignment bytes.
-   Native unsigned conversions retain the retail paths. The raster declaration
-   precedes opacity, and the render-state table keeps its address while each
-   call reloads its callback. Four PS2 vertices own the complete draw buffer.
-   For initialized positive-duration state 3, elapsed is below duration.
-   Float operation order is retained. See Crossfade_004b2a00_20260922.md. */
 /* Draw the stored camera raster over the screen with alpha falling from 255 over the fade duration. */
 // FUN_004B2A00
 #pragma push

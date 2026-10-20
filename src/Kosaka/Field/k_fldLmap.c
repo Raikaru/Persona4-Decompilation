@@ -2,7 +2,7 @@
 #include "operand_order_internal.h"
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
-/* Original translation unit k_fldLmap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldLmap.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
@@ -19,7 +19,7 @@ typedef struct Vec3 { f32 x; f32 y; f32 z; } Vec3;
 #include "rw_camera_internal.h"
 #include "h_cdvd_request_internal.h"
 
-/* Integer writes preserve the retail float bit patterns (including sw-zero stores). */
+/* Integer writes keep the retail float bit patterns, including integer zero stores. */
 typedef union FldLmapCoordinate { f32 value; s32 bits; } FldLmapCoordinate;
 typedef struct FldLmapPosition {
     FldLmapCoordinate x, y, z;
@@ -27,7 +27,7 @@ typedef struct FldLmapPosition {
 /* Sprite/model/task handles are passed as both words and pointers by these APIs. */
 typedef union FldLmapHandle { s32 value; u8 *data; void *pointer; } FldLmapHandle;
 
-/* Layout is bounded by FldLmapCreate's 0x178-byte allocation and all users below. */
+/* Layout fits inside FldLmapCreate's 0x178-byte allocation and covers every user below. */
 typedef struct FldLmapWork {
     s32 state, assetsLoaded, enableToggle, selectedSlot, previousSlot, selectionDelay;
     u8 *camera;
@@ -199,9 +199,6 @@ void FldLmapMarkerSetTarget(u8 *task, s32 slotIndex, f32 speed);
 u8 *FldLmapPathTaskCreate(u8 *parent);
 void FldLmapCameraMoveTo(u8 *task, s32 mode, s32 preset, f32 speed);
 
-/* Source unit: src/promoted/k_fldLmap.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldLmap.c; members 001866d0-00189550 */
-
 extern s32 FldLmapUpdate(u8 *task);
 typedef struct FldLmapMatrix {
     s32 words[16];
@@ -257,20 +254,15 @@ s32 FldLmapLoadUpdate(u8 *task)
         /* fallthrough */
     case 1:
         if (H_Cdvd_IsFileLoaded(((FldLmapLoadWork *)work)->directory) != 0) {
-            /* measured: typing the retained access changes b210 output (normalized_diff 263); retain pointer/MEMBER spelling. */
             ((FldLmapWork *)((u8 *)(loadWork->map)))->sprites[5].value = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F10, &fileSize));
-            /* measured: typing the retained access changes b210 output (normalized_diff 263); retain pointer/MEMBER spelling. */
             ((FldLmapWork *)((u8 *)(loadWork->map)))->sprites[6].value = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F30, &fileSize));
-            /* measured: typing the retained access changes b210 output (normalized_diff 263); retain pointer/MEMBER spelling. */
             ((FldLmapWork *)((u8 *)(loadWork->map)))->sprites[7].value = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F50, &fileSize));
-            /* measured: typing the retained access changes b210 output (normalized_diff 263); retain pointer/MEMBER spelling. */
             ((FldLmapWork *)((u8 *)(loadWork->map)))->sprites[8].value = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F70, &fileSize));
             ((FldLmapWork *)((u8 *)((FldLmapLoadWork *)work)->map))->sprites[9].value = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F90, &fileSize));
             ((FldLmapLoadWork *)work)->state = ((FldLmapLoadWork *)work)->state + 1;
         }
         break;
     case 2:
-        /* measured: typing the retained access changes b210 output (normalized_diff 263); retain pointer/MEMBER spelling. */
         if ((hMaestroDecodeIsReady(((FldLmapWork *)((u8 *)(loadWork->map)))->sprites[5].value) != 0) && (hMaestroDecodeIsReady(((FldLmapWork *)((u8 *)(loadWork->map)))->sprites[6].value) != 0) && (hMaestroDecodeIsReady(((FldLmapWork *)((u8 *)(loadWork->map)))->sprites[7].value) != 0) && (hMaestroDecodeIsReady(((FldLmapWork *)((u8 *)(loadWork->map)))->sprites[8].value) != 0) && (hMaestroDecodeIsReady(((FldLmapWork *)((u8 *)((FldLmapLoadWork *)work)->map))->sprites[9].value) != 0)) {
             ((FldLmapLoadWork *)work)->state = ((FldLmapLoadWork *)work)->state + 1;
         }
@@ -292,15 +284,11 @@ void FldLmapLoadDestroy(u8 *task)
     work = ((SdkTask *)task)->work;
     ((FldLmapWork *)((u8 *)((FldLmapLoadWork *)work)->map))->assetsLoaded = 1;
     H_Cdvd_Destroy(((FldLmapLoadWork *)work)->directory);
-    /* measured: typing the retained access changes b210 output (normalized_diff 5); retain pointer/MEMBER spelling. */
     jtbl_008873EC[0](MEMBER(void *, task, SdkTask, work));
 }
 
-/* measured re-triage: switch CFG candidate reproduces the main state/update
-   path, but MWCC b210 still folds the retail mtc1 $0 + swc1 zero store to
-   sw $0 and leaves the candidate 8 bytes short of the retail window. Best
-   candidate: normalized_diff 103, object 456/464; discarded. */
-/* Animate a position horizontally after a delay; optionally adjust the other panel depth and signal completion. */
+/* Animate a position horizontally after a delay; optionally adjust the other panel depth and signal
+ * completion. */
 // FUN_00186AC0
 s32 FldLmapScrollUpdate(u8 *task)
 {
@@ -325,21 +313,17 @@ s32 FldLmapScrollUpdate(u8 *task)
         }
         ((FldLmapScrollWork *)work)->state = ((FldLmapScrollWork *)work)->state + 1;
     case 1:
-        /* measured: typing the retained access changes b210 output (normalized_diff 235); retain pointer/MEMBER spelling. */
         delayFrames = scrollWork->delayFrames;
         if (delayFrames > 0) {
             ((FldLmapScrollWork *)work)->delayFrames = delayFrames - 1;
             goto block_19;
         }
         if (((FldLmapScrollWork *)work)->direction < 0.0f) {
-            /* measured: typing the retained access changes b210 output (normalized_diff 331..334); retain pointer/MEMBER spelling. */
             ((FldLmapPosition *)((u8 *)(scrollWork->position)))->x.value = (scrollWork->endX - ((FldLmapScrollWork *)work)->startX) * -sinf((iGpffff84a4 * (f32)scrollWork->framesLeft) / (f32)((FldLmapScrollWork *)work)->duration);
         } else {
             ((FldLmapPosition *)((u8 *)((FldLmapScrollWork *)work)->position))->x.value = (((FldLmapScrollWork *)work)->endX - ((FldLmapScrollWork *)work)->startX) * cosf((iGpffff84a4 * (f32)((FldLmapScrollWork *)work)->framesLeft) / (f32)((FldLmapScrollWork *)work)->duration);
         }
-        /* measured: typing the retained access changes b210 output (normalized_diff 334); retain pointer/MEMBER spelling. */
         ((FldLmapPosition *)((u8 *)(scrollWork->position)))->y.value = 0.0f;
-        /* measured: typing the retained access changes b210 output (normalized_diff 332); retain pointer/MEMBER spelling. */
         framesLeft = scrollWork->framesLeft;
         if (framesLeft > 0) {
             ((FldLmapScrollWork *)work)->framesLeft = framesLeft - 1;
@@ -373,7 +357,7 @@ void FldLmapScrollTaskDestroy(u8 *task)
 // FUN_00186CC0
 u8 *FldLmapScrollTaskCreate(u8 *parent, u8 *position, f32 startX, f32 endX, u8 *otherPosition, u8 *completionFlag, s32 duration, s32 delayFrames)
 {
-    /* Indirect position slots retain the original alias/reload shape; both point to 12-byte positions. */
+    /* Both position slots point to 12-byte positions. */
     u8 *work;
     u8 *task;
     u8 *positionSlot;
@@ -404,10 +388,8 @@ u8 *FldLmapScrollTaskCreate(u8 *parent, u8 *position, f32 startX, f32 endX, u8 *
 
 /* Choose the normal or selected draw list for each of the five map slots. */
 // FUN_00186E10
-/* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
- * constant 1 (addiu $a1, $zero, 1) inside the loop body at both store sites;
- * retail hoists it to the preheader. The pragma restores the hoist (nd 35 -> 0). */
-/* measured: FldLmapSetSlotFlags MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the constant 1 out of the loop instead of reloading it at both store
+ * sites. */
 #pragma opt_loop_invariants on
 static void FldLmapSetSlotFlags(u8 *work)
 {
@@ -420,7 +402,6 @@ static void FldLmapSetSlotFlags(u8 *work)
             ((FldLmapWork *)work)->normalSlots[slotIndex] = 0;
             ((FldLmapWork *)work)->selectedSlots[slotIndex] = 0;
         } else {
-            /* measured: typing the retained access changes b210 output (normalized_diff 108); retain pointer/MEMBER spelling. */
             if (mapWork->selectedSlot != slotIndex) {
                 ((FldLmapWork *)work)->normalSlots[slotIndex] = 1;
             } else {
@@ -436,16 +417,10 @@ static void FldLmapSetSlotFlags(u8 *work)
     }
 }
 
-/* measured: see annotation above. */
 #pragma push
-/* measured: byte-exact (953/953 instructions, 0 differing words).  The camera
-   matrix copy is a 64-byte struct assignment (retail's 8 x two-word loop), the
-   pad globals are arrays (absolute %hi/%lo, not gp), the local zeroing loop
-   counts an unsigned n (bnez, not bgtz), and FldLmapSetSlotFlags is static so the
-   caller keeps $a0 across it.  The two scroll updates address the panel slot
-   as `off + (s32)st` so the index is the first addu operand, as retail has it.
-   opt_loop_invariants hoists the case-0 constants. */
-/* Drive map loading, slot input, panel transitions, camera tasks, and exit-script dispatch. */
+/* measured: retail hoists the case-0 constants out of the loop, so loop-invariant optimization
+ * stays on here. Drive map loading, slot input, panel transitions, camera tasks, and exit-script
+ * dispatch. */
 // FUN_00186EB0
 s32 FldLmapUpdate(u8 *task)
 {
@@ -474,7 +449,6 @@ s32 FldLmapUpdate(u8 *task)
             }
         }
         FldLmapSetSlotFlags(work);
-        /* measured: typing the retained access changes b210 output (normalized_diff 2750); retain pointer/MEMBER spelling. */
         mapWork->rowPosition.z.value = 700.0f;
         FldLmapDrawCornerMarks(work, work + 0x90);
         ((Vec3 *)markerPosition)->z = (f32)590;
@@ -552,7 +526,6 @@ s32 FldLmapUpdate(u8 *task)
         if (H_Cdvd_IsFileLoaded(((FldLmapWork *)work)->scriptDirectory) == 0) {
             break;
         }
-        /* measured: typing the retained access changes b210 output (normalized_diff 2757); retain pointer/MEMBER spelling. */
         *(FldLmapMatrix *)mapWork->camera = *(FldLmapMatrix *)MT_Scene_GetCameraResFirst();
         {
             u8 *camera = kwlnGetCamera();
@@ -567,7 +540,6 @@ s32 FldLmapUpdate(u8 *task)
         ((FldLmapWork *)work)->sprites[3].value = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F2050, &fileSize));
         ((FldLmapWork *)work)->sprites[1].value = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F2070, &fileSize));
         ((FldLmapWork *)work)->sprites[4].value = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F2090, &fileSize));
-        /* measured: typing the retained access changes b210 output (normalized_diff 8); retain pointer/MEMBER spelling. */
         ((FldLmapWork *)work)->scriptTask.data = (u8 *)scrStartProcedureChecked(15, MEMBER(s32, ((FldLmapWork *)work)->scriptDirectory, HCdvdRequest, data), ((HCdvdRequest *)((FldLmapWork *)work)->scriptDirectory)->signedSize, 0);
         ((FldLmapWork *)work)->state = ((FldLmapWork *)work)->state + 1;
     }
@@ -591,7 +563,6 @@ s32 FldLmapUpdate(u8 *task)
         if (kwlnTaskIsLinked(((FldLmapWork *)work)->scriptTask.data) == 1) {
             break;
         }
-        /* measured: typing the retained access changes b210 output (normalized_diff 1798); retain pointer/MEMBER spelling. */
         H_Cdvd_Destroy(mapWork->spriteDirectory);
         ((FldLmapWork *)work)->spriteDirectory = NULL;
         ((FldLmapWork *)work)->assetsLoaded = 0;
@@ -607,19 +578,15 @@ s32 FldLmapUpdate(u8 *task)
             }
             ((FldLmapWork *)work)->loadTask.value = loadTask;
         }
-        /* measured: typing the retained access changes b210 output (normalized_diff 1707); retain pointer/MEMBER spelling. */
         mapWork->slotResources[0].value = (s32)MT_Scene_GetRes(0x280A);
         ((FldLmapWork *)work)->slotResources[1].value = (s32)MT_Scene_GetRes(0x2809);
         ((FldLmapWork *)work)->slotResources[2].value = (s32)MT_Scene_GetRes(0x2806);
         ((FldLmapWork *)work)->slotResources[3].value = (s32)MT_Scene_GetRes(0x2808);
         ((FldLmapWork *)work)->slotResources[4].value = (s32)MT_Scene_GetRes(0x2807);
         ((FldLmapWork *)work)->slotResources[5].value = (s32)MT_Scene_GetRes(0x2805);
-        /* measured: typing the retained access changes b210 output (normalized_diff 1633); retain pointer/MEMBER spelling. */
         mapWork->markerTask.data = FldLmapMarkerTaskCreate(parent, ((FldLmapWork *)work)->slotResources[0].value, work + 0x144);
         FldLmapMarkerSetTarget(((FldLmapWork *)work)->markerTask.data, ((FldLmapWork *)work)->selectedSlot, 0.0f);
-        /* measured: typing the retained access changes b210 output (normalized_diff 1598); retain pointer/MEMBER spelling. */
         mapWork->pathTask.data = FldLmapPathTaskCreate(parent);
-        /* measured: typing the retained access changes b210 output (normalized_diff 1609); retain pointer/MEMBER spelling. */
         FldLmapCameraMoveTo(((FldLmapWork *)work)->pathTask.data, mapWork->selectedSlot, mapWork->selectedSlot, 0.0f);
         if (sndRequestAreaTrack() == 0) {
             sndPlayAreaCue();
@@ -635,7 +602,6 @@ s32 FldLmapUpdate(u8 *task)
         ((FldLmapWork *)work)->state = ((FldLmapWork *)work)->state + 1;
     /* fallthrough */
     case 5:
-        /* measured: typing the retained access changes b210 output (normalized_diff 1474); retain pointer/MEMBER spelling. */
         if (kwlnTaskIsLinked(mapWork->scrollTask.data) == 1) {
             break;
         }
@@ -687,49 +653,36 @@ s32 FldLmapUpdate(u8 *task)
                 ((FldLmapWork *)work)->selectedSlot = ((FldLmapWork *)work)->selectedSlot + 1;
                 ((FldLmapWork *)work)->selectionDelay = 0;
             }
-            /* measured: typing the retained access changes b210 output (normalized_diff 1609); retain pointer/MEMBER spelling. */
             if (mapWork->selectedSlot < 0) {
                 ((FldLmapWork *)work)->selectedSlot = 4;
             }
-            /* measured: typing the retained access changes b210 output (normalized_diff 1609); retain pointer/MEMBER spelling. */
             if (mapWork->selectedSlot > 4) {
                 ((FldLmapWork *)work)->selectedSlot = 0;
             }
-            /* measured: typing the retained access changes b210 output (normalized_diff 730..1609); retain pointer/MEMBER spelling. */
             if (mapWork->previousSlot != mapWork->selectedSlot) {
                 ((FldLmapWork *)work)->selectionDelay = ((FldLmapWork *)work)->selectionDelay + 1;
             }
-            /* measured: typing the retained access changes b210 output (normalized_diff 1609); retain pointer/MEMBER spelling. */
             FldLmapMarkerSetTarget(((FldLmapWork *)work)->markerTask.data, mapWork->selectedSlot, 0.0f);
-            /* measured: typing the retained access changes b210 output (normalized_diff 696); retain pointer/MEMBER spelling. */
             if (mapWork->selectionDelay > 5) {
-                /* measured: typing the retained access changes b210 output (normalized_diff 682..1609); retain pointer/MEMBER spelling. */
                 ((s32 *)(work + 0x80))[mapWork->nextPanel] = mapWork->selectedSlot;
                 {
-                    /* measured: typing the retained access changes b210 output (normalized_diff 682); retain pointer/MEMBER spelling. */
                     s32 panelIndex = mapWork->nextPanel;
                     s32 otherPanel = !panelIndex;
                     FldLmapScrollTaskCreate(parent, work + panelIndex * 12 + 0x114, -230.0f, 0.0f, work + otherPanel * 12 + 0x114, work + 0x170, 8, 0);
                 }
                 ((f32 *)(work + 0x88))[((FldLmapWork *)work)->nextPanel] = -330.0f;
                 ((FldLmapWork *)work)->nextPanel = !(((FldLmapWork *)work)->nextPanel);
-                /* measured: typing the retained access changes b210 output (normalized_diff 730..1609); retain pointer/MEMBER spelling. */
                 FldLmapCameraMoveTo(((FldLmapWork *)work)->pathTask.data, mapWork->previousSlot, mapWork->selectedSlot, 3.0f);
                 ((FldLmapWork *)work)->previousSlot = ((FldLmapWork *)work)->selectedSlot;
                 ((FldLmapWork *)work)->selectionDelay = 0;
                 ((FldLmapWork *)work)->marqueePosition.x.value = 0.0f;
             }
-            /* measured: typing the retained access changes b210 output (normalized_diff 540); retain pointer/MEMBER spelling. */
             if (mapWork->slideDirection == 0) {
-                /* measured: typing the retained access changes b210 output (normalized_diff 682); retain pointer/MEMBER spelling. */
                 s32 panelOffset = !(mapWork->nextPanel) * 4;
                 u8 *panelCursor = (u8 *)(panelOffset + (s32)work);
 
-                /* measured: typing the retained access changes b210 output (normalized_diff 508); retain pointer/MEMBER spelling. */
                 if (((FldLmapWork *)panelCursor)->panelOffsets[0] < 0.0f) {
-                    /* measured: typing the retained access changes b210 output (normalized_diff 502); retain pointer/MEMBER spelling. */
                     if (mapWork->slideDelay == 0) {
-                        /* measured: typing the retained access changes b210 output (normalized_diff 508); retain pointer/MEMBER spelling. */
                         MEMBER(f32, panelCursor, FldLmapWork, panelOffsets[0]) = MEMBER(f32, panelCursor, FldLmapWork, panelOffsets[0]) + 1.0f;
                     }
                 } else {
@@ -740,7 +693,6 @@ s32 FldLmapUpdate(u8 *task)
                 s32 panelOffset = !(((FldLmapWork *)work)->nextPanel) * 4;
                 u8 *panelCursor = (u8 *)(panelOffset + (s32)work);
 
-                /* measured: typing the retained access changes b210 output (normalized_diff 508); retain pointer/MEMBER spelling. */
                 if (((FldLmapWork *)panelCursor)->panelOffsets[0] > -330.0f) {
                     if (((FldLmapWork *)work)->slideDelay == 0) {
                         ((FldLmapWork *)work)->panelOffsets[!((FldLmapWork *)work)->nextPanel] = ((FldLmapWork *)work)->panelOffsets[!((FldLmapWork *)work)->nextPanel] - 1.0f;
@@ -750,22 +702,18 @@ s32 FldLmapUpdate(u8 *task)
                     ((FldLmapWork *)work)->slideDirection = 0;
                 }
             }
-            /* measured: typing the retained access changes b210 output (normalized_diff 502); retain pointer/MEMBER spelling. */
             if (mapWork->slideDelay > 0) {
                 ((FldLmapWork *)work)->slideDelay = ((FldLmapWork *)work)->slideDelay - 1;
             }
-            /* measured: typing the retained access changes b210 output (normalized_diff 343); retain pointer/MEMBER spelling. */
             if (mapWork->scrollComplete != 0) {
                 ((FldLmapWork *)work)->slideDirection = 0;
                 ((FldLmapWork *)work)->scrollComplete = 0;
                 ((FldLmapWork *)work)->slideDelay = 0;
             }
-            /* measured: typing the retained access changes b210 output (normalized_diff 323); retain pointer/MEMBER spelling. */
             mapWork->marqueePosition.x.value = mapWork->marqueePosition.x.value - 2.0f;
             {
                 s32 visiblePanel = !(((FldLmapWork *)work)->nextPanel);
                 s32 panelSlot = ((s32 *)(work + 0x80))[visiblePanel];
-                /* measured: typing the retained access changes b210 output (normalized_diff 323); retain pointer/MEMBER spelling. */
                 if (mapWork->marqueePosition.x.value < D_005F1E20[panelSlot]) {
                     ((FldLmapWork *)work)->marqueePosition.x.value = 36.0f;
                 }
@@ -790,7 +738,6 @@ s32 FldLmapUpdate(u8 *task)
             break;
         }
         if (((FldLmapWork *)work)->enableToggle == 0) {
-            /* measured: typing the retained access changes b210 output (normalized_diff 8); retain pointer/MEMBER spelling. */
             scrStartProcedureChecked(15, MEMBER(s32, ((FldLmapWork *)work)->scriptDirectory, HCdvdRequest, data), ((HCdvdRequest *)((FldLmapWork *)work)->scriptDirectory)->signedSize, ((FldLmapWork *)work)->selectedSlot + 1);
         }
         ((FldLmapWork *)work)->state = ((FldLmapWork *)work)->state + 1;
@@ -824,7 +771,6 @@ void FldLmapDestroy(u8 *task)
     fieldSceneUnload();
     func_003e0f40(((FldLmapWork *)work)->camera);
     H_Cdvd_Destroy(((FldLmapWork *)work)->scriptDirectory);
-    /* measured: typing the retained access changes b210 output (normalized_diff 5); retain pointer/MEMBER spelling. */
     jtbl_008873EC[0](MEMBER(void *, task, SdkTask, work));
 }
 
@@ -902,10 +848,6 @@ void FldLmapSkyState72001(void)
     RpSkyRenderStateSet(3, 0x72001);
 }
 
-/* measured re-triage: corrected generated-style candidate has the complete
-   color-call setup and exact size, but MWCC b210 serialises the retail
-   constant-before-load and cross-chain float scheduling. Best candidate:
-   normalized_diff 154, object 288/288; discarded. */
 /* Draw the two corner marks relative to the supplied screen position. */
 // FUN_00188200
 void FldLmapDrawCornerMarks(u8 *work, u8 *position)
@@ -916,9 +858,7 @@ void FldLmapDrawCornerMarks(u8 *work, u8 *position)
 
     x = -32.0f;
     x += ((Vec3 *)position)->x;
-    /* measured: typing the retained access changes b210 output (normalized_diff 151); retain pointer/MEMBER spelling. */
     y = -7.0f + screenPosition->y;
-    /* measured: typing the retained access changes b210 output (normalized_diff 171..227); retain pointer/MEMBER spelling. */
     sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, screenPosition->z, 0xFFFFFF, 0xFF, 0, MEMBER(void *, work, FldLmapWork, sprites[0].pointer), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     x = -32.0f;
     x += ((Vec3 *)position)->x;
@@ -926,9 +866,8 @@ void FldLmapDrawCornerMarks(u8 *work, u8 *position)
     sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, ((Vec3 *)position)->z, 0xFFFFFF, 0xFF, 1, ((FldLmapWork *)work)->sprites[0].pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
-/* Exact under MWCC b210/O2: preserve the float input view and associate the
-   column offset before adding the caller's x coordinate. */
-/* Queue the row render state and draw the five two-column slot backgrounds. */
+/* Queue the row render state and draw the five two-column slot backgrounds; the column offset is
+ * added before the caller's x coordinate. */
 // FUN_00188320
 void FldLmapDrawSlotRow(u8 *work, u8 *position)
 {
@@ -949,17 +888,14 @@ void FldLmapDrawSlotRow(u8 *work, u8 *position)
     PrimAppendNode(D_00795E60, queueNode);
     x = -44.0f;
     x += ((Vec3 *)position)->x;
-    /* measured: typing the retained access changes b210 output (normalized_diff 371); retain pointer/MEMBER spelling. */
     y = -7.0f + screenPosition->y;
     sdkSpriteDrawQueued(
         (f32)(s32)x,
         (f32)(s32)y,
-        /* measured: typing the retained access changes b210 output (normalized_diff 471); retain pointer/MEMBER spelling. */
         screenPosition->z - 10.0f,
         0x313131,
         0xFF,
         0,
-        /* measured: typing the retained access changes b210 output (normalized_diff 392); retain pointer/MEMBER spelling. */
         mapWork->sprites[2].pointer,
         0,
         0,
@@ -970,17 +906,14 @@ void FldLmapDrawSlotRow(u8 *work, u8 *position)
         D_00795E60);
     x = -44.0f;
     x += ((Vec3 *)position)->x;
-    /* measured: typing the retained access changes b210 output (normalized_diff 371); retain pointer/MEMBER spelling. */
     y = 224.0f + screenPosition->y;
     sdkSpriteDrawQueued(
         (f32)(s32)x,
         (f32)(s32)y,
-        /* measured: typing the retained access changes b210 output (normalized_diff 471); retain pointer/MEMBER spelling. */
         screenPosition->z - 10.0f,
         0x313131,
         0xFF,
         1,
-        /* measured: typing the retained access changes b210 output (normalized_diff 392); retain pointer/MEMBER spelling. */
         mapWork->sprites[2].pointer,
         0,
         0,
@@ -1023,7 +956,6 @@ void FldLmapDrawSlotMarker(u8 *work, u8 *position, s32 slotIndex)
 {
     f32 *slotMarkerYColumn;
     f32 *slotMarkerXColumn;
-    /* Typed column pointers retain the linker anchors after row/local-array probes moved instructions. */
     s32 tableOffset;
     u8 *queueNode;
     f32 depth;
@@ -1038,11 +970,8 @@ void FldLmapDrawSlotMarker(u8 *work, u8 *position, s32 slotIndex)
     sdkSpriteDrawQueued((f32)(s32)(((Vec3 *)position)->x + *slotMarkerXColumn), (f32)(s32)(((Vec3 *)position)->y + *slotMarkerYColumn), depth, 0xFF0000, 2, slotIndex, ((FldLmapWork *)work)->sprites[4].pointer, 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
-/* measured re-triage: corrected two-call body has the expected setup and
-   near-retail size, but MWCC b210 sinks the f14 load below the integer
-   arguments and does not interleave the f13 chain. Best candidate:
-   normalized_diff 82, object 344/352; discarded. */
-/* Draw the normal slot label and its paired decoration. */
+/* Draw a slot's label sprite and its icon sprite, each placed at the slot's table offsets from the
+ * given screen position. */
 // FUN_00188690
 void FldLmapDrawSlotPair(u8 *work, u8 *position, s32 slotIndex)
 {
@@ -1051,7 +980,6 @@ void FldLmapDrawSlotPair(u8 *work, u8 *position, s32 slotIndex)
     f32 *slotLabelYColumn;
     f32 *slotLabelXColumn;
     Vec3 *screenPosition = (Vec3 *)position;
-    /* Typed column pointers retain the linker anchors after row/local-array probes moved instructions. */
     s32 tableOffset;
     f32 y;
     f32 x;
@@ -1066,18 +994,13 @@ void FldLmapDrawSlotPair(u8 *work, u8 *position, s32 slotIndex)
 
     slotLabelXColumn = (f32 *)((u8 *)D_005F20B8 + tableOffset);
     x = ((Vec3 *)position)->x + *slotLabelXColumn;
-    /* measured: typing the retained access changes b210 output (normalized_diff 257); retain pointer/MEMBER spelling. */
     y = screenPosition->y + *slotLabelYColumn;
-    /* measured: typing the retained access changes b210 output (normalized_diff 257); retain pointer/MEMBER spelling. */
     sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, screenPosition->z, 0xFFFF81, 0xFF, 7, ((FldLmapWork *)work)->sprites[4].pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     x = ((Vec3 *)position)->x + *slotIconXColumn;
     y = ((Vec3 *)position)->y + *slotIconYColumn;
     sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, ((Vec3 *)position)->z, 0xEC7C00, 0xFF, slotIndex + 7, ((FldLmapWork *)work)->sprites[1].pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
-/* measured re-triage: corrected two-call body has exact size, but MWCC b210
-   sinks the f14 load below the integer arguments and serialises the f13
-   chain. Best candidate: normalized_diff 79, object 336/336; discarded. */
 /* Draw the selected slot background and label. */
 // FUN_001887F0
 void FldLmapDrawSlotIcon(u8 *work, u8 *position, s32 slotIndex)
@@ -1087,7 +1010,6 @@ void FldLmapDrawSlotIcon(u8 *work, u8 *position, s32 slotIndex)
     f32 *slotBackgroundYColumn;
     f32 *slotBackgroundXColumn;
     Vec3 *screenPosition = (Vec3 *)position;
-    /* Typed column pointers retain the linker anchors after row/local-array probes moved instructions. */
     s32 tableOffset;
     f32 y;
     f32 x;
@@ -1102,9 +1024,7 @@ void FldLmapDrawSlotIcon(u8 *work, u8 *position, s32 slotIndex)
 
     slotBackgroundXColumn = (f32 *)((u8 *)D_005F2130 + tableOffset);
     x = ((Vec3 *)position)->x + *slotBackgroundXColumn;
-    /* measured: typing the retained access changes b210 output (normalized_diff 253); retain pointer/MEMBER spelling. */
     y = screenPosition->y + *slotBackgroundYColumn;
-    /* measured: typing the retained access changes b210 output (normalized_diff 254); retain pointer/MEMBER spelling. */
     sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, screenPosition->z, 0x313131, 0xFF, 6, ((FldLmapWork *)work)->sprites[4].pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     x = ((Vec3 *)position)->x + *slotLabelXColumn;
     y = ((Vec3 *)position)->y + *slotLabelYColumn;
@@ -1129,15 +1049,11 @@ void FldLmapDrawPanel(u8 *work, u8 *position, s32 slotIndex)
     PrimAppendNode(D_00795E60, cursor);
     x = -45.0f;
     x += ((Vec3 *)position)->x;
-    /* measured: typing the retained access changes b210 output (normalized_diff 491); retain pointer/MEMBER spelling. */
     y = -5.0f + screenPosition->y;
-    /* measured: typing the retained access changes b210 output (normalized_diff 504); retain pointer/MEMBER spelling. */
     sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, screenPosition->z - 10.0f, 0xFF0000, 0xFF, 0, MEMBER(void *, work, FldLmapWork, sprites[2].pointer), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     x = -45.0f;
     x += ((Vec3 *)position)->x;
-    /* measured: typing the retained access changes b210 output (normalized_diff 491); retain pointer/MEMBER spelling. */
     y = 224.0f + screenPosition->y;
-    /* measured: typing the retained access changes b210 output (normalized_diff 504); retain pointer/MEMBER spelling. */
     sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, screenPosition->z - 10.0f, 0xFF0000, 0xFF, 1, ((FldLmapWork *)work)->sprites[2].pointer, 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     queueNode = PrimAllocQueueNode();
     ((PrimQueueNode *)queueNode)->callback = (void (*)(void))FldLmapSkyState72001;
@@ -1146,12 +1062,10 @@ void FldLmapDrawPanel(u8 *work, u8 *position, s32 slotIndex)
     x = 185.0f;
     x += ((Vec3 *)position)->x;
     y = 0.0f;
-    /* measured: typing the retained access changes b210 output (normalized_diff 504); retain pointer/MEMBER spelling. */
     sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, screenPosition->z - 10.0f, 0xFFFFFF, 0, 7, ((FldLmapWork *)work)->sprites[3].pointer, 0, 0, 0, 0, iGpffff8538, 1.0f, D_00795E60);
     offset = (slotIndex ^ ((FldLmapWork *)work)->panelSlots[0]) != 0;
     offset *= 4;
     cursor = (u8 *)(offset + (s32)work);
-    /* measured: typing the retained access changes b210 output (normalized_diff 2); retain pointer/MEMBER spelling. */
     y = ((FldLmapWork *)cursor)->panelOffsets[0];
     contentX = ((Vec3 *)position)->x - 1.0f;
     contentX += y;
@@ -1159,15 +1073,13 @@ void FldLmapDrawPanel(u8 *work, u8 *position, s32 slotIndex)
     y -= 1.0f;
     offset = slotIndex * 4;
     cursor = (u8 *)(offset + (s32)work);
-    /* measured: typing the retained access changes b210 output (normalized_diff 2); retain pointer/MEMBER spelling. */
     sdkSpriteDrawQueued((f32)(s32)contentX, (f32)(s32)y, ((Vec3 *)position)->z, 0xFFFFFF, 0xFF, 0, ((FldLmapWork *)cursor)->sprites[5].pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
 /* Show the selected scene resource and move the map marker toward its target position. */
 // FUN_00188BE0
-/* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
- * ~2 mask (addiu $v1, $zero, -3) inside the loop body; retail hoists it to the
- * preheader. The pragma restores the hoist. */
+/* measured: retail hoists the loop-invariant ~2 mask out of the loop, which needs
+ * opt_loop_invariants enabled. */
 s32 FldLmapMarkerUpdate(u8 *task)
 {
     FldLmapMarkerWork *markerWork;
@@ -1204,49 +1116,44 @@ s32 FldLmapMarkerUpdate(u8 *task)
     case 1:
         break;
     case 2:
-        /* measured: typing the retained access changes b210 output (normalized_diff 571); retain pointer/MEMBER spelling. */
         cursor = mdlGetMatrix((s32)((ResrcRecord *)(markerWork->marker.data))->slotHandle[1]);
         coordinate = ((RwMatrixTag *)cursor)->pos.x;
-        /* measured: typing the retained access changes b210 output (normalized_diff 570); retain pointer/MEMBER spelling. */
         targetOffset = markerWork->targetSlot * 0xC;
         cursor = (u8 *)(targetOffset + (s32)work);
-        /* measured: typing the retained access changes b210 output (normalized_diff 570); retain pointer/MEMBER spelling. */
         direction.x = ((Vec3 *)(cursor + 0xC))->x - coordinate;
-        /* measured: typing the retained access changes b210 output (normalized_diff 571); retain pointer/MEMBER spelling. */
         cursor = mdlGetMatrix((s32)((ResrcRecord *)(markerWork->marker.data))->slotHandle[1]);
         coordinate = ((RwMatrixTag *)cursor)->pos.y;
-        /* measured: typing the retained access changes b210 output (normalized_diff 570); retain pointer/MEMBER spelling. */
         targetOffset = markerWork->targetSlot * 0xC;
         cursor = (u8 *)(targetOffset + (s32)work);
-        /* measured: typing the retained access changes b210 output (normalized_diff 567); retain pointer/MEMBER spelling. */
         direction.y = ((Vec3 *)(cursor + 0xC))->y - coordinate;
-        /* measured: typing the retained access changes b210 output (normalized_diff 571); retain pointer/MEMBER spelling. */
         cursor = mdlGetMatrix((s32)((ResrcRecord *)(markerWork->marker.data))->slotHandle[1]);
         coordinate = ((RwMatrixTag *)cursor)->pos.z;
-        /* measured: typing the retained access changes b210 output (normalized_diff 570); retain pointer/MEMBER spelling. */
         targetOffset = markerWork->targetSlot * 0xC;
         cursor = (u8 *)(targetOffset + (s32)work);
-        /* measured: typing the retained access changes b210 output (normalized_diff 565); retain pointer/MEMBER spelling. */
         direction.z = ((Vec3 *)(cursor + 0xC))->z - coordinate;
         RwV3dNormalize(&direction.x, &direction.x);
         direction.x = direction.x * ((FldLmapMarkerWork *)work)->speed;
         direction.y = direction.y * ((FldLmapMarkerWork *)work)->speed;
         direction.z = direction.z * ((FldLmapMarkerWork *)work)->speed;
-        /* measured: typing the retained access changes b210 output (normalized_diff 571); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         cursor = mdlGetMatrix((s32)((ResrcRecord *)(markerWork->marker.data))->slotHandle[1]);
         coordinate = ((RwMatrixTag *)cursor)->pos.x;
         position.x = direction.x + coordinate;
-        /* measured: typing the retained access changes b210 output (normalized_diff 571); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         cursor = mdlGetMatrix((s32)((ResrcRecord *)(markerWork->marker.data))->slotHandle[1]);
         coordinate = ((RwMatrixTag *)cursor)->pos.y;
         position.y = direction.y + coordinate;
-        /* measured: typing the retained access changes b210 output (normalized_diff 571); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         cursor = mdlGetMatrix((s32)((ResrcRecord *)(markerWork->marker.data))->slotHandle[1]);
         coordinate = ((RwMatrixTag *)cursor)->pos.z;
         position.z = direction.z + coordinate;
         targetOffset = ((FldLmapMarkerWork *)work)->targetSlot * 0xC;
         cursor = (u8 *)(targetOffset + (s32)work);
-        /* measured: typing the retained access changes b210 output (normalized_diff 570); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         direction.x = ((Vec3 *)(cursor + 0xC))->x - position.x;
         targetOffset = ((FldLmapMarkerWork *)work)->targetSlot * 0xC;
         cursor = (u8 *)(targetOffset + (s32)work);
@@ -1258,7 +1165,8 @@ s32 FldLmapMarkerUpdate(u8 *task)
         if (((FldLmapMarkerWork *)work)->direction.x * direction.x + ((FldLmapMarkerWork *)work)->direction.y * direction.y + ((FldLmapMarkerWork *)work)->direction.z * direction.z <= 0.0f) {
             targetOffset = ((FldLmapMarkerWork *)work)->targetSlot * 0xC;
             cursor = (u8 *)(targetOffset + (s32)work);
-            /* measured: typing the retained access changes b210 output (normalized_diff 2); retain pointer/MEMBER spelling. */
+            /* measured: retail output needs the raw pointer-cast access here; a typed field access
+             * changes it. */
             position = ((FldLmapMarkerWork *)cursor)->positions[0];
             ((FldLmapMarkerWork *)work)->selectedSlot = ((FldLmapMarkerWork *)work)->targetSlot;
             ((FldLmapMarkerWork *)work)->targetSlot = -1;
@@ -1274,7 +1182,6 @@ s32 FldLmapMarkerUpdate(u8 *task)
     return 0;
 }
 
-/* measured: see annotation above. */
 // FUN_00188EF0
 void FldLmapMarkerTaskDestroy(u8 *task)
 {
@@ -1324,14 +1231,12 @@ void FldLmapMarkerSetTarget(u8 *task, s32 slotIndex, f32 speed)
     state = ((FldLmapMarkerWork *)work)->state;
     if (((state != 1) || (((FldLmapMarkerWork *)work)->selectedSlot != slotIndex)) && ((state != 2) || (((FldLmapMarkerWork *)work)->targetSlot != slotIndex))) {
         if (speed != 0.0f) {
-            /* measured: typing the retained access changes b210 output (normalized_diff 276); retain pointer/MEMBER spelling. */
+            /* measured: retail output needs the raw pointer-cast access here; a typed field access
+             * changes it. */
             markerWork->targetSlot = slotIndex;
             ((FldLmapMarkerWork *)work)->selectedSlot = -1;
-            /* measured: typing the retained access changes b210 output (normalized_diff 276..277); retain pointer/MEMBER spelling. */
             ((FldLmapMarkerWork *)work)->direction.x = MEMBER(f32, (u8 *)(markerWork->targetSlot * 0xC) + (u32)work, FldLmapMarkerWork, positions[0].x) - ((RwMatrixTag *)(mdlGetMatrix(((ResrcRecord *)(markerWork->marker.data))->slotHandleValue[1])))->pos.x;
-            /* measured: typing the retained access changes b210 output (normalized_diff 274..277); retain pointer/MEMBER spelling. */
             ((FldLmapMarkerWork *)work)->direction.y = MEMBER(f32, (u8 *)(markerWork->targetSlot * 0xC) + (u32)work, FldLmapMarkerWork, positions[0].y) - ((RwMatrixTag *)(mdlGetMatrix(((ResrcRecord *)(markerWork->marker.data))->slotHandleValue[1])))->pos.y;
-            /* measured: typing the retained access changes b210 output (normalized_diff 2); retain pointer/MEMBER spelling. */
             ((FldLmapMarkerWork *)work)->direction.z = MEMBER(f32, (u8 *)(((FldLmapMarkerWork *)work)->targetSlot * 0xC) + (u32)work, FldLmapMarkerWork, positions[0].z) - ((RwMatrixTag *)(mdlGetMatrix(((ResrcRecord *)(((FldLmapMarkerWork *)work)->marker.data))->slotHandleValue[1])))->pos.z;
             direction = (f32 *)(work + 0x48);
             RwV3dNormalize(direction, direction);
@@ -1355,7 +1260,7 @@ s32 FldLmapPathUpdate(u8 *task)
     f32 *slotEyeYColumn;
     f32 *slotEyeXColumn;
     FldLmapPathWork *pathWork;
-    /* Eye/target constants are interior linker aliases in interleaved 24-byte pose records. */
+    /* Eye/target constants sit in interleaved 24-byte pose records. */
     f32 direction[3];
     f32 progress;
     f32 targetDistance;
@@ -1381,18 +1286,23 @@ s32 FldLmapPathUpdate(u8 *task)
     case 1:
         break;
     case 2:
-        /* measured: typing the retained access changes b210 output (normalized_diff 543..624); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         progress = sinf((iGpffff84a4 * (f32)pathWork->frame) / (f32)pathWork->duration);
-        /* measured: typing the retained access changes b210 output (normalized_diff 512); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         eyeOffset = pathWork->targetSlot * 0x18;
         slotEyeZColumn = (f32 *)((u8 *)D_005F2198 + eyeOffset);
         slotEyeYColumn = (f32 *)((u8 *)D_005F2194 + eyeOffset);
         slotEyeXColumn = (f32 *)((u8 *)D_005F2190 + eyeOffset);
-        /* measured: typing the retained access changes b210 output (normalized_diff 504); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         direction[0] = *slotEyeXColumn - pathWork->eye.x;
-        /* measured: typing the retained access changes b210 output (normalized_diff 465); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         direction[1] = *slotEyeYColumn - pathWork->eye.y;
-        /* measured: typing the retained access changes b210 output (normalized_diff 444); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         direction[2] = *slotEyeZColumn - pathWork->eye.z;
         eyeDistance = operandOrderMultiply(RwV3dNormalize(&direction[0], &direction[0]), progress);
         direction[0] = direction[0] * eyeDistance;
@@ -1405,11 +1315,14 @@ s32 FldLmapPathUpdate(u8 *task)
         slotTargetZColumn = (f32 *)((u8 *)D_005F21A4 + targetOffset);
         slotTargetYColumn = (f32 *)((u8 *)D_005F21A0 + targetOffset);
         slotTargetXColumn = (f32 *)((u8 *)D_005F219C + targetOffset);
-        /* measured: typing the retained access changes b210 output (normalized_diff 357); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         direction[0] = *slotTargetXColumn - pathWork->target.x;
-        /* measured: typing the retained access changes b210 output (normalized_diff 316); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         direction[1] = *slotTargetYColumn - pathWork->target.y;
-        /* measured: typing the retained access changes b210 output (normalized_diff 295); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         direction[2] = *slotTargetZColumn - pathWork->target.z;
         targetDistance = operandOrderMultiply(RwV3dNormalize(&direction[0], &direction[0]), progress);
         direction[0] = direction[0] * targetDistance;
@@ -1419,19 +1332,24 @@ s32 FldLmapPathUpdate(u8 *task)
         ((FldLmapPathWork *)work)->target.y = ((FldLmapPathWork *)work)->target.y + direction[1];
         ((FldLmapPathWork *)work)->target.z = ((FldLmapPathWork *)work)->target.z + direction[2];
         K_ClumpLookAtBasis(kwlnGetCamera(), work + 4, work + 0x10, 0);
-        /* measured: typing the retained access changes b210 output (normalized_diff 624); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         nextFrame = pathWork->frame + 1;
-        /* measured: typing the retained access changes b210 output (normalized_diff 624); retain pointer/MEMBER spelling. */
+        /* measured: retail output needs the raw pointer-cast access here; a typed field access
+         * changes it. */
         pathWork->frame = nextFrame;
         if (((FldLmapPathWork *)work)->duration < nextFrame) {
-            /* measured: typing the retained access changes b210 output (normalized_diff 512); retain pointer/MEMBER spelling. */
+            /* measured: retail output needs the raw pointer-cast access here; a typed field access
+             * changes it. */
             cameraPose = (u8 *)D_005F2190 + (pathWork->targetSlot * 0x18);
             K_ClumpLookAtBasis(kwlnGetCamera(), cameraPose, cameraPose + 0xC, 0);
             eye = (u8 *)D_005F2190 + (((FldLmapPathWork *)work)->targetSlot * 0x18);
-            /* measured: typing the retained access changes b210 output (normalized_diff 620); retain pointer/MEMBER spelling. */
+            /* measured: retail output needs the raw pointer-cast access here; a typed field access
+             * changes it. */
             pathWork->eye = *(Vec3 *)eye;
             target = (u8 *)D_005F219C + (((FldLmapPathWork *)work)->targetSlot * 0x18);
-            /* measured: typing the retained access changes b210 output (normalized_diff 618); retain pointer/MEMBER spelling. */
+            /* measured: retail output needs the raw pointer-cast access here; a typed field access
+             * changes it. */
             pathWork->target = *(Vec3 *)target;
             ((FldLmapPathWork *)work)->frame = 0;
             ((FldLmapPathWork *)work)->state = 1;

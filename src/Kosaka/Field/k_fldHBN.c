@@ -1,5 +1,5 @@
 #include "mt_scene_internal.h"
-/* Original translation unit k_fldHBN.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldHBN.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "field_light_internal.h"
@@ -86,9 +86,6 @@ extern void memcpy(void *, void *, s32);
 extern void H_Cdvd_Destroy(void *cdvd);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-/* Source unit: src/promoted/k_fldHBN.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldHBN.c; members 0015f8e0-001602a0 */
-
 /* Open field/room HBN data for the selected load source; packed loading uses sentinel handle 1. */
 // FUN_0015F8E0
 u8 *FldHbnOpenData(s32 fieldId, s32 roomId)
@@ -151,18 +148,17 @@ s32 FldHbnReadData(u8 *request, u16 **destination, s32 fieldId, s32 roomId)
     return 1;
 }
 
-/* 1052/1056 bytes: field colors are four-byte values passed after the
-   three floats. Lifetime analysis preserves the separate cursor/counter
-   phases. See docs/probe_archive/HBN_0015fb00_color_value_recovery.md. */
-/* Spawn versioned HBN light/point records, filtering reserved IDs according to field band and mode. */
+/* Spawn versioned HBN light/point records, filtering reserved IDs by field band and mode. Field
+ * colors are four-byte values passed after the three floats. */
 // FUN_0015FB00
 #pragma push
-/* measured: FldHbnSpawnLights MATCH -> MISMATCH without this pragma. */
-/* measured: baseline 95 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+/* measured: retail's register allocation needs opt_lifetimes; typed access and block-scoped locals
+ * did not reproduce it. */
 #pragma opt_lifetimes on
 void FldHbnSpawnLights(u8 *header, s32 mode)
 {
-    /* Byte-base fallbacks preserve the request/record aliasing measured against typed fields. */
+    /* Byte-pointer accesses keep the request/record aliasing that retail shows; typed fields change
+     * it. */
     extern s32 MT_Scene_CreatePointRes14(u16 resourceId, f32 *position, f32 radius);
     extern s32 MT_Scene_CreatePointRes15(u16 resourceId, f32 *position, f32 radius);
     extern s32 MT_Scene_CreatePointRes16(u16 resourceId, f32 *position, f32 radius);
@@ -358,7 +354,7 @@ u8 *FldHbnOpenScript(s32 fieldId)
 // FUN_001602A0
 s32 FldHbnLoadScriptBuffer(u8 *request, s32 fieldId)
 {
-    /* Byte-base fallbacks preserve the request/record aliasing measured against typed fields. */
+    /* Byte-base accesses keep the request and record pointers aliased the way retail does. */
     u32 dataSize;
     char path[0x40];
     u8 *copy;

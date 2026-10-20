@@ -1,4 +1,3 @@
-/* Source unit: src/Battle/btlPacket.c */
 #include "include_asm.h"
 #include "type.h"
 #include "btl_unit_internal.h"
@@ -16,7 +15,6 @@ struct BtlPacketCallbackWork
 extern RwV3d D_00881430;
 
 
-
 // FUN_00194C60
 void btlPacketCallbackRun(BtlPacketCallbackWork* work)
 {
@@ -24,10 +22,11 @@ void btlPacketCallbackRun(BtlPacketCallbackWork* work)
 }
 
 
-
-/* measured probe: opt_loop_invariants on hoists the wait-type constant into the loop preheaders. */
-/* measured: baseline nd18; scoped locals did not match (best nd18); retain opt_loop_invariants on. */
+/* measured: opt_loop_invariants on hoists the wait-type constant into the loop preheaders as retail
+ * does. */
 #pragma opt_loop_invariants on
+/* Allocate and zero a battle packet with attached callback work, initialise its wait conditions,
+ * and set it to run the given callback with data on update. */
 // FUN_00194C90
 /* Allocate a callback packet and its payload, initialize wait modes, and install the callback
  * dispatcher. */
@@ -106,8 +105,9 @@ u8 *btlPacketAllocZeroed(void *callback, void *data)
     callbackWork->data = data;
     return (u8 *)packet;
 }
-/* measured probe: closes the opt_loop_invariants scope for btlPacketAllocZeroed. */
+/* measured: restores the unit setting after btlPacketAllocZeroed. */
 #pragma opt_loop_invariants off
+/* Reset a unit's scale, position, offset, rotation and colours to their default values. */
 // FUN_00194DC0
 /* Reset unit transform, color sets, light orientation and associated mode fields to their initial
  * values. */

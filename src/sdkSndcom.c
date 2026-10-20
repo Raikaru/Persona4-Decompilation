@@ -1,4 +1,4 @@
-/* Original translation unit sdkSndcom.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkSndcom.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "include_asm.h"
 #include "sdk_snd_internal.h"
@@ -115,8 +115,8 @@ extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 s32 sdkSndTransferToIop(s32 handle, void *data, s32 size);
 void sdkSndReleaseDecodeSlot(s16 index);
 
-/* Submits a transfer command for the supplied IOP destination and EE source data and waits for completion. */
-/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
+/* Submits a transfer command for the supplied IOP destination and EE source data and waits for
+ * completion. */
 // FUN_0045B650
 s32 sdkSndTransferToIop(s32 handle, void *data, s32 size)
 {
@@ -158,15 +158,13 @@ s32 sdkSndTransferToIop(s32 handle, void *data, s32 size)
     return size;
 }
 
-/* measured: b210 -O2, 2408B body/2416B window, eight zero alignment bytes.
- * Explicit state/payload scopes preserve the request and payload-field addresses
- * across calls. CSE off retains the retail slot-base rematerialization; propagation
- * off preserves the signed index and transfer-size snapshots rather than duplicating
- * their loads. The three payload stages have independent transfer cursors. */
-/* Advances six decode slots through file or memory payload transfers and decoder creation. */
+/* CSE off keeps retail's rematerialized slot base; propagation off keeps the signed index and
+ * transfer-size snapshots. Each of the three payload stages has its own transfer cursor. Advances
+ * six decode slots through file or memory payload transfers and decoder creation. */
 // FUN_0045B7C0
 #pragma push
-/* measured: baseline removal differs by 509 words; indexed-slot and single-toggle probes also fail. */
+/* measured: retail code needs both propagation and common-subexpression optimizations off for this
+ * function. */
 #pragma opt_propagation off
 #pragma opt_common_subs off
 void sdkSndUpdateDecodeSlots(void)
@@ -418,8 +416,8 @@ void sdkSndUpdateDecodeSlots(void)
 }
 #pragma pop
 
-/* Queues the selected file-entry triplet on a ready decode slot. */
-/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
+/* Queues the selected file-entry triplet on a ready decode slot. Some slot fields stay as raw
+ * absolute accesses because typed access changes the generated code. */
 // FUN_0045C130
 void sdkSndLoadDecodeFiles(s16 index, s16 fileIndex)
 {
@@ -434,8 +432,8 @@ void sdkSndLoadDecodeFiles(s16 index, s16 fileIndex)
     kAssertFailAt(D_00712440, D_00712408, 0x1D0);
 }
 
-/* Queues three supplied memory payloads and their sizes on a ready decode slot. */
-/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
+/* Queues three supplied memory payloads and their sizes on a ready decode slot. Some slot fields
+ * stay as raw absolute-address accesses because the typed form compiles differently. */
 // FUN_0045C210
 void sdkSndLoadDecodeBuffers(s16 index, s16 fileIndex, void *data0, u32 data0Size, void *data1, u32 data1Size,
                    void *data2, u32 data2Size)
@@ -463,8 +461,8 @@ u32 sdkSndIsDecodeSlotReady(s16 index)
     return sSfdDecodeSlots_abs[index].state == 1;
 }
 
-/* Releases a ready slot decoder and its queue and IOP payload allocations. */
-/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
+/* Releases a ready slot decoder and its queue and IOP payload allocations. Some slot fields are
+ * reached through absolute symbol aliases, as retail does, not through the slot array. */
 // FUN_0045C3D0
 void sdkSndReleaseDecodeSlot(s16 index)
 {
@@ -490,7 +488,6 @@ void sdkSndReleaseDecodeSlot(s16 index)
 }
 
 /* Stop an active decoder stream and clear its per-stream active flag. */
-/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
 // FUN_0045C510
 void sdkSndStopStreamSlot(s16 index, s16 stream)
 {
@@ -518,14 +515,15 @@ void sdkSndStopStreamSlot(s16 index, s16 stream)
     }
 }
 
-/* measured: 552B/560B, all 32 relocations resolved; eight zero-tail bytes.
-   Preserve the separate pre-stop and post-stop address computations and
-   the output-handle load before the final halfword argument promotions. */
+/* measured: retail computes slot addresses separately before and after the stop, and loads the
+ * output handle before the halfword argument promotions. */
 #pragma push
-/* measured: baseline removal differs by 98 words; sizeof indexing and either single-toggle probe also fail. */
+/* measured: retail code needs both propagation and common-subexpression optimizations off for this
+ * function. */
 #pragma opt_propagation off
 #pragma opt_common_subs off
-/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
+/* measured: slot fields use absolute interior-symbol aliases because typed slot accesses change
+ * retail's instructions. */
 // FUN_0045C640
 void sdkSndStartStreamSlot(s16 index, s16 stream, s16 value, s16 flags)
 {

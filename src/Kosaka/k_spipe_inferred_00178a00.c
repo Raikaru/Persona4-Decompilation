@@ -40,11 +40,8 @@ typedef struct
     u8 blue;
     u8 alpha;
 } FieldColor_0017;
-/* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
-   before the two lhu loads and $a3 (a) after them, which is the default-
-   promotion order of an old-style call with a u16 local for b and an explicit
-   (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
-   loads (nd4). Sole caller in this unit. */
+/* Cmd_PickEncounter is called unprototyped so its u16 arguments get old-style default promotion,
+ * matching retail's masking order. */
 extern s32 iGpffffb284;
 extern s32 iGpffffb300;
 extern s32 iGpffffb304;
@@ -68,7 +65,6 @@ extern f32 iGpffff8304;
 extern char D_005E5850[];
 extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
-
 
 
 extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
@@ -100,31 +96,6 @@ extern u8 *D_007643D0;
 extern FieldRenderStateSetFunction D_00887300[];
 extern s32 iGpffffba48;
 
-
-
-
-
-/* measured: ONE real defect, and it is the `slt $at` family. Retail emits
-   `slti $at,$v0,4; bnez $at` where b210 emits `slti $v0,$v0,4; bnez $v0`,
-   reusing the dead call result as the comparison destination. obj 92B vs
-   window 96B, so the reported count also includes one padding word.
-   `#pragma schedule off` and hoisting the call result into a local both leave
-   it unchanged.
-
-   Do NOT record this as a blanket floor. A census of the retail image shows the
-   $at form in 276 first-party functions that ALREADY MATCH, so it is reachable
-   from C -- it appears when the comparison feeds a short-circuit `&&`/`||`
-   chain, or when its source register is still live afterwards (see the matched
-   datCalc func_00231ef0: `if (arg1 > 99 && !(*(u16 *)arg0 & 4))` compiles to
-   `andi $v1; slti $at,$v1,0x64; bnez $at`). What is NOT reachable is this
-   shape: a single bare comparison on a dead call result, where b210 always
-   recycles the source register. 359 of the remaining first-party ASM functions
-   contain an $at comparison, so the distinction is worth knowing before writing
-/* SOLVED by tools/permute.py; this previously carried a `slt $at` floor note
-   and sat under #ifdef NON_MATCHING. The permuter found the shape from the
-   preserved body. */
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00178a00-00178c00 */
 
 /* Script getters share this sparse state view: the current record pointer is
  * read at 0x160. Only fields observed by these getters are represented. */
@@ -188,9 +159,6 @@ s32 K_Spipe_IsRecordEnabled(void)
     return 1;
 }
 
-/* measured: plain C body is object 64B in a 64B window; only the retail
-   GP load versus zero-argument materialisation order remains (nd 6).
-   Committed at nd 6. */
 /* Report the record state, preserving the original zero-result path. */
 // FUN_00178B30
 s32 K_Spipe_GetRecordState(void)
@@ -235,8 +203,7 @@ s32 K_Spipe_GetRecordLevel(void)
 
 /* Mark the active pipe state finished and detach it from the script-facing global. */
 // FUN_00178C00
-/* Returns the stored constant: retail materializes the 1 in $v0 and stores
-   from there, which only happens when it is also the return value. */
+/* Returns the stored constant because retail stores the 1 from the return-value register. */
 s32 K_Spipe_Finish(void)
 {
     ((SpipeScriptState *)D_007643D0)->finished = 1;

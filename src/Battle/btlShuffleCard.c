@@ -1,4 +1,4 @@
-/* Original translation unit btlShuffleCard.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlShuffleCard.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "btl_shuffle_card_internal.h"
@@ -42,7 +42,7 @@ extern void *kwlnGetCamera(void);
 extern void kAssertFail(const char *file, s32 line);
 extern char D_0064E5B0[];
 
-/* Retail float-pool constant at gp - 0x7C44 = 0x007614AC (8.133125f). */
+/* Retail gp-relative float-pool constant used as the panel aspect ratio. */
 f32 fGpffff83bc = 8.133125f;
 
 void btlShuffleCardSetupLayout(u8 *card, s32 personaId);
@@ -112,8 +112,6 @@ void btlShuffleCardSetupFrame(u8 *card, s32 arcanaId, s32 index)
 }
 
 
-
-
 /* Acquire the first miscellaneous card texture and initialize its panel. */
 // FUN_0036DB20
 void btlShuffleCardSetupQuad(u8 *card)
@@ -154,7 +152,6 @@ void btlShuffleCardUpdateCards(u8 *card)
     color[2] = 0xFF;
     color[3] = 0xFF;
     btlShuffleCardBindSlot(card, color);
-    /* measured: typing the camera parent pointer swaps the argument move/load (two instructions). */
     pscModelSetParentFrame(card, MEMBER(s32, (u8 *)kwlnGetCamera(), RwCamera, object.object.parent));
     ((BtlShuffleCard *)card)->flags |= 1;
 }
@@ -198,8 +195,6 @@ void btlShuffleCardDetachSprite(u8 *card, void *scale)
 }
 
 
-
-
 /* Build an axis-angle quaternion and store it in the panel. */
 // FUN_0036DDE0
 void btlShuffleCardSetTint(u8 *card, void *axis, s32 combine, f32 angle)
@@ -221,8 +216,6 @@ void btlShuffleCardBindSlot(u8 *card, void *color)
 {
     pscPanelSetColor(card, color);
 }
-
-
 
 
 /* Return the scaled width of the six-unit panel. */

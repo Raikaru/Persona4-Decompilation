@@ -1,6 +1,6 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit k_fldMipmap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldMipmap.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdktask.h"
 #include "rw_texture_internal.h"
@@ -47,9 +47,6 @@ extern void *func_003ef2e0(void *raster);
 extern void func_003ef470(void *texture, const void *name);
 extern void func_003ef5b0(void *dictionary, void *texture);
 extern void func_003ea370(void *image);
-
-/* Source unit: src/promoted/k_fldMipmap.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldMipmap.c; members 0018bfb0-0018c580 */
 
 /* Load five images, assemble their mip levels, and install the named texture. */
 // FUN_0018BFB0
@@ -106,7 +103,6 @@ s32 FldMipmapLoadUpdate(u8 *task)
             u8 *entry;
             u8 *request;
 
-            /* Byte cursor preserves MWCC's shared slot base; typed indexing lost MATCH. */
             entry = (u8 *)work + i * 4;
             request = entry + 0x34;
             if (*(u8 **)request != NULL) {

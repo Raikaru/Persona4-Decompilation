@@ -1,5 +1,5 @@
 #include "include_asm.h"
-/* Original translation unit btlPanel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlPanel.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "btl_effect_internal.h"
 #include "h_cdvd_internal.h"
@@ -35,17 +35,15 @@ extern s32 iGpffffb470;
 extern u8 D_006267D0[];
 
 
-
 typedef struct {
     u32 flags;
     u8 pad04[0x28];
     s32 resources[16];
 } BtlPanelResources;
 
-/* 716/720 bytes; thirty-two resolved relocations; four zero alignment bytes.
- * Capture store indices but reload the panel index after readiness callbacks. */
-/* Incrementally load party/common sprites, release the archive, and publish panel readiness.
- * The last four resource handles are looked up only after the twelve streamed entries finish. */
+/* Incrementally load party/common sprites, release the archive, and publish panel readiness. The
+ * panel index is reloaded after readiness callbacks; the last four resource handles are looked up
+ * after the twelve streamed entries finish. */
 // FUN_00202890
 s32 btlPanelIsEnabled(void* panelData)
 {
@@ -111,7 +109,6 @@ check:
 }
 
 
-
 // FUN_00202B60
 s32 btlPanelIsEnabled(void* panelData);
 
@@ -128,7 +125,6 @@ u8* btlPanelCreatePacket(s32 ownerTask)
     ((BtlPanel *)work)->field34 = ownerTask;
     return packet;
 }
-
 
 
 /* Synchronously acquire the panel stream archive, upload its file image, and release the directory

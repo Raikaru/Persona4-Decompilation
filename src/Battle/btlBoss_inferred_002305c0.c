@@ -46,8 +46,6 @@ extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slotIndex, u32 type,
 extern char D_006357E0[];
 extern char D_00635800[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0023; members 002305c0-002308a0 */
-
 extern void btlBossResolveNpcModelName(s32 destination, u16 modelId);
 /* Allocate the eight-byte end-BGM loader work and install its update callback. */
 // FUN_002305C0

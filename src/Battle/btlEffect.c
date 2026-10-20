@@ -2,7 +2,6 @@
 #include "h_cdvd_request_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_action_internal.h"
-/* Source unit: src/Battle/btlEffect_001d6880.c */
 #include "btl_skill_target_internal.h"
 #include "type.h"
 #include "byte_address_internal.h"
@@ -286,9 +285,8 @@ u8 *btlEffectCreateLoadPacket(void)
 }
 
 
-/* Load the configured formation resource synchronously and copy its data into an independently owned allocation. */
-/* measured: site, typed-local, array and unsigned-union member forms lose MATCH
- * on the final size reload; MEMBER preserves the original request-byte alias domain. */
+/* Load the configured formation resource synchronously and copy its data into an independently
+ * owned allocation. */
 // FUN_001D78D0
 void btlEffectLoadFilesSync(void) {
     s32 *out;
@@ -396,11 +394,8 @@ void btlFormationEntryCopySelected(s32 destination, s32 source)
 }
 
 
-/* Ported from P3FES FUN_002c09f0 (verified MATCH there), which is compiled
- * inside the donor's opt_loop_invariants on region. Removing it here measured
- * MATCH nd0 -> MISMATCH nd50 (object 100/96), matching the donor's own
- * recorded W161 annotation of nd0 -> nd50. */
-/* measured: baseline nd50; typed pointer reuse, typed parameter cache, declaration lifetimes, scoped locals, explicit value caches did not match (best nd28); retain opt_loop_invariants on. */
+/* measured: matches P3FES FUN_002c09f0, which retail also compiles with loop-invariant hoisting
+ * enabled; without it the loop code differs. */
 #pragma opt_loop_invariants on
 /* Combine the genus bits of every action in the target selection; the result is kept to sixteen bits. */
 // FUN_001D8DF0
@@ -421,7 +416,7 @@ u32 btlEffectCollectGenusMask(int selection)
   }
   return result;
 }
-/* measured: closes opt_loop_invariants for FUN_001D8DF0. */
+/* measured: restores the unit setting after FUN_001D8DF0. */
 #pragma opt_loop_invariants off
 
 
@@ -673,7 +668,7 @@ extern void btlPacketDecUnitCounterAlt(u8 *work);
 #pragma opt_propagation on
 /* Keep conditional rebuilding enabled for the neighbouring packet constructors. */
 #pragma opt_rebuildconditionals on
-// Intent: allocate the sprite-step packet (type 0x505). [inferred]
+// Allocate the sprite-step packet (type 0x505).
 // FUN_00202120
 BtlPacket *btlPacketCreateSpriteStep(u32 sprite, u16 frame)
 {
@@ -690,7 +685,7 @@ BtlPacket *btlPacketCreateSpriteStep(u32 sprite, u16 frame)
 }
 
 
-// Intent: allocate the sprite-table packet (type 0x507). [inferred]
+// Allocate the sprite-table packet (type 0x507).
 // FUN_002022E0
 u8 *btlPacketCreateSpriteTable(u32 sprite, u16 frame)
 {
@@ -707,7 +702,7 @@ u8 *btlPacketCreateSpriteTable(u32 sprite, u16 frame)
 }
 
 
-// Intent: allocate the effect-counter packet (type 0x506). [inferred]
+// Allocate the effect-counter packet (type 0x506).
 // FUN_00202400
 BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit)
 {
@@ -724,7 +719,7 @@ BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit)
 }
 
 
-// Intent: allocate the unit-counter packet (type 0x500) with inc, update and dec callbacks. [inferred]
+// Allocate the unit-counter packet (type 0x500) with inc, update and dec callbacks.
 // FUN_00202590
 u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value)
 {
@@ -744,7 +739,7 @@ u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value)
 }
 
 
-// Intent: allocate the HP-ratio packet (type 0x501) for a unit. [inferred]
+// Allocate the HP-ratio packet (type 0x501) for a unit.
 // FUN_00202740
 u8 *btlPacketCreateHpRatio(u8 *unit)
 {
@@ -763,7 +758,7 @@ u8 *btlPacketCreateHpRatio(u8 *unit)
 s32 kwlnTaskGetTaskByName(void *name);
 extern u8 D_0063E918[];
 void kwlnTaskDestroyWithHierarchy(s32 task);
-// Intent: Destroy the time limit task and its hierarchy if it exists [inferred]
+// Destroy the time limit task and its hierarchy if it exists.
 // FUN_002A2740
 void timeLimitTaskDestroy(void) {
     s32 task;

@@ -49,9 +49,6 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-
-
-
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 D_00881400[];
@@ -74,12 +71,10 @@ extern u8 D_00609E40[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001e8c60-001e8c60 */
-
 #pragma push
 #pragma pop
-/* AI script command 0x2087 (p4flow AI.json AI_FUNCTION_0087). */
-/* Consume three AI script parameters, look up the first action ID, and return -1 to the script without using the lookup result. */
+/* Consume three AI script parameters, look up the first action ID, and return -1 to the script
+ * without using the lookup result. */
 // FUN_001E8C60
 s32 btlEffectScriptDiscardActionLookup(void) {
     u64 actionId;

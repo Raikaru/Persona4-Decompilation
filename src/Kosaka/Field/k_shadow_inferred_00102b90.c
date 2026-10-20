@@ -57,12 +57,8 @@ extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern f32 iGpffffba6c;
 extern u8 D_005DD680[];
-/* RenderWare keeps its engine instance in the `ourGlobals` array
-   (retail 0x008872E0) and reaches device state through
-   RWSRCGLOBAL(dOpenDevice): the near Z is at +0x18, the render-state and
-   Im2D entry points from +0x20.  The prefix of RwGlobals/RwDevice from
-   rwplcore.h is what makes a member access address it absolutely with the
-   %lo folded into the load, which is retail's loop shape. */
+/* RenderWare device state is reached through RWSRCGLOBAL(dOpenDevice); this RwGlobals/RwDevice
+ * prefix gives retail's absolute member addressing. */
 typedef struct {
     f32 gammaCorrection;
     void *fpSystem;
@@ -117,17 +113,11 @@ extern u8 D_007948A0[];
 extern f32 fGpffff8030;
 extern u8 iGpffff85d0;
 
-/* Source unit: src/promoted/code1_0010.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0010.c; members 00102b90-00102bb0 */
-
 /* measured: tailcall on emits the retail bare jump wrapper. */
 #pragma tailcall on
-/* measured: close tailcall bracket around func_00100218. */
 #pragma tailcall off
-/* measured: opt_propagation off keeps each GP-relative queue address in the caller's temporary registers. */
-/* measured: opt_loop_invariants off prevents the four queue-address expressions from being hoisted across their wait loops. */
-/* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
-/* measured: opt_propagation on closes the bracket after the exact-match body. */
+/* measured: retail rebuilds each GP-relative queue address at its call site, in temporaries, and
+ * never hoists it across the wait loops. */
 // FUN_00102B90
 void FldBootChain_Start(void) {
     initBootChainStart();

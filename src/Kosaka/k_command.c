@@ -6,7 +6,8 @@
 #include "mt_scene_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
-/* Source unit: "k_command.c" (__FILE__ group 0x00176C70..0x00178500; P3 twin src/Kosaka/k_command.c). Members 0x0025C6D0, 0x0025D100 and 0x00299FD0 have no __FILE__ evidence; they stay in this file as its existing members. */
+/* Original translation unit k_command.c (from __FILE__ assert strings); 0x0025C6D0, 0x0025D100 and
+ * 0x00299FD0 have no __FILE__ evidence. */
 #include "Kosaka/k_command_internal.h"
 #include "scr_internal.h"
 
@@ -85,7 +86,6 @@ typedef struct
 } Mat4;
 
 
-
 extern s32 FldStepIndex(void);
 extern void (*jtbl_008873EC[])(void *);
 extern s32 FldSceneLoadReady(void);
@@ -122,13 +122,8 @@ u32 Cmd_SetSceneResourceParam()
 }
 
 
-
-
-
-/* Retail command operands narrow animation to s16 and converted frame to
-   u16 at each dispatch; these are caller conversions, not the shared ABI. */
-/* Play layer-zero motion on a character, NPC, or field model with the script loop/frame/weight operands.
- * measured: typed handle aliases preserve MATCH where the looping access-site conversions did not. */
+/* Play layer-zero motion on a character, NPC, or field model using the script's loop, frame and
+ * weight operands. Animation is narrowed to s16 and frame to u16 at each call site. */
 // FUN_00176C70
 s32 Cmd_PlayModelMotion(void)
 {
@@ -202,7 +197,6 @@ s32 Cmd_PlayModelMotion(void)
 }
 
 
-
 /* Query the completion byte of the selected character, NPC, or field model. */
 // FUN_00176EF0
 s32 Cmd_CheckModelFlag(void)
@@ -244,7 +238,6 @@ s32 Cmd_CheckModelFlag(void)
     }
     return 1;
 }
-
 
 
 /* Set animation-layer zero time for the selected resource model. */
@@ -291,7 +284,6 @@ s32 Cmd_SetModelFloatParam(void)
 }
 
 
-
 /* Compare the script value with layer-zero weight; retain the existing resource-local reuse in types 3 and 10. */
 // FUN_00177120
 s32 Cmd_CompareModelThreshold(void)
@@ -329,7 +321,6 @@ s32 Cmd_CompareModelThreshold(void)
     }
     return (value >= threshold) ^ 1;
 }
-
 
 
 /* Apply uniform scaling; retail reads parameter one for all three components. */
@@ -380,9 +371,7 @@ s32 Cmd_SetModelScale(void)
 }
 
 
-
 /* Set the ring-particle radius only for NPC resources with a shadow handle. */
-/* measured: a typed resource alias preserves the guard and whole-file MATCH. */
 // FUN_001773D0
 s32 Cmd_SetShadowRingRadius(void)
 {
@@ -413,20 +402,13 @@ s32 Cmd_SetShadowRingRadius(void)
 }
 
 
-
-/* Native b210 O2: 1384/1392 executable bytes and eight zero alignment bytes.
- * The local axis is the retail (0, 1, 0) vector; each matrix-tolerance buffer
- * contains exactly the three floats read and written by the matrix API.
- * See docs/probe_archive/Field_placement_001774a0_20260924.md. */
-/* Normalize the field-work predicate at the original inline boundary. */
-/* Normalize the field-work result before checking the dependent placement task. */
-/* measured: the direct nonzero test changes placement branch/register generation at the sole caller. */
+/* measured: retail normalizes the field-work result to 0/1 at an inline boundary; a direct nonzero
+ * test changes the caller's placement branch code. */
 static inline u32 fldPlacementEnabled(u32 value)
 {
     return value != 0;
 }
-/* Apply a placement record's heading and position, then update dependent field tasks.
- * measured: typed resource/placement aliases preserve all native handle reloads and whole-file MATCH. */
+/* Apply a placement record's heading and position, then update dependent field tasks. */
 // FUN_001774A0
 s32 Cmd_PlaceFieldResource(void)
 {
@@ -571,7 +553,7 @@ s32 Cmd_PlaceFieldResource(void)
     }
 }
 
-/* P4 flowscript library (build/p4flow/Field.json, index 0x100D): FLD_NPC_MODEL_LOAD(major, minor). The P3 name is kept. */
+/* Flowscript FLD_NPC_MODEL_LOAD(major, minor), Field index 0x100D; the P3 name is kept. */
 // FUN_00177A10
 u32 K_Cmd_CREATE_FLD_MDL()
 {
@@ -606,9 +588,6 @@ u32 K_Cmd_CREATE_FLD_MDL()
 
     return true;
 }
-
-
-
 
 
 /* Prepare a field model, apply its first template's placement frame, and return the new resource ID. */
@@ -680,9 +659,6 @@ u32 Cmd_CreateModelResource()
 }
 
 
-
-
-
 /* Store the script value in the resource-specific word at +150 when the resource exists. */
 // FUN_00177DB0
 s32 Cmd_SetResourceWord150(void)
@@ -716,9 +692,6 @@ u32 K_Cmd_CREATE_MDL()
 }
 
 
-
-
-
 /* Prepare a model as an NPC resource and attach a clone of the shared shadow model. */
 // FUN_00177E80
 s32 Cmd_CreateSceneResource(void)
@@ -740,9 +713,7 @@ s32 Cmd_CreateSceneResource(void)
 }
 
 
-
 /* Set resource height and rescale an attached NPC shadow when present. */
-/* measured: a typed resource alias preserves both shadow-handle accesses and whole-file MATCH. */
 // FUN_00177F50
 s32 Cmd_SetFieldFloat(void)
 {
@@ -787,9 +758,8 @@ s32 Cmd_SetFieldFloat(void)
 }
 
 
-
-/* P4 flowscript library (build/p4flow/Field.json, index 0x1017): FLD_CAMERA_ROTATE(degrees, speed).
- * FldFrame_RotateTaskCreate creates a camera rotation task: yaw delta from the player's yaw plus degrees, at speed. */
+/* Flowscript FLD_CAMERA_ROTATE(degrees, speed): rotates the camera to the player's yaw plus degrees
+ * at the given speed. */
 // FUN_00178070
 s32 K_Cmd_FLD_CAMERA_ROTATE(void)
 {
@@ -800,10 +770,8 @@ s32 K_Cmd_FLD_CAMERA_ROTATE(void)
 }
 
 
-
-/* P4 flowscript library (build/p4flow/Field.json, index 0x1018): FLD_CAMERA_ROTATE_BEHIND(degrees, speed).
- * FldFrameRotateTaskCreate takes an absolute target yaw (wrapped to 360) where FldFrame_RotateTaskCreate adds
- * degrees to the player's yaw. The library name is kept. */
+/* Flowscript FLD_CAMERA_ROTATE_BEHIND(degrees, speed): unlike FLD_CAMERA_ROTATE, the target yaw is
+ * absolute (wrapped to 360). */
 // FUN_001780D0
 s32 K_Cmd_FLD_CAMERA_ROTATE_BEHIND(void)
 {
@@ -814,9 +782,8 @@ s32 K_Cmd_FLD_CAMERA_ROTATE_BEHIND(void)
 }
 
 
-
-/* Choose a cardinal heading facing the player from the nearest entry forward axis and start a camera turn. */
-/* measured: a typed entry alias preserves the repeated matrix-provider calls and whole-file MATCH. */
+/* Choose a cardinal heading facing the player from the nearest entry forward axis and start a
+ * camera turn. */
 // FUN_00178130
 s32 Cmd_FaceNearestAxis(void)
 {
@@ -869,7 +836,6 @@ s32 Cmd_FaceNearestAxis(void)
 }
 
 
-
 /* Store three script operands and reset the shared work-state word. */
 // FUN_00178360
 s32 Cmd_SetWorkValues(void)
@@ -895,9 +861,6 @@ s32 Cmd_SetSceneMode(void)
 }
 
 
-
-
-
 /* Update the active camera fog plane; retain the second camera lookup performed by retail. */
 // FUN_00178420
 s32 Cmd_SetCameraFloat(void)
@@ -917,9 +880,6 @@ s32 Cmd_SetFloatGlobal(void)
 }
 
 
-
-
-
 /* Return the nearest entry identifier; assert when no entry is available. */
 // FUN_001784A0
 s32 Cmd_LoadFieldWord(void)
@@ -935,7 +895,6 @@ s32 Cmd_LoadFieldWord(void)
     }
     return 1;
 }
-
 
 
 /* Return the trigger entry identifier; assert when no entry is available. */
@@ -968,7 +927,6 @@ u32 Cmd_TestResourceValue()
 }
 
 
-
 /* Script command 0x102C (group 1 table 0x63D440 + 0x160, FLD_FUNCTION_002C). */
 // FUN_001789D0
 s32 K_Cmd_FLD_RESET_FCL_CHANNEL(void)
@@ -980,7 +938,7 @@ s32 K_Cmd_FLD_RESET_FCL_CHANNEL(void)
 
 
 s32 datGetTimeSlot(void);
-// Intent: Script command: returns the current time slot (datGetTimeSlot) as the script return value [inferred]
+// Script command: return the current time slot as the script return value.
 // FUN_0025C420
 s32 scrGetTimeSlot(void) {
     scrSetReturnInt(datGetTimeSlot() & 0xFF);

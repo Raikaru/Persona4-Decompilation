@@ -42,30 +42,13 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
-
-
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d8c00-001d8cb0 */
-
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
-/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
-/* measured: restore optimization_level 2 after func_001d5990. */
-/* measured: opt_propagation off is required for the default GP load/store register order. */
-/* measured: close opt_propagation after btlEffectFlagToColor. */
+/* measured: opt_propagation off is needed so global loads and stores keep retail's ordering. */
 #pragma push
-/* measured: 25 -> 18 -> 11 -> 0. Hoisting retains the live-count bound copies;
- * opt_lifetimes splits the reused gather counters after those bounds. */
 #pragma pop
 /* Find an active, living action whose UID matches the remembered selection key. */
 // FUN_001D8C00
@@ -90,20 +73,13 @@ u8 *btlEffectFindUnitByKey(u8 *selection)
     return NULL;
 }
 
-/* Recovered from docs/probe_archive/R1EE_001d8cb0_body.c by swapping the
-   two operands of the nearest-target test: retail emits the float
-   comparison first (`c.olt.s`, `bc1t`, then `beqz` on the first-entry
-   flag), so the source reads `(temp_f0 < var_f20) || (first != 0)`.
-   That order reads the best distance before the first iteration has
-   written it, which is exactly what retail does; the defensive order
-   this floor used to carry - first-entry guard first, to avoid the
-   uninitialised read - was the whole residual. */
-/* Preserve a remembered UID when present; otherwise select the nearest target to the acting unit.
- * Empty selections and a missing action leave the cursor at zero. */
+/* Retail tests the distance before the first-entry flag, so the best distance is read before the
+ * first iteration writes it. Keeps a remembered UID if there is one, otherwise picks the target
+ * nearest the acting unit. Empty selections or a missing action leave the cursor at zero. */
 // FUN_001D8CB0
 #pragma push
-/* measured: btlEffectSelectNearestEntry MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd51; scoped locals did not match (best nd51); retain opt_loop_invariants on. */
+/* measured: retail hoists loop-invariant loads out of the target scan loop, which needs
+ * opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 s32 btlEffectSelectNearestEntry(u8 *action, u8 *targets)
 {

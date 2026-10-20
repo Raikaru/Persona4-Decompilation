@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0033d310-0033dc60 */
 
 #include "fcl_object_internal.h"
 #include "member_access.h"
@@ -85,7 +84,6 @@ void fclBustupObjChangeFlagBit(u8 *task, s32 bit, s8 clear) {
 // FUN_0033D390
 s32 fclBustupObjTestFlagBit(u8 *task, s32 bit)
 {
-    /* measured: remaining object/task byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
     return (((FclObject *)((KwlnTask *)(task))->work)->spriteFlags & ((1 << bit) & 0xFFFF)) >> bit;
 }
 
@@ -148,13 +146,12 @@ void fclBustupObjStartTween(u8 *task, f32 start, f32 end, u8 easing, s32 duratio
 /* Start position, alpha, tween and reveal-scale transitions from the object's current values to its stored targets. */
 #pragma push
 #pragma opt_propagation off
-/* measured: reordered duration loads, byte-member access and separate reveal-duration lifetime do not match; baseline retains 2 differing words. */
+/* measured: retail's duration load order and shared reveal-duration lifetime need propagation off. */
 // FUN_0033D550
-/* measured: opt_propagation off preserves the per-call field loads and the
-   argument materialisation order for fclSpriteStartRevealScale. */
+/* measured: propagation off keeps the per-call field loads and the argument order for
+ * fclSpriteStartRevealScale. */
 void fclBustupStartSlide(u8 *task)
 {
-    /* measured: remaining object/task byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
     s16 duration;
     u8 startAlpha;
     u8 endAlpha;
@@ -191,12 +188,8 @@ void fclBustupStartSlide(u8 *task)
 }
 #pragma pop
 
-/*
- * measured: 924/928 bytes, eight resolved relocations, four zero alignment bytes.
- * The point-anchor dependency rebuilds both passes without retaining x + 4.
- * Keep the input-Y snapshot and the real color/point object lifetimes.
- */
-/* Draw the rotating five-point band and optional white highlight; return the wrapped rotation angle. */
+/* Draw the rotating five-point band and optional white highlight; return the wrapped rotation
+ * angle. */
 // FUN_0033D630
 f32 fclBustupDrawRotatingBand(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight)
 {
@@ -262,7 +255,6 @@ f32 fclBustupDrawRotatingBand(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 al
 // FUN_0033D9D0
  s32 fclCombineEventTaskUpdate(u8 *task)
  {
-    /* measured: remaining object/task byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
      FclEventRoom locals;
      s32 taskHandle;
      s8 state;

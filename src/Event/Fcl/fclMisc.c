@@ -1,6 +1,5 @@
 /* Whole-file translation unit: src/Event/Fcl/fclMisc.c */
 
-/* Source unit: src/Event/Fcl/fclMisc.c */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -14,18 +13,15 @@
 
 extern int *comuDataRemoveAndReleaseNode(int *, int *, int *);
 
-// P3 counterpart iGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
-// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
+// Matches P3FES iGpffffb98c.
 extern int iGpffffb57c;
 
-// P3 counterpart piGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
-// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
+// Matches P3FES global piGpffffb98c.
 extern int *piGpffffb57c;
 extern u32 fclMiscCloseHandle();
 extern void itfMesWindowReleaseIfActive();
 
-/* measured: s8 here regresses fclMiscUpdateHandle (its "< 0" test); s32 is kept. */
-extern s32 itfMesWindowState(s32); /* lint: allow H011 -- measured: s8 regresses fclMiscUpdateHandle ("< 0" test); retail consumes the full register */
+extern s32 itfMesWindowState(s32); /* lint: allow H011 -- fclMiscUpdateHandle's "< 0" test uses the full s32 return register. */
 
 // Donor calls these implicitly (no prototypes), so keep old-style forms.
 extern void itfMesWindowSetState();
@@ -58,11 +54,7 @@ extern u32 PTR_DAT_00762ea0;
 extern u32 D_0076466C;
 
 
-
-
-
-/* Source unit: src/Event/Fcl/fcl_misc_0014a2e0.c */
-/* Store the caller value in the external work block; its owning layout is not established here. */
+/* Store the caller value in the external work block's sortCharacters field. */
 // FUN_0014A2E0
 void fclMiscSetExternalWord(u32 value)
 {
@@ -78,7 +70,6 @@ void fclMesWindowSetUserData(s32 handle, void *userdata)
     subTable = itfMesWindowGetSubTable(handle);
     ((ItfMesProcedure *)subTable)->userdata = userdata;
 }
-
 
 
 /* Prune unloaded pending sprites and inactive message entries from their lists. */
@@ -138,9 +129,8 @@ void fclMiscCreateAssistTask(void)
 }
 
 
-
-/* Activate the next queued message, wait for its slots, and retire completed entries. */
-/* Typed manager/list accesses changed codegen (nd279); retain offsets from fcl_assist_internal.h. */
+/* Activate the next queued message, wait for its slots, and retire completed entries. Manager and
+ * list fields use raw offsets from fcl_assist_internal.h because typed accesses changed codegen. */
 // FUN_002BCE00
 s32 msgAssistUpdate(u8 *unusedTask)
 {
@@ -213,15 +203,14 @@ update_tail:
     fclMiscUpdateSlots(manager);
     return 0;
 }
-/* Wait for slot readiness before activating a message; release its slots once its window closes. */
-/* Typed entry/slot accesses changed codegen (nd405); retain offsets from fcl_assist_internal.h. */
+/* Wait for slot readiness before activating a message; release its slots once its window closes.
+ * Typed entry/slot accesses changed codegen, so offsets from fcl_assist_internal.h are kept. */
 // FUN_002BCFB0
 s32 fclMiscTryReleaseEntry(u8 *manager, u8 *entry) {
     FclAssistEntry *entryFields = (FclAssistEntry *)entry;
     FclAssistManager *managerFields = (FclAssistManager *)manager;
     extern u32 fclMiscCloseHandle(u32 *);
-    /* measured: s8 here regresses func_002bcfb0 (MATCH -> MISMATCH); the s32 extern keeps its compare. */
-    extern s32 fclMiscHandleState(int *); /* lint: allow H011 -- measured: s8 regresses func_002bcfb0 MATCH->MISMATCH; retail consumes the full register */
+    extern s32 fclMiscHandleState(int *); /* lint: allow H011 -- retail's compare uses the full s32 return register. */
     s32 slotIndex;
     s32 activeSlotIndex;
     s32 flags;
@@ -276,8 +265,7 @@ s32 fclMiscTryReleaseEntry(u8 *manager, u8 *entry) {
     }
     return 0;
 }
-/* Return a slot sprite only when the loaded flag (bit 1) is set. */
-/* Typed slot indexing changed codegen (nd37); retain the 0x0C stride and flags/sprite at +0x1C/+0x24. */
+/* Return a slot sprite only when the loaded flag (bit 1) is set; slots are 0x0C bytes apart. */
 // FUN_002BD1E0
 s32 fclMiscSlotValue(s32 slotIndex)
 {
@@ -291,13 +279,12 @@ s32 fclMiscSlotValue(s32 slotIndex)
     }
     return ((FclAssistSlot *)(entry + 0x1C))->sprite;
 }
-/* Returns 1 when the pending list at iGpffffb57c+0x18 has no entries. */
+/* Returns 1 when the manager's pending list has no entries. */
 // FUN_002BD220
 s32 fclMiscPendingIsEmpty(void)
 {
     return ((FclAssistManager *)iGpffffb57c)->pending->head == 0;
 }
-
 
 
 // FUN_002BD240
@@ -306,15 +293,13 @@ void fclMiscOrStateFlags(u32 flags)
     ((FclAssistManager *)iGpffffb57c)->stateFlags = ((FclAssistManager *)iGpffffb57c)->stateFlags | flags;
 }
 
-/* Source unit: src/Event/Fcl/fcl_misc_002bd260.c */
-/* Stores value in the word at D_0076466C+0x14. */
+/* Stores value in the assist manager's stateFlags word. */
 // FUN_002BD260
 void fclMiscSetWord14(u32 value)
 {
     ((FclAssistManager *)D_0076466C)->stateFlags = value;
 }
 
-/* Source unit: src/Event/Fcl/fcl_misc_002bd270.c */
 // FUN_002BD270
 void fclMiscSetStatusCode(u32 value)
 {
@@ -322,13 +307,11 @@ void fclMiscSetStatusCode(u32 value)
 }
 
 
-
 // FUN_002BD340
 u16 fclMiscGetRecordCount(void)
 {
     return ((FclAssistManager *)piGpffffb57c)->entries->count;
 }
-
 
 
 /* Find a queued entry by slot index and bound message record. */
@@ -349,7 +332,6 @@ u32 fclMiscHasEntry(int slotIndex, int record)
 }
 
 
-
 // FUN_002BD3C0
 void fclMiscSetDoneFlag(void)
 {
@@ -357,9 +339,8 @@ void fclMiscSetDoneFlag(void)
 }
 
 
-
-/* Close the active queued window and mark its entry for retirement. */
-/* Typed queue traversal changed codegen (nd47); links are +0x10, payload +0x14, entry flags +4. */
+/* Close the active queued window and mark its entry for retirement. Queue nodes keep the link at
+ * +0x10 and the payload at +0x14; entry flags are at +4. */
 // FUN_002BD440
 void fclMiscCloseActiveHandle(void)
 {
@@ -375,7 +356,6 @@ void fclMiscCloseActiveHandle(void)
         }
     }
 }
-
 
 
 /* Initialises the handle slot and acquires a handle when it has none; returns 1 if one was acquired. */
@@ -417,7 +397,6 @@ void fclMiscReleaseHandle(int *window)
 }
 
 
-
 /* Sets the handle's flags and parameters and marks its mode active. */
 // FUN_002BD580
 s32 fclMiscActivateHandle(u8 *window, s32 slotIndex, s32 record)
@@ -437,7 +416,7 @@ s32 fclMiscActivateHandle(u8 *window, s32 slotIndex, s32 record)
 }
 /* Reports the handle's mode; mode 2 reads as idle while the flag at +5 is set. */
 // FUN_002BD610
-/* measured: an s32 return regresses fclMiscHandleState and fclMiscUpdateHandle (MATCH -> MISMATCH); the s8 definition is kept. */
+/* measured: retail returns a sign-extended byte, so the result is s8 rather than s32. */
 s8 fclMiscHandleState(int *window)
 {
     s8 result;
@@ -455,9 +434,8 @@ s8 fclMiscHandleState(int *window)
 }
 
 
-
-/* Per-frame step of the handle's mode state machine. */
-/* Typed handle accesses changed codegen (nd74); handle +0, mode +4, suspended +5, pending +8. */
+/* Per-frame step of the handle's mode state machine; fields are handle +0, mode +4, suspended +5,
+ * pending +8. */
 // FUN_002BD660
 void fclMiscUpdateHandle(int *window)
 {
@@ -491,7 +469,6 @@ void fclMiscUpdateHandle(int *window)
         break;
     }
 }
-
 
 
 /* Closes the handle's hooks and clears its mode; returns 1 when closed. */

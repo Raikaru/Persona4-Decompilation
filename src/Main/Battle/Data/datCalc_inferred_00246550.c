@@ -14,10 +14,7 @@ extern f32 D_00761260;
 extern f32 fGpffff811c;
 
 
-
-/* Source unit: src/promoted/code1_0024.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00246550-00246550 */
-/* Initialize the playable-character records and return success to the callback table at 0x0063D240. */
+/* Initialize the playable-character records and return success to the callback table. */
 // FUN_00246550
 s32 datCalcInitializeCharactersCommand(void)
 {

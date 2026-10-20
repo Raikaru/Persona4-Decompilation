@@ -1,4 +1,4 @@
-/* Original translation unit sdkDbprt.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkDbprt.c (from __FILE__ assert strings). */
 #include "operand_order_internal.h"
 #include "type.h"
 #include "include_asm.h"
@@ -34,9 +34,8 @@ struct HDbText3D
 
 
 static char sGrid[HDBPRT_GRID_HEIGHT][HDBPRT_GRID_WIDTH];
-/* b210 emits these private small-data objects in reverse declaration order.
- * This sequence places the queue, camera, image and raster at retail's four
- * consecutive words 0x00764ACC through 0x00764AD8. */
+/* These statics are emitted in reverse declaration order, placing queue, camera, image and raster
+ * at consecutive words 0x00764ACC through 0x00764AD8. */
 static s32 *iGpffffb9e8;    /* gp -0x4618 (0x00764AD8), font raster */
 static u8 *iGpffffb9e4;     /* gp -0x461C (0x00764AD4), loaded image */
 static void *iGpffffb9e0;   /* gp -0x4620 (0x00764AD0), camera */
@@ -126,12 +125,10 @@ void H_Dbprt_Flush()
         curr = next;
     }
 }
-/* Native b210 O2: 876/880 bytes, 17 resolved relocations and four zero
- * alignment bytes. The near-depth field belongs to the complete device
- * record; keeping that ownership reproduces the vertex-loop preheader.
- * See docs/probe_archive/Debug_grid_0044f720_20260924.md. */
+/* The near-depth field is read through the complete device record, which shapes the vertex-loop
+ * preheader. */
 #pragma push
-/* measured: baseline removal differs by 15 words; cached near depth/white still differs by 16. */
+/* measured: retail hoists the near depth and white color out of the vertex loop. */
 #pragma opt_loop_invariants on
 /* The glyph atlas has sixteen columns. Keep this conversion signed so
  * its remainder operation also describes negative input values. */
@@ -269,12 +266,8 @@ void sdkDbprtDrawGrid(void)
 }
 #pragma pop
 
-/* Native b210 O2: all 1472 retail bytes and every relocation match.
- * Copy the computed character advance before translation so its
- * multiply and add retain the original separate evaluation.
- * See docs/probe_archive/Debug_queued_text_0044fa90_20260924.md. */
-/* Draws queued colored text at screen or projected camera depth. */
-/* measured: node->text[characterIndex] changes one instruction byte; taking the named element address preserves the byte alias. */
+/* Draws queued colored text at screen or projected camera depth. The character advance is copied
+ * first so its multiply and add stay separate. */
 // FUN_0044FA90
 void sdkDbprtDrawQueuedText(void) {
     extern s32 (*D_00887300[])(s32 state, void *value);
@@ -436,14 +429,8 @@ void sdkDbprtDrawQueuedText(void) {
         node = node->next;
     }
 }
-/* measured: declaration order maps temp_16/var_17/var_18/var_19 to retail
-   $s0/$s1/$s2/$s3; integer-domain grid indexing and the stack-base expression
-   reproduce the retail post-multiply address order. Object 416B/window 416B,
-   exact MATCH. */
-/* measured: the residual at offsets 0xF4/0xF8 was an address-materialisation
-   order/width choice. Converting the pointer through a named s32 local emits
-   retail's addu $v1,$s3,$sp; addiu $v1,$v1,0x60 pair before lb $a1,0($v1). */
-/* measured: indexing with the old byte-array declaration lost MATCH; declaring the actual 53-byte rows preserves the grid stores. */
+/* Format a printf-style string and write it into the debug text grid at the given column and row,
+ * starting a new line on each newline. */
 // FUN_00450050
 void H_Dbprt_FmtAt(s64 position, const char* format, ...) {
     va_list args;

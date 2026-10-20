@@ -1,4 +1,3 @@
-/* Source unit: src/Battle/btlVoice_001f99c0.c */
 #include "type.h"
 #include "btl_voice_internal.h"
 #include "btl_effect_internal.h"
@@ -7,7 +6,6 @@ BtlPacket* btlPacketAlloc(s32 packetType, s32 workSize);
 s32 btlVoicePacketUpdate(void* packetData);
 s32 btlVoiceIdPacketUpdate(BtlVoiceIdWork* context);
 void btlCameraFrameUnitPair(BtlCamera* camera);
-
 
 
 /* Allocate an action-voice request; flags bit 0 leaves model talk state alone. */
@@ -31,7 +29,6 @@ BtlPacket* btlVoiceCreatePacket(BtlAction* action, u16 callbackIndex, s32 argume
 }
 
 
-
 /* Queue an ID-selected voice without the packet's default flag bit 0. */
 // FUN_001F9B80
 BtlPacket* btlVoiceCreateIdPacket(u16 voiceId)
@@ -50,7 +47,6 @@ BtlPacket* btlVoiceCreateIdPacket(u16 voiceId)
 }
 
 
-
 /* Only nonparty, valid actions request actor/target-pair camera framing. */
 // FUN_00225E00
 void btlCameraFrameNonpartyActionPair(BtlCamera* camera)
@@ -66,10 +62,11 @@ void btlCameraFrameNonpartyActionPair(BtlCamera* camera)
 }
 extern u8 *DAT_0076449c; /* active battle context */
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
-/* measured 00225d00 plain-C reconstruction matches the complete 256-byte retail window at normalized_diff 0. */
+/* measured: the preceding function only matches retail when it is built at optimization level 1,
+ * after which level 2 is restored. */
 #pragma optimization_level 1
 #pragma optimization_level 2
-// Intent: Wait until the presentation is idle, then clear its flag. [inferred]
+// Wait until the presentation is idle, then clear its flag.
 // FUN_0022B040
 s32 btlEncounterWaitIdle(s64 *actionUid)
 {

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/g_data/g_data.c); members 0011fcf0-0011fdf0 */
 
 #include "list_item_internal.h"
 #include "include_asm.h"
@@ -36,26 +35,27 @@ extern u8 *datPersonaDisplayName(s16 unitId);
 extern u8 D_005E4F70[];
 
 
-// Intent: Return whether the stage field at +8 of the work block is 8; the meaning of stage 8 is not established [inferred]
+// Returns whether the work block's kind field is 8; the meaning of 8 is unknown.
 // FUN_0011FCF0
 s32 datBlockStageIsEight(u8 *task) {
     return ((DatPanelEntry*)((KwlnTask*)task)->work)->kind == 8;
 }
 
-// Intent: Destroy a task and its hierarchy through the kwln task destroy call; same body as shdPersonaDestroyTask [inferred]
+// Destroys a task and its hierarchy; same body as shdPersonaDestroyTask.
 // FUN_0011FD10
 void kwlnTaskDestroyHierarchyAlt(s32 task) {
     kwlnTaskDestroyWithHierarchy((KwlnTask *)task);
 }
 
-// Intent: Reset a panel's cursor: index at +4 to -1 and the count at +6 to 0 [inferred]
+// Resets a panel's cursor: item to -1 and style to 0.
 // FUN_0011FD30
 void datPanelResetCursor(u8 *entry) {
     ((DatPanelEntry*)entry)->item = -1;
     ((DatPanelEntry*)entry)->style = 0;
 }
 
-// Intent: Draw a panel row by its kind: kind 0 draws the comparison icon, kinds 1 and 2 the status panel, kind 3 the status panel in variant 1 [inferred]
+// Draws a panel row by kind: 0 the comparison icon, 1 and 2 the status panel, 3 the status panel in
+// variant 1.
 // FUN_0011FD50
 void datPanelDrawByKind(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 fullName)
 {
@@ -78,7 +78,8 @@ void datPanelDrawByKind(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 ful
     }
 }
 
-// Intent: Draw a comparison icon for an entry: sprite 4 when equal to the reference value of its band (always for band 3), 1 when higher, 2 when lower, 3 when no reference applies [inferred]
+// Draws a comparison icon: sprite 4 when equal to its band's reference (always for band 3), 1 when
+// higher, 2 when lower, 3 when no reference.
 // FUN_0011FDF0
 void datPanelDrawCompareIcon(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 unusedKind)
 {

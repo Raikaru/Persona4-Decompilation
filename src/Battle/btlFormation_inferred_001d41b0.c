@@ -66,15 +66,12 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d41b0-001d41b0 */
-
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
+/* measured: opt_propagation off keeps the btlCameraFindFormationForCounts loop masks recomputed as
+ * retail does. */
 #pragma push
 #pragma pop
-/* Allocate the attachment work prefix followed by one handle per table entry. */
-/* Allocate the attachment prefix and its handle tail from the selected 0x314-byte resource block. */
+/* Allocate the attachment work prefix plus one handle per table entry from the selected 0x314-byte
+ * resource block. */
 // FUN_001D41B0
 u8 *btlFormationAllocEntry(u8 *table, s32 tableIndex, u32 unit, s32 target, s32 flags)
 {
@@ -94,7 +91,6 @@ u8 *btlFormationAllocEntry(u8 *table, s32 tableIndex, u32 unit, s32 target, s32 
     memset(result, 0, size);
     ((BtlAttachWork *)result)->owner = table;
     ((BtlAttachWork *)result)->table = table + offset + 8;
-    /* Measured: access-site, local-pointer and array typing fold +8 into +0x10; retain this named byte reload. */
     ((BtlAttachWork *)result)->count = ((BtlAttachTable *)MEMBER(u8 *, result, BtlAttachWork, table))->count;
     ((BtlAttachWork *)result)->handles = (u8 **)(result + 0x68);
     ((BtlAttachWork *)result)->color = -1;

@@ -94,25 +94,14 @@ extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
 
-
-
-
-
 #pragma push
 #pragma pop
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001bd7d0-001bdeb0 */
-
-/* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
-/* measured: close opt_rebuildconditionals off for func_001b19c0. */
-/* measured: scoped opt_lifetimes on with these disjoint work-pointer
- * lifetimes reproduces the complete 4156-byte retail body; all 122 owner
- * siblings, allocated data and 122 exact-position references are preserved.
- * The separate retained-height caller-domain proof remains required. */
+/* measured: opt_rebuildconditionals off keeps func_001b19c0's branch-fed scalar; opt_lifetimes on
+ * reproduces its disjoint work-pointer lifetimes. */
 #pragma push
 #pragma pop
-/* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
- * Keep full-width dependency snapshots and branch-materialized final mode. */
+/* Keep full-width dependency snapshots and the branch-materialized final mode. */
 #pragma push
 #pragma pop
 #pragma push
@@ -121,18 +110,11 @@ extern f32 fGpffff8108;
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off probe for bc240 table-address order. */
-/* measured: close opt_propagation probe for bc240. */
+/* measured: disabling propagation keeps retail's order for computing the table address. */
 #pragma push
 #pragma pop
-/* measured: disabling propagation preserves retail's independent outer-index
-   materialisation after the preheader branch. */
-/* measured: disabling common-subexpression folding preserves retail's second
-   masked loop-counter use. */
-/* measured: closes opt_common_subs for the following translation-unit code. */
-/* measured: closes opt_propagation for the following translation-unit code. */
-/* measured: opt_common_subs off preserves the retail per-use masked index. */
-/* measured: restore common-subexpression optimization after btlCameraUpdateUnitInRangeFlags. */
+/* Run the current camera record's callback and transition (or count down its delay), then build a
+ * view matrix from the camera rotation quaternion and position and apply it. */
 // FUN_001BD7D0
 /* Run the active camera callback unless delayed/suppressed, build its quaternion basis, and apply view position/FOV. The external view handle and encounter callback record remain opaque. */
 void btlCameraApplyView(void)
@@ -239,8 +221,7 @@ void btlCameraApplyView(void)
     }
 }
 
-/* measured: plain C candidate is 380 bytes in the 384-byte retail window with normalized_diff 6; residual is limited to the global-position load order and one retail tail padding word. */
-// Committed at nd 6.
+/* Draw a yellow debug marker for the battle camera's pose when camera debug display is enabled. */
 // FUN_001BD9E0
 /* Draw the camera position and orientation axes when the debug resource flags allow it. */
 void btlCameraDrawDebug(void)
@@ -414,9 +395,9 @@ void btlCameraSuppressEncounterCallback(void) {
     ((BtlBattleState *)D_0076449C)->camera.flags |= 1;
 }
 
-/* measured: opt_propagation off probe for bdd80 nd28 float scheduling. */
+/* measured: opt_propagation off keeps retail's float scheduling in btlCameraStartEffect. */
 // FUN_001BDD80
-/* Capture the current target and initialize an effect script with its visibility options. MEMBER sites retain the aliasing required by the measured camera/action accesses. */
+/* Capture the current target and initialize an effect script with its visibility options. */
 void btlCameraStartEffect(u8 *camera, u8 *script, s32 options)
 {
     u16 visibilityMode;
@@ -455,9 +436,10 @@ void btlCameraStartEffect(u8 *camera, u8 *script, s32 options)
     ((BtlCamera *)(camera))->effectInterrupted = 0;
 }
 
-/* measured: close opt_propagation probe for bdd80. */
+/* Update the camera's effect framing for the current action when its first target is still active,
+ * refreshing the action geometry and visibility mode from the current script entry. */
 // FUN_001BDEB0
-/* Advance the effect script only while action, target count, and target identity remain valid. MEMBER sites retain the aliasing required by the measured camera/action accesses. */
+/* Advance the effect script only while action, target count, and target identity remain valid. */
 void btlCameraUpdateEffectList(u8 *camera)
 {
     u16 visibilityMode;

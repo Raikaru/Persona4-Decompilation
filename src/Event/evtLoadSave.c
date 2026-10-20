@@ -1,8 +1,7 @@
 #include "mt_scene_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
-/* Persona 4 USA decompilation - evtLoadSave.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit evtLoadSave.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "scene_event_internal.h"
@@ -13,9 +12,8 @@ typedef struct { s16 a; s16 b; s16 c; s16 d; } S16x4;
 typedef struct { f32 x; f32 y; f32 z; f32 pad; } F32x4;
 typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 
-/* Payload of recordIndex: the 0x10-byte table at +0x94 when the scene header
-   kind is 4, otherwise the 0x3C-byte table at +0x98 (recordOffset = recordIndex * 0x3C). */
-/* Select the payload layout according to the source record kind. */
+/* Returns the payload of recordIndex: from the 0x10-byte records94 table when the scene header kind
+ * is 4, otherwise from the 0x3C-byte records98 table (recordOffset = recordIndex 0x3C). */
 static inline u8 *evtLoadRecordPayload(u8 *source, s32 recordIndex, s32 recordOffset)
 {
     MtMiscSceneSource *src = (MtMiscSceneSource *)source;
@@ -51,12 +49,13 @@ extern u8 D_0063CAB0[];
 extern s64 D_0063CAE8[];
 extern f32 D_0063CAF0[];
 
-// Intent: Copies recordIndex from the source record table into entry: coordinates, kind and the per-kind fields [inferred]
+// Copies record recordIndex from the source table into entry: coordinates, kind and the per-kind
+// fields.
 // FUN_00294610
 void evtNodeLoadRecordEntry(u8 *source, u8 *entry, s32 recordIndex) {
     EvtPolygonMovieWork *movie = (EvtPolygonMovieWork *)source;
     EvtChildNode *child = (EvtChildNode *)entry;
-    /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+    /* Typed object locals keep retail's reloads; alias-sensitive members use MEMBER. */
     S16x4 coordinates;
     s16 *coord;
     s32 recordOffset;
@@ -147,10 +146,11 @@ void evtNodeLoadRecordEntry(u8 *source, u8 *entry, s32 recordIndex) {
     }
 }
 
-// Intent: Loads each kind-1 record whose count equals recordCount into a new node entry (through evtNodeLoadRecordEntry) [inferred]
+// Loads each kind-1 record whose count equals recordCount into a new node entry through
+// evtNodeLoadRecordEntry.
 // FUN_00294A90
 void evtNodeLoadRecordsByCount(u8 *source, u8 *eventWork, u8 *node, u16 recordCount) {
-    /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+    /* Typed object locals keep retail's reloads; alias-sensitive members use MEMBER. */
     s32 i;
     s32 type;
     u16 recordKind;
@@ -187,16 +187,13 @@ void evtNodeLoadRecordsByCount(u8 *source, u8 *eventWork, u8 *node, u16 recordCo
     }
 }
 
-/* 1496/1504 bytes; twenty resolved relocations and eight zero alignment bytes.
- * Preserve the source-type reloads after object creation, separate resource
- * ID/pointer lifetimes, and the three-float vector copies. Address-taken angle
- * fields retain retail's constant-load and stack-store ordering. */
-// Intent: Builds the camera resources (ids 0x1E58 and 0x1E59) and the kind-0x21 node entries from the record table [inferred]
+/* Builds the camera resources (ids 0x1E58 and 0x1E59) and the kind-0x21 node entries from the
+ * record table. */
 // FUN_00294BE0
 void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork) {
     EvtPolygonMovieWork *movie = (EvtPolygonMovieWork *)source;
     EvtEventWork *eventState = (EvtEventWork *)eventWork;
-    /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+    /* Typed object locals keep retail's reloads; alias-sensitive members use MEMBER. */
     typedef struct { f32 x; f32 y; f32 z; } EventVector;
     StackState stack;
     s16 *coord;
@@ -369,11 +366,11 @@ void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork) {
     }
 }
 
-// Intent: Allocates three kind-0x24 slot nodes and loads the kind-0x24 records into them [inferred]
+// Allocates three kind-0x24 slot nodes and loads the kind-0x24 records into them.
 // FUN_002951C0
 void evtNodeLoadRecords24(u8 *source, u8 *eventWork) {
     EvtPolygonMovieWork *movie = (EvtPolygonMovieWork *)source;
-    /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+    /* Typed object locals keep retail's reloads; alias-sensitive members use MEMBER. */
     u8 *arr[3];
     S16x4 coordinates;
     s16 *coord;
@@ -465,13 +462,13 @@ void evtNodeLoadRecords24(u8 *source, u8 *eventWork) {
     }
 }
 
-/* measured: address-taken coordinate locals preserve retail's grouped loads and stores; the clamp uses a direct swapped relational guard so b210 emits retail's $at compare. Object 592/592, normalized_diff 0. Committed at nd 0. */
-// Intent: Creates a kind-0x2F node, loads its kind-0x2F records and clamps the field at +0x1A to 100 when out of range [inferred]
+/* Creates a kind-0x2F node, loads its kind-0x2F records, and clamps the field at offset 0x1A to 100
+ * when it is out of range. Coordinate locals are address-taken so loads and stores stay grouped as
+ * in retail. */
 // FUN_002954F0
 void evtNodeLoadRecords2F(u8 *source, u8 *eventWork) {
     EvtChildNode *child;
     EvtPolygonMovieWork *movie = (EvtPolygonMovieWork *)source;
-    /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
     u8 *node;
     S16x4 coordinates;
     s16 *coord;
@@ -552,11 +549,11 @@ next_954:
     }
 }
 
-// Intent: Creates the entry's model, attaches its owner, creates its NPC shadow resource and copies its colour to the node [inferred]
+// Creates the entry's model, attaches its owner, creates its NPC shadow resource and copies its
+// colour to the node.
 // FUN_00295740
 void evtNodeCreateModel(s32 eventWork, u8 *node) {
     EvtNode *ownerNode = (EvtNode *)node;
-    /* measured: typing the remaining node +4 load changes instructions; the flag byte and color copy now use layout members. */
     s32 modelId;
     u32 modelSize;
     struct {
@@ -602,11 +599,10 @@ void evtNodeCreateModel(s32 eventWork, u8 *node) {
     }
 }
 
-// Intent: Allocates three kind-0x34 slot nodes and copies the 0x28-byte payload of each kind-0x34 record [inferred]
+// Allocates three kind-0x34 slot nodes and copies the 0x28-byte payload of each kind-0x34 record.
 // FUN_00295B80
 void evtNodeLoadRecords34(u8 *source, u8 *eventWork) {
     EvtPolygonMovieWork *movie = (EvtPolygonMovieWork *)source;
-    /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
     u8 *arr[3];
     S16x4 coordinates;
     s32 i;
@@ -677,12 +673,12 @@ void evtNodeLoadRecords34(u8 *source, u8 *eventWork) {
     }
 }
 
-// Intent: Allocates eight kind-0x30 slot nodes and loads the kind-0x30 records matching each slot's index, then the table at +0x100 [inferred]
+// Allocates eight kind-0x30 slot nodes and loads the kind-0x30 records matching each slot's index,
+// then the trailing descriptor table.
 // FUN_00295910
 void evtNodeLoadRecords30(u8 *source, u8 *eventWork) {
     EvtPolygonMovieWork *movie = (EvtPolygonMovieWork *)source;
     EvtNode *ownerNode;
-    /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
     u8 *node;
     u8 *descriptor;
     u8 *descriptorDest;
@@ -751,15 +747,11 @@ void evtNodeLoadRecords30(u8 *source, u8 *eventWork) {
     }
 }
 
-/* measured: the plain-C reconstruction of the three outer tag-0xA objects,
-   nested source dispatch, coordinate copy, and descriptor search matches
-   retail (object 1336B against the 1344B retail window). */
-// Intent: Allocates three kind-0xA nodes and loads the kind-0xA records matching each node's index [inferred]
+/* Allocates three kind-0xA nodes and loads the kind-0xA records matching each node's index. */
 // FUN_00295DB0
 void evtNodeLoadRecords0A(u8 *source, u8 *eventWork) {
     EvtNode *ownerNode;
     EvtPolygonMovieWork *movie = (EvtPolygonMovieWork *)source;
-    /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
     S16x4 coordinates;
     s16 *coord;
     s16 coordFirst;

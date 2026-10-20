@@ -211,11 +211,8 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 0045ce40-0045d890 */
 
 extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 extern void mdlRenderInitializeBuffers(void);
@@ -224,15 +221,13 @@ extern s32 kwlnGetCamera(void);
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
-/* measured: opt_scalarize off keeps the prop triple in stack spill slots with direct sp-relative accesses. */
+/* measured: with opt_propagation off, the global load lands in the same destination register as
+ * retail. measured: with opt_scalarize off, the prop triple stays in stack spill slots accessed
+ * directly off sp, as in retail. */
 #pragma push
 #pragma pop
-/* measured: opt_loop_invariants on hoists the array base into $v1 ahead of
-   the loop as retail; a named base local is coloured $a0 (archived nd 8). */
-/* measured: closes the hoisting scope after func_0045b430. */
-/* Expand signed rectangle coordinates into four Sky vertices, using the camera near plane for reciprocal depth. */
+/* Expand signed rectangle coordinates into four Sky vertices, using the camera near plane for
+ * reciprocal depth. */
 // FUN_0045CE40
 s32 PrimBuildQuadVertices(f32 *out, u8 *colors, s32 *pos, f32 z)
 {
@@ -279,10 +274,8 @@ s32 PrimBuildQuadVertices(f32 *out, u8 *colors, s32 *pos, f32 z)
     return result;
 }
 
-/* Native b210 O2: 880/880 bytes; all six code relocations resolve exactly.
- * Reusing the local corner and the two integer origins preserves the actual
- * fused multiply-accumulate expressions, including their zero accumulator
- * seed. See docs/probe_archive/Primitive_corners_0045d370_20260924.md. */
+/* Reusing the local corner and the two integer origins keeps retail's fused multiply-accumulate
+ * expressions, including their zero accumulator seed. */
 // FUN_0045D370
 #pragma push
 void PrimBuildRotatedRectangle(void *output, void *colorData, void *rectangle, f32 depth,

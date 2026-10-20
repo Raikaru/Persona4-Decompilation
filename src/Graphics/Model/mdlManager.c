@@ -4,17 +4,7 @@
 #include "texture_callback_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
-/* Source unit: src/Graphics/Model/mdlManager_004711e0.c */
-/* Ported from P3FES src/Graphics/Model/mdlManager.c 0x003115a0 (verified MATCH there). */
-/* W8 negative census corrected: 004776C0 is complete in C at 264B; its
-   272B retail window has two zero words after jr/nop. 00475B90 (304B body
-   plus jr/nop and two zero words) and 00473710 (332B body plus jr/nop and
-   three zero words) likewise use placement padding, not missing logic.
-   Remaining short probes are unresolved; do not add source-only padding.
-   Best probes (object/window, nd): 00477810 232/240 nd169; 004776C0
-   264/272 nd6; 00474BA0 316/320 nd153; 00475B90 304/320 nd147;
-   00473710 332/352 nd202; 00477FB0 388/400 nd272. */
-/* Unit settings: loop-invariant motion enabled; differing settings stay scoped below. */
+/* Matches P3FES src/Graphics/Model/mdlManager.c. */
 #pragma opt_loop_invariants on
 #include "type.h"
 #include "model_matrix_internal.h"
@@ -23,8 +13,8 @@
 #include "member_access.h"
 #include "Kosaka/k_clump_internal.h"
 #include "Kosaka/k_clump_draw_internal.h"
-/* measured: byteAddressAdd preserves index-first address operands outside the
- * pragma regions; ordinary sums are used at every insensitive call site. */
+/* measured: byteAddressAdd keeps the index-first address operand order retail uses; plain sums are
+ * used where order does not matter. */
 extern f32 iGpffff8040;
 extern f32 fGpffff809c;
 extern u8 D_00713180[];
@@ -139,8 +129,6 @@ typedef struct MdlAnimEntryTable
     u16 count;             // 0x04
     u16 references;            // 0x06
 } MdlAnimEntryTable;
-
-// 8 bytes
 
 
 extern void mdlMatAnimFreeList(int list);
@@ -281,7 +269,6 @@ typedef struct MdlGeometry {
     u8 pad28[0x34];
     u8 *morphTargets;                /* 0x5c; stride 0x1c */
 } MdlGeometry;
-
 
 
 /* Four directional clips and their interpolators; allocation is 0x4c bytes.
@@ -638,16 +625,8 @@ extern void mdlCopyModelState(u8* source, u8* destination);
 extern void mdlSetAuxValue(void* model, int value);
 
 
-
-
-/* measured: mwcc b210 rematerializes the 1.0f and 0x20003 constants inside the
-   loop body; #pragma opt_loop_invariants on hoists both to function top to
-   match retail (nd 54 -> 0). */
-/* Allocates a dispatch anim table: a 16-byte header plus owner entries of 0x50 bytes each, zeroed. Callers create one lazily per layer. */
-/* measured: keep the count store before identity initialization
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
-/* measured: typed entry/float identity stores still differ (nd 131 bytes); retain loop hoisting. */
+/* Allocates a dispatch anim table: a 16-byte header plus zeroed owner entries of 0x50 bytes each.
+ * Callers create one lazily per layer. */
 // FUN_00470E90
 u8* mdlDispatchAnimTableCreate(u16 count)
 {
@@ -680,14 +659,11 @@ u8* mdlDispatchAnimTableCreate(u16 count)
     return table;
 }
 
-/* MATCHED this wave (nd 0, object 452B/window 464B): the former CSE-of-mask
-   floor was disproved.  `#pragma opt_common_subs off`, declaration order
-   animationIndex, entryBlendControl, clipIndex, interpolatorIndex, and explicit (u32) inner guards reproduce
-   the retail body masks and sltiu tests; the prior nd~6 omission is gone. */
-/* measured: opt_common_subs off probe for repeated u16 counter masks. */
+/* measured: with common-subexpression elimination off, retail re-masks each u16 counter at every
+ * use instead of reusing one mask. */
 #pragma opt_common_subs off
-/* Drops one reference on a dispatch anim table (count at +0xA). On the last release it cleans up the table's entries and then the table. */
-/* measured: narrow counter types and per-use u16 conversions still differ (best baseline nd 266 bytes); retain CSE-off. */
+/* Drops one reference on a dispatch anim table (count at +0xA). On the last release it cleans up
+ * the table's entries and then the table. */
 // FUN_00471010
 void mdlDispatchAnimTableRelease(u8* table)
 {
@@ -763,7 +739,6 @@ entryLoopCheck:
         DAT_008873ec[0](table);
     }
 }
-/* measured: closes opt_common_subs off probe around mdlDispatchAnimTableRelease. */
 #pragma opt_common_subs on
 /* Looks up the HAnim hierarchy of frame object. If none exists it queues the frame with func_003e9af0, using this function as the callback, and returns the frame. Otherwise it stores the hierarchy in *data and returns NULL. */
 // FUN_004711E0
@@ -784,7 +759,6 @@ store_value:
 }
 
 
-
 /* Per-atomic callback for RpClumpForAllAtomics: attaches hierarchy to atomic frame through func_003b83d0 and returns the atomic. Passed as a function pointer by the clump hierarchy setup. */
 // FUN_00471250
 void* mdlSetAtomicHierarchy(void* atomic, void* hierarchy)
@@ -792,7 +766,6 @@ void* mdlSetAtomicHierarchy(void* atomic, void* hierarchy)
     func_003b83d0((s32)atomic, (s32)hierarchy);
     return atomic;
 }
-
 
 
 /* Blends two animation interpolators' keyframe state for one frame, with blend factor atomic. The layer update calls it with 1.0f when a second animation is present. */
@@ -828,7 +801,6 @@ u32 mdlBlendAnimInterpolators(RtAnimInterpolator* destination, RtAnimInterpolato
 }
 
 
-
 /* Hierarchy controller update. blend is an RpHAnimHierarchy, destination/first
  * the model state and controller halfwords, second an optional parent matrix. */
 /* Layout from include/rw/inc/rphanim.h. */
@@ -856,25 +828,19 @@ struct RpHAnimHierarchy
 };
 
 #pragma push
-/* measured: without opt_loop_invariants the per-node mode masks are not hoisted
- * (554 fnalign edits); opt_lifetimes gives the s0/s1 list-walk colours (+9 without). */
+/* measured: loop-invariant hoisting lifts the per-node mode masks out of the loop and lifetime
+ * splitting gives the retail list-walk registers. */
 #pragma opt_lifetimes on
 
-/* Read the scalar snapshot retained across the hierarchy callbacks. */
-/* Read the animation snapshot across hierarchy callback and matrix-update lifetimes. */
-/* measured: direct reads at the two retained sites change hierarchy register allocation; the third site expands without a difference. */
+/* Read the scalar snapshot retained across the hierarchy callbacks. measured: retail reads through
+ * this wrapper at the two retained sites; direct reads change hierarchy register allocation. */
 static inline u32 mdlAnimationFlag(const u32 *flag)
 {
     return *flag;
 }
 
-/* measured: the parent matrix is a local assigned just before the node loop; the
- * copy coalesces into second, which then spills to a quadword slot as retail. */
-/* Updates the hierarchy pose from the owner's animation flags: quaternion slerp and matrix composition over the nodes. Callers gate it on flags 0x81E0. Not every step has been traced. */
-/* measured: keep the dispatch-entry cursor and the retained controller snapshots
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
-/* measured: isolating loop hoisting from lifetime splitting leaves nd 4787 bytes; retain both toggles. */
+/* Updates the hierarchy pose from the owner's animation flags using quaternion slerp and matrix
+ * composition over the nodes. Callers only call it when flags 0x81E0 are set. */
 // FUN_00471370
 s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerState, void *parentTransform)
 
@@ -949,8 +915,8 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
   unsigned int cachedValue;
   float blendStep;
   float angleOrTime;
-  /* Retail sp+0x100 is conditionally assigned at 004719dc/00471d7c/
-   * 00471f0c and read at 00472280. Preserve that original lifetime. */
+  /* Retail assigns this stack value conditionally in three places and reads it later, so it keeps
+   * its own lifetime. */
   int nodeIndex;
   unsigned int nodeInfoAddress;
   s32 hasParentMatrix;
@@ -1107,14 +1073,13 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
     return 1;
   }
   {
-    /* Per-hierarchy modes are snapped before callbacks and reused for all
-     * nodes, as at retail 004716d0-004716dc. The full entry flags need not
-     * remain live throughout the node traversal. */
+    /* Per-hierarchy modes are captured before the callbacks and reused for every node, so the full
+     * entry flags need not stay live. */
     parentMatrix = (RwMatrix *)parentTransform;
     for (nodeIndex = 0; nodeIndex < hierarchy->numNodes; nodeIndex = nodeIndex + 1) {
       if (func_003954b0 == applyKeyFrame) {
-        /* RtQuatUnitConvertToMatrixMacro: independent square/cross/wimag
-         * products precede matrix construction, as in retail 0047170c-0047172c. */
+        /* Expanded RtQuatUnitConvertToMatrixMacro: the square, cross and wimag products are
+         * computed before the matrix is built. */
         const f32 x = ((MdlKeyFrame *)keyFrameAddress)->rotation[0];
         const f32 y = ((MdlKeyFrame *)keyFrameAddress)->rotation[1];
         const f32 z = ((MdlKeyFrame *)keyFrameAddress)->rotation[2];
@@ -1580,8 +1545,8 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
           ((MdlFrame *)nodeFrame)->privateFlags = (((MdlFrame *)nodeFrame)->privateFlags & ~4) | 8;
         }
       }
-      /* HAnim node parent-stack control: POP=1, PUSH=2. Both bits leave
-       * the parent unchanged; retail dispatch 0047298c-004729f0. */
+      /* HAnim node parent-stack control: POP=1, PUSH=2; when both bits are set the parent is
+       * unchanged. */
       switch (*(unsigned int *)&((RpHAnimNodeInfo *)nodeInfoAddress)->flags & 3) {
       case 0:
         nodeParentMatrix = outputMatrix;
@@ -1617,7 +1582,8 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
         blendControl[0xc] = 0x3f800000;
         blendControl[0x12] = 0;
       }
-      /* Preserve retail's less-than test and unordered fallback selection. */
+      /* Uses a less-than test so an unordered (NaN) blend value takes the fallback branch, as
+       * retail does. */
       if ((!(*(float *)&blendControl[0xe] < 1.0f)) ||
          (sourceInterpolator = ((MdlLayerState *)modelState)->blendTo, sourceInterpolator == (unsigned char *)0x0)) {
         sourceInterpolator = (unsigned char *)hierarchy->currentAnim;
@@ -1638,7 +1604,7 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
       forwardAxis[2] = 0x3f800000;
       if ((*controller & 0x100) == 0) {
         RtQuatTransformVectors((RwV3d *)(&direction[0]),(const RwV3d *)(&forwardAxis[0]),(s32)(1),(const struct RtQuat *)(controller + 8));
-        /* Complete orientation snapshot, retail 00472b78-00472b94. */
+        /* Copies the whole orientation quaternion. */
         *(ControllerQuat *)&((MdlDirectionalBlend *)blendControl)->rotation[0] = *(const ControllerQuat *)&((MdlLookState *)controller)->rotation[0];
       }
       else {
@@ -1672,12 +1638,13 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
         func_003d5e90((unsigned char *)blendControl[7],(unsigned char *)blendControl[frameOrStride + 4],(unsigned char *)blendControl[4],-direction[1]);
         blendControl[0x11] = 3;
       }
-      /* Preserve retail's less-than test and unordered fallback selection. */
+      /* Uses a less-than test so an unordered (NaN) blend value takes the fallback branch, as
+       * retail does. */
       if ((*(float *)&blendControl[0xe] < 1.0f) && (((MdlLayerState *)modelState)->blendFrom != (unsigned char *)0x0)) {
         func_003d5e90((unsigned char *)hierarchy->currentAnim,((MdlLayerState *)modelState)->blendFrom,(unsigned char *)blendControl[blendControl[0x11] + 4]
                       ,*(float *)&blendControl[0xe]);
-        /* mdlStartLayerAnimation stores blend duration as f32 at control+0x34;
-         * retail 00472dd0-00472de0 loads it directly without integer conversion. */
+        /* mdlStartLayerAnimation stores the blend duration as f32, so it is loaded directly without
+         * integer conversion. */
         blendStep = *(float *)&blendControl[0xd];
         blendStep = 1.0f / blendStep;
         *(float *)&blendControl[0xe] = *(float *)&blendControl[0xe] + blendStep;
@@ -1727,12 +1694,8 @@ void mdlHierarchyScaleHook(u8* matrix, int keyFrame)
 }
 
 
-
-
-/* Saves the existing per-node hook at the hierarchy root and installs mdlHierarchyScaleHook, so each node's translation is scaled. Used when animation flag 0x10 is set. */
-/* measured: keep the hierarchy/interpolator reloads and the scale-field cursor
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Saves the existing per-node hook at the hierarchy root and installs mdlHierarchyScaleHook so each
+ * node's translation is scaled. Used when animation flag 0x10 is set. */
 // FUN_00473000
 void mdlInstallHierarchyScaleHook(u8* hierarchyData, u8* layer)
 {
@@ -1817,11 +1780,8 @@ void mdlSetupMatFXMaterial(int material)
 }
 
 
-
-/* Per-atomic callback for RpClumpForAllAtomics. When the atomic's hierarchy has more than 0x40 nodes it stores a MatFX plugin handle at +0x6c and sets up each material of the hierarchy. */
-/* measured: keep the first geometry load before the atomic/geometry cursor changes role
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Per-atomic callback for RpClumpForAllAtomics. When the atomic's hierarchy has more than 0x40
+ * nodes it stores a MatFX plugin handle and sets up each material of the hierarchy. */
 // FUN_00473250
 void* mdlSetupAtomicMatFX(void* atomic, void* data)
 {
@@ -1864,12 +1824,8 @@ void* mdlSetupAtomicMatFX(void* atomic, void* data)
 }
 
 
-
-
-/* Anim-loop callback for RtAnimInterpolatorSetAnimLoopCallBack. Looks up the animation for the slot at input's raw index in the layer's dispatch table and returns it, or the placeholder entry. */
-/* measured: keep the callback-visible layer/table reloads and member-first clip lookup
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Anim-loop callback that returns the animation for the input's raw slot index in the layer's
+ * dispatch table, or the placeholder entry. */
 // FUN_00473350
 void* mdlResolveLoopAnimation(void* interpolator, u8* layer)
 {
@@ -1955,17 +1911,7 @@ void mdlInitSlotRecord(void* layer)
     ((MdlLayerState *)layer)->look.scale.z = 1.0f;
 }
 
-/* measured: retail allocates q=$s0, i=$s1, owner=$s2, i*4=$s3; mwcc b210
-   rotates to i*4=$s0, q=$s2, owner=$s3 (25 words, all register names; u8*
-   param typing fixed the owner+0x38 address-CSE frame growth, nd 81 -> 25).
-   Tried: q,i,idx and i,q,idx declaration orders (25/28), idx named local.
-   Saved-register rotation floor. */
-/* measured: the typed attachment tables and callback-visible reloads now match
- * with baseline propagation; the former propagation-off toggle is redundant. */
-/* Destroys the effect list of each slot in the record array at owner+0x38 (mdlEffectListDestroy for each non-null entry). */
-/* measured: keep the interpolator/resource presence tests across destruction callbacks
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Destroys the effect list of each non-null slot in the owner's record array. */
 // FUN_004735B0
 void mdlDestroySlotEffects(u8 *layer)
 {
@@ -2034,11 +1980,9 @@ void mdlDestroySlotEffects(u8 *layer)
         }
     }
 }
-/* MATCH: 340B/352B; the remaining 12 bytes are zero tail padding.
-   IDA preserves a hierarchy snapshot separately from the escaped output slot.
-   Typed object fields and pointer-valued traversal data retain the retail
-   reloads, frame address lifetime, and argument evaluation order. */
-/* Attaches a clump's frame hierarchy to a slot record: stores the hierarchy at the slot, sets the atomic hierarchy, optionally sets up MatFX (mode != 0), and builds two interpolators from the slot's source animation (flag 0x80). */
+/* Attaches a clump's frame hierarchy to a slot record: stores the hierarchy at the slot, sets the
+ * atomic hierarchy, optionally sets up MatFX (mode != 0), and builds two interpolators from the
+ * slot's source animation (flag 0x80). */
 // FUN_00473710
 void mdlAttachSlotHierarchy(u8 *layer, u8 *clump, s32 setupMatFx)
 {
@@ -2089,12 +2033,9 @@ void mdlAttachSlotHierarchy(u8 *layer, u8 *clump, s32 setupMatFx)
 }
 extern s32 func_003d5bc0(void* a, f32 b);
 
-/* measured: probing opt_loop_invariants on for loop-constant placement. */
-/* Rebases each node of a layer's output pose by the layer's reference rotation and input clip: out = out * conj(rotation) * input (normalized quaternions), and out.values += rotation.values - input.values. The consumer of the output pose is not yet traced. */
-/* measured: keep the reference-interpolator and hierarchy snapshots before the node loop
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
-/* measured: separate constant setup and a structured while loop leave nd 271 bytes; retain loop hoisting. */
+/* Rebase each node of the layer's output pose by its reference rotation and input clip. Each
+ * quaternion becomes out conj(rotation) input, and the rotation values minus the input values are
+ * added to the output values. */
 // FUN_00473870
 void mdlRebaseLayerPose(u8 *layer)
 {
@@ -2225,18 +2166,15 @@ void mdlRebaseLayerPose(u8 *layer)
 
 extern void mdlRebaseLayerPose(u8* layer);
 extern s32 func_003d5e90(void* a, void* b, void* c, f32 d);
-/* Native b210 O2 MATCH: 1432B/window 1440B; the remaining eight bytes are zero.
-   Narrow each animation index after its table guard, including the repeated
-   sentinel fallback check. Keep the blend input separate from post-callback
-   increments, and share only the actual count, sentinel and conversion inputs. */
+/* Each animation index is narrowed after its table guard, including the repeated sentinel fallback
+ * check; the blend input stays separate from post-callback increments. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_common_subs off
-/* Returns input when the layer has no animation. Otherwise advances the layer's clock or blend by the frame delta, rebases its pose, and returns the layer. */
-/* measured: keep the member-first clip/start-frame cursors across time/blend callbacks
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
-/* measured: typed entry lookup and isolated toggles still differ (best isolated nd 622 bytes); retain both toggles. */
+/* Returns input when the layer has no animation. Otherwise advances the layer's clock or blend by
+ * the frame delta, rebases its pose, and returns the layer. measured: retail does not propagate or
+ * share the clip and start-frame loads across the time and blend callbacks, so both optimizer
+ * passes stay off. */
 // FUN_00473B20
 u8 *mdlAdvanceLayer(u8 *layer, u8 *previousLayer, s32 updatePose)
 {
@@ -2416,19 +2354,15 @@ finish_time:
 
 #pragma pop
 extern void func_003d59a0(void* a, void* b);
-/* MATCH: 1320B instructions plus eight zero-tail bytes. Member-first
-   field bases, signed promoted counts and separate attachment offsets
-   preserve retail lifetimes. Index-first sums use the shared byteAddressAdd. */
+/* Member-first field bases, signed promoted counts and separate attachment offsets reproduce retail
+ * register lifetimes. */
 
 
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
-/* Starts an animation on a layer: records the animation index and flags, and stores the blend duration (blendTicks) as f32 at the control block's +0x34. */
-/* measured: keep the member-first field bases and attachment-array lookups
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
-/* measured: typed clip-field lookup and isolated toggles still differ (best isolated nd 313 bytes); retain both toggles. */
+/* measured: retail keeps byte-addressed field bases and attachment lookups. Starts a layer
+ * animation, recording index, flags and blendTicks as f32 blend duration. */
 // FUN_004740C0
 void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
 {
@@ -2569,7 +2503,8 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
     ((MdlLayerState *)layer)->animationIndex = animation;
 }
 #pragma pop
-/* Releases one reference on an anim entry table (count at +0x6). On the last release it releases the table's entries. */
+/* Releases one reference on an anim entry table; on the last release it releases the table's
+ * entries. */
 // FUN_004745F0
 void mdlReleaseAnimEntryTable(MdlAnimEntryTable* table)
 {
@@ -2593,26 +2528,14 @@ void mdlReleaseAnimEntryTable(MdlAnimEntryTable* table)
 }
 
 
-
-
 extern void mdlMatAnimCopyNodeMaterial(int *object);
 extern void mdlMatAnimUpdateList(u8 **list, f32 scale1, u8 **referenceList, f32 scale2, f32 scale3);
 extern void mdlMatAnimApplyWithPivot(u8 **list, f32 scale1, f32 scale2);
 extern void mdlMatAnimApplyScaled(u8 **list, f32 scale);
 extern f32 mdlMatAnimMaxDuration(u8 **list);
 extern void* mdlResolveLoopAnimation(void* interpolator, u8* layer);
-/* measured: u8* params fixed the data+0xC address-CSE (nd 106 -> 54) and
-   the mdlMatAnimUpdateList call needs FOUR args (e2, e, *(p2+0x14), 0.0f — the
-   a1=$s0 move is deliberate, fixing it removes the shift). Residual
-   (nd 54-79): the s16 t lands in $a2 vs retail $a1, the f32 alpha local lands
-   in $f13 (arg reg, dead before calls) vs retail $f14 (forcing the
-   mov.s $f13,$f14 in the fe90 call), and the fd10 arg materialization order
-   (move/lwc1) swaps. Tried: one=1.0f local, alpha/one decl order, void*
-   params. FP/integer register-allocation floor. */
-/* Updates the blend track in state owner from the animation entry for the slot at input+4. It cross-fades between the current and next entries by the blend factor at input+0x1C when that factor is below 1.0. */
-/* measured: keep the entry-array clip lookups and final layer-time reload
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Updates the blend track from the slot's animation entry, cross-fading between current and next
+ * entries while the blend factor is below 1.0. */
 // FUN_004746B0
 void mdlUpdateBlendTrack(u8* state, u8* layer)
 {
@@ -2659,7 +2582,6 @@ void mdlUpdateBlendTrack(u8* state, u8* layer)
             if ((dispatchTableAddress != 0) &&
                 (animationIndex < ((MdlDispatchAnimTable *)dispatchTableAddress)->count) &&
                 ((animationOffset = animationIndex * 0x50,
-                 /* measured: plain animationOffset changes 23 bytes; retain the existing address operand order. */
                  animationClip = *(s32*)((u32)((u32)*(s32*)dispatchTableAddress + MEMBER_OFFSET(MdlDispatchAnimEntry, animation)) +
                                     (u32)(animationOffset, animationOffset))),
                  (animationClip != 0)) &&
@@ -2681,7 +2603,8 @@ void mdlUpdateBlendTrack(u8* state, u8* layer)
     }
 }
 
-/* Drops the count at +0xE of a blend track. On the last release it releases the two subobjects, each 8-byte entry, and then the block. */
+/* Drops a blend track's reference count. On the last release it frees the two subobjects, then the
+ * block. */
 // FUN_00474890
 void mdlReleaseBlendTrack(void* resourceTable)
 {
@@ -2719,7 +2642,6 @@ void mdlReleaseBlendTrack(void* resourceTable)
 }
 
 
-/* P4 port probe: removing opt_propagation off regresses 00474970 MATCH nd0 -> MISMATCH nd8 (s0/s1 coloring swap, 10 differing words) - measured. */
 #pragma opt_propagation off
 
 /* Callback for the clump walk in mdlSetupNamedFrameAnims: appends resource to the list in data unless it is already present, and returns resource. */
@@ -2745,8 +2667,8 @@ int mdlAppendUniqueListEntry(int entry, void* listData)
 #pragma opt_propagation on
 
 
-
-// Per-atomic step for RpClumpForAllAtomics: runs the callback in data[0] with data[1] over the atomic's entry list at +0x18 (via func_003c21e0), then returns the atomic.
+// Per-atomic step for RpClumpForAllAtomics: runs the callback in data[0] with data[1] over the
+// atomic's geometry entry list, then returns the atomic.
 // FUN_00474A10
 void* mdlForEachAtomicListEntry(void* atomic, void* data)
 {
@@ -2756,10 +2678,8 @@ void* mdlForEachAtomicListEntry(void* atomic, void* data)
 }
 
 
-
-
-
-/* Keyframe blend hook: copies the six floats at +0x8..+0x1C from callbackData to atomic. Installed as keyFrameBlendCB and at interpolator +0x40. The body is identical to mdlKeyFrameInterpolateCopy; retail keeps them at separate addresses, so both stay. */
+/* Keyframe blend hook that copies rotation and translation from source to destination. Identical to
+ * mdlKeyFrameInterpolateCopy, but retail keeps both at separate addresses. */
 // FUN_00474A50
 void mdlKeyFrameBlendCopy(void* destination, void* source)
 {
@@ -2771,7 +2691,8 @@ void mdlKeyFrameBlendCopy(void* destination, void* source)
     ((MdlKeyFrame *)destination)->translation.y = ((MdlKeyFrame *)source)->translation.y;
 }
 
-/* Keyframe interpolate hook: copies the six floats at +0x8..+0x1C from data to object. Installed as keyFrameInterpolateCB and at interpolator +0x44. The body is identical to mdlKeyFrameBlendCopy. */
+/* Keyframe interpolate hook that copies rotation and translation from source to destination.
+ * Identical to mdlKeyFrameBlendCopy. */
 // FUN_00474A90
 void mdlKeyFrameInterpolateCopy(void* destination, void* source)
 {
@@ -2790,7 +2711,8 @@ void mdlKeyFrameBlendNoOp(void) {}
 /* No-op keyframe interpolate hook (empty body). Compared against keyFrameInterpolateCB beside mdlKeyFrameBlendNoOp; the install site is not yet traced. */
 // FUN_00474AE0
 void mdlKeyFrameInterpolateNoOp(void) {}
-/* Anim-loop callback for RtAnimInterpolatorSetAnimLoopCallBack. When the slot entry at the state's raw index is valid and not already flagged, it sets the interpolator time from its first sub-object (func_003d5e40_typed) and sets the loop-done byte at state+1. */
+/* Anim-loop callback: if the slot entry at the control's raw index is valid and not yet flagged,
+ * sets the interpolator time from its first sub-object and marks loop-done. */
 // FUN_00474AF0
 void* mdlAnimLoopRewind(void* interpolator, u16* control)
 {
@@ -2816,13 +2738,6 @@ void* mdlAnimLoopRewind(void* interpolator, u16* control)
 }
 
 
-
-
-/* measured: the typed callback matches with the surrounding propagation baseline; remove the redundant toggle pair. */
-/* Anim-loop callback with two modes. With no state, or a valid state whose flag bit 0 is set, it re-seeds the interpolator (func_003d5840) and installs the accessor hooks at +0x40 and +0x44. Otherwise it sets the interpolator time as mdlAnimLoopRewind does and sets the state's +2 byte. */
-/* measured: keep the state index/resource snapshots on the rewind path
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
 // FUN_00474BA0
 void* mdlAnimLoopCallback(void* interpolator, void* control)
 {
@@ -2905,11 +2820,8 @@ u32 mdlGetFrameNameUserData(void* frame)
 }
 
 
-
-/* Sets up the named-frame animations of a clump. Collects the clump's frames into a new list stored at frame+0x18, then for each frame whose name user data begins with the five-character prefix it installs the loop callback and the copy hooks on that frame's animation interpolator. */
-/* measured: keep the resource pointer reloads around frame enumeration
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Collects the clump's frames into a new list, then installs the loop callback and copy hooks on
+ * each frame whose name user data has the five-character prefix. */
 // FUN_00474DF0
 void mdlSetupNamedFrameAnims(u8* control, void* clump)
 {
@@ -2953,8 +2865,6 @@ void mdlSetupNamedFrameAnims(u8* control, void* clump)
 
     return;
 }
-
-
 
 
 /* Atomic callback: when the clump's MatFX state is active, sets the atomic's MatFX mode to 2 if any material has MatFX effects and to 1 otherwise (modes 0 and 3 are left alone). When the state is inactive but effects are present, it calls func_00399b10. */
@@ -3035,19 +2945,9 @@ void* mdlSetupMatFXMaterials(void* atomic, void* data)
 }
 
 
-
-
-/* measured: MATCHED this wave (nd 0) — the old note's nd 111 floor was an
-   artifact of the || / if-else-if dispatch spelling. Working spelling:
-   switch(func_00399d80(*it)){case 5: case 6:} reproduces retail's
-   beq 6/beq 5/b-skip with the body out of line; the cb checks must compare
-   and store *(void**)(obj2+0x40) against (void*)mdlKeyFrameBlendCopy/mdlKeyFrameInterpolateCopy
-   (u32 casts also work, void* keeps mwcc from adding conversions);
-   re-read owner->0x18 fresh for `list` (retail re-issues the lw). */
-/* Sets the animation control time (owner+0xC and +0x10) to fparg0, and applies the same time to the copy-hooked interpolators of the frame's MatFX objects (effect kinds 5 and 6), on the primary and, unless owner+2 is 1, the secondary slot. */
-/* measured: keep the resource/list snapshot and copy-hook callback comparisons
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Sets the animation control time to time and applies it to copy-hooked interpolators of the
+ * frame's MatFX objects (effect kinds 5 and 6), primary slot and, unless owner+2 is 1, secondary
+ * slot. */
 // FUN_00475170
 void mdlSetAnimControlTime(u8* control, f32 time)
 {
@@ -3102,7 +3002,6 @@ void mdlSetAnimControlTime(u8* control, f32 time)
 }
 
 
-
 /* Prefix view of the interpolation scheme in rw/inc/rtanim.h. */
 typedef struct MdlAnimScheme {
     s32 typeID;
@@ -3139,11 +3038,8 @@ static inline void mdlSetupDetach(u32 *object) {
     }
 }
 
-/* 1220/1232 bytes; 46 resolved relocations and twelve zero alignment bytes.
- * Animation and blend use their signed/unsigned short domains. The raw
- * flag word is narrowed at use; the dispatcher shares this typed boundary.
- * Keep the animation and interpolator lifetimes in this declaration order. */
-/* Starts resource animation index on the clump's named frames, blending from the current one over blend ticks. Frames whose clip is missing are detached. */
+/* Animation index is signed and blend is unsigned short; keep the animation and interpolator locals
+ * in this declaration order. */
 // FUN_00475350
 void mdlStartAnimation(void *clump, MdlAnimControl *state,
                        s16 index, u16 blend, s32 flags)
@@ -3219,9 +3115,8 @@ void mdlStartAnimation(void *clump, MdlAnimControl *state,
     }
 }
 
-/* IDA 00475820, mdlManager.c:1687-1775: primary and secondary interpolators
-   have separate lifetimes, including the mode-1 callback-only path.
-   Measured 744B/752B: instruction match, followed by 8 zero tail bytes. */
+/* Primary and secondary interpolators have separate lifetimes, including the mode-1 callback-only
+ * path. */
 #pragma push
 #pragma always_inline on
 
@@ -3331,10 +3226,6 @@ void* mdlFindFrameById(void* object, void* data)
 }
 
 
-
-
-/* Keep the root fast path separate from recursive child traversal.
-   The inlined return paths preserve the retail branch layout. */
 /* Find a frame by ID, checking the root before traversing its children. */
 static inline u8* mdlFindFrame(u8* frame, s32 id)
 {
@@ -3347,9 +3238,8 @@ static inline u8* mdlFindFrame(u8* frame, s32 id)
     return data.frame;
 }
 
-/* MATCH: 312B/320B, with two zero-tail words. IDA-backed frame lookup
-   lifetime and pointer-valued userdata preserve every retail instruction. */
-/* Computes an attachment matrix: finds the entry with key idx in the table v, and writes entry * frame matrix into buf, where the frame is found by the entry's field at +0x44 under the clump of obj. Returns 0 when no entry or frame matches. */
+/* Finds the entry for attachmentId in tableData, looks up its frame under the clump in clumpData,
+ * and writes entry times frame matrix to destination; returns 0 if either lookup fails. */
 // FUN_00475B90
 int mdlComputeAttachMatrix(void* destination, void* tableData, u32 attachmentId, void* clumpData)
 {
@@ -3562,13 +3452,10 @@ extern void mdlRefreshSecondaryEffect(u8* attachment, void* model);
 extern void (*D_00887300_abs[])(s32, s32);
 extern void (*D_00887304[])(s32, void*);
 
-// Advances one model's draw state by one frame: steps owner->alpha toward owner->targetAlpha by alphaStep, sets the colour alpha from it, and blends owner->rotation toward a light-derived quaternion, limited by owner->minBlend.
-/* Retail ORs identity.flags at sp+0xCC (0x004764F0) before its first store at
- * 0x00476500; nothing earlier defines that word. The C keeps the same
- * read-modify-write of the uninitialised field. */
-/* measured: keep the delayed attachment draw/delay accesses
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+// Advances one model's draw state by one frame: steps owner->alpha toward owner->targetAlpha by
+// alphaStep, sets the colour alpha from it, and blends owner->rotation toward a light-derived
+// quaternion, limited by owner->minBlend. Retail ORs into identity.flags before anything stores to
+// it, so the C keeps this read-modify-write of an uninitialised field.
 // FUN_00475CD0
 void mdlUpdateDrawState(MdlDrawState* owner)
 {
@@ -4002,18 +3889,16 @@ extern void (*D_00887304[])(s32, void*);
 extern void mdlDrawVisibleAtomics(void* clump);
 extern void* func_003bfae0_1(void* a);
 extern void (*D_00887300_abs[])(s32, s32);
-/* P4 port probe: opt_propagation off prevents mwcc folding the D_00887300_abs
-   array address into per-call lui/lw (same measured fix as mdlApplyDrawState). */
+/* opt_propagation off keeps the D_00887300_abs table address from being folded into each call site. */
 #pragma opt_propagation off
 
-/* measured: the D3/7000F branch condition is (f&0x200)!=0 && (f&0x400)==0
-   (the 0x400-beqz goes to the D3 part, not the 7000F). Residual: mwcc b210
-   materializes object+0xD8 into $s0 (frame 0x40 vs 0x50, retail keeps the
-   D_00887300 base in $s0) and mirrors the block layout (D3 inline + 7000F
-   out-of-line vs retail's 7000F inline + D3 out-of-line). Tried: u8* params
-   (94), condition flips. Address-CSE + if-placement floor. */
-/* Sky draw pass: sets the sky render states from the model's flags, runs the sky state table, then draws its atomics or walks its effect list. */
-/* measured: initializing the render-state table at declaration still differs (nd 95 bytes); retain propagation-off. */
+/* measured: the sky branch tests (flags & 0x200) && !(flags & 0x400); propagation stays off so the
+ * render-state table address is reloaded per call as in retail. Sky draw pass: sets the sky render
+ * states from the model's flags, runs the sky state table, then draws its atomics or walks its
+ * effect list. */
+/* Set the sky render states based on the model's flags and color, then draw its visible atomics. If
+ * the model has draw buckets and is not flagged, walk bucket 2 instead and render each entry whose
+ * atomic passes the camera frustum test. */
 // FUN_00476C70
 void mdlDrawSkyPass(Model* model)
 {
@@ -4070,15 +3955,11 @@ void* mdlEnsureAtomicMatColors(void* atomic, void* data)
 }
 
 
-
-
 typedef struct MdlMaterialColorReal { f32 red, green, blue, alpha; } MdlMaterialColorReal;
 
 
-
-/* RwRGBA -> RwRGBAReal normalisation.  The 1/255 scale is a float literal, so
- * MWCC places it in .sdata and reloads it per channel (gp-relative), while the
- * shared 0.0f accumulator seed of the quantiser stays CSE'd across channels. */
+/* The 1/255 scale is reloaded for each channel, while the quantizer's shared 0.0f seed is reused
+ * across channels. */
 #pragma push
 #pragma always_inline on
 
@@ -4158,7 +4039,6 @@ void mdlClumpApplyMatColorScale(void* clump, u32* color, u16 flags)
 }
 
 
-
 /* Clump predicate: clears *data and returns NULL when any material has a non-zero per3modelMatColor high byte; otherwise returns the clump. */
 // FUN_004772A0
 u32 mdlMatColorUncoloredCallback(void* atomic, u32* uncolored)
@@ -4183,7 +4063,6 @@ u32 mdlMatColorUncoloredCallback(void* atomic, u32* uncolored)
     }
     return (u32)atomic;
 }
-
 
 
 /* Stores *uncolored as the env-map value on each MatFX material of the atomic. */
@@ -4280,15 +4159,9 @@ void* mdlSetAtomicEntryVector(void* atomic, void* data)
     return atomic;
 }
 
-/* measured: complete aggregate-buffer reconstruction matches every real
-   instruction (264B object versus 272B window); the trailing 8B are two
-   alignment nops after jr/nop. The previous six residual rows were the
-   filter-result/item-pointer and loop-counter $s-register allocation swaps;
-   declaration order now reproduces retail exactly (nd 0). */
-/* RpClumpForAllAtomics callback: for each frame entry whose user-data name matches the string at +4 of input, sets its colour from the material user-data int and alpha from input+0. */
-/* measured: keep the name-pointer load before prefix comparison
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* RpClumpForAllAtomics callback: for each frame entry whose user-data name matches the context's
+ * name string, sets its colour from the material user-data int and alpha from the context's first
+ * byte. */
 // FUN_004776C0
 void *mdlSetFrameColorIfNamed(void *atomic, void *context)
 {
@@ -4336,21 +4209,9 @@ void mdlSetFrameColorByName(void* model, int name, u8 alpha)
     RpClumpForAllAtomics(((Model *)model)->clump, mdlSetFrameColorIfNamed, &context);
 }
 
-/* measured: retail hoists the 1.0f const (lui/mtc1 -> $f3) to function top and
-   allocates inv184=$f2, inv188=$f1, product=$f5; mwcc b210 materializes the
-   const at the use site into $f1 and lands the product in $f2; with
-   #pragma opt_loop_invariants on the const hoists but the whole allocation
-   permutes (counter $v1<->$a2, const $f4, nd 55). Integer t-regs are permuted
-   in both loops regardless (p8 $t0 vs $t1, mask regs). Tried: plain C (nd 45),
-   one=1.0f local (nd 45), pragma on (nd 55). Register-coloring floor. */
- 
-// Builds two 0xA4-byte records at owner for each nonzero counter at input+0x198. The records take their scale terms from input (+0x184 and +0x188 are inverted) and their count from the counter, and set flag 0x10 in +0xEC.
-/* measured: keep the leading node-count test before scale-factor setup
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
-/* measured: narrow loop counters still differ (nd 89 bytes); retain loop hoisting. */
+// Builds two 0xA4-byte records in model for each nonzero counter in properties, taking scale terms
+// (two of them inverted) and count from properties, and sets flag 0x10.
 // FUN_00477810
-/* measured probe: hoist invariant constant for retail prologue. */
 void mdlBuildScaledSlotRecords(void *model, void *properties)
 {
     s32 propertyIndex;
@@ -4401,13 +4262,9 @@ void mdlBuildScaledSlotRecords(void *model, void *properties)
         propertyIndex = (propertyIndex + 1) & 0xFFFF;
     }
 }
-/* measured probe: close invariant pragma. */
 
-/* Removing this loses 0x00477900 (MATCH nd0 -> MISMATCH nd51) - measured W161 (ported from P3FES donor; re-probed in P4: nd0 -> nd51). */
-
-/* Doubles each morph target's bounding-sphere radius and sets interpolator flag 2.
- * The volatile sphere snapshot is an existing measured matching requirement. */
-/* measured: a structured loop leaves nd 51 bytes with the radius constant in the body; retain loop hoisting. */
+/* Doubles each morph target's bounding-sphere radius and sets interpolator flag 2. measured: retail
+ * hoists the radius constant out of the loop; a structured loop leaves it in the body. */
 // FUN_00477900
 void* mdlDoubleAtomicEntryW(void* atomic, void* context)
 {
@@ -4423,7 +4280,7 @@ void* mdlDoubleAtomicEntryW(void* atomic, void* context)
     f32 centerY;
     f32 centerZ;
     f32 radius;
-    volatile /* Removing this qualifier loses mdlDoubleAtomicEntryW (MATCH nd0 -> MISMATCH nd105, size 172 -> 132) - measured W170 (ported from P3FES donor; re-probed in P4: nd0 -> nd105, size 132). */ f32 sphereSnapshot[4];
+    volatile /* measured: retail stores the sphere snapshot to the stack; without volatile the copy is optimized away. */ f32 sphereSnapshot[4];
 
     atomicData = atomic;
     geometry = *(u8 **)&((struct RpAtomic *)atomicData)->geometry;
@@ -4464,11 +4321,7 @@ done:
 }
 
 
-
-
-/* measured: volatile RwRGBA* color forces the four lbu color loads in source
-   order (removing it rotates/reorders them, nd 9). */
-/* Allocates a model object of 0x320 bytes, stamps its type at +0xD4 and id at +0xD6, sets default colour, scale and slot records, and links it into the head of its type bucket in D_00922BE0. */
+/* measured: volatile color keeps the four colour byte loads in source order as retail does. */
 // FUN_004779B0
 void* mdlAllocModelObject(u32 type, u16 id)
 {
@@ -4585,13 +4438,9 @@ void* mdlFindModelObject(u32 type, u16 id, u32 flags)
 }
 
 extern void mdlFreeAuxBlock(void* model);
-/* measured: MATCH (468B instructions plus 12 zero-tail bytes). The u16
-   loop counter preserves retail masks; the canonical hierarchy constructor
-   prototype preserves load-before-move argument materialization. */
-/* Finishes a model once its resource is ready: named-frame animations, the base layer's hierarchy and animation, per-atomic entries, and effect-list handles. */
-/* measured: keep the clump snapshots around atomic setup callbacks
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Finishes a model once its resource is ready: named-frame animations, the base layer's hierarchy
+ * and animation, per-atomic entries, and effect-list handles. The u16 loop counter reproduces
+ * retail masking. */
 // FUN_00477CA0
 void mdlSetupPreparedModel(u8* model)
 {
@@ -4680,12 +4529,8 @@ void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u
     return model;
 }
 
-/* MATCHED this wave (nd 0, object 400B/window 400B): the former slot-coalescing
-   / saved-register-rotation floor was disproved.  A return-tail `return mode;`
-   shape and distinct pair structs reproduce the retail stack layout and
-   return path; the previous nd-74/nd-9 layouts are retained here only as
-   historical probe context. */
-/* Creates a model object for type and id from resource mode, using H_Cdvd_GetArchiveEntry's pair (or an existing object's pair when mdlQueryModelType matches), and prepares it. */
+/* Creates a model object for type and id from resource mode, using H_Cdvd_GetArchiveEntry's pair
+ * (or an existing object's pair when mdlQueryModelType matches), and prepares it. */
 // FUN_00477FB0
 void* mdlCreateModelObjectFromResource(u32 type, u16 id, void* resourceOrModel, u32 flags)
 {
@@ -4785,10 +4630,8 @@ done:
     return result;
 }
 
-/* Returns 1 once the model is ready (flag 0x1000 set). Until then it advances the load and clone steps and returns 0 while a step is still pending. */
-/* measured: keep the initial readiness/clone flag snapshot
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Returns 1 once the model is ready (flag 0x1000 set). Until then it advances the load and clone
+ * steps and returns 0 while a step is still pending. */
 // FUN_004782B0
 s32 mdlPrepareModel(u8* model)
 {
@@ -4833,11 +4676,6 @@ s32 mdlPrepareModel(u8* model)
 }
 
 
-
-
-
-
-
 typedef struct MdlCloneHierarchy {
     u32 flags;
 } MdlCloneHierarchy;
@@ -4870,10 +4708,9 @@ static inline MdlCloneAttachmentTable* mdlCloneAttachmentStorage(u32 count)
     return copy;
 }
 
-/* IDA mdlManager.c:2448-2545; 824B instructions plus eight zero-tail bytes.
-   Preserve the model-relative layer base, separately sized attachment arrays
-   and callback-visible table reloads. Counts originate in unsigned halfwords. */
-/* Copies a model's clump, layer and attachment state from source into destination. The destination takes references on the source's animation resources. */
+/* Copies a model's clump, layer and attachment state from source into destination. The destination
+ * takes references on the source's animation resources. Attachment counts come from unsigned
+ * halfwords. */
 // FUN_00478410
 void mdlCopyModelState(u8* source, u8* destination)
 {
@@ -4976,10 +4813,8 @@ u32* mdlCloneModelObject(u8* source)
     return clone;
 }
 
-/* Releases a model object: unlinks it from its registry bucket, destroys its effects and animation tables, then frees it through the free callback. */
-/* measured: keep the resource/link snapshots spanning release callbacks
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Releases a model object: unlinks it from its registry bucket, destroys its effects and animation
+ * tables, then frees it through the free callback. */
 // FUN_004787E0
 void mdlDestroyModelObject(u8* model)
 {
@@ -5048,7 +4883,6 @@ void mdlUpdateModelMatrix(Model* model)
 }
 
 
-
 extern void mdlAdvanceAnimControl(void* controlData, void* layerData);
 extern u8* mdlAdvanceLayer(u8* layer, u8* previousLayer, s32 updatePose);
 extern s32 mdlCopyIndexedMatrix(void* model, s32 index, void* destination);
@@ -5063,15 +4897,14 @@ extern void mdlTickMotionState(void* state);
 extern void mdlSetLayerWeight(u8* model, s32 layer, f32 speed);
 extern void mdlCopyScale(void* model, RwV3d* scale);
 extern int mdlHasActiveMode(void* model);
-/* Measured: 1080B/window 1088B, MATCH with two zero-padding words.
-   Cache predicate inputs only until their immediate call; reload every
-   callback-visible field afterward. CSE-off retains per-phase matrix
-   addresses; propagation-off preserves the post-getter frame-ID snapshot. */
+/* measured: CSE-off keeps the per-phase matrix addresses and propagation-off keeps the frame-ID
+ * snapshot taken after the getter. */
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
-/* Advances a model by tick: refreshes its frame matrix and attachment state, updates both animation layers, then recurses into child models with the same tick. */
-/* measured: direct typed frame-ID reload changes allocation; the original snapshot still differs by two words without propagation-off; retain both toggles. */
+/* Advances a model by tick: refreshes its frame matrix and attachment state, updates both animation
+ * layers, then recurses into child models with the same tick. measured: retail does not reuse the
+ * frame-ID load, so common-subexpression and propagation passes must both stay off. */
 // FUN_00478A30
 void mdlAdvanceModel(u8* model, s32 tick)
 {
@@ -5192,7 +5025,7 @@ void mdlAdvanceModelFromFlags(u8 *model)
     mdlAdvanceModel(model, (*(s32 *)&((Model *)model)->flags & 1) == 0);
 }
 
-/* Stores the draw callback at +0x310 and its context at +0x314. mdlApplyDrawState runs it at the end of the draw state. */
+/* Stores the draw callback and its context. mdlApplyDrawState runs it at the end of the draw state. */
 // FUN_00478EA0
 void mdlSetDrawCallback(void* model, int callback, int context)
 {
@@ -5200,7 +5033,7 @@ void mdlSetDrawCallback(void* model, int callback, int context)
     *(int *)&((Model *)model)->drawData = context;
 }
 
-/* Stores the post-draw callback at +0x318 and its context at +0x31C. mdlResetDrawState runs it after the draw. */
+/* Stores the post-draw callback and its context. mdlResetDrawState runs it after the draw. */
 // FUN_00478EB0
 void mdlSetResetCallback(void* model, int callback, int context)
 {
@@ -5212,13 +5045,13 @@ extern void mdlUpdateBlendTrack(u8* state, u8* layer);
 extern void mdlEffectEmitMaskedTagPair(u32 a);
 extern s64 iGpffffabe8;
 
-/* P4 port probe: opt_propagation off prevents mwcc folding the D_00887300_abs
-   array address into per-call lui/lw (measured: with it on, mid-function base
-   assignment rematerializes per use). */
+/* measured: propagation-off keeps the D_00887300_abs base address in one register instead of
+ * rebuilding it at each use. */
 #pragma opt_propagation off
 
-/* Applies a model's draw state: blend-track update, colour scale over its atomics, render-state flags from d8, and the optional callbacks at +0x310. */
-/* measured: initializing the render-state table at declaration still differs (nd 84 bytes); retain propagation-off. */
+/* Applies a model's draw state: blend-track update, colour scale over its atomics, render-state
+ * flags from d8, and the optional callbacks. measured: initializing the render-state table at its
+ * declaration changes the output, so propagation stays off. */
 // FUN_00478EC0
 void mdlApplyDrawState(void* drawObject, Model* model)
 {
@@ -5262,7 +5095,8 @@ void mdlApplyDrawState(void* drawObject, Model* model)
 }
 #pragma opt_propagation on
 
-/* Draw callback: applies the model's draw state, then the sky render-state pair from +0xE4 and +0xE8. The second argument is the model. */
+/* Draw callback: applies the model's draw state, then the sky alpha and test render states. The
+ * second argument is the model. */
 // FUN_00479030
 void mdlApplySkyDrawState(u8 *drawObject, u8 *model)
 {
@@ -5271,12 +5105,13 @@ void mdlApplySkyDrawState(u8 *drawObject, u8 *model)
     RpSkyRenderStateSet(3, ((Model *)model)->skyTest);
 }
 
-/* Post-draw callback: clears the global 0x80 draw bit when the model requests it, runs the 0x100000 hook, then calls the model's callback at +0x318. */
+/* Post-draw callback: clears the global 0x80 draw bit when the model requests it, runs the 0x100000
+ * hook, then calls the model's reset callback. */
 // FUN_00479080
 void mdlResetDrawState(void* drawObject, void* modelData)
 {
-    /* measured: keep the flag snapshot word-indexed; direct Model.flags
-     * access changes the whole-owner instruction comparison. */
+    /* measured: the flag reads stay word-indexed because direct Model.flags access changes the
+     * generated code. */
     u32* modelWords = (u32*)modelData;
     if ((modelWords[0xD8 / 4] & 0x40000) != 0) {
         DAT_00723cd8 &= ~0x80;
@@ -5289,15 +5124,9 @@ void mdlResetDrawState(void* drawObject, void* modelData)
     }
 }
 
-/* Colour tint uses the same RwRGBA <-> real helpers as mdlMatColorScaleCallback; the
- * draw-colour forwarder mdlEffectListSetColor takes the colour by pointer. */
-/* measured: keep the model flag/effect snapshots spanning queue and colour callbacks
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
-/* IDA mdlManager.c:2696-2870; retail 00479100-00479870.
- * Integration requirements, including attachment fields and the corrected
- * color-forwarding wrapper, are recorded in IDA_model_followthrough.json. */
-/* Queue commands use the shared OtPrimitiveNode layout from sdk_ot_node.h. */
+/* Colour tint uses the same RwRGBA <-> real helpers as mdlMatColorScaleCallback; the draw-colour
+ * forwarder mdlEffectListSetColor takes the colour by pointer. Queue commands use the shared
+ * OtPrimitiveNode layout from sdk_ot_node.h. */
 
 extern u8* PrimAllocQueueNode(void);
 extern void PrimAppendNode(void*, void*);
@@ -5469,7 +5298,8 @@ layers:
     }
 }
 
-/* Per-atomic callback for mdlDrawVisibleAtomics: when the atomic has flag 4 and a non-null object at +0x18 that passes the frustum test, it calls the draw hook at +0x48 of the atomic. */
+/* Per-atomic callback for mdlDrawVisibleAtomics: draws an atomic that has flag 4 and a geometry
+ * passing the frustum test, using its render callback. */
 // FUN_00479880
 void* mdlDrawAtomicIfVisible(void* atomic, void* context)
 {
@@ -5491,12 +5321,11 @@ void mdlDrawVisibleAtomics(void* clump)
     RpClumpForAllAtomics(clump, mdlDrawAtomicIfVisible, 0);
 }
 
-/* IDA 00479940, mdlManager.c:2873-2957: validate raw arguments before
-   dispatching the base transform, layer animation and attached children.
-   Measured 752B/752B, fully relocated exact match. */
+/* Validates raw arguments before dispatching the base transform, layer animation and attached
+ * children. */
 
-/* measured: the dispatch helper and its caller remain MATCH without the redundant CSE toggle/reset scope. */
-/* Select the base transform and dispatch animation to the requested layer and children. */
+/* measured: kept as a static inline helper with no CSE pragma scope; selects the base transform and
+ * dispatches animation to the requested layer and children. */
 static inline void mdlDispatchAnimation(u8* mdl, u32 layer, s16 animation, u16 frame, s32 flags)
 {
     u32 baseLayer;
@@ -5598,12 +5427,8 @@ s32 mdlLayerIsPresent(void* model, s32 layer)
     return 1;
 }
 
-/* measured: byteAddressAdd preserves the entry-index addu operands while the
- * separate entryData and resourceAddress lifetimes retain the retail loads
- * and mask register. The second check uses ordinary integer comparisons. */
-/* The signed-short animation contract is shared by the model and battle
-   callers. Integer comparisons perform the retail sign extension here. */
-/* Returns 1 when the layer's animation table has an entry for the animation. Layer 0 also checks the secondary list at +0x234. */
+/* Returns 1 when the layer's animation table has an entry for the animation; layer 0 also checks
+ * the secondary list. The animation id is signed short, shared with battle callers. */
 // FUN_00479D10
 s32 mdlLayerHasAnimation(u8* model, u32 layer, s16 animation)
 {
@@ -5630,20 +5455,9 @@ s32 mdlLayerHasAnimation(u8* model, u32 layer, s16 animation)
     return result;
 }
 
-/* measured: 4 attempts (nd 33/36/36/36). Correct spellings found: the byte
-   chain wants 32-bit arithmetic on a byte base - *(void**)((u8*)arr +
-   idx*0x50 + 0x40) folds 0x40 into the lw (element form *0x50+0x10 emits an
-   extra sll 6 chain + daddiu, nd 33; (s16) param typing emits no dance at
-   all). Residual: (1) retail re-derives the s16 sign-extension (dsll32/
-   dsra32) at BOTH use sites; b210 CSEs the two conversions into one pair in
-   every spelling tried (s64 shifts, (s64)(s16) casts, s32 param + (s16)
-   narrowing, named s32 local nd 22); (2) retail loads arr = *elem at the top
-   of the flag body, b210 sinks it below the idx re-derivation + 0x50 chain
-   (load-sinking, brief-confirmed); (3) the return-1 path gets its own b to
-   the epilogue where retail falls through. Load-CSE +
-   sign-extension-reissue floor (same family as 79d10). */
-/* measured: testing entryCount first preserves the lhu-before-sign-extension order at the propagation baseline. */
-/* Returns 1 when layer input has a key at index mode whose animation is the empty-clip sentinel D_00922BC0, and 0 otherwise, including when the index is out of range. */
+/* Returns 1 when the layer has a key whose animation is the empty-clip sentinel D_00922BC0,
+ * otherwise 0 (including an out-of-range index). entryCount is tested first to keep retail's load
+ * order. */
 // FUN_00479DD0
 s32 mdlIsLayerKeyEmpty(u8* model, u16 layer, s16 animation)
 {
@@ -5676,13 +5490,11 @@ s32 mdlIsLayerKeyEmpty(u8* model, u16 layer, s16 animation)
     }
     return isEmpty;
 }
-/* measured: probing opt_common_subs off to retain the raw parameter register. */
+/* measured: common-subexpression elimination is disabled so the raw layer parameter stays live as
+ * retail does. */
 #pragma opt_common_subs off
-/* Sets the layer's animation time to frame scaled by the global time factor, through the layer's key interpolator. Layer 0 also updates the animation control time. */
-/* measured: keep the member-first clip pointer lookup
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
-/* measured: typed indexed clip lookup still differs (nd 159 bytes); retain CSE-off. */
+/* Sets the layer's animation time to frame scaled by the global time factor via the layer's key
+ * interpolator; layer 0 also updates the animation control time. */
 // FUN_00479E60
 void mdlSetLayerTime(void* model, s32 layer, f32 frameValue)
 {
@@ -5708,7 +5520,6 @@ void mdlSetLayerTime(void* model, s32 layer, f32 frameValue)
     if (((MdlDispatchAnimTable *)table)->count <= animationIndex)
         goto tail;
     entryOffset = animationIndex * 0x50;
-    /* measured: plain entryOffset changes 25 bytes; retain the existing address operand order. */
     clip = *(s32 *)((u32)((u32)*(s32 *)table + MEMBER_OFFSET(MdlDispatchAnimEntry, animation)) + (u32)(entryOffset, entryOffset));
     if (clip == 0)
         goto tail;
@@ -5722,7 +5533,6 @@ tail:
         mdlSetAnimControlTime((u8*)model + 0x23C, time);
     }
 }
-/* measured: closes the scoped opt_common_subs probe for mdlSetLayerTime. */
 #pragma opt_common_subs on
 /* Returns the current clip's duration in frames, or zero without a valid clip. */
 // FUN_00479F60
@@ -5836,7 +5646,7 @@ void mdlRotateMatrix(void *matrix, const void *axis, f32 angle, s32 combineOp)
                   angle, (RwOpCombineType)combineOp);
 }
 
-/* Applies matrix input to model owner through func_003e0e20 with combine mode mode. */
+/* Applies the matrix to the model through func_003e0e20 with the given combine mode. */
 // FUN_0047A1C0
 void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp)
 {
@@ -5851,14 +5661,11 @@ void mdlScale(Model* model, const RwV3d* scale, int combineOp)
 }
 
 
-
 // FUN_0047A220
 void mdlSetColor(Model* model, const RwRGBA* color)
 {
     model->color = *color;
 }
-
-
 
 
 // FUN_0047A250
@@ -5867,7 +5674,7 @@ void* mdlGetColor(void* model)
     return &((Model *)model)->color;
 }
 
-/* Applies the colour at +0xD0 to every atomic of the clump through mdlMatColorScaleCallback. */
+/* Applies the model colour to every atomic of the clump through mdlMatColorScaleCallback. */
 // FUN_0047A260
 void mdlApplyColorToAtomics(void* model)
 {
@@ -5922,28 +5729,8 @@ void* mdlGetClump(void* model)
     return ((Model *)model)->clump;
 }
 
-/* measured (recipe A retest, 4 attempts nd 82/67/63/6): no u16 sign-test in
-   this function - recipe A does not apply. Working spellings: goto-shared
-   fail (single move $v0,0 block), s32 loop counter with explicit (u16)
-   casts (increment andi $s0 + re-mask andi $v0 at the test, exactly retail),
-   p = owner + (i & 0xFFFF) * 0xC (the explicit mask keeps the andi at the
-   chain), nested ifs with t2 = p + 0x290 materialized between the 0x28C and
-   0x290 tests (retail's addiu $s2, $v1, 0x290 position), named mp for the
-   inner ptr load (load-before-chain order). Residual nd 6 is the recorded
-   outer-block schedule: [sll chain; addiu 0x40; lw ptr] vs retail [sll
-   chain; lw ptr; addiu 0x40] - the chain result lands in $v0 vs retail $v1
-   and the addiu applies to the chain instead of the loaded ptr; `*a + (0x40
-   + idx)` avoids the fold but keeps this order, plain `*a + 0x40 + idx`
-   folds 0x40 into the load (3 words, nd 84). Chain-vs-load schedule floor
-   (same as recorded). */
-// Looks up the owner's current item (list index at +0xF0). When that item is valid, prepares each slot model that has a sub-model, calls func_00397c40 on the owner's hierarchy and on each sub-model's hierarchy, and returns 1. Returns 0 when the item is missing or is the sentinel.
-/* measured: 0047A320 now loads the inner list base into a named local before
-   the index chain, reproducing retail's lw-base-then-sll order and all inner
-   register colors. Scoped verify: normalized_diff 0, object 372B/window 384B;
-   the remaining 12-byte tail is zero padding after the matching jr/nop. */
-/* measured: keep the clip lookup and child-slot snapshots around preparation
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Prepares each slot model of the owner's current item and calls func_00397c40 on both hierarchies,
+ * returning 1; returns 0 if the item is missing or the sentinel. */
 // FUN_0047A320
 s32 mdlPrepareItemSlots(void* model) {
     void* table;
@@ -5991,11 +5778,12 @@ s32 mdlPrepareItemSlots(void* model) {
     return 0;
   }
 
-/* Clears the bits of the mask read from data in the word at +0x8 of the atomic's +0x18 block. Walker callback for mdlClearAtomicFlags; returns the atomic. */
+/* Clears the mask bits read from data in the atomic's geometry flags. Walker callback for
+ * mdlClearAtomicFlags; returns the atomic. */
 // FUN_0047A4A0
 void *mdlClearAtomicFlagsCallback(void *atomic, void *geometryOrMaskData) {
-    /* geometryOrMaskData is reassigned rather than using a fresh local: retail reuses the
-       $a1 argument register for the node pointer once the mask is loaded. */
+    /* geometryOrMaskData is reused for the geometry pointer instead of a fresh local, as retail
+     * reuses the argument once the mask is loaded. */
     s32 mask = *(s32 *)geometryOrMaskData;
 
     geometryOrMaskData = *(void * *)&*(u8 **)&((struct RpAtomic *)atomic)->geometry;
@@ -6060,10 +5848,8 @@ found:
     return result;
 }
 
-/* MATCH: 440B/448B, with two zero-tail words. The table helper retains
-   its shared return block; RwMatrix assignment emits the retail pair-copy. */
-/* Copies the matrix for index input into mode from the matrix table at +0x2C8, or from the user-data frame when there is no table. Returns 1 when a matrix was copied. */
-/* measured: direct typed table lookup leaves nd 262 bytes; retain CSE-off for the inlined table search. */
+/* Copies the matrix for index into destination from the model's matrixTable, or from the user-data
+ * frame when there is no table. Returns 1 when a matrix was copied. */
 // FUN_0047A510
 s32 mdlCopyIndexedMatrix(void* model, s32 index, void* destination)
 {
@@ -6090,7 +5876,8 @@ s32 mdlCopyIndexedMatrix(void* model, s32 index, void* destination)
     return result;
 }
 #pragma pop
-/* Computes the attach matrix for index input into mode: through mdlComputeAttachMatrix when the table at +0x2C8 exists, else from the user-data frame. Returns 0 when that frame is absent. */
+/* Computes the attach matrix for index into destination, through mdlComputeAttachMatrix when the
+ * matrix table exists, else from the user-data frame. Returns 0 when that frame is absent. */
 // FUN_0047A6D0
 s32 mdlComputeIndexedAttachMatrix(void* model, s32 index, void* destination)
 {
@@ -6116,7 +5903,8 @@ s32 mdlComputeIndexedAttachMatrix(void* model, s32 index, void* destination)
     *(RwV3d*)destination = matrix.pos;
     return 1;
 }
-/* Returns the model's int user-data count: the cached count at +0x2C8 when set, else the count of int user data on its clump. */
+/* Returns the model's int user-data count: the cached count in the matrix table when set, else the
+ * count of int user data on its clump. */
 // FUN_0047A7C0
 u32 mdlCountIntUserData(void* model)
 {
@@ -6127,42 +5915,48 @@ u32 mdlCountIntUserData(void* model)
     return K_Clump_CountIntUsrData(((Model *)model)->clump, (const char*)D_007131D8);
 }
 
-/* Sets bit 0 of the model flags at +0xD8, the inverse of mdlClearBattleStateFlag. Called from battle unit code and the field shadow code. */
+/* Sets bit 0 of the model flags, the inverse of mdlClearBattleStateFlag. Called from battle unit
+ * code and the field shadow code. */
 // FUN_0047A810
 void mdlSetBattleStateFlag(void* model)
 {
     ((Model *)model)->flags |= 1;
 }
 
-/* Clears bit 0 of the model flags at +0xD8. Called from the battle look-at reset path (code1_0019 case 1), which then clears the 0x260 state bits. Consumer of bit 0 not yet traced. */
+/* Clears bit 0 of the model flags. Called from the battle look-at reset path, which then clears the
+ * 0x260 state bits. */
 // FUN_0047A830
 void mdlClearBattleStateFlag(void* model)
 {
     ((Model *)model)->flags &= ~1;
 }
 
-/* Sets the alpha-blend flag (0x20) at +0xD8. Scene and field code calls it for translucent models (mt_sceneFunc, k_fldAI). Consumer of the flag not yet traced. */
+/* Sets the alpha-blend flag (0x20) in the model flags. Scene and field code call it for translucent
+ * models. */
 // FUN_0047A850
 void mdlSetAlphaBlend(void* model)
 {
     ((Model *)model)->flags |= 0x20;
 }
 
-/* Clears the alpha-blend flag (0x20) at +0xD8, the inverse of mdlSetAlphaBlend. Called when a model is fully opaque or a fade completes. */
+/* Clears the alpha-blend flag (0x20), the inverse of mdlSetAlphaBlend. Called when a model is fully
+ * opaque or a fade completes. */
 // FUN_0047A870
 void mdlClearAlphaBlend(void* model)
 {
     ((Model *)model)->flags &= ~0x20;
 }
 
-/* Sets the 0..1 weight at +0x144. Consumer: evtModel's state code, which sets it from its timer and reads it back (2.0f * value). No reader in mdlManager. */
+/* Sets the 0..1 look blend weight. evtModel's state code sets it from its timer and reads it back;
+ * nothing in mdlManager reads it. */
 // FUN_0047A890
 void mdlSetBlendWeight(void* model, float value)
 {
     ((Model *)model)->layers[0].look.blend = value;
 }
 
-/* Stores a high/low pair at +0x148/+0x14C for look-at setup. Battle passes the unit's look-at range (or the 70/60 and 70/80 pairs and call angles) next to the blend weight. Consumer not yet traced. */
+/* Stores the look-at pitch and yaw limits. Battle passes the unit's look-at range next to the blend
+ * weight. Consumer not yet traced. */
 // FUN_0047A8A0
 void mdlLookAtSetupSetRange(void* model, float pitchLimit, float yawLimit)
 {
@@ -6170,7 +5964,8 @@ void mdlLookAtSetupSetRange(void* model, float pitchLimit, float yawLimit)
     ((Model *)model)->layers[0].look.yawLimit = yawLimit;
 }
 
-/* Sets the look target point at +0x17C and selects target mode: sets flag 0x40 and clears 0x20, 0x80 and 0x100. Battle and promoted look-at code pass the unit's look target. Consumer not yet traced. */
+/* Sets the look target point and selects target mode: sets flag 0x40 and clears 0x20, 0x80 and
+ * 0x100. */
 // FUN_0047A8B0
 void mdlSetLookAtTargetPoint(void* model, RwV3d* target)
 {
@@ -6180,7 +5975,8 @@ void mdlSetLookAtTargetPoint(void* model, RwV3d* target)
     *(RwV3d *)&((Model *)model)->layers[0].look.target.x = *target;
 }
 
-/* Sets the look direction vector at +0x17C from a matrix at-axis and selects direction mode: sets flag 0x20 and clears 0x40, 0x80 and 0x100. Event code passes the at vector. Consumer not yet traced. */
+/* Sets the look direction vector and selects direction mode: sets flag 0x20 and clears 0x40, 0x80
+ * and 0x100. */
 // FUN_0047A900
 void mdlSetLookAtDirection(void* model, RwV3d* direction)
 {
@@ -6208,28 +6004,30 @@ void* mdlGetLookAtSubobject(void* model)
     return ((Model *)model)->layers[0].look.rotation;
 }
 
-/* Sets flag 0x100 in the look state word at +0x140. The mode setters (look target, look direction, track scale) clear it. Battle and evtModel call it after configuring a look. Exact meaning not yet traced. */
+/* Sets flag 0x100 in the look state word; the mode setters clear it. Battle and evtModel call it
+ * after configuring a look. */
 // FUN_0047A990
 void mdlSetLookAtRequested(void* model)
 {
     ((Model *)model)->layers[0].look.flags |= 0x100;
 }
 
-/* Sets flag 0x200 in the look state word at +0x140. Battle look-at activation in code1_0019 case 3 and its state branches call it after the range is set. Exact meaning not yet traced. */
+/* Sets flag 0x200 in the look state word. Battle look-at activation calls it after the range is
+ * set. */
 // FUN_0047A9B0
 void mdlSetLookAtActive(void* model)
 {
     ((Model *)model)->layers[0].look.flags |= 0x200;
 }
 
-/* Returns nonzero when a look-target, look-direction, look-requested or track-scale mode bit is set (mask 0x81E0 on the look state word at +0x140). evtModel, evtMain and code1_0019 gate their state machines on it; the draw path in this file does too. */
+/* Returns nonzero when any look mode bit (mask 0x81E0) is set in the look state word. */
 // FUN_0047A9D0
 int mdlHasActiveMode(void* model)
 {
     return (((Model *)model)->layers[0].look.flags & 0x81E0) != 0;
 }
 
-/* Stores a whole value into the look state word at +0x140. code1_0018 and code1_0019 case 3 write it during battle look-at transitions. Not all bit meanings are traced. */
+/* Stores a whole value into the look state word; battle look-at transitions write it. */
 // FUN_0047A9F0
 void mdlSetLookStateWord(void* model, u16 value)
 {
@@ -6243,20 +6041,16 @@ u16 mdlGetLookStateWord(void* model)
     return ((Model *)model)->layers[0].look.flags;
 }
 
-/* Copies scale into the model record at +0x170. */
+/* Copies scale into the look scale vector. */
 // FUN_0047AA10
 void mdlCopyScale(void* model, RwV3d* scale)
 {
     *(RwV3d *)&((Model *)model)->layers[0].look.scale.x = *scale;
 }
 
-/* measured: retail masks the counter head (andi $v1,$a3,0xffff; slti $v1,$v1,5)
-   AND at the body top (andi $a2,$a3,0xffff). A plain s32 counter with (u16)
-   casts at each use CSEs the two masks into one carried register and emits a
-   redundant self-mask. The matching form is a while loop that derives the body
-   index into a separate u32 local (idx = (u16)i) so mwcc keeps the body-top
-   andi distinct from the loop-head andi (nd 0, byte-exact). Committed at nd 0. */
-/* Stores data at +0x2FC of the model, and of each attached slot model whose slot flag bit 0 is set. */
+/* Retail masks the slot counter to 16 bits both at the loop test and at the body top, so the body
+ * index goes in its own u32 local. Sets the owner of the model, and of each attached slot model
+ * whose slot flag bit 0 is set. */
 // FUN_0047AA30
 void mdlSetAttachedOwner(void* model, void* owner) {
     s32 slotIndex;
@@ -6358,22 +6152,18 @@ done:
     ((Model *)slotBase)->attachedWpns[0].flags |= 1;
 }
 
-/* Stores mode at +0x294 of the attached slot at input; slots are 12 bytes from +0x28C. */
+/* Stores frameId in the given attached slot; slots are 12 bytes each. */
 // FUN_0047ADF0
 void mdlSetAttachedSlotValue(u8 *model, u16 slotIndex, s32 frameId) {
-    /* Offset added to the base, not the other way round: `model + slotOffset` makes
-       mwcc emit `addu $v1,$a0,$v1` where retail has `addu $v1,$v1,$a0`. */
+    /* Offset is added to the base in this order because retail adds them that way round. */
     s32 slotOffset = slotIndex * 12;
     u8 *slotBase = (u8 *)(slotOffset + (s32)model);
 
     ((Model *)slotBase)->attachedWpns[0].frameID = frameId;
 }
 
-/* Ported from P3FES mdlManager.c func_003196f0 (verified MATCH there). Keep the
-   entryState/entryCount/pWpnMdl local structure and the recompute of entryCount+object before
-   the post-call byte clear exactly; P4 offsets are wpnMdl ptr 0x290, flags byte
-   0x28C, stride 0xC (donor used 0x3b8/0x3b4). */
-/* Destroys the model in attached slot wpnIdx, clears its pointer and bit 0 of the slot flags at +0x28C. */
+/* Matches P3FES func_003196f0. Destroys the model in attached slot slotIndex, clears its pointer
+ * and bit 0 of the slot flags byte. */
 // FUN_0047AE10
 void mdlDetachSlotModel(u8* model, u16 slotIndex)
 {
@@ -6410,15 +6200,13 @@ s32 mdlPrepareSlotModel(u8 *model, u16 slotIndex)
     return mdlPrepareModel(child);
 }
 
-/* Ported from P3FES mdlManager.c func_003197c0 (verified MATCH there).
-   P4 offsets: attachedWpns base 0x28C, wpnMdl ptr 0x290, stride 0xC (donor used
-   0x3b4/0x3b8). The RwMatrix copy at wpnMdl+0x90 is 8 words. */
-/* measured: removing the pragma regresses this MATCH (nd 0) to a re-mask/hoist
-   mismatch; the struct-access spelling needs it to reproduce retail's andi re-mask. */
+/* Matches P3FES func_003197c0; P4 uses attachedWpns at 0x28C, wpnMdl at 0x290, stride 0xC, and
+ * copies an 8-word RwMatrix at wpnMdl+0x90. measured: retail re-masks the u16 slot index on each
+ * loop pass, and only propagation off reproduces that. */
 #pragma push
 #pragma opt_propagation off
-/* Copies matrix into the +0x90 matrix of every attached slot model. */
-/* measured: a cached typed slot base still differs (nd 36 bytes); retain propagation-off and loop hoisting. */
+/* Copies matrix into the matrix of every attached slot model. measured: retail recomputes each
+ * slot's address inside the loop instead of caching a typed slot base, so propagation stays off. */
 // FUN_0047AEE0
 void mdlSetAttachedModelMatrices(Model* model, RwMatrix* matrix)
 {
@@ -6448,7 +6236,7 @@ void mdlAllocAuxBlock(void* model)
     memset(loader, 0, 0x48);
 }
 
-/* Copies the two words of data into the auxiliary block at +0x2C and +0x30. */
+/* Copies the memory pointer and byte count into the auxiliary loader state. */
 // FUN_0047AFD0
 void mdlSetAuxPair(void* model, void* pairData)
 {
@@ -6457,7 +6245,7 @@ void mdlSetAuxPair(void* model, void* pairData)
     ((MdlLoaderState *)loader)->memoryLength = ((MdlMemoryPair *)pairData)->byteCount;
 }
 
-/* Stores H_Cdvd_AcquireDirectory(data, 0) at +0x38 of the auxiliary block and clears its first word. */
+/* Stores H_Cdvd_AcquireDirectory(path, 0) as the loader's file request and clears its stream. */
 // FUN_0047AFF0
 void mdlSetAuxResource(void* model, void* path)
 {
@@ -6467,19 +6255,18 @@ void mdlSetAuxResource(void* model, void* path)
     *(u32 *)&((MdlLoaderState *)loader)->stream = 0;
 }
 
-/* Stores data at +0x40 of the auxiliary block. */
+/* Stores value as the auxiliary loader's mode. */
 // FUN_0047B050
 void mdlSetAuxValue(void* model, int value)
 {
     ((MdlLoaderState *)(u8*)*(void* *)&((Model *)model)->auxiliary)->mode = value;
 }
 
-/* Frees the auxiliary block at +0x30C and its child at +0xC, then clears the pointer. */
+/* Frees the auxiliary block and its UV request buffer, then clears the pointer. */
 // FUN_0047B060
 void mdlFreeAuxBlock(void* model)
 {
-    /* measured: keep the auxiliary slot word-indexed; a typed slot
-     * lvalue changes the whole-owner instruction comparison. */
+    /* measured: retail reads the auxiliary slot as a plain word of the model. */
     u32* modelWords = (u32*)model;
     void* loader = (void*)modelWords[0x30C / 4];
     if (*(void* *)&((MdlLoaderState *)loader)->uvRequests != 0) {
@@ -6489,34 +6276,14 @@ void mdlFreeAuxBlock(void* model)
     modelWords[0x30C / 4] = 0;
 }
 
-/* Recover the full chunk/effect headers and memory-stream descriptor, the
-   selected clone wrappers, and the schema argument for both deferred UV reads.
-   The typed candidate retains retail's 0xd0 frame but does not match yet.
-   Native measurements and the complete relocation/data proof are recorded in
-   docs/probe_archive/Model_loader_contracts_20261005_worker15.md.
-   2026-10-08: the chunk dispatch is a switch whose case bodies follow in source order; b210 compares the cases in reverse (385 edits).
-   The base-animation store is the out-of-line else arm (378 edits). */
-/* Model stream loader. Stack locals and block declarations follow retail's
-   frame; the 0xf0f000e1 attachment table is allocated inline with table,
-   size and count declared before payload (retail s5/s4/s2, payload s3).
-   opt_loop_invariants hoists the -1 fill and loop constants as retail does. */
-/* Material and UV headers share only the first entry-array pointer; the
- * eight-byte entries are indexed here without assuming either header extent. */
 
-
-
-
-/* Reads the aux block's RenderWare chunk stream, dispatching each chunk type to its loader: texture dictionaries, animation, UV dictionaries, effect lists and materials. Data not yet ready is queued as a request. Returns 1 once the stream is consumed. */
-/* Material/UV payloads use their named eight-byte entry layout directly.
- * measured: all four loader access/store helper expansions retain whole-file MATCH;
- * callback-visible model resource checks keep their existing byte-shaped accesses. */
-/* measured: loading the auxiliary state through the typed model local leaves nd 3990 bytes; retain loop hoisting. */
+/* Reads the aux block's RenderWare chunk stream, dispatching each chunk type to its loader: texture
+ * dictionaries, animation, UV dictionaries, effect lists and materials. Data not yet ready is
+ * queued as a request. Returns 1 once the stream is consumed. Material/UV payloads use their named
+ * eight-byte entry layout directly. */
 // FUN_0047B0C0
 s32 mdlReadAuxChunks(u8 *model)
 {
-
-
-
 
 
     struct MdlEffectChunk {
@@ -6549,8 +6316,8 @@ s32 mdlReadAuxChunks(u8 *model)
     extern struct RwTexDictionary *func_003dc370(void *stream);
     extern struct RwTexDictionary *func_003e6a90(void *stream);
     extern s32 func_003ef1b0(void *dictionary);
-    /* H011: pointer parameters keep D_0070B610 an address constant per call;
-       the u32 definition in rtanim.c makes b210 hoist it (measured MISMATCH). */
+    /* Pointer parameters keep D_0070B610 an address constant per call; the u32 definition in
+     * rtanim.c would get hoisted. */
     extern u32 func_003d60e0(void *object, void *value);
     extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
         s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
@@ -6988,8 +6755,6 @@ s32 mdlReadAuxChunks(u8 *model)
 }
 
 
-
-
 extern u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue);
 extern s32 func_003ef1b0(void* dictionary);
 extern s32 func_003e2e40(void* stream, void* data);
@@ -7000,19 +6765,12 @@ extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
 extern s32 *mdlMatAnimCreateList(void);
 extern s32 mdlMatAnimLoadChunk(void *stream, u8 **list, u32 chunkTag, void *clump);
 extern u8 D_0070B610[];
-/* Native b210 O2 MATCH: 1944B/window 1952B; the remaining eight bytes are zero.
-   Poll results retain their real pointer type and their status/stream outputs.
-   Copy the RwMatrix value, reload entry storage after writes and callbacks,
-   and dereference the two effect-list pointer arrays at offsets 0x14/0x20.
-   Full-width iteration and independently narrowed asset indices are distinct.
-   Prior probe notes and native receipts are retained in model-manager-after-rebase. */
 #pragma push
 #pragma opt_propagation off
-/* Polls the aux block's pending resources: the primary and secondary texture dictionaries, the request table, the pending clump and the node list. Attaches each one that is ready. When all are ready it copies each layer's keyframe maps. Returns 1 when everything is ready, 0 while any request is pending. */
-/* measured: keep the request/resource snapshots and pointer-array destinations across load callbacks
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
-/* measured: loading auxiliary state through the typed model local leaves nd 574 bytes; retain propagation-off. */
+/* Polls the aux block's pending resources (both texture dictionaries, request table, pending clump,
+ * node list) and attaches each ready one; once all are ready, copies each layer's keyframe maps.
+ * Returns 1 when all are ready, else 0. measured: propagation stays off so request and resource
+ * snapshots survive the load callbacks. */
 // FUN_0047C660
 s32 mdlPollAuxResources(u8 *model)
 {

@@ -1,6 +1,5 @@
 #include "include_asm.h"
-/* Persona 4 USA decompilation - ed_res.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit ed_res.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "ed_staff_internal.h"
 
@@ -24,7 +23,7 @@ extern void *memcpy(void *dst, const void *src, u32 size);
 extern void frFontSlotLoadData(s32 slot, u8 *fontData);
 extern void frFontSlotFree(s32 slot);
 
-// Intent: Release the loaded resource and clear the work pointer [inferred]
+// Release the loaded resource and clear the work pointer.
 // FUN_0038F620
 void edResRelease(void)
 {
@@ -37,7 +36,7 @@ void edResRelease(void)
     sOpTailC = NULL;
 }
 
-// Intent: Finish a pending load: build the effect header, load the font slot data and free the file [inferred]
+// Finish a pending load: build the effect header, load the font slot data and free the file.
 // FUN_0038F680
 void edResLoadStep(void)
 {
@@ -72,7 +71,7 @@ void edResLoadStep(void)
     }
 }
 
-// Intent: Request the resource file for the roll and mark it pending [inferred]
+// Request the resource file for the roll and mark it pending.
 // FUN_0038F7F0
 void edResRequestLoad(void)
 {
@@ -89,7 +88,7 @@ void edResRequestLoad(void)
     work[0] |= 1;
 }
 
-// Intent: Report whether a resource load is pending [inferred]
+// Report whether a resource load is pending.
 // FUN_0038F880
 u32 edResIsPending(void)
 {
@@ -99,7 +98,7 @@ u32 edResIsPending(void)
     return sOpTailC[0] & 1;
 }
 
-// Intent: Free the parsed stream and the font slot used by the roll [inferred]
+// Free the parsed stream and the font slot used by the roll.
 // FUN_0038F8D0
 void edResFreeText(void)
 {
@@ -116,7 +115,7 @@ void edResFreeText(void)
     frFontSlotFree(6);
 }
 
-// Intent: Return the parsed stream pointer for the roll [inferred]
+// Return the parsed stream pointer for the roll.
 // FUN_0038F950
 u32 edResGetStream(void)
 {

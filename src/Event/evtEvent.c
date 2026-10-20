@@ -1,4 +1,4 @@
-/* Original translation unit evtEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit evtEvent.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_task_registration.h"
 #include "scene_event_internal.h"
@@ -37,8 +37,7 @@ s32 evtNodeTaskUpdate(u8 *task);
 void evtLookupTask(void);
 
 
-
-// Returns the work block of the event's task, or 0 when the event has no task yet [inferred].
+// Returns the work block of the event's task, or 0 when the event has no task yet.
 // FUN_00285480
 s32 evtGetEventTaskWork(u8 *event)
 {
@@ -55,7 +54,8 @@ s32 evtGetEventTaskWork(u8 *event)
     return (s32)kwlnTaskGetWork((void *)handle);
 }
 
-// Clears the event's wait flags once the thing each one waits on is done, then refreshes its resources when the busy state changes [inferred].
+// Clears each wait flag once the thing it waits on is done, then refreshes the event's resources
+// when the busy state changes.
 // FUN_002854E0
 void evtUpdateNodeWaitFlags(u8 *eventWork)
 {
@@ -103,7 +103,8 @@ void evtUpdateNodeWaitFlags(u8 *eventWork)
     }
 }
 
-// Steps the event's frame counter (unless it is busy); returns 1 once the counter reaches its limit [inferred].
+// Steps the event's frame counter unless the event is busy; returns 1 once the counter reaches its
+// limit.
 // FUN_00285760
 s32 evtStepEventFrame(u8 *eventWork)
 {
@@ -128,7 +129,8 @@ s32 evtStepEventFrame(u8 *eventWork)
     return finished;
 }
 
-// Event task update: runs the event's wait checks, then steps its frame counter while it is not busy [inferred].
+// Event task update: runs the event's wait checks, then steps its frame counter while it is not
+// busy.
 // FUN_002857C0
 s32 evtNodeTaskUpdate(u8 *task)
 {
@@ -190,7 +192,8 @@ s32 evtNodeTaskUpdate(u8 *task)
         return 0;
     }
 }
-// Event task destroy: destroys the event's task hierarchy, frees its work block and releases the account [inferred].
+// Event task destroy: destroys the event's task hierarchy, frees its work block and releases its
+// memory account.
 // FUN_00285980
 void evtNodeTaskDestroy(u8 *task) {
     EvtEventTask *taskWork;
@@ -202,8 +205,8 @@ void evtNodeTaskDestroy(u8 *task) {
 }
 
 
-
-// Creates the event task (0x60-byte work block) for the given event id and major/minor numbers, and returns the task handle [inferred].
+// Creates the event task with a 0x60-byte work block for the given major/minor ids and returns the
+// task handle.
 // FUN_002859E0
 s32 evtCreateEventTask(s32 majorId, s32 minorId)
 {
@@ -215,7 +218,8 @@ s32 evtCreateEventTask(s32 majorId, s32 minorId)
     taskWork = D_008873F4[0](1, 0x60, 0x40000);
     evtMemAccount(0, 0x60);
     memset(taskWork, 0, 0x60);
-    // Task name D_0063C2F8 is "evtEvent" (retail string at VA 0x63C2F8), priority 0xF, with evtNodeTaskUpdate and evtNodeTaskDestroy.
+    // Task name D_0063C2F8 is "evtEvent"; priority 0xF, with evtNodeTaskUpdate and
+    // evtNodeTaskDestroy.
     task = (s32)kwlnTaskCreate((const void *)(&D_0063C2F8), 0xF, 0, 0, evtNodeTaskUpdate, evtNodeTaskDestroy, (u8 *)(taskWork));
     eventTask = evtStart(0, 0);
     taskWork->eventTask = eventTask;
@@ -224,7 +228,7 @@ s32 evtCreateEventTask(s32 majorId, s32 minorId)
     taskWork->state = 0;
     return task;
 }
-// Makes sure the event task exists, creating it through func_002853c0 when it is missing [inferred].
+// Creates the event task through evtLookupTask when no task named "evtEvent" exists.
 // FUN_00285AF0
 void evtEnsureEventTask(void) {
     if (kwlnTaskGetTaskByName(D_0063C2F8) == 0) {
@@ -243,19 +247,13 @@ s32 evtGetEventFrame(void) {
     return ((EvtEventWork *)kwlnTaskGetWork((void *)h))->frame;
 }
 
-/* Retail's outer-loop count check uses `sltu $at,$s3,$v0; bnez $at`, while
-   b210 reuses $v0 for the result (`sltu $v0,$s3,$v0; bnez $v0`). Exact
-   executable body otherwise; fndiff offsets 68 and 72 are that register
-   choice, offsets 120 and 124 are the D_0063C2C8 relocations, and offset
-   308 is the retail-only tail padding. Comparison polarity, >=/< /> forms,
-   u32 loads, and loop declaration reorder were ruled out. obj 308B/window
-   320B, nd 2. Committed at nd 2. */
-// Intent: Returns the requested ordinal kind-3 entry of the node list whose resource id is 0x384..0x386 (ordinal among those matches), or NULL when there is none [inferred]
+/* Returns the ordinal-th kind-3 node-list entry whose resource id is 0x384..0x386, or NULL if there
+ * is none. */
 // FUN_00285B80
 u8 *evtFindSlotEntry(u8 *eventWork, s32 ordinal)
 {
-  /* measured: typed count/next conditions retain field addresses across the assert and lose MATCH; keep those raw reads. */
-  /* The repeated masks and zero-product test are the existing matching control-flow shape, not simplified here. */
+  /* Count and next-entry conditions use raw reads because typed field reads keep field addresses
+   * live across the assert; the repeated masks and zero-product test are intentional. */
   s32 line;
   s32 count;
   s32 i;

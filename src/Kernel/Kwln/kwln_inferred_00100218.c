@@ -63,12 +63,8 @@ extern f32 iGpffffba6c;
 extern void kwlnInitIop(void);
 extern void kwlnInitEngine(void);
 extern u8 D_005DD680[];
-/* RenderWare keeps its engine instance in the `ourGlobals` array
-   (retail 0x008872E0) and reaches device state through
-   RWSRCGLOBAL(dOpenDevice): the near Z is at +0x18, the render-state and
-   Im2D entry points from +0x20.  The prefix of RwGlobals/RwDevice from
-   rwplcore.h is what makes a member access address it absolutely with the
-   %lo folded into the load, which is retail's loop shape. */
+/* Prefix of RenderWare's RwGlobals/RwDevice (ourGlobals); member access lets device fields like
+ * zBufferNear and the Im2D entry points be addressed absolutely, as retail does. */
 typedef struct {
     f32 gammaCorrection;
     void *fpSystem;
@@ -123,19 +119,15 @@ extern u8 D_007948A0[];
 extern f32 fGpffff8030;
 extern u8 iGpffff85d0;
 
-/* Source unit: src/promoted/code1_0010.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0010.c; members 00100218-00100670 */
-
 /* Forward runtime termination to cleanup and the operating-system exit wrapper. */
 // FUN_00100218
-/* measured: tailcall on emits the retail bare jump wrapper. */
+/* measured: retail emits this wrapper as a bare jump, which needs tailcall on. */
 #pragma tailcall on
 void kwlnExitRuntime(void)
 {
     func_0042c0d8();
 }
 
-/* measured: close tailcall bracket around func_00100218. */
 #pragma tailcall off
 /* Exit the current thread when the startup-installed thread return handler runs. */
 // FUN_00100220
@@ -165,7 +157,7 @@ u8 *kwlnProbeHeapBudget(void) {
     return base - 16;
 }
 
-// Intent: boot entry. Print boot diagnostics and the probed allocation budget, then enter kwlnMainLoop. No C callers (entry point).
+// Boot entry: print boot diagnostics and the probed allocation budget, then enter kwlnMainLoop.
 // FUN_001002C0
 s32 kwlnBoot(void) {
     s32 heapBudget;
@@ -200,10 +192,8 @@ s32 kwlnHandleTimerInterrupt(s32 interruptId)
     return 0;
 }
 
-/* IOP reset, timer setup and ordered module loading. Materialized retry
-   booleans preserve both reset-loop schedules. Exact 788/800 bytes with
-   74 resolved relocations and twelve verified-zero alignment bytes. */
-// Intent: IOP reset, timer setup and ordered module loading. Called from kwlnMainLoop before the engine init.
+/* IOP reset, timer setup and ordered module loading; called from kwlnMainLoop before engine init.
+ * Retry flags are kept as explicit booleans for both reset loops. */
 // FUN_00100350
 void kwlnInitIop(void)
 {
@@ -302,8 +292,9 @@ void kwlnInitIop(void)
     D_00764280 = func_004216d0();
 }
 
-/* MATCH: 1888B window, 1888B object, normalized_diff 0 (472/472 instrs, 0 edits +70 reloc-only). Base L10_00100670_body.c scores 24 words at 463/471 instrs; replacing the shared goto-error tail with retail's duplicated-tail shape (ok = 0; goto check in each arm, ok = 1 on success, if (ok == 0) error) closes it. */
-// Intent: engine init sequence: RenderWare and plugin attach, the primitive interp register, the scene rig and the entry table. Called from kwlnMainLoop after kwlnInitIop.
+/* Engine init sequence: RenderWare and plugin attach, primitive interp register, scene rig and
+ * entry table; called from kwlnMainLoop after kwlnInitIop. Each failure arm duplicates the error
+ * tail, as retail does. */
 // FUN_00100670
 void kwlnInitEngine(void)
 {

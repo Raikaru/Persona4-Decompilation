@@ -130,8 +130,6 @@ extern void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callba
 extern s32 itfMesWindowInstall(void *record);
 extern u8 D_006253B0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00200cb0-00201b00 */
-
 extern void btlPanelInitWork(u8 *panel, s32 task);
 extern void btlPanelUpdate(void *panel);
 extern void btlPanelDrawFrame(s32 unused, u8 *panel);
@@ -145,20 +143,20 @@ extern void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 
 extern u8 *iGpffffb3b8;
 f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment);
 f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment);
-// Intent: register the overlay-ready callback for the UI object. [inferred]
+// Register the overlay-ready callback for the UI object.
 // FUN_00200CB0
 void btlUiRegisterAvailability(void) {
     EffBattleSetHandlerTable((void *)&D_00625240, (void *)btlUiIsOverlayReady);
 }
 
-// Intent: report whether the overlay work block exists (used as availability callback). [inferred]
+// Report whether the overlay work block exists; used as the availability callback.
 // FUN_00200CE0
 s32 btlUiIsOverlayReady(void)
 {
     return D_0076449C != NULL;
 }
 
-// Intent: task init callback; clears the per-component state blocks of the battle UI task. [inferred]
+// Task init callback; clears the per-component state blocks of the battle UI task.
 // FUN_00200CF0
 s32 btlUiTaskInit(u8 *unusedTask)
 {
@@ -222,7 +220,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
     return 0;
 }
 
-// Intent: task destroy callback; releases the sprites and window, then frees the task block. [inferred]
+// Task destroy callback; releases the sprites and window, then frees the task block.
 // FUN_00200F30
 void btlUiTaskDestroy(u8 *unusedTask)
 {
@@ -249,7 +247,7 @@ loop_done:
     jtbl_008873EC[0](work);
 }
 
-// Intent: wire each battle UI component's init and owner pointers, then install its message window. [inferred]
+// Wire each battle UI component's init and owner pointers, then install its message window.
 // FUN_00200FD0
 void btlUiInitComponents(s32 task, u8 *work)
 {
@@ -257,7 +255,8 @@ void btlUiInitComponents(s32 task, u8 *work)
     u8 *damage;
     u8 *models;
 
-    /* measured: repeating typed component addresses keeps them live across init calls in s0. */
+    /* measured: repeating typed component addresses keeps them live in a saved register across init
+     * calls. */
     btlPanelInitWork(((BtlUiTaskWork *)work)->panel, task);
     ((BtlUiTaskWork *)work)->frameNode.callback = (void *)btlPanelDrawFrame;
     panel = work + 0x9C;
@@ -307,7 +306,7 @@ void btlUiInitComponents(s32 task, u8 *work)
     ((BtlUiTaskWork *)work)->messageWindow = itfMesWindowInstall(D_006253B0);
 }
 
-// Intent: allocate the battle UI task block and create its child task. [inferred]
+// Allocate the battle UI task block and create its child task.
 // FUN_002011C0
 s32 btlUiCreateTask(s32 parentTask)
 {
@@ -322,14 +321,14 @@ s32 btlUiCreateTask(s32 parentTask)
     return task;
 }
 
-// Intent: initialise the sprite pair at offset +0x18 of a UI component. [inferred]
+// Initialise the gauge sprite pair at offset 0x18 of a UI component.
 // FUN_00201280
 void btlUiInitSpritePair(u8 *task, u8 *work) {
     btlEncounterInitParams((s32)task, work);
     btlGaugeInit(task, work + 0x18);
 }
 
-// Intent: store two floats as integer origin and clear the following offset words. [inferred]
+// Store two floats as the integer origin and clear width and height.
 // FUN_002012D0
 void btlUiSetOrigin(u8 *work, f32 x, f32 y) {
     ((BtlUiSprite *)work)->originX = (s32)x;
@@ -338,7 +337,7 @@ void btlUiSetOrigin(u8 *work, f32 x, f32 y) {
     ((BtlUiSprite *)work)->height = 0;
 }
 
-// Intent: store four float values as integer rectangle fields. [inferred]
+// Store four floats as integer rectangle fields.
 // FUN_00201300
 void btlUiSetRect(s32 *work, f32 x, f32 y, f32 width, f32 height) {
     ((BtlUiSprite *)work)->originX = (s32)x;
@@ -347,12 +346,10 @@ void btlUiSetRect(s32 *work, f32 x, f32 y, f32 width, f32 height) {
     ((BtlUiSprite *)work)->height = (s32)height;
 }
 
-/* measured: caching D_00887300 in s0 reproduces retail's one-time
-   lui/addiu vtable materialization across these callback calls. */
-/* measured: btlUiSetRenderStates MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd126; explicit value caches did not match (best nd92); retain opt_propagation off. */
+/* measured: retail loads the D_00887300 table address once and reuses it across the callback calls,
+ * which needs propagation off. */
 #pragma opt_propagation off
-// Intent: set the fixed battle render-state sequence through the D_00887300 table. [inferred]
+// Set the fixed battle render-state sequence through the D_00887300 table.
 // FUN_00201350
 void btlUiSetRenderStates(void)
 {
@@ -369,10 +366,10 @@ void btlUiSetRenderStates(void)
     base[0](1, 0);
 }
 
-/* measured: close the vtable propagation probe and restore default state. */
-/* measured: btlUiDrawSpriteEntry, btlUiSetScale MATCH -> MISMATCH without this pragma. */
+/* measured: btlUiDrawSpriteEntry and btlUiSetScale need copy propagation back on to reproduce
+ * retail code. */
 #pragma opt_propagation on
-// Intent: draw the sprite for a table entry at the given screen position and scale. [inferred]
+// Draw the sprite for a table entry at the given screen position and scale.
 // FUN_00201410
 void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y)
 {
@@ -381,8 +378,6 @@ void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y)
     u32 offset;
     f32 value;
 
-    /* measured: typed slot indexing reverses addu operands; repeated typed sprite fields
-     * hoist field addresses across the draw call (596 vs 576 bytes). */
     offset = (u32)(slot * 4);
     entry = ((u8 *)((u32)(offset) + (u32)(work)));
     ((BtlUiSprite *)work)->sprite = ((BtlUiSprite *)(entry))->sprites[0];
@@ -420,12 +415,11 @@ void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y)
     workFields->fixedScaleY = 0;
 }
 
-/* Keep the opacity base ahead of byte promotion, matching retail order. */
 #pragma push
-/* measured: btlUiDrawSpriteFaded MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd5; typed pointer reuse, typed parameter cache, explicit value caches, pointer iteration did not match (best nd5); retain opt_propagation off. */
+/* measured: retail does not propagate the colour and opacity values into later uses, so propagation
+ * stays off for this function. */
 #pragma opt_propagation off
-// Intent: draw a battle sprite with per-channel colour and fade parameters. [inferred]
+// Draw a battle sprite with per-channel colour and fade parameters.
 // FUN_00201650
 void btlUiDrawSpriteFaded(u8 *work, s32 slot, s32 segment, f32 x, f32 y,
                    u8 red, u8 green, u8 blue, u8 opacity) {
@@ -437,7 +431,6 @@ void btlUiDrawSpriteFaded(u8 *work, s32 slot, s32 segment, f32 x, f32 y,
         ((BtlUiSprite *)work)->fade = maximum - (opacity & 0xFF);
     }
     btlUiDrawSpriteEntry(work, slot, segment, x, y);
-    /* measured: typed resets retain four field addresses across draw (128 vs 96 bytes). */
     work[0x94] = 0xFF;
     work[0x95] = 0xFF;
     work[0x96] = 0xFF;
@@ -445,7 +438,7 @@ void btlUiDrawSpriteFaded(u8 *work, s32 slot, s32 segment, f32 x, f32 y,
 }
 
 #pragma pop
-// Intent: add a delta to the tile-offset field of a segment. [inferred]
+// Add a delta to the tile-offset field of a segment.
 // FUN_002016B0
 void btlUiAdjustTileOffset(s32 work, s32 slot, s32 segmentIndex, s32 delta) {
     u8 *table;
@@ -454,7 +447,6 @@ void btlUiAdjustTileOffset(s32 work, s32 slot, s32 segmentIndex, s32 delta) {
     u32 offset;
     u8 *segment;
 
-    /* measured: typed sprite-slot indexing changes addition/register allocation (10 differing bytes). */
     index = (u32)(slot * 4);
     table = (u8 *)(index + (u32)work + 0x2C);
     table = *(u8 **)table;
@@ -464,9 +456,8 @@ void btlUiAdjustTileOffset(s32 work, s32 slot, s32 segmentIndex, s32 delta) {
     ((SdkSpriteSegment *)segment)->tileOffset = delta + ((SdkSpriteSegment *)segment)->originalTileOffset;
 }
 
-/* The tile offset is converted from its full signed word for drawing;
- * only the stored halfword truncates it. Shared with cursor segments. */
-// Intent: store the tile offset and its float mirror (see the note above). [inferred]
+/* Stores the tile offset and its float mirror; the float is converted from the full signed word,
+ * only the stored halfword truncates. Shared with cursor segments. */
 // FUN_002016E0
 void btlUiSetTileOffset(u8 *work, s16 x, s32 y, f32 factor)
 {
@@ -477,7 +468,7 @@ void btlUiSetTileOffset(u8 *work, s16 x, s32 y, f32 factor)
     ((BtlUiSprite *)work)->tileOffsetY = (f32)y;
 }
 
-// Intent: set the x/y scale fields and their 4096-based fixed-point mirrors. [inferred]
+// Set the x/y scale fields and their 4096-based fixed-point mirrors.
 // FUN_00201720
 void btlUiSetScale(u8 *work, f32 x, f32 y)
 {
@@ -492,7 +483,7 @@ void btlUiSetScale(u8 *work, f32 x, f32 y)
     ((BtlUiSprite *)work)->scaleY = y;
 }
 
-// Intent: select a render-state set by mode index. [inferred]
+// Select a render-state set by mode index.
 // FUN_00201820
 void btlUiSetRenderMode(s32 mode)
 {
@@ -523,29 +514,27 @@ void btlUiSetRenderMode(s32 mode)
     }
 }
 
-// Intent: set the sprite id at the unit's slot and return the scaled sprite width. [inferred]
+// Set the sprite id at the unit's slot and return the scaled sprite width.
 // FUN_00201950
 f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment)
 {
     ((BtlUiSprite *)work)->sprite =
-        /* measured: typed indexing reverses the retail addu operands. */
         ((BtlUiSprite *)((u8 *)(slot * 4) + (u32)work))->sprites[0];
     ((BtlUiSprite *)work)->segment = segment;
     return sdkSpriteScaledWidth(work + 0x6C);
 }
 
-// Intent: set the sprite id at the unit's slot and return the scaled sprite height. [inferred]
+// Set the sprite id at the unit's slot and return the scaled sprite height.
 // FUN_00201990
 f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment)
 {
     ((BtlUiSprite *)work)->sprite =
-        /* measured: typed indexing reverses the retail addu operands. */
         ((BtlUiSprite *)((u8 *)(slot * 4) + (u32)work))->sprites[0];
     ((BtlUiSprite *)work)->segment = segment;
     return sdkSpriteScaledHeight(work + 0x6C);
 }
 
-// Intent: store the x/y scale factors used by the sprite draw path. [inferred]
+// Store the x/y scale factors used by the sprite draw path.
 // FUN_002019D0
 void btlUiSetFactorXY(u8 *work, f32 x, f32 y)
 {
@@ -553,14 +542,14 @@ void btlUiSetFactorXY(u8 *work, f32 x, f32 y)
     ((BtlUiSprite *)work)->factorY = y;
 }
 
-// Intent: store the alpha value of a UI component. [inferred]
+// Store the alpha value of a UI component.
 // FUN_002019E0
 void btlUiSetAlpha(u8 *work, f32 alpha)
 {
     ((BtlUiSprite *)work)->alpha = alpha;
 }
 
-// Intent: select the effect entry for a state index and start its playback. [inferred]
+// Select the effect entry for a state index and start its playback.
 // FUN_002019F0
 void btlUiSelectEffect(s32 unit, u32 entryId)
 {
@@ -577,7 +566,7 @@ void btlUiSelectEffect(s32 unit, u32 entryId)
     btlPanelMarkEntryStarted(((BtlBattleState *)D_0076449C)->uiTask);
 }
 
-// Intent: packet callback; bumps both unit counters and flags a bad-status hit. [inferred]
+// Packet callback; bumps both units' pending packet counters and flags a bad-status hit.
 // FUN_00201A80
 void btlPacketHitStatusCheck(u8 *work) {
     s32 unitData;
@@ -596,14 +585,13 @@ void btlPacketHitStatusCheck(u8 *work) {
     ((BtlHitDisplayWork *)work)->useHudAnchor = 0;
 }
 
-/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
- * Snapshot inputs before providers; reload the skill fields and final output
- * metadata at their retail callback boundaries. */
+/* Inputs are snapshotted before the provider calls; skill fields and output metadata are reloaded
+ * after each callback, as in retail. */
 #pragma push
-/* measured: btlPacketBuildHitFlags MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd137; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd137); retain opt_propagation off. */
+/* measured: copy propagation must stay off so retail's reloads of the skill and status fields at
+ * each callback boundary are preserved. */
 #pragma opt_propagation off
-// Intent: packet callback; builds the hit display flags from the skill and status fields. [inferred]
+// Packet callback; builds the hit display flags from the skill and status fields.
 // FUN_00201B00
 s32 btlPacketBuildHitFlags(u8 *work)
 {
@@ -709,7 +697,6 @@ s32 btlPacketBuildHitFlags(u8 *work)
         btlUnitGetAnimBoundsWorldCenter((BtlUnit *)(u8 *)((BtlHitDisplayWork *)work)->target, (RwV3d *)position);
     }
 
-    /* measured: typing the final target reload hoists +4 across the anchor callback (684 vs 676 bytes). */
     btlSelectionPushEntry((u8 *)((BtlBattleState *)D_0076449C)->uiTask, workFields->target,
                   (s32 *)&result, position, ((BtlHitDisplayWork *)work)->flags);
     return 1;

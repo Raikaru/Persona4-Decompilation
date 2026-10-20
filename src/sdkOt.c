@@ -1,4 +1,4 @@
-/* Original translation unit sdkOt.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkOt.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "sdk_ot_state_api.h"
@@ -12,8 +12,8 @@ extern u8 iGpffffaf70;   /* gp - 0x5090 = 0x00764060 */
 extern void movieNativeSkyStateEnter(void);
 
 
-// Intent: Append a node to the tail of an ordering-table list [inferred]
-/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
+// Appends a node to the tail of an ordering-table list. Stores go through a typed list alias but
+// keep the byte-pointer form for the tail.
 // FUN_00460AC0
 void PrimAppendNode(u8 *list, u8 *node)
 {
@@ -39,8 +39,8 @@ void PrimAppendNode(u8 *list, u8 *node)
 }
 
 
-// Intent: Queue a state-set node (command 2) carrying a state and a value [inferred]
-/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
+// Queues a state-set node (command 2) carrying a state and a value. Tail stores go through the byte
+// pointer after next is updated, as in retail.
 // FUN_00460B60
 u8 *PrimQueueStateSet(u8 *list, s32 stateId, s32 stateValue)
 {
@@ -76,8 +76,9 @@ u8 *PrimQueueStateSet(u8 *list, s32 stateId, s32 stateValue)
 }
 
 
-// Intent: Queue a state-set node (command 3) carrying a state and a value; same as PrimQueueStateSet with command 3 [inferred]
-/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
+// Queues a state-set node (command 3) carrying a state and a value; same as PrimQueueStateSet but
+// with command 3. measured: retail keeps the byte-pointer stores to the list after updating next,
+// so the typed alias is used only alongside them.
 // FUN_00460C70
 u8 *PrimQueueStateSetAlt(u8 *list, s32 stateId, s32 stateValue)
 {
@@ -114,7 +115,6 @@ u8 *PrimQueueStateSetAlt(u8 *list, s32 stateId, s32 stateValue)
 
 
 /* Queues a command-four draw-object payload; y_misc stores the returned draw node. */
-/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00460D80
 u8 *sdkOtQueueDrawObject(u8 *list, s32 stateId)
 {
@@ -149,8 +149,8 @@ u8 *sdkOtQueueDrawObject(u8 *list, s32 stateId)
 }
 
 
-/* Queues a command-six clump payload used by field resource clump drawing. */
-/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
+/* Queues a command-six clump payload used by field resource clump drawing. Tail stores stay byte-
+ * pointer based after updating next. */
 // FUN_00460E80
 u8 *sdkOtQueueClump(u8 *list, s32 stateId)
 {
@@ -185,8 +185,8 @@ u8 *sdkOtQueueClump(u8 *list, s32 stateId)
 }
 
 
-/* Queues the command-seven clump payload used by FldResource_QueueDrawCallbacksPrimary. */
-/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
+/* Queues the command-seven clump payload used by FldResource_QueueDrawCallbacksPrimary; retail
+ * stores the tail through a byte-pointer view after updating next. */
 // FUN_00460F80
 u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 stateId)
 {
@@ -221,8 +221,8 @@ u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 stateId)
 }
 
 
-/* Queues the command-eight clump payload used by FldResource_QueueDrawCallbacksSecondary. */
-/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
+/* Queues the command-eight clump payload used by FldResource_QueueDrawCallbacksSecondary. Tail
+ * stores go through a typed list alias of the byte pointer after next is updated. */
 // FUN_00461080
 u8 *sdkOtQueueClumpSecondaryPass(u8 *list, s32 stateId)
 {
@@ -257,8 +257,7 @@ u8 *sdkOtQueueClumpSecondaryPass(u8 *list, s32 stateId)
 }
 
 
-// Intent: Queue a node (command 9) whose callback is the sky-state entry routine [inferred]
-/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
+// Queues a command-9 node whose callback is the sky-state entry routine.
 // FUN_00461180
 u8 *PrimQueueSkyStateEnter(u8 *list, s32 stateId)
 {
@@ -295,8 +294,8 @@ u8 *PrimQueueSkyStateEnter(u8 *list, s32 stateId)
 }
 
 
-/* Queues the command-ten world payload selected by the field resource world path. */
-/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
+/* Queues the command-ten world payload selected by the field resource world path. The typed list
+ * alias keeps the byte-pointer stores, as retail does, after next is updated. */
 // FUN_00461290
 u8 *sdkOtQueueWorld(u8 *list, s32 stateId)
 {
@@ -331,11 +330,8 @@ u8 *sdkOtQueueWorld(u8 *list, s32 stateId)
 }
 
 
-
-/* The vertex buffer is a pointer, matching all source callers. The complete
- * 0x30-byte node and late list view preserve the existing 284 native bytes.
- * See docs/probe_archive/Map_shape_002b0b10_20260924.md. */
-// Intent: Queue a draw-primitive node (command 0xB) with a primitive type, vertex buffer and vertex count [inferred]
+/* Queues a draw-primitive node (command 0xB) with a primitive type, vertex buffer and vertex count;
+ * the vertex buffer is a pointer, as all source callers pass. */
 // FUN_00461390
 u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count)
 {

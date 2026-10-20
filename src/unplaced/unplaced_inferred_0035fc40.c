@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0035fc40-0035fd60 */
 
 #include "include_asm.h"
 #include "member_access.h"
@@ -17,7 +16,8 @@ extern void datCommunityMenuDraw(u8 *work);
 #pragma optimization_level 2
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
-// Intent: Panel open step, same body as datCommunityPanelOpenStep: advance from state 0 and report ready from states 0 and 1 [inferred]
+// Panel open step, same body as datCommunityPanelOpenStep: advances from state 0 and reports ready
+// from states 0 and 1.
 // FUN_0035FC40
 s32 datCommunityPanelOpenStepAlt(u8 *work)
 {
@@ -26,7 +26,6 @@ s32 datCommunityPanelOpenStepAlt(u8 *work)
     switch (state) {
     case 0:
         state += 1;
-        /* measured: a typed state store shares its address with the load (72 versus 80 bytes). */
         MEMBER(s32, work, RadarMenuWork, state) = state;
         return 1;
     case 1:
@@ -36,7 +35,8 @@ s32 datCommunityPanelOpenStepAlt(u8 *work)
     }
 }
 
-// Intent: Community menu update: animate the 29 menu panels, update their helpers and draw the panel frame; returns 1 when no panel is still animating [inferred]
+// Community menu update: animates the 29 menu panels, updates their helpers and draws the panel
+// frame; returns 1 when no panel is still animating.
 // FUN_0035FC90
 s32 datCommunityMenuUpdate(u8 *work)
 {
@@ -47,7 +47,7 @@ s32 datCommunityMenuUpdate(u8 *work)
 
     allIdle = 1;
     counter = ((RadarMenuWork *)work)->elapsed;
-    /* measured: typing the repeated elapsed accesses grows this update from 208 to 220 bytes. */
+    /* measured: retail reloads elapsed at each use rather than caching it. */
     if (counter < 0x64) {
         MEMBER(s16, work, RadarMenuWork, elapsed) = counter + 1;
     }
@@ -66,16 +66,13 @@ s32 datCommunityMenuUpdate(u8 *work)
     return allIdle;
 }
 
-/* Draw the animated menu panels, eleven-column pip grids and scrolling list.
- * Position, texture and opacity snapshots preserve the values used by each
- * draw group. The label pass uses the final row's alpha; the scrollbar keeps
- * its fractional origin, while the solid primitive requires integer geometry.
- * Measured b210 O2 with scoped lifetime/loop-invariant optimization:
- * 7176 instruction bytes plus the retail window's eight-byte zero tail.
- * See docs/probe_archive/Menu_renderer_0035fd60_20260930.md. */
-// Intent: Draw the community menu: its animated panels, pip grids and scrolling list [inferred]
+/* Draw the animated menu panels, eleven-column pip grids and scrolling list. Position, texture and
+ * opacity snapshots preserve the values used by each draw group. The label pass uses the final
+ * row's alpha; the scrollbar keeps its fractional origin, while the solid primitive requires
+ * integer geometry. */
 // FUN_0035FD60
-/* measured: removing both toggles differs by 5071 bytes; single-toggle and grid-local lifetime probes still differ by 691 or more. */
+/* measured: retail code generation needs both lifetime and loop-invariant optimization enabled for
+ * this function. */
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
@@ -132,10 +129,8 @@ void datCommunityMenuDraw(u8 *work)
     u8 opacity;
     u8 labelOpacity;
     u32 lastRowAlpha;
-    /* measured: typed drawFlags, selectedHeader, topRow and rowCount retain field
-     * addresses across draw calls; keep those repeated accesses byte-addressed.
-     * The same applies to panel 3/18 x/y/alpha: typing these grows the 7176-byte
-     * body (all layouts typed: 7216 bytes). Other panel and sprite accesses stay typed. */
+    /* measured: retail reloads drawFlags, selectedHeader, topRow, rowCount and panel 3/18 x/y/alpha
+     * after each draw call, so those stay byte-addressed. */
     sdkRenderStateSetDefault();
     originX = ((RadarMenuWork *)work)->x.f;
     originY = ((RadarMenuWork *)work)->y.f;

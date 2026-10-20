@@ -41,7 +41,6 @@ extern f32 D_00761438;
 extern u32 datCalcRandomBelow(u32);
 
 
-
 extern void btlAICommandSetActionCode(u8 *, u8 *, u16);
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
@@ -65,31 +64,22 @@ extern u8 D_00609E40[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001eb4a0-001eb8d0 */
-
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
 extern s32 btlCurrentUnitId(void);
 #pragma push
 #pragma pop
-/* measured probe: preserve the retail filter branch chain */
+/* measured: retail keeps the filter conditions as a separate branch chain. */
 #pragma push
-/* measured probe: close the filter branch chain */
 #pragma pop
-/* measured probe: preserve retail conditional branch shape */
+/* measured: retail keeps the original conditional branch shape. */
 #pragma push
-/* measured probe: close conditional branch shape */
 #pragma pop
-/* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
-/* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: closes opt_propagation probe for btlAiSetGlobal. */
+/* Clear the AI command work, then choose a command for the given status mode. The command comes
+ * from a weighted random table, and the row is picked from the acting unit's state. */
 // FUN_001EB4A0
-/* measured: u16 state selects the narrow daddiu constants at 0x001eb598 and
-   0x001eb5c0; the table-entry scan preserves the retail register-width masks. */
-/* The action caller forwards the 32-bit unit-status word. This selector
- * consumes its low20 bits; higher bits have no role in table selection. */
-/* Select a weighted status-dependent AI command and dispatch its packed target condition. */
+/* Select a weighted status-dependent AI command and dispatch its packed target condition. Only the
+ * low 20 bits of the forwarded unit-status word affect table selection. */
 void btlAiSelectStatusCommand(u8 *action, u8 *command, u32 status) {
     BtlAction *statusAction = (BtlAction *)action;
 

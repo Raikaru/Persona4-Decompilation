@@ -64,18 +64,12 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
-
 extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
 extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern s32 iGpffffb444;
@@ -95,8 +89,6 @@ extern u8 D_00794150[];
 
 
 extern s64 btlUnitGetMotionId(u8 *unit, u16 motion);
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00198920-00198920 */
 
 typedef struct MotionTableEntry {
     s16 followMotion;
@@ -119,14 +111,9 @@ static inline u16 btlUnitMotionModeFlags(u16 option)
         return 1;
     }
 }
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* Measured: 1196 instruction bytes, nine resolved relocations and four zero
- * tail bytes. Animation and blend frames retain their halfword domains through
- * the model dispatcher. The table views keep rate and follow-up lifetimes
- * separate; the shared motion contracts preserve all existing callers. */
-/* measured: distinct typed unit aliases retain mode/count/model/table reloads and the named rate bit-pattern store. */
-/* Resolve motion and playback rate, publish bounds, and configure follow-up animation state. */
+/* Resolve motion and playback rate, publish bounds, and configure follow-up animation state.
+ * Separate typed unit aliases keep the mode, count, model and table reloads and the rate bit-
+ * pattern store. */
 // FUN_00198920
 void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
 {

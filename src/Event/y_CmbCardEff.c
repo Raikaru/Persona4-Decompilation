@@ -1,5 +1,5 @@
 #include "byte_address_internal.h"
-/* Original translation unit y_CmbCardEff.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit y_CmbCardEff.c (from __FILE__ assert strings). */
 #include "fcl_color.h"
 #include "type.h"
 #include "member_access.h"
@@ -16,7 +16,6 @@ extern void (*jtbl_008873EC[])(void *);
 typedef FclVec3 CmbVec3f;
 typedef FclVec2 CmbVec2f;
 typedef FclDrawColor CmbRGBA;
-
 
 
 void chkmemAllocSiteTag(void *file, u32 line);
@@ -76,10 +75,8 @@ s32 mdlEffectIsFinished(u8 *);
 extern u8 D_005DC7D0[];
 
 
-
 void fclSpriteSetOrder(u8 *, u32);
 void fclSpriteSetBaseScale(u8 *, f32);
-
 
 
 extern u8 D_0064E590[];
@@ -98,12 +95,11 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 s32 cmbCardPathUpdate(u8 *task);
 s32 cmbCardLoaderStep(u8 *task);
 u8 *cmbCardEffCreateSprite(u8 *parent, u8 *directory, s8 drawOrder);
-/* Retail's six-byte "%s %d" diagnostic format, addressed at GP - 0x56C8. */
+/* Retail's six-byte "%s %d" diagnostic format string. */
 extern char D_00763A28[6];
 extern s64 D_0064A5A0[];
 extern f32 D_0064A5A8[];
 extern void (*D_00887300[])(s32, s32);
-
 
 
 typedef struct { u8 data[0xFB0]; } CmbLoaderCard;
@@ -240,11 +236,11 @@ typedef struct {
  * second ID after initialization, which can update caller-visible state. */
 // FUN_0033E5C0
 #pragma push
-/* measured: baseline 3 differing words; inline second card/ID 3, MEMBER second ID 13, direct typed ID 54. */
+/* measured: propagation off keeps retail's separate reads of the second card ID. */
 #pragma opt_propagation off
 /* Steps the card loader state machine; returns its status. */
 s32 cmbCardLoaderStep(u8 *task) {
-    /* measured: indexed ID-array members preserve both setup reads and the post-setup reload. */
+    /* measured: indexed ID-array members keep both setup reads and the reload after setup. */
     s16 cardIndex;
     CmbLoaderState *work;
     s8 state;
@@ -299,19 +295,15 @@ s32 cmbCardLoaderStep(u8 *task) {
 // FUN_0033E7C0
 /* Tear down the loader resource scene, then free its state block. */
 void cmbCardControllerDestroy(u8 *task) {
-    /* measured: MEMBER preserves the final task-work reload after resource teardown. */
     pscResTeardown((u8 *)(((SdkTask *)task)->work) + 0x20);
     jtbl_008873EC[0](MEMBER(u8 *, task, SdkTask, work));
 }
 
-/* The controller keeps twelve complete 0x84-byte card records. Constructor
- * results and the rotation axis retain their real aggregate extents; both
- * setup loops reload the signed loader count before short-index promotion.
- * Measured in the complete owner: 3652 code bytes and twelve retail zero bytes.
- * opt_loop_invariants on retains the retail loop/address lifetimes. */
+/* The controller keeps twelve 0x84-byte card records; both setup loops reload the signed loader
+ * count. */
 // FUN_0033E810
 #pragma push
-/* measured: baseline 597 differing words; wide loop indices 727; retain narrow-index hoisting. */
+/* measured: loop invariants on keeps retail's hoisting of the narrow loop indices. */
 #pragma opt_loop_invariants on
 /* Advances each card along its CmbCardPathPoint path once per frame. */
 s32 cmbCardPathUpdate(u8 *task) {
@@ -473,17 +465,8 @@ void cmbCardReleaseState(u8 *task) {
     jtbl_008873EC[0](((SdkTask *)task)->work);
 }
 
-/* measured: MATCHED this wave — the recorded nd-22 copy-loop rotation floor is broken
-   by three spellings together: (1) recipe B (u32 cast base `u32 base = (u32)D_008873F4;`
-   + per-call `((u8 *(*)(s32,s32,s32))*(u32 *)base)()`) for the saved-$20 lui/addiu
-   base hoist (typed-pointer local and array spelling still fold to per-call lui/lw);
-   (2) `ret` declared FIRST (before blk1/base) — any other order puts ret in $s0 and
-   blk1 in $s1, retail has ret=$s1/blk1=$s0, a pure 40-word rotation; (3) a SEPARATE
-   `s16 j` counter for the second 0x84-stride loop — reusing i makes b210 pick $a2
-   where retail's second loop counter is $a0 (the first loop holds $a2). nd path:
-   68 (plain array spelling) -> 40 (recipe B) -> 8 (ret-first) -> 0 (separate j).
-   Callbacks cmbCardPathUpdate/cmbCardLoaderStep need file-scope prototypes for the arg passing. */
-// Creates the card's child tasks: a path task with a 0x6E0-byte work block and a loader task with a 0x19FDC-byte block that copies the 12-entry table from cardIds [inferred].
+/* Creates the card's child tasks: a path task with a 0x6E0-byte work block and a loader task with a
+ * 0x19FDC-byte block that copies the 12-entry table from cardIds. */
 // FUN_0033F690
 u8 *cmbCardEffSpawnChild(u8 *parent, u8 *cardIds, s8 layoutMode) {
     u8 *pathTask;
@@ -550,28 +533,22 @@ u8 *cmbCardEffSpawnChild(u8 *parent, u8 *cardIds, s8 layoutMode) {
     datSetFlag(0x5F, 0);
     return pathTask;
 }
-// Returns the card effect's work block, stored at task+0x38 [inferred].
+// Returns the card effect's work block.
 // FUN_0033FA20
 void *cmbCardEffWork(u8 *task) {
     return ((SdkTask *)task)->work;
 }
 
-/* The angle arrives in the independent floating-point argument register and
- * is forwarded to the quaternion constructor before the draw scale is formed.
- * The task callback caller supplies zero or its current animation angle.
- * Native b210 -O2 remains 224/224 bytes; contract and controlled-provider proof:
- * docs/probe_archive/yCmb_angle_forwarding_20260922.md. */
+/* The angle is forwarded to the quaternion constructor before the draw scale is formed; callers
+ * pass zero or the current animation angle. */
 // FUN_0033FA30
 #pragma push
-/* measured: opt_propagation off keeps &axisXY in $a1 before the D_0064A5A0/D_0064A5A8
-   staging loads and the p84 multiply below the task chain (the "scheduler-CSE floor"
-   above was propagation, not scheduling). */
-/* measured: baseline 54 differing words; direct axis snapshot 55, access-site controller 54. */
+/* measured: with propagation on, the compiler moves the axis address and the staging loads, so
+ * retail ordering is lost. */
 #pragma opt_propagation off
 /* Sets the selected card's angle (f32, radians-style value from the caller). */
 void cmbCardSetAngle(u8 *task, s8 cardIndex, f32 angle) {
     CmbCardController *controller;
-    /* measured: a separate typed controller local preserves the first loader-task read. */
     struct { f32 rotation[4]; s64 axisXY; f32 axisZ; } rotationWork;
     s64 axisXY;
     f32 axisZ;
@@ -601,25 +578,15 @@ void cmbCardSetAngle(u8 *task, s8 cardIndex, f32 angle) {
 }
 #pragma pop
 
-/* Native two-float values preserve four-byte-aligned card positions. */
+/* Place the given card's model at position, scaling it by the card slot's scale. */
 // FUN_0033FB10
 /* Sets the selected card's position from a native two-float vector. */
 void cmbCardSetPosition(u8 *task, s8 cardIndex, CmbVec2f position) {
-    /* measured: typing the loader task-work read changes address evaluation (20 differing bytes); the scale read is typed. */
     u8 *work = ((SdkTask *)task)->work;
     u32 slotOffset = (s32)cardIndex * 0x84;
     btlShuffleCardApplyScale((u8 *)(MEMBER(u32, ((CmbCardController *)work)->loaderTask, SdkTask, work) + (s32)cardIndex * 0xFB0 + 0x2758), (f32 *)&position, 90.0f * ((CmbCardSlot *)(slotOffset + (u32)work + 0xC))->scale);
 }
-/* measured: MATCHED this wave. The nd-8 candidate had the correct 0xFB0 stride,
-   packed two-float argument, and 90.0f scaling, but fndiff showed the final 0xE398
-   address operation after the float setup (`lui/mtc1/nop/mul.s`) and with the
-   wrong intermediate destination register. Applying the matching guide's
-   pointer-typed staging lever — first compute `tmp = ptr + 0xE398`, then cast
-   that pointer through a u32 local before the call — forces retail's
-   `ori $at,$zero,0xE398; addu $a0,$v0,$at` before the float setup. The residual
-   changed from 8 words (obj 108B/window 112B) to padding-only nd 1, and scoped
-   lverify reports MATCH (normalized_diff 0). */
-// Apply slot transform: sets the selected card's position and its 90 * scale size on its packet (btlShuffleCardApplyScale).
+/* Apply a position and a 90 * scale size to the selected card's entry in the loader's card data. */
 // FUN_0033FB90
 void cmbCardApplySlotTransform(u8 *task, s8 cardIndex, CmbVec2f position, f32 scale) {
     u8 *work;
@@ -637,8 +604,8 @@ void cmbCardApplySlotTransform(u8 *task, s8 cardIndex, CmbVec2f position, f32 sc
     cardAddress = (u32)secondaryCard;
     btlShuffleCardApplyScale((u8 *)cardAddress, (f32 *)&position, 90.0f * scale);
 }
-/* measured: byteAddressAdd preserves the index-first slot address under file-baseline settings; no propagation toggle is needed. */
-/* Begin a timed interpolation between two card positions and enable movement. */
+/* Start a timed move of a card slot from startPosition to endPosition over duration frames and turn
+ * on its movement flag. */
 // FUN_0033FC00
 /* Starts the selected card's move: start and target positions, duration in frames; sets the active flag. */
 void cmbCardStartMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f endPosition, s16 duration) {
@@ -653,7 +620,6 @@ void cmbCardStartMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f e
 /* Initialize movement interpolation for the selected card slot. */
 static inline void cmbSetMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f endPosition, u16 duration) {
     /* Begin the selected card's movement and enable its interpolation flag. */
-    /* measured: access-site and typed-task-local work reads each lose all six layout MATCHes. */
     u8 *slotBase = MEMBER(u8 *, task, SdkTask, work);
     slotBase += (s32)cardIndex * 0x84;
     ((CmbCardSlot *)(slotBase + 0xC))->position = startPosition;
@@ -666,7 +632,6 @@ static inline void cmbSetMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, Cm
 /* Initialize color interpolation for the selected card slot. */
 static inline void cmbSetColor(u8 *task, s8 cardIndex, CmbRGBA start, CmbRGBA end, u16 duration) {
     /* Begin the selected card's color interpolation and enable its flag. */
-    /* measured: access-site and typed-task-local work reads each lose all six layout MATCHes. */
     u8 *slotBase = MEMBER(u8 *, task, SdkTask, work);
     slotBase += (s32)cardIndex * 0x84;
     ((CmbCardSlot *)(slotBase + 0xC))->color = start;
@@ -678,15 +643,12 @@ static inline void cmbSetColor(u8 *task, s8 cardIndex, CmbRGBA start, CmbRGBA en
 }
 /* Append a bounded waypoint to the selected card path. */
 static inline void cmbAddPath(u8 *task, s8 cardIndex, CmbVec2f position, s16 duration) {
-    /* Append a bounded waypoint and enable queued path playback. */
-    /* measured: access-site and typed-task-local work reads each lose all six layout MATCHes. */
     u8 *work = MEMBER(u8 *, task, SdkTask, work);
     s32 pathIndex = ((CmbCardSlot *)(work + cardIndex * 0x84 + 0xC))->pathCount;
     u8 *pathBase = byteAddressAdd((u32)(pathIndex * 0xC), (u8 *)((u32)work));
     ((CmbCardPathPoint *)(pathBase + cardIndex * 0x84 + 0x2C))->position = position;
     ((CmbCardPathPoint *)(pathBase + cardIndex * 0x84 + 0x2C))->duration = duration;
     ((CmbCardSlot *)(work + cardIndex * 0x84 + 0xC))->flags |= 8;
-    /* measured: site/local slot fields and controller array stores lose all six layout MATCHes. */
     MEMBER(s8, work + cardIndex * 0x84, CmbCardController, cards[0].pathCount) = fclAddClamped(((CmbCardSlot *)(work + cardIndex * 0x84 + 0xC))->pathCount, 1, 5, 0, 1);
 }
 // Two-card layout: card-layout state machine for two cards (dispatcher phase 1). States: 0 start the slide at frame 0x50, 6 init slot params at 0x73, 7 spawn the effect, 8 wait for it, 9 converge at 0x1EA, 10 clear colour, 11 cue sound at 0x208-0x347, 12 advance. Returns 0 when blocked or skipped by flag 0x58, else 1.
@@ -694,7 +656,6 @@ static inline void cmbAddPath(u8 *task, s8 cardIndex, CmbVec2f position, s16 dur
 s32 cmbCardRunTwoCardLayout(u8 *task) {
     SdkTask *sdkTask = (SdkTask *)task;
     CmbCardController *controller;
-    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectTableBase;
     u8 *effectSlot;
@@ -829,7 +790,6 @@ s32 cmbCardRunTwoCardLayout(u8 *task) {
 s32 cmbCardRunThreeCardLayout(u8 *task) {
     SdkTask *sdkTask = (SdkTask *)task;
     CmbCardController *controller;
-    /* measured: typed task/controller locals preserve layout and hide-state accesses without changing inline setter aliasing. */
     u8 *effectWork;
     u8 *effectTableBase;
     u8 *effectSlot;
@@ -970,7 +930,6 @@ s32 cmbCardRunThreeCardLayout(u8 *task) {
 s32 cmbCardRunFourCardLayout(u8 *task) {
     SdkTask *sdkTask = (SdkTask *)task;
     CmbCardController *controller;
-    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectTableBase;
     u8 *effectSlot;
@@ -1116,7 +1075,6 @@ s32 cmbCardRunFourCardLayout(u8 *task) {
 s32 cmbCardRunFiveCardLayout(u8 *task) {
     SdkTask *sdkTask = (SdkTask *)task;
     CmbCardController *controller;
-    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectSlot;
     u8 *effectTableBase;
@@ -1268,7 +1226,6 @@ s32 cmbCardRunFiveCardLayout(u8 *task) {
 s32 cmbCardRunSixCardLayout(u8 *task) {
     SdkTask *sdkTask = (SdkTask *)task;
     CmbCardController *controller;
-    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectSlot;
     u8 *effectTableBase;
@@ -1428,7 +1385,6 @@ s32 cmbCardRunSixCardLayout(u8 *task) {
 s32 cmbCardRunFullLayout(u8 *task) {
     SdkTask *sdkTask = (SdkTask *)task;
     CmbCardController *controller;
-    /* measured: typed task/controller locals preserve layout reads; inline setters retain their byte-alias scope. */
     u8 *effectWork;
     u8 *effectTableBase;
     u8 *effectSlot;
@@ -1657,25 +1613,17 @@ void cmbCardEffDrawStep(u8 *drawTask, u8 *vertices) {
     ((void (*)(s32, s32))*(u32 *)renderStateTable)(1, *fclCombineGetCardTable());
 }
 
-/* Update the enabled card quad, queue its draw packet, then advance position
- * and alpha animation. The enable bit gates the entire update after the camera
- * read. The four-vertex index copy retains the signed-halfword loop domain.
- *
- * Native b210 -O2: 1204/1216 bytes, with a verified 12-byte zero suffix.
- * Loop invariants retain the depth-symbol base; propagation is disabled so the
- * camera result, first scale read and packet arguments keep retail's order.
- * Recovery history and full relocation/sibling proof:
- * docs/probe_archive/yCmb_00347c70_recovery_20260922.md. */
-// Renders the enabled card quads: updates each quad from the camera depth, then queues its draw packet [inferred].
+/* Update the enabled card quad, queue its draw packet, then advance position and alpha animation.
+ * The enable bit gates the whole update after the camera read. */
 // FUN_00347C70
 #pragma push
-/* measured: baseline 265 differing words; wide loop index 274; retain vertex-loop settings. */
+/* measured: retail keeps the depth base hoisted and the camera, scale and packet reads in source
+ * order. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 s32 cmbCardEffRenderTask(u8 *task)
 {
     CmbCardEffect *effectWork;
-    /* measured: typed effect locals preserve most accesses; MEMBER retains the remaining timer/position evaluation scope. */
     u8 *work;
     f32 reciprocalDepth;
     u8 *vertex;
@@ -1763,7 +1711,6 @@ void cmbCardEffDestroy(u8 *task) {
 }
 
 
-
 /* Create a card-quad task with its texture, three white colors and unit scale. */
 // FUN_00348160
 u8 *cmbCardEffTaskCreate(u8 *parent, s32 *texture) {
@@ -1785,7 +1732,7 @@ u8 *cmbCardEffTaskCreate(u8 *parent, s32 *texture) {
     return task;
 }
 
-/* Returns the effect's state block (task +0x38). */
+/* Returns the effect's state block. */
 // FUN_00348290
 void *cmbCardEffState(u8 *task) {
     return ((SdkTask *)task)->work;
@@ -1815,37 +1762,8 @@ void cmbCardEffSetPosition(u8 *task, CmbVec2f startPosition, CmbVec2f endPositio
     ((CmbCardEffect *)work)->moveDuration.bits = duration;
 }
 
-/* measured: nd 15, obj 1296B = window (323 instrs both) — dispatch (lb 0x4, beq 3,2,1 + beqz 0 + b default), 004553c0/004b11xx/002b2d00 branches and float loads all match; EVERYTHING matches except the guarded-conversion result register: three `if (2.1474836e9f > f0) { v = (s32)f0; v &= 0xFF; } else { v = (s32)(f0-K)|0x80000000; v &= 0xFF; }` keep b210 mfc1/or/sb in $v0 where retail coalesces into $v1 (3 sites x 5 = 15 words; tried u8 locals, f0/v order, inline stores — no shift, same family as cmmScriptStepWaveSprite). Recipe (correct-tree, top-down fnalign): outer switch cases 0,1,2,3 ascending (reverse beq chain 3,2,1,0+beqz) with case0/default break-shared to single return 0 (explicit return 0 in case1/2 regresses to 275; order 1,0,2,3 regresses dispatch to 39); inner 0x39 3-way if/else-if (x==0/1/2) reusing $a1=2; D_005DC7D0 indexed `&D_005DC7D0[idx*0x54]` (reloc-only); half via `h/2` (manual sra+bgez keeps $v0/$v1 swap, 29); nv via reload `*(s16*)=func...; if (*(s16*)<...)` (nv-local + explicit (s32)(s16) cast mis-schedules sh, 18). func_004553c0 takes ONE arg (m2c 2nd arg wrong); guard must be `2.1474836e9f > f0` with normal-first to keep c.le.s/bc1t + per-arm andi. Path 275->39->29->18->15. Production stays ASM. */
-/* measured: nd 16, obj 1292B vs 1296B window — EVERYTHING matches byte-for-byte
-   except the guarded-conversion result register: the three
-   `if (2.1474836e9f > f0) { v = (u8)(s32)f0; } else { v = (u8)((s32)(f0-2.1474836e9f)|0x80000000); }`
-   chains (explicit guard needed — implicit (u8)(s32) deletes the c.ole.s/bc1t guard
-   AND the per-arm andi) keep b210's mfc1/or/sb chain in $v0 where retail coalesces
-   into $v1 (3 sites x 5 words; tried u8 locals, f0/v declaration orders, inline
-   stores — no shift). Same family as cmmScriptStepWaveSprite's conversion-coloring
-   floor. Also measured: outer state switch needs cases declared 0,1,2,3 ascending
-   (reversed beq chain 3,2,1,0 + beqz); inner 0x39 dispatch is a 3-way if/else-if
-   chain (x==0 / x==1 / x==2) whose x==2 test reuses the dispatch's $a1=2 constant;
-   D_005DC7D0 must be indexed (`&D_005DC7D0[idx*0x54]`) or b210 hoists the base into
-   a saved reg and rotates obj to $s1. All verified against this function's retail.
-   Re-measured this wave: two fresh m2c-draft-based reconstructions (285, then the
-   same with 3-way if/else-if dispatch + indexed D_005DC7D0, 279) both far above
-   the recorded 16 — the exact winning recipe is not recoverable from the
-   truncated note; confirmed func_004553c0 takes ONE arg (the m2c draft's 2nd arg
-   is wrong), and the gated conversion needs the explicit `2.1474836e9f > f0`
-   guard to keep the c.ole.s/bc1t + per-arm andi. 16 remains the measured best. */
-/* measured 2026-09-17 full pragma_sweep --pairs: banked 15 via measure_guarded; */
-/* best stays 15 (ties: loopinv on, strength off, unroll off and pairs; 26-group */
-/* prop/dead pairs; 234-235 csoff group, 277-281 schedule group, 310-331 peephole */
-/* group). No pair wins; floor stands. */
-/* MATCHED 2026-09-18.  The three `*(u8 *)(obj + 0x38) = ...` sites had the
-   float-to-unsigned-byte conversion written out by hand (compare against
-   2.1474836e9f, subtract, or in 0x80000000, mask).  b210 generates exactly
-   that sequence for a plain `(u8)f0` cast, and its own version colours the
-   result $v1 with the constant in $v0 - the hand-written form does the
-   reverse, which was the whole 15-word residual.  Writing the cast fixes all
-   three at once; fixing only the two shallow sites leaves 5. */
-/* Load/create the primary effect and optional clone, animate alpha, then finish at the lifetime limit. */
+/* Load or create the primary effect and optional clone, animate alpha, then finish at the lifetime
+ * limit. The alpha byte stores use a plain (u8) float cast. */
 // FUN_00348330
 s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
     CmbCardSprite *spriteWork;
@@ -1951,13 +1869,14 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *task) {
     }
     return 0;
 }
+/* Destroy the card sprite's effect and, if present, its clone effect, then release its CD file
+ * handle and free the task work. */
 // FUN_00348840
-/* Frees the handle stored at state+0x8, if any. */
+/* Frees the sprite's effect handle, if any. */
 void cmbCardEffFreeHandle(u8 *task) {
     CmbCardSprite *spriteClone = (CmbCardSprite *)((SdkTask *)task)->work;
     CmbCardSprite *spriteEffect = (CmbCardSprite *)((SdkTask *)task)->work;
     SdkTask *sdkTask = (SdkTask *)task;
-    /* measured: entry-initialized sprite pointers preserve handle reloads; MEMBER retains the final task-work reload. */
     u8 *work = ((SdkTask *)task)->work;
     u8 *effect = spriteEffect->effect;
     if (effect != 0) {
@@ -1975,7 +1894,7 @@ void cmbCardEffFreeHandle(u8 *task) {
     jtbl_008873EC[0](sdkTask->work);
 }
 
-// Creates a sprite task with a 0x70-byte state block and acquires the requested directory for it [inferred].
+// Creates a sprite task with a 0x70-byte state block and acquires the requested directory for it.
 // FUN_003488D0
 u8 *cmbCardEffCreateSprite(u8 *parent, u8 *directory, s8 drawOrder) {
     u8 *task;
@@ -1991,7 +1910,7 @@ u8 *cmbCardEffCreateSprite(u8 *parent, u8 *directory, s8 drawOrder) {
     ((CmbCardSprite *)work)->maxAlpha.bits = 0x437F0000;
     return task;
 }
-// Starts a sprite: sets its state to 1 and stores its position, scale, colour and timing values [inferred].
+// Starts a sprite: sets its state to 1 and stores its position, scale, colour and timing values.
 // FUN_003489C0
 void cmbCardEffSpawnSprite(u8 *task, CmbVec3f position, f32 rotationX, f32 rotationY, f32 rotationZ, f32 scale, CmbRGBA color, u16 duration, u32 lifetime) {
     CmbVec3f initialPosition = position;
@@ -2038,18 +1957,18 @@ void cmbCardEffSetTween(u8 *task, CmbVec3f position, f32 rotationX, f32 rotation
     ((CmbCardSprite *)work)->hasClone = 1;
 }
 
-// Returns 1 when the sprite's file is loaded, else 0 [inferred].
+// Returns 1 when the sprite's file is loaded, else 0.
 // FUN_00348BE0
 s32 cmbCardEffSpriteFileLoaded(u8 *task) {
     return H_Cdvd_IsFileLoaded((HCdvd *)((CmbCardSprite *)((SdkTask *)task)->work)->file) != 0;
 }
 
-// Returns 1 when the sprite is in state 2 (active), else 0 [inferred].
+// Returns 1 when the sprite is in state 2 (active), else 0.
 // FUN_00348C10
 u32 cmbCardEffSpriteIsActive(u8 *task) {
     return ((CmbCardSprite *)((SdkTask *)task)->work)->state == 2;
 }
-// Stores a 16-bit value in the sprite state's +0x3E field [inferred].
+// Stores a 16-bit value in the sprite's delay field.
 // FUN_00348C30
 void cmbCardEffSetSpriteValue(u8 *task, u16 delay) {
     ((CmbCardSprite *)((SdkTask *)task)->work)->delay.bits = delay;
@@ -2070,16 +1989,11 @@ static inline FclDrawColor cmbFiveSpriteColor(s32 base)
     return fclMakeDrawColor(red, green, blue, 0xFF);
 }
 
-/* Create five colored sprites and configure their bounds animations. The
- * final sprite's completion state controls this task's -1 completion return.
- * Native b210 -O2: 1560/1568 bytes plus eight verified zero alignment bytes.
- * Full source, contract and sibling proof:
- * docs/probe_archive/yCmb_angle_forwarding_20260922.md. */
-// Five-sprite task: creates five colour sprites, colours them (gradient in mode 1, solid blue otherwise), sets their bounds, and returns -1 once the fifth sprite's state byte reaches 1.
+/* Creates five colour sprites (gradient in mode 1, solid blue otherwise), sets their bounds, and
+ * returns -1 once the fifth sprite's state byte reaches 1. */
 // FUN_00348C40
 #pragma push
 s32 cmbFiveSpriteTask(u8 *task) {
-    /* measured: typing the initial state read grows the owner image from 1560 to 1572 bytes; the state store and handle slots are typed. */
     s32 index;
     s32 *handleSlot;
     s32 *updatedHandleSlot;
@@ -2136,7 +2050,6 @@ s32 cmbFiveSpriteTask(u8 *task) {
         ((CmbFiveSprites *)work)->state = 1;
         break;
     case 1:
-        /* --- state-1 check: 5th handle via 5da0, -1 if byte==1 else 0 --- */
         if (*(s8 *)fclSpriteWorkAlt((u8 *)((CmbFiveSprites *)work)->sprites[4]) == 1) {
             return -1;
         }

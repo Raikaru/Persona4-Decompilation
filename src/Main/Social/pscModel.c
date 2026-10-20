@@ -1,4 +1,4 @@
-/* Original translation unit pscModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit pscModel.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "psc_model_internal.h"
@@ -33,34 +33,9 @@ extern s32 pscResGetMiscCardW00Texture(s32 textureIndex);
 extern s32 pscResGetMiscCardW00SubTexture(s32 textureIndex);
 extern void pscPanelDrawGrid(void *work, void *vertices);
 
-/* Floor: 759 differing words, 1099 emitted instructions against retail's
-   1142 (4396 bytes in a 4576-byte window), frame -0x90 exact.  The 116
-   direct calls and 36 D_00887300 dispatches match retail counts; the
-   PscModel layout reuses PscLight[4] for the 0xE0 block and the nine
-   0x178..0x5F8 blocks (0x90 stride is four PscLight), the 0x40 color as
-   u8[4] like PscLight.c, and the 0x328/0x32C and 0x5F8/0x5FC floats as
-   b3/b8 dir fields; the 0x170 mode 2/3 work overlaps unk170..b0 via the
-   union.  The six (30*alpha)/100, 255*field and (255*field*alpha)/255
-   scalings are single (u8)(u32)float expressions, and the u8->float
-   steps are single (f32)(u32)byte casts over u32 temporaries, which
-   restores retail's bltz/srl/or/cvt/add.s unsigned sequences (+124
-   words over the s32 form, 928->764); D_00887300 is reloaded per
-   region (four lui/lo pairs, matching retail).
-   WALL: callee-saved allocation shift (e0 in s3 vs s0, mode bases in
-   s6/s0/s2/s3 vs s0/s1/s2/s6) and branch polarity (bne vs beq from
-   if/else vs irregular-switch layout). */
-/* gate: object 1099 against retail 1142, -3.8% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-/* Social-link model draw. Retail behaviour reproduced as is:
-   - mode 1 copies the model into its own pointer (m1) only for the first two
-     switches; the later mode-1 sections read m0, which is never set for mode 1
-     (retail reads $s3 there without a mode-1 copy);
-   - every fn/fn2 assignment names D_00887300 itself, so b210 forms the copy
-     from the tbl register in the switch cases and reloads it elsewhere, as
-     retail does; the unk48 and tail draws call through tbl. */
-// Intent: Draws one social-link model: sets up the transform, then uploads per-part colours and fades for its mode (0-3) and issues the draw calls [inferred]
+/* Draws one social-link model: sets up the transform, then uploads per-part colours and fades for
+ * its mode (0-3) and issues the draw calls. As in retail, mode 1 sets its model copy only in the
+ * first two switches; later mode-1 sections read the unset mode-0 pointer. */
 // FUN_003694D0
 void pscModelDraw(PscModel *model)
 {
@@ -347,10 +322,7 @@ void pscModelDraw(PscModel *model)
 }
 
 
-
-
-
-// Intent: Projects a 3D model position to panel screen coordinates using the camera and the viewport size [inferred]
+// Projects a 3D model position to panel screen coordinates using the camera and the viewport size.
 // FUN_0036A6B0
 void pscModelScreenPos(s32 unused, const f32* source, f32 scale, void* viewport)
 {
@@ -367,8 +339,7 @@ void pscModelScreenPos(s32 unused, const f32* source, f32 scale, void* viewport)
 }
 
 
-
-// Intent: Returns the panel scale factor for a model, derived from the camera and viewport width [inferred]
+// Returns the panel scale factor for a model, derived from the camera and viewport width.
 // FUN_0036A790
 f32 pscModelPanelScale(const f32* value, f32 scale)
 {
@@ -409,7 +380,8 @@ void pscModelSetParentFrame(void* work, u32 value)
     *(u32 *)&((PscModel *)work)->frame = value;
 }
 
-// Intent: fill a PscLight[4] quad with default corner positions, white colour and fixed fade values (the e0 block of PscModel). [inferred]
+// Fills a PscLight[4] quad with default corner positions, white colour and fixed fade values (the
+// e0 block of PscModel).
 // FUN_0036A900
 void pscLightInitQuad(PscLight *dst)
 {
@@ -459,7 +431,8 @@ void pscLightInitQuad(PscLight *dst)
     dst[2].f20 = 0.64453125f;
     dst[3].f20 = 0.0f;
 }
-// Intent: Fills the 0x138-entry index table for the 8x6 panel grid: alternating-parity quads with two triangles per cell and an edge row [inferred]
+// Fills the 0x138-entry index table for the 8x6 panel grid: alternating-parity quads with two
+// triangles per cell and an edge row.
 // FUN_0036AA20
 void pscBuildGridIndexTable(void)
 {

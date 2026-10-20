@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00210c70-00218730 */
 
 #include "datCalc_unit_internal.h"
 #include "member_access.h"
@@ -81,13 +80,7 @@ typedef struct {
     f32 gaugeY;
 } DamageDrawInfo;
 
-/* Retail-exact: 1604 bytes, resolved calls/globals and twelve zero alignment
- * bytes. HP/SP amount and color locals have independent row lifetimes. The
- * flag compound-clear preserves the expiration reload; the gauge provider
- * takes X/Y before color in the independent EE integer/float argument banks.
- * See docs/probe_archive/Battle_damage_panel_00210c70_20260922.md. */
-// Intent: draw the damage popup's HP and SP numbers, gauge and status icon for one target. [inferred]
-/* b210: remaining flag, age and task-handle accesses individually change instructions when typed. */
+/* Draws the damage popup's HP and SP numbers, gauge and status icon for one target. */
 // FUN_00210C70
 void btlDamageDrawPanel(u8 *drawState, u8 *entry)
 {
@@ -248,10 +241,10 @@ void btlDamageDrawPanel(u8 *drawState, u8 *entry)
     }
 }
 
-// Intent: fill the decaying trail alpha table for a damage popup. [inferred]
-/* b210: remaining trail flags, wrap-counter and alpha accesses individually differ when typed. */
+// Fills the decaying trail alpha table for a damage popup.
 // FUN_002112C0
-/* measured: baseline differs by 659 bytes; pointer-loop initialization differs by 682 bytes. */
+/* measured: retail hoists the loop invariants out of the alpha-table loop, which needs loop-
+ * invariant optimization on. */
 #pragma push
 #pragma opt_loop_invariants on
 static void btlDamageBuildTrail(u8 *state, u8 *output)
@@ -349,7 +342,7 @@ union ColorWord {
     u8 bytes[4];
 };
 
-// Intent: draw the damage popup's gauge bar segments from the trail table. [inferred]
+// Draw the damage popup's gauge bar segments from the trail table.
 // FUN_00211650
 void btlDamageDrawGaugeBar(u8 *drawContext, u8 *trail)
 {
@@ -407,7 +400,7 @@ void btlDamageDrawGaugeBar(u8 *drawContext, u8 *trail)
     btlUiSetRenderMode(0);
 }
 
-// Intent: initialise a list entry node with its owner and a reference count of one. [inferred]
+// Initialise a list entry node with its owner and a reference count of one.
 // FUN_00211950
 void btlEntryInit(u8 *entry, s32 owner) {
     memset(entry, 0, 0x20);
@@ -415,7 +408,7 @@ void btlEntryInit(u8 *entry, s32 owner) {
     ((BtlEntryRecord *)entry)->references = 1;
 }
 
-// Intent: release every entry in a list and clear its head. [inferred]
+// Release every entry in a list and clear its head.
 // FUN_002119A0
 void btlEntryListFlush(u8 **head) {
     u8 *entry = *head;
@@ -430,7 +423,7 @@ void btlEntryListFlush(u8 **head) {
     *head = NULL;
 }
 
-// Intent: remove finished entries from a list and advance the age of the rest. [inferred]
+// Remove finished entries from a list and advance the age of the rest.
 // FUN_00211A10
 void btlEntryListPrune(u8 **head)
 {
@@ -461,8 +454,8 @@ void btlEntryListPrune(u8 **head)
     }
 }
 
-// Intent: draw each active damage popup and its timed follow-up. [inferred]
-/* b210: typing the final flash-flag clear changes instructions; other state fields remain typed. */
+// Draws each active damage popup and its timed follow-up. The final flash-flag clear stays untyped
+// because typing it changes the generated code.
 // FUN_00211AD0
 void btlDamageDrawList(u8 *drawContext, u8 *state)
 {
@@ -489,11 +482,8 @@ void btlDamageDrawList(u8 *drawContext, u8 *state)
     }
 }
 
-/* Measured: 1000/1008 bytes, eighteen resolved relocations and eight zero
- * alignment bytes. Projection writes three world and two screen floats;
- * the fade consumer reads the initialized twelve-byte typed packet. */
-// Intent: draw the pulsing bad-status ring over party units while the popup is active. [inferred]
-/* b210: remaining task, fade-counter and flag accesses individually change instructions when typed. */
+/* Draws the pulsing bad-status ring over party units while the popup is active. Projection writes
+ * three world and two screen floats; the fade consumer reads a twelve-byte packet. */
 // FUN_00211BA0
 void btlDamageDrawBadStatus(u8 *drawContext, u8 *state)
 {
@@ -539,7 +529,6 @@ void btlDamageDrawBadStatus(u8 *drawContext, u8 *state)
                     }
                     btlUiSetOrigin(context, screen[0] - 86.0f, screen[1] - 86.0f);
                     draw = (u8 *)kwlnTaskGetWork(MEMBER(void *, state, BtlDamageState, task));
-                    /* Status pulse counter (+0xA44) is outside the shared BtlUnit's named tail. */
                     if (++((BtlUnit *)(unit))->statusPulseFrame >= 25) {
                         MEMBER(u16, unit, BtlUnit, statusPulseFrame) = 0;
                     }
@@ -573,7 +562,7 @@ void btlDamageDrawBadStatus(u8 *drawContext, u8 *state)
     }
 }
 
-// Intent: draw the damage popup bars when its flag and value are set. [inferred]
+// Draw the damage popup bars when its flag and value are set.
 // FUN_00211F90
 void btlDamageDrawBars(s32 drawContext, u8 *state) {
     u8 trail[0x20];
@@ -590,7 +579,7 @@ void btlDamageDrawBars(s32 drawContext, u8 *state) {
     btlDamageDrawGaugeBar(hud, trail);
 }
 
-// Intent: set the active bit of the damage popup. [inferred]
+// Set the active bit of the damage popup.
 // FUN_00212010
 void btlDamageSetActive(s32 task)
 {
@@ -600,7 +589,7 @@ void btlDamageSetActive(s32 task)
     ((BtlHudWork *)hud)->damage.flags = ((BtlHudWork *)hud)->damage.flags | 1;
 }
 
-// Intent: clear the active bit of the damage popup. [inferred]
+// Clear the active bit of the damage popup.
 // FUN_00212040
 void btlDamageClearActive(s32 task)
 {
@@ -610,8 +599,8 @@ void btlDamageClearActive(s32 task)
     ((BtlHudWork *)hud)->damage.flags = ((BtlHudWork *)hud)->damage.flags & 0xFFFE;
 }
 
-// Intent: start a damage popup, playing its cue and setting its flags from the target. [inferred]
-/* b210: typing the final damage-start flag store changes instructions; the other fields are typed. */
+// Starts a damage popup, playing its cue and setting its flags from the target. The final flag
+// store stays untyped because typing it changes the generated code.
 // FUN_00212070
 void btlDamageStart(u8 *task, u8 *action)
 {
@@ -630,7 +619,7 @@ void btlDamageStart(u8 *task, u8 *action)
     MEMBER(u16, state, BtlDamageState, flags) |= 2;
 }
 
-// Intent: start the damage flash when the popup is idle. [inferred]
+// Start the damage flash when the popup is idle.
 // FUN_00212100
 void btlDamageStartFlash(s32 task) {
     u8 *state;
@@ -643,7 +632,7 @@ void btlDamageStartFlash(s32 task) {
     }
 }
 
-// Intent: report whether the damage popup is not flashing. [inferred]
+// Report whether the damage popup is not flashing.
 // FUN_00212180
 s32 btlDamageIsIdle(s32 task)
 {
@@ -653,7 +642,7 @@ s32 btlDamageIsIdle(s32 task)
     return flag ^ 1;
 }
 
-// Intent: reset the damage popup phase counters and start its display phase. [inferred]
+// Reset the damage popup phase counters and start its display phase.
 // FUN_002121B0
 void btlDamageBeginPhase(s32 task)
 {
@@ -668,7 +657,7 @@ void btlDamageBeginPhase(s32 task)
     ((BtlDamageState *)state)->flags = ((BtlDamageState *)state)->flags | 0x10;
 }
 
-// Intent: end the damage popup display phase and clear its active bit. [inferred]
+// End the damage popup display phase and clear its active bit.
 // FUN_00212210
 void btlDamageEndPhase(s32 task)
 {
@@ -679,24 +668,21 @@ void btlDamageEndPhase(s32 task)
     ((BtlHudWork *)hud)->damage.flags = ((BtlHudWork *)hud)->damage.flags & 0xFFEF;
 }
 
-// Intent: store the damage popup's source value. [inferred]
+// Store the damage popup's source value.
 // FUN_00212240
 void btlDamageSetSource(u8 *task, s32 source) {
     ((BtlHudWork *)kwlnTaskGetWork(task))->damage.source = source;
 }
 
-/* Encounter-transition geometry uses the actual sky-vertex, UV and matrix
- * layouts. Each direction owns its frame ratio; vertex opacity is narrowed
- * independently. See docs/probe_archive/Battle_transition_00212270_20260922.md. */
-/* Evaluate the quadratic radius curve for the transition exit. */
+/* Encounter-transition geometry uses the real sky-vertex, UV and matrix layouts; each direction has
+ * its own frame ratio. Evaluates the quadratic radius curve for the transition exit. */
 static inline f32 btlTransitionExitCurve(f32 coefficient, f32 fraction)
 {
     f32 eased = coefficient * fraction - fraction * fraction;
     return 1.0f + eased;
 }
 
-// Intent: draw the encounter transition sky, bars and panel for its current frame. [inferred]
-/* b210: remaining rotation-counter and sprite-handle reloads individually differ when typed. */
+// Draws the encounter transition sky, bars and panel for the current frame.
 // FUN_00212270
 void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback)
 {
@@ -718,7 +704,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
         s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY,
         BtlShuffleMatrix *matrix, s32 texture, f32 (*uv)[2]);
     extern s32 sdkSpriteSlotHandle(u8 *pack, s32 recordIndex);
-    /* Four render objects and the position reproduce the retail 0x3A0 frame. */
+    /* Four render objects and the position give the retail 0x3A0 stack frame. */
     Vec2f drawPosition;
     BtlShuffleSkyVertex bars[4];
     BtlShuffleMatrix matrix;
@@ -1116,8 +1102,8 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     }
 }
 
-// Intent: advance the encounter task state machine and return -1 when it finishes. [inferred]
-/* b210: typing the intro-frame store changes instructions; other encounter fields remain typed. */
+// Advances the encounter task state machine and returns -1 when it finishes. The intro-frame store
+// stays untyped because typing it changes the generated code.
 // FUN_002136F0
 s32 btlEncounterUpdateTask(u8 *sdkTaskBytes)
 {
@@ -1169,7 +1155,7 @@ s32 btlEncounterUpdateTask(u8 *sdkTaskBytes)
     return 0;
 }
 
-// Intent: release an encounter task and its sprite. [inferred]
+// Release an encounter task and its sprite.
 // FUN_00213840
 void btlEncounterDestroyTask(u8 *task) {
     u8 *work;
@@ -1183,7 +1169,7 @@ void btlEncounterDestroyTask(u8 *task) {
     jtbl_008873EC[0](work);
 }
 
-// Intent: create an encounter task and its transition state. [inferred]
+// Create an encounter task and its transition state.
 // FUN_002138A0
 void btlEncounterStart(s32 parent)
 {
@@ -1202,7 +1188,7 @@ void btlEncounterStart(s32 parent)
         (void *)kwlnTaskCreateChild((void *)(parent), (const void *)(&D_00626C80), 0xF, 0, 0, btlEncounterUpdateTask, btlEncounterDestroyTask, (u8 *)(work));
 }
 
-// Intent: mark the encounter task as ready to proceed. [inferred]
+// Mark the encounter task as ready to proceed.
 // FUN_00213990
 void btlEncounterSetReady(s32 task)
 {
@@ -1214,14 +1200,14 @@ void btlEncounterSetReady(s32 task)
     ((BtlEncounterWork *)work)->ready = value;
 }
 
-// Intent: report whether the encounter intro has finished. [inferred]
+// Report whether the encounter intro has finished.
 // FUN_002139D0
 s32 btlEncounterIsIntroDone(s32 task)
 {
     return ((BtlEncounterWork *)kwlnTaskGetWork(((BtlHudWork *)kwlnTaskGetWork((void *)task))->encounterTask))->animationFrame >= 0x24;
 }
 
-// Intent: mark the encounter task as finishing. [inferred]
+// Mark the encounter task as finishing.
 // FUN_00213A10
 void btlEncounterSetFinish(s32 task)
 {
@@ -1233,7 +1219,7 @@ void btlEncounterSetFinish(s32 task)
     ((BtlEncounterWork *)work)->finish = value;
 }
 
-// Intent: report whether no encounter task is active. [inferred]
+// Report whether no encounter task is active.
 // FUN_00213A50
 s32 btlEncounterIsInactive(void)
 {
@@ -1243,14 +1229,14 @@ s32 btlEncounterIsInactive(void)
     return flag ^ 1;
 }
 
-// Intent: report whether an encounter task exists. [inferred]
+// Report whether an encounter task exists.
 // FUN_00213A80
 s32 btlEncounterIsActive(void)
 {
     return kwlnTaskGetTaskByName(&D_00626C80) != 0;
 }
 
-// Intent: initialise encounter parameters with their default values. [inferred]
+// Initialise encounter parameters with their default values.
 // FUN_00213AB0
 void btlEncounterInitParams(s32 context, u8 *state) {
     memset(state, 0, 0x18);
@@ -1261,7 +1247,8 @@ void btlEncounterInitParams(s32 context, u8 *state) {
     ((BtlPortraitState *)state)->emphasisFrame = -2;
 }
 
-// Intent: Start a unit panel's 0x18-frame ring effect: set bit 0x1 of its +0xA10 word and reset the frame counter at +0xA18 [inferred]
+// Start a unit panel's 0x18-frame ring effect: set bit 0x1 of the portrait flags and reset
+// ringFrame.
 // FUN_00213B10
 void btlPanelStartRingEffect(u8 *unit)
 {
@@ -1269,7 +1256,8 @@ void btlPanelStartRingEffect(u8 *unit)
     ((BtlPortraitState *)(unit + 0xA10))->ringFrame = 0;
 }
 
-// Intent: Start a unit panel's 0x18-frame pulse effect: set bit 0x2 of its +0xA10 word and reset the frame counter at +0xA1A [inferred]
+// Start a unit panel's 0x18-frame pulse effect: set bit 0x2 of the portrait flags and reset
+// pulseFrame.
 // FUN_00213B30
 void btlPanelStartPulseEffect(u8 *unit)
 {
@@ -1277,7 +1265,7 @@ void btlPanelStartPulseEffect(u8 *unit)
     ((BtlPortraitState *)(unit + 0xA10))->pulseFrame = 0;
 }
 
-// Intent: Clear the retract bit (0x1) of an encounter entry, so its slide offset ramps back out [inferred]
+// Clear the retract bit (0x1) of an encounter entry, so its slide offset ramps back out.
 // FUN_00213B50
 void btlEncounterEntryClearRetracted(s32 task)
 {
@@ -1287,7 +1275,8 @@ void btlEncounterEntryClearRetracted(s32 task)
     ((BtlHudWork *)hud)->encounter.flags = ((BtlHudWork *)hud)->encounter.flags & ~1;
 }
 
-// Intent: Set the retract bit (0x1) of an encounter entry while a target is being selected; its slide offset ramps toward retracted [inferred]
+// Set the retract bit (0x1) of an encounter entry while a target is being selected; its slide
+// offset ramps toward retracted.
 // FUN_00213B80
 void btlEncounterEntrySetRetracted(s32 task)
 {
@@ -1297,7 +1286,7 @@ void btlEncounterEntrySetRetracted(s32 task)
     ((BtlHudWork *)hud)->encounter.flags = ((BtlHudWork *)hud)->encounter.flags | 0x1;
 }
 
-// Intent: Clear the message bit (0x4) of an encounter entry, so its message counter stops ramping up [inferred]
+// Clear the message bit (0x4) of an encounter entry, so its message counter stops ramping up.
 // FUN_00213BB0
 void btlEncounterEntryClearMessageFade(s32 task)
 {
@@ -1307,7 +1296,8 @@ void btlEncounterEntryClearMessageFade(s32 task)
     ((BtlHudWork *)hud)->encounter.flags = ((BtlHudWork *)hud)->encounter.flags & ~4;
 }
 
-// Intent: Set the message bit (0x4) of an encounter entry before its message is set up; its counter ramps up while set [inferred]
+// Set the message bit (0x4) of an encounter entry before its message is set up; its counter ramps
+// up while set.
 // FUN_00213BE0
 void btlEncounterEntrySetMessageFade(s32 task)
 {
@@ -1317,7 +1307,7 @@ void btlEncounterEntrySetMessageFade(s32 task)
     ((BtlHudWork *)hud)->encounter.flags = ((BtlHudWork *)hud)->encounter.flags | 0x4;
 }
 
-// Intent: Set the emphasis bit (0x2) of an encounter entry; its emphasis ramp rises toward 8 [inferred]
+// Set the emphasis bit (0x2) of an encounter entry; its emphasis ramp rises toward 8.
 // FUN_00213C10
 void btlEncounterEntrySetEmphasis(s32 task)
 {
@@ -1327,7 +1317,7 @@ void btlEncounterEntrySetEmphasis(s32 task)
     ((BtlHudWork *)hud)->encounter.flags = ((BtlHudWork *)hud)->encounter.flags | 0x2;
 }
 
-// Intent: Clear the emphasis bit (0x2) of an encounter entry; its emphasis ramp falls back to 0 [inferred]
+// Clear the emphasis bit (0x2) of an encounter entry; its emphasis ramp falls back to 0.
 // FUN_00213C40
 void btlEncounterEntryClearEmphasis(s32 task)
 {
@@ -1337,7 +1327,8 @@ void btlEncounterEntryClearEmphasis(s32 task)
     ((BtlHudWork *)hud)->encounter.flags = ((BtlHudWork *)hud)->encounter.flags & ~2;
 }
 
-// Intent: Set the active bit (0x100) of an encounter entry's status word (the bit btlEncounterInitEntry also sets) [inferred]
+// Set the active bit (0x100) of an encounter entry's status word, the same bit
+// btlEncounterInitEntry sets.
 // FUN_00213C70
 void btlEncounterEntrySetActive(u8 *view)
 {
@@ -1347,7 +1338,7 @@ void btlEncounterEntrySetActive(u8 *view)
     ((BtlHudWork *)hud)->encounter.flags = ((BtlHudWork *)hud)->encounter.flags | 0x100;
 }
 
-// Intent: Clear the active bit (0x100) of an encounter entry's status word [inferred]
+// Clear the active bit (0x100) of an encounter entry's status word.
 // FUN_00213CA0
 void btlEncounterEntryClearActive(u8 *view)
 {
@@ -1357,7 +1348,7 @@ void btlEncounterEntryClearActive(u8 *view)
     ((BtlHudWork *)hud)->encounter.flags = ((BtlHudWork *)hud)->encounter.flags & ~0x100;
 }
 
-// Intent: initialise an encounter entry and its status word. [inferred]
+// Initialise an encounter entry and its status word.
 // FUN_00213CD0
 void btlEncounterInitEntry(u8 *entry, s32 task) {
     memset(entry, 0, 0x10);
@@ -1365,8 +1356,7 @@ void btlEncounterInitEntry(u8 *entry, s32 task) {
     ((BtlEncounterEntry *)entry)->flags |= 0x100;
 }
 
-// Intent: advance every encounter entry's timers toward the flag state. [inferred]
-/* b210: these counter stores must stay byte-addressed; their reads use the proven typed layout. */
+// Advance every encounter entry's timers toward the flag state.
 // FUN_00213D20
 void btlEncounterUpdateEntries(u8 *state)
 {
@@ -1406,8 +1396,8 @@ void btlEncounterUpdateEntries(u8 *state)
     }
 }
 
-// Intent: build the status icon and colour for a bad-status value. [inferred]
-/* b210: typing the default-case status clear changes instructions; all palette colors remain typed. */
+// Builds the status icon and colour for a bad-status value; the default-case status clear stays
+// untyped because typing it changes the output.
 // FUN_00213E20
 void btlEncounterBuildStatusIcon(u8 *unit, u8 *icon)
 {
@@ -1609,12 +1599,9 @@ void btlEncounterBuildStatusIcon(u8 *unit, u8 *icon)
     }
 }
 
-/* The portrait owns four three-layer position arrays and the color/status
- * output. The slide's duration, coefficient, curve and mutable frame have
- * one phase lifetime; the per-direction ratio temporaries stay local.
- * See docs/probe_archive/Battle_portrait_002142b0_20260922.md. */
-// Intent: draw a unit portrait with its HP and SP bars, status colour and slide. [inferred]
-/* b210: remaining DatUnit reloads and pulse-counter accesses individually differ when typed. */
+/* Draws a unit portrait with its HP and SP bars, status colour and slide. The slide's duration,
+ * coefficient, curve and frame share one phase lifetime; per-direction ratio temporaries stay
+ * local. */
 // FUN_002142B0
 #pragma push
 #pragma opt_loop_invariants on
@@ -2077,8 +2064,8 @@ void btlPortraitDraw(s32 *hud, u8 *unit, f32 originX, f32 originY, s32 rowIndex)
     }
 }
 
-// Intent: draw the flashing portrait effect for a unit. [inferred]
-/* b210: typing either flash-counter clamp store changes instructions; other accesses remain typed. */
+// Draws the flashing portrait effect for a unit. The flash-counter clamp stores stay untyped
+// because typed stores change the generated code.
 // FUN_00215C10
 void btlPortraitDrawFlash(s32 *hudContext, u8 *panelUnit, f32 originX, f32 originY, s32 rowIndex)
 {
@@ -2209,8 +2196,8 @@ void btlPortraitDrawFlash(s32 *hudContext, u8 *panelUnit, f32 originX, f32 origi
     }
 }
 
-// Intent: draw the pulsing portrait effect for a unit. [inferred]
-/* b210: remaining pulse-phase and angle accesses individually differ when typed. */
+// Draws the pulsing portrait effect for a unit. The pulse-phase and angle fields stay as raw
+// accesses because typing them changes the output.
 // FUN_002161D0
 void btlPortraitDrawPulse(s32 *hudContext, u8 *panelUnit, f32 originX, f32 originY, s32 rowIndex)
 {
@@ -2337,10 +2324,8 @@ void btlPortraitDrawPulse(s32 *hudContext, u8 *panelUnit, f32 originX, f32 origi
     btlUiSetTileOffset((u8 *)hud, 0, 0, 0.0f);
 }
 
-/* 844/848 bytes; nine resolved relocations; four zero alignment bytes.
- * Snapshot the four party slots before callbacks can update the actor list. */
-// Intent: draw the portrait roster, updating the selected unit and its portrait effects. [inferred]
-/* b210: typing either selected-unit store changes instructions; roster snapshots use a typed aggregate. */
+/* Draw the portrait roster, updating the selected unit and its portrait effects; snapshots the four
+ * party slots before callbacks can update the actor list. */
 // FUN_002167F0
 void btlPortraitDrawRoster(u8 *drawContext, u8 *entry)
 {
@@ -2437,7 +2422,7 @@ void btlPortraitDrawRoster(u8 *drawContext, u8 *entry)
     }
 }
 
-// Intent: start a panel entry with a single value and its countdown. [inferred]
+// Start a panel entry with a single value and its countdown.
 // FUN_00216B40
 void btlPanelStartEntry(s32 task, s32 text) {
     u8 *panel;
@@ -2452,7 +2437,7 @@ void btlPanelStartEntry(s32 task, s32 text) {
     ((BtlMessagePanel *)panel)->flags &= 0xFFF3;
 }
 
-// Intent: start a panel entry with three values and its countdown. [inferred]
+// Start a panel entry with three values and its countdown.
 // FUN_00216BB0
 void btlPanelStartValues(s32 task, s32 unit, s32 window, s32 record) {
     u8 *panel;
@@ -2469,7 +2454,7 @@ void btlPanelStartValues(s32 task, s32 unit, s32 window, s32 record) {
     ((BtlMessagePanel *)panel)->flags &= 0xFFF3;
 }
 
-// Intent: set the panel countdown and its pause bit. [inferred]
+// Set the panel countdown and its pause bit.
 // FUN_00216C40
 void btlPanelSetCountdown(s32 task, s32 duration) {
     u8 *hud = (u8 *)kwlnTaskGetWork((void *)task);
@@ -2483,7 +2468,7 @@ void btlPanelSetCountdown(s32 task, s32 duration) {
     }
 }
 
-// Intent: release a panel's font list and clear its message window. [inferred]
+// Release a panel's font list and clear its message window.
 // FUN_00216CA0
 void btlPanelReleaseText(s32 task) {
     u8 *panel = (u8 *)kwlnTaskGetWork((void *)task) + 0x84C;
@@ -2498,7 +2483,7 @@ void btlPanelReleaseText(s32 task) {
     ((BtlMessagePanel *)panel)->elapsed = ((BtlMessagePanel *)panel)->duration;
 }
 
-// Intent: Set bit 0x8 of a panel entry's +0x85C word once its entry has started [inferred]
+// Set bit 0x8 of the message flags once the entry has started.
 // FUN_00216D10
 void btlPanelMarkEntryStarted(s32 task)
 {
@@ -2508,7 +2493,7 @@ void btlPanelMarkEntryStarted(s32 task)
     ((BtlHudWork *)hud)->message.flags = ((BtlHudWork *)hud)->message.flags | 8;
 }
 
-// Intent: Set bit 0x4 of a panel entry's +0x85C word after its countdown starts and before its target is set [inferred]
+// Set bit 0x4 of the message flags after the countdown starts and before the target is set.
 // FUN_00216D40
 void btlPanelMarkEntryTimed(s32 task)
 {
@@ -2518,13 +2503,13 @@ void btlPanelMarkEntryTimed(s32 task)
     ((BtlHudWork *)hud)->message.flags = ((BtlHudWork *)hud)->message.flags | 4;
 }
 
-// Intent: store the target unit for a panel. [inferred]
+// Store the target unit for a panel.
 // FUN_00216D70
 void btlPanelSetTarget(u8 *task, s32 unit) {
     ((BtlHudWork *)kwlnTaskGetWork(task))->message.unit = unit;
 }
 
-// Intent: format a number into a panel's message window. [inferred]
+// Format a number into a panel's message window.
 // FUN_00216DA0
 void btlPanelSetValueText(u8 *window, s32 value) {
     u8 text[0x80];
@@ -2533,7 +2518,7 @@ void btlPanelSetValueText(u8 *window, s32 value) {
     itfMesWindowSetString(window, 1, text);
 }
 
-// Intent: initialise a panel record with its unit slots cleared. [inferred]
+// Initialise a panel record with its unit slots cleared.
 // FUN_00216DF0
 void btlPanelInitRecord(u8 *panel, s32 task) {
     memset(panel, 0, 0x40);
@@ -2549,13 +2534,8 @@ void btlPanelInitNoop(void)
 {
 }
 
-/* Retail-exact: 4856 bytes, complete resolved relocations and eight zero
- * alignment bytes. Status icon/color locals have separate typed lifetimes;
- * timed messages share the render path, and rectangles use rounded integer
- * coordinates. Render-state scopes retain the table address while reloading
- * its callback. See Battle_message_panel_00216e60_20260922.md. */
-// Intent: draw a timed message with its status icon and text list. [inferred]
-/* b210: remaining window-handle, flag and timer accesses individually differ when typed. */
+/* Draw a timed message with its status icon and text list. Window-handle, flag and timer fields
+ * stay raw because typed accesses change the output. */
 // FUN_00216E60
 void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
 {
@@ -2939,7 +2919,7 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
     }
 }
 
-// Intent: start a short timed message with a randomised offset. [inferred]
+// Start a short timed message with a randomised offset.
 // FUN_00218160
 void btlMessageStartShort(u8 *task, u8 *action)
 {
@@ -2960,21 +2940,21 @@ void btlMessageStartShort(u8 *task, u8 *action)
     ((BtlMessagePanel *)panel)->flags |= 0x10;
 }
 
-// Intent: report whether a message is still running. [inferred]
+// Report whether a message is still running.
 // FUN_00218200
 s32 btlMessageIsActive(s32 task)
 {
     return ~(((BtlHudWork *)kwlnTaskGetWork((void *)task))->message.result) != 0;
 }
 
-// Intent: return the message's result code. [inferred]
+// Return the message's result code.
 // FUN_00218230
 s32 btlMessageGetResult(s32 task)
 {
     return ((BtlHudWork *)kwlnTaskGetWork((void *)task))->message.result;
 }
 
-// Intent: reset a message's result and release its window. [inferred]
+// Reset a message's result and release its window.
 // FUN_00218260
 void btlMessageReset(s32 task) {
     u8 *panel;
@@ -2988,7 +2968,7 @@ void btlMessageReset(s32 task) {
     ((BtlMessagePanel *)panel)->flags &= 0xFFEF;
 }
 
-// Intent: start a long timed message with a randomised offset. [inferred]
+// Start a long timed message with a randomised offset.
 // FUN_002182C0
 void btlMessageStartLong(u8 *task, u8 *action)
 {
@@ -3009,21 +2989,21 @@ void btlMessageStartLong(u8 *task, u8 *action)
     ((BtlMessagePanel *)panel)->flags |= 0x10;
 }
 
-// Intent: report whether a message is still running (duplicate of btlMessageIsActive). [inferred]
+// Report whether a message is still running; duplicate of btlMessageIsActive.
 // FUN_00218360
 s32 btlMessageIsActiveAlt(s32 task)
 {
     return ~(((BtlHudWork *)kwlnTaskGetWork((void *)task))->message.result) != 0;
 }
 
-// Intent: return the message's result code (duplicate of btlMessageGetResult). [inferred]
+// Return the message's result code; duplicate of btlMessageGetResult.
 // FUN_00218390
 s32 btlMessageGetResultAlt(s32 task)
 {
     return ((BtlHudWork *)kwlnTaskGetWork((void *)task))->message.result;
 }
 
-// Intent: reset a message's result and release its window (duplicate of btlMessageReset). [inferred]
+// Reset a message's result and release its window; duplicate of btlMessageReset.
 // FUN_002183C0
 void btlMessageResetAlt(s32 task) {
     u8 *panel;
@@ -3037,7 +3017,7 @@ void btlMessageResetAlt(s32 task) {
     ((BtlMessagePanel *)panel)->flags &= 0xFFEF;
 }
 
-// Intent: install a message window and reset the message state. [inferred]
+// Install a message window and reset the message state.
 // FUN_00218420
 void btlMessageInstallWindow(s32 task, u8 *window)
 {
@@ -3056,21 +3036,21 @@ void btlMessageInstallWindow(s32 task, u8 *window)
     ((BtlMessagePanel *)panel)->flags = ((BtlMessagePanel *)panel)->flags | 0x10;
 }
 
-// Intent: report whether a message is still running (duplicate of btlMessageIsActive). [inferred]
+// Report whether a message is still running; duplicate of btlMessageIsActive.
 // FUN_002184A0
 s32 btlMessageIsActiveAlt2(s32 task)
 {
     return ~(((BtlHudWork *)kwlnTaskGetWork((void *)task))->message.result) != 0;
 }
 
-// Intent: return the message's result code (duplicate of btlMessageGetResult). [inferred]
+// Return the message's result code; duplicate of btlMessageGetResult.
 // FUN_002184D0
 s32 btlMessageGetResultAlt2(s32 task)
 {
     return ((BtlHudWork *)kwlnTaskGetWork((void *)task))->message.result;
 }
 
-// Intent: release a message window and clear its result. [inferred]
+// Release a message window and clear its result.
 // FUN_00218500
 void btlMessageRelease(s32 task)
 {
@@ -3089,8 +3069,7 @@ void btlMessageRelease(s32 task)
     ((BtlMessagePanel *)panel)->flags = ((BtlMessagePanel *)panel)->flags & 0xFFEF;
 }
 
-// Intent: set up a message from a unit's flags and start its state. [inferred]
-/* b210: MEMBER preserves nested action-pointer reloads; unit and enemy records remain typed. */
+// Sets up a message from a unit's flags and starts its state.
 // FUN_00218560
 void btlMessageSetup(u8 *task, u8 *action)
 {
@@ -3120,7 +3099,7 @@ void btlMessageSetup(u8 *task, u8 *action)
     ((BtlMessageState *)message)->frame = 0;
 }
 
-// Intent: report whether a message is not pending. [inferred]
+// Report whether a message is not pending.
 // FUN_00218690
 s32 btlMessageIsIdle(s32 task)
 {
@@ -3130,7 +3109,7 @@ s32 btlMessageIsIdle(s32 task)
     return flag ^ 1;
 }
 
-// Intent: store a pending value and set the message state to pending. [inferred]
+// Store a pending value and set the message state to pending.
 // FUN_002186C0
 void btlMessageSetPendingValue(u8 *task, s32 value) {
     u8 *hud;
@@ -3140,7 +3119,7 @@ void btlMessageSetPendingValue(u8 *task, s32 value) {
     ((BtlHudWork *)hud)->messageState.state = 2;
 }
 
-// Intent: set the message state to done. [inferred]
+// Set the message state to done.
 // FUN_00218700
 void btlMessageSetDone(s32 task)
 {
@@ -3150,7 +3129,7 @@ void btlMessageSetDone(s32 task)
     ((BtlHudWork *)hud)->messageState.state = 4;
 }
 
-// Intent: set the message's hidden bit. [inferred]
+// Set the message's hidden bit.
 // FUN_00218730
 void btlMessageSetHidden(s32 task)
 {

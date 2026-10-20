@@ -50,13 +50,8 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00486780-00486970 */
-
-/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
- * eight zero alignment bytes. IDA retains the result that Ghidra drops:
- * retail leaves the copied quadword in v0 through return. Preserve that
- * live-out; the current C callers discard it. The four hardware vf0 stores
- * produce (0,0,0,1), not a zero quadword. */
+/* Retail returns the copied quadword even though current callers discard it; the vf0 stores write
+ * (0,0,0,1), not zero. */
 #pragma push
 #pragma pop
 #pragma push
@@ -65,9 +60,6 @@ extern void (*jtbl_008873EC[])(void *);
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off keeps `alloc` live in $s1 across all three
-   allocations instead of re-materialising the table address at the first use. */
-/* measured: closes the propagation bracket; the file default is on. */
 /* Return the child at the requested list index, asserting when it is out of range. */
 // FUN_00486780
 u8 *mdlEffectGetChildAtIndex(u8 *effect, s32 target)
@@ -116,7 +108,6 @@ s32 mdlEffectGetChildIndex(u8 *effect, u8 *target)
 // FUN_00486840
 u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output)
 {
-    /* measured: O1 probe for initial flag and aggregate register colours. */
     u32 values[3];
     u8 work[0x10];
     s32 flags;
@@ -224,10 +215,8 @@ u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output)
         :
         : "r"(output)
         : "$vf10", "memory");
-    /* measured: closes O1 probe for initial flag and aggregate register colours. */
 }
 
-/* measured: opening optimization_level 1 for the parked 00486970 body. */
 /* Resolve the child orientation from its flags and target direction; write the VU quaternion. */
 // FUN_00486970
 u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output)
@@ -240,13 +229,13 @@ u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *ou
     u_long128 value;
     f32 pitch;
 
-    if (((flags = (orientationState = (MdlEffectState *)effect)->flags.signedValue) & 0x60) == 0) { /* measured: the separate typed pointer preserves MATCH under b210. */
+    if (((flags = (orientationState = (MdlEffectState *)effect)->flags.signedValue) & 0x60) == 0) {
         value = *(u_long128 *)&((MdlEffectState *)effect)->orientation; /* Transfer the complete quadword representation, including the VU W lane. */
         *output = value;
         return value;
     }
     mdlEffectAimDirection(target, (u8 *)&direction);
-    if ((aimState = (MdlEffectState *)effect)->flags.signedValue & 0x40) { /* measured: the separate typed pointer preserves MATCH under b210. */
+    if ((aimState = (MdlEffectState *)effect)->flags.signedValue & 0x40) {
         pitch = 0.0f;
     } else {
         pitch = -func_0044b920(-((EffectVuVector *)&direction)->lane[1]);
@@ -268,19 +257,5 @@ u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *ou
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(output) : "$vf10", "memory");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

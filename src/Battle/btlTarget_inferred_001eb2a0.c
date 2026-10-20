@@ -17,7 +17,6 @@ extern void *D_00609850[];
 extern s32 scrGetParamIntS32(s32 index);
 
 
-
 extern void memset(void *destination, s32 value, u32 size);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -42,7 +41,6 @@ extern void btlTargetResetRecordCounter(u8 *);
 extern u32 datCalcRandomBelow(u32);
 
 
-
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 D_00881400[];
@@ -65,17 +63,13 @@ extern u8 D_00609E40[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001eb2a0-001eb410 */
-
 #pragma push
 #pragma pop
-/* measured probe: preserve the retail filter branch chain */
+/* measured: retail keeps the filter conditions as a separate branch chain. */
 #pragma push
-/* measured probe: close the filter branch chain */
 #pragma pop
-/* measured probe: preserve retail conditional branch shape */
+/* measured: retail keeps the original conditional branch shape. */
 #pragma push
-/* measured probe: close conditional branch shape */
 #pragma pop
 /* AI command 0x2097 (p4flow AI.json AI_RND). */
 // FUN_001EB2A0
@@ -88,8 +82,8 @@ s32 btlAiRandom(void) {
     return 1;
 }
 
-/* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: btlAiGetGlobal MATCH -> MISMATCH without this pragma. */
+/* measured: optimization level 1 is needed to reproduce retail's scheduling of the global-pointer
+ * load in btlAiGetGlobal. */
 #pragma optimization_level 1
 /* AI command 0x20AD (p4flow AI.json AI_GET_GLOBAL). */
 // FUN_001EB2E0
@@ -103,12 +97,11 @@ s32 btlAiGetGlobal(void) {
     return 1;
 }
 
-/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
-/* measured: func_001eb3b0 MATCH -> MISMATCH without this pragma. */
+/* measured: btlAiGetGlobal needs optimization level 1, and the following functions need level 2
+ * again, including func_001eb3b0, to match retail codegen. */
 #pragma optimization_level 2
-/* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: btlAiSetGlobal MATCH -> MISMATCH without this pragma. */
-/* Unit-region setting: propagation remains off for the five neighboring setters and record helpers. */
+/* measured: propagation off keeps retail's global-pointer load order; it stays off for the five
+ * neighboring setters and record helpers. */
 #pragma opt_propagation off
 /* AI command 0x20AE (p4flow AI.json AI_SET_GLOBAL). */
 // FUN_001EB320
@@ -123,8 +116,6 @@ s32 btlAiSetGlobal(void)
     return 1;
 }
 
-/* measured: closes opt_propagation probe for btlAiSetGlobal. */
-/* AI script command 0x20b8 (p4flow AI.json AI_FUNCTION_00B8). */
 // FUN_001EB370
 s32 btlAiScriptCommandNoop(void)
 {

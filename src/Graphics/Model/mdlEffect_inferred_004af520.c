@@ -50,7 +50,6 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
  
@@ -65,7 +64,8 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- FlashQuadCopyAllocFromRecord depends on the caller's (u16, s32) shape; the
+// definition's (s32, void *) changes its codegen.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -74,27 +74,15 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004af520-004af580 */
-
 extern s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectBuildRectQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *vertices);
-/* measured: restores the file's O2 loop-invariant baseline. */
-/* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
 #pragma tailcall off
-/* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
 #pragma pop
-/* measured: loop-invariant conversion preloads for func_004a7e30. */
-/* measured: close the loop-invariant bracket after func_004a7e30. */
-/* measured: loop-invariant conversion preloads for func_004a8250. */
-/* measured: close loop-invariant conversion scope for func_004a8250. */
-/* measured: loop-invariant conversion preloads for func_004a8440. */
-/* measured: close loop-invariant conversion scope for func_004a8440. */
-/* measured: loop-invariant conversion preloads for func_004a86c0. */
-/* measured: close loop-invariant conversion scope for func_004a86c0. */
-/* Measured: scoped propagation preserves constant-first model lookup arguments. */
+/* measured: retail hoists loop-invariant conversions out of the loops in func_004a7e30,
+ * func_004a8250, func_004a8440 and func_004a86c0, and passes model lookup arguments constant-first. */
 #pragma push
 #pragma pop
 // Clears the node at +0x64 of the record at +0x58 and appends it to the table that TnGetOffset1C selects from the inner kind at +0x54.

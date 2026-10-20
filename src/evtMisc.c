@@ -35,9 +35,8 @@ void evtTintTaskKill(void);
 void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
 extern s32 iGpffffba48;
 
-/* Scalars (complete types) address gp-relative; strings/arrays use absolute
- * lui/addiu addressing. D_00763898 and the D_00764Bxx bytes are GPREL16 in
- * retail, so they must stay scalar-typed; the others are absolute. */
+/* Retail addresses D_00763898 and the D_00764Bxx bytes gp-relative, so they stay scalar-typed; the
+ * arrays use absolute addressing. */
 extern s32 D_00763898;
 extern s32 D_007638A0;
 extern u8 D_00764B3C;
@@ -51,7 +50,6 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
-
 
 
 /* Event blur records share a fixed prefix through the six signed tenths at +0x2C. */
@@ -130,8 +128,8 @@ typedef struct {
 } EvtFilterFrame;
 
 
-
-// Allocates the blur filter's 0x130-byte state block once, when its slot is empty, and records it in the slot [inferred].
+// Allocates the blur filter's 0x130-byte state block once, when its slot is empty, and records it
+// in the slot.
 // FUN_0028D110
 void evtBlurFilterEnsureBlock(s32 *slot) {
     s32 *work;
@@ -148,19 +146,16 @@ void evtBlurFilterEnsureBlock(s32 *slot) {
     }
 }
 
-/* measured: without opt_loop_invariants on, MWCC rematerializes the loop
- * comparison constant (addiu v1,zero,1) inside the body instead of the
- * preheader, shifting every temp register (nd 18). */
-/* measured: baseline while/for copy-loop probes both differ (nd 31); retain invariant hoisting. */
+/* measured: retail hoists the loop comparison constant out of the copy loop, which needs loop-
+ * invariant hoisting enabled. */
 #pragma opt_loop_invariants on
 
 
-
-// Copies the blur filter's point table (count = 3n+1 entries) into the destination, reversed when arg2 is 1 [inferred].
-/* Point tables are packed 3n+1 triples after a four-byte byte header; preserve the vector-copy access widths. */
+// Copies the blur filter's point table (3n+1 entries after a four-byte header) into the
+// destination, reversed when reverse is 1.
 // FUN_0028D1B0
 void evtBlurFilterCopyPoints(u8 *source, u8 *destination, s32 reverse) {
-    /* Four-byte headers precede 12-byte positions; typed variable-length tables changed MWCC codegen. */
+    /* Four-byte headers precede 12-byte positions. */
     u8 segmentCount;
     s32 pointCount;
     s32 pointIndex;
@@ -181,7 +176,8 @@ void evtBlurFilterCopyPoints(u8 *source, u8 *destination, s32 reverse) {
         pointIndex++;
     }
 }
-/* measured: see annotation above (func_0028d1b0). */
+/* measured: retail evtBlurFilterTaskUpdate keeps the work-pointer loads inside its loop rather than
+ * hoisting them, so loop-invariant motion is turned off here. */
 #pragma opt_loop_invariants off
 
 // Blur filter task update: advances the direct or copied blur filter and bumps its frame counter (same logic as effBlurFilterTaskUpdate).
@@ -225,18 +221,17 @@ void evtBlurFilterTaskDestroy(u8 *unusedTask) {
 }
 
 
+// kwlnTaskGetWork is left undeclared on purpose, as in P3FES comuTimerSequence; a typed prototype
+// adds zero-extension code retail never has.
 
-// Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
-// in the donor): a typed prototype makes mwcc emit zero-extension codegen
-// retail never has.
-
-// Intent: Event command blur-filter task for types 1 and 2: builds the filter parameters from the record (mode, colours, alpha, timing) and creates the task under arg0 [inferred]
-/* Only the filter reference slot at +0x28 is known here; the direct/copy filter allocation layout remains opaque. */
+// Event command blur-filter task for types 1 and 2: builds filter parameters from the record (mode,
+// colours, alpha, timing) and creates the task under parentTask. Only the filter reference slot is
+// known; the filter allocation layout is still unknown.
 // FUN_0028D390
 void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
 {
-    /* Packed RGB/options occupy +0x18..0x2B and signed halfwords +0x10/+0x2C..0x36; typed access changed MWCC allocation. */
+    /* Packed RGB/options and the signed halfword fields use raw offsets; typed access changed
+     * register allocation. */
     EvtFilterFrame frame;
     s32 mode1;
     s32 mode2;
@@ -473,23 +468,17 @@ void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
     }
 }
 
-/* Builds blur-filter tasks for the four event-command selectors 1, 2, 3, 5.
- * All four direct evtMain callers use those constants and consume the task
- * handle. Keep the actual constructor result as the return value; selectors
- * outside that caller contract have no specified return value.
- * Measured b210 -O2: 4560/4560 bytes. The const-pointer constructor interface
- * avoids retaining integer addresses across calls. opt_lifetimes preserves
- * the independent mode/task/filter roles. The 44-byte template copy keeps
- * its two qwords, doubleword tail, and final float on advancing cursors. */
-// Intent: Blur-filter task builder for event command types 1, 2, 3 and 5: fills one filter parameter block per type and creates the task under arg0 [inferred]
+/* Builds blur-filter tasks for event-command selectors 1, 2, 3 and 5 under parentTask and returns
+ * the task handle; other selectors have no specified return value. */
 // FUN_0028DC30
 /* Only the filter reference slot at +0x28 is known here; the direct/copy filter allocation layout remains opaque. */
 #pragma push
-/* measured: removing lifetime optimization changes 106 bytes with the existing per-type parameter locals. */
+/* measured: lifetime optimization keeps retail's separate per-type mode, task and filter locals. */
 #pragma opt_lifetimes on
 s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
 {
-    /* Packed RGB/options occupy +0x18..0x2B and signed halfwords +0x10/+0x2C..0x36; typed access changed MWCC allocation. */
+    /* Packed RGB/options and the signed halfword fields use raw offsets; typed access changed
+     * register allocation. */
     extern u8 D_0063C660[];
     typedef struct { EvtFilterParams params; u8 extra[0x28]; } F28;
     typedef struct { EvtFilterParams params; u8 extra[0x2C]; } F2C;
@@ -791,7 +780,8 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
                 *(f32 *)tailDestination = lastValue;
             }
         }
-        /* This 44-byte template mixes word/float fields; its qword and tail copy shape is measured above. */
+        /* This 44-byte template mixes word and float fields and is copied as two qwords, a
+         * doubleword tail and a final float. */
         ((EvtBlurFilterExtra *)typeThreeExtra)->mode = record[0x2B];
         ((EvtBlurFilterExtra *)typeThreeExtra)->first = ((EvtBlurFilterRecord *)record)->unk14;
         ((EvtBlurFilterExtra *)typeThreeExtra)->weight = (f32)record[0x13] / 100.0f;
@@ -933,7 +923,7 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
 #pragma pop
 
 
-/* 0x30-byte tint allocation; the five target words are copied from the command. */
+/* Tint allocation; the five target words are copied from the command. */
 typedef struct EvtTintWork {
     s32 frame;
     s32 flags;
@@ -945,7 +935,7 @@ typedef struct EvtTintWork {
     s32 duration;
 } EvtTintWork;
 
-// Tint task update: runs the colour tint step for the task's state each frame [inferred].
+// Tint task update: runs the colour tint step for the task's state each frame.
 // FUN_0028EE00
 s32 evtTintTaskUpdate(u8 *unusedTask)
 {
@@ -1023,8 +1013,9 @@ void evtTintTaskDestroy(u8 *unusedTask)
     work = (s32)kwlnTaskGetWork();
     DAT_008873ec_abs[0](work);
 }
-// Creates a tint task: copies five words of tint data and takes the colour from the kwln colour record and the camera distance [inferred].
-/* The five command words mix flags, colors and floats; retain the serialized word-copy cursor and its load/store order. */
+// Creates a tint task: copies five words of tint data and takes the colour from the kwln colour
+// record and the camera distance. The five words mix flags, colours and floats, so they are copied
+// as raw words through a cursor.
 // FUN_0028F3A0
 void evtCreateTintTask(s32 parentTask, s32 *parameters, s32 duration) {
     s32 v;
@@ -1075,7 +1066,8 @@ void evtTintTaskKill(void) {
 void evtNpcResourceHook(u8 *resource) {
 }
 
-// Script load task step: loads the script file named by the task, starts its procedure at the requested index, and waits for it to finish [inferred].
+// Script load task step: loads the script file named by the task, starts its procedure at the
+// requested index, and waits for it to finish.
 // FUN_0028F540
 s32 evtScriptLoadStep(u8 *unusedTask) {
     s32 *work;
@@ -1138,7 +1130,7 @@ void evtScriptLoadDestroy(u8 *unusedTask) {
     jtbl_008873EC[0](work);
 }
 
-// Creates a script load task with its work block in the ready state (state 4) [inferred].
+// Creates a script load task with its work block in the ready state (state 4).
 // FUN_0028F770
 void evtStartScriptLoad(s32 parentTask) {
     s32 *work;
@@ -1149,7 +1141,8 @@ void evtStartScriptLoad(s32 parentTask) {
     (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(&D_0063C690), 0xF, 0, 0, evtScriptLoadStep, evtScriptLoadDestroy, (u8 *)(work));
 }
 
-// Script load request: when the task is ready, records the procedure index and file name for the next load and returns 1; otherwise returns 0 [inferred].
+// Script load request: when the task is ready, records the procedure index and file name for the
+// next load and returns 1; otherwise returns 0.
 // FUN_0028F800
 s32 evtScriptLoadRequest(s32 task, s32 procedureKind, s32 filename, s32 procedureIndex) {
     s32 *work;
@@ -1172,7 +1165,7 @@ s32 evtScriptLoadRequest(s32 task, s32 procedureKind, s32 filename, s32 procedur
     return 0;
 }
 
-// Returns 1 when the script load task is in the ready state (state 4), else 0 [inferred].
+// Returns 1 when the script load task is in the ready state (state 4), else 0.
 // FUN_0028F8E0
 s32 evtScriptLoadIsReady(s32 task) {
     if (kwlnTaskIsLinked(task) == 0) {

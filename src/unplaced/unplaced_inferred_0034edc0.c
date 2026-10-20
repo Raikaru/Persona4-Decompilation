@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0034edc0-0034f9d0 */
 
 #include "nline_vertex_internal.h"
 #include "member_access.h"
@@ -9,7 +8,7 @@
 #include "type.h"
 #include "rw/plcore/barenderstate.h"
 
-/* Same 0x2C-byte sample allocated by sdkSpriteNewNode in Kernel/sdkSpr.c. */
+/* Same sample layout allocated by sdkSpriteNewNode in Kernel/sdkSpr.c. */
 typedef struct SdkSpriteSample {
     u32 packAddress, recordIndex;
     f32 x, y;
@@ -23,7 +22,7 @@ typedef struct SdkSpriteSample {
     u8 red, green, blue, pad2B;
 } SdkSpriteSample;
 
-/* Each nLine layer occupies one 0x40-byte immediate-mode vertex. */
+/* Each nLine layer occupies one immediate-mode vertex. */
 typedef struct NLineVertex {
     f32 x, y, z;
     u8 padC[0xC];
@@ -79,7 +78,7 @@ void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth
 typedef s32 (*SdkRenderStateSetterSlot[1])(RwRenderState, void *);
 /* Unit setting: sprite, nLine and community helpers use propagation. */
 #pragma opt_propagation on
-// Intent: Set the base render states for nLine drawing [inferred]
+// Set the base render states for nLine drawing.
 // FUN_0034EDC0
 void nLineSetRenderStateBase(void)
 {
@@ -96,7 +95,7 @@ void nLineSetRenderStateBase(void)
     (*base)[0](0xC, (void *)1);
 }
 
-// Intent: Draw the three nLine layers, with the middle and right layers faded by the amount [inferred]
+// Draw the three nLine layers, with the middle and right layers faded by the amount.
 // FUN_0034EE90
 void nLineDrawLayers(u8 *work, f32 originX, f32 originY, f32 amount)
 {
@@ -124,7 +123,6 @@ void nLineDrawLayers(u8 *work, f32 originX, f32 originY, f32 amount)
         ((NLineLayerWork *)unit)->layersActive = 1;
         baseY = 448.0f + originY;
         x = baseX - 208.0f;
-        /* measured: typing these repeated offsets grows nLineDrawLayers from 576 to 596 bytes. */
         x += ((NLineLayerWork *)(unit))->offsetX;
         nLineSetLayer(layers, x, baseY + ((NLineLayerWork *)(unit))->offsetY, delta, invScale, 0xFF, 0xE9, 0x36, 0);
         baseX = 640.0f + (f32)baseX;
@@ -136,7 +134,7 @@ void nLineDrawLayers(u8 *work, f32 originX, f32 originY, f32 amount)
     ((NLineLayerWork *)unit)->layersActive = 0;
 }
 
-// Intent: Store one nLine layer's position, scale and colour bytes [inferred]
+// Store one nLine layer's position, scale and colour bytes.
 // FUN_0034F0D0
 void nLineSetLayer(u8 *vertex, f32 x, f32 y, f32 z,
                    f32 reciprocal, u8 red, u8 green, u8 blue, u8 alpha) {
@@ -150,9 +148,9 @@ void nLineSetLayer(u8 *vertex, f32 x, f32 y, f32 z,
     ((NLineVertex *)vertex)->alpha = (f32)alpha;
 }
 
-// Intent: Set the default render states and the sky state values for sprite draws [inferred]
+// Set the default render states and the sky state values for sprite draws.
 // FUN_0034F1E0
-/* measured: keeping the dispatch table object explicit preserves its cached base under unit propagation. */
+/* measured: retail keeps the dispatch table base cached in a local across all the setter calls. */
 void sdkRenderStateSetDefault(void)
 {
     SdkRenderStateSetterSlot *base;
@@ -171,7 +169,8 @@ void sdkRenderStateSetDefault(void)
     RpSkyRenderStateSet(2, (void *)0x44);
 }
 
-// Intent: Draw a sprite at a position with the given colour and opacity at unit size, skipping transparent sprites [inferred]
+// Draw a sprite at a position with the given colour and opacity at unit size, skipping transparent
+// sprites.
 // FUN_0034F2E0
 void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,
                    u8 red, u8 green, u8 blue, u8 alpha) {
@@ -179,7 +178,8 @@ void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,
                   0x1000, 0x1000, 0, 0.0f, 0);
 }
 
-// Intent: Set the sprite's position, colour, opacity, size and extra fields, then draw it; a zero opacity or zero size skips the draw [inferred]
+// Set the sprite's position, colour, opacity, size and extra fields, then draw it; zero opacity or
+// zero size skips the draw.
 // FUN_0034F320
 void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
                    u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
@@ -209,7 +209,8 @@ void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
     sdkSpriteDraw(sprite, 0);
 }
 
-// Intent: Draw one sprite through a temporary node at the given position, with the given colour and opacity [inferred]
+// Draw one sprite through a temporary node at the given position, with the given colour and
+// opacity.
 // FUN_0034F460
 void sdkSpriteDrawOnceAt(s32 packAddress, s32 image, f32 x, f32 y,
                    u8 red, u8 green, u8 blue, u8 alpha) {
@@ -217,7 +218,8 @@ void sdkSpriteDrawOnceAt(s32 packAddress, s32 image, f32 x, f32 y,
                   0x1000, 0x1000, 0.0f, 0, 0);
 }
 
-// Intent: Draw one sprite through a temporary node: allocate it, draw with the transform arguments, then free it [inferred]
+// Draw one sprite through a temporary node: allocate it, draw with the transform arguments, then
+// free it.
 // FUN_0034F4A0
 void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth,
                    u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY,
@@ -233,7 +235,8 @@ void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth
     sdkSpriteFreeNode(sprite);
 }
 
-// Intent: Countdown step for a 0x14-byte entry: when the countdown expires, choose a random state of -1 or 0 to 2 by distance and reset the countdown to 2 to 6 [inferred]
+// Countdown step for a community entry: on expiry, pick a random state of -1 or 0 to 2 by distance
+// and reset the countdown to 2 to 6.
 // FUN_0034F5D0
 void datCommunityEntryStep(u8 *communityEntry)
 {
@@ -244,7 +247,6 @@ void datCommunityEntryStep(u8 *communityEntry)
     s32 span;
     u32 choice;
 
-    /* measured: typing countdown retains its address across RpRandom, growing 336 to 348 bytes. */
     if (--((DatCommunityEntry *)(communityEntry))->countdown <= 0) {
         extent = ((DatCommunityEntry *)communityEntry)->extent;
         random = RpRandom() % (u32)(extent / 2 + 1);
@@ -270,7 +272,8 @@ void datCommunityEntryStep(u8 *communityEntry)
     }
 }
 
-// Intent: Fade of a grid cell from its fractions: the product of the two linear interpolations scaled by the third fraction, with range assertions [inferred]
+// Fade of a grid cell: product of the two linear interpolations scaled by the amount, with range
+// assertions.
 // FUN_0034F720
 f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount) {
     if ((xFraction < 0.0f) || !(xFraction <= 1.0f)) {
@@ -282,7 +285,6 @@ f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount) {
     if ((amount < 0.0f) || !(amount <= 1.0f)) {
         kAssertFail(D_0064B310, 0xD2);
     }
-    /* measured: typed width/height retain two addresses across assertions (476 versus 464 bytes). */
     if ((((CmpGridCell *)(cell))->width - 1) <= 0) {
         kAssertFail(D_0064B310, 0xD3);
     }
@@ -298,13 +300,13 @@ f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount) {
             yFraction);
 }
 
-// Intent: Step a 16-bit value one unit toward its target on a timer, re-roll on expiry, and snap when it passes the target [inferred]
+// Step a 16-bit value one unit toward its target on a timer, re-roll on expiry, and snap when it
+// passes the bound.
 // FUN_0034F8F0
 void datSmoothTargetStep(u8 *transition)
 {
   s32 difference;
   s32 magnitude;
-  /* measured: typed current/countdown change reload scheduling (228 versus 224 bytes). */
   ((DatSmoothTarget *)transition)->stepCountdown -= 1;
   if (((DatSmoothTarget *)transition)->stepCountdown < 0)
   {
@@ -322,7 +324,6 @@ void datSmoothTargetStep(u8 *transition)
       *((s16 *) (transition + 6)) += (s16) (difference / magnitude);
     }
     RpRandom();
-    /* measured: direct stepCountdown reset grows 224 to 232 bytes; preserve the reused byte offset. */
     difference = 8;
     *((s16 *) (transition + difference)) = 2;
   }
@@ -335,7 +336,7 @@ void datSmoothTargetStep(u8 *transition)
   }
 }
 
-// Intent: Draw the footer sprite group at the position with the given alpha, style and resource [inferred]
+// Draw the footer sprite group at the position with the given alpha, style and resource.
 // FUN_0034F9D0
 void sdkSpriteDrawFooter(FclVec2 unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress) {
     u8 *footerSprite1;

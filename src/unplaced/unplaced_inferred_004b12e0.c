@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 004b12e0-004b12e0 */
 
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -12,7 +11,6 @@ extern void func_004861f0(void *effect, f32 *matrix);
 extern void func_00486330(u8 *effect, void *matrix);
 extern void effMiscMatrixToQuatVU(f32 *matrix);
 /* Set effect translation and derive its quaternion from the supplied RenderWare matrix. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_004B12E0
 void mdlEffectSetMatrixPose(u8 *effect, u8 *matrix) {
     BtlShuffleMatrix *matrixFields = (BtlShuffleMatrix *)(matrix);

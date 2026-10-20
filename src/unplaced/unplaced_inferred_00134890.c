@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00134890-00135520 */
 
 #include "list_item_internal.h"
 #include "include_asm.h"
@@ -115,14 +114,15 @@ typedef struct {
     void * unk1588; /* +0x1588 */
 } RadarTransferWork;
 
-/* Use the preserved optimization-level defaults except for measured scoped overrides. */
 #pragma push
 #pragma optimization_level 2
-/* measured: separate assignments and declaration initializers both fold float stores (194 differing bytes). */
+/* measured: with propagation on, the float zero stores get folded whether they are written as
+ * separate assignments or as initializers. */
 #pragma opt_propagation off
-// Intent: Reset the layout state, choosing the target and start positions by comparing the counters at +0x2C and +0x34 [inferred]
+// Reset the layout state, choosing the target and start positions by comparing two counters.
 // FUN_00134890
-/* Earlier typed float/integer aliases changed 32 bytes; a separate typed work pointer preserves the reset. */
+/* A separate typed work pointer is used for the reset; typed float/integer aliases changed the
+ * output. */
 void radarResetLayout(u8 *work)
 {
     f32 zeroOffset;
@@ -177,7 +177,7 @@ void radarResetLayout(u8 *work)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Reset the state, clear the cursor, and store two indices at +0xC7A and +0xC7C [inferred]
+// Reset the state, clear the cursor, and store the source and target indices.
 // FUN_00134990
 void radarResetAndSetIndices(u8 *work, s16 sourceIndex, s16 targetIndex) {
     ((RadarTransferWork *)work)->unk13D0 = 0;
@@ -203,9 +203,9 @@ void radarResetAndSetIndices(u8 *work, s16 sourceIndex, s16 targetIndex) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Reset the state and begin a slide in from the +50 offset, copying the entry at +0x30 [inferred]
+// Reset the state and begin a slide-in from the +50 offset, copying the current entry.
 // FUN_001349F0
-/* Earlier direct-field typing changed codegen; the indexed/stride access below preserves the retail image. */
+/* Indexed stride access is used instead of direct typed fields, which changed the output. */
 void radarBeginSlideIn(u8 *work) {
     ((RadarTransferWork *)work)->unk13D0 = 0;
     ((RadarTransferWork *)work)->unk13E8.byte = 0xff;
@@ -227,9 +227,9 @@ void radarBeginSlideIn(u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Reset the state and begin a slide out to the -50 offset, copying the entry at +0x30 [inferred]
+// Reset the state and begin a slide-out to the -50 offset, copying the current entry.
 // FUN_00134A50
-/* Earlier direct-field typing changed codegen; the indexed/stride access below preserves the retail image. */
+/* Indexed stride access is used instead of direct typed fields, which changed the output. */
 void radarBeginSlideOut(u8 *work) {
     ((RadarTransferWork *)work)->unk13D0 = 0;
     ((RadarTransferWork *)work)->unk13E8.byte = 0xff;
@@ -251,7 +251,7 @@ void radarBeginSlideOut(u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Free the 52 sprite nodes in the second radar sprite table, then release the entries listed at +0x38 [inferred]
+// Free the 52 sprite nodes in the second radar sprite table, then release the listed entries.
 // FUN_00134AB0
 void radarReleaseSpritesAndEntries(u8 *work) {
     s32 sprite;
@@ -282,9 +282,9 @@ void radarReleaseSpritesAndEntries(u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Return 1 when the value at +0x20 is at least the threshold of every one of the 41 entries and the external check passes [inferred]
+// Return 1 when unk20 is at least the end frame of all 41 entries and the external check passes.
 // FUN_00134B60
-/* Earlier direct-field typing changed codegen; the indexed/stride access below preserves the retail image. */
+/* Indexed stride access is used instead of direct typed fields, which changed the output. */
 s32 radarWideEntriesCoverValue(u8 *work) {
     s32 covered = 1;
     s32 entryIndex = 0;
@@ -302,7 +302,7 @@ s32 radarWideEntriesCoverValue(u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Map the first set flag bit to an icon mode from 7 to 13 [inferred]
+// Map the first set flag bit to an icon mode from 7 to 13.
 // FUN_00134DA0
 s32 radarFlagToIconMode(s32 flags) {
     s32 result;
@@ -341,7 +341,7 @@ done:
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Draw a palette sprite pair at the given position, with the colour set chosen by the mode value [inferred]
+// Draw a palette sprite pair at the given position, with the colour set chosen by the mode value.
 // FUN_00134E50
 void radarDrawPalettePair(u8 *work, s64 position, s64 mode, u8 alpha)
 {
@@ -370,8 +370,10 @@ void radarDrawPalettePair(u8 *work, s64 position, s64 mode, u8 alpha)
 
 #pragma push
 #pragma optimization_level 2
-/* measured: RGB typing keeps the shared palette address; byte indexing differed by 320 bytes. */
-// Intent: Draw a palette sprite set for mode 0 (four sprites) or mode 1 (two sprites) [inferred]
+/* measured: typing the palette as RGB structs keeps the shared palette address that retail uses,
+ * unlike byte indexing. Draws a palette sprite set: four sprites for mode 0, two for mode 1. */
+/* Draw the palette sprite set at position: four sprites for mode 0, two for mode 1, tinted with the
+ * matching palette color and alpha. */
 // FUN_00134F40
 void radarDrawPaletteSet(u8 *work, s64 position, s64 mode, u8 alpha)
 {
@@ -419,7 +421,8 @@ void radarDrawPaletteSet(u8 *work, s64 position, s64 mode, u8 alpha)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Draw one item card: the bordered panel, its corner sprites, the entry row, and the value and count text [inferred]
+// Draw one item card: the bordered panel, its corner sprites, the entry row, and the value and
+// count text.
 // FUN_00135130
 void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
 {
@@ -511,7 +514,7 @@ void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Draw the header frame sprites when bit 2 of the flags is set, and the palette set when bit 1 is set [inferred]
+// Draw the header frame sprites when flag bit 2 is set, and the palette set when bit 1 is set.
 // FUN_00135520
 void radarDrawHeaderFrame(u8 *work, PackedVec2f position, u8 alpha, u16 flags)
 {

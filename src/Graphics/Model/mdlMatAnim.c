@@ -1,4 +1,4 @@
-/* Original translation unit mdlMatAnim.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit mdlMatAnim.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "include_asm.h"
 #include "Kosaka/k_clump_internal.h"
@@ -80,9 +80,6 @@ extern void *mdlMatAnimFlagMatchedAtomic(void *object, void *context);
 extern void *mdlMatAnimCountAtomicMatch(void *atomic, void *context);
 
 
-
-
-
 /* Allocates an empty material-animation list: a single head word set to null. */
 // FUN_0047F9F0
 s32 *mdlMatAnimCreateList(void)
@@ -127,9 +124,6 @@ void mdlMatAnimFreeList(s32 list)
 }
 
 
-
-
-
 /* Finds the node whose table is arg1, or whose table holds the same leading u32 entries (count at +4); NULL when none matches. */
 // FUN_0047FB50
 u8 *mdlMatAnimFindNodeByTable(u8 **list, s32 *table)
@@ -153,7 +147,7 @@ u8 *mdlMatAnimFindNodeByTable(u8 **list, s32 *table)
             entryIndex = 0;
             while (entryIndex < entryCount) {
                 entryOffset = (entryIndex & 0xFFFF) * 4;
-                /* measured: dividing the byte cursor for word indexing emits 184B against the 160B window; keep its native byte stride. */
+                /* measured: retail indexes entries by byte offset, not by word index. */
                 leftEntry = (u32 *)(*(u8 **)nodeTable + entryOffset);
                 rightEntry = (u32 *)(*(u8 **)table + entryOffset);
                 if (*leftEntry == *rightEntry) {
@@ -170,7 +164,6 @@ u8 *mdlMatAnimFindNodeByTable(u8 **list, s32 *table)
     }
     return NULL;
 }
-
 
 
 /* Scaled apply: for each node, initialises each enabled channel with the scale, then applies every table entry to that channel's working object. */
@@ -207,7 +200,8 @@ void mdlMatAnimApplyScaled(u8 **list, f32 scale)
 }
 
 
-/* For each node, dispatches the track rows when the second list has a matching table; otherwise applies every enabled channel with the pivot at +0x40 and the scales. */
+/* For each node, dispatches the track rows when the second list has a matching table; otherwise
+ * applies every enabled channel with the node pivot and the scales. */
 // FUN_0047FD10
 void mdlMatAnimUpdateList(u8 **list, f32 scale1, u8 **referenceList, f32 scale2, f32 scale3)
 {
@@ -226,7 +220,6 @@ void mdlMatAnimUpdateList(u8 **list, f32 scale1, u8 **referenceList, f32 scale2,
     node = *list;
     while (node != NULL) {
         materialNode = (MdlMatAnimNode *)node;
-        /* measured: retain a typed node pointer across the table lookup. */
         match = mdlMatAnimFindNodeByTable(referenceList, (s32 *)materialNode->table.bytes);
         if (match != NULL) {
             mdlDispatchTrackRows(node, match, scale1, scale2, scale3);
@@ -250,9 +243,8 @@ void mdlMatAnimUpdateList(u8 **list, f32 scale1, u8 **referenceList, f32 scale2,
 }
 
 
-
-
-/* For each node, applies every enabled channel's init callback with scale1, the node pivot at +0x40 and scale2, then applies each table entry to the working object. */
+/* For each node, applies every enabled channel's init callback with scale1, the node pivot and
+ * scale2, then applies each table entry to the working object. */
 // FUN_0047FE90
 void mdlMatAnimApplyWithPivot(u8 **list, f32 scale1, f32 scale2)
 {
@@ -286,9 +278,8 @@ void mdlMatAnimApplyWithPivot(u8 **list, f32 scale1, f32 scale2)
 }
 
 
-/* Copies each node's packed colour (+0x40) and three surface floats (+0x44..+0x4C) into every entry of its track table. The reads are volatile, per the measured note in the body. */
-/* Removing the inherited qualifier batch changed MATCH nd0 to MISMATCH nd14
- * at unchanged 152-byte size (W170, P3 donor 00320770); preserve that input. */
+/* Copies each node's packed colour and three surface floats into every entry of its track table.
+ * The reads are volatile, per the measured note in the body. */
 // FUN_0047FFC0
 void mdlMatAnimCopyNodeMaterial(s32 *object)
 {
@@ -349,10 +340,8 @@ void mdlMatAnimCopyNodeMaterial(s32 *object)
 }
 
 
-
-
-
-/* Returns the largest channel duration (+4) across all nodes whose channel data pointer (+0xC) is set; zero if none. */
+/* Returns the largest channel duration across all nodes whose channel data pointer is set; zero if
+ * none. */
 // FUN_00480060
 f32 mdlMatAnimMaxDuration(u8 **list)
 {
@@ -380,12 +369,9 @@ f32 mdlMatAnimMaxDuration(u8 **list)
 }
 
 
-
-/* Reads one material-animation chunk: header, material name, the matching materials in the clump, the track node for the first match (created if absent), and the channel selected by chunk tag 0xF0F00080..83. */
-/* 864/864 bytes; 27 resolved relocations; no alignment tail.
- * Aggregate material copies and a separate search result preserve retail
- * scheduling. Reuse the counter to stage the name length before reading.
- * Both loader paths supply only material chunk tags 0xF0F00080..83. */
+/* Reads one material-animation chunk: header, material name, the matching materials in the clump,
+ * the track node for the first match (created if absent), and the channel selected by chunk tag
+ * 0xF0F00080..83. Both loader paths supply only those four chunk tags. */
 // FUN_004800D0
 s32 mdlMatAnimLoadChunk(void *stream, u8 **list, u32 chunkTag, void *clump)
 {
@@ -458,7 +444,6 @@ looptest2:
         if (i < 4U) {
             goto loop2;
         }
-        /* measured: retain a typed node pointer for the three link stores. */
         materialNode = (MdlMatAnimNode *)node;
         materialNode->next.bytes = NULL;
         entry = (u8 *)mdlRetainU16Ref((s32)table);
@@ -495,7 +480,6 @@ looptest2:
     {
         u32 dataSize = header.count * header.stride;
         materialChannel = (MdlMatAnimChannel *)channel;
-        /* measured: retain a typed channel pointer across payload allocation. */
         if (materialChannel->data.bytes == NULL) {
             ((MdlMatAnimChannel *)channel)->count = header.count;
             ((MdlMatAnimChannel *)channel)->duration.value = header.duration;
@@ -509,7 +493,6 @@ looptest2:
     }
     return 1;
 }
-
 
 
 /* Material callback: appends the material to the collector and returns NULL when one of its user-data strings (type 3) equals the collector's name; otherwise returns the material so the walk continues. */
@@ -551,7 +534,6 @@ void *mdlMatAnimCollectMaterial(void *object, void *context)
 }
 
 
-
 /* Atomic callback: the first material collected for this atomic sets flag 0x40 on the atomic's geometry and stops the material walk. */
 // FUN_00480580
 void *mdlMatAnimFlagMatchedAtomic(void *object, void *context)
@@ -583,7 +565,6 @@ done:
 }
 
 
-
 /* Flags every atomic in the clump whose materials match the collector's name. */
 // FUN_00480630
 void *mdlMatAnimFlagClumpMatches(void *object, void *context)
@@ -591,9 +572,6 @@ void *mdlMatAnimFlagClumpMatches(void *object, void *context)
   RpClumpForAllAtomics(object,mdlMatAnimFlagMatchedAtomic,context);
   return object;
 }
-
-
-
 
 
 /* Atomic callback: for each material of the atomic, adds one to the counter at +4 of the stack result when a user-data string matches the name; each material counts once. Returns the atomic. */
@@ -656,8 +634,8 @@ u16 mdlMatAnimCountClumpMatches(void *object,u32 nameAddress)
 }
 
 
-
-/* Allocates a material collector for arg0 entries: the entry pointer at +0 targets the inline array at +0xC, the u16 count at +4 starts at zero, the u16 capacity at +6 is arg0, and a flag at +8 is one. */
+/* Allocates a material collector for capacity entries: the entry pointer targets the inline array
+ * after the header, count starts at zero, and references is one. */
 // FUN_00480840
 u8 *mdlMatAnimAllocCollector(s32 capacity)
 {

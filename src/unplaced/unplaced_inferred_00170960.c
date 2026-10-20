@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00170960-001714b0 */
 
 #include "mt_scene_internal.h"
 #include "field_frame_internal.h"
@@ -443,17 +442,6 @@ s32 FldStepAreaAltTriggerRun(u8 *task)
     }
     return 1;
 }
-
-/* measured: best plain-C body is 108B in the 112B retail window (112B),
-   normalized_diff 4; the sole residual bytes at offset 56 are retail
-   `andi $a3,$s1,0xffff` versus candidate `move $a3,$s1`. The file-scope
-   Encount_PickEncounter declaration remains (u16, u16, u16, s32) for matching
-   FldUnit_SpawnEncounter. Probed a block-scope fourth-parameter u16 prototype at
-   the function top, after locals, in an inner block, unnamed, and with
-   explicit narrowed locals/casts: each moved the mask before the two lhu
-   loads (nd 10); mixed third s32/fourth u16 gave nd 6. O1, schedule off,
-   and function-pointer casts did not improve it. Best body remains archived
-   at build/D178_00178870_body.c; committed form is bare INCLUDE_ASM. */
 
 /* The __FILE__ evidence groups 0x0017B510..0x0017CCC0 as one translation unit
    named k_shadow.c (tu_audit HIGH, score 5). That span and its helpers

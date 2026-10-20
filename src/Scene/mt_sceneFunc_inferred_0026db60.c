@@ -62,12 +62,7 @@ typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
 
-
-
 extern u8 D_00637420[];
-
-
-
 
 
 extern void (*jtbl_008873EC[])(void *);
@@ -89,54 +84,28 @@ extern u8 *func_003e9700(s32);
 extern u8 *kwlnGetCamera(void);
 extern void mdlEffectBuildObjectMatrix(s32 object, f32 *matrix);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026db60-0026e010 */
-
 extern f32 D_007612C4;
-/* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are
- * struct copies; each loop's i = 0 precedes the invariant scale products,
- * which opt_loop_invariants hoists while the (s16) conversion of the second
- * product stays in the loop as in retail. The closing call's position
- * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
- * colour parameter is declared u32 here (H011): retail converts arg2 for each
- * call and keeps the per-case colour copies in $fp/$s7. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: optimization-level probe for 00263220 register colouring */
-/* measured: closes optimization-level probe for 00263220 */
-/* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
+/* measured: loop-invariant hoisting moves (u8)opacity into the stack spill retail has; without it
+ * the value stays inside the fade block. */
 #pragma push
 #pragma pop
-/* The switch arms are in retail's jump-table order. Locals whose live ranges
- * are disjoint share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2,
- * temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's
- * register reuse across the cases shows. In case 7's day loop the date is
- * `temp_20` and the `* 0x5E` column is `var_2`, both dead outside that loop:
- * retail's register numbering follows which variable each value lives in, and
- * these give the $s3/$s4/$s5 order of the product, date and font word. The
- * render-state table goes through a u32 local, both fade rectangles are
- * {x,y,w,h} structs copied into the 16-byte argument, the case-5 and case-7
- * fallback tails are separate copies, and `temp_3_2 > 1` gives the slti $at
- * form. opt_lifetimes on is measured (102 -> 85 edits without the other levers). */
+/* Switch arms follow retail's jump-table order; locals with disjoint live ranges share one
+ * variable, matching retail's register reuse across cases. */
 #pragma push
 #pragma pop
-/* measured: closes the optimization_level bracket (nd 0). */
-/* Copy complete table objects; renderer callbacks may change the item index. */
-/* measured: 1296B/1296B.  Scalar out-parameters and CefV3 locals give the
-   retail frame; the s8 count local and the named segment index give the
-   hoisted point base under opt_loop_invariants; the control-point counters
-   are block-scoped so the sampling counter k is coloured first. */
 #pragma push
-/* measured: without it the point base is recomputed per iteration (271). */
+/* measured: without hoisting the point base is recomputed every iteration, unlike retail. */
 #pragma pop
-/* measured: optimization_level 1 register-coloring probe for func_0026db60. */
-/* measured: func_0026db60 MATCH -> MISMATCH without this pragma. */
+/* measured: retail register allocation for this function requires optimization level 1. */
 #pragma optimization_level 1
-/* measured: opt_propagation off probe for func_0026db60 loop test ordering. */
-// Intent: Update step of the SceneManager task, which holds the scene resource lists (retail task name "SceneManager Task") [inferred]
+/* Update step of the SceneManager task, which holds the scene resource lists (retail task name
+ * "SceneManager Task"). */
 // FUN_0026DB60
 s32 MT_SceneManager_TaskUpdate(u8 *unusedTask)
 {
@@ -181,9 +150,8 @@ second_exit:
     return 0;
 }
 
-/* measured: closes opt_propagation off probe for func_0026db60. */
-/* measured: closes optimization_level 1 register-coloring probe for func_0026db60. */
-/* measured: mtSceneUnitDepthCompare, rbRingBufCreate MATCH -> MISMATCH without this pragma. */
+/* measured: the following functions, including mtSceneUnitDepthCompare and rbRingBufCreate, only
+ * build like retail at optimization level 2. */
 #pragma optimization_level 2
 // FUN_0026DC30
 void MT_Scene_ShakeStopTask(u8 *unusedTask)
@@ -191,9 +159,10 @@ void MT_Scene_ShakeStopTask(u8 *unusedTask)
     MT_Scene_StopShake();
 }
 
-/* measured: opt_propagation off probe for mtSceneUnitDepthCompare float load scheduling. */
-/* measured: mtSceneUnitDepthCompare MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the float loads in mtSceneUnitDepthCompare unpropagated, so the scheduling
+ * only matches with propagation off. */
 #pragma opt_propagation off
+/* qsort comparator that orders two scene units by their distance from the current camera position. */
 // FUN_0026DC50
 /* Compare effect-resource distances from the active camera, truncating the distance difference to s32. */
 s32 mtSceneUnitDepthCompare(u8 **left, u8 **right)
@@ -251,7 +220,8 @@ s32 mtSceneUnitDepthCompare(u8 **left, u8 **right)
     return (s32)(leftDistance - RwV3dLength(frame.rightDelta));
 }
 
-/* measured: closes opt_propagation off probe for mtSceneUnitDepthCompare. */
+/* Collect the visible type-0 units from the resource list, sort them by distance from the camera,
+ * and flush each unit's effect in that order. */
 // FUN_0026DD60
 /* Collect active mode-0 effects, sort them by camera distance, queue them and release the temporary array. */
 void mtSceneDrawSortedUnits(u8 *resource)
@@ -320,7 +290,8 @@ loop_19_test:
     }
 }
 
-// Intent: Draw step of the SceneManager task (retail task name "SceneManager Draw"), walking the resource list [inferred]
+// Draw step of the SceneManager task (retail task name "SceneManager Draw"), walking the resource
+// list.
 // FUN_0026DEE0
 s32 MT_SceneManager_DrawUpdate(u8 *unusedTask)
 {
@@ -353,7 +324,8 @@ loop_test:
     return 0;
 }
 
-// Intent: Creates the SceneManager task pair (retail names "SceneManager Task" and "SceneManager Draw") and returns the parent task [inferred]
+// Creates the SceneManager task pair (retail names "SceneManager Task" and "SceneManager Draw") and
+// returns the parent task.
 // FUN_0026DF80
 s32 MT_SceneManager_Create(void)
 {
@@ -364,11 +336,8 @@ s32 MT_SceneManager_Create(void)
     return parentTask;
 }
 
-/* Allocate a header and count+1 linked records, including the wrap record.
-   measured: a u32 allocation base expresses the header as one word and
-   gives retail's saved-register assignment without pragmas. Keep the
-   pointer-value copy call and byte-stride helper. Exact 204B plus 4B zero tail. */
-// Intent: Allocates a ring buffer of count nodes at size-byte stride (rbRingBuf.c alloc site) [inferred]
+/* Allocates a ring buffer header plus count+1 linked nodes at size-byte stride, including the wrap
+ * node (rbRingBuf.c alloc site). */
 // FUN_0026E010
 s32 rbRingBufCreate(s32 size, s32 count)
 {

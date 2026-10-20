@@ -1,6 +1,6 @@
 #include "byte_address_internal.h"
 #include "model_callbacks_internal.h"
-/* Original translation unit evtScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit evtScript.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "fr_font_objects.h"
 #include "mdl_file_internal.h"
@@ -16,7 +16,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
-
 
 
 extern void chkmemAllocSiteTag(const void *file, s32 line);
@@ -35,7 +34,7 @@ extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern s32 kwlnTaskIsLinked(void *target);
 extern void MT_Scene_DestroyRes(u32);
 extern void MT_Scene_SetResActiveById(s32, s32);
-// lint: allow H011 -- measured: u16 prototype regresses evtNpcModelTaskUpdate and evtCmdNpcModelLoad (andi on wide id args)
+// lint: allow H011 -- a u16 prototype adds masking on the wide id arguments retail passes.
 extern u16 *MT_Scene_GetRes(s32);
 extern s32 mdlPrepareModel(u32 model);
 extern u8 *mdlGetColor(s32);
@@ -53,10 +52,8 @@ extern s32 frFontNodeWidth(u8 *node);
 extern void frFontMoveListToFloat(u8 *list, f32 x, f32 y);
 extern void frFontSetGlyphColor(u8 *list, s32 color);
 
-/* measured: the operands must travel through this helper's parameters to get
-   retail's offset-first `addu $v0,$v0,$s0`; every callsite spelling (p+scaled,
-   scaled+p, a named s32 local) is canonicalized back to base-first. Expand it at
-   the use rather than through a local, so nothing stays live across a call. */
+/* measured: passing the operands through this helper's parameters keeps retail's offset-first add
+ * order; expand it at each use. */
 
 
 extern void frFontListKeepOrRelease(u8 *list);
@@ -67,10 +64,8 @@ extern s32 evtNpcModelTaskUpdate(u8 *unusedTask);
 /* INCLUDE_ASM fallback below; address stored by evtRestartTaskUpdate. */
 extern void evtRestartTaskDraw(s32 unused, s32 task);
 
-// Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
-// in the donor): a typed prototype makes mwcc emit zero-extension codegen
-// retail never has.
+// Matches P3FES comuTimerSequence. kwlnTaskGetWork stays undeclared because a typed prototype adds
+// zero-extension code that retail does not have.
 
 /* The NPC loader allocates two words: model handle followed by event slot. */
 typedef struct EvtNpcLoadWork {
@@ -83,7 +78,8 @@ typedef struct EvtRestartWork {
     s32 frame;
 } EvtRestartWork;
 
-// Intent: NPC model task update: waits for the model, replaces the NPC shadow resource, and copies its colour into the event node; returns -1 when done [inferred]
+// NPC model task update: waits for the model, replaces the NPC shadow resource, and copies its
+// colour into the event node; returns -1 when done.
 // FUN_00298370
 s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
     EvtNpcLoadWork *slotFields;
@@ -123,7 +119,7 @@ s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
     }
     return 0;
 }
-// Intent: NPC model task destroy: frees the task's work block [inferred]
+// NPC model task destroy: frees the task's work block.
 // FUN_00298510
 void evtNpcModelTaskDestroy(u8 *unusedTask)
 {
@@ -132,7 +128,8 @@ void evtNpcModelTaskDestroy(u8 *unusedTask)
     work = kwlnTaskGetWork();
     DAT_008873ec_abs[0](work);
 }
-// Intent: Event command 0x3000, EVT_NPC_MODEL_LOAD (2 params): group 3 table entry 0x3000 in p4flow Event.json. Activates the NPC model resource when it matches, otherwise creates it [inferred]
+// Event command 0x3000 EVT_NPC_MODEL_LOAD (2 params): activates the NPC model resource when it
+// matches, otherwise creates it.
 // FUN_00298550
 s32 evtCmdNpcModelLoad(void)
 {
@@ -146,7 +143,8 @@ s32 evtCmdNpcModelLoad(void)
     modelId = scrGetParamInt(1);
     if (scrGetCmdTimer() == 0) {
         id = (u16)(((slot + 0x384) & 0x3FF) | 0xC00);
-        /* The nested model identity is a kind/id halfword pair at +0xD4/+0xD6; full model layout is unresolved. */
+        /* The nested model identity is a type/id halfword pair; the full model layout is
+         * unresolved. */
         if (MT_Scene_GetRes(id) != 0) {
             resource = (u8 *)MT_Scene_GetRes(id);
             if (((MdlFileModel *)(((ResrcRecord *)(resource))->modelHandle164Value))->type == 5 &&
@@ -172,12 +170,9 @@ s32 evtCmdNpcModelLoad(void)
 done:
     return 0;
 }
-/* The addu operand order this note called an allocator floor is fixed by the
-   `evtSlot` helper above, expanded at the use. The note was right that a named
-   s32 local and every p+scaled / scaled+p callsite spelling get canonicalized
-   back to base-first; only carrying the operands through a helper's parameters
-   holds the order, and expanding it per use keeps nothing live across a call. */
-// Intent: Event command 0x300C (EVT_FUNCTION_000C, 2 params): group 3 table entry 0x300C in Event.json. Writes the value into the event node's slot when the slot is below 5 [inferred]
+/* Event command 0x300C (EVT_FUNCTION_000C, 2 params): writes the value into the event node's slot
+ * when the slot is below 5. The evtSlot helper keeps the address operand order, which a named local
+ * or inline expression would canonicalize to base-first. */
 // FUN_00298700
 s32 evtCmdSetEventSlot(void) {
     s32 slot;
@@ -202,9 +197,10 @@ s32 evtCmdSetEventSlot(void) {
     return 1;
 }
 
-// Intent: Draws one centred window text line: applies the window slots, builds the entry, splits the run and draws it centred at fparg0 [inferred]
+// Draws one centred window text line: applies the window slots, builds the entry, splits the run
+// and draws it centred at x.
 // FUN_002987D0
-/* Font list nodes expose next at +0x24; the remaining glyph-node layout is not established here. */
+/* Font list nodes expose a next pointer; the remaining glyph-node layout is not established here. */
 void evtDrawCenteredWindowText(f32 x, f32 y, f32 depth, s32 color, s32 alpha,
                    s32 style, s32 flags, s32 kind, s32 messageManager, s32 entryIndex, s32 lineIndex)
 {
@@ -239,15 +235,9 @@ void evtDrawCenteredWindowText(f32 x, f32 y, f32 depth, s32 color, s32 alpha,
         }
     }
 }
-/* Measured: object 488B / retail window 496B / normalized_diff 0. Named
-   multiply-operand locals, assigned in retail order (converted delta first,
-   then the GP scale), reproduce the retail conversion/load sequence. The
-   prior archived nd8 claim was a differing-word count, not a body result.
-   Also ruled out: first-argument hoist/local forms, declaration reversal,
-   direct global load, comma assignment, schedule-off, inline evtMulScale and
-   evtRamp helpers, reversed multiply operands, alternate float casts, and
-   interleaved-parameter order (inapplicable: both target inputs are s32). */
-// Intent: Draws one restart label row, alpha-faded by the row's position within each 0x28-step window [inferred]
+/* Draws one restart label row, alpha-faded by the row's position within each 0x28-step window. The
+ * multiply operands are named locals assigned in retail order: converted delta first, then the GP
+ * scale. */
 // FUN_00298990
 void evtRestartTaskDraw(s32 unused, s32 task) {
     f32 phase;
@@ -288,7 +278,8 @@ void evtRestartTaskDraw(s32 unused, s32 task) {
         rowIndex += 1;
     }
 }
-// Intent: Restart task update: advances its counter, sets flag 0x1211 while input is held, and queues the draw callback [inferred]
+// Restart task update: advances its counter, sets flag 0x1211 while input is held, and queues the
+// draw callback.
 // FUN_00298B80
 s32 evtRestartTaskUpdate(u8 *sdkTaskBytes)
 {
@@ -307,7 +298,7 @@ s32 evtRestartTaskUpdate(u8 *sdkTaskBytes)
     PrimAppendNode(D_00795E60, p);
     return 0;
 }
-// Intent: Restart task destroy: clears flag 0x1211 and frees the task's work block [inferred]
+// Restart task destroy: clears flag 0x1211 and frees the task's work block.
 // FUN_00298C10
 void evtRestartTaskDestroy(u8 *unusedTask) {
     u8 *p = (u8 *)kwlnTaskGetWork();
@@ -316,7 +307,8 @@ void evtRestartTaskDestroy(u8 *unusedTask) {
     jtbl_008873EC[0](p);
 }
 
-// Intent: Event command 0x3032 (EVT_FUNCTION_0032, 0 params): group 3 table entry 0x3032 in Event.json. Clears flag 0x1211, destroys any existing restart task and creates a new one [inferred]
+// Event command 0x3032 (EVT_FUNCTION_0032, 0 params): clears flag 0x1211, destroys any existing
+// restart task and creates a new one.
 // FUN_00298C60
 s32 evtCmdRestartTask(void)
 {

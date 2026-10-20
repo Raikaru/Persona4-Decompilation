@@ -13,13 +13,9 @@ extern u8 D_006359C0[];
 
 extern f32 D_00761260;
 extern f32 fGpffff811c;
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
 
-/* Source unit: src/promoted/code1_0024.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00244cf0-00244cf0 */
-
-// Intent: Compute physical damage with the STR/END formula, then scale it by the battle hit counter plus one and an extra factor [inferred]
+// Compute physical damage with the STR/END formula, then scale it by the battle hit counter plus
+// one and an extra factor.
 // FUN_00244CF0
 void datScriptCalcPhysicalDamageScaled(void)
 {

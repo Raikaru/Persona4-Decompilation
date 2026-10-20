@@ -1,6 +1,5 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Source unit: src/Main/logoDraw_0012bbb0.c */
 #include "type.h"
 #include "primitive_queue_internal.h"
 
@@ -39,8 +38,8 @@ extern s32 logoTaskUpdate(u8 *sdkTaskBytes);
 extern void logoTaskDestroy(u8 *unusedTask);
 
 
-/* Keep the allocator table base as a u32 local so MWCCPS2 hoists its
- * address into $s2 and reuses it at both allocation call sites. */
+/* The allocator table base is kept in a u32 local so both allocation call sites reuse one hoisted
+ * address. */
 typedef struct {
     s32 state;
     s32 index;
@@ -167,7 +166,6 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
 }
 
 
-
 /* Destroy callback of the logo task: checks the child tasks, then releases them and the handle. */
 // FUN_0012BFB0
 void logoTaskDestroy(u8 *unusedTask)
@@ -220,7 +218,6 @@ void logoTaskDestroy(u8 *unusedTask)
     H_Cdvd_Destroy(work->handle);
     jtbl_008873EC[0](work);
 }
-
 
 
 /* Starts the logo task with the logo work block. */
