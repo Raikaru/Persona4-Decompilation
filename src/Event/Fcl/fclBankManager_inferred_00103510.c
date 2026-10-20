@@ -4,7 +4,10 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "kwln_task_internal.h"
+#include "kwln_view_internal.h"
+#include "rw_texture_internal.h"
 #include "sdk_ot_state_api.h"
 extern void strcpy(void *dst, void *src);
 extern void func_00440b68();
@@ -106,6 +109,47 @@ typedef struct FclBankDrawWork {
     FclBankVertex vertices[2][4];
 } FclBankDrawWork;
 
+/* Two resource/display records are stepped by 0x370 bytes in the bank table.
+ * Vertex storage is two quads of four 0x40-byte Im2D vertices. */
+typedef struct FclBankDisplay {
+    s16 state;
+    u8 pad02[2];
+    s16 firstId, secondId, thirdId;
+    u8 pad0a[2];
+    Float2_0010 position;
+    u8 *textures[2];
+    u8 red, green, blue, alpha;
+    f32 depth;
+    union { u8 *bytes; struct HCdvd *cdvd; } archive;
+    f32 scaleX, scaleY;
+    u8 pad30[0x18];
+    u8 *request;
+    s32 entryIndex;
+    s32 active, phase, ticks, phaseIndex;
+    u8 path[0x100];
+    FclBankVertex vertices[2][4];
+    s32 stripOffset;
+    s32 cleanupTicks, requestTicks, archiveTicks;
+} FclBankDisplay;
+
+typedef struct FclBankDescriptorEntry {
+    s32 firstId, secondId, thirdId, stripOffset;
+} FclBankDescriptorEntry;
+
+/* PrimAllocBatchNode's list links, draw callback and Im2D payload. */
+typedef struct PrimBatchNode {
+    s32 next, previous;
+    void *callback;
+    u8 pad0c[4];
+    s32 argument;
+    u8 pad14[4];
+    s16 kind;
+    u8 pad1a[2];
+    s32 primitive;
+    u8 *vertices;
+    s32 count;
+} PrimBatchNode;
+
 extern u8 D_00796460[];
 extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count);
 extern u8 iGpffff85d0;
@@ -200,6 +244,7 @@ void fclBankRenderStateFull(void)
 /* Primitive-node and camera byte-pointer APIs have no shared complete layout here; retain their ABI offsets. */
 // FUN_001036D0
 s32 fclBankTaskUpdate(u8 *task) {
+    FclBankDrawWork *stateFields;
     extern u8 *PrimAllocBatchNode(void);
     extern void PrimAppendNode(void *list, void *node);
     extern u8 D_005DD5D0[];
@@ -210,6 +255,7 @@ s32 fclBankTaskUpdate(u8 *task) {
     u8 *slot;
 
     state = ((struct KwlnTask *)task)->work;
+    stateFields = (FclBankDrawWork *)state;
     switch (((FclBankDrawWork *)state)->state) {
     case 0:
         {
@@ -218,7 +264,7 @@ s32 fclBankTaskUpdate(u8 *task) {
             s32 forty;
             s32 one;
 
-            scale = *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+            scale = ((KwlnView *)(u8 *)(u32)kwlnGetCamera())->unk80;
             inverse = 1.0f / scale;
             forty = 0x42800000;
             ((FclBankDrawWork *)state)->vertices[0][0].x.word = forty;
@@ -295,28 +341,28 @@ loop2_check:
             while (index < 2) {
                 slot = state + (index << 2) + 4;
                 *(u8 **)slot = PrimAllocBatchNode();
-                *(s16 *)(*(u8 **)slot + 0x18) = 11;
-                *(s32 *)(*(u8 **)slot + 0x1C) = 4;
-                *(u8 **)(*(u8 **)slot + 0x20) =
+                ((PrimBatchNode *)*(u8 **)slot)->kind = 11;
+                ((PrimBatchNode *)*(u8 **)slot)->primitive = 4;
+                ((PrimBatchNode *)*(u8 **)slot)->vertices =
                     state + (index << 8) + 0x10;
-                *(s32 *)(*(u8 **)slot + 0x24) = 4;
+                ((PrimBatchNode *)*(u8 **)slot)->count = 4;
                 index++;
             }
-            *(void **)(*(u8 **)(state + 4) + 8) = (void *)fclBankRenderStateBase;
-            *(s32 *)(*(u8 **)(state + 4) + 0x10) = 0;
-            *(void **)(*(u8 **)(state + 8) + 8) = (void *)fclBankRenderStateFull;
-            *(s32 *)(*(u8 **)(state + 8) + 0x10) = 0;
+            ((PrimBatchNode *)((FclBankDrawWork *)state)->nodes[0])->callback = (void *)fclBankRenderStateBase;
+            ((PrimBatchNode *)((FclBankDrawWork *)state)->nodes[0])->argument = 0;
+            ((PrimBatchNode *)((FclBankDrawWork *)state)->nodes[1])->callback = (void *)fclBankRenderStateFull;
+            ((PrimBatchNode *)((FclBankDrawWork *)state)->nodes[1])->argument = 0;
             ((FclBankDrawWork *)state)->state = ((FclBankDrawWork *)state)->state + 1;
             break;
         }
     case 1:
         sdkDbprtQueueText(iGpffff85c8, (const char *)D_005DD5D0);
-        *(s32 *)(*(u8 **)(state + 4) + 0) = 0;
-        *(s32 *)(*(u8 **)(state + 4) + 4) = 0;
-        *(s32 *)(*(u8 **)(state + 8) + 0) = 0;
-        *(s32 *)(*(u8 **)(state + 8) + 4) = 0;
-        PrimAppendNode(D_00793E80, *(u8 **)(state + 4));
-        PrimAppendNode(D_00793E80, *(u8 **)(state + 8));
+        ((PrimBatchNode *)((FclBankDrawWork *)state)->nodes[0])->next = 0;
+        ((PrimBatchNode *)((FclBankDrawWork *)state)->nodes[0])->previous = 0;
+        ((PrimBatchNode *)((FclBankDrawWork *)state)->nodes[1])->next = 0;
+        ((PrimBatchNode *)((FclBankDrawWork *)state)->nodes[1])->previous = 0;
+        PrimAppendNode(D_00793E80, ((FclBankDrawWork *)state)->nodes[0]);
+        PrimAppendNode(D_00793E80, stateFields->nodes[1]);
         break;
     }
     return 0;
@@ -334,10 +380,10 @@ loop2_check:
 void fclBankTaskDestroy(u8 *task) {
     u8 *state;
 
-    state = *(u8 **)(task + 0x38);
-    PrimFreeBatchNode(*(s32 *)(state + 4));
-    PrimFreeBatchNode(*(s32 *)(state + 8));
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    state = ((struct KwlnTask *)task)->work;
+    PrimFreeBatchNode((s32)((FclBankDrawWork *)state)->nodes[0]);
+    PrimFreeBatchNode((s32)((FclBankDrawWork *)state)->nodes[1]);
+    jtbl_008873EC[0](MEMBER(u8 *, task, struct KwlnTask, work));
 }
 #pragma pop
 
@@ -368,10 +414,10 @@ void fclBankTableReset(void)
     s16 j;
 
     for (i = 0; i < 2; ++i) {
-        *(s16 *)(D_00796700 + (i * 0x370)) = 0;
-        *(s32 *)(D_00796700 + (i * 0x370) + 0x50) = 0;
+        ((FclBankDisplay *)D_00796700)[i].state = 0;
+        ((FclBankDisplay *)D_00796700)[i].active = 0;
         for (j = 0; j < 2; ++j) {
-            *(s32 *)(D_00796700 + (i * 0x370) + (j * 4) + 0x14) = 0;
+            ((FclBankDisplay *)D_00796700)[i].textures[j] = NULL;
         }
     }
 }
@@ -422,6 +468,7 @@ struct RwTexture;
 // FUN_00103C40
 void fclBankSlotLoad(u8 *slot)
 {
+    FclBankDisplay *slotFields = (FclBankDisplay *)slot;
     extern u8 D_005DD630[];
     extern u8 D_005DD640[];
     extern u8 D_005DD670[];
@@ -446,45 +493,45 @@ void fclBankSlotLoad(u8 *slot)
     u8 *request;
     s32 offset;
 
-    state = *(s16 *)slot;
+    state = ((FclBankDisplay *)slot)->state;
     switch (state) {
     case 1:
-        *(s32 *)(slot + 0x36C) = *(s32 *)(slot + 0x36C) + 1;
-        if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)(slot + 0x24)) == 0) {
+        ((FclBankDisplay *)slot)->archiveTicks = ((FclBankDisplay *)slot)->archiveTicks + 1;
+        if (H_Cdvd_IsFileLoaded(((FclBankDisplay *)slot)->archive.cdvd) == 0) {
             break;
         }
-        if (H_Cdvd_ArchiveEntryName(*(struct HCdvd **)(slot + 0x24),
-                          *(s32 *)(slot + 0x4C)) != NULL) {
+        if (H_Cdvd_ArchiveEntryName(slotFields->archive.cdvd,
+                          ((FclBankDisplay *)slot)->entryIndex) != NULL) {
             sprintf(slot + 0x60, D_005DD630,
-                           H_Cdvd_ArchiveEntryName(*(struct HCdvd **)(slot + 0x24),
-                                          *(s32 *)(slot + 0x4C)));
-            *(u8 **)(slot + 0x48) =
+                           H_Cdvd_ArchiveEntryName(MEMBER(struct HCdvd *, slot, FclBankDisplay, archive.bytes),
+                                          MEMBER(s32, slot, FclBankDisplay, entryIndex)));
+            ((FclBankDisplay *)slot)->request =
                 filerEnqueueRequest(0, (const char *)slot + 0x60, NULL,
                               0, 0, 0, 0, NULL, 0, 0);
-            *(s16 *)slot = 2;
+            ((FclBankDisplay *)slot)->state = 2;
             break;
         }
-        H_Cdvd_Destroy(*(struct HCdvd **)(slot + 0x24));
-        *(u8 **)(slot + 0x24) = NULL;
-        *(s16 *)slot = 3;
-        func_00440b68(D_005DD640, *(s16 *)(slot + 4),
-                      *(s16 *)(slot + 6), *(s16 *)(slot + 8),
-                      *(s32 *)(slot + 0x364), *(s32 *)(slot + 0x368),
-                      *(s32 *)(slot + 0x36C));
+        H_Cdvd_Destroy(MEMBER(struct HCdvd *, slot, FclBankDisplay, archive.bytes));
+        MEMBER(u8 *, slot, FclBankDisplay, archive.bytes) = NULL;
+        ((FclBankDisplay *)slot)->state = 3;
+        func_00440b68(D_005DD640, ((FclBankDisplay *)slot)->firstId,
+                      ((FclBankDisplay *)slot)->secondId, ((FclBankDisplay *)slot)->thirdId,
+                      ((FclBankDisplay *)slot)->cleanupTicks, ((FclBankDisplay *)slot)->requestTicks,
+                      MEMBER(s32, slot, FclBankDisplay, archiveTicks));
         break;
     case 2:
-        *(s32 *)(slot + 0x368) = *(s32 *)(slot + 0x368) + 1;
-        texture = filerTakeCompletedRequest(*(u8 **)(slot + 0x48), &complete, NULL);
-        offset = *(s32 *)(slot + 0x4C) * 4;
-        *(u8 **)(offset + (u32)slot + 0x14) = texture;
+        ((FclBankDisplay *)slot)->requestTicks = ((FclBankDisplay *)slot)->requestTicks + 1;
+        texture = filerTakeCompletedRequest(((FclBankDisplay *)slot)->request, &complete, NULL);
+        offset = ((FclBankDisplay *)slot)->entryIndex * 4;
+        MEMBER(u8 *, offset + (u32)slot, FclBankDisplay, textures[0]) = texture;
         if (complete != 0) {
-            offset = *(s32 *)(slot + 0x4C) * 4;
-            texture = *(u8 **)(offset + (u32)slot + 0x14);
-            *(u32 *)(texture + 0x50) =
-                (*(u32 *)(texture + 0x50) & 0xFFFF00FF) | 0x3300;
-            *(u8 **)(slot + 0x48) = NULL;
-            *(s32 *)(slot + 0x4C) = *(s32 *)(slot + 0x4C) + 1;
-            *(s16 *)slot = 1;
+            offset = MEMBER(s32, slot, FclBankDisplay, entryIndex) * 4;
+            texture = MEMBER(u8 *, offset + (u32)slot, FclBankDisplay, textures[0]);
+            ((RwTexture *)texture)->filterAddressing =
+                (((RwTexture *)texture)->filterAddressing & 0xFFFF00FF) | 0x3300;
+            MEMBER(u8 *, slot, FclBankDisplay, request) = NULL;
+            MEMBER(s32, slot, FclBankDisplay, entryIndex) = MEMBER(s32, slot, FclBankDisplay, entryIndex) + 1;
+            ((FclBankDisplay *)slot)->state = 1;
             break;
         }
         break;
@@ -493,17 +540,17 @@ void fclBankSlotLoad(u8 *slot)
         break;
     case 5:
     case 6:
-        *(s32 *)(slot + 0x364) = *(s32 *)(slot + 0x364) + 1;
-        request = *(u8 **)(slot + 0x48);
+        ((FclBankDisplay *)slot)->cleanupTicks = ((FclBankDisplay *)slot)->cleanupTicks + 1;
+        request = ((FclBankDisplay *)slot)->request;
         if (request != NULL) {
-            sdkWrapStreamCloseCreate((s32)request, *(u8 **)(slot + 0x24));
-            *(u8 **)(slot + 0x48) = NULL;
-            *(u8 **)(slot + 0x24) = NULL;
+            sdkWrapStreamCloseCreate((s32)request, MEMBER(u8 *, slot, FclBankDisplay, archive.bytes));
+            MEMBER(u8 *, slot, FclBankDisplay, request) = NULL;
+            MEMBER(u8 *, slot, FclBankDisplay, archive.bytes) = NULL;
         } else {
-            archive = *(u8 **)(slot + 0x24);
+            archive = ((FclBankDisplay *)slot)->archive.bytes;
             if (archive != NULL) {
                 H_Cdvd_Destroy((struct HCdvd *)archive);
-                *(u8 **)(slot + 0x24) = NULL;
+                MEMBER(u8 *, slot, FclBankDisplay, archive.bytes) = NULL;
             }
         }
         index = 0;
@@ -515,12 +562,12 @@ void fclBankSlotLoad(u8 *slot)
             }
             index++;
         }
-        if (*(s16 *)slot != 6) {
-            *(s16 *)slot = 0;
+        if (((FclBankDisplay *)slot)->state != 6) {
+            ((FclBankDisplay *)slot)->state = 0;
         } else {
             func_00440b68((u8 *)&iGpffff85d0 + 8, D_005DD670, 0xC5);
-            *(u8 **)(slot + 0x24) = H_Cdvd_AcquireDirectory(slot + 0x60, 1);
-            *(s16 *)slot = 1;
+            ((FclBankDisplay *)slot)->archive.bytes = H_Cdvd_AcquireDirectory(slot + 0x60, 1);
+            ((FclBankDisplay *)slot)->state = 1;
         }
         break;
     case 0:
@@ -541,6 +588,7 @@ void fclBankSlotLoad(u8 *slot)
 // FUN_00103F00
 void fclBankSlotUpdate(u8 *display)
 {
+    FclBankDisplay *displayFields = (FclBankDisplay *)display;
     s32 table[6];
     f32 pos[2];
     f32 depth;
@@ -571,107 +619,107 @@ void fclBankSlotUpdate(u8 *display)
     kwlnGetCamera();
     a = display[0x1F];
     if (a != 0) {
-        depth = *(f32 *)(display + 0x20);
+        depth = ((FclBankDisplay *)display)->depth;
         b = display[0x1E];
         g = display[0x1D];
         r = display[0x1C];
-        inverse = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+        inverse = 1.0f / ((KwlnView *)(u8 *)(u32)kwlnGetCamera())->unk80;
         {
             s32 i;
             u8 *quad;
 
             for (i = 0; i < 4; i++) {
                 quad = display + (i << 6);
-                *(f32 *)(quad + 0x180) = (f32)r;
-                *(f32 *)(quad + 0x184) = (f32)g;
-                *(f32 *)(quad + 0x188) = (f32)b;
-                *(f32 *)(quad + 0x18C) = (f32)a;
-                *(f32 *)(quad + 0x168) = RwIm2DGetNearScreenZ() - depth;
-                *(f32 *)(quad + 0x178) = inverse;
+                ((FclBankVertex *)(quad + 0x160))->red.value = (f32)r;
+                ((FclBankVertex *)(quad + 0x160))->green.value = (f32)g;
+                ((FclBankVertex *)(quad + 0x160))->blue.value = (f32)b;
+                ((FclBankVertex *)(quad + 0x160))->alpha.value = (f32)a;
+                ((FclBankVertex *)(quad + 0x160))->z.value = RwIm2DGetNearScreenZ() - depth;
+                ((FclBankVertex *)(quad + 0x160))->reciprocalZ.value = inverse;
             }
         }
-        *(Float2_0010 *)pos = *(Float2_0010 *)(display + 0xC);
-        halfWidth = (512.0f * *(f32 *)(display + 0x28)) / 2.0f;
-        halfHeight = (256.0f * *(f32 *)(display + 0x2C)) / 2.0f;
+        *(Float2_0010 *)pos = ((FclBankDisplay *)display)->position;
+        halfWidth = (512.0f * ((FclBankDisplay *)display)->scaleX) / 2.0f;
+        halfHeight = (256.0f * ((FclBankDisplay *)display)->scaleY) / 2.0f;
         fx = pos[0];
         x0 = 256.0f + fx;
         left = x0 - halfWidth;
-        *(f32 *)(display + 0x160) = left;
+        ((FclBankDisplay *)display)->vertices[0][0].x.value = left;
         fy = pos[1];
         y0 = 128.0f + fy;
         top = y0 - halfHeight;
-        *(f32 *)(display + 0x164) = top;
+        ((FclBankDisplay *)display)->vertices[0][0].y.value = top;
         right = (x0 + halfWidth) - 1.0f;
-        *(f32 *)(display + 0x1A0) = right;
-        *(f32 *)(display + 0x1A4) = top;
-        *(f32 *)(display + 0x1E0) = left;
+        ((FclBankDisplay *)display)->vertices[0][1].x.value = right;
+        ((FclBankDisplay *)display)->vertices[0][1].y.value = top;
+        ((FclBankDisplay *)display)->vertices[0][2].x.value = left;
         bottom = (y0 + halfHeight) - 1.0f;
-        *(f32 *)(display + 0x1E4) = bottom;
-        *(f32 *)(display + 0x220) = right;
-        *(f32 *)(display + 0x224) = bottom;
+        ((FclBankDisplay *)display)->vertices[0][2].y.value = bottom;
+        ((FclBankDisplay *)display)->vertices[0][3].x.value = right;
+        ((FclBankDisplay *)display)->vertices[0][3].y.value = bottom;
         kwlnGetCamera();
-        *(s32 *)(display + 0x170) = 0;
-        *(s32 *)(display + 0x174) = 0;
-        *(s32 *)(display + 0x1B0) = 0x3F800000;
-        *(s32 *)(display + 0x1B4) = 0;
-        *(s32 *)(display + 0x1F0) = 0;
-        *(s32 *)(display + 0x1F4) = 0x3F800000;
-        *(s32 *)(display + 0x230) = 0x3F800000;
-        *(s32 *)(display + 0x234) = 0x3F800000;
-        PrimQueueStateSet(D_00796460, 1, **(s32 **)(display + 0x14));
+        ((FclBankDisplay *)display)->vertices[0][0].u.word = 0;
+        ((FclBankDisplay *)display)->vertices[0][0].v.word = 0;
+        ((FclBankDisplay *)display)->vertices[0][1].u.word = 0x3F800000;
+        ((FclBankDisplay *)display)->vertices[0][1].v.word = 0;
+        ((FclBankDisplay *)display)->vertices[0][2].u.word = 0;
+        ((FclBankDisplay *)display)->vertices[0][2].v.word = 0x3F800000;
+        ((FclBankDisplay *)display)->vertices[0][3].u.word = 0x3F800000;
+        ((FclBankDisplay *)display)->vertices[0][3].v.word = 0x3F800000;
+        PrimQueueStateSet(D_00796460, 1, MEMBER(s32, ((FclBankDisplay *)display)->textures[0], RwTexture, raster));
         PrimQueueDrawPrimitive(D_00796460, 4, display + 0x160, 4);
-        if (*(s32 *)(display + 0x4C) >= 2) {
+        if (((FclBankDisplay *)display)->entryIndex >= 2) {
             a = display[0x1F];
-            if (a == 0xFF && *(s32 *)(display + 0x50) != 0) {
-                if (*(s32 *)(display + 0x54) != 0) {
-                    depth = *(f32 *)(display + 0x20);
+            if (a == 0xFF && ((FclBankDisplay *)display)->active != 0) {
+                if (displayFields->phase != 0) {
+                    depth = MEMBER(f32, display, FclBankDisplay, depth);
                     b = display[0x1E];
                     g = display[0x1D];
                     r = display[0x1C];
-                    inverse = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+                    inverse = 1.0f / ((KwlnView *)(u8 *)(u32)kwlnGetCamera())->unk80;
                     {
                         s32 i;
                         u8 *quad;
 
                         for (i = 0; i < 4; i++) {
                             quad = display + (i << 6);
-                            *(f32 *)(quad + 0x280) = (f32)r;
-                            *(f32 *)(quad + 0x284) = (f32)g;
-                            *(f32 *)(quad + 0x288) = (f32)b;
-                            *(f32 *)(quad + 0x28C) = (f32)a;
-                            *(f32 *)(quad + 0x268) = RwIm2DGetNearScreenZ() - depth;
-                            *(f32 *)(quad + 0x278) = inverse;
+                            ((FclBankVertex *)(quad + 0x260))->red.value = (f32)r;
+                            ((FclBankVertex *)(quad + 0x260))->green.value = (f32)g;
+                            ((FclBankVertex *)(quad + 0x260))->blue.value = (f32)b;
+                            ((FclBankVertex *)(quad + 0x260))->alpha.value = (f32)a;
+                            ((FclBankVertex *)(quad + 0x260))->z.value = RwIm2DGetNearScreenZ() - depth;
+                            ((FclBankVertex *)(quad + 0x260))->reciprocalZ.value = inverse;
                         }
                     }
-                    offset = (f32)*(s32 *)(display + 0x360);
-                    halfWidth = (512.0f * *(f32 *)(display + 0x28)) / 2.0f;
-                    halfHeight = (64.0f * *(f32 *)(display + 0x2C)) / 2.0f;
+                    offset = (f32)((FclBankDisplay *)display)->stripOffset;
+                    halfWidth = (512.0f * MEMBER(f32, display, FclBankDisplay, scaleX)) / 2.0f;
+                    halfHeight = (64.0f * MEMBER(f32, display, FclBankDisplay, scaleY)) / 2.0f;
                     fx = pos[0];
                     x0 = 256.0f + fx;
                     left = x0 - halfWidth;
-                    *(f32 *)(display + 0x260) = left;
+                    ((FclBankDisplay *)display)->vertices[1][0].x.value = left;
                     fy = pos[1];
                     y0 = 32.0f + fy;
                     top = offset + (y0 - halfHeight);
-                    *(f32 *)(display + 0x264) = top;
+                    ((FclBankDisplay *)display)->vertices[1][0].y.value = top;
                     right = (x0 + halfWidth) - 1.0f;
-                    *(f32 *)(display + 0x2A0) = right;
-                    *(f32 *)(display + 0x2A4) = top;
-                    *(f32 *)(display + 0x2E0) = left;
+                    ((FclBankDisplay *)display)->vertices[1][1].x.value = right;
+                    ((FclBankDisplay *)display)->vertices[1][1].y.value = top;
+                    ((FclBankDisplay *)display)->vertices[1][2].x.value = left;
                     bottom = (offset + (y0 + halfHeight)) - 1.0f;
-                    *(f32 *)(display + 0x2E4) = bottom;
-                    *(f32 *)(display + 0x320) = right;
-                    *(f32 *)(display + 0x324) = bottom;
+                    ((FclBankDisplay *)display)->vertices[1][2].y.value = bottom;
+                    ((FclBankDisplay *)display)->vertices[1][3].x.value = right;
+                    ((FclBankDisplay *)display)->vertices[1][3].y.value = bottom;
                     kwlnGetCamera();
-                    *(s32 *)(display + 0x270) = 0;
-                    *(s32 *)(display + 0x274) = 0;
-                    *(s32 *)(display + 0x2B0) = 0x3F800000;
-                    *(s32 *)(display + 0x2B4) = 0;
-                    *(s32 *)(display + 0x2F0) = 0;
-                    *(s32 *)(display + 0x2F4) = 0x3F800000;
-                    *(s32 *)(display + 0x330) = 0x3F800000;
-                    *(s32 *)(display + 0x334) = 0x3F800000;
-                    PrimQueueStateSet(D_00796460, 1, **(s32 **)(display + 0x18));
+                    ((FclBankDisplay *)display)->vertices[1][0].u.word = 0;
+                    ((FclBankDisplay *)display)->vertices[1][0].v.word = 0;
+                    ((FclBankDisplay *)display)->vertices[1][1].u.word = 0x3F800000;
+                    ((FclBankDisplay *)display)->vertices[1][1].v.word = 0;
+                    ((FclBankDisplay *)display)->vertices[1][2].u.word = 0;
+                    ((FclBankDisplay *)display)->vertices[1][2].v.word = 0x3F800000;
+                    ((FclBankDisplay *)display)->vertices[1][3].u.word = 0x3F800000;
+                    ((FclBankDisplay *)display)->vertices[1][3].v.word = 0x3F800000;
+                    PrimQueueStateSet(D_00796460, 1, MEMBER(s32, ((FclBankDisplay *)display)->textures[1], RwTexture, raster));
                     PrimQueueDrawPrimitive(D_00796460, 4, display + 0x260, 4);
                 }
                 src = (s32 *)D_005DD680;
@@ -686,19 +734,19 @@ void fclBankSlotUpdate(u8 *display)
                     dst[1] = hi;
                     dst += 2;
                 } while (n > 0);
-                count = *(s32 *)(display + 0x58) - 1;
-                *(s32 *)(display + 0x58) = count;
+                count = ((FclBankDisplay *)display)->ticks - 1;
+                ((FclBankDisplay *)display)->ticks = count;
                 if (count <= 0) {
-                    if (*(s32 *)(display + 0x54) != 0) {
-                        *(s32 *)(display + 0x54) = 0;
+                    if (MEMBER(s32, display, FclBankDisplay, phase) != 0) {
+                        ((FclBankDisplay *)display)->phase = 0;
                     } else {
-                        *(s32 *)(display + 0x54) = 1;
+                        ((FclBankDisplay *)display)->phase = 1;
                     }
-                    index = *(s32 *)(display + 0x5C) + 1;
-                    *(s32 *)(display + 0x5C) = index;
+                    index = ((FclBankDisplay *)display)->phaseIndex + 1;
+                    ((FclBankDisplay *)display)->phaseIndex = index;
                     index = index % 6;
-                    *(s32 *)(display + 0x5C) = index;
-                    *(s32 *)(display + 0x58) = table[index];
+                    ((FclBankDisplay *)display)->phaseIndex = index;
+                    MEMBER(s32, display, FclBankDisplay, ticks) = table[index];
                 }
             }
         }
@@ -715,7 +763,7 @@ void fclBankSlotUpdate(u8 *display)
 /* The state table is an interior linker alias with a 0x370-byte display stride. */
 // FUN_001044D0
 void fclBankMarkDone(s64 bank) {
-    *(s16 *)(D_00796700 + ((s16)bank * 0x370)) = 5;
+    ((FclBankDisplay *)D_00796700)[(s16)bank].state = 5;
 }
 #pragma pop
 
@@ -737,7 +785,7 @@ void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
 
     func_00440b68(D_005DD6A0, bank);
     offset = (bank * 0x38 - bank) * 0x10;
-    *(s16 *)(D_00796700 + offset) = 5;
+    ((FclBankDisplay *)(D_00796700 + offset))->state = 5;
     *(s32 *)(D_0079674C + offset) = 0;
     *(s16 *)(D_00796704 + offset) = firstId;
     *(s16 *)(D_00796706 + offset) = secondId;
@@ -745,7 +793,7 @@ void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
     sprintf(buf, D_005DD6C0,
                   (s32)firstId, (s32)secondId, (s32)thirdId);
     strcpy(D_00796700 + offset + 0x60, buf);
-    *(s16 *)(D_00796700 + offset) = 6;
+    ((FclBankDisplay *)(D_00796700 + offset))->state = 6;
     *(s32 *)(D_00796A64 + offset) = 0;
     *(s32 *)(D_00796A68 + offset) = 0;
     *(s32 *)(D_00796A6C + offset) = 0;
@@ -762,8 +810,8 @@ void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
         if (*(s32 *)entry == -1)
             break;
         if ((s32)firstId == *(s32 *)entry &&
-            (s32)secondId == *(s32 *)(entry + 4) &&
-            (s32)thirdId == *(s32 *)(entry + 8)) {
+            (s32)secondId == ((FclBankDescriptorEntry *)entry)->secondId &&
+            (s32)thirdId == ((FclBankDescriptorEntry *)entry)->thirdId) {
             *(s32 *)(D_00796A60 + offset) =
                 *(s32 *)(D_005DD61C + i * 0x10);
             found = 0;
@@ -848,6 +896,6 @@ u8 *fclBankGetPositionPtr(s64 bank) {
 /* The state table is an interior linker alias with a 0x370-byte display stride. */
 // FUN_001048C0
 s32 fclBankIsWaiting(s64 bank) {
-    return *(s16 *)(D_00796700 + ((s16)bank * 0x370)) == 3;
+    return ((FclBankDisplay *)D_00796700)[(s16)bank].state == 3;
 }
 #pragma pop
