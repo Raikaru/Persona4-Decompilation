@@ -59,9 +59,9 @@ extern void mtMiscCollectType1Records(u8 *eventWork);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029e980-0029e980 */
 
+/* Release hook called by active-script-handle cleanup; this retail implementation has no side effects. */
 // FUN_0029E980
-/* Retail contains an empty script-process hook; no side effects are established. */
-void func_0029e980(void)
+void scrProcessReleaseNoop(void)
 {
 }
 
