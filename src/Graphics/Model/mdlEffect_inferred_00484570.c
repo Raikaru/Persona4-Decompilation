@@ -56,9 +56,6 @@ extern f32 fGpffff8044;
 
 
 extern void (*jtbl_008873EC[])(void *);
-static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
-    fn(value);
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484570-004846d0 */
 
@@ -118,9 +115,7 @@ void mdlEffectDestroyPrimitiveRecord(u8 *recordData) {
         if (releaseCallback == NULL) {
             kAssertFail(D_00713470, 0x2EB);
         }
-        code1_0048_call(
-            D_00713490[((MdlEffectPrimitiveRecord *)record)->kind].release,
-            ((MdlEffectPrimitiveRecord *)record)->instance.handle);
+        (D_00713490[((MdlEffectPrimitiveRecord *)record)->kind].release)(((MdlEffectPrimitiveRecord *)record)->instance.handle);
     }
     mdlEffectReleasePrimarySource(record);
     mdlEffectReleaseSecondarySource(record);

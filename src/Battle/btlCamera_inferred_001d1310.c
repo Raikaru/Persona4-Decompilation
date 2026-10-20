@@ -54,14 +54,7 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
-
 extern s32 btlUnitRealignCells(void);
-
 
 
 extern f32 D_0060A100[];
@@ -72,10 +65,7 @@ extern f32 fGpffff8110;
 /* Source unit: src/promoted/code1_001d.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d1310-001d1cc0 */
 
-static inline f32 formationCapacityLimit(s32 limit)
-{
-    return (f32)limit;
-}
+
 /* Count living enemies into three radius/height capacity bands plus a total. */
 // FUN_001D1310
 void btlCameraCountUnitsByBand(u16 *counts) {
@@ -307,7 +297,7 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                 s32 occupiedOffset;
                 u8 *entry;
                 chosen = 5;
-                leastRadius = formationCapacityLimit(100000000);
+                leastRadius = ((f32)(100000000));
                 leastHeight = leastRadius;
                 scale = ((BtlUnit *)enemy)->scale;
                 radius = (f32)(s32)(((BtlUnit *)enemy)->sphereRadius * scale);
@@ -331,7 +321,7 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                 }
                 if ((u16)chosen >= 5) {
                     chosen = 5;
-                    leastRadius = formationCapacityLimit(100000000);
+                    leastRadius = ((f32)(100000000));
                     leastHeight = leastRadius;
                     for (cursor.index = 0; (u16)cursor.index < 5; cursor.index++) {
                         cursor.current = (u16)cursor.index;

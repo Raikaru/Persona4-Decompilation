@@ -62,10 +62,7 @@ extern void btlBossCollectTargets(u8 *);
 extern u32 iGpffffa0b8;
 s64 btlPacketEnqueue(u8 *, u32);
 extern u8 D_005FB400[];
-static inline u8 *battleAddByteOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
+
 extern BtlPacket *btlFormationCreatePacket(u32, u32, u32, u16, u32);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
@@ -335,7 +332,7 @@ void btlActionExitUpdate(u8 *action)
                     if (entry != NULL) {
                         if (((BtlEncounterEntry *)entry)->unitData ==
                             ((BtlUnit *)unit)->datUnit) {
-                            found = *(u8 * *)&((BtlBattleState *)(battleAddByteOffset(offset, base)))->encounter.partyUnits[0];
+                            found = *(u8 * *)&((BtlBattleState *)(((u8 *)((offset) + (u32)(base)))))->encounter.partyUnits[0];
                             break;
                         }
                     }

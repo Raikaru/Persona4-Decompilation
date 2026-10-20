@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "member_access.h"
 #include "fcl_object_internal.h"
 #include "kwln_task_internal.h"
@@ -76,7 +77,7 @@ typedef struct FclShopWork {
 } FclShopWork;
 typedef char FclShopWorkSize[sizeof(FclShopWork) == 0x1174 ? 1 : -1];
 
-static inline f32 shopAdd(f32 left, f32 right) { return left + right; }
+
 
 
 /* Shop's loaded CDVD request supplies the message data at +0x110. The
@@ -3272,6 +3273,7 @@ void fclShopDrawItemList(void *task, s8 drawOnly) {
    per-branch duplicates (+5 count from new spill). Repro: measure_guarded
    --save-candidate + fnalign --candidate <path> --quiet. */
 
+/* Draw a shop label with the supplied position, size, and packed color. */
 static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 color)
 {
     frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, size, color, 0, 1, text, 0, 0, D_00795E30, -1);
@@ -4697,12 +4699,10 @@ s32 fclShopStatusFlagToCode(s16 flags) {
    the parameter slot), the name lookup, and finally the size. */
 
 
-static inline s16 shopStatDelta(u32 item, u32 cur)
-{
-    return item - cur;
-}
+
 
 /* One stat number (22.0f, right-aligned by its digit count). */
+/* Right-align a shop statistic using its decimal digit count. */
 static inline void shopDrawStat(u32 value, f32 x, f32 y)
 {
     fclDrawNumber(fclMakeVec2(x + (f32)((s16)(fclDecimalDigitCount(value) - 1) * 8), y), 22.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0xF, 0, value, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
@@ -4722,7 +4722,7 @@ static inline void shopDrawStat(u32 value, f32 x, f32 y)
    $s0/$s1 swap); writing the draws without the helper fixes the registers
    but lays the temporaries out in call order (38 words).  The (s32) casts on the stat ids give retail's dsll32/dsra32 before the s16
    getters (the deltas pass the func_00106cd0 result unextended); the deltas
-   evaluate `cur` first through shopStatDelta; case 2 zeroes with
+   evaluate `cur` first through the signed-halfword subtraction; case 2 zeroes with
    `dB = dA = 0`. */
 /* Compare the selected item with the selected unit's equipment, drawing category-specific values and signed improvement arrows. */
 // FUN_002D5040
@@ -4752,8 +4752,8 @@ void fclShopDrawStats(void *task) {
         x = 87.0f + (51.0f + (296.0f + ((FclObject *)fclObjectGetWork(work->panels[0xA9].pointer))->anchorPosition.x));
         value = datEntryGetSecondaryValue((s32)datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 0)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
-        firstStatDelta = shopStatDelta((datEntryGetPrimaryValue((s32)yListValueAt(work->cursor)) & 0xFFFF), datEntryGetPrimaryValue(datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 0)) & 0xFFFF);
-        secondStatDelta = shopStatDelta((datEntryGetSecondaryValue((s32)yListValueAt(work->cursor)) & 0xFFFF), datEntryGetSecondaryValue(datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 0)) & 0xFFFF);
+        firstStatDelta = ((s16)(((datEntryGetPrimaryValue((s32)yListValueAt(work->cursor)) & 0xFFFF)) - (datEntryGetPrimaryValue(datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 0)) & 0xFFFF)));
+        secondStatDelta = ((s16)(((datEntryGetSecondaryValue((s32)yListValueAt(work->cursor)) & 0xFFFF)) - (datEntryGetSecondaryValue(datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 0)) & 0xFFFF)));
         break;
     case 1:
         x = 51.0f + (296.0f + ((FclObject *)fclObjectGetWork(work->panels[0x2B].pointer))->anchorPosition.x);
@@ -4769,8 +4769,8 @@ void fclShopDrawStats(void *task) {
         x = 87.0f + (51.0f + (296.0f + ((FclObject *)fclObjectGetWork(work->panels[0xA9].pointer))->anchorPosition.x));
         value = datEntryGetLastBandValue((s32)datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 1)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
-        firstStatDelta = shopStatDelta((datEntryGetMiddleBandValue((s32)yListValueAt(work->cursor)) & 0xFFFF), datEntryGetMiddleBandValue(datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 1)) & 0xFFFF);
-        secondStatDelta = shopStatDelta((datEntryGetLastBandValue((s32)yListValueAt(work->cursor)) & 0xFFFF), datEntryGetLastBandValue(datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 1)) & 0xFFFF);
+        firstStatDelta = ((s16)(((datEntryGetMiddleBandValue((s32)yListValueAt(work->cursor)) & 0xFFFF)) - (datEntryGetMiddleBandValue(datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 1)) & 0xFFFF)));
+        secondStatDelta = ((s16)(((datEntryGetLastBandValue((s32)yListValueAt(work->cursor)) & 0xFFFF)) - (datEntryGetLastBandValue(datGetEquippedItemByUnit(work->unitIds[work->unitSelection], 1)) & 0xFFFF)));
         break;
     case 2:
         fclDrawEquipSprite(0x1C, fclMakeVec2(37.0f + ((FclObject *)fclObjectGetWork(work->panels[0xA9].pointer))->anchorPosition.x, 35.0f + ((FclObject *)fclObjectGetWork(work->panels[0xA9].pointer))->anchorPosition.y), 31.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
@@ -5269,7 +5269,7 @@ void fclShopStartSelectionShake(void *task) {
     ((FclShopItemPanel *)fclObjectGetWork(work->panels[0x4].pointer))->pivotY = pivotY;
     randomStep = RpRandom() % 20U;
     value = (f32)randomStep;
-    swing = shopAdd(value / 10.0f, 1.0f);
+    swing = operandOrderAddFloat(value / 10.0f, 1.0f);
     if (!(((FclObject *)fclObjectGetWork(work->panels[0x3].pointer))->tweenValue <= 0.0f)) {
         swing = swing * -1.0f;
     }
@@ -5309,6 +5309,7 @@ void fclShopSlideIndicator(void *task, s8 direction) {
 
 /* fclShopDrawSwingCursor's body; fclShopSlideInFromAbove inlines it (retail re-reads the work
    pointer from the kept arg0 there). */
+/* Start matching cursor tweens with a random signed swing amplitude. */
 static inline void shopSwingCursor(void *task) {
     FclShopWork *work = (FclShopWork*)((struct KwlnTask *)task)->work;
     s32 sprite;
@@ -5329,7 +5330,7 @@ static inline void shopSwingCursor(void *task) {
     ((FclShopItemPanel *)fclObjectGetWork(work->panels[0xA8].pointer))->pivotY = pivotY;
     randomStep = RpRandom() % 20U;
     value = (f32)randomStep;
-    swing = shopAdd(value / 10.0f, 1.0f);
+    swing = operandOrderAddFloat(value / 10.0f, 1.0f);
     if (!(((FclObject *)fclObjectGetWork(work->panels[0xA7].pointer))->tweenValue <= 0.0f)) {
         swing = swing * -1.0f;
     }
@@ -6355,6 +6356,8 @@ void fclShopLayoutPanels(void *task) {
    keeps the first call.  Nesting shopDrawStat puts its fclMakeVec2 and
    colour temporaries below all four position-parameter copies, as in
    retail. */
+/* Draw a shop statistic using the supplied position storage. */
+/* measured: expanding the position forwarding changes owner instruction bytes at all four call sites. */
 static inline void shopDrawStatAt(u32 raw, u32 value, Vec2f pos)
 {
     shopDrawStat(value, pos.x, pos.y);

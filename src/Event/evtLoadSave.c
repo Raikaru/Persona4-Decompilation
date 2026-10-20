@@ -15,6 +15,7 @@ typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 
 /* Payload of recordIndex: the 0x10-byte table at +0x94 when the scene header
    kind is 4, otherwise the 0x3C-byte table at +0x98 (recordOffset = recordIndex * 0x3C). */
+/* Select the payload layout according to the source record kind. */
 static inline u8 *evtLoadRecordPayload(u8 *source, s32 recordIndex, s32 recordOffset)
 {
     MtMiscSceneSource *src = (MtMiscSceneSource *)source;

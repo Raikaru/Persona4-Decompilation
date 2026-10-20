@@ -375,7 +375,8 @@ void mdlSeRequestLoad(void **owner, u32 type, u16 id, s32 source, u32 size)
    Inlining the shared copy operation separates its local lifetimes from
    the callback and reproduces the retail saved-register allocation.
    Bank sizes stay unsigned for the consumer's argument-load ordering. */
-static inline void copyLoadedRequest(void **owner, s32 requestIndex)
+/* Copy a completed asynchronous request into newly allocated sound-record storage. */
+static inline void mdlSeCopyLoadedRequest(void **owner, s32 requestIndex)
 {
     void *node;
     void *request;
@@ -424,7 +425,7 @@ s32 mdlSeUpdateRecord(void **owner)
     switch (mode) {
     case 1:
         if (H_Cdvd_IsFileLoaded(((MdlSeRecord *)current)->primaryRequest) != 0) {
-            copyLoadedRequest(owner, 0);
+            mdlSeCopyLoadedRequest(owner, 0);
             request = ((MdlSeRecord *)*owner)->primaryRequest;
             if (request != NULL) {
                 H_Cdvd_Destroy(request);
@@ -441,7 +442,7 @@ s32 mdlSeUpdateRecord(void **owner)
             if (H_Cdvd_IsFileLoaded(request) == 0) {
                 return 0;
             }
-            copyLoadedRequest(owner, 1);
+            mdlSeCopyLoadedRequest(owner, 1);
             H_Cdvd_Destroy(((MdlSeRecord *)*owner)->secondaryRequest);
             ((MdlSeRecord *)*owner)->secondaryRequest = NULL;
         }

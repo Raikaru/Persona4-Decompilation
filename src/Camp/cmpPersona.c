@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 /* Persona 4 USA decompilation - cmpPersona.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
@@ -949,10 +950,7 @@ typedef union {
     s32 words[0x20];
 } CmpPersonaPanel;
 
-static inline u32 cmpPersonaOffsetAddress(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
 
 /* measured: b210 -O2 emits 1340 exact bytes followed by four retail zero
    alignment bytes. The menu's typed row view preserves the parent-X load
@@ -1037,7 +1035,7 @@ void cmpPersonaDrawRosterRow(u8 *work, s32 rowIndex)
             selected = 0;
         }
         panel.halves[0] = 2;
-        shdPersonaFillStatusBlock((u8 *)datPersonaRosterSlot(((CmpPersonaWork *)((u8 *)cmpPersonaOffsetAddress(rowIndex * 2, (u32)work)))->rosterSlots[0]),
+        shdPersonaFillStatusBlock((u8 *)datPersonaRosterSlot(((CmpPersonaWork *)((u8 *)(u32)byteAddressAdd(rowIndex * 2, (u8 *)((u32)work))))->rosterSlots[0]),
                       panel.bytes + 8, 2);
         position.x = x - 40.0f;
         position.y = y + 21.0f;

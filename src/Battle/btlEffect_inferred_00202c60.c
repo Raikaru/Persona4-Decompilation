@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "member_access.h"
 #include "btl_packet_create_internal.h"
 typedef struct BtlPacket BtlPacket;
@@ -40,11 +41,6 @@ extern void btlSelectionSetRepeat(u8 *selection, s16 *repeatMasks);
 extern u32 datGetItemNameId(s16 itemId);
 extern s32 btlTargetCanControlDamagePhase(void);
 
-static inline u8 *btlSelectionAddByteOffset(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
-
 
 extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
@@ -71,9 +67,6 @@ extern s32 iGpffffb448;
 extern s32 D_0062656C[];
 extern void btlPanelSetCountdown(s32 task, s32 duration);
 extern void btlPanelStartEntry(s32 task, s32 text);
-
-
-
 
 
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -1520,7 +1513,7 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
 
     glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
     unit = (u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit->datUnit;
-    skill = (s16)((BtlPanelWork *)(btlSelectionAddByteOffset((u32)(slot * 2), work)))->skills[0];
+    skill = (s16)((BtlPanelWork *)(byteAddressAdd((u32)(slot * 2), work)))->skills[0];
     if (skill >= 0x1B8 || datCalcThresholdTrigger(unit, (u16)skill) != 0) {
         if (highlighted != 0) {
             tone = 0x6E;
@@ -1628,7 +1621,7 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
 
     glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
     itemOffset = slot * 4;
-    id = ((BtlPanelWork *)(btlSelectionAddByteOffset((u32)itemOffset, work)))->items[0].id;
+    id = ((BtlPanelWork *)(((u8 *)((u32)((u32)itemOffset) + (u32)(work)))))->items[0].id;
     if (highlighted != 0) {
         tone = 0x1B;
     } else {
@@ -1658,7 +1651,7 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
     frFontClearFlagBits(0x40);
     btlUiDrawSpriteFaded(glyphs, 0xC, 0x47, (374.0f + x) - 97.0f,
                   (157.0f + y) - 145.0f, tone, tone, tone, opacity);
-    digit = (s8)((BtlPanelWork *)(btlSelectionAddByteOffset((u32)itemOffset, work)))->items[0].quantity;
+    digit = (s8)((BtlPanelWork *)(((u8 *)((u32)((u32)itemOffset) + (u32)(work)))))->items[0].quantity;
     digitY = (155.0f + y) - 145.0f;
     digitX = (398.0f + x) - 97.0f;
     btlUiDrawSpriteFaded(glyphs, 0xC, (digit % 10) + 9, 16.0f + digitX,
@@ -2991,7 +2984,7 @@ u16 btlSelectionHandleItemInput(u8 *selection, u8 *panel)
     switch (result) {
     case 2:
         ((BtlAction *)((BtlPanelWork *)panel)->action)->unk_6c = 3;
-        itemOrFlags = ((BtlPanelWork *)(btlSelectionAddByteOffset((u32)(((BtlSelection *)selection)->selected * 4), panel)))->items[0].id;
+        itemOrFlags = ((BtlPanelWork *)(byteAddressAdd((u32)(((BtlSelection *)selection)->selected * 4), panel)))->items[0].id;
         ((BtlPanelActionChoice *)((BtlAction *)((BtlPanelWork *)panel)->action)->unk_70)->item = itemOrFlags;
         ((BtlAction *)panelWork->action)->unk_6e =
             datCalcUnderlyingSkillId(((BtlPanelActionChoice *)((BtlAction *)((BtlPanelWork *)panel)->action)->unk_70)->item);
@@ -3174,7 +3167,7 @@ u16 btlSelectionOpenSubList(u8 *selection, s32 panelAddress, u8 **nextPanel)
     input = btlSelectionReadInput(selection) & 0xFFFF;
     switch (input) {
     case 2:
-        unit = ((BtlPanelWork *)btlSelectionAddByteOffset(
+        unit = ((BtlPanelWork *)byteAddressAdd(
             (u32)(((BtlSelection *)selection)->selected * 4), base))->partyUnits[0];
         ((BtlPanelWork *)base)->selectedUnit = unit;
         if ((cmmCommunityRecordValue(cmmCommunityForArcana((s16)((BtlUnit *)unit)->charId) &

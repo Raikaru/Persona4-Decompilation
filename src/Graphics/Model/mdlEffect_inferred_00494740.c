@@ -26,7 +26,9 @@ extern Code1_0049Color iGpffffbb64;
 
 extern void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049Color *color);
 extern void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors);
-static inline u32 track_index(u16 value)
+/* Widen the ribbon index before selecting its retained count slot. */
+/* measured: expanding only the count-slot index changes the ribbon instruction/register sequence; vertex indices use plain casts. */
+static inline u32 mdlEffectTrackIndex(u16 value)
 {
     return value;
 }
@@ -113,7 +115,7 @@ void mdlEffectAdvanceRibbon(u8 *track, u16 trackIndex, u8 *point, f32 width) {
             u8 *t2 = (u8 *)((RpAtomic *)t1)->geometry;
             u8 *t3 = (u8 *)((RpGeometry *)t2)->morphTarget;
             u8 *tab = (u8 *)((RpMorphTarget *)t3)->vertices;
-            row = tab + (u32)vertexCount * track_index(trackIndex) * 12;
+            row = tab + (u32)vertexCount * ((u32)(u16)(trackIndex)) * 12;
         }
         previousCenter = row + (vertexCount - 5) * 12;
         followingCenter = row + (vertexCount - 2) * 12;
@@ -132,7 +134,7 @@ shift_check:
     ((TrackVertex *)row)[1] = ((const TrackVertex *)point)[0];
     rowCount = (s32)vertexCount / 3 - 1;
     lastRow = (u16)rowCount;
-    countSlot = ((EffTrackRibbons *)track)->counts + (track_index(trackIndex) * 2);
+    countSlot = ((EffTrackRibbons *)track)->counts + (mdlEffectTrackIndex(trackIndex) * 2);
     activeRows = *(u16 *)countSlot;
     if ((s32)activeRows <= (s32)lastRow) {
         u32 nv = activeRows + 1;
@@ -302,7 +304,7 @@ tail_check:
             u8 *t2 = (u8 *)((RpAtomic *)t1)->geometry;
             u8 *t3 = (u8 *)((RpGeometry *)t2)->morphTarget;
             u8 *tab2 = (u8 *)((RpMorphTarget *)t3)->vertices;
-            cap = tab2 + (u32)c2 * track_index(trackIndex) * 12;
+            cap = tab2 + (u32)c2 * ((u32)(u16)(trackIndex)) * 12;
             *(TrackVertex *)cap = ((const TrackVertex *)firstRow)[1];
             ((TrackVertex *)cap)[1] = ((const TrackVertex *)firstRow)[0];
             ((TrackVertex *)cap)[7] = ((const TrackVertex *)firstRow)[2];

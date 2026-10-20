@@ -1,3 +1,5 @@
+#include "operand_order_internal.h"
+#include "byte_address_internal.h"
 #include "member_access.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
@@ -88,14 +90,8 @@ extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
-static inline u8 *p4_unit_00195530(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 p4_base_add_0019f050(s32 offset, s32 base)
-{
-    return base + offset;
-}
+
+
 
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -130,9 +126,11 @@ extern s32 datCalcEnemyHasExtendedFlag(u8 *unit);
 extern void btlUnitInitChild(u8 *unit, u16 characterId);
 extern void btlUnitApplyBodySizeScale(u8 *unit);
 
-static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
+/* Initialize the child unit from its resolved persona character identifier. */
+/* measured: keeps the persona-id lhu before the unit-argument move; the direct call reverses those two instructions. */
+static inline void btlUnitInitChildOrdered(u16 characterId, u8 *unit)
 {
-    btlUnitInitChild(arg0, arg1);
+    btlUnitInitChild(unit, characterId);
 }
 extern void btlUnitHoldPendingLookAt(u8 *context);
 extern s32 btlUnitLookAtSidePacketUpdate(u8 *work);
@@ -357,7 +355,7 @@ u8 *btlUnitFindInSideById(s32 genus, s32 characterId)
 
     base = iGpffffb3ac;
     genus = (u16)genus;
-    address = (u32)p4_unit_00195530((u16)genus * 8, base) + 0x17C;
+    address = (u32)byteAddressAdd((u16)genus * 8, (u8 *)(base)) + 0x17C;
     unit = *(u8 **)address;
     characterId = (u16)characterId;
     while (unit != NULL) {
@@ -411,8 +409,7 @@ s32 btlUnitGetDataRow(u8 *unit)
         result = datPersonaNamePart1Alt((s16)id);
         break;
     case 1:
-        result = p4_base_add_0019f050((u32)id * 0x15,
-                                      (s32)iGpffffb444);
+        result = operandOrderAddReversed((u32)id * 0x15, (s32)iGpffffb444);
         break;
     case 2:
         result = (s32)datPersonaGetRow(id);
@@ -447,8 +444,7 @@ s32 btlUnitGetDataRowAlt(u8 *unit)
             result = datPersonaNamePart1Alt((s16)id);
             break;
         case 1:
-            result = p4_base_add_0019f050((u32)id * 0x15,
-                                          (s32)iGpffffb444);
+            result = operandOrderAddReversed((u32)id * 0x15, (s32)iGpffffb444);
             break;
         case 2:
             result = (s32)datPersonaGetRow(id);
@@ -628,7 +624,7 @@ u8 *btlActionCreateWork(s32 genus, u16 characterId, u16 *unitData)
             *(s16 *)&((BtlAction *)action)->state = 5;
             ((BtlBattleState *)iGpffffb3ac)->selectedAction = action;
         }
-        p4_call_0019ef30(((DatPersonaRecord *)datPersonaGetRecord(characterId))->id,
+        btlUnitInitChildOrdered(((DatPersonaRecord *)datPersonaGetRecord(characterId))->id,
                          unit);
         /* Creation reuses the saved-cursor slot for the persona roster pointer. */
         *(s32 *)&((BtlAction *)action)->targetBlock.recovery.savedCursors = datPersonaGetRosterSlot((s16)characterId);
@@ -853,7 +849,7 @@ type_one_0019fc70:
             {
                 u8 *table18;
                 table18 = iGpffffb3cc;
-                if ((((BtlUnitEnemyRecord *)p4_unit_00195530((u16)characterId * 0xE8, table18))->flags &
+                if ((((BtlUnitEnemyRecord *)byteAddressAdd((u16)characterId * 0xE8, (u8 *)(table18)))->flags &
                      0x100) != 0) {
                     return 1;
                 }
@@ -862,7 +858,7 @@ type_one_0019fc70:
         {
             u8 *table22;
             table22 = iGpffffb3cc;
-            if (((BtlUnitEnemyRecord *)p4_unit_00195530((u16)characterId * 0xE8, table22))->unk22 == 1)
+            if (((BtlUnitEnemyRecord *)byteAddressAdd((u16)characterId * 0xE8, (u8 *)(table22)))->unk22 == 1)
                 return 0;
         }
 result_one_0019fc70:
@@ -872,7 +868,7 @@ result_one_0019fc70:
         {
             u8 *flagsTable;
             flagsTable = (u8 *)iGpffffb3bc;
-            if ((((BtlSkillFlags *)p4_unit_00195530(skillIndex * 4, flagsTable))->flags & 1) == 0)
+            if ((((BtlSkillFlags *)byteAddressAdd(skillIndex * 4, (u8 *)(flagsTable)))->flags & 1) == 0)
                 return 0;
         }
         /* Deliberately write case 0 before case 1: MWCC tests the last-written case first. */
@@ -887,7 +883,7 @@ second_type_one_0019fc70:
         {
             u8 *table26;
             table26 = iGpffffb3cc;
-            if (((BtlUnitEnemyRecord *)p4_unit_00195530((u16)characterId * 0xE8, table26))->unk26 == 1)
+            if (((BtlUnitEnemyRecord *)byteAddressAdd((u16)characterId * 0xE8, (u8 *)(table26)))->unk26 == 1)
                 return 0;
         }
 second_default_0019fc70:
@@ -925,7 +921,7 @@ s32 btlUnitIsUnavailable(u8 *action, s32 skillId, s32 allowStatus)
         }
         if (status == 3) {
             table = (u8 *)iGpffffb3bc;
-            if ((((BtlSkillFlags *)p4_unit_00195530((skillId & 0xFFFF) * 4, table))->flags &
+            if ((((BtlSkillFlags *)byteAddressAdd((skillId & 0xFFFF) * 4, (u8 *)(table)))->flags &
                  0x8000) != 0 ||
                 allowStatus == 0) {
                 return 1;
@@ -934,7 +930,7 @@ s32 btlUnitIsUnavailable(u8 *action, s32 skillId, s32 allowStatus)
         break;
     case 1:
         table2 = iGpffffb3cc;
-        if (((BtlUnitEnemyRecord *)p4_unit_00195530((characterId & 0xFFFF) * 0xE8, table2))->unk22 == 1) {
+        if (((BtlUnitEnemyRecord *)byteAddressAdd((characterId & 0xFFFF) * 0xE8, (u8 *)(table2)))->unk22 == 1) {
             return 1;
         }
         break;

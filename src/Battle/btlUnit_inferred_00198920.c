@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
@@ -63,10 +64,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
+
 
 extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
 extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
@@ -107,7 +105,8 @@ typedef struct MotionTableEntry {
     s16 unknown6;
     s16 nextMotion;
 } MotionTableEntry;
-static inline u16 motionModeFlags(u16 option)
+/* Classify motion options that require the alternate playback-mode flag. */
+static inline u16 btlUnitMotionModeFlags(u16 option)
 {
     switch (option) {
     case 0:
@@ -154,7 +153,7 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
             unitFields->motionRateBits = 0x3F800000;
         }
         option = option & 0xFFFF;
-        modeFlags = motionModeFlags(option);
+        modeFlags = btlUnitMotionModeFlags(option);
         if (rate < iGpffff80d4 || !(rate <= iGpffff812c)) {
             switch (motion) {
             case 4:
@@ -196,7 +195,7 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
                 if (base->followMotion >= 0 && base->followFrame > 0) {
                     unitFields->unk_9d8 = unitFields->unk_9d8 | 4;
                     ((BtlUnitFollowMotion *)(unit + 0x9E6))->motion = ((MotionTableEntry *)(u8 *)unitFields->motionRates)[(u16)motionId].followMotion;
-                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->frame = ((MotionTableEntry *)btlUnitAddBaseToOffset((u16)motionId * sizeof(MotionTableEntry), (s32)unitFields->motionRates))->followFrame;
+                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->frame = ((MotionTableEntry *)(s32)byteAddressAdd((u16)motionId * sizeof(MotionTableEntry), (u8 *)((s32)unitFields->motionRates)))->followFrame;
                 }
             }
             break;

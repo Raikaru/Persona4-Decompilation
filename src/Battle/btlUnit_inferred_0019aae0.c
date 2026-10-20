@@ -65,10 +65,7 @@ extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 extern f32 mdlGetLayerWeight(s32 model, s32 layer);
 extern void mdlSetLayerTime(void *model, s32 layer, f32 frameValue);
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
+
 extern u8 iGpffffa4d8;
 extern void btlUnitApplyModelState(u8 *unit, s32 mode);
 extern f32 fGpffff80fc;
@@ -147,7 +144,8 @@ u32 btlUnitMotionSpeedPacketUpdate(void *workData)
         else
             narrowFrame = 0;
         savedFrame = narrowFrame;
-        btlUnitSetMotionOrdered((motion = ((BtlUnit *)unit)->currentMotion, motion), unit, frame, rate, option);
+        /* measured: the capture keeps the motion lh before the unit-argument move; a separate assignment reverses them. */
+        btlUnitSetMotion((unit), ((motion = ((BtlUnit *)unit)->currentMotion, motion)), (frame), (rate), (option));
         if (*(s32 *)&typedUnit->flags2 & 2)
             mdlSetLayerTime(((BtlUnit *)unit)->layerHandle, 0, (f32)savedFrame);
         btlUnitApplyModelState(unit, 4);

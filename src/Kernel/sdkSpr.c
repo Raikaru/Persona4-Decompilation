@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 /* Original translation unit sdkSpr.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
@@ -28,7 +29,6 @@ extern u8 *iGpffffbb18;
 extern char iGpffffb038;
 extern char D_007130C8[];
 
-static inline u32 sdkAddOffset(u32 offset, u32 base) { return offset + base; }
 
 /* Sprite-renderer types, shared by the guarded sdkSpriteDraw body. */
 #include "rw/plcore/barenderstate.h"
@@ -177,11 +177,11 @@ typedef char SdkSpritePackSizeCheck[sizeof(SdkSpritePack) == 0x240 ? 1 : -1];
 #define SDK_SPRITE_RECORD_TABLE_FIRST(sample) \
     ((u8 *)(((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress + \
             ((SdkSpriteSample *)(sample))->recordIndex * sizeof(SdkSpriteRecord)))
-/* Same address through sdkAddOffset (index term first): the helper's
- * parameter boundary gives retail's index-first addu at the packed-colour
- * reads and the points[2].x extent of sdkSpriteDraw. */
+/* Resolve the record through an unsigned-word addition boundary.
+ * measured: direct sums change Draw codegen; pointer-return byteAddressAdd
+ * also changes 159 bytes, while operandOrderAddUnsigned retains MATCH. */
 #define SDK_SPRITE_RECORD_VIA_ADD(sample) \
-    ((u8 *)sdkAddOffset((u32)((SdkSpriteSample *)(sample))->recordIndex * sizeof(SdkSpriteRecord), \
+    ((u8 *)operandOrderAddUnsigned((u32)((SdkSpriteSample *)(sample))->recordIndex * sizeof(SdkSpriteRecord), \
                         (u32)(u8 *)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress))
 
 /* Measured: retain the pointer-array decay at the render-state argument. */
@@ -196,11 +196,14 @@ typedef char SdkSpritePackSizeCheck[sizeof(SdkSpritePack) == 0x240 ? 1 : -1];
 /* measured: the signed border address avoids CSE with the unsigned extent
  * reads and preserves their separate offset-first addu (fnalign 11 -> 7). */
 /* Border-array order is top, bottom, left, right. */
+/* Read a signed sprite-border extent from the selected record. */
+/* measured: direct border reads change sdkSpriteDraw load/float-conversion allocation; both inline extent callers require this boundary. */
 static inline f32 sdkSpriteBorder(u8 *output, u32 offset, s32 borderIndex)
 {
     return (f32)((SdkSpriteRecord *)((s32)offset + (s32)output))->borders[borderIndex];
 }
 
+/* Compute the scaled right extent with the optional border and horizontal pivot. */
 static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
 {
     SdkSpriteSample *spriteSample = (SdkSpriteSample *)sample;
@@ -212,8 +215,8 @@ static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
 
     offset = spriteSample->recordIndex * 0x80;
     output = (u8 *)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
-    value = (u32)((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->right -
-            (u32)((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->left;
+    value = (u32)((SdkSpriteRecord *)((offset) + ((u32)output)))->right -
+            (u32)((SdkSpriteRecord *)((offset) + ((u32)output)))->left;
     overrideBase = (u8 *)&((SdkSpriteRecord *)output)->widthOverride;
     if (((s16 *)(overrideBase + offset))[0] != 0) {
         value = ((s16 *)(overrideBase + offset))[0];
@@ -231,6 +234,7 @@ static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
     return extent;
 }
 
+/* Compute the scaled bottom extent with the optional border and vertical pivot. */
 static inline f32 sdkSpriteBottom(u8 *sample, s32 includeBorder)
 {
     SdkSpriteSample *spriteSample = (SdkSpriteSample *)sample;
@@ -242,8 +246,8 @@ static inline f32 sdkSpriteBottom(u8 *sample, s32 includeBorder)
 
     offset = spriteSample->recordIndex * 0x80;
     output = (u8 *)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
-    value = (u32)((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->bottom -
-            (u32)((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->top;
+    value = (u32)((SdkSpriteRecord *)((offset) + ((u32)output)))->bottom -
+            (u32)((SdkSpriteRecord *)((offset) + ((u32)output)))->top;
     overrideBase = (u8 *)&((SdkSpriteRecord *)output)->heightOverride;
     if (((s16 *)(overrideBase + offset))[0] != 0) {
         value = ((s16 *)(overrideBase + offset))[0];
@@ -508,8 +512,8 @@ void sdkSpriteRelease(u8 *node)
 
 /* Ported from P3FES h_maestro.c func_001126b0 (blob+index scale variant).
    Donor struct fields map onto P4 offsets: output at 0x204, overrideX at 0x74,
-   right/left at 0x5c/0x54. The `sdkAddOffset` inline carries the offset-first
-   operand order retail emits (addu $v0,$a1,$a0). */
+   right/left at 0x5c/0x54. The measured plain sum retains the retail address
+   operands here; only Draw's sensitive sites use operandOrderAddUnsigned. */
 // FUN_0046B1F0
 f32 sdkSpriteEntryWidth(u8 *blob, u32 index)
 {
@@ -520,8 +524,8 @@ f32 sdkSpriteEntryWidth(u8 *blob, u32 index)
 
     offset = index * 0x80;
     output = (u8 *)((SdkSpritePack *)blob)->recordsAddress;
-    value = ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->right -
-            ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->left;
+    value = ((SdkSpriteRecord *)((offset) + ((u32)output)))->right -
+            ((SdkSpriteRecord *)((offset) + ((u32)output)))->left;
     overrideBase = (u8 *)&((SdkSpriteRecord *)output)->widthOverride;
     if (((s16 *)(overrideBase + offset))[0] != 0)
     {
@@ -543,8 +547,8 @@ f32 sdkSpriteScaledWidth(u8 *sprite)
 
     offset = ((SdkSpriteSample *)sample)->recordIndex * 0x80;
     output = (u8 *)((SdkSpritePack *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
-    value = ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->right -
-            ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->left;
+    value = ((SdkSpriteRecord *)((offset) + ((u32)output)))->right -
+            ((SdkSpriteRecord *)((offset) + ((u32)output)))->left;
     overrideBase = (u8 *)&((SdkSpriteRecord *)output)->widthOverride;
     if (((s16 *)(overrideBase + offset))[0] != 0)
     {
@@ -570,8 +574,8 @@ f32 sdkSpriteScaledHeight(u8 *sprite)
 
     offset = ((SdkSpriteSample *)sample)->recordIndex * 0x80;
     output = (u8 *)((SdkSpritePack *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
-    value = ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->bottom -
-            ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->top;
+    value = ((SdkSpriteRecord *)((offset) + ((u32)output)))->bottom -
+            ((SdkSpriteRecord *)((offset) + ((u32)output)))->top;
     overrideBase = (u8 *)&((SdkSpriteRecord *)output)->heightOverride;
     if (((s16 *)(overrideBase + offset))[0] != 0)
     {
@@ -588,19 +592,21 @@ f32 sdkSpriteScaledHeight(u8 *sprite)
  * in the vertex loop (617 fnalign edits). */
 #pragma opt_loop_invariants on
 /* Measured: access-site, local, array, and typed-parameter forms lose Draw MATCH. */
+/* Resolve a sprite record after reading the sample index before its pack table. */
 static inline u8 *sdkSpriteIndexedRecord(u8 *sample)
 {
     u32 offset = MEMBER(u32, sample, SdkSpriteSample, recordIndex) * sizeof(SdkSpriteRecord);
     u32 base = ((SdkSpritePack *)(u8 *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
-    return (u8 *)sdkAddOffset(offset, base);
+    return (u8 *)operandOrderAddUnsigned(offset, base);
 }
 
 /* Measured: access-site, local, array, and typed-parameter forms lose Draw MATCH. */
+/* Resolve a sprite record after reading the pack table before its sample index. */
 static inline u8 *sdkSpriteTableRecord(u8 *sample)
 {
     u32 base = ((SdkSpritePack *)(u8 *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
     u32 offset = MEMBER(u32, sample, SdkSpriteSample, recordIndex) * sizeof(SdkSpriteRecord);
-    return (u8 *)sdkAddOffset(offset, base);
+    return (u8 *)operandOrderAddUnsigned(offset, base);
 }
 
 /* Sprite renderer. The raster-less paths read the uv[] and source[].z slots
@@ -1104,9 +1110,9 @@ s32 sdkSpriteSlotHandle(u8 *pack, s32 recordIndex) {
     ((SdkSpriteSample *)sprite)->recordIndex = recordIndex;
     owner = (u8 *)((SdkSpriteSample *)sprite)->packAddress;
     output = (u8 *)((SdkSpritePack *)owner)->recordsAddress;
-    output = (u8 *)sdkAddOffset((u32)(recordIndex << 7), (u32)output);
+    output = (u8 *)(((u32)(recordIndex << 7)) + ((u32)output));
     index = ((SdkSpriteRecord *)output)->rasterIndex;
-    raster = (s32)((SdkSpritePack *)sdkAddOffset((u32)(index << 2), (u32)owner))->rasters[0];
+    raster = (s32)((SdkSpritePack *)(((u32)(index << 2)) + ((u32)owner)))->rasters[0];
     jtbl_008873EC[0](sprite);
     return raster;
 }

@@ -7,6 +7,7 @@
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "effect_instance_internal.h"
 
 
@@ -103,25 +104,18 @@ extern f32 D_00607E24[];
 extern f32 D_00607E30[];
 extern f32 D_00607E3C[];
 extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 third, const RtQuat *fourth);
-static inline f32 func_001c_mul_add(f32 first, f32 second, f32 third)
-{
-    return first * second + third;
-}
-static inline void func_001c_copy_pair(s64 *first, f32 *second,
-                                       s64 *third, f32 *fourth)
+
+/* Snapshot the paired coordinates and trailing component before writing either output. */
+static inline void btlCameraCopyPoseComponents(s64 *outPair, f32 *outComponent,
+                                       s64 *inPair, f32 *inComponent)
 {
     s64 pair;
-    f32 value;
+    f32 component;
 
-    pair = *third;
-    value = *fourth;
-    *first = pair;
-    *second = value;
-}
-static inline void func_001c_rotate(RwMatrix *first, const RwV3d *second,
-                                    f32 third, s32 fourth)
-{
-    RwMatrixRotate(first, second, third, fourth);
+    pair = *inPair;
+    component = *inComponent;
+    *outPair = pair;
+    *outComponent = component;
 }
 
 
@@ -160,7 +154,7 @@ void btlCameraFrameFixed(u8 *camera)
     if (((BtlCamera *)camera)->frame == 0) {
         btlCameraLookAtQuat(&frame.value1C,
                       (f32 *)D_00607DD0, D_00607DF0, D_0060A0E0);
-        func_001c_copy_pair((s64 *)&frame.value10,
+        btlCameraCopyPoseComponents((s64 *)&frame.value10,
                             &frame.value18,
                             (s64 *)D_00607DD0,
                             (f32 *)D_00607DD8);
@@ -212,9 +206,8 @@ void btlCameraFrameRotated(u8 *camera, f32 pitch, f32 yawStep, f32 distanceFacto
         ((BtlCameraOrbitWork *)(camera + 0x100))->focus.y = 0.0f;
         ((BtlCameraOrbitWork *)(camera + 0x100))->refreshBounds = 0;
     }
-    func_001c_rotate((RwMatrix *)frame.matrix, (const RwV3d *)D_0060A0D0, pitch, 0);
-    func_001c_rotate((RwMatrix *)frame.matrix, (const RwV3d *)D_0060A0E0,
-                     ((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw, 2);
+    RwMatrixRotate(((RwMatrix *)frame.matrix), ((const RwV3d *)D_0060A0D0), (pitch), (0));
+    RwMatrixRotate(((RwMatrix *)frame.matrix), ((const RwV3d *)D_0060A0E0), (((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw), (2));
     func_003e4320((RwV3d *)frame.transformed, (const RwV3d *)(&D_0060A0F0), (const RwMatrix *)frame.matrix);
     scale = (((BtlCameraOrbitWork *)(camera + 0x100))->radius * distanceFactor) /
             tanf(fGpffff8110 *
@@ -314,9 +307,8 @@ void btlCameraFrameRotatedWide(u8 *camera, f32 pitch, f32 yawStep, f32 distanceF
                       (const RwV3d *)(camera + 0x110));
         ((BtlCameraOrbitWork *)(camera + 0x100))->refreshBounds = 0;
     }
-    func_001c_rotate((RwMatrix *)frame.matrix, (const RwV3d *)D_0060A0D0, pitch, 0);
-    func_001c_rotate((RwMatrix *)frame.matrix, (const RwV3d *)D_0060A0E0,
-                     ((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw, 2);
+    RwMatrixRotate(((RwMatrix *)frame.matrix), ((const RwV3d *)D_0060A0D0), (pitch), (0));
+    RwMatrixRotate(((RwMatrix *)frame.matrix), ((const RwV3d *)D_0060A0E0), (((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw), (2));
     func_003e4320((RwV3d *)frame.diff, (const RwV3d *)(camera + 0x110), (const RwMatrix *)frame.matrix);
     if (((BtlCamera *)(camera))->orbit.radius < 600.0f) {
         ((BtlCameraOrbitWork *)(camera + 0x100))->radius = 600.0f;
@@ -573,11 +565,11 @@ void btlCameraFrameMatrixOffset(u8 *camera)
     RwMatrixRotate((RwMatrix *)(u8 *)&frame, (const RwV3d *)D_0060A0E0,
                   ((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw, 2);
     func_003e4320((RwV3d *)(u8 *)&frame.vec80[0], (const RwV3d *)(&D_0060A0F0), (const RwMatrix *)(u8 *)&frame);
-    frame.vec60[0] = func_001c_mul_add(frame.vec80[0],
+    frame.vec60[0] = operandOrderMultiplyAdd(frame.vec80[0],
                                         400.0f, frame.vec90[0]);
-    frame.vec60[1] = func_001c_mul_add(frame.vec80[1],
+    frame.vec60[1] = operandOrderMultiplyAdd(frame.vec80[1],
                                         400.0f, frame.vec90[1]);
-    frame.vec60[2] = func_001c_mul_add(frame.vec80[2],
+    frame.vec60[2] = operandOrderMultiplyAdd(frame.vec80[2],
                                         400.0f, frame.vec90[2]);
     btlCameraLookAtQuat(&frame.value6C, &frame.vec60[0],
                   &frame.vec90[0], D_0060A0E0);
@@ -796,7 +788,7 @@ void btlAct_ALL(u8 *camera)
     }
     cameraDistance = extentOrOffset / tanf(fGpffff8110 *
                                           (0.5f * MEMBER(f32, camera, BtlCamera, fovRad)));
-    func_001c_rotate((RwMatrix *)frame.rotationMatrix, (const RwV3d *)D_0060A0D0, 35.0f, 0);
+    RwMatrixRotate(((RwMatrix *)frame.rotationMatrix), ((const RwV3d *)D_0060A0D0), (35.0f), (0));
     func_003e4320((RwV3d *)&frame.directionX, (const RwV3d *)D_0060A100, (const RwMatrix *)frame.rotationMatrix);
     RtQuatTransformVectors((RwV3d *)&frame.scaledX, (const RwV3d *)&frame.directionX, 1,
                   (const RtQuat *)(work + 0x1C));
@@ -904,7 +896,7 @@ void btlCameraFrameStatusRoll(u8 *camera, f32 firstFactor, f32 secondFactor)
         secondFactor = -30.0f;
         break;
     }
-    func_001c_rotate(&work.rotation, (const RwV3d *)D_0060A0E0, 0.5f * -secondFactor, 0);
+    RwMatrixRotate((&work.rotation), ((const RwV3d *)D_0060A0E0), (0.5f * -secondFactor), (0));
     func_003e4320((RwV3d *)work.scaled, (const RwV3d *)work.direction,
                   &work.rotation);
     firstScale = firstScale /
@@ -916,7 +908,7 @@ void btlCameraFrameStatusRoll(u8 *camera, f32 firstFactor, f32 secondFactor)
     work.first[1] = work.center[1] + work.scaled[1];
     work.first[2] = work.center[2] + work.scaled[2];
     btlCameraLookAtQuat(&work.first[3], work.first, work.center, D_0060A0E0);
-    func_001c_rotate(&work.rotation, (const RwV3d *)D_0060A0E0, 0.5f * secondFactor, 0);
+    RwMatrixRotate((&work.rotation), ((const RwV3d *)D_0060A0E0), (0.5f * secondFactor), (0));
     func_003e4320((RwV3d *)work.scaled, (const RwV3d *)work.direction,
                   &work.rotation);
     firstFactor = firstFactor /

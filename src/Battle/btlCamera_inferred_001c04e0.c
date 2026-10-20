@@ -86,11 +86,6 @@ extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 thir
 
 /* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
 
-static inline f32 cameraSideRadius(f32 first, f32 second)
-{
-    if (first > second) return first;
-    return second;
-}
 
 /* Source unit: src/promoted/code1_001c.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001c04e0-001c09a0 */
@@ -220,7 +215,7 @@ void btlCameraFrameActionSide(u8 *camera)
     btlMainCurveReset((u16 *)camera, (f32 *)&adjusted);
     btlCameraSetupActionGeometry(MEMBER(u8 *, camera, BtlCamera, action), camera + 0x9C, (f32 *)(camera + 0x100), 0.5f * (radius2 + (length + radius1)),
                   3);
-    radius1 = cameraSideRadius(radius1, radius2);
+    radius1 = btlCameraMaxRadius(radius1, radius2);
     btlCameraSetupActionGeometry((u8*)((BtlCamera *)camera)->action, (u8 *)&center1, (f32 *)&center2, radius1, 3);
 }
 

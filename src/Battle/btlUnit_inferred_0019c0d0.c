@@ -112,6 +112,7 @@ typedef struct {
     f32 pos[3];
     s32 pad3;
 } BtlUnitMatrix;
+/* Multiply normalized RGBA channels and round each component back to a byte. */
 static inline void btlUnitMultiplyColor(RwRGBA *dst, const u8 *src)
 {
     f32 scale;

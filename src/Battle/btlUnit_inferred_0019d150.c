@@ -68,14 +68,8 @@ extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 extern void memset(void *data, s32 value, s32 option);
 
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
+
+
 
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -202,20 +196,16 @@ u8 *btlUnitCreate(s32 genus)
     ((BtlUnit *)unit)->prevUnit = NULL;
     listOffset = (genus & 0xFF) * 8;
     battleAddress = (s32)iGpffffb3ac;
-    tail = *(u8 **)((u8 *)btlUnitOffsetWordTable(
-        MEMBER_OFFSET(BtlBattleState, unitLists[0]), (s32 *)battleAddress) + listOffset);
+    tail = *(u8 **)((u8 *)((s32 *)((s32)((s32 *)battleAddress) + (MEMBER_OFFSET(BtlBattleState, unitLists[0])))) + listOffset);
     if (tail != NULL) {
         ((BtlUnit *)tail)->prevUnit = (BtlUnit *) unit;
         ((BtlUnit *)unit)->nextUnit = (BtlUnit *)
-            ((BtlBattleState *)((u8 *)btlUnitAddBaseToOffset(
-                listOffset, (s32)iGpffffb3ac)))->unitLists[0];
+            ((BtlBattleState *)((u8 *)((listOffset) + ((s32)iGpffffb3ac))))->unitLists[0];
     } else {
-        ((BtlBattleState *)((u8 *)btlUnitAddBaseToOffset(
-            listOffset, battleAddress)))->unitLists[1] = unit;
+        ((BtlBattleState *)((u8 *)((listOffset) + (battleAddress))))->unitLists[1] = unit;
         ((BtlUnit *)unit)->nextUnit = NULL;
     }
-    ((BtlBattleState *)((u8 *)btlUnitAddBaseToOffset(
-        listOffset, (s32)iGpffffb3ac)))->unitLists[0] = unit;
+    ((BtlBattleState *)((u8 *)((listOffset) + ((s32)iGpffffb3ac))))->unitLists[0] = unit;
     return unit;
 }
 

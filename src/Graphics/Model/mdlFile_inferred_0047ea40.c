@@ -34,10 +34,6 @@ extern f32 fGpffffbb54;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 0047ea40-0047ed60 */
 
 extern void sdkSndStartSourceStream(s16 channelIndex, s32 source, s16 sourceAux);
-static inline void code1_0047_abd0(s16 state, s32 animation, s16 blendTicks)
-{
-    sdkSndStartSourceStream(state, animation, blendTicks);
-}
 /* Retain the source object and store it in the destination slot when non-null. */
 // FUN_0047EA40
 void mdlRetainObject(u8 **destination, u8 **source)
@@ -185,7 +181,7 @@ void mdlTickMotionState(u8 *state)
                     channel = ((MdlMotionState *)state)->channel;
                     streamFlags = ((MdlMotionState *)state)->streamFlags;
                     requestValue = ((MdlMotionState *)state)->requestValue;
-                    code1_0047_abd0((s16)channel, (s32)requestValue, (s16)streamFlags);
+                    sdkSndStartSourceStream((s16)channel, (s32)requestValue, (s16)streamFlags);
                 }
                 ((MdlMotionState *)state)->waitTicks = -1;
             } else {

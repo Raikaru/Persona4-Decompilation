@@ -27,11 +27,6 @@ extern void btlGaugeInit(u8 *unusedTask, u8 *gauge);
 
 extern void memset(void *destination, s32 value, u32 size);
 
-static inline u8 *btlUiAddByteOffset(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
-
 
 extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
@@ -45,9 +40,6 @@ extern s32 D_0062656C[];
 extern void btlPanelStartEntry(s32 task, s32 text);
 extern void btlPanelStartValues(s32 task, s32 unit, s32 window, s32 record);
 extern void btlPanelMarkEntryStarted(s32 task);
-
-
-
 
 
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -391,7 +383,7 @@ void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y)
     /* measured: typed slot indexing reverses addu operands; repeated typed sprite fields
      * hoist field addresses across the draw call (596 vs 576 bytes). */
     offset = (u32)(slot * 4);
-    entry = btlUiAddByteOffset(offset, work);
+    entry = ((u8 *)((u32)(offset) + (u32)(work)));
     ((BtlUiSprite *)work)->sprite = ((BtlUiSprite *)(entry))->sprites[0];
     ((BtlUiSprite *)work)->segment = segment;
     if ((((BtlUiSprite *)work)->factorX == 1.0f) &&

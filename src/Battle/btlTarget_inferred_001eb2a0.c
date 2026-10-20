@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -14,10 +15,7 @@ extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
 extern s32 scrGetParamIntS32(s32 index);
-static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 
 
 extern void memset(void *destination, s32 value, u32 size);
@@ -100,7 +98,7 @@ s32 btlAiGetGlobal(void) {
     u8 *slot;
 
     index = scrGetParamIntS32(0);
-    slot = btlTargetOffsetAddress((u32)index * 4, iGpffffb3ac);
+    slot = byteAddressAdd((u32)index * 4, (u8 *)(iGpffffb3ac));
     scrSetReturnInt(((BtlTargetScriptGlobals *)(slot + 0xDD8))->values[0]);
     return 1;
 }
@@ -120,7 +118,7 @@ s32 btlAiSetGlobal(void)
 
     idx = scrGetParamIntS32(0);
     value = scrGetParamIntS32(1);
-    ((BtlTargetScriptGlobals *)(btlTargetOffsetAddress((u32)idx * 4, iGpffffb3ac) + 0xDD8))->values[0] = value;
+    ((BtlTargetScriptGlobals *)(byteAddressAdd((u32)idx * 4, (u8 *)(iGpffffb3ac)) + 0xDD8))->values[0] = value;
     return 1;
 }
 

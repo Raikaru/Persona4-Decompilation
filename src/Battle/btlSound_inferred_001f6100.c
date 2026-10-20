@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -105,10 +106,7 @@ extern s32 btlTargetTestUnitFlag(s32 unitId, s32 bitIndex);
 
 extern s32 btlActionHasNoTargetClass(u32 action);
 struct EffRandState;
-static inline s32 battleMessageBand(s32 value, s32 band)
-{
-    return value + band;
-}
+
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
@@ -261,11 +259,11 @@ s32 btlSoundPickResistVoice(u8 *unit)
             flags = datCalcGetAffinity(*(u8 **)&((BtlUnit *)unit)->datUnit, code);
             if ((flags & 0x08000000) != 0) {
                 values[count++] =
-                    (u16)(battleMessageBand(base + (i * 2), offset) + 2 +
+                    (u16)(operandOrderAdd(base + (i * 2), offset) + 2 +
                           (effMiscRand(NULL) & 1));
             } else if ((flags & 0x07000000) != 0) {
                 values[count++] =
-                    (u16)(battleMessageBand(base + (i * 2), offset) + 2 +
+                    (u16)(operandOrderAdd(base + (i * 2), offset) + 2 +
                           (effMiscRand(NULL) & 1) + 0xE);
             }
         }

@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "btl_action_internal.h"
 #include "datPersona_internal.h"
 #include "Kosaka/k_command_internal.h"
@@ -7,12 +8,6 @@
 #include "scr_internal.h"
 #include "effect_instance_internal.h"
 
-static inline f32 p4_0025_mul_add(f32 left, f32 right, f32 base) {
-    return left * right + base;
-}
-static inline f32 p4_0025_add(f32 left, f32 right) {
-    return left + right;
-}
 extern s32 D_006367C0[];
 extern void memcpy(void *, void *, s32);
 extern s16 D_00636A40[];
@@ -357,15 +352,13 @@ loop_body:
     angleRadians = fGpffff8200 * angleDegrees;
     outerSine = sinf(angleRadians);
     outerCosineOffset = 8.5f * cosf(angleRadians);
-    pointCursor[0] = p4_0025_mul_add(8.5f, outerSine, centerX + outerCosineOffset);
-    pointCursor[1] = p4_0025_add(
-        p4_0025_mul_add(8.5f, -outerSine, centerY), outerCosineOffset);
+    pointCursor[0] = ((8.5f) * (outerSine) + (centerX + outerCosineOffset));
+    pointCursor[1] = operandOrderAddFloat(((8.5f) * (-outerSine) + (centerY)), outerCosineOffset);
     innerAngle = fGpffff8200 * (6.0f + angleDegrees);
     innerSine = sinf(innerAngle);
     innerCosineOffset = 7.0f * cosf(innerAngle);
-    pointCursor[2] = p4_0025_mul_add(7.0f, innerSine, centerX + innerCosineOffset);
-    pointCursor[3] = p4_0025_add(
-        p4_0025_mul_add(7.0f, -innerSine, centerY), innerCosineOffset);
+    pointCursor[2] = ((7.0f) * (innerSine) + (centerX + innerCosineOffset));
+    pointCursor[3] = operandOrderAddFloat(((7.0f) * (-innerSine) + (centerY)), innerCosineOffset);
     pointCursor += 4;
     colorCursor[0] = red;
     colorCursor[1] = green;

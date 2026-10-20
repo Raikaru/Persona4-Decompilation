@@ -20,8 +20,6 @@
 typedef s32 (*code)();
 
 
-
-
 typedef struct DatUnit DatUnit;
 extern u16 datCalcMaxHp(DatUnit *unit);
 
@@ -224,7 +222,6 @@ void btlCond_ENWEAK_DW_PAI(s32 action, u32 value)
 #pragma opt_rebuildconditionals on
 
 
-
 /* measured: shared usability inlining and explicit signed query guards give
    508B/512B, verify nd0; the remaining four bytes are zero tail padding.
    Keep the entry reload after the value query and the existing s32 input ABI. */
@@ -338,7 +335,6 @@ s32 btlCond_MYNOMAL(u8 *formation, s32 index)
 }
 
 
-
 // FUN_001DB5B0
 s32 btlAICommandNomalCheckNoGate(u8 *formation, s32 index)
 {
@@ -419,7 +415,6 @@ void btlCond_ENNOMAL_DW(s32 action, u32 value)
 #pragma opt_rebuildconditionals on
 
 
-
 /* Test the analysis flag for enemy-genus units; other genera return false. */
 // FUN_001DB740
 u8 btlCond_ANALYZE(s32 action)
@@ -433,19 +428,16 @@ u8 btlCond_ANALYZE(s32 action)
 }
 
 
-
 // FUN_001DB790
 s32 btlCond_DOWN(u8 *action) {
     return (((BtlAction *)action)->unit->datUnit->flags & DAT_UNIT_FLAG_DOWN) ? 0 : 1;
 }
 
 
-
 // FUN_001DB7B0
 s32 btlCond_SLIP(u8 *action) {
     return (((BtlAction *)action)->unit->datUnit->flags & 0x10) ? 0 : 1;
 }
-
 
 
 /* Ported from P3FES btlEffect.c func_002c3300 (genus-match loop).
@@ -507,7 +499,6 @@ s32 btlCond_MYHOJO(u8 *action, s32 value) {
 s32 btlCond_MYTAISEI(u8 *action, s16 value) {
     return (s32)((datCalcGetAffinity((u8 *)(((BtlAction *)action))->unit->datUnit, (s32)value) & 0x10000000) != 0);
 }
-
 
 
 /* Evaluate affinity on units of the caller genus. */
@@ -1039,7 +1030,6 @@ u32 btlCond_MYAI(s32 action)
 }
 
 
-
 // FUN_001DC7A0
 void btlAICommandPickMyHansya(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYHANSYA);
@@ -1160,13 +1150,11 @@ void btlAICommandPickMyDown(u64 formation)
 }
 
 
-
 // FUN_001DCB90
 void btlAICommandPickNotMyDown(u64 formation)
 {
     btlAICommandSelectCandidates(formation, BTL_STATUS_DOWN, 0, 0, 1, btlCond_MYBAD);
 }
-
 
 
 // FUN_001DCBD0
@@ -2159,7 +2147,6 @@ u32 btlAICommandTryReleaseProc(s32 work)
 }
 
 
-
 /* AI script command 0x203d (p4flow AI.json AI_FUNCTION_003D). */
 // FUN_001DEF60
 u32 btlAICommandScriptSetDefaultAction(void)
@@ -2171,7 +2158,6 @@ u32 btlAICommandScriptSetDefaultAction(void)
   btlAICommandSetActionCode(action, action + 0x38, 0x8000);
   return 1;
 }
-
 
 
 /* AI script command 0x203e (p4flow AI.json AI_FUNCTION_003E). */
@@ -2217,7 +2203,6 @@ u32 btlAICommandScriptSetAction8001(void)
 }
 
 
-
 /* AI script command 0x2040 (p4flow AI.json AI_FUNCTION_0040). */
 // FUN_001DF100
 u32 btlAICommandScriptSetAction8002(void)
@@ -2230,7 +2215,6 @@ u32 btlAICommandScriptSetAction8002(void)
   btlAICommandSetActionCode(action, action + 0x38, 0x8002);
   return 1;
 }
-
 
 
 /* AI script command 0x20d5 (p4flow AI.json AI_FUNCTION_00D5). */
@@ -2280,7 +2264,6 @@ u32 btlAICommandScriptSetAction8007(void)
   btlAICommandSetActionCode(action, action + 0x38, 0x8007);
   return 1;
 }
-
 
 
 /* AI script command 0x2000 (p4flow AI.json AI_FUNCTION_0000). */
@@ -3615,7 +3598,6 @@ done:
 #pragma opt_rebuildconditionals on
 
 
-
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
@@ -3672,7 +3654,6 @@ done:
 #pragma opt_rebuildconditionals on
 
 
-
 /* Ported from P3FES btlEffect.c func_002ca7b0 (argument sideMask dispatch,
    selector tag 0x0b000000). func_0035ed20->scrGetParamInt, func_0035f160->func_0029d050,
    func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
@@ -3725,7 +3706,6 @@ done:
     return 1;
 }
 #pragma opt_rebuildconditionals on
-
 
 
 /* AI script command 0x210e (p4flow AI.json AI_FUNCTION_010E). */
@@ -4029,7 +4009,6 @@ done:
 #pragma opt_rebuildconditionals on
 
 
-
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
@@ -4084,7 +4063,6 @@ done:
     return 1;
 }
 #pragma opt_rebuildconditionals on
-
 
 
 /* measured: branchy shift set reproduces with the goto form under
@@ -4143,7 +4121,6 @@ done:
 #pragma opt_rebuildconditionals on
 
 
-
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
@@ -4198,7 +4175,6 @@ done:
     return 1;
 }
 #pragma opt_rebuildconditionals on
-
 
 
 /* measured: branchy shift set reproduces with the goto form under
@@ -4257,7 +4233,6 @@ done:
 #pragma opt_rebuildconditionals on
 
 
-
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
@@ -4312,7 +4287,6 @@ done:
     return 1;
 }
 #pragma opt_rebuildconditionals on
-
 
 
 /* AI script command 0x20a9 (p4flow AI.json AI_FUNCTION_00A9). */
@@ -5568,7 +5542,6 @@ s32 btlAICommandScriptHasCommandOfType(void) {
 }
 
 
-
 /* AI script command 0x2079 (p4flow AI.json AI_FUNCTION_0079). */
 // FUN_001E68C0
 s32 btlAICommandScriptLookupOnlyFalse(void) {
@@ -5581,7 +5554,6 @@ s32 btlAICommandScriptLookupOnlyFalse(void) {
     scrSetReturnInt(0U);
     return 1;
 }
-
 
 
 /* AI script command 0x209c (p4flow AI.json AI_FUNCTION_009C). */

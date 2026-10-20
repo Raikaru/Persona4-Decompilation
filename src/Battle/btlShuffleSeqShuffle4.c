@@ -490,7 +490,8 @@ void btlShuffleSeq4Shuffle(u8 *context) {
    helpers that retail expands in place.  The frame arguments of the card
    animation setters are u16 throughout, so the (u16) conversions happen at
    each call.  measured: 4904B of code in the 4912B window (two zero words). */
-static inline void shuffle4Release(u8 *context, s32 card, u16 frames)
+/* Animate a held card back to the grid and clear its selected-slot flags. */
+static inline void btlShuffleGridRelease(u8 *context, s32 card, u16 frames)
 {
     u8 *base = context + 0x1F1D0;
     f32 rot[4];
@@ -516,7 +517,8 @@ static inline void shuffle4Release(u8 *context, s32 card, u16 frames)
     }
 }
 
-static inline u16 shuffle4PickFree(u8 *context)
+/* Choose a random grid card not already present in the held-card mask. */
+static inline u16 btlShuffleGridPickFree(u8 *context)
 {
     u8 *base = context + 0x1F1D0;
     s32 n;
@@ -659,7 +661,7 @@ s32 btlShuffleSeq4Run(u8 *context)
         btlShuffleSeq4Shuffle(context);
         if (((BtlShuffleGridState *)sbase)->cardCount > 0) {
             for (k = 0; k < gridState->cardCount; k++) {
-                ((BtlShuffleGridState *)sbase)->cards[k] = shuffle4PickFree(context);
+                ((BtlShuffleGridState *)sbase)->cards[k] = btlShuffleGridPickFree(context);
                 btlShuffleSeq4Move(context, ((BtlShuffleGridState *)sbase)->cards[k], 0, ((BtlShuffleGridState *)sbase)->frames);
             }
             sdkSndStartStream(1, 0, 5, 1);
@@ -694,7 +696,7 @@ s32 btlShuffleSeq4Run(u8 *context)
         for (j = 0; j < gridState->cardCount; j++) {
             speed = ((BtlShuffleGridState *)sbase)->frames;
             card = ((BtlShuffleGridState *)sbase)->cards[j];
-            shuffle4Release(context, card, speed);
+            btlShuffleGridRelease(context, card, speed);
         }
         sdkSndStartStream(1, 0, 5, 1);
         ((BtlShuffleContext *)context)->phase = 8;
@@ -753,8 +755,8 @@ s32 btlShuffleSeq4Run(u8 *context)
         if (++((BtlShuffleContext *)context)->elapsed < 0xA) {
             break;
         }
-        shuffle4Release(context, ((BtlShuffleGridState *)sbase)->secondCard, 0xA);
-        shuffle4Release(context, ((BtlShuffleGridState *)sbase)->firstCard, 0xA);
+        btlShuffleGridRelease(context, ((BtlShuffleGridState *)sbase)->secondCard, 0xA);
+        btlShuffleGridRelease(context, ((BtlShuffleGridState *)sbase)->firstCard, 0xA);
         sdkSndStartStream(1, 0, 5, 1);
         if (++((BtlShuffleGridState *)sbase)->attempts >= ((BtlShuffleGridState *)sbase)->attemptLimit) {
             btlShuffleDrawCardEndDetail(shuffleContext->cardTask);

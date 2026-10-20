@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 /* Original translation unit btlPanelAnalyze.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "member_access.h"
@@ -32,7 +33,7 @@ extern f32 D_008872F8[];
 extern f32 fGpffff847c;
 extern f32 fGpffff80cc;
 
-static inline f32 panelAdd2(f32 left, f32 right) { return left + right; }
+
 
 /* btlPanelClear clears 0x90 bytes; layout callbacks save lights, matrix and
  * projection values while the model updater owns state, opacity and yaw. */
@@ -157,7 +158,7 @@ mode_done:
     switch (mode2) {
     case 0:
     case 1:
-        px = panelAdd2(96.0f, px);
+        px = operandOrderAddFloat(96.0f, px);
         sprintf(locals.text, &iGpffffa59c, value);
         length = strlen(locals.text);
         i = 0;
@@ -252,8 +253,8 @@ void btlPanelAddStatusEntry(u8 *work, s32 unitData, s64 affinity, f32 x, f32 y) 
 
     flags = datCalcGetAffinity((u8 *)unitData, (s16)affinity);
     btlUiDrawSpriteFaded(work, 0xE, 0x43, x, y, 0x24, 0x4C, 0, 0xFF);
-    iconX = panelAdd2(x, 2.0f);
-    iconY = panelAdd2(y, 2.0f);
+    iconX = operandOrderAddFloat(x, 2.0f);
+    iconY = operandOrderAddFloat(y, 2.0f);
     if (flags & 0x08000000) {
         btlUiDrawSpriteFaded(work, 0xD, 0x36, iconX, iconY, 0x89, 0xFF, 0x1F, 0xFF);
         return;
@@ -644,7 +645,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
             }
             frFontExDrawTextWithCharWidth(112.0f + nameX, 136.0f, 0.0f, 0x89FF1FFF, 0, 1, iGpffffb444 + (u32)enemyIndex * 0x15, 0, -1);
             if ((((BtlAnalyzePanel *)panel)->flags & 8) == 0) {
-                nameX = panelAdd2(15.0f, nameX);
+                nameX = operandOrderAddFloat(15.0f, nameX);
                 hp = datCalcMaxHp(*(u8 * *)&((BtlUnit *)unit)->datUnit) & 0xFFFF;
                 if (hp > 999U) {
                     hp = 999;
@@ -660,7 +661,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
                 bx = 15.0f + nameX;
                 btlPanelAddEntry(work, 0, bx, 2, 167.0f);
                 btlPanelAddEntry(work, 0, bx, 3, 187.0f);
-                nameX = panelAdd2(111.0f, nameX);
+                nameX = operandOrderAddFloat(111.0f, nameX);
                 btlUiDrawSpriteFaded(work, 10, 0x48, nameX, 166.0f, 0x70, 0x70, 0x70, 0xFF);
                 btlUiDrawSpriteFaded(work, 10, 0x49, 22.0f + nameX, 166.0f, 0x70, 0x70, 0x70, 0xFF);
                 btlUiDrawSpriteFaded(work, 10, 0x4A, 7.0f + nameX, 176.0f, 0, 0, 0, 0xFF);
@@ -744,7 +745,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
                     fx = slide.x + (18.0f + fx);
                     oy = (skillIndex & 3) * 0x19;
                     fy = (f32)oy;
-                    fy = panelAdd2(slide.y, panelAdd2(284.0f, fy));
+                    fy = operandOrderAddFloat(slide.y, ((284.0f) + (fy)));
                     btlUiDrawSpriteFaded(work, 12, 0x5A, fx, fy, 0x89, 0xFF, 0x1F, 0xFF);
                     btlUiDrawSpriteFaded(work, 12, 0x5B, 192.0f + fx, fy, 0x89, 0xFF, 0x1F, 0xFF);
                     if (cmds[skillIndex] != 0) {
@@ -794,7 +795,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
                 D_00887310[0](4, &quads[0], 3);
                 shdDisableBlendFlag();
                 btlUiDrawSpriteFaded(work, 10, 0x4D, 25.0f + slide.x, 289.0f, 8, 8, 8, 0xFF);
-                slide.x = panelAdd2(202.0f, slide.x);
+                slide.x = operandOrderAddFloat(202.0f, slide.x);
                 btlUiDrawSpriteFaded(work, 10, 0x48, slide.x, 314.0f, 0x70, 0x70, 0x70, 0xFF);
                 btlUiDrawSpriteFaded(work, 10, 0x49, 22.0f + slide.x, 314.0f, 0x70, 0x70, 0x70, 0xFF);
                 btlUiDrawSpriteFaded(work, 10, 0x4A, 7.0f + slide.x, 324.0f, 0, 0, 0, 0xFF);

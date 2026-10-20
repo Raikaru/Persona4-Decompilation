@@ -907,6 +907,7 @@ typedef char ParticleAnimationOutputSize[(sizeof(ParticleAnimationOutput) == 56)
 
 /* VU0 boundary: VF10 contains the normalized animated particle color.
  * Packing produces the real four-byte scalar consumed by the color stream. */
+/* Convert the animated VU color to a packed byte-channel word. */
 static inline u32 particlePackAnimatedColor(void)
 {
     u32 result;
@@ -926,6 +927,7 @@ static inline u32 particlePackAnimatedColor(void)
 }
 
 /* The transformed pass keeps the color-byte scale in an FPR. */
+/* Scale the animated VU color before packing its byte channels. */
 static inline u32 particlePackAnimatedColorTransformed(f32 scale)
 {
     u32 result;
@@ -1626,10 +1628,7 @@ typedef char ParticleProjectedVec3Size[(sizeof(ParticleProjectedVec3) == 12) ? 1
 typedef char ParticleProjectedVertexSize[(sizeof(ParticleProjectedVertex) == 64) ? 1 : -1];
 typedef char ParticleProjectedSelectionSize[(sizeof(TlpSel) == 20) ? 1 : -1];
 
-static inline u32 particleProjectedFrameIndex(const u8 *record)
-{
-    return (u32)((const SpawnParticle *)record)->age;
-}
+
 
 /* measured: b210 -O2, full unmasked 4236/4240-byte proof and four zero tail bytes.
  * Native vertex/selection fields and VU outputs preserve the retail memory order.
@@ -1905,7 +1904,7 @@ void ParticleDrawBillboards(u8 *particle)
                         f32 height;
                         u32 frameIndex;
 
-                        frameIndex = particleProjectedFrameIndex(record);
+                        frameIndex = ((u32)((const SpawnParticle *)(record))->age);
                         TlpSelectFrame((TLP *)instance->tlpRef, frameIndex, &selection);
                         D_00887300[0](rwRENDERSTATETEXTURERASTER, *(void **)selection.tex);
                         {

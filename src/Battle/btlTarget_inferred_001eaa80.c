@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -15,10 +16,7 @@ extern s64 scrGetParamInt();
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
 extern s32 scrGetParamIntS32(s32 index);
-static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 
 extern u8 *btlActionGetActiveOrQueueFront(void);
 
@@ -292,7 +290,7 @@ s32 btlEffectScriptSetUnitPositionByIndex(void) {
 set_one:
     listIndex = 1;
 select_table:
-    unit = ((BtlBattleState *)btlTargetOffsetAddress((u32)(listIndex * 8), iGpffffb3ac))->unitLists[1];
+    unit = ((BtlBattleState *)byteAddressAdd((u32)(listIndex * 8), (u8 *)(iGpffffb3ac)))->unitLists[1];
     goto loop_test;
 loop_body:
     if (selectedIndex == unitIndex) {

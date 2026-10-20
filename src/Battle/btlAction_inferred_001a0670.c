@@ -17,10 +17,7 @@ typedef struct BtlTarget BtlTarget;
 /* Existing byte-view callers use these adapters to the provider definitions. */
 extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument, u32 extraArgument, u32 flags);
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
-static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)
-{
-    btlActionSetStateWithDelay((BtlAction *)action, (u16)state, (u16)delay);
-}
+
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
 extern BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit);
@@ -31,7 +28,6 @@ extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
 
 void btlActionSetState(BtlAction *action, u16 state);
-
 
 
 void btlActionFinishPresentation(BtlAction *action);
@@ -143,7 +139,7 @@ void btlActionStartInit(BtlAction *action) {
     }
     if ((needsDelay != 0) &&
         (datCalcChkBadStatus((s32)action->unit->datUnit, 0x180001) == 0)) {
-        actionSetDelayBytes((u8 *)action, 4, 1);
+        btlActionSetStateWithDelay((BtlAction *)((u8 *)action), (u16)(4), (u16)(1));
         return;
     }
     if (((BtlBattleState *)iGpffffb3ac)->flags & 0x80000) {

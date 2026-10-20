@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 #include "member_access.h"
 /* Original translation unit btlResultFriendPsLvUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -84,16 +85,13 @@ s32 btlResultFriendPsCheck(s64 partyId)
 
 /* Addresses in the target's 32-bit work allocation are computed as unsigned
  * byte offsets before conversion to a live record pointer. */
-static inline u32 friendResultAddress(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
 
 /* r and base are declared after the loop counter. The first two stores
    through r in the opening state form the address as (u32)r + offset. That
    repeated conversion is copied from r inside the switch, which keeps r a
    local at its declared number (docs/matching.md, "Keep a load local
-   alive"). The (u32)base argument of friendResultAddress keeps base alive
+   alive"). The (u32)base argument of byteAddressAdd keeps base alive
    the same way, giving retail's $s3/$s2 for r/base. */
 // FUN_002239A0
 /* Apply friend-persona experience, expose learned-skill flags, and sequence the persona level-up
@@ -176,7 +174,7 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
                     break;
                 }
             }
-            shdPersonaSetDisplayState(summary->personaWindow, ((BtlXpAwards *)friendResultAddress((u32)summary->partyIndex * 2, (u32)awards))->partyIds[0], (u32)persona, 0);
+            shdPersonaSetDisplayState(summary->personaWindow, ((BtlXpAwards *)(u32)byteAddressAdd((u32)summary->partyIndex * 2, (u8 *)((u32)awards)))->partyIds[0], (u32)persona, 0);
             menuIds[0] = 27;
             menuIds[1] = 25;
             menuIds[2] = 6;
@@ -197,12 +195,12 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
                 b = (s32)H_Cdvd_GetArchiveEntry((u8 *)((BtlResultWork *)parentWork)->file, 1, 0);
                 summary->levelUpTask = shdPersonaLevelUpCreate(taskAddress, *(s32 *)&summary->personaWindow, awards + summary->partyIndex * 136 + 0x6B4, a, b, menuIds);
             }
-            if (*(s16 *)&((BtlXpAwards *)friendResultAddress((u32)summary->partyIndex * 2, (u32)awards))->partyIds[0] == 5) {
+            if (*(s16 *)&((BtlXpAwards *)(u32)byteAddressAdd((u32)summary->partyIndex * 2, (u8 *)((u32)awards)))->partyIds[0] == 5) {
                 s16 t = (s16)(datCalcRandomBelow(3) + 468);
                 btlSoundStopBank3();
                 btlVoicePlayIdCue((u16)t, 3);
             } else {
-                s32 stmp = btlResultFriendPsCheck(*(s16 *)&((BtlXpAwards *)friendResultAddress((u32)summary->partyIndex * 2, (u32)awards))->partyIds[0]) + 125;
+                s32 stmp = btlResultFriendPsCheck(*(s16 *)&((BtlXpAwards *)(((u32)summary->partyIndex * 2) + ((u32)awards)))->partyIds[0]) + 125;
                 s16 u = (s16)(stmp + datCalcRandomBelow(3));
                 btlVoiceFadeOut();
                 btlSoundPlayIndexed((u16)u);

@@ -88,8 +88,6 @@ extern f32 fGpffff8108;
 void mdlEffectSetSequenceRequest(s32 sequence, s16 sequenceId, s32 firstValue, s32 secondValue);
 
 
-
-
 #pragma push
 #pragma pop
 
@@ -98,7 +96,9 @@ void mdlEffectSetSequenceRequest(s32 sequence, s16 sequenceId, s32 firstValue, s
 extern s32 btlActionGetQueueSecond(void);
 extern void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend);
 /* Index the twelve-entry action target list using its proven pointer stride. */
-static inline u8 *cameraVisibilityTarget(u8 *action, u16 index)
+/* Read an action target for camera visibility geometry. */
+/* measured: keeps target-index load scheduling and the complete geometry instruction sequence; btlCameraSetupActionGeometry plain expansion differs 448 byte(s). */
+static inline u8 *btlCameraGetVisibilityTarget(u8 *action, u16 index)
 {
     return ((BtlAction *)action)->targets[index];
 }
@@ -271,7 +271,7 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
         s32 index;
         index = 0;
         while ((index & 0xFFFF) < actionData->unk_6a) {
-            targetGroups |= (u16)(1u << ((BtlAction *)cameraVisibilityTarget(action, index))->unit->genus);
+            targetGroups |= (u16)(1u << ((BtlAction *)btlCameraGetVisibilityTarget(action, index))->unit->genus);
             index = (index + 1) & 0xFFFF;
         }
     }
@@ -327,7 +327,7 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
                 s32 index;
                 index = 0;
                 while ((index & 0xFFFF) < actionData->unk_6a) {
-                    if (current == cameraVisibilityTarget(action, index)) {
+                    if (current == btlCameraGetVisibilityTarget(action, index)) {
                         btlUnitClearFlags((BtlUnit *)unit, 2);
                         btlUnitSetFlags((BtlUnit *)unit, 4);
                         if ((mode & 0x40) == 0) unitData->cols[1].alpha = 0xFF;

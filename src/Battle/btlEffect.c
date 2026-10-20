@@ -5,6 +5,7 @@
 /* Source unit: src/Battle/btlEffect_001d6880.c */
 #include "btl_skill_target_internal.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "include_asm.h"
 extern s32 btlCond_MYNOMAL(u8 *formation, s32 index);
 extern s32 btlCond_MYWEAK(u8 *action, s16 conditionValue);
@@ -63,7 +64,6 @@ extern u32 btlEffectApplyFadeCustomColor(u8 *request);
 typedef u8 bool;
 
 
-
 extern u32 btlPacketStepSpriteFrame(int work);
 
 extern void func_00440b68();
@@ -90,7 +90,6 @@ extern char D_00609558[];
 extern char D_006095C0[];
 
 
-
 /* Release all three optional node resources and restore the default white, twenty-step fade state without unlinking the node. */
 // FUN_001D6880
 void btlEffectResetEntry(u16 *node)
@@ -115,7 +114,6 @@ void btlEffectResetEntry(u16 *node)
   *node = 0x200;
   return;
 }
-
 
 
 /* Find an unclaimed pool slot, reset its node resources, and mark its bit used; return NULL if the scan finds none. */
@@ -160,7 +158,6 @@ u16 *btlEffectAllocEntry(int pool)
 }
 
 
-
 /* Locate the node in its pool, release its resources, and clear the corresponding used bit; return whether it was found. */
 // FUN_001D6DE0
 u32 btlEffectFreeEntry(int pool, u16 *entry)
@@ -197,8 +194,6 @@ u32 btlEffectFreeEntry(int pool, u16 *entry)
   }
   return 0;
 }
-
-
 
 
 void btlUnitResourceClearFlag(void** units);
@@ -291,8 +286,6 @@ u8 *btlEffectCreateLoadPacket(void)
 }
 
 
-
-
 /* Load the configured formation resource synchronously and copy its data into an independently owned allocation. */
 /* measured: site, typed-local, array and unsigned-union member forms lose MATCH
  * on the final size reload; MEMBER preserves the original request-byte alias domain. */
@@ -340,7 +333,6 @@ BtlPacket *btlEffectCreateReleasePacket(u16 mode)
     *(u16 *)packet->workData = mode;
     return packet;
 }
-
 
 
 /* Copy RGBA and mode into the six-byte custom fade-color work payload. */
@@ -432,16 +424,6 @@ u32 btlEffectCollectGenusMask(int selection)
 #pragma opt_loop_invariants off
 
 
-
-
-
-
-
-
-
-
-
-
 // FUN_001DA9F0
 u32 btlCond_MORE(s32 action)
 {
@@ -453,10 +435,7 @@ extern u8 *btlActionFindById();
 extern void *D_00609850[];
 extern s64 scrGetParamInt();
 extern s32 scrGetParamIntS32(s32 index);
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 extern u8 *scrGetAiState();
 extern s32 btlAICommandSelectCandidates();
 extern u32 datCalcRandomBelow(u32 limit);
@@ -516,7 +495,7 @@ s32 btlAICommandPickWeakCandidateGated(void) {
         if (count == 1) {
             scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -537,7 +516,7 @@ s32 btlAICommandPickWeakCandidate(void) {
         if (count == 1) {
             scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -558,7 +537,7 @@ s32 btlAICommandPickNormalCandidate(void) {
         if (count == 1) {
             scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -579,7 +558,7 @@ s32 btlAICommandPickNormalCandidateGated(void) {
         if (count == 1) {
             scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -605,7 +584,7 @@ s32 btlAICommandPickNormalCandidateAlt(void)
         }
         else
         {
-            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     }
     else

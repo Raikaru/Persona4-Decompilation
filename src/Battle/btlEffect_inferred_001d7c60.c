@@ -8,10 +8,7 @@
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
+
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -51,15 +48,6 @@ extern u8 iGpffffa4d9;
 extern u8 iGpffffa4d8;
 
 typedef int (*code)();
-
-
-
-
-
-
-
-
-
 
 
 extern f32 D_0060A100[];
@@ -190,8 +178,7 @@ u16 btlSkillClassifyTargets(u8 *action, u8 *selection, u16 skillId, u32 reverseS
     u32 filterFlags;
     if (selection != NULL) {
         offset = (skillId & 0xFFFF) * 0x28;
-        effect = ((DatSkillEntry *)((u8 *)p4_001d7f10_add(
-            offset, (s32)iGpffffb3b8)))->targetSides;
+        effect = ((DatSkillEntry *)((u8 *)((offset) + ((s32)iGpffffb3b8))))->targetSides;
         filterFlags = ((DatSkillEntry *)((u8 *)(u32)iGpffffb3b8 + offset))->targetFilter;
         if (reverseSides != 0) {
             reverseSides = (u8)effect;
@@ -208,8 +195,7 @@ u16 btlSkillClassifyTargets(u8 *action, u8 *selection, u16 skillId, u32 reverseS
             }
         }
         btlEffectCollectTargetUnits(action, selection, effect, filterFlags,
-                      ((DatSkillEntry *)((u8 *)p4_001d7f10_add(
-                          (s32)offset, (s32)iGpffffb3b8)))->excludedStatus);
+                      ((DatSkillEntry *)((u8 *)(((s32)offset) + ((s32)iGpffffb3b8))))->excludedStatus);
     }
     action = (u8 *)(u32)iGpffffb3b8;
     return (action + (skillId & 0xFFFF) * 0x28)[8];

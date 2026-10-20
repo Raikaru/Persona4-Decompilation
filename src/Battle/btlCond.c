@@ -6,6 +6,7 @@
 #include "btl_action_internal.h"
 #include "btl_skill_target_internal.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "include_asm.h"
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
@@ -20,10 +21,6 @@ typedef struct BtlEncounterRule {
 typedef u8 bool;
 typedef int (*code)();
 
-static inline s32 p4_001da5f0_xor(s32 left, s32 right)
-{
-    return left ^ right;
-}
 
 extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern s32 datCalcGetLevel(u8 *unit);
@@ -166,7 +163,6 @@ done:
 }
 /* measured: closes opt_rebuildconditionals for FUN_001D9A30. */
 #pragma opt_rebuildconditionals on
-
 
 
 /* Accept when the living allied unit count does not exceed conditionValue. */
@@ -473,13 +469,11 @@ s32 btlCond_MYHANSYA(u8 *action, s16 conditionValue) {
 }
 
 
-
 /* Test the requested element affinity for absorption (0x04000000). */
 // FUN_001DA270
 s32 btlCond_MYKYUSYU(u8 *action, s16 conditionValue) {
     return (s32)((datCalcGetAffinity((u8 *)((BtlAction *)action)->unit->datUnit, (s32)conditionValue) & 0x04000000) != 0);
 }
-
 
 
 /* Test the requested element affinity for nullification (0x01000000). */
@@ -489,13 +483,11 @@ s32 btlCond_MYMUKOU(u8 *action, s16 conditionValue) {
 }
 
 
-
 /* Test the requested element affinity for weakness (0x08000000). */
 // FUN_001DA2F0
 s32 btlCond_MYWEAK(u8 *action, s16 conditionValue) {
     return (s32)((datCalcGetAffinity((u8 *)((BtlAction *)action)->unit->datUnit, (s32)conditionValue) & 0x08000000) != 0);
 }
-
 
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
@@ -610,7 +602,7 @@ void btlCond_ENWEAK(u8 *action, u32 conditionValue) {
 // FUN_001DA5F0
 s32 btlCond_MYUSEATTR(u8 *action, s32 conditionValue)
 {
-    return p4_001da5f0_xor((s16)datCalcSkillElement(
+    return operandOrderXor((s16)datCalcSkillElement(
         (u8 *)((BtlAction *)action)->unit->datUnit,
         ((BtlAction *)(action))->parameters.skill), conditionValue) < 1U;
 }
@@ -660,7 +652,6 @@ bool btlCond_MYUSESKIL(int action, int conditionValue)
 }
 
 
-
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA730
 void btlCond_FRUSESKIL(int action, u32 conditionValue)
@@ -703,7 +694,6 @@ u32 btlCond_MYGROUP(int action)
 }
 
 
-
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA840
 void btlCond_FRGROUP(int action, u32 conditionValue)
@@ -735,7 +725,6 @@ bool btlCond_TURN(int action, u32 conditionValue)
 {
     return conditionValue >= ((BtlAction *)action)->unk_20;
 }
-
 
 
 /* Test the action turn counter against an inclusive lower bound. */

@@ -444,10 +444,7 @@ void cmpConfigUpdateFrame(u8* unusedNode, u8* work) {
 
 
 
-static inline u32 cmpConfigPackGrayText(u8 alpha, u8 shade)
-{
-    return ((u32)shade << 24) | ((u32)shade << 16) | ((u32)shade << 8) | alpha;
-}
+
 
 /* Draw the live configuration graph, option rows, reset button and help text.
    The complete position/color records are shared across all draw phases.
@@ -590,7 +587,7 @@ void cmpConfigDraw(u8 *work) {
                 } else {
                     selected = 0;
                     if (index == 2) {
-                        textColor = cmpConfigPackGrayText(alpha, 0x80);
+                        textColor = (((u32)(0x80) << 24) | ((u32)(0x80) << 16) | ((u32)(0x80) << 8) | (alpha));
                     } else {
                         textColor = (alpha & 0xFF) | 0x80808000;
                     }

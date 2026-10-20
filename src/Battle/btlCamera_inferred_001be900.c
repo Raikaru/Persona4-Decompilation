@@ -12,6 +12,7 @@
 #include "effect_instance_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "btl_camera_sequence_internal.h"
 
 #include "rw_types_internal.h"
@@ -55,10 +56,7 @@ extern void btlMainApplyUnitBaseColors(u8 *unit);
 extern void btlCameraStartEffect(u8 *camera, u8 *script, s32 options);
 extern s32 btlCameraFrameActionGeneral(u8 *camera, s32 closeView, s32 nearScale, s32 farScale);
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
+
 extern void btlCameraUpdateEffectList(u8 *camera);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
@@ -87,10 +85,6 @@ extern f32 fGpffff805c;
 extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 extern void func_003dcc70(f32 *first, f32 *second, f32 *third);
-
-
-
-
 
 
 #pragma push
@@ -468,7 +462,7 @@ first_done:
     characterId = ((BtlUnit *)unit)->charId;
     btlMainApplyUnitBaseColors(unit);
     btlCameraStartEffect(camera,
-                  func_001bf3a0_add((effMiscRand(0) & 1) * 0xF4,
+                  byteAddressAdd((effMiscRand(0) & 1) * 0xF4,
                                     (u8 *)((s32)D_005FB400 +
                                            ((characterId & 0xFFFF) * 0x1E8))),
                   2);

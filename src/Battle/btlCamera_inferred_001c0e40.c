@@ -8,13 +8,11 @@
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "effect_instance_internal.h"
 
 /* Preserve source operand order in the camera's height products. */
-static inline f32 p4_cacd0_mul(f32 left, f32 right)
-{
-    return left * right;
-}
+
 
 typedef struct BtlUnitStateWork BtlUnitStateWork;
 typedef struct BtlUnit BtlUnit;
@@ -115,10 +113,6 @@ extern void btlCameraFrameRandomOrbit(u8 *camera, s32 unused);
 extern void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused);
 extern void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses);
 extern void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses);
-static inline f32 func_001c_mul_add(f32 first, f32 second, f32 third)
-{
-    return first * second + third;
-}
 
 
 /* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
@@ -753,7 +747,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
         unit = target;
         snapshotCenter = unitCenter;
         sideRadius = 2.25f * frameRadius;
-        extentScale = p4_cacd0_mul(fGpffff8138, extentScale);
+        extentScale = operandOrderMultiply(fGpffff8138, extentScale);
         plane.sideDirection.x = direction.z;
         plane.sideDirection.y = -direction.x;
         sideDot = plane.sideDirection.x * plane.cameraHorizontal.x + plane.sideDirection.y * plane.cameraHorizontal.y;
@@ -1020,7 +1014,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     delta.y = actorCenter.y - groupCenter.y;
     delta.z = actorCenter.z - groupCenter.z;
     scale = RwV3dNormalize((RwV3d *)&delta, (const RwV3d *)&delta);
-    scale = p4_cacd0_mul(fGpffff8128, scale);
+    scale = operandOrderMultiply(fGpffff8128, scale);
     focus.x = delta.x * scale;
     focus.y = delta.y * scale;
     focus.z = delta.z * scale;
@@ -1080,9 +1074,9 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
         focus.z = (0.0f + focus.z) - horizontal.x * distance;
         {
             RwV3d displacement;
-            displacement.x = p4_cacd0_mul(direction.x, extent);
-            displacement.y = p4_cacd0_mul(direction.y, extent);
-            displacement.z = p4_cacd0_mul(direction.z, extent);
+            displacement.x = operandOrderMultiply(direction.x, extent);
+            displacement.y = operandOrderMultiply(direction.y, extent);
+            displacement.z = operandOrderMultiply(direction.z, extent);
             frames[1].pos.x = focus.x + displacement.x;
             frames[1].pos.y = focus.y + displacement.y;
             frames[1].pos.z = focus.z + displacement.z;
@@ -1170,9 +1164,9 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
         focus.z = (0.0f + focus.z) - horizontal.x * extent;
         {
             RwV3d displacement;
-            displacement.x = p4_cacd0_mul(direction.x, distance);
-            displacement.y = p4_cacd0_mul(direction.y, distance);
-            displacement.z = p4_cacd0_mul(direction.z, distance);
+            displacement.x = operandOrderMultiply(direction.x, distance);
+            displacement.y = operandOrderMultiply(direction.y, distance);
+            displacement.z = operandOrderMultiply(direction.z, distance);
             frames[1].pos.x = focus.x + displacement.x;
             frames[1].pos.y = focus.y + displacement.y;
             frames[1].pos.z = focus.z + displacement.z;
@@ -1196,9 +1190,9 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
             focus.z = (0.0f + focus.z) - horizontal.x * extent;
             {
                 RwV3d displacement;
-                displacement.x = p4_cacd0_mul(delta.x, distance);
-                displacement.y = p4_cacd0_mul(delta.y, distance);
-                displacement.z = p4_cacd0_mul(delta.z, distance);
+                displacement.x = operandOrderMultiply(delta.x, distance);
+                displacement.y = operandOrderMultiply(delta.y, distance);
+                displacement.z = operandOrderMultiply(delta.z, distance);
                 frames[0].pos.x = focus.x + displacement.x;
                 frames[0].pos.y = focus.y + displacement.y;
                 frames[0].pos.z = focus.z + displacement.z;
@@ -1208,7 +1202,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
             delta.y = actorCenter.y - groupCenter.y;
             delta.z = actorCenter.z - groupCenter.z;
             extent = RwV3dNormalize((RwV3d *)&delta, (const RwV3d *)&delta);
-            extent = p4_cacd0_mul(0.25f, extent);
+            extent = operandOrderMultiply(0.25f, extent);
             focus.x = delta.x * extent;
             focus.y = delta.y * extent;
             focus.z = delta.z * extent;
@@ -1584,7 +1578,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
         projectedCenter.x = snapshotCenter.x;
         projectedCenter.y = snapshotCenter.z;
         lineDistance = btlTargetAngleBetween((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
-        cameraDistance = func_001c_mul_add(actorRadius, 3.0f, 0.0f + lineDistance);
+        cameraDistance = operandOrderMultiplyAdd(actorRadius, 3.0f, 0.0f + lineDistance);
         eye.x = projection.x;
         eye.y = 0.0f + snapshotCenter.y + 0.25f * actorTop;
         eye.z = projection.y;

@@ -202,10 +202,6 @@ extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
 
-
-
-
-
 extern u8 *btlActionFindByUnit(s32);
 #pragma push
 #pragma pop

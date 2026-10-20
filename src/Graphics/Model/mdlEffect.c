@@ -103,7 +103,9 @@ extern f32 D_00713D14[];
 extern f32 D_00713D18[];
 extern f32 cosf(void);
 extern f32 sinf(f32 value);
-static inline u8 *mdlEffect_camera_matrix(u8 *base)
+/* Address the camera matrix following the camera object header. */
+/* measured: plain base-plus-header expressions change owner instruction bytes at all three call sites. */
+static inline u8 *mdlEffectCameraMatrix(u8 *base)
 {
     return base + 0x20;
 }
@@ -696,9 +698,7 @@ extern void mdlEffectAdvanceEmitter(void *object);
 extern void ParticleUpdateScaled(u8 *particle, f32 scale);
 void GeometryMatrixBuildCombined();
 extern char D_00713CE0[];
-static inline f32 MulF32(f32 left, f32 right) {
-    return left * right;
-}
+
 typedef struct Code48InitialState {
     f32 vector00[4];
     f32 vector10[4];
@@ -1320,7 +1320,7 @@ f32 mdlEffectProjectAnchorDepth(void)
     input.y = D_00713D14[0];
     input.z = D_00713D18[0];
     func_003e42a0(&transformed, &input,
-                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)kwlnGetCamera()));
+                  (const RwMatrix *)mdlEffectCameraMatrix((u8 *)(u32)kwlnGetCamera()));
     depth = transformed.z;
     output[0] = 640.0f * (transformed.x / depth);
     output[1] = 448.0f * (transformed.y / depth);
@@ -1353,7 +1353,7 @@ s32 mdlEffectAnchorOnScreen(void)
     ((MdlEffectFloatWord *)raw)[9].value = D_00713D14[0];
     ((MdlEffectFloatWord *)raw)[10].value = D_00713D18[0];
     func_003e42a0((RwV3d *)(raw + 0x30), (const RwV3d *)(raw + 0x20),
-                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)kwlnGetCamera()));
+                  (const RwMatrix *)mdlEffectCameraMatrix((u8 *)(u32)kwlnGetCamera()));
     ptr = (u8 *)(u32)kwlnGetCamera();
     nearPlane = ((MdlEffectCamera *)ptr)->nearPlane;
     ptr = (u8 *)(u32)kwlnGetCamera();
@@ -1409,7 +1409,7 @@ f32 mdlEffectAnchorScreenScale(f32 inputScale)
     ((MdlEffectFloatWord *)raw)[13].value = D_00713D14[0];
     ((MdlEffectFloatWord *)raw)[14].value = D_00713D18[0];
     func_003e42a0((RwV3d *)(raw + 0x40), (const RwV3d *)(raw + 0x30),
-                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)kwlnGetCamera()));
+                  (const RwMatrix *)mdlEffectCameraMatrix((u8 *)(u32)kwlnGetCamera()));
     depth = ((MdlEffectFloatWord *)raw)[18].value;
     distanceOrRatio = ((MdlEffectFloatWord *)raw)[16].value / depth;
     scaledValue = 640.0f * distanceOrRatio;
@@ -1602,7 +1602,7 @@ void EffWaveApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1631,7 +1631,7 @@ void EffMotionApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1645,7 +1645,7 @@ void EffMotionApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_0048D820
 void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1659,7 +1659,7 @@ void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1674,7 +1674,7 @@ void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_0048E270
 void EffEmitterKind4ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1688,7 +1688,7 @@ void EffEmitterKind4ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1715,7 +1715,7 @@ void EffConeApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1743,7 +1743,7 @@ void EffConeAngleApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1779,7 +1779,7 @@ void EffBezierApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
 }
@@ -1789,7 +1789,7 @@ void EffBezierApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
-/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_00490BB0
 void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1803,7 +1803,7 @@ void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1818,7 +1818,7 @@ void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_00491660
 void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1832,7 +1832,7 @@ void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1846,7 +1846,7 @@ void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
+/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_00492080
 void EffEmitterKind10ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1860,7 +1860,7 @@ void EffEmitterKind10ApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;
@@ -1887,7 +1887,7 @@ void EffSwayParticleApplyScale(u8 *emitter, f32 scale) {
     componentIndex = 0;
     while (componentIndex < 3U) {
         ((MdlEffectScaleParameters *)parameters)->components[componentIndex].value =
-            MulF32(((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value, scale);
+            ((((MdlEffectScaleParameters *)sourceParameters)->components[componentIndex].value) * (scale));
         componentIndex += 1;
     }
     ((MdlEffectScaleParameters *)parameters)->unkC8 = ((MdlEffectScaleParameters *)sourceParameters)->unkC8 * scale;

@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -14,9 +15,7 @@
 #include "g_data_internal.h"
 #include "btl_sound_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
+
 
 
 extern RwRenderState D_00625210[];
@@ -308,18 +307,18 @@ s32 btlSoundSetSlotChannel(u8 *work)
         slotBase = iGpffffb3ac;
         offset = (u32)slotBase;
         channel = ((BtlSoundCueWork *)work)->channel;
-        offset = addOffsetFirst(channel * 6, offset);
+        offset = (u32)byteAddressAdd(channel * 6, (u8 *)(offset));
         *(u16 *)&((BtlSoundQueue *)((u8 *)offset + 0xAC8))->channels[0].cue = cue;
         cue = ((BtlSoundCueWork *)work)->variant;
         slotBase = iGpffffb3ac;
         offset = (u32)slotBase;
         channel = ((BtlSoundCueWork *)work)->channel;
-        offset = addOffsetFirst(channel * 6, offset);
+        offset = (u32)byteAddressAdd(channel * 6, (u8 *)(offset));
         *(u16 *)&((BtlSoundQueue *)((u8 *)offset + 0xAC8))->channels[0].variant = cue;
         slotBase = iGpffffb3ac;
         offset = (u32)slotBase;
         channel = ((BtlSoundCueWork *)work)->channel;
-        offset = addOffsetFirst(channel * 6, offset);
+        offset = (u32)byteAddressAdd(channel * 6, (u8 *)(offset));
         *(u8 *)&((BtlSoundQueue *)((u8 *)offset + 0xAC8))->channels[0].frame = 0;
     }
     return 1;

@@ -7,13 +7,11 @@
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "effect_instance_internal.h"
 
 /* Preserve source operand order in the camera's height products. */
-static inline f32 p4_cacd0_mul(f32 left, f32 right)
-{
-    return left * right;
-}
+
 
 typedef struct BtlUnitStateWork BtlUnitStateWork;
 typedef struct BtlUnit BtlUnit;
@@ -172,8 +170,8 @@ void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
     actorPosition.y = ((BtlUnit *)actorUnit)->sphereCenter.y * MEMBER(f32, actorUnit, BtlUnit, scale);
     actorPosition.z = MEMBER(f32, actorUnit, BtlUnit, moveDestination.z);
     btlUnitGetSphereWorldCenter((BtlUnit *)targetUnit, &targetPosition);
-    height = (0.0f + actorPosition.y + p4_cacd0_mul(((BtlUnit *)actorUnit)->unk_8c, MEMBER(f32, actorUnit, BtlUnit, scale)) * fGpffff8118);
-    height += (0.0f + targetPosition.y + p4_cacd0_mul(((BtlUnit *)targetUnit)->unk_8c, MEMBER(f32, targetUnit, BtlUnit, scale)) * fGpffff8118);
+    height = (0.0f + actorPosition.y + operandOrderMultiply(((BtlUnit *)actorUnit)->unk_8c, MEMBER(f32, actorUnit, BtlUnit, scale)) * fGpffff8118);
+    height += (0.0f + targetPosition.y + ((((BtlUnit *)targetUnit)->unk_8c) * (MEMBER(f32, targetUnit, BtlUnit, scale))) * fGpffff8118);
     extent = 0.0f + MEMBER(f32, actorUnit, BtlUnit, stoppingDistance);
     extent += MEMBER(f32, actorUnit, BtlUnit, sphereRadius) * MEMBER(f32, actorUnit, BtlUnit, scale);
     extent += MEMBER(f32, targetUnit, BtlUnit, sphereRadius) * MEMBER(f32, targetUnit, BtlUnit, scale);
@@ -334,7 +332,7 @@ void btlCameraFrameFourPoseCurve(u8 *camera, f32 sweepAngle, f32 duration)
     btlCameraCopyPose((f32 *)&work.frames[0], (f32 *)(camera + 0x9C));
     prod = ((BtlUnit *)actorUnit)->sphereCenter.y * MEMBER(f32, actorUnit, BtlUnit, scale);
     btlUnitGetSphereWorldCenter(targetUnit, (f32 *)&work.unit);
-    height = (0.0f + prod + p4_cacd0_mul(((BtlUnit *)actorUnit)->unk_8c, ((BtlUnit *)actorUnit)->scale) * fGpffff8118);
+    height = (0.0f + prod + operandOrderMultiply(((BtlUnit *)actorUnit)->unk_8c, ((BtlUnit *)actorUnit)->scale) * fGpffff8118);
     height += (0.0f + work.unit.y + (((BtlUnit *)targetUnit)->unk_8c * ((BtlUnit *)targetUnit)->scale) * fGpffff8118);
     work.unit.y = 0.0f;
     zero = 0.0f;
@@ -348,7 +346,7 @@ void btlCameraFrameFourPoseCurve(u8 *camera, f32 sweepAngle, f32 duration)
     work.scaled.x = work.scaled.x + work.unit.x;
     work.scaled.y = work.scaled.y + work.unit.y;
     work.scaled.z = work.scaled.z + work.unit.z;
-    height = p4_cacd0_mul(0.5f, height);
+    height = operandOrderMultiply(0.5f, height);
     work.scaled.y = height;
     work.xzA[0] = work.diff.z;
     work.xzA[1] = -work.diff.x;

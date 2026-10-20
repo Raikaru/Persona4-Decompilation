@@ -419,7 +419,9 @@ s32 Cmd_SetShadowRingRadius(void)
  * contains exactly the three floats read and written by the matrix API.
  * See docs/probe_archive/Field_placement_001774a0_20260924.md. */
 /* Normalize the field-work predicate at the original inline boundary. */
-static inline u32 fieldPlacementEnabled(u32 value)
+/* Normalize the field-work result before checking the dependent placement task. */
+/* measured: the direct nonzero test changes placement branch/register generation at the sole caller. */
+static inline u32 fldPlacementEnabled(u32 value)
 {
     return value != 0;
 }
@@ -488,7 +490,7 @@ s32 Cmd_PlaceFieldResource(void)
                             hasWork = 1;
                         }
                     }
-                    if (fieldPlacementEnabled(hasWork) && ((FldPartySlot *)entry)[1].chaser != 0) {
+                    if (fldPlacementEnabled(hasWork) && ((FldPartySlot *)entry)[1].chaser != 0) {
                         FldAI_ChaserDisable(((FldPartySlot *)entry)[1].chaser);
                     }
                 }

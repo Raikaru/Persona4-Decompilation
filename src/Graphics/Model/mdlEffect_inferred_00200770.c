@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "btl_skill_target_internal.h"
 #include "list_item_internal.h"
 #include "btl_motion_internal.h"
@@ -30,10 +31,6 @@ typedef struct {
     s16 field6;
     s16 field8;
 } P4_00202D20;
-static inline f32 func_0020_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 
 
 extern f32 fGpffff815c;
@@ -217,7 +214,7 @@ void btlUiUpdateOverlayScale(u8 *command)
     scaleDelta = (f32)(u32)duration;
     progress /= scaleDelta;
     scaleDelta = ((MdlEffectOverlayScale *)parameters)->endScale - startScale;
-    scaleDelta = func_0020_mul(progress, scaleDelta);
+    scaleDelta = operandOrderMultiply(progress, scaleDelta);
     progress = scaleDelta + startScale;
     ((MdlEffectUiState *)D_0076449C)->overlayScale = fGpffff81a8 * progress;
 }

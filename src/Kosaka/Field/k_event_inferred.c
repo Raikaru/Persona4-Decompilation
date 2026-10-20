@@ -159,10 +159,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline f32 p4_0014_recip(f32 value)
-{
-    return 1.0f / value;
-}
 typedef struct {
     u8 b0;
     u8 b1;
@@ -320,6 +316,7 @@ typedef struct FldEventMarker {
     u8 pad10[0x100];
     void *queue;
 } FldEventMarker;
+/* Mark the four grid cells covered by the two-by-two actor footprint. */
 static inline void fldGridMark(s32 x, s32 y)
 {
     D_007D24B0[y] |= (u16)(1U << x);
@@ -741,7 +738,7 @@ void FldEventDrawMarker(u8 *queueNode, u8 *curve)
         func_003bb5b0(((FldEventMarker *)(curve))->curve, 0xA, segmentStart, 0,
                       (1.0f / (f32)segmentCount) * (f32)segmentIndex);
         segmentCountFloat = (f32)((FldEventMarker *)curve)->segmentCount;
-        inverseSegmentCount = p4_0014_recip(segmentCountFloat);
+        inverseSegmentCount = (1.0f / (segmentCountFloat));
         func_003bb5b0(MEMBER(u8 *, curve, FldEventMarker, curve), 0xA, segmentEnd, 0, /* measured: FldEventMarker.curve: local nd327; MEMBER retains reload behavior. */
                       inverseSegmentCount * (f32)(segmentIndex + 1));
         primLine3D(segmentStart, segmentEnd, curve + 8, 1);

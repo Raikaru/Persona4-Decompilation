@@ -101,7 +101,8 @@ typedef struct RouteNode {
 #define ROUTE_NEIGHBOR(n, i) MEMBER(RouteNode *, (u8 *)(n) + (i) * 4, RouteNode, neighbors)
 #define ROUTE_DISTANCE(n, i) MEMBER(f32, (u8 *)(n) + (i) * 4, RouteNode, distances)
 /* Test whether a route node is already linked into the open search list. */
-static inline s32 routeInOpenList(RouteNode *scan, RouteNode *node)
+/* Test whether the route node is linked into the open search list. */
+static inline s32 btlTargetRouteInOpenList(RouteNode *scan, RouteNode *node)
 {
     for (; scan != NULL; scan = scan->openNext) {
         if (scan == node) {
@@ -111,7 +112,8 @@ static inline s32 routeInOpenList(RouteNode *scan, RouteNode *node)
     return 0;
 }
 /* Test whether a route node has already moved into the closed search list. */
-static inline s32 routeInClosedList(RouteNode *scan, RouteNode *node)
+/* Test whether the route node is linked into the closed search list. */
+static inline s32 btlTargetRouteInClosedList(RouteNode *scan, RouteNode *node)
 {
     for (; scan != NULL; scan = scan->closedNext) {
         if (scan == node) {
@@ -265,8 +267,8 @@ s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius)
         for (index = 0; ROUTE_NEIGHBOR(node, index) != NULL; index++) {
             cost = node->g + ROUTE_DISTANCE(node, index);
             world = iGpffffb3ac;
-            inOpen = routeInOpenList((RouteNode *)(((BtlTargetNavigation *)(world + 0x318))->open), ROUTE_NEIGHBOR(node, index));
-            inClosed = routeInClosedList((RouteNode *)(((BtlTargetNavigation *)(world + 0x318))->closed), ROUTE_NEIGHBOR(node, index));
+            inOpen = btlTargetRouteInOpenList((RouteNode *)(((BtlTargetNavigation *)(world + 0x318))->open), ROUTE_NEIGHBOR(node, index));
+            inClosed = btlTargetRouteInClosedList((RouteNode *)(((BtlTargetNavigation *)(world + 0x318))->closed), ROUTE_NEIGHBOR(node, index));
             if ((inOpen != 0 || inClosed != 0) && node->g <= cost) {
                 continue;
             }

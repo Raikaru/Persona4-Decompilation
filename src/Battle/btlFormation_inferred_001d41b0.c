@@ -7,10 +7,7 @@
 #include "datCalc_unit_internal.h"
 #include "btl_formation_attach_internal.h"
 typedef struct BtlPacket BtlPacket;
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
+
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -45,13 +42,6 @@ extern u8 iGpffffa4d9;
 extern u8 iGpffffa4d8;
 
 typedef int (*code)();
-
-
-
-
-
-
-
 
 
 typedef struct RwV3d RwV3d;
@@ -98,7 +88,7 @@ u8 *btlFormationAllocEntry(u8 *table, s32 tableIndex, u32 unit, s32 target, s32 
     offset = (u16)tableIndex * 0x314;
     base = (u32)table;
     /* The table consists of 0x314-byte records; only its count is known here. */
-    size = ((BtlFormationResourceBlock *)(u8 *)p4_001d7f10_add((s32)offset, (s32)base))->entryCount * 4 + 0x68;
+    size = ((BtlFormationResourceBlock *)(u8 *)(((s32)offset) + ((s32)base)))->entryCount * 4 + 0x68;
     chkmemAllocSiteTag(D_00609498, 0x51);
     result = jtbl_008873E8[0](size, 0x40000);
     memset(result, 0, size);

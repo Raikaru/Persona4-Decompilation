@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 /* Original translation unit eff_after.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -7,10 +8,7 @@
 
 #include "effect_after_internal.h"
 
-static inline u8 *effAfterWorkFieldPtr(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 
 extern void (*jtbl_008873EC[])(void *ptr);
 /* Word operand loaded only after the command interpreter checks alignment. */
@@ -693,7 +691,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                 uv[1].v = 1.0f;
                 uv[2].u = 0.0f;
                 uv[2].v = 0.5f;
-                p = (AfterTexCoord *)effAfterWorkFieldPtr(last * sizeof(AfterTexCoord), (u8 *)uv);
+                p = (AfterTexCoord *)byteAddressAdd(last * sizeof(AfterTexCoord), (u8 *)uv);
                 p[-3].u = 1.0f;
                 p[-3].v = 0.0f;
                 p[-2].u = 1.0f;
@@ -747,7 +745,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                 uv[1].v = 1.0f;
                 uv[2].u = 0.0f;
                 uv[2].v = 0.5f;
-                p = (AfterTexCoord *)effAfterWorkFieldPtr(last * sizeof(AfterTexCoord), (u8 *)uv);
+                p = (AfterTexCoord *)byteAddressAdd(last * sizeof(AfterTexCoord), (u8 *)uv);
                 p[-3].u = 1.0f;
                 p[-3].v = 0.0f;
                 p[-2].u = 1.0f;
@@ -867,7 +865,7 @@ void effAfterFreeVectorBuffers(void *work) {
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 /* Trail mesh rebuild. Retail adds some table offsets index-first: those sites
-   go through effAfterWorkFieldPtr (offset + base), the rest stay base-first u8 *
+   go through byteAddressAdd (offset + base), the rest stay base-first u8 *
    arithmetic. The midpoint row is formed inside its first copy after the
    source offset, matching retail's evaluation order. */
 #pragma push
@@ -886,6 +884,7 @@ typedef struct {
 void effAfterRebuildTrailMesh(u8 *work, void **pp)
 
 {
+    EffAfterQueue *queue = (EffAfterQueue *)work;
     EffAfterQueue *sampleCountQueue;
     EffAfterQueue *capacityQueue;
     EffAfterQueue *sectionQueue;
@@ -981,7 +980,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       index = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
       effMiscProgressBlendColor(work,0,1.0f,colorBytes + (index - 3) * 4);
       effMiscProgressBlendColor(work,1,1.0f,colorBytes + (index - 2) * 4);
-      byteCursor = effAfterWorkFieldPtr(index * 4, colorBytes);
+      byteCursor = byteAddressAdd(index * 4, colorBytes);
       byteCursor[-4] = (u8)((s32)((u32)byteCursor[-0xc] + (u32)byteCursor[-8]) >> 1);
       byteCursor[-3] = (u8)((s32)((u32)byteCursor[-0xb] + (u32)byteCursor[-7]) >> 1);
       byteCursor[-2] = (u8)((s32)((u32)byteCursor[-10] + (u32)byteCursor[-6]) >> 1);
@@ -1055,7 +1054,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       }
     }
     }
-    *(u32 *)effAfterWorkFieldPtr(4, work) = *(u32 *)effAfterWorkFieldPtr(4, work) | 2;
+    queue->flags = queue->flags | 2;
   }
   /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
   if ((sampleCountQueue = (EffAfterQueue *)(work))->count < 2) {
@@ -1241,9 +1240,9 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       if (countOrAddress < 0) {
         countOrAddress = countOrAddress + ((EffAfterQueue *)work)->count;
       }
-      vectorCursor = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + countOrAddress * 0xc);
+      vectorCursor = (f32 *)(((u8 *)((u8 *)queue->positions)) + countOrAddress * 0xc);
       *(EffAfterVec *)vertexBase = *(EffAfterVec *)vectorCursor;
-      vectorCursor = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x14, work)) + countOrAddress * 0xc);
+      vectorCursor = (f32 *)(((u8 *)((u8 *)queue->normals)) + countOrAddress * 0xc);
       *(EffAfterVec *)&vertexBase[3] = *(EffAfterVec *)vectorCursor;
       vertexBase[6] = *vertexBase + vertexBase[3];
       vertexBase[7] = vertexBase[1] + vertexBase[4];
@@ -1263,7 +1262,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         u32 srcOff;
 
         srcOff = index * 0xc;
-        ((EffAfterVec *)(row = (f32 *)effAfterWorkFieldPtr((u32)(countOrAddress * 3) * 4, (u8 *)vertexBase)))[-3] = ((EffAfterQueue *)work)->positions[index];
+        ((EffAfterVec *)(row = (f32 *)byteAddressAdd((u32)(countOrAddress * 3) * 4, (u8 *)vertexBase)))[-3] = ((EffAfterQueue *)work)->positions[index];
       ((EffAfterVec *)row)[-2] = ((EffAfterQueue *)work)->normals[index];
       row[-3] = row[-9] + row[-6];
       row[-2] = row[-8] + row[-5];
@@ -1441,7 +1440,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       if (index < 0) {
         index = index + ((EffAfterQueue *)work)->count;
       }
-      controlEnd = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + index * 0xc);
+      controlEnd = (f32 *)(((u8 *)((u8 *)queue->positions)) + index * 0xc);
       cur = *(EffAfterVec *)controlEnd;
       toCamera.c[0] = *cameraPosition - cur.c[0];
       toCamera.c[1] = cameraPosition[1] - cur.c[1];
@@ -1482,7 +1481,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         /* Earlier singleton typing differed; this grouped typed form preserves MATCH. */
         index = index + (wrapSampleQueue = (EffAfterQueue *)((work)))->count;
       }
-      vectorCursor = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + index * 0xc);
+      vectorCursor = (f32 *)(((u8 *)((u8 *)queue->positions)) + index * 0xc);
       last = *(EffAfterVec *)vectorCursor;
       toCamera.c[0] = *cameraPosition - last.c[0];
       toCamera.c[1] = cameraPosition[1] - last.c[1];
@@ -2140,7 +2139,7 @@ void effAfterQueueSectionOffsets(EffAfterQueue *queue, s32 section)
 // Archived C body: build/WBHygiene_func_004bc1e0_archive.txt; no current park body remains.
 /* measured: optimization_level 1 probe for eff_after target. */
 #pragma optimization_level 1
-// Length of the segment between two adjacent samples of ring arg2 at section arg1, read through effAfterWorkFieldPtr.
+// Length of the segment between two adjacent samples of ring arg2 at section arg1, read through byteAddressAdd.
 // FUN_004BC1E0
 f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side)
 {
@@ -2162,7 +2161,7 @@ f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side)
     }
     /* The helper preserves offset-first table addressing; a typed rewrite changes the add order. */
     /* Position/normal rings use a 4-byte pointer stride; control-offset pairs use an 8-byte stride. */
-    p = (f32 *)(*(u8 * *)(effAfterWorkFieldPtr(side * 4, work) + MEMBER_OFFSET(EffAfterQueue, samples)) + i * 0xC);
+    p = (f32 *)(*(u8 * *)(byteAddressAdd(side * 4, work) + MEMBER_OFFSET(EffAfterQueue, samples)) + i * 0xC);
     a = p[0];
     b = p[1];
     c = p[2];
@@ -2175,7 +2174,7 @@ f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side)
     }
     offset = i * 0xC;
     /* Position/normal rings use a 4-byte pointer stride; control-offset pairs use an 8-byte stride. */
-    p = (f32 *)(*(u8 * *)(effAfterWorkFieldPtr(side * 4, work) + MEMBER_OFFSET(EffAfterQueue, samples)) + offset);
+    p = (f32 *)(*(u8 * *)(byteAddressAdd(side * 4, work) + MEMBER_OFFSET(EffAfterQueue, samples)) + offset);
     t = p[0];
     v[0] -= t;
     t = p[1];

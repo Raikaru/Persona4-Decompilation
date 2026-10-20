@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "include_asm.h"
 /* Original translation unit effPolygonWind.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -876,10 +877,10 @@ void FallingFunnelWindFreeBlock(u8 *effect) {
  * direction, crossed with the radial axis and scaled to the strip width; the
  * loop then steps the centre along that direction. Loop invariants hoist the
  * bridge addresses as retail does. The particle state is signed so its -1/-2
- * markers stay in the loop body, and windAdd keeps the (p8 + pC) operand order
+ * markers stay in the loop body, and operandOrderAddFloat keeps the (p8 + pC) operand order
  * that retail evaluates before the bulge term. FPR declarations follow the
  * order a regalloc_whatif.py replay of the captured colouring derived. */
-static inline f32 windAdd(f32 first, f32 second) { return first + second; }
+
 #pragma push
 #pragma opt_loop_invariants on
 // Updates the falling funnel wind strip: a call-free inner loop steps the centre along the normalised direction.
@@ -1064,7 +1065,7 @@ body:
             __asm__ volatile("vmove.xyzw $vf12, $vf11" : : : "$vf12");
             height = (height + entry->unk10) - gravity * end;
             /* measured: this access-site member conversion makes the owning function MISMATCH. */
-            base = windAdd(entry->unk8, entry->unkC) + swell * (((one + end) / (f32)lifetime - centre) * ((one + end) / (f32)lifetime - centre));
+            base = operandOrderAddFloat(entry->unk8, entry->unkC) + swell * (((one + end) / (f32)lifetime - centre) * ((one + end) / (f32)lifetime - centre));
             point.lane[0] = c * base;
             point.lane[1] = height;
             point.lane[2] = s * base;

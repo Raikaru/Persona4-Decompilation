@@ -6,6 +6,8 @@
 #include "btl_action_internal.h"
 #include "effect_instance_internal.h"
 #include "type.h"
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "btl_skill_internal.h"
 #include "btl_effect_internal.h"
 #include "member_access.h"
@@ -82,10 +84,7 @@ RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
 void btlCameraLookAtQuat(void* out, const void* first, const void* second, const void* config);
 void btlCameraSetupActionGeometry(u8* action, u8* first, f32* second, f32 radius, u16 mode);
 
-static inline void cameraApplyVisibility(f32 radius, u8 *camera, u16 mode)
-{
-    btlCameraSetupActionGeometry((u8 *)((BtlCamera *)camera)->action, NULL, NULL, radius, mode);
-}
+
 extern f32 btlUnitGetGroupBounds(u32, u32, void*, f32*, void*, u32);
 extern void btlUnitGetGridSphereCenter(BtlUnit*, RwV3d*);
 extern f32 tanf(f32 x);
@@ -131,10 +130,7 @@ typedef struct BtlCameraSlerpResult
     f32 angle;
     s32 mode;
 } BtlCameraSlerpResult;
-static inline u32 cd600Add(u32 flagOffset, u32 tableAddr)
-{
-    return flagOffset + tableAddr;
-}
+
 extern u8 D_005FC900[];
 extern u8 D_005FDE00[];
 void btlCameraSetDuration(u8* work, f32 value);
@@ -170,7 +166,6 @@ typedef struct BtlCameraKeyFrame
     RtQuat rot; // 0x0c
 } BtlCameraKeyFrame;
 void btlMainCurveSetFourPoses(void* camera, void* first, void* second, void* third, void* fourth, u16 mode);
-
 
 
 /* Test the square arena limit (|X| or |Z| > 1500); optionally project the pose forward to the boundary. */
@@ -223,7 +218,6 @@ u32 btlCameraClampOffsetToLimit(float *pose,float *clampedPosition)
 }
 
 
-
 /* Report completion only for a visible unit with an active model animation. */
 // FUN_001BC560
 s32 btlCameraUnitAnimFinished(BtlCamera* camera, u32 unit)
@@ -252,7 +246,6 @@ s32 btlCameraUnitAnimFinished(BtlCamera* camera, u32 unit)
   }
   return result;
 }
-
 
 
 /* Read bit 0x4000 of the active action skill record. The skill-table address carrier is retained while its flags are typed. */
@@ -393,7 +386,6 @@ u32 btlCameraUpdateSetStatePacket(void* work)
 }
 
 
-
 /* Allocate a state-change packet carrying the action and 16-bit state. */
 // FUN_001BC920
 BtlPacket* btlCameraCreateSetStatePacket(BtlAction* action, u16 state)
@@ -412,7 +404,6 @@ BtlPacket* btlCameraCreateSetStatePacket(BtlAction* action, u16 state)
 
     return packet;
 }
-
 
 
 /* Copy position and all four quaternion lanes of a contiguous camera pose. */
@@ -465,7 +456,6 @@ void btlCameraBuildLookAtFrame(float *matrix,float *target,float *eye,float *up)
 }
 
 
-
 /* Build the look-at basis and convert its matrix to a quaternion. */
 // FUN_001BD780
 void btlCameraLookAtQuat(void* out, const void* first, const void* second, const void* config)
@@ -476,7 +466,6 @@ void btlCameraLookAtQuat(void* out, const void* first, const void* second, const
                (float*)config);
   RtQuatConvertFromMatrix(out, matrix);
 }
-
 
 
 /* Exact P4 action framing from the P3 FES 04d95e2 structural donor,
@@ -844,7 +833,6 @@ void btlCameraDispatchFrameMode(void* camera)
 }
 
 
-
 /* Update tracking geometry or restore the orbit unit value once animation completes. */
 // FUN_001C6650
 void btlCameraUpdateFrameForState(u8 *camera)
@@ -987,7 +975,6 @@ void btlCameraFrameOrbit(void *camera, float angle, float distanceScale, float h
 }
 
 
-
 /* Use a shallow ten-degree orbit with a 250-unit minimum viewing distance. */
 // FUN_001C6B10
 void btlCameraFrameOrbitTight(void* camera)
@@ -995,7 +982,6 @@ void btlCameraFrameOrbitTight(void* camera)
   btlCameraFrameOrbit(camera,10.0f,2.0f,0.0f,250.0f);
   return;
 }
-
 
 
 // FUN_001C6B50
@@ -1105,14 +1091,16 @@ void btlCameraFrameOrbitUnit(u8 *camera)
 void btlCameraOrbitUnitUpdateNoop(void)
 {
 }
-static inline f32 cameraProjection(register f32 angle, register f32 extent, register f32 distance)
+/* Project the extent using its half-angle, then add the center distance. */
+static inline f32 btlCameraProjectExtent(register f32 angle, register f32 extent, register f32 distance)
 {
     f32 tangent = tanf(angle);
     extent = extent / tangent;
     return extent + distance;
 }
 
-static inline f32 cameraChooseDistance(f32 current, f32 minimum)
+/* Apply the minimum framing distance, preserving an unordered current value. */
+static inline f32 btlCameraChooseDistance(f32 current, f32 minimum)
 {
     if (!(current <= minimum)) {
         return current;
@@ -1194,10 +1182,10 @@ u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
         struct { f32 extent; f32 angle; } projection;
         projection.angle = 0.5f * cam->fovRad;
         projection.extent = fGpffff811c * (unit->unk_8c * unit->scale);
-        normal = cameraProjection(projection.angle, projection.extent, normal);
+        normal = btlCameraProjectExtent(projection.angle, projection.extent, normal);
     }
     minRequired = fGpffff811c * groupRadius / tanf(0.5f * cam->fovRad);
-    normal = cameraChooseDistance(normal, minRequired);
+    normal = btlCameraChooseDistance(normal, minRequired);
     RtQuatTransformVectors(&direction, &D_0060A100, 1, (const RtQuat *)&frames[1].rot);
     factor = normal * tanf(DAT_00761200 * (0.5f * cam->fovRad));
     factor = factor * 0.109375f;
@@ -1258,7 +1246,7 @@ void btlCameraApplyFrameTransition(u8 *camera)
                       &frames[0], &frames[1]) != 0)
     {
         btlMainApplyUnitBaseColors(0);
-        cameraApplyVisibility(0.0f, camera, 0x100);
+        btlCameraSetupActionGeometry((u8 *)((BtlCamera *)(camera))->action, NULL, NULL, (0.0f), (0x100));
         btlMainCurveReset((u16 *)(camera), (f32 *)(&frames[1]));
         return;
     }
@@ -1323,7 +1311,6 @@ void btlCameraFrameActionUnitPose(BtlCamera* camera)
 }
 
 
-
 // FUN_001C7770
 void btlCameraActionUnitPoseUpdateNoop(void)
 {
@@ -1382,7 +1369,6 @@ void btlCameraFrameActionUnitPoseMirror(BtlCamera* camera)
 }
 
 
-
 // FUN_001CA550
 void btlCameraSetDefaultLimit(u8 *camera) {
     btlCameraSetLimitFrame(camera, 50.0f, 0, 0);
@@ -1413,7 +1399,6 @@ void btlCameraSelectPreset(int cameraAddress)
   }
   return;
 }
-
 
 
 extern f32 fGpffff8118;
@@ -2012,7 +1997,7 @@ void btlCameraSpawnRandomEffect(u8 *camera)
     unitId = ((BtlUnit *)(u8 *)((BtlAction *)(u8 *)((BtlCamera *)camera)->action)->unit)->charId;
     btlCameraStartEffect(
         camera,
-        (void *)(uintptr_t)cd600Add(
+        (void *)(uintptr_t)operandOrderAddUnsigned(
             (effMiscRand(0) & 1) * 0xF4,
             (u32)((uintptr_t)D_005FC900 +
                   ((unitId & 0xFFFF) * 0x1E8))),
@@ -2048,7 +2033,7 @@ loop_cond:
     liveCount = (liveCount & 0xFFFF) != 4;
     btlCameraStartEffect(
         camera,
-        (void *)(uintptr_t)cd600Add(
+        (void *)(uintptr_t)operandOrderAddUnsigned(
             (effMiscRand(0) & 1) * 0xF4,
             (u32)((uintptr_t)D_005FDE00 + (liveCount * 0x1E8))),
         2);
@@ -2133,7 +2118,6 @@ void btlAct_WIN_P(BtlCamera* camera)
                &scratch.frameBytes[0x54], 1);
   btlCameraSetDuration((u8*)camera, 10.0f);
 }
-
 
 
 /* Ease rotation toward the second queued action unit and update its visibility geometry. */
@@ -2448,7 +2432,7 @@ void btlAct_ENCOUNT(void)
 // FUN_001CE430
 void btlCameraSetVisibility(int cameraAddress)
 {
-  cameraApplyVisibility(0.0f, (u8 *)(uintptr_t)cameraAddress, 0);
+  btlCameraSetupActionGeometry((u8 *)((BtlCamera *)((u8 *)(uintptr_t)cameraAddress))->action, NULL, NULL, (0.0f), (0));
 }
 
 // FUN_001D05B0
@@ -2513,16 +2497,9 @@ u8 *btlCameraRandomTableEntry(s32 tableIndex, s32 useFixedEntry)
     return (u8 *)((s32)&D_005FE1D0 + ((((tableIndex & 0xFFFF) * 3) + (effMiscRand(0) & 1)) * 0x34));
 }
 
-static inline u8 *btlCamera_add_index(s32 index, u8 *base)
-{
-    return (u8 *)(index + (u32)base);
-}
 
 /* Round the Y/Z displacement products before adding their focus coordinates. */
-static inline f32 btlCamera_product(f32 left, f32 right)
-{
-    return left * right;
-}
+
 
 /* Advance a camera script row, derive actor-relative positions/foci, and select the timing curve. */
 // FUN_001D07E0
@@ -2586,7 +2563,7 @@ s32 btlCameraFrameActionStart(u8 *camera, u8 *work)
         goto next_entry;
     }
     entryElapsed = ((BtlCameraScriptWork *)work)->entryElapsed;
-    duration = ((BtlCameraScriptEntry *)(btlCamera_add_index(index * 0x3C, base) + 4))->duration;
+    duration = ((BtlCameraScriptEntry *)(byteAddressAdd(index * 0x3C, base) + 4))->duration;
     if ((s32)entryElapsed < (s32)duration) {
         goto bump_tick;
     }
@@ -2705,8 +2682,8 @@ next_entry:
         {
             RwV3d displacement;
             displacement.x = direction.x * (((BtlUnit *)tmpUnit)->sphereRadius * ((BtlUnit *)tmpUnit)->scale);
-            displacement.y = btlCamera_product(direction.y, (((BtlUnit *)tmpUnit)->sphereRadius * ((BtlUnit *)tmpUnit)->scale));
-            displacement.z = btlCamera_product(direction.z, (((BtlUnit *)tmpUnit)->sphereRadius * ((BtlUnit *)tmpUnit)->scale));
+            displacement.y = ((direction.y) * ((((BtlUnit *)tmpUnit)->sphereRadius * ((BtlUnit *)tmpUnit)->scale)));
+            displacement.z = ((direction.z) * ((((BtlUnit *)tmpUnit)->sphereRadius * ((BtlUnit *)tmpUnit)->scale)));
             focus[0].x = 0.0f + position.x + displacement.x;
             focus[0].y = position.y + displacement.y;
             focus[0].z = position.z + displacement.z;
@@ -2832,7 +2809,7 @@ u8 *btlCameraGetCurrentEntry(u8 *work)
     if (index == -1) {
         goto increment;
     }
-    condition = ((BtlCameraScriptWork *)work)->entryElapsed < ((BtlCameraScriptEntry *)(btlCamera_add_index(index * 0x3C, base) + 4))->duration;
+    condition = ((BtlCameraScriptWork *)work)->entryElapsed < ((BtlCameraScriptEntry *)(byteAddressAdd(index * 0x3C, base) + 4))->duration;
     if (condition != 0) {
         goto done;
     }

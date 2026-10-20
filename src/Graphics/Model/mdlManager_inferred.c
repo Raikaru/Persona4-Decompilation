@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "sdk_lbox_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -48,17 +49,9 @@ extern void sdkListStateSetCount(u8 *state, s32 value);
 extern s32 sdkListStateGetCount(u8 *state);
 extern s32 sdkListStateGetScroll(u8 *state);
 extern s32 sdkListStateGetCursor(u8 *state);
-/* measured: sdkLboxGetSelectedId's final `index*0xA4 + base` add emitted
- * addu $v0,$s0,$v0 where retail has addu $v0,$v0,$s0; both plain C operand
- * orders compile identically (nd 2). Routing the add through this
- * static inline helper, whose parameter order is the reverse of the
- * expression order, flips the operands and matches (nd 2 -> 0). The object
- * size is unchanged, so the helper is inlined rather than called. */
-/* Here the ordered addition combines scroll and cursor, not an entry stride. */
-static inline s32 sdkLboxAddOrdered(s32 base, s32 offset)
-{
-    return offset + base;
-}
+/* measured: the plain scroll-plus-cursor sum changes sdkLboxGetSelectedId's
+ * addu operands (one differing byte). The shared operandOrderAddReversed
+ * retains the expression's second-argument-first addition boundary. */
 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 00470c10-00470e20 */
@@ -165,7 +158,7 @@ s32 sdkLboxGetSelectedId(u8 *task)
     work = ((KwlnTask *)task)->work;
     node = ((SdkLboxWork *)work)->head;
     target = ((SdkLboxWork *)work)->scroll;
-    target = sdkLboxAddOrdered(target, ((SdkLboxWork *)work)->cursor);
+    target = operandOrderAddReversed(target, ((SdkLboxWork *)work)->cursor);
     if (target >= ((SdkLboxWork *)work)->count) {
         return -1;
     }
