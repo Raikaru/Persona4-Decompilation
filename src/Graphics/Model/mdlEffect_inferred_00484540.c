@@ -51,8 +51,9 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484540-00484540 */
 
+/* Default primitive scale callback leaves unsupported kinds unchanged. */
 // FUN_00484540
-void func_00484540(void)
+void mdlEffectPrimitiveScaleNoop(void)
 {
 }
 

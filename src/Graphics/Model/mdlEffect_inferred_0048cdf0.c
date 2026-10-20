@@ -163,11 +163,14 @@ void mdlEffectUpdateHelixEmitter(u8 *emitterData)
     s32 trailIndex;
     u32 particleIndex;
     f32 b;
+    MdlEffectEmitterParameters *settings;
+    SpawnParticle *sampleParticle;
     count = ((MdlEffectEmitter *)emitter)->primaryCount.value;
     flags = ((MdlEffectEmitter *)emitter)->flags;
     particle = ((MdlEffectEmitter *)emitter)->particles;
     state = ((MdlEffectEmitter *)emitter)->state.scalars;
     parameters = ((MdlEffectEmitter *)emitter)->parameters;
+    settings = (MdlEffectEmitterParameters *)parameters;
     lifetime = ((MdlEffectEmitterParameters *)parameters)->lifetime;
     if (lifetime == 0) {
         return;
@@ -197,7 +200,7 @@ void mdlEffectUpdateHelixEmitter(u8 *emitterData)
     if ((((MdlEffectEmitter *)emitter)->ticks == 0) && (((MdlEffectEmitterParameters *)parameters)->preroll != 0)) {
         initialPreroll = 1;
         preroll = initialPreroll;
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(settings->emissionVariation <= 0.0f)) {
             f32 prerollScale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
             sampleValue = (f32)((MdlEffectEmitter *)emitter)->primaryCount.value;
             spawnBudget = (s32)(sampleValue * prerollScale);
@@ -207,7 +210,7 @@ void mdlEffectUpdateHelixEmitter(u8 *emitterData)
         goto post_init;
     } else {
         preroll = 0;
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(settings->emissionVariation <= 0.0f)) {
             f32 scale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
             sample = ((MdlEffectEmitterParameters *)parameters)->emissionRate.signedValue;
             sampleValue = (f32)(u32)sample;
@@ -232,7 +235,8 @@ post_init:
     half = 0.5f;
     goto main_check;
 main_body:
-    if (*(s32 *)(particle + 16) < lifetime) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    sampleParticle = (SpawnParticle *)particle;
+    if (sampleParticle->age < lifetime) {
         goto skip_clear;
     }
     if (emissionDuration != 0) {
@@ -339,7 +343,7 @@ skip_clear:
         ((MdlEffectHelixState *)state)->angleOffset = zero;
         ((MdlEffectHelixState *)state)->angleScale = one;
     }
-    *(s32 *)(particle + 16) = 0; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    sampleParticle->age = 0;
     {
         u_long128 *snapshot = &previousPosition;
         *snapshot = *(u_long128 *)particle;
@@ -366,7 +370,7 @@ skip_clear:
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)particle) : "r"(particle) : "$vf10", "memory");
         ((SpawnParticle *)particle)->age = (s32)c;
     }
-    mdlEffectSampleKeyState(particle, parameters, *(s32 *)(particle + 16), &previousPosition); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    mdlEffectSampleKeyState(particle, parameters, sampleParticle->age, &previousPosition);
     ((SpawnParticle *)particle)->size = ((SpawnParticle *)particle)->size * ((MdlEffectHelixState *)state)->sizeScale;
     ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle * ((MdlEffectHelixState *)state)->angleScale;
     ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle + ((MdlEffectHelixState *)state)->angleOffset;

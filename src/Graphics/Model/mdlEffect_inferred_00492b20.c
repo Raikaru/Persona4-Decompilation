@@ -50,6 +50,7 @@ u8 *mdlEffectAllocateTrackPath(u16 kind, s32 primaryCount, u8 *parameters)
     s32 sampleBytes;
     s32 allocationBytes;
     s32 parameterBytes;
+    MdlEffectEmitter *track;
 
     if ((kind & 0xFFFF) >= 0xC) {
         kAssertFail(D_00713E10, 0xD66);
@@ -65,11 +66,11 @@ u8 *mdlEffectAllocateTrackPath(u16 kind, s32 primaryCount, u8 *parameters)
     if (emitter == NULL) {
         kAssertFail(D_00713E10, 0xD74);
     }
+    track = (MdlEffectEmitter *)emitter;
     cursor = emitter + 0x30;
     ((MdlEffectEmitter *)emitter)->particles = cursor;
     cursor += sampleBytes;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    *(u8 **)(emitter + 0x20) = cursor;
+    track->parameters = cursor;
     cursor += parameterBytes;
     ((MdlEffectEmitter *)emitter)->originalParameters = cursor;
     cursor += parameterBytes;
@@ -77,22 +78,17 @@ u8 *mdlEffectAllocateTrackPath(u16 kind, s32 primaryCount, u8 *parameters)
     ((MdlEffectEmitter *)emitter)->kind = kind;
     ((MdlEffectEmitter *)emitter)->primaryCount.signedValue = primaryCount;
     ((MdlEffectEmitter *)emitter)->totalCount = totalCount;
-    /* Header initialization retains the original integer-word representation of the flags, accumulator or allocation pointer. */
-    *(s32 *)(emitter + 0x0C) = 0;
+    track->flags = 0;
     ((MdlEffectEmitter *)emitter)->ticks = 0;
-    /* Header initialization retains the original integer-word representation of the flags, accumulator or allocation pointer. */
-    *(s32 *)(emitter + 0x14) = 0;
+    track->emissionAccumulator = 0.0f;
     ((MdlEffectEmitter *)emitter)->allocation = emitter;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    memcpy(*(void **)(emitter + 0x20), parameters, parameterBytes);
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    memcpy(*(void **)(emitter + 0x24), parameters, parameterBytes);
+    memcpy(track->parameters, parameters, parameterBytes);
+    memcpy(track->originalParameters, parameters, parameterBytes);
     cursor = ((MdlEffectEmitter *)emitter)->parameters;
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(cursor) : "memory");
     __asm__ volatile ("sqc2 vf0, 0x10(%0)" : : "r"(cursor) : "memory");
     if (((MdlEffectEmitterParameters *)cursor)->unkBC != 0) {
-        /* Header initialization retains the original integer-word representation of the flags, accumulator or allocation pointer. */
-        *(s32 *)(emitter + 0x0C) |= 1;
+        track->flags |= 1;
     }
     return emitter;
 }

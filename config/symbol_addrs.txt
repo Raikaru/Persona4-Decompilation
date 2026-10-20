@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2532 of 13102 symbols carry a recovered name.
+// 2540 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -8547,7 +8547,7 @@ func_0047f4d0 = 0x0047F4D0; // type:func
 func_0047f5b0 = 0x0047F5B0; // type:func
 func_0047f710 = 0x0047F710; // type:func
 func_0047f830 = 0x0047F830; // type:func
-func_0047f840 = 0x0047F840; // type:func
+mdlTrackApplyNoop = 0x0047F840; // type:func
 func_0047f850 = 0x0047F850; // type:func
 func_0047f9f0 = 0x0047F9F0; // type:func
 func_0047fa60 = 0x0047FA60; // type:func
@@ -8634,12 +8634,12 @@ func_004843a0 = 0x004843A0; // type:func
 mdlEffectUploadGeometryTexture = 0x004843F0; // type:func
 func_00484490 = 0x00484490; // type:func
 func_004844d0 = 0x004844D0; // type:func
-func_00484510 = 0x00484510; // type:func
-func_00484520 = 0x00484520; // type:func
-func_00484530 = 0x00484530; // type:func
-func_00484540 = 0x00484540; // type:func
-func_00484550 = 0x00484550; // type:func
-func_00484560 = 0x00484560; // type:func
+mdlEffectPrimitiveLifecycleNoop = 0x00484510; // type:func
+mdlEffectPrimitiveDataNoop = 0x00484520; // type:func
+mdlEffectPrimitiveCreateNull = 0x00484530; // type:func
+mdlEffectPrimitiveScaleNoop = 0x00484540; // type:func
+mdlEffectPrimitiveColorNoop = 0x00484550; // type:func
+mdlEffectPrimitiveQueryTrue = 0x00484560; // type:func
 mdlEffectCreatePrimitiveRecord = 0x00484570; // type:func
 mdlEffectDestroyPrimitiveRecord = 0x004846D0; // type:func
 mdlEffectReleasePrimarySource = 0x00484790; // type:func
@@ -9058,7 +9058,7 @@ func_004ad760 = 0x004AD760; // type:func
 func_004ad810 = 0x004AD810; // type:func
 func_004ad880 = 0x004AD880; // type:func
 func_004adab0 = 0x004ADAB0; // type:func
-func_004adb50 = 0x004ADB50; // type:func
+mdlEffectUpdateModelChildTransforms = 0x004ADB50; // type:func
 mdlEffectDrawModelChildren = 0x004ADE80; // type:func
 mdlEffectUpdateAndDrawModelChildren = 0x004ADFA0; // type:func
 func_004adfe0 = 0x004ADFE0; // type:func

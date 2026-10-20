@@ -233,10 +233,15 @@ void EffBezierEmitterUpdate(u8 *emitterData)
     f32 b;
     f32 c;
     f32 d;
-    count = *(u32 *)(emitter + 4); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    MdlEffectEmitter *work;
+    MdlEffectBezierParameters *bezier;
+    SpawnParticle *sampleParticle;
+    work = (MdlEffectEmitter *)emitter;
+    count = work->primaryCount.value;
     particle = ((MdlEffectEmitter *)emitter)->particles;
     state = (BezierParticleWork *)((MdlEffectEmitter *)emitter)->state.pointer;
     parameters = ((MdlEffectEmitter *)emitter)->parameters;
+    bezier = (MdlEffectBezierParameters *)parameters;
     lifetime = ((MdlEffectEmitterParameters *)parameters)->lifetime;
     if (lifetime == 0) {
         return;
@@ -248,7 +253,7 @@ void EffBezierEmitterUpdate(u8 *emitterData)
     startPosition[0] = ((MdlEffectBezierParameters *)parameters)->start[0];
     startPosition[1] = ((MdlEffectBezierParameters *)parameters)->start[1];
     startPosition[2] = ((MdlEffectBezierParameters *)parameters)->start[2];
-    __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(parameters), "m"(*(u_long128 *)((MdlEffectEmitterParameters *)parameters)->rotation) : "$vf10", "memory"); /* Transfer the complete quadword representation, including the VU W lane. */
+    __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(parameters), "m"(*(u_long128 *)bezier->common.rotation) : "$vf10", "memory"); /* Transfer the complete quadword representation, including the VU W lane. */
     effMiscBuildRotationVU();
     if ((emissionDuration != 0) && (((MdlEffectEmitter *)emitter)->ticks >= emissionDuration)) {
         preroll = 0;
@@ -258,7 +263,7 @@ void EffBezierEmitterUpdate(u8 *emitterData)
     if ((((MdlEffectEmitter *)emitter)->ticks == 0) && (((MdlEffectEmitterParameters *)parameters)->preroll != 0)) {
         initialPreroll = 1;
         preroll = initialPreroll;
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(bezier->common.emissionVariation <= 0.0f)) {
             f32 prerollScale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
             sampleValue = (f32)((MdlEffectEmitter *)emitter)->primaryCount.value;
             spawnBudget = (s32)(sampleValue * prerollScale);
@@ -268,7 +273,7 @@ void EffBezierEmitterUpdate(u8 *emitterData)
         goto post_init;
     } else {
         preroll = 0;
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(bezier->common.emissionVariation <= 0.0f)) {
             f32 scale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
             sample = ((MdlEffectEmitterParameters *)parameters)->emissionRate.signedValue;
             sampleValue = (f32)(u32)sample;
@@ -299,7 +304,8 @@ post_init:
     three = 3.0f;
     goto main_check;
 main_body:
-    if (*(s32 *)(particle + 16) < lifetime) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    sampleParticle = (SpawnParticle *)particle;
+    if (sampleParticle->age < lifetime) {
         goto skip_clear;
     }
     if (emissionDuration != 0) {
@@ -339,7 +345,7 @@ skip_clear:
     b = effMiscRandFloat(0);
     c = two * (b - half);
     angle = orbitScale * c;
-    a = *(f32 *)(parameters + 0x11C) * cosf(angle); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    a = bezier->offsetRadius * cosf(angle);
     state->offset[0] = a;
     state->offset[1] = -((MdlEffectBezierParameters *)parameters)->offsetHeight;
     a = ((MdlEffectBezierParameters *)parameters)->offsetRadius * sinf(angle);
@@ -457,7 +463,7 @@ skip_clear:
         state->spin = zero;
         state->scale = one;
     }
-    *(s32 *)(particle + 16) = 0; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    sampleParticle->age = 0;
     {
         u_long128 *snapshot = &previousPosition;
         *snapshot = *(u_long128 *)particle;
@@ -533,7 +539,7 @@ skip_clear:
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(particle) : "$vf10", "memory");
         ((SpawnParticle *)particle)->age = (s32)scaledValue;
     }
-    mdlEffectSampleKeyState(particle, parameters, *(s32 *)(particle + 16), &previousPosition); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    mdlEffectSampleKeyState(particle, parameters, sampleParticle->age, &previousPosition);
     ((SpawnParticle *)particle)->size = ((SpawnParticle *)particle)->size * state->opacity;
     ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle * state->scale;
     ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle + state->spin;

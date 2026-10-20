@@ -51,8 +51,9 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484530-00484530 */
 
+/* Unsupported primitive kinds construct no payload, for either resource or child creation. */
 // FUN_00484530
-void *func_00484530(void *input)
+void *mdlEffectPrimitiveCreateNull(void *input)
 {
     return NULL;
 }

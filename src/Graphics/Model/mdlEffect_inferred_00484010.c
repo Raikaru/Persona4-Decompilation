@@ -79,6 +79,7 @@ u8 *mdlEffectCloneMultipartGeometry(u8 *source)
     u8 *triangle;
     u8 *materialSlot;
     s32 index;
+    MdlEffectMultipartGeometry *geometry;
 
     clone = GeometryCreateMultiPart(
         ((MdlEffectMultipartGeometry *)source)->partCount.value,
@@ -88,9 +89,10 @@ u8 *mdlEffectCloneMultipartGeometry(u8 *source)
     materials = ((MdlEffectMultipartGeometry *)clone)->materials;
     sourceGeometry = ((MdlEffectGeometryModel *)((MdlEffectMultipartGeometry *)source)->model)->geometry;
     cloneGeometry = ((MdlEffectGeometryModel *)((MdlEffectMultipartGeometry *)clone)->model)->geometry;
+    geometry = (MdlEffectMultipartGeometry *)source;
 
     index = 0;
-    while (index < *(s16 *)(source + 0x48)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    while (index < geometry->partCount.signedValue) {
         u8 *p;
 
         p = ((u8 **)((MdlEffectMultipartGeometry *)source)->materials)[index];
@@ -120,10 +122,10 @@ u8 *mdlEffectCloneMultipartGeometry(u8 *source)
     }
 
     partIndex = 0;
-    while (partIndex < *(s16 *)(source + 0x48)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    while (partIndex < geometry->partCount.signedValue) {
         index = 0;
         materialSlot = (u8 *)(materials + partIndex * 4);
-        while (index < *(s16 *)(source + 0xA)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        while (index < (s16)geometry->trianglesPerPart) {
             func_003c2150(cloneGeometry, triangle, *(s32 *)materialSlot);
             triangle += 8;
             index += 1;
@@ -142,7 +144,9 @@ void mdlEffectDestroyMultipartGeometry(u8 *source)
     s32 model;
     s32 resource;
     s32 index;
+    MdlEffectMultipartGeometry *geometry;
 
+    geometry = (MdlEffectMultipartGeometry *)source;
     model = *(s32 *)&((MdlEffectMultipartGeometry *)source)->model;
     if (model != 0) {
         func_003c02e0((u8 *)model);
@@ -151,7 +155,7 @@ void mdlEffectDestroyMultipartGeometry(u8 *source)
     if (resource != 0) {
         func_003e9390(resource);
     }
-    if (*(s32 *)(source + 0x54) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    if (geometry->materials != NULL) {
         index = 0;
         goto loop_004841c0_check;
 loop_004841c0_body:

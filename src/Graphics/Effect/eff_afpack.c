@@ -436,7 +436,6 @@ u8 *AfPackBindResource(void *resource)
 // FUN_004B6900
 u8* AfPackCreateInstance(u8* resource)
 {
-    /* Earlier whole-layout comparison: 544 differing bytes; remaining raw sites are isolated below. */
     u8* node;
     u8* base;
     u8* temp;
@@ -447,7 +446,10 @@ u8* AfPackCreateInstance(u8* resource)
         u8 c[4];
     } Color4;
     Color4 color;
+    RuntimeWork *pack;
+    RuntimeListNode *instance;
 
+    pack = (RuntimeWork *)resource;
     size = 0;
     size += 0x24;
     size += ((RuntimeWork *)resource)->sectionCount.signedHalf * 0x3C;
@@ -456,16 +458,14 @@ u8* AfPackCreateInstance(u8* resource)
     size += ((RuntimeWork *)resource)->sectionCount.signedHalf * 0x18;
     chkmemAllocSiteTag(D_007146B0, 0x287);
     node = (u8*)(*jtbl_008873E8)(size, 0x40000);
+    instance = (RuntimeListNode *)node;
     base = node + 0x24;
     ((RuntimeListNode *)node)->vertices = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(s16*)(resource + 4) * 0x3C;
+    base += pack->sectionCount.signedHalf * 0x3C;
     ((RuntimeListNode *)node)->renderObjects = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(s16*)(resource + 4) * 8;
+    base += pack->sectionCount.signedHalf * 8;
     ((RuntimeListNode *)node)->commands = base;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    base += *(s16*)(resource + 4) * 0x20;
+    base += pack->sectionCount.signedHalf * 0x20;
     ((RuntimeListNode *)node)->entries = base;
     ((RuntimeListNode *)node)->flags = 0;
     ((RuntimeListNode *)node)->work = (RuntimeWork *)(resource);
@@ -475,50 +475,37 @@ u8* AfPackCreateInstance(u8* resource)
     node[0x23] = 0xFE;
 
     i = 0;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    if (*(s16*)(resource + 4) > 0)
+    if (pack->sectionCount.signedHalf > 0)
     {
         color.c[0] = 0xFF;
         color.c[1] = 0xFF;
         color.c[2] = 0xFF;
         color.c[3] = 0xFE;
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        while (i < *(s16*)(resource + 4))
+        while (i < pack->sectionCount.signedHalf)
         {
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            effAfterAllocVectorBuffers(*(u8**)(node + 8) + i * 0x3C,
+            effAfterAllocVectorBuffers(instance->vertices + i * 0x3C,
                           ((RuntimeWork *)resource)->sections + i * 0x18);
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            ((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->material.value = func_003c4140();
+            ((AfPackRenderEntry *)(instance->renderObjects + i*8))->material.value = func_003c4140();
             {
                 u8* obj;
                 u8* material;
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                obj = (u8 *)((EffAfterQueue *)*(u8 **)(node + 8))[i].config;
+                obj = (u8 *)((EffAfterQueue *)instance->vertices)[i].config;
                 material = ((EffAfterConfig *)obj)->material;
                 if ((((EffAfterMaterial *)material)->flags & 1) != 0)
                 {
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                    func_003c42b0(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->material.pointer,
+                    func_003c42b0(((AfPackRenderEntry *)(instance->renderObjects + i*8))->material.pointer,
                                   (u8 *)((EffAfterMaterial *)material)->texture);
                 }
             }
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            *(Color4 *)&((RpMaterial *)(((AfPackRenderEntry *)*(u8 **)(node + 0xC))[i].material.pointer))->color = color;
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            temp = effAfterCreateRibbon(*(u8**)(node + 8) + i * 0x3C,
-                                 /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-                                 ((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->material.rpMaterial);
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            ((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->atomic.value = func_003c00e0();
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            func_003c0210(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->atomic.pointer, temp, 0);
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            RpAtomicSetFrame(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->atomic.pointer,
+            *(Color4 *)&((RpMaterial *)(((AfPackRenderEntry *)instance->renderObjects)[i].material.pointer))->color = color;
+            temp = effAfterCreateRibbon(instance->vertices + i * 0x3C,
+                                 ((AfPackRenderEntry *)(instance->renderObjects + i*8))->material.rpMaterial);
+            ((AfPackRenderEntry *)(instance->renderObjects + i*8))->atomic.value = func_003c00e0();
+            func_003c0210(((AfPackRenderEntry *)(instance->renderObjects + i*8))->atomic.pointer, temp, 0);
+            RpAtomicSetFrame(((AfPackRenderEntry *)(instance->renderObjects + i*8))->atomic.pointer,
                           (void*)func_003e9320());
             func_003c2a80(temp);
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-            effMiscProgressResetWork(*(u8**)(node + 8) + i * 0x3C, temp);
+            effMiscProgressResetWork(instance->vertices + i * 0x3C, temp);
             func_003c22f0(temp);
             i++;
         }
