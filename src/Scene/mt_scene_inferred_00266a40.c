@@ -104,37 +104,38 @@ extern s32 shdSpriteEntryWidth(s32 entryId, s32 entryOffset, u8 *pack);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 00266a40-00267b20 */
 
 extern f32 D_007612C4;
+/* Convert shape elapsed time to its 140-frame interpolation fraction. */
+/* measured: expansion changes 18 normalized bytes in cldShapeListDraw; the other normalization call expands without change. */
 static inline f32 mtSceneNormalizeShapeTime(f32 value)
 {
     return value / 140.0f;
 }
-static inline f32 mtSceneThresholdValue(void)
-{
-    return fGpffff8218;
-}
+
+/* Locate the indexed scalar in the shape parameter table. */
+/* measured: expansion changes cldShapeDraw to 796 executable bytes and 330 normalized bytes; byteAddressAdd also differs. */
 static inline s32 *mtSceneShapeValueAt(s32 *values, s32 index)
 {
     return values + index;
 }
 typedef struct { const PrimPoint *value[19]; } ContourSourceTable;
+/* Select the point-pointer column of an interleaved outline table. */
+/* measured: expanding the remaining call changes PrimDrawContour allocation; byteAddressAdd also differs. */
 static inline const PrimPoint *const *contourOutlinePoints(const PrimPoint *const *sources, s32 shape)
 {
     return sources + shape * 2 + 1;
 }
 typedef struct { s32 value[19]; } ContourCountTable;
 typedef struct { u32 value[4]; } ContourChannels;
+/* Read one component of the expanded contour color. */
+/* measured: each remaining channel expansion changes PrimDrawContour instruction bytes; other channel reads expand unchanged. */
 static inline u32 contourChannelValue(const ContourChannels *color, s32 component)
 {
     return color->value[component];
 }
-static inline PrimPoint *contourPointAt(PrimPoint *points, s32 index)
-{
-    return points + index;
-}
-static inline u8 *contourColorAt(u8 *colors, s32 index)
-{
-    return colors + index * 4;
-}
+
+
+/* Select the point-count column of an interleaved outline table. */
+/* measured: expanding the remaining call changes PrimDrawContour allocation; byteAddressAdd also differs. */
 static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
 {
     return words + shape * 2 + 1;
@@ -509,7 +510,7 @@ s32 cldShapeDraw(u8 **shapeWork, u8 *entry)
     alpha = (s32)((f32)alpha * ((f32)((CldShapeWork *)shapeWork)->alpha / 255.0f));
     shape = *mtSceneShapeValueAt(shapes.value, ((CldShapeEntry *)entry)->tableIndex);
     if (shape != 9) {
-        if (!(scale <= mtSceneThresholdValue())) {
+        if (!(scale <= (fGpffff8218))) {
             renderScale = position[3];
             PrimDrawContour(position[0], position[1], 0.0f, 0x76BF48, alpha, 1, shape, 0, 0,
                            4.0f + position[2], renderScale, renderScale);
@@ -684,10 +685,10 @@ void PrimDrawContour(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 unusedMode
         dstA[0] = (x + srcA[0]) - outlinePoints[0].v[0];
         dstA[1] = (y + srcA[1]) - outlinePoints[0].v[1];
         colA = &colors[outlinePointIndex * 4];
-        colA[0] = contourChannelValue(&channels, 0);
-        colA[1] = contourChannelValue(&channels, 1);
-        colA[2] = (u8)contourChannelValue(&channels, 2);
-        colA[3] = contourChannelValue(&channels, 3);
+        colA[0] = ((&channels)->value[(0)]);
+        colA[1] = ((&channels)->value[(1)]);
+        colA[2] = (u8)((&channels)->value[(2)]);
+        colA[3] = ((&channels)->value[(3)]);
         outlinePointIndex++;
     }
     shdEnableBlendFlag();
@@ -710,10 +711,10 @@ void PrimDrawContour(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 unusedMode
         dstB[0] = (x + srcB[0]) - fillPoints[0].v[0];
         dstB[1] = (y + srcB[1]) - fillPoints[0].v[1];
         colB = &colors[fillPointIndex * 4];
-        colB[0] = contourChannelValue(&channels, 0);
-        colB[1] = contourChannelValue(&channels, 1);
-        colB[2] = (u8)contourChannelValue(&channels, 2);
-        colB[3] = contourChannelValue(&channels, 3);
+        colB[0] = ((&channels)->value[(0)]);
+        colB[1] = ((&channels)->value[(1)]);
+        colB[2] = (u8)((&channels)->value[(2)]);
+        colB[3] = ((&channels)->value[(3)]);
         fillPointIndex++;
     }
     if (alpha == 0xFF) {
@@ -728,15 +729,15 @@ void PrimDrawContour(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 unusedMode
     closingPointIndex = 1;
     while (closingPointIndex < outlineCount) {
         const f32 *srcC = closingPoints[closingPointIndex].v;
-        PrimPoint *dstC = contourPointAt(points, closingPointIndex);
+        PrimPoint *dstC = ((points) + (closingPointIndex));
         u8 *colC;
         dstC[-1].v[0] = (x + srcC[0]) - closingPoints[0].v[0];
         dstC[-1].v[1] = (y + srcC[1]) - closingPoints[0].v[1];
-        colC = contourColorAt(colors, closingPointIndex);
+        colC = ((colors) + (closingPointIndex) * 4);
         colC[-4] = contourChannelValue(&channels, 0);
         colC[-3] = contourChannelValue(&channels, 1);
         colC[-2] = (u8)contourChannelValue(&channels, 2);
-        colC[-1] = contourChannelValue(&channels, 3);
+        colC[-1] = ((&channels)->value[(3)]);
         closingPointIndex++;
     }
     if (alpha == 0xFF) {

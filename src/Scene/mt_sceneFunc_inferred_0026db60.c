@@ -60,10 +60,7 @@ extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-static inline u32 *rbRingNextNode(s32 offset, u32 *base)
-{
-    return (u32 *)((u8 *)base + offset + 8);
-}
+
 
 
 
@@ -389,7 +386,7 @@ s32 rbRingBufCreate(s32 size, s32 count)
     i = 0;
     while (i < count) {
         node[0] = i;
-        next = rbRingNextNode(size, node);
+        next = ((u32 *)((u8 *)(node) + (size) + 8));
         node[1] = (u32)next;
         node = next;
         i++;
