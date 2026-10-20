@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "member_access.h"
 #include "include_asm.h"
 #include "type.h"
@@ -13,9 +14,7 @@ extern u16 D_008C024E[];
 
 extern s32 D_008815B0[];
 
-static inline u32 add_retail_ptr(u32 offset, u32 base) {
-    return offset + base;
-}
+
 
 extern u16 D_008817E8[];
 extern u8 D_007964C0[];
@@ -100,8 +99,7 @@ void itfMesWindowCommitSelection(u8 *window)
             MEMBER(s32, state, ItfMesSelection, list.value) = itfMesReleaseTagRun(
                 listHandle, cursorIndex, choiceCount);
             entry = ((ItfMesWindow *)window)->record.bytes;
-            entry = ((ItfMesRecord *)((u8 *)add_retail_ptr(
-                (u32)(((ItfMesSelection *)state)->recordIndex.value * 8), (u32)entry)))->entries[0].data.bytes;
+            entry = ((ItfMesRecord *)((u8 *)((u32)byteAddressAdd(((u32)(((ItfMesSelection *)state)->recordIndex.value * 8)), (u8 *)(u32)entry))))->entries[0].data.bytes;
             index = MEMBER(s16, state, ItfMesSelection, cursor);
             count = ((ItfMesChoiceRecord *)entry)->count;
             cursor = (s32 *)(entry + 0x20);

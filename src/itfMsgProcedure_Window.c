@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "message_window_internal.h"
 #include "shd_sprite_pack.h"
 #include "primitive_queue_internal.h"
@@ -507,6 +508,7 @@ void msgWinDrawShape(s32 x, s32 y, s32 rgb, s32 opacity, s16 pivotX, s16 pivotY,
 typedef struct { u32 w[20]; } MsgProcWindowCopy10;
 typedef struct { u32 w[32]; } MsgProcWindowCopy16;
 
+/* Require both message-window initialization flags before accepting window operations. */
 static inline s32 msgWinReady(void)
 {
     if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
@@ -515,6 +517,7 @@ static inline s32 msgWinReady(void)
     return 0;
 }
 
+/* Find the first inactive entry in the eight-slot message-window pool. */
 static inline MsgProcWindowEntry *msgWinFreeEntry(void)
 {
     s32 j;
@@ -1078,22 +1081,11 @@ void msgWinSelectionPoll(void)
 /* Shared by the message-window procedures: the first entry of D_008820B0 whose
    in-use bit is clear.  Inlined; its `return e` inside the loop is retail's
    unthreaded bnez/b pair. */
-static inline MsgProcWindowEntry *msgWinFindFreeEntry(void)
-{
-    s32 i;
-    MsgProcWindowEntry *e;
 
-    for (i = 0; i < 8; i++) {
-        e = &D_008820B0[i];
-        if ((e->flags & 1) == 0) {
-            return e;
-        }
-    }
-    return NULL;
-}
 
 /* This resource owns eight bytes, separate from the twelve-byte calendar
  * resource above. Retail 0027F844 clears exactly these two halfwords and word. */
+/* Return the ready selection sprite, starting its child loader when absent. */
 static inline s32 msgWinSelectionResource(void)
 {
     MsgProcWindowResource *work = &D_007245D0;
@@ -1113,17 +1105,19 @@ static inline s32 msgWinSelectionResource(void)
 #pragma opt_lifetimes on
 /* measured: lifetime splitting and invariant hoisting retain the exact selection renderer. */
 #pragma opt_loop_invariants on
+
+
+
+
+/* Copy a packed rectangle color without changing the caller's snapshot boundary. */
+/* measured: direct color assignments change msgWinDrawSelection allocation; cast-expanded copies match but hide the typed assignment. */
 static inline PrimitiveRectangleColor *msgWinCopyColor(u8 *destination, const u8 *source)
 {
     *(PrimitiveRectangleColor *)destination = *(const PrimitiveRectangleColor *)source;
     return (PrimitiveRectangleColor *)destination;
 }
 
-static inline s32 msgWinColumnOffset(s32 stride, s32 column)
-{
-    return stride * column;
-}
-
+/* Snapshot all rectangle words together, including their full quadword representation. */
 static inline PrimitiveRectangleWords *msgWinCopyRectangle(u8 *destination, const u8 *source)
 {
     typedef unsigned int MsgWinQuadword __attribute__((mode(TI)));
@@ -1658,7 +1652,7 @@ s32 msgWinDrawSelection(s32 window, u32 operation)
     case 7:
         switch (D_0088202C[0]) {
         case 0:
-            entry = msgWinFindFreeEntry();
+            entry = msgWinFreeEntry();
             if (entry != NULL) {
                 memset(entry, 0, 0x18);
                 entry->flags |= 1;
@@ -1668,7 +1662,7 @@ s32 msgWinDrawSelection(s32 window, u32 operation)
             }
             break;
         case 1:
-            entry = msgWinFindFreeEntry();
+            entry = msgWinFreeEntry();
             if (entry != NULL) {
                 memset(entry, 0, 0x18);
                 entry->flags |= 1;
@@ -1678,7 +1672,7 @@ s32 msgWinDrawSelection(s32 window, u32 operation)
             }
             break;
         case 2:
-            entry = msgWinFindFreeEntry();
+            entry = msgWinFreeEntry();
             if (entry != NULL) {
                 memset(entry, 0, 0x18);
                 entry->flags |= 1;
@@ -1724,7 +1718,7 @@ s32 msgWinDrawSelection(s32 window, u32 operation)
                 progress = 100.0f;
                 progress = progress / (float)(s16)extent;
                 extent = (s32)progress;
-                j = (extent >> 1) * 8 + 0x550 + msgWinColumnOffset(extent * 8, value);
+                j = (extent >> 1) * 8 + 0x550 + operandOrderMultiplyWord((extent * 8), value);
             }
             selectionColor = iGpffffa784;
             msgWinCopyColor((u8 *)&color, (const u8 *)&selectionColor);
@@ -1979,7 +1973,7 @@ s32 msgWinRunPhase(u8 *window, s32 operation)
         break;
     }
     case 7:
-        entry = msgWinFindFreeEntry();
+        entry = msgWinFreeEntry();
         if (entry != NULL) {
             memset(entry, 0, 0x18);
             entry->flags |= 1;
@@ -2417,6 +2411,7 @@ s32 msgCalResourceGet(s32 index)
  * lever). */
 #pragma push
 #pragma opt_lifetimes on
+/* Return an indexed calendar resource, starting the resource task when absent. */
 static inline u8 *msgCalendarResource(s32 index)
 {
     MsgProcWindowWork *work = &D_00882098;
@@ -2734,6 +2729,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *parameters)
    keeps its `ret = 0` arm, which is the double branch after func_0027bec0.
    opt_loop_invariants is worth 9 words here (hoists the scan-loop base). */
 #pragma opt_loop_invariants on
+/* Return the first ready calendar resource, creating its loading task when absent. */
 static inline u32 msgWinResource(void)
 {
     MsgProcWindowWork *work = &D_00882098;
@@ -2845,7 +2841,7 @@ s32 msgWinRunPhaseAux(void *window, s32 operation)
         break;
     case 7:
         progress = (f32)D_00882084[0];
-        entry = msgWinFindFreeEntry();
+        entry = msgWinFreeEntry();
         if (entry != NULL) {
             memset(entry, 0, 24);
             entry->flags |= 1;

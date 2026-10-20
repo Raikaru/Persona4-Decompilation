@@ -53,10 +53,7 @@ extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
-{
-    return base + index;
-}
+
 
 
 extern u8 D_00637420[];
@@ -857,7 +854,7 @@ s32 frFontLayoutSlotIfBound(s32 command, u32 contextAddress, s32 unused)
     context = (u8 *)contextAddress;
     streamOffset = ((FrFontContext *)context)->position;
     streamAddress = ((FrFontContext *)context)->stream;
-    operandBytes = mtSceneBytePairAt((u8 *)streamAddress, (u32)streamOffset);
+    operandBytes = (((u8 *)streamAddress) + (u32)streamOffset);
     lowByte = (operandBytes[0] - 1) & 0xFF;
     highByte = operandBytes[1];
     if (highByte == 0xFF) {
@@ -910,7 +907,7 @@ s32 frFontLayoutSlotCommand(s32 command, u8 *context)
 
     streamOffset = ((FrFontContext *)context)->position;
     streamAddress = ((FrFontContext *)context)->stream;
-    stream = mtSceneBytePairAt((u8 *)streamAddress, (u32)streamOffset);
+    stream = (((u8 *)streamAddress) + (u32)streamOffset);
     low = (stream[0] - 1) & 0xFF;
     highByte = stream[1];
     if (highByte == 0xFF) {

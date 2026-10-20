@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "member_access.h"
@@ -13,9 +14,7 @@ typedef struct {
     u8 b2;
     u8 b3;
 } Color4;
-static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
-    return (u8 *)(offset + (s32)base);
-}
+
 
 u16 ShdSkill_GetPendingSkill(u8 *pool);
 void kAssertFail(void *file, s32 line);
@@ -284,7 +283,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
     descriptor.flags = 0;
     descriptor.kind = 2;
     index = entry;
-    descriptor.data.vector = MEMBER(PayloadVector, shdSkill_addOff(index * 12, state), ShdSkillState, pool.active[0].vector);
+    descriptor.data.vector = MEMBER(PayloadVector, byteAddressAdd((index * 12), state), ShdSkillState, pool.active[0].vector);
     descriptor.style = style;
     position.x = 18.0f + (base.x + (f32)((s32)(index >> 2) * 198));
     drawY = 304.0f + (baseY + (f32)(((s32)index % 4) * 25));
@@ -747,7 +746,7 @@ void ShdSkill_AddActiveSkill(u16 skill, u8 *pool) {
     }
     count = ((ShdSkillPool *)pool)->activeCount;
     ((ShdSkillPool *)pool)->activeCount = count + 1;
-    ((ShdSkillEntry *)shdSkill_addOff(count * 12, pool))->fields.id = (s16)skill;
+    ((ShdSkillEntry *)byteAddressAdd((count * 12), pool))->fields.id = (s16)skill;
     i = 0;
     target = skill & 0xFFFF;
     bound = ((ShdSkillPool *)pool)->pendingCount;
@@ -804,7 +803,7 @@ index_done:
     if ((index == -1) || (index >= (s32)MEMBER(u16, pool, ShdSkillPool, activeCount))) {
         kAssertFail(D_005E4800, 0x4A1);
     }
-    ((ShdSkillEntry *)shdSkill_addOff(index * 12, pool))->fields.id = newSkill;
+    ((ShdSkillEntry *)byteAddressAdd((index * 12), pool))->fields.id = newSkill;
     {
         s16 j;
         j = 0;
@@ -890,9 +889,9 @@ loop_test_15670:
     if (i < (s32)(count - 1)) {
         goto loop_body_15670;
     }
-    entryCursor = shdSkill_addOff(count * 12, pool);
+    entryCursor = byteAddressAdd((count * 12), pool);
     ((ShdSkillEntry *)(entryCursor + 0x58))->fields.id = 0;
-    entryCursor = shdSkill_addOff(((ShdSkillPool *)pool)->pendingCount * 2, pool);
+    entryCursor = byteAddressAdd((((ShdSkillPool *)pool)->pendingCount * 2), pool);
     /* The integer cursor is one halfword beyond the last parallel value. */
     *(u16 *)(entryCursor + MEMBER_OFFSET(ShdSkillPool, values) - (s32)sizeof(u16)) = 0;
     ((ShdSkillPool *)pool)->pendingCount = ((ShdSkillPool *)pool)->pendingCount - 1;

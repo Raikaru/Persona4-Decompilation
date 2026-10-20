@@ -2330,7 +2330,8 @@ extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline RankUpPackedColor *rankUpCapturePackedColor(RankUpPackedColor *color, const f32 *packed)
+/* Capture a float-backed packed palette value for subsequent byte-channel edits. */
+static inline RankUpPackedColor *cmmRankUpCapturePackedColor(RankUpPackedColor *color, const f32 *packed)
 {
     color->bits = *packed;
     return color;
@@ -2341,7 +2342,9 @@ static inline RankUpPackedColor *rankUpCapturePackedColor(RankUpPackedColor *col
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline void rankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor *input)
+/* Copy the palette alpha channel without replacing its other color components. */
+/* measured: plain assignment removes the alpha load/store pair and shortens cmmRankUpRender by eight bytes. */
+static inline void cmmRankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor *input)
 {
     output->a = input->a;
 }
@@ -2351,7 +2354,8 @@ static inline void rankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline void rankUpDrawSpriteState(const RankUpSpriteState *state, RankUpMatrix *matrix,
+/* Draw a centered sprite using keyframe dimensions, packed color and opacity. */
+static inline void cmmRankUpDrawSpriteState(const RankUpSpriteState *state, RankUpMatrix *matrix,
                                          s32 texture, f32 uv[4][2], f32 opacity)
 {
     s32 height = state->height;
@@ -2367,7 +2371,9 @@ static inline void rankUpDrawSpriteState(const RankUpSpriteState *state, RankUpM
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline void rankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amount)
+/* Scale only the alpha byte of the packed effect color. */
+/* measured: plain assignment reverses the mul.s sources at cmmRankUpRender offset 5228. */
+static inline void cmmRankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amount)
 {
     color->channels[3] = (u8)((f32)(u32)color->channels[3] * amount);
 }
@@ -2756,7 +2762,7 @@ s32 cmmRankUpRender(u8 *task) {
             mdlEffectSetMatrixPose(maxParticleEffect, func_003e9700((s32)((RwObject *)kwlnGetCamera())->parent));
             mdlEffectSetChildPositionVec((void *)(maxParticleEffect), position);
             mdlEffectGetPackedColor((void *)maxParticleEffect, &drawColorValue.packed);
-            rankUpScaleEffectAlpha(&drawColorValue, 0.5f);
+            cmmRankUpScaleEffectAlpha(&drawColorValue, 0.5f);
             mdlEffectSetPackedColor((void *)maxParticleEffect, &drawColorValue.packed);
         }
         if (context->mode == 0x21C) {
@@ -2990,7 +2996,7 @@ s32 cmmRankUpRender(u8 *task) {
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
             RpSkyRenderStateSet(3, 0x31003);
             RpSkyRenderStateSet(2, 0x48);
-            rankUpDrawSpriteState(&steadySprite, &steadyMatrix, spriteTexture, steadyUv.coordinates, 1.0f);
+            cmmRankUpDrawSpriteState(&steadySprite, &steadyMatrix, spriteTexture, steadyUv.coordinates, 1.0f);
         } else if (mode11Frame < 0xD3) {
             spriteExitAlpha = 255.0f * (1.0f - ((f32) (mode11Frame - 0xAA) / 40.0f));
             cmmRankUpDrawFadedExpansionPass2(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( spriteExitAlpha), 1.0f, 0, firstTexture, secondTexture);
@@ -3071,7 +3077,7 @@ s32 cmmRankUpRender(u8 *task) {
                         amount * (f32)(maximum - (s32)original->g));
                     palette->b = (u8)((f32)(u32)original->b +
                         amount * (f32)(maximum - (s32)original->b));
-                    rankUpCopyPaletteAlpha(palette, palette);
+                    cmmRankUpCopyPaletteAlpha(palette, palette);
                     palette++;
                     original++;
                 }
@@ -3080,7 +3086,7 @@ s32 cmmRankUpRender(u8 *task) {
             cmmRankUpDrawWipeRect(0, 0, 0, 0xFFFFFF, 0xFF, 0.0f, firstTexture);
         } else if (mode12Frame < 0xA1) {
             drawColor = &drawColorValue.bits;
-            drawColorValue = *rankUpCapturePackedColor(&steadyColor, &fGpffffa670);
+            drawColorValue = *cmmRankUpCapturePackedColor(&steadyColor, &fGpffffa670);
             *(u_long128 *)&steadyRectangle = D_00636600;
             drawRectangle = (u_long128 *)&drawRectangleValue;
             *(u_long128 *)&drawRectangleValue = *(u_long128 *)&steadyRectangle;
@@ -3088,7 +3094,7 @@ s32 cmmRankUpRender(u8 *task) {
             cmmRankUpDrawWipeRect(0, 0, 0, 0xFFFFFF, 0xFF, 0.0f, firstTexture);
         } else if (mode12Frame < 0xA4) {
             drawColor = &drawColorValue.bits;
-            drawColorValue = *rankUpCapturePackedColor(&pulseColor, &fGpffffa674);
+            drawColorValue = *cmmRankUpCapturePackedColor(&pulseColor, &fGpffffa674);
             *(u_long128 *)&pulseRectangle = D_00636610;
             drawRectangle = (u_long128 *)&drawRectangleValue;
             *(u_long128 *)&drawRectangleValue = *(u_long128 *)&pulseRectangle;
@@ -3303,7 +3309,8 @@ typedef struct { s32 values[5]; } RankUpUnlockFlags;
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline s32 rankUpAnimationComplete(u8 *task)
+/* Report whether the rank-up task work has set its completion flag. */
+static inline s32 cmmRankUpAnimationComplete(u8 *task)
 {
     CmmRankUpSequence *context = (CmmRankUpSequence *)kwlnTaskGetWork(task);
     s32 complete = 0;
@@ -3476,7 +3483,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         /* fallthrough */
     case 10:
     case10tail:
-        if (rankUpAnimationComplete(taskBytes) == 0) {
+        if (cmmRankUpAnimationComplete(taskBytes) == 0) {
             goto tail;
         }
         context->relation = 0xB;
