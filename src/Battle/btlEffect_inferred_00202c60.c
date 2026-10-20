@@ -113,7 +113,7 @@ typedef struct {
     s32 value1;
     s32 value2;
     u8 pad[0xC];
-    Color4 colors;
+    union { Color4 colors; s32 packedColor; };
 } Work4;
 extern void RpSkyRenderStateSet(s32 context, s32 value);
 extern void (*D_00887300[])(u32 context, u32 value);
@@ -619,7 +619,7 @@ void btlListFlush(u8 *list) {
     u8 *next;
     u8 *node;
 
-    node = *(u8 **)(list + 8);
+    node = *(u8 **)(list + 8); /* measured: access-site field substitution loses MATCH. */
     while (node != NULL) {
         next = ((BtlSelection *)node)->child;
         ((void (*)(u8 *, s32))((BtlSelection *)node)->saveCursor)(node, (s32)((BtlSelection *)node)->owner);
@@ -642,7 +642,7 @@ s32 btlListStep(u8 *list)
     current = ((BtlSelectionList *)list)->current;
     next = ((BtlSelection *)current)->child;
     result = ((s32 (*)(u8 *, s32, u8 **))((BtlSelection *)current)->handleInput)(
-        current, *(s32 *)(current + 0x28), &next) & 0xFFFF;
+        current, *(s32 *)(current + 0x28), &next) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
     switch (result) {
     case 1:
         break;
@@ -650,12 +650,12 @@ s32 btlListStep(u8 *list)
         if (((BtlSelection *)current)->parent != NULL) {
             if ((void (*)(u8 *, s32))((BtlSelection *)current)->saveCursor != NULL) {
                 ((void (*)(u8 *, s32))((BtlSelection *)current)->saveCursor)(
-                    current, *(s32 *)(current + 0x28));
+                    current, *(s32 *)(current + 0x28)); /* measured: access-site field substitution loses MATCH. */
             }
-            *(u8 **)(list + 0x10) = *(u8 **)(list + 0xC);
-            *(u8 **)(list + 0xC) = *(u8 **)(current + 0x20);
-            *(s32 *)(*(u8 **)(current + 0x20) + 0x24) = 0;
-            previous = *(u8 **)(current + 0x20);
+            ((BtlSelectionList *)list)->previous = *(u8 **)(list + 0xC); /* measured: access-site field substitution loses MATCH. */
+            *(u8 **)(list + 0xC) = *(u8 **)(current + 0x20); /* measured: access-site field substitution loses MATCH. */
+            ((BtlSelection *)(*(u8 **)(current + 0x20)))->child = 0; /* measured: access-site field substitution loses MATCH. */
+            previous = *(u8 **)(current + 0x20); /* measured: access-site field substitution loses MATCH. */
             if ((void (*)(u8 *, s32))((BtlSelection *)previous)->initialize != NULL) {
                 ((void (*)(u8 *, s32))((BtlSelection *)previous)->initialize)(
                     previous, (s32)((BtlSelection *)previous)->owner);
@@ -666,12 +666,12 @@ s32 btlListStep(u8 *list)
         if (next != NULL) {
             if ((void (*)(u8 *, s32))((BtlSelection *)current)->saveCursor != NULL) {
                 ((void (*)(u8 *, s32))((BtlSelection *)current)->saveCursor)(
-                    current, *(s32 *)(current + 0x28));
+                    current, *(s32 *)(current + 0x28)); /* measured: access-site field substitution loses MATCH. */
             }
-            *(u8 **)(list + 0x10) = *(u8 **)(list + 0xC);
-            *(u8 **)(list + 0xC) = next;
+            ((BtlSelectionList *)list)->previous = *(u8 **)(list + 0xC); /* measured: access-site field substitution loses MATCH. */
+            *(u8 **)(list + 0xC) = next; /* measured: access-site field substitution loses MATCH. */
             ((BtlSelection *)next)->parent = current;
-            *(u8 **)(current + 0x24) = next;
+            *(u8 **)(current + 0x24) = next; /* measured: access-site field substitution loses MATCH. */
             ((BtlSelection *)next)->child = 0;
             if ((void (*)(u8 *, s32))((BtlSelection *)next)->initialize != NULL) {
                 ((void (*)(u8 *, s32))((BtlSelection *)next)->initialize)(
@@ -695,7 +695,7 @@ void btlListDispatchUpdate(u8 *list) {
 
     node = ((BtlSelectionList *)list)->head;
     while (node != NULL) {
-        ((void (*)(u8 *, s32, u8 *))((BtlSelection *)node)->draw)(node, *(s32 *)(node + 0x28), list);
+        ((void (*)(u8 *, s32, u8 *))((BtlSelection *)node)->draw)(node, *(s32 *)(node + 0x28), list); /* measured: access-site field substitution loses MATCH. */
         node = ((BtlSelection *)node)->child;
     }
 }
@@ -711,7 +711,7 @@ void btlListDispatchNotify(u8 *list) {
     while (node != NULL) {
         void (*fn)(u8 *, s32, u8 *) = (void (*)(u8 *, s32, u8 *))((BtlSelection *)node)->notify;
         if (fn != NULL) {
-            fn(node, *(s32 *)(node + 0x28), list);
+            fn(node, *(s32 *)(node + 0x28), list); /* measured: access-site field substitution loses MATCH. */
         }
         node = ((BtlSelection *)node)->child;
     }
@@ -830,8 +830,7 @@ void btlPanelSetClosing(void) {
 
 // Intent: reset the panel task state, list and sub-task pointers. [inferred]
 // FUN_002038C0
-/* measured: typing the remaining persona-task test at panel+0x5A8 lost MATCH; retain its integer-
- * address interpretation. */
+/* measured: typing the persona-task clearing store at panel+0x5A8 loses MATCH. */
 void btlPanelReset(s32 task) {
     u8 *panel = (u8 *)kwlnTaskGetWork((void *)task) + 0x9C;
 
@@ -839,7 +838,7 @@ void btlPanelReset(s32 task) {
     btlListFlush(panel + 0x2C);
     if (((BtlPanelWork *)panel)->personaTask != 0) {
         shdPersonaFinishPhase(((BtlPanelWork *)panel)->personaTask);
-        *(s32 *)(panel + 0x5A8) = 0;
+        *(s32 *)(panel + 0x5A8) = 0; /* measured: access-site field substitution loses MATCH. */
         ((BtlPanelWork *)panel)->personaSlot = -1;
     }
     ((BtlPanelWork *)panel)->action = 0;
@@ -1274,7 +1273,7 @@ void btlPanelDrawBackdrop(u8 *glyphs, f32 scaleX, f32 scaleY)
     work.colors.c1 = 0xFF;
     work.colors.c2 = 0xFF;
     work.colors.c3 = 0x20;
-    btlPanelDrawCircle(glyphs, scaleX, scaleY, 100.0f, *(s32 *)(void *)&work.colors);
+    btlPanelDrawCircle(glyphs, scaleX, scaleY, 100.0f, work.packedColor);
     RpSkyRenderStateSet(3, 0x717FB);
     base[0](8, 0);
 }
@@ -1507,8 +1506,7 @@ void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, 
 #pragma opt_common_subs off
 /* measured: btlPanelDrawSkillEntry MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-/* measured: typed skill indexing changed two compared bytes. The byte-offset helper retains the
- * retail index-before-base address order. */
+/* measured: direct skill indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
 void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
@@ -1532,7 +1530,7 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
 
     glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
     unit = (u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit->datUnit;
-    skill = *(s16 *)(btlSelectionAddByteOffset((u32)(slot * 2), work) + 0x194);
+    skill = (s16)((BtlPanelWork *)(btlSelectionAddByteOffset((u32)(slot * 2), work)))->skills[0];
     if (skill >= 0x1B8 || datCalcThresholdTrigger(unit, (u16)skill) != 0) {
         if (highlighted != 0) {
             tone = 0x6E;
@@ -1640,7 +1638,7 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
 
     glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
     itemOffset = slot * 4;
-    id = *(s16 *)(btlSelectionAddByteOffset((u32)itemOffset, work) + 0x1A6);
+    id = ((BtlPanelWork *)(btlSelectionAddByteOffset((u32)itemOffset, work)))->items[0].id;
     if (highlighted != 0) {
         tone = 0x1B;
     } else {
@@ -1670,7 +1668,7 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
     frFontClearFlagBits(0x40);
     btlUiDrawSpriteFaded(glyphs, 0xC, 0x47, (374.0f + x) - 97.0f,
                   (157.0f + y) - 145.0f, tone, tone, tone, opacity);
-    digit = *(s8 *)(btlSelectionAddByteOffset((u32)itemOffset, work) + 0x1A8);
+    digit = (s8)((BtlPanelWork *)(btlSelectionAddByteOffset((u32)itemOffset, work)))->items[0].quantity;
     digitY = (155.0f + y) - 145.0f;
     digitX = (398.0f + x) - 97.0f;
     btlUiDrawSpriteFaded(glyphs, 0xC, (digit % 10) + 9, 16.0f + digitX,
@@ -1901,7 +1899,7 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
     glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)state)->task);
     showScroll = 1;
     showPrompt = 1;
-    if (*(s32 *)(state + 4) & 4) {
+    if (*(s32 *)(state + 4) & 4) { /* measured: access-site field substitution loses MATCH. */
         f32 raw;
         f32 clamped;
         verticalWork = 4.0f;
@@ -2212,8 +2210,7 @@ void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
  * Store each accepted signed item ID before its second quantity query. */
 // Intent: refresh the selection's skill and item lists from the unit and persona data. [inferred]
 // FUN_00207140
-/* The +0x3F0 saved-cursor pointer has no member in the shared action layout: its cursor/target-
- * storage union is not established there, so this pointer slot remains raw. */
+/* Saved cursors use the shared action target-block union and four typed cursor records. */
 void btlSelectionRefreshList(u16 *flags, u8 *work)
 {
     u8 *action;
@@ -2226,7 +2223,7 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
     u16 itemSlot;
 
     if (datGetFlag(0x3C) != 0) {
-        action = *(u8 **)(((BtlPanelWork *)work)->action + 0x3F0);
+        action = (u8 *)((BtlAction *)(((BtlPanelWork *)work)->action))->targetBlock.recovery.savedCursors;
         if (action != NULL) {
             btlSelectionUpdateWindow((u8 *)flags, ((BtlSelectionCursorRecord *)action)->slots[0].selected, *(s16 *)action);
         }
@@ -2308,25 +2305,25 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     s32 partyCount;
 
     work = (u8 *)(u32)workAddress;
-    if (((BtlPanelWork *)((BtlUiTaskWork *)(u32)kwlnTaskGetWork(*(void **)(work + 0x5B0)))->panel)->commandFrame < 2) {
+    if (((BtlPanelWork *)((BtlUiTaskWork *)(u32)kwlnTaskGetWork(*(void **)(work + 0x5B0)))->panel)->commandFrame < 2) { /* measured: access-site field substitution loses MATCH. */
         return 1;
     }
-    if (*(s16 *)(work + 0x14) != 0) {
+    if (*(s16 *)(work + 0x14) != 0) { /* measured: access-site field substitution loses MATCH. */
         return 1;
     }
     input = btlSelectionReadInput(selection) & 0xFFFF;
     if (input == 1) {
-    if (*(s16 *)(selection + 4) != 3) {
+    if (*(s16 *)(selection + 4) != 3) { /* measured: access-site field substitution loses MATCH. */
         sdkSndStartStream(0, 0, 0, 2);
     }
     ((BtlSelection *)selection)->selected = 3;
     ((BtlSelection *)selection)->first = 0;
     } else if (input == 4) {
-    if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 0xA) == 0) {
+    if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 0xA) == 0) { /* measured: access-site field substitution loses MATCH. */
         return 1;
     }
     sdkSndStartStream(0, 0, 0, 3);
-    ((BtlAction *)*(u8 **)(work + 0x178))->unk_6c = 0xA;
+    ((BtlAction *)*(u8 **)(work + 0x178))->unk_6c = 0xA; /* measured: access-site field substitution loses MATCH. */
     if (datGetFlag(0x38) != 0) {
         subAction = 0x10B;
     } else {
@@ -2346,19 +2343,19 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
             return 1;
         }
         ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6c = 1;
-        ((BtlAction *)*(u8 **)(work + 0x178))->unk_6e =
+        ((BtlAction *)*(u8 **)(work + 0x178))->unk_6e = /* measured: access-site field substitution loses MATCH. */
             datCalcDefaultSkillId((u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit->datUnit);
         break;
     case 4:
-        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 2) == 0) {
-            if (datCalcChkBadStatus((DatUnit *)((BtlAction *)*(u8 **)(work + 0x178))->unit->datUnit, 8) != 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 2) == 0) { /* measured: access-site field substitution loses MATCH. */
+            if (datCalcChkBadStatus((DatUnit *)((BtlAction *)*(u8 **)(work + 0x178))->unit->datUnit, 8) != 0) { /* measured: access-site field substitution loses MATCH. */
                 btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x90);
             }
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         datPersonaGetRecord(((BtlAction *)((BtlPanelWork *)work)->action)->unit->charId);
-        btlSelectionInit(work + 0x74, 4, *(s16 *)(work + 0x1A4), btlSelectionResetState,
+        btlSelectionInit(work + 0x74, 4, *(s16 *)(work + 0x1A4), btlSelectionResetState, /* measured: access-site field substitution loses MATCH. */
                       btlSelectionHandleSkillInput, btlSelectionDrawSkillPanel, btlSelectionSaveCursorSecond, work);
         panel = work + 0x74;
         *nextPanel = panel;
@@ -2367,7 +2364,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 6:
-        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 3) == 0 || *(s16 *)(work + 0x5A6) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 3) == 0 || *(s16 *)(work + 0x5A6) == 0) { /* measured: access-site field substitution loses MATCH. */
             if ((s16)((BtlPanelWork *)work)->itemCount == 0) {
                 btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x92);
             }
@@ -2383,7 +2380,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 1:
-        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 4) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 4) == 0) { /* measured: access-site field substitution loses MATCH. */
             if ((s32)(func_001ef720(1, 0) & 0xFFFF) < 2) {
                 btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x93);
             }
@@ -2407,8 +2404,8 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 5:
-        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 5) == 0) {
-            if (datCalcChkBadStatus((DatUnit *)((BtlAction *)*(u8 **)(work + 0x178))->unit->datUnit, 8) != 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 5) == 0) { /* measured: access-site field substitution loses MATCH. */
+            if (datCalcChkBadStatus((DatUnit *)((BtlAction *)*(u8 **)(work + 0x178))->unit->datUnit, 8) != 0) { /* measured: access-site field substitution loses MATCH. */
                 btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x91);
             } else {
                 action = ((BtlPanelWork *)work)->action;
@@ -2430,7 +2427,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 7:
-        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 6) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 6) == 0) { /* measured: access-site field substitution loses MATCH. */
             btlActionRunTargetCallback((s32)(u32)((BtlPanelWork *)work)->action, 5, 0, 0, 2);
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
@@ -2447,12 +2444,12 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6e = 0;
         break;
     case 0:
-        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 0xA) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 0xA) == 0) { /* measured: access-site field substitution loses MATCH. */
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         sdkSndStartStream(0, 0, 0, 3);
-        ((BtlAction *)*(u8 **)(work + 0x178))->unk_6c = 0xA;
+        ((BtlAction *)*(u8 **)(work + 0x178))->unk_6c = 0xA; /* measured: access-site field substitution loses MATCH. */
         if (datGetFlag(0x38) != 0) {
             subAction = 0x10B;
         } else {
@@ -2530,7 +2527,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
         f32 outlineGrowth;
         f32 t;
         f32 u;
-        if ((s16)(*(s16 *)(work + 0xC) - 2) < 2) {
+        if ((s16)(*(s16 *)(work + 0xC) - 2) < 2) { /* measured: access-site field substitution loses MATCH. */
             t = (f32)(s16)(((BtlPanelWork *)work)->circleFrame - 2) / 2.0f;
             completeProgress = 1.0f;
             if (t > completeProgress) {
@@ -2703,7 +2700,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
             }
         }
     }
-    available = *(s16 *)(work + 0x14);
+    available = *(s16 *)(work + 0x14); /* measured: access-site field substitution loses MATCH. */
     if (available > 0) {
         ((BtlPanelWork *)work)->cursorSlide = available - 1;
         return;
@@ -2754,9 +2751,7 @@ void btlSelectionDrawBar(u8 *unused, u8 *panel, f32 *origin)
 
 // Intent: save the selected row and page to the cursor record when the flag is set. [inferred]
 // FUN_002089E0
-/* The action+0x3F0 cursor pointer remains raw: its union with target storage is not described by
- * the shared action type. measured: typing the remaining parent-action read independently lost
- * MATCH. */
+/* Saved cursors use the shared target-block union; measured: the parent-action reload still loses MATCH when typed. */
 void btlSelectionSaveCursor(u8 *selection, u8 *panel)
 {
     s16 *cursor;
@@ -2764,25 +2759,24 @@ void btlSelectionSaveCursor(u8 *selection, u8 *panel)
     if (datGetFlag(60) == 0) {
         return;
     }
-    cursor = *(s16 **)(*(u8 **)(panel + 376) + 1008);
+    cursor = (s16 *)((BtlAction *)(*(u8 **)(panel + 376)))->targetBlock.recovery.savedCursors; /* measured: access-site field substitution loses MATCH. */
     if (cursor == NULL) {
         return;
     }
     cursor[1] = ((BtlSelection *)selection)->selected;
-    (*(s16 **)(((BtlPanelWork *)panel)->action + 1008))[0] = ((BtlSelection *)selection)->first;
+    ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[0] = ((BtlSelection *)selection)->first;
 }
 
 // Intent: reset the selection flags and cursor state to the top of the list. [inferred]
 // FUN_00208A50
-/* The +0x3F0 saved-cursor pointer remains raw because the shared action layout does not establish
- * its union with target storage; the cursor record itself is typed. */
+/* Saved cursors use the shared action target-block union and four typed cursor records. */
 void btlSelectionResetState(u8 *selection, u8 *panel)
 {
     u8 *cursor;
 
     sdkSndStartStream(0, 0, 0, 3);
     if (datGetFlag(0x3C) != 0) {
-        cursor = *(u8 **)(((BtlPanelWork *)panel)->action + 0x3F0);
+        cursor = (u8 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors;
         if (cursor != NULL) {
             btlSelectionUpdateWindow(selection, ((BtlSelectionCursorRecord *)cursor)->slots[1].selected, ((BtlSelectionCursorRecord *)cursor)->slots[1].first);
         }
@@ -2799,8 +2793,7 @@ void btlSelectionResetState(u8 *selection, u8 *panel)
  * The shared four-byte record type preserves the flags-table load order. */
 // Intent: handle the skill list input and return the next state (confirm, cancel or toggle). [inferred]
 // FUN_00208B00
-/* measured: typed skill indexing changed two compared bytes; independently typing the remaining
- * action/unit/flags reads also lost MATCH. Preserve these byte-cursor accesses. */
+/* measured: direct skill indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
 u16 btlSelectionHandleSkillInput(u8 *selection, u8 *panel)
 {
     extern s32 datCalcThresholdTrigger(u8 *selection, s32 panel);
@@ -2814,13 +2807,13 @@ u16 btlSelectionHandleSkillInput(u8 *selection, u8 *panel)
     switch (result) {
     case 2:
         skillOffset = (s32)((BtlSelection *)selection)->selected * 2;
-        skill = *(u16 *)(skillOffset + (u32)panel + 0x194);
-        if (datCalcThresholdTrigger(*(u8 **)(*(u8 **)(*(u8 **)(panel + 0x178) +
-                                           0x30) + 0xA64),
+        skill = ((BtlPanelWork *)(skillOffset + (u32)panel))->skills[0];
+        if (datCalcThresholdTrigger((u8 *)((BtlAction *)*(u8 **)(panel + 0x178))->unit->datUnit, /* measured: access-site field substitution loses MATCH. */
+                          
                           skill) == 0) {
             if ((datCalcUsesWeaponProperties(skill) != 0) &&
                 ((iGpffffb3bc[skill & 0xFFFF].flags & 0x8000) == 0)) {
-                ((BtlAction *)*(u8 **)(panel + 0x178))->unk_6c = 1;
+                ((BtlAction *)*(u8 **)(panel + 0x178))->unk_6c = 1; /* measured: access-site field substitution loses MATCH. */
             } else {
                 ((BtlAction *)((BtlPanelWork *)panel)->action)->unk_6c = 2;
             }
@@ -2842,7 +2835,7 @@ u16 btlSelectionHandleSkillInput(u8 *selection, u8 *panel)
         }
         break;
     case 1:
-        if ((*(s32 *)(panel + 4) & 4) != 0) {
+        if ((*(s32 *)(panel + 4) & 4) != 0) { /* measured: access-site field substitution loses MATCH. */
             sdkSndStartStream(0, 0, 0, 2);
             ((BtlPanelWork *)panel)->flags &= ~4;
             result = 1;
@@ -2885,7 +2878,7 @@ void btlSelectionDrawSkillPanel(u8 *selection, s32 panelAddress, f32 *originOrRe
     btlUiDrawSpriteFaded(glyphs, 9, 0x37, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))originOrRenderer)[0](6, 0);
     btlUiSetAlpha(glyphs, 0.0f);
-    slideFrame = *(s16 *)(state + 0x1A);
+    slideFrame = *(s16 *)(state + 0x1A); /* measured: access-site field substitution loses MATCH. */
     if (slideFrame < 4) {
         ((BtlPanelWork *)state)->slideFrame = slideFrame + 1;
     }
@@ -2913,29 +2906,29 @@ void btlSelectionStepAnim(u8 *selection, u8 *panel, f32 *origin)
     if (((BtlPanelWork *)panel)->previousState != 2) {
         btlSelectionDrawList(panel, selection, origin[0], origin[1], btlPanelDrawSkillEntry);
     }
-    clipFrame = *(s16 *)(panel + 0x20);
+    clipFrame = *(s16 *)(panel + 0x20); /* measured: access-site field substitution loses MATCH. */
     if (clipFrame < 4) {
         ((BtlPanelWork *)panel)->clipFrame = clipFrame + 1;
     }
-    titleFrame = *(s16 *)(panel + 0x22);
+    titleFrame = *(s16 *)(panel + 0x22); /* measured: access-site field substitution loses MATCH. */
     if (titleFrame < 0xA) {
         ((BtlPanelWork *)panel)->titleFrame = titleFrame + 1;
     }
     if ((((BtlPanelWork *)panel)->flags & 4) != 0) {
-        openingListFrame = *(s16 *)(panel + 0x16);
+        openingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
         if (openingListFrame < 4) {
             ((BtlPanelWork *)panel)->listFrame = openingListFrame + 1;
         }
-        openingDetailFrame = *(s16 *)(panel + 0x18);
+        openingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
         if (openingDetailFrame < 7) {
             ((BtlPanelWork *)panel)->detailFrame = openingDetailFrame + 1;
         }
     } else {
-        closingListFrame = *(s16 *)(panel + 0x16);
+        closingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
         if (closingListFrame > 0) {
             ((BtlPanelWork *)panel)->listFrame = closingListFrame - 1;
         }
-        closingDetailFrame = *(s16 *)(panel + 0x18);
+        closingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
         if (closingDetailFrame > 0) {
             ((BtlPanelWork *)panel)->detailFrame = closingDetailFrame - 1;
         }
@@ -2944,9 +2937,7 @@ void btlSelectionStepAnim(u8 *selection, u8 *panel, f32 *origin)
 
 // Intent: save the selected row and page to the second cursor slot when the flag is set. [inferred]
 // FUN_002090D0
-/* The action+0x3F0 cursor pointer remains raw: its union with target storage is not described by
- * the shared action type. measured: typing the remaining parent-action read independently lost
- * MATCH. */
+/* Saved cursors use the shared target-block union; measured: the parent-action reload still loses MATCH when typed. */
 void btlSelectionSaveCursorSecond(u8 *selection, u8 *panel)
 {
     s16 *cursor;
@@ -2954,25 +2945,24 @@ void btlSelectionSaveCursorSecond(u8 *selection, u8 *panel)
     if (datGetFlag(60) == 0) {
         return;
     }
-    cursor = *(s16 **)(*(u8 **)(panel + 376) + 1008);
+    cursor = (s16 *)((BtlAction *)(*(u8 **)(panel + 376)))->targetBlock.recovery.savedCursors; /* measured: access-site field substitution loses MATCH. */
     if (cursor == NULL) {
         return;
     }
     cursor[3] = ((BtlSelection *)selection)->selected;
-    (*(s16 **)(((BtlPanelWork *)panel)->action + 1008))[2] = ((BtlSelection *)selection)->first;
+    ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[2] = ((BtlSelection *)selection)->first;
 }
 
 // Intent: reset the selection flags, page window and counters for the list. [inferred]
 // FUN_00209140
-/* The +0x3F0 saved-cursor pointer remains raw because the shared action layout does not establish
- * its union with target storage; the cursor record itself is typed. */
+/* Saved cursors use the shared action target-block union and four typed cursor records. */
 void btlSelectionResetPageState(u8 *selection, u8 *panel)
 {
     u8 *cursor;
 
     sdkSndStartStream(0, 0, 0, 3);
     if (datGetFlag(0x3C) != 0) {
-        cursor = *(u8 **)(((BtlPanelWork *)panel)->action + 0x3F0);
+        cursor = (u8 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors;
         if (cursor != NULL) {
             btlSelectionUpdateWindow(selection, ((BtlSelectionCursorRecord *)cursor)->slots[2].selected, ((BtlSelectionCursorRecord *)cursor)->slots[2].first);
         }
@@ -2988,8 +2978,7 @@ void btlSelectionResetPageState(u8 *selection, u8 *panel)
 /* Reconstructed state dispatch and return width; candidate is byte-exact. */
 // Intent: handle the item list input and return the next state. [inferred]
 // FUN_002091F0
-/* measured: typed item indexing changed two compared bytes; typing the remaining action/flags
- * reads independently also lost MATCH. */
+/* measured: direct item indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
 u16 btlSelectionHandleItemInput(u8 *selection, u8 *panel)
 {
     s32 itemOrFlags;
@@ -2999,9 +2988,9 @@ u16 btlSelectionHandleItemInput(u8 *selection, u8 *panel)
     switch (result) {
     case 2:
         ((BtlAction *)((BtlPanelWork *)panel)->action)->unk_6c = 3;
-        itemOrFlags = *(s16 *)(btlSelectionAddByteOffset((u32)(((BtlSelection *)selection)->selected * 4), panel) + 0x1A6);
+        itemOrFlags = ((BtlPanelWork *)(btlSelectionAddByteOffset((u32)(((BtlSelection *)selection)->selected * 4), panel)))->items[0].id;
         ((BtlPanelActionChoice *)((BtlAction *)((BtlPanelWork *)panel)->action)->unk_70)->item = itemOrFlags;
-        ((BtlAction *)*(u8 **)(panel + 0x178))->unk_6e =
+        ((BtlAction *)*(u8 **)(panel + 0x178))->unk_6e = /* measured: access-site field substitution loses MATCH. */
             datCalcUnderlyingSkillId(((BtlPanelActionChoice *)((BtlAction *)((BtlPanelWork *)panel)->action)->unk_70)->item);
         ((BtlPanelWork *)panel)->slideFrame = 0;
         result = 4;
@@ -3016,7 +3005,7 @@ u16 btlSelectionHandleItemInput(u8 *selection, u8 *panel)
         }
         break;
     case 1:
-        if ((*(s32 *)(panel + 4) & 4) != 0) {
+        if ((*(s32 *)(panel + 4) & 4) != 0) { /* measured: access-site field substitution loses MATCH. */
             sdkSndStartStream(0, 0, 0, 2);
             ((BtlPanelWork *)panel)->flags &= ~4;
             result = 1;
@@ -3059,7 +3048,7 @@ void btlSelectionDrawItemPanel(u8 *selection, s32 panelAddress, f32 *originOrRen
     btlUiDrawSpriteFaded(glyphs, 9, 0x39, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))originOrRenderer)[0](6, 0);
     btlUiSetAlpha(glyphs, 0.0f);
-    slideFrame = *(s16 *)(state + 0x1A);
+    slideFrame = *(s16 *)(state + 0x1A); /* measured: access-site field substitution loses MATCH. */
     if (slideFrame < 4) {
         ((BtlPanelWork *)state)->slideFrame = slideFrame + 1;
     }
@@ -3087,29 +3076,29 @@ void btlSelectionStepItemAnim(u8 *selection, u8 *panel, f32 *origin)
     if (((BtlPanelWork *)panel)->previousState != 2) {
         btlSelectionDrawList(panel, selection, origin[0], origin[1],
                       btlPanelDrawEntry);
-        clipFrame = *(s16 *)(panel + 0x20);
+        clipFrame = *(s16 *)(panel + 0x20); /* measured: access-site field substitution loses MATCH. */
         if (clipFrame < 4) {
             ((BtlPanelWork *)panel)->clipFrame = clipFrame + 1;
         }
-        titleFrame = *(s16 *)(panel + 0x22);
+        titleFrame = *(s16 *)(panel + 0x22); /* measured: access-site field substitution loses MATCH. */
         if (titleFrame < 0xA) {
             ((BtlPanelWork *)panel)->titleFrame = titleFrame + 1;
         }
         if ((((BtlPanelWork *)panel)->flags & 4) != 0) {
-            openingListFrame = *(s16 *)(panel + 0x16);
+            openingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
             if (openingListFrame < 4) {
                 ((BtlPanelWork *)panel)->listFrame = openingListFrame + 1;
             }
-            openingDetailFrame = *(s16 *)(panel + 0x18);
+            openingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
             if (openingDetailFrame < 7) {
                 ((BtlPanelWork *)panel)->detailFrame = openingDetailFrame + 1;
             }
         } else {
-            closingListFrame = *(s16 *)(panel + 0x16);
+            closingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
             if (closingListFrame > 0) {
                 ((BtlPanelWork *)panel)->listFrame = closingListFrame - 1;
             }
-            closingDetailFrame = *(s16 *)(panel + 0x18);
+            closingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
             if (closingDetailFrame > 0) {
                 ((BtlPanelWork *)panel)->detailFrame = closingDetailFrame - 1;
             }
@@ -3119,9 +3108,7 @@ void btlSelectionStepItemAnim(u8 *selection, u8 *panel, f32 *origin)
 
 // Intent: save the selected row and page to the third cursor slot when the flag is set. [inferred]
 // FUN_00209740
-/* The action+0x3F0 cursor pointer remains raw: its union with target storage is not described by
- * the shared action type. measured: typing the remaining parent-action read independently lost
- * MATCH. */
+/* Saved cursors use the shared target-block union; measured: the parent-action reload still loses MATCH when typed. */
 void btlSelectionSaveCursorThird(u8 *selection, u8 *panel)
 {
     s16 *cursor;
@@ -3129,32 +3116,30 @@ void btlSelectionSaveCursorThird(u8 *selection, u8 *panel)
     if (datGetFlag(60) == 0) {
         return;
     }
-    cursor = *(s16 **)(*(u8 **)(panel + 376) + 1008);
+    cursor = (s16 *)((BtlAction *)(*(u8 **)(panel + 376)))->targetBlock.recovery.savedCursors; /* measured: access-site field substitution loses MATCH. */
     if (cursor == NULL) {
         return;
     }
     cursor[5] = ((BtlSelection *)selection)->selected;
-    (*(s16 **)(((BtlPanelWork *)panel)->action + 1008))[4] = ((BtlSelection *)selection)->first;
+    ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[4] = ((BtlSelection *)selection)->first;
 }
 
 // Intent: reset the sub-list window and counters when the sub-list is not active. [inferred]
 // FUN_002097B0
-/* The +0x3F0 cursor pointer remains raw because the shared action layout does not establish its
- * union with target storage. measured: typing the previous-node address comparison independently
- * lost MATCH. */
+/* The shared target-block union and the previous-node comparison now both use matching access-site fields. */
 void btlSelectionResetSubListState(u8 *selection, u8 *panel)
 {
     u8 *cursor;
 
     if (datGetFlag(0x3C) != 0) {
-        cursor = *(u8 **)(((BtlPanelWork *)panel)->action + 0x3F0);
+        cursor = (u8 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors;
         if (cursor != NULL) {
             btlSelectionUpdateWindow(selection, ((BtlSelectionCursorRecord *)cursor)->slots[3].selected, ((BtlSelectionCursorRecord *)cursor)->slots[3].first);
         }
     }
     *(u16 *)selection |= 1;
     *(u16 *)selection |= 2;
-    if (*(s32 *)(panel + 0x3C) != (s32)(panel + 0x110)) {
+    if ((s32)((BtlPanelWork *)panel)->list.previous != (s32)(panel + 0x110)) {
         sdkSndStartStream(0, 0, 0, 3);
         ((BtlPanelWork *)panel)->clipFrame = 0;
         ((BtlPanelWork *)panel)->titleFrame = 0;
@@ -3165,7 +3150,7 @@ void btlSelectionResetSubListState(u8 *selection, u8 *panel)
 
 // Intent: handle the persona sub-list input and open the sub-list selection. [inferred]
 // FUN_00209870
-/* measured: typed party-unit indexing changed two compared bytes; retain the index-before-base byte-offset helper. */
+/* measured: direct party-unit indexing changed two compared bytes; the typed byte-offset-helper result matches. */
 u16 btlSelectionOpenSubList(u8 *selection, s32 panelAddress, u8 **nextPanel)
 {
     u16 input;
@@ -3181,8 +3166,8 @@ u16 btlSelectionOpenSubList(u8 *selection, s32 panelAddress, u8 **nextPanel)
     input = btlSelectionReadInput(selection) & 0xFFFF;
     switch (input) {
     case 2:
-        unit = *(u8 **)(btlSelectionAddByteOffset(
-            (u32)(((BtlSelection *)selection)->selected * 4), base) + 0x17C);
+        unit = ((BtlPanelWork *)btlSelectionAddByteOffset(
+            (u32)(((BtlSelection *)selection)->selected * 4), base))->partyUnits[0];
         ((BtlPanelWork *)base)->selectedUnit = unit;
         if ((cmmCommunityRecordValue(cmmCommunityForArcana((s16)((BtlUnit *)unit)->charId) &
                            0xFFFF) & 0xFFFF) >= 0) {
@@ -3251,29 +3236,29 @@ void btlSelectionDrawPersonaList(u8 *selection, u8 *panel, f32 *origin)
             btlSelectionDrawList(panel, selection, origin[0], origin[1],
                           btlPanelDrawPersonaName);
         }
-        clipFrame = *(s16 *)(panel + 0x20);
+        clipFrame = *(s16 *)(panel + 0x20); /* measured: access-site field substitution loses MATCH. */
         if (clipFrame < 4) {
             ((BtlPanelWork *)panel)->clipFrame = clipFrame + 1;
         }
-        titleFrame = *(s16 *)(panel + 0x22);
+        titleFrame = *(s16 *)(panel + 0x22); /* measured: access-site field substitution loses MATCH. */
         if (titleFrame < 0xA) {
             ((BtlPanelWork *)panel)->titleFrame = titleFrame + 1;
         }
         if ((((BtlPanelWork *)panel)->flags & 4) != 0) {
-            openingListFrame = *(s16 *)(panel + 0x16);
+            openingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
             if (openingListFrame < 4) {
                 ((BtlPanelWork *)panel)->listFrame = openingListFrame + 1;
             }
-            openingDetailFrame = *(s16 *)(panel + 0x18);
+            openingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
             if (openingDetailFrame < 7) {
                 ((BtlPanelWork *)panel)->detailFrame = openingDetailFrame + 1;
             }
         } else {
-            closingListFrame = *(s16 *)(panel + 0x16);
+            closingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
             if (closingListFrame > 0) {
                 ((BtlPanelWork *)panel)->listFrame = closingListFrame - 1;
             }
-            closingDetailFrame = *(s16 *)(panel + 0x18);
+            closingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
             if (closingDetailFrame > 0) {
                 ((BtlPanelWork *)panel)->detailFrame = closingDetailFrame - 1;
             }
@@ -3283,9 +3268,7 @@ void btlSelectionDrawPersonaList(u8 *selection, u8 *panel, f32 *origin)
 
 // Intent: save the selected row and page to the fourth cursor slot when the flag is set. [inferred]
 // FUN_00209CD0
-/* The action+0x3F0 cursor pointer remains raw: its union with target storage is not described by
- * the shared action type. measured: typing the remaining parent-action read independently lost
- * MATCH. */
+/* Saved cursors use the shared target-block union; measured: the parent-action reload still loses MATCH when typed. */
 void btlSelectionSaveCursorFourth(u8 *selection, u8 *panel)
 {
     s16 *cursor;
@@ -3293,12 +3276,12 @@ void btlSelectionSaveCursorFourth(u8 *selection, u8 *panel)
     if (datGetFlag(60) == 0) {
         return;
     }
-    cursor = *(s16 **)(*(u8 **)(panel + 376) + 1008);
+    cursor = (s16 *)((BtlAction *)(*(u8 **)(panel + 376)))->targetBlock.recovery.savedCursors; /* measured: access-site field substitution loses MATCH. */
     if (cursor == NULL) {
         return;
     }
     cursor[7] = ((BtlSelection *)selection)->selected;
-    (*(s16 **)(((BtlPanelWork *)panel)->action + 1008))[6] = ((BtlSelection *)selection)->first;
+    ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[6] = ((BtlSelection *)selection)->first;
 }
 
 // Intent: reset the sub-list cursor fields and window. [inferred]
@@ -3334,12 +3317,12 @@ u16 btlSelectionConfirmSubList(u8 *selection, u8 *panel)
     result = btlSelectionReadInput(selection) & 0xFFFF;
     switch (result) {
     case 2:
-        selected = *(s16 *)(selection + 4);
+        selected = *(s16 *)(selection + 4); /* measured: access-site field substitution loses MATCH. */
         if (selected !=
-            datGetUnitAiTactic(*(s16 *)(*(u8 **)(panel + 0x190) + 0xA4))) {
+            datGetUnitAiTactic((s16)((BtlUnit *)(*(u8 **)(panel + 0x190)))->charId)) { /* measured: access-site field substitution loses MATCH. */
             datSetUnitAiTactic(
                 (s16)((BtlUnit *)((BtlPanelWork *)panel)->selectedUnit)->charId, selected);
-            action = btlActionFindByUnit(*(s32 *)(panel + 0x190));
+            action = btlActionFindByUnit(*(s32 *)(panel + 0x190)); /* measured: access-site field substitution loses MATCH. */
             if (action != NULL) {
                 btlPacketEnqueue(
                     func_001f99c0(action, 2, ((BtlSelection *)selection)->selected, 0, 0), 1);
@@ -3352,7 +3335,7 @@ u16 btlSelectionConfirmSubList(u8 *selection, u8 *panel)
         result = 2;
         break;
     case 1:
-        flags = *(s32 *)(panel + 4);
+        flags = *(s32 *)(panel + 4); /* measured: access-site field substitution loses MATCH. */
         if ((flags & 4) != 0) {
             ((BtlPanelWork *)panel)->flags = flags & ~4;
             result = 1 & 0xFFFF;
@@ -3423,29 +3406,29 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
         s16 openingFrame18;
         s16 closingFrame16;
         s16 closingFrame18;
-        frame20 = *(s16 *)(work + 0x20);
+        frame20 = *(s16 *)(work + 0x20); /* measured: access-site field substitution loses MATCH. */
         if (frame20 < 4) {
             ((BtlPanelWork *)work)->clipFrame = frame20 + 1;
         }
-        frame22 = *(s16 *)(work + 0x22);
+        frame22 = *(s16 *)(work + 0x22); /* measured: access-site field substitution loses MATCH. */
         if (frame22 < 0xA) {
             ((BtlPanelWork *)work)->titleFrame = frame22 + 1;
         }
         if ((((BtlPanelWork *)work)->flags & 4) != 0) {
-            openingFrame16 = *(s16 *)(work + 0x16);
+            openingFrame16 = *(s16 *)(work + 0x16); /* measured: access-site field substitution loses MATCH. */
             if (openingFrame16 < 4) {
                 ((BtlPanelWork *)work)->listFrame = openingFrame16 + 1;
             }
-            openingFrame18 = *(s16 *)(work + 0x18);
+            openingFrame18 = *(s16 *)(work + 0x18); /* measured: access-site field substitution loses MATCH. */
             if (openingFrame18 < 7) {
                 ((BtlPanelWork *)work)->detailFrame = openingFrame18 + 1;
             }
         } else {
-            closingFrame16 = *(s16 *)(work + 0x16);
+            closingFrame16 = *(s16 *)(work + 0x16); /* measured: access-site field substitution loses MATCH. */
             if (closingFrame16 > 0) {
                 ((BtlPanelWork *)work)->listFrame = closingFrame16 - 1;
             }
-            closingFrame18 = *(s16 *)(work + 0x18);
+            closingFrame18 = *(s16 *)(work + 0x18); /* measured: access-site field substitution loses MATCH. */
             if (closingFrame18 > 0) {
                 ((BtlPanelWork *)work)->detailFrame = closingFrame18 - 1;
             }
@@ -3454,7 +3437,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
     {
         f32 clamped;
         f32 progress;
-        progress = (f32)*(s16 *)(work + 0x1C) / 5.0f;
+        progress = (f32)*(s16 *)(work + 0x1C) / 5.0f; /* measured: access-site field substitution loses MATCH. */
         if (progress > 1.0f) {
             clamped = 1.0f;
         } else if (progress < 0.0f) {
@@ -3491,7 +3474,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
     renderer->setState(6, 1);
     btlUiSetAlpha(glyphs, 50.0f);
     btlUiDrawSpriteFaded(glyphs, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-    iconFrame = (s16)datGetUnitAiTactic(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4)) + 0x3F;
+    iconFrame = (s16)datGetUnitAiTactic((s16)((BtlUnit *)(*(u8 **)(work + 0x190)))->charId) + 0x3F; /* measured: access-site field substitution loses MATCH. */
     btlUiDrawSpriteFaded(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
     frFontSetFlagBits(0x40);
     nameAddress = datPersonaNamePart1((s16)((BtlUnit *)((BtlPanelWork *)work)->selectedUnit)->charId);
@@ -3519,7 +3502,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
         f32 eased;
         f32 remainingFraction;
         f32 visibleFraction;
-        progress = (f32)*(s16 *)(work + 0x1E) / 10.0f;
+        progress = (f32)*(s16 *)(work + 0x1E) / 10.0f; /* measured: access-site field substitution loses MATCH. */
         if (progress > 1.0f) {
             clamped = 1.0f;
         } else if (progress < 0.0f) {
@@ -3536,11 +3519,11 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
     {
         s16 frame1c;
         s16 frame1e;
-        frame1c = *(s16 *)(work + 0x1C);
+        frame1c = *(s16 *)(work + 0x1C); /* measured: access-site field substitution loses MATCH. */
         if (frame1c < 5) {
             ((BtlPanelWork *)work)->labelFrame = frame1c + 1;
         }
-        frame1e = *(s16 *)(work + 0x1E);
+        frame1e = *(s16 *)(work + 0x1E); /* measured: access-site field substitution loses MATCH. */
         if (frame1e < 0xA) {
             ((BtlPanelWork *)work)->labelTitleFrame = frame1e + 1;
         }
@@ -3589,7 +3572,7 @@ u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel)
             persona = (u8 *)datPersonaRosterSlot(selected);
             ((BtlAction *)((BtlPanelWork *)panel)->action)->unk_6c = 5;
             ((BtlPanelActionChoice *)((BtlAction *)((BtlPanelWork *)panel)->action)->unk_70)->persona = ((DatPersonaRecord *)persona)->id;
-            shdPersonaFinishPhase(*(u8 **)(panel + 0x5A8));
+            shdPersonaFinishPhase(*(u8 **)(panel + 0x5A8)); /* measured: access-site field substitution loses MATCH. */
             ((BtlPanelWork *)panel)->personaTask = NULL;
             ((BtlPanelWork *)panel)->personaSlot = -1;
             ((BtlBattleState *)iGpffffb3ac)->flags |= 0x2000;
@@ -3603,13 +3586,13 @@ u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel)
         break;
 
     case 3:
-        if (*(s16 *)(panel + 0x5AC) == -1) {
-            if (shdPersonaIsTransitioning(*(u8 **)(panel + 0x5A8)) == 0) {
-                persona = (u8 *)datPersonaRosterSlot(*(s16 *)(selection + 4));
+        if (*(s16 *)(panel + 0x5AC) == -1) { /* measured: access-site field substitution loses MATCH. */
+            if (shdPersonaIsTransitioning(*(u8 **)(panel + 0x5A8)) == 0) { /* measured: access-site field substitution loses MATCH. */
+                persona = (u8 *)datPersonaRosterSlot(*(s16 *)(selection + 4)); /* measured: access-site field substitution loses MATCH. */
                 ((BtlBattleState *)iGpffffb3ac)->flags &= ~0x2000;
                 ((BtlBattleState *)iGpffffb3ac)->flags &= ~0x20000;
                 stats = (u8 *)((BtlAction *)((BtlPanelWork *)panel)->action)->unit;
-                task = *(u8 **)(panel + 0x5A8);
+                task = *(u8 **)(panel + 0x5A8); /* measured: access-site field substitution loses MATCH. */
                 shdPersonaSetDisplayState(task, ((BtlUnit *)stats)->charId, (u32)persona, 0);
                 shdPersonaStartSlideIn(((BtlPanelWork *)panel)->personaTask);
                 btlEncounterEntryClearActive((u8 *)((BtlPanelWork *)panel)->task);
@@ -3622,7 +3605,7 @@ u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel)
                 *(u16 *)selection &= ~8;
                 ((BtlPanelWork *)panel)->personaSlot = ((BtlSelection *)selection)->selected;
             }
-        } else if (shdPersonaIsSelectionActive(*(u8 **)(panel + 0x5A8)) == 0) {
+        } else if (shdPersonaIsSelectionActive(*(u8 **)(panel + 0x5A8)) == 0) { /* measured: access-site field substitution loses MATCH. */
             shdPersonaBeginSelection(((BtlPanelWork *)panel)->personaTask);
         } else {
             shdPersonaEndSelection(((BtlPanelWork *)panel)->personaTask, 1);
@@ -3630,13 +3613,13 @@ u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel)
         break;
 
     case 1:
-        if (*(s16 *)(panel + 0x5AC) == -1) {
-            shdPersonaFinishPhase(*(u8 **)(panel + 0x5A8));
+        if (*(s16 *)(panel + 0x5AC) == -1) { /* measured: access-site field substitution loses MATCH. */
+            shdPersonaFinishPhase(*(u8 **)(panel + 0x5A8)); /* measured: access-site field substitution loses MATCH. */
             ((BtlPanelWork *)panel)->personaTask = NULL;
             ((BtlPanelWork *)panel)->personaSlot = -1;
             sdkSndStartStream(0, 0, 0, 4);
             result = 2;
-        } else if (shdPersonaIsSelectionActive(*(u8 **)(panel + 0x5A8)) == 0) {
+        } else if (shdPersonaIsSelectionActive(*(u8 **)(panel + 0x5A8)) == 0) { /* measured: access-site field substitution loses MATCH. */
             ((BtlBattleState *)iGpffffb3ac)->flags |= 0x2000;
             ((BtlBattleState *)iGpffffb3ac)->flags |= 0x20000;
             shdPersonaBeginClose(((BtlPanelWork *)panel)->personaTask);
@@ -3654,9 +3637,9 @@ u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel)
         break;
 
     default:
-        if (*(s16 *)(panel + 0x5AC) != -1) {
-            if (*(s16 *)(panel + 0x5AC) != *(s16 *)(selection + 4)) {
-                persona = (u8 *)datPersonaRosterSlot(*(s16 *)(selection + 4));
+        if (*(s16 *)(panel + 0x5AC) != -1) { /* measured: access-site field substitution loses MATCH. */
+            if (*(s16 *)(panel + 0x5AC) != *(s16 *)(selection + 4)) { /* measured: access-site field substitution loses MATCH. */
+                persona = (u8 *)datPersonaRosterSlot(*(s16 *)(selection + 4)); /* measured: access-site field substitution loses MATCH. */
                 if (result == 5) {
                     stats = (u8 *)((BtlAction *)((BtlPanelWork *)panel)->action)->unit;
                     task = ((BtlPanelWork *)panel)->personaTask;
@@ -3667,7 +3650,7 @@ u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel)
                     shdPersonaBeginDisplay(task, ((BtlUnit *)stats)->charId, (u32)persona, 0);
                 }
                 ((BtlPanelWork *)panel)->personaSlot = ((BtlSelection *)selection)->selected;
-            } else if (shdPersonaIsSelectionActive(*(u8 **)(panel + 0x5A8)) != 0) {
+            } else if (shdPersonaIsSelectionActive(*(u8 **)(panel + 0x5A8)) != 0) { /* measured: access-site field substitution loses MATCH. */
                 shdPersonaStepSelectionCursor(((BtlPanelWork *)panel)->personaTask);
             }
         }
@@ -3722,29 +3705,29 @@ void btlSelectionDrawLevelList(s32 selection, u8 *panel, f32 *origin)
         btlSelectionDrawList(panel, (u8 *)selection, origin[0], origin[1],
                       btlPanelDrawPersonaLevel);
     }
-    clipFrame = *(s16 *)(panel + 0x20);
+    clipFrame = *(s16 *)(panel + 0x20); /* measured: access-site field substitution loses MATCH. */
     if (clipFrame < 4) {
         ((BtlPanelWork *)panel)->clipFrame = clipFrame + 1;
     }
-    titleFrame = *(s16 *)(panel + 0x22);
+    titleFrame = *(s16 *)(panel + 0x22); /* measured: access-site field substitution loses MATCH. */
     if (titleFrame < 0xA) {
         ((BtlPanelWork *)panel)->titleFrame = titleFrame + 1;
     }
     if ((((BtlPanelWork *)panel)->flags & 4) != 0) {
-        openingListFrame = *(s16 *)(panel + 0x16);
+        openingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
         if (openingListFrame < 4) {
             ((BtlPanelWork *)panel)->listFrame = openingListFrame + 1;
         }
-        openingDetailFrame = *(s16 *)(panel + 0x18);
+        openingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
         if (openingDetailFrame < 7) {
             ((BtlPanelWork *)panel)->detailFrame = openingDetailFrame + 1;
         }
     } else {
-        closingListFrame = *(s16 *)(panel + 0x16);
+        closingListFrame = *(s16 *)(panel + 0x16); /* measured: access-site field substitution loses MATCH. */
         if (closingListFrame > 0) {
             ((BtlPanelWork *)panel)->listFrame = closingListFrame - 1;
         }
-        closingDetailFrame = *(s16 *)(panel + 0x18);
+        closingDetailFrame = *(s16 *)(panel + 0x18); /* measured: access-site field substitution loses MATCH. */
         if (closingDetailFrame > 0) {
             ((BtlPanelWork *)panel)->detailFrame = closingDetailFrame - 1;
         }
@@ -3777,16 +3760,16 @@ void btlPanelInitWork(u8 *panel, s32 task) {
 void btlPanelUpdate(void *panel)
 {
     u8 *state = panel;
-    if (*(u32 *)(state + 4) & 1) {
-        if (*(s16 *)(state + 0xA) < 11) ++((BtlPanelWork *)state)->scaleFrame;
+    if (*(u32 *)(state + 4) & 1) { /* measured: access-site field substitution loses MATCH. */
+        if (*(s16 *)(state + 0xA) < 11) ++((BtlPanelWork *)state)->scaleFrame; /* measured: access-site field substitution loses MATCH. */
     } else {
-        if (*(s16 *)(state + 8) < 19) ++((BtlPanelWork *)state)->outlineFrame;
-        if (*(s16 *)(state + 0xA) < 6) ++((BtlPanelWork *)state)->scaleFrame;
-        else if (*(s16 *)(state + 0xA) > 6) --((BtlPanelWork *)state)->scaleFrame;
+        if (*(s16 *)(state + 8) < 19) ++((BtlPanelWork *)state)->outlineFrame; /* measured: access-site field substitution loses MATCH. */
+        if (*(s16 *)(state + 0xA) < 6) ++((BtlPanelWork *)state)->scaleFrame; /* measured: access-site field substitution loses MATCH. */
+        else if (*(s16 *)(state + 0xA) > 6) --((BtlPanelWork *)state)->scaleFrame; /* measured: access-site field substitution loses MATCH. */
     }
-    if (*(s16 *)(state + 0xC) < 4) ++((BtlPanelWork *)state)->circleFrame;
-    if (*(s16 *)(state + 0xE) < 2) ++((BtlPanelWork *)state)->commandFrame;
-    else if (!(*(u32 *)(state + 4) & 2)) {
+    if (*(s16 *)(state + 0xC) < 4) ++((BtlPanelWork *)state)->circleFrame; /* measured: access-site field substitution loses MATCH. */
+    if (*(s16 *)(state + 0xE) < 2) ++((BtlPanelWork *)state)->commandFrame; /* measured: access-site field substitution loses MATCH. */
+    else if (!(*(u32 *)(state + 4) & 2)) { /* measured: access-site field substitution loses MATCH. */
         ((BtlPanelWork *)state)->flags |= 2;
         ((BtlPanelWork *)state)->gridFrame = 0;
     }
@@ -3795,16 +3778,16 @@ void btlPanelUpdate(void *panel)
     }
     if (((BtlPanelWork *)state)->list.current == state + 0x40) {
         if (*(u16 *)state == 1) {
-            if (*(s16 *)(state + 0x12) > 0) --((BtlPanelWork *)state)->stripFrame;
+            if (*(s16 *)(state + 0x12) > 0) --((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
         } else {
-            if (*(s16 *)(state + 0x12) < 3) ++((BtlPanelWork *)state)->stripFrame;
+            if (*(s16 *)(state + 0x12) < 3) ++((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
         }
     } else {
         if (!(((BtlPanelWork *)state)->flags & 1)) {
-            if (*(s16 *)(state + 0x12) < 3) ++((BtlPanelWork *)state)->stripFrame;
-            else if (*(s16 *)(state + 0x12) > 3) --((BtlPanelWork *)state)->stripFrame;
+            if (*(s16 *)(state + 0x12) < 3) ++((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
+            else if (*(s16 *)(state + 0x12) > 3) --((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
         } else {
-            if (*(s16 *)(state + 0x12) < 6) ++((BtlPanelWork *)state)->stripFrame;
+            if (*(s16 *)(state + 0x12) < 6) ++((BtlPanelWork *)state)->stripFrame; /* measured: access-site field substitution loses MATCH. */
         }
     }
     ((BtlPanelWork *)state)->previousState = *(u16 *)state;
@@ -3910,7 +3893,7 @@ void btlPanelDrawBackdropGrid(s32 unused, u8 *panel)
         if (*(u16 *)panel != 0) {
             if (((BtlPanelWork *)panel)->personaSlot == -1) {
                 btlUiSetRenderStates();
-                frame = *(s16 *)(panel + 0xA);
+                frame = *(s16 *)(panel + 0xA); /* measured: access-site field substitution loses MATCH. */
                 if (frame < 7) {
                     if (((f32)(6 - frame) / 6.0f) < 1.0f) {
                         scale = 1.0f -
@@ -3934,8 +3917,8 @@ void btlPanelDrawBackdropGrid(s32 unused, u8 *panel)
                     (*(u16 *)panel != 2) &&
                     (((BtlPanelWork *)panel)->scaleFrame < 7)) {
                     btlPanelDrawSpriteGrid(glyphs, 1.0f, 1.0f,
-                                  D_00626BE0[*(s16 *)(panel + 0x10)]);
-                    if ((u32)(s16)(*(s16 *)(panel + 0x10) += 1) >= 0x14) {
+                                  D_00626BE0[*(s16 *)(panel + 0x10)]); /* measured: access-site field substitution loses MATCH. */
+                    if ((u32)(s16)(*(s16 *)(panel + 0x10) += 1) >= 0x14) { /* measured: access-site field substitution loses MATCH. */
                         ((BtlPanelWork *)panel)->gridFrame = 0x13;
                     }
                 }
@@ -4027,7 +4010,7 @@ void btlSelectionMarkTargets(s32 task, u8 *action, u8 *targets, s16 skill)
     ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->action = action;
     ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->previousAction = 0;
     ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->targets = targets;
-    *(s16 *)(taskWork + 0x724) = skill;
+    *(s16 *)(taskWork + 0x724) = skill; /* measured: access-site field substitution loses MATCH. */
     ((BtlSelectionTransition *)transition)->delay = 1;
     ((BtlTargetSelection *)targets)->flags |= 1;
     if ((btlEffectCollectGenusMask(targets) & 0xFFFF) == 1) {
@@ -4072,16 +4055,16 @@ loop_body:
         elementMask = datCalcElementBit((s64)(s16)element);
         if (!(elementMask & 0xE0001)) {
             if (elementMask & 2) {
-                if ((s8)datCalcGetBuffStatus(*(u8 **)(unit + 0xA64), 0x10) > 0) {
+                if ((s8)datCalcGetBuffStatus(*(u8 **)(unit + 0xA64), 0x10) > 0) { /* measured: access-site field substitution loses MATCH. */
                     rowState = 1;
                 }
             } else if (!(elementMask & 0x40) &&
-                       (s8)datCalcGetBuffStatus(*(u8 **)(unit + 0xA64), 0x11) > 0) {
+                       (s8)datCalcGetBuffStatus(*(u8 **)(unit + 0xA64), 0x11) > 0) { /* measured: access-site field substitution loses MATCH. */
                 rowState = 1;
             }
         }
         if ((checkAffinity != 0) && !(rowState & 0xFFFF)) {
-            affinity = datCalcGetElementAffinity(*(u8 **)(unit + 0xA64), element);
+            affinity = datCalcGetElementAffinity(*(u8 **)(unit + 0xA64), element); /* measured: access-site field substitution loses MATCH. */
             lookupId = (u16)element;
             character = ((BtlUnit *)unit)->charId;
             if (btlTargetTestUnitFlag(character, lookupId) != 0) {
@@ -4093,9 +4076,9 @@ loop_body:
             }
         }
     }
-    btlSelectionSetRowState(*(u8 **)(targetAction + 0x30) + 0xA48, (s16)rowState);
+    btlSelectionSetRowState(*(u8 **)(targetAction + 0x30) + 0xA48, (s16)rowState); /* measured: access-site field substitution loses MATCH. */
     if (isSpecial != 0) {
-        btlSelectionSetRowIdle(*(u8 **)(targetAction + 0x30) + 0xA48);
+        btlSelectionSetRowIdle(*(u8 **)(targetAction + 0x30) + 0xA48); /* measured: access-site field substitution loses MATCH. */
     }
     targetIndex += 1;
 loop_condition:
@@ -4176,9 +4159,9 @@ void btlSelectionInitTransition(u8 *transition, s32 task) {
 void btlSelectionUpdateTransition(u8 *transition)
 {
     u8 *selected;
-    if (*(u16 *)(transition + 2) == 0) {
+    if (*(u16 *)(transition + 2) == 0) { /* measured: access-site field substitution loses MATCH. */
         if ((*(u16 *)transition & 1) == 0) {
-            if (*(u16 *)(transition + 4) > 0) {
+            if (*(u16 *)(transition + 4) > 0) { /* measured: access-site field substitution loses MATCH. */
                 --((BtlSelectionTransition *)transition)->delay;
             } else if (D_008C024E[0] & 0x20) {
                 sdkSndStartStream(0, 0, 0, 2);
@@ -4188,19 +4171,19 @@ void btlSelectionUpdateTransition(u8 *transition)
                 btlPanelReleaseText(((BtlSelectionTransition *)transition)->task);
                 ((BtlSelectionTransition *)transition)->state = 1;
             } else {
-                btlEffectSelectNeighbourTarget(((BtlSelectionTransition *)transition)->action, *(u8 **)(transition + 0x10));
-                if (*(u8 *)(*(u8 **)(transition + 0x10) + 0x3C) & 1) {
+                btlEffectSelectNeighbourTarget(((BtlSelectionTransition *)transition)->action, *(u8 **)(transition + 0x10)); /* measured: access-site field substitution loses MATCH. */
+                if (((BtlTargetSelection *)(*(u8 **)(transition + 0x10)))->flags & 1) { /* measured: access-site field substitution loses MATCH. */
                     if ((u16)datGetSkillPropertyByte(((BtlSelectionTransition *)transition)->skill) == 0) {
                         selected = (u8 *)btlFormationCurrentEntry(((BtlSelectionTransition *)transition)->targets);
-                        btlPanelStartEntry(*(s32 *)(transition + 0x18), btlUnitGetDataRowAlt((u8 *)((BtlAction *)selected)->unit));
-                        btlPanelSetCountdown(*(s32 *)(transition + 0x18), -1);
-                        btlPanelMarkEntryTimed(*(s32 *)(transition + 0x18));
-                        btlPanelSetTarget((u8 *)((BtlSelectionTransition *)transition)->task, *(s32 *)(selected + 0x30));
-                        if (*(u8 **)(transition + 0xC) == NULL) {
-                            btlSelectionSetRowIdle(*(u8 **)(selected + 0x30) + 0xA48);
-                        } else if (*(u8 **)(transition + 0xC) != selected) {
+                        btlPanelStartEntry(*(s32 *)(transition + 0x18), btlUnitGetDataRowAlt((u8 *)((BtlAction *)selected)->unit)); /* measured: access-site field substitution loses MATCH. */
+                        btlPanelSetCountdown(*(s32 *)(transition + 0x18), -1); /* measured: access-site field substitution loses MATCH. */
+                        btlPanelMarkEntryTimed(*(s32 *)(transition + 0x18)); /* measured: access-site field substitution loses MATCH. */
+                        btlPanelSetTarget((u8 *)((BtlSelectionTransition *)transition)->task, *(s32 *)(selected + 0x30)); /* measured: access-site field substitution loses MATCH. */
+                        if (*(u8 **)(transition + 0xC) == NULL) { /* measured: access-site field substitution loses MATCH. */
+                            btlSelectionSetRowIdle(*(u8 **)(selected + 0x30) + 0xA48); /* measured: access-site field substitution loses MATCH. */
+                        } else if (*(u8 **)(transition + 0xC) != selected) { /* measured: access-site field substitution loses MATCH. */
                             sdkSndStartStream(0, 0, 0, 0);
-                            btlSelectionSwapRowState(*(u8 **)(((BtlSelectionTransition *)transition)->previousAction + 0x30) + 0xA48, *(u8 **)(selected + 0x30) + 0xA48);
+                            btlSelectionSwapRowState((u8 *)((BtlAction *)(((BtlSelectionTransition *)transition)->previousAction))->unit + 0xA48, *(u8 **)(selected + 0x30) + 0xA48); /* measured: access-site field substitution loses MATCH. */
                         }
                         ((BtlSelectionTransition *)transition)->previousAction = selected;
                     }
@@ -4244,17 +4227,17 @@ void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition)
     s32 targetCount;
     s32 targetIndex;
 
-    glyphs = (u8 *)kwlnTaskGetWork(*(u8 **)(transition + 0x18));
+    glyphs = (u8 *)kwlnTaskGetWork(*(u8 **)(transition + 0x18)); /* measured: access-site field substitution loses MATCH. */
     if ((*(u32 *)glyphs & 1) != 0) {
         if ((*(u16 *)transition & 1) == 0) {
             state = ((BtlSelectionTransition *)transition)->state;
             if ((state != 3) && (((BtlSelectionTransition *)transition)->delay <= 0)) {
                 btlUiSetRenderStates();
-                targetCount = *(u16 *)(*(u8 **)(transition + 0x10) + 0x38);
+                targetCount = ((BtlTargetSelection *)(*(u8 **)(transition + 0x10)))->count; /* measured: access-site field substitution loses MATCH. */
                 targetIndex = 0;
                 while (targetIndex < (s32)targetCount) {
-                    unit = *(u8 **)(((BtlTargetSelection *)((BtlSelectionTransition *)transition)->targets)->entries[targetIndex] +
-                                      0x30);
+                    unit = (u8 *)((BtlAction *)((BtlTargetSelection *)
+                        ((BtlSelectionTransition *)transition)->targets)->entries[targetIndex])->unit;
                     btlSelectionDispatchTargetMode(((BtlSelectionTransition *)transition)->task, unit + 0xA48,
                                   unit);
                     targetIndex += 1;
