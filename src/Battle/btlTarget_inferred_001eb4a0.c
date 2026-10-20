@@ -9,7 +9,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
 extern void btlCameraLookAtQuat(void *out, const void *first,
-                          const void *second, const void *up);
+                          const void *second, const void *config);
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
@@ -101,7 +101,7 @@ void btlAiSelectStatusCommand(u8 *action, u8 *command, u32 status) {
      * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     extern s32 datGetMoney();
     extern void btlAICommandSetActionCode(u8 *action, u8 *command, u16);
-    extern s32 datCalcRandomBelow(u32 action);
+    extern s32 datCalcRandomBelow(u32 limit);
     extern void memset(void *action, s32 command, s32);
     extern void *D_006098BC[];
     extern void *D_00609934[];

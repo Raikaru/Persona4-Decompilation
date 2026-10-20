@@ -79,10 +79,10 @@ extern s32 (*D_00887300[])(RwRenderState, void *);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern void (*jtbl_008873EC[])(void *);
 extern u8 D_00793E80[];
-extern s32 fclSpriteUpdateTweens(void *object);
+extern s32 fclSpriteUpdateTweens(void *animation);
 extern void memcpy(void *object, s32 value, s32 mode);
 extern s32 kwlnGetCamera(void);
-extern u8 *PrimQueueDrawPrimitive(void *object, s32 value, void *mode, s32 count);
+extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count);
 extern u8 D_00793E80[];
 extern void fclCombineDrawPacket(u8 *packet, s32 data, void *callback);
 extern f32 fGpffff8504;
@@ -113,13 +113,13 @@ do { \
 #pragma opt_propagation off
 void fclCombineSetModel(u8 *task, u16 modelId, s64 kind)
 {
-    extern void mdlDestroyModelObject(void *object);
-    extern void datFreeBlock(void *object);
-    extern u8 *datCloneEntryBlock(s8 object);
+    extern void mdlDestroyModelObject(void *model);
+    extern void datFreeBlock(void *block);
+    extern u8 *datCloneEntryBlock(s8 entryIndex);
     extern void RwMatrixRotate(void *object, void *value, s32 mode, f32 angle);
     extern void RwMatrixTranslate(void *object, void *value, s32 mode);
-    extern void kwlnTaskDestroyWithHierarchy(void *object);
-    extern u8 *cmbCardEffCreateSprite(void *object, void *value, s32 mode);
+    extern void kwlnTaskDestroyWithHierarchy(void *task);
+    extern u8 *cmbCardEffCreateSprite(void *parent, void *directory, s32 drawOrder);
     extern u8 D_0064A700[];
     extern u8 D_0064A720[];
     extern s32 iGpffffb5a0;

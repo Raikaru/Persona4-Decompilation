@@ -37,16 +37,16 @@ typedef struct SdkLboxWork {
 typedef char SdkLboxEntrySizeCheck[sizeof(SdkLboxEntry) == 0x22C ? 1 : -1];
 typedef char SdkLboxWorkSizeCheck[sizeof(SdkLboxWork) == 0x190 ? 1 : -1];
 
-extern void sdkListStateSetVisible(u8 *list, s32 visibleRows);
-extern s32 sdkListStateGetVisible(u8 *list);
+extern void sdkListStateSetVisible(u8 *state, s32 value);
+extern s32 sdkListStateGetVisible(u8 *state);
 extern void sdkLboxRecalcLayout(u8 *task);
 extern void sdkWindowSetCommand();
 extern void sdkWindowSetRect();
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-extern void sdkListStateInit(u8 *a, s32 b, s32 c);
-extern void sdkListStateSetPrimaryMasks(u8 *a, s32 b, s32 c, s32 d, s32 e);
+extern void sdkListStateInit(u8 *state, s32 value, s32 itemCount);
+extern void sdkListStateSetPrimaryMasks(u8 *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
 extern u8 D_00713118[];
 extern void strcpy(u8 *dst, u8 *src);
 extern void sdkListStateAddItem(u8 *state);

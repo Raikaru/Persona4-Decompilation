@@ -22,7 +22,7 @@ extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
-extern void itfMesWindowFree(s32 value);
+extern void itfMesWindowFree(s32 handle);
 
 
 

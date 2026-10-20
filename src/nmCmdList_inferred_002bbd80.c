@@ -28,7 +28,7 @@ extern char D_007488E8[];
 
 
 extern u8 *D_00882F40[];
-extern void itfMesWindowSetString(s32 handle, s32 variable, char *text);
+extern void itfMesWindowSetString(s32 handle, s32 slotIndex, char *text);
 extern s32 D_0063F2B0[];
 extern u8 D_00793E80[];
 extern u8 D_0063F1F0[];

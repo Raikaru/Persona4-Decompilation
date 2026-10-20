@@ -72,7 +72,7 @@ extern u8 D_00794E70[];
 
 
 extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
-                         f32 farg0, f32 farg1, s32 fadeWithDepth, u8 *workData);
+                         f32 opacity, f32 depth, s32 fadeWithDepth, u8 *workData);
 extern u8 D_007EFA00[];
 extern void FldRc_QueueScreenQuad(u8 *, u8 *,
                            f32, f32, f32, f32, f32,

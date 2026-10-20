@@ -38,9 +38,9 @@ typedef union {
     PairF32 f;
 } PairBits;
 typedef struct PersonaWork PersonaWork;
-extern s16 datCategoryRank(s16 index);
-extern u16 datGetPersonaIdByUnit(s16 pcId);
-extern s32 datGetExperienceToNextLevel(s16 pcId);
+extern s16 datCategoryRank(s16 category);
+extern u16 datGetPersonaIdByUnit(s16 unitId);
+extern s32 datGetExperienceToNextLevel(s16 unitId);
 extern u8 datPersonaGetLevel(s32 persona);
 extern u32 datPersonaGetExp(s32 persona);
 extern u32 datPersonaGetExpToNextLevel(PersonaWork *persona);
@@ -72,13 +72,13 @@ static inline f32 p4_00362f00_add(f32 left, f32 right)
 {
     return left + right;
 }
-extern void sflDataDrawSpritePair(PairBits position, f32 fparg0, s32 opacity);
-extern void sflDataDrawPersonaPanel(s64 position, f32 fparg0, s32 opacity, u8 *state);
-extern void sflDataDrawByteValuePanel(s64 position, f32 fparg0, s32 opacity, u8 *state);
+extern void sflDataDrawSpritePair(PairBits position, f32 depth, s32 opacity);
+extern void sflDataDrawPersonaPanel(s64 position, f32 depth, s32 opacity, u8 *state);
+extern void sflDataDrawByteValuePanel(s64 position, f32 depth, s32 opacity, u8 *state);
 extern void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state);
-extern void sflDataDrawNumberValue(s64 position, f32 fparg0, s32 opacity, u8 *state);
-extern void sflDataDrawTitledIcon(s64 position, f32 fparg0, s32 opacity, u8 *state);
-extern void sflDataDrawLevelBadge(s64 position, f32 fparg0, s32 opacity, u8 *state);
+extern void sflDataDrawNumberValue(s64 position, f32 depth, s32 opacity, u8 *state);
+extern void sflDataDrawTitledIcon(s64 position, f32 depth, s32 opacity, u8 *state);
+extern void sflDataDrawLevelBadge(s64 position, f32 depth, s32 opacity, u8 *state);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern u16 D_008C024E[];
@@ -128,8 +128,8 @@ void sflDataDrawNarrowRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 heigh
 {
     extern s64 iGpffffabe8;
     extern const s32 D_0064E320[36];
-    extern void PrimQueueBatchAlpha(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
-    extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+    extern void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState, s16 offsetX, s16 offsetY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
+    extern void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState, s32 offsetX, s16 offsetY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
     PrimPointRow v[18];
     u8 col[0x48];
     f32 w;
@@ -227,8 +227,8 @@ void sflDataDrawNarrowRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 heigh
 /* Construct the alternate rounded frame contour with the wider corner steps and submit it with the requested transform. */
 void sflDataDrawWideRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s32 offsetX, s16 offsetY, void *queue, f32 angle, f32 scaleX, f32 scaleY) { extern s64 iGpffffabe8;
 extern const s32 D_0064E3B0[36];
-extern void PrimQueueBatchAlpha(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
-extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState, s16 offsetX, s16 offsetY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
+extern void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState, s32 offsetX, s16 offsetY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
 PrimPointRow v[18];
 u8 col[0x48];
 f32 w;

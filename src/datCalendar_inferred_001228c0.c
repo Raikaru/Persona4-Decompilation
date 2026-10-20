@@ -13,16 +13,16 @@
 extern void (*jtbl_008873EC[])(void *);
 extern u8 D_005E50D0[];
 extern u8 D_005E5870[];
-extern u8 *resourceFindByName(char *filename);
-extern void calendarSetMode(s32 input);
+extern u8 *resourceFindByName(char *name);
+extern void calendarSetMode(s32 mode);
 extern s32 iGpffffb1e0;
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(char *name, u8 *task);
+extern void PrimAppendNode(char *list, u8 *node);
 extern void calendarDrawBackdrop(void *unusedNode, void *work);
 extern char D_00795F50[];
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern s32 calGetDayTableValue(s16 input, s16 secondInput);
+extern s32 calGetDayTableValue(s16 day, s16 phase);
 extern s32 FldStepIndex(void);
 extern s32 evtHasTaskHandle(void);
 extern s32 datGetPendingDateIndex(void);
@@ -31,21 +31,21 @@ extern s32 calHasDayEntry();
 extern s16 clndGetPeriod(void);
 extern s16 clndGetDaysSinceApr5(void);
 extern void calendarSyncFromDate(void);
-extern void poolFree(s32 input);
-extern void sequenceRequest(s32 input, void *secondInput, s32 thirdInput, s32 fourthInput);
+extern void poolFree(s32 address);
+extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 extern void datCarryOverPersistentState(void);
-extern s32 shdWindowTaskCreate(u8 *input, s32 secondInput, s32 thirdInput);
+extern s32 shdWindowTaskCreate(u8 *parentTask, s32 value, s32 entryIndex);
 extern s32 shdWindowQueryState(s32 input);
-extern s32 mcIconTaskCreate(u8 *input, s32 secondInput);
+extern s32 mcIconTaskCreate(u8 *parent, s32 mode);
 extern s32 mcIconTaskPoll(void);
 extern void sdkSpriteFreeNode(void *node);
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 input, s32 secondInput, f32 x, f32 y,
-                          u8 thirdInput, u8 fourthInput, u8 fifthInput, u8 sixthInput, f32 z, s32 seventhInput);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
 extern s32 kwlnTaskIsLinked();
-extern void radarAnimateValue(u8 *input, s32 secondInput, s32 thirdInput);
+extern void radarAnimateValue(u8 *work, s32 frame, s32 mode);
 extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 calendarStateTask(u8 *task);
+extern s32 calendarStateTask(u8 *unusedTask);
 /* Five initialization records at D_005E50D0 have a proven 0x20-byte stride. */
 typedef struct CalendarRecordInit {
     f32 firstX, firstY, lastX, lastY;
@@ -95,14 +95,14 @@ typedef struct CalendarState {
 } CalendarState;
 
 extern u8 *iGpffffb1dc;
-extern s32 clndPromptUpdate(u8 *input);
+extern s32 clndPromptUpdate(u8 *task);
 extern u8 D_005E5170[];
 extern u8 D_005E5180[];
 extern u8 D_005E5190[];
 extern u8 D_005E51A0[];
 extern u8 D_005E51B0[];
-extern void clndPromptDestroy(u8 *input);
-extern u8 *sdkSpriteNewNode(u32 sprites, u32 index);
+extern void clndPromptDestroy(u8 *task);
+extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
 #pragma push
 #pragma opt_propagation on
 // FUN_001228C0
@@ -184,12 +184,12 @@ void calendarDrawBackdrop(void *unusedNode, void *work)
     /* Sprite positions (+8/+0xC), alpha (+0x10) and transform fields (+0x18..0x24) retain raw access: typing changed MWCC scheduling. */
     extern s32 (*D_00887304[])(RwRenderState state, void *value);
     extern s32 (*D_00887300[])(RwRenderState state, void *value);
-    extern void sdkSpriteDrawOnceAux(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 shadowAlpha, u8 alpha, f32 depth, s32 flags);
+    extern void sdkSpriteDrawOnceAux(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, u8 fade, f32 z, s32 setStates);
     extern f32 sdkSpriteScaledHeight(u8 *sprite);
-    extern void sdkSpriteDraw(u8 *sprite, s32 flags);
-    extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
-    extern s32 calGetWeekdayOfDay(s32 date);
-    extern s32 calHasDayEntry(s32 date);
+    extern void sdkSpriteDraw(u8 *sample, s32 setStates);
+    extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
+    extern s32 calGetWeekdayOfDay(s32 dateIndex);
+    extern s32 calHasDayEntry(s32 day);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     s32 (**states)(RwRenderState state, void *value);
     u8 *sprite;
@@ -807,15 +807,15 @@ s32 fadeStatus(void);
 /* Sequence fading, logo/movie playback and title results before entering or restoring game state. */
 s32 clndSceneUpdate(u8 *task)
 {
-    extern s32 fadeBeginTransition(s32 task, s32 secondInput);
-    extern void calSetDefaultDayFlags(s32 task);
+    extern s32 fadeBeginTransition(s32 mode, s32 duration);
+    extern void calSetDefaultDayFlags(s32 clearSavedMask);
     extern void sdkSndStopMainChannel(void);
     extern void sdkSndFadeOutChannel(s32 task, s32 secondInput);
     extern s32 logoTaskStart(void);
     extern s32 titleSoundReapTask(s32 task);
-    extern s32 mwPlayerCreate(void *task, s32 secondInput, void *thirdInput);
+    extern s32 mwPlayerCreate(void *parent, s32 movieIndex, void *queueName);
     extern void calendarStart(void);
-    extern void fadeBeginReturnTransition(s32 task, s32 secondInput);
+    extern void fadeBeginReturnTransition(s32 mode, s32 duration);
     extern s32 titleStartLoader(void);
     extern s32 titleLoaderReap(s32 task);
     extern s32 iGpffffb1e4;

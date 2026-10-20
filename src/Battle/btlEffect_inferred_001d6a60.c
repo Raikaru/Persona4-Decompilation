@@ -13,11 +13,11 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 btlEffectStepFormationPlacement(u8 *input);
-extern void btlEffectResetEntry(u8 *input);
+extern s32 btlEffectStepFormationPlacement(u8 *work);
+extern void btlEffectResetEntry(u8 *node);
 extern void (*jtbl_008873EC[])(void *);
-extern void btlEffectReleaseNode(u8 *input);
-extern void btlEffectReleaseAllPlacements(u8 *input);
+extern void btlEffectReleaseNode(u8 *node);
+extern void btlEffectReleaseAllPlacements(u8 *unused);
 extern u32 iGpffffb3b8;
 
 extern u8 D_005DC7D0[];
@@ -28,7 +28,7 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern void chkmemAllocSiteTag(u8 *input, s32 value);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 *(*jtbl_008873E8[])(s32 input, s32 value);
 extern void memset(u8 *input, s32 value, s32 options);
 extern u8 D_00609498[];

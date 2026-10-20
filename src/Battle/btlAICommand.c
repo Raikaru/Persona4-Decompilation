@@ -47,9 +47,9 @@ extern s32 datCalcSkillAmount(s32 skill, u8 *source, u8 *target, s32 count, s32 
 extern void datCalcClearField18(u32 object);
 extern s32 btlEffectSelectNearestEntry(u32 action, u8 *targets);
 extern u32 btlFormationCurrentEntry(u8 *formation);
-extern s32 datCalcSkillElement(u8 *unit, u16 command);
-extern s32 datCalcElementBit(s16 index);
-extern s8 datCalcGetBuffStatus(u8 *unit, s32 status);
+extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
+extern s32 datCalcElementBit(s16 element);
+extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
 extern u32 datCalcUnderlyingSkillId(u32 personaSkillId);
 extern u32 *btlEffectFindUnitByIdAndStatus();
 extern s32 func_001f9ce0(u8 *, s32);
@@ -62,8 +62,8 @@ extern u32 btlActionGetQueueEntry(u16 index);
 extern u32 datCalcClearBuffLevel(u32 unit, u32 buffIndex);
 extern u32 datCalcRandomBelow(u32 limit);
 extern u16 datCalcGetHp(s32 unit);
-extern s32 datCalcGetElementAffinity(u8 *unit, s32 index);
-extern void btlAICommandSetActionCode(u8 *a, u8 *b, u16 c);
+extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
+extern void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode);
 
 extern void *D_00609934[];
 extern void *D_00609940[];
@@ -92,12 +92,12 @@ extern s32 btlAICommandCollectSkillCandidates(u8 *action, u8 *target, s32 costPr
 extern s32 btlAICommandPickAiTarget(u8 *action, u32 value);
 extern char D_006095E0[];
 extern void kAssertFail(void *file, s32 line);
-extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
-extern s32 datCalcHasSkill(u8 *unit, s32 command);
-extern s32 datCalcThresholdTrigger(u8 *unit, s32 command);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+extern s32 datCalcHasSkill(u8 *unit, s32 skillId);
+extern s32 datCalcThresholdTrigger(u8 *unit, s32 skillId);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
-extern void btlAiChooseUsableAttackSkill(u8 *a, u8 *b);
+extern void btlAiChooseUsableAttackSkill(u8 *action, u8 *command);
 extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 datCalcPickSpecialItem(u8 *unit);
 extern u32 datCalcGetLevel(u32 unit);
@@ -108,17 +108,17 @@ extern u8 *iGpffffb3cc;
 extern u8 iGpffffa2a8;
 extern u8 *iGpffffb444;
 extern void sprintf(u8 *a, u8 *b, u32 c, u8 d);
-extern s32 scrFindPrcdIdxByName(u32 a, u8 *b);
-extern s32 scrStartProcedureIndex(u8 *a, u32 b, s32 c);
-extern void scrSetTaskProc(u32 a, u8 *b);
-extern u8 *kwlnTaskGetWork(u32 a);
-extern s32 datPersonaNamePart1Alt(s32 a);
-extern void itfMesWindowSetString(s32 a, s32 b, u32 c);
-extern void kwlnTaskAddChild(u8 *a, u32 b);
+extern s32 scrFindPrcdIdxByName(u32 header, u8 *name);
+extern s32 scrStartProcedureIndex(u8 *priority, u32 header, s32 procedureIndex);
+extern void scrSetTaskProc(u32 task, u8 *proc);
+extern u8 *kwlnTaskGetWork(u32 task);
+extern s32 datPersonaNamePart1Alt(s32 unitId);
+extern void itfMesWindowSetString(s32 handle, s32 slotIndex, u32 text);
+extern void kwlnTaskAddChild(u8 *parent, u32 child);
 extern u8 D_00609E20[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
-extern void btlTargetResetCommandRecord(u8 *a);
+extern void btlTargetResetCommandRecord(u8 *record);
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
@@ -1688,7 +1688,7 @@ s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElemen
 #pragma opt_propagation off
 s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 costPreference)
 {
-    extern s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 element, s32 costPreference);
+    extern s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElement, s32 costPreference);
     u8 *unit;
     s16 queried;
     s16 targetElement;

@@ -115,7 +115,7 @@ static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 
 {
     btlUnitSetMotion(data, value, option, rate, flags);
 }
-extern s32 scrStartProcedureChecked(s32 data, s32 value, s32 option, s32 rate);
+extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
 static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
 {
     scrStartProcedureChecked(data, value, option, rate);
@@ -131,7 +131,7 @@ extern f32 DAT_0076112c;
 
 
 extern s32 iGpffffb444;
-extern void btlUnitInitChild(u8 *data, u16 value);
+extern void btlUnitInitChild(u8 *unit, u16 characterId);
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
 {
@@ -142,14 +142,14 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void btlUnitShowModel(u8 *data);
+extern void btlUnitShowModel(u8 *unit);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019b710-0019bbc0 */
 
-extern void btlUnitShowModel(u8 *data);
+extern void btlUnitShowModel(u8 *unit);
 typedef struct BattlePacketRgba {
     u8 red;
     u8 green;

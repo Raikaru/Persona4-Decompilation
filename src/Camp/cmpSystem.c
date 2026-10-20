@@ -189,7 +189,7 @@ s32 cmpSystemSetSelection(s32 work, s32 mode, s16 selection)
 
 /* Snapshot all current row positions and load the chosen system-menu transition table.
  * Raw work-relative accesses retain MWCC alias scheduling: the proven CmpSystemWork
- * rewrite changed 362 instruction bytes in this function (same 544-spriteId size). */
+ * rewrite changed 362 instruction bytes in this function (same 544-byte size). */
 // FUN_0035FA20
 s32 cmpSystemSetMode(u8 *work, u32 mode)
 {

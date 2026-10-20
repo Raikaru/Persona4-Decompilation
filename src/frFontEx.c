@@ -12,13 +12,13 @@ extern char D_0063BC78[];
 /* Font lock / busy flag (s16 at gp-0x58E0). */
 extern s16 D_00763810;
 
-extern void frFontMoveListToFloat(int value, float otherValue, float thirdValue);
-extern void frFontSetGlyphColor(u32 resource, u32 color);
-extern u32 frFontFadeNodes(int value);
-extern u32 frFontListRelease(int value);
+extern void frFontMoveListToFloat(int list, float x, float y);
+extern void frFontSetGlyphColor(u32 list, u32 color);
+extern u32 frFontFadeNodes(int list);
+extern u32 frFontListRelease(int list);
 extern int frFontNodeWidth(int node);
 extern void *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *param, void *work);
+extern void PrimAppendNode(void *list, void *node);
 extern void memset(void *dst, s32 value, s32 size);
 
 /* Font-height table (P3FES frFontGetHeight port). */
@@ -26,7 +26,7 @@ extern s8 D_00763808[8];
 extern s8 D_00764670; /* message-window slot state */
 
 /* Cleanup callback registered by the 002755xx draw wrappers. */
-extern void frFontExFreeText(s32 value, int font);
+extern void frFontExFreeText(s32 unused, int font);
 
 /* Anonymous gp globals (gp-relative stores in retail). */
 extern s32 D_007645A0;

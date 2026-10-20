@@ -5,7 +5,7 @@
 #include "rw_geometry_internal.h"
 #include "effect_vu0_internal.h"
 #include "effect_mesh_internal.h"
-extern void mdlEffectDestroyMultipartGeometry(void *instance);
+extern void mdlEffectDestroyMultipartGeometry(void *source);
 extern void (*D_008873ec[])(void *);
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));

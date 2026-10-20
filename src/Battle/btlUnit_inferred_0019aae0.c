@@ -110,8 +110,8 @@ static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 
     *(u8 **)(address + offset) = stored;
 }
 
-extern f32 mdlGetLayerWeight(s32 data, s32 value);
-extern void mdlSetLayerTime(void *data, s32 value, f32 option);
+extern f32 mdlGetLayerWeight(s32 model, s32 layer);
+extern void mdlSetLayerTime(void *model, s32 layer, f32 frameValue);
 static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
 {
     btlUnitSetMotion(data, value, option, rate, flags);
@@ -121,19 +121,19 @@ static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value,
     scrStartProcedureChecked(data, value, option, rate);
 }
 extern u8 iGpffffa4d8;
-extern void btlUnitApplyModelState(u8 *data, s32 value);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-extern void btlUnitClearModelState(u8 *data, s32 value);
-extern void btlUnitApplyModelState(u8 *data, s32 value);
+extern void btlUnitClearModelState(u8 *unit, s32 mode);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
 
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)

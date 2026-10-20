@@ -18,7 +18,7 @@ extern void (*D_008873ec[])(s32);
 void btlShuffleDrawViewRequestStep(u8 *drawWork, u8 input, u8 green, u8 blue);
 void btlShuffleDrawViewRequestWhiteStep(u8 *drawWork);
 extern void memset(void *dst, s32 value, u32 size);
-extern s32 btlShuffleDrawCheck(u8 *drawWork, u8 *input);
+extern s32 btlShuffleDrawCheck(u8 *context, u8 *output);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
@@ -26,7 +26,7 @@ extern u8 D_0064EED0[];
 extern void btlShuffleInitWaveStrips(u8 *drawWork);
 extern void btlShuffleDrawCardReset(u8 *drawWork);
 extern void btlShuffleDrawViewForeground(s32 drawWork, u8 *input);
-extern void chkmemAllocSiteTag(const void *drawWork, s32 input);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void btlShuffleDrawViewClearFlags(u8 *drawWork);
 extern void btlShuffleDrawViewBackground(s32 drawWork, u8 *input);
 extern s32 btlShuffleDrawViewStep(u8 *drawWork);
@@ -36,8 +36,8 @@ extern u8 D_00794E40[];
 extern u8 D_00795E30[];
 extern u8 D_00795EF0[];
 extern u8 D_0064EEB0[];
-extern void PrimAppendNode(u8 *drawWork, u8 *input);
-extern void kAssertFail(void *drawWork, s32 input);
+extern void PrimAppendNode(u8 *list, u8 *node);
+extern void kAssertFail(void *file, s32 line);
 extern void sdkRenderStateSetDefault(void);
 extern void btlShuffleDrawRevealBands(u8 *drawWork);
 extern void btlShuffleDrawDetailBars(u8 *drawWork);
@@ -59,12 +59,12 @@ extern void btlShuffleDrawBackgroundRings();
 extern void btlShuffleDrawWave();
 extern void btlShuffleUpdateRing();
 extern void btlShuffleDrawSpriteCues();
-extern void sdkSpriteDrawOnceAt(s32 resource, s32 slot, f32 x, f32 y,
-                          u8 r, u8 g, u8 b, u8 alpha);
-extern void sdkSpriteDrawOnceScaled(s32 drawWork, s32 input, f32 angle, f32 endAngle,
-                          f32 blend, u8 green, u8 blue, u8 controlPoints, u8 origin,
-                          u16 scaleX, u16 scaleY, f32 rotation, s16 originX,
-                          s16 originY);
+extern void sdkSpriteDrawOnceAt(s32 packAddress, s32 image, f32 x, f32 y,
+                          u8 red, u8 green, u8 blue, u8 alpha);
+extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
+                          f32 depth, u8 red, u8 green, u8 blue, u8 alpha,
+                          u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
+                          s16 pivotY);
 /* Each 0x30-byte wave strip has two endpoint pairs and independent phase counters. */
 typedef struct BtlShuffleWaveStrip {
     Vec2f start[2];
@@ -199,8 +199,8 @@ void btlShuffleDrawGlowCards(u8 *drawWork)
 // FUN_00383F80
 void btlShuffleDrawFrameFade(u8 *drawWork)
 {
-    extern f32 btlShuffleCalcWave(f32 t, f32 a, f32 b, s32 mode);
-    extern s32 btlShuffleDrawTableLookup(s32 a, s32 b);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
+    extern s32 btlShuffleDrawTableLookup(s32 cardCount, s32 pattern);
     typedef struct {
         f32 x;
         f32 y;
@@ -361,7 +361,7 @@ void btlShuffleDrawFrameFade(u8 *drawWork)
 // FUN_00384CC0
 void btlShuffleDrawPatternLineFade(u8 *work)
 {
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend, s32 work);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern f32 fGpffff83c0;
     extern f32 fGpffff83c4;
     extern const Vec2f D_0064ECC0[13];
@@ -477,7 +477,7 @@ void btlShuffleDrawPatternLineFade(u8 *work)
 // FUN_00385380
 void btlShuffleDrawCueBanner(u8 *drawWork)
 {
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend, s32 drawWork);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern f32 sinf(f32 angle);
     u8 alpha;
     u16 *counter = (u16 *)(drawWork + 0x1E);
@@ -531,9 +531,9 @@ void btlShuffleDrawCueBanner(u8 *drawWork)
 // FUN_00385970
 void btlShuffleDrawSideQuads(u8 *drawWork)
 {
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend, s32 drawWork);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern void sdkSpriteDrawOnceScaled(s32 drawWork, s32 input, f32 angle, f32 endAngle, f32 blend, u8 green, u8 blue, u8 controlPoints, u8 origin, u16 scaleX, u16 scaleY, f32 rotation, s16 originX, s16 originY);
+    extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY, f32 angle, s16 pivotX, s16 pivotY);
     extern u32 RpRandom(void);
     extern f32 sinf(f32 angle);
     extern f32 fGpffff8374;
@@ -793,9 +793,9 @@ static inline f32 btlShuffleScaleRadius(f32 value, f32 scale)
 // FUN_00386C00
 void btlShuffleDrawMenuBatch(u8 *drawWork)
 {
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend, s32 drawWork);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern void sdkSpriteDrawOnceScaled(s32 drawWork, s32 input, f32 angle, f32 endAngle, f32 blend, u8 green, u8 blue, u8 controlPoints, u8 origin, u16 scaleX, u16 scaleY, f32 rotation, s16 originX, s16 originY);
+    extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY, f32 angle, s16 pivotX, s16 pivotY);
     extern f32 sinf(f32 angle);
     extern f32 fGpffff812c;
     extern f32 fGpffff83d0;
@@ -926,11 +926,11 @@ void btlShuffleDrawViewBackground(s32 drawWork, u8 *input)
     extern void btlShuffleDrawCardSet(u8 *drawWork);
     extern void btlShuffleDrawFrameFade(u8 *drawWork);
     extern void btlShuffleDrawGlowCards(u8 *drawWork);
-    extern void btlShuffleDrawPatternLineFade(u8 *drawWork);
+    extern void btlShuffleDrawPatternLineFade(u8 *work);
     extern void btlShuffleDrawCueBanner(u8 *drawWork);
     extern void btlShuffleDrawSideQuads(u8 *drawWork);
     extern void btlShuffleDrawMenuBatch(u8 *drawWork);
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend, s32 drawWork);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     u8 *base;
     u8 *entry;
     s32 value;
@@ -996,11 +996,11 @@ static inline f32 btlShuffleQuarterTurnOffset(s32 index)
 // FUN_00387750
 void btlShuffleDrawRevealFan(u8 *drawWork)
 {
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend, s32 drawWork);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern f32 sinf(f32 angle);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
-    extern void effMiscDrawScreenColor(void *drawWork, s32 input);
+    extern void effMiscDrawScreenColor(void *colors, s32 enabled);
     extern f32 fGpffff82cc;
     extern f32 fGpffff82fc;
     extern f32 fGpffff83d8;
@@ -1328,8 +1328,8 @@ void btlShuffleDrawViewForeground(s32 drawWork, u8 *input)
 {
     extern void btlShuffleDrawRevealFan(u8 *drawWork);
     extern void btlShuffleDrawRoster(u8 *drawWork);
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend, s32 drawWork);
-    extern void effMiscDrawScreenColor(void *drawWork, s32 input);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
+    extern void effMiscDrawScreenColor(void *colors, s32 enabled);
     u8 colors[4];
     f32 alphaF;
     f32 ramp;
@@ -2285,7 +2285,7 @@ typedef struct BtlShuffleRevealWeight {
 // FUN_0038ACD0
 void btlShuffleDrawRevealBands(u8 *drawWork)
 {
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend, s32 drawWork);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern f32 fGpffff83a4;
     extern u8 D_0064F090[];
     BtlShuffleRevealWeight factors[5];
@@ -2389,8 +2389,8 @@ void btlShuffleDrawRevealBands(u8 *drawWork)
 // FUN_0038B1C0
 void btlShuffleDrawSpriteCues(u8 *drawWork)
 {
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend,
-                             s32 drawWork);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame,
+                             s32 curve);
     extern s32 D_0064EFB0[];
     u8 *base;
     s32 palette;
@@ -2771,10 +2771,10 @@ void btlShuffleDrawCountTransition(u8 *drawWork)
 // FUN_0038C770
 void btlShuffleDrawCardShadow(u8 *drawWork)
 {
-    extern void btlShuffleCalcScaleStep(u8 *screen, f32 depth, u8 *point);
+    extern void btlShuffleCalcScaleStep(u8 *screen, f32 depth, u8 *output);
     extern s32 btlShuffleCalcUpdateSpeed(u8 *point, u8 *screen);
-    extern f32 btlShuffleCalcWave(f32 angle, f32 endAngle, f32 blend, s32 drawWork);
-    extern s32 btlShuffleDrawTableLookup(s32 drawWork, s32 input);
+    extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
+    extern s32 btlShuffleDrawTableLookup(s32 cardCount, s32 pattern);
     struct Work {
         BtlShuffleVec3 input;
         f32 pad0;
@@ -3288,7 +3288,7 @@ typedef struct BtlShuffleEffects {
 void btlShuffleUpdateRewardEffects(s32 *effectWork)
 {
     extern void mdlEffectDestroy(s32 drawWork, u8 *input);
-    extern void mdlEffectAdvanceAndFlushWithTable(void *drawWork, s32 input);
+    extern void mdlEffectAdvanceAndFlushWithTable(void *table, s32 effect);
     extern u8 D_005DC824[];
     extern u8 D_005DC974[];
     extern u8 D_005DC9C8[];

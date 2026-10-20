@@ -53,13 +53,13 @@ typedef struct ShdEffectParams {
     ShdFarg arguments;
 } ShdEffectParams;
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 
 extern u32 kwlnTaskGetWork(void *task);
-extern void mdlEffectAdvanceAndFlushWithTable(void *a, void *b);
-extern u32 mdlEffectGetWord84(s32 a);
-extern void mdlEffectDestroy(u8 *a);
-extern u8 *mdlEffectCreateFromResource(s32 a);
+extern void mdlEffectAdvanceAndFlushWithTable(void *table, void *effect);
+extern u32 mdlEffectGetWord84(s32 instance);
+extern void mdlEffectDestroy(u8 *model);
+extern u8 *mdlEffectCreateFromResource(s32 resource);
 extern void kAssertFail(void *file, s32 line);
 extern s32 effBlurFilterTaskUpdate(u8 *task);
 extern void effBlurFilterTaskDestroy(u8 *task);

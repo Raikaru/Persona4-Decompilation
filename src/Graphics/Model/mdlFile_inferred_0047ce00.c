@@ -36,12 +36,12 @@ static inline s32 viewAddReverse(s32 base, s32 offset)
 
 extern s32 func_003e2e40(s32 model, s32 *typeCallback);
 extern s32 func_003e2f60(s32 model, s32 typeCallback, s32 *pathCallback);
-extern u8 *H_Cdvd_GetArchiveEntry(u8 *model, s32 typeCallback, s32 *pathCallback);
-extern void H_Cdvd_ReadSync(u8 *model);
-extern void K_Clump_FreeTextureNameList(void *model);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
+extern void H_Cdvd_ReadSync(u8 *cdvd);
+extern void K_Clump_FreeTextureNameList(void *listHead);
 extern s32 mdlReadAuxChunks(u8 *model);
 extern s32 mdlPollAuxResources(u8 *model);
-extern void mdlSeRequestLoad(void **model, u32 typeCallback, u16 pathCallback, s32 setupCallback, u32 dataCallback);
+extern void mdlSeRequestLoad(void **owner, u32 type, u16 id, s32 source, u32 size);
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;

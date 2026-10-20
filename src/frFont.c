@@ -5,7 +5,7 @@
 #include "fr_font_objects.h"
 #include "h_cdvd.h"
 
-extern void frFontSlotLoad(s32 value, u8 *otherValue, u8 *thirdValue);
+extern void frFontSlotLoad(s32 slotId, u8 *header, u8 *fontData);
 
 typedef int (*code)();
 extern u32 DAT_00881630_abs[];
@@ -18,7 +18,7 @@ extern u8 DAT_00881760_abs[];
 
 extern s16 D_00763810;
 
-extern void frFontDrawListMode(void *value, u32 otherValue);
+extern void frFontDrawListMode(void *list, u32 mode);
 
 extern u32 D_00764598;
 
@@ -31,23 +31,23 @@ extern void frFontRasterEvictExpired(void);
 extern u32 DAT_00881528_abs[];
 extern u32 DAT_0088152C_abs[];
 extern u32 DAT_0088179C_abs[];
-extern u32 frFontListRelease(int value);
-extern u32 frFontFadeNodes(int value);
+extern u32 frFontListRelease(int list);
+extern u32 frFontFadeNodes(int list);
 extern void *memset(void *dst, s32 value, u32 size);
-extern int sdkSndIsChannelPlaying(int value);
+extern int sdkSndIsChannelPlaying(int channelIndex);
 extern void nmMesWindowResetRecords(void);
 extern int fclBankManagerCreate(void);
 extern void fclMiscCreateAssistTask(void);
 struct KwlnTask;
-extern s32 fclBankManagerUpdate(u8 *task);
-extern void frFontTaskDestroy(u8 *task);
-extern void frFontInitManager(int value, int otherValue);
-extern s8 frFontRunScript(void *value, int otherValue);
-extern void frFontSetMode(u32 value);
+extern s32 fclBankManagerUpdate(u8 *sdkTaskBytes);
+extern void frFontTaskDestroy(u8 *unusedTask);
+extern void frFontInitManager(int gridCapacity, int cacheCapacity);
+extern s8 frFontRunScript(void *context, int onlyCommand);
+extern void frFontSetMode(u32 mode);
 extern u8 *frFontBuildText(void *data);
-extern u8 *frFontBuildTextFull(u32 value, u32 otherValue, u32 thirdValue, u32 fourthValue,
-                         u32 fifthValue, u32 sixthValue, u32 seventhValue, u32 eighthValue,
-                         u32 ninthValue);
+extern u8 *frFontBuildTextFull(u32 x, u32 y, u32 duration, u32 style,
+                         u32 palette, u32 effect, u32 intensity, u32 stream,
+                         u32 list);
 extern u32 D_00763840;
 extern u32 D_00763848;
 extern u32 D_00763838;
@@ -58,7 +58,7 @@ extern u32 DAT_00881764_abs[];
 extern u32 DAT_00881768_abs[];
 
 void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s8 D_007645B0;
 
 extern u32 DAT_00881518_abs[];
@@ -93,10 +93,10 @@ extern u32 DAT_008816D0_abs[];
 extern u32 DAT_008817B0_abs[];
 extern char D_0063BB00[];
 extern char D_0063BC10[];
-extern s32 H_Cdvd_AcquireDirectory(const void *value, s32 otherValue);
-extern void H_Cdvd_ReadSync(s32 value);
-extern u8 *H_Cdvd_LookupRequest(void *value, void *otherValue);
-extern void fmGslContFreeNode(int value);
+extern s32 H_Cdvd_AcquireDirectory(const void *path, s32 flags);
+extern void H_Cdvd_ReadSync(s32 cdvd);
+extern u8 *H_Cdvd_LookupRequest(void *pathAddress, void *slot);
+extern void fmGslContFreeNode(int payloadAddress);
 extern void frFontRasterDestroyCache(void);
 extern void frFontReleaseSlots(void);
 extern void kAssertFailAt(const void *msg, const void *file, u32 line);
@@ -754,10 +754,10 @@ void frFontComputeGlyphMetrics(u8 *glyph, s32 glyphIndex)
 /* Acquires the glyph for character arg1 in a font: uses the cached raster or loads and decodes it, then takes a node off the free list. */
 // FUN_00271F50
 extern char D_0063BC20[];
-extern u32 frFontRasterLookup(u32 value, int otherValue);
-extern u32 frFontFindOrLoadEntry(u32 value, u32 otherValue, u32 thirdValue);
-extern u16 func_00273910(u32 value);
-extern u16 func_00273940(u32 value);
+extern u32 frFontRasterLookup(u32 key, int palette);
+extern u32 frFontFindOrLoadEntry(u32 key, u32 bitmap, u32 palette);
+extern u16 func_00273910(u32 slot);
+extern u16 func_00273940(u32 slot);
 
 u8 *frFontAcquireGlyph(u8 *glyph, u32 glyphIndex)
 {
@@ -815,7 +815,7 @@ u8 *frFontAcquireGlyph(u8 *glyph, u32 glyphIndex)
     return raster;
 }
 extern char D_0063BC50[];
-extern u8 *fmGslContPopNode(s32 value);
+extern u8 *fmGslContPopNode(s32 listAddress);
 
 
 
@@ -985,7 +985,7 @@ LAB_002724C4:
 }
 
 extern u8 D_007645B4;
-extern u8 *frFontCreateGlyphNode(u16 value, u8 otherValue, u8 thirdValue, u8 fourthValue);
+extern u8 *frFontCreateGlyphNode(u16 character, u8 slotId, u8 palette, u8 effect);
 
 
 
@@ -1514,11 +1514,11 @@ void frFontDrawListMode(void *list, u32 mode)
 
 extern s32 D_0076459C;
 extern void RpSkyRenderStateSet(s32 value, s32 otherValue);
-extern s32 frFontStepNodeIntensity(u8 *value, u8 *otherValue, u8 thirdValue, u8 fourthValue);
+extern s32 frFontStepNodeIntensity(u8 *list, u8 *glyph, u8 threshold, u8 speed);
 /* Raster dimensions use full unsigned words; the glyph stores their byte
  * source values. Depth precedes the glyph in the shared mixed-ABI contract. */
 extern s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
-                         s32 palette, u32 width, u32 height, u32 color);
+                         s32 palette, u32 width, u32 height, u32 rgba);
 extern code D_00887300_abs[];
 
 
@@ -1754,7 +1754,7 @@ body:
 
 
 
-extern int frFontCountRuns(int value);
+extern int frFontCountRuns(int node);
 
 
 

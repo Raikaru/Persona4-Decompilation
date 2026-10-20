@@ -7,7 +7,7 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "radar_menu_internal.h"
-extern s32 datGetFlag(s32 work);
+extern s32 datGetFlag(s32 bit);
 extern void radarAnimateValue(void *work, s32 frame, s32 mode);
 extern void radarStepBarWave(u8 *work);
 extern void radarStepValueAnimation(u8 *work);
@@ -90,18 +90,18 @@ s32 datCommunityMenuUpdate(u8 *work)
 void datCommunityMenuDraw(u8 *work)
 {
     extern void sdkRenderStateSetDefault(void);
-    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 background, f32 depth);
-    extern void sdkSpriteDrawAt(void *ptr, f32 x, f32 y, u8 r, u8 g, u8 b, u8 a);
-    extern void sdkSpriteDrawFooter(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 resource);
-    extern void frFontExCopyString(void *src, void *dst, s32 n);
-    extern s32 frFontExDrawText(f32 x, f32 y, f32 depth, s32 color, s8 character, s32 font,
-                            const char *text, s32 flags, s32 reserved);
+    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 setIndex, f32 depthOffset);
+    extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
+    extern void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
+    extern void frFontExCopyString(void *src, void *dst, s32 maxlen);
+    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id,
+                            const char *str, s32 flags, s32 unused);
     extern void fclMesWindowDrawTableItem(s32 item, f32 x, f32 y, f32 depth,
-                              s32 textColor, s32 font, s32 mode, s32 table);
-    extern void radarDrawColumn(s32 idx, u8 *ctx);
+                              s32 color, s32 font, s32 mode, s32 table);
+    extern void radarDrawColumn(s32 rowIndex, u8 *work);
     extern s32 RpSkyRenderStateSet(s32 cmd, void *val);
-    extern void effMiscDrawScreenColor(u8 *color, s32 flags);
-    extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 flags);
+    extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     extern u8 D_0064B2E8[];

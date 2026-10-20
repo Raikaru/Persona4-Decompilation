@@ -79,7 +79,7 @@ extern void sequenceRequest(s32 sequenceId, s32 parameters, s32 parameterSize, s
 extern void func_0010d7b0(void);
 extern void tickerStartTask(void);
 extern void fadeCreateController(s32 parentTask);
-extern u8 *resrcMngSpawnRenderTask(u8 *parent);
+extern u8 *resrcMngSpawnRenderTask(u8 *parentTask);
 extern void FldFilterLoadFile(void);
 extern void btlUnitLoadSyncedAssets(void);
 extern void mdlAppRegisterModelCallbacks(void);

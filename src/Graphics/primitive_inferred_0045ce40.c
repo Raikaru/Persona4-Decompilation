@@ -230,7 +230,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 0045ce40-0045d890 */
 
-extern void K_ClumpLookAtBasis(u8 *colorData, u8 *rectangleData, u8 *preserveState, f32 *referenceUp);
+extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 extern void mdlRenderInitializeBuffers(void);
 extern s32 kwlnGetCamera(void);
 #pragma push

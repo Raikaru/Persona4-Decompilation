@@ -40,8 +40,8 @@ extern f32 D_00922CB8[];
 extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 extern s32 btlUnitIsMoving(u8 *);
-extern void btlUnitGetAnchorPose(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
-extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
+extern void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outTarget);
+extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
 extern s64 btlPacketEnqueue(u8 *, u32);
 extern void btlActionSetState(BtlAction *, u16);
 
@@ -119,9 +119,9 @@ void btlActionEndHomeInit(u8 *action)
 {
     /* Typed action/unit/packet fields changed MWCC codegen (592B trial); retain the proven byte offsets for MATCH. */
     extern s32 btlActionGetActiveOrQueueFront(void);
-    extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
+    extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
         extern f32 btlTargetVectorDistance(const RwV3d *first, const RwV3d *second);
-    extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *position, f32 speed, u32 flags);
+    extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPos, f32 speed, u32 flags);
     extern u8 *iGpffffb3b8;
     extern u8 *iGpffffb3cc;
     extern f32 D_005F6D20[];

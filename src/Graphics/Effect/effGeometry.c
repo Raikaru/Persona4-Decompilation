@@ -185,11 +185,11 @@ typedef struct EffGeometryAtomicPlugin {
 
 typedef signed __int128 s128;
 
-void GeometryMatrixBuild(RwMatrix *object, RwV3d *value, void *options, f32 scalar);
-void func_003e9cb0(void *frame, void *matrix, u32 flags);
+void GeometryMatrixBuild(RwMatrix *matrix, RwV3d *translation, void *basis, f32 scale);
+void func_003e9cb0(void *frame, void *transform, u32 combine);
 
-void GeometryMatrixBuildCombined(RwMatrix *object, RwV3d *value, void *options, RwV3d *context);
-extern u8 *GeometryCreateMultiPart(s32 object, s32 value, s32 options, s32 context);
+void GeometryMatrixBuildCombined(RwMatrix *matrix, RwV3d *translation, void *basis, RwV3d *scale);
+extern u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 flags);
 
 
 

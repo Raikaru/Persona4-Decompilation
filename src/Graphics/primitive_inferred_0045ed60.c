@@ -9,7 +9,7 @@ extern f32 D_008872FC_abs[];
 extern f32 fGpffff8200;
 extern f32 cosf(f32 angle);
 extern f32 sinf(f32 angle);
-extern void PrimDrawPoints(void *centerX, void *centerY, f32 farg0, s32 color, s32 radius, s32 preserveState);
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState);
 extern s32 iGpffffb9e8;
 struct RwCamera;
 struct RwSphere;
@@ -236,7 +236,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 0045ed60-0045ee00 */
 
-extern void K_ClumpLookAtBasis(u8 *centerX, u8 *centerY, u8 *color, f32 *radius);
+extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 extern void mdlRenderInitializeBuffers(void);
 #pragma push
 #pragma pop

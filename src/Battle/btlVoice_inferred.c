@@ -21,17 +21,17 @@ typedef struct Model Model;
 typedef struct RwMatrix RwMatrix;
 extern u8 *iGpffff9db0;
 extern u8 D_006355C0[], D_006355E0[], D_00635600[];
-extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 /* Retail forwards the matrix result as well as all three inputs. */
 typedef struct BtlAction BtlAction;
-extern void btlActionRunPresentation(u8 *packet);
-extern void btlActionRunMotionSequence(u8 *packet);
+extern void btlActionRunPresentation(u8 *action);
+extern void btlActionRunMotionSequence(u8 *action);
 extern RwRGBA iGpffffb45c;
 extern char D_007636C0[8];
 extern char D_007636C8[8];
 extern char D_007636D0[8];
 extern u8 D_0062E070[];
-extern void btlUnitSetColor(BtlUnit *unit, RwRGBA color);
+extern void btlUnitSetColor(BtlUnit *unit, RwRGBA col);
 extern void btlCameraUpdateEffectList();
 
 
@@ -55,11 +55,11 @@ extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
-extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
+extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projection);
 extern f32 fGpffff80fc;
 extern f32 fGpffff80dc;
 extern f32 tanf(f32 angle);
-extern u32 btlCameraClampOffsetToLimit(f32 *pose, f32 *out);
+extern u32 btlCameraClampOffsetToLimit(f32 *pose, f32 *clampedPosition);
 extern f32 fGpffff8110;
 extern u8 D_0060A100[];
 extern f32 fGpffff8100;
@@ -103,10 +103,10 @@ extern u8 *btlActionFindByUnit(s32 unit);
 
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
-extern void btlMainCurveReset(u16 *param_1, f32 *param_2);
+extern void btlMainCurveReset(u16 *curve, f32 *pose);
 extern void btlCameraCopyPoseSnapshot(f32 *destination, f32 *source);
 extern void btlCameraCopyPose(f32 *destination, f32 *source);
-extern void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4);
+extern void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode);
 extern void btlCameraSetDuration(u8 *work, f32 value);
 extern u32 datCalcRandomBelow(u32 limit);
 extern u8 D_0060A0E0[];
@@ -138,12 +138,12 @@ extern void btlUnitHideModel(u8 *unit);
 extern void datCalcClearAllBuffs(u8 *unit);
 extern u8 D_0062D920[];
 extern void btlActionFinishPresentation(s64 *action);
-extern s32 btlFormationAllocWork(u32 param_1);
+extern s32 btlFormationAllocWork(u32 mode);
 extern u8 *btlFormationGetRecord(s32 index);
 extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
 extern void btlTargetClearResultBuffer(u8 *result);
-extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, s32 speed, f32 mode);
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
 extern BtlPacket *btlSoundCreateStreamPacket(u16 channel, const char *streamName);
@@ -158,19 +158,19 @@ extern u8 D_0062E7C0[], D_0062EF10[], D_0062F660[], D_0062FDB0[];
 extern u8 D_00630500[], D_00630C50[], D_006313A0[], D_00631AF0[];
 extern u8 D_006355A0[];
 
-extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 unit, u16 effect);
+extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 sprite, u16 frame);
 extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
 extern BtlPacket *btlUnitCreateRotateTowardUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u32 flags);
-extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation, u32 flags);
-extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPosition, f32 speed, u32 flags);
+extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
+extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPos, f32 speed, u32 flags);
 extern u32 datCalcIsDead(void *unit, s32 hpDelta);
-extern s32 datCalcIsGuarding(u16 *unit);
-extern s32 btlUnitSlotValueOrOne(s32 action);
+extern s32 datCalcIsGuarding(u16 *unitFlags);
+extern s32 btlUnitSlotValueOrOne(s32 unitId);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
-extern BtlPacket *btlFormationCreateSlotPacket(u16 group, u16 mask);
+extern BtlPacket *btlFormationCreateSlotPacket(u16 groupMask, u16 flags);
 extern f32 fGpffff80e4;
-extern f32 btlTargetQuatAngle(void *first, void *second);
-extern s32 CrossfadeRequest(s16 frames);
+extern f32 btlTargetQuatAngle(void *right, void *left);
+extern s32 CrossfadeRequest(s16 frameLimit);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0022; members 00225e50-0022ae00 */
 
@@ -178,7 +178,7 @@ extern void btlCameraSelectEncounterPreset(u8 *camera);
 extern void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration);
 extern u8 *btlFormationGetRecord(s32 index);
 extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
-extern s32 datCalcIsGuarding(u16 *unitData);
+extern s32 datCalcIsGuarding(u16 *unitFlags);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
 static inline s32 func_00225ec0_flag(u8 *action)
 {
@@ -1117,7 +1117,7 @@ void btlCameraSetRandomSkillPose(u8 *camera)
     u8 *base;
     u16 *raw;
     u8 *record;
-    extern void btlMainApplyUnitBaseColors(u8 *camera);
+    extern void btlMainApplyUnitBaseColors(u8 *unit);
     extern void btlCameraFrameActionPair(u8 *camera);
 
     if (datCalcEnemyHasTableFlag(
@@ -2217,8 +2217,8 @@ void btlActionRunMotionSequence(u8 *action)
 {
     /* measured: typing all repeated owner fields produces 1192B versus
      * the 1184B window; later action/unit reloads retain byte aliasing. */
-    extern u8 *btlUnitCreateMotionRequestPacket(u8 *action, u16 value);
-    extern f32 btlUnitGetGroupBounds(u32 action, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
+    extern u8 *btlUnitCreateMotionRequestPacket(u8 *unit, u16 value);
+    extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
     extern u8 D_00635530[];
     union {

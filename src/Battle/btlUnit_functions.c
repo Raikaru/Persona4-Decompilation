@@ -12,25 +12,25 @@ typedef struct RotateTowardUnitWork {
     u32 timer;
 } RotateTowardUnitWork;
 
-BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-u32 btlUnitHoldPendingPair(void* work);
-u32 btlUnitRotateTowardUnitPacketUpdate(void* work);
-u32 btlUnitReleasePendingPair(void* work);
+BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
+u32 btlUnitHoldPendingPair(void* packet);
+u32 btlUnitRotateTowardUnitPacketUpdate(void* packetData);
+u32 btlUnitReleasePendingPair(void* packet);
 typedef struct BtlUnitPacket {
     BtlUnit* unit;
     s16 value;
     u8 padding_06[2];
 } BtlUnitPacket;
-u32 btlUnitHoldPendingMotionRequest(void* work);
-u32 btlUnitReleasePendingMotionRequest(void* work);
+u32 btlUnitHoldPendingMotionRequest(void* packetWork);
+u32 btlUnitReleasePendingMotionRequest(void* packetWork);
 typedef struct BtlUnitPacketResNullifiedAnim {
     BtlUnit* unit;
     f32 value;
     u32 padding_08;
 } BtlUnitPacketResNullifiedAnim;
-u32 btlUnitHoldPendingResNullified(void* work);
-u32 btlUnitResNullifiedPacketUpdate(void* work);
-u32 btlUnitReleasePendingResNullified(void* work);
+u32 btlUnitHoldPendingResNullified(void* packetWork);
+u32 btlUnitResNullifiedPacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingResNullified(void* packetWork);
 typedef struct BtlUnitMotionWork {
     f32 position[3];
     BtlUnit* unit;
@@ -38,23 +38,23 @@ typedef struct BtlUnitMotionWork {
     s16 counter;
     f32 phase;
 } BtlUnitMotionWork;
-u32 btlUnitHoldPendingUnit(void* work);
+u32 btlUnitHoldPendingUnit(void* packet);
 u32 btlUnitPacketArcOffsetUpdate(void* work);
-u32 btlUnitReleasePendingUnit(void* work);
+u32 btlUnitReleasePendingUnit(void* packet);
 typedef struct BtlUnitPacketEnmDodgeAnim {
     BtlUnit* unit;
     s32 value;
     u8 padding_08[8];
 } BtlUnitPacketEnmDodgeAnim;
-u32 btlUnitHoldPendingEnemyDodge(void* work);
-u32 btlUnitEnemyDodgePacketUpdate(void* work);
-u32 btlUnitReleasePendingEnemyDodge(void* work);
-u32 btlUnitHoldPendingMotionSettle(void* work);
+u32 btlUnitHoldPendingEnemyDodge(void* packetWork);
+u32 btlUnitEnemyDodgePacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingEnemyDodge(void* packetWork);
+u32 btlUnitHoldPendingMotionSettle(void* packetWork);
 u32 btlUnitMotionSettlePacketUpdate(void* work);
-u32 btlUnitReleasePendingMotionSettle(void* work);
-u32 btlUnitHoldPendingModelFrame(void* work);
-u32 btlUnitModelFramePacketUpdate(void* work);
-u32 btlUnitReleasePendingModelFrame(void* work);
+u32 btlUnitReleasePendingMotionSettle(void* packetWork);
+u32 btlUnitHoldPendingModelFrame(void* packetWork);
+u32 btlUnitModelFramePacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingModelFrame(void* packetWork);
 typedef struct BtlUnitSpeedWork {
     BtlUnit* unit;
     u16 value;
@@ -63,11 +63,11 @@ typedef struct BtlUnitSpeedWork {
     u16 mode;
     u8 padding_0e[2];
 } BtlUnitSpeedWork;
-u32 btlUnitHoldPendingMotionSpeed(void* work);
-u32 btlUnitReleasePendingMotionSpeed(void* work);
-u32 btlUnitHoldPendingModelRelease(void* work);
-u32 btlUnitModelReleasePacketUpdate(void* work);
-u32 btlUnitReleasePendingModelRelease(void* work);
+u32 btlUnitHoldPendingMotionSpeed(void* packetWork);
+u32 btlUnitReleasePendingMotionSpeed(void* packetWork);
+u32 btlUnitHoldPendingModelRelease(void* packetWork);
+u32 btlUnitModelReleasePacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingModelRelease(void* packetWork);
 typedef struct BtlUnitColorWork {
     BtlUnit* unit;
     u32 startColor;
@@ -78,15 +78,15 @@ typedef struct BtlUnitColorWork {
     u8 flags;
     s16 counter;
 } BtlUnitColorWork;
-u32 btlUnitHoldPendingColor(void* work);
-u32 btlUnitColorPacketUpdate(void* work);
-u32 btlUnitReleasePendingColor(void* work);
-u32 btlUnitHoldPendingShow(void* work);
-u32 btlUnitShowPacketUpdate(void* work);
-u32 btlUnitReleasePendingShow(void* work);
-u32 btlUnitHoldPendingHide(void* work);
-u32 btlUnitHidePacketUpdate(void* work);
-u32 btlUnitReleasePendingHide(void* work);
+u32 btlUnitHoldPendingColor(void* packetWork);
+u32 btlUnitColorPacketUpdate(void* workData);
+u32 btlUnitReleasePendingColor(void* packetWork);
+u32 btlUnitHoldPendingShow(void* packetWork);
+u32 btlUnitShowPacketUpdate(void* context);
+u32 btlUnitReleasePendingShow(void* packetWork);
+u32 btlUnitHoldPendingHide(void* packetWork);
+u32 btlUnitHidePacketUpdate(void* context);
+u32 btlUnitReleasePendingHide(void* packetWork);
 typedef struct BtlUnitResourceWork {
     BtlUnit* unit;
     u16 type;
@@ -95,26 +95,26 @@ typedef struct BtlUnitResourceWork {
     u8 padding_0a[2];
     u32 state;
 } BtlUnitResourceWork;
-u32 btlUnitResourceLoadPacketInit(void* work);
-u32 btlUnitResourceLoadPacketUpdate(void* work);
-u32 btlUnitReleasePendingResourceLoad(void* work);
+u32 btlUnitResourceLoadPacketInit(void* packetWork);
+u32 btlUnitResourceLoadPacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingResourceLoad(void* packetWork);
 typedef struct LookAtUnitWork {
     BtlUnit* unit;
     BtlUnit* targetUnit;
     u16 flags;
     u8 padding_0a[2];
 } LookAtUnitWork;
-u32 btlUnitHoldPendingLookAtUnits(void* work);
-u32 btlUnitLookAtUnitPacketUpdate(void* work);
-u32 btlUnitReleasePendingLookAtUnits(void* work);
+u32 btlUnitHoldPendingLookAtUnits(void* packet);
+u32 btlUnitLookAtUnitPacketUpdate(void* packet);
+u32 btlUnitReleasePendingLookAtUnits(void* packet);
 typedef struct BtlUnitPacketLookAtDeactivate {
     BtlUnit* unit;
     u16 flags;
     u8 padding_06[2];
 } BtlUnitPacketLookAtDeactivate;
-u32 btlUnitHoldPendingLookAtDeactivate(void* work);
+u32 btlUnitHoldPendingLookAtDeactivate(void* context);
 u32 btlUnitLookAtDeactivatePacketUpdate(void* work);
-u32 btlUnitReleasePendingLookAtDeactivate(void* work);
+u32 btlUnitReleasePendingLookAtDeactivate(void* context);
 
 
 typedef struct RotateTowardUnitPacket {
@@ -408,9 +408,9 @@ u32 btlUnitHoldPendingLookAtDeactivate(void *context)
 u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
 {
     extern u8* iGpffffb3ac;
-    extern void mdlSetBlendWeight(void* context, f32 value);
-    extern void mdlLookAtSetupSetRange(void* context, f32 value, f32 option);
-    extern void mdlSetLookAtRequested(void* context);
+    extern void mdlSetBlendWeight(void* model, f32 value);
+    extern void mdlLookAtSetupSetRange(void* model, f32 pitchLimit, f32 yawLimit);
+    extern void mdlSetLookAtRequested(void* model);
     BtlUnitPacketLookAtDeactivate* packet;
     BtlUnit* curr;
 

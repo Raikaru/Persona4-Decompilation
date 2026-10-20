@@ -47,10 +47,10 @@ extern f32 cosf(f32);
 extern f32 sinf(f32);
 extern void shdEnableBlendFlag(void);
 extern void shdDisableBlendFlag(void);
-extern void PrimDrawPoints(void *colors, void *positions, f32 farg0,
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth,
                            s32 count, s32 primitiveType, s32 preserveState);
 extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
-                           f32 farg0, f32 farg1, s32 preserveState);
+                           f32 angle, f32 depth, s32 preserveState);
 
 
 

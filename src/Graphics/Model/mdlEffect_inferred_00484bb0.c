@@ -28,7 +28,7 @@ typedef struct RwMatrix
 
 extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
 extern void mdlEffectSetChildScales(u8 *effect, f32 value);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
@@ -59,15 +59,15 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484bb0-00485870 */
 
-extern u_long128 mdlEffectInitParticleState(u8 *effect);
+extern u_long128 mdlEffectInitParticleState(u8 *instance);
 extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
 extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
 extern void mdlEffectSetChildScales(u8 *effect, f32 value);
 extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
-extern u8 *mdlEffectGetChildAtIndex(u8 *effect, s32 value);
-extern s32 mdlEffectGetChildIndex(u8 *effect, u8 *value);
-extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *value, u_long128 *output);
-extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *value, u_long128 *output);
+extern u8 *mdlEffectGetChildAtIndex(u8 *effect, s32 target);
+extern s32 mdlEffectGetChildIndex(u8 *effect, u8 *target);
+extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output);
+extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output);
 typedef struct Code48InitialState {
     f32 vector00[4];
     f32 vector10[4];
@@ -105,8 +105,8 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
     extern void mdlEffectSetChildScales(u8 *effect, f32 value);
     extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
     extern char *strcpy(char *destination, const char *source);
-    s32 mdlEffectGetChildIndex(u8 *effect, u8 *value);
-    u8 *mdlEffectGetChildAtIndex(u8 *effect, s32 value);
+    s32 mdlEffectGetChildIndex(u8 *effect, u8 *target);
+    u8 *mdlEffectGetChildAtIndex(u8 *effect, s32 target);
     u_long128 vf0quad;
     void *(**alloc)(u32, u32);
     u8 *node;
@@ -386,8 +386,8 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
 // FUN_00485630
 void mdlEffectCommitTreeFrame(u8 *effect)
 {
-    extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *value, u_long128 *output);
-    extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *value, u_long128 *output);
+    extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output);
+    extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output);
     extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
     /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
      * 0x90-byte root. The union keeps field and quadword transfers in the
@@ -503,8 +503,8 @@ void mdlEffectCommitTreeFrame(u8 *effect)
 // FUN_00485870
 void mdlEffectFlushTreeFrame(u8 *effect)
 {
-    extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *value, u_long128 *output);
-    extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *value, u_long128 *output);
+    extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output);
+    extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output);
     extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
     /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
      * 0x90-byte root. The union keeps field and quadword transfers in the

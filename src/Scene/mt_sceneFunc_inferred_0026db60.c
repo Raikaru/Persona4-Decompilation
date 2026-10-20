@@ -13,12 +13,12 @@ extern void MT_Scene_StopShake();
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 MT_SceneManager_TaskUpdate(u8 *task);
+extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
-extern void MT_Scene_ShakeStopTask(u8 *task);
-extern s32 MT_SceneManager_DrawUpdate(u8 *task);
+extern void MT_Scene_ShakeStopTask(u8 *unusedTask);
+extern s32 MT_SceneManager_DrawUpdate(u8 *unusedTask);
 extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 extern void mtSceneDrawSortedUnits(u8 *resource);
 extern void MT_Scene_UpdateShake(void);
@@ -50,10 +50,10 @@ typedef struct {
     s32 field20;
 } Code1_00263220State;
 
-extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
+extern void PrimDrawContour(f32 x, f32 y, f32 depth,
                           s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
                           s32 originX, s32 originY,
-                          f32 fparg3, f32 fparg4, f32 fparg5);
+                          f32 rotation, f32 scaleX, f32 scaleY);
 extern char iGpffffa6c4;
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern u8 D_00881530[];
@@ -79,10 +79,10 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void calDrawWeather(s32 x, s32 y, f32 fparg0, u8 opacity,
-                           s32 weather, s32 highlight, f32 fparg1, f32 fparg2,
+extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity,
+                           s32 weather, s32 highlight, f32 scaleX, f32 scaleY,
                            s32 clipLeft, s32 clipWidth, s32 font,
-                           s32 arg_sp0);
+                           s32 forcedHighlight);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
 extern s32 D_008815B0[];

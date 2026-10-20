@@ -4,7 +4,7 @@
 #include "itf_mes_objects.h"
 #include "message_procedure_api.h"
 
-extern void kAssertFail(const void *module, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern char D_0063BF60[];
 
 /* Read one of the four procedure parameters for a window handle. */

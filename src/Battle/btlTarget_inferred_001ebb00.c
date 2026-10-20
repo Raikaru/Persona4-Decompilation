@@ -9,7 +9,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
 extern void btlCameraLookAtQuat(void *out, const void *first,
-                          const void *second, const void *up);
+                          const void *second, const void *config);
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
@@ -18,7 +18,7 @@ static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
     return (u8 *)((u32)offset + (u32)base);
 }
 
-extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
+extern s32 datCalcThresholdTrigger(u8 *unit, s32 skillId);
 extern s32 datCalcDefaultSkillId(u8 *unit);
 
 extern u8 *iGpffffb3ac;

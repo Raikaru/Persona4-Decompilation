@@ -6,17 +6,17 @@
 #include "datCalc_unit_internal.h"
 #include "btl_sound_internal.h"
 #include "h_cdvd_request_internal.h"
-extern u8 *mdlEffectBuildFromResource(u8 *resource);
-extern s32 sdkSndStartStream(s16 index, s16 stream, s16 option, s16 extra);
-extern s32 btlCond_ESCAPE(u8 *input, s32 value);
+extern u8 *mdlEffectBuildFromResource(u8 *effect);
+extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
+extern s32 btlCond_ESCAPE(u8 *action, s32 conditionValue);
 
 extern BtlBattleState* iGpffffb3ac; /* active battle state */
 extern void sdkSndStopMainChannel(void);
-extern void sdkSndStopChannel(s32 fadeDuration);
+extern void sdkSndStopChannel(s32 fadeFrames);
 
-extern void sdkSndFadeOutChannelFrames(s16 channel, s32 unused, s32 fadeFrames);
+extern void sdkSndFadeOutChannelFrames(s16 channelIndex, s32 requestValue, s32 fadeFrames);
 
-extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
+extern BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 extern void btlSoundRefreshSlotChannel(void* work);
 extern u32 btlSoundSetSlotChannel(void* work);
 
@@ -45,23 +45,23 @@ extern char sGpffffa4F8[7];
 extern char DAT_00624F40[15];
 extern char D_00624F20[];
 extern char D_00624F30[];
-extern u8 sdkSndStartChannel(s16 channelIndex, const char* name);
+extern u8 sdkSndStartChannel(s16 channelIndex, const char* path);
 extern u8 *D_0076449C;
 
 extern void func_00440b68(const char* fmt, const char* file, s32 line);
 extern void* H_Cdvd_AcquireDirectory(const char* path, s32 flags);
-extern s32 H_Cdvd_IsFileLoaded(void* handle);
-extern void H_Cdvd_Destroy(void* handle);
-extern u8* H_Cdvd_GetArchiveEntry(u8* handle, s32 index, s32* out);
-extern s32 sdkSndQueueSlotRequest(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
-extern s32 hsndSlotIsStarting(s32 bank);
+extern s32 H_Cdvd_IsFileLoaded(void* cdvd);
+extern void H_Cdvd_Destroy(void* cdvd);
+extern u8* H_Cdvd_GetArchiveEntry(u8* request, s32 entryIndex, s32* size);
+extern s32 sdkSndQueueSlotRequest(s32 slotIndex, void* input, u32 inputSize, void* intermediate, u32 intermediateSize, void* output, u32 outputSize);
+extern s32 hsndSlotIsStarting(s32 slotIndex);
 
 extern u32 strlen(const char* text);
 extern u32 btlSoundLoadStream(u16* work);
 extern void strcpy(char* destination, const char* source);
 extern u32 btlSoundClearUnitFlag10(void* work);
 extern u32 btlSoundSetUnitFlag10(void* work);
-extern u32 btlVoiceEnablePlaybackPacketUpdate(void* work);
+extern u32 btlVoiceEnablePlaybackPacketUpdate(void* context);
 
 
 
@@ -397,32 +397,32 @@ void btlSoundCreateWaitPacket(void)
     work[1] = 0;
 }
 extern s32 btlCdvdLoadPoll(void);
-extern s32 btlSoundLoadPoll(s32 *input);
+extern s32 btlSoundLoadPoll(s32 *progress);
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
     return offset + base;
 }
 extern u8 *iGpffffb3b8;
-extern s32 btlSoundLoadPoll(s32 *input);
+extern s32 btlSoundLoadPoll(s32 *progress);
 extern s32 btlSoundStopStep(void);
 extern s32 btlSoundReleaseStep(void);
-extern void mdlEffectDestroyWithNodes(s32 input);
-extern void mdlEffectUpdateChildren(s32 input);
-extern void taskRecordRequestPrimary(s32 input);
+extern void mdlEffectDestroyWithNodes(s32 effect);
+extern void mdlEffectUpdateChildren(s32 effect);
+extern void taskRecordRequestPrimary(s32 task);
 extern void memcpy(void *input, void *value, u32 option);
 extern void func_001fa490(void);
 extern s32 btlCdvdLoadPoll(void);
-extern s32 btlUnitStatusWindowShow(u8 *input, s16 value);
-extern s32 btlTaskSlotIsLinked(s32 input);
+extern s32 btlUnitStatusWindowShow(u8 *action, s16 slotIndex);
+extern s32 btlTaskSlotIsLinked(s32 slotIndex);
 extern s32 btlTaskSlotIsSet(void);
-extern s32 taskRecordIsDone(s32 input);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *input);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *input);
+extern s32 taskRecordIsDone(s32 task);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *action);
 extern void btlSoundAdvanceSlotQueue(void);
-extern s32 btlSoundPickPartnerCallVoice(u8 *input, s32 value);
-extern s32 btlSoundPickPartnerReplyVoice(u8 *input, s32 value);
-extern s32 btlSoundPickPartnerAssistVoice(u8 *input, s32 value);
-extern s32 btlSoundPickRandomPartnerVoice(u8 *input);
-extern s32 btlVoiceIdPacketUpdate(u8 *input);
+extern s32 btlSoundPickPartnerCallVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickRandomPartnerVoice(u8 *action);
+extern s32 btlVoiceIdPacketUpdate(u8 *context);
 #pragma push
 #pragma pop
 /* measured: retail materialises this loop's invariant in the preheader; plain
@@ -498,13 +498,13 @@ u8 *btlSoundLoadPacketNew(const void *request) {
 // FUN_001FA7A0
 s32 btlSoundLoadPoll(s32 *progress)
 {
-    extern void taskRecordRequestSecondary(s32 progress);
-    extern s32 mdlEffectIsFinished(s32 progress);
+    extern void taskRecordRequestSecondary(s32 task);
+    extern s32 mdlEffectIsFinished(s32 effect);
     extern s32 TnGetTableBase(void);
-    extern void TnSetTableBase(void *progress);
-    extern void mdlEffectCommitTreeFrame(s32 progress);
-    extern void mdlEffectFlushTreeFrame(u8 *progress);
-    extern void mdlEffectDestroyWithNodes(s32 progress);
+    extern void TnSetTableBase(void *table);
+    extern void mdlEffectCommitTreeFrame(s32 effect);
+    extern void mdlEffectFlushTreeFrame(u8 *effect);
+    extern void mdlEffectDestroyWithNodes(s32 effect);
     extern u8 D_005DC8CC[];
     void *savedTable;
     s32 task;
@@ -774,8 +774,8 @@ void btlEncounterSetSequence(s32 start, s32 update, s32 argument)
 // FUN_001FAE80
 s32 btlActionEscapeCondition(u8 *action, s32 skillId)
 {
-    extern void btlEffectCollectTargetUnits(u8 *action, u8 *skillId, u8 option, u8 extra,
-                              u32 flags);
+    extern void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u8 sideFlags, u8 filterFlags,
+                              u32 statusMask);
     u8 targetBuffer[0x38];
     s32 skillOffset;
     u8 *skill;
@@ -812,7 +812,7 @@ s32 btlActionEscapeCondition(u8 *action, s32 skillId)
 // FUN_001FAF70
 s32 btlActionBuffCondition(u8 *action, s32 skillId, s32 targetMode)
 {
-    extern s32 datCalcSkillEffectFlags(s32 action, u8 *skillId, u8 *targetMode, s32 extra);
+    extern s32 datCalcSkillEffectFlags(s32 skillId, u8 *source, u8 *target, s32 options);
     s32 effectMask;
     u32 bitIndex;
     u32 targetIndex;

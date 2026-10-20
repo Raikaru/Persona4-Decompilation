@@ -12,9 +12,9 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void chkmemAllocSiteTag();
 
-s32 fadeTaskStep(u8 *task);
-void fadeTaskDestroy(u8 *task);
-s32 fadeQueueCallback(u8 *task);
+s32 fadeTaskStep(u8 *unusedTask);
+void fadeTaskDestroy(u8 *unusedTask);
+s32 fadeQueueCallback(u8 *unusedTask);
 
 extern char D_005E5090[];
 extern char iGpffffb1d8;

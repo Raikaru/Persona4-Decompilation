@@ -5,12 +5,12 @@
 #include "ed_staff_internal.h"
 #include "ed_scroll_internal.h"
 
-extern void frFontListKeepOrRelease(u32 resource);
+extern void frFontListKeepOrRelease(u32 list);
 
-extern void frFontMoveListTo(u32 resource, s32 x, s32 y);
-extern void frFontExSetScale(u32 resource, f32 angle);
+extern void frFontMoveListTo(u32 list, s32 x, s32 y);
+extern void frFontExSetScale(u32 font, f32 scale);
 
-extern void frFontSetGlyphColor(u32 resource, u32 color);
+extern void frFontSetGlyphColor(u32 list, u32 color);
 
 extern void kAssertFail(const char *file, s32 line);
 extern char D_0064F220[];
@@ -25,9 +25,9 @@ extern u32 edScrollShortHoldEnabled(void);
 extern u32 edResGetStream(void);
 extern s32 strlen(const char *text);
 extern void strncpy(void *dst, const void *src, s32 size);
-extern void frFontSetFlagBits(s32 mode);
-extern void frFontClearFlagBits(s32 mode);
-extern s32 frFontNodeWidth(u32 handle);
+extern void frFontSetFlagBits(s32 bits);
+extern void frFontClearFlagBits(s32 bits);
+extern s32 frFontNodeWidth(u32 node);
 
 typedef struct EdColor {
     u8 r;

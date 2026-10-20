@@ -48,7 +48,7 @@ typedef struct KWindowEntry
     struct KWindowEntry* next;      /* 0x228 */
 } KWindowEntry;
 
-extern KWindowEntry* sdkLboxFindEntry(KwlnTask* task, s32 id);
+extern KWindowEntry* sdkLboxFindEntry(KwlnTask* task, s32 key);
 extern void strcpy(void* destination, const char* source);
 extern void sdkLboxRecalcLayout(KwlnTask* task);
 

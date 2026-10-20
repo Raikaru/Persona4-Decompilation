@@ -1,15 +1,15 @@
 /* Source unit: src/Kernel/Kwln/kwln_002519b0.c (1 function markers) */
 #include "type.h"
 
-extern void kwlnTaskGetWork(void* a0);
+extern void kwlnTaskGetWork(void* task);
 
 extern void itfMesFlushPending(void* a0);
 
-extern void yTimeLimitDraw(void* a0);
+extern void yTimeLimitDraw(void* task);
 
-extern void mcDrawDispatch(void* a0);
+extern void mcDrawDispatch(void* taskAddress);
 
-extern void pscModelDraw(void* a0);
+extern void pscModelDraw(void* model);
 
 
 

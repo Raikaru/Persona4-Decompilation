@@ -40,8 +40,8 @@ extern u8 D_00794C90[];
 extern char D_0063F0F0[];
 
 extern u8 *kwlnGetCamera(void);
-extern u8 *PrimQueueDrawPrimitive(void *a, s32 b, void *c, s32 d);
-extern u8 *sdkSpriteNewNode(u32 a, u32 b);
+extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count);
+extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
 extern void memset(void *dst, s32 value, u32 size);
 extern char D_0063EFD8[];
 extern void RpSkyRenderStateSet(s32 a, s32 b);
@@ -60,16 +60,16 @@ extern f32 D_008872F8[];
 extern u8 D_00794D50[];
 extern void smapDrawPanel(s32, u8 *);
 extern void smapSetRenderStates(void);
-extern void chkmemAllocSiteTag(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 
 
-extern void PrimAppendNode(void *param, void *work);
+extern void PrimAppendNode(void *list, void *node);
 extern void func_00440b68();
-extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
-extern s32 hMaestroDecodeIsReady(s32 param);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+extern s32 hMaestroDecodeIsReady(s32 state);
 extern s32 sdkSpriteRequestLoad(const u8 *name);
 extern void sdkSpriteFreeNode(void *node);
-extern void kAssertFail(void *msg, s32 id);
+extern void kAssertFail(void *file, s32 line);
 extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern s32 filerTakeCompletedRequest(s32, s32 *, s32);
 extern s32 smapLoadStep(u8 *task);
@@ -165,7 +165,7 @@ extern s32 fclPackRgba(u8, u8, u8, u8);
 extern void fclAnchorOffset(f32 *, s64, f32, f32, f32, f32);
 extern u8 *MT_Scene_GetFrameState(void);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern void smapDrawQuad(u8 *task, YVec2f position, f32 fparg0, f32 fparg1, f32 fparg2, u8 origin, f32 fparg3, s32 color, s8 orientation, s32 layer);
+extern void smapDrawQuad(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, u8 origin, f32 scale, s32 color, s8 orientation, s32 layer);
 extern u8 D_00794DB0[];
 extern u8 D_00794CF0[];
 extern u8 D_0076465C;   /* gp-relative, -0x4A94 */

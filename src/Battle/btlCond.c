@@ -17,14 +17,14 @@ static inline s32 p4_001da5f0_xor(s32 left, s32 right)
     return left ^ right;
 }
 
-extern s32 datCalcIsDead(u8 *input, s32 value);
-extern s32 datCalcGetLevel(u8 *input);
-extern u32 datCalcChkBadStatus(s32 input, u32 value);
-extern u16 datCalcGetHp(u8 *input);
-extern u16 datCalcMaxHp(u8 *input);
-extern u16 datCalcMaxSp(u8 *input);
-extern s32 datCalcGetAffinity(u8 *input, s32 value);
-extern s32 datCalcSkillElement(u8 *input, u16 value);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
+extern s32 datCalcGetLevel(u8 *unit);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+extern u16 datCalcGetHp(u8 *unit);
+extern u16 datCalcMaxHp(u8 *unit);
+extern u16 datCalcMaxSp(u8 *unit);
+extern s32 datCalcGetAffinity(u8 *unit, s32 elementIndex);
+extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
 extern s32 func_0023df20(s32 input);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -878,7 +878,7 @@ bool btlCond_MYID(int action, int conditionValue)
 // FUN_001DACE0
 s32 btlCond_FRALLHP(u8 *action, s32 conditionValue)
 {
-    extern u16 datCalcGetHp(u8 *action);
+    extern u16 datCalcGetHp(u8 *unit);
     u8 *currentAction;
     u8 *unitWork;
     u16 actionFlags;
@@ -916,7 +916,7 @@ loop_test:
 // FUN_001DAE00
 s32 btlCond_ENALLHP(u8 *action, s32 conditionValue)
 {
-    extern u16 datCalcGetHp(u8 *action);
+    extern u16 datCalcGetHp(u8 *unit);
     u8 *currentAction;
     u8 *unitWork;
     u16 actionFlags;

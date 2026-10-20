@@ -11,11 +11,11 @@
 #include "scene_event_internal.h"
 extern s32 iGpffffb4bc; /* deferred layout pending */
 extern s32 iGpffffa730; /* decoded audio/deferred-layout duration */
-extern s32 frFontCountRuns(u8 *value);
+extern s32 frFontCountRuns(u8 *node);
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 MT_SceneManager_TaskUpdate(u8 *task);
+extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
@@ -47,10 +47,10 @@ static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
-extern void PrimDrawContour(f32 firstFloat, f32 secondFloat, f32 thirdFloat,
-                          s32 value, s32 otherValue, s32 thirdValue, s32 fourthValue,
-                          s32 fifthValue, s32 sixthValue,
-                          f32 fourthFloat, f32 fifthFloat, f32 sixthFloat);
+extern void PrimDrawContour(f32 x, f32 y, f32 depth,
+                          s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
+                          s32 originX, s32 originY,
+                          f32 rotation, f32 scaleX, f32 scaleY);
 extern char iGpffffa6c4;
 extern u8 D_00881530[];
 extern u8 D_0063BA30[];
@@ -68,7 +68,7 @@ static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
 
 extern u8 D_00637420[];
 
-extern s32 datEntryGetFlags(s16 value);
+extern s32 datEntryGetFlags(s16 itemId);
 
 
 
@@ -78,33 +78,33 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void frFontSetStateBits(u32 value, int otherValue);
-extern void datSetFlag(s32 value, s32 otherValue);
+extern void frFontSetStateBits(u32 bits, int enable);
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern s32 cmmCommunityGetCurrentId(void);
-extern void cmmCommunitySetReversed(s32 value);
-extern void cmmCommunityClearReversed(s32 value);
-extern s32 cmmCommunityAddScaledPoints(s32 value, u32 otherValue);
-extern void calDrawWeather(s32 value, s32 otherValue, f32 firstFloat, u8 thirdValue,
-                           s32 fourthValue, s32 fifthValue, f32 secondFloat, f32 thirdFloat,
-                           s32 sixthValue, s32 seventhValue, s32 eighthValue,
-                           s32 arg_sp0);
+extern void cmmCommunitySetReversed(s32 communityId);
+extern void cmmCommunityClearReversed(s32 communityId);
+extern s32 cmmCommunityAddScaledPoints(s32 communityId, u32 points);
+extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity,
+                           s32 weather, s32 highlight, f32 scaleX, f32 scaleY,
+                           s32 clipLeft, s32 clipWidth, s32 font,
+                           s32 forcedHighlight);
 extern u32 frFontGetMode(void);
 extern void frFontLayoutText(u8 *text, u8 *context);
-extern u32 datGetItemNameId(s16 id);
+extern u32 datGetItemNameId(s16 itemId);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
-extern s32 sdkSndStartIndexedSource(s32 value, s32 otherValue, s32 thirdValue);
-extern s32 sdkSndStartChannel(s16 value, const char *otherValue);
+extern s32 sdkSndStartIndexedSource(s32 sourceAux, s32 channelIndex, s32 cueId);
+extern s32 sdkSndStartChannel(s16 channelIndex, const char *path);
 extern s32 D_008815B0[];
-extern void frFontUpdateTextWork(u8 *value);
-extern void frFontLayoutSlotText(s32 value, u8 *otherValue);
+extern void frFontUpdateTextWork(u8 *context);
+extern void frFontLayoutSlotText(s32 index, u8 *context);
 extern u8 iGpffffa734;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026e350-0026f860 */
 
 extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
-extern s32 mtSceneUnitDepthCompare(u8 **value, u8 **otherValue);
+extern s32 mtSceneUnitDepthCompare(u8 **left, u8 **right);
 extern f32 D_007612C4;
 /* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are
  * struct copies; each loop's i = 0 precedes the invariant scale products,

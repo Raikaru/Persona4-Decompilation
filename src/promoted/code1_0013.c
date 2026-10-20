@@ -58,13 +58,13 @@ extern s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex);
 extern s32 datItemCount(s16 itemId);
 extern void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId);
 extern void radarResetAndSetIndices(u8 *work, s16 sourceIndex, s16 targetIndex);
-extern void sdkSpriteDrawAt(void *sprite, f32 fparg0, f32 fparg1,
+extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,
                           u8 red, u8 green, u8 blue, u8 alpha);
-extern void sdkSpriteDrawSized(u8 *sprite, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
                           u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
-                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 extern void radarDrawHeaderFrame(u8 *work, PackedVec2f position, u8 alpha, u16 flags);
-extern void datEntryDrawRow(Vec2f position, f32 fparg0, u8 opacity, u8 *inputEntry);
+extern void datEntryDrawRow(Vec2f position, f32 inputDepth, u8 opacity, u8 *inputEntry);
 extern void datPanelResetCursor(u8 *entry);
 extern void datPanelDrawByKind(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 fullName);
 extern s32 datCalcGetLevelById(s32 unitId);

@@ -36,7 +36,7 @@ extern u8 *nmListAllocManager(s32, int (*)(), int (*)(), int (*)());
 
 extern u8 D_0063F398[];
 extern u8 D_00882F30[];
-extern s32 msgAssistUpdate(u8 *task);
+extern s32 msgAssistUpdate(u8 *unusedTask);
 extern void kAssertFail(void *, s32);
 extern char D_0063F2A0[];
 extern void fclMiscReleaseHandle(int *);

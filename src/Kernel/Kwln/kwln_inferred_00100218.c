@@ -214,7 +214,7 @@ void kwlnInitIop(void)
     extern s32 sceSifSyncIop(void);
     extern void func_004214c0(s32, s32 (*cb)(s32), s32);
     extern void func_00422328(s32);
-    extern s32 func_0042ab68(const u8 *path, s32 a1, const u8 *a2);
+    extern s32 func_0042ab68(const u8 *a0, s32 a1, const u8 *a2);
     extern void sdkPadInit(void);
     extern void memcardInitBackend(void);
     extern s32 func_004216d0(void);

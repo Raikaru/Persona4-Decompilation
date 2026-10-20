@@ -9,13 +9,13 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F5718[];
 extern u8 D_00763098;
 
-extern void chkmemAllocSiteTag(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 
-extern void mdlDestroyModelObject(s32 handle);
+extern void mdlDestroyModelObject(s32 model);
 extern void *memset(void *dest, s32 value, s32 size);
-extern void sequenceRequest(s32 id, void *data, s32 size, s32 flag);
+extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 extern s32 *MT_Scene_GetFrameState(void);
-extern s32 FldLoadTaskIsDone(s32 handle);
+extern s32 FldLoadTaskIsDone(s32 task);
 extern s32 mtSceneResListPrepareAll(void);
 
 extern s32 K_Test_LauncherUpdate(u8 *task);

@@ -601,7 +601,7 @@ void radarResetIndicator(u8 *);
 // FUN_0013BCF0
 /* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 s32 radarItemMenuUpdate(u32 *state, s32 *active, u8 *work) {
-    extern s32 radarPushHistoryValue(s32 state, s32 active, s32 work);
+    extern s32 radarPushHistoryValue(s32 menuAddress, s32 selectionIndex, s32 selection);
     u8 listState[0x30];
     f32 fadeAlpha;
     f32 fadeValue;
@@ -1067,7 +1067,7 @@ void radarRandomizeEntries(u8 *);
 /* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 s32 radarApplyItemStep(s16 source, s16 recipientId, u8 *work)
 {
-    extern void titleCollectFlaggedIds(u8 *source);
+    extern void titleCollectFlaggedIds(u8 *menu);
     extern u8 D_005ED9D0[];
     s32 state;
     s16 item;
@@ -1286,20 +1286,20 @@ void radarSetPersonaHighlight(u8 *work, s32 mode) {
 // FUN_0013D8B0
 /* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 s32 radarPersonaMenuUpdate(u32 *state, s32 *active, u8 *work) {
-    extern void radarBeginRecipientPick(u8 *state, s32 *active);
-    extern void cmpPersonaMenuInit(u8 *state);
-    extern s32 cmpPersonaStateStep(u8 *state);
-    extern s32 cmpPersonaRowsSettled(u8 *state);
-    extern void cmpPersonaMenuRelease(u8 *state);
-    extern void cmpPersonaSetMode(u8 *state, s32 active);
-    extern void datScreenWipeSetTextureId(u8 *state, s32 active);
-    extern void cmpPersonaStartScreenWipe(u8 *state, s32 a, s32 b, s32 c);
+    extern void radarBeginRecipientPick(u8 *work, s32 *state);
+    extern void cmpPersonaMenuInit(u8 *work);
+    extern s32 cmpPersonaStateStep(u8 *work);
+    extern s32 cmpPersonaRowsSettled(u8 *work);
+    extern void cmpPersonaMenuRelease(u8 *work);
+    extern void cmpPersonaSetMode(u8 *work, s32 mode);
+    extern void datScreenWipeSetTextureId(u8 *task, s32 textureId);
+    extern void cmpPersonaStartScreenWipe(u8 *task, s32 presetOrColor, s32 initialize, s32 reverse);
     extern void shdPersonaSetDisplayState(u8 *state, s32 active, u32 work, s8);
-    extern void cmpPersonaSetPartyCursor(u8 *state);
-    extern void cmpPersonaResetRosterCursor(u8 *state);
-    extern void cmpPersonaScatterGridCells(u8 *state);
-    extern void shdPersonaStartSlideIn(u8 *state);
-    extern void radarSetPersonaHighlight(u8 *state, s32 active);
+    extern void cmpPersonaSetPartyCursor(u8 *work);
+    extern void cmpPersonaResetRosterCursor(u8 *work);
+    extern void cmpPersonaScatterGridCells(u8 *work);
+    extern void shdPersonaStartSlideIn(u8 *task);
+    extern void radarSetPersonaHighlight(u8 *work, s32 mode);
     u8 listState[0x30];
     f32 fadeAlpha;
     f32 fadeValue;
@@ -1681,14 +1681,14 @@ s32 radarBeginCharacterPick(u8 *work, s32 *state) {
 // FUN_0013EA20
 /* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 s32 radarRecipientMenuUpdate(u32 *state, s32 *active, u8 *work) {
-    extern void cmpSkillMenuInit(u8 *state);
-    extern u32 datCalcIsDeadById(s16 character);
-    extern s32 cmpSkillStateStep(u8 *state);
-    extern s32 cmpSkillRowsSettled(u8 *state);
-    extern void cmpSkillFreeSprites(u8 *state);
-    extern void cmpSkillSetPartyCursorMotion(u8 *state);
-    extern void cmpSkillLayoutScrollRows(void *state);
-    extern void cmpSkillBuildAbilityList(void *state);
+    extern void cmpSkillMenuInit(u8 *work);
+    extern u32 datCalcIsDeadById(s16 unitId);
+    extern s32 cmpSkillStateStep(u8 *work);
+    extern s32 cmpSkillRowsSettled(u8 *work);
+    extern void cmpSkillFreeSprites(u8 *work);
+    extern void cmpSkillSetPartyCursorMotion(u8 *work);
+    extern void cmpSkillLayoutScrollRows(void *work);
+    extern void cmpSkillBuildAbilityList(void *work);
     extern void radarHandleEntryAction(s32 *state, s16 active, s32 work, u8 *);
     u8 query[0x30];
     f32 alpha;

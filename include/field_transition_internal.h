@@ -8,12 +8,12 @@
 s32 FldLoadTaskFieldId(u8 *task);
 s32 FldLoadTaskRoomId(u8 *task);
 s32 FldLoadTaskMapState(u8 *task);
-s32 FldEnvStateFromCalendar(s32 field, s32 room);
-s32 FldEnvResolveState(s32 field, s32 room, s32 condition);
+s32 FldEnvStateFromCalendar(s32 fieldKind, s32 baseState);
+s32 FldEnvResolveState(s32 fieldKind, s32 baseState, s32 condition);
 
 /* Field IDs travel as words; the file provider explicitly selects low 16 bits. */
 u8 *FldHbnOpenTable(s32 fieldId, s32 roomId);
 
 /* Creates the field-area task and returns the registration handle. */
-s32 FldNoiseTaskCreate(u8 *parent);
+s32 FldNoiseTaskCreate(u8 *task);
 #endif

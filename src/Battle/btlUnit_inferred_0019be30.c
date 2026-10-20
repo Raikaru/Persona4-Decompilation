@@ -130,8 +130,8 @@ extern f32 DAT_0076112c;
 
 
 
-extern s32 btlUnitResourceFreePacketUpdate(u8 *data);
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern s32 btlUnitResourceFreePacketUpdate(u8 *packetWork);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
@@ -145,7 +145,7 @@ extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void mdlRunDataCallback(void *model);
 extern s32 mdlSeUpdateRecord(void **owner);
-extern void btlUnitResourceClearFlag(s32 data);
+extern void btlUnitResourceClearFlag(s32 units);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];

@@ -19,8 +19,8 @@ typedef struct HsndSlotWork
     u32 data5;               /* 0x24 */
 } HsndSlotWork;
 
-extern void sdkSndLoadDecodeFiles(s16 param1, s16 param2);
-extern s32 sdkSndIsDecodeSlotReady(s16 param1);
+extern void sdkSndLoadDecodeFiles(s16 index, s16 fileIndex);
+extern s32 sdkSndIsDecodeSlotReady(s16 index);
 
 extern u8 sdkSndPlayCue(s16 id, s32 unused);
 

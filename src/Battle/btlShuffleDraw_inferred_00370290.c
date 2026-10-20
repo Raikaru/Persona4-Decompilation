@@ -9,7 +9,7 @@ extern void func_003e42a0(void *, void *, void *);
 extern void func_003e0f40(void *);
 extern void RwV3dNormalize(f32 *, f32 *);
 extern u32 RpRandom(void);
-extern void btlShuffleCalcBuildBezierTangents(u8 *points, f32 *displacement, f32 fparg0);
+extern void btlShuffleCalcBuildBezierTangents(u8 *points, f32 *displacement, f32 tangentLength);
 extern void func_003dc740(void *, void *, f32 fparg0, s32);
 /* Construct the inner Bezier control points from an endpoint displacement and perpendicular tangent. */
 // FUN_00370290

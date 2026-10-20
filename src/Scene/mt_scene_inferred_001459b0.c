@@ -110,7 +110,7 @@ extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern u8 *resrcMngCreateRes(s32 resManager, s32 resTypeId);
 extern u8 *resrcMngFindResById(u8 *manager, u16 resourceId);
-extern void Vpad_BuildRotatedQuad(u8 *vertices, const u8 *translation, f32 fparg0, f32 fparg1, f32 fparg2);
+extern void Vpad_BuildRotatedQuad(u8 *vertices, const u8 *translation, f32 width, f32 depth, f32 angle);
 extern u8 *func_003e0f80(void);
 extern void memcpy(void *dest, const void *src, s32 size);
 extern void resrcMngDestroyRes();
@@ -155,9 +155,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *sprite, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
                           u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
-                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;

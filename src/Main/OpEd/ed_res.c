@@ -12,16 +12,16 @@ extern char D_0064F250[];
 extern char D_0064F260[];
 
 extern void kAssertFail(const char *file, s32 line);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 /* Defined below in this file; called at line 33, above its definition. */
 extern void edResFreeText(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
-extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
-extern u8 *H_Cdvd_GetArchiveEntry(u8 *resource, s32 index, s32 *size);
-extern void H_Cdvd_Destroy(u8 *ptr);
-extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
+extern s32 H_Cdvd_IsFileLoaded(u8 *cdvd);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
+extern void H_Cdvd_Destroy(u8 *cdvd);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern void frFontSlotLoadData(s32 slot, u8 *data);
+extern void frFontSlotLoadData(s32 slot, u8 *fontData);
 extern void frFontSlotFree(s32 slot);
 
 // Intent: Release the loaded resource and clear the work pointer [inferred]

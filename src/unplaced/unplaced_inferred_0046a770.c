@@ -25,7 +25,7 @@ typedef struct SdkSpriteAttachment {
     s16 offsetX, offsetY;
 } SdkSpriteAttachment;
 
-extern void sdkSpriteLoadStep(u8 *resource);
+extern void sdkSpriteLoadStep(u8 *pack);
 extern u8 *D_00724C08;
 extern s32 strcmp(const char *a, const char *b);
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */

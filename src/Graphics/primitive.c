@@ -290,13 +290,13 @@ typedef struct RtAnimAnimation {
 
 // retail data at 0x00761118 (gp-relative float, P3 name fGpffff8028)
 extern float fGpffff8028;
-extern f32 func_0044b920(f32 weight); // P3 FUN_0052e9e8 (acosf)
+extern f32 func_0044b920(f32 value); // P3 FUN_0052e9e8 (acosf)
 extern f32 sinf(f32 angle);   // P3 FUN_0052e878 (sinf)
 
 extern void PrimInterpSlerp(void* destination, void* startFrame, void* endFrame, f32 weight);
 
 extern void* func_003df1a0(void* stream, const void* buf, u32 size); // P3 FUN_004c1750
-extern void* func_003df240(void* stream, const void* buf, u32 size); // P3 FUN_004c17f0
+extern void* func_003df240(void* stream, const void* ints, u32 numBytes); // P3 FUN_004c17f0
 
 /* RtAnimInterpolatorInfo callback slots, in the retail 0x30-byte order. */
 typedef void (*PrimApplyCallback)(void*, void*);
@@ -325,14 +325,14 @@ typedef struct
 } PrimDesc;
 
 extern void PrimInterpToMatrix(void* result, void* frame);
-extern void* func_003df300(void* stream, void* buf, u32 size);
+extern void* func_003df300(void* stream, void* ints, u32 numBytes);
 extern void* func_003df360(void* stream, void* buf, u32 size);
-extern void PrimInterpByTime(void* destination, void* startFrame, void* endFrame, f32 weight, void* customData);
-extern void PrimInterpCompose(void* out, void* first, void* second);
-extern void PrimInterpDelta(void* weight, void* destination);
-extern void* PrimDeserializeEntries(void* weight, void* destination);
-extern s32 PrimSerializeEntries(const void* weight, void* destination);
-extern s32 PrimEntryTableBytes(void* weight);
+extern void PrimInterpByTime(void* destination, void* startFrame, void* endFrame, f32 time, void* customData);
+extern void PrimInterpCompose(void* destination, void* first, void* second);
+extern void PrimInterpDelta(void* destination, void* source);
+extern void* PrimDeserializeEntries(void* stream, void* animation);
+extern s32 PrimSerializeEntries(const void* animation, void* stream);
+extern s32 PrimEntryTableBytes(void* animation);
 extern s32 func_003d5000(PrimDesc* desc); // Registers a 0x30-byte RtAnim scheme.
 
 

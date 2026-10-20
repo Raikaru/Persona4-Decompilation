@@ -18,15 +18,15 @@ typedef struct {
     f32 color[4];
     u8 pad2[16];
 } PrimVertex;
-extern void chkmemAllocSiteTag(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s64 iGpffffabe8;
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *param, void *work);
-extern void PrimBuildRotatedRectangle(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4, f32 f1, f32 f2, f32 f3);
+extern void PrimAppendNode(void *list, void *node);
+extern void PrimBuildRotatedRectangle(void *output, void *colorData, void *rectangle, f32 depth, s32 offsetX, s32 offsetY, f32 angle, f32 scaleX, f32 scaleY);
 extern void PrimBuildTransformedVertices(PrimVertex *out, const u8 *colors, const void *positions,
                           f32 depth, u32 count, s32 offsetX, s32 offsetY,
                           f32 rotation, f32 scaleX, f32 scaleY);

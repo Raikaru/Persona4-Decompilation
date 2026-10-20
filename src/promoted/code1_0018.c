@@ -101,21 +101,21 @@ extern s16 iGpffffb398;
 extern s16 iGpffffb39c;
 extern s16 iGpffffb3a0;
 extern s32 iGpffffb3a4;
-extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
+extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 extern const KWindowEntryDescriptor D_005F5830[];
 extern const KWindowEntryDescriptor D_005F5730[];
 extern u8 D_007E3720[];
 extern u8 D_007966D0[];
 extern s64 iGpffff9fd0;
 extern s32 iGpffffb240;
-extern void FldBoardGenerate(s32 mode, s32 value, s32 unused);
+extern void FldBoardGenerate(s32 mode, s32 seed, s32 unused);
 extern void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
                            f32 x, f32 y, f32 depth, s32 flags);
 extern void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
-                          f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                          f32 fparg4, u8 *color, s32 texture,
-                          f32 fparg5, f32 fparg6, f32 fparg7, s32 orientation,
-                          f32 arg_sp0);
+                          f32 left, f32 top, f32 depthOffset, f32 width,
+                          f32 height, u8 *color, s32 texture,
+                          f32 uMin, f32 vMin, f32 uMax, s32 orientation,
+                          f32 vMax);
 extern void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
                           s32 height, s32 flags, f32 x, f32 y, f32 depth);
 extern u16 D_008C024E[];
@@ -129,14 +129,14 @@ extern s32 K_Clump_MatUsrDataHasData(u8 *material, u8 *name);
 extern struct RpMaterial *func_003c42b0(struct RpMaterial *material, RwTexture *texture);
 extern u8 D_005F5438[];
 extern s32 *MT_Scene_GetFrameState(void);
-extern void FldRc_SetPositionSlotLock(s32 a, s32 b, s32 c);
+extern void FldRc_SetPositionSlotLock(s32 task, s32 slotIndex, s32 locked);
 extern RwTexDictionary *func_003ef6d0(void);
 extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
 extern void RpSkyTextureSetMipmapK(s32 a, f32 fp);
 extern u8 D_005F5360[];
 extern u8 iGpffffb310;
 extern void memset(void *dst, s32 value, s32 size);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F5340[];
 extern u8 D_005F5350[];
@@ -1307,7 +1307,7 @@ extern s32 FldStepLoadHandleIsDone(u8 *handle);
 extern void FldStepLoadHandleDestroy(u8 *handle);
 extern s32 fldStepLoadHandleAlwaysReady(u8 *unusedHandle);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern void FldTileRotateAttributes(void *templateData, u32 mask);
+extern void FldTileRotateAttributes(void *templateData, u32 directionMask);
 typedef struct {
     s16 data[0x2B];
 } FieldPanelShape;

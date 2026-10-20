@@ -98,16 +98,16 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001fb480-001fb480 */
 
-extern s32 btlActionHasNoTargetClass(u32 color);
-extern s32 btlSoundRollStatusCure(u8 *color);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *color);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *color);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlSoundRollStatusCure(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *action);
 extern void btlSoundAdvanceSlotQueue(void);
-extern s32 btlSoundPickPartnerCallVoice(u8 *color, s32 blendMode);
-extern s32 btlSoundPickPartnerReplyVoice(u8 *color, s32 blendMode);
-extern s32 btlSoundPickPartnerAssistVoice(u8 *color, s32 blendMode);
-extern s32 btlSoundPickRandomPartnerVoice(u8 *color);
-extern s32 btlVoiceIdPacketUpdate(u8 *color);
+extern s32 btlSoundPickPartnerCallVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickRandomPartnerVoice(u8 *action);
+extern s32 btlVoiceIdPacketUpdate(u8 *context);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push

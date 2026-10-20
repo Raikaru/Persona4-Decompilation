@@ -3,9 +3,9 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_shuffle_state_internal.h"
-extern s32 btlShuffleDrawTableLookup(s32 context, s32 gridIndex);
-extern void btlShuffleDrawSetRotate(u8 *context, s32 gridIndex, f32 *pose);
-extern s32 btlShuffleCalcUpdateSpeed(u8 *context, u8 *gridIndex);
+extern s32 btlShuffleDrawTableLookup(s32 cardCount, s32 pattern);
+extern void btlShuffleDrawSetRotate(u8 *context, s32 cardIndex, f32 *output);
+extern s32 btlShuffleCalcUpdateSpeed(u8 *point, u8 *screen);
 extern f32 RwV2dLength(f32 *context);
 #pragma push
 #pragma opt_propagation on

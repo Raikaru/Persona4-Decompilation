@@ -46,7 +46,7 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
     return left + right;
 }
 
-extern s32 datItemCount(s16 arg);
+extern s32 datItemCount(s16 itemId);
 
 /* gp - 0x4C48 = 0x007690f0 - 0x4c48 = 0x007644a8 */
 extern u8 *iGpffffb3b8;
@@ -58,11 +58,11 @@ extern u8 *datEntryAt(s16 itemId);
 /* Old-style declaration: the retail call site at datCalcIsFlaggedPersonaSkill passes arg0 raw (no 64-bit extension). */
 u16 datCalcUnderlyingSkillId();
 
-extern u16 datCalcMaxHpById(s16 character);
-extern void datSetUnitHp(s16 character, s16 value);
-extern u16 datCalcMaxSpById(s16 character);
-extern void datSetUnitSp(s16 character, s16 value);
-extern void datCalcClearBadStatusById(s16 character, u32 mask);
+extern u16 datCalcMaxHpById(s16 unitId);
+extern void datSetUnitHp(s16 unitId, s16 hp);
+extern u16 datCalcMaxSpById(s16 unitId);
+extern void datSetUnitSp(s16 unitId, s16 sp);
+extern void datCalcClearBadStatusById(s16 unitId, u32 mask);
 
 extern u8 *datPersonaGetSkillsByPcId(u16 pcId);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
@@ -1639,7 +1639,7 @@ static inline u16 DCDamageAccessoryProperty(DatUnit *unit)
 static inline f32 DCDamageAccessoryFraction(DatUnit *unit)
 {
     /* Raw signed/unsigned unit loads are retained in this inline helper: struct access changed codegen in its expanded hit/damage callers. */
-    extern u16 datItemAccessoryPercent(s16 item);
+    extern u16 datItemAccessoryPercent(s16 itemId);
     s16 character;
     s32 percent;
     if (*(u16 *)unit & 4) {
@@ -2199,7 +2199,7 @@ s32 datCalcSkillRoll(s32 skillId, DatUnit *unitArg, s32 targetAddress)
        prototype other units use (see datScript.c), so the u8 return of
        datCalcGetBattleStat is not re-masked here; a block-scope declaration
        reproduces that split inside the merged unit. */
-    extern u32 datCalcGetBattleStat(DatUnit *statUnit, s32 statIndex);
+    extern u32 datCalcGetBattleStat(DatUnit *unit, s32 statIndex);
     f32 randomizedAmount;
     f32 luckFloat;
     f32 leadLuckFloat;
@@ -2322,8 +2322,8 @@ s32 options;
     s32 element;
     u8 active;
     s16 message;
-    extern s32 datCalcIsGuarding(u16 *unit);
-    extern s32 datCalcStatusElement(s32 skill, s32 mask);
+    extern s32 datCalcIsGuarding(u16 *unitFlags);
+    extern s32 datCalcStatusElement(s32 skillId, s32 statusMask);
 
     if ((skillId & 0xFFFF) >= 0x240) {
         kAssertFail(D_00635938, 0xA30);

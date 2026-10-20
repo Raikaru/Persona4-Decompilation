@@ -120,9 +120,9 @@ s64 nmMesWindowAcquire(void *message)
     s64 freeSlot;
     s32 index;
     s64 result;
-    extern s32 itfMesWindowInstall(s32 message);
-    extern s32 nmMesWindowApplyStyle(s32 *message, s32 style);
-    extern void chkmemAllocSiteTag(const void *message, s32 line);
+    extern s32 itfMesWindowInstall(s32 record);
+    extern s32 nmMesWindowApplyStyle(s32 *record, s32 style);
+    extern void chkmemAllocSiteTag(const void *file, s32 line);
 
     freeSlot = nmMesWindowFindFreeSlot();
     if (freeSlot == -1) {

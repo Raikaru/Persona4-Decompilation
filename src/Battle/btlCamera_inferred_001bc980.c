@@ -26,8 +26,8 @@ typedef struct BtlAction BtlAction;
 extern void (*D_00887300[])();
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
-extern void btlUnitSetFlags(u8 *value, s32 option);
-extern void btlUnitClearFlags(u8 *value, s32 option);
+extern void btlUnitSetFlags(u8 *unit, s32 flags);
+extern void btlUnitClearFlags(u8 *unit, s32 flags);
 extern void (*jtbl_008873EC[])(void *);
 extern f32 D_00922CA0[];
 extern f32 D_00922CA4[];
@@ -40,7 +40,7 @@ extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 
 extern u8 *D_0076449C;
-extern u8 *btlPacketAlloc(s32 size, s32 align);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
 extern u8 D_005F7000[];
@@ -49,8 +49,8 @@ extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *value);
 extern u32 iGpffffa0b8;
-extern void btlUnitGetSphereWorldCenter(u8 *value, f32 *option);
-extern void btlCameraSetupActionGeometry(u8 *value, u8 *option, f32 *data, f32 rate, u16 flags);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -63,10 +63,10 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 clearUnitFlags);
-extern void btlCameraLookAtQuat(void *value, const void *option, const void *data, const void *flags);
-extern void btlCameraCopyPose(f32 *value, f32 *option);
-extern void mdlBlendTranslationRotation(f32 *value, f32 *option, f32 *data, f32 flags);
-extern u32 btlMainCurveAppendKeyframe(u16 *value, f32 *option, f32 *data);
+extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
+extern void btlCameraCopyPose(f32 *destination, f32 *source);
+extern void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend);
+extern u32 btlMainCurveAppendKeyframe(u16 *curve, f32 *position, f32 *rotation);
 extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
@@ -92,7 +92,7 @@ extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
 
-void mdlEffectSetSequenceRequest(s32 value, s16 option, s32 data, s32 flags);
+void mdlEffectSetSequenceRequest(s32 sequence, s16 sequenceId, s32 firstValue, s32 secondValue);
 
 
 
@@ -103,7 +103,7 @@ void mdlEffectSetSequenceRequest(s32 value, s16 option, s32 data, s32 flags);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001bc980-001bd530 */
 
 extern s32 btlActionGetQueueSecond(void);
-extern void mdlBlendTranslationRotation(f32 *value, f32 *option, f32 *data, f32 fparg0);
+extern void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend);
 /* Index the action target list; the shared action type still exposes this region as bytes. */
 static inline u8 *cameraVisibilityTarget(u8 *action, u16 index)
 {
@@ -244,8 +244,8 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
 {
     extern void btlUnitSetFlags(BtlUnit *unit, u16 flags);
     extern void btlUnitClearFlags(BtlUnit *unit, u16 flags);
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, struct RwV3d *out);
-    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, struct RwV3d *dst);
+    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projection);
     struct {
         f32 first[2];
         f32 second[2];
@@ -416,7 +416,7 @@ outer_check:
 void btlCameraUpdateUnitInRangeFlags(void)
 {
     extern void btlUnitSetFlags();
-    extern s32 datCalcEnemyHasExtendedFlag(u8 *value);
+    extern s32 datCalcEnemyHasExtendedFlag(u8 *unit);
     extern f32 RwV3dLength(f32 *value);
     u8 *current;
     s32 counter;

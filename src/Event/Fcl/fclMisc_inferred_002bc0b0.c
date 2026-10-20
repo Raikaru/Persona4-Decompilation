@@ -41,8 +41,8 @@ extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
 extern void itfMesWindowDrawEntry(s32, s32, s32, s32, s32, s32);
-extern s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 color, s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex, u8 *queue);
-extern u32 datEntryGetFlags(s16 item);
+extern s32 itfMesWindowQueueEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex, u8 *queue);
+extern u32 datEntryGetFlags(s16 itemId);
 extern u8 *nmListAppendNode(u8 *manager, s32 owner, s32 payloadSize);
 extern void sprintf();
 extern s64 datGetDateIndex(void);
@@ -133,11 +133,11 @@ void fclMesWindowDrawItem(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode
 // FUN_002BC0E0
  s32 fclMesWindowDrawItemEntry(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 flags, s32 kind, s32 item)
 {
-    extern s32 datItemCount(s16 id);
-    extern u32 datEntryGetFlags(s16 item);
-    extern s32 itfMesWindowRecordCount(s32 table);
-    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 flags, s32 table, s32 item);
-    extern s32 itfMesWindowDrawPair(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 flags, s32 firstTable, s32 firstItem, s32 secondTable, s32 secondItem);
+    extern s32 datItemCount(s16 itemId);
+    extern u32 datEntryGetFlags(s16 itemId);
+    extern s32 itfMesWindowRecordCount(s32 handle);
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex);
+    extern s32 itfMesWindowDrawPair(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex, s32 secondHandle, s32 secondRecordIndex);
     extern s32 D_0063F2F0[];
     extern s32 D_0063F310[];
     extern s32 D_0063F2C0[];
@@ -248,7 +248,7 @@ block_23:
 void fclMesWindowDrawItemCategory(f32 inputDepth, s16 item, s32 x, s32 y,
                     s32 inputColor, s32 inputFont, s32 inputMode)
 {
-    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 flags, s32 table, s32 item);
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex);
     u32 category;
     f32 depth;
     s32 color;
@@ -300,8 +300,8 @@ void fclMesWindowDrawItemCategory(f32 inputDepth, s16 item, s32 x, s32 y,
 void fclMesWindowDrawTableItem(s32 item, f32 x, f32 y, f32 depth,
                     s32 color, s32 font, s32 mode, s32 table)
 {
-    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 color, s32 font,
-                            s32 mode, s32 flags, s32 table, s32 item);
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex,
+                            s32 effect, s32 flags, s32 handle, s32 recordIndex);
     itfMesWindowDrawEntry(x, y, depth, color, font, mode, 1, D_0063F2B0[(s8)table], item);
 }
 
@@ -316,8 +316,8 @@ void fclMesWindowDraw(s32 item, s32 color, s32 font, s32 mode, s32 table, s32 li
 void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
                     s32 color, s32 font, s32 mode, s32 item)
 {
-    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 color, s32 font,
-                            s32 mode, s32 flags, s32 table, s32 item);
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex,
+                            s32 effect, s32 flags, s32 handle, s32 recordIndex);
     itfMesWindowDrawEntry(x, y, depth, color, font, mode, 1, D_0063F2C8[0], item);
 }
 

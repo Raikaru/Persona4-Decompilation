@@ -19,7 +19,7 @@ extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern u32 iGpffffb3b8;
 
-extern void btlUnitGetSphereWorldCenter(u8 *first, f32 *second);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern void RtQuatTransformVectors(f32 *first, f32 *second, s32 third, u8 *fourth);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
@@ -59,11 +59,11 @@ typedef int (*code)();
 
 
 extern s32 btlActionGetQueueFront(void);
-extern void btlCameraLookAtQuat(void *first, const void *second, const void *third, const void *fourth);
+extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
 extern f32 tanf(f32 first);
-extern void btlMainCurveSetPoses(u16 *first, f32 *second, f32 *third, u16 fourth);
-extern void btlCameraSetDuration(u8 *first, f32 second);
-extern void btlCameraSetupActionGeometry(u8 *first, u8 *second, f32 *third, f32 fifth, u16 fourth);
+extern void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode);
+extern void btlCameraSetDuration(u8 *work, f32 value);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
 extern f32 fGpffff803c;

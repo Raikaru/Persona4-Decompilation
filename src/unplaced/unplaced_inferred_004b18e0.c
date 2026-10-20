@@ -9,8 +9,8 @@
 #include "effect_update_internal.h"
 #include "effect_vu0_internal.h"
 #include "mdl_effect_drawable_internal.h"
-extern void mdlEffectReleaseTrackInstance(s32 handle);
-extern void TlpRelease(s32 handle);
+extern void mdlEffectReleaseTrackInstance(s32 instance);
+extern void TlpRelease(s32 work);
 extern void (*jtbl_008873EC[])(void *);
 /* Release optional TLP and track resources, geometry and the screen-sprite allocation. */
 // FUN_004B18E0

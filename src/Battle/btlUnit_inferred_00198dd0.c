@@ -38,7 +38,7 @@ extern u8 D_005F65D0[];
 extern u8 D_005F65B0[];
 extern u8 D_005F65C0[];
 
-extern s32 datCalcIsDead(u8 *data, s32 value);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern s32 iGpffffb3b0;
 extern s32 iGpffffb284;
 extern s32 iGpffffb280;
@@ -47,7 +47,7 @@ extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
-extern u32 datCalcChkBadStatus(s32 data, u32 value);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
 extern RwV3d D_0060A0D0;
@@ -130,10 +130,10 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
-extern s32 datCalcIsLowHp(u8 *data);
-extern s32 datCalcIsGuarding(s32 data);
+extern s32 datCalcIsLowHp(u8 *unit);
+extern s32 datCalcIsGuarding(s32 unitFlags);
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
 {
@@ -182,7 +182,7 @@ void btlUnitUpdateStatusMotion(u8 *unit, u16 frame)
     s32 available;
     s32 keyEmpty;
     s16 motionId;
-    extern s32 mdlIsLayerKeyEmpty(u8 *a, u32 b, s16 c);
+    extern s32 mdlIsLayerKeyEmpty(u8 *model, u32 layer, s16 animation);
     extern s32 datCalcChkBadStatus();
 
     restMotion = 0;

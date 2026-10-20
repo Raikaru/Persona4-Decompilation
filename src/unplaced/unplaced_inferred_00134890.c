@@ -447,8 +447,8 @@ void radarDrawPaletteSet(u8 *work, s64 position, s64 mode, u8 alpha)
 // FUN_00135130
 void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
 {
-    extern u16 datItemValue(s16 item);
-    extern void PrimDrawFlatRectangle(u8 *color, f32 *rect, f32 depth, s32 flags);
+    extern u16 datItemValue(s16 itemId);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
     extern void fclMesWindowDrawTableItem(s32 item, f32 x, f32 y, f32 depth,
                             s32 color, s32 font, s32 mode, s32 table);
     typedef struct { u8 r; u8 g; u8 b; } Rgb;

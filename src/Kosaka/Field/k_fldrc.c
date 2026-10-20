@@ -21,7 +21,7 @@ extern u32 strcat();
 extern void* FldResource_Create(char* path);
 extern void func_003c21e0();
 extern void func_003ca270(void *object, void *callback, void *userdata);
-extern s32 kwlnTaskDestroyWithHierarchy(void *object);
+extern s32 kwlnTaskDestroyWithHierarchy(void *task);
 extern u8 *K_ClumpMatColorScale(u8 *material, u8 *data);
 extern u8 *K_ClumpMatPropScale(u8 *material, u8 *data);
 struct RpGeometry;

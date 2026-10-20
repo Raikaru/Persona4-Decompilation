@@ -10,10 +10,10 @@
 #include "sdk_snd_internal.h"
 #include "ed_staff_internal.h"
 #include "datPersona_internal.h"
-s32 datGetFlag(u32 rosterWork);
+s32 datGetFlag(u32 bit);
 extern void memset(void *dst, s32 value, u32 size);
-extern void nmMesWindowShowCurrentRecord(s32 rosterWork);
-extern void nmMesWindowSetCurrentString(s32 rosterWork, void *personaId);
+extern void nmMesWindowShowCurrentRecord(s32 recordIndex);
+extern void nmMesWindowSetCurrentString(s32 variable, void *text);
 /* Build the selected reward roster and populate its message substitutions and trail. */
 /* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 413..413); retain only the failing byte-base accesses. */
 // FUN_00380980
@@ -25,11 +25,11 @@ s32 btlShuffleShowRosterMessage(u8 *rosterWork)
         u16 value1;
         u16 value2;
     } Result;
-    extern s32 btlShuffleBuildRoster(s32 rosterWork, s32 *personaId);
-    extern u8 *datCalcGetIdRecord(s32 rosterWork);
-    extern s32 nmMesWindowShowCurrentRecord(s32 rosterWork);
-    extern void nmMesWindowSetCurrentString(s32 rosterWork, void *personaId);
-    extern void btlShuffleEffInitTrail(u8 *rosterWork, s32 personaId);
+    extern s32 btlShuffleBuildRoster(s32 selector, s32 *result);
+    extern u8 *datCalcGetIdRecord(s32 skillId);
+    extern s32 nmMesWindowShowCurrentRecord(s32 recordIndex);
+    extern void nmMesWindowSetCurrentString(s32 variable, void *text);
+    extern void btlShuffleEffInitTrail(u8 *task, s32 slotIndex);
     extern void sprintf(void *rosterWork, const void *personaId, s32 number);
     extern s32 D_0064EB80[];
     extern s32 D_0064EB84[];
@@ -106,9 +106,9 @@ s32 btlShuffleShowRosterMessage(u8 *rosterWork)
 // FUN_00380BD0
 s32 btlShuffleRollChance(u8 **rosterWork)
 {
-    extern u8 datPersonaGetTotalStatById(u16 rosterWork, s32 personaId);
-    extern s32 datCalcGetLevelById(s32 rosterWork);
-    extern s32 datGetFlag(s32 rosterWork);
+    extern u8 datPersonaGetTotalStatById(u16 partyId, s32 statIndex);
+    extern s32 datCalcGetLevelById(s32 unitId);
+    extern s32 datGetFlag(s32 bit);
     extern u32 RpRandom(void);
     extern u8 D_0064E760[];
     f32 percent;

@@ -13,17 +13,17 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
     return left + right;
 }
 
-extern void btlUnitSetRot(void *first, void *second);
-extern void btlTargetBlendVectors(void *out, void *first, void *second);
-extern void btlTargetPositionToCell(s16 *first, s16 *second, f32 *position);
+extern void btlUnitSetRot(void *unit, void *rot);
+extern void btlTargetBlendVectors(void *rotation, void *first, void *second);
+extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3ac; /* battle-state allocation */
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 datCalcIsDead(u8 *first, s32 second);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
 
-extern void btlUnitGetSphereWorldCenter(u8 *first, f32 *second);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern char D_005DC824[];
@@ -32,9 +32,9 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern void btlUnitSetPos(u8 *first, f32 *second);
-extern void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *first, s32 second, u8 *third);
-extern u8 *btlUnitGetRecordPtr(u8 *first, s32 second);
+extern void btlUnitSetPos(u8 *unit, f32 *pos);
+extern void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *context, s32 value, u8 *option);
+extern u8 *btlUnitGetRecordPtr(u8 *unit, s32 motion);
 extern f32 RwV3dNormalize(f32 *first, f32 *second);
 extern u8 *(*jtbl_008873E8[])(s32 first, s32 second);
 extern void memset(u8 *first, s32 second, s32 third);

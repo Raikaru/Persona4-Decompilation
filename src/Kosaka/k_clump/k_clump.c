@@ -35,7 +35,7 @@ extern s32 RwCameraFrustumTestSphere(void* camera, void* sphere);
 extern void* D_008872E0[];
 extern u32 D_00764068;
 extern f32 D_00764b80;
-extern void primSphereLine3D(void* center, f32 radius, void* color, u32 saveAndRestoreRenderState);
+extern void primSphereLine3D(void* center, f32 radius, void* color, u32 preserveState);
 
 extern s32 func_003b83f0(void* object);
 extern s32 func_003b85b0(void* object);

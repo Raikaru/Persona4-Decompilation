@@ -36,16 +36,16 @@ typedef struct BtlUnit BtlUnit;
 
 typedef struct KwlnTask KwlnTask;
 
-extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 u8 *kwlnTaskGetTaskByName(s8 *name);
 u32 kwlnTaskGetWork(void *task);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag();
 extern void memset();
 extern u8 D_00629738[];
-extern s32 btlResultFriendPsUpdate(u8 *task);
+extern s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes);
 extern void btlResultSummaryOnEventAlt();
-extern void btlResultSummaryDestroy(u8 *task);
+extern void btlResultSummaryDestroy(u8 *sdkTaskBytes);
 extern s32 btlUnitMotionClassValue(u8 *, s32);
 extern s32 btlUnitIsUnavailable(u8 *, s32, s32);
 extern void btlCameraWaitMotionFrames(u8 *);
@@ -60,9 +60,9 @@ extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
-extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
-extern void btlTargetBlendVectors(void *out, void *first, void *second);
-extern void btlCameraCopyPoseTarget(f32 *out, f32 *in);
+extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projection);
+extern void btlTargetBlendVectors(void *rotation, void *first, void *second);
+extern void btlCameraCopyPoseTarget(f32 *destination, f32 *source);
 extern f32 fGpffff80fc;
 extern f32 fGpffff80dc;
 extern f32 tanf(f32 angle);
@@ -80,7 +80,7 @@ extern f32 fGpffff8118;
 extern f32 fGpffff8174;
 extern f32 fGpffff8178;
 extern f32 fGpffff817c;
-extern void btlCameraSetLimitFrame(u8 *camera, f32 angleLimit, s32 reverseSide, s32 forceActorSide);
+extern void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide);
 extern void btlCameraFrameActorTarget(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration);
 extern u8 D_00629700[];
 void btlCameraUpdateFrame(void);
@@ -100,8 +100,8 @@ extern s32 btlCurrentUnitId(void);
 extern u32 datCalcChkBadStatus(s32, u32);
 extern void btlCameraSetupActionGeometry(u8 *, u8 *, f32 *, f32, u16);
 extern u8 *iGpffffb3ac;
-extern s32 datCalcIsGuarding(u16 *unit);
-extern f32 btlTargetQuatAngle(void *first, void *second);
+extern s32 datCalcIsGuarding(u16 *unitFlags);
+extern f32 btlTargetQuatAngle(void *right, void *left);
 #pragma push
 #pragma opt_propagation on
 // Intent: Result summary event callback (same body as the overlay callback). [inferred]
@@ -202,8 +202,8 @@ s32 btlResultSummaryExists(void)
  * Scoped propagation and distinct selector lifetimes reproduce native b210
  * O2: 876/880 bytes, 34 fully resolved relocations, four zero tail bytes.
  */
-extern s32 datCalcEnemyHasExtendedFlag(u8 *unitData);
-extern s32 datCalcIsGuarding(u16 *unitData);
+extern s32 datCalcEnemyHasExtendedFlag(u8 *unit);
+extern s32 datCalcIsGuarding(u16 *unitFlags);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
 extern f32 fGpffff80e8;
 extern u8 D_00634870[];
@@ -354,10 +354,10 @@ void btlCameraSelectSkillPreset(u8 *camera)
         RwV3d second;
         RtQuat secondRotation;
     } poses;
-    extern s32 datCalcEnemyHasExtendedFlag(u8 *unitData);
-    extern s32 datCalcIsGuarding(u16 *unitData);
+    extern s32 datCalcEnemyHasExtendedFlag(u8 *unit);
+    extern s32 datCalcIsGuarding(u16 *unitFlags);
     extern s32 btlCurrentUnitId(void);
-    extern u32 btlEffectCollectGenusMask(s32 targets);
+    extern u32 btlEffectCollectGenusMask(s32 selection);
     extern void btlCameraReleaseOcclusion(u8 *camera);
     extern u8 D_00634890[];
     extern u8 D_0063489C[];
@@ -873,7 +873,7 @@ void btlCameraFrameUnitPair(u8 *camera)
     u8 *action;
     u8 *actor;
     u8 *base;
-    extern s32 datCalcEnemyHasTableFlag(u8 *camera);
+    extern s32 datCalcEnemyHasTableFlag(u8 *unit);
     base = camera;
     ((BtlCameraControl *)(DAT_0076449c + 0xC00))->aimMode = 0;
     action = (u8 *)((BtlCamera *)base)->action;
@@ -1100,7 +1100,7 @@ void btlCameraTickSelectPreset(u8 *camera)
     u32 waitFrames;
     s32 elapsed;
     u8 *action;
-    extern s32 datCalcEnemyHasTableFlag(u8 *camera);
+    extern s32 datCalcEnemyHasTableFlag(u8 *unit);
 
     action = (u8 *)((BtlCamera *)camera)->action;
     if ((action != NULL) &&

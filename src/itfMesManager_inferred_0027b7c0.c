@@ -7,9 +7,9 @@
 #include "message_handle.h"
 #include "message_procedure_api.h"
 #include "sdk_snd_internal.h"
-extern s32 func_0027bd40(s32 value);
-extern s32 func_0027bda0(s32 value);
-extern s32 func_0027be00(s32 value);
+extern s32 func_0027bd40(s32 handle);
+extern s32 func_0027bda0(s32 handle);
+extern s32 func_0027be00(s32 handle);
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on

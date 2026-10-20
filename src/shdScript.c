@@ -10,14 +10,14 @@ extern u8 D_00636A30[];
 
 typedef void (*code)(void *);
 extern code DAT_008873ec_abs[];
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 *D_00636820[];
 extern u8 D_00636838[];
 extern u8 D_00636850[];
 typedef struct Resrc Resrc;
-extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 icon);
 extern s64 nmMesWindowAcquire(void *message);
 extern void strcpy(u8 *, u8 *);
 extern void nmMesWindowSetSlotString(s8 slotIndex, s32 variable, void *text);

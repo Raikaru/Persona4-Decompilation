@@ -106,11 +106,11 @@ extern s32 func_0043c180(s32 command, ...);
 extern s32 func_0043c230(s32 command, ...);
 extern s32 func_0043c3b0(s32 command, ...);
 extern void memcpy(void *destination, const void *source, u32 size);
-extern HCdvd *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
-extern u32 H_Cdvd_Destroy(HCdvd *request);
-extern u32 H_Cdvd_IsFileLoaded(const HCdvd *request);
+extern HCdvd *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+extern u32 H_Cdvd_Destroy(HCdvd *cdvd);
+extern u32 H_Cdvd_IsFileLoaded(const HCdvd *cdvd);
 /* The existing file-cache API encodes both paths/sentinels and returned EE addresses as s32. */
-extern s32 H_Cdvd_LookupRequest(s32 pathOrMode, s32 *size);
+extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 
 s32 sdkSndTransferToIop(s32 handle, void *data, s32 size);
 void sdkSndReleaseDecodeSlot(s16 index);

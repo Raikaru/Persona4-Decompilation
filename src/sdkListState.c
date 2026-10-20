@@ -21,8 +21,8 @@ typedef struct SdkListState {
     s32 scroll;
 } SdkListState;
 
-extern void kAssertFail(void* message, u32 code);
-extern s32 sdkListStateSeek(u8* obj, s32 value);
+extern void kAssertFail(void* file, u32 line);
+extern s32 sdkListStateSeek(u8* state, s32 value);
 extern void sdkListStateSetCount(u8* state, s32 value);
 extern void memset(void* dst, s32 value, u32 size);
 extern void sdkListStateConfigure(u8* state, s32 value, s32 itemCount, s32 cursor, s32 scroll);

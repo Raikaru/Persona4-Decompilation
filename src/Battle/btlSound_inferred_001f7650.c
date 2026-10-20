@@ -49,7 +49,7 @@ extern s32 (*D_00624FF0[])(u8 *input, s32 value, s32 option);
 
 extern u8 D_0060AB08[];
 extern s16 datGetDateIndex(void);
-extern s32 calGetDayWindowFlags(s32 input);
+extern s32 calGetDayWindowFlags(s32 day);
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
 extern u8 D_0061F000[];
@@ -97,10 +97,10 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f7650-001f7b40 */
 
-extern s32 btlActionHasNoTargetClass(u32 input);
-extern s32 btlSoundRollStatusCure(u8 *input);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *input);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *input);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlSoundRollStatusCure(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *action);
 extern void btlSoundAdvanceSlotQueue(void);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */

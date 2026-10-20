@@ -28,15 +28,15 @@ extern void btlSoundResetBattleChannels(void);
 
 typedef int (*code)();
 
-BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
+BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 
-extern u32 btlMainFieldColorFadePacketUpdate(void* work);
+extern u32 btlMainFieldColorFadePacketUpdate(void* workData);
 extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
 
 u32 btlMainUpdateCameraLerp(void* work);
 typedef struct BtlMainColorWork BtlMainColorWork;
-extern u32 btlMainUpdateColorWork(BtlMainColorWork* value); /* retail update target */
-u32 btlMainUpdateFade(void* work);
+extern u32 btlMainUpdateColorWork(BtlMainColorWork* work); /* retail update target */
+u32 btlMainUpdateFade(void* workRaw);
 typedef struct BtlMainLerpWork
 {
     f32 value0;
@@ -127,15 +127,15 @@ typedef struct BtlMainMatrix
 extern u_long128 D_00922C60[4];
 extern f32 D_00922CA0[8];
 extern s32 D_00922CC0[];
-extern void mdlBlendTranslationRotation(f32* out, f32* first, f32* second, f32 weight);
+extern void mdlBlendTranslationRotation(f32* result, f32* from, f32* to, f32 blend);
 extern f32 fGpffff80c0; /* P4 gp -0x7f40 */
 extern f32 fGpffff80c8; /* P4 gp -0x7f38 */
 extern f32 fGpffff81a4; /* P4 gp -0x7e5c */
 
 extern f32 fGpffff8434; /* P4 gp -0x7bcc */
 
-extern void btlMainEvalLinearPosition(u8* curve, f32* output, f32 value);
-extern void btlMainEvalBezierPosition(u8* curve, f32* output, f32 value);
+extern void btlMainEvalLinearPosition(u8* curve, f32* position, f32 time);
+extern void btlMainEvalBezierPosition(u8* curveWork, f32* position, f32 time);
 extern void func_003bb5b0(void* curve, s32 mode, f32 time, RwV3d* dst, void* aux);
 extern void func_003dcc70(f32* first, f32* second, BtlMainSlerpResult* result);
 extern f32 fGpffff83f8;
@@ -144,7 +144,7 @@ extern f32 fGpffff8058;
 extern f32 fGpffff8344;
 extern f32 fGpffff843c;
 extern f32 fGpffff8440;
-extern void btlMainEvalSlerpRotation(u8* curve, f32* output, f32 value);
+extern void btlMainEvalSlerpRotation(u8* curve, f32* rotation, f32 time);
 extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
 
 

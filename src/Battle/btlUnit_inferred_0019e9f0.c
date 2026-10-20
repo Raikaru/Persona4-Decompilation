@@ -247,7 +247,7 @@ void btlUnitInitFromRecord(u8 *unit, s32 characterId)
     /* measured: repeated typed datUnit loads hoist unit+0xA64;
      * subsequent data-pointer reloads preserve byte aliasing. */
     /* Initialize visual scale, bounds and motion rows from the genus-specific record. */
-    extern void btlUiInitSpritePair(u8 *unit, u8 *characterId);
+    extern void btlUiInitSpritePair(u8 *task, u8 *work);
     u8 *data;
     f32 height;
     f32 radius;

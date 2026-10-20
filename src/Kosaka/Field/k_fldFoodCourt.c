@@ -9,7 +9,7 @@ extern void H_Cdvd_Destroy(void *);
 extern void func_003e0f40(void *);
 extern void fieldSceneUnload(void);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F5450[];

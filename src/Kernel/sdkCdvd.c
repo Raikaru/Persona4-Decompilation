@@ -6,8 +6,8 @@ extern u8 D_008C0680[];
 extern u8 D_008C0780[];
 extern u8 D_008C0880[];
 extern u8 D_005BC790[];
-void H_Cdvd_BuildPathUppercase(void* a0, void* a1);
-void H_Cdvd_SplitPath(void* a0, void* a1, void* a2);
+void H_Cdvd_BuildPathUppercase(void* src, void* dst);
+void H_Cdvd_SplitPath(void* path, void* fileNameDst, void* dirDst);
 s32 func_004c74f8(void* a0, void* a1, void* a2, void* a3);
 void memcpy(void* dst, void* src, u32 size);
 /* Fixed stream device and 0x110-byte per-channel storage initialized below. */
@@ -82,14 +82,14 @@ extern u8 D_008C880C[];
 extern u8 D_008C8810[];
 extern char D_007116D0[];
 extern char D_00710870[];
-void kAssertFailAt(const void* file, const void* file2, u32 line);
+void kAssertFailAt(const void* msg, const void* file, u32 line);
 void chkmemAllocSiteTag(const void* file, s32 line);
-void H_Cdvd_NormalizePath(void* a0, void* a1);
+void H_Cdvd_NormalizePath(void* src, void* dst);
 s32 strcmp(void* a0, void* a1);
 void H_Dbprt_FmtLog(void* a0, void* a1);
 void func_00440b68();
 s16 chkmemGetClasses(void);
-void H_Cdvd_BuildVolumePaths(void* a0, void* a1, void* a2);
+void H_Cdvd_BuildVolumePaths(void* path, void* fileNameDst, void* dirDst);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_008D1B80[];
 extern u8* D_008D1B84[];
@@ -381,7 +381,7 @@ void func_003dd760(s32 a0);
 void* func_003dea20(s32 a0, void* a1, s32 a2, void* a3, void* a4);
 s32 func_003dd830(void* a0);
 void func_003ddde0(void* a0);
-void* H_Cdvd_CreateFileDevice(s32 a0, void* a1, s32 a2, void* a3, void* a4);
+void* H_Cdvd_CreateFileDevice(s32 slotCount, void* buffer, s32 bufferSize, void* deviceFlags, void* deviceId);
 extern void (*D_008873AC[])(void*, void*);
 extern char D_00711670[];
 extern char D_00711690[];
@@ -494,7 +494,7 @@ extern u8 D_008C8810[];
 extern char D_007116D0[];
 extern char D_007116F0[];
 extern char D_00710870[];
-void kAssertFailAt(const void* file, const void* file2, u32 line);
+void kAssertFailAt(const void* msg, const void* file, u32 line);
 
 // Intent: stores a request record (three words and a 0x80-byte name) in the first free request slot. Asserts when the table is full.
 // FUN_00455D70

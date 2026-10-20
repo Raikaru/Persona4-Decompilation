@@ -44,19 +44,19 @@ typedef struct Model Model;
 typedef struct RwMatrix RwMatrix;
 extern u8 *iGpffff9db0;
 extern u8 D_006355C0[], D_006355E0[], D_00635600[];
-extern u8 *resrcMngFindResById(u8 *lists, u16 id);
+extern u8 *resrcMngFindResById(u8 *manager, u16 resourceId);
 extern u16 datCalcMaxHp(DatUnit *unit);
-extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
-extern u32 datGetScriptValue(s32 counter);
-extern void datSetScriptValue(s32 counter, u32 value);
-extern void btlEncounterSetSequence(s32 initialize, s32 update, s32 packet);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+extern u32 datGetScriptValue(s32 index);
+extern void datSetScriptValue(s32 index, u32 value);
+extern void btlEncounterSetSequence(s32 start, s32 update, s32 argument);
 extern void mdlScale(Model *model, const RwV3d *scale, int combineOp);
 /* Retail forwards the matrix result as well as all three inputs. */
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 typedef struct BtlAction BtlAction;
 extern void btlActionSetState(BtlAction *action, u16 state);
-extern void btlActionRunPresentation(u8 *packet);
-extern void btlActionRunMotionSequence(u8 *packet);
+extern void btlActionRunPresentation(u8 *action);
+extern void btlActionRunMotionSequence(u8 *action);
 extern RwRGBA iGpffffb45c;
 extern char D_007636C0[8];
 extern char D_007636C8[8];
@@ -64,11 +64,11 @@ extern char D_007636D0[8];
 extern u8 D_0062E070[];
 extern void mdlSetFrameColorByName(void *model, s32 name, u8 alpha);
 extern s32 datCalcAddHp(DatUnit *unit, s32 hpDelta);
-extern void datCalcClearBuffLevel(u8 *unit, s32 effect);
+extern void datCalcClearBuffLevel(u8 *unit, s32 buffIndex);
 extern RtQuat *func_003dc740(RtQuat *out, const RwV3d *axis, f32 angle, s32 mode);
-extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
-extern void btlUnitSetColor(BtlUnit *unit, RwRGBA color);
-extern u32 datCalcClearBadStatus(s32 unit, u32 mask);
+extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rot);
+extern void btlUnitSetColor(BtlUnit *unit, RwRGBA col);
+extern u32 datCalcClearBadStatus(s32 unit, u32 badStatus);
 extern void btlUnitShowModel(u8 *unit);
 extern u32 datGetFlag(s32 bit);
 
@@ -84,20 +84,20 @@ extern u8 D_006296D0[];
 extern u8 D_008C0240[0x94];
 extern u8 D_00635560[], D_00635580[];
 extern u8 iGpffffa4d8[4];
-extern u8 *btlTargetCreateProcedurePacket(s32 action, s32 kind, u8 *name);
+extern u8 *btlTargetCreateProcedurePacket(s32 action, s32 scriptKind, u8 *procedureName);
 extern u8 *btlPacketAllocZeroed(void *callback, void *data);
-extern BtlPacket *btlEffectCreateMessagePacket(u8 *values, u16 duration);
-extern BtlPacket *btlEffectCreateFadeLevelPacket(u16 duration);
+extern BtlPacket *btlEffectCreateMessagePacket(u8 *color, u16 fadeMode);
+extern BtlPacket *btlEffectCreateFadeLevelPacket(u16 level);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
-extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 id, s16 animation);
+extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 modelId, s16 motion);
 extern BtlPacket *btlBossCreateLoadEndBgmPacket(s32 id);
 extern BtlPacket *btlBossCreateReleaseEndBgmPacket(void);
 extern BtlPacket *btlBossCreateStepEndBgmPacket(void);
 extern BtlPacket *btlBossCreateStopEndBgmPacket(void);
-extern BtlPacket *btlCreateTimingPacket(u32 duration);
-extern BtlPacket *btlMainCreateFadePacket(s32 duration, s16 mode);
-extern BtlPacket *btlMainCreateColorFadePacket(s32 duration);
-extern BtlPacket *btlMainCreateColorSetPacket(s32 duration);
+extern BtlPacket *btlCreateTimingPacket(u32 value);
+extern BtlPacket *btlMainCreateFadePacket(s32 arg, s16 mode);
+extern BtlPacket *btlMainCreateColorFadePacket(s32 arg);
+extern BtlPacket *btlMainCreateColorSetPacket(s32 arg);
 
 extern u8 D_00629640[];
 extern u8 D_00629738[];
@@ -128,21 +128,21 @@ extern u8 *DAT_0076449c; /* active battle state */
 extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
-extern void datSetFlag(s32 value, s32 option);
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern s32 kwlnTaskIsLinked(void *target);
-extern u8 *btlActionFindByUnit(s32 value);
-extern void btlTargetSetDefeatState(u8 *value, s32 option);
+extern u8 *btlActionFindByUnit(s32 unit);
+extern void btlTargetSetDefeatState(u8 *context, s32 argument);
 extern void btlSoundStopBgmIfEnabled(void);
 
 
-u8 *H_Cdvd_GetArchiveEntry(u8 *value, s32 option, s32 *data);
+u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
 
 
 
 extern void (*jtbl_008873EC[])(void *value);
 extern void btlSoundFadeOutBgm(s16 fadeDuration);
 extern void sdkSndPlayCue(s32 value, s32 option);
-extern u32 datCalcRandomBelow(u32 value);
+extern u32 datCalcRandomBelow(u32 limit);
 extern u8 D_0060A0E0[];
 extern s32 btlCurrentUnitId(void);
 extern u8 D_006348B0[];
@@ -155,54 +155,54 @@ extern u8 D_0062B490[];
 extern u8 D_0062BBE0[];
 extern u8 D_0062C330[];
 extern s32 btlActionGetActiveOrQueueFront(void);
-extern u32 datCalcChkBadStatus(s32 value, u32 option);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern f32 fGpffff834c;
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
-extern void btlUnitSetPos(u8 *value, s32 *option);
+extern void btlUnitSetPos(u8 *unit, s32 *pos);
 extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3e0;
 extern s32 btlActionHasNoTargetClass(u32 action);
-extern s32 btlTargetCanSelectEntry(u8 *value, s16 option, s32 data);
-extern s32 btlBossTargetBlocked(u8 *value);
-extern s32 btlBossSkillResultBlocked(u8 *value);
+extern s32 btlTargetCanSelectEntry(u8 *context, s16 value, s32 option);
+extern s32 btlBossTargetBlocked(u8 *action);
+extern s32 btlBossSkillResultBlocked(u8 *action);
 
-extern s64 btlPacketEnqueue(u8 *value, u32 option);
+extern s64 btlPacketEnqueue(u8 *context, u32 value);
 extern u8 D_00632240[];
-extern u8 *btlUnitFindInSideById(s32 value, s32 option);
+extern u8 *btlUnitFindInSideById(s32 genus, s32 characterId);
 extern u8 D_0062D920[];
-extern void btlActionFinishPresentation(s64 *value);
-extern s32 btlFormationAllocWork(u32 workKind);
-extern void btlFormationSetSlot(s32 formation, u32 data);
-extern u8 *btlFormationGetRecord(s32 value);
+extern void btlActionFinishPresentation(s64 *action);
+extern s32 btlFormationAllocWork(u32 mode);
+extern void btlFormationSetSlot(s32 formation, u32 resource);
+extern u8 *btlFormationGetRecord(s32 index);
 extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
-extern void btlTargetClearResultBuffer(u8 *value);
-extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *btlUnitCreateAnimPacket(u8 *value, s32 option, s32 data, s32 flags, f32 rate);
-extern BtlPacket *btlFormationCreatePacket(u32 value, u32 option, u32 data, u16 flags, u32 rate);
-extern void btlFormationSetPlacement(u32 value);
+extern void btlTargetClearResultBuffer(u8 *result);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
+extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, s32 speed, f32 mode);
+extern BtlPacket *btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags);
+extern void btlFormationSetPlacement(u32 formation);
 extern u8 D_006354B0[];
 extern u8 *iGpffffb444;
 extern u8 *iGpffffb3ac; /* active battle state, GP-relative alias */
-extern u8 *scrStartProcedureIndex(s32 value, u8 *option, s32 data);
-extern void scrSetTaskProc(u8 *value, u8 *option);
-extern u8 *datPersonaNamePart1Alt(s16 value);
-extern void itfMesWindowSetString(u8 *value, s32 option, u8 *data);
-extern void kwlnTaskAddChild(u8 *value, u8 *option);
+extern u8 *scrStartProcedureIndex(s32 priority, u8 *header, s32 procedureIndex);
+extern void scrSetTaskProc(u8 *task, u8 *proc);
+extern u8 *datPersonaNamePart1Alt(s16 unitId);
+extern void itfMesWindowSetString(u8 *handle, s32 slotIndex, u8 *text);
+extern void kwlnTaskAddChild(u8 *parent, u8 *child);
 extern u8 D_00629750[], D_00629EA0[], D_0062CA80[], D_0062D1D0[];
 extern u8 D_0062E7C0[], D_0062EF10[], D_0062F660[], D_0062FDB0[];
 extern u8 D_00630500[], D_00630C50[], D_006313A0[], D_00631AF0[];
 extern u8 D_006355A0[];
-extern void btlUnitInitChild(u8 *unit, u16 action);
-extern void datAssignEquippedItem(s16 character, s16 slot, s16 value);
-extern u16 datCalcMaxHpById(s16 character);
-extern u16 datCalcMaxSpById(s16 character);
-extern void datSetUnitHp(s16 character, s16 value);
-extern void datSetUnitSp(s16 character, s16 value);
-extern void datCalcClearBadStatusById(s16 character, u32 mask);
-extern s32 btlActionQueuePush(u8 *target);
+extern void btlUnitInitChild(u8 *unit, u16 characterId);
+extern void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId);
+extern u16 datCalcMaxHpById(s16 unitId);
+extern u16 datCalcMaxSpById(s16 unitId);
+extern void datSetUnitHp(s16 unitId, s16 hp);
+extern void datSetUnitSp(s16 unitId, s16 sp);
+extern void datCalcClearBadStatusById(s16 unitId, u32 mask);
+extern s32 btlActionQueuePush(u8 *action);
 
-extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation, u32 flags);
+extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
 extern u32 datCalcIsDead(void *unit, s32 hpDelta);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern f32 fGpffff80e4;
@@ -210,16 +210,16 @@ extern f32 fGpffff80e4;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0022; members 0022b0b0-0022fb10 */
 
 extern void btlCameraApplyPartyPose(u8 *camera);
-extern void btlEncounterStartSequence(u8 *value);
-extern s32 btlEncounterFinishStep(u8 *value);
+extern void btlEncounterStartSequence(u8 *action);
+extern s32 btlEncounterFinishStep(u8 *action);
 extern void btlActionRunPresentation(u8 *action);
-extern s32 btlEncounterWaitCleared(s64 *value);
-extern void btlActionRunMotionSequence(u8 *value);
-extern s32 btlEncounterReleaseFlags(s64 *value);
-extern void btlEncounterStartCameraState(u8 *value);
-extern s32 btlEncounterWaitReleaseEvents(s64 *value);
-extern void btlEncounterResetSlots(u8 *value);
-extern s32 btlEncounterWaitIdle(s64 *value);
+extern s32 btlEncounterWaitCleared(s64 *actionUid);
+extern void btlActionRunMotionSequence(u8 *action);
+extern s32 btlEncounterReleaseFlags(s64 *actionUid);
+extern void btlEncounterStartCameraState(u8 *action);
+extern s32 btlEncounterWaitReleaseEvents(s64 *actionUid);
+extern void btlEncounterResetSlots(u8 *action);
+extern s32 btlEncounterWaitIdle(s64 *actionUid);
 static inline u8 *cb90AddBaseIndex(u32 base, u32 index)
 {
     return (u8 *)(base + index);
@@ -497,11 +497,11 @@ void btlActionRunFormationSequence(u8 *action)
 // FUN_0022B870
 s32 btlEncounterFinishSetup(u8 *action)
 {
-    extern void btlUnitInitFromRecord(u8 *action, s32 option);
+    extern void btlUnitInitFromRecord(u8 *unit, s32 characterId);
     extern s32 btlActionQueuePush(u8 *action);
     extern s32 btlActionGetQueueFront(void);
-    extern void btlBossCollectTargets(u8 *action);
-    extern u8 *btlSoundGetCharacterBank(u8 *action);
+    extern void btlBossCollectTargets(u8 *preferredAction);
+    extern u8 *btlSoundGetCharacterBank(u8 *unit);
     extern u8 D_00630C50[];
     u32 index;
     s32 value;
@@ -1045,7 +1045,7 @@ s32 btlFormationLookupSlot(u8 *unit, u16 slotIndex)
 // FUN_0022CC90
 void btlFormationClearSlots(void)
 {
-    extern void H_Cdvd_Destroy(s32 value);
+    extern void H_Cdvd_Destroy(s32 cdvd);
     extern void btlFormationSetPlacement(s32 value, u8 *option);
     s16 i;
     s32 value;

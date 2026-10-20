@@ -162,7 +162,7 @@ extern RwTexDictionary *func_003ef6d0(void);
 extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
 extern u8 iGpffffb310;
 extern void memset(void *dst, s32 value, s32 size);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 kwlnGetCamera(void);
 extern s16 mdlGetLayerAnimation(s32 model, s32 layer);
@@ -255,10 +255,10 @@ static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
 /* Select an ambient surface cue from the containing area quad and trigger it at the actor animation footfall frames. */
 void FldAmbientTrigger(s32 model, u16 mode, u16 id)
 {
-    extern u8 *MT_Scene_GetResListHead(s32 model);
+    extern u8 *MT_Scene_GetResListHead(s32 resourceType);
     extern s32 K_FldFrame_IsPointInTriangle(f32 *point, f32 **vertices, f32 *normal);
-    extern s32 FldMoveAnimPrimary(s32 model);
-    extern s32 FldMoveAnimSecondary(s32 model);
+    extern s32 FldMoveAnimPrimary(s32 characterType);
+    extern s32 FldMoveAnimSecondary(s32 characterType);
     extern u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *posA, const struct RwV3d *posB, f32 maxDist);
     extern f32 mdlGetLayerWeight(s32 model, s32 layer);
     extern u8 *D_005F08B0[];
@@ -395,12 +395,12 @@ s32 FldRainUpdate(u8 *task)
     extern RainMatrix *func_003e0f80(void);
     extern f32 cosf(f32 angle);
     extern f32 sinf(f32 angle);
-    extern void chkmemAllocSiteTag(const void *msg, s32 id);
+    extern void chkmemAllocSiteTag(const void *file, s32 line);
     extern f32 RwV3dNormalize(RainVector *dst, const RainVector *previousMatrix);
     extern RainMatrix *RwMatrixScale(RainMatrix *matrix, const RainVector *scale, enum RwOpCombineType combine);
     extern s32 func_003a2770(struct RpAtomic *atomic, RainLock *lock, u32 dataFlags, enum RpPTankLockFlags lockFlags);
     extern struct RpAtomic *func_003a2920(struct RpAtomic *atomic);
-    extern u8 *sdkOtQueueDrawObject(u8 *list, s32 payload);
+    extern u8 *sdkOtQueueDrawObject(u8 *list, s32 stateId);
     extern void FldRainRenderStateSet(void);
     extern void *(*D_008873F4[])(size_t, size_t, u32);
     extern u8 D_005F1D80[];
@@ -858,8 +858,8 @@ s32 FldFogUpdate(u8 *task)
     extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
     extern u8 *PrimAllocQueueNode(void);
     extern void PrimAppendNode(u8 *, u8 *);
-    extern u8 *PrimQueueDrawPrimitive(void *task, s32 primitive, void *vertices, s32 count);
-    extern void FldRainRenderStateReset(u8 *task, u8 *work);
+    extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count);
+    extern void FldRainRenderStateReset(u8 *unused, u8 *work);
     extern u8 D_005F1D10[];
     extern u8 D_00794930[];
     u8 *work;

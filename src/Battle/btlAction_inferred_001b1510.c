@@ -20,7 +20,7 @@
 #include "btl_formation_internal.h"
 #include "datPersona_internal.h"
 #include "btl_unit_internal.h"
-extern s32 datItemCount(s16 id);
+extern s32 datItemCount(s16 itemId);
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
@@ -47,14 +47,14 @@ extern s32 btlFormationAllocWork(s32);
 extern BtlPacket *btlFormationCreateNamedPacket(u32, const char *, u16);
 extern u8 *btlSoundCreateSkillSEPacket(s32, s32);
 extern u8 *btlMainCreateColorLerpPacket(s32, s32, s32);
-extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
+extern BtlPacket *btlMainCreateColorWorkPacket(s32 lightColor, s32 ambientColor, s32 fogColor, u32 duration, u16 flags);
 extern u8 *btlMainCreateTintPacket(s32, s32);
 extern void btlTargetClearResultBuffer(u8 *);
 extern u8 *btlPacketCreateHpRatio(u8 *);
 extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode);
-extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
+extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 extern u8 *btlCreateTimingPacket(s32);
 extern u8 *btlMainCreateFadePacket(s32, s32);
@@ -84,8 +84,8 @@ extern f32 D_00922CB4[];
 extern f32 D_00922CB8[];
 extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
-extern void btlUnitGetAnchorPose(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
-extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
+extern void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outTarget);
+extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
 extern s64 btlPacketEnqueue(u8 *, u32);
 extern void btlActionSetState(BtlAction *, u16);
 extern void nmMesWindowStepCurrentRelease(void);
@@ -834,9 +834,9 @@ s32 btlMainUnitCreateUpdate(void)
     extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern void btlTargetAddRadiusNode(u8 *, u8 *);
-    extern void btlTargetBlendVectors(u8 *rotation, u8 *from, u8 *to);
-    extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
-    extern void btlUnitSetPos(BtlUnit *unit, const RwV3d *position);
+    extern void btlTargetBlendVectors(u8 *rotation, u8 *first, u8 *second);
+    extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rot);
+    extern void btlUnitSetPos(BtlUnit *unit, const RwV3d *pos);
     extern BtlPacket *btlUnitCreateModelFramePacket(BtlUnit *unit, s16 value);
     extern BtlPacket *btlUnitCreateMotionRequestPacket(BtlUnit *unit, u16 value);
     extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPos, f32 speed, u32 flags);
@@ -1833,16 +1833,16 @@ void btlMainWinInit(u8 *phaseWork) {
     /* Historical whole-layout trial: 2704B; remaining exceptions are measured per access below. */
     extern void btlTargetEndDamagePhase(void);
     extern void btlDamageSetSource(u8 *phaseWork, s32);
-    extern void btlTargetResetCommandRecord(u8 *phaseWork);
-    extern u8 *btlUnitCreateResourceFreePacket(u8 *phaseWork);
+    extern void btlTargetResetCommandRecord(u8 *record);
+    extern u8 *btlUnitCreateResourceFreePacket(u8 *packetWork);
     extern u8 *func_00194c90(void *phaseWork, void *);
     extern u8 *btlEffectCreateFormationPacket(s32 phaseWork, s32, s32, s64, s32);
     extern struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis, f32 angle, s32 mode);
     extern s8 *kwlnGetColorBytes(void);
     extern BtlPacket *func_001f99c0(BtlAction *action, u16 voice, s32 option, s32 argument, s32 flags);
-    extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const struct RwV3d *target, f32 speed, u32 flags);
+    extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const struct RwV3d *targetPos, f32 speed, u32 flags);
     extern BtlPacket *btlUnitCreateHidePacket(BtlUnit *unit);
-    extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
+    extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode);
     extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
     extern u32 datCalcIsDead(s32 phaseWork, s32);
     extern f32 fGpffff82cc;

@@ -395,10 +395,10 @@ void btlUnitUpdateLookAtTarget(u8 *unit)
 {
     /* measured: repeated typed model/look-state addresses add saved registers;
      * the corresponding flags, handle, mode, id and data reloads stay byte-addressed. */
-    extern void mdlSetLookAtTargetPoint(void *unit, void *target);
-    extern s32 mdlComputeIndexedAttachMatrix(void *unit, s32 index, void *destination);
+    extern void mdlSetLookAtTargetPoint(void *model, void *target);
+    extern s32 mdlComputeIndexedAttachMatrix(void *model, s32 index, void *destination);
     extern f32 DAT_007613f8;
-    extern u8 *btlUnitFindById(s32 unit);
+    extern u8 *btlUnitFindById(s32 unitId);
     P4_95730_Vec3 lookPoint;
     P4_95730_Vec3 scaledCenter;
     P4_95730_Vec3 rotatedCenter;

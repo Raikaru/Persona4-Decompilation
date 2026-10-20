@@ -130,7 +130,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
@@ -143,9 +143,9 @@ extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 btlBossRemapSkillPair();
-extern void btlUnitModelLoadPacketInit(u8 *data);
+extern void btlUnitModelLoadPacketInit(u8 *packetData);
 extern s32 btlUnitModelMotionPacketUpdate();
-extern void btlUnitReleaseModel(u8 *data);
+extern void btlUnitReleaseModel(u8 *unit);
 extern void btlUnitHideModel();
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;

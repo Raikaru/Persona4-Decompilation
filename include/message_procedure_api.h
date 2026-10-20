@@ -16,6 +16,6 @@ typedef enum ItfMesWindowOp {
 /* Opaque userdata at procedure work+0x18, plus its optional first-word writer. */
 void *itfMesWindowSubTablePtr(s32 handle);
 void fclMesWindowSetUserData(s32 handle, void *userdata);
-void msgWinStoreSlot(s32 handle, s32 value);
+void msgWinStoreSlot(s32 window, s32 value);
 
 #endif

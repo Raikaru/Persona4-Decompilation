@@ -28,7 +28,7 @@ typedef struct RwMatrix
 
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_003c42b0(void *geometry, s32 stream);
-extern s32 TnUploadStreamTagged(s32 geometry);
+extern s32 TnUploadStreamTagged(s32 stream);
 extern void func_003ef3a0(void *geometry);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];

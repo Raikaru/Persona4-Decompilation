@@ -14,7 +14,7 @@ extern u8 iGpffffa9f8;
 
 /* Shared end-scene helpers (defined in sibling TUs of the same ed_* unit). */
 extern void kAssertFail(void *file, s32 line);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void edScrollRelease(void);
 extern void edSrStartPlayback(void);
 extern void edSrOverlayDraw(void);
@@ -31,17 +31,17 @@ extern void edScrollWorkInit(u8 *work);
 
 /* Window / effect / scripting helpers. */
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *param, void *work);
-extern s32 datGetFlag(s32 id);
+extern void PrimAppendNode(void *list, void *node);
+extern s32 datGetFlag(s32 bit);
 extern s32 fadeStatus(void);
 extern s32 fadeState(void);
-extern void fadeBeginTransition(s32 a, s32 b);
-extern s32 kwlnTaskGetTaskByName(void *path);
-extern s32 kwlnTaskIsLinked(s32 handle);
-extern void kwlnTaskAddChild(void *a, void *b);
+extern void fadeBeginTransition(s32 mode, s32 duration);
+extern s32 kwlnTaskGetTaskByName(void *name);
+extern s32 kwlnTaskIsLinked(s32 target);
+extern void kwlnTaskAddChild(void *parent, void *child);
 extern s32 sdkSndPlayCue(s32 a, s32 b);
-extern void sdkSndStopChannel(s32 fadeDuration);
-extern s32 mwPlayerCreateReset(s32 a, s64 b, void *c);
+extern void sdkSndStopChannel(s32 fadeFrames);
+extern s32 mwPlayerCreateReset(s32 parent, s64 movieIndex, void *queueName);
 extern s32 mwPlayerGetCurrent(void);
 
 /* Data / jumptable globals. */

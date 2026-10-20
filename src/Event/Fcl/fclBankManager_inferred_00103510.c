@@ -425,17 +425,17 @@ void fclBankSlotLoad(u8 *slot)
     extern u8 D_005DD630[];
     extern u8 D_005DD640[];
     extern u8 D_005DD670[];
-    extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
-    extern const char *H_Cdvd_ArchiveEntryName(struct HCdvd *archive, s32 index);
+    extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *cdvd);
+    extern const char *H_Cdvd_ArchiveEntryName(struct HCdvd *cdvd, s32 entryIndex);
     extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
                             s32 flags, s32 source, s32 buffer, s32 byteCount,
                             const char *cacheName, s32 resultKind, s32 memoryKind);
-    extern u8 *filerTakeCompletedRequest(u8 *request, s32 *complete, s32 *size);
-    extern s32 sdkWrapStreamCloseCreate(s32 request, u8 *archive);
-    extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
-    extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
+    extern u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue);
+    extern s32 sdkWrapStreamCloseCreate(s32 stream, u8 *directory);
+    extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+    extern u32 H_Cdvd_Destroy(struct HCdvd *cdvd);
     extern s32 func_003ef3a0(struct RwTexture *texture);
-    extern void fclBankSlotUpdate(u8 *slot);
+    extern void fclBankSlotUpdate(u8 *display);
     extern s32 sprintf(u8 *destination, const u8 *format, ...);
     s32 complete;
     s16 state;

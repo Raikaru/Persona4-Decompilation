@@ -65,8 +65,8 @@ extern u8 D_006251F0[];
 extern s32 btlTargetConsumeActionCost(u8 **actionPacket);
 
 extern s32 datItemCount(s16 itemId);
-extern s32 datCalcAddHp(DatUnit *unit, s32 amount);
-extern s32 datCalcAddSp(DatUnit *unit, s32 amount);
+extern s32 datCalcAddHp(DatUnit *unit, s32 hpDelta);
+extern s32 datCalcAddSp(DatUnit *unit, s32 spDelta);
 extern u32 datCalcSkillCost(u8 *unit, s32 skillId);
 
 extern s32 iGpffffb464;

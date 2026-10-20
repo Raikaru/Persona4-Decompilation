@@ -14,7 +14,7 @@ typedef struct BtlPacket BtlPacket;
 typedef struct BtlTarget BtlTarget;
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
-extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
+extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument, u32 extraArgument, u32 flags);
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
 static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)
 {
@@ -22,7 +22,7 @@ static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)
 }
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
-extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
+extern BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit);
 extern void btlUnitGetAnchorPose(u8 *, u8 *, f32 *, f32 *);
 extern f32 btlTargetVectorDistance(const RwV3d *, const RwV3d *);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *, const RwV3d *, f32, u32);
@@ -43,11 +43,11 @@ extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 
 extern u8 *iGpffffb3b8;
-extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
+extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u16 flags);
 extern f32 fGpffff811c;
-extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
+extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value);
 extern void btlTargetClearResultBuffer(u8 *result);
-extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlPacketCreateHpRatio(u8 *unit);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
@@ -200,13 +200,13 @@ void btlActionStartInit(BtlAction *action) {
 // FUN_001A0B00
 #pragma push
 void btlActionStartUpdate(s64 *actionWords) {
-    extern void btlTargetClearResultBuffer(u8 *actionWords);
-    extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+    extern void btlTargetClearResultBuffer(u8 *result);
+    extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-    extern u8 *btlPacketCreateHpRatio(u8 *actionWords);
-    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
-    extern u16 datCalcMaxHp(DatUnit *actionWords);
-    extern u16 datCalcMaxSp(DatUnit *actionWords);
+    extern u8 *btlPacketCreateHpRatio(u8 *unit);
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value);
+    extern u16 datCalcMaxHp(DatUnit *unit);
+    extern u16 datCalcMaxSp(DatUnit *unit);
     extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     typedef struct ActionResult {
         s32 hpDelta;

@@ -25,7 +25,7 @@ extern char D_0063D050[];
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-extern s32 kwlnTaskGetTaskByName(void *path);
+extern s32 kwlnTaskGetTaskByName(void *name);
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -74,11 +74,11 @@ void evtModelQueueMotionAt(u16 resourceId, s32 motion, f32 positionX, f32 positi
 {
     extern u8 *nmListAllocManager();
     extern u8 *nmListAppendNode();
-extern s32 evtModelUpdateTask(u8 *task);
-extern void evtModelTaskDestroy(u8 *task);
+extern s32 evtModelUpdateTask(u8 *unusedTask);
+extern void evtModelTaskDestroy(u8 *unusedTask);
 
-    extern s32 kwlnTaskGetTaskByName(void *resourceId);
-    extern u8 **kwlnTaskGetWork(s32 resourceId);
+    extern s32 kwlnTaskGetTaskByName(void *name);
+    extern u8 **kwlnTaskGetWork(s32 task);
     extern void memcpy(void *resourceId, void *motion, s32 flags);
     extern void memset(void *resourceId, s32 motion, s32 flags);
     extern s32 D_0063C930[]; /* motion-indexed step callback addresses */

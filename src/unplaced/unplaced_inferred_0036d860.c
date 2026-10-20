@@ -7,14 +7,14 @@
 #include "fr_font_internal.h"
 #include "datPersona_internal.h"
 #include "rw_types_internal.h"
-extern void pscResInit(u8 *object);
+extern void pscResInit(u8 *context);
 extern void pscBuildGridIndexTable(void);
 extern void pscCameraReset(void);
 extern void pscResUpdate(void);
 extern s32 pscResAnySlotInUse(void);
 extern u8 *kwlnGetCamera(void);
 extern void func_003e8180(void *object, f32 value);
-extern void K_View_SetFov(void *object, f32 value);
+extern void K_View_SetFov(void *camera, f32 fov);
 extern void K_ClumpLookAtBasis(void *object, void *position, void *target, s32 referenceUp);
 #pragma push
 #pragma opt_common_subs on

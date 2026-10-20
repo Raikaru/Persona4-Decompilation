@@ -19,7 +19,7 @@ extern s32* MT_Scene_GetFrameState(void);
 extern s32 FldFrameTask_GetTileX(s32 );
 extern s32 FldFrameTask_GetTileZ(s32 );
 extern s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin,
-                         f32* vector, f32 fraction);
+                         f32* vector, f32 radius);
 extern s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32* origin,
                          f32* vector, f32 fraction, s32 fieldId);
 extern RwMatrix* func_003e9700(RwFrame* frame);
@@ -694,7 +694,7 @@ s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f
     extern void *mdlGetClump(void *model);
     extern f32 RwV3dLength(f32 *vec);
     extern u8 D_007E8020[];
-    extern u32 FldFrame_RaycastWorld(void *cw, const RwV3d *line, RwV3d *hit);
+    extern u32 FldFrame_RaycastWorld(void *collisionWorld, const RwV3d *line, RwV3d *hitPointDst);
     typedef struct FldFrameWork6A110
     {
         FldFrameCollisionCollector collector;

@@ -78,7 +78,7 @@ extern u8 D_006251F0[];
 
 
 
-extern u8 *btlPacketAlloc(s32 type, s32 workSize);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 
 
 

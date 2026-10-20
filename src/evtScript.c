@@ -26,7 +26,7 @@ extern u16 D_008C024E[];
 extern u8 D_00795E60[];
 
 extern void *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *param, void *work);
+extern void PrimAppendNode(void *list, void *node);
 extern s32 kwlnTaskDestroyWithHierarchy(void *task);
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern s32 kwlnTaskIsLinked(void *target);
@@ -34,7 +34,7 @@ extern void MT_Scene_DestroyRes(u32);
 extern void MT_Scene_SetResActiveById(s32, s32);
 // lint: allow H011 -- measured: u16 prototype regresses evtNpcModelTaskUpdate and evtCmdNpcModelLoad (andi on wide id args)
 extern u16 *MT_Scene_GetRes(s32);
-extern s32 mdlPrepareModel(u32 input);
+extern s32 mdlPrepareModel(u32 model);
 extern u8 *mdlGetColor(s32);
 extern void evtNodeSetRes(u8 *, s32, u16 *);
 extern s32 evtEnsureEventTask(); /* lint: allow H011 -- caller stores the returned value; the definition is void */
@@ -42,13 +42,13 @@ extern s32 evtGetEventTaskWork();
 extern u8 *evtFindSlotEntry();
 extern void *mdlFindOrCreateModelObject(u32, u16, u32);
 extern s32 evtFindTask();
-extern void itfMesWindowApplySlots(s32 input);
-extern u8 *itfMesWindowBuildEntry(f32 floatInput, f32 secondFloatInput, f32 thirdFloatInput, s32 input,
-                         s32 secondInput, s32 thirdInput, s32 fourthInput, s32 fifthInput, s32 sixthInput);
-extern u8 *frFontSplitRun(u8 **input, s32 secondInput);
-extern s32 frFontNodeWidth(u8 *input);
-extern void frFontMoveListToFloat(u8 *input, f32 floatInput, f32 secondFloatInput);
-extern void frFontSetGlyphColor(u8 *input, s32 secondInput);
+extern void itfMesWindowApplySlots(s32 handle);
+extern u8 *itfMesWindowBuildEntry(f32 x, f32 y, f32 scale, s32 color,
+                         s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex);
+extern u8 *frFontSplitRun(u8 **listAddress, s32 runIndex);
+extern s32 frFontNodeWidth(u8 *node);
+extern void frFontMoveListToFloat(u8 *list, f32 x, f32 y);
+extern void frFontSetGlyphColor(u8 *list, s32 color);
 
 /* measured: the operands must travel through this helper's parameters to get
    retail's offset-first `addu $v0,$v0,$s0`; every callsite spelling (p+scaled,
@@ -59,13 +59,13 @@ static inline u32 evtSlot(u32 offset, u32 base)
     return offset + base;
 }
 
-extern void frFontListKeepOrRelease(u8 *input);
+extern void frFontListKeepOrRelease(u8 *list);
 extern f32 sinf(f32 floatInput);
 extern f32 iGpffff8094;
 /* INCLUDE_ASM fallback below; address taken by evtCmdNpcModelLoad. */
-extern s32 evtNpcModelTaskUpdate(u8 *task);
+extern s32 evtNpcModelTaskUpdate(u8 *unusedTask);
 /* INCLUDE_ASM fallback below; address stored by evtRestartTaskUpdate. */
-extern void evtRestartTaskDraw(s32 input, s32 secondInput);
+extern void evtRestartTaskDraw(s32 unused, s32 task);
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
 // kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as

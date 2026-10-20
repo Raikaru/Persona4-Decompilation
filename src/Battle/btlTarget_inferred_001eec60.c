@@ -9,7 +9,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
 extern void btlCameraLookAtQuat(void *out, const void *first,
-                          const void *second, const void *up);
+                          const void *second, const void *config);
 extern f32 RwV3dLength(f32 *vector);
 extern void func_003dcc70(const void *first, const void *second, void *result);
 extern void *RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rotation);

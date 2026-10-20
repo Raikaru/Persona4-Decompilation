@@ -145,7 +145,7 @@ u8 *sdkOtQueueDrawObject(u8 *list, s32 stateId)
 }
 
 
-/* Queues a command-five clump payload used by field resource clump drawing. */
+/* Queues a command-six clump payload used by field resource clump drawing. */
 /* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00460E80
 u8 *sdkOtQueueClump(u8 *list, s32 stateId)
@@ -180,7 +180,7 @@ u8 *sdkOtQueueClump(u8 *list, s32 stateId)
 }
 
 
-/* Queues the command-six clump payload used by FldResource_QueueDrawCallbacksPrimary. */
+/* Queues the command-seven clump payload used by FldResource_QueueDrawCallbacksPrimary. */
 /* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00460F80
 u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 stateId)
@@ -215,7 +215,7 @@ u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 stateId)
 }
 
 
-/* Queues the command-seven clump payload used by FldResource_QueueDrawCallbacksSecondary. */
+/* Queues the command-eight clump payload used by FldResource_QueueDrawCallbacksSecondary. */
 /* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
 // FUN_00461080
 u8 *sdkOtQueueClumpSecondaryPass(u8 *list, s32 stateId)

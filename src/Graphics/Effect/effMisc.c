@@ -62,10 +62,10 @@ extern Code45RenderState D_00712490[6];
 extern void (*D_008873FC[])(s32 param, u8* arg);
 extern s32 kwlnGetCamera(void);
 
-/* RwCamera::farPlane; public layout is documented in rw/core/bacamera.h. */
+/* RwCamera::nearPlane (+0x80); public layout is documented in rw/core/bacamera.h. */
 typedef struct EffMiscCamera {
     u8 pad00[0x80];
-    f32 farPlane;
+    f32 nearPlane;
 } EffMiscCamera;
 #pragma push
 #pragma opt_propagation off
@@ -114,7 +114,7 @@ void effMiscDrawScreenColor(u8 *colors, s32 enabled)
     }
     depth = D_008872F8_abs[0];
     state = kwlnGetCamera();
-    inv = 1.0f / ((EffMiscCamera *)state)->farPlane;
+    inv = 1.0f / ((EffMiscCamera *)state)->nearPlane;
 
     work.out[0] = 0.0f;
     work.out[1] = 0.0f;

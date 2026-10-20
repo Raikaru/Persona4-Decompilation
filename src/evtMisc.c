@@ -12,27 +12,27 @@ extern u8 iGpffffa7a8;
 s32 *kwlnTaskGetWork();
 extern void (*jtbl_008873EC[])(void *);
 
-void chkmemAllocSiteTag(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *file, s32 line);
 void kAssertFail(const void *file, s32 line);
-s32 kwlnTaskIsLinked(s32 buf);
-s32 H_Cdvd_IsFileLoaded(s32 input);
-void H_Cdvd_Destroy(s32 input);
+s32 kwlnTaskIsLinked(s32 target);
+s32 H_Cdvd_IsFileLoaded(s32 cdvd);
+void H_Cdvd_Destroy(s32 cdvd);
 s32 strcmp(s32 *input, s32 secondInput);
 s32 strcpy(s32 *input, s32 secondInput);
-s32 evtMemAccount(s32 input, s32 secondInput);
+s32 evtMemAccount(s32 slot, s32 byteCount);
 void func_00440b68(const void *input, const void *secondInput, s32 thirdInput);
-s32 H_Cdvd_AcquireDirectory(void *input, s32 secondInput);
-u8 *H_Cdvd_LookupRequest(void *input, u32 *secondInput);
-s32 scrStartProcedureIndex(s32 input, u8 *secondInput, s32 thirdInput);
+s32 H_Cdvd_AcquireDirectory(void *path, s32 flags);
+u8 *H_Cdvd_LookupRequest(void *pathAddress, u32 *slot);
+s32 scrStartProcedureIndex(s32 priority, u8 *header, s32 procedureIndex);
 u8 *kwlnGetColorRgb(void);
 void *kwlnGetCamera(void);
 
-s32 evtTintTaskUpdate(u8 *input);
-void evtTintTaskDestroy(u8 *task);
-s32 evtScriptLoadStep(u8 *input);
-void evtScriptLoadDestroy(u8 *input);
+s32 evtTintTaskUpdate(u8 *unusedTask);
+void evtTintTaskDestroy(u8 *unusedTask);
+s32 evtScriptLoadStep(u8 *unusedTask);
+void evtScriptLoadDestroy(u8 *unusedTask);
 void evtTintTaskKill(void);
-void kwlnSetColorRgba(u8 input, u8 secondInput, u8 thirdInput, u8 fourthInput);
+void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
 extern s32 iGpffffba48;
 
 /* Scalars (complete types) address gp-relative; strings/arrays use absolute
@@ -56,7 +56,7 @@ extern code DAT_008873ec_abs[];
 
 typedef struct { f32 x, y, z; } SVec3;
 typedef unsigned int EvtU128 __attribute__((mode(TI)));
-u8 *effBlurFilterCreateRefObj(u16 *texture, u16 kind);
+u8 *effBlurFilterCreateRefObj(u16 *object, u16 slot);
 extern u8 D_0063C648[];
 
 typedef struct {

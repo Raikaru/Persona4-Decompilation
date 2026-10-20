@@ -11,9 +11,9 @@ static inline f32 p4_0025_add(f32 left, f32 right) {
     return left + right;
 }
 extern s32 D_006367C0[];
-extern void sdkSndStartChannel(s32 input, const char *secondInput);
+extern void sdkSndStartChannel(s32 channelIndex, const char *path);
 extern void memset(void *input, s32 secondInput, s32 thirdInput);
-extern s32 cmmRankUpStepSparkle(s32 *input, u8 *secondInput);
+extern s32 cmmRankUpStepSparkle(s32 *sparkle, u8 *card);
 extern s16 D_00636A40[];
 extern char D_00635C00[];
 extern char D_00635C20[];
@@ -29,10 +29,10 @@ extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
 extern f32 sinf(f32 input);
-extern void PrimDrawPoints(void *input, void *secondInput, f32 floatInput,
-                           s32 thirdInput, s32 fourthInput, s32 fifthInput);
-extern void PrimDrawRadialTriangle(s32 input, s32 secondInput, void *thirdInput, s32 fourthInput,
-                           f32 floatInput, f32 secondFloatInput, s32 fifthInput);
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth,
+                           s32 count, s32 primitiveType, s32 preserveState);
+extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
+                           f32 angle, f32 depth, s32 preserveState);
 
 
 
@@ -54,7 +54,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 s32 cmmRankUpStepSparkle(s32 *sparkle, u8 *card)
 {
     /* Sparkle records have 0x20-byte stride, flags at +0, position at +4/+8 and timers at +0xC..0x18; typing changed MWCC scheduling. */
-    extern s32 shdSpriteDrawNowEx(f32 floatInput, f32 secondFloatInput, f32 thirdFloatInput, s32 input, u8 secondInput, s32 thirdInput, s32 fourthInput, u8 * fifthInput, s32 sixthInput, s16 seventhInput, s16 eighthInput, f32 fourthFloatInput, f32 fifthFloatInput, f32 sixthFloatInput);
+    extern s32 shdSpriteDrawNowEx(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags, s16 width, s16 height, f32 rotation, f32 scaleX, f32 scaleY);
     extern u32 RpRandom(void);
     extern f32 sinf(f32 sparkle);
     f32 ra;

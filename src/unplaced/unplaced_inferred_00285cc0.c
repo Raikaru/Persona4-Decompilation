@@ -27,7 +27,7 @@ typedef struct {
 
 extern void evtDestroy(s32 , s32 );
 extern u8 *evtCreateEventState(void);
-extern s32 evtStepEventTask(u8 *task);
+extern s32 evtStepEventTask(u8 *sdkTaskBytes);
 extern void evtDestroyEventScene(u8 *, s32 );
 extern void evtApplyEventBlock(EvtLoaderBlock *);
 extern u8 *kwlnGetCamera(void);

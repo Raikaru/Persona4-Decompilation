@@ -24,7 +24,7 @@ extern u8 D_00882EF0[];
 extern u8 D_00882EDE[];
 extern u8 D_00882EFE[];
 extern void sprintf(char *buf, const char *fmt, s32 value);
-extern void sdkSndStartChannel(s16 channelIndex, char *buf);
+extern void sdkSndStartChannel(s16 channelIndex, char *path);
 extern char D_0063CB30[];
 extern char D_0063D050[];
 extern void sdkSndResetChannel(s32, s32);
@@ -50,8 +50,8 @@ extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,
                           s32);
 extern f32 fGpffff8204;
-extern void mtMiscDrawSpriteAt(s32 image, f32 farg0, f32 farg1, f32 farg2,
-                          f32 farg3, s32 alphaSubtract, s32 centered);
+extern void mtMiscDrawSpriteAt(s32 image, f32 x, f32 y, f32 scaleX,
+                          f32 scaleY, s32 alphaSubtract, s32 centered);
 extern char D_0063C8F0[];
 extern char D_0063C910[];
 extern s32 D_0076462C;

@@ -18,7 +18,7 @@
 #include "scene_event_internal.h"
 extern void (*jtbl_008873EC[])(void *);
 extern s32 D_0076428C;
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 FldStepNotAtBoundary(void);
 extern u8 D_005F54D8[];

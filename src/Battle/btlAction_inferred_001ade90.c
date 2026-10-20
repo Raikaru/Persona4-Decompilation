@@ -12,14 +12,14 @@
 #include "btl_target_state_packet_internal.h"
 #include "btl_action_internal.h"
 typedef struct BtlPacket BtlPacket;
-extern BtlPacket *btlFormationCreateNamedPacket(u32 formation, const char *text, u16 mode);
-u32 datCalcRandomBelow(u32 bound);
+extern BtlPacket *btlFormationCreateNamedPacket(u32 resource, const char *path, u16 mode);
+u32 datCalcRandomBelow(u32 limit);
 typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
-extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
+extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode);
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
-extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
+extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument, u32 extraArgument, u32 flags);
 static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
 {
     return (u8 *)btlTargetCreateTargetPacket((u32)action, kind, a, b, c);
@@ -39,7 +39,7 @@ static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
 {
     return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
-extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
+extern BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit);
 static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
     return btlPacketCreateEffectCounter(unit, message);
@@ -75,7 +75,7 @@ extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 
 extern u8 *iGpffffb3b8;
-extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
+extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u16 flags);
 static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 {
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
@@ -83,17 +83,17 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32);
 extern s16 btlSoundCalcStatusHpSpDelta(u8 *);
-extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
+extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value);
 extern void btlTargetClearResultBuffer(u8 *);
-extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlPacketCreateHpRatio(u8 *);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 extern BtlPacket *btlFormationCreateReturnPacket(u16);
-extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value);
-extern BtlPacket *btlFormationCreateEventPacket(u32 action);
+extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 sideFlags);
+extern BtlPacket *btlFormationCreateEventPacket(u32 value);
 BtlPacket *btlMainCreateColorSetPacket(s32);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
-u8 *btlSoundLoadPacketNew(const void *data);
+u8 *btlSoundLoadPacketNew(const void *request);
 s32 btlTargetCanControlDamagePhase(void);
 u8 *btlSoundLoadTaskStart(void);
 u8 *btlSoundReleaseTaskStart(void);
@@ -110,7 +110,7 @@ u8 *btlEffectCreateFormationPacket(s32, s32, s32, s64, s32);
 u8 *func_001f99c0(u8 *, u16, s32, s32, s32);
 u8 *btlCutinCreateEndPacket(void);
 u8 *btlCutinCreateStartPacket(void);
-extern void btlMessageStartShort(u8 *task, u8 *unit);
+extern void btlMessageStartShort(u8 *task, u8 *action);
 extern s32 btlMessageIsActive(s32 task);
 extern s32 btlMessageGetResult(s32 task);
 extern void btlMessageReset(s32 task);
@@ -132,7 +132,7 @@ void btlTaskSlotLinkedSlot3Callback(void);
 
 extern s32 btlActionLinkedUnitIsActive(BtlAction *action);
 extern void btlActionSkillUpdate(u8 *);
-u8 datCalcGetCharacterTableKind(u8 *unitData);
+u8 datCalcGetCharacterTableKind(u8 *unit);
 /* firstField is an interior halfword column; retain the 0xE8 row-to-row stride. */
 static inline s16 btlCameraField_001a59a0(u16 unitId, s16 *firstField)
 {
@@ -794,26 +794,26 @@ loop_7_test:
 void btlActionRoundupUpdate(u8 *action)
 {
     /* Historical whole-layout trial: 3300B; remaining exceptions are measured per access below. */
-    extern s32 btlFormationAllocWork(u32 action);
-    extern void btlFormationSetPlacement(u32 action);
-    extern u32 btlFormationGetFlags(s32 action);
+    extern s32 btlFormationAllocWork(u32 mode);
+    extern void btlFormationSetPlacement(u32 formation);
+    extern u32 btlFormationGetFlags(s32 record);
     extern u8 *btlFormationDispatchPacketNew(u32 action, u32, u32);
     extern u8 *btlTargetCreateRecordPacket(u8 *action);
-    extern s32 btlUnitSlotValueOrOne(s32 action);
+    extern s32 btlUnitSlotValueOrOne(s32 unitId);
     extern void btlBossResetPendingCue(u8 *action);
     extern u32 datCalcChkBadStatus(s32 action, u32);
     extern void btlMainSkillColorPairDefaults(u32 action, s32 *, s32 *);
-    extern s32 btlMainSkillColorDefault(s32 action);
-    extern s32 btlMainSkillTintDefault(s32 action);
+    extern s32 btlMainSkillColorDefault(s32 skill);
+    extern s32 btlMainSkillTintDefault(s32 skill);
     extern void btlMainSkillColorPairDefaultsAlt(u32 action, s32 *, s32 *);
     extern BtlPacket *btlMainCreateColorLerpPacket(u32 action, u32, u32);
-    extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
+    extern BtlPacket *btlMainCreateColorWorkPacket(s32 lightColor, s32 ambientColor, s32 fogColor, u32 duration, u16 flags);
     extern BtlPacket *btlMainCreateTintPacket(u32 action, u32);
-    extern BtlPacket *btlCreateTimingPacket(u32 action);
+    extern BtlPacket *btlCreateTimingPacket(u32 value);
     extern BtlPacket *btlMainCreateFadePacket(s32 action, s16);
-    extern BtlPacket *btlMainCreateColorFadePacket(s32 action);
+    extern BtlPacket *btlMainCreateColorFadePacket(s32 arg);
     extern BtlPacket *btlSoundCreateStreamPacket(u16 action, const char *);
-    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value);
     extern u8 D_005F6D38[];
     extern u8 D_005F6D48[];
     extern u8 D_005F6D58[];
@@ -1224,7 +1224,7 @@ void btlActionEndUpdate(u8 *action)
     s32 btlOrderRemoveActionAll(u8 *action);
     void btlOrderQueueAction(u8 *action);
     void btlOrderSetCurrentAction(u8 *action);
-    void btlActionCheckStepTrigger(s32 advance);
+    void btlActionCheckStepTrigger(s32 context);
     void datCalcAdvanceSecondaryBuffs(u8 *unit);
     void btlTargetRecordDefeatReward(u8 *action);
     void datCalcSetHp(s32 unit, u16 hp);

@@ -54,7 +54,7 @@ static inline s32 func_0031_ne(s32 value, s32 target)
 }
 
 extern s32 datGetFlag(s32 );
-extern s32 datItemCount(s16 id);
+extern s32 datItemCount(s16 itemId);
 extern u16 cmmCommunityRecordValue(u16 );
 extern u8 D_006432B0[];
 extern u8 fclCalendarMonth(void);

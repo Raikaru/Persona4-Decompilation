@@ -10,18 +10,18 @@ extern u8 *iGpffffb3ac;
 
 extern u8 *iGpffffa5f0;
 extern void sdkSndResetChannel(s32 value, s32 option);
-extern u8 *btlPacketAlloc(s32 type, s32 workSize);
-extern void H_Cdvd_Destroy(u8 *ptr);
-extern void sdkSndStartMonoBuffer(s32 value, s32 option, s32 data);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
+extern void H_Cdvd_Destroy(u8 *cdvd);
+extern void sdkSndStartMonoBuffer(s32 channelIndex, s32 source, s32 sourceSize);
 extern s32 btlBossLoadEndBgmStep(u8 *work);
 
 extern s32 btlCurrentUnitId(void);
 extern s64 datGetDateIndex(void);
-extern s32 datGetFlag(s32 value);
-extern s32 datGetEquippedItemByUnit(s32 value, s32 option);
-extern s32 calGetDayWindowFlags(s16 value);
+extern s32 datGetFlag(s32 bit);
+extern s32 datGetEquippedItemByUnit(s32 unitId, s32 slotIndex);
+extern s32 calGetDayWindowFlags(s16 day);
 extern s32 sprintf(char *buf, char *fmt, ...);
-extern void btlBossResolveNpcModelName(s32 value, u16 option);
+extern void btlBossResolveNpcModelName(s32 destination, u16 modelId);
 extern char D_007636e0;
 extern char D_006358D0[];
 extern char D_006358F0[];
@@ -38,16 +38,16 @@ extern char D_00635770[];
 extern char D_00635790[];
 extern char D_006357B0[];
 extern char D_006357C8[];
-extern void mdlAttachSlotModelFromResource(void *model, u16 slot, u32 type, u16 id,
-                           void *path, u32 flags);
-extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slot, u32 type, u16 id,
+extern void mdlAttachSlotModelFromResource(void *model, u16 slotIndex, u32 type, u16 id,
+                           void *resource, u32 flags);
+extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slotIndex, u32 type, u16 id,
                           u32 flags);
 extern char D_006357E0[];
 extern char D_00635800[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0023; members 002305c0-002308a0 */
 
-extern void btlBossResolveNpcModelName(s32 value, u16 option);
+extern void btlBossResolveNpcModelName(s32 destination, u16 modelId);
 // FUN_002305C0
 /* Allocate the eight-byte end-BGM loader work and install its update callback. */
 BtlPacket *btlBossCreateLoadEndBgmPacket(s32 id)

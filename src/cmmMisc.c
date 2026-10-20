@@ -33,38 +33,38 @@ extern u32 RpRandom(void);
 
 extern void func_00440b68(const char *fmt, const char *file, s32 line);
 extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
-extern void H_Cdvd_ReadSync(void *handle);
-extern u8 *H_Cdvd_GetArchiveEntry(u8 *handle, s32 index, s32 *out);
+extern void H_Cdvd_ReadSync(void *cdvd);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
 extern void kAssertFail(void *file, s32 line);
 extern void kAssertFailMsg(const char *file, s32 line, char *fmt, s32 value);
 extern s32 datGetDateIndex(void);
-extern u32 datGetFlag(s32 flag);
-extern void datSetFlag(s32 id, s32 flag);
-extern u32 datGetScriptValue(s32 idx);
-extern s32 datSetScriptValue(s32 id, s32 value);
-extern s32 datItemCount(s16 idx);
-extern s32 cmmCommunityTestMarked(s32 idx);
-extern s32 cmmCommunityTestReversed(s32 idx);
-extern void cmmCommunitySetReversed(s32 idx);
-extern s32 cmmCommunityTestBroken(s32 idx);
-extern s32 cmmCommunityCanRankUp(s32 idx);
-extern s32 cmmCommunityFindRecord(s32 idx);
-extern s32 calGetWeekdayOfDay(s32 a);
-extern s32 calIsCurrentMonthDay(s32 a, s32 b, s32 c);
-extern s32 calIsDayInRange(s32 a, s32 b, s32 c, s32 d, s32 e);
-extern s32 cmmCommunityCounterpart(s64 idx); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
-extern s32 cmmCommunityRecordValue(s32 idx);
-extern s32 cmmCommunityTestRecordFlags(s32 idx, s32 option);
+extern u32 datGetFlag(s32 bit);
+extern void datSetFlag(s32 flagId, s32 enabled);
+extern u32 datGetScriptValue(s32 index);
+extern s32 datSetScriptValue(s32 index, s32 value);
+extern s32 datItemCount(s16 itemId);
+extern s32 cmmCommunityTestMarked(s32 communityId);
+extern s32 cmmCommunityTestReversed(s32 communityId);
+extern void cmmCommunitySetReversed(s32 communityId);
+extern s32 cmmCommunityTestBroken(s32 communityId);
+extern s32 cmmCommunityCanRankUp(s32 communityId);
+extern s32 cmmCommunityFindRecord(s32 value);
+extern s32 calGetWeekdayOfDay(s32 dateIndex);
+extern s32 calIsCurrentMonthDay(s32 unused, s32 month, s32 day);
+extern s32 calIsDayInRange(s32 dateIndex, s32 startMonth, s32 startDay, s32 endMonth, s32 endDay);
+extern s32 cmmCommunityCounterpart(s64 communityId); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
+extern s32 cmmCommunityRecordValue(s32 communityId);
+extern s32 cmmCommunityTestRecordFlags(s32 communityId, s32 mask);
 extern u16 cmmCommunityGetTableHead(void);
-extern s64 cmmCommunityArcana(s32 idx);
-extern s32 cmmCommunityHasRecord(u16 idx);
-extern void calSplitDayOfYear(s32 seed, s32 *month, s32 *day);
-extern s32 calDayOfYearFromMonthDay(s32 a, s32 b);
-extern s32 calHasDayEntry(s32 idx);
+extern s64 cmmCommunityArcana(s32 communityId);
+extern s32 cmmCommunityHasRecord(u16 communityId);
+extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
+extern s32 calDayOfYearFromMonthDay(s32 month, s32 day);
+extern s32 calHasDayEntry(s32 day);
 extern s32 cmmDateTableFindIndex();
-extern u16 cmmCommunityCategory(s32 value);
-extern s32 cmmReversedAtRank(s32 value);
-extern void datEntryDrawGatedByFlag39(s32 a, s32 b, s32 c, s32 d);
+extern u16 cmmCommunityCategory(s32 communityId);
+extern s32 cmmReversedAtRank(s32 communityId);
+extern void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags);
 extern void chkmemAllocSiteTag(void *, s32);
 
 extern char D_006359D0[];
@@ -1148,7 +1148,7 @@ u8 *cmmMsgStreamEntry(s32 requestedKind, s32 communityId) {
     if (!(kind & 0xFFFF)) {
         /* cmmCommunityHasRecord is narrow at the 00247270-family sites for retail's
            andi, but 002485e0 passes communityId whole as s32, so override it here. */
-        extern s32 cmmCommunityHasRecord(s32 idx);
+        extern s32 cmmCommunityHasRecord(s32 communityId);
         if (cmmCommunityHasRecord(communityId) == 0) {
             selectedKind = 3;
         } else if (cmmCommunityCanRankUp(communityId) != 0) {

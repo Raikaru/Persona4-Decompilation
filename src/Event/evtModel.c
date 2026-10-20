@@ -89,32 +89,32 @@ extern f32 fGpffff8510; /* gp -0x7af0 */
 extern f32 fGpffff8514; /* gp -0x7aec */
 extern f32 D_00761260;  /* gp -0x7e90 */
 
-extern s32 mtMiscResourceValue(u32 id);
+extern s32 mtMiscResourceValue(u32 resourceId);
 // lint: allow H011 -- measured: u16 prototype regresses func_00292ef0 (andi on wide id args)
-extern void *MT_Scene_GetRes(u32 id);
+extern void *MT_Scene_GetRes(u32 resTypeId);
 
-extern u8 *nmListAllocManager(s32 a, s32 b, s32 c, s32 d);
-extern void nmListDestroyManager(void *a);
-extern u8 *nmListAppendNode(void *a, s32 b, s32 c);
-extern void comuDataRemoveAndReleaseNode(void *a, void *b, void *c);
+extern u8 *nmListAllocManager(s32 payloadSize, s32 onInsert, s32 onRemove, s32 onUpdate);
+extern void nmListDestroyManager(void *manager);
+extern u8 *nmListAppendNode(void *manager, s32 owner, s32 payloadSize);
+extern void comuDataRemoveAndReleaseNode(void *owner, void *source, void *nodeStorage);
 extern void RwV3dNormalize(void *a, void *b);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void memset(void *dst, s32 value, s32 size);
 extern s32 func_0044b310(s32 a);
-extern f32 func_0044b920(f32 a);
+extern f32 func_0044b920(f32 value);
 extern s32 fptodp(f32 a);
 extern f32 dptofp(s32 a);
 
 extern u8 **kwlnTaskGetWork();
 extern void kAssertFail(void *file, s32 line);
-extern void *mdlGetMatrix(s32 a);
-extern void mdlSetBlendWeight(s32 a, f32 b);
-extern void mdlSetLookAtDirection(s32 a, void *b);
-extern void mdlSetTrackScaleRange(s32 a, f32 b, f32 c);
-extern u8 *mdlGetLookAtSubobject(s32 a);
-extern void mdlSetLookAtRequested(s32 a);
-extern s32 mdlHasActiveMode(s32 a);
-extern f32 effMiscQuatAngle(void *a, f32 *b);
+extern void *mdlGetMatrix(s32 model);
+extern void mdlSetBlendWeight(s32 model, f32 value);
+extern void mdlSetLookAtDirection(s32 model, void *direction);
+extern void mdlSetTrackScaleRange(s32 model, f32 yawOffset, f32 pitchOffset);
+extern u8 *mdlGetLookAtSubobject(s32 model);
+extern void mdlSetLookAtRequested(s32 model);
+extern s32 mdlHasActiveMode(s32 model);
+extern f32 effMiscQuatAngle(void *firstQuaternion, f32 *secondQuaternion);
 
 // Intent: Single-model motion state machine: state 0 ramps the blend weight from speed, state 1 aims the look-at subobject at dst, then the timed step ends the motion [inferred]
 // FUN_00291B60

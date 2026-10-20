@@ -23,7 +23,7 @@ s32 cmmCommunityName(s64 community)
 // FUN_00311930
 s32 cmmCommunityExpRemaining(s32 community, u8 *persona, s8 applyMultiplier)
 {
-    extern s32 shdPersonaCalcExpRemaining(struct DatPersonaRecord *community, s32 persona);
+    extern s32 shdPersonaCalcExpRemaining(struct DatPersonaRecord *persona, s32 extraLevels);
     extern f32 D_007494D0[];
     extern f32 D_00749500[];
     f32 scale;

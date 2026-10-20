@@ -16,7 +16,7 @@ typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
-extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
+extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument, u32 extraArgument, u32 flags);
 static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
 {
     return (u8 *)btlTargetCreateTargetPacket((u32)action, kind, a, b, c);
@@ -36,7 +36,7 @@ static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
 {
     return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
-extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
+extern BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit);
 static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
     return btlPacketCreateEffectCounter(unit, message);
@@ -67,8 +67,8 @@ extern u8 *iGpffffb3ac; /* active battle context */
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 
 extern u8 *iGpffffb3b8; /* skill table, DatSkillEntry rows */
-u8 datCalcGetCharacterTableKind(u8 *unitData);
-extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
+u8 datCalcGetCharacterTableKind(u8 *unit);
+extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u16 flags);
 static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 {
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);

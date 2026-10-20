@@ -24,7 +24,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *model);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
 extern void mdlDestroyModelObject();
@@ -61,13 +61,13 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 model, s32 size, s32 count, s32 flags,
-                          void *data, s32 options);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
-extern void mdlInitIdentityMatrix(void *model);
-extern s32 mdlLayerIsPresent(void *model, s32 size);
-extern void mdlSetLayerWeight(void *model, s32 size, f32 count);
+extern void mdlInitIdentityMatrix(void *matrixWords);
+extern s32 mdlLayerIsPresent(void *model, s32 layer);
+extern void mdlSetLayerWeight(void *model, s32 layer, f32 speed);
 extern void mdlSetResetCallback(void *model, void (*size)(void), void *count);
 extern void EffModelResetCallback(void);
 extern u8 D_0071401C[];
@@ -81,16 +81,16 @@ extern f32 fGpffffbb74;
 extern f32 fGpffffbb70;
 extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
-extern void *mdlFindModelObject(u32 model, u16 size, u32 count);
-extern void *mdlCreateModelObjectFromMemory(u32 model, u16 size, void *count, u32 flags, u32 data);
+extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
+extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *memory, u32 size, u32 flags);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004abbb0-004abd60 */
 
-extern s32 mdlEffectProjectBillboardQuad(u8 *model, u8 *size);
-extern void mdlEffectBuildRectQuad(u8 *model, u8 *size);
-extern void mdlEffectBuildOffsetQuad(u8 *model, u8 *size);
-extern void mdlEffectBuildDirectRectQuad(u8 *model, u8 *size);
+extern s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildRectQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *vertices);
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
