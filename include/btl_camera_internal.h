@@ -21,6 +21,13 @@ typedef struct BtlCameraPose {
     BtlCameraQuaternion rot;
 } BtlCameraPose;
 
+/* Four-byte header precedes the variable-length 0x3C-byte script rows. */
+typedef struct BtlCameraScript {
+    u8 count;
+    u8 flags;
+    s16 curveMode;
+} BtlCameraScript;
+
 /* Script rows start four bytes after the table header and have a 0x3C stride. */
 typedef struct BtlCameraScriptEntry {
     s16 duration;
@@ -74,23 +81,42 @@ typedef struct BtlCamera {
     u16 stateHistory[3];             /* 0xE4 */
     u16 repeatedStateCount;          /* 0xEA */
     BtlCameraScriptWork scriptWork;  /* 0xEC */
-    s32 presetTarget;                /* 0x100 */
-    u8 pad104[4];
-    s32 presetAlternate;             /* 0x108 */
-    u16 presetUseCount;              /* 0x10C */
-    u16 presetRepeatCount;           /* 0x10E */
-    u16 frameMode;                   /* 0x110 */
-    u8 pad112[0x1A];
-    u32 animationUnit;               /* 0x12C */
-    u16 animationValue;              /* 0x130 */
-    u8 pad132[2];
-    u8 *effectTarget;                /* 0x134 */
-    s32 effectMode;                  /* 0x138 */
-    s32 effectInterrupted;           /* 0x13C */
-    u16 effectTargetCount;           /* 0x140 */
-    u16 effectFlags;                 /* 0x142 */
-    u8 pad144[4];
-    s32 forceTransition;             /* 0x148 */
+    /* Camera modes reuse this storage; the original scalar names remain aliases. */
+    union {
+        struct {
+            s32 presetTarget;                /* 0x100 */
+            u8 pad104[4];
+            s32 presetAlternate;             /* 0x108 */
+            u16 presetUseCount;              /* 0x10C */
+            u16 presetRepeatCount;           /* 0x10E */
+            u16 frameMode;                   /* 0x110 */
+            u8 pad112[2];
+            s32 frameBlocked;               /* 0x114: UpdateMode blocks further framing */
+            u8 pad118[0x14];
+            u32 animationUnit;               /* 0x12C */
+            u16 animationValue;              /* 0x130 */
+            u8 pad132[2];
+            u8 *effectTarget;                /* 0x134 */
+            s32 effectMode;                  /* 0x138 */
+            s32 effectInterrupted;           /* 0x13C */
+            u16 effectTargetCount;           /* 0x140 */
+            u16 effectFlags;                 /* 0x142 */
+            s32 effectScriptActive;          /* 0x144: ChooseActionStyle selects the effect updater */
+            s32 forceTransition;             /* 0x148 */
+        };
+        struct {
+            f32 yaw;
+            BtlCameraPosition focus;
+            BtlCameraPosition direction;
+            f32 radius;
+            s32 refreshBounds;
+        } orbit;
+        struct {
+            u8 *action;
+            u16 genusMask;
+            u16 groupMode;
+        } status;
+    };
 } BtlCamera;
 
 /* Packet 0x201 allocates this complete 0x44-byte work record. */
@@ -125,6 +151,11 @@ typedef struct BtlCameraCommand {
     s32 second;
 } BtlCameraCommand;
 
+typedef char BtlCameraScriptSizeCheck[sizeof(BtlCameraScript) == 4 ? 1 : -1];
+typedef char BtlCameraOrbitFocusOffsetCheck[(u32)&((BtlCamera *)0)->orbit.focus == 0x104 ? 1 : -1];
+typedef char BtlCameraStatusGroupOffsetCheck[(u32)&((BtlCamera *)0)->status.groupMode == 0x106 ? 1 : -1];
+typedef char BtlCameraBlockedOffsetCheck[(u32)&((BtlCamera *)0)->frameBlocked == 0x114 ? 1 : -1];
+typedef char BtlCameraEffectUpdaterOffsetCheck[(u32)&((BtlCamera *)0)->effectScriptActive == 0x144 ? 1 : -1];
 typedef char BtlCameraScriptEntrySizeCheck[sizeof(BtlCameraScriptEntry) == 0x3C ? 1 : -1];
 typedef char BtlCameraScriptWorkSizeCheck[sizeof(BtlCameraScriptWork) == 0x14 ? 1 : -1];
 typedef char BtlCameraSizeCheck[sizeof(BtlCamera) == 0x14C ? 1 : -1];
