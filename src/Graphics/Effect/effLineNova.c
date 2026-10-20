@@ -362,6 +362,7 @@ static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 
  * arguments are (s32) conversions so they load before the first two; the
  * screen products use operandOrderMultiply for retail's operand order. */
 #pragma push
+/* measured: baseline C nd 1287B; adjacent-local declaration probe nd 1287B; retain settings for owner MATCH. */
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
 // Builds the eight-byte camera-corner particle quads (see the note above).
@@ -839,6 +840,7 @@ void LineNovaReseedVertices(u8 *effect) {
  * declared after the loop counter. The Y camera offset forms its depth factor
  * before the 224 difference, unlike the X call through novaCameraOffset. */
 #pragma push
+/* measured: baseline C nd 722B; adjacent-local declaration probe nd 722B; retain settings for owner MATCH. */
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
 // Places six XYZ vertices per particle between the projected endpoints (the six-byte particle update).

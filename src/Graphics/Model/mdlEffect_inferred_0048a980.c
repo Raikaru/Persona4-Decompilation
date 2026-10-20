@@ -104,6 +104,7 @@ static inline f32 mdlEffectColorOpacity(s32 frame, s32 duration, s32 fadeIn, s32
    constants and discard the root copy before register coalescing. */
 #pragma push
 /* measured: func_0048a980 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 6B; adjacent-local declaration probe nd 6B; retain settings for owner MATCH. */
 #pragma opt_common_subs off
 /* measured: func_0048a980 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
@@ -519,6 +520,7 @@ void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 
 #pragma push
 /* measured: split the two counter webs, but preserve the native-asm cursor. */
 /* measured: func_0048b340 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 1330B; adjacent-local declaration probe nd 1330B; retain settings for owner MATCH. */
 #pragma opt_lifetimes on
 /* measured: func_0048b340 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
@@ -789,6 +791,7 @@ loop1_check:
  * evaluation order and the complete retail 2652-byte executable body. */
 #pragma push
 /* measured: EffWaveUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 2023B; adjacent-local declaration probe nd 2023B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 void EffWaveUpdate(u8 *emitterData)
 {

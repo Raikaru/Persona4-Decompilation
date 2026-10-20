@@ -126,6 +126,7 @@ extern void func_003c22f0(void* a);
  * and opt_lifetimes on are both required (verify MISMATCH, nd 116,
  * without them). */
 #pragma push
+/* measured: baseline C nd 116B; adjacent-local declaration probe nd 116B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 // Binds the sections of the packed afterimage resource at resource: walks the header counts and records each table's pointer; the per-record size depends on the header's type word (0x64 or 0x65).

@@ -106,10 +106,8 @@ void EffModelResetCallback(void) {
     TnInvokeCallback();
 }
 
-/* Measured: propagation-off and a staged type preserve constant-first lookup
-   arguments with the canonical u32 model-lookup prototype. */
-#pragma push
-#pragma opt_propagation off
+/* measured: the staged type preserves constant-first lookup arguments with the
+   canonical u32 prototype; both constructors MATCH under baseline propagation. */
 /* Allocates a 0x9C-byte effect and optionally creates its embedded model resource with a free type-six ID. */
 // FUN_004ABE80
 void *EffModelCreate(void *source) {
@@ -162,7 +160,6 @@ void *EffModelCreate(void *source) {
     }
     return effect;
 }
-#pragma pop
 /* Destroys the owned model before releasing its effect allocation. */
 // FUN_004AC0B0
 void EffModelFree(void *effect)
@@ -395,8 +392,6 @@ void EffModelSetLookupIndex(int effect, int packedColor)
 }
 
 /* Measured: the same staged lookup type preserves this constructor's call order. */
-#pragma push
-#pragma opt_propagation off
 /* Allocates a 0xBC-byte drawable effect, creates the embedded model and configures its draw callback and frame range. */
 // FUN_004AC640
 void *EffModelCreateDrawable(void *source) {
@@ -462,7 +457,6 @@ void *EffModelCreateDrawable(void *source) {
     }
     return effect;
 }
-#pragma pop
 /* Destroys the drawable model before releasing its effect allocation. */
 // FUN_004AC8E0
 void EffModelFreeDrawable(void *effect)

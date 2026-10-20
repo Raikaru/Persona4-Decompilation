@@ -54,6 +54,7 @@ u8 *mdlGetSampleScratch(void)
 /* measured: mdlDispatchTrackRows MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 /* Runs the four track row kinds against the target list at +0x50: a row with data on both sides is blended with the matching right-hand row, otherwise it is sampled, and its apply callback writes the result to every target. */
+/* measured: typed row pointers, pointer iteration and byte-stride row lookup leave 12 differing register words without hoisting; retain the toggle. */
 // FUN_0047F850
 void mdlDispatchTrackRows(u8 *leftTrack, f32 leftTime, u8 *rightTrack, f32 rightTime,
                    f32 weight)

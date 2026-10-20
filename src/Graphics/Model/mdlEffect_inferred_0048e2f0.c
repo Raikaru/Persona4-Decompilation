@@ -118,6 +118,7 @@ extern void mdlEffectUpdateOrbitEmitter(u8 *emitterData);
 // FUN_0048E2F0
 #pragma push
 /* measured: EffConeEmitterUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 1142B; adjacent-local declaration probe nd 1142B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 /* measured: EffConeEmitterUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on

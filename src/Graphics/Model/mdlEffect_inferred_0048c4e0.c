@@ -95,6 +95,7 @@ extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
 // FUN_0048C4E0
 #pragma push
 /* measured: EffMotionEmitterUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 1136B; adjacent-local declaration probe nd 1136B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 /* measured: EffMotionEmitterUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on

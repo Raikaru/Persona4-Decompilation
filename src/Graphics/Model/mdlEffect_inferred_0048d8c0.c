@@ -112,6 +112,7 @@ extern void EffMotionEmitterUpdate(u8 *emitterData);
  * spill stores. */
 #pragma push
 /* measured: func_0048d8c0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 1259B; adjacent-local declaration probe nd 1259B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 /* measured: func_0048d8c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
