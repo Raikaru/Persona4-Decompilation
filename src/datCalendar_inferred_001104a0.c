@@ -16,6 +16,7 @@ s32 calGetMonthLength(s32 month)
 }
 
 #pragma push
+/* measured: baseline and structured/cached-month loop probes differ (nd 33/86); retain retail hoisting and propagation. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 // Intent: Split a day count within the 365-day year into a 1-based month and day by subtracting month lengths from April [inferred]

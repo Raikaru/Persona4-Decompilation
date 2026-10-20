@@ -100,20 +100,6 @@ extern void (*D_008873EC[])(void *);
 extern void (*D_008873FC[])(s32 param, u8* arg);
 extern s32 D_008D2F2C[];
 extern s16 D_008D2F34[];
-#pragma push
-#pragma opt_propagation off
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
-#pragma opt_propagation off
-#pragma opt_propagation on
-#pragma opt_propagation off
-#pragma opt_propagation on
-#pragma push
-#pragma opt_scalarize off
-#pragma pop
 /* Return channel three's requested track identifier, or minus one when its request is inactive. */
 // FUN_0045B400
 s16 hsndGetCurrentTrack(void)
