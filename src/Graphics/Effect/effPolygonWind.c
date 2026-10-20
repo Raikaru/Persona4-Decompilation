@@ -11,6 +11,11 @@ extern void (*D_008873ec[])(void *);
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef int s128 __attribute__((mode(TI)));
 
+/* Each alias starts at one callback/size column of a 0x1C-byte kind row. */
+typedef struct WindKindSize { s32 parameterBytes; u8 pad04[0x18]; } WindKindSize;
+typedef struct WindKindAllocator { void *(*allocate)(void *, void *); u8 pad04[0x18]; } WindKindAllocator;
+typedef struct WindKindInitializer { void (*initialize)(void *); u8 pad04[0x18]; } WindKindInitializer;
+
 /* 4-byte color state at 0x00724C54..57, accessed gp-relative in retail. */
 typedef struct {
     u8 c0;
@@ -131,7 +136,7 @@ extern void SpiralWindInitEntries(u8 *, u8 *);
 extern u8 *mdlEffectCloneMultipartGeometry(u8 *);
 extern void *memcpy(void *, const void *, u32);
 extern char D_00713330[];
-extern char D_00714148[];
+extern WindKindSize D_00714148[];
 extern u_long128 D_00713CE0;
 
 extern void kAssertFail(void *, s32);
@@ -153,8 +158,8 @@ extern f32 iGpffff8084; /* 0x00761174 */
 extern f32 fGpffff8044; /* 0x00761134 */
 extern f32 iGpffff8080; /* 0x00761170 */
 extern void *WindAllocKindEntry(s32, void *);
-extern char D_00714134[];
-extern char D_00714130[];
+extern WindKindAllocator D_00714134[];
+extern WindKindInitializer D_00714130[];
 extern char D_00714110[];
 
 // Allocates a funnel wind block: count * 48 entry bytes plus a 12-byte header.
@@ -1967,9 +1972,7 @@ void *WindAllocKindEntry(s32 kind, void *parameters)
         kAssertFail(D_00714110, 0x59F);
     }
     kindIndex = kind & 0xFFFF;
-    /* D_00714148 names the size column, not the start of the kind table. */
-    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
-    parameterBytes = *(s32 *)(D_00714148 + kindIndex * 0x1C);
+    parameterBytes = D_00714148[kindIndex].parameterBytes;
     chkmemAllocSiteTag(D_00714110, 0x5A3);
     effect = jtbl_008873E8[0](parameterBytes + 0x50, 0x40000);
     if (effect == NULL) {
@@ -1996,7 +1999,7 @@ void *WindCreateKindEntry(void *source)
     u8 *parameters;
     u8 *texture;
     u8 *effect;
-    u32 tableOffset;
+    u32 kindIndex;
 
     texture = mdlEffectResolveRelPtrB(source);
     if (texture == NULL) {
@@ -2018,12 +2021,9 @@ void *WindCreateKindEntry(void *source)
     }
     kind = (u8 *)(((EffSourceDescriptor *)source)->id & 0xFFFF);
     effect = WindAllocKindEntry((s32)kind, parameters);
-    tableOffset = ((u32)kind & 0xFFFF) * 28;
-    /* These linker symbols name callback columns inside 0x1C-byte records. */
-    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
-    ((WindEffect *)effect)->block.word = (u32)((void *(*)(void *, void *))(*(void **)(D_00714134 + tableOffset)))(parameters, texture);
-    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
-    ((void (*)(void *))(*(void **)(D_00714130 + tableOffset)))(effect);
+    kindIndex = ((u32)kind & 0xFFFF);
+    ((WindEffect *)effect)->block.word = (u32)D_00714134[kindIndex].allocate(parameters, texture);
+    D_00714130[kindIndex].initialize(effect);
     if (effect == NULL) {
         kAssertFail(D_00714110, 0x5E5);
     }

@@ -248,6 +248,9 @@ typedef struct FldResourcePreset
     s8 minorIds[10];
 } FldResourcePreset;
 
+/* One-byte preset index read from the packed map after the preset records. */
+typedef struct FldResourcePresetIndex { u8 preset; } FldResourcePresetIndex;
+
 /* Three 12-byte records at 0x005F0590; the field-index map is at 0x005F05B8. */
 extern const FldResourcePreset fldResourcePresets[3];
 
@@ -938,9 +941,7 @@ publishResources:
                 ordinaryDestination = (u8 *)D_007E8060;
                 ordinaryIndexTable = (u8 *)D_005F05B8;
                 ordinaryCountTable = (u8 *)D_005F0590;
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                /* Layout exception: preset-map alias; row, flexible-tail, array and pointer probes lose MATCH. */
-                while (ordinaryPreset = *(u8 *)(ordinaryIndexTable + ((FldResourceWork *)ordinaryPublishWork)->majorId - 0x28),
+                while (ordinaryPreset = ((FldResourcePresetIndex *)(ordinaryIndexTable + ((FldResourceWork *)ordinaryPublishWork)->majorId - 0x28))->preset,
                        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                        ordinaryPublishIndex < ((FldResourcePreset *)ordinaryCountTable)[ordinaryPreset].ordinaryCount) {
                     ordinaryPublishOffset = ordinaryPublishIndex * 4;
@@ -961,9 +962,7 @@ publishResources:
                 specialDestination = (u8 *)D_007E8060;
                 specialIndexTable = (u8 *)D_005F05B8;
                 specialCountTable = (u8 *)D_005F0590;
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                /* Layout exception: preset-map alias; row, flexible-tail, array and pointer probes lose MATCH. */
-                while (specialPreset = *(u8 *)(specialIndexTable + ((FldResourceWork *)specialPublishWork)->majorId - 0x3C),
+                while (specialPreset = ((FldResourcePresetIndex *)(specialIndexTable + ((FldResourceWork *)specialPublishWork)->majorId - 0x3C))->preset,
                        specialPublishIndex < ((FldResourcePreset *)(specialCountTable + specialPreset * 0xC))->specialCount) {
                     specialPublishOffset = specialPublishIndex * 4;
                     specialResource = ((FldResourceWork *)(specialPublishWork + specialPublishOffset))->resources[0];

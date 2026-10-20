@@ -54,7 +54,9 @@ static inline u32 addBase(u32 base, u32 index) { return base + index; }
 extern char iGpffffa5b8;
 extern u8 *iGpffffa5a0[2];
 
-extern s32 iGpffffa5a8[2];
+/* Resource-name alias starts at the first of two adjacent handles. */
+typedef struct BtlResultResourceName { s32 name; } BtlResultResourceName;
+extern BtlResultResourceName iGpffffa5a8[2];
 extern s32 iGpffffa5b0;
 extern char iGpffffa5b4;
 typedef struct ResultParticleStyle {
@@ -1197,8 +1199,7 @@ u16 btlResultSimpleIsDone(void) {
    368B window exactly. */
 // Intent: set up the result entries from the date index and asset slot. [inferred]
 // FUN_00221770
-/* Choose date-dependent result resources, acquire both archives and request asynchronous asset setup.
- * The raw resource-name table spans adjacent linker-visible symbols. */
+/* Choose date-dependent result resources, acquire both archives and request asynchronous asset setup. */
 void btlResultSimpleSetupEntries(void) {
     s32 *dst;
     s32 i;
@@ -1218,8 +1219,8 @@ void btlResultSimpleSetupEntries(void) {
     i = 3;
     for (; i < 5; i++) {
         dst = (s32 *)((u8 *)work + i * 4 + 0x400);
-        /* layout: GP resource-name alias keeps offset-first indexing; array/local/record forms change MATCH. */
-        *dst = resourceFindByName(*(s32 *)((u8 *)iGpffffa5a8 + i * 4 - 12));
+        /* measured: array indexing changes two bytes; retain the slot-three-relative alias base. */
+        *dst = resourceFindByName(((BtlResultResourceName *)((u8 *)iGpffffa5a8 + i * 4 - 12))->name);
         if (*dst == 0) {
             kAssertFail(&D_00629610, 1419);
         }

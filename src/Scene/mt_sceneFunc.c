@@ -939,12 +939,11 @@ static inline s32 sceneUpdateResourceType(ResrcHeader *resource)
     return (resource->id & 0xFFC00) >> 10;
 }
 
-/* Keep the effect-array byte stride: direct effects[index] access changes
- * two address instructions in each of the matched character/NPC loops. */
+/* Attached-effect slots follow the fixed character-resource prefix. */
 static inline u8 *sceneUpdateAttachedEffect(SceneCharacterUpdate *character, s32 index)
 {
     u8 *slot = (u8 *)character + index * sizeof(character->effects[0]);
-    return *(u8 **)(slot + sizeof(character->base));
+    return ((SceneCharacterUpdate *)slot)->effects[0];
 }
 
 static inline void sceneUpdateQueuedAnimation(ResrcHeader *resource,
@@ -2299,17 +2298,18 @@ f32 MT_Scene_GetCurveLength(char *path)
 /* measured: removing this pragma takes MT_Scene_GetShakeOffset nd 0 -> nd 17 (object 60 -> 56, window 64). */
 #pragma optimization_level 1
 
-/* Read the two fixed linker-addressed shake outputs; these are global aliases, not fields of a recoverable object. */
+/* Read the two adjacent global shake outputs while shake state is enabled. */
 // FUN_0026D400
 u32 MT_Scene_GetShakeOffset(f32* offset)
 {
+    extern f32 D_00881500[4];
     if (*(u16*)&D_00764580 == 0)
     {
         return 0;
     }
 
-    offset[0] = *(f32*)(uintptr_t)0x00881500;
-    offset[1] = *(f32*)(uintptr_t)0x00881504;
+    offset[0] = D_00881500[0];
+    offset[1] = D_00881500[1];
     return 1;
 }
 #pragma optimization_level 2

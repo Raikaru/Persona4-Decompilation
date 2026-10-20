@@ -18,28 +18,40 @@ extern s32 iGpffffb9e8;
 extern u8 D_005DD6A0[];
 extern u8 D_005DD6C0[];
 extern u8 D_005DD610[];
-extern u8 D_005DD61C[];
-extern u8 D_00796A60[];
-extern u8 D_00796A64[];
-extern u8 D_00796A68[];
-extern u8 D_00796A6C[];
-extern u8 D_00796704[];
-extern u8 D_00796706[];
-extern u8 D_00796708[];
-extern u8 D_0079671C[];
-extern u8 D_0079671D[];
-extern u8 D_0079671E[];
-extern u8 D_00796728[];
-extern u8 D_0079672C[];
-extern u8 D_0079674C[];
+/* Each declaration starts at the named interior sub-object, not slot +0.
+ * The containing display slots are separated by 0x370 bytes. */
+typedef struct FclBankId { s16 id; } FclBankId;
+typedef struct FclBankChannel { u8 intensity; } FclBankChannel;
+typedef struct FclBankScale { u32 bits; } FclBankScale;
+typedef struct FclBankEntryIndex { s32 entryIndex; } FclBankEntryIndex;
+typedef struct FclBankStrip { s32 stripOffset; } FclBankStrip;
+typedef struct FclBankTimer { s32 ticks; } FclBankTimer;
+typedef struct FclBankActive { s32 active; } FclBankActive;
+typedef struct FclBankPhase { s32 phase; } FclBankPhase;
+typedef struct FclBankPhaseIndex { s32 phaseIndex; } FclBankPhaseIndex;
+typedef struct FclBankDescriptorStrip { s32 stripOffset; u8 pad04[0xC]; } FclBankDescriptorStrip;
+extern FclBankDescriptorStrip D_005DD61C[];
+extern FclBankStrip D_00796A60[];
+extern FclBankTimer D_00796A64[];
+extern FclBankTimer D_00796A68[];
+extern FclBankTimer D_00796A6C[];
+extern FclBankId D_00796704[];
+extern FclBankId D_00796706[];
+extern FclBankId D_00796708[];
+extern FclBankChannel D_0079671C[];
+extern FclBankChannel D_0079671D[];
+extern FclBankChannel D_0079671E[];
+extern FclBankScale D_00796728[];
+extern FclBankScale D_0079672C[];
+extern FclBankEntryIndex D_0079674C[];
 extern u8 iGpffff85d0;
 extern u8 D_005DD600[];
 extern u8 D_00796700[];
-extern u8 D_0079671F[];
-extern u8 D_00796750[];
-extern u8 D_00796754[];
-extern u8 D_00796758[];
-extern u8 D_0079675C[];
+extern FclBankChannel D_0079671F[];
+extern FclBankActive D_00796750[];
+extern FclBankPhase D_00796754[];
+extern FclBankTimer D_00796758[];
+extern FclBankPhaseIndex D_0079675C[];
 extern void timeLimitTaskCreate(s32 parent);
 extern s32 timeLimitTaskExists(void);
 extern void timeLimitTaskDestroy(void);
@@ -773,7 +785,7 @@ void fclBankMarkDone(s64 bank) {
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
 // Intent: Configure a bank slot from a three-id descriptor, looking up its table entry; default 0x3E when not found [inferred]
-/* Interior data aliases are separate linker symbols; keep byte strides for those stores and the descriptor lookup. */
+/* Alias-relative member access preserves the independently linked column bases. */
 // FUN_00104510
 void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
 {
@@ -786,23 +798,23 @@ void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
     func_00440b68(D_005DD6A0, bank);
     offset = (bank * 0x38 - bank) * 0x10;
     ((FclBankDisplay *)(D_00796700 + offset))->state = 5;
-    *(s32 *)(D_0079674C + offset) = 0;
-    *(s16 *)(D_00796704 + offset) = firstId;
-    *(s16 *)(D_00796706 + offset) = secondId;
-    *(s16 *)(D_00796708 + offset) = thirdId;
+    ((FclBankEntryIndex *)((u8 *)D_0079674C + offset))->entryIndex = 0;
+    ((FclBankId *)((u8 *)D_00796704 + offset))->id = firstId;
+    ((FclBankId *)((u8 *)D_00796706 + offset))->id = secondId;
+    ((FclBankId *)((u8 *)D_00796708 + offset))->id = thirdId;
     sprintf(buf, D_005DD6C0,
                   (s32)firstId, (s32)secondId, (s32)thirdId);
     strcpy(D_00796700 + offset + 0x60, buf);
     ((FclBankDisplay *)(D_00796700 + offset))->state = 6;
-    *(s32 *)(D_00796A64 + offset) = 0;
-    *(s32 *)(D_00796A68 + offset) = 0;
-    *(s32 *)(D_00796A6C + offset) = 0;
-    *(u8 *)(D_0079671C + offset) = 0xff;
-    *(u8 *)(D_0079671E + offset) = 0xff;
-    *(u8 *)(D_0079671D + offset) = 0xff;
-    *(u8 *)(D_0079671F + offset) = 0xff;
-    *(u32 *)(D_00796728 + offset) = 0x3f800000;
-    *(u32 *)(D_0079672C + offset) = 0x3f800000;
+    ((FclBankTimer *)((u8 *)D_00796A64 + offset))->ticks = 0;
+    ((FclBankTimer *)((u8 *)D_00796A68 + offset))->ticks = 0;
+    ((FclBankTimer *)((u8 *)D_00796A6C + offset))->ticks = 0;
+    ((FclBankChannel *)((u8 *)D_0079671C + offset))->intensity = 0xff;
+    ((FclBankChannel *)((u8 *)D_0079671E + offset))->intensity = 0xff;
+    ((FclBankChannel *)((u8 *)D_0079671D + offset))->intensity = 0xff;
+    ((FclBankChannel *)((u8 *)D_0079671F + offset))->intensity = 0xff;
+    ((FclBankScale *)((u8 *)D_00796728 + offset))->bits = 0x3f800000;
+    ((FclBankScale *)((u8 *)D_0079672C + offset))->bits = 0x3f800000;
     i = 0;
     found = 1;
     do {
@@ -812,15 +824,15 @@ void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
         if ((s32)firstId == *(s32 *)entry &&
             (s32)secondId == ((FclBankDescriptorEntry *)entry)->secondId &&
             (s32)thirdId == ((FclBankDescriptorEntry *)entry)->thirdId) {
-            *(s32 *)(D_00796A60 + offset) =
-                *(s32 *)(D_005DD61C + i * 0x10);
+            ((FclBankStrip *)((u8 *)D_00796A60 + offset))->stripOffset =
+                D_005DD61C[i].stripOffset;
             found = 0;
             break;
         }
         i++;
     } while (1);
     if (found)
-        *(s32 *)(D_00796A60 + offset) = 0x3e;
+        ((FclBankStrip *)((u8 *)D_00796A60 + offset))->stripOffset = 0x3e;
 }
 #pragma pop
 
@@ -830,10 +842,10 @@ void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
 // Intent: Set the alpha byte of a bank slot [inferred]
-/* The alpha table is an interior linker alias; retain its 0x370-byte stride. */
+/* Alpha is a byte sub-object at an independently linked interior alias. */
 // FUN_00104770
 void fclBankSetAlpha(s64 bank, u8 alpha) {
-    *(u8 *)(D_0079671F + (((s16)bank) * 0x370)) = alpha;
+    ((FclBankChannel *)((u8 *)D_0079671F + (((s16)bank) * 0x370)))->intensity = alpha;
 }
 #pragma pop
 
@@ -843,17 +855,17 @@ void fclBankSetAlpha(s64 bank, u8 alpha) {
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
 // Intent: Set a bank slot's active flag; when set, reset its phase and timers [inferred]
-/* These state tables are interior linker aliases, each stepped by the display-slot stride. */
+/* State sub-objects keep their original alias-relative display-slot stride. */
 // FUN_001047B0
 void fclBankSetActive(s64 bank, s32 active) {
     s32 offset;
 
     offset = (s16)bank * 0x370;
-    *(s32 *)(D_00796750 + offset) = active;
+    ((FclBankActive *)((u8 *)D_00796750 + offset))->active = active;
     if (active != 0) {
-        *(s32 *)(D_00796754 + offset) = 1;
-        *(s32 *)(D_0079675C + offset) = 0;
-        *(s32 *)(D_00796758 + offset) = 2;
+        ((FclBankPhase *)((u8 *)D_00796754 + offset))->phase = 1;
+        ((FclBankPhaseIndex *)((u8 *)D_0079675C + offset))->phaseIndex = 0;
+        ((FclBankTimer *)((u8 *)D_00796758 + offset))->ticks = 2;
     }
 }
 #pragma pop

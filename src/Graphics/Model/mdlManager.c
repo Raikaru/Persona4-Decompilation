@@ -398,6 +398,9 @@ typedef struct MdlCloneAttachmentTable {
     u16 unknown32;                 /* 0x32 */
 } MdlCloneAttachmentTable;
 
+/* One pointer-sized attachment slot selected from the primary/secondary arrays. */
+typedef struct MdlAttachmentSlot { void *object; } MdlAttachmentSlot;
+
 typedef struct MdlAnimResource {
     MdlAnimResourceEntry* entries;
     u32 unknown04; /* base UV dictionary address */
@@ -2561,12 +2564,12 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
     control = *(u8* *)&((MdlLayerState *)layer)->attachments;
     if (control != 0) {
         nextOffset = (s16)animation * (s32)sizeof(void*);
-        /* nextOffset is a byte index into the primary/secondary pointer arrays. */
-        ((MdlCloneAttachmentTable *)control)->nextPrimary = *(void**)(*(u8 **)&((MdlCloneAttachmentTable *)control)->primary + nextOffset);
+        ((MdlCloneAttachmentTable *)control)->nextPrimary =
+            ((MdlAttachmentSlot *)(*(u8 **)&((MdlCloneAttachmentTable *)control)->primary + nextOffset))->object;
         if (narrowFlags & 0x20) {
             clip = 0;
         } else {
-            clip = *(void**)(*(u8 **)&((MdlCloneAttachmentTable *)control)->secondary + nextOffset);
+            clip = ((MdlAttachmentSlot *)(*(u8 **)&((MdlCloneAttachmentTable *)control)->secondary + nextOffset))->object;
         }
         ((MdlCloneAttachmentTable *)control)->nextSecondary = clip;
         *(s32 *)&((MdlCloneAttachmentTable *)control)->pendingSecondary = 1;
@@ -2666,6 +2669,7 @@ void mdlUpdateBlendTrack(u8* state, u8* layer)
             if ((dispatchTableAddress != 0) &&
                 (animationIndex < ((MdlDispatchAnimTable *)dispatchTableAddress)->count) &&
                 ((animationOffset = animationIndex * 0x50,
+                 /* measured: plain animationOffset changes 23 bytes; retain the existing address operand order. */
                  animationClip = *(s32*)((u32)((u32)*(s32*)dispatchTableAddress + MEMBER_OFFSET(MdlDispatchAnimEntry, animation)) +
                                     (u32)(animationOffset, animationOffset))),
                  (animationClip != 0)) &&
@@ -5714,6 +5718,7 @@ void mdlSetLayerTime(void* model, s32 layer, f32 frameValue)
     if (((MdlDispatchAnimTable *)table)->count <= animationIndex)
         goto tail;
     entryOffset = animationIndex * 0x50;
+    /* measured: plain entryOffset changes 25 bytes; retain the existing address operand order. */
     clip = *(s32 *)((u32)((u32)*(s32 *)table + MEMBER_OFFSET(MdlDispatchAnimEntry, animation)) + (u32)(entryOffset, entryOffset));
     if (clip == 0)
         goto tail;
