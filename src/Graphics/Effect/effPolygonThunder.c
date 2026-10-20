@@ -40,15 +40,15 @@ extern void func_003e9cb0(void *frame, void *transform, s32 combine);
 extern void GeometryBlockBindResource(void *block, u16 resourceId);
 
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_lifetimes on
 /* Native b210 O2: 1216/1216 bytes, eleven resolved relocations,
  * 0 zero alignment bytes. Recompute each sample fade and
  * copy complete four-byte colors into the five-color row.
  * See docs/probe_archive/Thunder_constructors_20260924.md. */
 // Creates a thunder bolt geometry: recalculates opacity per sample and writes five-colour rows.
 // FUN_00495160
+/* measured: loop hoisting alone matches; lifetime splitting is unnecessary. */
+#pragma push
+#pragma opt_loop_invariants on
 u8 *ThunderGeometryCreate(u8 *parameters)
 {
     /* Earlier parameter-only probe: normalized_diff 767; separate typed locals now preserve the original reload lifetimes. */
@@ -198,10 +198,11 @@ void ThunderGeometryDestroy(u8 *effect)
  * effMiscAxisAngleVU is declared angle-first here: retail sets $f12 before $a0,
  * and b210 emits argument setup in declaration order (handoff 7a-bis). */
 
-#pragma push
-#pragma opt_loop_invariants on
 // Rebuilds a live thunder bolt's strip: the first row across the travel direction, each further row along a sine-wave heading.
 // FUN_004956B0
+/* measured: baseline removal differs by 682 normalized bytes; lifetime splitting worsens allocation. */
+#pragma push
+#pragma opt_loop_invariants on
 void ThunderBoltUpdateStrip(u8 *effect)
 {
     /* Earlier whole-layout probe: normalized_diff 1277; separate typed locals now preserve the original reload lifetimes. */
@@ -666,15 +667,15 @@ void ThunderBoltInitFade(u8 *effect)
 }
 
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_lifetimes on
 /* Native b210 O2: 1224/1232 bytes, eleven resolved relocations,
  * 8 zero alignment bytes. Recompute each sample fade and
  * copy complete four-byte colors into the five-color row.
  * See docs/probe_archive/Thunder_constructors_20260924.md. */
 // Creates orbit-bolt geometry with a 0x10-byte list header, 0x30-byte entries and per-sample opacity.
 // FUN_00496340
+/* measured: loop hoisting alone matches; lifetime splitting is unnecessary. */
+#pragma push
+#pragma opt_loop_invariants on
 u8 *ThunderGeometryCreatePadded(u8 *parameters)
 {
     /* Earlier parameter-only probe: normalized_diff 762; separate typed locals now preserve the original reload lifetimes. */
@@ -822,10 +823,11 @@ void ThunderPaddedGeometryDestroy(u8 *effect)
  * whose length comes from VU0 vsqrt. The two 5-column loops use separate
  * counters. The spilled locals are declared in retail's spill-slot order.
  * effMiscAxisAngleVU is declared angle-first, as for ThunderBoltUpdateStrip. */
-#pragma push
-#pragma opt_loop_invariants on
 // Updates the orbiting thunder bolt: a spawn-state bolt picks an orbit through the VU0 matrix, a live bolt advances the orbit and rebuilds its strip.
 // FUN_004968A0
+/* measured: baseline removal differs by 800 normalized bytes; lifetime splitting worsens allocation. */
+#pragma push
+#pragma opt_loop_invariants on
 void ThunderOrbitBoltUpdateStrip(u8 *effect)
 {
     /* Earlier whole-layout probe: normalized_diff 1868; separate typed locals now preserve the original reload lifetimes. */
@@ -1378,15 +1380,15 @@ void ThunderPairedInitStates(u8 *effect)
 }
 
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_lifetimes on
 /* Native b210 O2: 1280/1280 bytes and eleven resolved relocations.
  * Sample zero and odd samples calculate a new fade; the following even
  * sample reuses it. The five packed colors form one twenty-byte row.
  * See docs/probe_archive/Thunder_constructor_00497750_20260924.md. */
 // Creates a paired thunder geometry: makes the segment count odd, allocates the geometry copies and writes five-colour rows.
 // FUN_00497750
+/* measured: loop hoisting alone matches; lifetime splitting is unnecessary. */
+#pragma push
+#pragma opt_loop_invariants on
 u8 *ThunderPairedGeometryCreate(u8 *parameters)
 {
     /* Earlier parameter-only probe: normalized_diff 804; separate typed locals now preserve the original reload lifetimes. */
@@ -1540,11 +1542,12 @@ void ThunderPairedGeometryDestroy(u8 *effect)
  * func_00485630; the $2 clobber is what moves every pointer live across
  * them up one register in retail. `invalid` is assigned first in the
  * preheader because retail hoists the -1 before the float constants. */
+// Updates the paired thunder strip: a row loop carries the tangent and position vectors and rebuilds each row.
+// FUN_00497CE0
+/* measured: baseline removal differs by 77 normalized bytes; retain vector-carry propagation and hoisting settings. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
-// Updates the paired thunder strip: a row loop carries the tangent and position vectors and rebuilds each row.
-// FUN_00497CE0
 void ThunderPairedUpdateStrip(u8 *effect)
 {
     /* Earlier whole-layout probe: normalized_diff 1305; separate typed locals now preserve the original reload lifetimes. */

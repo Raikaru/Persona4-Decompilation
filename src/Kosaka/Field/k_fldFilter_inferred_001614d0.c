@@ -31,31 +31,20 @@ extern u8 *iGpffffb2c8;
 extern u8 *iGpffffb2cc;
 extern u8 D_007E7B20[];
 extern s32 iGpffff9f08;
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Return the active filter entry's render type. */
 // FUN_001614D0
 s32 FldFilterGetEntry(void)
 {
     return (s32)((FldFilterEntry *)(iGpffffb2b0 + iGpffffb2b8 * 0x124))->type;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Set the global filter intensity multiplier. */
 // FUN_00161500
 void FldFilterSetIndex(s32 intensity)
 {
     iGpffff9ef8 = intensity;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Open the fixed enemy configuration table if it exists. */
 // FUN_00161510
 s32 FldEnemyOpenTable(void)
@@ -71,14 +60,13 @@ s32 FldEnemyOpenTable(void)
     func_00440b68((char *)&iGpffff9f08, D_005F1248, 0x69);
     return (s32)H_Cdvd_AcquireDirectory(path, 0);
 }
-#pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation off
 /* Copy the loaded enemy configuration table and expose its attack-record block. */
 /* CDVD payload/size are +0x110/+0x118; retain the native cancellation expression when materializing the payload address. */
 // FUN_001615A0
+/* measured: baseline 2 differing words; block lifetimes, load snapshots did not match; retain scoped settings. */
+#pragma opt_propagation off
 s32 FldEnemyLoadTable(u8 *file)
 {
     void *src;

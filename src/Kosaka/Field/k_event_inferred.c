@@ -488,6 +488,7 @@ void FldEvent_BeginGridScan(void) {
    so they are not CSE'd with the signed occupancy test's `1 << x`.
    opt_loop_invariants hoists 600.0f/1200.0f, x+1/y+1 and the table bases. */
 /* measured: FldEvent_NextGridCell MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 1109 bytes; float grid constants cached outside scans; typed region scan indexing also differ. */
 #pragma opt_loop_invariants on
 /* Scan eligible cells, excluding region actors, model resources and saved NPC origins in each two-by-two footprint. */
 // FUN_0014C960

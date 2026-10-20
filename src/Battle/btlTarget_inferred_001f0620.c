@@ -76,7 +76,7 @@ extern u8 D_00624FA0[];
 
 extern s32 btlActionIsPendingBit(s32);
 #pragma push
-/* measured: func_001f0620 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd4 in shared-return branches; explicit result/break joins leave nd386. */
 #pragma opt_rebuildconditionals off
 // FUN_001F0620
 /* Evaluate a target-command availability mode, including encounter and protagonist restrictions. */
@@ -133,8 +133,8 @@ s32 btlTargetCheckCommandAvailability(u8 *action, s64 kind)
         return 0;
     }
 }
-
 #pragma pop
+
 /* Accept party IDs 1, 2, 7 and 8; every other ID is rejected. */
 // FUN_001F08C0
 /* Recognize the four unit IDs accepted by this target predicate. */

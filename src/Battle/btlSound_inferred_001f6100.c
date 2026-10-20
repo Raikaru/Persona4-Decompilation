@@ -394,9 +394,6 @@ s32 btlSoundRollStatusCure(u8 *action)
     return chance;
 }
 
-/* measured: close opt_loop_invariants after btlSoundRollStatusCure. */
-/* measured: btlSoundSelectCureableStatuses MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants off
 /* Report whether this action can receive the tested status group. */
 // FUN_001F68E0
 s32 btlSoundCanReceiveStatus(u8 *action)
@@ -413,6 +410,8 @@ s32 btlSoundCanReceiveStatus(u8 *action)
 }
 
 #pragma push
+/* measured: grouped/isolated removals leave 162 words different; invariant motion alone grows the cure loop to 712B. */
+#pragma opt_loop_invariants off
 /* measured: btlSoundSelectCureableStatuses MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* Build the status-cure mask from per-status probabilities, counters and passive skills. */

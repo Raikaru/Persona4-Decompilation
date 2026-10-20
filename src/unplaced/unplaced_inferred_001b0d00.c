@@ -67,7 +67,6 @@ s32 btlOrderRemoveActionAll(u8 *action)
 }
 
 #pragma push
-#pragma opt_rebuildconditionals on
 #pragma auto_inline on
 // FUN_001B13C0
 /* Consume follow-up bit 4, or move the action to the back when flag 8 is set. */
@@ -96,7 +95,6 @@ done:
 #pragma pop
 
 #pragma push
-#pragma opt_rebuildconditionals on
 #pragma auto_inline on
 // FUN_001B1450
 /* Route pending follow-ups through the queue, otherwise select the current action. */

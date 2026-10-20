@@ -75,10 +75,10 @@ extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a1ca0-004a1d70 */
+/* Unit setting; measured: removing loop-invariant hoisting changes both functions (47/155 differing words). */
+#pragma opt_loop_invariants on
 
 /* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
-/* measured: func_004a1ca0 MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
 /* Reset each wind entry age to -1 and initialize its material color from the global tint. */
 // FUN_004A1CA0
 void mdlEffectResetWindEntries(u8 *instance)
@@ -111,7 +111,6 @@ void mdlEffectResetWindEntries(u8 *instance)
     }
 }
 
-/* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
 /* measured: loop-invariant hoisting recovers the shared fade constants and
    replication strides. The 4-byte color assignment preserves retail's
    load-all/store-all byte copy. Separate loop locals keep the saved-register

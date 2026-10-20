@@ -68,9 +68,10 @@ typedef struct {
     u8 r, g, b, a;
 } PanelColor;
 
-#pragma push
+/* Unit settings shared by cell clearing and the map-editor update. */
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+#pragma push
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -126,8 +127,6 @@ typedef struct {
 void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation);
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off

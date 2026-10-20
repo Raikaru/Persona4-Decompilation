@@ -16,9 +16,6 @@ extern s32 D_00922930[];
 extern s32 D_0092293C[];
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
 // Note: h_cdvd and code1_0045 declare movieResetSlotFlags with an s32 argument;
 // this definition takes void. Extern types left as they are; verify decides.
 // FUN_00468A10
@@ -31,4 +28,3 @@ void movieResetSlotFlags(void)
     D_00922930[0] = 0;
     D_0092293C[0] = 0;
 }
-#pragma pop

@@ -22,6 +22,11 @@
 #include "rw_texture_internal.h"
 #include "mdl_file_internal.h"
 #include "primitive_queue_internal.h"
+
+/* Unit settings: measured ambient/weather helpers use loop invariants off and propagation on. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+
 /* Chaser (0x74 bytes) and patrol (0xA0 bytes) work share this prefix. */
 typedef struct FldAITaskWork { s32 state, paused; } FldAITaskWork;
 typedef RwV3d RainVector;
@@ -183,6 +188,7 @@ extern s32 iGpffffb884;
 #pragma opt_loop_invariants on
 /* Broadcast a pause value to the linked chaser/patrol task of each occupied, active actor slot. */
 // FUN_00182310
+/* measured: inline and explicit actor-table base; best baseline residual 94 differing bytes. */
 void FldSlotBroadcastState(s32 state)
 {
     s32 slotIndex;
@@ -213,23 +219,17 @@ void FldSlotBroadcastState(s32 state)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // FUN_00182390
 void FldAmbientFlagClear(void)
 {
     memset(&iGpffffb310, 0, 4);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // FUN_001823C0
 u8 *FldAmbientFlagPtr(void)
 {
     return &iGpffffb310;
 }
-#pragma pop
 
 typedef struct {
     f32 x, y, z;
@@ -250,8 +250,6 @@ static inline void fldPlayAmbientCue(u16 id, s16 bank, s32 base)
     }
 }
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Select an ambient surface cue from the containing area quad and trigger it at the actor animation footfall frames. */
 // FUN_001823D0
 void FldAmbientTrigger(s32 model, u16 mode, u16 id)
@@ -350,13 +348,12 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
         break;
     }
 }
-#pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma opt_propagation off
 /* Install the depth, shade and blend states used for the rain PTank draw. */
 // FUN_00182B40
+/* measured: local table pointer and direct callback-table calls; best baseline residual 59 differing bytes. */
 void FldRainRenderStateSet(void)
 {
     void (**fn)(s32, s32);
@@ -369,9 +366,6 @@ void FldRainRenderStateSet(void)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Rain stores real PTank locks, vectors and matrices. Pool indexing and the
  * shared trail/reset counter preserve the observed callback lifetimes.
  * Verified with all owner functions, relocations and owned data. */
@@ -380,6 +374,7 @@ void FldRainRenderStateSet(void)
 #pragma opt_loop_invariants on
 /* Initialize the camera-facing rain pool, then spawn columns and update each drop trail before queueing its PTank. */
 /* PTank plugin slots use a runtime offset; fixed frame, texture, material and strided-lock fields are typed. */
+/* measured: access-site fields and existing typed rain alias; best baseline residual 664 differing bytes. */
 s32 FldRainUpdate(u8 *task)
 {
     FldRainWork *rainWork;
@@ -687,14 +682,12 @@ s32 FldRainUpdate(u8 *task)
     return 0;
 }
 #pragma pop
-#pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Release each drop motion buffer, the rain pool, timers and RenderWare handles before freeing task work. */
 #pragma opt_propagation off
 // FUN_001837F0
+/* measured: typed task alias and direct task-work reload; best baseline residual 80 differing bytes. */
 void FldRainDestroy(u8 *task)
 {
     KwlnTask *rainTask = (KwlnTask *)task;
@@ -720,9 +713,6 @@ void FldRainDestroy(u8 *task)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Create a rain child task with the requested texture, depth, motion, trail length and spawn interval. */
 // FUN_001838D0
 void FldRainTaskCreate(u8 *parent, s32 textureIndex, f32 distance, f32 acceleration,
@@ -742,11 +732,7 @@ void FldRainTaskCreate(u8 *parent, s32 textureIndex, f32 distance, f32 accelerat
     ((FldRainWork *)work)->trailLength = trailLength;
     ((FldRainWork *)work)->spawnInterval = spawnInterval;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // FUN_001839E0
 /* Install the fog blend mode and bind its texture before drawing the queued quads. */
 void FldRainRenderStateReset(u8 *unused, u8 *work)
@@ -788,11 +774,7 @@ void FldRainRenderStateReset(u8 *unused, u8 *work)
                                       /* measured: typing each retained access on this line loses owner MATCH. */
                                       MEMBER(s32, ((FldFogWork *)work)->texture, RwTexture, raster));
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* 2026-10-08: opt_lifetimes on lowers fnalign from 1427 to 879 edits. */
 /* Matching notes: the state dispatch is a switch (retail tests 1 then 0 and
  * shares one return); the grid offsets convert i * half first ((s32)(u32));
@@ -810,6 +792,7 @@ void FldRainRenderStateReset(u8 *unused, u8 *work)
 #pragma opt_loop_invariants on
 /* Build a two-by-two fog mesh with vertically interpolated colors, then scroll and wrap its texture coordinates. */
 /* Typed quad fields retain the measured signed/unsigned cursor address trees documented above. */
+/* measured: typed fog alias and independent lifetime/invariant bisection; best baseline residual 4588 differing bytes. */
 s32 FldFogUpdate(u8 *task)
 {
     FldFogWork *fogWork;
@@ -1123,21 +1106,14 @@ s32 FldFogUpdate(u8 *task)
     return 0;
 }
 #pragma pop
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // FUN_00185120
 void FldFogDestroy(u8 *task)
 {
     jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
-#pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 1
 /* Create a textured fog task unless both endpoint colors are transparent; copy the viewport and scroll parameters. */
 // FUN_00185150
@@ -1195,8 +1171,6 @@ s32 FldFogTaskCreate(s32 parent, s32 textureIndex, f32 width, f32 scrollX,
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 1
 #pragma enable_vu0_registers on
 #pragma vu0_mmi_reg_binding on

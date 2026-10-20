@@ -12,7 +12,7 @@ extern s32 D_0063BF80[];
 extern s32 itfMesWindowProcedureForKind(s32 kind);
 extern s16 datGetDateIndex(void);
 extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
-#pragma push
+/* Unit settings shared by the draw predicate, procedure lookup and calendar renderer. */
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
@@ -28,24 +28,12 @@ s32 itfMsgWindowCanDraw(s32 handle)
     }
     return 0;
 }
-#pragma pop
-
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: Returns the window procedure registered for a kind [inferred]
 // FUN_0027BF10
 s32 itfMesWindowProcedureForKind(s32 kind)
 {
     return D_0063BF80[kind];
 }
-#pragma pop
-
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 /* The renderer receives a color snapshot and a rectangle value. The
  * rectangle literal retains its own temporary; clear cursors and counts
  * have separate lifetimes. Native b210: 2992/2992 bytes, no differences.
@@ -243,4 +231,3 @@ void calDrawScreen(u8 *unusedTask, MsgProcWindowEntry *entry)
         break;
     }
 }
-#pragma pop

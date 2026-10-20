@@ -5,12 +5,14 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
-extern u16 *D_00764658;
-#pragma push
+
+/* Unit settings: common subexpressions and propagation on; loop invariants off. */
 #pragma opt_common_subs on
 #pragma opt_propagation on
-#pragma no_branch_likely off
 #pragma opt_loop_invariants off
+extern u16 *D_00764658;
+#pragma push
+#pragma no_branch_likely off
 // Intent: Clear the SMAP reveal bitmap (24 halfwords) [inferred]
 // FUN_002AC360
 void smapClearRevealTable(void) {
@@ -25,10 +27,7 @@ void smapClearRevealTable(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Return a pointer to the SMAP reveal bitmap [inferred]
 // FUN_002AC3B0
 u32 smapRevealTablePtr(void) {
@@ -37,10 +36,7 @@ u32 smapRevealTablePtr(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Test one SMAP reveal bit: bit index arg0 in row arg1 [inferred]
 // FUN_002AC3C0
 s64 smapRevealTestBit(s32 column, s32 row) {

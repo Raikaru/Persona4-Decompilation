@@ -302,7 +302,7 @@ u32 btlBossRemapSkillPair(u8 *unit, u16 *genus, u16 *unitId)
     *unitId = 0x110;
     return 1;
 }
-/* measured probe: opt_loop_invariants on for btlBossCopyPartnerMark */
+/* measured: typed unit aliases and named member reads retain 23 differing words without invariant hoisting. */
 #pragma opt_loop_invariants on
 // FUN_00230170
 /* For unit 0x106, inherit the marked flag and color byte from partner unit 0x10F. */

@@ -15,9 +15,6 @@ typedef struct SceneTaskHeader {
 extern u8 *D_00764298;
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 /* Return the second word of the active scene task's work header. */
 // FUN_00102980
 s32 kwlnGetCurrentWorkValue(void)

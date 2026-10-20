@@ -36,7 +36,7 @@ extern s32 D_008E41C4_abs[];
 extern s32 D_008E4208_abs[];
 #pragma push
 #pragma optimization_level 2
-#pragma opt_propagation on
+/* Unit setting, measured: cached byte/typed slot bases still differ; loop hoisting restores the six-slot loop. */
 #pragma opt_loop_invariants on
 /* Initialize render state, reset six slots, and allocate their backing buffers. */
 /* Initialize render state, reset six slots and allocate their backing buffers. */

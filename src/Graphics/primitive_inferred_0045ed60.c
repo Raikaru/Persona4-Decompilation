@@ -260,6 +260,7 @@ extern void mdlRenderInitializeBuffers(void);
 /* opt_propagation off keeps the colors pointer in $t1; it is not the banned part. */
 /* Honest plain-C best is the 1-word common-off body, still MISMATCH. */
 /* measured: PrimDrawFlatTriangle MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 80B; adjacent-local declaration probe nd 80B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 /* Replicate one RGBA color across the three positions and submit one triangle.
  * Preserve the measured legacy volatile input; removing it is outside this cleanup. */

@@ -103,6 +103,7 @@ extern char D_00710910[];
 // Intent: per-frame step of the CD request list. Advances each node's read state (open, read blocks, parse the archive) and destroys nodes whose reference count drops to zero.
 // FUN_00454640
 #pragma push
+/* measured: baseline removal differs in 53 bytes; typed cache pointer induction; scoped cache index lifetime also differ. */
 #pragma opt_loop_invariants on
 void H_Cdvd_UpdateRequests(void)
 {
@@ -445,6 +446,7 @@ u8* H_Cdvd_CreateStreamDevice(s32 slotCount, u8* buffer, s32 slotSize, s32 conte
    shared return block at .L00455A4C; a block-scope extern of func_004557e0
    with u8* 4th/5th parameters makes the call materialise a0,a1,a2,a3,t0
    left-to-right, while the function still sees the address bits as s32. */
+/* measured: baseline removal differs in 224 bytes; reload callback table at call sites; cache callback entry instead of table address also differ. */
 #pragma opt_propagation off
 // Intent: initialises the CD devices (the file device, the stream device and the sound slots), then sets the ready flag.
 // FUN_004559B0

@@ -282,9 +282,7 @@ extern void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 opt
 /* Keep each calendar row live across its four date queries. The third
  * query is combined with the day index before the fourth call.
  * measured: 2268 executable bytes and four zero-tail bytes, all exact. */
-#pragma push
-/* measured: calendarTaskUpdate MATCH -> MISMATCH without this pragma. */
-#pragma opt_lifetimes on
+/* measured: a separate fill-row lifetime removes opt_lifetimes on (32 differing bytes -> whole-file MATCH). */
 // Intent: Calendar task update: kind 0 fills a 7-row day table from the date queries; kind 1 draws the rows and skips while input bit 0x800 is held [inferred]
 // FUN_001441E0
 s32 calendarTaskUpdate(u8 *task) {
@@ -333,20 +331,22 @@ s32 calendarTaskUpdate(u8 *task) {
     st = (CalendarState *)((struct KwlnTask *)task)->work;
     kind = st->fields.kind;
     switch (kind) {
-    case 0:
-        for (i = 0; i < 7; i++) {
-            u16 *row = st->words + i;
+    case 0: {
+        s32 fillRow;
+        for (fillRow = 0; fillRow < 7; fillRow++) {
+            u16 *row = st->words + fillRow;
             t0 = datGetDateIndex();
-            v0 = (s8)calGetDayTableValue(i + t0, 3);
+            v0 = (s8)calGetDayTableValue(fillRow + t0, 3);
             t1 = datGetDateIndex();
-            v1 = (s8)calGetDayTableValue(i + t1, 0);
+            v1 = (s8)calGetDayTableValue(fillRow + t1, 0);
             row[2] = (u16)(v0 + v1 * 0x10);
-            t2 = i + datGetDateIndex();
+            t2 = fillRow + datGetDateIndex();
             t3 = datGetDateIndex();
             row[9] = (u16)calGetPackedDayEntry(t2, t3);
         }
         st->fields.kind = 1;
         break;
+    }
     case 1:
         if ((D_008C024E[0] & 0x800) != 0) {
             return -1;
@@ -520,7 +520,6 @@ s32 calendarTaskUpdate(u8 *task) {
     return 0;
 }
 
-#pragma pop
 // Intent: Free the calendar work block through the free callback [inferred]
 // FUN_00144AC0
 void calendarTaskDestroy(u8 *task)

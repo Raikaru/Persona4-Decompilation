@@ -228,6 +228,7 @@ extern void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex);
  * Analog values 0x5B..0xA5 are neutral; retain raw button bits 4..7. */
 #pragma push
 /* measured: func_00452db0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 5 bytes; reuse typed button columns; initialize cooked destination before raw source also differ. */
 #pragma opt_propagation off
 // Intent: cooks the raw input of slot `slot`. Keeps the raw button bits 4..7, sets the analog direction bits outside the 0x5B..0xA5 neutral band, and runs the button repeat.
 /* Typed interior columns preserve MATCH where record-relative fields changed

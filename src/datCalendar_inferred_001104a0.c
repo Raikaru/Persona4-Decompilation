@@ -4,6 +4,10 @@
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
+
+/* Unit settings: loop invariants off and propagation on. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
 extern s32 D_005E45E0[];
 extern u8 D_0079B6D8[];
 extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
@@ -16,6 +20,7 @@ s32 calGetMonthLength(s32 month)
 }
 
 #pragma push
+/* measured: baseline and structured/cached-month loop probes differ (nd 33/86); retain retail hoisting and propagation. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 // Intent: Split a day count within the 365-day year into a 1-based month and day by subtracting month lengths from April [inferred]
@@ -56,19 +61,12 @@ done:
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // Intent: Return the weekday index (0 to 6) of a day count within the 365-day year [inferred]
 // FUN_00110580
 s32 calGetWeekdayOfDay(s32 dateIndex) {
     return (((dateIndex % 0x16D) % 7) + 5) % 7;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // Intent: Return the one-based seven-day bucket within the month (despite the recovered function name) [inferred]
 // FUN_001105B0
 s32 calGetWeekOfYear(s32 dateIndex) {
@@ -79,11 +77,7 @@ s32 calGetWeekOfYear(s32 dateIndex) {
     day = (day - 1) / 7;
     return day + 1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // Intent: Return the day-of-year offset of a month and day: the summed month lengths from April plus day minus one [inferred]
 // FUN_00110600
 s32 calDayOfYearFromMonthDay(s32 month, s32 day) {
@@ -109,11 +103,7 @@ s32 calDayOfYearFromMonthDay(s32 month, s32 day) {
     }
     return sum + (day - 1);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // Intent: Return whether the current calendar day equals month arg1 and day arg2 [inferred]
 // FUN_00110680
 s32 calIsCurrentMonthDay(s32 unused, s32 month, s32 day) {
@@ -126,11 +116,7 @@ s32 calIsCurrentMonthDay(s32 unused, s32 month, s32 day) {
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // Intent: Return 1 when day count arg0 lies between the start month-day (arg1, arg2) and the end month-day (arg3, arg4), by summed month lengths [inferred]
 // FUN_001106F0
 s32 calIsDayInRange(s32 dateIndex, s32 startMonth, s32 startDay, s32 endMonth, s32 endDay)
@@ -190,15 +176,10 @@ loop_9:
 fail:
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // Intent: Set one byte of the 1536-entry state table; the new-game reset clears the table [inferred]
 // FUN_00110810
 void datSetStateTableEntry(s32 index, u8 flags)
 {
     D_0079B6D8[index] = flags;
 }
-#pragma pop

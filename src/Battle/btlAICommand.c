@@ -13,6 +13,9 @@
 #include "kwln_task_internal.h"
 #include "dat_skill_entry_internal.h"
 
+/* Unit setting: retain explicit conditional branches throughout the AI command queries. */
+#pragma opt_rebuildconditionals off
+
 /* AI condition words pack an opcode in the high byte and a 24-bit argument.
  * Script handlers send the predicate value through scrSetReturnInt and retain
  * their original scheduler return status, including the query handlers returning -1. */
@@ -120,7 +123,6 @@ extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 extern void btlTargetResetCommandRecord(u8 *record);
 
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Check the actor's status and skill ownership before accepting an AI command. */
@@ -174,8 +176,6 @@ void btlCond_ENWEAK_PAI(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&btlCond_MYWEAK);
 }
 
-#pragma opt_rebuildconditionals on
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB0A0 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate weakness on the opposite genus, excluding defeated and down units. */
@@ -195,8 +195,6 @@ void btlCond_ENWEAK_ST_PAI(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&btlCond_MYWEAK);
 }
 
-#pragma opt_rebuildconditionals on
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB100 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate the alternate weakness predicate on the opposite genus. */
@@ -219,7 +217,6 @@ void btlCond_ENWEAK_DW_PAI(s32 action, u32 value)
                  (code *)&btlCond_MYWEAK);
   return;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* measured: shared usability inlining and explicit signed query guards give
@@ -267,6 +264,7 @@ next:
  * Preserve the signed status result and the exactly-enabled status gate. */
 #pragma push
 #pragma opt_loop_invariants on
+/* measured: direct and MEMBER bitmap loads leave nd8 with propagation enabled (loop baseline nd64). */
 #pragma opt_propagation off
 /* Historical whole-layout probe: nd 417; a separate status-unit pointer retains MATCH. */
 /* Reject blocked elements, status-gated attacks, and unusable physical commands. */
@@ -325,8 +323,6 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
     }
     return !(datCalcGetElementAffinity((u8 *)((BtlUnit *)unit)->datUnit, (s16)index) & 0x07000000);
 }
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 #pragma pop
 // FUN_001DB580
 s32 btlCond_MYNOMAL(u8 *formation, s32 index)
@@ -347,7 +343,6 @@ s32 btlAICommandNomalStatusCheck(u8 *action, s16 value) {
     return !(datCalcGetElementAffinity((u8 *)(((BtlAction *)action))->unit->datUnit, (s32)value) & 0x7000000);
 }
 
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB620 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate normal-affinity targets on the opposite genus. */
@@ -367,8 +362,6 @@ void btlCond_ENNOMAL(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOMAL);
 }
 
-#pragma opt_rebuildconditionals on
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB680 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate normal-affinity targets, excluding defeated and down units. */
@@ -388,8 +381,6 @@ void btlCond_ENNOMAL_ST(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0xA, (code *)&btlCond_MYNOMAL);
 }
 
-#pragma opt_rebuildconditionals on
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB6E0 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate the alternate normal-affinity predicate on the opposite genus. */
@@ -412,7 +403,6 @@ void btlCond_ENNOMAL_DW(s32 action, u32 value)
                  (code *)&btlCond_MYNOMAL);
   return;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* Test the analysis flag for enemy-genus units; other genera return false. */
@@ -430,20 +420,19 @@ u8 btlCond_ANALYZE(s32 action)
 
 // FUN_001DB790
 s32 btlCond_DOWN(u8 *action) {
-    return (((BtlAction *)action)->unit->datUnit->flags & DAT_UNIT_FLAG_DOWN) ? 0 : 1;
+    return !(((BtlAction *)action)->unit->datUnit->flags & DAT_UNIT_FLAG_DOWN);
 }
 
 
 // FUN_001DB7B0
 s32 btlCond_SLIP(u8 *action) {
-    return (((BtlAction *)action)->unit->datUnit->flags & 0x10) ? 0 : 1;
+    return !(((BtlAction *)action)->unit->datUnit->flags & 0x10);
 }
 
 
 /* Ported from P3FES btlEffect.c func_002c3300 (genus-match loop).
    func_002ffcc0->func_00231e20 (masked u8); iGpffffb6fc+0x14c->iGpffffb3ac+0x174;
    offsets 0xa2c->0xa64, 0x4a8->0x450. Pragma disables the shift-fold. */
-#pragma opt_rebuildconditionals off
 /* Find an active opposite-genus action whose level exceeds the caller by the requested amount. */
 // FUN_001DB7D0
 u32 btlCond_ENOVERLV(s32 action, u32 value)
@@ -487,7 +476,6 @@ next_unit:
     }
     return 0;
 }
-#pragma opt_rebuildconditionals on
 
 
 // FUN_001DB8D0
@@ -507,7 +495,6 @@ void btlCond_FRTAISEI(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << ((((BtlAction *)action))->unit->genus)) & 0xFFFF, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB990 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate affinity on units of the opposite genus. */
@@ -527,10 +514,10 @@ void btlCond_ENTAISEI(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
-#pragma opt_rebuildconditionals on
 /* measured: propagation off retains index preparation before the enemy load
    with the canonical u32 bitmap arguments; 156B/window 160B, normalized_diff 0. */
 #pragma push
+/* measured: direct and MEMBER bitmap loads both leave nd8 with propagation enabled. */
 #pragma opt_propagation off
 /* Check the enemy affinity bitmap and test whether the requested affinity is non-normal. */
 // FUN_001DB9F0
@@ -545,7 +532,6 @@ s32 btlCond_MYNOTNOMAL(u8 *action, s16 value) {
 }
 #pragma pop
 
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DBA90 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate non-normal affinity on units of the opposite genus. */
@@ -565,7 +551,6 @@ void btlCond_ENNOTNOMAL(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOTNOMAL);
 }
 
-#pragma opt_rebuildconditionals on
 /* Translate four wall-selector bits into the corresponding buff-status mask. */
 // FUN_001DBAF0
 s32 btlCond_MYWALL(u8 *action, u32 value) {
@@ -609,7 +594,10 @@ s32 btlAICommandAlwaysTrue(void) {
 /* Filter the classified targets by status, affinity and predicate; copy all matches or choose one. */
 /* Historical whole-layout probe: normalized diff 6; the access-site pass retains only measured raw culprits. */
 // FUN_001DBBA0
+#pragma push
+/* measured: baseline dead-assignment elimination leaves nd8; conditional rebuilding must override the unit setting (nd1). */
 #pragma opt_dead_assignments off
+#pragma opt_rebuildconditionals on
 s32 btlAICommandSelectCandidates(action, queryValue, excludedStatus, selectionFlags, rejectedResult, predicate)
 s32 action;
 s32 queryValue;
@@ -742,7 +730,7 @@ code predicate;
         return 1;
     }
 }
-#pragma opt_dead_assignments on
+#pragma pop
 
 /* measured 2026-09-28: 1116 bytes plus four retail zero bytes, nine resolved
    relocations. The unit/ratio records keep integer and float copies separate;
@@ -753,8 +741,9 @@ code predicate;
    scan and the subsequent sort. Reusing that cursor closes the last seven
    register differences without adding an operation. */
 #pragma push
-#pragma opt_lifetimes on
 #pragma opt_loop_invariants on
+/* measured: splitting the sort cursor still leaves nd13; lifetime splitting retains retail allocation. */
+#pragma opt_lifetimes on
 /* HP-ratio ranking row used by the weighted target picker. */
 typedef struct SortEnt {
     u32 unit;
@@ -869,7 +858,6 @@ s32 btlAICommandPickAiTarget(u8 *action, u32 value) {
     return 1;
 }
 
-#pragma opt_loop_invariants off
 #pragma pop
 /* Ported from P3FES btlEffect.c func_002c3be0 (copy-all / min-stat select).
    func_002bff60_u16->func_001d7f10; offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64;
@@ -1317,6 +1305,9 @@ u32 btlCond_HPMAX(u32 action)
 /* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. */
 /* Select a usable command by predicted remaining target HP and the requested cost class. */
 /* Historical whole-layout probe: nd 21; a separate target-record pointer retains MATCH. */
+#pragma push
+/* measured: the unit conditional setting changes the predicted-HP selection body by nd216. */
+#pragma opt_rebuildconditionals on
 // FUN_001DD1C0
 s32 btlAICommandPickSkillTargetByHp(u8 *action, u8 *target, u16 *commands, u16 count, u32 requestedCostClass) {
     u32 targetHp;
@@ -1367,6 +1358,7 @@ s32 btlAICommandPickSkillTargetByHp(u8 *action, u8 *target, u16 *commands, u16 c
     datCalcClearField18((u32)targetRecord->unit->datUnit);
     return bestCommand;
 }
+#pragma pop
 /* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. */
 /* Choose the command whose predicted target HP is closest to its maximum. */
 /* Historical whole-layout probe: nd 35; a separate target-record pointer retains MATCH. */
@@ -1424,11 +1416,10 @@ s32 btlAICommandPickSkillTargetNearMaxHp(u8 *action, u8 *target, u16 *commands, 
    `return -1` left as the function's last statement.  With the limit mask
    written `(u16)call()` (propagation-off lowers `call() & 0xFFFF` as
    ori/and) this is byte-exact. */
+/* measured: propagation enabled retains whole-owner MATCH; the scoped setting described above is historical. */
 /* Collect usable commands effective on the target and choose by predicted HP outcome. */
 /* Historical whole-layout probe: nd 627; command aliases type the body except the measured source reloads. */
 // FUN_001DD570
-#pragma push
-#pragma opt_propagation off
 s32 btlAICommandCollectSkillCandidates(u8 *action, u8 *target, s32 costPreference, s32 effectFilter)
 {
     u8 *sourceUnit;
@@ -1533,7 +1524,6 @@ next:
     }
     return -1;
 }
-#pragma pop
 /* Measured with b210: the scoped scan aggregates preserve iterator lifetimes
    through scalarization. The status scan keeps a native index with explicit
    halfword boundaries; both scans reload entries after the usability calls.
@@ -1688,6 +1678,7 @@ s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElemen
 /* Historical whole-layout probe: nd 600; measured source reloads now use named MEMBER accesses. */
 // FUN_001DE000
 #pragma push
+/* measured: propagation enabled changes the command collector by nd566. */
 #pragma opt_propagation off
 s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 costPreference)
 {
@@ -1760,10 +1751,11 @@ s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 c
 }
 #pragma pop
 #pragma push
+/* measured: disabling invariant hoisting changes the HP-weight picker by nd201. */
+#pragma opt_loop_invariants on
 /* measured: opt_loop_invariants on is required for the retail-sized frame and
    bubble-sort register coloring; the COP1 chain is ordinary C arithmetic and
    D_00609600 is a real, placeable linker symbol. */
-#pragma opt_loop_invariants on
 /* Rank candidates by missing HP and status bonus, then choose from the ranked weight table. */
 /* Historical whole-layout probe: nd 558; separate action and candidate pointers retain MATCH. */
 // FUN_001DE370
@@ -1863,6 +1855,9 @@ u32 btlAICommandPickUnitByHpWeight(u8 *action)
    shared q+0x34=2/q+0x36=v body, reusing the v parameter in $a2 exactly as
    retail). if/else t = v / v & 0xF000, then switch(t & 0xFFFF). */
 /* Decode the packed action code into command-work kind, skill and plan fields. */
+#pragma push
+/* measured: the unit conditional setting leaves nd1; conditional-update source form leaves nd330. */
+#pragma opt_rebuildconditionals on
 // FUN_001DE640
 void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode)
 {
@@ -1912,6 +1907,7 @@ void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode)
         break;
     }
 }
+#pragma pop
 /* Evaluate two rows of three conditions and return the first eligible action selector. */
 // FUN_001DE800
 u8 btlAICommandPickTableAction(u8 *action) {
@@ -3499,7 +3495,6 @@ s32 btlAICommandSideIdQueryMyHrec(void) {
    family). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850; selector tag 0x01000000. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x209e (p4flow AI.json AI_FUNCTION_009E). */
 // FUN_001E20D0
 u32 btlAICommandOppSideIdQueryMyHp(void)
@@ -3540,7 +3535,6 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* measured: re-verified this wave — the goto-form body compiles the whole
@@ -3554,7 +3548,6 @@ done:
    sharing floor (corroborated in mdlManager/datCalc). */
 /* Ported from P3FES btlEffect.c func_002ca590 (dispatch handler, 8-alt clone
    family, selector tag 0x02000000). Same mapping as FUN_001E20D0. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x209f (p4flow AI.json AI_FUNCTION_009F). */
 // FUN_001E21E0
 u32 btlAICommandOppSideIdQueryMyMp(void)
@@ -3595,7 +3588,6 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* measured: branchy shift set reproduces with the goto form under
@@ -3610,7 +3602,6 @@ done:
    word + 3 reloc words. Branch-to-branch sharing floor. */
 /* Ported from P3FES btlEffect.c func_002ca6a0 (dispatch handler, 8-alt clone
    family, selector tag 0x06000000). Same mapping as FUN_001E20D0. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x20a0 (p4flow AI.json AI_FUNCTION_00A0). */
 // FUN_001E22F0
 u32 btlAICommandOppSideIdQueryMyLvO(void)
@@ -3651,14 +3642,12 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* Ported from P3FES btlEffect.c func_002ca7b0 (argument sideMask dispatch,
    selector tag 0x0b000000). func_0035ed20->scrGetParamInt, func_0035f160->func_0029d050,
    func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. Pragma for branchy shift set. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x20a1 (p4flow AI.json AI_FUNCTION_00A1). */
 // FUN_001E2400
 u32 btlAICommandOppSideIdQueryMyBad(void)
@@ -3705,7 +3694,6 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* AI script command 0x210e (p4flow AI.json AI_FUNCTION_010E). */
@@ -3766,7 +3754,6 @@ s32 btlAICommandSideIdQueryAllBadStatus(void) {
 /* Require the requested status on every living matching unit of the opposite side. */
 // FUN_001E26C0
 /* measured: retains the branch-rebuild setting required for the byte-exact body. */
-#pragma opt_rebuildconditionals off
 s32 btlAICommandOppSideIdQueryAllBadStatus(void)
 {
     u32 shift;
@@ -3817,10 +3804,7 @@ done:
     scrSetReturnInt(allMatch != 0);
     return 1;
 }
-/* measured: closes the conditional-rebuild scope for FUN_001E26C0. */
-#pragma opt_rebuildconditionals on
 
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001E2850 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* AI script command 0x20a2 (p4flow AI.json AI_FUNCTION_00A2). */
@@ -3847,7 +3831,6 @@ s32 btlAICommandOppSideIdQueryHasBuff(void) {
     scrSetReturnInt(queryResult != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 /* AI script command 0x2111 (p4flow AI.json AI_FUNCTION_0111). */
 /* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
@@ -3904,7 +3887,6 @@ s32 btlAICommandSideIdQueryAllHasBuff(void) {
 /* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
 /* Require a matching buff on every living opponent with the requested unit id. */
 // FUN_001E2A80
-#pragma opt_rebuildconditionals off
 s32 btlAICommandOppSideIdQueryAllHasBuff(void)
 {
     u32 shift;
@@ -3955,8 +3937,6 @@ done:
     scrSetReturnInt(allMatch != 0);
     return 1;
 }
-/* measured: closes the conditional-rebuild scope for the byte-exact body. */
-#pragma opt_rebuildconditionals on
 
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
@@ -3965,7 +3945,6 @@ done:
    same wall as FUN_001E21E0. */
 /* Ported from P3FES btlEffect.c func_002ca9d0 (dispatch handler, 8-alt clone
    family, selector tag 0x16000000). Same mapping as FUN_001E20D0. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x20a3 (p4flow AI.json AI_FUNCTION_00A3). */
 // FUN_001E2C10
 u32 btlAICommandOppSideIdQueryMyHansya(void)
@@ -4006,7 +3985,6 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* measured: branchy shift set reproduces with the goto form under
@@ -4021,7 +3999,6 @@ done:
    sharing floor, same as FUN_001E21E0. */
 /* Ported from P3FES btlEffect.c func_002caae0 (dispatch handler, 8-alt clone
    family, selector tag 0x17000000). Same mapping as FUN_001E20D0. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x20a4 (p4flow AI.json AI_FUNCTION_00A4). */
 // FUN_001E2D20
 u32 btlAICommandOppSideIdQueryMyKyusyu(void)
@@ -4062,7 +4039,6 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* measured: branchy shift set reproduces with the goto form under
@@ -4077,7 +4053,6 @@ done:
    sharing floor, same as FUN_001E21E0. */
 /* Ported from P3FES btlEffect.c func_002cabf0 (dispatch handler, 8-alt clone
    family, selector tag 0x18000000). Same mapping as FUN_001E20D0. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x20a5 (p4flow AI.json AI_FUNCTION_00A5). */
 // FUN_001E2E30
 u32 btlAICommandOppSideIdQueryMyMukou(void)
@@ -4118,7 +4093,6 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* measured: branchy shift set reproduces with the goto form under
@@ -4133,7 +4107,6 @@ done:
    sharing floor, same as FUN_001E21E0. */
 /* Ported from P3FES btlEffect.c func_002cad00 (dispatch handler, 8-alt clone
    family, selector tag 0x19000000). Same mapping as FUN_001E20D0. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x20a6 (p4flow AI.json AI_FUNCTION_00A6). */
 // FUN_001E2F40
 u32 btlAICommandOppSideIdQueryMyWeak(void)
@@ -4174,7 +4147,6 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* measured: branchy shift set reproduces with the goto form under
@@ -4189,7 +4161,6 @@ done:
    sharing floor, same as FUN_001E21E0. */
 /* Ported from P3FES btlEffect.c func_002cae10 (dispatch handler, 8-alt clone
    family, selector tag 0x22000000). Same mapping as FUN_001E20D0. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x20a7 (p4flow AI.json AI_FUNCTION_00A7). */
 // FUN_001E3050
 u32 btlAICommandOppSideIdQueryMyUseAttr(void)
@@ -4230,7 +4201,6 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* measured: branchy shift set reproduces with the goto form under
@@ -4245,7 +4215,6 @@ done:
    sharing floor, same as FUN_001E21E0. */
 /* Ported from P3FES btlEffect.c func_002caf20 (dispatch handler, 8-alt clone
    family, selector tag 0x25000000). Same mapping as FUN_001E20D0. */
-#pragma opt_rebuildconditionals off
 /* AI script command 0x20a8 (p4flow AI.json AI_FUNCTION_00A8). */
 // FUN_001E3160
 u32 btlAICommandOppSideIdQueryMyUseSkil(void)
@@ -4286,12 +4255,10 @@ done:
     scrSetReturnInt(result != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 
 /* AI script command 0x20a9 (p4flow AI.json AI_FUNCTION_00A9). */
 // FUN_001E3270
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUNC_001E3270 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUNC_001E3270
@@ -4317,11 +4284,9 @@ s32 btlAICommandOppSideIdQueryMyGroup(void) {
     scrSetReturnInt(queryResult != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 /* AI script command 0x20aa (p4flow AI.json AI_FUNCTION_00AA). */
 // FUN_001E3320
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUNC_001E3320 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUNC_001E3320
@@ -4347,7 +4312,6 @@ s32 btlAICommandOppSideIdQueryMyHrec(void) {
     scrSetReturnInt(queryResult != 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 /* AI script command 0x2069 (p4flow AI.json AI_FUNCTION_0069). */
 // FUN_001E33D0
@@ -5340,7 +5304,6 @@ s32 btlScriptGetSameSideUnitValue(void) {
     return 1;
 }
 
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001E6050 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* AI script command 0x20ac (p4flow AI.json AI_FUNCTION_00AC). */
@@ -5362,7 +5325,6 @@ s32 btlScriptGetOppositeSideUnitValue(void) {
     scrSetReturnInt(r != 0 ? ((BtlAction *)r)->unk_20 : 0);
     return 1;
 }
-#pragma opt_rebuildconditionals on
 
 /* AI script command 0x20b0 (p4flow AI.json AI_FUNCTION_00B0). */
 // FUN_001E60F0
@@ -5427,7 +5389,6 @@ s32 btlAICommandScriptAverageOwnLevel(void) {
     return -1;
 }
 
-#pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001E6450 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* AI script command 0x20cf (p4flow AI.json AI_FUNCTION_00CF). */
@@ -5447,7 +5408,6 @@ s32 btlAICommandScriptAverageOppLevel(void) {
     scrSetReturnInt(btlSideAverageLevel((1 << (shift & 0xffff)) & 0xffff, 0x80000) & 0xFFFF);
     return -1;
 }
-#pragma opt_rebuildconditionals on
 
 /* AI script command 0x20d0 (p4flow AI.json AI_FUNCTION_00D0). */
 // FUN_001E64C0

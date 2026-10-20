@@ -228,6 +228,7 @@ loop_check:
    preserve retail's first-argument-before-name-address materialization.
    measured: object 196B/window 208B; exact instructions, 12B zero tail. */
 /* measured: K_TexStripNameInsert MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 145 bytes; cache texture name; early-return already-present name also differ. */
 #pragma opt_common_subs off
 // FUN_00190920
 s32 K_TexStripNameInsert(s32 texture, s32 dictionary) {
@@ -319,6 +320,7 @@ loop_check:
 // FUN_00190C10
 #pragma push
 /* measured: K_TexStripBuildUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 1173 bytes; counted file-extension scan; scope resource-loop index also differ. */
 #pragma opt_loop_invariants on
 s32 K_TexStripBuildUpdate(u8 *task)
 {

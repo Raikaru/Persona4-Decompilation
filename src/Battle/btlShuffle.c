@@ -438,9 +438,8 @@ void *btlShuffleGetDrawContext(void *task)
 
 /* Choose a pattern from cumulative weights for the clamped level decade. */
 // FUN_0036E920
-/* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
- * table base (lui/addiu/addu) inside the loop instead of hoisting it (nd 21);
- * with it the preheader hoist matches retail. */
+/* Cache the active weight row before its cumulative-threshold loop. */
+/* measured: baseline nd23; scoped locals, row offsets, pointer iteration did not match (best nd23); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 s32 btlShuffleRollBelow(u8 level)
 {
@@ -526,11 +525,11 @@ s32 btlShuffleRollCard(s32 pattern, u8 level)
     return result;
 }
 /* Choose an unlocked pattern variant from its cumulative level-decade weights. */
+/* measured: cached weight-row pointers match at baseline; opt_loop_invariants on is no longer needed. */
 // FUN_0036EB50
 /* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
  * table base (lui/addiu/addu) inside the loop instead of hoisting it (nd 21);
  * with it the preheader hoist matches retail. */
-#pragma opt_loop_invariants on
 s32 btlShuffleRollFlagged(s32 pattern, u8 level)
 {
     s32 clampedLevel = level & 0xFF;
@@ -538,6 +537,7 @@ s32 btlShuffleRollFlagged(s32 pattern, u8 level)
     s32 roll;
     s32 i;
     s32 weightSum;
+    u8 *weights;
 
     if (clampedLevel == 0) {
         clampedLevel = 1;
@@ -553,8 +553,9 @@ s32 btlShuffleRollFlagged(s32 pattern, u8 level)
     case 1:
     case 2:
         if (datGetFlag(0x1431) != 0) {
+            weights = &D_0064E650[decade * 3];
             while (i < 3) {
-                weightSum += D_0064E650[decade * 3 + i];
+                weightSum += weights[i];
                 if (roll < weightSum) {
                     break;
                 }
@@ -567,8 +568,9 @@ s32 btlShuffleRollFlagged(s32 pattern, u8 level)
         break;
     case 3:
         if (datGetFlag(0x1432) != 0) {
+            weights = &D_0064E670[decade * 4];
             while (i < 4) {
-                weightSum += D_0064E670[decade * 4 + i];
+                weightSum += weights[i];
                 if (roll < weightSum) {
                     break;
                 }
@@ -581,8 +583,9 @@ s32 btlShuffleRollFlagged(s32 pattern, u8 level)
         break;
     case 4:
         if (datGetFlag(0x1433) != 0) {
+            weights = &D_0064E6A0[decade * 3];
             while (i < 3) {
-                weightSum += D_0064E6A0[decade * 3 + i];
+                weightSum += weights[i];
                 if (roll < weightSum) {
                     break;
                 }
@@ -596,8 +599,6 @@ s32 btlShuffleRollFlagged(s32 pattern, u8 level)
     }
     return i;
 }
-/* measured: see annotation above (func_0036eb50). */
-#pragma opt_loop_invariants off
 
 /* Choose the persona-card count using descending cumulative thresholds for the total card count. */
 // FUN_0036EDA0
@@ -638,6 +639,7 @@ extern u8 *iGpffffb3d4;
  * with its declared number below cIdx and cIdx is spilled, as in retail.
  * opt_loop_invariants on is required; without it verify reports MISMATCH. */
 #pragma push
+/* measured: baseline nd955; scoped locals, inverted if/else did not match (best nd955); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Build and shuffle owned, higher-level, and ordinary persona pools, then choose the result card candidates. */
 // FUN_0036EE60
@@ -924,7 +926,9 @@ static inline u16 *btlShuffleCandidateField(s32 offset, void *base)
 
 // FUN_0036F880
 #pragma push
+/* measured: baseline nd346; typed parameter cache, scoped locals, inverted if/else did not match (best nd346); retain opt_lifetimes on. */
 #pragma opt_lifetimes on
+/* measured: baseline nd346; typed parameter cache, scoped locals, inverted if/else did not match (best nd346); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 s32 btlShufflePickRosterMember(s32 selector, u8 *result)
 {

@@ -1,5 +1,10 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002aa3f0-002aabf0 */
 
+/* Unit optimizer settings shared by the neighboring functions. */
+#pragma opt_common_subs on
+#pragma opt_propagation on
+#pragma opt_loop_invariants off
+
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -77,10 +82,7 @@ extern u8 D_0063EE38[];
 extern u8 D_00882F28[];
 extern u8 D_00882F2C[];
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 /* Return zero while the memory-card icon task exists; otherwise distinguish pending and completed status. */
 // FUN_002AA3F0
 s32 mcIconTaskPoll(void) {
@@ -96,10 +98,7 @@ s32 mcIconTaskPoll(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Draw the rotating three-colour loading spinner for one frame [inferred]
 // FUN_002AA450
 void loadingSpinnerDraw(void) {
@@ -186,10 +185,7 @@ void loadingSpinnerDraw(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Loading spinner task update: run its show/hide state machine and queue its draw [inferred]
 // FUN_002AA890
 s32 loadingSpinnerTaskUpdate(u8 *task) {
@@ -238,10 +234,7 @@ s32 loadingSpinnerTaskUpdate(u8 *task) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // FUN_002AAA00
 void loadingSpinnerTaskDestroy(u8 *unusedTask)
 {
@@ -249,10 +242,7 @@ void loadingSpinnerTaskDestroy(u8 *unusedTask)
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Create the loading spinner task and clear its state block [inferred]
 // FUN_002AAA10
 void loadingSpinnerTaskCreate(void) {
@@ -262,10 +252,7 @@ void loadingSpinnerTaskCreate(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Request the loading spinner to show (sets bit 0 of its state) [inferred]
 // FUN_002AAA80
 void loadingSpinnerRequestShow(void) {
@@ -274,10 +261,7 @@ void loadingSpinnerRequestShow(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Request the loading spinner to hide (clears bit 0 of its state) [inferred]
 // FUN_002AAAA0
 void loadingSpinnerRequestHide(void) {
@@ -286,38 +270,34 @@ void loadingSpinnerRequestHide(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation off
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Apply the shared title sky base render preset; callers set the pass-specific sky state after it [inferred]
 // FUN_002AAAC0
 void titleSkyApplyBasePreset(void) {
-    void (**base)(s32 , s32 );
+    void (*(*base)[1])(s32, s32);
 
-    base = D_00887300;
-    base[0](0xA, 5);
-    base[0](0xB, 6);
-    base[0](0xE, 0);
-    base[0](0xC, 1);
-    base[0](7, 2);
-    base[0](9, 2);
-    base[0](2, 4);
-    base[0](0x14, 1);
-    base[0](6, 0);
-    base[0](8, 0);
+    base = (void (*(*)[1])(s32, s32))D_00887300;
+    (*base)[0](0xA, 5);
+    (*base)[0](0xB, 6);
+    (*base)[0](0xE, 0);
+    (*base)[0](0xC, 1);
+    (*base)[0](7, 2);
+    (*base)[0](9, 2);
+    (*base)[0](2, 4);
+    (*base)[0](0x14, 1);
+    (*base)[0](6, 0);
+    (*base)[0](8, 0);
     RpSkyRenderStateSet(3, 0x50003);
     RpSkyRenderStateSet(2, 0x44);
-    base[0](1, 0);
+    (*base)[0](1, 0);
 }
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation off
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Title visual draw callback: read a 0x1C packet (rect, depth, colour, flags) and draw a flat rectangle [inferred]
+#pragma opt_propagation off
+/* measured: direct table calls, pointer-to-array access, reordered and direct packet snapshots leave at least 8 differing words. */
 // FUN_002AABF0
 void titleVisualDraw(void *unusedQueue, u8 *packet) {
     TitleVisualDrawState work;

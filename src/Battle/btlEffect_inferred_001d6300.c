@@ -70,8 +70,6 @@ extern f32 fGpffff8110;
 
 /* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
 /* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
-#pragma push
-#pragma pop
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
 /* measured: restore optimization_level 2 after func_001d5990. */
 /* Reset elapsed time, copy formation defaults, hold the unit pending count, and reserve an effect node. */
@@ -89,6 +87,7 @@ void btlEffectPrepareFormationStep(u8 *work) {
 /* measured: opt_propagation off probe for btlEffectStepFormationPlacement argument setup and register coloring. */
 #pragma push
 /* measured: btlEffectStepFormationPlacement MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd12; typed pointer reuse, typed parameter cache, inverted if/else did not match (best nd12); retain opt_propagation off. */
 #pragma opt_propagation off
 /* Create the formation entry on the first step, drive node fade flags, and abort at duration, UID, or index limits. */
 // FUN_001D6360
