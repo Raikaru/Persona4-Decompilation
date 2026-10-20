@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2516 of 13102 symbols carry a recovered name.
+// 2524 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -3088,7 +3088,7 @@ func_0021aeb0 = 0x0021AEB0; // type:func
 func_0021afa0 = 0x0021AFA0; // type:func
 func_0021b0a0 = 0x0021B0A0; // type:func
 func_0021b190 = 0x0021B190; // type:func
-func_0021b1e0 = 0x0021B1E0; // type:func
+btlGaugeInitNoop = 0x0021B1E0; // type:func
 func_0021b1f0 = 0x0021B1F0; // type:func
 func_0021b310 = 0x0021B310; // type:func
 func_0021b330 = 0x0021B330; // type:func
@@ -3097,7 +3097,7 @@ func_0021b630 = 0x0021B630; // type:func
 func_0021bbb0 = 0x0021BBB0; // type:func
 func_0021be10 = 0x0021BE10; // type:func
 btlAdvantageGetRaster = 0x0021BE60; // type:func
-func_0021be70 = 0x0021BE70; // type:func
+btlAdvantageInitNoop = 0x0021BE70; // type:func
 func_0021be80 = 0x0021BE80; // type:func
 func_0021d440 = 0x0021D440; // type:func
 func_0021d470 = 0x0021D470; // type:func
@@ -3386,16 +3386,16 @@ func_00245030 = 0x00245030; // type:func
 func_00246450 = 0x00246450; // type:func
 func_00246480 = 0x00246480; // type:func
 func_002464e0 = 0x002464E0; // type:func
-func_00246550 = 0x00246550; // type:func
-func_00246580 = 0x00246580; // type:func
-func_00246590 = 0x00246590; // type:func
+datCalcInitializeCharactersCommand = 0x00246550; // type:func
+mdlNeckTestUpdateNoop = 0x00246580; // type:func
+mdlNeckTestDestroyNoop = 0x00246590; // type:func
 func_002465a0 = 0x002465A0; // type:func
 func_00246620 = 0x00246620; // type:func
 func_00246640 = 0x00246640; // type:func
 func_00246670 = 0x00246670; // type:func
-func_002466d0 = 0x002466D0; // type:func
-func_002466e0 = 0x002466E0; // type:func
-func_002466f0 = 0x002466F0; // type:func
+imanishiStaffStartNoop = 0x002466D0; // type:func
+imanishiStaffPollNoop = 0x002466E0; // type:func
+imanishiStaffStopNoop = 0x002466F0; // type:func
 func_00246700 = 0x00246700; // type:func
 func_002467b0 = 0x002467B0; // type:func
 func_00246830 = 0x00246830; // type:func

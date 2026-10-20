@@ -100,8 +100,9 @@ extern void func_00426f80(s32 fd);
 
 
 
+/* Probe a normalized volume path by opening and immediately closing it.
+ * Returns false if open fails; selecting its directory changes shared path state. */
 // FUN_00454570
-/* Normalize and select the volume directory, then probe by opening and immediately closing the file. */
 u32 H_Cdvd_FileExists(const char* path)
 {
     char unusedUppercasePath[256];
@@ -763,8 +764,9 @@ const char* H_Cdvd_ArchiveEntryName(HCdvd* cdvd, s32 entryIndex)
 
 
 
+/* Block until this request is loaded, pumping updates for all pending requests.
+ * There is no timeout or sleep in this polling loop. */
 // FUN_00456150
-/* Poll request updates until the requested file reaches loaded state. */
 void H_Cdvd_ReadSync(HCdvd* cdvd)
 {
     while (true)

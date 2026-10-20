@@ -29,14 +29,14 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 002465a0-00246670 */
 
-extern s32 func_00246580(u8 *unusedTask);
-extern void func_00246590(u8 *unusedTask);
+extern s32 mdlNeckTestUpdateNoop(u8 *unusedTask);
+extern void mdlNeckTestDestroyNoop(u8 *unusedTask);
 // Intent: Creates the model_neck_test debug task with the mdlNeckTest.c alloc site [inferred]
 // FUN_002465A0
 void mdlNeckTestCreate(void)
 {
     chkmemAllocSiteTag(D_00635990, 0xD1);
-    (s32)kwlnTaskCreate((const void *)(D_006359A0), 0xF, 0, 0, func_00246580, func_00246590, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
+    (s32)kwlnTaskCreate((const void *)(D_006359A0), 0xF, 0, 0, mdlNeckTestUpdateNoop, mdlNeckTestDestroyNoop, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
 }
 
 // Intent: Starts the model_neck_test debug task by calling mdlNeckTestCreate [inferred]
