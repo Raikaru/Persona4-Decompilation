@@ -273,8 +273,8 @@ void kwlnInitSubsystems(void)
     func_004f2798((s32)((u8 *)&D_00761690 + 20), (s32)&D_005DB850);
     func_004c7188((s32)((u8 *)&D_00761690 + 8));
     memset(&D_00764D30[0], 0, 0x20);
-    /* This external scalar names only the start of a linker-owned constant
-     * sequence; no complete aggregate declaration proves the adjacent +8 value. */
+    /* Linker interior alias: this scalar anchors a constant sequence; its +8
+     * neighbor has no independently declared aggregate member. */
     D_00764D30[0] = *(f32 *)((u8 *)&fGpffff8030 + 8);
     one = 1;
     D_00764D34[0] = one;

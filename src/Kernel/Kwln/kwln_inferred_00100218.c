@@ -126,26 +126,28 @@ extern u8 iGpffff85d0;
 /* Source unit: src/promoted/code1_0010.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0010.c; members 00100218-00100670 */
 
+/* Forward runtime termination to cleanup and the operating-system exit wrapper. */
 // FUN_00100218
 /* measured: tailcall on emits the retail bare jump wrapper. */
 #pragma tailcall on
-void func_00100218(void)
+void kwlnExitRuntime(void)
 {
     func_0042c0d8();
 }
 
 /* measured: close tailcall bracket around func_00100218. */
 #pragma tailcall off
+/* Exit the current thread when the startup-installed thread return handler runs. */
 // FUN_00100220
-asm void func_00100220(void)
+asm void kwlnExitThread(void)
 {
     addiu $3, $0, 0x23
     syscall 0
 }
 
-// FUN_00100230
 /* Probe the allocation budget below 32 MiB after reserved/linker extents and
  * sixteen header bytes, release the probe, and return that budget. */
+// FUN_00100230
 extern s32 func_0043ece8(u8 *);
 extern void func_0043ed08(s32);
 extern u8 D_00559800[];

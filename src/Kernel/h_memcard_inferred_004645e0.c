@@ -227,8 +227,8 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-// FUN_004645E0
 /* Initialize the card backend and its two-port configuration, then clear slot progress. */
+// FUN_004645E0
 void memcardInitBackend(void) {
     func_0043a978();
     func_004316a8(0);

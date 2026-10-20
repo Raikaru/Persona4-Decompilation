@@ -1,3 +1,4 @@
+#include "rw_object_internal.h"
 #include "sdk_filer_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -231,10 +232,9 @@ typedef struct MovieNativeWork {
  * A real interrupt-state local retains the retail spill under register pressure. */
 // FUN_004669D0
 /* Unlink a completed request, return its kind-specific result and release its pool slot. */
-/* FilerRequest proves these offsets; typed member access changes b210
- * register allocation and loses MATCH, so preserve byte-base access. */
 u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue)
 {
+    FilerRequest *requestState = (FilerRequest *)request;
     s32 lock;
     u8 *next;
     u8 *result;
@@ -246,79 +246,79 @@ u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue)
         return NULL;
     }
     lock = func_0042ba20();
-    if (*(s32 *)(request + 0x1A4) != 3) {
+    if (((FilerRequest *)request)->state != 3) {
         goto failed;
     }
-    next = *(u8 **)(request + 4);
+    next = ((FilerRequest *)request)->previous;
     if (next == NULL) {
         goto failed;
     }
-    *(u8 **)(next + 0) = *(u8 **)(request + 0);
-    if (*(u8 **)(request + 0) != NULL) {
-        *(u8 **)(*(u8 **)(request + 0) + 4) = next;
+    ((FilerRequest *)next)->next = ((FilerRequest *)request)->next;
+    if (((FilerRequest *)request)->next != NULL) {
+        ((FilerRequest *)((FilerRequest *)request)->next)->previous = next;
     }
-    switch (*(s32 *)(request + 0x1AC)) {
+    switch (((FilerRequest *)request)->kind) {
     case 0:
-        result = *(u8 **)(request + 0x1B4);
+        result = ((FilerRequest *)request)->unk1B4;
         break;
     case 1:
-        result = *(u8 **)(request + 0x10);
-        *resultValue = *(s32 *)(request + 8);
+        result = ((FilerRequest *)request)->unk10;
+        *resultValue = ((FilerRequest *)request)->source;
         break;
     case 2:
-        /* The returned resource's +4 word is owned by func_003e9680; its complete layout is not known here. */
-        func_003e9680(*(s32 *)(*(u8 **)(request + 0xC) + 4));
-        result = *(u8 **)(request + 0xC);
+        /* Refresh the returned RenderWare object through its parent frame. */
+        func_003e9680((s32)((RwObject *)requestState->unkC)->parent);
+        result = ((FilerRequest *)request)->unkC;
         if (resultValue != NULL) {
-            *resultValue = *(s32 *)(request + 8);
+            *resultValue = ((FilerRequest *)request)->source;
         }
         break;
     case 3:
-        result = *(u8 **)(request + 0x14);
+        result = ((FilerRequest *)request)->unk14;
         break;
     case 4:
-        result = *(u8 **)(request + 0x1BC);
+        result = ((FilerRequest *)request)->unk1BC;
         if (resultValue != NULL) {
-            *resultValue = *(s32 *)(request + 8);
+            *resultValue = ((FilerRequest *)request)->source;
         }
         break;
     case 5:
-        result = *(u8 **)(request + 0x18);
+        result = ((FilerRequest *)request)->unk18;
         if (resultValue != NULL) {
-            *resultValue = *(s32 *)(request + 8);
+            *resultValue = ((FilerRequest *)request)->source;
         }
         break;
     case 6:
-        result = *(u8 **)(request + 0x1C);
+        result = ((FilerRequest *)request)->unk1C;
         break;
     case 7:
-        result = *(u8 **)(request + 0x1C8);
+        result = ((FilerRequest *)request)->unk1C8;
         if (resultValue != NULL) {
-            *resultValue = *(s32 *)(request + 8);
+            *resultValue = ((FilerRequest *)request)->source;
         }
         break;
     case 8:
-        result = *(u8 **)(request + 0x1D0);
+        result = ((FilerRequest *)request)->unk1D0;
         if (resultValue != NULL) {
-            *resultValue = *(s32 *)(request + 8);
+            *resultValue = ((FilerRequest *)request)->source;
         }
         break;
     case 9:
-        result = *(u8 **)(request + 0x1B8);
+        result = ((FilerRequest *)request)->unk1B8;
         if (resultValue != NULL) {
             *resultValue = (s32)result;
         }
         break;
     case 10:
-        result = *(u8 **)(request + 0x1C4);
+        result = (u8 *)(((FilerRequest *)request)->buffer);
         if (resultValue != NULL) {
             *resultValue = (s32)result;
         }
         break;
     case 11:
-        result = *(u8 **)(request + 0x1C);
+        result = ((FilerRequest *)request)->unk1C;
         if (resultValue != NULL) {
-            *resultValue = *(s32 *)(request + 8);
+            *resultValue = ((FilerRequest *)request)->source;
         }
         break;
     }
