@@ -383,6 +383,7 @@ void btlUiSetRenderStates(void)
 // FUN_00201410
 void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y)
 {
+    BtlUiSprite *workFields = (BtlUiSprite *)work;
     u8 *entry;
     u32 offset;
     f32 value;
@@ -391,7 +392,7 @@ void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y)
      * hoist field addresses across the draw call (596 vs 576 bytes). */
     offset = (u32)(slot * 4);
     entry = btlUiAddByteOffset(offset, work);
-    ((BtlUiSprite *)work)->sprite = *(s32 *)(entry + 0x2C);
+    ((BtlUiSprite *)work)->sprite = ((BtlUiSprite *)(entry))->sprites[0];
     ((BtlUiSprite *)work)->segment = segment;
     if ((((BtlUiSprite *)work)->factorX == 1.0f) &&
         (((BtlUiSprite *)work)->factorY == 1.0f)) {
@@ -401,29 +402,29 @@ void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y)
         sdkSpriteDraw(work + 0x6C, 0);
         return;
     }
-    *(f32 *)(work + 0x74) =
-        (f32)*(s32 *)(work + 0x4) +
+    ((BtlUiSprite *)(work))->x =
+        (f32)((BtlUiSprite *)(work))->originX +
         ((f32)((BtlUiSprite *)work)->width *
-         (1.0f - *(f32 *)(work + 0x14))) * 0.5f +
-        *(f32 *)(work + 0x14) * x;
-    *(f32 *)(work + 0x78) =
-        (f32)*(s32 *)(work + 0x8) +
+         (1.0f - ((BtlUiSprite *)(work))->factorX)) * 0.5f +
+        ((BtlUiSprite *)(work))->factorX * x;
+    ((BtlUiSprite *)(work))->y =
+        (f32)((BtlUiSprite *)(work))->originY +
         ((f32)((BtlUiSprite *)work)->height *
-         (1.0f - *(f32 *)(work + 0x18))) * 0.5f +
-        *(f32 *)(work + 0x18) * y;
-    value = *(f32 *)(work + 0x14) * 4096.0f * ((BtlUiSprite *)work)->scaleX;
+         (1.0f - ((BtlUiSprite *)(work))->factorY)) * 0.5f +
+        ((BtlUiSprite *)(work))->factorY * y;
+    value = ((BtlUiSprite *)(work))->factorX * 4096.0f * ((BtlUiSprite *)work)->scaleX;
     ((BtlUiSprite *)work)->fixedScaleX = (u16)value;
-    value = *(f32 *)(work + 0x18) * 4096.0f * ((BtlUiSprite *)work)->scaleY;
+    value = workFields->factorY * 4096.0f * ((BtlUiSprite *)work)->scaleY;
     ((BtlUiSprite *)work)->fixedScaleY = (u16)value;
     if (((BtlUiSprite *)work)->tileFactor != 0.0f) {
         ((BtlUiSprite *)work)->tileX =
-            (s16)(((BtlUiSprite *)work)->tileOffsetX * *(f32 *)(work + 0x14));
+            (s16)(((BtlUiSprite *)work)->tileOffsetX * workFields->factorX);
         ((BtlUiSprite *)work)->tileY =
-            (s16)(((BtlUiSprite *)work)->tileOffsetY * *(f32 *)(work + 0x18));
+            (s16)(((BtlUiSprite *)work)->tileOffsetY * workFields->factorY);
     }
     sdkSpriteDraw(work + 0x6C, 0);
-    *(u16 *)(work + 0x8C) = 0;
-    *(u16 *)(work + 0x8E) = 0;
+    workFields->fixedScaleX = 0;
+    workFields->fixedScaleY = 0;
 }
 
 /* Keep the opacity base ahead of byte promotion, matching retail order. */
@@ -534,7 +535,7 @@ f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment)
 {
     ((BtlUiSprite *)work)->sprite =
         /* measured: typed indexing reverses the retail addu operands. */
-        *(s32 *)((u8 *)(slot * 4) + (u32)work + 0x2C);
+        ((BtlUiSprite *)((u8 *)(slot * 4) + (u32)work))->sprites[0];
     ((BtlUiSprite *)work)->segment = segment;
     return sdkSpriteScaledWidth(work + 0x6C);
 }
@@ -545,7 +546,7 @@ f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment)
 {
     ((BtlUiSprite *)work)->sprite =
         /* measured: typed indexing reverses the retail addu operands. */
-        *(s32 *)((u8 *)(slot * 4) + (u32)work + 0x2C);
+        ((BtlUiSprite *)((u8 *)(slot * 4) + (u32)work))->sprites[0];
     ((BtlUiSprite *)work)->segment = segment;
     return sdkSpriteScaledHeight(work + 0x6C);
 }
@@ -611,6 +612,7 @@ void btlPacketHitStatusCheck(u8 *work) {
 // FUN_00201B00
 s32 btlPacketBuildHitFlags(u8 *work)
 {
+    BtlHitDisplayWork *workFields = (BtlHitDisplayWork *)work;
     u16 flags;
     u32 inputFlags;
     s32 empty;
@@ -713,7 +715,7 @@ s32 btlPacketBuildHitFlags(u8 *work)
     }
 
     /* measured: typing the final target reload hoists +4 across the anchor callback (684 vs 676 bytes). */
-    btlSelectionPushEntry((u8 *)((BtlBattleState *)D_0076449C)->uiTask, *(s32 *)(work + 4),
+    btlSelectionPushEntry((u8 *)((BtlBattleState *)D_0076449C)->uiTask, workFields->target,
                   (s32 *)&result, position, ((BtlHitDisplayWork *)work)->flags);
     return 1;
 }
