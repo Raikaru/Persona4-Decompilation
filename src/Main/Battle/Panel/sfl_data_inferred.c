@@ -321,6 +321,7 @@ if (queue != 0) {
  * Keep the angle and shared scale local to each primitive call. */
 #pragma push
 /* measured: func_00366960, func_00366c70 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline differs by 129/119 words for the two quads; cached translation coordinates do not match; retain propagation off. */
 #pragma opt_propagation off
 // Intent: Queues a four-point colour quad of the given width and height, with packed RGBA and a transform matrix [inferred]
 // FUN_00366960
@@ -722,6 +723,7 @@ void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state) {
    ahead of the entry branch. Alpha: `n = arg1 & 0xFF; arg1 = 0xFF - n;` through the
    loop counter's register puts the andi before the li (fresh local or one expression: nd 3). */
 /* measured: func_003679c0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline differs by 9 words; explicit digit-width local leaves nd26; retain hoisting for the digit renderers. */
 #pragma opt_loop_invariants on
 void sflDataDrawNumberValue(s64 position, f32 depth, s32 opacity, u8 *state)
 {
@@ -768,6 +770,7 @@ void sflDataDrawNumberValue(s64 position, f32 depth, s32 opacity, u8 *state)
    its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
    masks once into $s0 (nd 78). */
 /* measured: func_00367b80 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline differs by 78 words; repeated byte accesses to opacity leave nd255; retain common-subexpression setting. */
 #pragma opt_common_subs off
 void sflDataDrawTitledIcon(s64 position, f32 depth, s32 opacity, u8 *state)
 {
@@ -807,6 +810,7 @@ void sflDataDrawTitledIcon(s64 position, f32 depth, s32 opacity, u8 *state)
 // FUN_00367D00
 // measured: test ordered float loads with propagation disabled
 /* measured: func_00367d00 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline differs by 94 words; cached digit origin leaves nd415; retain propagation off. */
 #pragma opt_propagation off
 void sflDataDrawLevelBadge(s64 position, f32 depth, s32 opacity, u8 *state)
 {

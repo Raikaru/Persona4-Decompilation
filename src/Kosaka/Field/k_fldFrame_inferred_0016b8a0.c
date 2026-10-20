@@ -290,8 +290,6 @@ extern f32 sqrtf(f32 x);
 /* measured: closes the function-scoped opt_propagation probe. */
 /* Matched full 759-instruction retail body.  The state accessor preserves the
  * read before the row-offset calculations across the branch join. */
-#pragma push
-#pragma pop
 /* measured: opt_propagation off probe for retail field-load order in FldEnemyLoadTable */
 /* measured: opt_propagation on closes the FldEnemyLoadTable load-order probe */
 /* measured: opt_propagation off preserves the retail recomputed index and live register set in FldPartyModelRelease. */
@@ -554,15 +552,16 @@ extern f32 D_00756520[];
 #pragma tailcall off
 /* measured: CSE off prevents the sqrt and zero copies from folding into late temps. */
 /* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
-#pragma opt_common_subs off
 /* measured: decomposition off recovers the retail stack-vector ld/sd copies. */
 /* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_decomposeaggregates off
 /* measured: retain the existing per-role lifetime splitting (39 -> 0). */
 /* measured: propagation off preserves the real phase-value bindings. */
 /* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 /* measured: pullout off keeps the 55.0f and phase constants at their retail uses. */
+/* measured: baseline 2191 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+#pragma opt_common_subs off
+#pragma opt_propagation off
 s32 FldCameraTaskUpdate(u8 *task)
 
 {
@@ -1820,6 +1819,7 @@ void FldCameraTaskDestroy(u8 *task) {
 // FUN_0016E2E0
 #pragma push
 /* measured: FldCameraTaskCreate MATCH -> MISMATCH without this pragma. */
+/* measured: baseline 22 differing words; typed access, block lifetimes did not match; retain scoped settings. */
 #pragma opt_common_subs off
 s32 FldCameraTaskCreate(s32 parentTask)
 {
@@ -2467,7 +2467,6 @@ u8 *FldFrame_RotateTaskCreate(u8 *parentTask, s32 duration, s32 relativeAngle)
 /* measured: close opt_loop_invariants scope after FldFrame_RotateTaskCreate. */
 /* measured: opt_loop_invariants on reproduces FldFrameRotateTaskCreate's loop schedule
    and FPU register allocation. */
-#pragma push
 /* Create a timed rotation toward an absolute yaw using the shorter angular difference. */
 // FUN_0016F3B0
 u8 *FldFrameRotateTaskCreate(u8 *parentTask, s32 duration, s32 absoluteAngle)
@@ -2522,7 +2521,6 @@ u8 *FldFrameRotateTaskCreate(u8 *parentTask, s32 duration, s32 absoluteAngle)
     return result;
 }
 
-#pragma pop
 /* measured: FldEventSnapshotCapture compiles to object 276B against the 288B retail
    window (normalized_diff 0; trailing zero padding is normalized). */
 /* Capture camera matrix, FOV, mode and follow parameters as a seven-quadword snapshot. */

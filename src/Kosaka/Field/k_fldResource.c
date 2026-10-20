@@ -254,12 +254,11 @@ extern const FldResourcePreset fldResourcePresets[3];
  * measured: b210 -O2 retains the loop bases and the explicit work reads;
  * the typed preset view separates records from the field-index bytes. */
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
 /* Append preset or explicit field ID pairs to the loader queue. */
 /* Typed queued-ID/table cursors preserve the measured byte-offset-first append/copy order. */
 // FUN_0014EFC0
+/* measured: baseline 101 differing words; block lifetimes did not match; retain scoped settings. propagation off and redundant common-subexpression on removed; only invariant motion is needed. */
+#pragma opt_loop_invariants on
 void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
 {
     const s32 *resourceReference;
@@ -1253,11 +1252,12 @@ pending:
 #pragma pop
 /* measured: opt_loop_invariants hoists the slash loop constant. */
 #pragma push
-#pragma opt_loop_invariants on
 
 /* Allocate a resource and load state, parse fNNN_NNN IDs, and request its directory. */
 /* Earlier whole-layout probe changed 442 normalized bytes at equal size; only measured access-site exceptions remain. */
 // FUN_00150970
+/* measured: baseline 129 differing words; branch/loop forms did not match; retain scoped settings. */
+#pragma opt_loop_invariants on
 u8 *FldResource_Create(char *path)
 {
     FldResource *fieldResource;
@@ -2211,10 +2211,11 @@ void FldResource_QueueDrawCallbacksSecondary(u8 *list, u8 *resource)
  * The packed axis view preserves the independent eight- and four-byte loads;
  * resource pointers, loop bounds and the post-rotate frame remain reloads. */
 #pragma push
-#pragma opt_propagation off
 /* Translate clump frames and models; rotate effect positions about the supplied angle first. */
 /* Typed matrix bit members preserve integer initialization in the measured scalar-copy body. */
 // FUN_00152E50
+/* measured: baseline 80 differing words; block lifetimes did not match; retain scoped settings. */
+#pragma opt_propagation off
 void FldResource_TransformFrames(u8 *resource, u8 *translation, f32 angle)
 {
     struct {
@@ -2351,7 +2352,6 @@ void FldResource_TransformFrames(u8 *resource, u8 *translation, f32 angle)
 
 /* measured: opt_propagation off preserves the named scalar global loads; this scalar pair copy suppresses aggregate ld/sd traffic. */
 #pragma push
-#pragma opt_propagation off
 #define COPY_SCALAR_PAIR(dst, src) \
 do { \
     s64 copy_s64; \
@@ -2364,6 +2364,8 @@ do { \
 /* Rotate clump frames, entry models and effect Euler angles about the stored axis. */
 /* Typed frame/entry fields preserve the packed-axis scalar loads and pointer/handle aliases. */
 // FUN_00153300
+/* measured: baseline 3 differing words; block lifetimes, load snapshots did not match; retain scoped settings. */
+#pragma opt_propagation off
 void FldResource_AdvanceAnimations(s8 *resource, f32 angle)
 {
     extern void func_003e9d50(s32 a0, void *a1, f32 f12, s32 a3);
