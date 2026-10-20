@@ -10,10 +10,6 @@
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
 typedef struct BtlPacket BtlPacket;
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
 
 extern void btlUnitSetRot(void *unit, void *rot);
 extern void btlTargetBlendVectors(void *rotation, void *first, void *second);

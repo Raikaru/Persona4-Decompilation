@@ -34,10 +34,6 @@ static inline f32 func_0020_mul(f32 left, f32 right)
 {
     return left * right;
 }
-static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 
 extern f32 fGpffff815c;

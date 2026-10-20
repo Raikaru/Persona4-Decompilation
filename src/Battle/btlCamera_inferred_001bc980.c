@@ -53,14 +53,6 @@ extern u32 iGpffffa0b8;
 extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 clearUnitFlags);

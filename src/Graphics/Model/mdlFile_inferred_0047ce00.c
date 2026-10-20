@@ -23,16 +23,6 @@ extern u8 DAT_00922c30_abs[];
 struct MdlFlags78ec0;
 
 
-/* measured: sdkLboxGetSelectedId's final `index*0xA4 + base` add emitted
- * addu $v0,$s0,$v0 where retail has addu $v0,$v0,$s0; both plain C operand
- * orders compile identically (nd 2). Routing the add through this
- * static inline helper, whose parameter order is the reverse of the
- * expression order, flips the operands and matches (nd 2 -> 0). The object
- * size is unchanged, so the helper is inlined rather than called. */
-static inline s32 viewAddReverse(s32 base, s32 offset)
-{
-    return offset + base;
-}
 
 extern s32 func_003e2e40(s32 model, s32 *typeCallback);
 extern s32 func_003e2f60(s32 model, s32 typeCallback, s32 *pathCallback);
@@ -46,18 +36,6 @@ extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
 extern f32 fGpffffbb54;
-static inline f32 code1_0047_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline f32 code1_0047_madd(f32 left, f32 right, f32 addend)
-{
-    return 0.0f + addend + left * right;
-}
-static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
-{
-    return 0.0f + addend + right * left;
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 0047ce00-0047d170 */
 

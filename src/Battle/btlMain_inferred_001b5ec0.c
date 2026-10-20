@@ -81,14 +81,6 @@ extern void btlMainSetupCameraAndEffects(void);
 extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern void *SceneDraw_GetList4Matrix(void);
 extern u8 *resrcMngGetColorValue(void);
 extern u8 *resrcMngGetColorTarget(void);

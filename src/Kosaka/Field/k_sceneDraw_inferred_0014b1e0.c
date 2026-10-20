@@ -152,13 +152,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline u8 *p4_e740_add(s32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 p4_0014_recip(f32 value)
-{
-    return 1.0f / value;
-}
 typedef struct {
     u8 b0;
     u8 b1;
@@ -200,10 +193,6 @@ extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
-static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
 
 
 

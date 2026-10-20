@@ -31,14 +31,6 @@ extern s32 mdlCopyIndexedMatrix(void *model, s32 index, void *destination);
 extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
 extern void titleVisualDrawTintedModel(void *model, void *color);
 extern void mdlAdvanceModelFromFlags(void *model);
-static inline s32 code1_0012_stride(s32 index, s32 base)
-{
-    return index + base;
-}
-static inline s32 code1_0012_stride_loop(s32 base, s32 index)
-{
-    return base + index;
-}
 
 extern s32 D_007242B0;
 extern void (*jtbl_008873EC[])(void *);
@@ -324,13 +316,6 @@ typedef struct { s128 bits; } TitleRect;
 extern TitleRect D_005E5590;
 extern TitleRect D_005E55A0;
 
-static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *texture)
-{
-    f32 size = 64.0f * scale;
-
-    shdSpriteDrawNowEx(x - size, y - size, 0.0f, color, 0x80, 0x1000F, 0, texture, 0, (s16)size, (s16)size, angle,
-                  scale, scale);
-}
 
 /* 1288/1296 bytes (two words of padding); relocations: D_005E5590,
    D_005E55A0, this function's literal pool at gp-0x7DD0..-0x7D64, and the

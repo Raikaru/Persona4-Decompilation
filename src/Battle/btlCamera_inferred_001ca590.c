@@ -102,35 +102,10 @@ extern f32 D_00607E24[];
 extern f32 D_00607E30[];
 extern f32 D_00607E3C[];
 extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 third, const RtQuat *fourth);
-static inline f32 func_001c_mul_add(f32 first, f32 second, f32 third)
-{
-    return first * second + third;
-}
-static inline void func_001c_copy_pair(s64 *first, f32 *second,
-                                       s64 *third, f32 *fourth)
-{
-    s64 pair;
-    f32 value;
-
-    pair = *third;
-    value = *fourth;
-    *first = pair;
-    *second = value;
-}
-static inline void func_001c_rotate(RwMatrix *first, const RwV3d *second,
-                                    f32 third, s32 fourth)
-{
-    RwMatrixRotate(first, second, third, fourth);
-}
 
 
 /* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
 
-static inline f32 cameraSideRadius(f32 first, f32 second)
-{
-    if (first > second) return first;
-    return second;
-}
 
 /* Source unit: src/promoted/code1_001c.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001ca590-001cbf80 */

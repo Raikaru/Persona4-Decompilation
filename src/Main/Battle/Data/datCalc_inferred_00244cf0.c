@@ -16,10 +16,6 @@ static inline f32 mul_f32_ordered(f32 left, f32 right)
 {
     return left * right;
 }
-static inline f32 add_f32_ordered(f32 left, f32 right)
-{
-    return left + right;
-}
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 

@@ -51,14 +51,6 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
 extern u32 iGpffffa0b8;
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern void *SceneDraw_GetList4Matrix(void);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];

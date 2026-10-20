@@ -27,9 +27,6 @@ extern char D_0063D050[];
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 /* Element addresses for the scene source tables. The helpers keep the
    base + index * stride arithmetic of the original reads: indexing the
    typed array instead reorders the table-base load against the shift. */

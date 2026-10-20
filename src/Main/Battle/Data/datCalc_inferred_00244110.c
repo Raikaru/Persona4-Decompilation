@@ -18,10 +18,6 @@ static inline f32 mul_f32_ordered(f32 left, f32 right)
 {
     return left * right;
 }
-static inline f32 add_f32_ordered(f32 left, f32 right)
-{
-    return left + right;
-}
 /* Two scripted damage formulas, datScriptCalcPhysicalDamage and datScriptCalcMagicDamage,
    driven by datScriptCalcFloat selectors and the fGpffff* float constants (documented beside
    their externs). Each is a separate retail function with its own C body. */

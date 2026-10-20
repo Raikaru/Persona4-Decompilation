@@ -66,14 +66,6 @@ typedef struct RwTexture RwTexture;
 typedef struct RwTexDictionary RwTexDictionary;
 #include "scene_event_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
-static inline s32 code1_0018_shift4(s32 value)
-{
-    return value << 4;
-}
-static inline s32 code1_0018_add2(s32 first, s32 second)
-{
-    return first + second;
-}
 extern void mdlEffectEmitTagPair();
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32, s32);
@@ -211,19 +203,6 @@ extern s32 iGpffffb884;
 typedef struct {
     f32 x, y, z;
 } FldAreaNormal;
-/* Plays the ambient cue for slot `id` and advances that slot's four-step
-   variation counter.  Inlined into every trigger arm of FldAmbientTrigger. */
-static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
-{
-    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
-    extern s32 D_007F1760[];
-    s32 *slot = &D_007F1760[id & 0x3FF];
-
-    sdkSndStartStream(0, (id & 0x3FF) + 4, bank, base + *slot);
-    if (++*slot >= 4) {
-        *slot = 0;
-    }
-}
 /* measured probe: opt_propagation off tests caching the repeated render callback base. */
 #pragma opt_propagation off
 /* measured probe: restore opt_propagation after FldRainRenderStateSet. */
