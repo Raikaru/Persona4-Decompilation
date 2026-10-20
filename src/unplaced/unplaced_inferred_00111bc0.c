@@ -7,6 +7,12 @@
 #include "fr_font_internal.h"
 #include "datUnit_internal.h"
 
+/* Unit settings shared by the data-entry renderers and persistent-state reset. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+#pragma opt_common_subs on
+#pragma opt_rebuildconditionals on
+
 /* datEntryReset and the row renderers establish this 0x1C-byte record. */
 typedef struct DatItemEntry {
     s16 itemId;
@@ -95,12 +101,9 @@ extern s8 D_005E47F0[];
 u32 datGetClearedWord(void);
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Carry persistent state across a reset: save the flags, category values and money, reset to the defaults, then restore them with the new end date [inferred]
 // FUN_00111BC0
+/* measured: baseline propagation folds the first count increment; original s32 and u8 count forms differ by 1264 and 1164 bytes. */
 #pragma opt_propagation off
 void datCarryOverPersistentState(void)
 {
@@ -319,11 +322,6 @@ loop7_check:
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Draw one entry row: the name text, the stat value, the count, and the badges, at the entry's position and depth [inferred]
 // FUN_00112300
 void datEntryDrawRow(Vec2f position, f32 inputDepth, u8 opacity, u8 *inputEntry)
@@ -420,13 +418,7 @@ void datEntryDrawRow(Vec2f position, f32 inputDepth, u8 opacity, u8 *inputEntry)
             0);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Reset the entry's fields to their defaults: sentinel -1 for the indices and 3 for the state [inferred]
 // FUN_001125D0
 void datEntryReset(u8 *entry) {
@@ -446,13 +438,7 @@ void datEntryReset(u8 *entry) {
     ((DatItemEntry *)entry)->layoutIndex = 0;
     ((DatItemEntry *)entry)->colorIndex = 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Draw the entry's icons when the flag bits in the state word at 0x14 are set, using the colours from the two colour tables [inferred]
 // FUN_00112610
 /* Earlier whole-layout typing probe: DatItemEntry access changed codegen (nd 415).; access-site and typed-local forms now match. */
@@ -514,7 +500,6 @@ void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 it
                       ((DatItemEntry *)entry)->itemId, itemTexture, badgeTexture);
     }
 }
-#pragma pop
 
 typedef struct {
     u8 b[4];
@@ -557,10 +542,8 @@ static inline void datDrawStatChangeArrow(Vec2f pos, f32 depth, StatColor color,
 }
 
 #pragma push
+/* measured: explicit color/Y loop snapshots, glyph forms and per-band lifetimes leave 16 differing register-allocation bytes; retain loop hoisting. */
 #pragma opt_loop_invariants on
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Draw a stat value and, when it differs from the previous value, its up or down arrow glyph, then its digits [inferred]
 // FUN_00112830
 /* Earlier whole-layout typing probe: DatItemEntry access changed codegen (nd 1431).; access-site and typed-local forms now match. */
@@ -638,11 +621,6 @@ static inline s32 fontDrawLeadingGlyph(const Vec2f *position, f32 depth, u8 opac
     return alpha;
 }
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 /* Native b210 -O2: 440 executable bytes, nine resolved relocations,
  * and eight retail alignment zeros. The leading draw keeps inverse
  * opacity live while the loop retains its blue and green snapshots. */
@@ -687,13 +665,7 @@ void datEntryDrawCount(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 tex
         characterIndex--;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Draw the icon for the first set flag bit, with its sprite mode and id, at the given position [inferred]
 // FUN_00113280
 void datEntryDrawFlagIcon(Vec2f position, f32 depth, s32 packedColor, s16 itemId, s32 itemTexture,
@@ -754,13 +726,7 @@ void datEntryDrawFlagIcon(Vec2f position, f32 depth, s32 packedColor, s16 itemId
                       ((u8 *)&packedColor)[2], scale, 0);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Forward a draw to the subsystem routine only while flag 0x39 is set [inferred]
 // FUN_00113480
 void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags)
@@ -769,25 +735,13 @@ void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags)
         sdkPadStartSequence(port, sequence, duration, flags);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Stop controller rumble [inferred]
 // FUN_00113500
 void datStopPadRumble(void) {
     H_Pad_StopRumble();
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Fill a skill cost row from the table entry at the index: the skill id at +2, and the cost at +4 or +8 by the threshold kind; return 1 when the entry is present [inferred]
 // FUN_00113520
 /* Earlier whole-layout typing probe: DatSkillCostRow/DatPersonaRecord access changed codegen (nd 187).; access-site and typed-local forms now match. */
@@ -822,13 +776,7 @@ s32 datPersonaFillSkillCostRow(s32 unitId, struct DatPersonaRecord *persona, s32
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Fill the persona's skill rows: up to eight learned skills first, then the learnable skills, with the counts at 0x60 and 0x224 [inferred]
 // FUN_00113610
 void datPersonaFillSkillRows(s32 personaAddress, u8 *rows)
@@ -872,13 +820,7 @@ void datPersonaFillSkillRows(s32 personaAddress, u8 *rows)
     }
     ((DatSkillRows *)rows)->learnableCount = count;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Clear the first three halfwords of a record [inferred]
 // FUN_00113730
 void datRecordClearHeader(s16 *record) {
@@ -886,13 +828,7 @@ void datRecordClearHeader(s16 *record) {
     record[1] = 0;
     record[2] = 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Reset a record: zero the two halfword counters, set the two indices at +4 and +5 to -1, and clear the 0x22C bytes from +8 [inferred]
 // FUN_00113750
 void datRecordResetAll(u8 *record) {
@@ -902,13 +838,7 @@ void datRecordResetAll(u8 *record) {
     ((DatEntryRecord *)record)->indexB = -1;
     memset(((DatEntryRecord *)record)->data, 0, 0x22C);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Draw an entry by its kind: kind 0 draws the id name, kind 1 the skill descriptor, kind 2 the skill entry name [inferred]
 // FUN_00113790
 void datEntryDrawByKind(Vec2f position, u8 opacity, void *entry, s32 flags, f32 depth)
@@ -928,13 +858,7 @@ void datEntryDrawByKind(Vec2f position, u8 opacity, void *entry, s32 flags, f32 
         return;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Draw the record's id name at a position with the given alpha and the font index from the table [inferred]
 // FUN_00113800
 void datEntryDrawIdName(Vec2f position, f32 depth, u8 opacity, void *entry, s32 flags)
@@ -951,4 +875,3 @@ void datEntryDrawIdName(Vec2f position, f32 depth, u8 opacity, void *entry, s32 
     index = ((char *)D_005E47F0)[((DatNamedEntry *)entry)->fontIndex * 2];
     frFontExDrawText((f32)(s32)position.x, (f32)(s32)position.y, scale, color, index, 1, temp, 0, 0);
 }
-#pragma pop
