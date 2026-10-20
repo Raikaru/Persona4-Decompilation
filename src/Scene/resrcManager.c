@@ -91,6 +91,7 @@ ResrcManager* resrcMngCreate()
     return resMgr;
 }
 
+/* Drain every resource list, releasing each record and its owned path, then free the manager. */
 // FUN_001470E0
 void resrcMngDestroy(ResrcManager* resManager)
 {
@@ -116,6 +117,7 @@ void resrcMngDestroy(ResrcManager* resManager)
 }
 
 
+/* Allocate the kind-specific record, initialize unit scale and append it; duplicate packed ids assert. */
 // FUN_00147190
 Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId)
 {
@@ -233,6 +235,7 @@ Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId)
     return res;
 }
 
+/* Unlink a record found in its kind list, then release its owned path and allocation. */
 // FUN_00147430
 void resrcMngDestroyRes(ResrcManager* resManager, Resrc* res)
 {
@@ -272,6 +275,7 @@ void resrcMngDestroyRes(ResrcManager* resManager, Resrc* res)
         currRes = currRes->next;
     }
 }
+/* Return the requested resource-list head, or NULL for an out-of-range kind. */
 // FUN_00147500
 Resrc* resrcMngGetListHead(ResrcManager* resManager, u8 resType)
 {

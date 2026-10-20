@@ -4,6 +4,7 @@
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "effect_update_internal.h"
 #include "scene_event_internal.h"
 #include "scene_resource_internal.h"
@@ -271,9 +272,9 @@ extern f32 D_008872F8[];
 /* Source unit: src/promoted/code1_0014.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001459b0-00146a10 */
 
-// FUN_001459B0
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
-/* ResrcRecord effect slots 140/144 remain raw: typed members grew the matched body from 272 to 284 bytes across effect calls. */
+/* measured: two effect reloads require MEMBER; access-site, typed-local and array forms grow this body from 272 to 284 bytes. */
+// FUN_001459B0
 s32 MT_Scene_CreateObjectRes(u16 resourceId, s32 model, s8 drawMode) {
     f32 initialPosition[3];
     s32 resourceTypeId;
@@ -294,18 +295,18 @@ s32 MT_Scene_CreateObjectRes(u16 resourceId, s32 model, s8 drawMode) {
     if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(resource + 0x144) = mdlEffectCreateFromResource(model);
-    *(s8 *)(resource + 0x140) = drawMode;
+    *(s32 *)&((ResrcRecord *)resource)->slotHandle[1] = mdlEffectCreateFromResource(model);
+    *(s8 *)&((ResrcRecord *)resource)->slotHandle[0] = drawMode;
     initialPosition[0] = 100.0f;
     initialPosition[1] = 0.0f;
     initialPosition[2] = 0.0f;
-    mdlEffectSetChildPositionVec(*(void **)(resource + 0x144), initialPosition);
-    mdlEffectSetUniformScale(*(s32 *)(resource + 0x144), 1.5f);
+    mdlEffectSetChildPositionVec(MEMBER(void *, resource, ResrcRecord, slotHandle[1]), initialPosition);
+    mdlEffectSetUniformScale(MEMBER(s32, resource, ResrcRecord, slotHandle[1]), 1.5f);
     return resourceTypeId;
 }
 
-// FUN_00145AC0
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00145AC0
 s32 MT_Scene_CreateModelFldRes(u16 resourceId, s32 model) {
     s8 zeroPosition[0xC];
     s32 resourceTypeId;
@@ -341,8 +342,8 @@ s32 MT_Scene_CreateModelFldRes(u16 resourceId, s32 model) {
     return resourceTypeId;
 }
 
-// FUN_00145BA0
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00145BA0
 s32 MT_Scene_CreateRes11(u16 resourceId, s32 model) {
     s8 zeroPosition[0xC];
     s32 resourceTypeId;
@@ -378,8 +379,8 @@ s32 MT_Scene_CreateRes11(u16 resourceId, s32 model) {
     return resourceTypeId;
 }
 
-// FUN_00145C80
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00145C80
 s32 MT_Scene_CreateFldRes(u16 resourceId, s32 model) {
     s8 zeroPosition[0xC];
     s32 resourceTypeId;
@@ -415,8 +416,8 @@ s32 MT_Scene_CreateFldRes(u16 resourceId, s32 model) {
     return resourceTypeId;
 }
 
-// FUN_00145D60
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00145D60
 s32 MT_Scene_CreateFldHitLight(u16 resourceId, f32 *position, f32 width, f32 height, f32 angle, FieldRgba8 rgba) {
     s32 resourceTypeId;
     s32 manager;
@@ -446,8 +447,8 @@ s32 MT_Scene_CreateFldHitLight(u16 resourceId, f32 *position, f32 width, f32 hei
     return resourceTypeId;
 }
 
-// FUN_00145E90
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00145E90
 s32 MT_Scene_CreateRes21Light(u16 resourceId, f32 *position, f32 width, f32 height, f32 angle, FieldRgba8 rgba) {
     s32 resourceTypeId;
     s32 manager;
@@ -477,8 +478,8 @@ s32 MT_Scene_CreateRes21Light(u16 resourceId, f32 *position, f32 width, f32 heig
     return resourceTypeId;
 }
 
-// FUN_00145FC0
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00145FC0
 s32 MT_Scene_CreatePointRes14(u16 resourceId, f32 *position, f32 radius) {
     s32 resourceTypeId;
     s32 manager;
@@ -502,8 +503,8 @@ s32 MT_Scene_CreatePointRes14(u16 resourceId, f32 *position, f32 radius) {
     return resourceTypeId;
 }
 
-// FUN_00146080
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00146080
 s32 MT_Scene_CreatePointRes15(u16 resourceId, f32 *position, f32 radius) {
     s32 resourceTypeId;
     s32 manager;
@@ -527,8 +528,8 @@ s32 MT_Scene_CreatePointRes15(u16 resourceId, f32 *position, f32 radius) {
     return resourceTypeId;
 }
 
-// FUN_00146140
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00146140
 s32 MT_Scene_CreatePointRes16(u16 resourceId, f32 *position, f32 radius) {
     s32 resourceTypeId;
     s32 manager;
@@ -552,8 +553,8 @@ s32 MT_Scene_CreatePointRes16(u16 resourceId, f32 *position, f32 radius) {
     return resourceTypeId;
 }
 
-// FUN_00146200
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00146200
 s32 MT_Scene_CreatePointRes17(u16 resourceId, f32 *position, f32 radius) {
     s32 resourceTypeId;
     s32 manager;
@@ -577,8 +578,8 @@ s32 MT_Scene_CreatePointRes17(u16 resourceId, f32 *position, f32 radius) {
     return resourceTypeId;
 }
 
-// FUN_001462C0
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_001462C0
 s32 MT_Scene_CreatePointRes18(u16 resourceId, f32 *position, f32 radius) {
     s32 resourceTypeId;
     s32 manager;
@@ -602,8 +603,8 @@ s32 MT_Scene_CreatePointRes18(u16 resourceId, f32 *position, f32 radius) {
     return resourceTypeId;
 }
 
-// FUN_00146380
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
+// FUN_00146380
 s32 MT_Scene_CreatePointRes19(u16 resourceId, f32 *position, f32 radius) {
     s32 resourceTypeId;
     s32 manager;
@@ -627,9 +628,9 @@ s32 MT_Scene_CreatePointRes19(u16 resourceId, f32 *position, f32 radius) {
     return resourceTypeId;
 }
 
-// FUN_00146440
 /* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
-/* SceneCaptureCameraResource documents this tail; typed members changed b210 matrix-copy lifetimes (234 differing bytes). */
+/* measured: only the two allocated-matrix reloads require MEMBER; typed-local and array forms also change matrix-copy lifetimes (230/169 differing bytes). */
+// FUN_00146440
 s32 MT_Scene_CreateCameraRes(u16 resourceId, s32 cameraKind, f32 cameraValue, u8 *firstMatrixInput, u8 *secondMatrixInput, u8 *position, f32 nearValue, f32 farValue, s32 parameters, s32 data) {
     s32 resourceTypeId;
     s32 secondWord;
@@ -658,56 +659,56 @@ s32 MT_Scene_CreateCameraRes(u16 resourceId, s32 cameraKind, f32 cameraValue, u8
     if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(resource + 0x140) = cameraKind;
-    *(f32 *)(resource + 0x144) = cameraValue;
-    *(u8 **)(resource + 0x148) = func_003e0f80();
+    *(s32 *)&((SceneCaptureCameraResource *)resource)->kind = cameraKind;
+    *(f32 *)&((SceneCaptureCameraResource *)resource)->value = cameraValue;
+    *(u8 **)&((SceneCaptureCameraResource *)resource)->matrices[0] = func_003e0f80();
     if (firstMatrix != NULL) {
-        outputWords = *(u8 **)(resource + 0x148);
+        outputWords = MEMBER(u8 *, resource, SceneCaptureCameraResource, matrices[0]);
         remainingPairs = 8;
         do {
-            firstWord = *(s32 *)(firstMatrix + 0);
-            secondWord = *(s32 *)(firstMatrix + 4);
+            firstWord = ((s32 *)firstMatrix)[0];
+            secondWord = ((s32 *)firstMatrix)[1];
             firstMatrix += 8;
             remainingPairs -= 1;
-            *(s32 *)(outputWords + 0) = firstWord;
-            *(s32 *)(outputWords + 4) = secondWord;
+            ((s32 *)outputWords)[0] = firstWord;
+            ((s32 *)outputWords)[1] = secondWord;
             outputWords += 8;
         } while (remainingPairs > 0);
     }
-    *(u8 **)(resource + 0x14C) = func_003e0f80();
+    *(u8 **)&((SceneCaptureCameraResource *)resource)->matrices[1] = func_003e0f80();
     if (secondMatrix != NULL) {
-        secondOutputWords = *(u8 **)(resource + 0x14C);
+        secondOutputWords = MEMBER(u8 *, resource, SceneCaptureCameraResource, matrices[1]);
         secondRemainingPairs = 8;
         do {
-            firstMatrixWord = *(s32 *)(secondMatrix + 0);
-            secondMatrixWord = *(s32 *)(secondMatrix + 4);
+            firstMatrixWord = ((s32 *)secondMatrix)[0];
+            secondMatrixWord = ((s32 *)secondMatrix)[1];
             secondMatrix += 8;
             secondRemainingPairs -= 1;
-            *(s32 *)(secondOutputWords + 0) = firstMatrixWord;
-            *(s32 *)(secondOutputWords + 4) = secondMatrixWord;
+            ((s32 *)secondOutputWords)[0] = firstMatrixWord;
+            ((s32 *)secondOutputWords)[1] = secondMatrixWord;
             secondOutputWords += 8;
         } while (secondRemainingPairs > 0);
     }
     if (position != NULL) {
         point = *(SVec3 *)position;
-        *(SVec3 *)(resource + 0x150) = point;
+        *(SVec3 *)&((SceneCaptureCameraResource *)resource)->position = point;
     }
-    *(f32 *)(resource + 0x15C) = nearValue;
-    *(f32 *)(resource + 0x160) = farValue;
+    *(f32 *)&((SceneCaptureCameraResource *)resource)->nearValue = nearValue;
+    *(f32 *)&((SceneCaptureCameraResource *)resource)->farValue = farValue;
     if (parameters != 0) {
         memcpy(resource + 0x164, (const void *)parameters, 0x20);
     }
     if (data != 0) {
         memcpy(resource + 0x184, (const void *)data, 0x180);
     }
-    *(s32 *)(resource + 0x28) = *(s32 *)(resource + 0x28) | 8;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
     return resourceTypeId;
 }
 
 /* measured: O1 probe for 00146630 register allocation and short tail. */
 /* measured: schedule-off probe for 46630 branch delay slots. */
-// FUN_00146630
 /* Release the resource-kind-specific owned handles before unlinking and freeing the record. */
+// FUN_00146630
 void MT_Scene_DestroyRes(u16 resTypeId) {
     s32 slotValue;
     s32 resourceKind;
@@ -886,8 +887,8 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
    corresponding resource vector. Native b210 -O2: 1100/1104 bytes, with
    four 12-byte initializer vectors and a four-byte zero suffix.
    See Resource_transform_00146a10_20260922_worker1.md. */
+/* measured: only the effect-matrix call handle requires MEMBER; access-site, typed-local and array forms each change 216 bytes. */
 // FUN_00146A10
-/* SceneUpdateResource and ResrcRecord prove these offsets; typed aggregate/handle accesses changed 216 bytes of the matched b210 transform body. */
 void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput)
 {
     extern u8 D_005EF9D0[];
@@ -911,55 +912,55 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
 
     if (resource != 0) {
         if (position != 0) {
-            *(RwV3d *)(resource + 4) = *(const RwV3d *)position;
+            *(RwV3d *)&((SceneUpdateResource *)resource)->position = *(const RwV3d *)position;
         }
         if (rotation != 0) {
-            *(RwV3d *)(resource + 16) = *(const RwV3d *)rotation;
+            *(RwV3d *)&((SceneUpdateResource *)resource)->rotation = *(const RwV3d *)rotation;
         }
         if (scaleInput != 0) {
-            *(RwV3d *)(resource + 28) = *(const RwV3d *)scaleInput;
+            *(RwV3d *)&((SceneUpdateResource *)resource)->scale = *(const RwV3d *)scaleInput;
         }
-        scale = *(const RwV3d *)(resource + 28);
+        scale = *(const RwV3d *)&((SceneUpdateResource *)resource)->scale;
         resourceType = (*(u16 *)resource & 0xFFC00) >> 10;
         switch (resourceType) {
         case 1:
-            modelHandle = *(s32 *)(resource + 0x164);
+            modelHandle = *(s32 *)&((ResrcRecord *)resource)->modelHandle164;
             if (modelHandle == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((SceneUpdateResource *)resource)->rotation.y, 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((SceneUpdateResource *)resource)->rotation.x, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((SceneUpdateResource *)resource)->rotation.z, 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
             mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
         case 2:
-            modelHandle = *(s32 *)(resource + 0x158);
+            modelHandle = *(s32 *)&((ResrcRecord *)resource)->modelHandle158;
             if (modelHandle == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((SceneUpdateResource *)resource)->rotation.y, 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((SceneUpdateResource *)resource)->rotation.x, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((SceneUpdateResource *)resource)->rotation.z, 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
             mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
         case 3:
-            modelHandle = *(s32 *)(resource + 0x164);
+            modelHandle = *(s32 *)&((ResrcRecord *)resource)->modelHandle164;
             if (modelHandle == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((SceneUpdateResource *)resource)->rotation.y, 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((SceneUpdateResource *)resource)->rotation.x, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((SceneUpdateResource *)resource)->rotation.z, 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
             mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
         case 6:
-            if (*(s32 *)(resource + 0x144) == 0) {
+            if (*(s32 *)&((ResrcRecord *)resource)->slotHandle[1] == 0) {
                 func_00440b68(D_005EF9F0);
                 return;
             }
@@ -976,17 +977,17 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 outputWords[1] = second;
                 outputWords = outputWords + 2;
             } while (remainingPairs > 0);
-            mdlEffectSetMatrixPose(*(s32 *)(resource + 0x144), (u8 *)effectMatrix);
+            mdlEffectSetMatrixPose(MEMBER(s32, resource, ResrcRecord, slotHandle[1]), (u8 *)effectMatrix);
             return;
         case 10:
-            modelHandle = *(s32 *)(resource + 0x144);
+            modelHandle = *(s32 *)&((ResrcRecord *)resource)->slotHandle[1];
             if (modelHandle == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((SceneUpdateResource *)resource)->rotation.y, 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((SceneUpdateResource *)resource)->rotation.x, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((SceneUpdateResource *)resource)->rotation.z, 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
             mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
