@@ -6,6 +6,8 @@ typedef signed __int128 s128;
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -16,12 +18,8 @@ extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
 extern s32 mdlCopyIndexedMatrix(void *, s32 , void *);
 extern void mdlApplyModelMatrix(void *, void *, s32 );
 extern void titleVisualDrawTintedModel(void *, void *);
+extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue);
 extern void mdlAdvanceModelFromFlags(void *);
-static inline s32 code1_0012_stride(s32 index, s32 base)
-{
-    return index + base;
-}
-
 extern void (*jtbl_008873EC[])(void *);
 extern s32 iGpffffb1e8;
 extern s64 datGetDateIndex(void);
@@ -270,7 +268,7 @@ void taskPrepareSlotModel(s32 modelIndex, u32 packedColor, s32 flags, u32 *conte
     if (modelIndex >= 0xF) {
         baseModel = NULL;
     } else {
-        baseCursor = (u8 *)code1_0012_stride(modelIndex * 4, (s32)context);
+        baseCursor = (u8 *)(s32)byteAddressAdd(modelIndex * 4, (u8 *)((s32)context));
         baseModel = baseCursor + 0x44;
         if (mdlPrepareModel(*(u8 **)baseModel) != 0) {
             baseModel = *(u8 **)baseModel;
@@ -282,7 +280,7 @@ void taskPrepareSlotModel(s32 modelIndex, u32 packedColor, s32 flags, u32 *conte
         if ((modelIndex + 8) >= 0xF) {
             attachedModel = NULL;
         } else {
-            attachedCursor = (u8 *)code1_0012_stride(modelIndex * 4, (s32)context);
+            attachedCursor = (u8 *)(s32)byteAddressAdd(modelIndex * 4, (u8 *)((s32)context));
             attachedModel = attachedCursor + 0x64;
             if (mdlPrepareModel(*(u8 **)attachedModel) != 0) {
                 attachedModel = *(u8 **)attachedModel;
@@ -390,7 +388,7 @@ void titleTransformSlotModel(s32 modelIndex,
     if (modelIndex >= 0xF) {
         model = NULL;
     } else {
-        modelCursor = (u8 *)code1_0012_stride(modelIndex * 4, (s32)context);
+        modelCursor = (u8 *)(s32)byteAddressAdd(modelIndex * 4, (u8 *)((s32)context));
         model = modelCursor + 0x44;
         if (mdlPrepareModel(*(u8 **)model) != 0) {
             model = *(u8 **)model;
@@ -476,30 +474,22 @@ void titleTransformSlotModel(s32 modelIndex,
 
 typedef union { f32 value; u8 bytes[4]; } TitleDrawColor;
 
+/* Copy one complete draw color and return its destination storage. */
 static inline u8 *titleCopyValue(u8 *destination, const u8 *source)
 {
     *(TitleDrawColor *)destination = *(const TitleDrawColor *)source;
     return destination;
 }
 
-static inline void titleRectangle(u8 *color, f32 x, f32 y, f32 depth, f32 width, f32 height, s32 flags, void *parent)
-{
-    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue);
-    titleVisualSubmitRect(x, y, depth, color, width, height, flags, parent);
-}
-
-static inline f32 titleBlend(f32 delta, f32 blend, f32 value)
-{
-    return value + delta * blend;
-}
-
+/* Interpolate an unsigned palette channel and narrow it to a byte. */
 static inline u8 titlePaletteChannel(u32 value, u32 target, f32 blend)
 {
-    return (u8)titleBlend((f32)(target - value), blend, (f32)value);
+    return (u8)operandOrderProductAddend((f32)(target - value), blend, (f32)value);
 }
 
 typedef union { u32 words[6]; u8 bytes[24]; } TitlePalette;
 
+/* Copy all six palette words in three two-word iterations. */
 static inline void titlePaletteCopy(TitlePalette *destination, const TitlePalette *source)
 {
     const s32 *src = (const s32 *)source->words;
@@ -516,6 +506,7 @@ static inline void titlePaletteCopy(TitlePalette *destination, const TitlePalett
     } while (count > 0);
 }
 
+/* Copy the palette and return the word at the supplied byte offset. */
 static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOffset)
 {
     *(TitlePalette *)destination = *(const TitlePalette *)source;
@@ -605,7 +596,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
             clearCount--;
         } while (clearCount != 0);
     }
-    titleRectangle(titleCopyValue((u8 *)&color, (const u8 *)&zero), 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, NULL);
+    titleVisualSubmitRect(0.0f, 0.0f, 0.0f, titleCopyValue((u8 *)&color, (const u8 *)&zero), 640.0f, 448.0f, 0x12, NULL);
     /* Each value copy preserves all six RGBA palette entries. */
     firstPalette = D_005E5530;
     titlePaletteCopy(&firstHighlight, &firstPalette);
@@ -815,6 +806,7 @@ typedef struct { s128 bits; } TitleRect;
 
 extern TitleRect D_005E5590;
 extern TitleRect D_005E55A0;
+/* Draw a scaled ring centered at the supplied screen position. */
 static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *texture)
 {
     f32 size = 64.0f * scale;
@@ -855,7 +847,7 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context)
         } while (n != 0);
     }
     fillColor = black;
-    titleRectangle((u8 *)&fillColor, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, NULL);
+    titleVisualSubmitRect(0.0f, 0.0f, 0.0f, (u8 *)&fillColor, 640.0f, 480.0f, 0x12, NULL);
     mdlEffectEmitMaskedTagPair();
     shdSpriteDrawNow(0.0f, 0.0f, 0.0f, 0xFFFFFF, opacity & 0xFF, 0x1000C, 0, (u8 *)(((TitleScene *)(context))->sprites), 1);
     mdlEffectEmitTagPair();

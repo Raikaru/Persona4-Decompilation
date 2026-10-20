@@ -3,6 +3,7 @@
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "fr_font_internal.h"
 extern void datSaveRestoreImage(s32, u8 *, s32);
 extern s32 iGpffffb1b4;
@@ -42,25 +43,24 @@ typedef struct CalendarDayColumn {
     u8 pad2[4];
 } CalendarDayColumn;
 
+/* Add a day-row displacement to the calendar table alias address. */
+/* measured: removing the stored offset changes table-address calculation instruction bytes. */
 static inline s32 calendarAddDayOffset(s32 offset, s32 base)
 {
-    s32 temp;
+    s32 value;
 
-    temp = offset;
-    return base + temp;
+    value = offset;
+    return base + value;
 }
 
-static inline s32 calendarAddPhaseOffset(s32 left, s32 right)
-{
-    return left + right;
-}
-
+/* Load a calendar byte with signed extension to the calendar result width. */
+/* measured: plain signed-byte loads change calendar load/extension instruction bytes. */
 static inline s64 calendarLoadSignedByte(s8 *ptr)
 {
-    s64 temp;
+    s64 value;
 
-    temp = *ptr;
-    return temp;
+    value = *ptr;
+    return value;
 }
 
 #pragma push
@@ -148,7 +148,7 @@ s64 calGetDayEntryByPhase(s32 day, u32 phase)
         value = day * 6;
         value = calendarAddDayOffset(value, (s32)&D_005E3A02);
         selection *= 2;
-        value = calendarAddPhaseOffset(selection, value);
+        value = operandOrderAdd(selection, value);
         loaded = calendarLoadSignedByte((s8 *)value);
         result = loaded;
     }
@@ -156,6 +156,7 @@ s64 calGetDayEntryByPhase(s32 day, u32 phase)
 }
 #pragma pop
 
+/* Resolve the current-date override or the signed calendar-table fallback. */
 static inline s64 calendarOverrideValue(s32 date, s32 phase)
 {
     s64 result;

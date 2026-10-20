@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "member_access.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "message_frame_internal.h"
 #include "primitive_point_buffer.h"
 #include "fr_font_internal.h"
@@ -36,11 +37,6 @@ extern f32 iGpffff84a4;
 extern void kAssertFail(const void *file, s32 line);
 extern char D_0064E280[];
 extern f32 cosf(f32 object);
-static inline f32 addRowMotionOffset(f32 left, f32 right)
-{
-    return left + right;
-}
-
 extern void cmpSystemFocusFlaggedRow(u8 *work);
 extern void cmpSystemMenuInit(u8 *work);
 extern s32 datCommunityPanelOpenStepAlt(u8 *work);
@@ -613,7 +609,7 @@ s32 cmpPartyPanelStepRowMotion(u8 *motion)
         x = x + startX;
         ((CmpPartyRowMotion *)motion)->x = x;
         startY = ((CmpPartyRowMotion *)(motion))->startY;
-        startY = addRowMotionOffset(y, startY);
+        startY = operandOrderAddFloat(y, startY);
         ((CmpPartyRowMotion *)motion)->y = startY;
         return 0;
     }

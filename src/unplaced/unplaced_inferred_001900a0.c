@@ -15,11 +15,6 @@
 #include "datPersona_internal.h"
 #include "datUnit_internal.h"
 #include "rw_types_internal.h"
-static inline s32 *fldMapEditorEntryAtOffset(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-
 extern void func_003ef3a0(s32);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void chkmemAllocSiteTag(void *file, s32 line);
@@ -39,7 +34,7 @@ void K_MapEdit_Destroy(u8 *task)
     entries = (s32 *)((KwlnTask *)(task))->work;
     index = 0;
     while (index < 9) {
-        dictionary = fldMapEditorEntryAtOffset(index * 4, entries)[1];
+        dictionary = ((s32 *)((u8 *)(entries) + (index * 4)))[1];
         if (dictionary != 0) {
             func_003ef3a0(dictionary);
         }

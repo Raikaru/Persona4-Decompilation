@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "radar_menu_internal.h"
 #include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
@@ -25,16 +26,6 @@ typedef struct RadarSlotTarget {
     u8 pad11[3];
     s32 startFrame, endFrame;
 } RadarSlotTarget;
-
-static inline s32 code1_0012_stride(s32 index, s32 base)
-{
-    return index + base;
-}
-
-static inline s32 code1_0012_stride_loop(s32 base, s32 index)
-{
-    return base + index;
-}
 
 extern u8 *resourceFindByName(char *name);
 extern s32 titleSlotSetMode(u8 *, s32 );
@@ -136,14 +127,14 @@ loop_0012dc00_2_check:
         goto loop_0012dc00_2_body;
     }
     if (selectionDelta == 1) {
-        previousCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride(previousSelection * 0x30, (s32)(u32)menu)) + 0x94);
+        previousCursor = (MenuSlotAnimation *)((u8 *)((u8 *)(s32)byteAddressAdd(previousSelection * 0x30, (u8 *)((s32)(u32)menu))) + 0x94);
         previousCursor->targetX.s = 0;
         previousCursor->startY.s = 0;
         previousCursor->targetY.s = 0;
         previousCursor->startAlpha.u = 0xFF;
         previousCursor->targetAlpha = 0xFF;
         previousCursor->endFrame.s = 0;
-        selectedCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride(selection * 0x30, (s32)(u32)menu)) + 0x94);
+        selectedCursor = (MenuSlotAnimation *)((u8 *)((u8 *)(s32)byteAddressAdd(selection * 0x30, (u8 *)((s32)(u32)menu))) + 0x94);
         selectedCursor->targetX.s = 0;
         selectedCursor->startY.s = (s32)0xC1700000;
         selectedCursor->targetY.s = (s32)0x40B00000;
@@ -153,14 +144,14 @@ loop_0012dc00_2_check:
         ((TitleSlotMenu *)menu)->slots[10].startY.s = (s32)0x3F800000;
         ((TitleSlotMenu *)menu)->slots[10].targetY.s = (s32)0x3F800000;
     } else if (selectionDelta == -1) {
-        previousCursorReverse = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride(previousSelection * 0x30, (s32)(u32)menu)) + 0x94);
+        previousCursorReverse = (MenuSlotAnimation *)((u8 *)((u8 *)(s32)byteAddressAdd(previousSelection * 0x30, (u8 *)((s32)(u32)menu))) + 0x94);
         previousCursorReverse->targetX.s = 0;
         previousCursorReverse->startY.s = 0;
         previousCursorReverse->targetY.s = 0;
         previousCursorReverse->startAlpha.u = 0xFF;
         previousCursorReverse->targetAlpha = 0xFF;
         previousCursorReverse->endFrame.s = 0;
-        selectedCursorReverse = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride(selection * 0x30, (s32)(u32)menu)) + 0x94);
+        selectedCursorReverse = (MenuSlotAnimation *)((u8 *)((u8 *)(s32)byteAddressAdd(selection * 0x30, (u8 *)((s32)(u32)menu))) + 0x94);
         selectedCursorReverse->targetX.s = 0;
         selectedCursorReverse->startY.s = (s32)0x41700000;
         selectedCursorReverse->targetY.s = (s32)0xC0B00000;
@@ -179,14 +170,14 @@ loop_0012dc00_2_check:
         goto loop_0012dc00_13_check;
 loop_0012dc00_13_body:
         if (wrapIndex == selection) {
-            selectedWrapCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride_loop((s32)(u32)menu, wrapIndex * 0x30)) + 0x94);
+            selectedWrapCursor = (MenuSlotAnimation *)((u8 *)((u8 *)(((s32)(u32)menu) + (wrapIndex * 0x30))) + 0x94);
             selectedWrapCursor->startY.f = targetX;
             selectedWrapCursor->targetY.f = targetY;
             selectedWrapCursor->startAlpha.s = halfAlpha;
             selectedWrapCursor->targetAlpha = opaqueAlpha;
             selectedWrapCursor->endFrame.s = endFrame;
         } else {
-            otherWrapCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride_loop((s32)(u32)menu, wrapIndex * 0x30)) + 0x94);
+            otherWrapCursor = (MenuSlotAnimation *)((u8 *)((u8 *)(((s32)(u32)menu) + (wrapIndex * 0x30))) + 0x94);
             otherWrapCursor->targetX.s = 0;
             otherWrapCursor->startY.s = 0;
             otherWrapCursor->targetY.s = 0;
@@ -210,14 +201,14 @@ loop_0012dc00_13_check:
         goto loop_0012dc00_21_check;
 loop_0012dc00_21_body:
         if (reverseIndex == selection) {
-            selectedReverseCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride_loop((s32)(u32)menu, reverseIndex * 0x30)) + 0x94);
+            selectedReverseCursor = (MenuSlotAnimation *)((u8 *)((u8 *)(((s32)(u32)menu) + (reverseIndex * 0x30))) + 0x94);
             selectedReverseCursor->startY.f = targetX;
             selectedReverseCursor->targetY.f = targetY;
             selectedReverseCursor->startAlpha.s = 0;
             selectedReverseCursor->targetAlpha = opaqueAlpha;
             selectedReverseCursor->endFrame.s = endFrame;
         } else {
-            otherReverseCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride_loop((s32)(u32)menu, reverseIndex * 0x30)) + 0x94);
+            otherReverseCursor = (MenuSlotAnimation *)((u8 *)((u8 *)(((s32)(u32)menu) + (reverseIndex * 0x30))) + 0x94);
             otherReverseCursor->targetX.s = 0;
             otherReverseCursor->startY.s = 0;
             otherReverseCursor->targetY.s = 0;
@@ -732,7 +723,7 @@ s32 radarPushHistoryValue(s32 menuAddress, s32 selectionIndex, s32 selection)
 {
     u8 *p;
 
-    p = (u8 *)code1_0012_stride(selectionIndex * 2, menuAddress);
+    p = (u8 *)(s32)byteAddressAdd(selectionIndex * 2, (u8 *)(menuAddress));
     ((RadarMenu *)(p))->previousSelection[0] = ((RadarMenu *)(p))->selection[0];
     ((RadarMenu *)(p))->selection[0] = selection;
     return 1;
