@@ -1,5 +1,6 @@
 /* Source unit: src/Script/scrCommonCommand_00298fc0.c */
 #include "type.h"
+#include "scr_data_internal.h"
 
 typedef struct KwlnTask KwlnTask;
 
@@ -42,25 +43,6 @@ extern char D_0063CFF0[];
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 
-typedef struct ScrData450
-{
-    u8 pad[0x110];
-    void *scrHeader;   // 0x110
-    void *entries;     // 0x114
-    void *procedures;  // 0x118
-    void *labels;      // 0x11C
-    void *instr;       // 0x120
-    void *msg;         // 0x124
-    void *strings;     // 0x128
-    u8 pad2[0x1C];
-    void *task;        // 0x148
-} ScrData450;
-
-typedef struct ScrContentEntry450
-{
-    u8 pad[8];
-    s32 elementCount; // 0x08
-} ScrContentEntry450;
 
 typedef struct ScrTask450
 {
@@ -308,12 +290,12 @@ u32 scrSetTableValue()
 u32 scrStartProcedureTask(void)
 {
     s32 prcdIdx;
-    ScrData450 *scr;
-    ScrContentEntry450 *entries;
+    ScrScriptWork *scr;
+    ScrContentEntry *entries;
     s32 priority;
 
     prcdIdx = scrGetParamInt(0);
-    scr = (ScrData450 *)scrGetContext();
+    scr = (ScrScriptWork *)scrGetContext();
     if (scr == NULL)
     {
         return 1;
@@ -323,7 +305,7 @@ u32 scrStartProcedureTask(void)
         func_00440b68(D_0063CFF0, D_0063CFB0, 0x171);
         return 1;
     }
-    if (prcdIdx < 0 || prcdIdx >= (entries = scr->entries, entries->elementCount))
+    if (prcdIdx < 0 || prcdIdx >= (entries = scr->contentEntries, entries->elementCount))
     {
         return 1;
     }

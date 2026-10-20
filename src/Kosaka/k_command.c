@@ -1,3 +1,4 @@
+#include "field_scene_internal.h"
 #include "rw_camera_internal.h"
 #include "Kosaka/k_field_state_internal.h"
 #include "mdl_file_internal.h"
@@ -126,8 +127,8 @@ u32 Cmd_SetSceneResourceParam()
 
 /* Retail command operands narrow animation to s16 and converted frame to
    u16 at each dispatch; these are caller conversions, not the shared ABI. */
-/* measured: typing the model-pointer reads in the looping dispatch branches individually loses MATCH; the
- * non-looping branches and weight calls remain typed. */
+/* Play layer-zero motion on a character, NPC, or field model with the script loop/frame/weight operands.
+ * measured: typed handle aliases preserve MATCH where the looping access-site conversions did not. */
 // FUN_00176C70
 s32 Cmd_PlayModelMotion(void)
 {
@@ -142,11 +143,12 @@ s32 Cmd_PlayModelMotion(void)
     case 1:
     {
         u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        ResrcRecord *modelResource = (ResrcRecord *)resource;
         if (resource != 0)
         {
             if (loop != 0)
             {
-                mdlDispatchAnimIfPresent((u8*)*(s32*)(resource + 0x164), 0, (s16)animationId, (u16)frame, 1);
+                mdlDispatchAnimIfPresent((u8*)modelResource->modelHandle164Value, 0, (s16)animationId, (u16)frame, 1);
             }
             else
             {
@@ -159,11 +161,12 @@ s32 Cmd_PlayModelMotion(void)
     case 3:
     {
         u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        ResrcRecord *modelResource = (ResrcRecord *)resource;
         if (resource != 0)
         {
             if (loop != 0)
             {
-                mdlDispatchAnimIfPresent((u8*)*(s32*)(resource + 0x164), 0, (s16)animationId, (u16)frame, 1);
+                mdlDispatchAnimIfPresent((u8*)modelResource->modelHandle164Value, 0, (s16)animationId, (u16)frame, 1);
             }
             else
             {
@@ -176,11 +179,12 @@ s32 Cmd_PlayModelMotion(void)
     case 10:
     {
         u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        ResrcRecord *modelResource = (ResrcRecord *)resource;
         if (resource != 0)
         {
             if (loop != 0)
             {
-                mdlDispatchAnimIfPresent((u8*)*(s32*)(resource + 0x144), 0, (s16)animationId, (u16)frame, 1);
+                mdlDispatchAnimIfPresent((u8*)modelResource->slotHandleValue[1], 0, (s16)animationId, (u16)frame, 1);
             }
             else
             {
@@ -378,7 +382,7 @@ s32 Cmd_SetModelScale(void)
 
 
 /* Set the ring-particle radius only for NPC resources with a shadow handle. */
-/* measured: typing the shadow-handle guard loses MATCH; the handle passed after the guard stays typed. */
+/* measured: a typed resource alias preserves the guard and whole-file MATCH. */
 // FUN_001773D0
 s32 Cmd_SetShadowRingRadius(void)
 {
@@ -391,7 +395,8 @@ s32 Cmd_SetShadowRingRadius(void)
     case 3:
     {
         u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
-        if (resource != 0 && *(s32*)(resource + 0x230) != 0)
+        ResrcRecord *modelResource = (ResrcRecord *)resource;
+        if (resource != 0 && modelResource->handle230 != 0)
         {
             f32 radius = scrGetParamFloat(1);
             FldShadow_SetRingParticles(((ResrcRecord *)resource)->handle230, radius);
@@ -418,9 +423,8 @@ static inline u32 fieldPlacementEnabled(u32 value)
 {
     return value != 0;
 }
-/* measured: typing the remaining model-handle, heading, or translated-placement operands individually loses
- * MATCH. The position aggregate copies reinterpret the named three-float placement array as the native
- * vector type. */
+/* Apply a placement record's heading and position, then update dependent field tasks.
+ * measured: typed resource/placement aliases preserve all native handle reloads and whole-file MATCH. */
 // FUN_001774A0
 s32 Cmd_PlaceFieldResource(void)
 {
@@ -430,6 +434,7 @@ s32 Cmd_PlaceFieldResource(void)
     s32 resourceType;
     f32 translation[3];
     f32 negativeTranslation[3];
+    ResrcRecord *placementRecord;
     resourceId = scrGetParamInt(0);
     placementId = scrGetParamInt(1);
     placement = MT_Scene_GetResListHead(14);
@@ -444,6 +449,7 @@ s32 Cmd_PlaceFieldResource(void)
             }
             placement = (u8 *)((ResrcRecord *)placement)->next;
         }
+        placementRecord = (ResrcRecord *)placement;
         resourceType = (resourceId & 0xFFC00) >> 10;
         switch (resourceType) {
         case 1:
@@ -455,20 +461,22 @@ s32 Cmd_PlaceFieldResource(void)
             u32 hasWork;
             u8 *entry;
             u8 *fieldState;
+            ResrcRecord *modelResource;
             resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+            modelResource = (ResrcRecord *)resource;
             if (resource != 0) {
-                matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
+                matrix = mdlGetMatrix(modelResource->modelHandle164Value);
                 *(Vec3f *)translation = ((struct RwMatrixTag *)(matrix))->pos;
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
                 negativeTranslation[2] = -1.0f * translation[2];
-                mdlTranslateMatrix(*(s32 *)(resource + 0x164), negativeTranslation, 2);
-                mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
-                mdlTranslateMatrix(*(s32 *)(resource + 0x164), translation, 2);
-                matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
-                ((struct RwMatrixTag *)(matrix))->pos = *(Vec3f *)((ResrcRecord *)placement)->placement;
+                mdlTranslateMatrix(modelResource->modelHandle164Value, negativeTranslation, 2);
+                mdlRotateMatrix((void *)(u32)modelResource->modelHandle164Value, &rotationAxis, placementRecord->heading, 0);
+                mdlTranslateMatrix(modelResource->modelHandle164Value, translation, 2);
+                matrix = mdlGetMatrix(modelResource->modelHandle164Value);
+                ((struct RwMatrixTag *)(matrix))->pos = ((Vec3f *)placementRecord->placement)[0];
                 RwEngineGetMatrixTolerances(&tolerance);
-                RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x164)), &tolerance);
+                RwMatrixOptimize(mdlGetMatrix(modelResource->modelHandle164Value), &tolerance);
                 RwMatrixUpdate(mdlGetMatrix((s32)((ResrcRecord *)resource)->modelHandle164));
                 FldFrameTask_UpdateTile(((ResrcRecord *)resource)->handle220);
                 FldStepUpdateBandRes();
@@ -498,29 +506,31 @@ s32 Cmd_PlaceFieldResource(void)
             RwMatrixTolerance tolerance;
             f32 uniformScale;
             f32 scale[3];
+            ResrcRecord *modelResource;
             resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+            modelResource = (ResrcRecord *)resource;
             if (resource != 0) {
-                matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
+                matrix = mdlGetMatrix(modelResource->modelHandle164Value);
                 *(Vec3f *)translation = ((struct RwMatrixTag *)(matrix))->pos;
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
                 negativeTranslation[2] = -1.0f * translation[2];
-                mdlTranslateMatrix(*(s32 *)(resource + 0x164), negativeTranslation, 2);
-                mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
-                mdlTranslateMatrix(*(s32 *)(resource + 0x164), translation, 2);
-                matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
-                ((struct RwMatrixTag *)(matrix))->pos = *(Vec3f *)((ResrcRecord *)placement)->placement;
+                mdlTranslateMatrix(modelResource->modelHandle164Value, negativeTranslation, 2);
+                mdlRotateMatrix((void *)(u32)modelResource->modelHandle164Value, &rotationAxis, placementRecord->heading, 2);
+                mdlTranslateMatrix(modelResource->modelHandle164Value, translation, 2);
+                matrix = mdlGetMatrix(modelResource->modelHandle164Value);
+                ((struct RwMatrixTag *)(matrix))->pos = ((Vec3f *)placementRecord->placement)[0];
                 RwEngineGetMatrixTolerances(&tolerance);
-                RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x164)), &tolerance);
+                RwMatrixOptimize(mdlGetMatrix(modelResource->modelHandle164Value), &tolerance);
                 RwMatrixUpdate(mdlGetMatrix((s32)((ResrcRecord *)resource)->modelHandle164));
-                if (*(s32 *)(resource + 0x22C) != 0) {
+                if ((s32)modelResource->handle22C != 0) {
                     uniformScale = FldFrameTask_GetHeight((s32)((ResrcRecord *)resource)->handle228);
                     scale[2] = uniformScale;
                     scale[1] = uniformScale;
                     scale[0] = uniformScale;
-                    mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x22C), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
-                    mdlScale(*(s32 *)(resource + 0x22C), scale, 2);
-                    mdlTranslateMatrix(*(s32 *)(resource + 0x22C), placement + 0x140, 2);
+                    mdlRotateMatrix((void *)(u32)modelResource->handle22C, &rotationAxis, placementRecord->heading, 2);
+                    mdlScale((s32)modelResource->handle22C, scale, 2);
+                    mdlTranslateMatrix((s32)modelResource->handle22C, placement + 0x140, 2);
                     mdlAdvanceModelFromFlags((s32)((ResrcRecord *)resource)->handle22C);
                 }
             }
@@ -531,20 +541,22 @@ s32 Cmd_PlaceFieldResource(void)
             u8 *resource;
             u8 *matrix;
             RwMatrixTolerance tolerance;
+            ResrcRecord *modelResource;
             resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+            modelResource = (ResrcRecord *)resource;
             if (resource != 0) {
-                matrix = mdlGetMatrix(*(s32 *)(resource + 0x144));
+                matrix = mdlGetMatrix(modelResource->slotHandleValue[1]);
                 *(Vec3f *)translation = ((struct RwMatrixTag *)(matrix))->pos;
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
                 negativeTranslation[2] = -1.0f * translation[2];
-                mdlTranslateMatrix(*(s32 *)(resource + 0x144), negativeTranslation, 2);
-                mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x144), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
-                mdlTranslateMatrix(*(s32 *)(resource + 0x144), translation, 2);
-                matrix = mdlGetMatrix(*(s32 *)(resource + 0x144));
-                ((struct RwMatrixTag *)(matrix))->pos = *(Vec3f *)((ResrcRecord *)placement)->placement;
+                mdlTranslateMatrix(modelResource->slotHandleValue[1], negativeTranslation, 2);
+                mdlRotateMatrix((void *)(u32)modelResource->slotHandleValue[1], &rotationAxis, placementRecord->heading, 0);
+                mdlTranslateMatrix(modelResource->slotHandleValue[1], translation, 2);
+                matrix = mdlGetMatrix(modelResource->slotHandleValue[1]);
+                ((struct RwMatrixTag *)(matrix))->pos = ((Vec3f *)placementRecord->placement)[0];
                 RwEngineGetMatrixTolerances(&tolerance);
-                RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x144)), &tolerance);
+                RwMatrixOptimize(mdlGetMatrix(modelResource->slotHandleValue[1]), &tolerance);
                 RwMatrixUpdate(mdlGetMatrix((s32)((ResrcRecord *)resource)->slotHandle[1]));
             }
             break;
@@ -597,8 +609,7 @@ u32 K_Cmd_CREATE_FLD_MDL()
 
 
 
-/* The frame-list words at +24/+28 lie beyond the published SceneContext prefix; no constructor/allocation
- * extent proving that tail was found, so do not invent a larger context. */
+/* Prepare a field model, apply its first template's placement frame, and return the new resource ID. */
 // FUN_00177B30
 s32 Cmd_CreateFieldModel(void)
 {
@@ -618,9 +629,9 @@ s32 Cmd_CreateFieldModel(void)
             return 1;
         }
         resourceId = MT_Scene_CreateModelFldRes(resourceIndex & 0xFFFF, model) & 0xFFFF;
-        while (*(s32*)(D_00762EA0 + 0x24) > 0)
+        while (((FieldSceneState *)D_00762EA0)->templateCount > 0)
         {
-            placementFrame = (u8*)FldResource_FindFrameForId(*(s32*)(D_00762EA0 + 0x28), resourceIndex, &frameFlag);
+            placementFrame = (u8*)FldResource_FindFrameForId(((FieldSceneState *)D_00762EA0)->templates[0].signedAddress, resourceIndex, &frameFlag);
             break;
         }
         if (placementFrame != 0)
@@ -729,8 +740,7 @@ s32 Cmd_CreateSceneResource(void)
 
 
 /* Set resource height and rescale an attached NPC shadow when present. */
-/* measured: typing the remaining shadow-handle guard and scale operand individually loses MATCH; the height
- * calls and final model update stay typed. */
+/* measured: a typed resource alias preserves both shadow-handle accesses and whole-file MATCH. */
 // FUN_00177F50
 s32 Cmd_SetFieldFloat(void)
 {
@@ -751,16 +761,17 @@ s32 Cmd_SetFieldFloat(void)
     case 3:
     {
         u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        ResrcRecord *modelResource = (ResrcRecord *)resource;
         if (resource != 0)
         {
             FldFrameTask_SetHeight((s32)((ResrcRecord *)resource)->handle228, height);
-            if (*(s32*)(resource + 0x22C) != 0)
+            if ((s32)modelResource->handle22C != 0)
             {
                 f32 scale[3];
                 scale[2] = height;
                 scale[1] = height;
                 scale[0] = height;
-                mdlScale(*(s32*)(resource + 0x22C), scale, 2);
+                mdlScale((s32)modelResource->handle22C, scale, 2);
                 mdlAdvanceModelFromFlags((s32)((ResrcRecord *)resource)->handle22C);
             }
         }
@@ -803,8 +814,7 @@ s32 K_Cmd_FLD_CAMERA_ROTATE_BEHIND(void)
 
 
 /* Choose a cardinal heading facing the player from the nearest entry forward axis and start a camera turn. */
-/* measured: typing the remaining resource model-handle loads individually loses MATCH; the matrix axes,
- * position, and camera parent are typed. */
+/* measured: a typed entry alias preserves the repeated matrix-provider calls and whole-file MATCH. */
 // FUN_00178130
 s32 Cmd_FaceNearestAxis(void)
 {
@@ -815,12 +825,13 @@ s32 Cmd_FaceNearestAxis(void)
     f32 coordinate;
     f32 angle;
     f32 dot;
+    ResrcRecord *modelResource = (ResrcRecord *)entry;
     if (entry != 0)
     {
-        forward = ((struct RwMatrixTag *)((u8*)mdlGetMatrix(*(s32*)(entry + 0x144))))->at;
-        coordinate = ((RwMatrixTag *)mdlGetMatrix(*(s32*)(entry + 0x144)))->pos.x;
+        forward = ((struct RwMatrixTag *)((u8*)mdlGetMatrix(modelResource->slotHandleValue[1])))->at;
+        coordinate = ((RwMatrixTag *)mdlGetMatrix(modelResource->slotHandleValue[1]))->pos.x;
         diff.x = coordinate - ((RwMatrixTag *)mdlGetMatrix(D_007EFA00[0]))->pos.x;
-        coordinate = ((RwMatrixTag *)mdlGetMatrix(*(s32*)(entry + 0x144)))->pos.y;
+        coordinate = ((RwMatrixTag *)mdlGetMatrix(modelResource->slotHandleValue[1]))->pos.y;
         diff.y = coordinate - ((RwMatrixTag *)mdlGetMatrix(D_007EFA00[0]))->pos.y;
         coordinate = ((RwMatrixTag *)mdlGetMatrix((s32)((ResrcRecord *)entry)->slotHandle[1]))->pos.z;
         diff.z = coordinate - ((RwMatrixTag *)mdlGetMatrix(D_007EFA00[0]))->pos.z;

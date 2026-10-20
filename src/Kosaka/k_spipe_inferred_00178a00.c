@@ -180,6 +180,7 @@ s32 K_Spipe_GetRecordBand(void)
     return 1;
 }
 
+/* Publish whether bit zero enables the current record through the script result slot. */
 // FUN_00178AF0
 s32 K_Spipe_IsRecordEnabled(void)
 {
@@ -208,6 +209,7 @@ s32 K_Spipe_GetRecordState(void)
   return 1;
 }
 
+/* Publish the current record's halfword identifier through the script result slot. */
 // FUN_00178B70
 s32 K_Spipe_GetRecordId(void)
 {
@@ -215,6 +217,7 @@ s32 K_Spipe_GetRecordId(void)
     return 1;
 }
 
+/* Publish the current record's byte-sized kind, widened to an unsigned script value. */
 // FUN_00178BA0
 s32 K_Spipe_GetRecordKind(void)
 {
@@ -222,6 +225,7 @@ s32 K_Spipe_GetRecordKind(void)
     return 1;
 }
 
+/* Publish the current record's byte-sized level, widened to an unsigned script value. */
 // FUN_00178BD0
 s32 K_Spipe_GetRecordLevel(void)
 {
@@ -229,6 +233,7 @@ s32 K_Spipe_GetRecordLevel(void)
     return 1;
 }
 
+/* Mark the active pipe state finished and detach it from the script-facing global. */
 // FUN_00178C00
 /* Returns the stored constant: retail materializes the 1 in $v0 and stores
    from there, which only happens when it is also the return value. */
