@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2540 of 13102 symbols carry a recovered name.
+// 2544 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -328,7 +328,7 @@ func_001102d0 = 0x001102D0; // type:func
 func_001102e0 = 0x001102E0; // type:func
 datScreenPointToWorldPosition = 0x001102F0; // type:func
 func_00110460 = 0x00110460; // type:func
-func_00110470 = 0x00110470; // type:func
+datSetClearCount = 0x00110470; // type:func
 func_001104a0 = 0x001104A0; // type:func
 func_001104d0 = 0x001104D0; // type:func
 func_00110580 = 0x00110580; // type:func
@@ -5570,9 +5570,9 @@ func_0038d970 = 0x0038D970; // type:func
 func_0038d9f0 = 0x0038D9F0; // type:func
 func_0038daf0 = 0x0038DAF0; // type:func
 func_0038dcc0 = 0x0038DCC0; // type:func
-func_0038dd60 = 0x0038DD60; // type:func
-func_0038dd70 = 0x0038DD70; // type:func
-func_0038dd80 = 0x0038DD80; // type:func
+edScrollStartNoop = 0x0038DD60; // type:func
+edScrollPollNoop = 0x0038DD70; // type:func
+edScrollStopNoop = 0x0038DD80; // type:func
 func_0038dd90 = 0x0038DD90; // type:func
 func_0038ddf0 = 0x0038DDF0; // type:func
 func_0038de90 = 0x0038DE90; // type:func

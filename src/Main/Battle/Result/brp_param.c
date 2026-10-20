@@ -29,6 +29,7 @@ u32 brpParamReadWord1(const u32 *work)
     return work[1];
 }
 
+/* Clear the resource request state and publish this parameter work as the current ending resource context. */
 // FUN_0038F600
 void brpParamSetCurrent(u8 *work)
 {

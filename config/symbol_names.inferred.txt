@@ -917,3 +917,7 @@ mdlEffectPrimitiveColorNoop = 0x00484550; // type:func  evidence: inferred: Empt
 mdlEffectPrimitiveQueryTrue = 0x00484560; // type:func  evidence: inferred: Returns one for default primitive-kind query callbacks in table slots +34 and +38.
 mdlEffectUpdateModelChildTransforms = 0x004ADB50; // type:func  evidence: inferred: Advances the source model, samples scale and color, and applies indexed model matrices to child effect trees before their draw pass.
 mdlTrackApplyNoop = 0x0047F840; // type:func  evidence: inferred: Empty model track application callback referenced by the fn/zero/zero record at 0x0071324C following mdlStoreColorBytes.
+edScrollStartNoop = 0x0038DD60; // type:func  evidence: inferred: empty start callback at sequence row 0x005DD2A0 +4; sequenceRequest invokes start slots through D_005DCC64 with stride 0x50
+edScrollPollNoop = 0x0038DD70; // type:func  evidence: inferred: empty poll callback at sequence row 0x005DD2A0 +8; sequenceRequest checks poll slots through D_005DCC68 with stride 0x50
+edScrollStopNoop = 0x0038DD80; // type:func  evidence: inferred: empty stop callback at sequence row 0x005DD2A0 +12; sequenceRequest invokes stop slots through D_005DCC6C with stride 0x50
+datSetClearCount = 0x00110470; // type:func  evidence: inferred: stores the clearCount preserved by new-game initialization and clamps the unsigned value to 99
