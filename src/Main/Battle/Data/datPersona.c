@@ -5,6 +5,12 @@
 #include "datPersona_internal.h"
 #include "datUnit_internal.h"
 #include "member_access.h"
+
+/* Unit settings: measured persona helpers use loop invariants off, propagation on and common subexpressions on. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+#pragma opt_common_subs on
+
 /* Level-learning rows have a byte level, signed event kind and halfword skill.
  * Both fixed (32 rows) and ordinary (16 rows) growth tables use this stride. */
 typedef struct DatPersonaLearnEvent
@@ -995,6 +1001,7 @@ s32 datPersonaRosterCapacity(void)
     return 6;
 }
 
+#pragma push
 /* measured: nested static inline OR helper preserves retail's intermediate
    ori sequence for modes 2 and 3; helper is required for exact b610 codegen. */
 /* measured: opt_propagation off preserves the three retail mask/and steps. */
@@ -1030,8 +1037,9 @@ void datPersonaSetRosterMode(s32 rosterMode)
         break;
     }
 }
-/* measured: explicit opposite pragma closes the b610 propagation bracket. */
-#pragma opt_propagation on
+/* measured: restore the unit propagation setting after the b610 bracket. */
+#pragma pop
+#pragma push
 /* measured: sibling P3 valid-count shape closes this 0xD0 window with
    opt_loop_invariants; the explicit bracket is required for the hoisted base. */
 /* measured: baseline differs by 17 words; cached typed roster base reduces nd35 to nd10 but changes addressing; retain hoisting. */
@@ -1068,8 +1076,8 @@ u16 datPersonaCountValidMembers(void)
     }
     return validCount;
 }
-/* measured: explicit opposite pragma closes the one-function optimization bracket. */
-#pragma opt_loop_invariants off
+/* measured: restore the unit settings after the one-function optimization bracket. */
+#pragma pop
 // Intent: clears the roster flag records.
 // FUN_0010B7C0
 void datPersonaClearRoster(void)
@@ -1634,6 +1642,7 @@ void datPersonaAddExp(DatPersonaRecord *persona, s32 addedExp)
     persona->exp += addedExp;
 }
 
+#pragma push
 /* measured: ported the matching P3 FES skill-compaction structure, with
    the loop-invariant pragma required to retain retail's maxSkills preheader;
    normalized_diff 0, object_size 232/240. */
@@ -1680,8 +1689,9 @@ void datPersonaCompactSkills(u8 *persona)
     }
 }
 /* measured: closing pragma balances the required loop-invariant setting; nd 0. */
-#pragma opt_loop_invariants off
+#pragma pop
 
+#pragma push
 /* The halfword persona contract retains both retail masks when common
  * subexpression folding is disabled for this initializer. */
 /* measured: baseline differs by 52 words; typed level-row array access leaves nd133; retain common-subexpression setting. */
@@ -1722,7 +1732,7 @@ void datPersonaInitRecord(u8 *persona, u16 personaId)
     datPersonaLearnFixedSkills(persona);
 }
 
-#pragma opt_common_subs on
+#pragma pop
 // Intent: stores skill arg1 in the first empty slot of record arg0; returns 1 on success, 0 when full.
 // FUN_0010CC20
 s32 datPersonaAddSkill(u8 *persona, u16 skillId)

@@ -5,6 +5,11 @@
 #include "g_data_internal.h"
 #include "kwln_task_internal.h"
 #include "member_access.h"
+
+/* Unit settings: measured list helpers use loop invariants off and common subexpressions on. */
+#pragma opt_loop_invariants off
+#pragma opt_common_subs on
+
 /* gp-relative global at 0x0076467C (gp - 0x4A74): pointer to the active list. */
 static u8 *iGpffffb58c;
 /* Shared runtime-loaded persona records; storage is owned by cmmMisc.c. */
@@ -488,11 +493,7 @@ void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
     }
 }
 
-#pragma pop
-#pragma opt_common_subs on
 
-#pragma push
-#pragma opt_loop_invariants on
 /* measured: all 2864 code bytes match with the same scoped settings. */
 // FUN_002E3560
 /* Rebuild a task-owned filtered item list with the selected ordering mode. */
@@ -660,7 +661,6 @@ void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
 }
 
 #pragma pop
-#pragma opt_common_subs on
 
 
 /* Case 6 compares the inventory persona with its compendium record.
@@ -1050,15 +1050,12 @@ void yListBuildAvailability(s32 modeOrResult, s32 selectedIndex) {
         break;
     }
 }
-#pragma pop
 
 extern s32 fclFuseSpecialPartner(u8 *, s32 , s32 );
 
 /* Fill the availability matrix and each row's corresponding pair-result list.
  * Complete the destination lookup before reading the two source record IDs. */
 // FUN_002E5000
-#pragma push
-#pragma opt_loop_invariants on
 /* measured: row-base calculation before inner-counter initialization; best baseline residual 473 differing bytes. */
 void yListBuildPairFlags(void) {
     u8 *base;
@@ -1113,6 +1110,7 @@ s32 yListRecordsDiffer(u8 *left, u8 *right) {
     }
     return (u32)((DatPersonaRecord *)(left))->exp != (u32)((DatPersonaRecord *)(right))->exp;
 }
+#pragma push
 /* Test whether an allocated list contains the requested persona ID. */
 /* measured: without `opt_loop_invariants on` MWCC rematerializes the switch
    jump-table base (lui/addiu) inside the loop body instead of hoisting it into
@@ -1163,15 +1161,12 @@ s32 yListSlotContainsId(s8 list, s16 id) {
     }
     return 0;
 }
-/* measured: see the annotation above the matching `on` pragma (func_002e53b0). */
-#pragma opt_loop_invariants off
 
+/* Find the first matching persona ID, returning minus one when absent. */
 // FUN_002E54C0
 /* measured: without `opt_loop_invariants on` MWCC rematerializes the switch
    jump-table base (lui/addiu) inside the loop body instead of hoisting it into
    the preheader as retail does, giving nd 30+. */
-#pragma opt_loop_invariants on
-/* Find the first matching persona ID, returning minus one when absent. */
 /* measured: equivalent kind if/else dispatch; best baseline residual 76 differing bytes. */
 s16 yListSlotIndexOf(s8 list, s16 id) {
     s16 rowIndex = 0;
@@ -1214,9 +1209,10 @@ s16 yListSlotIndexOf(s8 list, s16 id) {
     }
     return -1;
 }
-/* measured: see the annotation above the matching `on` pragma (func_002e54c0). */
-#pragma opt_loop_invariants off
+/* measured: restore unit loop settings after the shared contains/index search scope. */
+#pragma pop
 
+#pragma push
 /* measured: direct C reconstruction. Disabling common-subexpression
    elimination preserves retail's repeated D_00882F70[arg0] address
    materialization; explicit (u16)arg1 preserves ac10's 16-bit argument. */
@@ -1342,7 +1338,7 @@ void yListSlotAppend(s8 list, s32 id, s8 useRoster) {
 }
 
 /* measured: restore common-subexpression elimination after func_002e55c0. */
-#pragma opt_common_subs on
+#pragma pop
 // FUN_002E5960
 /* Clear the kind-dependent record region and reset cursor, scroll and count. */
 void yListSlotClear(s8 list) {
@@ -1838,6 +1834,7 @@ s32 yListCompareByWeightedKeyDesc(const void *left, const void *right) {
 
 
 // FUN_002E68B0
+#pragma push
 /* measured: without `opt_loop_invariants on` MWCC keeps the loop2 switch
    jump-table base (lui/addiu) inside the dispatch instead of hoisting it
    into the preheader as retail does. */
@@ -1907,7 +1904,7 @@ void yListSlotSortWeighted(s8 list) {
     }
 }
 /* measured: see the annotation above the matching `on` pragma (func_002e68b0). */
-#pragma opt_loop_invariants off
+#pragma pop
 
 /* measured 2026-08-12: best plain-C comparator body is archived at
    build/D2E6_002e6b20_body.c (object 360B/window 368B, normalized_diff 10;
@@ -2001,6 +1998,7 @@ s32 yListCompareByKeyDesc(const void *left, const void *right) {
    the loop-invariant slot address live in the loop body instead of hoisting it
    into the preheader, which is the rotation retail does not have. */
 // FUN_002E6C90
+#pragma push
 /* measured: open opt_loop_invariants scope for func_002e6c90. */
 #pragma opt_loop_invariants on
 /* Sort indices by level, then rebuild records from their cached persona IDs. */
@@ -2068,15 +2066,11 @@ void yListSlotSortByKey(s8 list) {
         memcpy(destination, datPersonaCachedRecord(sortedIds[writeIndex]), 0x30);
     }
 }
-/* measured: closing the scope restores the file baseline; leaving
-   `opt_loop_invariants on` open inflates the following functions. */
-#pragma opt_loop_invariants off
+/* Allocate forty-eight minus-one indices followed by a zero count. */
 // FUN_002E6F00
 /* measured: without `opt_loop_invariants on` MWCC rematerializes the -1 store
    constant at the top of the loop body (nd 6) instead of hoisting it into the
    preheader as retail does (addiu $a1,$zero,-1 before the initial branch). */
-#pragma opt_loop_invariants on
-/* Allocate forty-eight minus-one indices followed by a zero count. */
 /* measured: indexed and pointer-cursor fill loops; best baseline residual 11 differing bytes. */
 u8 *yListAllocIndexTable(void) {
     s16 *indices;
@@ -2094,5 +2088,5 @@ u8 *yListAllocIndexTable(void) {
     indices[0x30] = 0;
     return (u8 *)indices;
 }
-/* measured: see the annotation above the matching `on` pragma (func_002e6f00). */
-#pragma opt_loop_invariants off
+/* measured: restore unit loop settings after the shared key-sort/index-table scope. */
+#pragma pop
