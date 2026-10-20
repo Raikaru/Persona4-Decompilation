@@ -92,6 +92,7 @@ typedef struct BtlTransitionOutput {
 } BtlTransitionOutput;
 
 typedef struct BtlPanelOffset { f32 x, y; } BtlPanelOffset;
+typedef struct BtlPanelCoordinate { f32 value; } BtlPanelCoordinate;
 
 typedef struct BtlPanelGaugeState {
     u8 alpha;
@@ -616,9 +617,7 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
         {-98.0f, -92.0f},
         {98.0f, 92.0f}
     };
-    /* One interleaved coordinate block, with complete X-origin and
-       Y-origin array views. Each row advances eight bytes inside its
-       actual array; the leading firstX overlays the first coordinate. */
+    /* X and Y cursors start at successive floats in the interleaved origin table. */
     union {
         f32 fromX[6];
         struct { f32 firstX; f32 fromY[5]; } y;
@@ -644,9 +643,6 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
     u8 blue;
     u8 green;
 
-    /* layout: interleaved Y-origin alias. Direct row fields, a dedicated typed
-     * local, stride fields and the real three-row array all change MATCH.
-     * Keep the Y-origin byte address; X uses the matching typed row stride. */
     if (index != 0) {
         scaleY = fGpffff8210 * ((BtlPanelGaugeState *)state)->extent;
         half = index / 6;
@@ -680,7 +676,8 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
         height = btlUiSpriteHeight(work, 10, sprite);
         adjustmentY = (f32)flipY * height;
         adjustmentY = adjustmentY / scaleY;
-        offsetY = *(f32 *)((u8 *)&offsets[0].y.fromY + rowOffset);
+        /* measured: three-row array storage changes 47 bytes; preserve the Y-origin sub-object base. */
+        offsetY = ((BtlPanelCoordinate *)((u8 *)&offsets[0].y.fromY + rowOffset))->value;
         drawY = scaleY * (drawY * (offsetY + adjustmentY));
         btlUiSetOrigin(work,
                      (0.0f + (f32)0x117) + fGpffff8210 * corners[flipX][0],

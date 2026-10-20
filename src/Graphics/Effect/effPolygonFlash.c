@@ -33,11 +33,15 @@ extern s32 TnSlotObject(s32);
 extern void func_003c42b0(void *, void *);
 extern void GeometryBlockSetTextureFromHandle(void *, void *);
 extern char D_00713408[];
-extern char D_00714028[];
+/* Interior aliases retain their own relocation bases within 0x1C-byte rows. */
+typedef struct FlashKindSize { s32 parameterBytes; u8 pad04[0x18]; } FlashKindSize;
+typedef struct FlashKindAllocator { void *(*allocate)(void *, void *); u8 pad04[0x18]; } FlashKindAllocator;
+typedef struct FlashKindInitializer { void (*initialize)(void *); u8 pad04[0x18]; } FlashKindInitializer;
+extern FlashKindSize D_00714028[];
 extern char D_00713CE0[];
 extern void memcpy(void *, void *, void *);
-extern char D_00714014[];
-extern char D_00714010[];
+extern FlashKindAllocator D_00714014[];
+extern FlashKindInitializer D_00714010[];
 extern void *FlashQuadCopyAlloc(s32, void *);
 
 extern u8 *(*jtbl_008873E8[])(s32, s32);
@@ -4177,9 +4181,7 @@ void *FlashQuadCopyAlloc(s32 input, void *resource)
         kAssertFail(D_00713FF0, 0xCD2);
     }
     kind = input & 0xFFFF;
-    /* Dispatch records are interleaved 0x1C-byte tables with separate linker symbols. */
-    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
-    parameterSize = *(s32 *)(D_00714028 + kind * 0x1C);
+    parameterSize = D_00714028[kind].parameterBytes;
     chkmemAllocSiteTag(D_00713FF0, 0xCD6);
     effect = jtbl_008873E8[0](parameterSize + 0x50, 0x40000);
     if (effect == NULL) {
@@ -4209,7 +4211,7 @@ void *FlashQuadCopyAllocFromParent(void *input)
     u8 *parameters;
     u8 *resource;
     u8 *instance;
-    u32 idx;
+    u32 kindIndex;
 
     resource = mdlEffectResolveRelPtrB(input);
     if (resource == NULL) {
@@ -4231,12 +4233,9 @@ void *FlashQuadCopyAllocFromParent(void *input)
     }
     kindArgument = (u8 *)(((EffSourceDescriptor *)input)->id & 0xFFFF);
     instance = FlashQuadCopyAlloc((s32)kindArgument, parameters);
-    /* Allocator and initializer are separate linker-symbol columns of a 0x1C-strided table. */
-    idx = ((u32)kindArgument & 0xFFFF) * 28;
-    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
-    ((FlashEffect *)instance)->state = (u8 *)((void *(*)(void *, void *))(*(void **)(D_00714014 + idx)))(parameters, resource);
-    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
-    ((void (*)(void *))(*(void **)(D_00714010 + idx)))(instance);
+    kindIndex = ((u32)kindArgument & 0xFFFF);
+    ((FlashEffect *)instance)->state = (u8 *)D_00714014[kindIndex].allocate(parameters, resource);
+    D_00714010[kindIndex].initialize(instance);
     if (instance == NULL) {
         kAssertFail(D_00713FF0, 0xD18);
     }
