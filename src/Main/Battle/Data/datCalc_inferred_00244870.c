@@ -13,10 +13,6 @@ extern u8 D_006359C0[];
 
 extern f32 D_00761260;
 extern f32 fGpffff811c;
-static inline f32 add_f32_ordered(f32 left, f32 right)
-{
-    return left + right;
-}
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 
@@ -34,13 +30,13 @@ void datScriptCalcHitRate(void)
     f32 skillAccuracy;
 
     if (datScriptTargetIsNotEnemy() != 0) {
-        accuracyTerm = add_f32_ordered(200.0f, datScriptCalcFloat(0xD, 3));
-        hitRate = add_f32_ordered(200.0f, datScriptCalcFloat(0xE, 3));
+        accuracyTerm = (200.0f + datScriptCalcFloat(0xD, 3));
+        hitRate = (200.0f + datScriptCalcFloat(0xE, 3));
         accuracyTerm = accuracyTerm / hitRate;
         hitRate = accuracyTerm * datScriptCalcFloat(0x11, 0);
     } else {
-        accuracyTerm = add_f32_ordered(200.0f, datScriptCalcFloat(0xD, 3));
-        hitRate = add_f32_ordered(200.0f, datScriptCalcFloat(0xE, 3));
+        accuracyTerm = (200.0f + datScriptCalcFloat(0xD, 3));
+        hitRate = (200.0f + datScriptCalcFloat(0xE, 3));
         agilityRatio = accuracyTerm / hitRate;
         accuracyTerm = datScriptCalcFloat(0x1F, 0) / fGpffff824c;
         skillAccuracy = datScriptCalcFloat(0x11, 0) - accuracyTerm;

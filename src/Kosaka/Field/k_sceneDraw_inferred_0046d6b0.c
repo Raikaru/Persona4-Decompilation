@@ -369,7 +369,8 @@ typedef struct ControllerEntry {
     void *argument;
     struct ControllerEntry *previous, *next;
 } ControllerEntry;
-static inline u8 *controller_create_window(u8 *parent,
+/* Create a controller window using independent rectangle and color copies. */
+static inline u8 *sdkControllerCreateWindow(u8 *parent,
     s32 x, s32 y, s32 width, s32 height,
     const ControllerColor *firstSource, const ControllerColor *secondSource)
 {
@@ -1102,7 +1103,7 @@ s32 sdkLboxUpdate(u8 *task)
         theme = work->theme;
         switch (theme) {
         case 0:
-            work->window = controller_create_window(task,
+            work->window = sdkControllerCreateWindow(task,
                 work->rectangle.x, work->rectangle.y,
                 work->rectangle.width, work->rectangle.height,
                 &D_00764134, &D_00764138);
@@ -1112,7 +1113,7 @@ s32 sdkLboxUpdate(u8 *task)
             D_007641A8.alpha = 0x40U;
             break;
         case 1:
-            work->window = controller_create_window(task,
+            work->window = sdkControllerCreateWindow(task,
                 work->rectangle.x, work->rectangle.y,
                 work->rectangle.width, work->rectangle.height,
                 &D_0076413C, &D_00764140);
@@ -1122,7 +1123,7 @@ s32 sdkLboxUpdate(u8 *task)
             D_007641A8.alpha = 0x60U;
             break;
         case 2:
-            work->window = controller_create_window(task,
+            work->window = sdkControllerCreateWindow(task,
                 work->rectangle.x, work->rectangle.y,
                 work->rectangle.width, work->rectangle.height,
                 &D_00764144, &D_00764148);
@@ -1132,7 +1133,7 @@ s32 sdkLboxUpdate(u8 *task)
             D_007641A8.alpha = 0x60U;
             break;
         case 3:
-            work->window = controller_create_window(task,
+            work->window = sdkControllerCreateWindow(task,
                 work->rectangle.x, work->rectangle.y,
                 work->rectangle.width, work->rectangle.height,
                 &D_0076414C, &D_00764150);

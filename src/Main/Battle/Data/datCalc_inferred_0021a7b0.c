@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Battle/btlAction.c; members 0021a7b0-0021dc50 */
 
 #include "datCalc_unit_internal.h"
+#include "operand_order_internal.h"
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -109,10 +110,6 @@ extern void btlXpPrepareAwards(u8 *awards, u8 *reward);
 extern void btlXpApplyAwards(u8 *awards, u8 *reward);
 extern void btlXpAddRosterExp(u8 *awards);
 extern void btlXpAddPartyExp(s32 awardsAddress);
-static inline f32 ws14_add(f32 left, f32 right)
-{
-    return left + right;
-}
 
 union ColorWord {
     s32 word;
@@ -210,7 +207,7 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
             opacity = 204.0f * visibility;
             vertex->u.els.color.a = (f32)(u8)opacity;
             vertex = &vertices[1];
-            vertex->u.els.scrVertex.x = ws14_add(originX, 241.0f);
+            vertex->u.els.scrVertex.x = operandOrderAddFloat(originX, 241.0f);
             vertex->u.els.scrVertex.y = originY;
             vertex->u.els.scrVertex.z = screenDepth;
             vertex->u.els.recipZ = reciprocalDepth;
@@ -231,7 +228,7 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
             }
             {
                 vertex = &vertices[3];
-                vertex->u.els.scrVertex.x = ws14_add(originX, 241.0f);
+                vertex->u.els.scrVertex.x = operandOrderAddFloat(originX, 241.0f);
                 vertex->u.els.scrVertex.y = bottomY;
                 vertex->u.els.scrVertex.z = screenDepth;
                 vertex->u.els.recipZ = reciprocalDepth;
@@ -243,7 +240,7 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
             {
                 f32 farX;
                 vertex = &vertices[4];
-                farX = ws14_add(originX, (f32)0x15D);
+                farX = operandOrderAddFloat(originX, (f32)0x15D);
                 vertex->u.els.scrVertex.x = farX;
                 vertex->u.els.scrVertex.y = originY;
                 vertex->u.els.scrVertex.z = screenDepth;
@@ -792,6 +789,7 @@ extern f32 D_008872F8[];
 extern BtlShuffleRenderPrimitive D_00887310[];
 extern void kAssertFail(void *file, s32 line);
 extern s32 kwlnGetCamera(void);
+/* Draw the selected advantage tile using its stored position and texture rectangle. */
 static inline void btlAdvantageTile(s32 index, union ColorWord color)
 {
     BtlAdvantageTile *tile = &D_00628FD0[index];
@@ -799,6 +797,7 @@ static inline void btlAdvantageTile(s32 index, union ColorWord color)
         tile->u, tile->v, tile->u + tile->width, tile->v + tile->height, color);
 }
 
+/* Draw the mirrored advantage tile with signed horizontal and vertical scaling. */
 static inline void btlAdvantageMirror(f32 horizontal, f32 vertical,
     union ColorWord color)
 {
@@ -808,6 +807,7 @@ static inline void btlAdvantageMirror(f32 horizontal, f32 vertical,
         tile->u + tile->width, tile->v + tile->height, tile->u, tile->v, color);
 }
 
+/* Draw the dark advantage background and its four mirrored decorations. */
 static inline void btlAdvantageBackground(void)
 {
     union ColorWord color;
@@ -823,6 +823,7 @@ static inline void btlAdvantageBackground(void)
     btlAdvantageMirror(1.0f, 1.0f, color);
 }
 
+/* Draw one checked advantage segment using the corresponding mirrored anchor. */
 static inline void btlAdvantageSegment(s32 index, union ColorWord color)
 {
     BtlAdvantageAnchors anchors;
@@ -859,6 +860,7 @@ static inline void btlAdvantageSegment(s32 index, union ColorWord color)
         (f32)-signY * height, u0, v0, u0 + width, v0 + height, color);
 }
 
+/* Build a textured screen quad and submit it as a triangle strip. */
 static inline void btlAdvantageBuildQuad(f32 x, f32 y, f32 z,
     f32 width, f32 height, f32 u0, f32 v0, f32 u1, f32 v1,
     union ColorWord color)
@@ -884,6 +886,7 @@ static inline void btlAdvantageBuildQuad(f32 x, f32 y, f32 z,
 
 /* Advance the random stream once for the alternating pattern's phase and
    once for the selected segments. The caller owns the halfword result. */
+/* Choose alternating segment eligibility and selection using successive random values. */
 static inline u16 btlAdvantageChooseSegments(void)
 {
     extern u32 RpRandom(void);

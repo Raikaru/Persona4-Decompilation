@@ -1,4 +1,6 @@
 #include "member_access.h"
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "rw_object_internal.h"
 #include "rw_camera_internal.h"
 #include "rw_frame_internal.h"
@@ -194,11 +196,9 @@ typedef union FldFollowerPositionOutput {
     u8 bytes[sizeof(RwV3d)];
 } FldFollowerPositionOutput;
 
-static inline u8 *fldFollowerStorageOffset(u32 offset, u8 *entry)
-{
-    return (u8 *)(offset + (uintptr_t)entry);
-}
 
+/* Locate the follower model pointer without changing its byte-cursor interface. */
+/* measured: expansion removes the separately formed model-slot address and changes chaser loads and instruction count. */
 static inline u8 **fldFollowerModelSlot(u8 *entry)
 {
     return (u8 **)&((FldAINpc *)entry)->model;
@@ -688,11 +688,11 @@ moveFollower:
             if (historyIndex < 0) historyIndex = 63;
             /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
             entry = MEMBER(u8 *, work, FldAIChaserWork, followerPtr); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
-            if (((FldAINpc *)fldFollowerStorageOffset(historyIndex, entry))->historyActive[0] != 0) {
+            if (((FldAINpc *)byteAddressAdd(historyIndex, entry))->historyActive[0] != 0) {
                 FldFrameTask_GetPosition(historyPoint.bytes, (u8 *)((ResrcRecord *)((FldAINpc *)entry)->movement)->handle220);
                 historyDelta = *(RwV3d *)historyPoint.bytes;
                 {
-                    u8 *historySample = fldFollowerStorageOffset(historyIndex * 8, ((FldAIChaserWork *)work)->followerPtr);
+                    u8 *historySample = byteAddressAdd(historyIndex * 8, ((FldAIChaserWork *)work)->followerPtr);
                     historyPoint.value.x = ((FldAINpc *)historySample)->historySamples[0].x;
                     historyPoint.value.z = ((FldAINpc *)historySample)->historySamples[0].z;
                 }
@@ -1156,10 +1156,7 @@ tail:
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
-static inline f32 fldAIScale(f32 scale, f32 speed)
-{
-    return scale * speed;
-}
+/* Accumulate a turn angle and return the value written back. */
 static inline f32 fldAIAccumulateTurn(f32 *angle, f32 turn)
 {
     f32 total = *angle + turn;
@@ -1421,10 +1418,10 @@ availabilityDone:
           int cur = work[0x12];
           unsignedValue = cur != 0 ^ 1;
           accepted = 0;
-          if ((!(aiPos.x < ((float *)fldFollowerStorageOffset(unsignedValue * 24, (u8 *)work))[9]) &&
-               (aiPos.x <= ((float *)fldFollowerStorageOffset(unsignedValue * 24, (u8 *)work))[6])) &&
-              (!(aiPos.z < ((float *)fldFollowerStorageOffset(unsignedValue * 24, (u8 *)work))[0xb])) &&
-             (aiPos.z <= ((float *)fldFollowerStorageOffset(unsignedValue * 24, (u8 *)work))[8])) {
+          if ((!(aiPos.x < ((float *)byteAddressAdd(unsignedValue * 24, (u8 *)work))[9]) &&
+               (aiPos.x <= ((float *)((u8 *)work + (unsignedValue * 24)))[6])) &&
+              (!(aiPos.z < ((float *)((u8 *)work + (unsignedValue * 24)))[0xb])) &&
+             (aiPos.z <= ((float *)((u8 *)work + (unsignedValue * 24)))[8])) {
             accepted = 1;
           }
           if (accepted == 1) {
@@ -1491,7 +1488,7 @@ availabilityDone:
       distance = RwV3dNormalize(&state2Delta,&state2Delta);
       /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
       factor = ((FldAIPatrolWork *)((u8 *)(u32)work))->speed;
-      factor = fldAIScale(iGpffff830c, factor);
+      factor = operandOrderMultiply(iGpffff830c, factor);
       if (!(distance <= factor)) {
         distance = factor;
       }
@@ -1906,7 +1903,7 @@ else {
       state9Direction.x = state9Direction.x + ((FldAIPatrolWork *)work)->destination.x;
       state9Direction.y = state9Direction.y + ((FldAIPatrolWork *)work)->destination.y;
       state9Direction.z = state9Direction.z + ((FldAIPatrolWork *)work)->destination.z;
-      turnAmount = fldAIScale(400.0f, turnAmount);
+      turnAmount = operandOrderMultiply(400.0f, turnAmount);
       state9Delta.x = state9Right.x * turnAmount;
       state9Delta.y = state9Right.y * turnAmount;
       state9Delta.z = state9Right.z * turnAmount;
@@ -1918,7 +1915,7 @@ else {
       state9Delta.z = state9Delta.z - factor;
       distance = RwV3dNormalize(&state9Delta,&state9Delta);
       factor = *(float *)&work[0x1a];
-      factor = fldAIScale(iGpffff830c, factor);
+      factor = operandOrderMultiply(iGpffff830c, factor);
       if (!(distance <= factor)) {
         distance = factor;
       }
@@ -1975,7 +1972,7 @@ else {
       state10Delta.z = ((FldAIPatrolWork *)work)->destination.z - chargePosition.z;
       distance = RwV3dNormalize(&state10Delta,&state10Delta);
       factor = *(float *)&work[0x1a];
-      factor = fldAIScale(iGpffff830c, factor);
+      factor = operandOrderMultiply(iGpffff830c, factor);
       if (!(distance <= factor)) {
         distance = factor;
       }
