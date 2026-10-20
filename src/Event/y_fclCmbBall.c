@@ -126,6 +126,7 @@ typedef struct {
 extern u8 D_008872E0[];
 
 #pragma push
+/* measured: baseline 270 differing words; wide vertex index 279; retain packet-loop settings. */
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 /* Renders one fusion ball: sets the render states, then per-slot depth and colour. */

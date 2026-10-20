@@ -75,6 +75,7 @@ typedef char CmpSystemWorkSize[sizeof(CmpSystemWork) == 0x708 ? 1 : -1];
 /* measured: removing this regresses func_0035f5b0 from nd 0 to nd 118
    (loop-invariant hoisting of the D_0064D6B0 base and the store-constant
    3 is required for the retail layout). */
+/* measured: baseline 53 differing words; wide loop counters 220, cached motion-row base 80; retain hoisting. */
 #pragma opt_loop_invariants on
 void cmpSystemMenuInit(u8 *work)
 {
