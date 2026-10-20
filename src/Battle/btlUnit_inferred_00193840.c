@@ -62,10 +62,10 @@ extern u8 iGpffffa0a0;
 extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 extern void func_00440b68(void *msg, const void *file, s32 line);
-extern s32 H_Cdvd_AcquireDirectory(s32 arg0, s32 arg1);
-extern void H_Cdvd_ReadSync(s32 arg0);
-extern s32 H_Cdvd_IsFileLoaded(s32 arg0);
-extern void H_Cdvd_Destroy(s32 arg0);
+extern s32 H_Cdvd_AcquireDirectory(s32 path, s32 flags);
+extern void H_Cdvd_ReadSync(s32 cdvd);
+extern s32 H_Cdvd_IsFileLoaded(s32 cdvd);
+extern void H_Cdvd_Destroy(s32 cdvd);
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
@@ -85,9 +85,9 @@ extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void func_00194660(void);
 extern s32 btlUnitLoadStep(u8 *task);
 
-extern s32 btlUnitLoadBlocksFromFile(u8 *arg0, s32 arg1);
+extern s32 btlUnitLoadBlocksFromFile(u8 *loadTable, s32 synchronous);
 extern void func_0010d480(void);
-extern void memset(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *, s32, s32);
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
@@ -102,7 +102,7 @@ static inline s32 btlPacketAddBaseOffset(s32 offset, s32 base)
 }
 
 extern u8 iGpffffa4d8;
-extern void btlPacketStep(u8 *arg0);
+extern void btlPacketStep(u8 *context);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
@@ -112,12 +112,12 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 extern void btlPacketFlushAll(void);
 extern void (*jtbl_008873EC[])(void *arg0);
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -201,7 +201,7 @@ typedef struct {
     u8 *head;
     u8 *tail;
 } PacketList;
-extern s32 btlPacketWaitConditionMet(u8 *arg0, s32 arg1);
+extern s32 btlPacketWaitConditionMet(u8 *context, s32 argument);
 /* Eight-byte entries in a load descriptor; only the first leading word is
  * passed to the directory loader. Each destination slot receives one block. */
 typedef struct BtlUnitLoadBlock {

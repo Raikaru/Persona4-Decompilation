@@ -39,7 +39,7 @@ extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
 extern s32 fclFirstSetBitIndex(s32 flags);
 extern void (*D_00887300[])(s32 flags, s32 arg1);
-extern void RpSkyRenderStateSet(s32 flags, s32 arg1);
+extern void RpSkyRenderStateSet(s32 flags, s32);
 extern u32 fclGetMoney(void);
 extern char D_0063F340[];
 extern char D_0063F360[];
@@ -90,7 +90,7 @@ extern s32 fclDecimalDigitCount(s32 flags);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002be1e0-002be4a0 */
 
-extern void fclFadeRectSetRenderStates(s32 flags, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 flags, u8 *work);
 /* measured: a typed vtable base local with propagation disabled reproduces the
    retail single D_00887300 address hoist and saved-register frame. */
 /* measured: restores opt_propagation after func_002b5120. */

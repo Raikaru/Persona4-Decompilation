@@ -54,9 +54,9 @@ extern u8 D_007129E0[];
 extern u8 D_00712A00[];
 extern u8 D_007129A0[];
 extern u8 D_007129C0[];
-extern s32 sdkWrapStreamCloseUpdate(u8 *arg0);
-extern s32 filerTakeCompletedRequest(s32 arg0, s32 *arg1, s32 options);
-extern void func_003ef3a0(s32 arg0);
+extern s32 sdkWrapStreamCloseUpdate(u8 *task);
+extern s32 filerTakeCompletedRequest(s32 request, s32 *completed, s32 options);
+extern void func_003ef3a0(s32);
 extern void sdkWrapPollRequests(void);
 extern void sdkWrapWorkerThread(u8 *);
 

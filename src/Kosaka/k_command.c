@@ -17,7 +17,7 @@ extern char* strcat(char* destination, const char* source);
 #include "model_matrix_internal.h"
 #include "include_asm.h"
 
-extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+extern void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
 
 extern f32 D_00764B5C;
 
@@ -37,24 +37,24 @@ extern void* FldEvent_GetNearestEntry(void);
 extern void* FldEvent_GetTriggerEntry(void);
 extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
 extern s32 datCalcGetLevelById(s32 value);
-extern u8* MT_Scene_GetResListHead(s32 arg0);
+extern u8* MT_Scene_GetResListHead(s32 resourceType);
 extern void FldFrame_RotateTaskCreate(s32 a, s32 b, s32 c);
 extern void FldFrameRotateTaskCreate(s32 a, s32 b, s32 c);
-extern s32 mdlPrepareModel(void* arg0);
-extern void* mdlCloneModelObject(s32 arg0);
-extern void mdlDestroyModelObject(u32 arg0);
-extern void mdlAdvanceModelFromFlags(s32 arg0);
+extern s32 mdlPrepareModel(void* model);
+extern void* mdlCloneModelObject(s32 source);
+extern void mdlDestroyModelObject(u32 model);
+extern void mdlAdvanceModelFromFlags(s32 model);
 extern void mdlSetLayerTime(s32 a, s32 b, f32 c);
 extern void mdlApplyModelMatrix(s32 a, void* b, s32 c);
-extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-extern void mdlSetLayerWeight(s32 arg0, s32 arg1, f32 arg2);
-extern void* mdlGetMatrix(u32 arg0);
-extern void mdlScale(s32 arg0, void* arg1, s32 arg2);
-extern f32 KDraw_MatrixPitchDeg(u8* arg0);
-extern f32 KDraw_MatrixYawDeg(u8* arg0);
-extern f32 KDraw_MatrixRollDeg(u8* arg0);
+extern f32 mdlGetLayerWeight(s32 model, s32 layer);
+extern void mdlSetLayerWeight(s32 model, s32 layer, f32 speed);
+extern void* mdlGetMatrix(u32 model);
+extern void mdlScale(s32 model, void* scale, s32 combineOp);
+extern f32 KDraw_MatrixPitchDeg(u8* matrix);
+extern f32 KDraw_MatrixYawDeg(u8* matrix);
+extern f32 KDraw_MatrixRollDeg(u8* matrix);
 extern s32 FldResource_FindFrameForId(s32 a, s32 b, s32* c);
-extern s32 func_003e9700(s32 arg0);
+extern s32 func_003e9700(s32);
 extern void RwV3dNormalize(f32* a, f32* b);
 /* Layout and return types from the matrix API used by the field command. */
 typedef struct RwMatrixTolerance {
@@ -67,13 +67,13 @@ extern s32 RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
 extern struct RwMatrixTag *RwMatrixOptimize(struct RwMatrixTag *matrix,
                                       const RwMatrixTolerance *tolerance);
 extern struct RwMatrixTag *RwMatrixUpdate(struct RwMatrixTag *matrix);
-extern s32 FldFrameTask_SetHeight(s32 arg0, f32 arg1);
-extern f32 FldFrameTask_GetHeight(s32 arg0);
-extern void FldFrameTask_UpdateTile(s32 arg0);
+extern s32 FldFrameTask_SetHeight(s32 task, f32 height);
+extern f32 FldFrameTask_GetHeight(s32 task);
+extern void FldFrameTask_UpdateTile(s32 task);
 extern void FldStepUpdateBandRes(void);
-extern void FldCameraUpdateOrbit(s32 arg0);
-extern void FldAI_ChaserDisable(s32 arg0);
-extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
+extern void FldCameraUpdateOrbit(s32 task);
+extern void FldAI_ChaserDisable(s32 task);
+extern void FldShadow_SetRingParticles(s32 task, f32 radius);
 extern u8* MT_Scene_GetFrameState(void);
 
 typedef RwV3d Vec3f;
@@ -1000,14 +1000,14 @@ u32 Cmd_LoadTableWord()
     return true;
 }
 
-u32 datCalcGetHpById(s16 arg0);
-u16 datCalcMaxHpById(s16 arg0);
-u32 datCalcGetSpById(s16 arg0);
-extern void datSetUnitHp(s16 arg0, s16 arg1);
-extern s64 scrGetParamIntS64(s32 arg0);
+u32 datCalcGetHpById(s16 unitId);
+u16 datCalcMaxHpById(s16 unitId);
+u32 datCalcGetSpById(s16 unitId);
+extern void datSetUnitHp(s16 unitId, s16 hp);
+extern s64 scrGetParamIntS64(s32);
 extern s32 cmmCommunityGetCurrentSecondary(void);
-extern u16 datCalcMaxSpById(s16 arg0);
-extern void datSetUnitSp(s16 arg0, s16 arg1);
+extern u16 datCalcMaxSpById(s16 unitId);
+extern void datSetUnitSp(s16 unitId, s16 sp);
 /* Script command 0x300D (group 3 table 0x63DE80 + 0x68, EVT_FUNCTION_000D). */
 // FUN_00298340
 s32 K_Cmd_CMM_COMMUNITY_CURRENT_SECONDARY(void) {

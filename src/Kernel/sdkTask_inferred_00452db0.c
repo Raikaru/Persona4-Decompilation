@@ -80,7 +80,7 @@ extern s16 iGpffffba28;
 extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
-extern void sdkPadCookInput(s32 arg0);
+extern void sdkPadCookInput(s32 slot);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -91,7 +91,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -229,7 +229,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452db0-00452db0 */
 
-extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex);
 #pragma pop
 /* measured: restore O2 after func_00450e80. */
 /* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */

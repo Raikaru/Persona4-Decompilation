@@ -70,7 +70,7 @@ extern s32 D_00724BF0;
 
 extern u8 *D_00724C08;
 
-extern void kAssertFail(void *arg0, s32 arg1);
+extern void kAssertFail(void *file, s32 line);
 extern u8 D_007130E8[];
 extern s32 D_00724130;
 
@@ -83,7 +83,7 @@ extern u16 D_008C0276[];
 extern char iGpffffb020[3];
 extern char iGpffffb024[2];
 extern char iGpffffb028[6];
-extern s32 sdkListStateHandleInput(u8 *arg0);
+extern s32 sdkListStateHandleInput(u8 *state);
 extern s32 uGpffffb230;
 extern s32 D_00724BC8;
 extern s32 D_00724BF8;
@@ -1029,10 +1029,10 @@ s32 sdkLboxUpdate(u8 *task)
     extern s32 sdkListStateGetScroll(void *task);
     extern s32 sdkListStateGetCursor(void *task);
     extern s32 sdkWindowIsOpen(u8 *task);
-    extern void sdkWindowSetRect(u8 *task, u8 *arg1);
+    extern void sdkWindowSetRect(u8 *task, u8 *rectangle);
     extern void sdkLboxDrawEntries(u8 *task);
-    extern void sdkLboxSetOrigin(u8 *task, s32 arg1, s32 arg2);
-    extern u8 *sdkLboxFindEntry(u8 *task, s32 arg1);
+    extern void sdkLboxSetOrigin(u8 *task, s32 x, s32 y);
+    extern u8 *sdkLboxFindEntry(u8 *task, s32 key);
     extern s32 sdkLboxGetSelectedId(u8 *task);
     extern s32 (*D_00887310[])(s32, void *, s32);
     extern u16 D_008C024C[];

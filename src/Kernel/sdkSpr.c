@@ -6,16 +6,16 @@
 #include "h_cdvd.h"
 #include "h_cdvd_request_internal.h"
 
-void chkmemAllocSiteTag(void *arg0, s32 arg1);
-void strcpy(void *arg0, const char *arg1);
-void func_00440b68(char *arg0, const char *arg1, s32 arg2);
-void memcpy(void *arg0, void *arg1, s32 arg2);
-u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
-u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
+void chkmemAllocSiteTag(void *file, s32 line);
+void strcpy(void *, const char *);
+void func_00440b68(char *, const char *, s32);
+void memcpy(void *, void *, s32);
+u8 *H_Cdvd_LookupRequest(void *pathAddress, u32 *slot);
+u8 *H_Cdvd_AcquireDirectory(void *path, s32 flags);
 void func_003ec330(void *ptr);
 s32 filerEnqueueRequest(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
-s32 filerTakeCompletedRequest(s32 arg0, s32 *arg1, s32 arg2);
-void sdkSpriteDraw(u8 *arg0, s32 arg1);
+s32 filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
+void sdkSpriteDraw(u8 *sample, s32 setStates);
 
 /* Sprite dispatcher slot at 0x008873EC (absolute, outside gp window). */
 extern void (*jtbl_008873EC[])(void *node);

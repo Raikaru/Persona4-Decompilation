@@ -30,7 +30,7 @@ typedef struct SdkFilerSelector {
     F2 position;
     s32 flags;
 } SdkFilerSelector;
-s32 sdkFilerSelectorUpdate(u8 *arg0);
+s32 sdkFilerSelectorUpdate(u8 *task);
 extern s32 sdkFilerTaskUpdate(u8 *);
 extern void sdkFilerFreeTaskWork(u8 *);
 extern u16 D_008C024E[];
@@ -40,7 +40,7 @@ extern u8 *D_00712AA0[];
 extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
 extern char iGpffffb030;
 
-void sdkFilerSelectorDraw(u8 *arg0);
+void sdkFilerSelectorDraw(u8 *selector);
 
 
 

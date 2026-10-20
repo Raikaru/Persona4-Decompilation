@@ -8,7 +8,7 @@
 extern u32 kwlnTaskGetWork(void *task);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 TnGetTableBase(void);
-extern void TnSetTableBase(s32 arg0);
+extern void TnSetTableBase(s32 table);
 
 /* Five words consumed by the task callbacks; the fourth is not used here. */
 typedef struct BlurFilterTaskWork {

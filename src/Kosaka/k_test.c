@@ -18,8 +18,8 @@ extern s32 *MT_Scene_GetFrameState(void);
 extern s32 FldLoadTaskIsDone(s32 handle);
 extern s32 mtSceneResListPrepareAll(void);
 
-extern s32 K_Test_LauncherUpdate(u8 *arg0);
-extern void K_Test_LauncherDestroy(u8 *arg0);
+extern s32 K_Test_LauncherUpdate(u8 *task);
+extern void K_Test_LauncherDestroy(u8 *task);
 
 typedef struct
 {

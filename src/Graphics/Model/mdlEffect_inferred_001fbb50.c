@@ -33,20 +33,20 @@ extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
 extern BattleRenderStateFunction D_00887300[];
 extern BattleRenderStateFunction D_00887304[];
-extern void mdlEffectDrawScreenTexture(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
+extern void mdlEffectDrawScreenTexture(f32 scale, u8 *color, s32 blendMode, s32 testMode, u8 *textureFilter);
 extern u16 D_0076455C;
 extern u16 D_0076455A;
 extern f32 D_007613E0;
 extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
-extern void fadeBeginReturnTransition(s32 arg0, s32 arg1);
+extern void fadeBeginReturnTransition(s32 mode, s32 duration);
 extern s32 fadeStatus(void);
 extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
-extern void func_003e8110(s32 arg0);
-extern s32 func_003e8120(s32 arg0);
+extern void func_003e8110(s32 camera);
+extern s32 func_003e8120(s32 camera);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern s32 kwlnGetCamera(void);
-extern void effMiscDrawScreenColor(u8 *arg0, s32 arg1);
+extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern u8 *iGpffffb3c4;
@@ -80,7 +80,7 @@ extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 
-extern s32 hFadeTaskUpdate(u8 *arg0);
+extern s32 hFadeTaskUpdate(u8 *work);
 
 
 
@@ -105,11 +105,11 @@ extern u8 D_00624FA0[];
 
 
 
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001fbb50-001fbb50 */
 
-extern s32 func_001f0ff0(u32 arg0);
+extern s32 func_001f0ff0(u32);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push

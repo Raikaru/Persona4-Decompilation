@@ -19,7 +19,7 @@ typedef struct RwTexture RwTexture;
 #include "scene_event_internal.h"
 typedef struct RpMaterial *(*MaterialCallback)(struct RpMaterial *, void *);
 
-extern s32 K_Clump_MatUsrDataHasData(u8 *arg0, u8 *arg1);
+extern s32 K_Clump_MatUsrDataHasData(u8 *material, u8 *name);
 extern struct RpMaterial *func_003c42b0(struct RpMaterial *material, RwTexture *texture);
 extern u8 D_005F5438[];
 typedef struct MaterialTextureContext {

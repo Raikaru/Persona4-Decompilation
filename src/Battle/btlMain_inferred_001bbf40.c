@@ -45,7 +45,7 @@ extern u8 D_005F7000[];
 extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern u32 iGpffffa0b8;
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
@@ -62,8 +62,8 @@ extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
 extern f32 btlTargetSmoothStep(f32 value, f32 *state);
-extern u32 btlCameraSampleKeyframes(u8 *arg0, f32 *arg1, f32 *arg2);
-extern u32 btlCameraAdvanceKeyframes(u8 *arg0, f32 arg1);
+extern u32 btlCameraSampleKeyframes(u8 *curveWork, f32 *position, f32 *rotation);
+extern u32 btlCameraAdvanceKeyframes(u8 *curveWork, f32 deltaTime);
 extern f32 fGpffff8430;
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];
@@ -83,7 +83,7 @@ extern f32 fGpffff805c;
 extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
-s32 btlTargetIsSlotAlive(u8 *arg0);
+s32 btlTargetIsSlotAlive(u8 *context);
 
 
 

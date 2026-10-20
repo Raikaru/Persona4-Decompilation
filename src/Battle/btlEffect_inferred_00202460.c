@@ -20,9 +20,9 @@ typedef struct BtlAction BtlAction;
 
 
 
-extern void btlPacketIncUnitCounter(u8 *arg0);
-extern s32 btlPacketUpdateHpRatio(u8 *arg0);
-extern void btlPacketDecUnitCounter(u8 *arg0);
+extern void btlPacketIncUnitCounter(u8 *work);
+extern s32 btlPacketUpdateHpRatio(u8 *work);
+extern void btlPacketDecUnitCounter(u8 *work);
 
 
 
@@ -43,8 +43,8 @@ extern u8 D_00626C30[];
 extern u8 D_00626500[];
 extern u8 D_006265B0[];
 
-extern s32 datCalcGetHp(s32 arg0);
-extern s32 datCalcMaxHp(s32 arg0);
+extern s32 datCalcGetHp(s32 unit);
+extern s32 datCalcMaxHp(s32 unit);
 extern u8 D_00625240[];
 extern f32 fGpffff8184;
 extern f32 fGpffff84a4;
@@ -54,7 +54,7 @@ typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
 extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
-extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);

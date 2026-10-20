@@ -35,8 +35,8 @@ extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
 extern u8 *iGpffffb3ac; /* active battle context */
 extern u8 *iGpffffb3b8; /* skill table, DatSkillEntry rows */
-extern s32 btlActionAnyTargetHitRowFlagged(u8 *arg0);
-extern s32 btlTargetIsEntryActive(s16 arg0);
+extern s32 btlActionAnyTargetHitRowFlagged(u8 *action);
+extern s32 btlTargetIsEntryActive(s16 context);
 extern u8 *iGpffffb3c0; /* party visual records, stride 0x14C */
 extern u8 *iGpffffb3cc; /* enemy visual records, stride 0xE8 */
 
@@ -58,7 +58,7 @@ extern u8 D_005F65D0[];
 extern u8 D_005F65B0[];
 extern u8 D_005F65C0[];
 
-extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern s32 iGpffffb3b0;
 extern s32 iGpffffb284;
 extern s32 iGpffffb280;
@@ -67,7 +67,7 @@ extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
 extern P4_95730_Vec3 D_0060A0D0;
@@ -142,43 +142,43 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
-extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
+extern void mdlLookAtSetupSetRange(void *model, float pitchLimit, float yawLimit);
 extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlUnitCreate(s32 arg0);
-extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
+extern u8 *btlUnitCreate(s32 genus);
+extern void btlUnitInitFromRecord(u8 *unit, s32 characterId);
 
 
 
-extern s32 datPersonaNamePart1(s16 arg0);
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
-extern s32 datPersonaNamePart1Alt(s16 arg0);
+extern s32 datPersonaNamePart1(s16 unitId);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
+extern s32 datPersonaNamePart1Alt(s16 unitId);
 extern s32 iGpffffb444;
-extern s32 btlUnitIsMoving(u8 *arg0);
-extern s32 btlUnitIdleAnimTick(u8 *arg0);
-extern u8 *btlUnitCreateLookAtPacket(u8 *arg0, f32 *arg1, s32 arg2);
-extern s32 datCalcIsLowHp(u8 *arg0);
-extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
-extern s32 datPersonaGetRosterSlot(s32 arg0);
-extern void btlActionSetState(u8 *arg0, u32 arg1);
-extern void func_001b08d0(void *arg0);
-extern void btlActionSetUnit(u8 *arg0, u8 *arg1);
+extern s32 btlUnitIsMoving(u8 *unit);
+extern s32 btlUnitIdleAnimTick(u8 *action);
+extern u8 *btlUnitCreateLookAtPacket(u8 *unit, f32 *targetPos, s32 flags);
+extern s32 datCalcIsLowHp(u8 *unit);
+extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, s32 speed, f32 mode);
+extern s32 datPersonaGetRosterSlot(s32 unitId);
+extern void btlActionSetState(u8 *action, u32 state);
+extern void func_001b08d0(void *);
+extern void btlActionSetUnit(u8 *action, u8 *unit);
 extern u8 *btlActionCreate(void);
-extern s32 btlActionQueuePush(u8 *arg0);
-extern s32 btlUnitApplyEncounterRoster(u8 *arg0);
-extern s32 datCalcEnemyHasExtendedFlag(u8 *arg0);
-extern void btlUnitInitChild(u8 *arg0, u16 arg1);
-extern void btlUnitApplyBodySizeScale(u8 *arg0);
+extern s32 btlActionQueuePush(u8 *action);
+extern s32 btlUnitApplyEncounterRoster(u8 *action);
+extern s32 datCalcEnemyHasExtendedFlag(u8 *unit);
+extern void btlUnitInitChild(u8 *unit, u16 characterId);
+extern void btlUnitApplyBodySizeScale(u8 *unit);
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     btlUnitInitChild(arg0, arg1);
 }
-extern void btlUnitHoldPendingLookAt(u8 *arg0);
-extern s32 btlUnitLookAtSidePacketUpdate(u8 *arg0);
-extern void btlUnitReleasePendingLookAt(u8 *arg0);
+extern void btlUnitHoldPendingLookAt(u8 *context);
+extern s32 btlUnitLookAtSidePacketUpdate(u8 *work);
+extern void btlUnitReleasePendingLookAt(u8 *context);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];

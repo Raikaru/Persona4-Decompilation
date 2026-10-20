@@ -17,7 +17,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 {
     return right * left;
 }
-extern void nmMesWindowStepCurrent(s32 arg0);
+extern void nmMesWindowStepCurrent(s32 release);
 
 
 
@@ -40,16 +40,16 @@ extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
 extern s32 *nmMesWindowCurrent();
-extern void itfMesWindowSetState(s32 arg0, s8 arg1);
-extern void itfMesWindowRelease(s32 arg0);
-extern void itfMesWindowClear(s32 arg0, s32 arg1);
+extern void itfMesWindowSetState(s32 handle, s8 state);
+extern void itfMesWindowRelease(s32 handle);
+extern void itfMesWindowClear(s32 handle, s32 clearLabel);
 extern s32 itfMesWindowState();
-extern s32 itfMesWindowGetAnim(s32 arg0);
-extern void itfMesWindowLayout(s32 arg0, s32 arg1);
-extern void itfMesWindowSetCursor(s32 arg0, s32 arg1);
-extern u32 itfMesWindowSetParam(s32 arg0, s32 arg1, s32 arg2);
-extern void nmMesWindowSetCurrentRunning(s32 arg0);
-extern void nmMesWindowSetSlotRunning(s64 arg0, s32 arg1);
+extern s32 itfMesWindowGetAnim(s32 handle);
+extern void itfMesWindowLayout(s32 handle, s32 recordIndex);
+extern void itfMesWindowSetCursor(s32 handle, s32 entryIndex);
+extern u32 itfMesWindowSetParam(s32 handle, s32 button, s32 entryIndex);
+extern void nmMesWindowSetCurrentRunning(s32 running);
+extern void nmMesWindowSetSlotRunning(s64 slotIndex, s32 running);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -88,7 +88,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bb7c0-002bbcf0 */
 
-extern void fclFadeRectSetRenderStates(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: opt_rebuildconditionals off probe for min/max */
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */

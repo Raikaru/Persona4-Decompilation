@@ -50,17 +50,17 @@ extern void memset(void *dst, s32 value, s32 size);
 
 
 
-extern s32 datCalcGetLevelById(s32 arg0);
+extern s32 datCalcGetLevelById(s32 unitId);
 
 extern u8 *kwlnGetCamera(void);
-extern void datPanelResetCursor(u8 *arg0);
-extern void datPanelDrawByKind(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
+extern void datPanelResetCursor(u8 *entry);
+extern void datPanelDrawByKind(s64 origin, f32 depth, s32 opacity, u8 *entry, s32 fullName);
 extern f32 iGpffff84a4;
-extern s32 resourceFindByName(const void *arg0);
-extern void kAssertFail(const void *arg0, s32 arg1);
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                          f32 z, s32 arg6);
+extern s32 resourceFindByName(const void *name);
+extern void kAssertFail(const void *file, s32 line);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 red, u8 green, u8 blue,
+                          f32 z, s32 setStates);
 extern char D_005E5810[];
 extern char D_005E57F0[];
 extern char D_005E5850[];
@@ -72,13 +72,13 @@ static inline f32 p4_00362f00_add(f32 left, f32 right)
 {
     return left + right;
 }
-extern void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1);
-extern void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void sflDataDrawPartyEntry(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
-extern void sflDataDrawNumberValue(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void sflDataDrawLevelBadge(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+extern void sflDataDrawSpritePair(PairBits position, f32 fparg0, s32 opacity);
+extern void sflDataDrawPersonaPanel(s64 position, f32 fparg0, s32 opacity, u8 *state);
+extern void sflDataDrawByteValuePanel(s64 position, f32 fparg0, s32 opacity, u8 *state);
+extern void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state);
+extern void sflDataDrawNumberValue(s64 position, f32 fparg0, s32 opacity, u8 *state);
+extern void sflDataDrawTitledIcon(s64 position, f32 fparg0, s32 opacity, u8 *state);
+extern void sflDataDrawLevelBadge(s64 position, f32 fparg0, s32 opacity, u8 *state);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern u16 D_008C024E[];
@@ -106,7 +106,7 @@ typedef struct {
 typedef void (*P4RenderState66C70)(s32 state, s32 value);
 extern RwV3d *func_003e4320(RwV3d *dst, const RwV3d *src,
                            const struct RwMatrixTag *matrix);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32, s32);
 extern s32 D_0064E440[];
 extern f32 D_008872F8[];
 extern P4RenderState66C70 D_00887300[];

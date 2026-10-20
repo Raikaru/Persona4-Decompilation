@@ -41,11 +41,11 @@ extern u8 D_00922C10[];
 extern u8 D_00922C14[];
 extern u8 D_00922C16[];
 extern void memcpy(void *dst, const void *src, u32 size);
-extern s32 sdkSndQueueSlotRequest(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6);
-extern s32 H_Cdvd_IsFileLoaded(void *arg0);
-extern void H_Cdvd_Destroy(void *arg0);
-extern u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
-extern s32 hsndSlotIsStarting(s16 arg0);
+extern s32 sdkSndQueueSlotRequest(s32 slotIndex, void *input, u32 inputSize, void *intermediate, u32 intermediateSize, void *output, u32 outputSize);
+extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
+extern void H_Cdvd_Destroy(void *cdvd);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
+extern s32 hsndSlotIsStarting(s16 slotIndex);
 extern u32 RpRandom(void);
 extern s32 mdlSeAcquireSlot(u32 type, u16 id);
 

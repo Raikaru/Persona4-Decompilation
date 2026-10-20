@@ -72,16 +72,16 @@ static inline s32 code1_0018_add2(s32 first, s32 second)
 }
 extern void mdlEffectEmitTagPair();
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32, s32);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void FldNoiseEmitTagged(void);
-extern void func_003a2760(s32 arg0);
-extern void func_003e9390(s32 arg0);
+extern void func_003a2760(s32);
+extern void func_003e9390(s32);
 struct RpGeometry;
 typedef struct RpMaterial *(*MaterialCallback)(struct RpMaterial *, void *);
 extern struct RpGeometry *func_003c21e0(struct RpGeometry *geometry, MaterialCallback callback, void *data);
-extern void mdlDestroyModelObject(s32 arg0);
-extern void func_003f3eb0(s32 arg0, s32 arg1);
+extern void mdlDestroyModelObject(s32 model);
+extern void func_003f3eb0(s32, s32);
 extern void FldNoiseEmitPlain();
 extern s32 FldFogUpdate(u8 *task);
 
@@ -108,24 +108,24 @@ extern u8 D_007E3720[];
 extern u8 D_007966D0[];
 extern s64 iGpffff9fd0;
 extern s32 iGpffffb240;
-extern void FldBoardGenerate(s32 mode, s32 value, s32 arg2);
-extern void FldSmapTileQueueByType(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
-                           f32 arg5, f32 arg6, f32 arg7, s32 arg4);
-extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
+extern void FldBoardGenerate(s32 mode, s32 value, s32 unused);
+extern void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
+                           f32 x, f32 y, f32 depth, s32 flags);
+extern void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
                           f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                          f32 fparg4, u8 *arg2, s32 arg3,
-                          f32 fparg5, f32 fparg6, f32 fparg7, s32 arg4,
+                          f32 fparg4, u8 *color, s32 texture,
+                          f32 fparg5, f32 fparg6, f32 fparg7, s32 orientation,
                           f32 arg_sp0);
-extern void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
-                          s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
+extern void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
+                          s32 height, s32 flags, f32 x, f32 y, f32 depth);
 extern u16 D_008C024E[];
-extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 kwlnTaskIsLinked(s32 arg0);
+extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
+extern s32 kwlnTaskIsLinked(s32 target);
 
-void K_Test_Create(s32 arg0);
+void K_Test_Create(s32 parentTask);
 
-extern void func_003e0f40(s32 arg0);
-extern s32 K_Clump_MatUsrDataHasData(u8 *arg0, u8 *arg1);
+extern void func_003e0f40(s32);
+extern s32 K_Clump_MatUsrDataHasData(u8 *material, u8 *name);
 extern struct RpMaterial *func_003c42b0(struct RpMaterial *material, RwTexture *texture);
 extern u8 D_005F5438[];
 extern s32 *MT_Scene_GetFrameState(void);
@@ -144,9 +144,9 @@ extern u8 D_005F5320[];
 extern u8 D_005F5330[];
 extern s32 kwlnGetCamera(void);
 extern f32 fGpffff8218;
-extern s16 mdlGetLayerAnimation(s32 arg0, s32 arg1);
+extern s16 mdlGetLayerAnimation(s32 model, s32 layer);
 extern f32 RwV3dNormalize(RainVector *dst, const RainVector *src);
-extern u8 *K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
+extern u8 *K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, s32 referenceUp);
 extern f32 D_005F2190[];
 extern f32 D_005F2194[];
 extern f32 D_005F2198[];
@@ -155,9 +155,9 @@ extern f32 D_005F21A0[];
 extern f32 D_005F21A4[];
 extern s32 FldNpcControlUpdate(u8 *task);
 extern s32 FldStepNotAtBoundary(void);
-extern f32 sinf(f32 arg0);
+extern f32 sinf(f32);
 
-extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count);
 extern s32 frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id,
                          const char *str, s32 flags, s32 unused, void *param,
                          s32 charWidth);
@@ -166,35 +166,35 @@ extern f32 D_00761184;
 extern u8 D_00794C60[];
 extern u32 D_007EFA00[];
 extern u8 D_005F54D8[];
-extern s32 FldPanel2dUpdate(u8 *arg0);
-extern void FldPanel2dSelectEntry(s32 arg0);
+extern s32 FldPanel2dUpdate(u8 *task);
+extern void FldPanel2dSelectEntry(s32 entryIndex);
 extern u8 D_005F54E8[];
-extern s32 FldSupporterUpdate(u8 *arg0);
+extern s32 FldSupporterUpdate(u8 *task);
 extern u8 D_005F1D80[];
 extern u8 D_005F1D90[];
 extern s32 iGpffff9f60;
 extern s32 FldRainUpdate(u8 *task);
 
 extern s32 FldNoiseUpdate(u8 *task);
-extern void FldNoiseDestroy(u8 *arg0);
-extern s32 FldMapTestUpdate(u8 *arg0);
-extern void FldMapTestDestroy(u8 *arg0);
+extern void FldNoiseDestroy(u8 *task);
+extern s32 FldMapTestUpdate(u8 *task);
+extern void FldMapTestDestroy(u8 *task);
 extern u8 D_005F1DF8[];
 extern u8 D_005F1E08[];
 extern u8 D_005F57B0[];
 extern u8 D_005F57C0[];
 extern s32 func_003bfae0();
 extern s32 kwlnGetCamera(void);
-extern s32 RwCameraFrustumTestSphere(u8 *arg0, s32 arg1);
-extern void func_003f68a0(s32 arg0, s32 arg1);
+extern s32 RwCameraFrustumTestSphere(u8 *, s32);
+extern void func_003f68a0(s32, s32);
 extern u8 D_007E8C00[];
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
-extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s64 calGetDayEntryByPhase(s32 day, u32 phase);
+extern s32 clndIsDateInRange(s32 startMonth, s32 startDay, s32 endMonth, s32 endDay);
 extern s32 FldStepIndex(void);
-extern void sdkSndStopChannel(s32 arg0);
-extern void sdkSndPlayCue(s16 arg0, s32 arg1);
+extern void sdkSndStopChannel(s32 fadeFrames);
+extern void sdkSndPlayCue(s16, s32);
 extern s32 iGpffffb264;
 extern u8 *iGpffff9db0;
 extern s32 iGpffffb884;
@@ -211,7 +211,7 @@ typedef struct {
    variation counter.  Inlined into every trigger arm of FldAmbientTrigger. */
 static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
 {
-    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
+    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
     extern s32 D_007F1760[];
     s32 *slot = &D_007F1760[id & 0x3FF];
 
@@ -421,7 +421,7 @@ typedef struct {
 } FldActorObject;
 
 
-s32 FldRcAtomicFrustumTest(s32 arg0, s32 *arg1);
+s32 FldRcAtomicFrustumTest(s32 atomic, s32 *visible);
 
 /* Update field-actor visibility, animation, spline travel, and facing. */
 // Kept in bucket: diff 35 when moved; cause not diagnosed (uses static inline fldBothReady_0018a200).
@@ -1299,15 +1299,15 @@ void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation)
 extern u16 D_008C0252[];
 extern u16 D_008C0298[];
 extern const KWindowEntryDescriptor D_005F5FD0[];
-extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
-extern s32 sdkLboxAddEntry(u8 *arg0, u8 *arg1);
+extern void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
+extern s32 sdkLboxAddEntry(u8 *task, u8 *text);
 extern void sprintf(void *dst, const char *fmt, ...);
-extern u8 *FldStepLoadFilePair(s32 arg0, s32 arg1);
-extern s32 FldStepLoadHandleIsDone(u8 *arg0);
-extern void FldStepLoadHandleDestroy(u8 *arg0);
-extern s32 fldStepLoadHandleAlwaysReady(u8 *arg0);
+extern u8 *FldStepLoadFilePair(s32 fieldId, s32 roomId);
+extern s32 FldStepLoadHandleIsDone(u8 *handle);
+extern void FldStepLoadHandleDestroy(u8 *handle);
+extern s32 fldStepLoadHandleAlwaysReady(u8 *unusedHandle);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern void FldTileRotateAttributes(void *arg0, u32 mask);
+extern void FldTileRotateAttributes(void *templateData, u32 mask);
 typedef struct {
     s16 data[0x2B];
 } FieldPanelShape;

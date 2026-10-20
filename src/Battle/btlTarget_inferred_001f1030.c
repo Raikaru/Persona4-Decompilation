@@ -46,10 +46,10 @@ extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
 
 extern u32 datCalcRandomBelow();
-extern s32 datCalcEnemyExp(s32 arg0);
-extern s32 datCalcEnemyMoney(s32 arg0);
-extern u16 datCalcPickWeightedSkill(u8 *arg0, s32 *arg1);
-extern void kAssertFail(void *arg0, s32 arg1);
+extern s32 datCalcEnemyExp(s32 unit);
+extern s32 datCalcEnemyMoney(s32 unit);
+extern u16 datCalcPickWeightedSkill(u8 *unit, s32 *usedFlaggedSkill);
+extern void kAssertFail(void *file, s32 line);
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -66,7 +66,7 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-extern void datCalcClearStatusBlocked(s32 arg0);
+extern void datCalcClearStatusBlocked(s32 unitFlags);
 
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
@@ -88,16 +88,16 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f1030-001f2f90 */
 
-extern s64 btlTargetSkillEffectCode(s32 arg0);
-extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
-extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
-extern s32 btlActionAnyTargetClearsDeathStatus(u8 *arg0);
-extern s32 btlActionTargetsHaveDamageResult(u8 *arg0, s32 arg1);
-extern s32 btlActionHasNoTargetClass(u32 arg0);
+extern s64 btlTargetSkillEffectCode(s32 skill);
+extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
+extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
+extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
+extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
+extern s32 btlActionHasNoTargetClass(u32 action);
 extern void func_001f9cd0(void);
-extern s32 btlConditionMessageId(s32 arg0);
-extern s32 btlBuffMaskCheckEntries(u8 *arg0, s32 arg1);
-extern s32 btlBuffMaskCheckUnit(u8 *arg0, s32 arg1);
+extern s32 btlConditionMessageId(s32 condition);
+extern s32 btlBuffMaskCheckEntries(u8 *action, s32 skillId);
+extern s32 btlBuffMaskCheckUnit(u8 *action, s32 skillId);
 static inline s32 btlTargetAnySpecialHit(u8 *arg0, s32 n)
 {
     u16 k;

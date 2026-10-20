@@ -107,18 +107,18 @@ extern f32 fGpffff8110;
 
 
 
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
-extern void resrcMngDestroy(u8 *arg0);
-extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
+extern void resrcMngDestroy(u8 *resManager);
+extern u8 *resrcMngGetListHead(u8 *resManager, s32 resType);
 extern void NpcTable_ReleaseSceneTable(void);
 extern void NpcTable_ReleaseSecondaryTable(void);
 extern void FldHbnFreeEntryTable(void);
 extern void func_003e1a70(void);
 extern void kwlnTaskDumpAll(void);
-extern void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1);
-extern void FldResource_QueueFieldResources(s32 arg0, s32 arg1);
-extern s32 FldResource_StepPartLoad(s32 arg0, s32 arg1);
+extern void FldResource_OpenPrimaryFile(s32 majorId, s32 minorId);
+extern void FldResource_QueueFieldResources(s32 majorId, s32 minorId);
+extern s32 FldResource_StepPartLoad(s32 majorId, s32 minorId);
 extern s32 MT_SceneManager_Create(void);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
@@ -135,14 +135,14 @@ extern u8 D_005EF858[];
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
-extern s32 FldMap_IsInBandA(s32 arg0, s32 arg1);
-extern s32 FldMap_IsInBandB(s32 arg0, s32 arg1);
+extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
+extern s32 FldMap_IsInBandB(s32 fieldId, s32 roomId);
 extern void func_00440b68();
-extern s32 FldFilterCreate(s32 arg0);
+extern s32 FldFilterCreate(s32 parent);
 extern s32 resrcMngCreate(void);
-extern s32 MT_Scene_CreateResLightChar(s32 arg0);
+extern s32 MT_Scene_CreateResLightChar(s32 resId);
 extern void SceneDraw_InitResList4(void);
-extern s32 MT_Scene_CreateResLightNpc(s32 arg0);
+extern s32 MT_Scene_CreateResLightNpc(s32 resId);
 extern void SceneDraw_InitResList5(void);
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
@@ -163,9 +163,9 @@ extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern void fieldSceneUnload(void);
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 fparg0, f32 fparg1, f32 fparg2,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -198,7 +198,7 @@ extern s32 D_007642F0;
 
 
 
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 
 
 
@@ -218,12 +218,12 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 iGpffff9da8;
 extern u8 D_005EF7B0[];
-extern s32 calendarTaskUpdate(u8 *arg0);
-extern void calendarTaskDestroy(u8 *arg0);
-extern void strcpy(void *arg0, const char *arg1);
-extern void sprintf(void *arg0, const char *arg1, ...);
-extern void strcat(void *arg0, const void *arg1);
-extern s32 H_Cdvd_FileExists(void *arg0);
+extern s32 calendarTaskUpdate(u8 *task);
+extern void calendarTaskDestroy(u8 *task);
+extern void strcpy(void *, const char *);
+extern void sprintf(void *, const char *, ...);
+extern void strcat(void *, const void *);
+extern s32 H_Cdvd_FileExists(void *path);
 extern u8 D_005EF7C0[];
 extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
@@ -269,7 +269,7 @@ extern u8 D_005EF6A0[];
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
-extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
+extern void radarDrawNumber(s64 work, f32 fparg0, s32 value, u8 *context, s32 option);
 
 /* Source unit: src/promoted/code1_0014.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001441e0-00145080 */
@@ -302,8 +302,8 @@ extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
  * normalized bytes under b210, so keep the measured index-before-base loads. */
 s32 calendarTaskUpdate(u8 *task) {
     extern s16 datGetDateIndex(void);
-    extern s64 calGetDayTableValue(s32 arg0, u32 arg1);
-    extern s32 calGetPackedDayEntry(s32 arg0, s32 arg1);
+    extern s64 calGetDayTableValue(s32 day, u32 phase);
+    extern s32 calGetPackedDayEntry(s32 day, s32 referenceDay);
     extern u16 D_008C024E[];
     extern char iGpffff9ce4;
     extern char iGpffff9ce8;

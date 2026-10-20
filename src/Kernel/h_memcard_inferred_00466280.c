@@ -155,7 +155,7 @@ extern f32 fGpffff81cc;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00466280-00466280 */
 
-extern s32 memcardPollCommand(s32 *arg0, s32 *arg1, s32 *arg2);
+extern s32 memcardPollCommand(s32 *command, s32 *result, s32 *succeeded);
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */

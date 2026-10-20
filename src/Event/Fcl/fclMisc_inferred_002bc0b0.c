@@ -20,11 +20,11 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 
 
 
-extern s32 fclMesWindowDrawItemEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern s32 fclMesWindowDrawItemEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32, s32, s32, s32, s32, s32);
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
-extern void kAssertFail(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *file, s32 line);
 extern char D_0063F2A0[];
 extern char D_007488E8[];
 
@@ -40,17 +40,17 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
-extern void itfMesWindowDrawEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-extern s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6);
+extern void itfMesWindowDrawEntry(s32, s32, s32, s32, s32, s32);
+extern s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 color, s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex, u8 *queue);
 extern u32 datEntryGetFlags(s16 item);
-extern u8 *nmListAppendNode(u8 *arg0, s32 arg1, s32 arg2);
+extern u8 *nmListAppendNode(u8 *manager, s32 owner, s32 payloadSize);
 extern void sprintf();
 extern s64 datGetDateIndex(void);
-extern s32 calGetDayWindowFlags(s16 arg0);
-extern s32 sdkSpriteRequestLoad(void *arg0);
-extern s32 hMaestroDecodeIsReady(s32 arg0);
-extern void sdkSpriteRelease(void *arg0);
-extern void comuDataRemoveAndReleaseNode(void *arg0, void *arg1, void *arg2);
+extern s32 calGetDayWindowFlags(s16 day);
+extern s32 sdkSpriteRequestLoad(void *name);
+extern s32 hMaestroDecodeIsReady(s32 state);
+extern void sdkSpriteRelease(void *node);
+extern void comuDataRemoveAndReleaseNode(void *owner, void *source, void *nodeStorage);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -89,7 +89,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bc0b0-002bcbc0 */
 
-extern void fclFadeRectSetRenderStates(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: opt_rebuildconditionals off probe for min/max */
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */

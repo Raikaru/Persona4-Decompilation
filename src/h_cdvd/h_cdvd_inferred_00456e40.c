@@ -99,22 +99,22 @@ extern void func_00440b68();
 extern u8 D_007117C8[];
 extern u8 D_007117E0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern u8 *func_003c9eb0(void *arg0);
-extern u8 *func_003c3d20(s32 arg0);
-extern void func_003c38b0(void *arg0, void *arg1);
-extern void func_003cbe80(void *arg0, void *arg1);
+extern u8 *func_003c9eb0(void *);
+extern u8 *func_003c3d20(s32);
+extern void func_003c38b0(void *, void *);
+extern void func_003cbe80(void *, void *);
 extern u8 *func_003e9320(void);
-extern void func_003e9df0(void *arg0);
-extern void func_003efd20(void *arg0, void *arg1);
-extern void func_003c3cc0(void *arg0);
+extern void func_003e9df0(void *);
+extern void func_003efd20(void *, void *);
+extern void func_003c3cc0(void *);
 extern s32 func_003e89c0(void);
-extern void func_003e8970(void *arg0, s32 arg1);
-extern u8 *kwlnCameraCreate(u32 arg0, u32 arg1, u32 arg2);
-extern void func_003e81c0(void *arg0, f32 arg1);
-extern void func_003e8180(void *arg0, f32 arg1);
-extern void func_003cbc10(void *arg0, void *arg1);
-extern void func_003e9d50(void *arg0, void *arg1, s32 arg2, f32 arg3);
-extern void kwlnCameraResizeView(void *arg0, void *arg1, f32 arg2, f32 arg3);
+extern void func_003e8970(void *, s32);
+extern u8 *kwlnCameraCreate(u32 width, u32 height, u32 createZBuffer);
+extern void func_003e81c0(void *, f32);
+extern void func_003e8180(void *, f32);
+extern void func_003cbc10(void *, void *);
+extern void func_003e9d50(void *, void *, s32, f32);
+extern void kwlnCameraResizeView(void *camera, void *requestedView, f32 scale, f32 aspectRatio);
 extern s32 func_00410360(void);
 extern u8 D_00711800[];
 extern u8 D_00711810[];
@@ -243,7 +243,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00456e40-00456e40 */
 
-extern u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 *H_Cdvd_CreateFileDevice(s32 slotCount, u8 *buffer, s32 bufferSize, s32 deviceFlags, s32 deviceId);
 #pragma push
 #pragma pop
 #pragma push

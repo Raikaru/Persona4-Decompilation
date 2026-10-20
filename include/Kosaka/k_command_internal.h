@@ -11,7 +11,7 @@ typedef struct Model Model;
 extern s32 datItemCount(s16 id);
 extern void SceneDraw_SetResVisible(u16 resourceId, u32 value);
 extern u16 MT_Scene_FindFreeResId(s32 type);
-extern void datSetScriptValue(s32 arg0, s32 arg1);
+extern void datSetScriptValue(s32 index, s32 value);
 extern void* mdlCreateModelObjectFromData(u32 type, u16 id, void* path, u32 mode);
 extern s32 MT_Scene_CreateModelFldRes(u16 resourceId, s32 model);
 extern u32 fclMiscHasEntry(s32 resourceId, s32 value);

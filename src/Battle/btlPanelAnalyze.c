@@ -5,15 +5,15 @@
 #include "datCalc_unit_internal.h"
 #include "btl_action_internal.h"
 extern void memset();
-s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
+s32 datCalcGetAffinity(u8 *unit, s32 elementIndex);
 void shdEnableBlendFlag(void);
 void shdDisableBlendFlag(void);
-void func_003c38b0(void *arg0, void *arg1);
-void func_003e8110(void *arg0);
-void func_003e8120(void *arg0);
-void func_003e8180(void *arg0, f32 arg1);
-void func_003e81c0(void *arg0, f32 arg1);
-void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
+void func_003c38b0(void *, void *);
+void func_003e8110(void *camera);
+void func_003e8120(void *camera);
+void func_003e8180(void *, f32);
+void func_003e81c0(void *, f32);
+void func_003e9cb0(void *frame, void *transform, s32 combine);
 u8 *kwlnGetCamera(void);
 u8 *K_Clump_GetLightA(void);
 u8 *K_Clump_GetLightC(void);

@@ -16,18 +16,18 @@ static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
     return (u8 *)(offset + (s32)base);
 }
 
-u16 ShdSkill_GetPendingSkill(u8 *arg0);
+u16 ShdSkill_GetPendingSkill(u8 *pool);
 void kAssertFail(void *file, s32 line);
-void ShdSkill_RemovePoolEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-s32 datCalcSkillElement(u8 *arg0, u16 arg1);
+void ShdSkill_RemovePoolEntry(u8 *pool, s32 index, s32 unusedCount, s32 unusedSkill);
+s32 datCalcSkillElement(u8 *unit, u16 skillId);
 extern char D_005E4800[];
 extern char D_005E47F0[];
-u8 *func_00243840(s32 arg0);
+u8 *func_00243840(s32);
 
-void sdkSpriteDrawOnceTinted(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
+void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
 extern char D_005E5830[];
 extern char D_005E5850[];
-void itfMesWindowDrawDefaultEntry(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
+void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 item);
 u8 *resourceFindByName(char *file);
 void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
 void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture);

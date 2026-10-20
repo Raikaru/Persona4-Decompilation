@@ -48,8 +48,8 @@ extern u8 iGpffffa4d8[4];
 
 extern u8 D_00629640[];
 extern u8 D_00629738[];
-extern s32 datCalcEnemyHasTableFlag(u8 *arg0);
-extern void btlCameraFrameTarget(u8 *arg0, f32 arg1, f32 arg2);
+extern s32 datCalcEnemyHasTableFlag(u8 *unit);
+extern void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration);
 extern u16 btlTargetGetUnitIndex(BtlTarget *target);
 extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
@@ -84,8 +84,8 @@ extern u8 D_00629700[];
 
 
 extern u8 *DAT_0076449c; /* active battle context */
-extern void btlCameraFrameAim(u8 *arg0);
-extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
+extern void btlCameraFrameAim(u8 *camera);
+extern s32 btlCameraUnitAnimFinished(u8 *camera, u8 *unit);
 extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
 extern void btlUnitFaceTarget(BtlUnit *unit, const RwV3d *target);
 extern s32 btlCameraSelectMode(u8 *camera);
@@ -94,8 +94,8 @@ extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 extern void btlCameraSelectEncounterPreset(u8 *camera);
 
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
-extern void datSetFlag(s32 arg0, s32 arg1);
-extern u8 *btlActionFindByUnit(s32 arg0);
+extern void datSetFlag(s32 flagId, s32 enabled);
+extern u8 *btlActionFindByUnit(s32 unit);
 
 
 
@@ -104,11 +104,11 @@ extern u8 *btlActionFindByUnit(s32 arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
 extern void btlMainCurveReset(u16 *param_1, f32 *param_2);
-extern void btlCameraCopyPoseSnapshot(f32 *arg0, f32 *arg1);
-extern void btlCameraCopyPose(f32 *arg0, f32 *arg1);
+extern void btlCameraCopyPoseSnapshot(f32 *destination, f32 *source);
+extern void btlCameraCopyPose(f32 *destination, f32 *source);
 extern void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4);
-extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
-extern u32 datCalcRandomBelow(u32 arg0);
+extern void btlCameraSetDuration(u8 *work, f32 value);
+extern u32 datCalcRandomBelow(u32 limit);
 extern u8 D_0060A0E0[];
 extern u8 D_006348B0[];
 extern u8 D_00634CB0[];
@@ -120,35 +120,35 @@ extern u8 D_0062B490[];
 extern u8 D_0062BBE0[];
 extern u8 D_0062C330[];
 extern s32 btlActionGetActiveOrQueueFront(void);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern f32 fGpffff834c;
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
 extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3e0; /* child visual records, stride 0x58 */
 extern s32 btlActionHasNoTargetClass(u32 action);
 
-extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
-extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern u8 *btlPacketCreateEffectCounter(s32 arg0, s32 arg1);
-extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
-extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
+extern u8 *btlCameraCreateSetStatePacket(u8 *action, s32 state);
+extern s64 btlPacketEnqueue(u8 *context, u32 value);
+extern u8 *btlPacketCreateEffectCounter(s32 effect, s32 limit);
+extern void btlCameraStartEffect(u8 *camera, u8 *script, s32 options);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern u8 D_00632240[];
-extern u8 *btlUnitFindInSideById(s32 arg0, s32 arg1);
-extern void btlUnitHideModel(u8 *arg0);
-extern void datCalcClearAllBuffs(u8 *arg0);
+extern u8 *btlUnitFindInSideById(s32 genus, s32 characterId);
+extern void btlUnitHideModel(u8 *unit);
+extern void datCalcClearAllBuffs(u8 *unit);
 extern u8 D_0062D920[];
-extern void btlActionFinishPresentation(s64 *arg0);
+extern void btlActionFinishPresentation(s64 *action);
 extern s32 btlFormationAllocWork(u32 param_1);
-extern u8 *btlFormationGetRecord(s32 arg0);
+extern u8 *btlFormationGetRecord(s32 index);
 extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
-extern void btlTargetClearResultBuffer(u8 *arg0);
+extern void btlTargetClearResultBuffer(u8 *result);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
+extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, s32 speed, f32 mode);
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
 extern BtlPacket *btlSoundCreateStreamPacket(u16 channel, const char *streamName);
-extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
-extern void btlFormationSetPlacement(u32 arg0);
+extern BtlPacket *btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags);
+extern void btlFormationSetPlacement(u32 formation);
 extern u8 D_006354B0[];
 extern u8 *iGpffffb444;
 extern u8 *iGpffffb3ac; /* active battle context */
@@ -176,8 +176,8 @@ extern s32 CrossfadeRequest(s16 frames);
 
 extern void btlCameraSelectEncounterPreset(u8 *camera);
 extern void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration);
-extern u8 *btlFormationGetRecord(s32 arg0);
-extern s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1);
+extern u8 *btlFormationGetRecord(s32 index);
+extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 extern s32 datCalcIsGuarding(u16 *unitData);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
 static inline s32 func_00225ec0_flag(u8 *action)
@@ -256,13 +256,13 @@ void btlCameraFrameActionCutscene(u8 *camera)
 {
     /* measured: typing all repeated camera/action/unit fields produces
      * 2072B versus the 2032B window; the corresponding reloads retain byte aliasing. */
-    extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-    extern f32 btlUnitGetGroupBounds(u32 arg0, u32 arg1, void *arg2, f32 *arg3, void *arg4, u32 arg5);
+    extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
+    extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, void *outCenter, f32 *outTop, void *outBottom, u32 options);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 tanf(f32 x);
-    extern void btlCameraFrameStatusRoll(u8 *arg0, f32 arg1, f32 arg2);
-    extern void btlAct_ENEMY_ALL(u8 *arg0);
-    extern void btlMainApplyUnitBaseColors(u8 *arg0);
+    extern void btlCameraFrameStatusRoll(u8 *camera, f32 firstFactor, f32 secondFactor);
+    extern void btlAct_ENEMY_ALL(u8 *camera);
+    extern void btlMainApplyUnitBaseColors(u8 *unit);
     struct PosePair {
         RwV3d first;
         RtQuat firstRotation;
@@ -2217,8 +2217,8 @@ void btlActionRunMotionSequence(u8 *action)
 {
     /* measured: typing all repeated owner fields produces 1192B versus
      * the 1184B window; later action/unit reloads retain byte aliasing. */
-    extern u8 *btlUnitCreateMotionRequestPacket(u8 *action, u16 arg1);
-    extern f32 btlUnitGetGroupBounds(u32 action, u32 arg1, RwV3d *arg2, f32 *arg3, f32 *arg4, u32 arg5);
+    extern u8 *btlUnitCreateMotionRequestPacket(u8 *action, u16 value);
+    extern f32 btlUnitGetGroupBounds(u32 action, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
     extern u8 D_00635530[];
     union {

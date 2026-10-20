@@ -23,12 +23,12 @@ extern u8 *iGpffffb3ac;
 
 extern u8 *iGpffffa5f0;
 
-extern void btlBuildNpcModelName(s32 *arg0, s32 arg1);
+extern void btlBuildNpcModelName(s32 *destination, s32 modelId);
 extern s64 datGetDateIndex(void);
-extern s32 calGetDayWindowFlags(s16 arg0);
+extern s32 calGetDayWindowFlags(s16 day);
 extern s32 sprintf(char *buf, char *fmt, ...);
-extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
-extern u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
+extern void btlBossResolveNpcModelName(s32 destination, u16 modelId);
+extern u8 *H_Cdvd_LookupRequest(void *pathAddress, u32 *slot);
 extern char D_007636e0;
 extern char D_006358D0[];
 extern char D_006358F0[];

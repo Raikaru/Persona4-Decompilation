@@ -22,17 +22,17 @@ extern s32 iGpffffb480;
 
 
 
-float scrGetParamFloat(s32 arg0);
-s16 datCategoryRankProgress(s16 arg0, float arg1);
-s16 datCategoryRank(s16 arg0);
+float scrGetParamFloat(s32 paramIdx);
+s16 datCategoryRankProgress(s16 category, float scale);
+s16 datCategoryRank(s16 category);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
-extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
-                           s32 arg2, s32 arg3, s32 arg4);
-extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
-                           f32 farg0, f32 farg1, s32 arg4);
+extern void PrimDrawPoints(void *colors, void *positions, f32 farg0,
+                           s32 count, s32 primitiveType, s32 preserveState);
+extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
+                           f32 farg0, f32 farg1, s32 preserveState);
 
 
 

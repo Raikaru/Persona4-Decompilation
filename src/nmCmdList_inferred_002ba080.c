@@ -39,7 +39,7 @@ typedef struct NmMesDigitSlot {
 typedef char NmMesDigitSlotSize[sizeof(NmMesDigitSlot) == 0x220 ? 1 : -1];
 
 extern void nmMesWindowClearSlotTable(void);
-extern void nmMesWindowInitRecord(s32 *arg0);
+extern void nmMesWindowInitRecord(s32 *recordAddress);
 
 
 
@@ -99,7 +99,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002ba080-002baa50 */
 
-extern void fclFadeRectSetRenderStates(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 static inline s32 fclDigitIsZero(const s16 *value)
 {
     return *value == 0;

@@ -48,7 +48,7 @@ extern u8 D_00796750[];
 extern u8 D_00796754[];
 extern u8 D_00796758[];
 extern u8 D_0079675C[];
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 
 extern s32 iGpffff85b8;
 extern s32 iGpffffb194;
@@ -146,8 +146,8 @@ asm void func_00100220(void)
 // FUN_00100230
 /* Probe the allocation budget below 32 MiB after reserved/linker extents and
  * sixteen header bytes, release the probe, and return that budget. */
-extern s32 func_0043ece8(u8 *arg0);
-extern void func_0043ed08(s32 arg0);
+extern s32 func_0043ece8(u8 *);
+extern void func_0043ed08(s32);
 extern u8 D_00559800[];
 extern u8 D_938A00[];
 extern u8 D_A0000[];
@@ -205,16 +205,16 @@ s32 kwlnHandleTimerInterrupt(s32 interruptId)
 // FUN_00100350
 void kwlnInitIop(void)
 {
-    extern void func_00424f28(s32 arg0);
+    extern void func_00424f28(s32);
     extern void func_00429c18(void);
-    extern void func_0042eae0(s32 arg0);
-    extern void sceCdMmode(s32 arg0);
+    extern void func_0042eae0(s32);
+    extern void sceCdMmode(s32);
     extern void sprintf(u8 *dst, const u8 *fmt, ...);
-    extern s32 func_0042b098(u8 *arg0);
+    extern s32 func_0042b098(u8 *);
     extern s32 sceSifSyncIop(void);
-    extern void func_004214c0(s32 arg0, s32 (*cb)(s32), s32 arg2);
-    extern void func_00422328(s32 arg0);
-    extern s32 func_0042ab68(const u8 *path, s32 arg1, const u8 *arg2);
+    extern void func_004214c0(s32, s32 (*cb)(s32), s32);
+    extern void func_00422328(s32);
+    extern s32 func_0042ab68(const u8 *path, s32 a1, const u8 *a2);
     extern void sdkPadInit(void);
     extern void memcardInitBackend(void);
     extern s32 func_004216d0(void);
@@ -306,9 +306,9 @@ void kwlnInitIop(void)
 void kwlnInitEngine(void)
 {
     extern s32 func_0044f510(void);
-    extern s32 RwEngineInit(s32 arg0, s32 arg1, s32 arg2);
-    extern s32 func_0039b5a0(s32 arg0);
-    extern s32 func_0039b680(s32 arg0);
+    extern s32 RwEngineInit(s32, s32, s32);
+    extern s32 func_0039b5a0(s32);
+    extern s32 func_0039b680(s32);
     extern s32 func_003ca430(void);
     extern s32 func_00390520(void);
     extern s32 func_003bbe20(void);
@@ -322,22 +322,22 @@ void kwlnInitEngine(void)
     extern s32 func_003a16c0(void);
     extern s32 func_003b7110(void);
     extern s32 func_003bd160(void);
-    extern s32 func_003e8b10(s32 arg0);
-    extern s32 RpSkySelectDeepZBuffer(s32 arg0);
-    extern s32 func_003e8a10(s32 arg0);
-    extern s32 func_003e22c0(s32 arg0);
+    extern s32 func_003e8b10(s32);
+    extern s32 RpSkySelectDeepZBuffer(s32);
+    extern s32 func_003e8a10(s32);
+    extern s32 func_003e22c0(s32);
     extern u32 PrimInterpRegister(void);
-    extern s32 func_003f4f90(s32 arg0, s32 arg1, s32 arg2);
+    extern s32 func_003f4f90(s32, s32, s32);
     extern s32 func_003e8a50(void);
     extern s32 FldShadow_InstallIntcHandler(void);
     extern void kwlnInitSceneRig(void);
-    extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+    extern void chkmemAllocSiteTag(void *file, s32 line);
     extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-    extern void initEntryTable(void *arg0, s32 arg1);
+    extern void initEntryTable(void *buffer, s32 size);
     typedef RwImage *(*ImageReadCallback)(const char *name);
     typedef RwImage *(*ImageWriteCallback)(RwImage *image, const char *name);
     extern s32 func_003eb1f0(const char *extension, ImageReadCallback readImage, ImageWriteCallback writeImage);
-    extern void kAssertFailAt(const void *arg0, const void *arg1, u32 arg2);
+    extern void kAssertFailAt(const void *msg, const void *file, u32 line);
     extern RwImage *func_003d8c00(const char *name);
     extern RwImage *func_003d96b0(RwImage *image, const char *name);
     extern RwImage *tmxLoadFile(const char *name);

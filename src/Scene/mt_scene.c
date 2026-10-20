@@ -9,7 +9,7 @@ typedef struct Resrc Resrc;
 typedef struct ResrcManager ResrcManager;
 extern u8* PTR_DAT_00762ea0;
 extern u8 *iGpffff9db0;
-extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
+extern u8 *resrcMngGetListHead(u8 *resManager, s32 resType);
 
 typedef struct MtScene
 {

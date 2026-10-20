@@ -22,16 +22,16 @@ extern s32 kwlnTaskGetTaskByName(void *buf);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
 
 
-extern s32 FldMapTestTaskCreate(u8 *arg0);
-extern s32 K_Test_CreateLauncher(u8 *arg0);
+extern s32 FldMapTestTaskCreate(u8 *parent);
+extern s32 K_Test_CreateLauncher(u8 *parentTask);
 extern void K_ReadTexTaskCreate(void);
-extern s32 FldRainTaskCreate(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
-                          s32 arg2, s32 arg3, s32 arg4);
-extern s32 FldPlayerIconTaskCreate(u8 *arg0);
-extern s32 K_Clump_CreateLoadTask(s32 arg0);
-extern s32 K_TexStripBuildTaskCreate(s32 arg0);
-extern s32 K_TexStripLoadTaskCreate(s32 arg0);
-extern s32 K_TexStripCodeLogTaskCreate(s32 arg0);
+extern s32 FldRainTaskCreate(f32 f0, u8 *textureIndex, s32 distance, f32 f1, f32 f2, f32 f3,
+                          s32 alpha, s32 trailLength, s32 spawnInterval);
+extern s32 FldPlayerIconTaskCreate(u8 *task);
+extern s32 K_Clump_CreateLoadTask(s32);
+extern s32 K_TexStripBuildTaskCreate(s32);
+extern s32 K_TexStripLoadTaskCreate(s32);
+extern s32 K_TexStripCodeLogTaskCreate(s32);
 
 /* The create routine allocates exactly 0xc bytes for the menu and child handles. */
 typedef struct TestMenuWork

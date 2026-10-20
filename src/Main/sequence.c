@@ -24,7 +24,7 @@ extern void memcpy(void *dst, const void *src, s32 size);
 extern u8 D_005DCC64[];
 extern u8 D_005DCC68[];
 extern u8 D_005DCC6C[];
-extern void FldShadowAnim_Destroy(u8 *arg0);
+extern void FldShadowAnim_Destroy(u8 *task);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005DCB28[];
 extern u8 D_005DCB40[];

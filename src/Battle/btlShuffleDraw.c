@@ -14,32 +14,32 @@ extern void datTextSlotRelease();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 datTextSlotLoadStep();
 
-extern void btlShuffleCardQueueDraw(u8 *arg0);
+extern void btlShuffleCardQueueDraw(u8 *card);
 extern void pscCameraReset(void);
 extern s32 kwlnGetCamera(void);
 struct RwCamera;
 extern void K_View_SetFov(struct RwCamera *camera, f32 fov);
-extern s32 btlShuffleDrawCardCreate(void *arg0);
-extern s32 btlShuffleDrawViewCreate(void *arg0);
-extern s32 btlShuffleEffSpawn(void *arg0);
+extern s32 btlShuffleDrawCardCreate(void *drawWork);
+extern s32 btlShuffleDrawViewCreate(void *drawWork);
+extern s32 btlShuffleEffSpawn(void *task);
 extern void sdkRenderStateSetDefault(void);
-extern void btlShuffleDrawCards(u8 *arg0);
-extern s32 btlShuffleDrawFlagB(u8 *arg0);
-extern s32 btlShuffleDrawFlagC(u8 *arg0);
-extern s32 btlShuffleDrawFlagD(u8 *arg0);
-extern void btlShuffleDrawSetAlpha(u8 *arg0, u8 arg1);
-extern void btlShuffleCalcSetBlend(u8 *arg0, u8 *arg1, u8 *arg2);
-extern void btlShuffleCalcStoreTiming(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-extern void btlShuffleCalcInitMotion(u8 *arg0);
-extern void btlShuffleCalcInitRotation(u8 *arg0);
-extern void btlShuffleCalcScheduleMove(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, f32 fparg0);
-extern void btlShuffleCalcSetKeyframe(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, u8 *arg5);
-extern void btlShuffleCalcSetFrameRange(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void btlShuffleCalcSetFrameFlags(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void btlShuffleDrawCards(u8 *context);
+extern s32 btlShuffleDrawFlagB(u8 *task);
+extern s32 btlShuffleDrawFlagC(u8 *task);
+extern s32 btlShuffleDrawFlagD(u8 *task);
+extern void btlShuffleDrawSetAlpha(u8 *task, u8 alpha);
+extern void btlShuffleCalcSetBlend(u8 *, u8 *, u8 *);
+extern void btlShuffleCalcStoreTiming(u8 *state, u8 *points, s32 delay, s32 duration);
+extern void btlShuffleCalcInitMotion(u8 *state);
+extern void btlShuffleCalcInitRotation(u8 *state);
+extern void btlShuffleCalcScheduleMove(u8 *state, u16 delay, u16 duration, u8 *start, u8 *target, f32 fparg0);
+extern void btlShuffleCalcSetKeyframe(u8 *state, u16 delay, u16 duration, u8 *start, u8 *target, u8 *middle);
+extern void btlShuffleCalcSetFrameRange(u8 *state, s32 duration, s32 start, s32 target);
+extern void btlShuffleCalcSetFrameFlags(u8 *state, s32 delay, s32 stream, s32 channel);
 
 typedef BtlShuffleVec3 ShuffleVec3;
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
-extern void btlShuffleCalcSetQuat(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, ShuffleVec4 *arg4);
+extern void btlShuffleCalcSetQuat(u8 *state, u16 delay, u16 duration, u8 *start, ShuffleVec4 *target);
 #include "rw_types_internal.h"
 typedef RtQuat ShuffleQuaternion;
 typedef struct { s64 a; f32 b; } ShuffleVec2s;
@@ -121,71 +121,71 @@ typedef struct BtlShuffleFaceWork {
 
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern char D_0064EA80[];
-extern void datTextSlotSetString(s32 *arg0, u8 *arg1);
+extern void datTextSlotSetString(s32 *slotWords, u8 *text);
 extern char D_0064EA20[];
 extern void kAssertFail(void *file, s32 line);
-extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
+extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, s32 endFrame, f32 fparg2);
 extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 value);
 extern char iGpffffa9d0;
 extern s32 iGpffffa9c8;
 extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 extern void func_00440b68();
-extern void btlShuffleCalcRotateVector(u8 *arg0, f32 fparg0, u8 *arg1);
-extern void btlShuffleDrawReset(u8 *arg0);
-extern void btlShuffleCalcSetVectors(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4);
-extern void btlShuffleCalcRotatePointAroundAxis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, u8 *arg4, f32 fparg0);
+extern void btlShuffleCalcRotateVector(u8 *state, f32 fparg0, u8 *output);
+extern void btlShuffleDrawReset(u8 *context);
+extern void btlShuffleCalcSetVectors(u8 *, s32, f32 *, f32 *, f32 *);
+extern void btlShuffleCalcRotatePointAroundAxis(u8 *, u8 *, u8 *, f32 *, u8 *, f32 fparg0);
 extern void sdkSpriteRelease(void *ptr);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern f32 btlShuffleCalcNormalizeOffset(u8 *arg0);
-extern s32 datGetFlag(s32 arg0);
+extern f32 btlShuffleCalcNormalizeOffset(u8 *point);
+extern s32 datGetFlag(s32 bit);
 extern void pscResAcquireMiscCardW01(void);
-extern void btlShuffleCardInit(u8 *arg0, u8 *arg1);
-extern void btlShuffleCardAttachSprite(u8 *arg0, void *arg1);
-extern void btlShuffleCardBindPacket(u8 *arg0, void *arg1);
-extern void btlShuffleCardBindSlot(u8 *arg0, void *arg1);
-extern void memset(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlShuffleCardInit(u8 *card, u8 *specification);
+extern void btlShuffleCardAttachSprite(u8 *card, void *position);
+extern void btlShuffleCardBindPacket(u8 *card, void *rotation);
+extern void btlShuffleCardBindSlot(u8 *card, void *color);
+extern void memset(u8 *, s32, s32);
 extern void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 *dst, f32 scale);
-extern void btlShuffleCalcFillTable(s32 arg0, s32 arg1, void *arg2);
+extern void btlShuffleCalcFillTable(s32 cardIndex, s32 cardCount, void *screen);
 
-extern void btlShuffleDrawSpriteName(u8 *arg0, s32 arg1);
-extern void btlShuffleDrawSetColor(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4);
+extern void btlShuffleDrawSpriteName(u8 *task, s32 cardIndex);
+extern void btlShuffleDrawSetColor(u8 *task, u8 red, u8 green, u8 blue, s32 shaded);
 extern char D_0064EA60[];
 extern f32 iGpffff83e0;
-extern s32 btlShuffleCalcSelectFrame(u8 *arg0, s32 arg1);
-extern s32 btlShuffleCalcTimeFromFrame(u8 *arg0);
-extern void btlShuffleCalcStepWanderMotion(u8 *arg0);
-extern s32 btlShuffleCalcAdvanceTrack(u8 *arg0);
-extern s32 btlShuffleCalcFinishTrack(u8 *arg0);
-extern s32 btlShuffleCalcUnitStep(u8 *arg0);
-extern s32 btlShuffleCalcUnitStepB(u8 *arg0);
-extern s32 btlShuffleCalcUpdateArc(u8 *arg0);
-extern s32 btlShuffleCalcUpdateCurve(u8 *arg0);
-extern void btlShuffleCalcStepWanderRotation(u8 *arg0);
-extern s32 btlShuffleCalcUpdateBounce(u8 *arg0);
-extern void btlShuffleCalcGetFrameRange(u8 *arg0);
-extern void btlShuffleCalcLoadTable(u8 *arg0);
-extern void btlShuffleDrawSetLayout(u8 *arg0, s32 arg1);
+extern s32 btlShuffleCalcSelectFrame(u8 *state, s32 curve);
+extern s32 btlShuffleCalcTimeFromFrame(u8 *state);
+extern void btlShuffleCalcStepWanderMotion(u8 *state);
+extern s32 btlShuffleCalcAdvanceTrack(u8 *state);
+extern s32 btlShuffleCalcFinishTrack(u8 *state);
+extern s32 btlShuffleCalcUnitStep(u8 *unit);
+extern s32 btlShuffleCalcUnitStepB(u8 *unit);
+extern s32 btlShuffleCalcUpdateArc(u8 *state);
+extern s32 btlShuffleCalcUpdateCurve(u8 *state);
+extern void btlShuffleCalcStepWanderRotation(u8 *state);
+extern s32 btlShuffleCalcUpdateBounce(u8 *state);
+extern void btlShuffleCalcGetFrameRange(u8 *state);
+extern void btlShuffleCalcLoadTable(u8 *state);
+extern void btlShuffleDrawSetLayout(u8 *context, s32 cardIndex);
 struct HCdvd;
 extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
-extern u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
-extern void memcpy(s32 arg0, s32 arg1, s32 arg2);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
+extern void memcpy(s32, s32, s32);
 extern void pscResBuildMiscCardW00(u8 *data);
 extern u32 hMaestroDecodeIsReady(s16 *sprite);
 extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
-extern void btlShuffleDrawTrail(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, u8 *arg3);
-extern f32 btlShuffleDrawWaveScale(u8 *arg0, s32 arg1);
+extern void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 fparg0, u8 *rgba);
+extern f32 btlShuffleDrawWaveScale(u8 *context, s32 cardIndex);
 extern f32 iGpffff8170;
-extern void btlShuffleDrawAllocList(f32 **arg0, void (*arg1)(u8 **), u8 **arg2, u8 *arg3);
-extern void btlShuffleDrawListAdd(u8 **arg0, s32 arg1);
-extern void btlShuffleDrawViewReset(u8 *arg0);
-extern void btlShuffleDrawMoveCard(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 *arg2, f32 *arg3);
-extern void btlShuffleDrawMoveCardB(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 fparg0, f32 fparg1);
-extern void btlShuffleDrawSetQuat(u8 *arg0, s32 arg1, u16 arg2, u16 arg3, f32 *arg4, f32 *arg5);
-extern void btlShuffleDrawSetFrames(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern f32 btlShuffleCardWidth(u8 *arg0);
-extern f32 btlShuffleCardHeight(u8 *arg0);
+extern void btlShuffleDrawAllocList(f32 **list, void (*callback)(u8 **), u8 **payload, u8 *position);
+extern void btlShuffleDrawListAdd(u8 **list, s32 release);
+extern void btlShuffleDrawViewReset(u8 *context);
+extern void btlShuffleDrawMoveCard(u8 *context, s32 cardIndex, f32 fparg0, f32 fparg1, f32 *start, f32 *target);
+extern void btlShuffleDrawMoveCardB(u8 *context, s32 cardIndex, f32 *start, f32 *target, f32 fparg0, f32 fparg1);
+extern void btlShuffleDrawSetQuat(u8 *context, s32 cardIndex, u16 delay, u16 duration, f32 *start, f32 *target);
+extern void btlShuffleDrawSetFrames(u8 *context, s32 cardIndex, s32 delay, s32 duration, s32 start);
+extern f32 btlShuffleCardWidth(u8 *card);
+extern f32 btlShuffleCardHeight(u8 *card);
 extern BtlShuffleMatrix *func_003e0f80(void);
 extern BtlShuffleMatrix *RwMatrixTranslate(BtlShuffleMatrix *matrix, const BtlShuffleVec3 *translation, BtlShuffleCombine mode);
 extern BtlShuffleVec3 *func_003e42a0(BtlShuffleVec3 *out, const BtlShuffleVec3 *in, const BtlShuffleMatrix *matrix);
@@ -207,7 +207,7 @@ extern f32 iGpffff840c;
 extern f32 iGpffff81e0;
 struct RwFrame;
 extern BtlShuffleMatrix *func_003e9700(struct RwFrame *frame);
-extern void func_003e0e20(u8 *arg0, void *arg1, s32 arg2);
+extern void func_003e0e20(u8 *, void *, s32);
 typedef enum RpSkyRenderState {
     rpSKYRENDERSTATENARENDERSTATE = 0,
     rpSKYRENDERSTATEDITHER,
@@ -224,9 +224,9 @@ extern void *func_00410420(struct RxObjSpace3DVertex *vertices, u32 count, BtlSh
 extern s32 func_004106a0(BtlShufflePrimitive primitive);
 extern f32 DAT_007613f8;
 extern f32 iGpffff8218;
-extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void RwMatrixRotate(void *, void *, s32, f32 fparg0);
 extern f32 cosf(f32 fparg0);
-extern void RwMatrixScale(void *arg0, void *arg1, s32 arg2);
+extern void RwMatrixScale(void *, void *, s32);
 
 
 /* Store the shuffle pattern, card count, difficulty, and parent task before resetting the draw state. */
@@ -1346,7 +1346,7 @@ void btlShuffleDrawAllocList(f32 **list, void (*callback)(u8 **), u8 **payload, 
 }
 
 
-void btlShuffleDrawListFree(u8 **arg0);
+void btlShuffleDrawListFree(u8 **list);
 
 /* Dispatch the sorted draw callbacks and optionally release the list nodes. */
 // FUN_00376800

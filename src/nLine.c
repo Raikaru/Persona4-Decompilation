@@ -141,33 +141,33 @@ void nLineDrawOriginCallback(void);
 void nLineSetDefaultDuration(void);
 void nLineInitRecords(void);
 void nLineDrawRecords(NLineTable *table, Vec2f position, s32 alpha);
-void nLineEmitQuad(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 *arg1);
-void nLineFlushLayer(u8 *arg0);
-void nLineDrawEffect(u8 *arg0, Vec2f arg1, s32 arg2);
+void nLineEmitQuad(u8 *vertices, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 *color);
+void nLineFlushLayer(u8 *vertices);
+void nLineDrawEffect(u8 *table, Vec2f position, s32 alpha);
 void nLineDrawBatch(NLineBatch *batch);
-s16 nLineRollStyle(u8 *arg0, s32 arg1);
-s32 nLineBuildDecoration(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
-void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
+s16 nLineRollStyle(u8 *table, s32 setIndex);
+s32 nLineBuildDecoration(u8 *table, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+void nLineDrawLayers(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2);
 u32 RpRandom(void);
 void shdEnableBlendFlag(void);
 void shdDisableBlendFlag(void);
-void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+void RpSkyRenderStateSet(s32, s32);
 s32 kwlnGetCamera(void);
-f32 sinf(f32 arg0);
-f32 cosf(f32 arg0);
+f32 sinf(f32);
+f32 cosf(f32);
 
 void kAssertFail(void *file, s32 line);
 void memset(void *dest, s32 value, s32 size);
 void nLineSetRenderStateBase(void);
 
-void nLineDrawFrameAt(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
-void nLineDrawFullFrame(u8 *arg0);
-void nLineSweepHorizontal(u8 *arg0, s32 arg1);
-void nLineSweepHorizontalAlt(u8 *arg0, s32 arg1);
-void nLineSweepVertical(u8 *arg0, s32 arg1);
-void nLineSweepVerticalAlt(u8 *arg0, s32 arg1);
-void nLineDrawWaveStrip(u8 *arg0, s32 arg1);
-void nLineDrawBand(u8 *arg0, s32 arg1);
+void nLineDrawFrameAt(u8 *table, f32 fparg0, f32 fparg1, f32 fparg2);
+void nLineDrawFullFrame(u8 *table);
+void nLineSweepHorizontal(u8 *table, s32 entering);
+void nLineSweepHorizontalAlt(u8 *table, s32 entering);
+void nLineSweepVertical(u8 *table, s32 entering);
+void nLineSweepVerticalAlt(u8 *table, s32 entering);
+void nLineDrawWaveStrip(u8 *table, s32 entering);
+void nLineDrawBand(u8 *table, s32 entering);
 void nLineDrawScaledFrame(NLineTable *table, f32 durationScale, s32 entering);
 
 
@@ -384,7 +384,7 @@ s32 nLineSelectSetImmediate(s32 setIndex) {
 // Intent: per-frame update of the selected set: advances the sine easing of each of the 20 records and wraps their positions.
 // FUN_0034BEA0
 #pragma opt_propagation off
-void nLineWrapRecord(u8 *arg0);
+void nLineWrapRecord(u8 *record);
 void nLineUpdate(void) {
     f32 extentEase;
     f32 elapsed;

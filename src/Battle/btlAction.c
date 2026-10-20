@@ -6,7 +6,7 @@
 #include "btl_effect_internal.h"
 
 extern u32 btlUnitIsMoving(void* unit);
-extern void btlUnitGetAnchorPose(void* unit, void* arg1, void* arg2, RwV3d* rot);
+extern void btlUnitGetAnchorPose(void* unit, void* outPosition, void* outRotation, RwV3d* rot);
 extern BtlPacket* btlUnitCreateRotatePacket(void* unit, const RwV3d* rot, u32 flags);
 extern void btlPacketEnqueue(BtlPacket* packet, u32 type);
 extern void btlActionSetState(BtlAction* action, u16 state);

@@ -31,7 +31,7 @@ typedef struct FldSupporterWork {
     s32 frame;
     u8 pad10[4];
 } FldSupporterWork;
-extern s32 FldSupporterUpdate(u8 *arg0);
+extern s32 FldSupporterUpdate(u8 *task);
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on

@@ -22,7 +22,7 @@ extern void* FldResource_Create(char* path);
 extern void func_003c21e0();
 extern void func_003ca270(void *object, void *callback, void *userdata);
 extern s32 kwlnTaskDestroyWithHierarchy(void *object);
-extern u8 *K_ClumpMatColorScale(u8 *arg0, u8 *arg1);
+extern u8 *K_ClumpMatColorScale(u8 *material, u8 *data);
 extern u8 *K_ClumpMatPropScale(u8 *material, u8 *data);
 struct RpGeometry;
 /* RpAtomic prefix: geometry is the pointer at 0x18 consumed by the material iterator. */

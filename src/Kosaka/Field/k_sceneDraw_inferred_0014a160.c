@@ -120,8 +120,8 @@ extern u8 D_005EF858[];
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
-extern s32 FldMap_IsInBandA(s32 arg0, s32 arg1);
-extern s32 FldMap_IsInBandB(s32 arg0, s32 arg1);
+extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
+extern s32 FldMap_IsInBandB(s32 fieldId, s32 roomId);
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
@@ -140,9 +140,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 fparg0, f32 fparg1, f32 fparg2,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -175,7 +175,7 @@ extern s32 D_007642F0;
 
 
 
-extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
+extern void resrcMngSetDrawEnabled(s32 enabled, s32 includeFieldModels);
 
 
 

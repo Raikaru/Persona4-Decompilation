@@ -156,10 +156,10 @@ extern s16 D_008C030C[];
 extern s16 D_008C030E[];
 extern u8 D_008C031E[];
 
-extern void func_0042eae0(s32 arg0);
-extern void sceCdMmode(s32 arg0);
-extern void func_0042efe0(s32 arg0);
-extern void movieResetSlotFlags(s32 arg0);
+extern void func_0042eae0(s32);
+extern void sceCdMmode(s32);
+extern void func_0042efe0(s32);
+extern void movieResetSlotFlags(s32);
 extern u8 D_008C8780[];
 extern u8 D_008D1B80[];
 extern u8 D_008D1B84[];

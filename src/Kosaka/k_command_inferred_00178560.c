@@ -50,7 +50,7 @@ extern s32 FldStepIndex(void);
    (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
    loads (nd4). Sole caller in this unit. */
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
-extern s32 kwlnTaskIsLinked(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 target);
 extern s32 iGpffffb284;
 extern s32 iGpffffb300;
 extern s32 iGpffffb304;
@@ -67,8 +67,8 @@ extern u8 D_005F1950[];
 extern u8 D_005F1A60[];
 extern u8 D_005F1A64[];
 extern u16 D_008C024E[];
-void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
-                    s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
+void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
+                    s32 height, s32 flags, f32 x, f32 y, f32 depth);
 
 extern f32 iGpffff8304;
 extern char D_005E5850[];
@@ -76,27 +76,27 @@ extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
 
 
-extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
-extern s32 FldRc_CreateTransitionTask(s32 arg0, s32 arg1);
+extern s32 FldEvent_BeginEncounter(s32 task, s32 encounterId, s32 battleFlags);
+extern s32 FldRc_CreateTransitionTask(s32 parent, s32 mode);
 extern s32 scrGetAiState(void);
-extern void scrSetTaskProc(s32 arg0, s32 arg1);
-extern s32 kwlnTaskIsLinked(s32 arg0);
+extern void scrSetTaskProc(s32 task, s32 proc);
+extern s32 kwlnTaskIsLinked(s32 target);
 
 extern u8 *scrGetContext(void);
-extern void fclMiscOrStateFlags(s32 arg0);
-extern void fclMiscSetStatusCode(s32 arg0);
-extern void fclMiscAddRecord(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void *mdlGetMatrix(void *arg0);
-extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
-                         f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
+extern void fclMiscOrStateFlags(s32 flags);
+extern void fclMiscSetStatusCode(s32 value);
+extern void fclMiscAddRecord(s32 slotIndex, s32 record, s32 value, s32 entryFlags);
+extern void *mdlGetMatrix(void *model);
+extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
+                         f32 farg0, f32 farg1, s32 fadeWithDepth, u8 *workData);
 extern S_00178590 *FldEvent_GetNearestEntry(void);
-extern void RwV3dNormalize(void *arg0, void *arg1);
+extern void RwV3dNormalize(void *, void *);
 extern u8 D_007EFA00[];
-extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
-                           f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6,
-                           void *arg7, s32 arg8,
-                           f32 arg9, f32 arg10, f32 arg11,
-                           s32 arg12, void *arg13, f32 arg14);
+extern void FldRc_QueueScreenQuad(u8 *, u8 *,
+                           f32, f32, f32, f32, f32,
+                           void *, s32,
+                           f32, f32, f32,
+                           s32, void *, f32);
 extern u8 D_005F1970[];
 extern u8 D_005F1974[];
 extern u8 D_005F1978[];

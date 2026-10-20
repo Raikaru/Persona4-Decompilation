@@ -39,7 +39,7 @@ extern s32 D_00922CC0[];
 extern u8 *D_0076449C;
 extern s32 btlColorBlendPacketUpdate(struct ColorBlendWork *work);
 extern u8 *btlPacketAlloc(s32 size, s32 align);
-extern s32 btlQuatMatrixPacketUpdate(u8 *arg0);
+extern s32 btlQuatMatrixPacketUpdate(u8 *work);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
 extern u8 D_005F7000[];

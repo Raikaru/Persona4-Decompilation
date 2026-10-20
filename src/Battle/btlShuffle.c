@@ -20,13 +20,13 @@ typedef struct BtlShuffleResultParameters {
 } BtlShuffleResultParameters;
 
 
-extern void btlShuffleDrawTaskUpdate(u8 *arg0);
+extern void btlShuffleDrawTaskUpdate(u8 *work);
 
-extern void btlShuffleDrawQueueCardsB(u8 *arg0);
+extern void btlShuffleDrawQueueCardsB(u8 *context);
 
 extern u16 *kwlnTaskGetWork();
 
-extern s32 kwlnTaskGetTaskByName(void *arg0);
+extern s32 kwlnTaskGetTaskByName(void *name);
 
 extern u32 datCalcRandomBelow(u32 max);
 
@@ -46,11 +46,11 @@ extern void memset(void *dst, s32 value, s32 size);
 
 
 
-extern void pscResInitScene(u8 *arg0, s32 arg1);
+extern void pscResInitScene(u8 *work, s32 resetCamera);
 
-extern void btlShuffleDrawSetup(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void btlShuffleDrawSetup(u8 *context, s32 parentTask, s32 cardCount, s32 pattern, s32 difficulty);
 
-extern void btlShuffleRandomizeOrder(u8 *arg0, u8 *arg1);
+extern void btlShuffleRandomizeOrder(u8 *cards, u8 *selection);
 
 extern u8 D_0064E7A0[];
 
@@ -102,7 +102,7 @@ extern u8 *iGpffffb3f0;
 extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3ec;
 extern u16 *datPersonaGetSkills(struct DatPersonaRecord *persona);
-extern s32 datPersonaReplaceSkill(u8 *arg0, s16 arg1, u16 arg2);
+extern s32 datPersonaReplaceSkill(u8 *persona, s16 oldSkill, u16 newSkill);
 
 extern s32 D_0064E7B0[];
 
@@ -112,15 +112,15 @@ extern u16 D_0064E7B6[];
 
 extern s32 D_0064E7B8[];
 
-extern void datSetScriptValue(s32 arg0, u32 arg1);
+extern void datSetScriptValue(s32 index, u32 value);
 
 extern s32 datGetFlag(s32 id);
 
 extern void datSetFlag(s32 a, s32 b);
 
-extern void pscResTeardown(u8 *arg0);
+extern void pscResTeardown(u8 *unusedTask);
 
-extern void btlShuffleDrawRelease(u8 *arg0);
+extern void btlShuffleDrawRelease(u8 *context);
 
 extern void (*jtbl_008873EC[])(void *ptr);
 
@@ -133,48 +133,48 @@ extern u8 D_0064E670[];
 extern u8 D_0064E6A0[];
 extern u16 datPersonaCountValidMembers(void);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern u8 datPersonaGetStat(u8 *arg0, u16 arg1);
+extern u8 datPersonaGetStat(u8 *persona, u16 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern u8 datPersonaGetBuffedStat(u8 *arg0, u16 arg1);
+extern u8 datPersonaGetBuffedStat(u8 *persona, u16 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern s32 datPersonaAddStat(u8 *arg0, u16 arg1, s8 arg2);
+extern s32 datPersonaAddStat(u8 *persona, u16 statIndex, s8 delta);
 extern u8 D_00793E80[];
 
 extern s32 iGpffffa9c0; /* two draw-queue indices, accessed through the original GP-relative base */
 
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *list, u8 *node);
 
-extern void btlShuffleDrawLoadSprites(u8 *arg0);
+extern void btlShuffleDrawLoadSprites(u8 *context);
 
-extern s32 btlShuffleDrawLoadBlob(u8 *arg0);
+extern s32 btlShuffleDrawLoadBlob(u8 *work);
 
-extern void btlShuffleDrawTaskInit(u8 *arg0, u8 *arg1);
+extern void btlShuffleDrawTaskInit(u8 *context, u8 *cardIndex);
 
 extern s32 pscResIsIdle(void);
 
-extern void btlShuffleDrawViewRestore(u8 *arg0);
+extern void btlShuffleDrawViewRestore(u8 *context);
 
-extern void btlShuffleDrawFrame(u8 *arg0);
+extern void btlShuffleDrawFrame(u8 *context);
 
 extern s32 btlEncounterIsActive(void);
 
-extern s32 btlShuffleSeqCardTask(u8 *arg0);
+extern s32 btlShuffleSeqCardTask(u8 *context);
 
 extern u8 nmMesWindowOpenCurrent(u8 *message);
 
-extern void nmMesWindowShowCurrentRecord(s32 arg0);
+extern void nmMesWindowShowCurrentRecord(s32 recordIndex);
 
-extern void nmMesWindowStepCurrent(s32 arg0);
+extern void nmMesWindowStepCurrent(s32 release);
 
 extern s32 nmMesWindowCurrentOpenState(void);
 
-extern void nmMesWindowCloseCurrent(s32 arg0);
+extern void nmMesWindowCloseCurrent(s32 release);
 
 extern void nmMesWindowResetCurrent(void);
 
-extern void btlShuffleSeqClearA(u8 *arg0, s32 arg1);
+extern void btlShuffleSeqClearA(u8 *context, s32 count);
 
-extern s32 btlShuffleSeqFlag(u8 *arg0);
+extern s32 btlShuffleSeqFlag(u8 *context);
 
 
 
@@ -622,7 +622,7 @@ s32 btlShuffleRollIndex(s32 cardCount)
     return i + 1;
 }
 
-extern s32 datCalcGetLevelById(s32 arg0);
+extern s32 datCalcGetLevelById(s32 unitId);
 extern u8 D_0064E76F[];
 extern u8 *iGpffffb3d4;
 

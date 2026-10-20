@@ -82,12 +82,12 @@ extern u8 D_007981CC[];
 
 extern u8 D_0079BE2C[];
 
-extern s32 datCalcIsSkillAvailable(s32 arg0);
-extern s32 datCalcThresholdTrigger(u8* arg0, s32 arg1);
+extern s32 datCalcIsSkillAvailable(s32 skillId);
+extern s32 datCalcThresholdTrigger(u8* unit, s32 skillId);
 
-extern void datPersonaSetRosterMode(s32 arg0);
+extern void datPersonaSetRosterMode(s32 rosterMode);
 
-extern void btlUnitRecordResetSaveTable(void* arg0);
+extern void btlUnitRecordResetSaveTable(void* context);
 
 extern s16 D_007973F4[];
 
@@ -99,9 +99,9 @@ extern s32 D_005DD6E0[];
 
 extern s32 D_005DD6DC[];
 
-extern s16 datRankForPoints(s16 arg0, s16 arg1);
+extern s16 datRankForPoints(s16 category, s16 points);
 
-extern s32 cmmRankThreshold(s16 arg0, s16 arg1);
+extern s32 cmmRankThreshold(s16 value, s16 option);
 
 extern void chkmemAllocSiteTag(void* msg, s32 id);
 
@@ -125,19 +125,19 @@ extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 
 extern u32 D_00764298;
 
-extern u16 cmmCommunityValueForArcana(u8 arg0);
+extern u16 cmmCommunityValueForArcana(u8 arcana);
 
-extern void memcpy(void* arg0, void* arg1, u32 arg2);
+extern void memcpy(void*, void*, u32);
 
-extern s32 datCalcGetLevel(DatUnit* arg0);
-extern u32 datCalcGetHp(void* arg0);
-extern u32 datCalcGetSp(void* arg0);
+extern s32 datCalcGetLevel(DatUnit* unit);
+extern u32 datCalcGetHp(void* unit);
+extern u32 datCalcGetSp(void* unit);
 struct DatUnit;
 extern u16 datCalcMaxHp(struct DatUnit* unit);
 extern u16 datCalcMaxSp(struct DatUnit* unit);
-extern void datCalcGetBadStatusNoDown(void* arg0);
-extern void datCalcInitUnit(void* arg0, s16 arg1);
-extern void datCalcSetBadStatus(void* arg0);
+extern void datCalcGetBadStatusNoDown(void* unit);
+extern void datCalcInitUnit(void* unit, s16 id);
+extern void datCalcSetBadStatus(void*);
 extern u32 datCalcClearBadStatus(int unit, u32 badStatus);
 extern u32 datCalcIsDead(int unit, s32 hpDelta);
 
@@ -175,7 +175,7 @@ extern u8 D_00797F8E[];
 
 extern u8* DAT_007644D0;
 
-extern u16 datCalcThresholdKind(u8* arg0, s32 arg1);
+extern u16 datCalcThresholdKind(u8* unusedUnit, s32 skillId);
 
 extern void RwV3dNormalize(f32* a, f32* b);
 
@@ -201,17 +201,17 @@ extern void H_Cdvd_ReadSync(u8* ptr);
 
 extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
 
-extern void datSetFlag(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 flagId, s32 enabled);
 
-extern u32 calGetWeekdayOfDay(s32 arg0);
+extern u32 calGetWeekdayOfDay(s32 dateIndex);
 
 extern s32 calHasDayEntry(s32 idx);
 
-extern void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3);
+extern void datSaveRestoreSection(s32 unusedVersion, u32 tag, u32 length, u8* data);
 
-extern s32 datCalcSkillEffectFlags(s32 arg0, u8* arg1, u8* arg2, s32 arg3);
+extern s32 datCalcSkillEffectFlags(s32 skillId, u8* source, u8* target, s32 options);
 
-extern u32 datCalcSkillCost(u8* arg0, s32 arg1);
+extern u32 datCalcSkillCost(u8* unit, s32 skillId);
 
 extern s16 D_00797B84[];
 

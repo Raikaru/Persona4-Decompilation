@@ -227,8 +227,8 @@ extern void mwPlyInitSfdFx(void *);
 extern u32 hsndSlotIsStarting();
 extern void hsndSlotUpdate(HsndSlotWork *slot);
 
-s32 sdkSndStopChannelSlot(s32 arg0);
-s32 sdkSndStartRequest(s32 arg0);
+s32 sdkSndStopChannelSlot(s32 channelIndex);
+s32 sdkSndStartRequest(s32 channelIndex);
 extern s32 sdkSndStreamTaskUpdate(u8 *task);
 extern void sdkSndStreamTaskDestroy(u8 *task);
 

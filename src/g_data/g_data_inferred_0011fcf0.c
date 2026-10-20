@@ -11,22 +11,22 @@ typedef struct {
     f32 y;
 } Vec2f;
 
-void datPanelDrawCompareIcon(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
-void drawUnitStatusPanel(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3, s32 arg4_2);
+void datPanelDrawCompareIcon(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 unusedKind);
+void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 arg4_2);
 typedef struct KwlnTask KwlnTask;
 
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
-extern void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, u8 arg3, f32 z, s32 arg4);
+extern void sdkSpriteDrawOnceAux(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 fade, f32 z, s32 setStates);
 extern s32 resourceFindByName(void *param);
-extern u16 datEntryGetPrimaryValue(s16 arg0);
-extern u16 datEntryGetMiddleBandValue(s16 arg0);
-extern u16 datEntryGetLastBandValue(s16 arg0);
-extern s32 datEntryHasFlag(s16 arg0, s16 arg1);
-extern s32 datIdBand(s16 arg0);
-extern s16 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
+extern u16 datEntryGetPrimaryValue(s16 itemId);
+extern u16 datEntryGetMiddleBandValue(s16 itemId);
+extern u16 datEntryGetLastBandValue(s16 itemId);
+extern s32 datEntryHasFlag(s16 itemId, s16 flagIndex);
+extern s32 datIdBand(s16 itemId);
+extern s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern u8 *datPersonaDisplayName(s16 arg0);
+extern u8 *datPersonaDisplayName(s16 unitId);
 extern u8 D_005E4F70[];
 static inline s64 p4_0011_signext16(s16 arg0)
 {

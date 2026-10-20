@@ -41,7 +41,7 @@ s32 strlen(const char *text);
 void chkmemAllocSiteTag(const void *msg, s32 id);
 void memcpy(void *dst, const void *src, u32 size);
 void memset(void *dst, s32 value, u32 size);
-s32 H_Cdvd_LookupRequest(s32 arg0, s32 *arg1);
+s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 u8 *sdkSpriteRequestLoad(const char *name);
 u32 hMaestroDecodeIsReady(s16 *param);
 f32 sdkSpriteEntryWidth(void *ptr, s32 index);

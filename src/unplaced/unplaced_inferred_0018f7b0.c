@@ -28,15 +28,15 @@ static inline s32 fldMapCellAddOffset(s32 first, s32 second)
 
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
 extern u8 D_007966D0[];
-extern void FldSmapTileQueueByType(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
-                           f32 arg5, f32 arg6, f32 arg7, s32 arg4);
-extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
+extern void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
+                           f32 x, f32 y, f32 depth, s32 flags);
+extern void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
                           f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                          f32 fparg4, u8 *arg2, s32 arg3,
-                          f32 fparg5, f32 fparg6, f32 fparg7, s32 arg4,
+                          f32 fparg4, u8 *color, s32 texture,
+                          f32 fparg5, f32 fparg6, f32 fparg7, s32 orientation,
                           f32 arg_sp0);
-extern void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
-                          s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
+extern void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
+                          s32 height, s32 flags, f32 x, f32 y, f32 depth);
 /* One 0x4A-byte pad record; the pads start at 0x8C0240 (sdkPadInit). */
 typedef struct {
     u8 unk00[0xC];
@@ -92,7 +92,7 @@ void FldMapTestCellsClear(u8 *work, u16 column, u16 row)
 #pragma pop
 
 extern const KWindowEntryDescriptor D_005F5FD0[];
-extern void kwlnSetColorRgba(u8 work, u8 column, u8 row, u8 arg3);
+extern void kwlnSetColorRgba(u8 work, u8 column, u8 row, u8 alpha);
 extern s32 sdkLboxAddEntry(u8 *work, u8 *column);
 extern void sprintf(void *dst, const char *fmt, ...);
 extern u8 *FldStepLoadFilePair(s32 firstId, s32 secondId);

@@ -20,17 +20,17 @@ typedef struct BtlUnitBoundsFilters {
 extern u16 btlFindFreeCharResId(void);
 
 extern void mdlDestroyModelObject(); /* old-style: retail jals with $a1 still holding the compared coordinate */
-extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
-extern void *mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void *arg2, u32 arg3);
-extern u32 *mdlCloneModelObject(u8 *arg0);
-extern s32 mdlBuildModelPath(u32 arg0, u16 arg1, char *arg2);
-extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
-extern s32 H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
-extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
+extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
+extern void *mdlCreateModelObjectFromResource(u32 type, u16 id, void *resourceOrModel, u32 flags);
+extern u32 *mdlCloneModelObject(u8 *source);
+extern s32 mdlBuildModelPath(u32 type, u16 id, char *output);
+extern void func_00440b68(void *, u8 *, s32);
+extern s32 H_Cdvd_AcquireDirectory(void *path, s32 flags);
+extern s32 mdlComputeIndexedAttachMatrix(void *model, s32 index, void *destination);
 extern f32 fGpffff82d4;
 extern u8 D_005F6D00[];
 extern u8 iGpffffa0b0;
-extern void btlUnitGetAnchorPose(void *arg0, void *arg1, s32 arg2, void *arg3);
+extern void btlUnitGetAnchorPose(void *unit, void *outPosition, s32 outRotation, void *outTarget);
 extern void func_003dc740(void *dst, void *src, f32 angle, s32 mode);
 #define func_003dc740(dst, src, mode, angle) \
     func_003dc740(dst, src, angle, mode)
@@ -39,8 +39,8 @@ extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern void btlUnitRequestLookAt(void *unit);
 extern f32 func_003e41e0(f32 *out, f32 *in);
-extern void btlUnitShowModel(u8 *arg0);
-extern void btlUnitHideModel(u8 *arg0);
+extern void btlUnitShowModel(u8 *unit);
+extern void btlUnitHideModel(u8 *unit);
 extern f32 RwV2dLength(f32 *value);
 extern s32 fptodp(f32 value);
 extern s32 func_0044b310(s32 value);
@@ -150,8 +150,8 @@ BtlPacket* btlPacketAlloc(u32 id, s32 workDataSize);
 RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const void* quat);
 void btlTargetBlendVectors(RwV3d* dst, const RwV3d* from, const RwV3d* to);
-extern s32 datCalcIsDead(void *arg0, s32 arg1);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern s32 datCalcIsDead(void *unit, s32 hpDelta);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern f32 RwV3dLength(RwV3d *value);
 extern u8 *iGpffffb3ac;
 extern RwV3d D_00881430;

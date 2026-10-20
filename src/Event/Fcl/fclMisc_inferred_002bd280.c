@@ -23,7 +23,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
-extern void kAssertFail(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *file, s32 line);
 extern char D_0063F2A0[];
 extern char D_007488E8[];
 
@@ -39,7 +39,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
-extern u8 *nmListAppendNode(u8 *arg0, s32 arg1, s32 arg2);
+extern u8 *nmListAppendNode(u8 *manager, s32 owner, s32 payloadSize);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -87,7 +87,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bd280-002bd280 */
 
-extern void fclFadeRectSetRenderStates(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: a typed vtable base local with propagation disabled reproduces the
    retail single D_00887300 address hoist and saved-register frame. */
 /* measured: restores opt_propagation after func_002b5120. */

@@ -24,7 +24,7 @@ extern s32 func_004326b8(s32 socket, void *data);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void memset(void *dst, s32 value, s32 size);
 extern void strcat(void *dst, void *src);
-extern s32 H_Cdvd_LookupRequest(s32 arg0, s32 *arg1);
+extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 extern char D_007127B0[];
 extern char D_007127D0[];
 extern char D_00712800[];

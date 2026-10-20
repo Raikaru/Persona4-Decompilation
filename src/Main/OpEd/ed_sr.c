@@ -26,8 +26,8 @@ extern void edResRelease(void);
 extern void edResLoadStep(void);
 extern void edResRequestLoad(void);
 extern u32 edResIsPending(void);
-extern void brpParamSetCurrent(u8 *arg0);
-extern void edScrollWorkInit(u8 *arg0);
+extern void brpParamSetCurrent(u8 *work);
+extern void edScrollWorkInit(u8 *work);
 
 /* Window / effect / scripting helpers. */
 extern u8 *PrimAllocQueueNode(void);

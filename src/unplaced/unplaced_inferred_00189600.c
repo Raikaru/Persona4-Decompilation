@@ -36,10 +36,10 @@ typedef struct FldLmapCameraWork {
 
 #include "scene_event_internal.h"
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32, s32);
 extern void (*jtbl_008873EC[])(void *);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
-extern void func_003e0f40(s32 arg0);
+extern void func_003e0f40(s32);
 extern s32 *MT_Scene_GetFrameState(void);
 extern void FldRc_SetPositionSlotLock(s32 a, s32 b, s32 c);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -50,10 +50,10 @@ extern u8 D_005F5320[];
 extern u8 D_005F5330[];
 extern s32 kwlnGetCamera(void);
 extern f32 fGpffff8218;
-extern s16 mdlGetLayerAnimation(s32 arg0, s32 arg1);
-extern u8 *mdlGetMatrix(u32 arg0);
+extern s16 mdlGetLayerAnimation(s32 model, s32 layer);
+extern u8 *mdlGetMatrix(u32 model);
 extern f32 RwV3dNormalize(RainVector *dst, const RainVector *src);
-extern u8 *K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
+extern u8 *K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, s32 referenceUp);
 extern f32 D_005F2190[];
 extern f32 D_005F2194[];
 extern f32 D_005F2198[];
@@ -61,8 +61,8 @@ extern f32 D_005F219C[];
 extern f32 D_005F21A0[];
 extern f32 D_005F21A4[];
 extern s32 FldNpcControlUpdate(u8 *task);
-extern f32 sinf(f32 arg0);
-extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern f32 sinf(f32);
+extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count);
 extern s32 frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id,
                          const char *str, s32 flags, s32 unused, void *param,
                          s32 charWidth);
@@ -70,11 +70,11 @@ extern f32 D_008872F8[];
 extern f32 D_00761184;
 extern u8 D_00794C60[];
 extern u32 D_007EFA00[];
-extern s32 FldPanel2dUpdate(u8 *arg0);
-extern void FldPanel2dSelectEntry(s32 arg0);
+extern s32 FldPanel2dUpdate(u8 *task);
+extern void FldPanel2dSelectEntry(s32 entryIndex);
 extern s32 func_003bfae0();
 extern s32 kwlnGetCamera(void);
-extern s32 RwCameraFrustumTestSphere(u8 *arg0, s32 arg1);
+extern s32 RwCameraFrustumTestSphere(u8 *, s32);
 extern s32 FldStepIndex(void);
 extern u8 *iGpffff9db0;
 #pragma push

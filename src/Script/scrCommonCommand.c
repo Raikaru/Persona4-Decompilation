@@ -6,7 +6,7 @@ typedef struct KwlnTask KwlnTask;
 extern s32 scrGetParamInt(s32 paramIdx);
 extern u32 scrGetCmdTimer(void);
 
-void sequenceRequest(s32 arg0, void *arg1, s32 arg2, s32 arg3);
+void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 /* Source unit: src/Kosaka/k_command/k_command_00299400.c (1 function markers) */
 #include "Kosaka/k_command_internal.h"
 #include "include_asm.h"
@@ -23,8 +23,8 @@ extern float scrGetParamFloat(s32 paramIdx);
 extern void scrSetReturnFloat(float value);
 extern float sqrtf(float x);
 extern char* scrGetParamString(s32 paramIdx);
-extern void fadeBeginReturnTransition(s32 arg0, s32 arg1);
-extern void fadeBeginTransition(s32 arg0, s32 arg1);
+extern void fadeBeginReturnTransition(s32 mode, s32 duration);
+extern void fadeBeginTransition(s32 mode, s32 duration);
 extern s32 fadeStatus(void);
 extern s32 kwlnGetCurrentWorkValue(void);
 extern s32 scrGetLabelAddr(s32 index);

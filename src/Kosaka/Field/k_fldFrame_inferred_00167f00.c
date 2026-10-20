@@ -133,8 +133,8 @@ extern s32 iGpffff9f08;
 extern u8 *iGpffff9db0;
 extern s32 FldDayEventActive();
 extern s32 D_005F1350[];
-extern void mdlAttachSlotModelFromResource(void *task, u16 value, u32 normal, u16 arg3,
-                           void *arg4, u32 arg5);
+extern void mdlAttachSlotModelFromResource(void *task, u16 value, u32 normal, u16 id,
+                           void *resource, u32 flags);
 extern u8 iGpffff9f10;
 extern u8 D_005F13A0[];
 

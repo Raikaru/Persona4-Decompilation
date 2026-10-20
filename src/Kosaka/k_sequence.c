@@ -3,22 +3,22 @@
 #include "type.h"
 #include "include_asm.h"
 
-extern s32 FldStepTaskCreate(s32 arg0, s32 arg1, s32 arg2);
+extern s32 FldStepTaskCreate(s32 parent, s32 stepIndex, s32 entryValue);
 extern s32 D_00764334;
 
 extern u8 *MT_Scene_GetFrameState(void);
-extern s32 FldRootCreate(s32 arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4,
-                         s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9,
-                         s64 arg10, s64 arg11, s64 arg12, s64 arg13);
+extern s32 FldRootCreate(s32 parent, u16 field, u16 room, u16 entry, s16 spawn,
+                         s16 direction, s32 sceneFlags, u8 loadMode, s64 secondaryMode, s64 transitionValue,
+                         s64 eventId, s64 eventMajor, s64 eventMinor, s64 eventFlags);
 extern void kAssertFail(const char *file, s32 line);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 kwlnTaskIsLinked(s32 buf);
-extern void FldLmapCreate(s32 arg0, s32 arg1, s32 arg2);
-extern void FldViewerCreate(s32 arg0);
-extern void K_Viewer_Create(s32 arg0);
-extern void K_MapEdit_Create(s32 arg0);
-extern void K_FldFoodCourt_Create(s32 arg0);
+extern void FldLmapCreate(s32 parent, s32 selectedSlot, s32 enableToggle);
+extern void FldViewerCreate(s32 parentTask);
+extern void K_Viewer_Create(s32 parentTask);
+extern void K_MapEdit_Create(s32 parent);
+extern void K_FldFoodCourt_Create(s32 parent);
 
 extern char D_005F16F8[];
 extern u8 D_005F1708[];

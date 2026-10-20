@@ -45,7 +45,7 @@ extern s32 func_0042ba20(void);
 extern void func_0042ba70(void);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void func_0043ed08(void *ptr);
-extern s32 chkmemRegisterBlock(s32 arg0, s32 arg1, u16 arg2, s16 arg3);
+extern s32 chkmemRegisterBlock(s32 blockAddress, s32 size, u16 alignment, s16 flags);
 extern char iGpffffac30;
 extern void memset(void *dst, s32 value, u32 size);
 

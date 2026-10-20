@@ -1,7 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
-extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
+extern f32 datScriptCalcFloat(s32 term, s32 parameter);
 #include "datScript_internal.h"
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -30,7 +30,7 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 // FUN_00244CF0
 void datScriptCalcPhysicalDamageScaled(void)
 {
-    extern f32 sqrtf(f32 arg0);
+    extern f32 sqrtf(f32);
     f32 damage;
     f32 scaledTerm;
     f32 powerTerm;

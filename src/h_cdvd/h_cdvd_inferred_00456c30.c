@@ -105,9 +105,9 @@ extern s32 D_008E413C_abs[];
 extern s32 D_008E4180_abs[];
 extern s32 D_008E41C4_abs[];
 extern s32 D_008E4208_abs[];
-extern s32 func_003dd900(s32 arg0);
-extern s32 func_003dd290(void *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+extern s32 func_003dd900(s32);
+extern s32 func_003dd290(void *, s32, s32, s32);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern void func_00440b68();
 extern u8 D_007117C8[];
 extern u8 D_007117E0[];
@@ -118,7 +118,7 @@ extern void H_Cdvd_SlotRead(void);
 extern void H_Cdvd_SlotWrite(void);
 extern void adminiSeqExitTest(void);
 extern void H_Cdvd_SlotSeek(void);
-extern s32 H_Cdvd_ProbeFile(s32 arg0);
+extern s32 H_Cdvd_ProbeFile(s32);
 extern u8 *H_Cdvd_FileContextPath(void);
 extern u8 D_00711800[];
 extern u8 D_00711810[];
@@ -247,8 +247,8 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00456c30-00456c60 */
 
-extern s32 H_Cdvd_FileOpen(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
-extern void H_Cdvd_FileClose(u8 *arg0);
+extern s32 H_Cdvd_FileOpen(s32 unusedContext, u8 *slot, u8 *name, s32 openMode);
+extern void H_Cdvd_FileClose(u8 *slot);
 #pragma push
 #pragma pop
 #pragma push

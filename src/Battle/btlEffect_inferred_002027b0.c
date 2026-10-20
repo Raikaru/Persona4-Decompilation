@@ -50,7 +50,7 @@ typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
 extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
-extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);

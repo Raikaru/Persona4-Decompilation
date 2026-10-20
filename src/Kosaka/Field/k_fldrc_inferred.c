@@ -120,14 +120,14 @@ extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
-extern void kAssertFail(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern void mdlEffectDestroy(s32 arg0);
+extern void mdlEffectDestroy(s32 model);
 extern u8 D_007EF9B0[];
 extern s32 kwlnGetCamera(void);
 extern u8 D_007E8020[];
-extern u8 *func_003e9700(s32 arg0);
+extern u8 *func_003e9700(s32);
 
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
@@ -147,16 +147,16 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 fparg0, f32 fparg1, f32 fparg2,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
-extern s32 mdlEffectCreateFromResource(s32 arg0);
-extern void mdlEffectStart(s32 arg0);
-extern s32 mdlEffectClone(s32 arg0);
+extern s32 mdlEffectCreateFromResource(s32 resource);
+extern void mdlEffectStart(s32);
+extern s32 mdlEffectClone(s32 effect);
 extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 
 extern s32 D_007642E4;
@@ -204,13 +204,13 @@ extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
 extern u8 iGpffff9de8;
-extern s32 FldRc_FileLoadStep(u8 *arg0);
-extern void FldRc_FileLoadDestroy(u8 *arg0);
+extern s32 FldRc_FileLoadStep(u8 *task);
+extern void FldRc_FileLoadDestroy(u8 *task);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 iGpffff9da8;
 extern u8 D_005EF7B0[];
-extern void strcpy(void *arg0, const char *arg1);
+extern void strcpy(void *, const char *);
 extern u8 D_005EF7C0[];
 extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
@@ -316,7 +316,7 @@ extern f32 D_008872F8[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 0014dcd0-0014eec0 */
 
 extern s32 FldEvent_AverageEntryValue(void);
-extern u8 *FldEvent_GetGridCellEntry(s32 arg0, s32 arg1);
+extern u8 *FldEvent_GetGridCellEntry(s32 column, s32 row);
 typedef struct {
     f32 gammaCorrection;
     void *fpSystem;
@@ -610,7 +610,7 @@ void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
 /* measured: remaining raw file/template/counter accesses changed codegen individually (256..402 differing bytes); keep byte-pointer aliasing across effect calls. */
 // FUN_0014E2A0
 s32 FldRc_FileLoadStep(u8 *task) {
-    extern s32 H_Cdvd_LookupRequest(u8 *task, s32 *arg1);
+    extern s32 H_Cdvd_LookupRequest(u8 *task, s32 *slot);
 
     extern void mdlEffectFlushWithTable();
     extern void mdlEffectDestroy();

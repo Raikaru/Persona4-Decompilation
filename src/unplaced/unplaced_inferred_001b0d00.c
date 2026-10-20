@@ -12,7 +12,7 @@ extern s32 iGpffffb3ac;
 static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* action);
 /* Source unit: src/Battle/btlOrder_001b0d00.c */
 
-extern s32 btlActionQueueMoveToBack(u8 *arg0);
+extern s32 btlActionQueueMoveToBack(u8 *action);
 // FUN_001B0D00
 /* Remove the first matching action, compacting the fixed-capacity queue. */
 static u32 btlOrderRemoveAction(BtlAction** actions, u32 capacity, BtlAction* action)

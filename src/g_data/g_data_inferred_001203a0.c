@@ -9,10 +9,10 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
-extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 fparg0, s32 preserveState);
 extern u8 *resourceFindByName(char *filename);
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5830[];
 extern u8 D_005E5850[];

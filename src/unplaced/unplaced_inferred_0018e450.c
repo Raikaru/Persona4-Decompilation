@@ -16,9 +16,9 @@
 #include "field_npc_control_internal.h"
 #include "rw_types_internal.h"
 #include "scene_event_internal.h"
-extern void mdlDestroyModelObject(s32 arg0);
+extern void mdlDestroyModelObject(s32 model);
 extern void (*jtbl_008873EC[])(void *);
-void K_Test_Create(s32 arg0);
+void K_Test_Create(s32 parentTask);
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on

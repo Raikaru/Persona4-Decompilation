@@ -90,7 +90,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];

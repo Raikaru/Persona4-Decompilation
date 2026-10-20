@@ -22,15 +22,15 @@ extern u8 D_0063EED0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 arg2, s32 arg3);
+extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *arg0, void *arg1);
+extern void PrimAppendNode(void *list, void *node);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
-extern void yTimeLimitDrawCallback(u8 *arg0);
+extern void yTimeLimitDrawCallback(u8 *);
 extern f32 fGpffff8204;
-extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                         s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
+extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
+                         s32, f32 farg0, s32, s32, s32);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 
@@ -69,17 +69,17 @@ extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
 extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
-extern void datSetHeroNameParts(u8 *arg0, u8 *arg1);
-extern void fadeBeginTransition(s32 arg0, s32 arg1);
-extern void fadeBeginReturnTransition(s32 arg0, s32 arg1);
-extern void yTimeLimitStartRowTransition(u8 *arg0, s32 arg1);
-extern void yTimeLimitUpdateInput(u8 *arg0);
-extern void yTimeNameDrawReveal(u8 *arg0, s32 arg1);
-extern s32 strncmp(void *arg0, void *arg1, s32 arg2);
+extern void datSetHeroNameParts(u8 *firstName, u8 *lastName);
+extern void fadeBeginTransition(s32 mode, s32 duration);
+extern void fadeBeginReturnTransition(s32 mode, s32 duration);
+extern void yTimeLimitStartRowTransition(u8 *task, s32 mode);
+extern void yTimeLimitUpdateInput(u8 *task);
+extern void yTimeNameDrawReveal(u8 *task, s32 stage);
+extern s32 strncmp(void *, void *, s32);
 
 
 
-extern void yTimeNameDrawKeyboard(u8 *arg0);
+extern void yTimeNameDrawKeyboard(u8 *task);
 
 
 /* Existing task-work layout. The tween fields are defined by 002a27c0;
@@ -92,9 +92,9 @@ extern void yTimeNameDrawKeyboard(u8 *arg0);
 
 #pragma push
 
-extern s32 yTimeNameConfirm(u8 *arg0);
+extern s32 yTimeNameConfirm(u8 *task);
 #pragma pop
-extern s32 yTimeNameRevealRows(u8 *arg0);
+extern s32 yTimeNameRevealRows(u8 *task);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a1f20-002a2310 */
 

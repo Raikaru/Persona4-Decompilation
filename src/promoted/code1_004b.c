@@ -27,7 +27,7 @@ extern void DistortParticleProjectRecords();
 extern s32 iGpffffbb98;
 extern s32 iGpffffbb94;
 extern s32 D_00922DA0[];
-extern void mdlEffectApplyShakeEnvelope(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyShakeEnvelope(u8 *record, s32 elapsed);
 extern void mdlEffectResetSequenceFrame(void);
 extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
@@ -35,11 +35,11 @@ extern s32 D_00922DAC[];
 extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
 extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
 extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
-extern void TnSetTableBase(void *arg0);
-extern void mdlEffectFlushTreeFrame(void *arg0);
-extern void mdlEffectAdvanceAndDrawChildren(void *arg0);
-extern void func_004861f0(void *arg0, f32 *arg1);
-extern void mdlEffectUpdateScreenSprite(u8 *arg0);
+extern void TnSetTableBase(void *table);
+extern void mdlEffectFlushTreeFrame(void *effect);
+extern void mdlEffectAdvanceAndDrawChildren(void *instance);
+extern void func_004861f0(void *, f32 *);
+extern void mdlEffectUpdateScreenSprite(u8 *instance);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -48,18 +48,18 @@ typedef struct {
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
 extern void LineNovaUpdateCameraQuads(void);
-extern void func_003efd20(u8 *arg0, s32 arg1);
-extern void func_003e9390(s32 arg0);
-extern void func_003ec330(s32 arg0);
-extern void RpSkyTexCacheRasterLock(s32 arg0, s32 arg1);
-extern void func_003e8440(u8 *arg0);
-extern u8 *GeometryCloneBlock(s32 arg0);
-extern void memcpy(void *arg0, void *arg1, s32 arg2);
-extern void mdlEffectScreenSpriteCopyResource(u8 *arg0, u8 *arg1);
-extern s32 mdlEffectShareTrackInstance(s32 arg0);
-extern void mdlEffectReleaseTrackInstance(s32 arg0);
-extern void TlpRelease(s32 arg0);
-extern s32 TlpAddRef(s32 arg0);
+extern void func_003efd20(u8 *, s32);
+extern void func_003e9390(s32);
+extern void func_003ec330(s32);
+extern void RpSkyTexCacheRasterLock(s32, s32);
+extern void func_003e8440(u8 *);
+extern u8 *GeometryCloneBlock(s32 source);
+extern void memcpy(void *, void *, s32);
+extern void mdlEffectScreenSpriteCopyResource(u8 *destination, u8 *source);
+extern s32 mdlEffectShareTrackInstance(s32 source);
+extern void mdlEffectReleaseTrackInstance(s32 instance);
+extern void TlpRelease(s32 work);
+extern s32 TlpAddRef(s32 work);
 
 /* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
    func_004bd628, func_004bd640, func_004bd658, func_004bd670,
@@ -70,30 +70,30 @@ extern u8 D_00714650[];
 extern u8 D_00714660[];
 extern u8 D_00714658[];
 
-extern void mdlEffectGetPositionVec(u8 *arg0, u32 *arg1);
+extern void mdlEffectGetPositionVec(u8 *object, u32 *output);
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
-extern void initVariables(u8 *arg0);
-extern void func_00486330(u8 *arg0, void *arg1);
-extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
+extern void func_004bd6a0(u8 *, s32);
+extern void initVariables(u8 *);
+extern void func_00486330(u8 *, void *);
+extern void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ);
 extern f32 iGpffff836c;
-extern void mdlEffectGetOrientationVec(u8 *arg0, u32 *arg1);
-extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
-extern void effMiscMatrixToQuatVU(f32 *arg0);
+extern void mdlEffectGetOrientationVec(u8 *object, u32 *output);
+extern void mdlEffectBuildBasisRows(void *output, void *orientation);
+extern void effMiscMatrixToQuatVU(f32 *matrix);
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
-extern void kAssertFail(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
-extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
-extern s32 mdlEffectCreateTrackInstance(u16 *arg0);
-extern s32 TnSlotObject(u16 arg0);
-extern void func_003c42b0(s32 arg0, s32 arg1);
-extern s32 TlpCreate(u16 *arg0);
-extern void func_003e8110(u8 *arg0);
-extern s32 func_003e8120(u8 *arg0);
+extern void memset(void *, s32, s32);
+extern void GeometryBlockSetTextureFromHandle(u8 *block, u16 *handle);
+extern s32 mdlEffectCreateTrackInstance(u16 *source);
+extern s32 TnSlotObject(u16 slotIndex);
+extern void func_003c42b0(s32, s32);
+extern s32 TlpCreate(u16 *desc);
+extern void func_003e8110(u8 *camera);
+extern s32 func_003e8120(u8 *camera);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern u8 *RpSkyGetDisplayBufferRaster(void);
 extern u8 D_008872FC_abs[]; /* screen-space depth for immediate-mode vertices */
@@ -106,7 +106,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern void DistortParticleProjectRecords();
 
-extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
 
 extern u32 mdlEffectGetPackedColorWord(void *object);
 

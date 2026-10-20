@@ -19,7 +19,7 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 extern s32 btlPacketFinishEffect(void);
-extern void btlGaugeRefreshAll(s32 arg0);
+extern void btlGaugeRefreshAll(s32);
 extern void btlSelectionFlushEntries();
 
 
@@ -32,7 +32,7 @@ extern f32 fGpffff83b0;
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-extern void btlPanelStartEntry(s32 arg0, s32 arg1);
+extern void btlPanelStartEntry(s32 task, s32 text);
 extern void btlPanelMarkEntryStarted(s32 task);
 
 
@@ -46,8 +46,8 @@ extern u8 D_00626C30[];
 extern u8 D_00626500[];
 extern u8 D_006265B0[];
 
-extern s32 btlPacketBuildHitFlags(u8 *arg0);
-extern void btlUnitRotateTowardUnitPacketDestroy(void *arg0);
+extern s32 btlPacketBuildHitFlags(u8 *work);
+extern void btlUnitRotateTowardUnitPacketDestroy(void *work);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern u8 D_00625240[];
 extern f32 fGpffff8184;
@@ -58,7 +58,7 @@ typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
 extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
-extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
@@ -88,7 +88,7 @@ extern u8 D_006253B0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00201de0-00201f60 */
 
-extern void btlPacketHitStatusCheck(u8 *arg0);
+extern void btlPacketHitStatusCheck(u8 *work);
 extern s32 btlPacketBuildHitFlags(u8 *work);
 extern void btlSelectionFlushEntries();
 /* measured: caching D_00887300 in s0 reproduces retail's one-time

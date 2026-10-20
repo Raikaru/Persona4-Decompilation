@@ -146,17 +146,17 @@ typedef struct RwTexDictionary RwTexDictionary;
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32, s32);
 extern void FldNoiseEmitTagged(void);
-extern void func_003a2760(s32 arg0);
-extern void func_003e9390(s32 arg0);
+extern void func_003a2760(s32);
+extern void func_003e9390(s32);
 typedef struct RpMaterial *(*MaterialCallback)(struct RpMaterial *, void *);
 
-extern void func_003f3eb0(s32 arg0, s32 arg1);
+extern void func_003f3eb0(s32, s32);
 extern s32 FldFogUpdate(u8 *task);
 extern void (*jtbl_008873EC[])(void *);
 extern u64 iGpffffb8c8;
-extern void func_003e0f40(s32 arg0);
+extern void func_003e0f40(s32);
 extern struct RpMaterial *func_003c42b0(struct RpMaterial *material, RwTexture *texture);
 extern RwTexDictionary *func_003ef6d0(void);
 extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
@@ -165,11 +165,11 @@ extern void memset(void *dst, s32 value, s32 size);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 kwlnGetCamera(void);
-extern s16 mdlGetLayerAnimation(s32 arg0, s32 arg1);
-extern u8 *mdlGetMatrix(u32 arg0);
+extern s16 mdlGetLayerAnimation(s32 model, s32 layer);
+extern u8 *mdlGetMatrix(u32 model);
 extern f32 RwV3dNormalize(RainVector *dst, const RainVector *src);
-extern f32 sinf(f32 arg0);
-extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern f32 sinf(f32);
+extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count);
 extern u32 D_007EFA00[];
 extern u8 D_005F1D80[];
 extern u8 D_005F1D90[];
@@ -239,7 +239,7 @@ typedef struct {
    variation counter.  Inlined into every trigger arm of FldAmbientTrigger. */
 static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
 {
-    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
+    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
     extern s32 D_007F1760[];
     s32 *slot = &D_007F1760[id & 0x3FF];
 
@@ -260,7 +260,7 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
     extern s32 FldMoveAnimPrimary(s32 model);
     extern s32 FldMoveAnimSecondary(s32 model);
     extern u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *posA, const struct RwV3d *posB, f32 maxDist);
-    extern f32 mdlGetLayerWeight(s32 model, s32 arg1);
+    extern f32 mdlGetLayerWeight(s32 model, s32 layer);
     extern u8 *D_005F08B0[];
     s32 area;
     f32 *position;
@@ -858,8 +858,8 @@ s32 FldFogUpdate(u8 *task)
     extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
     extern u8 *PrimAllocQueueNode(void);
     extern void PrimAppendNode(u8 *, u8 *);
-    extern u8 *PrimQueueDrawPrimitive(void *task, s32 arg1, void *arg2, s32 arg3);
-    extern void FldRainRenderStateReset(u8 *task, u8 *arg1);
+    extern u8 *PrimQueueDrawPrimitive(void *task, s32 primitive, void *vertices, s32 count);
+    extern void FldRainRenderStateReset(u8 *task, u8 *work);
     extern u8 D_005F1D10[];
     extern u8 D_00794930[];
     u8 *work;

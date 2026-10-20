@@ -61,7 +61,7 @@ extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
 extern P4_95730_Vec3 D_0060A0D0;
@@ -134,34 +134,34 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     scrStartProcedureChecked(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern void btlCameraSetUnitSlotValue(u8 *arg0, s32 arg1, s32 arg2);
-extern void btlTargetRemoveRadiusNode(u8 *arg0);
-extern int mdlHasActiveMode(void *arg0);
-extern void mdlSetLookAtActive(void *arg0);
-extern void mdlSetLookAtRequested(void *arg0);
-extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
-extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
-extern void mdlSetBattleStateFlag(void *arg0);
-extern void mdlSetAlphaBlend(void *arg0);
-extern void mdlSetLookStateWord(void *arg0, u16 arg1);
-extern u16 mdlGetLookStateWord(void *arg0);
+extern void btlCameraSetUnitSlotValue(u8 *unit, s32 slotIndex, s32 slotValue);
+extern void btlTargetRemoveRadiusNode(u8 *unit);
+extern int mdlHasActiveMode(void *model);
+extern void mdlSetLookAtActive(void *model);
+extern void mdlSetLookAtRequested(void *model);
+extern u8 *resrcMngFindResById(u8 *manager, u16 resourceId);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
+extern void mdlSetBattleStateFlag(void *model);
+extern void mdlSetAlphaBlend(void *model);
+extern void mdlSetLookStateWord(void *model, u16 value);
+extern u16 mdlGetLookStateWord(void *model);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
-extern void mdlClearBattleStateFlag(void *arg0);
-extern void mdlClearAlphaBlend(void *arg0);
-extern void mdlSetBlendWeight(void *arg0, float arg1);
-extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
+extern void mdlClearBattleStateFlag(void *model);
+extern void mdlClearAlphaBlend(void *model);
+extern void mdlSetBlendWeight(void *model, float value);
+extern void mdlLookAtSetupSetRange(void *model, float pitchLimit, float yawLimit);
 extern f32 DAT_0076112c;
 
 
-extern void btlUnitClearModelState(u8 *arg0, s32 arg1);
-extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
-extern u8 *btlSoundGetCharacterBank(u8 *arg0);
+extern void btlUnitClearModelState(u8 *unit, s32 mode);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
+extern u8 *btlSoundGetCharacterBank(u8 *unit);
 
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
@@ -175,7 +175,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void btlUnitUpdateLookAtTarget(u8 *arg0);
+extern void btlUnitUpdateLookAtTarget(u8 *unit);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
@@ -395,8 +395,8 @@ void btlUnitUpdateLookAtTarget(u8 *unit)
 {
     /* measured: repeated typed model/look-state addresses add saved registers;
      * the corresponding flags, handle, mode, id and data reloads stay byte-addressed. */
-    extern void mdlSetLookAtTargetPoint(void *unit, void *arg1);
-    extern s32 mdlComputeIndexedAttachMatrix(void *unit, s32 arg1, void *arg2);
+    extern void mdlSetLookAtTargetPoint(void *unit, void *target);
+    extern s32 mdlComputeIndexedAttachMatrix(void *unit, s32 index, void *destination);
     extern f32 DAT_007613f8;
     extern u8 *btlUnitFindById(s32 unit);
     P4_95730_Vec3 lookPoint;
