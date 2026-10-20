@@ -6,6 +6,7 @@
 #include "btl_effect_internal.h"
 #include "mdl_effect_internal.h"
 #include "type.h"
+#include "member_access.h"
 #include "btl_shuffle_state_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_shuffle_draw_internal.h"
@@ -13,6 +14,7 @@
 #include "sdk_snd_internal.h"
 #include "ed_staff_internal.h"
 #include "datPersona_internal.h"
+#include "datUnit_internal.h"
 extern void (*jtbl_008873EC[])(void *);
 extern void (*D_008873ec[])(s32);
 void btlShuffleDrawViewRequestStep(u8 *drawWork, u8 input, u8 green, u8 blue);
@@ -115,6 +117,7 @@ u32 btlShuffleRosterRequestResult(u8 *drawWork)
     return ((BtlShuffleRosterWork *)p)->result;
 }
 
+/* Draw the active card set in red while preserving the surrounding alpha-test states. */
 // FUN_00383C40
 void btlShuffleDrawCardSet(u8 *drawWork)
 {
@@ -148,10 +151,11 @@ void btlShuffleDrawCardSet(u8 *drawWork)
 }
 
 /* Pulse the opacity of the queued glow cards unless the sequence disables highlights. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 374..374); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00383D70
 void btlShuffleDrawGlowCards(u8 *drawWork)
 {
+    BtlShuffleGlow *stateFields;
     extern f32 sinf(f32 angle);
     extern f32 iGpffff81e0;
     extern f32 fGpffff8198;
@@ -165,6 +169,7 @@ void btlShuffleDrawGlowCards(u8 *drawWork)
     f32 alpha;
 
     state = drawWork + 0x28;
+    stateFields = (BtlShuffleGlow *)(state);
     base = ((BtlShuffleDrawViewWork *)drawWork)->context;
     flags = base + 0x1F1D0;
     if ((*(u16 *)flags & 2) != 0 ||
@@ -186,7 +191,7 @@ void btlShuffleDrawGlowCards(u8 *drawWork)
     colors[3] = (u8)alpha;
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
-    for (i = 0; i < *(s32 *)(state + 0x14); i++) {
+    for (i = 0; i < stateFields->count; i++) {
         btlShuffleDrawCardSprites(base, ((BtlShuffleGlow *)state)->cards[i], 0,
                       colors, 0);
     }
@@ -195,10 +200,11 @@ void btlShuffleDrawGlowCards(u8 *drawWork)
 }
 
 /* Fade grouped card frames and draw the two boundary strips for the current group. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 2325..2498); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00383F80
 void btlShuffleDrawFrameFade(u8 *drawWork)
 {
+    BtlShuffleAnimation *stateFields;
     extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern s32 btlShuffleDrawTableLookup(s32 cardCount, s32 pattern);
     typedef struct {
@@ -234,27 +240,28 @@ void btlShuffleDrawFrameFade(u8 *drawWork)
     s32 groupIndex;
 
     state = drawWork + 0x20;
+    stateFields = (BtlShuffleAnimation *)(state);
     ctx = ((BtlShuffleDrawViewWork *)drawWork)->context;
     info = ctx + 0x1F1D0;
     flags = ((BtlShuffleAnimation *)state)->flags;
     if (!(flags & 1)) {
         scale = btlShuffleCalcWave((f32)(u32)((BtlShuffleAnimation *)state)->frame, 0.0f, 10.0f, 1);
         alpha = 255.0f * scale;
-        if (++*(u16 *)(state + 2) >= 0xA) {
+        if (++stateFields->frame >= 0xA) {
             ((BtlShuffleAnimation *)state)->flags = ((BtlShuffleAnimation *)state)->flags | 1;
-            *(u16 *)(state + 2) = 0;
+            stateFields->frame = 0;
         }
     } else if (flags & 2) {
         scale = 1.0f - btlShuffleCalcWave((f32)(u32)((BtlShuffleAnimation *)state)->frame, 0.0f, 10.0f, 1);
         alpha = 255.0f * scale;
-        if (++*(u16 *)(state + 2) >= 0xA) {
+        if (++stateFields->frame >= 0xA) {
             ((BtlShuffleDrawViewWork *)drawWork)->flags = ((BtlShuffleDrawViewWork *)drawWork)->flags & 0xFFDF;
         }
     } else {
         scale = 1.0f;
         alpha = 0xFF;
     }
-    groupIndex = *(u16 *)(info + 4);
+    groupIndex = ((BtlShuffleSequence *)(info))->choice;
     groupIndex = (groupIndex < 3) ? groupIndex : 2;
     groupCount = ((BtlShuffleContext *)ctx)->cardCount;
     stride = (groupCount < 6) ? groupCount * 2 : groupCount;
@@ -527,10 +534,11 @@ void btlShuffleDrawCueBanner(u8 *drawWork)
  * (including black), and reuse the finished trail extent for the base quads.
  * Native b210 O2: 4752/4752 bytes, all 47 relocations resolved; no zero tail.
  * See docs/probe_archive/Shuffle_side_quads_00385970_20260930.md. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 555..3507); retain only the failing byte-base accesses. */
+/* measured: typed opacity-array indexing/cursors change two instructions; MEMBER_OFFSET keeps the original left-associated byte addition. */
 // FUN_00385970
 void btlShuffleDrawSideQuads(u8 *drawWork)
 {
+    BtlShuffleAnimation *stateFields;
     extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY, f32 angle, s16 pivotX, s16 pivotY);
@@ -552,20 +560,21 @@ void btlShuffleDrawSideQuads(u8 *drawWork)
     Vec2f position;
     base = ((BtlShuffleDrawViewWork *)drawWork)->context;
     state = drawWork + 4;
+    stateFields = (BtlShuffleAnimation *)(state);
     spriteResource = ((BtlShuffleContext *)base)->spriteResource;
     if ((((BtlShuffleAnimation *)state)->flags & 1) == 0) {
         quadTransition = 1.0f - btlShuffleCalcWave((f32)((BtlShuffleAnimation *)state)->frame, 10.0f, 21.0f, 2);
-        cornerTransition = 1.0f - btlShuffleCalcWave((f32)*(u16 *)(state + 2), 19.0f, 21.0f, 2);
+        cornerTransition = 1.0f - btlShuffleCalcWave((f32)stateFields->frame, 19.0f, 21.0f, 2);
         quadExtent = 0.0f;
         trailExpansion = 0.0f;
-        particleOpacity = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 21.0f, 25.0f, 1);
+        particleOpacity = btlShuffleCalcWave((f32)stateFields->frame, 21.0f, 25.0f, 1);
         {
             u16 next;
-            next = ++*(u16 *)(state + 2);
+            next = ++stateFields->frame;
             if ((next & 0xFFFF) < 0x20) {
             } else {
                 ((BtlShuffleAnimation *)state)->flags = ((BtlShuffleAnimation *)state)->flags | 1;
-                *(u16 *)(state + 2) = 0;
+                stateFields->frame = 0;
             }
         }
     } else if ((((BtlShuffleAnimation *)state)->flags & 4) != 0) {
@@ -576,12 +585,12 @@ void btlShuffleDrawSideQuads(u8 *drawWork)
         particleOpacity = 1.0f;
         {
             u16 next;
-            next = ++*(u16 *)(state + 2);
+            next = ++stateFields->frame;
             if ((next & 0xFFFF) < 0xA) {
             } else {
                 ((BtlShuffleAnimation *)state)->flags = ((BtlShuffleAnimation *)state)->flags & 0xFFFB;
                 ((BtlShuffleAnimation *)state)->flags = ((BtlShuffleAnimation *)state)->flags | 8;
-                *(u16 *)(state + 2) = 0;
+                stateFields->frame = 0;
             }
         }
     } else if ((((BtlShuffleAnimation *)state)->flags & 8) != 0) {
@@ -592,25 +601,25 @@ void btlShuffleDrawSideQuads(u8 *drawWork)
         particleOpacity = 1.0f;
         {
             u16 next;
-            next = ++*(u16 *)(state + 2);
+            next = ++stateFields->frame;
             if ((next & 0xFFFF) < 5) {
             } else {
-                *(u16 *)(state + 2) = 0;
+                stateFields->frame = 0;
             }
         }
     } else if ((((BtlShuffleAnimation *)state)->flags & 2) != 0) {
         quadTransition = btlShuffleCalcWave((f32)((BtlShuffleAnimation *)state)->frame, 4.0f, 10.0f, 2);
-        cornerTransition = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 6.0f, 2);
+        cornerTransition = btlShuffleCalcWave((f32)stateFields->frame, 0.0f, 6.0f, 2);
         quadExtent = 0.0f;
         trailExpansion = 0.0f;
-        particleOpacity = 1.0f - btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 0.0f, 1);
+        particleOpacity = 1.0f - btlShuffleCalcWave((f32)stateFields->frame, 0.0f, 0.0f, 1);
         {
             u16 next;
-            next = ++*(u16 *)(state + 2);
+            next = ++stateFields->frame;
             if ((next & 0xFFFF) < 0xA) {
             } else {
                 ((BtlShuffleDrawViewWork *)drawWork)->flags = ((BtlShuffleDrawViewWork *)drawWork)->flags & 0xFFFE;
-                *(u16 *)(state + 2) = 0;
+                stateFields->frame = 0;
             }
         }
     } else {
@@ -623,7 +632,7 @@ void btlShuffleDrawSideQuads(u8 *drawWork)
 
     if ((((BtlShuffleAnimation *)state)->flags & 0x10) != 0) {
         if (((BtlShuffleAnimation *)state)->desaturation < 0x1E) {
-            *(u16 *)(state + 6) = ((BtlShuffleAnimation *)state)->desaturation + 1;
+            stateFields->desaturation = ((BtlShuffleAnimation *)state)->desaturation + 1;
         }
     }
     desaturation = btlShuffleCalcWave((f32)((BtlShuffleAnimation *)state)->desaturation, 0.0f, 30.0f, 0);
@@ -758,19 +767,19 @@ void btlShuffleDrawSideQuads(u8 *drawWork)
             f32 pulse;
             f32 alpha;
             phaseOffset = ((BtlShuffleParticlePoint *)(D_0064ED30 + particleIndex * 12))->phase;
-            wave = sinf((fGpffff81e0 * (phaseOffset * 10.0f + (f32)*(u16 *)(state + 4))) / 10.0f);
+            wave = sinf((fGpffff81e0 * (phaseOffset * 10.0f + (f32)stateFields->pulse)) / 10.0f);
             pulse = (wave + 1.0f) / 2.0f;
-            if (*(u16 *)(state + 4) == 0) {
+            if (stateFields->pulse == 0) {
                 f32 randomValue;
                 f32 randomAlpha;
                 randomValue = (f32)(u32)(RpRandom() & 0xFFF);
                 randomAlpha = randomValue / 4096.0f * 224.0f + 32.0f;
-                *(u8 *)(state + 8 + particleIndex) = (u8)randomAlpha;
+                *(u8 *)(state + MEMBER_OFFSET(BtlShuffleAnimation, opacity) + particleIndex) = (u8)randomAlpha;
             }
             /* Snapshot coordinates after the animation and random callbacks. */
             position.x = ((BtlShuffleParticlePoint *)(D_0064ED30 + particleIndex * 12))->x;
             position.y = ((BtlShuffleParticlePoint *)(D_0064ED30 + particleIndex * 12))->y;
-            alpha = particleOpacity * ((f32)*(u8 *)(state + 8 + particleIndex) * pulse);
+            alpha = particleOpacity * ((f32)*(u8 *)(state + MEMBER_OFFSET(BtlShuffleAnimation, opacity) + particleIndex) * pulse);
             sdkSpriteDrawOnceScaled(spriteResource, 0x3B, position.x, position.y, 0.0f, 0xFF, particleGreen, 0xFF, (u8)alpha, 0x1000, 0x1000, 0.0f, 0, 0);
         }
     }
@@ -789,10 +798,11 @@ static inline f32 btlShuffleScaleRadius(f32 value, f32 scale)
  * bytes. Entry/exit radius values and sprite opacity keep distinct
  * lifetimes; the final alpha is converted once at the byte provider.
  * See docs/probe_archive/Menu_shuffle_batch_20260923.md. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 382..1663); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00386C00
 void btlShuffleDrawMenuBatch(u8 *drawWork)
 {
+    BtlShuffleAnimation *stateFields;
     extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY, f32 angle, s16 pivotX, s16 pivotY);
@@ -815,25 +825,26 @@ void btlShuffleDrawMenuBatch(u8 *drawWork)
     f32 innerAngle;
     f32 cornerDisplacement;
     state = drawWork + 4;
+    stateFields = (BtlShuffleAnimation *)(state);
     base = ((BtlShuffleDrawViewWork *)drawWork)->context;
     resource = ((BtlShuffleContext *)base)->spriteResource;
     if ((((BtlShuffleAnimation *)state)->flags & 1) == 0) {
         f32 overshootWeight;
         outerRadius = btlShuffleCalcWave((f32)((BtlShuffleAnimation *)state)->frame, 10.0f, 20.0f, 2);
-        innerRadius = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 10.0f, 20.0f, 2);
-        cornerScale = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 19.0f, 21.0f, 2);
+        innerRadius = btlShuffleCalcWave((f32)stateFields->frame, 10.0f, 20.0f, 2);
+        cornerScale = btlShuffleCalcWave((f32)stateFields->frame, 19.0f, 21.0f, 2);
         overshootWeight = fGpffff83d0;
-        cornerScale = fGpffff812c * btlShuffleCalcWave((f32)*(u16 *)(state + 2), 14.0f, 19.0f, 1)
+        cornerScale = fGpffff812c * btlShuffleCalcWave((f32)stateFields->frame, 14.0f, 19.0f, 1)
                   - overshootWeight * cornerScale;
-        particleOpacity = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 13.0f, 20.0f, 1);
+        particleOpacity = btlShuffleCalcWave((f32)stateFields->frame, 13.0f, 20.0f, 1);
         innerAngleScale = innerRadius;
         {
             u16 next;
-            next = ++*(u16 *)(state + 2);
+            next = ++stateFields->frame;
             if ((next & 0xFFFF) < 0x1C) {
             } else {
                 ((BtlShuffleAnimation *)state)->flags = ((BtlShuffleAnimation *)state)->flags | 1;
-                *(u16 *)(state + 2) = 0;
+                stateFields->frame = 0;
             }
         }
     } else if (((BtlShuffleAnimation *)state)->flags & 2) {
@@ -842,19 +853,19 @@ void btlShuffleDrawMenuBatch(u8 *drawWork)
         f32 t2;
         t0 = btlShuffleCalcWave((f32)((BtlShuffleAnimation *)state)->frame, 0.0f, 13.0f, 2);
         outerRadius = (0.0f + 1.0f) + 3.0f * t0;
-        t1 = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 13.0f, 2);
+        t1 = btlShuffleCalcWave((f32)stateFields->frame, 0.0f, 13.0f, 2);
         innerRadius = (0.0f + 1.0f) + 3.0f * t1;
-        t2 = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 2);
+        t2 = btlShuffleCalcWave((f32)stateFields->frame, 0.0f, 10.0f, 2);
         cornerScale = (0.0f + 1.0f) + 2.0f * t2;
-        particleOpacity = 1.0f - btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
+        particleOpacity = 1.0f - btlShuffleCalcWave((f32)stateFields->frame, 0.0f, 10.0f, 1);
         innerAngleScale = innerRadius;
         {
             u16 next;
-            next = ++*(u16 *)(state + 2);
+            next = ++stateFields->frame;
             if ((next & 0xFFFF) < 0x14) {
             } else {
                 ((BtlShuffleDrawViewWork *)drawWork)->flags = ((BtlShuffleDrawViewWork *)drawWork)->flags & 0xFFFD;
-                *(u16 *)(state + 2) = 0;
+                stateFields->frame = 0;
             }
         }
     } else {
@@ -902,7 +913,7 @@ void btlShuffleDrawMenuBatch(u8 *drawWork)
             f32 two;
             entry = D_0064EDF0 + i * 12;
             ff = ((BtlShuffleParticlePoint *)entry)->phase;
-            s = sinf((fGpffff81e0 * ((0.0f + (f32)*(u16 *)(state + 4)) + 60.0f * ff)) / 60.0f);
+            s = sinf((fGpffff81e0 * ((0.0f + (f32)stateFields->pulse) + 60.0f * ff)) / 60.0f);
             one = 1.0f;
             t = one + s;
             two = 2.0f;
@@ -919,10 +930,11 @@ void btlShuffleDrawMenuBatch(u8 *drawWork)
 }
 
 /* Dispatch background view components and fade the listed cards according to view flags. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 476..476); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_003874C0
 void btlShuffleDrawViewBackground(s32 drawWork, u8 *input)
 {
+    BtlShuffleDrawViewWork *inputFields = (BtlShuffleDrawViewWork *)(input);
     extern void btlShuffleDrawCardSet(u8 *drawWork);
     extern void btlShuffleDrawFrameFade(u8 *drawWork);
     extern void btlShuffleDrawGlowCards(u8 *drawWork);
@@ -943,44 +955,44 @@ void btlShuffleDrawViewBackground(s32 drawWork, u8 *input)
     if ((((BtlShuffleDrawViewWork *)input)->flags & 0x200) != 0) {
         base = ((BtlShuffleDrawViewWork *)input)->context;
         entry = input + 0x46;
-        value = *(u16 *)entry;
+        value = ((BtlShuffleFade *)(entry))->frame;
         if (value < 0x23) {
-            value = ++*(u16 *)entry;
+            value = ++((BtlShuffleFade *)(entry))->frame;
             ramp = (f32)(u16)value;
             alphaF = 255.0f *
                 btlShuffleCalcWave(ramp, 0.0f, 30.0f, 0);
             alpha = (u8)alphaF;
-            *(u8 *)(entry + 5) = alpha;
+            ((BtlShuffleFade *)(entry))->payload.color[3] = alpha;
         }
         RpSkyRenderStateSet(3, (void *)0x71801);
         RpSkyRenderStateSet(2, (void *)0x48);
         for (i = 0; i < ((BtlShuffleContext *)base)->fadeCardCount; i++) {
             btlShuffleDrawCardSprites(base,
-                          *(s32 *)(base + (i * 4) + 0x1F214),
+                          ((BtlShuffleContext *)(base))->fadeCards[i],
                           0, entry + 2, 1);
         }
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
     }
-    if ((*(u16 *)(input + 0x4C) & 0x10) != 0) {
+    if ((inputFields->flags & 0x10) != 0) {
         btlShuffleDrawCardSet(input);
     }
-    if ((*(u16 *)(input + 0x4C) & 0x20) != 0) {
+    if ((inputFields->flags & 0x20) != 0) {
         btlShuffleDrawFrameFade(input);
     }
-    if ((*(u16 *)(input + 0x4C) & 0x80) != 0) {
+    if ((inputFields->flags & 0x80) != 0) {
         btlShuffleDrawGlowCards(input);
     }
-    if ((*(u16 *)(input + 0x4C) & 0x40) != 0) {
+    if ((inputFields->flags & 0x40) != 0) {
         btlShuffleDrawPatternLineFade(input);
     }
-    if ((*(u16 *)(input + 0x4C) & 8) != 0) {
+    if ((inputFields->flags & 8) != 0) {
         btlShuffleDrawCueBanner(input);
     }
-    if ((*(u16 *)(input + 0x4C) & 1) != 0) {
+    if ((inputFields->flags & 1) != 0) {
         btlShuffleDrawSideQuads(input);
     }
-    if ((*(u16 *)(input + 0x4C) & 2) != 0) {
+    if ((inputFields->flags & 2) != 0) {
         btlShuffleDrawMenuBatch(input);
     }
 }
@@ -992,10 +1004,11 @@ static inline f32 btlShuffleQuarterTurnOffset(s32 index)
 }
 
 /* Draw the selected card and two rotating four-vertex reveal fans. */
-/* measured: typing revealCard changes the second masked draw reload schedule (normalized_diff 751); keep its byte-base loads. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00387750
 void btlShuffleDrawRevealFan(u8 *drawWork)
 {
+    BtlShuffleContext *baseFields;
     extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern f32 sinf(f32 angle);
     extern void mdlEffectEmitMaskedTagPair(void);
@@ -1017,25 +1030,26 @@ void btlShuffleDrawRevealFan(u8 *drawWork)
     BtlShufflePrimitiveDispatch *dispatch;
     s32 alpha;
     base = ((BtlShuffleDrawViewWork *)drawWork)->context;
+    baseFields = (BtlShuffleContext *)(base);
     state = drawWork + 0x46;
     view.depth = D_008872F8[0];
     view.recipZ = 1.0f / ((MdlEffectCamera *)kwlnGetCamera())->nearPlane;
-    *(u16 *)(state + 2) = (*(u16 *)(state + 2) + 1) % 10;
-    view.phase = (fGpffff82fc * (f32)*(u16 *)(state + 2)) / 10.0f;
-    if ((*(u16 *)(state + 4) & 1) == 0) {
-        blend0 = btlShuffleCalcWave((f32)*(u16 *)state, 0.0f, 15.0f, 0);
+    ((BtlShuffleFade *)(state))->payload.reveal.pulse = (((BtlShuffleFade *)(state))->payload.reveal.pulse + 1) % 10;
+    view.phase = (fGpffff82fc * (f32)((BtlShuffleFade *)(state))->payload.reveal.pulse) / 10.0f;
+    if ((((BtlShuffleFade *)(state))->payload.reveal.flags & 1) == 0) {
+        blend0 = btlShuffleCalcWave((f32)((BtlShuffleFade *)(state))->frame, 0.0f, 15.0f, 0);
         blend1 = 0.0f;
         {
-            if (++*(u16 *)state >= 0xF) {
-                *(u16 *)state = 0;
-                *(u16 *)(state + 4) = *(u16 *)(state + 4) | 1;
+            if (++((BtlShuffleFade *)(state))->frame >= 0xF) {
+                ((BtlShuffleFade *)(state))->frame = 0;
+                ((BtlShuffleFade *)(state))->payload.reveal.flags = ((BtlShuffleFade *)(state))->payload.reveal.flags | 1;
             }
         }
-    } else if (*(u16 *)(state + 4) & 2) {
-        blend0 = 1.0f - btlShuffleCalcWave((f32)*(u16 *)state, 0.0f, 28.0f, 0);
-        blend1 = btlShuffleCalcWave((f32)*(u16 *)state, 0.0f, 30.0f, 0);
+    } else if (((BtlShuffleFade *)(state))->payload.reveal.flags & 2) {
+        blend0 = 1.0f - btlShuffleCalcWave((f32)((BtlShuffleFade *)(state))->frame, 0.0f, 28.0f, 0);
+        blend1 = btlShuffleCalcWave((f32)((BtlShuffleFade *)(state))->frame, 0.0f, 30.0f, 0);
         {
-            if (++*(u16 *)state >= 0x23) {
+            if (++((BtlShuffleFade *)(state))->frame >= 0x23) {
                 ((BtlShuffleDrawViewWork *)drawWork)->flags = ((BtlShuffleDrawViewWork *)drawWork)->flags & 0xFBFF;
                 btlShuffleDrawViewRequestWhiteStep(((BtlShuffleContext *)base)->viewTask);
             }
@@ -1048,7 +1062,7 @@ void btlShuffleDrawRevealFan(u8 *drawWork)
     colors[1] = 0;
     colors[2] = 0;
     colors[3] = (u8)(255.0f * (fGpffff82cc * blend0 + blend1));
-    btlShuffleDrawCardSprites(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
+    btlShuffleDrawCardSprites(base, ((BtlShuffleContext *)(base))->revealCard, 0, colors, 0);
     colors[0] = 0xFF;
     colors[1] = 0;
     colors[2] = 0;
@@ -1057,7 +1071,7 @@ void btlShuffleDrawRevealFan(u8 *drawWork)
     RpSkyRenderStateSet(3, (void *)0x31801);
     effMiscDrawScreenColor(colors, 0);
     colors[3] = 0xFF;
-    btlShuffleDrawCardSprites(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
+    btlShuffleDrawCardSprites(base, baseFields->revealCard, 0, colors, 0);
     mdlEffectEmitTagPair();
     RpSkyRenderStateSet(3, (void *)0x3F801);
     RpSkyRenderStateSet(2, (void *)0x48);
@@ -1264,7 +1278,7 @@ void btlShuffleDrawRoster(u8 *drawWork)
             u16 value;
 
             entry = (s32 *)((u8 *)&state[idx] + 0x4C);
-            id = *(u16 *)(*entry + 2);
+            id = ((DatPersonaRecord *)(*entry))->id;
             icon = datPersonaGetArcana(id);
             if (icon <= 0 || icon >= 0x20) {
                 kAssertFail(D_0064EEB0, 0x588);
@@ -1322,10 +1336,11 @@ void btlShuffleDrawRoster(u8 *drawWork)
 }
 
 /* Dispatch roster and reveal drawing and animate the pending color step. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 285..300); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_003889B0
 void btlShuffleDrawViewForeground(s32 drawWork, u8 *input)
 {
+    BtlShuffleDrawViewWork *inputFields = (BtlShuffleDrawViewWork *)(input);
     extern void btlShuffleDrawRevealFan(u8 *drawWork);
     extern void btlShuffleDrawRoster(u8 *drawWork);
     extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
@@ -1340,10 +1355,10 @@ void btlShuffleDrawViewForeground(s32 drawWork, u8 *input)
     if ((((BtlShuffleDrawViewWork *)input)->flags & 0x400) != 0) {
         btlShuffleDrawRevealFan(input);
     }
-    if ((*(u16 *)(input + 0x4C) & 4) != 0) {
+    if ((inputFields->flags & 4) != 0) {
         btlShuffleDrawRoster(input);
     }
-    if ((*(u16 *)(input + 0x4C) & 0x100) != 0) {
+    if ((inputFields->flags & 0x100) != 0) {
         counter = (u16 *)(input + 0x40);
         colors[0] = ((BtlShuffleDrawViewWork *)input)->stepColor[0];
         colors[1] = ((BtlShuffleDrawViewWork *)input)->stepColor[1];
@@ -1355,8 +1370,8 @@ void btlShuffleDrawViewForeground(s32 drawWork, u8 *input)
         effMiscDrawScreenColor(colors, 1);
         ticks = ++*counter;
         if (ticks >= 0x1E) {
-            *(u16 *)(input + 0x4C) =
-                *(u16 *)(input + 0x4C) & 0xFEFF;
+            ((BtlShuffleDrawViewWork *)(input))->flags =
+                ((BtlShuffleDrawViewWork *)(input))->flags & 0xFEFF;
         }
     }
 }
@@ -2125,10 +2140,11 @@ static inline void btlShuffleSetRingVertex(BtlShuffleRingVertex *vertex,
 #pragma opt_loop_invariants off
 /* Native b210 O2: 1204/1216 bytes, 19 resolved relocations, 12 zero tail bytes. */
 /* Build and draw two vertices for each of sixty-five ring samples. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 823..994); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038A480
 void btlShuffleDrawRing(u8 *drawWork)
 {
+    BtlShuffleRing *drawWorkFields = (BtlShuffleRing *)(drawWork);
     extern BtlShuffleMatrix *func_003e0f80(void);
     extern BtlShuffleMatrix *RwMatrixRotate(BtlShuffleMatrix *, const BtlShuffleVec3 *, f32, BtlShuffleCombine);
     extern BtlShuffleVec3 *func_003e42a0(BtlShuffleVec3 *, const BtlShuffleVec3 *, const BtlShuffleMatrix *);
@@ -2155,7 +2171,7 @@ void btlShuffleDrawRing(u8 *drawWork)
     axis.x = 0.0f;
     axis.y = 0.0f;
     axis.z = 1.0f;
-    blend = *(f32 *)(drawWork + 0x1C);
+    blend = ((BtlShuffleRing *)(drawWork))->scaleY.value;
     nearRadius = ((BtlShuffleRing *)drawWork)->nearRadius.value;
     farRadius = ((BtlShuffleRing *)drawWork)->farRadius.value;
     displacement = (1.0f - blend * blend) * (farRadius * blend - nearRadius * blend);
@@ -2169,24 +2185,24 @@ void btlShuffleDrawRing(u8 *drawWork)
         negativeSine = sinf(angle);
         angle = cosf(angle);
         negativeSine = -negativeSine;
-        position.x = negativeSine * *(f32 *)(drawWork + 0x18);
-        position.y = angle * *(f32 *)(drawWork + 0x1C);
+        position.x = negativeSine * ((BtlShuffleRing *)(drawWork))->scaleX.value;
+        position.y = angle * drawWorkFields->scaleY.value;
         position.z = 0.0f;
         func_003e42a0(&position, &position, matrix);
         btlShuffleSetRingVertex(&vertices[count++],
-            (0.0f + *(f32 *)(drawWork + 0x10)) + position.x * ((BtlShuffleRing *)drawWork)->farRadius.value,
-            (0.0f + *(f32 *)(drawWork + 0x14)) + position.y * ((BtlShuffleRing *)drawWork)->farRadius.value,
-            depth, reciprocalZ, *(u8 *)(drawWork + 0x20), *(u8 *)(drawWork + 0x21),
-            *(u8 *)(drawWork + 0x22), *(u8 *)(drawWork + 0x23));
-        position.x = negativeSine * *(f32 *)(drawWork + 0x18);
-        position.y = angle * *(f32 *)(drawWork + 0x1C);
+            (0.0f + ((BtlShuffleRing *)(drawWork))->centerX.value) + position.x * ((BtlShuffleRing *)drawWork)->farRadius.value,
+            (0.0f + ((BtlShuffleRing *)(drawWork))->centerY.value) + position.y * ((BtlShuffleRing *)drawWork)->farRadius.value,
+            depth, reciprocalZ, ((BtlShuffleRing *)(drawWork))->color[0], ((BtlShuffleRing *)(drawWork))->color[1],
+            ((BtlShuffleRing *)(drawWork))->color[2], ((BtlShuffleRing *)(drawWork))->color[3]);
+        position.x = negativeSine * drawWorkFields->scaleX.value;
+        position.y = angle * drawWorkFields->scaleY.value;
         position.z = 0.0f;
         func_003e42a0(&position, &position, matrix);
         btlShuffleSetRingVertex(&vertices[count++],
-            (0.0f + *(f32 *)(drawWork + 0x10)) + position.x * ((BtlShuffleRing *)drawWork)->nearRadius.value,
-            ((0.0f + *(f32 *)(drawWork + 0x14)) + position.y * ((BtlShuffleRing *)drawWork)->nearRadius.value) - displacement,
-            depth, reciprocalZ, *(u8 *)(drawWork + 0x20), *(u8 *)(drawWork + 0x21),
-            *(u8 *)(drawWork + 0x22), *(u8 *)(drawWork + 0x23));
+            (0.0f + drawWorkFields->centerX.value) + position.x * ((BtlShuffleRing *)drawWork)->nearRadius.value,
+            ((0.0f + drawWorkFields->centerY.value) + position.y * ((BtlShuffleRing *)drawWork)->nearRadius.value) - displacement,
+            depth, reciprocalZ, drawWorkFields->color[0], drawWorkFields->color[1],
+            drawWorkFields->color[2], drawWorkFields->color[3]);
     }
     if (count <= 130) {
     } else {
@@ -2281,10 +2297,11 @@ typedef struct BtlShuffleRevealWeight {
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
 /* Animate five paired reveal bands and their center fill for the current pattern. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 963..963); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038ACD0
 void btlShuffleDrawRevealBands(u8 *drawWork)
 {
+    BtlShuffleCounter *stateFields;
     extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
     extern f32 fGpffff83a4;
     extern u8 D_0064F090[];
@@ -2310,6 +2327,7 @@ void btlShuffleDrawRevealBands(u8 *drawWork)
     f32 distance;
 
     state = drawWork + 0x1B4;
+    stateFields = (BtlShuffleCounter *)(state);
     type = ((BtlShuffleContext *)((BtlShuffleCardWork *)drawWork)->context)->pattern;
     switch (type) {
     case 3:
@@ -2334,7 +2352,7 @@ void btlShuffleDrawRevealBands(u8 *drawWork)
         tail = btlShuffleCalcWave(elapsed, 0.25f * (f32)span, (f32)span, 1);
         counter = ++((BtlShuffleCounter *)state)->frame;
         if (counter >= span) {
-            *(u16 *)(state + 2) |= 1;
+            stateFields->flags |= 1;
             ((BtlShuffleCounter *)state)->frame = 0;
         }
     } else if (flags & 2) {
@@ -2552,10 +2570,11 @@ void btlShuffleDrawDetailSprites(u8 *drawWork, s32 input, const Vec2f *offset)
  * for the second strip. The detail renderer consumes the same two-float point.
  * See docs/probe_archive/First_party_field_menu_shuffle_20260923.md. */
 /* Animate detail bars and their separately timed sprite-group entrance and exit. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 1190..1245); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038BAB0
 void btlShuffleDrawDetailBars(u8 *drawWork)
 {
+    BtlShuffleDetail *stateFields;
     extern f32 btlShuffleCalcWave(f32, f32, f32, s32);
     extern f32 fGpffff83a8;
     extern f32 fGpffff83ac;
@@ -2579,6 +2598,7 @@ void btlShuffleDrawDetailBars(u8 *drawWork)
     Vec2f point;
 
     state = drawWork + 0x190;
+    stateFields = (BtlShuffleDetail *)(state);
     flags = ((BtlShuffleCardWork *)drawWork)->detailFlags;
     if (!(flags & 1)) {
         mainFactor = btlShuffleCalcWave((f32)(u32)((BtlShuffleDetail *)state)->frame, 0.0f, 8.0f, 2);
@@ -2604,19 +2624,19 @@ void btlShuffleDrawDetailBars(u8 *drawWork)
     if (flags & 0x10) {
         if (!(flags & 8)) {
             detailEnter = btlShuffleCalcWave((f32)(u32)((BtlShuffleDetail *)state)->elapsed, 0.0f, 5.0f, 1);
-            if (++*(u16 *)(state + 2) >= 5) {
-                *(u16 *)(state + 4) |= 8;
-                *(u16 *)(state + 2) = 0;
+            if (++stateFields->elapsed >= 5) {
+                stateFields->flags |= 8;
+                stateFields->elapsed = 0;
             }
         } else {
             detailEnter = 1.0f;
         }
-        if (*(u16 *)(state + 4) & 0x20) {
+        if (stateFields->flags & 0x20) {
             detailExit = btlShuffleCalcWave((f32)(u32)((BtlShuffleDetail *)state)->elapsed, 0.0f, 5.0f, 1);
-            if (++*(u16 *)(state + 2) >= 5) {
-                *(u16 *)(state + 4) &= 0xFFDF;
-                *(u16 *)(state + 4) &= 0xFFEF;
-                *(u16 *)(state + 2) = 0;
+            if (++stateFields->elapsed >= 5) {
+                stateFields->flags &= 0xFFDF;
+                stateFields->flags &= 0xFFEF;
+                stateFields->elapsed = 0;
             }
         } else {
             detailExit = 0.0f;
@@ -2632,7 +2652,7 @@ void btlShuffleDrawDetailBars(u8 *drawWork)
         horizontalOffset = 0.0f;
         verticalOffset = horizontalOffset;
     }
-    if (*(u16 *)(state + 4) & 2) {
+    if (stateFields->flags & 2) {
         verticalTravel = 130.0f;
         detailX = 170.0f;
         detailY = -100.0f;
@@ -2655,14 +2675,14 @@ void btlShuffleDrawDetailBars(u8 *drawWork)
     shiftedY = fGpffff83b8 + ((f32)553 + verticalOffset);
     point.y = shiftedY + displacement;
     shdDrawRotatedRect(point, 0.0f, 0xFF, 430.0f, 21.0f, fGpffff83b0, 1);
-    if (*(u16 *)(state + 4) & 2) {
+    if (stateFields->flags & 2) {
         point.x = centerX;
         shiftedY = fGpffff83b8 + (524.0f + verticalOffset);
         point.y = shiftedY + displacement;
         shdDrawRotatedRect(point, 0.0f, 0xFF, 430.0f, 21.0f, fGpffff83b0, 1);
     }
     {
-        s32 mode = *(s32 *)(state + 8);
+        s32 mode = stateFields->kind;
         if (mode) {
             f32 t = (1.0f - detailEnter) - detailExit;
             point.x = detailX * t;
@@ -2681,10 +2701,12 @@ void btlShuffleDrawDetailBars(u8 *drawWork)
  * values preserve the two independently scaled sprite coordinates. */
 /* Native b210 O2: 1640/1648 bytes, 12 resolved relocations, eight zero tail bytes. */
 /* Animate count entrance, exit and changes, latching the new count midway. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 1174..1287); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038C100
 void btlShuffleDrawCountTransition(u8 *drawWork)
 {
+    BtlShuffleCount *stateFields;
+    BtlShuffleSequence *infoFields;
     extern f32 btlShuffleCalcWave(f32, f32, f32, s32);
     u8 *ctx;
     u8 *state;
@@ -2704,12 +2726,14 @@ void btlShuffleDrawCountTransition(u8 *drawWork)
     u16 step;
 
     state = drawWork + 0x1A4;
+    stateFields = (BtlShuffleCount *)(state);
     ctx = ((BtlShuffleCardWork *)drawWork)->context;
     handle = ((BtlShuffleContext *)ctx)->spriteResource;
     if (((BtlShuffleContext *)ctx)->pattern != 3) {
         kAssertFail(D_0064F0E0, 0x44D);
     }
     info = ctx + 0x1F1D0;
+    infoFields = (BtlShuffleSequence *)(info);
     flags = ((BtlShuffleCounter *)state)->flags;
     if (!(flags & 1)) {
         scale = btlShuffleCalcWave((f32)(u32)((BtlShuffleCounter *)state)->frame, 4.0f, 8.0f, 0);
@@ -2717,7 +2741,7 @@ void btlShuffleDrawCountTransition(u8 *drawWork)
         alpha = (u8)(255.0f * btlShuffleCalcWave((f32)(u32)((BtlShuffleCounter *)state)->frame, 0.0f, 8.0f, 1));
         step = ++((BtlShuffleCounter *)state)->frame;
         if (step >= 8) {
-            *(u16 *)(state + 2) = *(u16 *)(state + 2) | 1;
+            ((BtlShuffleCount *)(state))->timing.flags = ((BtlShuffleCount *)(state))->timing.flags | 1;
             ((BtlShuffleCounter *)state)->frame = 0;
         }
     } else if (flags & 2) {
@@ -2736,29 +2760,29 @@ void btlShuffleDrawCountTransition(u8 *drawWork)
         alpha = (u8)255.0f;
         step = ++((BtlShuffleCounter *)state)->frame;
         if (step >= 8) {
-            *(u16 *)(state + 2) = *(u16 *)(state + 2) & 0xFFFB;
+            ((BtlShuffleCount *)(state))->timing.flags = ((BtlShuffleCount *)(state))->timing.flags & 0xFFFB;
             ((BtlShuffleCounter *)state)->frame = 0;
         } else if (((BtlShuffleCounter *)state)->frame == 4) {
-            *(u16 *)(state + 4) = *(u16 *)(info + 8);
+            ((BtlShuffleCount *)(state))->count = ((BtlShuffleSequence *)(info))->countHalves.low;
         }
     } else {
         scale = 1.0f;
         scaleY = scale;
         alpha = (u8)255.0f;
-        if (*(u16 *)(info + 8) != *(u16 *)(state + 4)) {
-            *(u16 *)(state + 2) = flags | 4;
+        if (((BtlShuffleSequence *)(info))->countHalves.low != ((BtlShuffleCount *)(state))->count) {
+            stateFields->timing.flags = flags | 4;
         }
     }
     sdkSpriteDrawOnceAt(handle, 0x2B, (f32)578, (f32)417, 0x8E, 0x31, 0, alpha);
     sdkSpriteDrawOnceAt(handle, 0x2A, (f32)543, 408.0f, 0x8E, 0x31, 0, alpha);
-    sdkSpriteDrawOnceAt(handle, *(u16 *)(info + 0xA) + 0x1F, (f32)559, 414.0f, 0x8E, 0x31, 0, alpha);
+    sdkSpriteDrawOnceAt(handle, ((BtlShuffleSequence *)(info))->countHalves.high + 0x1F, (f32)559, 414.0f, 0x8E, 0x31, 0, alpha);
     remainderX = 1.0f - scale;
     extentX = 29.0f;
     drawX = (f32)515 + (remainderX * extentX) / 2.0f;
     remainderY = 1.0f - scaleY;
     extentY = 26.0f;
     drawY = (f32)407 + (remainderY * extentY) / 2.0f;
-    sdkSpriteDrawOnceScaled(handle, (*(u16 *)(info + 0xA) + 0x2D) - *(u16 *)(state + 4), drawX, drawY, 0, 0, 0, 0, alpha, (u16)(4096.0f * scale), (u16)(4096.0f * scaleY), 0.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(handle, (infoFields->countHalves.high + 0x2D) - ((BtlShuffleCount *)(state))->count, drawX, drawY, 0, 0, 0, 0, alpha, (u16)(4096.0f * scale), (u16)(4096.0f * scaleY), 0.0f, 0, 0);
 }
 #pragma pop
 
@@ -2767,10 +2791,11 @@ void btlShuffleDrawCountTransition(u8 *drawWork)
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 /* Project each card, offset its screen position, and draw a fading colored copy. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 630..630); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038C770
 void btlShuffleDrawCardShadow(u8 *drawWork)
 {
+    BtlShuffleCounter *stateFields;
     extern void btlShuffleCalcScaleStep(u8 *screen, f32 depth, u8 *output);
     extern s32 btlShuffleCalcUpdateSpeed(u8 *point, u8 *screen);
     extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
@@ -2799,6 +2824,7 @@ void btlShuffleDrawCardShadow(u8 *drawWork)
         u16 next;
 
         state = drawWork + 0x1A0;
+    stateFields = (BtlShuffleCounter *)(state);
         base = ((BtlShuffleCardWork *)drawWork)->context;
         count = btlShuffleDrawTableLookup(((BtlShuffleContext *)base)->cardCount,
                               ((BtlShuffleContext *)base)->pattern);
@@ -2811,7 +2837,7 @@ void btlShuffleDrawCardShadow(u8 *drawWork)
             work.colors[3] = (u8)inAlpha;
             next = ++((BtlShuffleCounter *)state)->frame;
             if (next >= 0x14) {
-                *(u16 *)(state + 2) |= 1;
+                stateFields->flags |= 1;
                 ((BtlShuffleCounter *)state)->frame = 0;
             }
         } else if ((flags & 2) != 0) {
@@ -2967,27 +2993,29 @@ void btlShuffleDrawSelectionColumn(u8 *drawWork)
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 /* Dispatch enabled card-task foreground components after restoring render state. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 138..138); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038CD70
 void btlShuffleDrawCardForeground(u8 *drawWork, u8 *input)
 {
+    BtlShuffleCardWork *pFields;
     u8 *p;
 
     p = input;
+    pFields = (BtlShuffleCardWork *)(p);
     sdkRenderStateSetDefault();
-    if (*(u16 *)(p + 4) & 0x20) {
+    if (((BtlShuffleCardWork *)(p))->flags & 0x20) {
         btlShuffleDrawRevealBands(p);
     }
-    if (*(u16 *)(p + 4) & 1) {
+    if (pFields->flags & 1) {
         btlShuffleDrawDetailBars(p);
     }
-    if (*(u16 *)(p + 4) & 2) {
+    if (pFields->flags & 2) {
         btlShuffleDrawCountTransition(p);
     }
-    if (*(u16 *)(p + 4) & 4) {
+    if (pFields->flags & 4) {
         btlShuffleDrawCardShadow(p);
     }
-    if (*(u16 *)(p + 4) & 8) {
+    if (pFields->flags & 8) {
         btlShuffleDrawSelectionColumn(p);
     }
 }
@@ -3283,10 +3311,11 @@ typedef struct BtlShuffleEffects {
 } BtlShuffleEffects;
 
 /* Update reward effect transforms, expiring each of six timed handles after ninety frames. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 534..566); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038D330
 void btlShuffleUpdateRewardEffects(s32 *effectWork)
 {
+    BtlShuffleEffects *drawWorkFields;
     extern void mdlEffectDestroy(s32 drawWork, u8 *input);
     extern void mdlEffectAdvanceAndFlushWithTable(void *table, s32 effect);
     extern u8 D_005DC824[];
@@ -3297,91 +3326,92 @@ void btlShuffleUpdateRewardEffects(s32 *effectWork)
     s32 handle;
 
     drawWork = (u8 *)effectWork;
-    if (*(u16 *)(drawWork + 4) & 1) {
+    drawWorkFields = (BtlShuffleEffects *)(drawWork);
+    if (((BtlShuffleEffects *)(drawWork))->flags & 1) {
         timer = (u8 *)(drawWork + 8);
         if (++((BtlShuffleEffects *)drawWork)->timed[0].frame >= 0x5A) {
-            handle = *(s32 *)(drawWork + 0xC);
+            handle = ((BtlShuffleEffects *)(drawWork))->timed[0].handle;
             if (handle != 0) {
                 mdlEffectDestroy(handle, timer);
-                *(s32 *)(drawWork + 0xC) = 0;
+                drawWorkFields->timed[0].handle = 0;
             }
-            *(u16 *)(drawWork + 4) = *(u16 *)(drawWork + 4) & 0xFFFE;
+            drawWorkFields->flags = drawWorkFields->flags & 0xFFFE;
         } else {
             mdlEffectAdvanceAndFlushWithTable(D_005DC974, ((BtlShuffleTimedEffect *)timer)->handle);
         }
     }
-    if (*(u16 *)(drawWork + 4) & 2) {
+    if (drawWorkFields->flags & 2) {
         timer = (u8 *)(drawWork + 0x10);
         if (++((BtlShuffleEffects *)drawWork)->timed[1].frame >= 0x5A) {
-            handle = *(s32 *)(drawWork + 0x14);
+            handle = ((BtlShuffleEffects *)(drawWork))->timed[1].handle;
             if (handle != 0) {
                 mdlEffectDestroy(handle, timer);
-                *(s32 *)(drawWork + 0x14) = 0;
+                drawWorkFields->timed[1].handle = 0;
             }
-            *(u16 *)(drawWork + 4) = *(u16 *)(drawWork + 4) & 0xFFFD;
+            ((BtlShuffleEffects *)(drawWork))->flags = ((BtlShuffleEffects *)(drawWork))->flags & 0xFFFD;
         } else {
             mdlEffectAdvanceAndFlushWithTable(D_005DC974, ((BtlShuffleTimedEffect *)timer)->handle);
         }
     }
-    if (*(u16 *)(drawWork + 4) & 4) {
+    if (drawWorkFields->flags & 4) {
         timer = (u8 *)(drawWork + 0x18);
         if (++((BtlShuffleEffects *)drawWork)->timed[2].frame >= 0x5A) {
-            handle = *(s32 *)(drawWork + 0x1C);
+            handle = ((BtlShuffleEffects *)(drawWork))->timed[2].handle;
             if (handle != 0) {
                 mdlEffectDestroy(handle, timer);
-                *(s32 *)(drawWork + 0x1C) = 0;
+                drawWorkFields->timed[2].handle = 0;
             }
-            *(u16 *)(drawWork + 4) = *(u16 *)(drawWork + 4) & 0xFFFB;
+            drawWorkFields->flags = drawWorkFields->flags & 0xFFFB;
         } else {
             mdlEffectAdvanceAndFlushWithTable(D_005DC974, ((BtlShuffleTimedEffect *)timer)->handle);
         }
     }
-    if (*(u16 *)(drawWork + 4) & 8) {
+    if (drawWorkFields->flags & 8) {
         timer = (u8 *)(drawWork + 0x20);
         if (++((BtlShuffleEffects *)drawWork)->timed[3].frame >= 0x5A) {
-            handle = *(s32 *)(drawWork + 0x24);
+            handle = ((BtlShuffleEffects *)(drawWork))->timed[3].handle;
             if (handle != 0) {
                 mdlEffectDestroy(handle, timer);
-                *(s32 *)(drawWork + 0x24) = 0;
+                drawWorkFields->timed[3].handle = 0;
             }
-            *(u16 *)(drawWork + 4) = *(u16 *)(drawWork + 4) & 0xFFF7;
+            ((BtlShuffleEffects *)(drawWork))->flags = ((BtlShuffleEffects *)(drawWork))->flags & 0xFFF7;
         } else {
             mdlEffectAdvanceAndFlushWithTable(D_005DC974, ((BtlShuffleTimedEffect *)timer)->handle);
         }
     }
-    if (*(u16 *)(drawWork + 4) & 0x10) {
+    if (drawWorkFields->flags & 0x10) {
         timer = (u8 *)(drawWork + 0x28);
         if (++((BtlShuffleEffects *)drawWork)->timed[4].frame >= 0x5A) {
-            handle = *(s32 *)(drawWork + 0x2C);
+            handle = ((BtlShuffleEffects *)(drawWork))->timed[4].handle;
             if (handle != 0) {
                 mdlEffectDestroy(handle, timer);
-                *(s32 *)(drawWork + 0x2C) = 0;
+                drawWorkFields->timed[4].handle = 0;
             }
-            *(u16 *)(drawWork + 4) = *(u16 *)(drawWork + 4) & 0xFFEF;
+            ((BtlShuffleEffects *)(drawWork))->flags = ((BtlShuffleEffects *)(drawWork))->flags & 0xFFEF;
         } else {
             mdlEffectAdvanceAndFlushWithTable(D_005DC974, ((BtlShuffleTimedEffect *)timer)->handle);
         }
     }
-    if (*(u16 *)(drawWork + 4) & 0x20) {
+    if (drawWorkFields->flags & 0x20) {
         timer = (u8 *)(drawWork + 0x30);
         if (++((BtlShuffleEffects *)drawWork)->timed[5].frame >= 0x5A) {
-            handle = *(s32 *)(drawWork + 0x34);
+            handle = ((BtlShuffleEffects *)(drawWork))->timed[5].handle;
             if (handle != 0) {
                 mdlEffectDestroy(handle, timer);
-                *(s32 *)(drawWork + 0x34) = 0;
+                drawWorkFields->timed[5].handle = 0;
             }
-            *(u16 *)(drawWork + 4) = *(u16 *)(drawWork + 4) & 0xFFDF;
+            ((BtlShuffleEffects *)(drawWork))->flags = ((BtlShuffleEffects *)(drawWork))->flags & 0xFFDF;
         } else {
             mdlEffectAdvanceAndFlushWithTable(D_005DC974, ((BtlShuffleTimedEffect *)timer)->handle);
         }
     }
-    if (*(u16 *)(drawWork + 4) & 0x40) {
+    if (drawWorkFields->flags & 0x40) {
         mdlEffectAdvanceAndFlushWithTable(D_005DC9C8, ((BtlShuffleEffects *)drawWork)->handle3C);
     }
-    if (*(u16 *)(drawWork + 4) & 0x80) {
+    if (drawWorkFields->flags & 0x80) {
         mdlEffectAdvanceAndFlushWithTable(D_005DC9C8, ((BtlShuffleEffects *)drawWork)->handle44);
     }
-    if (*(u16 *)(drawWork + 4) & 0x100) {
+    if (drawWorkFields->flags & 0x100) {
         mdlEffectAdvanceAndFlushWithTable(D_005DC824, ((BtlShuffleEffects *)drawWork)->handle4C);
     }
 }
