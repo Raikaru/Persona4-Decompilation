@@ -1,6 +1,7 @@
 /* Source unit: src/Script/scrScriptProcess_0029d900.c */
 #include "type.h"
 #include "scr_internal.h"
+#include "scr_data_internal.h"
 #include "sdk_task_registration.h"
 #include "kwln_task_internal.h"
 #include "member_access.h"
@@ -13,56 +14,14 @@ typedef struct KwlnTask KwlnTask;
 
 void* dds3GetProcessWorkData(KwlnTask* task);
 void dds3SetProcessWorkData(KwlnTask* task, void* workData);
-void scrReleaseScript(ScrData* scr);
+void scrReleaseScript(ScrScriptWork* scr);
 void scrDestroyTask(u8 *sdkTaskBytes);
 extern s32 scrRunTaskStep(u8 *task);
 extern void scrPoolFree(void* pool, void* payload);
 
-typedef enum
-{
-    SCR_CONTENT_TYPE_PROCEDURE,
-    SCR_CONTENT_TYPE_LABEL,
-    SCR_CONTENT_TYPE_INSTR,
-    SCR_CONTENT_TYPE_MSG,
-    SCR_CONTENT_TYPE_STRINGS,
-    SCR_CONTENT_TYPE_MAX
-} ScrContentType;
-
-// 16 bytes
-typedef struct
-{
-    u32 contentType;  // 0x00. See enum 'ScrContentType'
-    u32 unk_04;
-    s32 elementCount; // 0x08
-    u32 offset;       // 0x0c
-} ScrContentEntry;
-
-// 112 bytes
-typedef struct ScrHeader
-{
-    s32 unk_00;                                    // 0x00
-    u32 scrSize;                                   // 0x04
-    char magic[4];                                 // 0x08. "FLW0"
-    u32 unk_0c;
-    u32 totalEntries;                              // 0x10
-    s16 localIntNum;                               // 0x14
-    s16 localFloatNum;                             // 0x16
-    s32 unk_18;                                    // 0x18
-    s32 unk_1c;                                    // 0x1c
-    ScrContentEntry entries[SCR_CONTENT_TYPE_MAX]; // 0x20
-} ScrHeader;
-
-// 32 bytes. Label or procedure (this name is horrible)
-typedef struct
-{
-    char name[24]; // 0x00
-    u32 addr;      // 0x18
-    s32 unk_1c;    // 0x1c
-} ScrLblPrcd;
 
 typedef struct ScrPool ScrPool;
 typedef struct ScrPoolElem ScrPoolElem;
-typedef struct ScrScriptWork ScrScriptWork;
 
 struct ScrPoolElem
 {
@@ -78,30 +37,6 @@ struct ScrPool
     u8* freeList;   // 0x0C
 };
 
-struct ScrScriptWork
-{
-    ScrLblPrcd label; // 0x00
-    u8 stackTypes[0x30]; // 0x20
-    u32 stackValues[0x30]; // 0x50
-    u8* header;       // 0x110
-    u8* entries;      // 0x114
-    u8* procedure;    // 0x118
-    u8* unk_11C;      // 0x11C
-    u8* unk_120;      // 0x120
-    u8* unk_124;      // 0x124
-    u8* unk_128;      // 0x128
-    s32 index;        // 0x12C
-    s32 soundHandle;  // 0x130
-    s32 unk_134;      // 0x134
-    s32 unk_138;      // 0x138
-    u8* textBuf;      // 0x13C
-    u8* msgA;         // 0x140
-    u8* msgB;         // 0x144
-    s32 taskId;       // 0x148
-    ScrScriptWork* prev; // 0x14C
-    ScrScriptWork* next; // 0x150
-    u8* proc;         // 0x154
-};
 
 typedef struct ScrTaskData
 {
@@ -524,9 +459,9 @@ s32 scrRunTaskStep(u8 *task)
 void scrDestroyTask(u8 *sdkTaskBytes)
 {
     KwlnTask* scrTask = (KwlnTask*)sdkTaskBytes;
-    ScrData* scr;
+    ScrScriptWork* scr;
 
-    scr = (ScrData*)dds3GetProcessWorkData(scrTask);
+    scr = (ScrScriptWork*)dds3GetProcessWorkData(scrTask);
     if (scr != NULL)
     {
         scrReleaseScript(scr);

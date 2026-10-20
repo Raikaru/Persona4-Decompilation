@@ -47,19 +47,21 @@ s32 MT_Scene_AllResFlagSet(void)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 // Intent: Prepare each model in scene resource list 3 that is not yet prepared and mark it prepared; returns 1 only when every model is ready [inferred]
-/* measured: typing the prepared-flag read/store loses MATCH; the model handle and resource link stay typed. */
+/* A typed alias for the prepared-flag store preserves the byte cursor's model-load lifetime. */
 // FUN_0015F660
 s32 mtSceneResListPrepareAll(void)
 {
     u8 *work;
     s32 result;
+    ResrcRecord *resource;
 
     work = MT_Scene_GetResListHead(3);
     result = 1;
     while (work != NULL) {
-        if (!(*(s32 *)(work + 0x28) & 0x10000000)) {
+        resource = (ResrcRecord *)work;
+        if (!(((ResrcRecord *)work)->unk28 & 0x10000000)) {
             if (mdlPrepareModel((s32)((ResrcRecord *)work)->modelHandle164) != 0) {
-                *(s32 *)(work + 0x28) |= 0x10000000;
+                resource->unk28 |= 0x10000000;
             }
             result = 0;
         }

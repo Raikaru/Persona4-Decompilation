@@ -1,3 +1,4 @@
+#include "field_scene_internal.h"
 #include "Kosaka/k_field_state_internal.h"
 #include "kwln_task_internal.h"
 #include "btl_target_state_packet_internal.h"
@@ -153,8 +154,8 @@ typedef struct FldHeadingTurnWork {
     s32 frame, frameCount;
 } FldHeadingTurnWork;
 
-/* measured: typing the remaining turn-state and step accesses individually loses MATCH; keep their byte
- * aliases around the angle calculations. */
+/* Choose the shorter wrapped heading arc and start a stepped turn for angles exceeding 45 degrees.
+ * measured: a typed turn-work alias preserves the angle calculations and whole-file MATCH. */
 // FUN_00175F70
 s32 FldEvent_BeginHeadingTurn(const u8 *task, const FieldMatrix_0017 *matrix, f32 startHeading, f32 endHeading)
 {
@@ -168,8 +169,10 @@ s32 FldEvent_BeginHeadingTurn(const u8 *task, const FieldMatrix_0017 *matrix, f3
     f32 second;
     f32 direct;
     f32 wrapped;
+    FldHeadingTurnWork *turn;
     work = ((KwlnTask *)task)->work;
-    state = *(s32 *)(work + 0x40);
+    turn = (FldHeadingTurnWork *)work;
+    state = turn->state;
     if (state == 1)
         return 0;
     first = startHeading;
@@ -207,16 +210,16 @@ s32 FldEvent_BeginHeadingTurn(const u8 *task, const FieldMatrix_0017 *matrix, f3
         descending = 1;
     }
     if (fabsf(direct) < fabsf(wrapped)) {
-        *(f32 *)(work + 0x54) = direct;
+        turn->headingStep = direct;
         if (descending == 1)
-            *(f32 *)(work + 0x54) = *(f32 *)(work + 0x54) * -1.0f;
+            turn->headingStep = turn->headingStep * -1.0f;
     } else {
         ((FldHeadingTurnWork *)work)->headingStep = wrapped;
         if (descending == 0)
-            *(f32 *)(work + 0x54) = *(f32 *)(work + 0x54) * -1.0f;
+            turn->headingStep = turn->headingStep * -1.0f;
     }
-    if (!(fabsf(*(f32 *)(work + 0x54)) <= 45.0f)) {
-        count = (s32)fabsf(*(f32 *)(work + 0x54)) / 30;
+    if (!(fabsf(turn->headingStep) <= 45.0f)) {
+        count = (s32)fabsf(turn->headingStep) / 30;
         if (count <= 0)
             count = 1;
         ((FldHeadingTurnWork *)work)->frameCount = count;
@@ -337,8 +340,7 @@ s32 K_Cmd_CALL_FIELD(void)
     return 1;
 }
 
-/* The cached-selection halfword at +10 is inside SceneContext's reserved span; its owning member is not
- * established, so retain the narrow store. */
+/* Clear the cached field selection before requesting the script-selected field again. */
 // FUN_00176500
 s32 K_Cmd_CALL_FIELD_RESET(void)
 {
@@ -348,7 +350,7 @@ s32 K_Cmd_CALL_FIELD_RESET(void)
         return 0;
     }
     sdlSchedulerEnable();
-    *(s16 *)(iGpffff9db0 + 0x10) = -1;
+    ((FieldSceneState *)iGpffff9db0)->primaryRoom = -1;
     memset(fieldParameters, 0, 0x1C);
     fieldParameters[0] = (s16)scrGetParamInt(0);
     fieldParameters[1] = (s16)scrGetParamInt(1);
