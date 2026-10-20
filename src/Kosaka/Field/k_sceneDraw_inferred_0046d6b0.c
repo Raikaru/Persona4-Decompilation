@@ -418,9 +418,9 @@ void kAssertFailAt(const void *msg, const void *file, u32 line) {}
  * enabled window. The function owns its nine-entry state switch table.
  * MWCCPS2 b210: 4244 executable bytes, followed by twelve zero bytes. */
 #pragma push
-/* measured: sdkWindowUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: removing propagation differs by 178 bytes; a shared typed work alias with both toggles removed still differs by 485 bytes. */
 #pragma opt_propagation off
-/* measured: sdkWindowUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: removing lifetime optimization differs by 307 bytes; retain both settings after the work-alias probe. */
 #pragma opt_lifetimes on
 /* Advance window border/fill animation and submit the five quads when enabled. */
 /* measured: typing the remaining alpha, border-progress, and dimension reads individually loses MATCH;
@@ -702,7 +702,7 @@ test7k:
 /* Keep the table address cached without changing the free callback type. */
 // FUN_0046E7F0
 #pragma push
-/* measured: sdkWindowDestroy MATCH -> MISMATCH without this pragma. */
+/* measured: propagation-on differs by 53 bytes; a MEMBER task-work load still differs by 54 bytes. */
 #pragma opt_propagation off
 void sdkWindowDestroy(u8 *task)
 {
@@ -719,7 +719,7 @@ void sdkWindowDestroy(u8 *task)
  * MWCCPS2 b210 -O2: 444 executable bytes / 448-byte retail window.
  * The buffer calculation uses rectangle x/y, not width/height. */
 #pragma push
-/* measured: sdkWindowCreate MATCH -> MISMATCH without this pragma. */
+/* measured: propagation-on differs by 235 bytes; direct allocator-table calls still differ by 289 bytes. */
 #pragma opt_propagation off
 /* Allocate a window task and its capture buffer from the requested rectangle and colors. */
 // FUN_0046E850
@@ -1018,7 +1018,7 @@ void sdkLboxDrawEntries(u8 *task) {
  * Native rectangle/color construction and scoped loop-invariant extraction
  * reproduce 3928 executable bytes plus the eight-byte retail zero tail. */
 #pragma push
-/* measured: sdkLboxUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: hoisting-off differs by 2267 bytes; explicit color-conversion hoisting still differs by 2283 bytes. */
 #pragma opt_loop_invariants on
 /* Advance list-box creation, drawing, selection, and value editing; dispatch the selected entry callback. */
 // FUN_0046F2B0
