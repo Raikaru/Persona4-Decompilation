@@ -59,8 +59,8 @@ void *sdkClumpCollectAtomic(void *atomic, void *clump) {
     geometryAddress = (s32)((struct RpAtomic *)atomic)->geometry;
     if (geometryAddress != 0) {
         func_003c21e0((void *)geometryAddress, sdkClumpCollectMaterialFlags, materialInfo);
-        /* measured: typing category swaps the two callback argument loads (8 differing bytes). */
-        sdkClumpAddAtomicCategory(clump, *(u32 *)(materialInfo + 0), atomic, ((SdkClumpMaterialInfo *)materialInfo)->hasSpecialData);
+        /* measured: value-member typing swaps two argument loads (8 bytes); a named field address preserves the unsigned word alias. */
+        sdkClumpAddAtomicCategory(clump, *(u32 *)&((SdkClumpMaterialInfo *)materialInfo)->category, atomic, ((SdkClumpMaterialInfo *)materialInfo)->hasSpecialData);
     }
     return atomic;
 }

@@ -668,7 +668,7 @@ void shdDrawRadialFan(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
     center_a = ((u8 *)&centerColor)[3];
     center_b = ((u8 *)&centerColor)[2];
     center_g = ((u8 *)&centerColor)[1];
-    origin_y = *(f32 *)((u8 *)&position + 4);
+    origin_y = ((Vec2f *)&position)->y;
     origin_x = position.x;
     far_depth = D_008872F8[0];
     reciprocal = 1.0f / ((MdlEffectCamera *)(u8 *)(u32)kwlnGetCamera())->nearPlane;

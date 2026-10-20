@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2544 of 13102 symbols carry a recovered name.
+// 2562 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -10,8 +10,8 @@ func_001002c0 = 0x001002C0; // type:func
 kwlnHandleTimerInterrupt = 0x00100310; // type:func
 func_00100350 = 0x00100350; // type:func
 func_00100670 = 0x00100670; // type:func
-func_00100dd0 = 0x00100DD0; // type:func
-func_00100e00 = 0x00100E00; // type:func
+kwlnPrintStreamError = 0x00100DD0; // type:func
+kwlnLogStreamError = 0x00100E00; // type:func
 func_00100e30 = 0x00100E30; // type:func
 func_00100e60 = 0x00100E60; // type:func
 func_00101270 = 0x00101270; // type:func
@@ -3978,23 +3978,23 @@ func_0027b620 = 0x0027B620; // type:func
 func_0027b690 = 0x0027B690; // type:func
 itfMesWindowGetProcedureParam = 0x0027B6E0; // type:func
 itfMesWindowSetProcedureParam = 0x0027B750; // type:func
-func_0027b7c0 = 0x0027B7C0; // type:func
-func_0027b830 = 0x0027B830; // type:func
-func_0027b8a0 = 0x0027B8A0; // type:func
-func_0027b910 = 0x0027B910; // type:func
-func_0027b980 = 0x0027B980; // type:func
-func_0027b9e0 = 0x0027B9E0; // type:func
-func_0027ba40 = 0x0027BA40; // type:func
-func_0027baa0 = 0x0027BAA0; // type:func
+itfMesWindowSendRecordBound = 0x0027B7C0; // type:func
+itfMesWindowSendClear = 0x0027B830; // type:func
+itfMesWindowSendStyledParameter = 0x0027B8A0; // type:func
+itfMesWindowSendDrawLists = 0x0027B910; // type:func
+itfMesWindowSendOpeningStep = 0x0027B980; // type:func
+itfMesWindowSendActiveStep = 0x0027B9E0; // type:func
+itfMesWindowSendClosingStep = 0x0027BA40; // type:func
+itfMesWindowSendRelease = 0x0027BAA0; // type:func
 func_0027bb00 = 0x0027BB00; // type:func
-func_0027bb60 = 0x0027BB60; // type:func
-func_0027bbc0 = 0x0027BBC0; // type:func
-func_0027bc20 = 0x0027BC20; // type:func
-func_0027bc80 = 0x0027BC80; // type:func
-func_0027bce0 = 0x0027BCE0; // type:func
-func_0027bd40 = 0x0027BD40; // type:func
-func_0027bda0 = 0x0027BDA0; // type:func
-func_0027be00 = 0x0027BE00; // type:func
+itfMesWindowSendChoiceMeasure = 0x0027BB60; // type:func
+itfMesWindowSendChoiceBuilt = 0x0027BBC0; // type:func
+itfMesWindowSendChoiceOpeningStep = 0x0027BC20; // type:func
+itfMesWindowSendChoiceActiveStep = 0x0027BC80; // type:func
+itfMesWindowSendChoiceClosingStep = 0x0027BCE0; // type:func
+itfMesWindowSendRowTransitionEnter = 0x0027BD40; // type:func
+itfMesWindowSendRowTransitionActive = 0x0027BDA0; // type:func
+itfMesWindowSendRowTransitionLeave = 0x0027BE00; // type:func
 func_0027be60 = 0x0027BE60; // type:func
 func_0027be90 = 0x0027BE90; // type:func
 itfMsgWindowCanDraw = 0x0027BEC0; // type:func

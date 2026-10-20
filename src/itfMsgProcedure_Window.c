@@ -1858,6 +1858,7 @@ s32 msgWinDrawSelection(s32 window, u32 operation)
 }
 #pragma pop
 
+/* Store a value through the optional first-word slot in the window userdata. */
 // FUN_002818A0
 void msgWinStoreSlot(s32 window, s32 value) {
     s32 *slot;

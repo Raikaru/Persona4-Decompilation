@@ -163,8 +163,8 @@ extern void func_004d8c78(void);
 extern void func_004f2798(s32, s32);
 extern void func_004f34b0(s32);
 extern void func_004f5bf0(s32, s32, s32);
-extern void func_00100dd0(void);
-extern void func_00100e00(void);
+extern void kwlnPrintStreamError(void);
+extern void kwlnLogStreamError(void);
 extern void scrReleaseActiveHandle(void);
 extern u8 D_00559840[];
 extern u8 D_005C4EC0[];
@@ -246,7 +246,7 @@ void kwlnInitSubsystems(void)
     func_004cd470(one, one);
     func_004ca720();
     func_004d8c78();
-    func_004cc200((s32)&func_00100e00, 0);
+    func_004cc200((s32)&kwlnLogStreamError, 0);
     func_00418b18((s32)&kwlnEnableInterrupts);
     D_00764D00[0] = 6;
     D_00764D04[0] = 4;
@@ -281,7 +281,7 @@ void kwlnInitSubsystems(void)
     D_00764D38[0] = one;
     D_00764D3C[0] = 0;
     mwPlyInitSfdFx(&D_00764D30[0]);
-    func_004cc200((s32)&func_00100dd0, 0);
+    func_004cc200((s32)&kwlnPrintStreamError, 0);
     sdkSndSetSlotTrack(0, 1);
     sdkSndSetSlotTrack(1, 2);
     mdlResetModelTable((s32)&D_005DC878);

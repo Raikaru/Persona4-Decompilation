@@ -29,12 +29,12 @@ extern s8 D_0063BAB0[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027a6f0-0027a970 */
 
 extern void datSetIndexedWord(s32 index, s32 value);
-extern s32 func_0027b980(s32 handle);
-extern s32 func_0027b9e0(s32 handle);
-extern s32 func_0027ba40(s32 handle);
-extern s32 func_0027bc20(s32 handle);
-extern s32 func_0027bc80(s32 handle);
-extern s32 func_0027bce0(s32 handle);
+extern s32 itfMesWindowSendOpeningStep(s32 handle);
+extern s32 itfMesWindowSendActiveStep(s32 handle);
+extern s32 itfMesWindowSendClosingStep(s32 handle);
+extern s32 itfMesWindowSendChoiceOpeningStep(s32 handle);
+extern s32 itfMesWindowSendChoiceActiveStep(s32 handle);
+extern s32 itfMesWindowSendChoiceClosingStep(s32 handle);
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */
 /* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
@@ -73,12 +73,12 @@ void itfMesWindowFreeSlots(s32 window) {
 // FUN_0027A780
 void itfMesWindowStepState(u8 *window)
 {
-    extern s32 func_0027b980(s32 handle);
-    extern s32 func_0027b9e0(s32 handle);
-    extern s32 func_0027ba40(s32 handle);
-    extern s32 func_0027bc20(s32 handle);
-    extern s32 func_0027bc80(s32 handle);
-    extern s32 func_0027bce0(s32 handle);
+    extern s32 itfMesWindowSendOpeningStep(s32 handle);
+    extern s32 itfMesWindowSendActiveStep(s32 handle);
+    extern s32 itfMesWindowSendClosingStep(s32 handle);
+    extern s32 itfMesWindowSendChoiceOpeningStep(s32 handle);
+    extern s32 itfMesWindowSendChoiceActiveStep(s32 handle);
+    extern s32 itfMesWindowSendChoiceClosingStep(s32 handle);
     extern void frFontRunCommand(s32 stream, s32 mode, s32 command);
     s32 value;
     u8 *node;
@@ -99,7 +99,7 @@ node_done:
     switch (((ItfMesWindow *)window)->flags.value & 0x300)
     {
     case 0x100:
-        if (func_0027b980(value) != 0) {
+        if (itfMesWindowSendOpeningStep(value) != 0) {
             s16 index;
             s32 count;
             u8 *table;
@@ -118,26 +118,26 @@ node_done:
         }
         break;
     case 0x200:
-        func_0027b9e0(value);
+        itfMesWindowSendActiveStep(value);
         break;
     case 0x300:
-        if (func_0027ba40(value) != 0)
+        if (itfMesWindowSendClosingStep(value) != 0)
             ((ItfMesWindow *)window)->flags.value &= ~0x300;
         break;
     }
     switch (((ItfMesWindow *)window)->flags.value & 0xC00)
     {
     case 0x400:
-        if (func_0027bc20(value) != 0) {
+        if (itfMesWindowSendChoiceOpeningStep(value) != 0) {
             ((ItfMesWindow *)window)->flags.value = ((ItfMesWindow *)window)->flags.value & ~0xC07;
             ((ItfMesWindow *)window)->flags.value |= 0x803;
         }
         break;
     case 0x800:
-        func_0027bc80(value);
+        itfMesWindowSendChoiceActiveStep(value);
         break;
     case 0xC00:
-        if (func_0027bce0(value) != 0)
+        if (itfMesWindowSendChoiceClosingStep(value) != 0)
             ((ItfMesWindow *)window)->flags.value &= ~0xC00;
         break;
     }
