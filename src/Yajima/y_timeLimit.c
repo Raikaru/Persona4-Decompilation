@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 /* Source unit: src/Yajima/y_timeLimit_002a2340.c */
 #include "include_asm.h"
 #include "type.h"
@@ -125,14 +126,8 @@ yTimeTrackAppendKey(f32 rate,s32 track,s32 startX,s32 startY,s32 endX,s32 endY,
 
 
 
-static inline f32 yTimeBlend(f32 addend, f32 delta, f32 factor)
-{
-  return addend + delta * factor;
-}
-static inline int yTimeLess(int lhs, int rhs)
-{
-  return lhs < rhs;
-}
+
+
 extern f32 sinf(f32 fparg0);
 extern f32 fGpffff8110;
 extern f32 fGpffff8094;
@@ -165,7 +160,7 @@ u32 yTimeTrackAdvance(s32 track)
   entry = &state->entries[state->current];
   delay = entry->delay;
   frame = state->frame;
-  if (!yTimeLess(frame, delay)) {
+  if (!((frame) < (delay))) {
     endFrame = (s32)delay + (s32)entry->duration;
     if (frame < endFrame) {
       if (frame == endFrame + -1) {
@@ -177,10 +172,10 @@ u32 yTimeTrackAdvance(s32 track)
                 (f32)(s32)entry->duration;
         start = entry->stepX;
         blend = sinf(angle);
-        entry->startX = yTimeBlend(start, entry->endX - start, blend) + 0.0f;
+        entry->startX = operandOrderAddProduct(start, entry->endX - start, blend) + 0.0f;
         start = entry->stepY;
         blend = sinf(angle);
-        entry->startY = yTimeBlend(start, entry->endY - start, blend) + 0.0f;
+        entry->startY = operandOrderAddProduct(start, entry->endY - start, blend) + 0.0f;
       }
       else {
         entry->startX = entry->startX + entry->stepX;
@@ -191,10 +186,10 @@ u32 yTimeTrackAdvance(s32 track)
         }
       }
     }
-    else if (!yTimeLess(frame, entry->hold + endFrame + -1)) {
+    else if (!((frame) < (entry->hold + endFrame + -1))) {
       endFrame = state->current + 1;
       state->current = endFrame;
-      if (!yTimeLess(endFrame, state->count)) {
+      if (!((endFrame) < (state->count))) {
         state->frame = 0;
         state->timer = 0;
         state->current = state->current + -1;

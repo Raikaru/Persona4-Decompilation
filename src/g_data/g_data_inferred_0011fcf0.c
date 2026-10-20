@@ -28,10 +28,7 @@ extern s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u8 *datPersonaDisplayName(s16 unitId);
 extern u8 D_005E4F70[];
-static inline s64 p4_0011_signext16(s16 arg0)
-{
-    return (s64)arg0;
-}
+
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -128,7 +125,7 @@ void datPanelDrawCompareIcon(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s3
                       (const char *)datPersonaDisplayName(((DatPanelEntry*)entry)->unit), 0, 0);
         return;
     }
-    if (p4_0011_signext16(itemId) == -1) {
+    if (((s64)(s16)(itemId)) == -1) {
         alpha = (0xFF - (opacity & 0xFF)) & 0xFF;
         sdkSpriteDrawOnceAux(0, resourceOrColor, 3, origin.x, origin.y, 0, alpha, depth, 1);
         return;

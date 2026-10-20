@@ -121,9 +121,9 @@ enum
 
 extern char D_0063E068[];  /* file name */
 extern char D_0063E080[];  /* generic stack assert message */
-extern char D_0063E0A0[];  /* PopInt invalid stack type */
-extern char D_0063E0D0[];  /* PopFloat invalid stack type (RET) */
-extern char D_0063E100[];  /* PopFloat invalid stack type (?) */
+extern char D_0063E0A0[];  /* scrPopInt invalid stack type */
+extern char D_0063E0D0[];  /* scrPopFloat invalid stack type (RET) */
+extern char D_0063E100[];  /* scrPopFloat invalid stack type (?) */
 extern char D_0063E130[];  /* PopLIX operand range message */
 extern char D_0063E160[];  /* Run abort message */
 extern char D_0063E190[];  /* Minus invalid stack type (RET) */
@@ -172,7 +172,8 @@ static s32 sOpLeftIVal;  // 007645e0
 /* ------------------------------------------------------------------ */
 /* Stack helpers                                                       */
 
-static inline void PushInt(ScrScriptWork* scr, s32 val)
+/* Push an integer value and its stack type after checking capacity. */
+static inline void scrPushInt(ScrScriptWork* scr, s32 val)
 {
     K_ASSERT_MSG(scr->sp < SCR_STACK_RET, 73, D_0063E080, scr->sp);
 
@@ -181,7 +182,8 @@ static inline void PushInt(ScrScriptWork* scr, s32 val)
     scr->sp++;
 }
 
-static inline void PushFloat(ScrScriptWork* scr, f32 val)
+/* Push a floating-point value and its stack type after checking capacity. */
+static inline void scrPushFloat(ScrScriptWork* scr, f32 val)
 {
     K_ASSERT_MSG(scr->sp < SCR_STACK_RET, 85, D_0063E080, scr->sp);
 
@@ -190,7 +192,8 @@ static inline void PushFloat(ScrScriptWork* scr, f32 val)
     scr->sp++;
 }
 
-static inline void PushString(ScrScriptWork* scr, char* str)
+/* Push a string pointer and its stack type after checking capacity. */
+static inline void scrPushString(ScrScriptWork* scr, char* str)
 {
     K_ASSERT_MSG(scr->sp < SCR_STACK_RET, 99, D_0063E080, scr->sp);
 
@@ -199,7 +202,8 @@ static inline void PushString(ScrScriptWork* scr, char* str)
     scr->sp++;
 }
 
-static inline void PushPC(ScrScriptWork* scr, s32 val)
+/* Push a return program counter with the address stack type. */
+static inline void scrPushPc(ScrScriptWork* scr, s32 val)
 {
     K_ASSERT_MSG(scr->sp < SCR_STACK_RET, 141, D_0063E080, scr->sp);
 
@@ -208,7 +212,8 @@ static inline void PushPC(ScrScriptWork* scr, s32 val)
     scr->sp++;
 }
 
-static inline s32 PopInt(ScrScriptWork* scr)
+/* Pop a script value, resolving variable references and converting floats to integers. */
+static inline s32 scrPopInt(ScrScriptWork* scr)
 {
     s32 sp;
     f32* f;
@@ -234,7 +239,8 @@ static inline s32 PopInt(ScrScriptWork* scr)
     return 0;
 }
 
-static inline f32 PopFloat(ScrScriptWork* scr)
+/* Pop a script value as a float; address values abort instead of converting. */
+static inline f32 scrPopFloat(ScrScriptWork* scr)
 {
     s32 sp;
     f32* f;
@@ -267,7 +273,7 @@ static inline f32 PopFloat(ScrScriptWork* scr)
 // FUN_0029A050. Push an immediate int value
 u32 scrOpPushImmInt(ScrScriptWork* scr)
 {
-    PushInt(scr, scr->instrContent[++scr->pc].iOperand);
+    scrPushInt(scr, scr->instrContent[++scr->pc].iOperand);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -276,7 +282,7 @@ u32 scrOpPushImmInt(ScrScriptWork* scr)
 // FUN_0029A100. Push an immediate short value
 u32 scrOpPushImmShort(ScrScriptWork* scr)
 {
-    PushInt(scr, scr->instrContent[scr->pc].opOperand16.sOperand);
+    scrPushInt(scr, scr->instrContent[scr->pc].opOperand16.sOperand);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -285,7 +291,7 @@ u32 scrOpPushImmShort(ScrScriptWork* scr)
 // FUN_0029A1B0. Push an immediate float value
 u32 scrOpPushImmFloat(ScrScriptWork* scr)
 {
-    PushFloat(scr, scr->instrContent[++scr->pc].fOperand);
+    scrPushFloat(scr, scr->instrContent[++scr->pc].fOperand);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -294,7 +300,7 @@ u32 scrOpPushImmFloat(ScrScriptWork* scr)
 // FUN_0029A260. Push an int from the VM memory
 u32 scrOpPushGlobalInt(ScrScriptWork* scr)
 {
-    PushInt(scr, D_00882AD0[scr->instrContent[scr->pc].opOperand16.sOperand]);
+    scrPushInt(scr, D_00882AD0[scr->instrContent[scr->pc].opOperand16.sOperand]);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -306,7 +312,7 @@ u32 scrOpPushGlobalFloat(ScrScriptWork* scr)
     f32* f;
 
     f = &D_008826D0[scr->instrContent[scr->pc].opOperand16.sOperand];
-    PushFloat(scr, *f);
+    scrPushFloat(scr, *f);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -315,7 +321,7 @@ u32 scrOpPushGlobalFloat(ScrScriptWork* scr)
 // FUN_0029A3E0. Push an int from the local ints
 u32 scrOpPushLocalInt(ScrScriptWork* scr)
 {
-    PushInt(scr, scr->localInt[scr->instrContent[scr->pc].opOperand16.sOperand]);
+    scrPushInt(scr, scr->localInt[scr->instrContent[scr->pc].opOperand16.sOperand]);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -324,7 +330,7 @@ u32 scrOpPushLocalInt(ScrScriptWork* scr)
 // FUN_0029A4A0. Push a float from the local floats
 u32 scrOpPushLocalFloat(ScrScriptWork* scr)
 {
-    PushFloat(scr, scr->localFloat[scr->instrContent[scr->pc].opOperand16.sOperand]);
+    scrPushFloat(scr, scr->localFloat[scr->instrContent[scr->pc].opOperand16.sOperand]);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -337,7 +343,7 @@ u32 scrOpPushString(ScrScriptWork* scr)
 
     str = scr->stringsContent;
     str += scr->instrContent[scr->pc].opOperand16.sOperand;
-    PushString(scr, str);
+    scrPushString(scr, str);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -360,7 +366,7 @@ u32 scrOpPushReturn(ScrScriptWork* scr)
 // FUN_0029A6A0. Pop an int into the VM memory
 u32 scrOpPopGlobalInt(ScrScriptWork* scr)
 {
-    D_00882AD0[scr->instrContent[scr->pc].opOperand16.sOperand] = PopInt(scr);
+    D_00882AD0[scr->instrContent[scr->pc].opOperand16.sOperand] = scrPopInt(scr);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -372,7 +378,7 @@ u32 scrOpPopGlobalFloat(ScrScriptWork* scr)
     f32 val;
     f32* f;
 
-    val = PopFloat(scr);
+    val = scrPopFloat(scr);
     f = &D_008826D0[scr->instrContent[scr->pc].opOperand16.sOperand];
     *f = val;
 
@@ -386,7 +392,7 @@ u32 scrOpPopLocalInt(ScrScriptWork* scr)
 {
     K_ASSERT_MSG(scr->instrContent[scr->pc].opOperand16.sOperand < scr->scrHeader->localIntNum, 336, D_0063E130, scr->instrContent[scr->pc].opOperand16.sOperand);
 
-    scr->localInt[scr->instrContent[scr->pc].opOperand16.sOperand] = PopInt(scr);
+    scr->localInt[scr->instrContent[scr->pc].opOperand16.sOperand] = scrPopInt(scr);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -395,7 +401,7 @@ u32 scrOpPopLocalInt(ScrScriptWork* scr)
 // FUN_0029AB80. Pop a float into a local float
 u32 scrOpPopLocalFloat(ScrScriptWork* scr)
 {
-    scr->localFloat[scr->instrContent[scr->pc].opOperand16.sOperand] = PopFloat(scr);
+    scr->localFloat[scr->instrContent[scr->pc].opOperand16.sOperand] = scrPopFloat(scr);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -484,7 +490,7 @@ u32 scrOpReturn(ScrScriptWork* scr)
 
     K_ASSERT(scr->valueTypes[scr->sp - 1] == SCR_STACK_TYPE_ADDR, 471);
 
-    scr->pc = PopInt(scr);
+    scr->pc = scrPopInt(scr);
     scr->pc++;
 
     return CODEFUNC_NEXTINSTR;
@@ -504,7 +510,7 @@ u32 scrOpJumpProcedure(ScrScriptWork* scr)
 // FUN_0029B060. Call a procedure + push PC
 u32 scrOpCallProcedure(ScrScriptWork* scr)
 {
-    PushPC(scr, scr->pc);
+    scrPushPc(scr, scr->pc);
     scr->pc = scr->proceduresContent[scr->instrContent[scr->pc].opOperand16.sOperand].addr;
 
     return CODEFUNC_NEXTINSTR;
@@ -548,8 +554,8 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
     if ((sOpLeftType == SCR_STACK_TYPE_INTEGER || sOpLeftType == 2) &&
        ((sOpRightType == SCR_STACK_TYPE_INTEGER || sOpRightType == 2)))
     {
-        sOpLeftIVal = PopInt(scr);
-        sOpRightIVal = PopInt(scr);
+        sOpLeftIVal = scrPopInt(scr);
+        sOpRightIVal = scrPopInt(scr);
 
         switch (type)
         {
@@ -649,14 +655,14 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
                 }
         }
 
-        PushInt(scr, sOpIRes);
+        scrPushInt(scr, sOpIRes);
         return;
     }
 
     // float
 
-    sOpLeftFVal = PopFloat(scr);
-    sOpRightFVal = PopFloat(scr);
+    sOpLeftFVal = scrPopFloat(scr);
+    sOpRightFVal = scrPopFloat(scr);
 
     switch (type)
     {
@@ -678,7 +684,7 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
                 sOpIRes = 0;
             }
 
-            PushInt(scr, sOpIRes);
+            scrPushInt(scr, sOpIRes);
             return;
 
         case SCR_OPERATION_AND:
@@ -691,7 +697,7 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
                 sOpIRes = 0;
             }
 
-            PushInt(scr, sOpIRes);
+            scrPushInt(scr, sOpIRes);
             return;
 
         case SCR_OPERATION_EQ:
@@ -704,7 +710,7 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
                 sOpIRes = 0;
             }
 
-            PushInt(scr, sOpIRes);
+            scrPushInt(scr, sOpIRes);
             return;
 
         case SCR_OPERATION_NEQ:
@@ -717,7 +723,7 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
                 sOpIRes = 0;
             }
 
-            PushInt(scr, sOpIRes);
+            scrPushInt(scr, sOpIRes);
             return;
 
         case SCR_OPERATION_S:
@@ -730,7 +736,7 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
                 sOpIRes = 0;
             }
 
-            PushInt(scr, sOpIRes);
+            scrPushInt(scr, sOpIRes);
             return;
 
         case SCR_OPERATION_L:
@@ -743,7 +749,7 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
                 sOpIRes = 0;
             }
 
-            PushInt(scr, sOpIRes);
+            scrPushInt(scr, sOpIRes);
             return;
 
         case SCR_OPERATION_SE:
@@ -756,7 +762,7 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
                 sOpIRes = 0;
             }
 
-            PushInt(scr, sOpIRes);
+            scrPushInt(scr, sOpIRes);
             return;
 
         case SCR_OPERATION_LE:
@@ -769,11 +775,11 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
                 sOpIRes = 0;
             }
 
-            PushInt(scr, sOpIRes);
+            scrPushInt(scr, sOpIRes);
             return;
     }
 
-    PushFloat(scr, sOpFRes);
+    scrPushFloat(scr, sOpFRes);
 }
 
 
@@ -879,14 +885,14 @@ u32 CodeFunc_Not(ScrScriptWork* scr)
     {
         case SCR_STACK_TYPE_INTEGER: // fallthrough
         case 2:
-            res = PopInt(scr) == 0;
-            PushInt(scr, res);
+            res = scrPopInt(scr) == 0;
+            scrPushInt(scr, res);
             break;
 
         case SCR_STACK_TYPE_FLOAT: // fallthrough
         case 3:
-            res = PopFloat(scr) == 0.0f;
-            PushInt(scr, res);
+            res = scrPopFloat(scr) == 0.0f;
+            scrPushInt(scr, res);
             break;
 
         case SCR_STACK_TYPE_ADDR:
@@ -1011,12 +1017,12 @@ u32 CodeFunc_JumpIfFalse(ScrScriptWork* scr)
     {
         case SCR_STACK_TYPE_INTEGER: // fallthrough
         case 2:
-            res = PopInt(scr);
+            res = scrPopInt(scr);
             break;
 
         case SCR_STACK_TYPE_FLOAT: // fallthrough
         case 3:
-            if (PopFloat(scr) == 0.0f)
+            if (scrPopFloat(scr) == 0.0f)
             {
                 res = 0;
             }

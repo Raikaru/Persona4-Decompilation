@@ -1,3 +1,5 @@
+#include "operand_order_internal.h"
+#include "byte_address_internal.h"
 #include "radar_menu_internal.h"
 #include "model_motion_internal.h"
 typedef signed __int128 s128;
@@ -246,29 +248,22 @@ typedef struct {
 
 typedef union { f32 value; u8 bytes[4]; } TitleDrawColor;
 typedef char TitleDrawColorSizeCheck[sizeof(TitleDrawColor) == 4 ? 1 : -1];
-static inline u8 *titleCopyValue(u8 *destination, const u8 *source)
-{
-    *(TitleDrawColor *)destination = *(const TitleDrawColor *)source;
-    return destination;
-}
 
-static inline void titleRectangle(u8 *color, f32 x, f32 y, f32 depth, f32 width, f32 height, s32 flags, void *parent)
-{
-    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue);
-    titleVisualSubmitRect(x, y, depth, color, width, height, flags, parent);
-}
-static inline f32 titleBlend(f32 delta, f32 blend, f32 value)
-{
-    return value + delta * blend;
-}
 
+extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue);
+
+
+
+/* Blend an unsigned palette channel toward its target and narrow to one byte. */
 static inline u8 titlePaletteChannel(u32 value, u32 target, f32 blend)
 {
-    return (u8)titleBlend((f32)(target - value), blend, (f32)value);
+    return (u8)operandOrderProductAddend((f32)(target - value), blend, (f32)value);
 }
 
 typedef struct { u32 words[6]; } TitlePalette;
 typedef char TitlePaletteSizeCheck[sizeof(TitlePalette) == 24 ? 1 : -1];
+/* Copy the six palette words in pairs into a separate working palette. */
+/* measured: a plain aggregate assignment at each of the five sites changes titleDrawTaskView code generation. */
 static inline void titlePaletteCopy(TitlePalette *destination, const TitlePalette *source)
 {
     const s32 *src = (const s32 *)source->words;
@@ -285,6 +280,7 @@ static inline void titlePaletteCopy(TitlePalette *destination, const TitlePalett
     } while (count > 0);
 }
 
+/* Snapshot a palette and select the word at its byte offset. */
 static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOffset)
 {
     *(TitlePalette *)destination = *(const TitlePalette *)source;
@@ -358,10 +354,7 @@ extern TitleRect D_005E55A0;
  * this body remains assembly-backed.
    2026-10-08: opt_lifetimes on lowers fnalign from 3558 to 3424 edits. */
 /* 2026-10-09: 3424 -> 3340 edits: m2c's expanded float-to-unsigned conversions are plain (u32) casts. Open, found by comparing the retail lui constants: the m2c body drops several sinf results and leaves `temp_f20 * temp_f21 +/- temp_f7 * temp_f8` placeholders where retail has adda/madd chains with constants such as 200 - 700 * (1 - (1 + sin) / 2) (0x00126C48). */
-static inline u8 *titleOffsetPtr_001265a0(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 
 /* Matching notes for the title-screen draw:
  * - Rectangle and background-colour constants go through TitleRect /
@@ -377,7 +370,7 @@ static inline u8 *titleOffsetPtr_001265a0(u32 offset, u8 *base)
  * - Range tests use retail's `> N - 1` / `> N` forms.
  * - The record-delta counter reuses temp_2 (dead there), so its live range is
  *   numbered after the hoisted 0xFFFFFF constant: retail's $s1/$s2.
- * - Record pointers 2-5 go through titleOffsetPtr_001265a0 (offset-first addu).
+ * - Record pointers 2-5 go through ((u8 *)((u32)(offset-first addu) + (u32)@1@)).
  */
 #pragma push
 #pragma opt_lifetimes on
@@ -400,6 +393,7 @@ typedef struct TitleSceneColumn {
     f32 value;
     u8 pad4[0x24];
 } TitleSceneColumn;
+/* Snapshot a rectangle before submitting its float-coordinate storage. */
 static inline f32 *titleCopyRect(u8 *destination, const u8 *source)
 {
     *(TitleRect *)destination = *(const TitleRect *)source;
@@ -869,7 +863,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 } while (layerClearCount != 0);
             }
             layerColorSource.bytes[3] = 0xFF;
-            titleCopyValue((u8 *)&layerColor, (const u8 *)&layerColorSource);
+            layerColor = layerColorSource;
             {
                 /* Retail passes depth in f12 and saveState in a2 at both calls. */
                 extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
@@ -890,8 +884,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                         overlayClearCount -= 1;
                     } while (overlayClearCount != 0);
                 }
-                titleCopyValue((u8 *)&firstOverlayColor, (const u8 *)&firstOverlaySource);
-                titleRectangle((u8 *)&firstOverlayColor, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                firstOverlayColor = firstOverlaySource;
+                (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&firstOverlayColor), (640.0f), (448.0f), (0x12), (NULL)));
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
@@ -905,7 +899,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                     } while (clearCount3 != 0);
                 }
                 barSourceColor1.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&barDrawColor1, (const u8 *)&barSourceColor1);
+                barDrawColor1 = barSourceColor1;
                 upperRectangle2 = D_005E5590;
                 PrimDrawFlatRectangle((u8 *)&barDrawColor1, titleCopyRect((u8 *)&barRectangle2, (const u8 *)&upperRectangle2), 0.0f, 0);
                 lowerRectangle2 = D_005E55A0;
@@ -929,8 +923,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                             clearCount4 -= 1;
                         } while (clearCount4 != 0);
                     }
-                    titleCopyValue((u8 *)&drawColor, (const u8 *)&firstFadeSource);
-                    titleRectangle((u8 *)&drawColor, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, NULL);
+                    drawColor = firstFadeSource;
+                    (titleVisualSubmitRect((0.0f), (0.0f), (0.0f), ((u8 *)&drawColor), (640.0f), (448.0f), (0x12), (NULL)));
                     sinf(((((1.5707964f * (f32) (frame - 0x3D)) / 80.0f))));
                     for (sceneIndex = 1; (s32)sceneIndex < 8; sceneIndex++) {
                         if ((u32) sceneIndex >= 0x13U) {
@@ -993,8 +987,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                                         clearCount6 -= 1;
                                     } while (clearCount6 != 0);
                                 }
-                                titleCopyValue((u8 *)&drawColor, (const u8 *)&secondFadeSource);
-                                titleRectangle((u8 *)&drawColor, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                                drawColor = secondFadeSource;
+                                (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&drawColor), (640.0f), (448.0f), (0x12), (NULL)));
                                 /* Six packed colors form one snapshot and two independent copies.
                                  * Model calls use the same-owner typed definition; special ACC
                                  * producers remain supplied/unproven expressions. */
@@ -1047,7 +1041,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                         if (*(s32 *)D_005E5230 >= 0xF) {
                             thirdModel = NULL;
                         } else {
-                            modelSlot1 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)workWords);
+                            modelSlot1 = (u32 *)byteAddressAdd((*(s32 *)D_005E5230) * 4, (u8 *)workWords);
                             if (mdlPrepareModel((((TitleTask *)modelSlot1)->models[0])) != 0) {
                                 thirdModel = (u8 *)((((TitleTask *)modelSlot1)->models[0]));
                             } else {
@@ -1067,7 +1061,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                         if (*(s32 *)D_005E5230 >= 0xF) {
                             fourthModel = NULL;
                         } else {
-                            modelSlot2 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)workWords);
+                            modelSlot2 = (u32 *)byteAddressAdd((*(s32 *)D_005E5230) * 4, (u8 *)workWords);
                             if (mdlPrepareModel((((TitleTask *)modelSlot2)->models[0])) != 0) {
                                 fourthModel = (u8 *)((((TitleTask *)modelSlot2)->models[0]));
                             } else {
@@ -1117,8 +1111,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                         clearCount7 -= 1;
                     } while (clearCount7 != 0);
                 }
-                titleCopyValue((u8 *)&fadeColor1, (const u8 *)&fadeSource1);
-                titleRectangle((u8 *)&fadeColor1, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                fadeColor1 = fadeSource1;
+                (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor1), (640.0f), (448.0f), (0x12), (NULL)));
                 titleSkyApplyBasePreset();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
@@ -1133,7 +1127,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                     } while (clearCount8 != 0);
                 }
                 barSourceColor2.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&barDrawColor2, (const u8 *)&barSourceColor2);
+                barDrawColor2 = barSourceColor2;
                 upperRectangle3 = D_005E5590;
                 PrimDrawFlatRectangle((u8 *)&barDrawColor2, titleCopyRect((u8 *)&barRectangle3, (const u8 *)&upperRectangle3), 0.0f, 0);
                 lowerRectangle3 = D_005E55A0;
@@ -1172,8 +1166,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                         clearCount9 -= 1;
                     } while (clearCount9 != 0);
                 }
-                titleCopyValue((u8 *)&fadeColor2, (const u8 *)&fadeSource2);
-                titleRectangle((u8 *)&fadeColor2, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                fadeColor2 = fadeSource2;
+                (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor2), (640.0f), (448.0f), (0x12), (NULL)));
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
@@ -1187,7 +1181,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                     } while (clearCount10 != 0);
                 }
                 barSourceColor3.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&barDrawColor3, (const u8 *)&barSourceColor3);
+                barDrawColor3 = barSourceColor3;
                 upperRectangle4 = D_005E5590;
                 PrimDrawFlatRectangle((u8 *)&barDrawColor3, titleCopyRect((u8 *)&barRectangle4, (const u8 *)&upperRectangle4), 0.0f, 0);
                 lowerRectangle4 = D_005E55A0;
@@ -1207,8 +1201,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                         clearCount11 -= 1;
                     } while (clearCount11 != 0);
                 }
-                titleCopyValue((u8 *)&fadeColor3, (const u8 *)&fadeSource3);
-                titleRectangle((u8 *)&fadeColor3, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                fadeColor3 = fadeSource3;
+                (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor3), (640.0f), (448.0f), (0x12), (NULL)));
                 titleSkyApplyBasePreset();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
@@ -1223,7 +1217,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                     } while (clearCount12 != 0);
                 }
                 barSourceColor4.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&barDrawColor4, (const u8 *)&barSourceColor4);
+                barDrawColor4 = barSourceColor4;
                 upperRectangle5 = D_005E5590;
                 PrimDrawFlatRectangle((u8 *)&barDrawColor4, titleCopyRect((u8 *)&barRectangle5, (const u8 *)&upperRectangle5), 0.0f, 0);
                 lowerRectangle5 = D_005E55A0;
@@ -1244,8 +1238,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                         clearCount13 -= 1;
                     } while (clearCount13 != 0);
                 }
-                titleCopyValue((u8 *)&fadeColor4, (const u8 *)&fadeSource4);
-                titleRectangle((u8 *)&fadeColor4, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                fadeColor4 = fadeSource4;
+                (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor4), (640.0f), (448.0f), (0x12), (NULL)));
                 titleSkyApplyBasePreset();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
@@ -1260,7 +1254,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                     } while (clearCount14 != 0);
                 }
                 barSourceColor5.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&barDrawColor5, (const u8 *)&barSourceColor5);
+                barDrawColor5 = barSourceColor5;
                 upperRectangle6 = D_005E5590;
                 PrimDrawFlatRectangle((u8 *)&barDrawColor5, titleCopyRect((u8 *)&barRectangle6, (const u8 *)&upperRectangle6), 0.0f, 0);
                 lowerRectangle6 = D_005E55A0;
@@ -1283,8 +1277,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                         clearCount15 -= 1;
                     } while (clearCount15 != 0);
                 }
-                titleCopyValue((u8 *)&fadeColor5, (const u8 *)&fadeSource5);
-                titleRectangle((u8 *)&fadeColor5, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                fadeColor5 = fadeSource5;
+                (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor5), (640.0f), (448.0f), (0x12), (NULL)));
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
@@ -1298,7 +1292,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                     } while (clearCount16 != 0);
                 }
                 barSourceColor6.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&barDrawColor6, (const u8 *)&barSourceColor6);
+                barDrawColor6 = barSourceColor6;
                 upperRectangle7 = D_005E5590;
                 PrimDrawFlatRectangle((u8 *)&barDrawColor6, titleCopyRect((u8 *)&barRectangle7, (const u8 *)&upperRectangle7), 0.0f, 0);
                 lowerRectangle7 = D_005E55A0;
@@ -1315,8 +1309,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                         clearCount17 -= 1;
                     } while (clearCount17 != 0);
                 }
-                titleCopyValue((u8 *)&fadeColor6, (const u8 *)&fadeSource6);
-                titleRectangle((u8 *)&fadeColor6, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                fadeColor6 = fadeSource6;
+                (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor6), (640.0f), (448.0f), (0x12), (NULL)));
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
@@ -1330,7 +1324,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                     } while (clearCount18 != 0);
                 }
                 barSourceColor7.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&barDrawColor7, (const u8 *)&barSourceColor7);
+                barDrawColor7 = barSourceColor7;
                 upperRectangle8 = D_005E5590;
                 PrimDrawFlatRectangle((u8 *)&barDrawColor7, titleCopyRect((u8 *)&barRectangle8, (const u8 *)&upperRectangle8), 0.0f, 0);
                 lowerRectangle8 = D_005E55A0;
@@ -1348,8 +1342,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                         clearCount19 -= 1;
                     } while (clearCount19 != 0);
                 }
-                titleCopyValue((u8 *)&fadeColor7, (const u8 *)&fadeSource7);
-                titleRectangle((u8 *)&fadeColor7, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                fadeColor7 = fadeSource7;
+                (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor7), (640.0f), (448.0f), (0x12), (NULL)));
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
@@ -1363,7 +1357,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                     } while (clearCount20 != 0);
                 }
                 barSourceColor8.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&barDrawColor8, (const u8 *)&barSourceColor8);
+                barDrawColor8 = barSourceColor8;
                 upperRectangle9 = D_005E5590;
                 PrimDrawFlatRectangle((u8 *)&barDrawColor8, titleCopyRect((u8 *)&barRectangle9, (const u8 *)&upperRectangle9), 0.0f, 0);
                 lowerRectangle9 = D_005E55A0;
@@ -1401,8 +1395,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                     clearCount22 -= 1;
                 } while (clearCount22 != 0);
             }
-            titleCopyValue((u8 *)&fadeColor8, (const u8 *)&fadeSource8);
-            titleRectangle((u8 *)&fadeColor8, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+            fadeColor8 = fadeSource8;
+            (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor8), (640.0f), (448.0f), (0x12), (NULL)));
             titleSkyApplyBasePreset();
             D_00887300[0](8, 1);
             mdlEffectEmitMaskedTagPair();
@@ -1416,7 +1410,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                 } while (clearCount23 != 0);
             }
             barSourceColor9.bytes[3] = 0xFF;
-            titleCopyValue((u8 *)&barDrawColor9, (const u8 *)&barSourceColor9);
+            barDrawColor9 = barSourceColor9;
             upperRectangle10 = D_005E5590;
             PrimDrawFlatRectangle((u8 *)&barDrawColor9, titleCopyRect((u8 *)&barRectangle10, (const u8 *)&upperRectangle10), 0.0f, 0);
             lowerRectangle10 = D_005E55A0;
@@ -1426,7 +1420,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
             logoAlpha = 255.0f;
             firstLogoAlpha = (u8)logoAlpha;
             firstLogoColor.bytes[3] = (u8)firstLogoAlpha;
-            titleCopyValue((u8 *)&drawColor, (const u8 *)&firstLogoColor);
+            drawColor = firstLogoColor;
             firstMask = *(TitleRect *)&D_005E5670;
             PrimDrawFlatRectangle((u8 *)&drawColor, titleCopyRect((u8 *)&drawRectangle, (const u8 *)&firstMask), 10.0f, 1);
         } else if (frame < 0x56) {
@@ -1439,8 +1433,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                     clearCount24 -= 1;
                 } while (clearCount24 != 0);
             }
-            titleCopyValue((u8 *)&fadeColor9, (const u8 *)&fadeSource9);
-            titleRectangle((u8 *)&fadeColor9, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+            fadeColor9 = fadeSource9;
+            (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor9), (640.0f), (448.0f), (0x12), (NULL)));
             titleSkyApplyBasePreset();
             D_00887300[0](8, 1);
             mdlEffectEmitMaskedTagPair();
@@ -1454,7 +1448,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                 } while (clearCount25 != 0);
             }
             barSourceColor10.bytes[3] = 0xFF;
-            titleCopyValue((u8 *)&barDrawColor10, (const u8 *)&barSourceColor10);
+            barDrawColor10 = barSourceColor10;
             upperRectangle11 = D_005E5590;
             PrimDrawFlatRectangle((u8 *)&barDrawColor10, titleCopyRect((u8 *)&barRectangle11, (const u8 *)&upperRectangle11), 0.0f, 0);
             lowerRectangle11 = D_005E55A0;
@@ -1466,7 +1460,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
             logoAlpha = 255.0f * logoSine;
             secondLogoAlpha = (u8)logoAlpha;
             secondLogoColor.bytes[3] = (u8)secondLogoAlpha;
-            titleCopyValue((u8 *)&drawColor, (const u8 *)&secondLogoColor);
+            drawColor = secondLogoColor;
             secondMask = *(TitleRect *)&D_005E5680;
             PrimDrawFlatRectangle((u8 *)&drawColor, titleCopyRect((u8 *)&drawRectangle, (const u8 *)&secondMask), 10.0f, 1);
         }
@@ -1499,8 +1493,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                 clearCount26 -= 1;
             } while (clearCount26 != 0);
         }
-        titleCopyValue((u8 *)&fadeColor10, (const u8 *)&fadeSource10);
-        titleRectangle((u8 *)&fadeColor10, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+        fadeColor10 = fadeSource10;
+        (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&fadeColor10), (640.0f), (448.0f), (0x12), (NULL)));
         titleSkyApplyBasePreset();
         D_00887300[0](8, 1);
         mdlEffectEmitMaskedTagPair();
@@ -1514,7 +1508,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
             } while (clearCount27 != 0);
         }
         barSourceColor11.bytes[3] = 0xFF;
-        titleCopyValue((u8 *)&barDrawColor11, (const u8 *)&barSourceColor11);
+        barDrawColor11 = barSourceColor11;
         upperRectangle12 = D_005E5590;
         PrimDrawFlatRectangle((u8 *)&barDrawColor11, titleCopyRect((u8 *)&barRectangle12, (const u8 *)&upperRectangle12), 0.0f, 0);
         lowerRectangle12 = D_005E55A0;
@@ -1535,8 +1529,8 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                 clearCount28 -= 1;
             } while (clearCount28 != 0);
         }
-        titleCopyValue((u8 *)&drawColor, (const u8 *)&finalFadeSource);
-        titleRectangle((u8 *)&drawColor, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+        drawColor = finalFadeSource;
+        (titleVisualSubmitRect((0.0f), (0.0f), ((f32) 0xFFFF), ((u8 *)&drawColor), (640.0f), (448.0f), (0x12), (NULL)));
         for (lateSceneIndex = 1; lateSceneIndex < 8; lateSceneIndex++) {
             fifthPalette = D_005E5530;
             titlePaletteCopy(&fifthHighlight, &fifthPalette);
@@ -1566,7 +1560,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
             if (((s32)(firstModelIndex)) >= 0xF) {
                 firstSelectedModel = NULL;
             } else {
-                modelSlot3 = (u32 *)titleOffsetPtr_001265a0((((s32)(firstModelIndex))) * 4, (u8 *)workWords);
+                modelSlot3 = (u32 *)byteAddressAdd((((s32)(firstModelIndex))) * 4, (u8 *)workWords);
                 if (mdlPrepareModel((((TitleTask *)modelSlot3)->models[0])) != 0) {
                     firstSelectedModel = (u8 *)((((TitleTask *)modelSlot3)->models[0]));
                 } else {
@@ -1588,7 +1582,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
         if (((s32)(secondModelIndex)) >= 0xF) {
             selectedModel = NULL;
         } else {
-            modelSlot4 = (u32 *)titleOffsetPtr_001265a0((((s32)(secondModelIndex))) * 4, (u8 *)workWords);
+            modelSlot4 = (u32 *)byteAddressAdd((((s32)(secondModelIndex))) * 4, (u8 *)workWords);
             if (mdlPrepareModel((((TitleTask *)modelSlot4)->models[0])) != 0) {
                 selectedModel = (u8 *)((((TitleTask *)modelSlot4)->models[0]));
             } else {
@@ -1751,7 +1745,8 @@ typedef union Code12FrameVectorTransfer {
 
 #pragma push
 #pragma opt_propagation off
-static inline void code12QuaternionMatrix(Code12FrameMatrix *matrix, const Code12FrameQuaternion *rotation)
+/* Build a rotation matrix from the quaternion and clear its translation. */
+static inline void titleQuaternionMatrix(Code12FrameMatrix *matrix, const Code12FrameQuaternion *rotation)
 {
     f32 x, y, z, w;
     f32 xx, yy, zz, yz, zx, xy, wx, wy, wz;
@@ -1799,7 +1794,7 @@ s32 titleMusicStreamStep(u8 *context);
  * matrix objects retain the original stack transfers; reset-phase
  * models and the queued draw task have separate value lifetimes.
  * See docs/probe_archive/Menu_callback_0012aa70_20260923.md. */
-// Kept in bucket: diff 1978 when moved; cause not diagnosed (uses static inline code12QuaternionMatrix).
+// Kept in bucket: diff 1978 when moved; cause not diagnosed (uses static inline titleQuaternionMatrix).
 /* Drive title loading, camera setup, input, configuration and exit fades. */
 // FUN_0012AA70
 /* Historical full-layout typing: 3056 -> 3072 bytes, normalized_diff 1475. Access-site and separate typed-local probes now keep every member matched. */
@@ -1891,7 +1886,7 @@ s32 titleTaskUpdate(u8 *task)
         }
         break;
     case 4:
-        code12QuaternionMatrix(&matrix, &rotation);
+        titleQuaternionMatrix(&matrix, &rotation);
         func_003e9cb0((u8 *)(u32)((RwObject *)kwlnGetCamera())->parent, &matrix, 0);
         func_003e9c10((u8 *)(u32)((RwObject *)kwlnGetCamera())->parent, translation.value, 2);
         K_View_SetFov(kwlnGetCamera(), 50.0f);
@@ -1923,7 +1918,7 @@ s32 titleTaskUpdate(u8 *task)
         ((TitleTask *)work)->currentState = 7;
         ((TitleTask *)(work))->sceneFrame = 0;
         ((TitleTask *)(work))->timer = 0;
-        code12QuaternionMatrix(&matrix, &rotation);
+        titleQuaternionMatrix(&matrix, &rotation);
         func_003e9cb0((u8 *)(u32)((RwObject *)kwlnGetCamera())->parent, &matrix, 0);
         func_003e9c10((u8 *)(u32)((RwObject *)kwlnGetCamera())->parent, translation.value, 2);
         K_View_SetFov(kwlnGetCamera(), 50.0f);

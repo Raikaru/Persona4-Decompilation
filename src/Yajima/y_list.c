@@ -294,6 +294,7 @@ s8 yListKindFor(void *task) {
 #pragma push
 #pragma opt_common_subs on
 #pragma opt_loop_invariants on
+/* Apply the optional category and flag masks to an item identifier. */
 static inline s32 yListAcceptsItem(u8 *owner, s16 id)
 {
     /* An absent mask accepts every item; otherwise both active masks apply. */
@@ -944,10 +945,13 @@ void yListSlotCopyEntry(u8 *destination, s8 list, s16 index) {
 
 
 
+/* Get the task work block for the selected list. */
+/* measured: three individually bisected work lookups change availability/pair-flag allocation; thirteen other lookups expand unchanged. */
 static inline u8 *yListWork(s8 list) {
     return ((KwlnTask *)D_00882F70[list])->work;
 }
 
+/* Locate a slot record after the list-kind-specific availability prefix. */
 static inline u8 *yListEntryInWork(u8 *work, s16 index) {
     /* Roster list kinds reserve the availability matrix before their records. */
     switch (((YListPersonaWork *)work)->kind.unsignedValue) {
@@ -987,7 +991,7 @@ void yListBuildAvailability(s32 modeOrResult, s32 selectedIndex) {
     s8 mode;
     s8 selected;
 
-    base = yListWork(0);
+    base = (((KwlnTask *)D_00882F70[(0)])->work);
     kind = ((YListPersonaWork *)(base))->kind.value;
     switch (kind) {
     case 1:
@@ -996,27 +1000,27 @@ void yListBuildAvailability(s32 modeOrResult, s32 selectedIndex) {
         i = 0;
         mode = (s8)modeOrResult;
         selected = (s8)selectedIndex;
-        for (; i < ((YListPersonaWork *)(yListWork(0)))->count.value; i++) {
+        for (; i < ((YListPersonaWork *)((((KwlnTask *)D_00882F70[(0)])->work)))->count.value; i++) {
             base[i + 0x2E4] = 0;
             j = 0;
             row = base + i * 12;
-            for (; j < ((YListPersonaWork *)(yListWork(0)))->count.value; j++) {
+            for (; j < ((YListPersonaWork *)((((KwlnTask *)D_00882F70[(0)])->work)))->count.value; j++) {
                 flag = row + j + 0x14;
                 *flag = 0;
                 if (i != j) {
                     if (mode == 0) {
-                        destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
+                        destination = yListEntryInWork((((KwlnTask *)D_00882F70[((s8)(i + 1))])->work), j);
                         modeOrResult = (s8)fclFusePairByte((s32)destination,
-                            (s16)((DatPersonaRecord *)yListEntryInWork(yListWork(0), i))->id,
+                            (s16)((DatPersonaRecord *)yListEntryInWork((((KwlnTask *)D_00882F70[(0)])->work), i))->id,
                             (s16)((DatPersonaRecord *)yListEntryInWork(yListWork(0), j))->id);
                     } else if (mode == 1) {
                         if (selected == i || selected == j) {
                             modeOrResult = 0;
                         } else {
-                            destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
+                            destination = yListEntryInWork((((KwlnTask *)D_00882F70[((s8)(i + 1))])->work), j);
                             modeOrResult = (s8)fclFuseTripleByte((u16 *)destination,
-                                yListEntryInWork(yListWork(0), selected),
-                                yListEntryInWork(yListWork(0), i),
+                                yListEntryInWork((((KwlnTask *)D_00882F70[(0)])->work), selected),
+                                yListEntryInWork((((KwlnTask *)D_00882F70[(0)])->work), i),
                                 yListEntryInWork(yListWork(0), j));
                         }
                         /* Match the neighboring accessors' EE word-address view. */
@@ -1061,16 +1065,16 @@ void yListBuildPairFlags(void) {
     s16 i;
     s16 j;
 
-    base = yListWork(0);
-    for (i = 0; i < ((YListPersonaWork *)(yListWork(0)))->count.value; i++) {
+    base = (((KwlnTask *)D_00882F70[(0)])->work);
+    for (i = 0; i < ((YListPersonaWork *)((((KwlnTask *)D_00882F70[(0)])->work)))->count.value; i++) {
         j = 0;
         row = base + i * 12;
-        for (; j < ((YListPersonaWork *)(yListWork(0)))->count.value; j++) {
+        for (; j < ((YListPersonaWork *)((((KwlnTask *)D_00882F70[(0)])->work)))->count.value; j++) {
             flag = row + j + 0x14;
             *flag = 0;
-            destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
+            destination = yListEntryInWork((((KwlnTask *)D_00882F70[((s8)(i + 1))])->work), j);
             if (fclFuseSpecialPartner(destination,
-                    ((DatPersonaRecord *)(yListEntryInWork(yListWork(0), i)))->id,
+                    ((DatPersonaRecord *)(yListEntryInWork((((KwlnTask *)D_00882F70[(0)])->work), i)))->id,
                     ((DatPersonaRecord *)(yListEntryInWork(yListWork(0), j)))->id) == 1) {
                 *flag = 1;
             }
@@ -1619,6 +1623,7 @@ expandedSearchDone:
 
 /* True when `id` is one of the 13 entries of `exclude`. yListSlotFillByLevel uses it
    inline; func_002e5ae0 calls the out-of-line copy. */
+/* Test an identifier against the thirteen-entry exclusion list. */
 static inline s32 yListExcluded(u16 id, u16 *exclude)
 {
     s32 j = 0;
@@ -1638,6 +1643,7 @@ s32 yListIsExcludedId(u16 id, u16 *exclude) {
     return yListExcluded(id, exclude);
 }
 
+/* Locate a list slot using its list-kind-specific record prefix. */
 static inline u8 *yListEntry(s8 list, s16 index)
 {
     /* Roster list kinds reserve the availability matrix before their records. */
@@ -1659,6 +1665,7 @@ static inline u8 *yListEntry(s8 list, s16 index)
     }
 }
 
+/* Search live slot records for a matching persona identifier. */
 static inline s32 yListContains(s8 list, s16 id)
 {
     /* Search the live slot records for a matching persona identifier. */

@@ -237,7 +237,8 @@ typedef struct {
 
 /* Plays the ambient cue for slot `id` and advances that slot's four-step
    variation counter.  Inlined into every trigger arm of FldAmbientTrigger. */
-static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
+/* Play an ambient cue and cycle the slot through four sound variations. */
+static inline void fldPlayAmbientCue(u16 id, s16 bank, s32 base)
 {
     extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
     extern s32 D_007F1760[];
@@ -312,17 +313,17 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
         if (motionState == 9) {
             if (animation == FldMoveAnimPrimary(mode)) {
                 if ((animationFrame > 7.0f && animationFrame < 8.0f) || (animationFrame > 21.0f && animationFrame < 22.0f)) {
-                    func_001823d0_play(id, 1, area * 4);
+                    fldPlayAmbientCue(id, 1, area * 4);
                 }
             } else if (animation == FldMoveAnimSecondary(mode)) {
                 if ((animationFrame > 9.0f && animationFrame < 10.0f) || (animationFrame > 19.0f && animationFrame < 20.0f)) {
-                    func_001823d0_play(id, 1, area * 4);
+                    fldPlayAmbientCue(id, 1, area * 4);
                 }
             }
         } else if (motionState == 1) {
             if (animation == FldMoveAnimSecondary(mode)) {
                 if ((animationFrame > 9.0f && animationFrame < 10.0f) || (animationFrame > 19.0f && animationFrame < 20.0f)) {
-                    func_001823d0_play(id, 1, area * 4);
+                    fldPlayAmbientCue(id, 1, area * 4);
                 }
             }
         }
@@ -333,7 +334,7 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
                                         &((RainMatrix *)mdlGetMatrix(D_007EFA00[0]))->pos, 1600.0f) != 0 &&
             animation == FldMoveAnimSecondary(mode)) {
             if ((animationFrame > 8.0f && animationFrame < 9.0f) || (animationFrame > 18.0f && animationFrame < 19.0f)) {
-                func_001823d0_play(id, 2, 0x18);
+                fldPlayAmbientCue(id, 2, 0x18);
             }
         }
         break;
@@ -343,7 +344,7 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
                                         &((RainMatrix *)mdlGetMatrix(D_007EFA00[0]))->pos, 1600.0f) != 0 &&
             animation == FldMoveAnimSecondary(mode)) {
             if ((animationFrame > 8.0f && animationFrame < 9.0f) || (animationFrame > 18.0f && animationFrame < 19.0f)) {
-                func_001823d0_play(id, 2, area * 4);
+                fldPlayAmbientCue(id, 2, area * 4);
             }
         }
         break;

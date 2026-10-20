@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_color.h"
 #include "include_asm.h"
@@ -356,13 +357,12 @@ s32 smapGetSpriteHandle(void) {
 #define SMAP_GRID_NEIGHBOR_AT(rowOffset, columnOffset, cellOffset) \
     (SMAP_GRID_CELL_AT(rowOffset, columnOffset) + (cellOffset))
 
-static inline u8 *smapRevealOffsetPtr(u32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
+
 
 #pragma push
 /* measured: fnalign 0 with the retail loop-invariant row/column preheaders. */
 #pragma opt_loop_invariants on
+/* Scan matching room cells and retain their anchor coordinates for reveal. */
 static inline s32 smapPrepareRoomReveal(u8 column, u8 row, s32 extent,
                                       s32 cellRowOffset, s32 cellColumnOffset,
                                       s32 *rowSnapshot, s32 *columnSnapshot,
@@ -405,6 +405,7 @@ static inline s32 smapPrepareRoomReveal(u8 column, u8 row, s32 extent,
     return cellOffset;
 }
 
+/* Reveal matching room cells along the room orientation from its anchor. */
 static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
                                          s32 cellRowOffset, s32 cellColumnOffset,
                                          s32 cellOffset, s32 savedColumn,
@@ -428,7 +429,7 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
             revealKind = SMAP_GRID_SCAN_AT(revealColumn * 0x10, ((s8)*anchorRow + rowDelta) << 8)->type;
             revealMask = (1 << savedColumn) & 0xFFFF & 0xFFFF;
             if (revealKind == SMAP_GRID_OFFSET_AT(cellOffset)->type) {
-                visibility = (u16 *)((u8 *)smapRevealOffsetPtr((s8)*anchorRow * 2, (u8 *)D_00764658) + rowDelta * 2);
+                visibility = (u16 *)((u8 *)byteAddressAdd((s8)*anchorRow * 2, (u8 *)D_00764658) + rowDelta * 2);
                 *visibility |= revealMask;
             }
             step = (s16)(step + 1);
@@ -755,9 +756,9 @@ void smapRevealCell(u8 column, u8 row) {
                     longRoomVisibility = (u16 *)((u8 *)D_00764658 + (rowValue * 2));
                     *longRoomVisibility |= ((1 << ((s32)column)) & 0xFFFF);
                     longRoomRow = row;
-                    longRoomSecondRow = smapRevealOffsetPtr(longRoomRow * 2, (u8 *)D_00764658);
+                    longRoomSecondRow = byteAddressAdd(longRoomRow * 2, (u8 *)D_00764658);
                     (((u16 *)longRoomSecondRow)[1]) = (u16) ((((u16 *)longRoomSecondRow)[1]) | ((1 << ((s32)column)) & 0xFFFF));
-                    longRoomThirdRow = smapRevealOffsetPtr(longRoomRow * 2, (u8 *)D_00764658);
+                    longRoomThirdRow = byteAddressAdd(longRoomRow * 2, (u8 *)D_00764658);
                     (((u16 *)longRoomThirdRow)[2]) = (u16) ((((u16 *)longRoomThirdRow)[2]) | ((1 << ((s32)column)) & 0xFFFF));
                     return;
                 }

@@ -292,7 +292,9 @@ typedef struct {
    exits branch to it (retail's b -> b trampoline) instead of folding to the
    work setup. `slot` is a named local recomputed per store so the addu keeps
    index-first operand order and retail's repeated load. */
-static inline s32 fldBothReady_0018a200(void)
+/* Test whether both field readiness state words are nonzero. */
+/* measured: expanding either call changes FldNpcControlUpdate allocation and branches (6344 executable bytes versus the matched body). */
+static inline s32 fldBothReady(void)
 {
     extern int D_007EF9F8[];
     extern int D_007EFA04[];
@@ -407,7 +409,7 @@ typedef struct {
 s32 FldRcAtomicFrustumTest(s32 atomic, s32 *visible);
 
 /* Update field-actor visibility, animation, spline travel, and facing. */
-// Kept in bucket: diff 35 when moved; cause not diagnosed (uses static inline fldBothReady_0018a200).
+// Kept in bucket: diff 35 when moved; cause not diagnosed (uses static inline fldBothReady).
 // FUN_0018A200
 s32 FldNpcControlUpdate(u8 *task)
 {
@@ -536,7 +538,7 @@ s32 FldNpcControlUpdate(u8 *task)
          ((resourceId != 5 || (((MdlFileModel *)actorModel)->id != 0x4651)))) &&
         ((resourceId != 5 || (((MdlFileModel *)actorModel)->id != 0x46b5)))) &&
        (((resourceId != 5 || (((MdlFileModel *)actorModel)->id != 0x46e7)) &&
-        (fldBothReady_0018a200())))) {
+        (fldBothReady())))) {
       renderObject = mdlGetMatrix(((void **)D_007EFA00)[0]);
       actorMatrix = mdlGetMatrix(actorModel);
       facingLimit = 120.0f;
@@ -842,7 +844,7 @@ s32 FldNpcControlUpdate(u8 *task)
     }
     break;
   case 4:
-    if (fldBothReady_0018a200()) {
+    if (fldBothReady()) {
       actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
       playerMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
       proximityLimit = 500.0f;

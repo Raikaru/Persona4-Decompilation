@@ -125,7 +125,8 @@ end:
 /* measured: 356 executable bytes / 368B retail window, fully relocated exact.
    The inline clear helper owns the masked ID and loop-index lifetimes;
    its separate assertion preserves retail's record/ID saved-register order. */
-static inline void CommunityFlags_Clear(s32 community)
+/* Clear the thirteen community flags after validating the masked identifier. */
+static inline void cmmClearCommunityFlags(s32 community)
 {
     s32 id = community & 0xFFFF;
     s32 flag;
@@ -148,7 +149,7 @@ void cmmCommunityRefreshFlags(s32 communityId) {
     if (id <= 0) {
         kAssertFail(D_005E42C8, 0x48);
     }
-    CommunityFlags_Clear(communityId);
+    cmmClearCommunityFlags(communityId);
     if (record == NULL) {
         return;
     }
