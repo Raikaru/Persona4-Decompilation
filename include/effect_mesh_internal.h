@@ -65,7 +65,16 @@ typedef struct EffGeometryBlock {
     void *frame; /* +0x0C: frame passed to func_003e9cb0 by thunder draws */
     u8 *atomic;
     u8 *material;
-    u8 pad18[0x30];
+    u32 previous; /* +0x18: embedded draw-list link, cleared before append */
+    u32 next; /* +0x1C */
+    u8 pad20[8];
+    u8 *owner; /* +0x28: LineNovaDrawCallback's instance */
+    u8 pad2C[0x1C];
 } EffGeometryBlock;
+
+/* Wind strips advance four packed colors per row. */
+typedef struct MdlEffectWindColorRow {
+    u32 colors[4];
+} MdlEffectWindColorRow;
 
 #endif

@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 #include "type.h"
@@ -115,6 +116,17 @@ static inline f32 effect_color_opacity(s32 frame, s32 duration, s32 fadeIn, s32 
 // FUN_0048A980
 void effMiscMatrixToQuatVU(f32 *matrix)
 {
+    /* Matrix rows and quaternion lanes retain their original byte-index arithmetic. */
+    f32 *nextDiagonal;
+    f32 *selectedDiagonal;
+    f32 *lastDiagonal;
+    f32 *selectedNext;
+    f32 *nextSelected;
+    f32 *selectedLast;
+    f32 *lastSelected;
+    f32 *nextLast;
+    f32 *lastNext;
+
     extern f32 sqrtf(f32);
     f32 q[4] __attribute__((aligned(16)));
     f32 zz, yy, xx;
@@ -147,7 +159,7 @@ void effMiscMatrixToQuatVU(f32 *matrix)
         f32 identity;
         f32 zero;
 
-        if (!(zz <= *(f32 *)((u8 *)matrix + selected * 16 + selected * 4))) { /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+        if (!(zz <= ((EffectVuVector *)matrix)[selected].lane[selected])) { /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
             u8 third = 2;
             selected = third;
         }
@@ -158,13 +170,13 @@ void effMiscMatrixToQuatVU(f32 *matrix)
         k = (u8)((j + 1) % axisCount);
         oj = j * 4;
         rj = (u8 *)matrix + j * 16;
-        dj = *(f32 *)(rj + oj); /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+        dj = *(nextDiagonal = (f32 *)(rj + oj)); /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
         oi = i * 4;
         ri = (u8 *)matrix + i * 16;
-        delta = *(f32 *)(ri + oi) - dj; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+        delta = *(selectedDiagonal = (f32 *)(ri + oi)) - dj; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
         ok = k * 4;
         rk = (u8 *)matrix + k * 16;
-        radicand = delta - *(f32 *)(rk + ok); /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+        radicand = delta - *(lastDiagonal = (f32 *)(rk + ok)); /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
         identity = 1.0f;
         sum = identity + radicand;
         root = sqrtf(sum);
@@ -174,14 +186,14 @@ void effMiscMatrixToQuatVU(f32 *matrix)
         }
         zero = 0.0f;
         if (zero != root) {
-            *(f32 *)((u8 *)q + oi) = root / 4.0f; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            *(f32 *)((u8 *)q + oj) = (*(f32 *)(ri + oj) + *(f32 *)(rj + oi)) / root; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            *(f32 *)((u8 *)q + ok) = (*(f32 *)(ri + ok) + *(f32 *)(rk + oi)) / root; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            q[3] = -((*(f32 *)(rj + ok) - *(f32 *)(rk + oj)) / root); /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oi) = root / 4.0f; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oj) = (*(selectedNext = (f32 *)(ri + oj)) + *(nextSelected = (f32 *)(rj + oi))) / root; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + ok) = (*(selectedLast = (f32 *)(ri + ok)) + *(lastSelected = (f32 *)(rk + oi))) / root; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+            q[3] = -((*(nextLast = (f32 *)(rj + ok)) - *(lastNext = (f32 *)(rk + oj))) / root); /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
         } else {
-            *(f32 *)((u8 *)q + oi) = identity; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            *(f32 *)((u8 *)q + oj) = zero; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            *(f32 *)((u8 *)q + ok) = zero; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oi) = identity; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oj) = zero; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + ok) = zero; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
             q[3] = zero;
         }
     }
@@ -416,16 +428,19 @@ f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration)
 // FUN_0048B220
 void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition)
 {
+    MdlEffectEmitterParameters *colorParameters;
+    MdlEffectEmitterParameters *sizeParameters;
+
     s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
     f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
     f32 mdlEffectProjectAnchorDepth(void);
     u_long128 projectedDelta;
     s32 size;
 
-    size = *(s32 *)(parameters + 0xB8); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    size = (colorParameters = (MdlEffectEmitterParameters *)parameters)->lifetime; /* measured: the separate typed pointer preserves MATCH under b210. */
     *(s32 *)&((SpawnParticle *)particle)->color =
         mdlEffectSamplePackedColor(parameters + 0x2C, parameters + 0x50, frame, size);
-    size = *(s32 *)(parameters + 0xB8); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    size = (sizeParameters = (MdlEffectEmitterParameters *)parameters)->lifetime; /* measured: the separate typed pointer preserves MATCH under b210. */
     ((SpawnParticle *)particle)->size =
         mdlEffectSampleScalarKeys(parameters + 0x60, frame, size);
     if (((MdlEffectEmitterParameters *)parameters)->angleMode != 2) {
@@ -514,6 +529,8 @@ void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 
 #pragma opt_loop_invariants on
 void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle)
 {
+    SpawnParticle *trailParticle;
+
     typedef struct TrailColor {
         u32 rgb : 24;
         u32 alpha : 8;
@@ -579,7 +596,7 @@ loop0_check:
         }
         return;
     }
-    *(s32 *)(clear + 0x10) = age - 1; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    (trailParticle = (SpawnParticle *)clear)->age = age - 1; /* measured: the separate typed pointer preserves MATCH under b210. */
     one = 1.0f;
     invN = one / (f32)(u32)trailLength;
     acc = 0.0f;
