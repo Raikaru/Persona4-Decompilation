@@ -5,6 +5,8 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "include_asm.h"
+#include "effect_mesh_internal.h"
+#include "rw_camera_internal.h"
 
 void GeometryBlockDestroy(void *block);
 void chkmemAllocSiteTag(u8 *file, s32 line);
@@ -218,7 +220,7 @@ typedef struct LineNovaMatrix {
 // FUN_004B32F0
 u8 *LineNovaCreate(u8 *config)
 {
-    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 216). */
+    /* Access-site typing differed by 216 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
     s32 particleCount;
     u8 *state;
     u16 *geometryBlock;
@@ -229,31 +231,37 @@ u8 *LineNovaCreate(u8 *config)
     u32 secondTransparentColor;
     u32 secondColor;
     u32 count;
-    particleCount = *(s32 *)(config + 0x38);
+    LineNovaConfiguration *settings = (LineNovaConfiguration *)config;
+    LineNovaState *workState;
+    LineNovaColors *colorRow;
+
+    particleCount = settings->particleCount.signedValue;
     chkmemAllocSiteTag(D_00714628, 0x43);
     state = (u8 *)(*jtbl_008873E8)(particleCount * 8 + 0x10, 0x40000);
+    workState = (LineNovaState *)state;
     if (state == NULL) {
         kAssertFail(D_00714628, 0x44);
     }
-    *(u8 **)(state + 0) = state + 0x10;
-    *(u8 **)(state + 8) = state;
+    workState->particles.bytes = state + 0x10;
+    workState->allocation.bytes = state;
     geometryBlock = (u16 *)GeometryCreateTableGrid(particleCount & 0xFFFF, 4, 6, D_00713310, 0x48);
-    *(u16 **)(state + 4) = geometryBlock;
+    workState->geometry.u16Pointer = geometryBlock;
     *geometryBlock = *geometryBlock & 0xFFFE;
-    count = *(s32 *)(config + 0x38);
-    colors = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(state + 4) + 0x10) + 0x18) + 0x30);
-    firstColor = *(u32 *)(config + 0x54);
+    count = settings->particleCount.signedValue;
+    colors = (u8 *)((RpAtomic *)((LineNovaGeometry *)workState->geometry.bytes)->atomic)->geometry->colors;
+    firstColor = settings->firstColor;
     firstTransparentColor = firstColor & 0xFFFFFF;
-    secondColor = *(u32 *)(config + 0x58);
+    secondColor = settings->secondColor;
     secondTransparentColor = secondColor & 0xFFFFFF;
     particleIndex = 0;
     while (particleIndex < count) {
-        *(u32 *)(colors + 0x00) = firstTransparentColor;
-        *(u32 *)(colors + 0x04) = firstColor;
-        *(u32 *)(colors + 0x08) = firstTransparentColor;
-        *(u32 *)(colors + 0x0C) = secondTransparentColor;
-        *(u32 *)(colors + 0x10) = secondColor;
-        *(u32 *)(colors + 0x14) = secondTransparentColor;
+        colorRow = (LineNovaColors *)colors;
+        colorRow->unk00.unsignedValue = firstTransparentColor;
+        colorRow->unk04.unsignedValue = firstColor;
+        colorRow->unk08.unsignedValue = firstTransparentColor;
+        colorRow->unk0C = secondTransparentColor;
+        colorRow->unk10 = secondColor;
+        colorRow->unk14 = secondTransparentColor;
         particleIndex++;
         colors += 0x18;
     }
@@ -271,7 +279,7 @@ void LineNovaDestroy(u8 *state) {
 // Reseeds the eight-byte particle records: random 16-bit position, alpha byte and scale, then resets the delay from the emitter.
 // FUN_004B3470
 void LineNovaReseedParticles(u8 *effect) {
-    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 51). */
+    /* Access-site typing differed by 51 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
     u8 *state;
     u8 *config;
     u32 count;
@@ -287,34 +295,40 @@ void LineNovaReseedParticles(u8 *effect) {
     f32 scaleRange;
     f32 randomValue;
 
-    state = *(u8 **)(effect + 0x20);
-    config = *(u8 **)(effect + 0x24);
-    count = *(u32 *)(config + 0x38);
-    progress = *(s32 *)(config + 0x34);
-    if (progress >= *(s32 *)(effect + 0x14) || progress == 0) {
-        delay = *(s32 *)(effect + 0x1C) - 1;
-        *(s32 *)(effect + 0x1C) = delay;
+    LineNovaEffect *node = (LineNovaEffect *)effect;
+    LineNovaConfiguration *settings;
+    LineNovaParticle *entry;
+
+    state = node->state.bytes;
+    config = node->configuration.bytes;
+    settings = (LineNovaConfiguration *)config;
+    count = settings->particleCount.unsignedValue;
+    progress = settings->duration.signedValue;
+    if (progress >= node->elapsed.signedValue || progress == 0) {
+        delay = node->delay - 1;
+        node->delay = delay;
         if (delay <= 0) {
-            minimumScale = *(f32 *)(config + 0x84) / 100.0f;
-            scaleVariation = *(f32 *)(config + 0x88);
-            alphaVariation = *(f32 *)(config + 0x64);
+            minimumScale = settings->unk84.scalar / 100.0f;
+            scaleVariation = settings->unk88.scalar;
+            alphaVariation = settings->alphaVariation;
             particle = *(u16 **)state;
             particleIndex = 0;
             minimumAlpha = 1.0f - alphaVariation;
             minimumRandomScale = 1.0f - scaleVariation;
             scaleRange = 1.0f - minimumScale;
             while (particleIndex < count) {
+                entry = (LineNovaParticle *)particle;
                 randomValue = 65535.0f * effMiscRandFloat(0);
                 *(u16 *)particle = (u16)randomValue;
                 randomValue = 255.0f * (minimumAlpha + alphaVariation * effMiscRandFloat(0));
-                *(u8 *)(particle + 1) = (u8)randomValue;
+                entry->alpha = (u8)randomValue;
                 randomValue = minimumRandomScale + scaleVariation * effMiscRandFloat(0);
-                *(f32 *)((u8 *)particle + 4) =
+                entry->scale.scalar =
                     minimumScale + scaleRange * (1.0f - randomValue);
                 particleIndex++;
                 particle = (u16 *)((u8 *)particle + 8);
             }
-            delay = *(s32 *)(config + 0x4C);
+            delay = settings->delay;
             switch (delay) {
             case 0:
                 delay = 0x7FFFFFFF;
@@ -322,7 +336,7 @@ void LineNovaReseedParticles(u8 *effect) {
             default:
                 break;
             }
-            *(s32 *)(effect + 0x1C) = delay;
+            node->delay = delay;
         }
     }
 }
@@ -352,7 +366,7 @@ static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 
 // FUN_004B36B0
 void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
 {
-    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 1103). */
+    /* Access-site typing differed by 1103 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
 
     extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
     extern u8 *kwlnGetCamera(void);
@@ -381,13 +395,23 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
     f32 width, spread, divisor;
     u8 mode;
 
-    instance = effect;
-    state = *(u8 **)(instance + 0x20);
-    config = *(u8 **)(instance + 0x24);
-    owner = *(u8 **)(state + 4);
+    LineNovaEffect *node;
+    LineNovaConfiguration *settings;
+    LineNovaState *workState;
+    LineNovaGeometry *geometryBlock;
+    LineNovaCameraWindow *window;
 
-    sampleResult = (u32)mdlEffectSamplePackedColor(config, config + 0x24, (s32)*(u32 *)(instance + 0x14), (s32)*(u32 *)(config + 0x34));
-    effectColor = *(u32 *)(instance + 0x10);
+    instance = effect;
+    node = (LineNovaEffect *)instance;
+    state = node->state.bytes;
+    workState = (LineNovaState *)state;
+    config = node->configuration.bytes;
+    settings = (LineNovaConfiguration *)config;
+    owner = workState->geometry.bytes;
+    geometryBlock = (LineNovaGeometry *)owner;
+
+    sampleResult = (u32)mdlEffectSamplePackedColor(config, config + 0x24, (s32)node->elapsed.unsignedValue, (s32)settings->duration.unsignedValue);
+    effectColor = node->color.unsignedValue;
     colorInput = &effectColor;
     normalization = fGpffff8044;
     effectVuUnpackColor10V0(colorInput, normalization);
@@ -409,22 +433,23 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
     }
     rgba.word = packed;
     if (rgba.byte[3] != 255) {
-        u8 *target = *(u8 **)(owner + 0x14);
-        *(NovaRgba *)(target + 4) = rgba.color;
+        u8 *target = geometryBlock->material;
+        *(NovaRgba *)&((LineNovaMaterial *)target)->color = rgba.color;
     } else {
         u8 *target;
         rgba.byte[3] = 254;
-        target = *(u8 **)(owner + 0x14);
-        *(NovaRgba *)(target + 4) = rgba.color;
+        target = geometryBlock->material;
+        *(NovaRgba *)&((LineNovaMaterial *)target)->color = rgba.color;
         rgba.byte[3] = 255;
     }
-    if (*(u8 *)(*(u8 **)(owner + 0x14) + 7) == 0) return;
+    if (((LineNovaMaterial *)geometryBlock->material)->color.c3 == 0) return;
 
     cameraDimensions = kwlnGetCamera() + 0x68;
-    farClip = *(f32 *)(kwlnGetCamera() + 0x80);
+    window = (LineNovaCameraWindow *)cameraDimensions;
+    farClip = ((RwCamera *)kwlnGetCamera())->nearPlane;
     xScale = *(f32 *)cameraDimensions;
     xExtent = xScale * farClip;
-    yScale = *(f32 *)(cameraDimensions + 4);
+    yScale = window->y.scalar;
     yExtent = yScale * farClip;
     minusX = -xExtent;
     corners[0].lane[0] = minusX;
@@ -434,7 +459,7 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
     corners[2].lane[0] = xExtent; corners[2].lane[1] = yExtent; corners[2].lane[2] = farClip;
     corners[3].lane[0] = minusX; corners[3].lane[1] = yExtent; corners[3].lane[2] = farClip;
     center.word[0] = 0; center.word[1] = 0; center.vector.lane[2] = farClip;
-    mode = *(u8 *)(config + 0x7c);
+    mode = settings->unk7C.byte[0];
     switch (mode) {
     case 0: {
         f32 depth, x, y;
@@ -444,7 +469,7 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
         }
         depth = interpolated.lane[2];
         x = *(f32 *)cameraDimensions * depth;
-        y = *(f32 *)(cameraDimensions + 4) * depth;
+        y = window->y.scalar * depth;
         projected.lane[0] = (2.0f * -x) * (interpolated.lane[0] / depth - 0.5f);
         projected.lane[1] = (2.0f * -y) * (interpolated.lane[1] / depth - 0.5f);
         projected.lane[2] = depth;
@@ -457,27 +482,28 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
         yScale = yScale * farClip;
         half = 0.5f;
         two = 2.0f;
-        x = (f32)*(s16 *)(config + 0x7e);
+        x = (f32)settings->unk7C.signedHalf[1];
         x = (x / 640.0f) - half;
         projected.lane[0] = novaMultiply(two * -xScale, x);
-        y = (f32)*(s16 *)(config + 0x80);
+        y = (f32)settings->unk80.signedHalf[0];
         y = (y / 448.0f) - half;
         projected.lane[1] = novaMultiply(two * -yScale, y);
         projected.lane[2] = farClip;
     } break;
     }
     particle = *(u8 **)state;
-    count = *(u32 *)(config + 0x38);
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 2);
-    vertices = *(f32 **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
+    count = settings->particleCount.unsignedValue;
+    RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
+    vertices = ((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
     {
         f32 opacity = (f32)(u32)particle[2] / 255.0f;
-        width = *(f32 *)(config + 0x5c) * opacity;
-        spread = *(f32 *)(config + 0x60) * opacity;
+        width = settings->width * opacity;
+        spread = settings->spread * opacity;
     }
     index = 0;
     divisor = (f32)65535;
     for (; index < count; index++, particle += 8, vertices += 18) {
+        LineNovaParticle *entry = (LineNovaParticle *)particle;
         f32 length, factor;
         effectVuLoad10(&corners[index & 3]);
         effectVuLoad11(&corners[(index + 1) & 3]);
@@ -518,7 +544,7 @@ __asm__ volatile(
 
         {
             __asm__ volatile("nop\nqmtc2.ni %0, $vf2\nvmulx.xyzw $vf10, $vf10, $vf2x\n"
-                : : "r"(*(u32 *)(particle + 4)) : "$vf2", "$vf10");
+                : : "r"(entry->scale.bits) : "$vf2", "$vf10");
         }
 __asm__ volatile(
     "vadd.xyzw $vf10, $vf10, $vf11\n"
@@ -597,14 +623,14 @@ vertices[8] = *(f32 *)D_00713D18;
     }
 
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *geometry = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry;
         func_003c22f0(geometry);
-        if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+        if (*(u16 *)owner & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 
     {
-        u8 *matrix = func_003e9700(*(u8 **)(kwlnGetCamera() + 4));
-        func_003e9cb0(*(u8 **)(owner + 0xc), matrix, 0);
+        u8 *matrix = func_003e9700((u8 *)((RwCamera *)kwlnGetCamera())->object.object.parent);
+        func_003e9cb0(geometryBlock->frame, matrix, 0);
     }
 }
 #pragma pop
@@ -665,7 +691,7 @@ void LineNovaUseVertexUpdate(u8 *effect) {
 // FUN_004B3ED0
 u8 *LineNovaCreateAlpha(u8 *config)
 {
-    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 474). */
+    /* Access-site typing differed by 474 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
     f32 firstScaledAlpha;
     f32 secondScaledAlpha;
     f32 alphaScale;
@@ -688,29 +714,34 @@ u8 *LineNovaCreateAlpha(u8 *config)
     u8 *state;
     u8 *colors;
 
-    particleCount = *(u32 *)(config + 0x38);
+    LineNovaConfiguration *settings = (LineNovaConfiguration *)config;
+    LineNovaState *workState;
+    LineNovaColors *colorRow;
+
+    particleCount = settings->particleCount.unsignedValue;
     chkmemAllocSiteTag(D_00714628, 0x16D);
     state = (u8 *)(*jtbl_008873E8)(particleCount * 6 + 0x10, 0x40000);
+    workState = (LineNovaState *)state;
     if (state == NULL) {
         kAssertFail(D_00714628, 0x16E);
     }
-    *(u8 **)(state + 0) = state + 0x10;
-    *(u8 **)(state + 8) = state;
+    workState->particles.bytes = state + 0x10;
+    workState->allocation.bytes = state;
     geometryBlock = (u16 *)GeometryCreateTableGrid(particleCount & 0xFFFF, 4, 6, D_00713310, 0x48);
-    *(u16 **)(state + 4) = geometryBlock;
+    workState->geometry.u16Pointer = geometryBlock;
     *geometryBlock &= 0xFFFE;
-    cnt = *(u32 *)(config + 0x38);
-    colors = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(state + 4) + 0x10) + 0x18) + 0x30);
-    sourceAlpha = *(u8 *)(config + 0x92);
+    cnt = settings->particleCount.unsignedValue;
+    colors = (u8 *)((RpAtomic *)((LineNovaGeometry *)workState->geometry.bytes)->atomic)->geometry->colors;
+    sourceAlpha = settings->unk90.byte[2];
     sourceAlphaFloat = (f32)(u32)sourceAlpha;
     alphaScale = sourceAlphaFloat / 255.0f;
-    firstColor = *(u32 *)(config + 0x54);
+    firstColor = settings->firstColor;
     firstSourceAlpha = firstColor >> 0x18;
     firstAlphaFloat = (f32)(u32)firstSourceAlpha;
     firstScaledAlpha = firstAlphaFloat * alphaScale;
     firstAlpha = (u32)firstScaledAlpha;
     firstFadedColor = (firstColor & 0xFFFFFF) | (firstAlpha << 24);
-    secondColor = *(u32 *)(config + 0x58);
+    secondColor = settings->secondColor;
     secondSourceAlpha = secondColor >> 0x18;
     secondAlphaFloat = (f32)(u32)secondSourceAlpha;
     secondScaledAlpha = secondAlphaFloat * alphaScale;
@@ -718,12 +749,13 @@ u8 *LineNovaCreateAlpha(u8 *config)
     secondFadedColor = (secondColor & 0xFFFFFF) | (secondAlpha << 24);
     particleIndex = 0;
     while (particleIndex < cnt) {
-        *(s32 *)(colors + 0) = secondFadedColor;
-        *(s32 *)(colors + 4) = firstFadedColor;
-        *(s32 *)(colors + 8) = secondFadedColor;
-        *(u32 *)(colors + 0xC) = *(u32 *)(config + 0x58);
-        *(u32 *)(colors + 0x10) = *(u32 *)(config + 0x54);
-        *(u32 *)(colors + 0x14) = *(u32 *)(config + 0x58);
+        colorRow = (LineNovaColors *)colors;
+        colorRow->unk00.signedValue = secondFadedColor;
+        colorRow->unk04.signedValue = firstFadedColor;
+        colorRow->unk08.signedValue = secondFadedColor;
+        colorRow->unk0C = settings->secondColor;
+        colorRow->unk10 = settings->firstColor;
+        colorRow->unk14 = settings->secondColor;
         particleIndex++;
         colors += 0x18;
     }
@@ -741,7 +773,7 @@ void LineNovaDestroyAlt(u8 *state) {
 // Reseeds the six-byte vertex records: three random 16-bit components, then resets the delay from the emitter.
 // FUN_004B41C0
 void LineNovaReseedVertices(u8 *effect) {
-    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 51). */
+    /* Access-site typing differed by 51 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
     u8 *state;
     u8 *config;
     u32 count;
@@ -755,31 +787,37 @@ void LineNovaReseedVertices(u8 *effect) {
     f32 minimumPosition;
     f32 randomValue;
 
-    state = *(u8 **)(effect + 0x20);
-    config = *(u8 **)(effect + 0x24);
-    count = *(u32 *)(config + 0x38);
-    progress = *(s32 *)(config + 0x34);
-    if (progress >= *(s32 *)(effect + 0x14) || progress == 0) {
-        delay = *(s32 *)(effect + 0x1C) - 1;
-        *(s32 *)(effect + 0x1C) = delay;
+    LineNovaEffect *node = (LineNovaEffect *)effect;
+    LineNovaConfiguration *settings;
+    LineNovaVertexParticle *entry;
+
+    state = node->state.bytes;
+    config = node->configuration.bytes;
+    settings = (LineNovaConfiguration *)config;
+    count = settings->particleCount.unsignedValue;
+    progress = settings->duration.signedValue;
+    if (progress >= node->elapsed.signedValue || progress == 0) {
+        delay = node->delay - 1;
+        node->delay = delay;
         if (delay <= 0) {
-            alphaVariation = *(f32 *)(config + 0x64);
-            positionVariation = *(f32 *)(config + 0x94);
+            alphaVariation = settings->alphaVariation;
+            positionVariation = settings->unk94;
             particle = *(u16 **)state;
             particleIndex = 0;
             minimumAlpha = 1.0f - alphaVariation;
             minimumPosition = 1.0f - positionVariation;
             while (particleIndex < count) {
+                entry = (LineNovaVertexParticle *)particle;
                 randomValue = 65535.0f * (minimumAlpha + alphaVariation * effMiscRandFloat(0));
                 *(u16 *)particle = (u16)randomValue;
                 randomValue = 65535.0f * effMiscRandFloat(0);
-                *(u16 *)(particle + 1) = (u16)randomValue;
+                entry->verticalPosition = (u16)randomValue;
                 randomValue = 65535.0f * (minimumPosition + positionVariation * effMiscRandFloat(0));
-                *(u16 *)(particle + 2) = (u16)randomValue;
+                entry->horizontalPosition = (u16)randomValue;
                 particleIndex++;
                 particle = (u16 *)((u8 *)particle + 6);
             }
-            delay = *(s32 *)(config + 0x4C);
+            delay = settings->delay;
             switch (delay) {
             case 0:
                 delay = 0x7FFFFFFF;
@@ -787,7 +825,7 @@ void LineNovaReseedVertices(u8 *effect) {
             default:
                 break;
             }
-            *(s32 *)(effect + 0x1C) = delay;
+            node->delay = delay;
         }
     }
 }
@@ -805,7 +843,7 @@ void LineNovaReseedVertices(u8 *effect) {
 // FUN_004B4430
 void LineNovaUpdateVertices(u8 *unused, u8 *effect)
 {
-    /* Retain byte/halfword cursor accesses to the documented layouts: typed field access changes MWCC code generation (normalized_diff 1470). */
+    /* Access-site typing differed by 1470 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
 
     extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
     extern u8 *kwlnGetCamera(void);
@@ -843,20 +881,30 @@ void LineNovaUpdateVertices(u8 *unused, u8 *effect)
     f32 width, spread, screenX, screenY;
     u32 progress, duration;
     u8 *matrix;
+    LineNovaEffect *node;
+    LineNovaConfiguration *settings;
+    LineNovaState *workState;
+    LineNovaGeometry *geometryBlock;
+    LineNovaCameraWindow *window;
+
     axisXY = *(s64 *)D_00714638;
     axisZ = *(f32 *)D_00714640;
     axis.xy = axisXY;
     axis.z = axisZ;
 
     instance = effect;
-    state = *(u8 **)(instance + 0x20);
-    config = *(u8 **)(instance + 0x24);
-    owner = *(u8 **)(state + 4);
+    node = (LineNovaEffect *)instance;
+    state = node->state.bytes;
+    workState = (LineNovaState *)state;
+    config = node->configuration.bytes;
+    settings = (LineNovaConfiguration *)config;
+    owner = workState->geometry.bytes;
+    geometryBlock = (LineNovaGeometry *)owner;
 
-    progress = *(u32 *)(instance + 0x14);
+    progress = node->elapsed.unsignedValue;
 
-    sampleResult = (u32)mdlEffectSamplePackedColor(config, config + 0x24, (s32)*(u32 *)(instance + 0x14), (s32)*(u32 *)(config + 0x34));
-    effectColor = *(u32 *)(instance + 0x10);
+    sampleResult = (u32)mdlEffectSamplePackedColor(config, config + 0x24, (s32)node->elapsed.unsignedValue, (s32)settings->duration.unsignedValue);
+    effectColor = node->color.unsignedValue;
     colorInput = &effectColor;
     normalization = fGpffff8044;
     effectVuUnpackColor10V0(colorInput, normalization);
@@ -878,63 +926,65 @@ void LineNovaUpdateVertices(u8 *unused, u8 *effect)
     }
     rgba.word = packed;
     if (rgba.byte[3] != 255) {
-        u8 *target = *(u8 **)(owner + 0x14);
-        *(NovaRgba *)(target + 4) = rgba.color;
+        u8 *target = geometryBlock->material;
+        *(NovaRgba *)&((LineNovaMaterial *)target)->color = rgba.color;
     } else {
         u8 *target;
         rgba.byte[3] = 254;
-        target = *(u8 **)(owner + 0x14);
-        *(NovaRgba *)(target + 4) = rgba.color;
+        target = geometryBlock->material;
+        *(NovaRgba *)&((LineNovaMaterial *)target)->color = rgba.color;
         rgba.byte[3] = 255;
     }
-    if (*(u8 *)(*(u8 **)(owner + 0x14) + 7) == 0) return;
+    if (((LineNovaMaterial *)geometryBlock->material)->color.c3 == 0) return;
 
-    duration = *(u32 *)(config + 0x7c);
+    duration = settings->unk7C.unsignedValue;
     if (duration != 0) {
         if (progress < duration) {
             f32 time = (f32)progress / (f32)duration;
-            centerX = 0.0f + (f32)*(s16 *)(config + 0x80) + time * (f32)(*(s16 *)(config + 0x88) - *(s16 *)(config + 0x80));
-            centerY = 0.0f + (f32)*(s16 *)(config + 0x82) + time * (f32)(*(s16 *)(config + 0x8a) - *(s16 *)(config + 0x82));
-            extentX = 0.0f + (f32)*(s16 *)(config + 0x84) + time * (f32)(*(s16 *)(config + 0x8c) - *(s16 *)(config + 0x84));
-            extentY = 0.0f + (f32)*(s16 *)(config + 0x86) + time * (f32)(*(s16 *)(config + 0x8e) - *(s16 *)(config + 0x86));
+            centerX = 0.0f + (f32)settings->unk80.signedHalf[0] + time * (f32)(settings->unk88.signedHalf[0] - settings->unk80.signedHalf[0]);
+            centerY = 0.0f + (f32)settings->unk80.signedHalf[1] + time * (f32)(settings->unk88.signedHalf[1] - settings->unk80.signedHalf[1]);
+            extentX = 0.0f + (f32)settings->unk84.signedHalf[0] + time * (f32)(settings->unk8C.signedHalf[0] - settings->unk84.signedHalf[0]);
+            extentY = 0.0f + (f32)settings->unk84.signedHalf[1] + time * (f32)(settings->unk8C.signedHalf[1] - settings->unk84.signedHalf[1]);
         } else {
-            centerX = (f32)*(s16 *)(config + 0x88);
-            centerY = (f32)*(s16 *)(config + 0x8a);
-            extentX = (f32)*(s16 *)(config + 0x8c);
-            extentY = (f32)*(s16 *)(config + 0x8e);
+            centerX = (f32)settings->unk88.signedHalf[0];
+            centerY = (f32)settings->unk88.signedHalf[1];
+            extentX = (f32)settings->unk8C.signedHalf[0];
+            extentY = (f32)settings->unk8C.signedHalf[1];
         }
     } else {
-        centerX = (f32)*(s16 *)(config + 0x80);
-        centerY = (f32)*(s16 *)(config + 0x82);
-        extentX = (f32)*(s16 *)(config + 0x84);
-        extentY = (f32)*(s16 *)(config + 0x86);
+        centerX = (f32)settings->unk80.signedHalf[0];
+        centerY = (f32)settings->unk80.signedHalf[1];
+        extentX = (f32)settings->unk84.signedHalf[0];
+        extentY = (f32)settings->unk84.signedHalf[1];
     }
     cameraDimensions = kwlnGetCamera() + 0x68;
-    depth = novaAdd(*(f32 *)(kwlnGetCamera() + 0x80), 1.0f);
+    window = (LineNovaCameraWindow *)cameraDimensions;
+    depth = novaAdd(((RwCamera *)kwlnGetCamera())->nearPlane, 1.0f);
     screenX = 640.0f;
     {
         f32 x = extentX * (*(f32 *)cameraDimensions * depth) / screenX;
         f32 y;
         screenY = 448.0f;
-        y = extentY * (*(f32 *)(cameraDimensions + 4) * depth) / screenY;
+        y = extentY * (window->y.scalar * depth) / screenY;
         bottom.lane[0] = -x; bottom.lane[1] = -y; bottom.lane[2] = depth;
         top.lane[0] = -x; top.lane[1] = y; top.lane[2] = depth;
         extentX = novaMultiply(y, 2.0f);
         extentY = novaMultiply(x, 2.0f);
     }
     particle = *(u8 **)state;
-    count = *(u32 *)(config + 0x38);
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 2);
-    vertices = *(f32 **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
-    width = *(f32 *)(config + 0x5c) / 10.0f;
-    spread = *(f32 *)(config + 0x60) / 10.0f;
+    count = settings->particleCount.unsignedValue;
+    RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
+    vertices = ((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
+    width = settings->width / 10.0f;
+    spread = settings->spread / 10.0f;
     index = 0;
     for (; index < count; index++, particle += 6, vertices += 18) {
+        LineNovaVertexParticle *entry = (LineNovaVertexParticle *)particle;
         const f32 divisor = (f32)65535;
         f32 opacity = (f32)(u32)*(u16 *)particle / divisor;
         f32 horizontalWidth = width * opacity;
         f32 verticalWidth = spread * opacity;
-        f32 horizontalPosition = extentY * (f32)(u32)*(u16 *)(particle + 4) / divisor;
+        f32 horizontalPosition = extentY * (f32)(u32)entry->horizontalPosition / divisor;
         f32 verticalPosition;
         effectVuLoad10(&bottom);
         effectVuLoad11(&top);
@@ -950,7 +1000,7 @@ __asm__ volatile(
     "vmove.xyzw $vf12, $vf10\n"
     : : : "$vf2", "$vf10", "$vf11", "$vf12", "ACC", "Q");
 
-        verticalPosition = extentX * (f32)(u32)*(u16 *)(particle + 2) / divisor;
+        verticalPosition = extentX * (f32)(u32)entry->verticalPosition / divisor;
         effectVuScale10(verticalPosition);
 __asm__ volatile(
     "vadd.xyzw $vf10, $vf10, $vf11\n"
@@ -981,21 +1031,21 @@ vertices[17] = *(f32 *)D_00713D18;
     }
 
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *geometry = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry;
         func_003c22f0(geometry);
-        if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+        if (*(u16 *)owner & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 
-    matrix = func_003e9700(*(u8 **)(kwlnGetCamera() + 4));
-    RwMatrixRotate(rotation, (const u8 *)&axis, (f32)*(s16 *)(config + 0x90), 0);
-    *(f32 *)(rotation + 0x30) += novaCameraOffset(centerX, (const f32 *)cameraDimensions, depth, screenX, 320.0f);
+    matrix = func_003e9700((u8 *)((RwCamera *)kwlnGetCamera())->object.object.parent);
+    RwMatrixRotate(rotation, (const u8 *)&axis, (f32)settings->unk90.signedHalf[0], 0);
+    ((LineNovaMatrix *)rotation)->xTranslation += novaCameraOffset(centerX, (const f32 *)cameraDimensions, depth, screenX, 320.0f);
     {
-        f32 factor = 2.0f * *(const f32 *)(cameraDimensions + 4);
+        f32 factor = 2.0f * window->y.constf32;
         factor = factor * depth;
-        *(f32 *)(rotation + 0x34) += (224.0f - centerY) * factor / screenY;
+        ((LineNovaMatrix *)rotation)->yTranslation += (224.0f - centerY) * factor / screenY;
     }
     RwMatrixMultiply(transform, rotation, matrix);
-    func_003e9cb0(*(u8 **)(owner + 0xc), transform, 0);
+    func_003e9cb0(geometryBlock->frame, transform, 0);
 }
 #pragma pop
 

@@ -335,34 +335,37 @@ u8 *GeometryCreateTableGrid(s32 rowCount, s32 trianglesPerRow, s32 verticesPerRo
     return result;
 }
 
-// Creates a type-3 block around the atomic from resource rowCount with flags trianglesPerRow; sets the 0x80000 colour block when flagged.
+// Creates a type-3 resource atomic and its frame; flag 0x80000 also installs the default plugin colour.
 // FUN_004830F0
 u8 *GeometryCreateAtomicFromResource(u16 resourceId, s32 flags) {
-    /* Typed block/plugin accesses change MWCC register allocation and instruction count (normalized_diff 283); retain byte accesses to the proven layouts above. */
+    /* A separate typed local preserves MWCC's atomic-link reloads; access-site casts alone change allocation. */
     u8 *block;
     s32 frame;
+    EffGeometryBlock *geometryBlock;
 
     chkmemAllocSiteTag(D_00713448, 0xA6);
     block = jtbl_008873E8[0](0x48, 0x40000);
-    *(s16 *)(block + 0) = 3;
-    *(s32 *)(block + 4) = flags;
-    *(s16 *)(block + 8) = 0;
-    *(u16 *)(block + 0xA) = resourceId;
-    *(s32 *)(block + 0x14) = 0;
-    *(s32 *)(block + 0x10) = func_003a2340(resourceId & 0xFFFF, flags, 2);
+    geometryBlock = (EffGeometryBlock *)block;
+    ((EffGeometryBlock *)block)->kind.signedHalf[0] = 3;
+    ((EffGeometryBlock *)block)->flags = flags;
+    ((EffGeometryBlock *)block)->vertexCount.signedHalf[0] = 0;
+    ((EffGeometryBlock *)block)->vertexCount.half[1] = resourceId;
+    ((EffGeometryBlock *)block)->material.signedValue = 0;
+    ((EffGeometryBlock *)block)->atomic.signedValue = func_003a2340(resourceId & 0xFFFF, flags, 2);
     frame = (s32)func_003e9320();
-    *(s32 *)(block + 0xC) = frame;
-    RpAtomicSetFrame(*(RpAtomic **)(block + 0x10), (RwFrame *)frame);
-    *(s32 *)(*(u8 **)(*(u8 **)(block + 0x10) + iGpffffb610) + 0xB4) = 1;
+    ((EffGeometryBlock *)block)->frame.signedValue = frame;
+    RpAtomicSetFrame((RpAtomic *)geometryBlock->atomic.bytes, (RwFrame *)frame);
+    /* RenderWare registers the pointer slot at a runtime plugin displacement. */
+    ((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->unkB4 = 1;
     if (flags & 0x80000) {
-        memcpy(*(u8 **)(*(u8 **)(block + 0x10) + iGpffffb610) + 0xE0, D_00713460, 0x10);
-        *(s32 *)(*(u8 **)(*(u8 **)(block + 0x10) + iGpffffb610) + 0x40) |= 0x80000;
+        memcpy(((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->color, D_00713460, 0x10);
+        ((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->flags |= 0x80000;
     }
-    *(s32 *)(*(u8 **)(*(u8 **)(block + 0x10) + iGpffffb610) + 0x40) |= 0x800000;
-    *(s32 *)(*(u8 **)(*(u8 **)(block + 0x10) + iGpffffb610) + 4) = 0;
+    ((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->flags |= 0x800000;
+    ((EffGeometryAtomicPlugin **)(geometryBlock->atomic.bytes + iGpffffb610))[0]->unk04 = 0;
     memset(block + 0x18, 0, 0x30);
-    *(s16 *)(block + 0x30) = 0x15;
-    *(u8 **)(block + 0x34) = block;
+    ((EffGeometryBlock *)block)->tag = 0x15;
+    ((EffGeometryBlock *)block)->owner.bytes = block;
     return block;
 }
 
@@ -451,33 +454,34 @@ void GeometryBlockBindResource(u8 *block, s32 resourceId) {
     PrimAppendNode(nodeList, block + 0x18);
 }
 
-// Sets two material slots for part resourceId; values 0 to 6 select a texture set, anything else asserts.
+// Selects the atomic's paired material settings for states zero through six; other states assert.
 // FUN_004834E0
 void GeometryBlockSetPartState(u8 *block, s32 state) {
-    /* Typed atomic accesses change MWCC reload/register allocation (normalized_diff 232); retain the proven +0x10 atomic link as a byte access. */
-    if (*(u16 *)block & 2) {
+    EffGeometryBlock *geometryBlock = (EffGeometryBlock *)block;
+    /* Keep the byte cursor and typed local distinct: access-site casts change allocation across calls. */
+    if (((EffGeometryBlock *)block)->kind.half[0] & 2) {
         switch (state & 0xFFFF) {
         case 0:
-            func_003a2950(*(s32 **)(block + 0x10), 2, 0x717FB);
-            func_003a2950(*(s32 **)(block + 0x10), 1, 0x44);
+            func_003a2950(geometryBlock->atomic.words, 2, 0x717FB);
+            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 0x44);
             break;
         case 1:
-            func_003a2950(*(s32 **)(block + 0x10), 2, 0x71801);
-            func_003a2950(*(s32 **)(block + 0x10), 1, 0x44);
+            func_003a2950(geometryBlock->atomic.words, 2, 0x71801);
+            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 0x44);
             break;
         case 2:
-            func_003a2950(*(s32 **)(block + 0x10), 2, 0x71801);
-            func_003a2950(*(s32 **)(block + 0x10), 1, 0x48);
+            func_003a2950(geometryBlock->atomic.words, 2, 0x71801);
+            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 0x48);
             break;
         case 3:
         case 4:
-            func_003a2950(*(s32 **)(block + 0x10), 2, 0x71801);
-            func_003a2950(*(s32 **)(block + 0x10), 1, 0x42);
+            func_003a2950(geometryBlock->atomic.words, 2, 0x71801);
+            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 0x42);
             break;
         case 5:
         case 6:
-            func_003a2950(*(s32 **)(block + 0x10), 2, 0x71801);
-            func_003a2950(*(s32 **)(block + 0x10), 1, 6);
+            func_003a2950(geometryBlock->atomic.words, 2, 0x71801);
+            func_003a2950(((EffGeometryBlock *)block)->atomic.words, 1, 6);
             break;
         default:
             kAssertFail(D_00713448, 0x14C);

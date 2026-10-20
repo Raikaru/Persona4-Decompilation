@@ -1588,31 +1588,33 @@ u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData)
     u8 *data;
     u8 *object;
     s32 headerBytes = 0x60;
+    BlurFilterNode *node;
 
-    /* BlurFilterNode offsets are proven above; byte accesses retain the constructor reload and register allocation (typed rewrite: normalized_diff 112). */
+    /* A separate typed node preserves constructor allocation; access-site casts alone differed by 112 bytes. */
     kind = type & 0xFFFF;
-    dataSize = *(s32 *)(D_007143A4 + kind * 0x18);
+    dataSize = ((BlurFilterSizeEntry *)D_007143A4)[kind].dataBytes;
     if ((u32)dataSize + 0x60 >= 0x200U)
         kAssertFail(D_00714450, 0x170);
     chkmemAllocSiteTag(D_00714450, 0x171);
     allocated = (u8 *)(*jtbl_008873E8)(dataSize + 0x60, 0x40000);
     object = allocated;
+    node = (BlurFilterNode *)object;
     memset(object, 0, dataSize + 0x60);
     if (object == (u8 *)0)
         kAssertFail(D_00714380, 0x63B);
-    *(s32 *)(object + 0x18) = kind;
-    *(s32 *)(object + 0x10) = -1;
-    *(s32 *)(object + 0x14) = 0x3F800000;
-    *(s32 *)(object + 0x28) = 0;
+    node->kind.signedValue = kind;
+    node->color = -1;
+    node->scale.signedValue = 0x3F800000;
+    node->reference.signedValue = 0;
     __asm__ ("sqc2 vf0, 0(%0)" : : "r"(object) : "memory");
     data = object + headerBytes;
-    *(u8 **)(object + 0x24) = data;
+    node->configuration.bytes = data;
     memcpy(data, initialData, dataSize);
-    initialize = *(s32 (**)(u8 *))(D_00714390 + ((u16)type * 0x18));
+    initialize = (s32 (*)(u8 *))((BlurFilterCallbackEntry *)D_00714390)[(u16)type].callback;
     if (initialize != (s32 (*)(u8 *))0)
-        *(s32 *)(object + 0x20) = initialize(*(u8 **)(object + 0x24));
-    *(s16 *)(object + 0x44) = 0x16;
-    *(u8 **)(object + 0x48) = object;
+        node->slots.signedValue = initialize(node->configuration.bytes);
+    node->tag = 0x16;
+    node->owner = object;
     return object;
 }
 /* measured: re-measured this wave at nd 4 (2 rows) with a full candidate
