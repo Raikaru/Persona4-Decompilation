@@ -102,10 +102,11 @@ typedef struct RouteNode {
     struct RouteNode *neighbors[32];
     f32 distances[32];
 } RouteNode;
-/* measured: array-member spelling changes the path finder instruction sequence. */
-#define ROUTE_NEIGHBOR(n, i) (*(RouteNode **)((u8 *)(n) + (i) * 4 + 0x30))
-/* measured: array-member spelling changes the path finder instruction sequence. */
-#define ROUTE_DISTANCE(n, i) (*(f32 *)((u8 *)(n) + (i) * 4 + 0xB0))
+/* measured: direct arrays, a separate node alias and edge-array locals all lose MATCH.
+ * MEMBER retains the original byte-stride loads while naming the two edge arrays. */
+#define ROUTE_NEIGHBOR(n, i) MEMBER(RouteNode *, (u8 *)(n) + (i) * 4, RouteNode, neighbors)
+#define ROUTE_DISTANCE(n, i) MEMBER(f32, (u8 *)(n) + (i) * 4, RouteNode, distances)
+/* Test whether a route node is already linked into the open search list. */
 static inline s32 routeInOpenList(RouteNode *scan, RouteNode *node)
 {
     for (; scan != NULL; scan = scan->openNext) {
@@ -115,6 +116,7 @@ static inline s32 routeInOpenList(RouteNode *scan, RouteNode *node)
     }
     return 0;
 }
+/* Test whether a route node has already moved into the closed search list. */
 static inline s32 routeInClosedList(RouteNode *scan, RouteNode *node)
 {
     for (; scan != NULL; scan = scan->closedNext) {

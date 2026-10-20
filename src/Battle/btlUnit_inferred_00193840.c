@@ -134,6 +134,7 @@ extern u8 D_00794150[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00193840-00194b60 */
 
+/* Find a flagged packet with the supplied UID, ignoring its two high tag bits. */
 static inline u8 *btlPacketFindFlaggedByUid(u64 uid)
 {
     u8 *node;
@@ -143,7 +144,7 @@ static inline u8 *btlPacketFindFlaggedByUid(u64 uid)
     i = 0;
     btl = iGpffffb3ac;
     while (i < 4) {
-        node = *(u8 **)(btl + i * 8 + 0x19C);
+        node = ((BtlBattleState *)btl)->packetLists[i].tail;
         while (node != NULL) {
             if (uid == (((BtlPacket *)node)->uid & mask) && (((BtlPacket *)node)->flags & 0x20) != 0) {
                 return node;
@@ -154,6 +155,7 @@ static inline u8 *btlPacketFindFlaggedByUid(u64 uid)
     }
     return NULL;
 }
+/* Find a flagged packet whose action UID matches after removing high tag bits. */
 static inline u8 *btlPacketFindFlaggedByActionUid(u64 uid)
 {
     u8 *node;
@@ -163,7 +165,7 @@ static inline u8 *btlPacketFindFlaggedByActionUid(u64 uid)
     i = 0;
     btl = iGpffffb3ac;
     while (i < 4) {
-        node = *(u8 **)(btl + i * 8 + 0x19C);
+        node = ((BtlBattleState *)btl)->packetLists[i].tail;
         while (node != NULL) {
             if (uid == (((BtlPacket *)node)->actionUID & mask) && (((BtlPacket *)node)->flags & 0x20) != 0) {
                 return node;
@@ -183,9 +185,9 @@ static inline u8 *btlPacketFindFlaggedByType(u16 key)
     i = 0;
     btl = iGpffffb3ac;
     while (i < 4) {
-        node = *(u8 **)(btl + i * 8 + 0x19C);
+        node = ((BtlBattleState *)btl)->packetLists[i].tail;
         while (node != NULL) {
-            if (*(u16 *)(node + 0x40) == key && (((BtlPacket *)node)->flags & 0x20) != 0) {
+            if ((u16)((BtlPacket *)node)->type == key && (((BtlPacket *)node)->flags & 0x20) != 0) {
                 return node;
             }
             node = ((BtlPacket *)node)->previous;
