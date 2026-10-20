@@ -66,18 +66,29 @@ struct BtlUnit
     RwV3d lookAtTargetPos;   /* 0xB8 */
     u32 stateFlags;          /* 0xC4 */
     u16 movementFlags;       /* 0xC8 */
-    u8 unk_ca[0x00DC - 0x00CA];
+    u8 unk_ca[2];
+    f32 moveSpeed;               /* 0xCC: requested speed multiplied by 27 */
+    RwV3d rotationTarget;        /* 0xD0 */
     RwV3d moveDestination;        /* 0xDC. Written by btlUnitMovePacketUpdate, including the stopping-distance adjustment */
     f32 stoppingDistance;         /* 0xE8. Move-packet separation; btlUnitUpdateFollowPath stops this far from the route end */
-    u8 unk_ec[0x09D8 - 0x00EC];
+    u8 unk_ec[0x04F4 - 0x00EC];
+    f32 turnDivisor;             /* 0x4F4: divides the remaining facing angle */
+    RwV3d fixedFacingTarget;     /* 0x4F8: used when stateFlags bit 0x100 is set */
+    u8 pad504[0x09D4 - 0x0504];
+    struct BtlTargetObstacle *radiusNext; /* 0x9D4: embedded obstacle list link */
     u16 unk_9d8;                  /* 0x9D8. Motion-mode bits: 0x10 adds 0x100 to the packet flags, 0x20 zeroes the frame, 0x40 forces motion 27 */
     s16 currentMotion;            /* 0x9DA. Valid while flags2 bit 1 (0x2) is set; written by btlUnitSetMotion */
     s16 motionOption;             /* 0x9DC. Option argument of btlUnitSetMotion */
-    f32 motionRate;               /* 0x9E0. Playback rate, scaled by the motion table's rate */
+    union {
+        f32 motionRate;          /* 0x9E0. Playback rate, scaled by the motion table's rate */
+        s32 motionRateBits;
+    };
     u16 motionCount;              /* 0x9E4. Entries in motionRates */
-    u8 unk_9e6[0x09EC - 0x09E6];
+    s16 holdMotionFrame;         /* 0x9E6 */
+    s16 holdMotionTicks;         /* 0x9E8 */
+    u8 pad9EA[2];
     s16 restMotion;               /* 0x9EC. Motion for the at-rest state */
-    u8 unk_9ee[0x09F0 - 0x09EE];
+    s16 restBlendFrames;         /* 0x9EE */
     f32 restRate;                 /* 0x9F0 */
     s8 restOption;                /* 0x9F4 */
     u8 unk_9f5[0x09F8 - 0x09F5];

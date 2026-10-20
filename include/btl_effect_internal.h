@@ -78,6 +78,9 @@ typedef struct BtlRewardEntry {
  * Callback casts retain the existing declarations at each call site. */
 typedef u32 (*BtlPacketFunc)(void *work);
 typedef struct BtlPacket {
+    union {
+        BtlPacketCondition conditions[4];
+        struct {
     u8 dependencyKind;      /* 0x00: 4 waits for dependencyUID */
     u8 pad01[7];
     u64 dependencyUID;      /* 0x08 */
@@ -90,6 +93,8 @@ typedef struct BtlPacket {
     u8 dependencyKind4;     /* 0x30: second end condition */
     u8 pad31[7];
     u64 dependencyUID4;     /* 0x38 */
+        };
+    };
     s32 type;               /* 0x40: btlPacketAlloc's packet kind */
     u8 listIndex;           /* 0x44 */
     u8 phase;               /* 0x45: condition/delay/update/end-condition/duration */
@@ -108,13 +113,15 @@ typedef struct BtlPacket {
     s32 (*conditionFunc)(u8 *work); /* 0x74: optional dependency query */
     void *workData;         /* 0x78 */
     u8 *previous;           /* 0x7C: preceding packet in the list */
+    u8 *next;               /* 0x80: following packet, reloaded after callbacks */
+    u8 pad84[0x0C];
 } BtlPacket;
-/* The public dispatcher prefix stays 0x80 bytes; allocation/list code also
- * accesses a trailing next link at +0x80 in the full 0x90-byte header. */
+/* btlPacketAlloc adds 0x90 before inline work; CreateImmediate allocates
+ * exactly 0x90. No by-value, embedded or array users depend on the old prefix size. */
 typedef char BtlPacketConditionSizeCheck[sizeof(BtlPacketCondition) == 0x10 ? 1 : -1];
 typedef char BtlPacketWorkOffsetCheck[(u32)&((BtlPacket *)0)->workData == 0x78 ? 1 : -1];
 typedef char BtlPacketPreviousOffsetCheck[(u32)&((BtlPacket *)0)->previous == 0x7C ? 1 : -1];
-typedef char BtlPacketPrefixSizeCheck[sizeof(BtlPacket) == 0x80 ? 1 : -1];
+typedef char BtlPacketSizeCheck[sizeof(BtlPacket) == 0x90 ? 1 : -1];
 
 
 /* Target collectors clear twelve pointer slots; the UID occupies the next
@@ -143,7 +150,10 @@ typedef struct BtlEncounterUnitSlot {
     u32 unk04;
 } BtlEncounterUnitSlot;
 typedef struct BtlEncounterSetup {
-    u32 unk00;
+    union {
+        u32 unk00;
+        struct { u16 flags; u16 unk02; };
+    };
     s32 partyUnits[4];             /* 0x04 */
     s32 enemyUnits[3];             /* 0x14 */
     u16 formation;                /* 0x20 */
@@ -172,6 +182,12 @@ typedef struct BtlSceneColorBlock {
 
 /* btlInit allocates and clears 0xE88 bytes. All gaps retain their retail
  * offsets; the lifecycle, action and effect paths share this allocation. */
+/* Four packet-list endpoint pairs, walked from tail toward previous. */
+typedef struct BtlPacketList {
+    u8 *head;
+    u8 *tail;
+} BtlPacketList;
+
 typedef struct BtlBattleState {
     u8 pad00[0x0C];
     u32 flags;                     /* 0x0C */
@@ -186,7 +202,7 @@ typedef struct BtlBattleState {
     u8 *selectedAction;            /* 0x170 */
     u8 *actions;                   /* 0x174 */
     u8 *unitLists[8];              /* 0x178: head/tail pairs */
-    u8 pad198[0x1B8 - 0x198];
+    BtlPacketList packetLists[4];  /* 0x198 */
     BtlEffectNode *effectNodes;    /* 0x1B8 */
     BtlSceneColorBlock scene;       /* 0x1BC */
     BtlSceneColorBlock list4;       /* 0x1EC */
@@ -204,7 +220,14 @@ typedef struct BtlBattleState {
     s32 actionQueue[12];          /* 0x29C: action pointers in execution order */
     s32 activeActions[12];        /* 0x2CC: pending follow-up actions */
     BtlCameraSequenceWork phase;  /* 0x2FC */
-    u8 pad318[0xA70 - 0x318];
+    union {
+        u8 pad318[0xA70 - 0x318];
+        struct {
+            u8 pad318Boundary[0x324 - 0x318];
+            struct { f32 x, z; } radiusBoundaryMidpoint; /* 0x324: first navigation corner midpoint */
+            u8 pad32C[0xA70 - 0x32C];
+        };
+    };
     s16 unkA70;
     s16 unkA72;
     union {
@@ -212,7 +235,9 @@ typedef struct BtlBattleState {
         struct {
             s32 cameraPartyOccupancy[4]; /* 0xA74: formation slot reservations */
             s32 cameraEnemyOccupancy[5]; /* 0xA84 */
-            u8 padA98[0xB4C - 0xA98];
+            u8 padA98[0xB44 - 0xA98];
+            s32 encounterSequenceUpdate; /* 0xB44: encounter sequence update callback */
+            u8 padB48[4];
         };
     };
     u32 cutinFlags;                /* 0xB4C */
@@ -260,7 +285,9 @@ typedef struct BtlBattleState {
     u8 padC6E[2];
     BtlEncounterSetup encounter;  /* 0xC70 */
     u16 resultFlags;              /* 0xCAC: shuffle eligibility and result mode */
-    u8 padCAE[0xCB8 - 0xCAE];
+    u8 padCAE[2];
+    s32 rewardExp;                /* 0xCB0: accumulated defeated-enemy experience */
+    s32 rewardMoney;              /* 0xCB4: accumulated defeated-enemy money */
     s32 resultEncounterId;        /* 0xCB8 */
     u16 unkCBC;
     u16 survivingPartyIds[4];     /* 0xCBE: populated from party tail at +0x17C */
@@ -271,8 +298,10 @@ typedef struct BtlBattleState {
     u16 unkCD2;
     u8 padCD4[8];
     u32 unkCDC;
-    s16 unkCE0;
-    u8 padCE2[2];
+    union {
+        struct { s16 unkCE0; u8 padCE2[2]; };
+        s32 maximumDefeatedLevel; /* 0xCE0: full-word target-result accumulator */
+    };
     s32 unkCE4;
     s32 unkCE8;
     u8 padCEC[0xD04 - 0xCEC];
@@ -303,6 +332,12 @@ typedef char BtlBattleCameraOffsetCheck[
     (u32)&((BtlBattleState *)0)->camera == 0x24 ? 1 : -1];
 typedef char BtlBattleEscapeCountOffsetCheck[
     (u32)&((BtlBattleState *)0)->escapeCount == 0xC5E ? 1 : -1];
+typedef char BtlBattleRadiusMidpointOffsetCheck[
+    (u32)&((BtlBattleState *)0)->radiusBoundaryMidpoint == 0x324 ? 1 : -1];
+typedef char BtlBattleSequenceUpdateOffsetCheck[
+    (u32)&((BtlBattleState *)0)->encounterSequenceUpdate == 0xB44 ? 1 : -1];
+typedef char BtlBattleMaximumDefeatedLevelOffsetCheck[
+    (u32)&((BtlBattleState *)0)->maximumDefeatedLevel == 0xCE0 ? 1 : -1];
 typedef char BtlBattleStateSizeCheck[sizeof(BtlBattleState) == 0xE88 ? 1 : -1];
 
 #endif

@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2574 of 13102 symbols carry a recovered name.
+// 2585 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -2606,7 +2606,7 @@ func_001efd50 = 0x001EFD50; // type:func
 func_001eff50 = 0x001EFF50; // type:func
 func_001f01a0 = 0x001F01A0; // type:func
 btlTargetSkillEffectCode = 0x001F0260; // type:func
-func_001f0610 = 0x001F0610; // type:func
+btlTargetSkillAuxiliaryMessageNoop = 0x001F0610; // type:func
 btlTargetCheckCommandAvailability = 0x001F0620; // type:func
 btlTargetCheckUnitIdGroup = 0x001F08C0; // type:func
 btlTargetTestUnitFlag = 0x001F0950; // type:func
@@ -2648,7 +2648,7 @@ func_001f3b20 = 0x001F3B20; // type:func
 btlTargetGetMessageRecord = 0x001F3B80; // type:func
 btlTargetPickAffinityMessage = 0x001F3BB0; // type:func
 btlTargetPickPartyCountMessage = 0x001F3F60; // type:func
-func_001f3fd0 = 0x001F3FD0; // type:func
+btlTargetMessageReservedFirstNoop = 0x001F3FD0; // type:func
 func_001f3fe0 = 0x001F3FE0; // type:func
 func_001f4010 = 0x001F4010; // type:func
 func_001f4040 = 0x001F4040; // type:func
@@ -2656,11 +2656,11 @@ func_001f40a0 = 0x001F40A0; // type:func
 func_001f4100 = 0x001F4100; // type:func
 func_001f41b0 = 0x001F41B0; // type:func
 func_001f41e0 = 0x001F41E0; // type:func
-func_001f4250 = 0x001F4250; // type:func
-func_001f4260 = 0x001F4260; // type:func
-func_001f4270 = 0x001F4270; // type:func
-func_001f4280 = 0x001F4280; // type:func
-func_001f4290 = 0x001F4290; // type:func
+btlTargetMessageReservedSecondNoop = 0x001F4250; // type:func
+btlTargetMessageReservedThirdNoop = 0x001F4260; // type:func
+btlTargetMessageReservedFourthNoop = 0x001F4270; // type:func
+btlTargetMessageReservedFifthNoop = 0x001F4280; // type:func
+btlTargetMessageReservedSixthNoop = 0x001F4290; // type:func
 func_001f42a0 = 0x001F42A0; // type:func
 func_001f42d0 = 0x001F42D0; // type:func
 func_001f4330 = 0x001F4330; // type:func
@@ -2760,10 +2760,10 @@ func_001f92c0 = 0x001F92C0; // type:func
 func_001f93a0 = 0x001F93A0; // type:func
 func_001f9570 = 0x001F9570; // type:func
 func_001f9650 = 0x001F9650; // type:func
-func_001f9710 = 0x001F9710; // type:func
-func_001f9720 = 0x001F9720; // type:func
-func_001f9730 = 0x001F9730; // type:func
-func_001f9740 = 0x001F9740; // type:func
+btlTargetVoiceReservedFirstNoop = 0x001F9710; // type:func
+btlTargetVoiceReservedSecondNoop = 0x001F9720; // type:func
+btlTargetVoiceReservedThirdNoop = 0x001F9730; // type:func
+btlTargetVoiceReservedFourthNoop = 0x001F9740; // type:func
 btlVoiceEnablePlaybackPacketUpdate = 0x001F9750; // type:func
 func_001f97b0 = 0x001F97B0; // type:func
 func_001f9800 = 0x001F9800; // type:func

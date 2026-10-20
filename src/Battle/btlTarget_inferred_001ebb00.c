@@ -119,6 +119,7 @@ u8 *btlTargetCreateProcedurePacket(s32 action, s32 scriptKind, u8 *procedureName
     return packet;
 }
 
+/* Pick a random usable skill from the supported set, falling back to the default attack. */
 // FUN_001EBC00
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 /* measured: func_001ebc00 MATCH -> MISMATCH without this pragma. */
