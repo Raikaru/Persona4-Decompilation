@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "rw_camera_internal.h"
 #include "mdl_file_internal.h"
 #include "mdl_effect_drawable_internal.h"
@@ -123,7 +124,7 @@ void EffModelDrawableRollCycle(u8 *drawable)
     u32 nextFrame;
 
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    layerTime = mdlGetLayerWeight(*(s32 *)(drawable + 0xB4), 0);
+    layerTime = mdlGetLayerWeight(MEMBER(s32, drawable, MdlEffectModelDrawable, model), 0);
     nextFrame = (u32)layerTime + 1;
     frameCount = ((MdlEffectModelDrawable *)drawable)->duration;
     if (frameCount >= nextFrame || frameCount == 0) {
@@ -200,7 +201,7 @@ void EffModelDrawCallback(u8 *drawable)
     basis2 = D_007144D8[0].value;
     basis3 = D_007144E8[0].value;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    frame_index = (u32)mdlGetLayerWeight(*(s32 *)(drawable + 0xB4), 0);
+    frame_index = (u32)mdlGetLayerWeight(MEMBER(s32, drawable, MdlEffectModelDrawable, model), 0);
     frame_count = (s32)((MdlEffectModelDrawable *)drawable)->duration;
     if (frame_count >= (s32)frame_index || frame_count == 0) {
         scale = mdlEffectSampleScalarKeys(drawable + 0x44, frame_index, frame_count) / 10.0f;
@@ -232,7 +233,7 @@ void EffModelDrawCallback(u8 *drawable)
         frame.scale.x = temp;
         RwMatrixScale(frame.matrix, &frame.scale, 2);
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        object = mdlGetMatrix(*(s32 *)(drawable + 0xB4));
+        object = mdlGetMatrix(MEMBER(s32, drawable, MdlEffectModelDrawable, model));
         RwMatrixMultiply(object, frame.matrix, matrix);
         frame.scale.x =
             width * (0.5f + (-(f32)(((MdlEffectModelDrawable *)drawable)->x +
@@ -246,18 +247,18 @@ void EffModelDrawCallback(u8 *drawable)
         func_003e4320(&frame.transformed, &frame.scale, matrix);
         scale = ((RwMatrixTag *)matrix)->pos.x + frame.transformed.x;
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        object = mdlGetMatrix(*(s32 *)(drawable + 0xB4));
+        object = mdlGetMatrix(MEMBER(s32, drawable, MdlEffectModelDrawable, model));
         ((RwMatrixTag *)object)->pos.x = scale;
         scale = ((RwMatrixTag *)matrix)->pos.y + frame.transformed.y;
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        object = mdlGetMatrix(*(s32 *)(drawable + 0xB4));
+        object = mdlGetMatrix(MEMBER(s32, drawable, MdlEffectModelDrawable, model));
         ((RwMatrixTag *)object)->pos.y = scale;
         scale = ((RwMatrixTag *)matrix)->pos.z + frame.transformed.z;
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        object = mdlGetMatrix(*(s32 *)(drawable + 0xB4));
+        object = mdlGetMatrix(MEMBER(s32, drawable, MdlEffectModelDrawable, model));
         ((RwMatrixTag *)object)->pos.z = scale;
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlUpdateModelMatrix(*(s32 *)(drawable + 0xB4));
+        mdlUpdateModelMatrix(MEMBER(s32, drawable, MdlEffectModelDrawable, model));
         mdlPrepareItemSlots((s32)((MdlEffectModelDrawable *)drawable)->model);
     }
 }
@@ -335,24 +336,24 @@ void EffModelDrawableUpdate(s32 drawable, u8 *state)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         appliedColor = *(s32 *)&packedColor;
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlSetColor(*(u8 **)(state + 0xB4), &appliedColor);
+        mdlSetColor(MEMBER(u8 *, state, MdlEffectModelDrawable, model), &appliedColor);
         mdlEffectSampleScalarKeys(state + 0x44, frame_index, frame_count);
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        ((MdlFileModel *)*(u8 **)(state + 0xB4))->flags &= ~0x100;
+        ((MdlFileModel *)MEMBER(u8 *, state, MdlEffectModelDrawable, model))->flags &= ~0x100;
         if ((((MdlEffectModelDrawable *)state)->blend != 0) && (((MdlEffectModelDrawable *)state)->blendMode == 0)) {
             /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            ((MdlFileModel *)*(u8 **)(state + 0xB4))->flags |= 0x18;
+            ((MdlFileModel *)*(u8 * *)&((MdlEffectModelDrawable *)state)->model)->flags |= 0x18;
         } else {
             /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            ((MdlFileModel *)*(u8 **)(state + 0xB4))->flags &= ~0x18;
+            ((MdlFileModel *)MEMBER(u8 *, state, MdlEffectModelDrawable, model))->flags &= ~0x18;
         }
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlSetLayerWeight(*(u8 **)(state + 0xB4), 0, ((MdlEffectModelDrawable *)state)->progress);
+        mdlSetLayerWeight(MEMBER(u8 *, state, MdlEffectModelDrawable, model), 0, ((MdlEffectModelDrawable *)state)->progress);
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlSetAttachedOwner(*(u8 **)(state + 0xB4), TnGetTableBase());
+        mdlSetAttachedOwner(MEMBER(u8 *, state, MdlEffectModelDrawable, model), TnGetTableBase());
         mdlQueueModelForDraw(drawable, ((MdlEffectModelDrawable *)state)->model);
         /* The progress float is cleared through its integer zero bit pattern; retain that representation. */
-        *(s32 *)(state + 8) = 0;
+        MEMBER(s32, state, MdlEffectModelDrawable, progress) = 0;
     }
 }
 
@@ -373,7 +374,7 @@ void EffModelDrawableRollAndUpdate(u8 *drawable)
     u32 cycleEnd;
 
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    layerTime = mdlGetLayerWeight(*(s32 *)(drawable + 0xB4), 0);
+    layerTime = mdlGetLayerWeight(MEMBER(s32, drawable, MdlEffectModelDrawable, model), 0);
     nextFrame = (u32)layerTime + 1;
     frameCount = ((MdlEffectModelDrawable *)drawable)->duration;
     if (frameCount >= nextFrame || frameCount == 0) {

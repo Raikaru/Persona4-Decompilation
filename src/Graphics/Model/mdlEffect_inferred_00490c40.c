@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_action_internal.h"
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
@@ -57,6 +58,9 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 // FUN_00490C40
 void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
 {
+    MdlEffectEmitterParameters *prerollParameters;
+    MdlEffectEmitterParameters *emissionParameters;
+
     extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
     extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
     extern void memcpy(void *dst, void *src, u32 size);
@@ -135,7 +139,7 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
             on = 1;
             preroll = on;
         }
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!((prerollParameters = (MdlEffectEmitterParameters *)parameters)->emissionVariation <= 0.0f)) { /* measured: the separate typed pointer preserves MATCH under b210. */
             spawnBudget = (s32)((f32)((MdlEffectEmitter *)emitter)->primaryCount.value * ((fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0)));
         } else {
             spawnBudget = ((MdlEffectEmitter *)emitter)->primaryCount.value;
@@ -143,12 +147,12 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
     } else {
 
         preroll = 0;
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!((emissionParameters = (MdlEffectEmitterParameters *)parameters)->emissionVariation <= 0.0f)) { /* measured: the separate typed pointer preserves MATCH under b210. */
             f32 scale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
 
             ((MdlEffectEmitter *)emitter)->emissionAccumulator = ((MdlEffectEmitter *)emitter)->emissionAccumulator + (f32)((MdlEffectEmitterParameters *)parameters)->emissionRate.value * scale;
         } else {
-            *(f32 *)(emitter + 20) = *(f32 *)(emitter + 20) + (f32)((MdlEffectEmitterParameters *)parameters)->emissionRate.value; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            MEMBER(f32, emitter, MdlEffectEmitter, emissionAccumulator) = MEMBER(f32, emitter, MdlEffectEmitter, emissionAccumulator) + (f32)((MdlEffectEmitterParameters *)parameters)->emissionRate.value; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
         }
         swayBase = ((MdlEffectEmitter *)emitter)->emissionAccumulator;
         spawnBudget = (s32)fabsf(swayBase);
@@ -164,7 +168,7 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
     swayRange = fGpffff8088;
     swayBase = fGpffff808c;
     for (; i < count; i++, stateData += 0x24, particle += 0x20) {
-        if (!(*(s32 *)(particle + 16) < lifetime)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(MEMBER(s32, particle, SpawnParticle, age) < lifetime)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
             u8 *cfg;
             s32 trailLength;
 
@@ -211,15 +215,15 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
             speed = ((MdlEffectBoundParameters *)parameters)->radius * ((one - t) + t * effMiscRandFloat(0));
             t = ((MdlEffectBoundParameters *)parameters)->endRadiusVariation;
             t = ((MdlEffectBoundParameters *)parameters)->endRadius * ((one - t) + t * effMiscRandFloat(0));
-            *(f32 *)(stateData + 0xC) = speed; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-            *(f32 *)(stateData + 0x10) = (t - speed) / (f32)radiusDuration; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            MEMBER(f32, stateData, MdlEffectBoundState, radius) = speed; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            MEMBER(f32, stateData, MdlEffectBoundState, radiusStep) = (t - speed) / (f32)radiusDuration; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
             if (preroll != 0) {
                 f32 step;
 
-                *(s32 *)(particle + 16) = effMiscRand(0) % (u32)lifetime; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-                *(f32 *)(stateData + 0xC) = *(f32 *)(stateData + 0xC) + *(f32 *)(stateData + 0x10) * (f32)((SpawnParticle *)particle)->age; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                MEMBER(s32, particle, SpawnParticle, age) = effMiscRand(0) % (u32)lifetime; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                MEMBER(f32, stateData, MdlEffectBoundState, radius) = MEMBER(f32, stateData, MdlEffectBoundState, radius) + MEMBER(f32, stateData, MdlEffectBoundState, radiusStep) * (f32)((SpawnParticle *)particle)->age; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                 step = ((MdlEffectBoundState *)stateData)->radiusStep;
-                if ((!(step <= zero) && !(*(f32 *)(stateData + 0xC) <= t)) || /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                if ((!(step <= zero) && !(MEMBER(f32, stateData, MdlEffectBoundState, radius) <= t)) || /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                     ((step < zero) && (((MdlEffectBoundState *)stateData)->radius < t))) {
                     ((MdlEffectBoundState *)stateData)->radius = t;
                 }
@@ -246,13 +250,13 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
             }
             effectVuStore10((EffectVuVector *)particle);
             t = ((MdlEffectEmitterParameters *)parameters)->sizeVariation;
-            *(f32 *)(stateData + 0x18) = (one - t) + t * effMiscRandFloat(0); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            MEMBER(f32, stateData, MdlEffectBoundState, sizeScale) = (one - t) + t * effMiscRandFloat(0); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
             state = angleMode;
             if (state != 2) {
                 t = ((MdlEffectEmitterParameters *)parameters)->angleVariation;
-                *(f32 *)(stateData + 0x20) = (one - t) + t * effMiscRandFloat(0); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                MEMBER(f32, stateData, MdlEffectBoundState, angleScale) = (one - t) + t * effMiscRandFloat(0); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                 if (state == 1) {
-                    *(f32 *)(stateData + 0x1C) = spin * effMiscRandFloat(0); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(f32, stateData, MdlEffectBoundState, angleOffset) = spin * effMiscRandFloat(0); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                     if ((effMiscRand(0) & 1) != 0) {
                         ((MdlEffectBoundState *)stateData)->angleScale = ((MdlEffectBoundState *)stateData)->angleScale * negativeOne;
                     }
@@ -263,7 +267,7 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
                 ((MdlEffectBoundState *)stateData)->angleOffset = zero;
                 ((MdlEffectBoundState *)stateData)->angleScale = one;
             }
-            mdlEffectSampleKeyState(particle, parameters, *(s32 *)(particle + 16), (u_long128 *)particle); /* Transfer the complete quadword representation, including the VU W lane. */
+            mdlEffectSampleKeyState(particle, parameters, MEMBER(s32, particle, SpawnParticle, age), (u_long128 *)particle); /* Transfer the complete quadword representation, including the VU W lane. */
             ((SpawnParticle *)particle)->size = ((SpawnParticle *)particle)->size * ((MdlEffectBoundState *)stateData)->sizeScale;
             ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle * ((MdlEffectBoundState *)stateData)->angleScale;
             ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle + ((MdlEffectBoundState *)stateData)->angleOffset;
@@ -289,7 +293,7 @@ void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
             /* lint: allow H009 -- retail copies this quad through $2 at 0x004913DC; b210 keeps $v0 live (user-approved 2026-10-09) */
             __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(particle) : "$2", "memory");
         }
-        reach = *(f32 *)(stateData + 0xC); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        reach = MEMBER(f32, stateData, MdlEffectBoundState, radius); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
         if (((SpawnParticle *)particle)->age < radiusDuration) {
             ((MdlEffectBoundState *)stateData)->radius = reach + ((MdlEffectBoundState *)stateData)->radiusStep;
         }

@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mdl_file_internal.h"
 /* Source unit: src/Graphics/Model/mdlFile_00230bc0.c (1 function markers) */
 #include "type.h"
@@ -152,9 +153,9 @@ void mdlSetWrapperValue(int wrapper,u64 value)
 void mdlClearWrapperHandle(int wrapper)
 {
   /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-  if (*(int *)(wrapper + 4) != 0) {
+  if (MEMBER(int, wrapper, MdlFileAttachment, handle) != 0) {
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    Vpad_Activate(*(int *)(wrapper + 4));
+    Vpad_Activate(MEMBER(int, wrapper, MdlFileAttachment, handle));
     ((MdlFileAttachment *)wrapper)->handle = 0;
   }
   return;
@@ -181,7 +182,7 @@ u8 *mdlSampleTrackScalar(u8 *track, f32 time)
     do {
         mid = (lo + hi + 1) >> 1;
         /* Key times use the file-provided byte stride; only the interpolation payload has a fixed key layout. */
-        if (time < *(f32 *)(pairs + (stride * mid))) {
+        if (time < ((MdlFileScalarKey *)(pairs + stride * mid))->time) {
             mid = mid - 1;
             hi = mid;
         } else {
@@ -269,7 +270,7 @@ static u32 *mdlSampleVec4Track(int *table, float t)
   do {
     mid = (lo + hi + 1) >> 1;
     /* Key times use the file-provided byte stride; only the interpolation payload has a fixed key layout. */
-    if (t < *(float *)(keys + stride * mid)) {
+    if (t < ((Code47Vec4 *)(keys + stride * mid))->x) {
       hi = --mid;
     }
     else {
@@ -399,10 +400,10 @@ u32 mdlRetainU16Ref(int wrapper)
 void mdlAppendU32Entry(int *wrapper,u32 value)
 {
   /* The append helper receives a word-shaped table header; the count shares its second word and keeps the original halfword representation. */
-  *(u32 *)(*wrapper + (u32)*(u16 *)(wrapper + 1) * 4) = value;
+  ((MdlFileU32Table *)wrapper)->entries[((MdlFileU32Table *)wrapper)->count] = value;
 
   /* The append helper receives a word-shaped table header; the count shares its second word and keeps the original halfword representation. */
-  *(short *)(wrapper + 1) = (u16)wrapper[1] + 1;
+  MEMBER(short, (u8 *)wrapper, MdlFileU32Table, count) = (u16)wrapper[1] + 1;
 
   return;
 

@@ -109,10 +109,10 @@ void ObjectParticleAppendNode(u8 *instance) {
     emitter = ((ObjectParticleInstance *)instance)->list;
     if (emitter != NULL) {
         inner = ((MdlEffectEmitter *)emitter)->parameters;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x64) = 0;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x68) = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((ObjectParticleInstance *)instance)->previous = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((ObjectParticleInstance *)instance)->next = 0;
         PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x64);
     }
 }
@@ -126,10 +126,10 @@ void ObjectParticleUpdateAndAppendNode(u8 *instance) {
     emitter = ((ObjectParticleInstance *)instance)->list;
     if (emitter != NULL) {
         inner = ((MdlEffectEmitter *)emitter)->parameters;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x64) = 0;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x68) = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((ObjectParticleInstance *)instance)->previous = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((ObjectParticleInstance *)instance)->next = 0;
         PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x64);
     }
 }

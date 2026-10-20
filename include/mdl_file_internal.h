@@ -108,4 +108,12 @@ typedef struct MdlFileScalarKey {
     f32 time, value;
 } MdlFileScalarKey;
 
+/* mdlAppendU32Entry reads a pointer word and a halfword count at +4.
+ * The upper halfword is preserved by the count update. */
+typedef struct MdlFileU32Table {
+    u32 *entries;
+    u16 count;
+    u16 unk6;
+} MdlFileU32Table;
+
 #endif

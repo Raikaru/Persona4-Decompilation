@@ -92,7 +92,7 @@ void mdlEffectPrepareLineNova(u8 *effect) {
         iGpffffbb64.c3 = 0xFF;
     }
     *(void (**)(void))(geometry + 0x20) = LineNovaUpdateCameraQuads;
-    /* The callback-specific owner slot lies beyond the common geometry prefix; its wider callback layout is not recovered here. */
-    *(u8 **)(geometry + 0x28) = effect;
+    /* The draw callback follows the geometry block's owner back-pointer to this instance. */
+    ((EffGeometryBlock *)geometry)->owner = effect;
 }
 
