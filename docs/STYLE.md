@@ -120,6 +120,15 @@ Legitimate compiler inputs are allowed:
   truthful type and alignment first.
 - A pure compiler memory barrier (`asm volatile("" ::: "memory")`, no
   operands) is allowed; document the ordering it enforces.
+- **Order-preserving inline helpers.** A `static inline` wrapper whose only
+  job is operand or evaluation order (`a + b` where MWCC would swap the `addu`
+  or `mul.s` sources) stays only at call sites where plain C is measured to
+  differ; every other site uses plain C. Such wrappers are defined once:
+  arithmetic order in `include/operand_order_internal.h` (`operandOrder*`),
+  offset-first address sums in `include/byte_address_internal.h`
+  (`byteAddressAdd`), each with a `measured:` comment. Helpers with real
+  behavior use module names and live in their module's header or unit.
+  Unused helper copies are deleted, not carried from file to file.
 
 ## Integrity checks and advisories
 
