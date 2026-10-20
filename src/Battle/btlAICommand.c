@@ -420,13 +420,13 @@ u8 btlCond_ANALYZE(s32 action)
 
 // FUN_001DB790
 s32 btlCond_DOWN(u8 *action) {
-    return (((((BtlAction *)action)->unit->datUnit->flags & DAT_UNIT_FLAG_DOWN) != 0) ^ 1);
+    return !(((BtlAction *)action)->unit->datUnit->flags & DAT_UNIT_FLAG_DOWN);
 }
 
 
 // FUN_001DB7B0
 s32 btlCond_SLIP(u8 *action) {
-    return (((((BtlAction *)action)->unit->datUnit->flags & 0x10) != 0) ^ 1);
+    return !(((BtlAction *)action)->unit->datUnit->flags & 0x10);
 }
 
 
