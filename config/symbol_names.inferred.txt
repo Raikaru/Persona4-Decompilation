@@ -886,3 +886,5 @@ kwlnExitThread = 0x00100220; // type:func  evidence: inferred: issues ExitThread
 niidaSequenceStartNoop = 0x00143B70; // type:func  evidence: inferred: empty start callback at 005DD114 in the NIIDA sequence row; sequenceRequest dispatches row offset 4
 niidaSequencePollNoop = 0x00143B80; // type:func  evidence: inferred: empty poll callback at 005DD118 in the NIIDA sequence row; FldShadowAnim_Update dispatches row offset 8
 niidaSequenceStopNoop = 0x00143B90; // type:func  evidence: inferred: empty stop callback at 005DD11C in the NIIDA sequence row; sequenceRequest dispatches row offset 0xC
+datBattleUnitLoadCompleteNoop = 0x0010D480; // type:func  evidence: inferred: empty callback invoked after btlUnitLoadStep completes all eight battle-unit load descriptors
+datKernelInitNoop = 0x0010D7B0; // type:func  evidence: inferred: empty initialization hook called by kwlnInitSubsystems after CD device initialization

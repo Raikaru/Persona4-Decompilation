@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2509 of 13102 symbols carry a recovered name.
+// 2511 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -289,14 +289,14 @@ func_0010cf40 = 0x0010CF40; // type:func
 func_0010cfa0 = 0x0010CFA0; // type:func
 func_0010d150 = 0x0010D150; // type:func
 func_0010d360 = 0x0010D360; // type:func
-func_0010d480 = 0x0010D480; // type:func
+datBattleUnitLoadCompleteNoop = 0x0010D480; // type:func
 datSetHeroNameParts = 0x0010D490; // type:func
 func_0010d560 = 0x0010D560; // type:func
 func_0010d620 = 0x0010D620; // type:func
 func_0010d660 = 0x0010D660; // type:func
 func_0010d6d0 = 0x0010D6D0; // type:func
 func_0010d740 = 0x0010D740; // type:func
-func_0010d7b0 = 0x0010D7B0; // type:func
+datKernelInitNoop = 0x0010D7B0; // type:func
 func_0010d7c0 = 0x0010D7C0; // type:func
 datSaveRestoreImage = 0x0010E710; // type:func
 func_0010e880 = 0x0010E880; // type:func

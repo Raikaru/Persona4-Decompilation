@@ -86,7 +86,7 @@ extern void func_00194660(void);
 extern s32 btlUnitLoadStep(u8 *unusedTask);
 
 extern s32 btlUnitLoadBlocksFromFile(u8 *loadTable, s32 synchronous);
-extern void func_0010d480(void);
+extern void datBattleUnitLoadCompleteNoop(void);
 extern void memset(void *, s32, s32);
 
 /* Retail computes the unit record address as index-times-stride plus base;
@@ -294,7 +294,7 @@ check:
     if (result == 0) {
         goto done;
     }
-    func_0010d480();
+    datBattleUnitLoadCompleteNoop();
     result = -1;
     goto end;
 done:
