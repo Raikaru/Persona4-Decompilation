@@ -6,6 +6,9 @@
 #include "sdk_snd_internal.h"
 #include "cmm_internal.h"
 
+/* Effect tables contain 32-bit words; consumers select their little-endian low byte or halfword. */
+typedef union CmmPointEffectWord { s32 word; u16 lowHalf; u8 lowByte; } CmmPointEffectWord;
+
 /* Current-community task work is allocated as 0x20 bytes by cmmCommunitySetCurrent. */
 typedef struct CmmCurrentWork {
     s16 communityId;
@@ -871,10 +874,10 @@ ret:
    Booleanize floor. */
 // measured: datGetFlag and a static inline bit-test helper both move codegen here (owner verify), so the raw D_0079B1CC and D_007973A0+0x3E2C reads stay.
 // Earn scale: returns the float multiplier for points community value earns, from cmmRosterHasArcana on its arcana, the event bit in D_0079B1CC, and the per-slot bands in D_007973A0.
-// FUN_001080C0
 /* The character lookup receives this function's incoming identifier.
    With that argument explicit, the configured O2 profile preserves every
    original instruction; the old omitted-argument O1 workaround is obsolete. */
+// FUN_001080C0
 #pragma optimization_level 2
 f32 cmmCommunityEarnScale(s32 communityId) {
     f32 v;
@@ -901,6 +904,7 @@ f32 cmmCommunityEarnScale(s32 communityId) {
         while (i < 3) {
             if (cmmEarnScaleTable()->slot[i].flagBit != 0) {
                 b = cmmEarnScaleTable()->slot[i].flagBit;
+                /* Linker interior aliases: D_0079B1CC is D_007973A0 + 0x3E2C, the shared game-flag bank. */
                 q = (s32 *)(D_007973A0 + (b / 32) * 4);
                 hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
                 if (hit != 0) {
@@ -976,6 +980,7 @@ ret:
             if (cmmEarnScaleTable()->slot[x].flagBit != 0) {
                 b = cmmEarnScaleTable()->slot[x].flagBit;
                 /* Keep the flag-bank base/offset shape, as measured for cmmCommunityEarnScale above. */
+                /* Linker interior aliases: D_0079B1CC is D_007973A0 + 0x3E2C, the shared game-flag bank. */
                 q = (s32 *)(D_007973A0 + (b / 32) * 4);
                 hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
                 if (hit != 0) {
@@ -1001,9 +1006,9 @@ u16 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId) {
     extern void kAssertFail(void *file, s32 line);
     typedef struct { f32 x; f32 y; f32 z; } Vec3;
     typedef struct {
-        s32 bytes[3];
+        CmmPointEffectWord bytes[3];
         s32 pad0;
-        s32 durations[3];
+        CmmPointEffectWord durations[3];
         s32 pad1;
         s32 thresholds[3];
         s32 pad2;
@@ -1014,7 +1019,6 @@ u16 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId) {
     f32 scaledPoints;
     f32 basePoints;
     CmmCommunityRecord *record;
-    s32 effectOffset;
     u32 effectIndex;
     *(Vec3 *)vals.thresholds = *(Vec3 *)D_005E42D8;
     *(Vec3 *)vals.durations = *(Vec3 *)D_005E42E8;
@@ -1047,12 +1051,11 @@ u16 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId) {
         }
         break;
     }
-    effectOffset = effectIndex * 4;
     /* Tables store word-sized slots; the sound/icon APIs consume only their low half/byte. */
-    sdkSndStartStream(0, 0, 4, *(u16 *)((u8 *)vals.durations + effectOffset));
+    sdkSndStartStream(0, 0, 4, vals.durations[effectIndex].lowHalf);
     if (resourceId != -1) {
         MT_Scene_SpawnResIconTask(((resourceId & 0x3FF) | 0xC00) & 0xFFFF,
-                      *(u8 *)((u8 *)vals.bytes + effectOffset));
+                      vals.bytes[effectIndex].lowByte);
     }
     record = (CmmCommunityRecord *)cmmCommunityFindRecord(communityId);
     if (record == NULL) {
@@ -1140,10 +1143,10 @@ ret:
    remains the lowest body. The daddiu residual did not move; this is a
    settled floor after the comparison lever. Committed at nd 1. */
 // Try rank up: runs the same checks as cmmCommunityCanRankUp inline; when they pass, raises the rank by one through cmmCommunitySetRank, zeroes the point counter, and clears record flag 4. Returns 1 on success.
-// FUN_00108950
 /* measured: -O1 is load-bearing for this body - at -O2 mwcc coalesces the
    third cmmCommunityFindRecord result straight into the level saved register and
    drops retail's andi, costing nd 162. */
+// FUN_00108950
 #pragma optimization_level 1
 s32 cmmCommunityTryRankUp(s32 communityId) {
     CmmCommunityRecord *r;

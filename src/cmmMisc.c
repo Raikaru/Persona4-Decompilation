@@ -183,12 +183,12 @@ u8 *cmmRankNameRecord(s16 value) {
 }
 #pragma opt_propagation on
 // Detail record: 20-byte record from chunk 8 (D_008814A0) for detail index value.
-// FUN_00246940
 /* MATCHED (wave 14): same recipe as cmmRankNameRecord — `#pragma opt_propagation
    off` (measured: nd 9 -> 1, forces the single-use D_008814A0 load into $a1
    before the x20 chain) + hoisted `s32 base` local + cmmMiscAddOff helper
    (fixes the `addu $v0,$v0,$a1` operand order). Final residual is a benign
    reloc-masked word. */
+// FUN_00246940
 #pragma opt_propagation off
 u8 *cmmDetailRecord(s16 value) {
     s32 base = D_008814A0[0];
@@ -238,7 +238,7 @@ s32 cmmRankThreshold(s16 value, s16 option) {
     index = value * 8;
     mid = cmmMiscAddOff(index, base);
     /* Serialized halfwords retain the measured two-stage address-add order described above. */
-    return *(s16 *)(cmmMiscAddOff(option * 2, mid) - 2);
+    return ((s16 *)cmmMiscAddOff(option * 2, mid))[-1];
 }
 // Label record: 64-byte label record from chunk 12 (D_008814B0) for id value. cmmPersonaDetailShow copies it as a display string.
 // FUN_00246B10
@@ -426,8 +426,8 @@ s32 cmmHasPendingUnlock(void) {
    probe measured nd 207 at object 648/640 from duplicated pointer loads, so
    no pragma or body was retained. */
 // Find fresh reverse candidate: like cmmFindReverseCandidate, but the candidate must fail cmmCommunityHasTierBit(id, 1..9) for the scan tier. Returns the first match, or 0.
-// FUN_00247270
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
+// FUN_00247270
 #pragma opt_common_subs off
 s32 cmmFindFreshReverseCandidate(void) {
     s32 kindOffset;
@@ -488,8 +488,8 @@ s32 cmmFindFreshReverseCandidate(void) {
    (nd 33, all diffs from this one pattern; u32 vs s32 temp_18 unchanged).
    Mask-CSE floor (same family as FUN_00247DD0/FUN_00248A60). */
 // Find reverse candidate: returns the first rank-up-ready community that is not reversed or broken, passes cmmCommunityHasTierBit for the scan tier, has its kind flags, and passes the marked and condition checks; 0 when none qualifies. The pair with cmmFindFreshReverseCandidate.
-// FUN_002474F0
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
+// FUN_002474F0
 #pragma opt_common_subs off
 s32 cmmFindReverseCandidate(void) {
     s32 kindOffset;
@@ -960,8 +960,8 @@ loop_15:
    Mixed `(u16)`/`& 0xFFFF` spellings regress to nd 90 (normalised away).
    Mask-CSE floor (same family as FUN_002483C0/FUN_00248B80). */
 // Tick reverse progress: for each community with a record and no flag band 3, adds 1 to its progress counter (+0xA) when its kind record's threshold (+0x12) is set. Sets REVERSED once the counter reaches the threshold. Called from cldScheduler.c.
-// FUN_00248240
 /* measured: opt_common_subs off restores retail per-use masks while preserving the two table bases. */
+// FUN_00248240
 #pragma opt_common_subs off
 void cmmTickReverseProgress(void) {
     s32 kindOffset;
@@ -1213,8 +1213,8 @@ s8 cmmCommunityEventValue(s32 value, s8 option) {
         p = idx + elem;
         q = (u8 *)(p + 0x28);
         /* Eight-byte event slots: gate at +0x24, value at +0x28; a typed slot changes MWCC scheduling (nd 60). */
-        if (*(u32 *)(p + 0x28) != 0) {
-            v = *(u32 *)(p + 0x24);
+        if (((CmmKindRecord *)p)->eventSlots[0].result.word != 0) {
+            v = ((CmmKindRecord *)p)->eventSlots[0].gate;
             if ((v == 0) || (datGetFlag(v) != 0)) {
                 return *(s8 *)q;
             }
@@ -1270,8 +1270,8 @@ u16 cmmCommunityCategory(s32 communityId) {
    one register (best nd 37) in every spelling tried ((u16) vs & 0xFFFF vs
    temp_17 = value). Mask-CSE floor (same family as FUN_00247DD0). */
 // Reversed at rank: returns 1 when community value has a record, the REVERSED bit in its kind record (chunk 0), and a level byte at or above its rank from cmmCommunityRecordValue; else 0.
-// FUN_00248A60
 /* measured: opt_common_subs off preserves the raw parameter call and per-use table masks. */
+// FUN_00248A60
 #pragma opt_common_subs off
 s32 cmmReversedAtRank(s32 communityId) {
     s32 kindOffset;
@@ -1312,8 +1312,8 @@ s32 cmmReversedAtRank(s32 communityId) {
    sites, temp_21 u32 vs s32). Mask-CSE floor (same family as
    FUN_002474F0/FUN_002483C0/FUN_00248A60). */
 // Top reversed community: returns the id with the highest rank among communities that are reversed and whose level meets their rank (see cmmReversedAtRank), or 0 when none qualifies.
-// FUN_00248B80
 /* measured: opt_common_subs off restores retail per-use masks while preserving both table bases. */
+// FUN_00248B80
 #pragma opt_common_subs off
 s32 cmmTopReversedCommunity(void) {
     s32 kindOffset;
@@ -1404,8 +1404,8 @@ s32 cmmTableLookupValue(s32 keyHigh, s32 keyLow, s32 kind) {
    and the complete -0x40 frame/s0-s2 prologue. With propagation disabled,
    this body is MATCH at nd 0 (object 148B/window 160B). */
 // Resolve counterpart: returns the counterpart of community value when value has no record and its counterpart does; otherwise returns value.
-// FUN_00248D80
 /* measured: opt_propagation off preserves retail's raw/key lifetimes. */
+// FUN_00248D80
 #pragma opt_propagation off
 s64 cmmResolveCounterpart(s64 value)
 {
@@ -1742,8 +1742,8 @@ static inline s32 cmmAddCountFirst(s32 count, s32 delta) { return count + delta;
 /* measured: parked body committed at nd 4. */
 /* measured: parked body committed at nd 4. */
 // Date table add count: selects counter slot value (0 = the next free slot), adds option through cmmAddCountFirst, and at 4 completes the slot by setting flag 0x9AF+slot and clearing the counter.
-// FUN_00249670
 /* measured: opt_propagation off is required for the parked nd4 body. */
+// FUN_00249670
 #pragma opt_propagation off
 s32 cmmDateTableAddCount(s32 value, s32 option)
 {
