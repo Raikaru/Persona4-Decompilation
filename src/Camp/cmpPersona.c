@@ -114,6 +114,7 @@ typedef struct {
 /* Initialize the party and persona grids, transition rows, sprites and portrait/wipe tasks. */
 // FUN_001356D0
 #pragma push
+/* measured: initialization baseline has 260 differing words; pointer-traversed layout initialization also fails. */
 #pragma opt_loop_invariants on
 /* measured: earlier CmpPersonaWork typing changed 74 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPersonaMenuInit(u8* work) {
@@ -275,6 +276,7 @@ s32 cmpPersonaStateStep(u8 *work) {
 
 /* Advance row transitions, update grid/background animations and draw the persona menu. */
 // FUN_00135CF0
+/* measured: MEMBER and CmpHead timer reloads still leave 48 words different without this override. */
 /* measured: without opt_common_subs off, mwcc CSEs (u8*)arg0 + 0x20 into a
    callee-saved pointer (nd 40); with it off each access keeps the
    base+offset form like retail (nd 0). */
@@ -309,6 +311,7 @@ s32 cmpPersonaMenuUpdate(u8* work) {
    not mutable runtime globals. See the recovery archive for the literal audit. */
 // FUN_00135DC0
 #pragma push
+/* measured: baseline draw leaves 50 differing words; isolated propagation/constant-pulling removal also fails. */
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
 void cmpPersonaMenuDraw(u8* work)
@@ -605,6 +608,7 @@ void cmpPersonaMenuStepAnimations(u8* work) {
     }
 }
 
+/* measured: baseline leaves 25 differing words; direct values[i] indexing has the same stack/address residual. */
 /* measured: opt_propagation off preserves the retail stack-local value-pointer
    address sequence (MATCH); leaving propagation on folds the +0x40 into lh. */
 #pragma opt_propagation off
@@ -643,14 +647,13 @@ void cmpPersonaScatterGridCells(u8* work) {
 #pragma opt_propagation on
 
 
-/* measured: opt_common_subs off around the setup/switch and
-   opt_loop_invariants on around the table loop reproduce the retail
+/* measured: baseline common-subexpression settings match the setup/switch;
+   opt_loop_invariants on around the table loop reproduces the retail
    register/constant placement (MATCH). Plain `(u16)float` casts use MWCC's
    native overflow-safe conversion sequence (c.le.s 0x4F000000; trunc.w.s;
    mfc1; andi 0xFFFF with the out-of-line subtract/or path). shdPersonaLevelUpRoute
    receives the pointer loaded from 0x1CB4. The switch jump table has case 9
    targeting the default block, so no empty case is needed. */
-#pragma opt_common_subs off
 /* Snapshot current row poses and apply the persona-menu layout, footer and visibility flags. */
 // FUN_001371A0
 /* measured: earlier CmpPersonaWork typing changed 579 instruction bytes; current typed-local/member forms retain MATCH. */
@@ -731,7 +734,6 @@ s32 cmpPersonaSetMode(u8* work, s32 mode) {
         kAssertFail(D_005EB580, 0x3BA);
         break;
     }
-#pragma opt_common_subs on
 /* measured: opt_loop_invariants on hoists the table/dst stride multiplies
    out of the j loop to match retail; without it the function mismatches. */
 #pragma opt_loop_invariants on
@@ -760,6 +762,7 @@ s32 cmpPersonaSetMode(u8* work, s32 mode) {
 
 /* Move nonselected party rows vertically away from the selected row and fade them out. */
 // FUN_001374D0
+/* measured: baseline/while-loop probes still differ in preheader constants (37 words). */
 /* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000
    constants are rematerialized inside the loop (nd 39); with it they hoist
    to the preheader like retail (nd 0). */
@@ -793,6 +796,7 @@ void cmpPersonaSetPartyCursor(u8* work) {
 
 /* Snapshot roster row poses and set the selected row's horizontal target offset to 30. */
 // FUN_00137570
+/* measured: baseline leaves 22 differing words; a named float and conditional assignment also fail. */
 /* measured: without opt_loop_invariants on, mwcc rematerializes the 0x41F00000
    constant inside the loop body (nd 22); with it the lui hoists to the
    preheader like retail (nd 0). */
@@ -865,6 +869,7 @@ void cmpPersonaRandomizeBackgroundCells(u8 *work)
 
 /* Move nonselected roster rows vertically away from the selected row and fade them out. */
 // FUN_00137740
+/* measured: baseline/while-loop probes still differ in preheader constants (37 words). */
 /* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000
    constants are rematerialized inside the loop (nd 39); with it they hoist
    to the preheader like retail (nd 0). */
