@@ -245,12 +245,13 @@ static inline s32 fontAtlasColumn(s32 value)
    (3), `u8` instead of `s8` (3), widening it to `s8[4]` (3), and
    `aligned(8)` (3).  Aligning the pressed pair as well is also 0, so the
    actuator alignment alone is the cause. */
-/* Layout is SdkPadRecord; retain byte-offset accesses here: typed members
- * made b210 retain field addresses, growing 1136 bytes to 1152 and losing MATCH. */
+/* Access-site-only typing grew 1136 bytes to 1152; the separate typed record alias
+ * retains retail field-address lifetimes without changing the original byte cursor. */
 // Intent: polls the pad hardware for record `arg0`, then updates its port state and its pressed pair.
 // FUN_00452870
 void sdkPadUpdateRecord(void *record)
 {
+    SdkPadRecord *padRecord = (SdkPadRecord *)record;
     extern void func_0042ffa0(u16 port, u16 slot, u8 *out);
     extern s32 func_00430018(u16 port, u16 slot);
     extern s32 func_00430180(u16 port, u16 slot, u16 state);
@@ -283,46 +284,46 @@ void sdkPadUpdateRecord(void *record)
 
     pad = (u8 *)record;
     D_008C0000[0] = 0xFF;
-    port = *(u16 *)(pad + 0x8);
-    slot = *(u16 *)(pad + 0xa);
+    port = ((SdkPadRecord *)pad)->port;
+    slot = ((SdkPadRecord *)pad)->slot;
     status = func_00430018(port, slot);
-    state = *(u16 *)(pad + 0x2);
+    state = ((SdkPadRecord *)pad)->state;
     switch (state) {
     case 0:
         if (status == 2 || status == 6) {
-            *(u16 *)(pad + 0x30) = 0xFFFF;
-            *(u16 *)(pad + 0x32) = 0xFFFF;
-            mode = *(u16 *)(pad + 0x4);
-            *(u16 *)(pad + 0x0) = mode;
+            ((SdkPadRecord *)pad)->previousActuatorSmall = 0xFFFF;
+            ((SdkPadRecord *)pad)->previousActuatorLarge = 0xFFFF;
+            mode = ((SdkPadRecord *)pad)->requestedMode;
+            ((SdkPadRecord *)pad)->mode = mode;
             switch (mode) {
             case 0:
-                *(u16 *)(pad + 0x2) = 3;
+                padRecord->state = 3;
                 break;
             case 1:
                 if (status == 6) {
                     if (func_00430578(port, slot, 0, 0) == 1) {
-                        *(u16 *)(pad + 0x2) = 1;
+                        padRecord->state = 1;
                     }
                 } else {
-                    *(u16 *)(pad + 0x2) = 3;
+                    padRecord->state = 3;
                 }
                 break;
             case 2:
                 if (status == 6) {
                     if (func_00430578(port, slot, 0, 3) == 1) {
-                        *(u16 *)(pad + 0x2) = 1;
+                        padRecord->state = 1;
                     }
                 } else {
-                    *(u16 *)(pad + 0x2) = 3;
+                    padRecord->state = 3;
                 }
                 break;
             case 3:
                 if (status == 6) {
                     if (func_00430578(port, slot, 1, 3) == 1) {
-                        *(u16 *)(pad + 0x2) = 1;
+                        padRecord->state = 1;
                     }
                 } else {
-                    *(u16 *)(pad + 0x2) = 3;
+                    padRecord->state = 3;
                 }
                 break;
             }
@@ -330,41 +331,41 @@ void sdkPadUpdateRecord(void *record)
         break;
     case 1:
         if (status == 6) {
-            *(u16 *)(pad + 0x2) = 3;
+            padRecord->state = 3;
         } else if (status != 5) {
-            *(u16 *)(pad + 0x2) = 0;
+            padRecord->state = 0;
         }
         break;
     case 3:
         if (func_00430210(port, slot, -1, 0) == 0) {
-            *(u16 *)(pad + 0x2) = 5;
+            padRecord->state = 5;
         } else if (func_004306f8(port, slot, &iGpffffac78) != 0) {
-            *(u16 *)(pad + 0x2) = 4;
+            padRecord->state = 4;
         }
         break;
     case 4:
         result = func_00430180(port, slot, state);
         switch (result) {
         case 1:
-            *(u16 *)(pad + 0x2) = 3;
+            padRecord->state = 3;
             break;
         case 0:
-            *(u16 *)(pad + 0x2) = 5;
+            padRecord->state = 5;
             break;
         }
         break;
     case 5:
         if (status != 2 && status != 6) {
-            *(u16 *)(pad + 0x2) = 0;
-        } else if (*(u16 *)(pad + 0x0) != *(u16 *)(pad + 0x4)) {
-            *(u16 *)(pad + 0x2) = 0;
+            padRecord->state = 0;
+        } else if (((SdkPadRecord *)pad)->mode != ((SdkPadRecord *)pad)->requestedMode) {
+            padRecord->state = 0;
         } else {
             func_0042ffa0(port, slot, D_008C0000);
-            x = *(u16 *)(pad + 0x2c);
-            y = *(u16 *)(pad + 0x2e);
-            if (x != *(u16 *)(pad + 0x30) || y != *(u16 *)(pad + 0x32)) {
-                *(u16 *)(pad + 0x30) = x;
-                *(u16 *)(pad + 0x32) = y;
+            x = ((SdkPadRecord *)pad)->actuatorSmall;
+            y = ((SdkPadRecord *)pad)->actuatorLarge;
+            if (x != ((SdkPadRecord *)pad)->previousActuatorSmall || y != ((SdkPadRecord *)pad)->previousActuatorLarge) {
+                padRecord->previousActuatorSmall = x;
+                ((SdkPadRecord *)pad)->previousActuatorLarge = y;
                 actuator[0] = (s8)x;
                 actuator[1] = (s8)y;
                 func_00430630(port, slot, actuator);
@@ -389,27 +390,27 @@ void sdkPadUpdateRecord(void *record)
             break;
         }
     }
-    *(u16 *)(pad + 0x10) = *(u16 *)(pad + 0xc);
-    *(u16 *)(pad + 0x1a) = *(u16 *)(pad + 0x16);
-    *(u16 *)(pad + 0x38) = *(u16 *)(pad + 0x34);
+    ((SdkPadRecord *)pad)->previousButtons = ((SdkPadRecord *)pad)->buttons;
+    ((SdkPadRecord *)pad)->previousDirections = ((SdkPadRecord *)pad)->directions;
+    ((SdkPadRecord *)pad)->previousHeld = ((SdkPadRecord *)pad)->held;
     if (buttons != 0) {
         pressed[1] = ~D_008C0002[0];
         pressed[0] = ~D_008C0003[0];
-        *(u16 *)(pad + 0xc) = *(u16 *)pressed;
+        padRecord->buttons = *(u16 *)pressed;
     } else {
-        *(u16 *)(pad + 0xc) = 0;
-        *(u16 *)(pad + 0x10) = 0;
+        padRecord->buttons = 0;
+        padRecord->previousButtons = 0;
     }
     if (analog != 0) {
-        *(u8 *)(pad + 0x1e) = D_008C0004[0];
-        *(u8 *)(pad + 0x1f) = D_008C0005[0];
-        *(u8 *)(pad + 0x1c) = D_008C0006[0];
-        *(u8 *)(pad + 0x1d) = D_008C0007[0];
+        ((SdkPadRecord *)pad)->rightX = D_008C0004[0];
+        ((SdkPadRecord *)pad)->rightY = D_008C0005[0];
+        ((SdkPadRecord *)pad)->leftX = D_008C0006[0];
+        ((SdkPadRecord *)pad)->leftY = D_008C0007[0];
         return;
     }
-    *(u8 *)(pad + 0x1e) = 0x80;
-    *(u8 *)(pad + 0x1f) = 0x80;
-    *(u8 *)(pad + 0x1c) = 0x80;
-    *(u8 *)(pad + 0x1d) = 0x80;
+    ((SdkPadRecord *)pad)->rightX = 0x80;
+    ((SdkPadRecord *)pad)->rightY = 0x80;
+    ((SdkPadRecord *)pad)->leftX = 0x80;
+    ((SdkPadRecord *)pad)->leftY = 0x80;
 }
 

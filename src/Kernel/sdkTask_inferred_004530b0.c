@@ -1,4 +1,5 @@
 #include "sdk_pad_record.h"
+#include "sdk_pad_mask_column.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -138,22 +139,22 @@ extern s16 D_008D2B98[];
 
 extern s32 D_008D2F2C[];
 extern s16 D_008D2F34[];
-extern u8 D_008C02EC[];
+extern SdkPadMaskColumn D_008C02EC[]; /* buttons */
 extern u8 D_008C02EE[];
 extern u8 D_008C02F0[];
-extern u8 D_008C02F6[];
+extern SdkPadMaskColumn D_008C02F6[]; /* directions */
 extern u8 D_008C02F8[];
 extern u8 D_008C02FA[];
 extern u8 D_008C02FC[];
 extern u8 D_008C02FD[];
 extern u8 D_008C02FE[];
 extern u8 D_008C02FF[];
-extern u8 D_008C0318[];
+extern SdkPadMaskColumn D_008C0318[]; /* previousHeld */
 extern u8 D_008C02F2[];
 extern u8 D_008C0300[];
 extern u8 D_008C0314[];
 extern u8 D_008C0316[];
-extern u8 D_008C031A[];
+extern SdkPadMaskColumn D_008C031A[]; /* heldRepeat */
 extern s16 D_008C030C[];
 extern s16 D_008C030E[];
 extern u8 D_008C031E[];
@@ -241,8 +242,8 @@ extern void sdkPadRepeatButtonDispatch(s32 padIndex, u16 buttonMask, s32 timerIn
 #pragma push
 #pragma pop
 // Intent: computes the held and edge masks for slot `arg0` and dispatches each button through func_00453310.
-/* SdkPadRecord proves the masks; retain interior-symbol loads because
- * typed record accesses changed the measured matching address/load order. */
+/* Typed interior mask columns retain MATCH; record-relative accesses changed
+ * the measured address/load order. Each column row retains the 0x4A stride. */
 // FUN_004530B0
 void sdkPadDispatchButtons(s32 slot) {
     s32 recordOffset;
@@ -252,11 +253,11 @@ void sdkPadDispatchButtons(s32 slot) {
 
     recordOffset = slot * 0x4A;
     held = (u16 *)(D_008C0314 + recordOffset);
-    *held = (u16)(*(u16 *)(D_008C02EC + recordOffset) | *(u16 *)(D_008C02F6 + recordOffset));
+    *held = (u16)(D_008C02EC[slot].mask | D_008C02F6[slot].mask);
     heldBits = *held;
     edge = (u16 *)(D_008C0316 + recordOffset);
-    *edge = (u16)(heldBits & (heldBits ^ *(u16 *)(D_008C0318 + recordOffset)));
-    *(u16 *)(D_008C031A + recordOffset) = *edge;
+    *edge = (u16)(heldBits & (heldBits ^ D_008C0318[slot].mask));
+    D_008C031A[slot].mask = *edge;
     sdkPadRepeatButtonDispatch(slot, 0x1000, 0);
     sdkPadRepeatButtonDispatch(slot, 0x4000, 1);
     sdkPadRepeatButtonDispatch(slot, 0x8000, 2);

@@ -2,21 +2,30 @@
 /* Original translation unit sdkChkmem.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
+typedef struct E8Node {
+    struct E8Node *next;
+    struct E8Node *prev;
+} E8Node;
+
 typedef struct ChkMemEntry {
     s32 size;   /* 0x00 */
-    u16 pad_04; /* 0x04 */
-    s16 pad_06; /* 0x06 */
+    u16 alignment; /* 0x04 */
+    s16 flags;     /* 0x06 */
     union {
         u16 classes;
         struct { u8 index, flags; } bytes;
     } classInfo; /* +0x08: class index in the low byte */
     u8 pad0A[2];
-    s32 nextAddress, prevAddress; /* tracking node at +0x0C */
+    E8Node link; /* tracking node at +0x0C */
     u8 pad14[4];
 } ChkMemEntry;
+typedef struct ChkMemPayload {
+    ChkMemEntry *block;
+    u8 data[];
+} ChkMemPayload;
+
 typedef char ChkMemEntrySizeCheck[sizeof(ChkMemEntry) == 0x18 ? 1 : -1];
 
-typedef struct E8Node E8Node;
 typedef struct ChkMemPool {
     E8Node *first;           /* 0x00 */
     E8Node *last;            /* 0x04 */
@@ -28,13 +37,8 @@ typedef struct ChkMemPool {
     void (*fn_30)(void);   /* 0x30 */
     u16 classes;           /* 0x34 */
     s32 classBytes[8];     /* 0x38 */
-    s32 classCount[8];     /* 0x58 */
+    s32 classPayloadBytes[8]; /* 0x58 */
 } ChkMemPool;
-
-struct E8Node {
-    E8Node *next;
-    E8Node *prev;
-};
 
 extern char D_007104E0[];
 extern char D_007104F0[];
@@ -117,11 +121,11 @@ done:
  * set. Staging the pool load before e8Slot preserves the retail load and
  * offset-first addu order at both class-index updates. */
 /* Remove allocation and class accounting before unlinking its header. */
-/* ChkMemEntry/ChkMemPool prove these offsets; keep raw accounting accesses
- * because typed members changed the measured matching allocation/load order. */
+/* Separate typed header aliases retain the measured class-accounting reload order. */
 // FUN_0044E9E0
 static void chkmemUntrackBlock(u8 *block)
 {
+    ChkMemEntry *header = (ChkMemEntry *)block;
     s32 bytes;
     u8 classIndex;
     u8 *classPayload;
@@ -130,23 +134,23 @@ static void chkmemUntrackBlock(u8 *block)
     u8 *bytesPool;
 
     countPool = (u8 *)D_00763D1C;
-    *(s32 *)(countPool + 0x18) = *(s32 *)(countPool + 0x18) - 1;
+    ((ChkMemPool *)countPool)->count = ((ChkMemPool *)countPool)->count - 1;
     bytesPool = (u8 *)D_00763D1C;
-    bytes = *(s32 *)(bytesPool + 0x1C);
-    *(s32 *)(bytesPool + 0x1C) = bytes - *(s32 *)block;
-    classIndex = *(u8 *)(block + 8);
+    bytes = ((ChkMemPool *)bytesPool)->bytes;
+    ((ChkMemPool *)bytesPool)->bytes = bytes - ((ChkMemEntry *)block)->size;
+    classIndex = ((ChkMemEntry *)block)->classInfo.bytes.index;
     if ((s32)classIndex < 8) {
         classPool = (u8 *)D_00763D1C;
         classPool = (u8 *)e8Slot(classIndex * 4, (u32)classPool);
-        *(s32 *)(classPool + 0x38) =
-            *(s32 *)(classPool + 0x38) - *(s32 *)block;
-        bytes = *(s32 *)block - (*(u16 *)(block + 4) + 0x18);
-        classPayload = (u8 *)e8Slot(*(u8 *)(block + 8) * 4,
+        ((ChkMemPool *)classPool)->classBytes[0] =
+            ((ChkMemPool *)classPool)->classBytes[0] - ((ChkMemEntry *)block)->size;
+        bytes = ((ChkMemEntry *)block)->size - (((ChkMemEntry *)block)->alignment + 0x18);
+        classPayload = (u8 *)e8Slot(header->classInfo.bytes.index * 4,
                               (u32)D_00763D1C);
-        *(s32 *)(classPayload + 0x58) = *(s32 *)(classPayload + 0x58) - bytes;
+        ((ChkMemPool *)classPayload)->classPayloadBytes[0] = ((ChkMemPool *)classPayload)->classPayloadBytes[0] - bytes;
     }
-    chkmemPoolUnlink((E8Node *)(block + 0xC));
-    *(s16 *)(block + 8) = 0;
+    chkmemPoolUnlink(&((ChkMemEntry *)block)->link);
+    header->classInfo.classes = 0;
 }
 
 // FUN_0044EA90
@@ -173,16 +177,16 @@ s32 chkmemRegisterBlock(s32 blockAddress, s32 size, u16 alignment, s16 flags)
     }
     block = (ChkMemEntry *)blockAddress;
     block->size = size;
-    block->pad_04 = alignment;
-    block->pad_06 = flags;
+    block->alignment = alignment;
+    block->flags = flags;
     payloadAddress = (s32)block + 24 +
-              ((block->pad_04 - 1) &
-               (block->pad_04 -
-                (((s32)block + 24) & (block->pad_04 - 1))));
+              ((block->alignment - 1) &
+               (block->alignment -
+                (((s32)block + 24) & (block->alignment - 1))));
     if (((u32)payloadAddress & 3) != 0) {
         kAssertFail(D_007104E0, 0x4C0);
     }
-    *(ChkMemEntry **)(payloadAddress - 4) = block;
+    ((ChkMemPayload *)(payloadAddress - sizeof(ChkMemPayload)))->block = block;
     if (((s32)block & 3) != 0) {
         kAssertFail(D_007104E0, 0x4C4);
     }
@@ -192,11 +196,11 @@ s32 chkmemRegisterBlock(s32 blockAddress, s32 size, u16 alignment, s16 flags)
         classPool = (s32 *)(((u8)D_00763D1C->classes << 2) +
                           (s32)D_00763D1C);
         classBytes = block->size;
-        classPool[14] = classPool[14] + classBytes;
-        classBytes = block->size - (block->pad_04 + 24);
-        D_00763D1C->classCount[(u8)D_00763D1C->classes] += classBytes;
+        ((ChkMemPool *)classPool)->classBytes[0] = ((ChkMemPool *)classPool)->classBytes[0] + classBytes;
+        classBytes = block->size - (block->alignment + 24);
+        D_00763D1C->classPayloadBytes[(u8)D_00763D1C->classes] += classBytes;
     }
-    chkmemPoolAppend((E8Node *)((u8 *)block + 12));
+    chkmemPoolAppend(&block->link);
     block->classInfo.classes = D_00763D1C->classes;
     return payloadAddress;
 }
@@ -254,16 +258,16 @@ s32 chkmemAllocate(u32 size)
         kAssertFail(D_007104E0, 0x4BB);
     }
     block->size = allocationAddressOrSize;
-    block->pad_04 = 0x10;
-    block->pad_06 = 0;
+    block->alignment = 0x10;
+    block->flags = 0;
     allocationAddressOrSize = (s32)block + 24 +
-              ((block->pad_04 - 1) &
-               (block->pad_04 -
-                (((s32)block + 24) & (block->pad_04 - 1))));
+              ((block->alignment - 1) &
+               (block->alignment -
+                (((s32)block + 24) & (block->alignment - 1))));
     if (((u32)allocationAddressOrSize & 3) != 0) {
         kAssertFail(D_007104E0, 0x4C0);
     }
-    *(ChkMemEntry **)(allocationAddressOrSize - 4) = block;
+    ((ChkMemPayload *)(allocationAddressOrSize - sizeof(ChkMemPayload)))->block = block;
     if (((s32)block & 3) != 0) {
         kAssertFail(D_007104E0, 0x4C4);
     }
@@ -273,11 +277,11 @@ s32 chkmemAllocate(u32 size)
         classPool = (s32 *)(((u8)D_00763D1C->classes << 2) +
                           (s32)D_00763D1C);
         classBytes = block->size;
-        classPool[14] += classBytes;
-        classBytes = block->size - (block->pad_04 + 24);
-        D_00763D1C->classCount[(u8)D_00763D1C->classes] += classBytes;
+        ((ChkMemPool *)classPool)->classBytes[0] += classBytes;
+        classBytes = block->size - (block->alignment + 24);
+        D_00763D1C->classPayloadBytes[(u8)D_00763D1C->classes] += classBytes;
     }
-    chkmemPoolAppend((E8Node *)((u8 *)block + 12));
+    chkmemPoolAppend(&block->link);
     block->classInfo.classes = D_00763D1C->classes;
     if (lock != 0) {
         func_0042ba70();
@@ -292,11 +296,11 @@ s32 chkmemAllocate(u32 size)
  * visibility keeps `block` live in $v0 across unlink, which emits the clear
  * before the following $a0 move exactly as retail. */
 /* Recover the payload header, remove tracking, and free the underlying block. */
-/* ChkMemEntry/ChkMemPool prove these offsets; keep raw accounting accesses
- * because typed members changed the measured matching allocation/load order. */
+/* Separate typed header aliases retain the measured class-accounting reload order. */
 // FUN_0044EE70
 void chkmemFree(u8 *allocation)
 {
+    ChkMemEntry *header;
     s32 lock;
     u8 *block;
     u8 *pool;
@@ -311,28 +315,29 @@ void chkmemFree(u8 *allocation)
     if (allocation == NULL) {
         kAssertFail(D_007104E0, 0x670);
     }
-    block = *(u8 **)(allocation - 4);
+    block = (u8 *)((ChkMemPayload *)(allocation - sizeof(ChkMemPayload)))->block;
+    header = (ChkMemEntry *)block;
     pool = (u8 *)D_00763D1C;
-    *(s32 *)(pool + 0x18) = *(s32 *)(pool + 0x18) - 1;
+    ((ChkMemPool *)pool)->count = ((ChkMemPool *)pool)->count - 1;
     pool2 = (u8 *)D_00763D1C;
-    *(s32 *)(pool2 + 0x1C) = *(s32 *)(pool2 + 0x1C) - *(s32 *)block;
-    if ((s32)*(u8 *)(block + 8) < 8) {
+    ((ChkMemPool *)pool2)->bytes = ((ChkMemPool *)pool2)->bytes - ((ChkMemEntry *)block)->size;
+    if ((s32)((ChkMemEntry *)block)->classInfo.bytes.index < 8) {
         pool = (u8 *)D_00763D1C;
-        offset = *(u8 *)(block + 8) * 4;
+        offset = ((ChkMemEntry *)block)->classInfo.bytes.index * 4;
         pool2 = (u8 *)(offset + (u32)pool);
-        *(s32 *)(pool2 + 0x38) =
-            *(s32 *)(pool2 + 0x38) - *(s32 *)block;
-        payload = *(u16 *)(block + 4);
+        ((ChkMemPool *)pool2)->classBytes[0] =
+            ((ChkMemPool *)pool2)->classBytes[0] - ((ChkMemEntry *)block)->size;
+        payload = ((ChkMemEntry *)block)->alignment;
         size = payload + 0x18;
-        blockSize = *(s32 *)block;
+        blockSize = ((ChkMemEntry *)block)->size;
         size = blockSize - size;
-        offset = *(u8 *)(block + 8) * 4;
+        offset = header->classInfo.bytes.index * 4;
         pool2 = (u8 *)(offset + (u32)D_00763D1C);
-        delta = *(s32 *)(pool2 + 0x58) - size;
-        *(s32 *)(pool2 + 0x58) = delta;
+        delta = ((ChkMemPool *)pool2)->classPayloadBytes[0] - size;
+        ((ChkMemPool *)pool2)->classPayloadBytes[0] = delta;
     }
-    chkmemPoolUnlink((E8Node *)(block + 0xC));
-    *(s16 *)(block + 8) = 0;
+    chkmemPoolUnlink(&((ChkMemEntry *)block)->link);
+    header->classInfo.classes = 0;
     func_0043ed08(block);
     if (lock != 0) {
         func_0042ba70();
@@ -380,16 +385,16 @@ s32 chkmemAllocAligned(s32 size, s32 alignment, s32 flags)
         kAssertFail(D_007104E0, 0x4BB);
     }
     block->size = allocationSize;
-    block->pad_04 = blockAlignment;
-    block->pad_06 = 0;
+    block->alignment = blockAlignment;
+    block->flags = 0;
     payloadAddress = (s32)block + 24 +
-              ((block->pad_04 - 1) &
-               (block->pad_04 -
-                (((s32)block + 24) & (block->pad_04 - 1))));
+              ((block->alignment - 1) &
+               (block->alignment -
+                (((s32)block + 24) & (block->alignment - 1))));
     if (((u32)payloadAddress & 3) != 0) {
         kAssertFail(D_007104E0, 0x4C0);
     }
-    *(ChkMemEntry **)(payloadAddress - 4) = block;
+    ((ChkMemPayload *)(payloadAddress - sizeof(ChkMemPayload)))->block = block;
     if (((s32)block & 3) != 0) {
         kAssertFail(D_007104E0, 0x4C4);
     }
@@ -399,11 +404,11 @@ s32 chkmemAllocAligned(s32 size, s32 alignment, s32 flags)
         classPool = (s32 *)(((u8)D_00763D1C->classes << 2) +
                           (s32)D_00763D1C);
         sizeOrClassBytes = block->size;
-        classPool[14] += sizeOrClassBytes;
-        sizeOrClassBytes = block->size - (block->pad_04 + 24);
-        D_00763D1C->classCount[(u8)D_00763D1C->classes] += sizeOrClassBytes;
+        ((ChkMemPool *)classPool)->classBytes[0] += sizeOrClassBytes;
+        sizeOrClassBytes = block->size - (block->alignment + 24);
+        D_00763D1C->classPayloadBytes[(u8)D_00763D1C->classes] += sizeOrClassBytes;
     }
-    chkmemPoolAppend((E8Node *)((u8 *)block + 12));
+    chkmemPoolAppend(&block->link);
     block->classInfo.classes = D_00763D1C->classes;
     return payloadAddress;
 }
@@ -416,9 +421,10 @@ s32 chkmemAllocAligned(s32 size, s32 alignment, s32 flags)
    is not a pointer-return contract. Retail copies up to the old header's
    total size, not payload capacity, and returning failure diagnostics still
    lead to a NULL-header write. These defects are intentionally preserved. */
+/* Replace an optional payload and copy the smaller of its old total size and size. */
 // FUN_0044F140
 #pragma push
-/* Preserve retail scheduling and the branch join after nested restore. */
+/* measured: preserve retail scheduling and the branch join after nested restore. */
 #pragma schedule off
 s32 chkmemReallocate(void *allocationPointer, u32 size)
 {
@@ -454,7 +460,7 @@ s32 chkmemReallocate(void *allocationPointer, u32 size)
         }
         result = allocation;
     } else {
-        oldHeaderSlot = (ChkMemEntry **)((u8 *)allocationPointer - 4);
+        oldHeaderSlot = &((ChkMemPayload *)((u8 *)allocationPointer - sizeof(ChkMemPayload)))->block;
         copySize = (*oldHeaderSlot)->size;
         if (size < copySize) {
             copySize = size;
