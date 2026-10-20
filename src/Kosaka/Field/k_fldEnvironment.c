@@ -255,6 +255,7 @@ s32 FldEnvOpenFile(s32 room) {
 // FUN_00153D60
 #pragma push
 /* measured: FldEnvironmentLoad MATCH -> MISMATCH without this pragma. */
+/* measured: baseline 21 differing words; typed access, block lifetimes did not match; retain scoped settings. */
 #pragma opt_loop_invariants on
 s32 FldEnvironmentLoad(u8 *file, s32 room)
 {

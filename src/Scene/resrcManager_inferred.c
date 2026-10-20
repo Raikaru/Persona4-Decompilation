@@ -716,6 +716,7 @@ s32 resrcMngCompareDistanceArrB(const void *left, const void *right) {
    is retail's $s4. See docs/probe_archive/RenderQueue_00148280_worker1_20261005.md. */
 #pragma push
 /* measured: resrcMngRenderTask MATCH -> MISMATCH without this pragma. */
+/* measured: baseline loop/lifetime removal gives nd86; per-pass attachment counters leave nd81; retain both settings. */
 #pragma opt_loop_invariants on
 /* measured: resrcMngRenderTask MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
@@ -1432,6 +1433,7 @@ void resrcMngResetRenderSlots(void)
 /* measured: opt_rebuildconditionals off is scoped to resrcMngSetDrawEnabled. */
 /* measured: loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: resrcMngSetDrawEnabled MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal gives nd96; equivalent structured list loops leave nd95; retain hoisting. */
 #pragma opt_loop_invariants on
 // FUN_0014A000
 /* Set the draw-active bit on field resources and optionally field-model resources. */

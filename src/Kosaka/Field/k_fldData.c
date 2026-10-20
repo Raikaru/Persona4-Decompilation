@@ -99,7 +99,6 @@ extern s32 FldStartupDataUpdate(u8 *);
  * snapshots preserve the resource extent through each native call boundary. */
 #pragma push
 /* measured: FldStartupDataUpdate MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 typedef struct FldDataLoadWork {
     s32 state;
     s32 reserved04;
@@ -128,6 +127,8 @@ typedef char FldDataLoadWorkSizeCheck[sizeof(FldDataLoadWork) == 0xF4 ? 1 : -1];
 
 /* Load startup models, scripts and tables, then finish texture requests and the mipmap task. */
 // FUN_0015D730
+/* measured: baseline 14 differing words; block lifetimes did not match; retain scoped settings. */
+#pragma opt_propagation off
 s32 FldStartupDataUpdate(u8 *task)
 {
     s32 textureReady;

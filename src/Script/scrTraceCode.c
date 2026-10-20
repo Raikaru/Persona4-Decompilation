@@ -419,8 +419,7 @@ u32 scrOpNop(ScrScriptWork* scr)
     return 1;
 }
 
-/* measured: opt_common_subs off is required for the exact object. */
-#pragma opt_common_subs off
+/* measured: common-subexpression override is redundant with the retained optimization_level 1; whole-file MATCH without it. */
 /* measured: optimization_level 1 is required for the exact object. Saved-local
    declaration order, the reversed range-guard operands, and the integer-domain
    second command-pointer sum reproduce retail register coloring and operand order. */

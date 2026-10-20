@@ -223,7 +223,6 @@ extern RwV3d D_005EFB98;
  * `sprite` is one function-scope variable for the 0x1834 label sprite and
  * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
  * call, so the label pointer is loaded before the stack argument. */
-#pragma push
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
     Float2_0014 xy;
@@ -250,7 +249,6 @@ extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
 
 
-#pragma pop
 
 
 
@@ -260,13 +258,6 @@ extern f32 D_008872F8[];
 /* measured: closes the scoped optimization-level-1 probe. */
 
 
-#pragma push
-#pragma pop
-
-
-
-#pragma push
-#pragma pop
 
 
 
@@ -276,8 +267,9 @@ extern f32 D_008872F8[];
 
 
 
-#pragma push
-#pragma pop
+
+
+
 
 
 
@@ -407,7 +399,6 @@ extern void RwV3dNormalize(f32 *destination, f32 *source);
 extern u8 iGpffff9dd8[8];
 /* measured probe: optimization_level 1 on c780. */
 /* measured: restore optimization_level 2 after FldEvent_AverageEntryValue. */
-#pragma push
 /* measured: byte-exact (354/354 instructions, 0 differing words).  The three
    occupancy scans are block-scoped so each `clear` flag lives where retail
    keeps it ($v0 reusing the test's 1, $s6 across the list walk's calls, $t2).
@@ -415,7 +406,6 @@ extern u8 iGpffff9dd8[8];
    base retail uses for the final mark.  The mark's bits are `(u16)(1U << x)`
    so they are not CSE'd with the signed occupancy test's `1 << x`.
    opt_loop_invariants hoists 600.0f/1200.0f, x+1/y+1 and the table bases. */
-#pragma pop
 /* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
 /* measured: restore opt_loop_invariants off after FldEvent_GetGridCellEntry. */
 // FUN_0014DCD0
@@ -883,9 +873,10 @@ void FldRc_SetPositionSlotVisibility(u8 *task, s32 slotIndex, s32 hidden) {
  * Inline predicates preserve reveal ordering and the frame-41 transition. */
 #pragma push
 /* measured: FldRc_TransitionStep MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
 /* measured: typing the remaining child read/frame increment changed 514..515 bytes; keep those byte-pointer accesses across transition callbacks. */
 // FUN_0014E950
+/* measured: baseline 30 differing words; block lifetimes did not match; retain scoped settings. */
+#pragma opt_loop_invariants on
 s32 FldRc_TransitionStep(u8 *task)
 {
     FldRcTransitionWork *transitionWork;

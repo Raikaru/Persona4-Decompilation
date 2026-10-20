@@ -57,11 +57,12 @@ void FldAuxBufferRelease(void)
 }
 
 #pragma push
-#pragma opt_loop_invariants on
-#pragma opt_propagation off
 /* Initialize the seven-by-eight screen grid of four-vertex filter quads. */
 /* Quad depth is captured from the camera near plane before any vertex store. */
 // FUN_001604A0
+/* measured: baseline 57 differing words; block lifetimes did not match; retain scoped settings. */
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 void K_FldFilter_InitQuads(u8 *camera)
 {
     f32 depth = ((RwCamera *)(camera))->nearPlane;
@@ -112,9 +113,6 @@ void K_FldFilter_InitQuads(u8 *camera)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Load the complete filter table and initialize its screen-space quad geometry. */
 /* The CDVD request's +0x110 word is the loaded file buffer, not a filter-entry field. */
 // FUN_001605A0
@@ -133,13 +131,11 @@ void FldFilterLoadFile(void)
     H_Cdvd_Destroy(file);
     K_FldFilter_InitQuads(kwlnGetCamera());
 }
-#pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Set the filter draw states and choose the GS alpha mode from the active table entry. */
 // FUN_00160680
+/* measured: baseline 72 differing words; table access forms did not match; retain scoped settings. */
 #pragma opt_propagation off
 void FldFilterResetRenderState(void)
 {
@@ -173,10 +169,10 @@ void FldFilterResetRenderState(void)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation off
 /* Apply the packed environment color when environment-color rendering is enabled. */
 // FUN_001607E0
+/* measured: baseline 33 differing words; block lifetimes, table access forms did not match; retain scoped settings. */
+#pragma opt_propagation off
 void FldFilterApplyColour(void)
 {
     u32 color;
@@ -243,14 +239,11 @@ static inline s32 fldFilterPreviousState(const s32 *state)
     return *state;
 }
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_lifetimes on
 // Intent: Advance the colour cross-fade from the previous state table to the current one by one step, writing blended vertex colours for seven rows of eight [inferred]
 /* Current/previous cursors advance one packed color per column and 0x24 bytes per row.
  * Their colors[0..1][0..1] fields therefore select the four corners at (i, j). */
 // FUN_00160880
+/* measured: removing the local propagation, invariant and lifetime toggles preserves whole-unit MATCH. */
 void FldColorCrossfadeStep(void)
 {
     FldFilterEntry *currentColors;
@@ -508,4 +501,3 @@ void FldColorCrossfadeStep(void)
         }
     }
 }
-#pragma pop

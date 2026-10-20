@@ -165,6 +165,7 @@ static inline s32 datPersonaSelectedCount(s32 first, s32 last)
 // Intent: writes the skill ids (arg1) and levels (arg2, optional) of persona record arg0's level-table entries it has not learned yet; returns the count.
 // FUN_00109510
 #pragma push
+/* measured: baseline propagation-on/loop-off differs by 116 words; isolated toggles give nd21/nd323; retain both. */
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 s32 datPersonaCollectLearnableSkills(DatPersonaRecord *persona, void *outputSkills, void *outputLevels)
@@ -997,6 +998,7 @@ s32 datPersonaRosterCapacity(void)
 /* measured: nested static inline OR helper preserves retail's intermediate
    ori sequence for modes 2 and 3; helper is required for exact b610 codegen. */
 /* measured: opt_propagation off preserves the three retail mask/and steps. */
+/* measured: baseline differs by 43 words; reloading the stored mode flags leaves nd110; retain propagation off. */
 #pragma opt_propagation off
 // Intent: sets the roster mode flags (none, 1, 2 or 3 cumulative) that select the capacity.
 // FUN_0010B610
@@ -1032,6 +1034,7 @@ void datPersonaSetRosterMode(s32 rosterMode)
 #pragma opt_propagation on
 /* measured: sibling P3 valid-count shape closes this 0xD0 window with
    opt_loop_invariants; the explicit bracket is required for the hoisted base. */
+/* measured: baseline differs by 17 words; cached typed roster base reduces nd35 to nd10 but changes addressing; retain hoisting. */
 #pragma opt_loop_invariants on
 // Intent: number of active roster slots within the current capacity.
 // FUN_0010B6F0
@@ -1283,6 +1286,7 @@ s32 datPersonaUsesFixedGrowth(DatPersonaRecord *persona)
  * Native b210 O2: 1856/1856 bytes, 34 resolved relocations, no tail.
  */
 #pragma push
+/* measured: baseline differs by 179 words; explicit growth-table preheader gives nd1087; retain hoisting. */
 #pragma opt_loop_invariants on
 /* Test whether the persona identifier belongs to the party-persona interval. */
 static inline s32 datPersonaGrowthIsParty(u8 *persona)
@@ -1634,6 +1638,7 @@ void datPersonaAddExp(DatPersonaRecord *persona, s32 addedExp)
    the loop-invariant pragma required to retain retail's maxSkills preheader;
    normalized_diff 0, object_size 232/240. */
 // FUN_0010C9E0
+/* measured: baseline differs by 33 words; a cached skills pointer leaves nd67; retain hoisting. */
 #pragma opt_loop_invariants on
 // Intent: compacts the 8-slot skill list of persona record arg0 so non-empty skills come first.
 void datPersonaCompactSkills(u8 *persona)
@@ -1679,6 +1684,7 @@ void datPersonaCompactSkills(u8 *persona)
 
 /* The halfword persona contract retains both retail masks when common
  * subexpression folding is disabled for this initializer. */
+/* measured: baseline differs by 52 words; typed level-row array access leaves nd133; retain common-subexpression setting. */
 #pragma opt_common_subs off
 // Intent: initializes roster record arg0 for persona id arg1 from its table row, at the table level, with fixed skills.
 // FUN_0010CAD0
