@@ -75,8 +75,7 @@ extern f32 fGpffff8110;
 /* measured: 25 -> 18 -> 11 -> 0. Hoisting retains the live-count bound copies;
  * opt_lifetimes splits the reused gather counters after those bounds. */
 #pragma pop
-/* Find an active, living action whose UID matches the remembered selection key.
- * Raw offsets retained: The nested unit-to-DatUnit load keeps its original pointer alias type; action/list fields use the shared layout. */
+/* Find an active, living action whose UID matches the remembered selection key. */
 // FUN_001D8C00
 u8 *btlEffectFindUnitByKey(u8 *selection)
 {
@@ -88,7 +87,7 @@ u8 *btlEffectFindUnitByKey(u8 *selection)
     while (unit != NULL) {
         flags = ((BtlAction *)unit)->unk_1a;
         if ((flags & 1) != 0 && (flags & 8) != 0) {
-            data = *(u8 **)((u8 *)((BtlAction *)unit)->unit + 0xA64);
+            data = *(u8 * *)&((BtlUnit *)((u8 *)((BtlAction *)unit)->unit))->datUnit;
             if ((data == NULL || datCalcIsDead(data, 0) == 0) &&
                 *(s64 *)unit == (s64)((BtlTargetSelection *)selection)->key) {
                 return unit;
@@ -107,6 +106,8 @@ u8 *btlEffectFindUnitByKey(u8 *selection)
    written it, which is exactly what retail does; the defensive order
    this floor used to carry - first-entry guard first, to avoid the
    uninitialised read - was the whole residual. */
+/* Preserve a remembered UID when present; otherwise select the nearest target to the acting unit.
+ * Empty selections and a missing action leave the cursor at zero. */
 // FUN_001D8CB0
 #pragma push
 /* measured: btlEffectSelectNearestEntry MATCH -> MISMATCH without this pragma. */

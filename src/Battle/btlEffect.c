@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "h_cdvd_request_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_action_internal.h"
 /* Source unit: src/Battle/btlEffect_001d6880.c */
@@ -79,7 +81,9 @@ extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 
 extern u8* D_0076449C;
 extern char iGpffffa290;
-extern char iGpffffa2a0;
+/* The synchronous loader visits one pointer-sized resource-path row. */
+typedef struct BtlFormationPath { u8 *path; } BtlFormationPath;
+extern BtlFormationPath iGpffffa2a0;
 extern char iGpffffb450;
 extern char D_00609548[];
 extern char D_00609558[];
@@ -87,38 +91,39 @@ extern char D_006095C0[];
 
 
 
-/* Release all three optional node resources and restore the default white, twenty-step fade state without unlinking the node.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Release all three optional node resources and restore the default white, twenty-step fade state without unlinking the node. */
 // FUN_001D6880
 void btlEffectResetEntry(u16 *node)
 
 {
-  if (*(int *)(node + 8) != 0) {
-    btlFormationResetState((BtlFormationWork *)*(int *)(node + 8));
-    *(u32 *)(node + 8) = 0;
+    BtlEffectNode *nodeState = (BtlEffectNode *)(node);
+  if (*(int *)&((BtlEffectNode *)(node))->formation != 0) {
+    btlFormationResetState((BtlFormationWork *)*(int *)&((BtlEffectNode *)(node))->formation);
+    *(u32 *)&nodeState->formation = 0;
   }
-  if (*(int *)(node + 10) != 0) {
-    mdlEffectDestroyWithNodes(*(int *)(node + 10));
-    *(u32 *)(node + 10) = 0;
+  if (*(int *)&((BtlEffectNode *)(node))->effect != 0) {
+    mdlEffectDestroyWithNodes(*(int *)&((BtlEffectNode *)(node))->effect);
+    *(u32 *)&nodeState->effect = 0;
   }
-  if (*(int *)(node + 0xc) != 0) {
-    mdlDestroyModelObject(*(int *)(node + 0xc));
-    *(u32 *)(node + 0xc) = 0;
+  if (*(int *)&((BtlEffectNode *)(node))->model != 0) {
+    mdlDestroyModelObject(*(int *)&((BtlEffectNode *)(node))->model);
+    *(u32 *)&nodeState->model = 0;
   }
-  *(u32 *)(node + 2) = 0xffffffff;
-  *(u8 *)(node + 4) = 0x14;
-  *(u32 *)(node + 6) = 0;
+  ((BtlEffectNode *)(node))->color = 0xffffffff;
+  ((BtlEffectNode *)(node))->fadeStep = 0x14;
+  ((BtlEffectNode *)(node))->counter = 0;
   *node = 0x200;
   return;
 }
 
 
 
-/* Find an unclaimed pool slot, reset its node resources, and mark its bit used; return NULL if the scan finds none.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Find an unclaimed pool slot, reset its node resources, and mark its bit used; return NULL if the scan finds none. */
 // FUN_001D6CE0
 u16 *btlEffectAllocEntry(int pool)
 {
+    BtlEffectNode *entryState;
+    BtlEffectNodePool *nodePool = (BtlEffectNodePool *)(pool);
   u16 *entry;
   u32 index;
   u32 mask;
@@ -126,25 +131,26 @@ u16 *btlEffectAllocEntry(int pool)
   mask = 1;
   index = 0;
   while (index < 0x30) {
-    if ((*(u32 *)(pool + 0xc0) & mask) == 0) {
-      entry = *(u16 **)(pool + index * 4);
-      if (*(int *)(entry + 8) != 0) {
-        btlFormationResetState((BtlFormationWork *)*(int *)(entry + 8));
-        *(u32 *)(entry + 8) = 0;
+    if ((((BtlEffectNodePool *)(pool))->usedMask & mask) == 0) {
+      entry = *(u16 * *)&((BtlEffectNodePool *)pool)->nodes[index];
+      entryState = (BtlEffectNode *)(entry);
+      if (*(int *)&((BtlEffectNode *)(entry))->formation != 0) {
+        btlFormationResetState((BtlFormationWork *)*(int *)&((BtlEffectNode *)(entry))->formation);
+        *(u32 *)&entryState->formation = 0;
       }
-      if (*(int *)(entry + 10) != 0) {
-        mdlEffectDestroyWithNodes(*(int *)(entry + 10));
-        *(u32 *)(entry + 10) = 0;
+      if (*(int *)&((BtlEffectNode *)(entry))->effect != 0) {
+        mdlEffectDestroyWithNodes(*(int *)&((BtlEffectNode *)(entry))->effect);
+        *(u32 *)&entryState->effect = 0;
       }
-      if (*(int *)(entry + 0xc) != 0) {
-        mdlDestroyModelObject(*(int *)(entry + 0xc));
-        *(u32 *)(entry + 0xc) = 0;
+      if (*(int *)&((BtlEffectNode *)(entry))->model != 0) {
+        mdlDestroyModelObject(*(int *)&((BtlEffectNode *)(entry))->model);
+        *(u32 *)&entryState->model = 0;
       }
-      *(u32 *)(entry + 2) = 0xffffffff;
-      *(u8 *)(entry + 4) = 0x14;
-      *(u32 *)(entry + 6) = 0;
+      ((BtlEffectNode *)(entry))->color = 0xffffffff;
+      ((BtlEffectNode *)(entry))->fadeStep = 0x14;
+      ((BtlEffectNode *)(entry))->counter = 0;
       *entry = 0x200;
-      *(u32 *)(pool + 0xc0) |= mask;
+      nodePool->usedMask |= mask;
       return entry;
     }
     mask <<= 1;
@@ -155,35 +161,35 @@ u16 *btlEffectAllocEntry(int pool)
 
 
 
-/* Locate the node in its pool, release its resources, and clear the corresponding used bit; return whether it was found.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Locate the node in its pool, release its resources, and clear the corresponding used bit; return whether it was found. */
 // FUN_001D6DE0
 u32 btlEffectFreeEntry(int pool, u16 *entry)
 {
+    BtlEffectNode *entryState = (BtlEffectNode *)(entry);
   u32 index;
   u32 mask;
 
   mask = 1;
   index = 0;
   while (index < 0x30) {
-    if (*(u16 **)(pool + index * 4) == entry) {
-      if (*(int *)(entry + 8) != 0) {
-        btlFormationResetState((BtlFormationWork *)*(int *)(entry + 8));
-        *(u32 *)(entry + 8) = 0;
+    if (*(u16 * *)&((BtlEffectNodePool *)pool)->nodes[index] == entry) {
+      if (*(int *)&((BtlEffectNode *)(entry))->formation != 0) {
+        btlFormationResetState((BtlFormationWork *)*(int *)&((BtlEffectNode *)(entry))->formation);
+        *(u32 *)&entryState->formation = 0;
       }
-      if (*(int *)(entry + 10) != 0) {
-        mdlEffectDestroyWithNodes(*(int *)(entry + 10));
-        *(u32 *)(entry + 10) = 0;
+      if (*(int *)&((BtlEffectNode *)(entry))->effect != 0) {
+        mdlEffectDestroyWithNodes(*(int *)&((BtlEffectNode *)(entry))->effect);
+        *(u32 *)&entryState->effect = 0;
       }
-      if (*(int *)(entry + 0xc) != 0) {
-        mdlDestroyModelObject(*(int *)(entry + 0xc));
-        *(u32 *)(entry + 0xc) = 0;
+      if (*(int *)&((BtlEffectNode *)(entry))->model != 0) {
+        mdlDestroyModelObject(*(int *)&((BtlEffectNode *)(entry))->model);
+        *(u32 *)&entryState->model = 0;
       }
-      *(u32 *)(entry + 2) = 0xffffffff;
-      *(u8 *)(entry + 4) = 0x14;
-      *(u32 *)(entry + 6) = 0;
+      ((BtlEffectNode *)(entry))->color = 0xffffffff;
+      ((BtlEffectNode *)(entry))->fadeStep = 0x14;
+      ((BtlEffectNode *)(entry))->counter = 0;
       *entry = 0x200;
-      *(u32 *)(pool + 0xc0) &= ~mask;
+      ((BtlEffectNodePool *)(pool))->usedMask &= ~mask;
       return 1;
     }
     mask <<= 1;
@@ -217,15 +223,15 @@ void btlUnitResourceClearFlag(void** units)
 }
 
 
-/* Mark a placement dirty only when its selected formation slot changes.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Mark a placement dirty only when its selected formation slot changes. */
 // FUN_001D7100
 void btlPacketSetValue(u8* packet, s16 value)
 {
-    if (*(s16*)(packet + 0x10) != value)
+    BtlEffectPlacement *placementState = (BtlEffectPlacement *)(packet);
+    if (((BtlEffectPlacement *)(packet))->slotIndex != value)
     {
         *packet |= 1;
-        *(s16*)(packet + 0x10) = value;
+        placementState->slotIndex = value;
     }
 }
 
@@ -245,8 +251,7 @@ void btlPacketSetTag(void* packet, u32 value)
 }
 
 
-/* Acquire the formation archive, then allocate and populate all 48 slots once the archive is loaded.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Acquire the formation archive, then allocate and populate all 48 slots once the archive is loaded. */
 // FUN_001D7760
 u32 btlEffectLoadTable(void)
 {
@@ -255,17 +260,17 @@ u32 btlEffectLoadTable(void)
   u32 firstOffset = 0;
   s32 entrySize;
 
-  if (*(int *)(D_0076449C + 0xDC4) == 0) {
+  if (*(int *)&((BtlBattleState *)(D_0076449C))->formationHandle == 0) {
     func_00440b68(&iGpffffa290, D_00609548, 0x4AB);
-    *(u32 *)(D_0076449C + 0xDC4) = (u32)H_Cdvd_AcquireDirectory((u8 *)D_006095C0, 1);
-  } else if (H_Cdvd_IsFileLoaded(*(u8 **)(D_0076449C + 0xDC4)) != 0) {
+    *(u32 *)&((BtlBattleState *)(D_0076449C))->formationHandle = (u32)H_Cdvd_AcquireDirectory((u8 *)D_006095C0, 1);
+  } else if (H_Cdvd_IsFileLoaded(((BtlBattleState *)(D_0076449C))->formationHandle) != 0) {
     for (firstIndex = 0; firstIndex < 0x30; firstIndex++) {
-      firstValue = (u32)H_Cdvd_GetArchiveEntry(*(void **)(D_0076449C + 0xDC4), firstIndex, &entrySize);
+      firstValue = (u32)H_Cdvd_GetArchiveEntry(*(void * *)&((BtlBattleState *)(D_0076449C))->formationHandle, firstIndex, &entrySize);
       firstOffset = firstIndex * 4;
-      *(u32 *)(D_0076449C + firstOffset + 0xD04) = btlFormationAllocWork(2);
-      btlFormationSetSlot(*(u32 *)(D_0076449C + firstOffset + 0xD04), firstValue);
+      *(u32 *)&((BtlBattleState *)(D_0076449C + firstOffset))->formations[0] = btlFormationAllocWork(2);
+      btlFormationSetSlot(*(u32 *)&((BtlBattleState *)(D_0076449C + firstOffset))->formations[0], firstValue);
     }
-    *(u32 *)(D_0076449C + 0xC) |= 0x40000;
+    ((BtlBattleState *)(D_0076449C))->flags |= 0x40000;
     return 1;
   }
   return 0;
@@ -288,8 +293,9 @@ u8 *btlEffectCreateLoadPacket(void)
 
 
 
-/* Load the configured formation resource synchronously and copy its data into an independently owned allocation.
- * Raw offsets retained: CDVD resource data/size fields and the parallel GP tables lack a shared resource-record layout here. */
+/* Load the configured formation resource synchronously and copy its data into an independently owned allocation. */
+/* measured: site, typed-local, array and unsigned-union member forms lose MATCH
+ * on the final size reload; MEMBER preserves the original request-byte alias domain. */
 // FUN_001D78D0
 void btlEffectLoadFilesSync(void) {
     s32 *out;
@@ -302,20 +308,21 @@ void btlEffectLoadFilesSync(void) {
     while (i == 0) {
         func_00440b68(&iGpffffa290, D_00609548, 0x559);
         offset = i * 4;
-        work = H_Cdvd_AcquireDirectory(*(u8 **)((u8 *)&iGpffffa2a0 + offset), 0);
+        work = H_Cdvd_AcquireDirectory((&iGpffffa2a0)[i].path, 0);
         H_Cdvd_ReadSync(work);
         out = (s32 *)((u8 *)&iGpffffb450 + offset);
         *out = btlFormationAllocWork(2);
-        resourceSize = *(s32 *)(work + 0x118);
+        resourceSize = ((HCdvdRequest *)(work))->signedSize;
         chkmemAllocSiteTag(D_00609558, 0x3A);
         resourceCopy = jtbl_008873E8[0](resourceSize, 0x40000);
-        memcpy(resourceCopy, (void *)*(s32 *)(work + 0x110), *(s32 *)(work + 0x118));
+        memcpy(resourceCopy, (void *)*(s32 *)&((HCdvdRequest *)(work))->data, MEMBER(s32, work, HCdvdRequest, signedSize));
         btlFormationSetSlot(*out, (u32)resourceCopy);
         H_Cdvd_Destroy(work);
         i += 1;
     }
 }
 
+/* Request the crossfade mode stored in packet work and complete immediately. */
 // FUN_001D79E0
 u32 btlEffectReleaseId(u16 *mode)
 {
@@ -336,8 +343,7 @@ BtlPacket *btlEffectCreateReleasePacket(u16 mode)
 
 
 
-/* Copy RGBA and mode into the six-byte custom fade-color work payload.
- * Raw offsets retained: The halfword at work+4 follows the four-byte color copy; retain the original aggregate-copy/halfword-store shape. */
+/* Copy RGBA and mode into the six-byte custom fade-color work payload. */
 // FUN_001D7AB0
 BtlPacket* btlEffectCreateMessagePacket(u8 *color,u16 fadeMode)
 
@@ -352,7 +358,7 @@ BtlPacket* btlEffectCreateMessagePacket(u8 *color,u16 fadeMode)
   *(code *)&((BtlPacket *)packet)->updateFunc = (code)btlEffectApplyFadeCustomColor;
   work = (u8 *)((BtlPacket *)packet)->workData;
   *(BtlMessageArgs *)work = *(BtlMessageArgs *)color;
-  *(u16 *)(work + 4) = fadeMode;
+  ((BtlEffectFadeColor *)(work))->mode = fadeMode;
   return (BtlPacket*)packet;
 }
 
@@ -403,8 +409,7 @@ void btlFormationEntryCopySelected(s32 destination, s32 source)
  * MATCH nd0 -> MISMATCH nd50 (object 100/96), matching the donor's own
  * recorded W161 annotation of nd0 -> nd50. */
 #pragma opt_loop_invariants on
-/* Combine the genus bits of every action in the target selection; the result is kept to sixteen bits.
- * Raw offsets retained: The integer-based target cursor preserves the measured loop's pointer and genus-load domains. */
+/* Combine the genus bits of every action in the target selection; the result is kept to sixteen bits. */
 // FUN_001D8DF0
 u32 btlEffectCollectGenusMask(int selection)
 {
@@ -418,7 +423,7 @@ u32 btlEffectCollectGenusMask(int selection)
   count = ((BtlTargetSelection *)selection)->count;
   bit = 1;
   for (; (index & 0xffff) < count; index = (u16)(index + 1)) {
-    u8 genus = *(u8 *)(*(int *)(*(int *)(selection + (u16)index * 4) + 0x30) + 0xa2);
+    u8 genus = ((BtlUnit *)(*(int *)&((BtlAction *)(*(int *)&((BtlTargetSelection *)selection)->entries[(u16)index]))->unit))->genus;
     result = (result | ((bit << genus) & 0xffff)) & 0xffff;
   }
   return result;
@@ -481,8 +486,7 @@ s32 btlAICommandDispatchCheck(void) {
 }
 
 
-/* Set a single explicit action target for unclassified skills; otherwise invoke the first selection handler.
- * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
+/* Set a single explicit action target for unclassified skills; otherwise invoke the first selection handler. */
 // FUN_001E6C60
 s32 btlAICommandSetTarget(void) {
     u8 *action;
@@ -491,7 +495,7 @@ s32 btlAICommandSetTarget(void) {
     action = scrGetAiState();
     if ((btlSkillClassifyTargets(action, 0, ((BtlAction *)action)->unk_6e, 0) & 0xFFFF) == 0) {
         index = scrGetParamIntS32(0);
-        *(u8 **)(action + 0x38) = btlActionFindById(index & 0xFFFFFFF);
+        ((BtlAction *)(action))->targets[0] = btlActionFindById(index & 0xFFFFFFF);
         *(s16 *)&((BtlAction *)action)->unk_6a = 1;
     } else if (((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0) == 0) {
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
@@ -500,8 +504,7 @@ s32 btlAICommandSetTarget(void) {
 }
 
 
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
- * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
 // FUN_001E6FA0
 s32 btlAICommandPickWeakCandidateGated(void) {
     u16 count;
@@ -511,9 +514,9 @@ s32 btlAICommandPickWeakCandidateGated(void) {
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -522,8 +525,7 @@ s32 btlAICommandPickWeakCandidateGated(void) {
 }
 
 
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
- * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
 // FUN_001E7080
 s32 btlAICommandPickWeakCandidate(void) {
     u16 count;
@@ -533,9 +535,9 @@ s32 btlAICommandPickWeakCandidate(void) {
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -544,8 +546,7 @@ s32 btlAICommandPickWeakCandidate(void) {
 }
 
 
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
- * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
 // FUN_001E7160
 s32 btlAICommandPickNormalCandidate(void) {
     u16 count;
@@ -555,9 +556,9 @@ s32 btlAICommandPickNormalCandidate(void) {
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -566,8 +567,7 @@ s32 btlAICommandPickNormalCandidate(void) {
 }
 
 
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
- * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
 // FUN_001E7240
 s32 btlAICommandPickNormalCandidateGated(void) {
     u16 count;
@@ -577,9 +577,9 @@ s32 btlAICommandPickNormalCandidateGated(void) {
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -589,8 +589,7 @@ s32 btlAICommandPickNormalCandidateGated(void) {
 
 
 // Identical body to btlAICommandPickNormalCandidate (opcode 0x2C); this is a separate AI command, 0x208F, with its own table slot (opcode 0x2D).
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
- * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
 // FUN_001E7320
 s32 btlAICommandPickNormalCandidateAlt(void)
 {
@@ -602,11 +601,11 @@ s32 btlAICommandPickNormalCandidateAlt(void)
         count = ((BtlAction *)work)->unk_6a;
         if (count == 1)
         {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         }
         else
         {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)&((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     }
     else

@@ -1,3 +1,5 @@
+#include "btl_formation_attach_internal.h"
+#include "btl_action_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_skill_target_internal.h"
@@ -62,23 +64,6 @@ typedef int (*code)();
 extern void *btlPacketAlloc();
 
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
 extern f32 fGpffff803c;
@@ -93,8 +78,7 @@ extern f32 fGpffff8110;
 #pragma pop
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
 /* measured: restore optimization_level 2 after func_001d5990. */
-/* Reset elapsed time, copy formation defaults, hold the unit pending count, and reserve an effect node.
- * Raw offsets retained: The unit's pool pointer at +0xA08 is inside an unnamed span of the shared BtlUnit layout. */
+/* Reset elapsed time, copy formation defaults, hold the unit pending count, and reserve an effect node. */
 // FUN_001D6300
 void btlEffectPrepareFormationStep(u8 *work) {
     u8 *unit;
@@ -102,19 +86,20 @@ void btlEffectPrepareFormationStep(u8 *work) {
     ((BtlEffectFormationStep *)work)->elapsed = 0;
     btlFormationCopyDefault(((BtlEffectFormationStep *)work)->formation);
     unit = (u8 *)(((BtlEffectFormationStep *)work)->unit);
-    *(u16 *)(unit + 0xA0) = (u16) (*(u16 *)(unit + 0xA0) + 1);
-    *(s32 *)&((BtlEffectFormationStep *)work)->node = btlEffectAllocEntry(*(s32 *)((u8 *)(((BtlEffectFormationStep *)work)->unit) + 0xA08));
+    ((BtlUnit *)(unit))->pendingPacketCount = (u16) (((BtlUnit *)(unit))->pendingPacketCount + 1);
+    *(s32 *)&((BtlEffectFormationStep *)work)->node = btlEffectAllocEntry(*(s32 *)&((BtlUnit *)((u8 *)(((BtlEffectFormationStep *)work)->unit)))->effectNodePool);
 }
 
 /* measured: opt_propagation off probe for btlEffectStepFormationPlacement argument setup and register coloring. */
 #pragma push
 /* measured: btlEffectStepFormationPlacement MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-/* Create the formation entry on the first step, drive node fade flags, and abort at duration, UID, or index limits.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Create the formation entry on the first step, drive node fade flags, and abort at duration, UID, or index limits. */
 // FUN_001D6360
 s32 btlEffectStepFormationPlacement(u8 *work)
 {
+    BtlEffectFormationStep *formationStep = (BtlEffectFormationStep *)(work);
+    BtlEffectNode *fadeNode;
     extern s32 btlUnitRecordFindByUID(s64 uid, s64 mask);
     extern u32 btlFormationGetCount(void *formation);
     extern s32 btlFormationGetIndex(s32 formation, s32 side);
@@ -123,52 +108,53 @@ s32 btlEffectStepFormationPlacement(u8 *work)
     s32 value;
     s32 unit;
     s32 index;
-    s32 index_temp;
+    s32 indexLimit;
     s64 key;
     u8 *packet;
-    u8 *abort_packet;
+    u8 *abortNode;
     s32 options;
-    if (btlFormationGetCount(*(u8 **)(work + 0)) == 0)
+    if (btlFormationGetCount(((BtlEffectFormationStep *)(work))->formation) == 0)
         return 0;
-    packet = *(u8 **)(work + 0x18);
-    if ((*(s32 *)(packet + 4) & 0xFF000000) == 0)
+    packet = *(u8 * *)&((BtlEffectFormationStep *)(work))->node;
+    fadeNode = (BtlEffectNode *)(packet);
+    if ((*(s32 *)&((BtlEffectNode *)(packet))->color & 0xFF000000) == 0)
         return 1;
-    if ((*(u16 *)(packet + 0) & 0x40) == 0) {
-        if ((*(s32 *)(work + 0x20) & 0x4000) == 0) {
-            index_temp = btlFormationGetIndex(*(s32 *)(work + 0), 0) * 2;
-            index = index_temp;
+    if ((((BtlEffectNode *)(packet))->flags & 0x40) == 0) {
+        if ((*(s32 *)&((BtlEffectFormationStep *)(work))->flags & 0x4000) == 0) {
+            indexLimit = btlFormationGetIndex(*(s32 *)&((BtlEffectFormationStep *)(work))->formation, 0) * 2;
+            index = indexLimit;
         } else {
-            index_temp = *(s32 *)(work + 0x1C) + 1;
-            index = index_temp;
+            indexLimit = ((BtlEffectFormationStep *)(work))->elapsed + 1;
+            index = indexLimit;
         }
-        count = *(s32 *)(work + 8);
-        if ((count != 0 && *(s32 *)(work + 0x1C) >= count * 2 - 13) ||
-            ((key = *(s64 *)(work + 0x10)) != 0 &&
+        count = ((BtlEffectFormationStep *)(work))->duration;
+        if ((count != 0 && ((BtlEffectFormationStep *)(work))->elapsed >= count * 2 - 13) ||
+            ((key = ((BtlEffectFormationStep *)(work))->key) != 0 &&
              btlUnitRecordFindByUID(key, (s64)0x3FFFFFFFFFFFFFFF) == 0) ||
-            (index != 0 && *(s32 *)(work + 0x1C) >= index)) {
-            if ((*(s32 *)(work + 0x20) & 0x2000) != 0)
-                *(s8 *)(*(u8 **)(work + 0x18) + 8) = 7;
-            abort_packet = *(u8 **)(work + 0x18);
-            *(u16 *)(abort_packet + 0) |= 0x100;
+            (index != 0 && ((BtlEffectFormationStep *)(work))->elapsed >= index)) {
+            if ((*(s32 *)&formationStep->flags & 0x2000) != 0)
+                *(s8 *)&((BtlEffectNode *)(*(u8 * *)&formationStep->node))->fadeStep = 7;
+            abortNode = *(u8 * *)&formationStep->node;
+            ((BtlEffectNode *)(abortNode))->flags |= 0x100;
             return 0;
         } else {
-            value = *(s32 *)(work + 0x1C);
+            value = ((BtlEffectFormationStep *)(work))->elapsed;
             if (value == 0) {
-                unit = *(s32 *)(work + 4);
-                options = *(s32 *)(work + 0x20);
-                *(s32 *)(packet + 0x10) =
-                    btlFormationAllocEntry(*(s32 *)(work + 0), 0, unit, unit, options);
+                unit = *(s32 *)&((BtlEffectFormationStep *)(work))->unit;
+                options = *(s32 *)&formationStep->flags;
+                *(s32 *)&((BtlEffectNode *)(packet))->formation =
+                    btlFormationAllocEntry(*(s32 *)&((BtlEffectFormationStep *)(work))->formation, 0, unit, unit, options);
             } else if (value == 2) {
-                if ((*(s32 *)(work + 0x20) & 0x10000) == 0) {
-                    *(u16 *)(packet + 0) |= 0xB0;
-                    *(s32 *)(packet + 4) =
-                        *(u32 *)(packet + 4) & 0x00FFFFFF;
+                if ((*(s32 *)&formationStep->flags & 0x10000) == 0) {
+                    ((BtlEffectNode *)(packet))->flags |= 0xB0;
+                    *(s32 *)&((BtlEffectNode *)(packet))->color =
+                        ((BtlEffectNode *)(packet))->color & 0x00FFFFFF;
                 } else {
-                    *(u16 *)(packet + 0) |= 0x30;
-                    *(s32 *)(packet + 4) = -1;
+                    ((BtlEffectNode *)(packet))->flags |= 0x30;
+                    *(s32 *)&fadeNode->color = -1;
                 }
             }
-            *(s32 *)(work + 0x1C) = *(s32 *)(work + 0x1C) + 2;
+            formationStep->elapsed = formationStep->elapsed + 2;
         }
     }
     return 0;
@@ -176,15 +162,15 @@ s32 btlEffectStepFormationPlacement(u8 *work)
 
 /* measured: restore pragma state after btlEffectStepFormationPlacement. */
 #pragma pop
-/* Return the effect node, release the formation placement, and drop the unit pending-packet count.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Return the effect node, release the formation placement, and drop the unit pending-packet count. */
 // FUN_001D6570
 void btlEffectFinishFormationStep(u8 *work)
 {
-    btlEffectFreeEntry(*(s32 *)(*(u8 **)(work + 4) + 0xA08), *(s32 *)(work + 0x18));
+    BtlEffectFormationStep *formationStep = (BtlEffectFormationStep *)(work);
+    btlEffectFreeEntry(*(s32 *)&((BtlUnit *)(((BtlEffectFormationStep *)(work))->unit))->effectNodePool, *(s32 *)&((BtlEffectFormationStep *)(work))->node);
     btlFormationSetPlacement(*(s32 *)work);
-    *(u16 *)(*(u8 **)(work + 4) + 0xA0) =
-        *(u16 *)(*(u8 **)(work + 4) + 0xA0) - 1;
+    ((BtlUnit *)(formationStep->unit))->pendingPacketCount =
+        ((BtlUnit *)(formationStep->unit))->pendingPacketCount - 1;
 }
 
 /* Allocate packet 0x302 with formation, unit, duration, UID and flags in its 0x28-byte work area. */
@@ -212,7 +198,6 @@ u8 *btlEffectCreateFormationPacket(s32 formation, s32 unit, s32 duration, s64 ke
  * and a wrapping frame counter at +0xC. Fade-out wins over fade-in;
  * bit 0x40 freezes update/cleanup, not drawing.
  * Retail: 504/512B, 14 resolved relocations, eight zero tail bytes. */
-/* Raw offsets retained: The formation-owned payload's color word at +0x10 has no shared concrete payload type here. */
 // FUN_001D6680
 void btlEffectUpdateFadeNodes(void)
 {
@@ -269,7 +254,7 @@ void btlEffectUpdateFadeNodes(void)
                 mdlEffectFlushTreeFrame((s32)node->effect);
             }
             if (node->formation != NULL) {
-                *(u32 *)(node->formation + 0x10) = color;
+                ((BtlAttachWork *)(node->formation))->color = color;
                 btlFormationCameraTaskStart(node->formation);
             }
         }
