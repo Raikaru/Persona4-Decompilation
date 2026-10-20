@@ -155,8 +155,10 @@ void btlUiUpdateModelCurve(u8 *command)
     u32 elapsedFrame;
     u32 duration;
     f32 scale;
+    MdlEffectModelReference *reference;
 
     modelReference = ((MdlEffectCommand *)command)->object;
+    reference = (MdlEffectModelReference *)modelReference;
     parameters = ((MdlEffectCommand *)command)->parameters;
     elapsedFrame = ((MdlEffectCommand *)command)->counter;
     duration = ((MdlEffectModelCurve *)parameters)->duration;
@@ -184,8 +186,7 @@ void btlUiUpdateModelCurve(u8 *command)
             mdlSetLayerWeight(*(u8 **)modelReference, 0, ((MdlEffectModelCurve *)parameters)->layerWeight);
             mdlAdvanceModelFromFlags(*(u8 **)modelReference);
             mdlCopyIndexedMatrix(*(u8 **)modelReference, ((MdlEffectModelReference *)modelReference)->matrixIndex, frame.firstMatrix);
-            /* measured: typing this second index load changes instruction bytes; +4 is matrixIndex. */
-            mdlCopyIndexedMatrix(*(u8 **)modelReference, *(u16 *)(modelReference + 4) + 1, frame.secondMatrix + 0x10);
+            mdlCopyIndexedMatrix(*(u8 **)modelReference, reference->matrixIndex + 1, frame.secondMatrix + 0x10);
             frame.anchorPosition = *(Vec3 *)frame.secondMatrix;
             btlCameraLookAtQuat(&frame.anchorRotation, frame.secondMatrix, frame.rotationScratch, frame.basisScratch);
             btlMainCurveReset((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.anchorPosition));

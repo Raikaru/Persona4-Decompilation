@@ -10,6 +10,6 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/nullsub.c; members 0047f840-0047f840 */
 
 // FUN_0047F840
-void func_0047f840(void *result, void *target) {
+void mdlTrackApplyNoop(void *result, void *target) {
 }
 

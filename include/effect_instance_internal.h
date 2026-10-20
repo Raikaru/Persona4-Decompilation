@@ -119,7 +119,7 @@ u8 *ThunderTextureForIndex(u16 kind, u8 *parameters);
 u8 *RingCreateKindInstance(u16 kind, u8 *parameters);
 u8 *LineNovaCreateKindInstance(s32 kind, u8 *parameters);
 
-void *func_00484530(void *input);
+void *mdlEffectPrimitiveCreateNull(void *input);
 void *ParticleCreateFromSource(void *opaqueSource);
 void *ParticleCreateFromParent(void *opaqueSource);
 void *TrackCreateFromEmitter(void *opaqueSource);

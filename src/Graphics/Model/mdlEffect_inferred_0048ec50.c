@@ -189,12 +189,17 @@ void EffConeAngleEmitterUpdate(u8 *emitterData)
     s32 trailIndex;
     u32 particleIndex;
     f32 b;
+    MdlEffectEmitter *work;
+    MdlEffectConeParameters *cone;
+    SpawnParticle *sampleParticle;
 
-    count = *(u32 *)(emitter + 4); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    work = (MdlEffectEmitter *)emitter;
+    count = work->primaryCount.value;
     flags = ((MdlEffectEmitter *)emitter)->flags;
     particle = ((MdlEffectEmitter *)emitter)->particles;
     state = ((MdlEffectEmitter *)emitter)->state.scalars;
     parameters = ((MdlEffectEmitter *)emitter)->parameters;
+    cone = (MdlEffectConeParameters *)parameters;
     lifetime = ((MdlEffectEmitterParameters *)parameters)->lifetime;
     if (lifetime == 0) {
         return;
@@ -214,7 +219,7 @@ void EffConeAngleEmitterUpdate(u8 *emitterData)
     if ((((MdlEffectEmitter *)emitter)->ticks == 0) && (((MdlEffectEmitterParameters *)parameters)->preroll != 0)) {
         initialPreroll = 1;
         preroll = initialPreroll;
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(cone->common.emissionVariation <= 0.0f)) {
             f32 prerollScale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
             sampleValue = (f32)((MdlEffectEmitter *)emitter)->primaryCount.value;
             spawnBudget = (s32)(sampleValue * prerollScale);
@@ -224,7 +229,7 @@ void EffConeAngleEmitterUpdate(u8 *emitterData)
         goto post_init;
     } else {
         preroll = 0;
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(cone->common.emissionVariation <= 0.0f)) {
             scaledValue = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
             sample = ((MdlEffectEmitterParameters *)parameters)->emissionRate.signedValue;
             sampleValue = (f32)(u32)sample;
@@ -252,7 +257,8 @@ post_init:
     negativeOne = -1.0f;
     goto main_check;
 main_body:
-    if (*(s32 *)(particle + 16) < lifetime) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    sampleParticle = (SpawnParticle *)particle;
+    if (sampleParticle->age < lifetime) {
         goto skip_clear;
     }
     if (emissionDuration != 0) {
@@ -309,7 +315,7 @@ skip_clear:
     ((MdlEffectMotionState *)state)->direction[2] = direction.lane[2];
     transient = ((MdlEffectConeParameters *)parameters)->speedVariation;
     b = effMiscRandFloat(0);
-    ((MdlEffectMotionState *)state)->speed = fabsf(*(f32 *)(parameters + 0xD8) * ((one - transient) + transient * b)); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    ((MdlEffectMotionState *)state)->speed = fabsf(cone->speed * ((one - transient) + transient * b));
     transient = ((MdlEffectConeParameters *)parameters)->spreadVariation;
     b = effMiscRandFloat(0);
     spreadVector.lane[0] = ((MdlEffectConeParameters *)parameters)->spread * ((one - transient) + transient * b);
@@ -349,7 +355,7 @@ skip_clear:
         ((MdlEffectMotionState *)state)->angleOffset = zero;
         ((MdlEffectMotionState *)state)->angleScale = one;
     }
-    *(s32 *)(particle + 16) = 0; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    sampleParticle->age = 0;
     {
         u_long128 *snapshot = &previousPosition;
         *snapshot = *(u_long128 *)particle;
@@ -383,7 +389,7 @@ skip_clear:
         effectVuStore10((EffectVuVector *)particle);
         ((SpawnParticle *)particle)->age = (s32)prerollElapsed;
     }
-    mdlEffectSampleKeyState(particle, parameters, *(s32 *)(particle + 16), &previousPosition); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    mdlEffectSampleKeyState(particle, parameters, sampleParticle->age, &previousPosition);
     ((SpawnParticle *)particle)->size = ((SpawnParticle *)particle)->size * ((MdlEffectMotionState *)state)->sizeScale;
     ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle * ((MdlEffectMotionState *)state)->angleScale;
     ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle + ((MdlEffectMotionState *)state)->angleOffset;
