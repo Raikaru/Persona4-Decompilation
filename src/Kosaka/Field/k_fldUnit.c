@@ -278,7 +278,7 @@ typedef struct {
  * Reuse the common 0x140 resource prefix; the remaining offsets are proven
  * by FldUnit_InstallResources and the shared ResrcRecord teardown fields. */
 typedef struct FieldUnitNpcResource {
-    SceneUpdateResource base;
+    ResrcHeader base;
     u8 pad140[0x24];
     void *model;
     u8 pad168[0xC0];

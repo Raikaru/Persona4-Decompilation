@@ -433,7 +433,7 @@ s32 MT_Scene_CreateModelNpcShadowRes(u16 resourceId, u16 shadowModelId, s32 mode
     if (resource == NULL) {
         return 0;
     }
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 0x10000000;
+    *(s32 *)&((ResrcHeader *)resource)->flags = *(s32 *)&((ResrcHeader *)resource)->flags | 0x10000000;
     *(s32 *)&((ResrcRecord *)resource)->modelHandle164 = model;
     frameTask = FldFrameTask_Spawn(0, resourceTypeId & 0xFFFF, 0, 60.0f);
     *(s32 *)&((ResrcRecord *)resource)->handle228 = frameTask;

@@ -338,7 +338,7 @@ s32 MT_Scene_CreateModelFldRes(u16 resourceId, s32 model) {
         return 0;
     }
     *(s32 *)&((ResrcRecord *)resource)->slotHandle[1] = model;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags = *(s32 *)&((ResrcHeader *)resource)->flags | 8;
     return resourceTypeId;
 }
 
@@ -375,7 +375,7 @@ s32 MT_Scene_CreateRes11(u16 resourceId, s32 model) {
         return 0;
     }
     *(s32 *)&((ResrcRecord *)resource)->slotHandle[1] = model;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags = *(s32 *)&((ResrcHeader *)resource)->flags | 8;
     return resourceTypeId;
 }
 
@@ -412,7 +412,7 @@ s32 MT_Scene_CreateFldRes(u16 resourceId, s32 model) {
         return 0;
     }
     ((ResrcRecord *)resource)->handle1A0 = model;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags = *(s32 *)&((ResrcHeader *)resource)->flags | 8;
     return resourceTypeId;
 }
 
@@ -443,7 +443,7 @@ s32 MT_Scene_CreateFldHitLight(u16 resourceId, f32 *position, f32 width, f32 hei
     color = rgba;
     *(Rgba8_0014 *)&((SceneQuadResource *)resource)->color = color;
     Vpad_BuildRotatedQuad(resource + 0x15C, (const u8 *)position, width, height, angle);
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags = *(s32 *)&((ResrcHeader *)resource)->flags | 8;
     return resourceTypeId;
 }
 
@@ -474,7 +474,7 @@ s32 MT_Scene_CreateRes21Light(u16 resourceId, f32 *position, f32 width, f32 heig
     color = rgba;
     *(Rgba8_0014 *)&((SceneQuadResource *)resource)->color = color;
     Vpad_BuildRotatedQuad(resource + 0x15C, (const u8 *)position, width, height, angle);
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags = *(s32 *)&((ResrcHeader *)resource)->flags | 8;
     return resourceTypeId;
 }
 
@@ -499,7 +499,7 @@ s32 MT_Scene_CreatePointRes14(u16 resourceId, f32 *position, f32 radius) {
     point = *(SVec3 *)position;
     *(SVec3 *)&((ScenePointResource *)resource)->point = point;
     ((ScenePointResource *)resource)->radius = radius;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags |= 8;
     return resourceTypeId;
 }
 
@@ -524,7 +524,7 @@ s32 MT_Scene_CreatePointRes15(u16 resourceId, f32 *position, f32 radius) {
     point = *(SVec3 *)position;
     *(SVec3 *)&((ScenePointResource *)resource)->point = point;
     ((ScenePointResource *)resource)->radius = radius;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags |= 8;
     return resourceTypeId;
 }
 
@@ -549,7 +549,7 @@ s32 MT_Scene_CreatePointRes16(u16 resourceId, f32 *position, f32 radius) {
     point = *(SVec3 *)position;
     *(SVec3 *)&((ScenePointResource *)resource)->point = point;
     ((ScenePointResource *)resource)->radius = radius;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags |= 8;
     return resourceTypeId;
 }
 
@@ -574,7 +574,7 @@ s32 MT_Scene_CreatePointRes17(u16 resourceId, f32 *position, f32 radius) {
     point = *(SVec3 *)position;
     *(SVec3 *)&((ScenePointResource *)resource)->point = point;
     ((ScenePointResource *)resource)->radius = radius;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags |= 8;
     return resourceTypeId;
 }
 
@@ -599,7 +599,7 @@ s32 MT_Scene_CreatePointRes18(u16 resourceId, f32 *position, f32 radius) {
     point = *(SVec3 *)position;
     *(SVec3 *)&((ScenePointResource *)resource)->point = point;
     ((ScenePointResource *)resource)->radius = radius;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags |= 8;
     return resourceTypeId;
 }
 
@@ -624,7 +624,7 @@ s32 MT_Scene_CreatePointRes19(u16 resourceId, f32 *position, f32 radius) {
     point = *(SVec3 *)position;
     *(SVec3 *)&((ScenePointResource *)resource)->point = point;
     ((ScenePointResource *)resource)->radius = radius;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags |= 8;
     return resourceTypeId;
 }
 
@@ -701,7 +701,7 @@ s32 MT_Scene_CreateCameraRes(u16 resourceId, s32 cameraKind, f32 cameraValue, u8
     if (data != 0) {
         memcpy(resource + 0x184, (const void *)data, 0x180);
     }
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 8;
+    *(s32 *)&((ResrcHeader *)resource)->flags = *(s32 *)&((ResrcHeader *)resource)->flags | 8;
     return resourceTypeId;
 }
 
@@ -912,15 +912,15 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
 
     if (resource != 0) {
         if (position != 0) {
-            *(RwV3d *)&((SceneUpdateResource *)resource)->position = *(const RwV3d *)position;
+            *(RwV3d *)&((ResrcHeader *)resource)->position = *(const RwV3d *)position;
         }
         if (rotation != 0) {
-            *(RwV3d *)&((SceneUpdateResource *)resource)->rotation = *(const RwV3d *)rotation;
+            *(RwV3d *)&((ResrcHeader *)resource)->rotation = *(const RwV3d *)rotation;
         }
         if (scaleInput != 0) {
-            *(RwV3d *)&((SceneUpdateResource *)resource)->scale = *(const RwV3d *)scaleInput;
+            *(RwV3d *)&((ResrcHeader *)resource)->scale = *(const RwV3d *)scaleInput;
         }
-        scale = *(const RwV3d *)&((SceneUpdateResource *)resource)->scale;
+        scale = *(const RwV3d *)&((ResrcHeader *)resource)->scale;
         resourceType = (*(u16 *)resource & 0xFFC00) >> 10;
         switch (resourceType) {
         case 1:
@@ -929,9 +929,9 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((SceneUpdateResource *)resource)->rotation.y, 0);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((SceneUpdateResource *)resource)->rotation.x, 1);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((SceneUpdateResource *)resource)->rotation.z, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((ResrcHeader *)resource)->rotation.y, 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((ResrcHeader *)resource)->rotation.x, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((ResrcHeader *)resource)->rotation.z, 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
             mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
@@ -941,9 +941,9 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((SceneUpdateResource *)resource)->rotation.y, 0);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((SceneUpdateResource *)resource)->rotation.x, 1);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((SceneUpdateResource *)resource)->rotation.z, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((ResrcHeader *)resource)->rotation.y, 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((ResrcHeader *)resource)->rotation.x, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((ResrcHeader *)resource)->rotation.z, 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
             mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
@@ -953,9 +953,9 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((SceneUpdateResource *)resource)->rotation.y, 0);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((SceneUpdateResource *)resource)->rotation.x, 1);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((SceneUpdateResource *)resource)->rotation.z, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((ResrcHeader *)resource)->rotation.y, 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((ResrcHeader *)resource)->rotation.x, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((ResrcHeader *)resource)->rotation.z, 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
             mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
@@ -985,9 +985,9 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((SceneUpdateResource *)resource)->rotation.y, 0);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((SceneUpdateResource *)resource)->rotation.x, 1);
-            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((SceneUpdateResource *)resource)->rotation.z, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)&((ResrcHeader *)resource)->rotation.y, 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)&((ResrcHeader *)resource)->rotation.x, 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)&((ResrcHeader *)resource)->rotation.z, 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
             mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;

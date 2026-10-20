@@ -149,7 +149,7 @@ func_0028b7b0_count_valid_done:
             if (valid != 0) {
                 while (count_node != NULL) {
                     count++;
-                    count_node = (u8 *)((SceneUpdateResource *)count_node)->next;
+                    count_node = (u8 *)((ResrcHeader *)count_node)->next;
                 }
             }
         }
@@ -347,7 +347,7 @@ func_0028b7b0_copy_valid_done:
                             break;
                         }
                         *(u8 **)(*(u8 **)(work + 0x7A4) + index * 4) = copy;
-                        array = (u8 *)((SceneUpdateResource *)array)->next;
+                        array = (u8 *)((ResrcHeader *)array)->next;
                         index++;
                     }
                 }

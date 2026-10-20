@@ -10840,7 +10840,7 @@ s32 fclCombineTaskUpdate(u8 *task) {
                 if ((*(u16 *)q & 0x3FF) == 0x38) {
                     mdlDispatchAnimIfPresent((u8*)(u32)((SceneCharacterUpdate *)q)->model, 0, 0xD, 0, 1);
                 }
-                q = (u8 *)((SceneUpdateResource *)q)->next;
+                q = (u8 *)((ResrcHeader *)q)->next;
             }
             if (datGetFlag(0x1459) == 0) {
                 K_View_SetFov(kwlnGetCamera(), MT_Scene_GetCameraFov());

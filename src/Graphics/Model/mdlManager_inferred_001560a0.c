@@ -142,7 +142,7 @@ typedef struct FldStepEntryRecord {
 /* Field-model resources use the common scene prefix and store a parent
  * at 0x140 and model at 0x144. The toggle at 0x150 remains unidentified. */
 typedef struct SceneFieldModelResource {
-    SceneUpdateResource base;
+    ResrcHeader base;
     union { u32 parentAddress; u8 *parent; };
     union { s32 modelAddress; u8 *model; };
     u8 unk148[8];
@@ -3029,7 +3029,7 @@ body:
                     ((SceneFieldModelResource *)entry)->unk150 = 0;
                 }
             }
-            entry = (u8 *)((SceneUpdateResource *)entry)->next;
+            entry = (u8 *)((ResrcHeader *)entry)->next;
         }
 }
 #pragma pop
@@ -3165,8 +3165,8 @@ void FldStepUpdateBandRes(void)
             tileRow = FldFrameTask_GetTileZ(*(s32 *)(playerResource + 0x220));
             goto clear_test;
 clear_body:
-            ((SceneUpdateResource *)fieldResources)->flags &= ~2U;
-            fieldResources = (u8 *)((SceneUpdateResource *)fieldResources)->next;
+            ((ResrcHeader *)fieldResources)->flags &= ~2U;
+            fieldResources = (u8 *)((ResrcHeader *)fieldResources)->next;
 clear_test:
             if (fieldResources != NULL) {
                 goto clear_body;
@@ -3175,8 +3175,8 @@ clear_test:
         } else {
             goto set_test;
 set_body:
-            ((SceneUpdateResource *)fieldResources)->flags |= 2;
-            fieldResources = (u8 *)((SceneUpdateResource *)fieldResources)->next;
+            ((ResrcHeader *)fieldResources)->flags |= 2;
+            fieldResources = (u8 *)((ResrcHeader *)fieldResources)->next;
 set_test:
             if (fieldResources != NULL) {
                 goto set_body;
@@ -3235,13 +3235,13 @@ set_test:
 list_a_body:
         object = ((ResrcRecord *)modelResources)->slotHandle[0];
         if (object != NULL) {
-            if ((((SceneUpdateResource *)object)->flags & 2) != 0) {
-                ((SceneUpdateResource *)modelResources)->flags |= 2;
+            if ((((ResrcHeader *)object)->flags & 2) != 0) {
+                ((ResrcHeader *)modelResources)->flags |= 2;
             } else {
-                ((SceneUpdateResource *)modelResources)->flags &= ~2U;
+                ((ResrcHeader *)modelResources)->flags &= ~2U;
             }
         }
-        modelResources = (u8 *)((SceneUpdateResource *)modelResources)->next;
+        modelResources = (u8 *)((ResrcHeader *)modelResources)->next;
 list_a_test:
         if (modelResources != NULL) {
             goto list_a_body;
@@ -3250,12 +3250,12 @@ list_a_test:
         goto list_b_test;
 list_b_body:
         object = ((ResrcRecord *)alternateResources)->slotHandle[0];
-        if ((((SceneUpdateResource *)object)->flags & 2) != 0) {
-            ((SceneUpdateResource *)alternateResources)->flags |= 2;
+        if ((((ResrcHeader *)object)->flags & 2) != 0) {
+            ((ResrcHeader *)alternateResources)->flags |= 2;
         } else {
-            ((SceneUpdateResource *)alternateResources)->flags &= ~2U;
+            ((ResrcHeader *)alternateResources)->flags &= ~2U;
         }
-        alternateResources = (u8 *)((SceneUpdateResource *)alternateResources)->next;
+        alternateResources = (u8 *)((ResrcHeader *)alternateResources)->next;
 list_b_test:
         if (alternateResources != NULL) {
             goto list_b_body;
@@ -3268,7 +3268,7 @@ array_a_body:
         if (((FldUnitVisibilityState *)work)->active != 0) {
             object = ((FldUnitVisibilityState *)work)->resource;
             if (object != NULL) {
-                ((SceneUpdateResource *)object)->flags &= ~2U;
+                ((ResrcHeader *)object)->flags &= ~2U;
             }
         }
         i++;
@@ -3284,7 +3284,7 @@ array_b_body:
         if (work != NULL) {
             object = ((FldUnitVisibilityState *)work)->resource;
             if (object != NULL) {
-                ((SceneUpdateResource *)object)->flags |= 2;
+                ((ResrcHeader *)object)->flags |= 2;
             }
         }
         j++;

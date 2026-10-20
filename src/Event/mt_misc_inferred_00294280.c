@@ -120,19 +120,19 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             nodeValue = (s32)evtNodeAlloc(1, (s32)eventWork);
             evtNodeSetRes(nodeValue, 0x400, (s32)firstResource);
             ((MtMiscSceneNode *)nodeValue)->unk_08 = -1;
-            componentThird = ((SceneUpdateResource *)firstResource)->position.x;
-            componentSecond = ((SceneUpdateResource *)firstResource)->position.y;
-            componentFirst = ((SceneUpdateResource *)firstResource)->position.z;
+            componentThird = ((ResrcHeader *)firstResource)->position.x;
+            componentSecond = ((ResrcHeader *)firstResource)->position.y;
+            componentFirst = ((ResrcHeader *)firstResource)->position.z;
             ((MtMiscSceneNode *)nodeValue)->unk_38.x = componentThird;
             ((MtMiscSceneNode *)nodeValue)->unk_38.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_38.z = componentFirst;
-            componentThird = ((SceneUpdateResource *)firstResource)->rotation.x;
-            componentSecond = ((SceneUpdateResource *)firstResource)->rotation.y;
-            componentFirst = ((SceneUpdateResource *)firstResource)->rotation.z;
+            componentThird = ((ResrcHeader *)firstResource)->rotation.x;
+            componentSecond = ((ResrcHeader *)firstResource)->rotation.y;
+            componentFirst = ((ResrcHeader *)firstResource)->rotation.z;
             ((MtMiscSceneNode *)nodeValue)->unk_44.x = componentThird;
             ((MtMiscSceneNode *)nodeValue)->unk_44.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_44.z = componentFirst;
-            firstX = fptodp(((SceneUpdateResource *)firstResource)->position.x);
+            firstX = fptodp(((ResrcHeader *)firstResource)->position.x);
             /* measured: typed diagnostic coordinate reads lose MATCH; retain their reloads. */
             firstY = fptodp(*(f32 *)(firstResource + 4));
             func_00440b68(D_0063CAC0, firstX, firstY,
@@ -158,19 +158,19 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             nodeValue = (s32)evtNodeAllocWithRes(
                 1, eventWork, *(u16 *)modelResource, (s32)modelResource);
             ((MtMiscSceneNode *)nodeValue)->unk_08 = -1;
-            componentThird = ((SceneUpdateResource *)modelResource)->position.x;
-            componentSecond = ((SceneUpdateResource *)modelResource)->position.y;
-            componentFirst = ((SceneUpdateResource *)modelResource)->position.z;
+            componentThird = ((ResrcHeader *)modelResource)->position.x;
+            componentSecond = ((ResrcHeader *)modelResource)->position.y;
+            componentFirst = ((ResrcHeader *)modelResource)->position.z;
             ((MtMiscSceneNode *)nodeValue)->unk_38.x = componentThird;
             ((MtMiscSceneNode *)nodeValue)->unk_38.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_38.z = componentFirst;
-            componentThird = ((SceneUpdateResource *)modelResource)->rotation.x;
-            componentSecond = ((SceneUpdateResource *)modelResource)->rotation.y;
-            componentFirst = ((SceneUpdateResource *)modelResource)->rotation.z;
+            componentThird = ((ResrcHeader *)modelResource)->rotation.x;
+            componentSecond = ((ResrcHeader *)modelResource)->rotation.y;
+            componentFirst = ((ResrcHeader *)modelResource)->rotation.z;
             ((MtMiscSceneNode *)nodeValue)->unk_44.x = componentThird;
             ((MtMiscSceneNode *)nodeValue)->unk_44.y = componentSecond;
             ((MtMiscSceneNode *)nodeValue)->unk_44.z = componentFirst;
-            diagnosticX = fptodp(((SceneUpdateResource *)modelResource)->position.x);
+            diagnosticX = fptodp(((ResrcHeader *)modelResource)->position.x);
             diagnosticY = fptodp(*(f32 *)(modelResource + 8));
             func_00440b68(D_0063CAC0, diagnosticX, diagnosticY,
                           fptodp(*(f32 *)(modelResource + 0xC)));
@@ -184,7 +184,7 @@ void mtMiscBuildSceneNodes(u8 *eventWork)
             ((MtMiscSceneNode *)nodeValue)->unk_50[2] = (u8)blue;
             ((MtMiscSceneNode *)nodeValue)->unk_50[3] = (u8)alpha;
             resourceIndex++;
-            modelResource = (u8 *)((SceneUpdateResource *)modelResource)->next;
+            modelResource = (u8 *)((ResrcHeader *)modelResource)->next;
         }
 
         nodeValue = 0;

@@ -17,7 +17,7 @@
 extern void *MT_Scene_GetRes();
 u32 MT_Scene_GetSegmentHeading(float* start, float* end, float* directionOutput, float* headingOutput);
 
-extern u32 MT_Scene_BeginResPathAnim(SceneUpdateResource* resource, u32 pathWords, float speed, u32 loop);
+extern u32 MT_Scene_BeginResPathAnim(ResrcHeader* resource, u32 pathWords, float speed, u32 loop);
 extern u32 MT_Scene_SetResColorParam(u32 resourceAddress, u8 alpha, u32 duration, u32 enableBlend);
 
 extern u32 MT_Scene_SetResMotionRecord(u32 *resource, u32 layer, u32 animation, u32 frame,
@@ -156,7 +156,7 @@ void MT_Scene_SpawnIconTask(u32 effectHandle)
 
 /* Set bit 3 only when enabled equals one; clear it for every other value. */
 // FUN_00268BD0
-u32 MT_Scene_SetResEnabled(SceneUpdateResource* resource, s32 enabled)
+u32 MT_Scene_SetResEnabled(ResrcHeader* resource, s32 enabled)
 {
     if (resource == NULL)
     {
@@ -181,7 +181,7 @@ u32 MT_Scene_SetResEnabled(SceneUpdateResource* resource, s32 enabled)
 // FUN_00268C20
 u32 MT_Scene_SetResEnabledById(u32 resTypeId, s32 enabled)
 {
-    SceneUpdateResource* res;
+    ResrcHeader* res;
 
     res = MT_Scene_GetRes(resTypeId);
     if (res == NULL)
@@ -211,7 +211,7 @@ u32 MT_Scene_SetResEnabledById(u32 resTypeId, s32 enabled)
 
 /* Return whether a non-NULL resource has its bit-3 flag set. */
 // FUN_00268CB0
-u8 MT_Scene_IsResEnabled(SceneUpdateResource* resource)
+u8 MT_Scene_IsResEnabled(ResrcHeader* resource)
 {
     if (resource == NULL)
     {
@@ -287,13 +287,13 @@ s32 MT_Scene_BeginResMoveToward(u32 resourceId, u8 *destination, f32 speed) {
     if (resource == NULL) {
         return 0;
     }
-    flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 1;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = flags;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = flags & ~0x40;
-    *(SVec3 *)&((SceneUpdateResource *)resource)->moveStart = *(SVec3 *)&((SceneUpdateResource *)resource)->position;
-    *(SVec3 *)&((SceneUpdateResource *)resource)->moveEnd = *(SVec3 *)destination;
-    ((SceneUpdateResource *)resource)->moveSpeed = speed;
-    *(s8 *)&((SceneUpdateResource *)resource)->moveKind = 0;
+    flags = *(s32 *)&((ResrcHeader *)resource)->flags | 1;
+    *(s32 *)&((ResrcHeader *)resource)->flags = flags;
+    *(s32 *)&((ResrcHeader *)resource)->flags = flags & ~0x40;
+    *(SVec3 *)&((ResrcHeader *)resource)->moveStart = *(SVec3 *)&((ResrcHeader *)resource)->position;
+    *(SVec3 *)&((ResrcHeader *)resource)->moveEnd = *(SVec3 *)destination;
+    ((ResrcHeader *)resource)->moveSpeed = speed;
+    *(s8 *)&((ResrcHeader *)resource)->moveKind = 0;
     return 1;
 }
 
@@ -310,16 +310,16 @@ s32 MT_Scene_BeginResTimedMove(u32 resourceId, SVec3 *destination, u32 duration,
     if (resource == NULL) {
         result = 0;
     } else {
-        ((SceneUpdateResource *)resource)->flags |= 1;
-        ((SceneUpdateResource *)resource)->flags &= ~0x40;
-        ((SceneUpdateResource *)resource)->flags &= ~0x10;
-        *(SVec3 *)&((SceneUpdateResource *)resource)->moveStart = *(SVec3 *)&((SceneUpdateResource *)resource)->position;
-        *(SVec3 *)&((SceneUpdateResource *)resource)->moveEnd = *(SVec3 *)destination;
-        ((SceneUpdateResource *)resource)->moveDuration.frame = duration;
+        ((ResrcHeader *)resource)->flags |= 1;
+        ((ResrcHeader *)resource)->flags &= ~0x40;
+        ((ResrcHeader *)resource)->flags &= ~0x10;
+        *(SVec3 *)&((ResrcHeader *)resource)->moveStart = *(SVec3 *)&((ResrcHeader *)resource)->position;
+        *(SVec3 *)&((ResrcHeader *)resource)->moveEnd = *(SVec3 *)destination;
+        ((ResrcHeader *)resource)->moveDuration.frame = duration;
         result = 1;
-        ((SceneUpdateResource *)resource)->moveKind = result;
-        ((SceneUpdateResource *)resource)->moveEase = easing;
-        ((SceneUpdateResource *)resource)->moveElapsed.frame = 0;
+        ((ResrcHeader *)resource)->moveKind = result;
+        ((ResrcHeader *)resource)->moveEase = easing;
+        ((ResrcHeader *)resource)->moveElapsed.frame = 0;
     }
     return result;
 }
@@ -336,24 +336,24 @@ s32 MT_Scene_SetResCurveParams(u8 *resource, u8 *startCenter, u8 *endCenter, f32
     if (resource == NULL) {
         return 0;
     }
-    orbitFlags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 0x10;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = orbitFlags;
+    orbitFlags = *(s32 *)&((ResrcHeader *)resource)->flags | 0x10;
+    *(s32 *)&((ResrcHeader *)resource)->flags = orbitFlags;
     moveFlags = orbitFlags & ~1;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = moveFlags;
+    *(s32 *)&((ResrcHeader *)resource)->flags = moveFlags;
     rotationFlags = moveFlags & ~4;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = rotationFlags;
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = rotationFlags & ~0x40;
-    *(SVec3 *)&((SceneUpdateResource *)resource)->orbitStart = *(SVec3 *)startCenter;
-    *(SVec3 *)&((SceneUpdateResource *)resource)->orbitEnd = *(SVec3 *)endCenter;
-    ((SceneUpdateResource *)resource)->yawStart = startYaw;
-    ((SceneUpdateResource *)resource)->yawEnd = endYaw;
-    ((SceneUpdateResource *)resource)->pitchStart = startPitch;
-    ((SceneUpdateResource *)resource)->pitchEnd = endPitch;
-    ((SceneUpdateResource *)resource)->distanceStart = startDistance;
-    ((SceneUpdateResource *)resource)->distanceEnd = endDistance;
-    *(s32 *)&((SceneUpdateResource *)resource)->orbitDuration = duration;
-    *(s8 *)&((SceneUpdateResource *)resource)->orbitEase = easing;
-    *(s32 *)&((SceneUpdateResource *)resource)->orbitElapsed = 0;
+    *(s32 *)&((ResrcHeader *)resource)->flags = rotationFlags;
+    *(s32 *)&((ResrcHeader *)resource)->flags = rotationFlags & ~0x40;
+    *(SVec3 *)&((ResrcHeader *)resource)->orbitStart = *(SVec3 *)startCenter;
+    *(SVec3 *)&((ResrcHeader *)resource)->orbitEnd = *(SVec3 *)endCenter;
+    ((ResrcHeader *)resource)->yawStart = startYaw;
+    ((ResrcHeader *)resource)->yawEnd = endYaw;
+    ((ResrcHeader *)resource)->pitchStart = startPitch;
+    ((ResrcHeader *)resource)->pitchEnd = endPitch;
+    ((ResrcHeader *)resource)->distanceStart = startDistance;
+    ((ResrcHeader *)resource)->distanceEnd = endDistance;
+    *(s32 *)&((ResrcHeader *)resource)->orbitDuration = duration;
+    *(s8 *)&((ResrcHeader *)resource)->orbitEase = easing;
+    *(s32 *)&((ResrcHeader *)resource)->orbitElapsed = 0;
     return 1;
 }
 
@@ -381,7 +381,7 @@ s32 MT_Scene_SetResCurveParamsById(u32 resourceId, u8 *startCenter, u8 *endCente
 /* Copy the 0x130-byte path, cache its sampled length and optionally wrap elapsed distance. */
 /* measured: three path-pointer accesses require MEMBER: access-site, typed-local and array forms grow the body to 328 bytes (320-byte window). */
 // FUN_00269190
-u32 MT_Scene_BeginResPathAnim(SceneUpdateResource *resource, u32 pathWords, f32 speed, u32 loop)
+u32 MT_Scene_BeginResPathAnim(ResrcHeader *resource, u32 pathWords, f32 speed, u32 loop)
 {
     u32 firstWord;
     u32 secondWord;
@@ -399,18 +399,18 @@ u32 MT_Scene_BeginResPathAnim(SceneUpdateResource *resource, u32 pathWords, f32 
     if (loop == 1) {
         resource->flags = resource->flags | 0x40;
     }
-    *(f32 *)&((SceneUpdateResource *)resourceAddress)->moveSpeed = speed;
-    *(u8 *)&((SceneUpdateResource *)resourceAddress)->moveKind = 2;
-    *(u32 *)&((SceneUpdateResource *)resourceAddress)->moveElapsed.frame = 0;
-    if (*(u32 *)&((SceneUpdateResource *)resourceAddress)->path == 0) {
+    *(f32 *)&((ResrcHeader *)resourceAddress)->moveSpeed = speed;
+    *(u8 *)&((ResrcHeader *)resourceAddress)->moveKind = 2;
+    *(u32 *)&((ResrcHeader *)resourceAddress)->moveElapsed.frame = 0;
+    if (*(u32 *)&((ResrcHeader *)resourceAddress)->path == 0) {
         chkmemAllocSiteTag(D_0063B090, 0x269);
         secondWord = (u32)((u32(*)(u32, u32))jtbl_008873E8[0])(0x130, 0x40000);
-        MEMBER(u32, resourceAddress, SceneUpdateResource, path) = secondWord;
+        MEMBER(u32, resourceAddress, ResrcHeader, path) = secondWord;
         if (secondWord == 0) {
             kAssertFail(D_0063B090, 0x26A);
         }
     }
-    outputWords = MEMBER(u32 *, resourceAddress, SceneUpdateResource, path);
+    outputWords = MEMBER(u32 *, resourceAddress, ResrcHeader, path);
     remainingPairs = 0x26;
     do {
         firstWord = *(u32 *)pathWords;
@@ -423,8 +423,8 @@ u32 MT_Scene_BeginResPathAnim(SceneUpdateResource *resource, u32 pathWords, f32 
     } while (0 < remainingPairs);
     {
         f32 length;
-        length = MT_Scene_GetCurveLength((char *)MEMBER(u32, resourceAddress, SceneUpdateResource, path));
-        *(f32 *)&((SceneUpdateResource *)resourceAddress)->moveDuration.distance = length;
+        length = MT_Scene_GetCurveLength((char *)MEMBER(u32, resourceAddress, ResrcHeader, path));
+        *(f32 *)&((ResrcHeader *)resourceAddress)->moveDuration.distance = length;
         func_00440b68(D_0063B0D0, fptodp(length));
     }
     return 1;
@@ -441,7 +441,7 @@ u32 MT_Scene_BeginResPathAnimById(u32 resourceId, u32 pathWords, f32 speed, u32 
     resourceAddress = (u32)MT_Scene_GetRes(resourceId);
     if (resourceAddress != 0)
     {
-        result = MT_Scene_BeginResPathAnim((SceneUpdateResource*)resourceAddress, pathWords, speed, loop);
+        result = MT_Scene_BeginResPathAnim((ResrcHeader*)resourceAddress, pathWords, speed, loop);
     }
     else
     {
@@ -464,13 +464,13 @@ s32 MT_Scene_BeginResRotation(u32 resourceId, SVec3 *angles, u32 duration, u8 ea
     if (resource == NULL) return 0;
     MT_Scene_WrapObjectAngles((s32)resource);
     MT_Scene_WrapAngles((f32 *)&values);
-    ((SceneUpdateResource *)resource)->flags |= 4;
-    *(SVec3 *)&((SceneUpdateResource *)resource)->rotationStart = *(SVec3 *)&((SceneUpdateResource *)resource)->rotation;
-    *(SVec3 *)&((SceneUpdateResource *)resource)->rotationEnd = values;
-    ((SceneUpdateResource *)resource)->unknown80 = 0;
-    ((SceneUpdateResource *)resource)->rotationEase = easing;
-    ((SceneUpdateResource *)resource)->rotationDuration = duration;
-    ((SceneUpdateResource *)resource)->rotationElapsed = 0;
+    ((ResrcHeader *)resource)->flags |= 4;
+    *(SVec3 *)&((ResrcHeader *)resource)->rotationStart = *(SVec3 *)&((ResrcHeader *)resource)->rotation;
+    *(SVec3 *)&((ResrcHeader *)resource)->rotationEnd = values;
+    ((ResrcHeader *)resource)->unknown80 = 0;
+    ((ResrcHeader *)resource)->rotationEase = easing;
+    ((ResrcHeader *)resource)->rotationDuration = duration;
+    ((ResrcHeader *)resource)->rotationElapsed = 0;
     return 1;
 }
 
@@ -485,11 +485,11 @@ s32 MT_Scene_BeginResScale(u32 resourceId, u8 *scale, s32 duration) {
     if (resource == NULL) {
         return 0;
     }
-    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 0x8000;
-    *(SVec3 *)&((SceneUpdateResource *)resource)->scaleUpdate.start = *(SVec3 *)&((SceneUpdateResource *)resource)->scale;
-    *(SVec3 *)&((SceneUpdateResource *)resource)->scaleUpdate.end = *(SVec3 *)scale;
-    *(s32 *)&((SceneUpdateResource *)resource)->scaleUpdate.duration = duration;
-    *(s32 *)&((SceneUpdateResource *)resource)->scaleUpdate.elapsed = 0;
+    *(s32 *)&((ResrcHeader *)resource)->flags |= 0x8000;
+    *(SVec3 *)&((ResrcHeader *)resource)->scaleUpdate.start = *(SVec3 *)&((ResrcHeader *)resource)->scale;
+    *(SVec3 *)&((ResrcHeader *)resource)->scaleUpdate.end = *(SVec3 *)scale;
+    *(s32 *)&((ResrcHeader *)resource)->scaleUpdate.duration = duration;
+    *(s32 *)&((ResrcHeader *)resource)->scaleUpdate.elapsed = 0;
     return 1;
 }
 
@@ -521,9 +521,9 @@ u32 MT_Scene_SetResColorParam(u32 resourceAddress, u8 alpha, u32 duration, u32 e
         colorBytes[7] = b3;
         startAlpha = colorBytes[7];
         if (enableBlend == 1) {
-            *(u8 *)&((SceneUpdateResource *)resourceAddress)->alphaBlend = 1;
+            *(u8 *)&((ResrcHeader *)resourceAddress)->alphaBlend = 1;
         } else {
-            *(u8 *)&((SceneUpdateResource *)resourceAddress)->alphaBlend = 0;
+            *(u8 *)&((ResrcHeader *)resourceAddress)->alphaBlend = 0;
         }
         break;
     }
@@ -534,11 +534,11 @@ u32 MT_Scene_SetResColorParam(u32 resourceAddress, u8 alpha, u32 duration, u32 e
     default:
         return 0;
     }
-    ((SceneUpdateResource *)resourceAddress)->flags |= 0x4000;
-    ((SceneUpdateResource *)resourceAddress)->alphaStart = startAlpha;
-    ((SceneUpdateResource *)resourceAddress)->alphaEnd = alpha;
-    ((SceneUpdateResource *)resourceAddress)->alphaDuration = duration;
-    ((SceneUpdateResource *)resourceAddress)->alphaElapsed = 0;
+    ((ResrcHeader *)resourceAddress)->flags |= 0x4000;
+    ((ResrcHeader *)resourceAddress)->alphaStart = startAlpha;
+    ((ResrcHeader *)resourceAddress)->alphaEnd = alpha;
+    ((ResrcHeader *)resourceAddress)->alphaDuration = duration;
+    ((ResrcHeader *)resourceAddress)->alphaElapsed = 0;
     return 1;
 }
 
@@ -577,11 +577,11 @@ s32 MT_Scene_BeginResFovChange(u32 resourceId, f32 fieldOfView, s32 duration) {
     if (((*(u16 *)resource & 0xFFC00) >> 0xA) != 7) {
         return 0;
     }
-    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 0x400;
-    ((SceneUpdateResource *)resource)->fovStart = *(f32 *)&((ResrcRecord *)resource)->slotHandle[0];
-    ((SceneUpdateResource *)resource)->fovEnd = fieldOfView;
-    ((SceneUpdateResource *)resource)->fovDuration = duration;
-    ((SceneUpdateResource *)resource)->fovElapsed = 0;
+    *(s32 *)&((ResrcHeader *)resource)->flags |= 0x400;
+    ((ResrcHeader *)resource)->fovStart = *(f32 *)&((ResrcRecord *)resource)->slotHandle[0];
+    ((ResrcHeader *)resource)->fovEnd = fieldOfView;
+    ((ResrcHeader *)resource)->fovDuration = duration;
+    ((ResrcHeader *)resource)->fovElapsed = 0;
     return 1;
 }
 
@@ -599,17 +599,17 @@ s32 MT_Scene_ResetResMotion(u32 resourceId)
 
     if (resource == NULL) return 0;
     if (resource == NULL) return 0;
-    ((SceneUpdateResource *)resource)->flags &= ~1;
-    ((SceneUpdateResource *)resource)->flags &= ~4;
-    ((SceneUpdateResource *)resource)->flags &= 0xFFFF7FFF;
-    ((SceneUpdateResource *)resource)->flags &= ~0x40;
-    ((SceneUpdateResource *)resource)->flags &= ~0x400;
-    ((SceneUpdateResource *)resource)->flags &= ~0x800;
-    ((SceneUpdateResource *)resource)->flags &= ~0x1000;
-    ((SceneUpdateResource *)resource)->flags &= ~0x2000;
-    ((SceneUpdateResource *)resource)->flags &= ~0x4000;
-    ((SceneUpdateResource *)resource)->flags &= ~0x10;
-    ((SceneUpdateResource *)resource)->flags &= 0xF7FFFFFF;
+    ((ResrcHeader *)resource)->flags &= ~1;
+    ((ResrcHeader *)resource)->flags &= ~4;
+    ((ResrcHeader *)resource)->flags &= 0xFFFF7FFF;
+    ((ResrcHeader *)resource)->flags &= ~0x40;
+    ((ResrcHeader *)resource)->flags &= ~0x400;
+    ((ResrcHeader *)resource)->flags &= ~0x800;
+    ((ResrcHeader *)resource)->flags &= ~0x1000;
+    ((ResrcHeader *)resource)->flags &= ~0x2000;
+    ((ResrcHeader *)resource)->flags &= ~0x4000;
+    ((ResrcHeader *)resource)->flags &= ~0x10;
+    ((ResrcHeader *)resource)->flags &= 0xF7FFFFFF;
     return 1;
 }
 
@@ -649,7 +649,7 @@ u32 MT_Scene_SetResMotion(u16 *resource, s32 layer, s32 animation, s32 frame, s3
             mdlSetLayerTime(model, layer, (f32)startTime);
         }
     }
-    *(s32 *)&((SceneUpdateResource *)resource)->flags &= ~0x2000;
+    *(s32 *)&((ResrcHeader *)resource)->flags &= ~0x2000;
     return 1;
 }
 /* Store the six-field queued animation record at the model-kind-specific tail offset. */
@@ -672,7 +672,7 @@ u32 MT_Scene_SetResMotionRecord(u32 *resource, u32 layer, u32 animation, u32 fra
     default:
         return 0;
     }
-    ((SceneUpdateResource *)resource)->flags |= 0x2000;
+    ((ResrcHeader *)resource)->flags |= 0x2000;
     *(u32 *)&((SceneQueuedAnimation *)animationRecord)->layer = layer;
     *(u32 *)&((SceneQueuedAnimation *)animationRecord)->animation = animation;
     *(u32 *)&((SceneQueuedAnimation *)animationRecord)->frame = frame;
@@ -738,11 +738,11 @@ u32 MT_Scene_SetResActive(void* resource, s32 enabled)
     {
         if (enabled == 1)
         {
-            ((SceneUpdateResource *)address)->flags |= 2;
+            ((ResrcHeader *)address)->flags |= 2;
         }
         else
         {
-            ((SceneUpdateResource *)address)->flags &= 0xfffffffd;
+            ((ResrcHeader *)address)->flags &= 0xfffffffd;
         }
         result = 1;
     }
@@ -934,7 +934,7 @@ static inline void sceneUpdateInterpolate(RwV3d *out, const RwV3d *start,
     out->z = sceneUpdateLerp(start->z, end->z, amount);
 }
 
-static inline s32 sceneUpdateResourceType(SceneUpdateResource *resource)
+static inline s32 sceneUpdateResourceType(ResrcHeader *resource)
 {
     return (resource->id & 0xFFC00) >> 10;
 }
@@ -947,7 +947,7 @@ static inline u8 *sceneUpdateAttachedEffect(SceneCharacterUpdate *character, s32
     return *(u8 **)(slot + sizeof(character->base));
 }
 
-static inline void sceneUpdateQueuedAnimation(SceneUpdateResource *resource,
+static inline void sceneUpdateQueuedAnimation(ResrcHeader *resource,
                                                SceneQueuedAnimation *animation)
 {
     s32 layer = animation->layer;
@@ -959,7 +959,7 @@ static inline void sceneUpdateQueuedAnimation(SceneUpdateResource *resource,
     MT_Scene_SetResMotion(&resource->id, layer, motion, frame, flags, blend, speed);
 }
 
-static inline void sceneUpdatePath(SceneUpdateResource *resource,
+static inline void sceneUpdatePath(ResrcHeader *resource,
                                    RwV3d *position, RwV3d *rotation)
 {
     f32 total = resource->moveDuration.distance;
@@ -973,7 +973,7 @@ static inline s32 sceneFootstepBankIndex(s32 sequence, s32 firstSound)
     return firstSound + sequence;
 }
 
-static inline void sceneUpdateFootstep(SceneUpdateResource *resource)
+static inline void sceneUpdateFootstep(ResrcHeader *resource)
 {
     s32 terrain = MT_Scene_GetTerrainAtPoint((u16 *)&resource->position);
     SceneFootstepUpdate *foot = &resource->footsteps;
@@ -1009,7 +1009,7 @@ static inline void sceneUpdateFootstep(SceneUpdateResource *resource)
 // FUN_0026A020
 void MT_Scene_UpdateResource(u8 *resourceData)
 {
-    SceneUpdateResource *resource = (SceneUpdateResource *)resourceData;
+    ResrcHeader *resource = (ResrcHeader *)resourceData;
     s32 frames = 0;
 
     if (resource == NULL) {
@@ -1474,7 +1474,7 @@ s32 MT_Scene_GetTerrainAtPoint(u16 *position)
     }
     terrainTypes = (u8 *)terrainTable;
     terrain = terrainTypes[offset];
-    for (; quad != NULL; quad = *(u8 * *)&((SceneUpdateResource *)quad)->next) {
+    for (; quad != NULL; quad = *(u8 * *)&((ResrcHeader *)quad)->next) {
         {
             u8 *referencePoint = (u8 *)&frame.referenceXy;
             xy = *(u64 *)D_0063B080;
@@ -1600,7 +1600,7 @@ s32 MT_Scene_SetExclusiveRes(s32 resourceId)
 
         while (camera != NULL) {
             ((ResrcRecord *)camera)->cameraRes[0] = 0;
-            camera = *(u8 * *)&((SceneUpdateResource *)camera)->next;
+            camera = *(u8 * *)&((ResrcHeader *)camera)->next;
         }
         ((ResrcRecord *)resource)->cameraRes[0] = 1;
     }
@@ -1614,7 +1614,7 @@ void MT_Scene_ClearExclusiveRes(void) {
 
     while (camera != NULL) {
         ((ResrcRecord *)camera)->cameraRes[0] = 0;
-        camera = *(u8 * *)&((SceneUpdateResource *)camera)->next;
+        camera = *(u8 * *)&((ResrcHeader *)camera)->next;
     }
 }
 
@@ -1765,14 +1765,14 @@ void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
     f32 directionZ;
     u64 directionXy;
 
-    *(RwV3d *)base = ((SceneUpdateResource *)resource)->position;
-    *(RwV3d *)axis = ((SceneUpdateResource *)resource)->rotation;
+    *(RwV3d *)base = ((ResrcHeader *)resource)->position;
+    *(RwV3d *)axis = ((ResrcHeader *)resource)->rotation;
     if (*(u16 *)&((ResrcRecord *)resource)->cameraRes[1] != 0) {
         handle = MT_Scene_GetRes(*(u16 *)&((ResrcRecord *)resource)->cameraRes[1]);
         if (handle != NULL) {
-            base[0] = *(f32 *)&((SceneUpdateResource *)handle)->position;
-            base[1] = ((SceneUpdateResource *)handle)->position.y;
-            base[2] = ((SceneUpdateResource *)handle)->position.z;
+            base[0] = *(f32 *)&((ResrcHeader *)handle)->position;
+            base[1] = ((ResrcHeader *)handle)->position.y;
+            base[2] = ((ResrcHeader *)handle)->position.z;
             scale = *(f32 *)&((ResrcRecord *)resource)->slotHandle[1];
             MT_Scene_BuildResMatrix((u32 *)matrix, base, (u32 *)axis);
             src = (s32 *)matrix;
@@ -1809,7 +1809,7 @@ void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
 // FUN_0026C310
 void MT_Scene_UpdateCameraResource(u8 *resource)
 {
-    SceneUpdateResource *cameraResource;
+    ResrcHeader *cameraResource;
     typedef struct SceneCameraMatrix {
         RwV3d right;
         u32 flags;
@@ -1881,9 +1881,9 @@ void MT_Scene_UpdateCameraResource(u8 *resource)
     fb = locals.outv[0];
     fc = locals.outv[1];
     fa = locals.outv[2];
-    *(f32 *)&((SceneUpdateResource *)resource)->position.x = fb;
-    *(f32 *)&((SceneUpdateResource *)resource)->position.y = fc;
-    *(f32 *)&((SceneUpdateResource *)resource)->position.z = fa;
+    *(f32 *)&((ResrcHeader *)resource)->position.x = fb;
+    *(f32 *)&((ResrcHeader *)resource)->position.y = fc;
+    *(f32 *)&((ResrcHeader *)resource)->position.z = fa;
 
     matrix = (SceneCameraMatrix *)func_003e0f80();
     {
@@ -1892,8 +1892,8 @@ void MT_Scene_UpdateCameraResource(u8 *resource)
         locals.axis.raw = xy;
         locals.overlap.axisZ = z;
     }
-    if ((*(u32 *)&((SceneUpdateResource *)resource)->flags & 0x08000000) != 0) {
-        cameraResource = (SceneUpdateResource *)resource;
+    if ((*(u32 *)&((ResrcHeader *)resource)->flags & 0x08000000) != 0) {
+        cameraResource = (ResrcHeader *)resource;
         *(u32 *)&cameraResource->flags &= ~0x08000000;
         fb = *(f32 *)&cameraResource->position.x;
         fc = *(f32 *)&cameraResource->position.y;
@@ -1901,9 +1901,9 @@ void MT_Scene_UpdateCameraResource(u8 *resource)
         matrix->pos.x = fb;
         matrix->pos.y = fc;
         matrix->pos.z = fa;
-        matrix->at.x = *(f32 *)&((SceneUpdateResource *)resource)->rotation.x - matrix->pos.x;
-        matrix->at.y = *(f32 *)&((SceneUpdateResource *)resource)->rotation.y - matrix->pos.y;
-        matrix->at.z = *(f32 *)&((SceneUpdateResource *)resource)->rotation.z - matrix->pos.z;
+        matrix->at.x = *(f32 *)&((ResrcHeader *)resource)->rotation.x - matrix->pos.x;
+        matrix->at.y = *(f32 *)&((ResrcHeader *)resource)->rotation.y - matrix->pos.y;
+        matrix->at.z = *(f32 *)&((ResrcHeader *)resource)->rotation.z - matrix->pos.z;
         RwV3dNormalize(&matrix->at, &matrix->at);
 
         axisY = locals.axis.value.y;
@@ -1944,9 +1944,9 @@ void MT_Scene_UpdateCameraResource(u8 *resource)
         matrix->pos.x = 0.0f;
         matrix->flags |= 0x20003;
 
-        RwMatrixRotate(matrix, locals.vec0, *(f32 *)&((SceneUpdateResource *)resource)->rotation.y, 1);
-        RwMatrixRotate(matrix, locals.vec1, *(f32 *)&((SceneUpdateResource *)resource)->rotation.x, 1);
-        RwMatrixRotate(matrix, locals.vec2, *(f32 *)&((SceneUpdateResource *)resource)->rotation.z, 1);
+        RwMatrixRotate(matrix, locals.vec0, *(f32 *)&((ResrcHeader *)resource)->rotation.y, 1);
+        RwMatrixRotate(matrix, locals.vec1, *(f32 *)&((ResrcHeader *)resource)->rotation.x, 1);
+        RwMatrixRotate(matrix, locals.vec2, *(f32 *)&((ResrcHeader *)resource)->rotation.z, 1);
         RwMatrixTranslate(matrix, locals.outv, 2);
     }
 
@@ -2000,7 +2000,7 @@ void MT_Scene_WrapAngles(f32 *angles)
 // FUN_0026C740
 void MT_Scene_WrapObjectAngles(s32 object)
 {
-    (MT_Scene_WrapAngles)(&((SceneUpdateResource *)object)->rotation.x);
+    (MT_Scene_WrapAngles)(&((ResrcHeader *)object)->rotation.x);
 }
 
 
