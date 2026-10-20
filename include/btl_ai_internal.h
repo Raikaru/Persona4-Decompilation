@@ -17,7 +17,8 @@ typedef struct BtlAiCommandWork {
     u8 pad3A[4];
     u16 plan;              /* 0x3E */
     u16 planArgument;      /* 0x40 */
-    u8 pad42[6];
+    u16 planArgument2;     /* 0x42: fourth ScriptSetActionParams argument */
+    u8 pad44[4];
     u16 overrideCommand;   /* 0x48 */
     u8 overrideEnabled;    /* 0x4A */
     u8 pad4B;

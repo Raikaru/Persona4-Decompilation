@@ -118,10 +118,10 @@ s32 btlEffectScriptPickUnitByKind(void) {
 }
 
 /* AI script command 0x207c (p4flow AI.json AI_FUNCTION_007C). */
-/* Find the lowest-current-HP living genus-1 action and publish its encoded ID; retail assumes one exists.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Find the lowest-current-HP living genus-1 action and publish its encoded ID; retail assumes one exists. */
 // FUN_001E6DC0
 s32 btlEffectScriptPickLowestHpLivingSide1Unit(void) {
+    BtlAction *currentFields;
     u8 *current;
     u8 *best;
     u32 min;
@@ -131,13 +131,14 @@ s32 btlEffectScriptPickLowestHpLivingSide1Unit(void) {
 
     best = NULL;
     min = 0x0FFFFFFF;
-    current = *(u8 **)(iGpffffb3ac + 0x174);
+    current = ((BtlBattleState *)(iGpffffb3ac))->actions;
+    currentFields = (BtlAction *)current;
     while (current != NULL) {
-        flags = *(u16 *)(current + 0x1A);
+        flags = ((BtlAction *)(current))->unk_1a;
         if ((flags & 1) && (flags & 8)) {
-            entry = *(u8 **)(current + 0x30);
-            if (*(u8 *)(entry + 0xA2) == 1 &&
-                datCalcIsDead(*(s32 *)(entry + 0xA64), 0) == 0) {
+            entry = (u8 *)currentFields->unit;
+            if (((BtlUnit *)(entry))->genus == 1 &&
+                datCalcIsDead((s32)((BtlUnit *)(entry))->datUnit, 0) == 0) {
                 value = datCalcGetHp((s32)((BtlAction *)current)->unit->datUnit) & 0xFFFF;
                 if (value < min) {
                     best = current;
@@ -145,15 +146,15 @@ s32 btlEffectScriptPickLowestHpLivingSide1Unit(void) {
                 }
             }
         }
-        current = *(u8 **)(current + 0x450);
+        current = (u8 *)((BtlAction *)(current))->next;
+        currentFields = (BtlAction *)current;
     }
-    scrSetReturnInt(*(s32 *)(best + 8) | 0x80000000);
+    scrSetReturnInt((s32)((BtlAction *)(best))->id | 0x80000000);
     return 1;
 }
 
 /* AI script command 0x207d (p4flow AI.json AI_FUNCTION_007D). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
- * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
 // FUN_001E6EA0
 s32 btlEffectScriptPickWeakCandidateUnit(void) {
     u8 *work;
@@ -166,12 +167,12 @@ s32 btlEffectScriptPickWeakCandidateUnit(void) {
     if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt((s32)((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
             if (flags & 2) {
                 result = btlAICommandPickUnitByHpWeight(work);
             } else {
-                result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
+                result = ((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
             }
             scrSetReturnInt((s32)((BtlAction *)result)->id | 0x80000000);
         }
