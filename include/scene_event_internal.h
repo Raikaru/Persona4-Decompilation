@@ -361,7 +361,16 @@ struct EvtEventWork {
     s32 effectTable;          /* +0x5D0: effect table handle */
     s32 busy;                 /* +0x5D4: nonzero while the event is busy */
     u8 unk5D8[0xA0];
-    u8 messageWindow[0x4C];   /* +0x678: message window, runs to at least +0x6C4 */
+    union {
+        u8 messageWindow[0x4C]; /* +0x678: original byte-addressed window API */
+        struct {
+            u8 pad00[8];
+            s32 manager;        /* +0x680: itfMes manager handle */
+            u8 pad0C[0x14];
+            s32 slots[5];       /* +0x698: EVT_FUNCTION_000C substitution values */
+            u8 pad34[0x18];
+        } messageControl;
+    };
     s32 waitTask[3];          /* +0x6C4: tasks watched by the 0x200/0x400/0x800 waits */
     s32 taskSlots[3];         /* +0x6D0: filter child tasks */
     u8 pad6DC[0x74];

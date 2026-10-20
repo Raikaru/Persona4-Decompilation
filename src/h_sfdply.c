@@ -82,8 +82,9 @@ static HSfdAsyncEntry sSfdEntries[HSFD_ENTRY_COUNT];
 
 
 
+/* Suspend the pending Sofdec worker unless already suspended or wait-suspended; restore the prior interrupt state. */
 // FUN_00466580
-void func_00466580(void)
+void hsfdSuspendWorker(void)
 {
     s32 wasEnabled;
     EeThreadStatus threadStatus;
@@ -105,8 +106,9 @@ void func_00466580(void)
 
 
 
+/* Reset the Sofdec request pool and create and start its single worker thread with the configured stack. */
 // FUN_00466680
-void func_00466680(void)
+void hsfdInitWorker(void)
 {
     typedef struct HSfdThreadParam
     {

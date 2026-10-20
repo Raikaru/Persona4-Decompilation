@@ -489,7 +489,7 @@ extern s32 fclDrawIsActive(s32);
 extern s32 evtGetEventFrame(void);
 extern s32 kwlnTaskIsLinked(s32);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
-extern s32 func_00459760(void);
+extern s32 hsndGetCurrentCue(void);
 extern void sdkSndPlayCue(s32, s32);
 extern void fclCombineConsumeMaterials(u8 *, s16 *);
 extern s32 fclDrawTaskCreate(u8 *);
@@ -10402,7 +10402,7 @@ void fclCombineMenuFinish(u8 *task) {
             /* measured: field typing changes 2081 normalized bytes in the full owner. */
             *(s32 *)(p + 0x304) = 0;
         }
-        if (func_00459760() == -1) {
+        if (hsndGetCurrentCue() == -1) {
             sdkSndPlayCue(0x14, 1);
         }
         switch (((FclCombineMenu *)p)->sourceCount) {

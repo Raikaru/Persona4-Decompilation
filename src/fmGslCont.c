@@ -1,5 +1,9 @@
 /* Source unit: src/fmGslCont_0026e0e0.c */
 #include "type.h"
+/* The allocator prefix precedes the returned payload by one word. */
+typedef struct FmGslAllocation { u32 allocation; } FmGslAllocation;
+/* Encoded tree records are three halfwords; branch zero also marks a leaf. */
+typedef struct FmGslTreeRecord { u16 unk00; u16 branches[2]; } FmGslTreeRecord;
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -73,7 +77,7 @@ u32 fmGslContPushNode(int* payload, int listAddress)
 u32 fmGslContFreeNode(int payloadAddress)
 {
     /* The allocation pointer is stored one word before the externally returned payload. */
-    DAT_008873ec_abs[0](*(u32*)(payloadAddress + -4));
+    DAT_008873ec_abs[0](((FmGslAllocation *)(payloadAddress + -4))->allocation);
     return 1;
 }
 
@@ -123,12 +127,12 @@ int fmGslContDecodeRun(int outputAddress, int runIndex, u64 unused, int* tables)
     branchAddress = rootBranches;
     bitsAddress = tables[2];
     wordIndex = startBit >> 4;
-    bits = (int)(*(u16*)(bitsAddress + wordIndex * 2) | 0x10000) >> (startBit & 0xf);
+    bits = (int)(((u16 *)bitsAddress)[wordIndex] | 0x10000) >> (startBit & 0xf);
     bitsRemaining = endBit - startBit;
     do {
-        nodeAddress = treeAddress + (u32)*(u16*)(branchAddress + (bits & 1) * 2) * 6;
+        nodeAddress = treeAddress + (u32)((u16 *)branchAddress)[bits & 1] * 6;
         branchAddress = nodeAddress + 2;
-        if (*(u16*)(nodeAddress + 2) == 0) {
+        if (((FmGslTreeRecord *)(nodeAddress))->branches[0] == 0) {
             memcpy(outputAddress + outputCount, branchAddress + 2, 1);
             outputCount = outputCount + 1;
             branchAddress = rootBranches;
@@ -136,7 +140,7 @@ int fmGslContDecodeRun(int outputAddress, int runIndex, u64 unused, int* tables)
         bits = bits >> 1;
         if (bits == 1) {
             wordIndex = wordIndex + 1;
-            bits = *(u16*)(bitsAddress + wordIndex * 2) | 0x10000;
+            bits = ((u16 *)bitsAddress)[wordIndex] | 0x10000;
         }
         bitsRemaining = bitsRemaining + -1;
     } while (bitsRemaining != 0);

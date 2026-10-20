@@ -3254,8 +3254,8 @@ extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path, s32
 extern void *memcpy(void *destination, const void *source, u32 size);
 extern void *memset(void *destination, s32 value, u32 size);
 extern u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue);
-extern s32 func_00459760();
-extern s32 func_0045b400();
+extern s32 hsndGetCurrentCue();
+extern s32 hsndGetCurrentTrack();
 extern s32 sdkSndFadeMainChannel();
 extern void sdkSndFadeOutChannelFrames();
 extern void shdEffectSetRenderParams(u8 *effect, s32 parameter, u8 flags);
@@ -3405,8 +3405,8 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         context->loadRequest = NULL;
         goto tail;
     case 5:
-        iGpffffa664 = func_00459760();
-        iGpffffa668 = func_0045b400();
+        iGpffffa664 = hsndGetCurrentCue();
+        iGpffffa668 = hsndGetCurrentTrack();
         sdkSndFadeMainChannel();
         sdkSndFadeOutChannelFrames(3, 0, 10);
         context->relation = 6;
