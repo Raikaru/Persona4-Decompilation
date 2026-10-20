@@ -8,10 +8,19 @@
  * The sequence runners snapshot the position and the three pose vectors. */
 typedef RwV3d BtlShufflePoseVector;
 typedef struct BtlShuffleCardPose {
-    u8 pad0[0x18];
+    u16 flags;
+    u8 pad02[2];
+    s32 kind;
+    u8 pad08[0x10];
     BtlShufflePoseVector position;
-    u8 pad24[8];
-    BtlShufflePoseVector axis, eye, origin;
+    union {
+        struct {
+            u8 pad24[4];
+            f32 angle;
+            BtlShufflePoseVector axis, eye, origin;
+        };
+        BtlShufflePoseVector alternatePosition;
+    };
     u8 pad50[0x98];
 } BtlShuffleCardPose;
 
@@ -23,7 +32,7 @@ typedef struct BtlShuffleContext {
     u16 sequenceFlags;
     u16 sequenceFrames;
     u16 sequenceChoice;
-    u8 pad1F1D6[2];
+    u16 sequenceHeldMask;
     union { s32 value; u16 low; } sequenceCount;
     s32 selectedCard;
     u8 pad1F1E0[0x34];

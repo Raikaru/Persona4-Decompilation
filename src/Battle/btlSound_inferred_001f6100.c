@@ -5,6 +5,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "effect_instance_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_skill_internal.h"
@@ -304,7 +305,7 @@ s32 btlSoundLoadPlaybackFile(u8 *work)
     u8 *battle;
 
     /* measured: typing this phase load grows the loader from 320 to 328 bytes; its phase stores remain typed. */
-    phase = *(u16 *)(work + 6);
+    phase = MEMBER(u16, work, BtlSoundLoadWork, phase);
     switch (phase) {
     case 0:
         if (((BtlSoundLoadWork *)work)->bank == 0) {
@@ -434,6 +435,7 @@ s32 btlSoundCanReceiveStatus(u8 *action)
 // FUN_001F6930
 s32 btlSoundSelectCureableStatuses(u8 *action)
 {
+    BtlUnit *unitState;
     extern s32 datCalcHasSkill(s32 unit, s32 skillId);
     extern s32 func_00244f60(u32 action, u16 *value, u16 *option, u16 extra, s32 flags);
     s32 cureMask;
@@ -453,8 +455,9 @@ s32 btlSoundSelectCureableStatuses(u8 *action)
     s32 hasTurnThreshold;
 
     unit = *(u8 **)&((BtlAction *)action)->unit;
+    unitState = (BtlUnit *)unit;
     /* measured: typing this DatUnit reload changes allocation across the status/skill calls. */
-    statuses = datCalcGetBadStatus(*(s32 *)(unit + 0xA64));
+    statuses = datCalcGetBadStatus(*(s32 *)&unitState->datUnit);
     cureMask = 0;
     statusIndex = 0;
     goto loop_31_test;
@@ -506,7 +509,7 @@ loop_31_body:
             break;
         }
         if ((hasTurnThreshold == 1) && (requiredTurns != 0)) {
-            if (datCalcHasSkill(*(s32 *)(unit + 0xA64), 0x22F) != 0) {
+            if (datCalcHasSkill(*(s32 *)&unitState->datUnit, 0x22F) != 0) {
                 requiredTurns = requiredTurns >> 1;
                 if (requiredTurns <= 0) {
                     requiredTurns = 1;
@@ -518,11 +521,11 @@ loop_31_body:
         }
         if (countedStatus == 1) {
             /* measured: typed counter indexing changes the retained address operand order; the other counter handlers are typed. */
-            if (*(u8 *)(action + statusIndex + 0x3F6) <= 1) {
+            if (MEMBER(u8, action + statusIndex, BtlAction, targetBlock.recovery.statusTurns[0]) <= 1) {
                 goto loop_31_increment;
             }
         }
-        if ((*(u8 *)(action + statusIndex + 0x3F6) >= requiredTurns) && (requiredTurns != 0)) {
+        if ((MEMBER(u8, action + statusIndex, BtlAction, targetBlock.recovery.statusTurns[0]) >= requiredTurns) && (requiredTurns != 0)) {
             cureMask |= statusBit;
         } else if ((s32)datCalcRandomBelow(0x64) < chance) {
             cureMask |= statusBit;
@@ -577,7 +580,7 @@ loop_6:
         statusBit = 1 << statusIndex;
         if ((previousStatuses & statusBit) && !(statuses & statusBit)) {
             /* measured: typed counter indexing changes the retained address operand order; the other counter handlers are typed. */
-            *(s8 *)(action + statusIndex + 0x3F6) = 0;
+            ((BtlAction *)action)->targetBlock.recovery.statusTurns[statusIndex] = 0;
         }
         statusIndex += 1;
 loop_test_6:
@@ -899,8 +902,9 @@ loop_test_8:
 /* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
 /* measured: btlSoundPlayRetailSelectTrack MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
+/* Reserved sound teardown hook called while releasing the battle runtime. */
 // FUN_001F73C0
-void func_001f73c0(void)
+void btlSoundReleaseNoop(void)
 {
 }
 
@@ -915,8 +919,8 @@ void btlSoundPlayRetailSelectTrack(void)
     battle = iGpffffb3ac;
     if (*(s32 *)&((BtlBattleState *)battle)->flags & 0x40) {
         /* measured: typed counter indexing changes the retained address operand order; the other counter handlers are typed. */
-        selector = *(u16 *)(*(u8 **)&((BtlBattleState *)battle)->encounterRecord + 8);
-        selector = *(u16 *)(iGpffffb414 + (selector * 0x18) + 0x16);
+        selector = ((BtlSoundEncounterRecord *)*(u8 **)&((BtlBattleState *)battle)->encounterRecord)->trackRule;
+        selector = ((BtlSoundTrackRule *)iGpffffb414)[selector].selector;
         switch (selector) {
         case 2:
             sdkSndPlayCue(2, 1);

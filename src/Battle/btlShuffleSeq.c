@@ -94,6 +94,7 @@ extern s32 D_00763AD4;
 // FUN_00378600
 void btlShuffleSeqCardSetup(u8 *context)
 {
+    BtlShuffleContext *shuffleContext = (BtlShuffleContext *)(context);
     s32 buf[0x3EC];
     s32 mode;
     s32 n;
@@ -140,8 +141,8 @@ void btlShuffleSeqCardSetup(u8 *context)
         if (ok == 0) {
             j = i + 1;
             while (j < n - 1) {
-                /* measured: this remaining context read changes allocation or CSE when typed independently. */
-                desc = context + (i % *(s32 *)(context + 0x1F304)) * 8 + 0x1F250;
+                /* measured: the typed object alias preserves reloads that access-site casts would merge. */
+                desc = context + (i % shuffleContext->cardCount) * 8 + 0x1F250;
                 card = context + j * 0xFB0;
                 genus2 = ((BtlShuffleCardSpec *)desc)->kind;
                 if (genus2 == btlShuffleCardGetKind(card)) {
@@ -323,8 +324,8 @@ s32 btlShuffleSeqRecord(u8 *context, s32 cardIndex, s32 frames)
         *(Vec3f *)&axis[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)))->cards[0].axis;
         *(Vec3f *)&eye[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)))->cards[0].eye;
         *(Vec3f *)&origin[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)))->cards[0].origin;
-        /* The angle occupies a variant pose span not represented by the shared partial card-pose layout. */
-        angle = *(f32 *)(((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)) + 0x1D6C8);
+        /* The circular-motion angle overlaps the alternate-position vector. */
+        angle = ((BtlShuffleContext *)((u8 *)seqRecord(cardIndex * 0xE8, (u32)context)))->cards[0].angle;
         if (!(angle <= 360.0f)) {
             angle = angle - 360.0f;
         }
@@ -501,8 +502,8 @@ s32 btlShuffleSeqLoadRecord(u8 *context) {
     if (((BtlShuffleReplacementState *)base)->cardCount > 0) {
         if (datGetFlag(0x142A) != 0) {
             strcpy(textBuffer, D_00763AD0);
-            /* measured: typed message/archive loads change one argument-register instruction byte. */
-            nmMesWindowOpenCurrent((u8 *)(*(s32 *)(context + 0x1F2DC)));
+            /* Keep the archive selector in its signed word representation. */
+            nmMesWindowOpenCurrent((u8 *)(((BtlShuffleContext *)context)->textureBlobs[0]));
             text = datCalcGetSlotRecord(0x14);
             nmMesWindowSetCurrentString(0, text);
             nmMesWindowSetCurrentString(1, textBuffer);
@@ -512,7 +513,7 @@ s32 btlShuffleSeqLoadRecord(u8 *context) {
         }
         if (datGetFlag(0x142B) != 0) {
             strcpy(textBuffer, D_00763AD4);
-            nmMesWindowOpenCurrent((u8 *)(*(s32 *)(context + 0x1F2DC)));
+            nmMesWindowOpenCurrent((u8 *)(((BtlShuffleContext *)context)->textureBlobs[0]));
             text = datCalcGetSlotRecord(0x14);
             nmMesWindowSetCurrentString(0, text);
             nmMesWindowSetCurrentString(1, textBuffer);
@@ -539,6 +540,7 @@ typedef struct ShufflePair {
 // FUN_00379420
 
 s32 btlShuffleSeqStep(u8 *context) {
+    BtlShuffleContext *shuffleContext = (BtlShuffleContext *)(context);
     s32 *seq;
     s32 i1;
     s32 i4;
@@ -565,8 +567,8 @@ s32 btlShuffleSeqStep(u8 *context) {
         goto done;
 
     case 1:
-        /* measured: this remaining context read changes allocation or CSE when typed independently. */
-        if (btlShuffleDrawViewIsFadeDone(*(s32 *)(context + 0x1F294)) == 0) {
+        /* measured: the typed object alias preserves reloads that access-site casts would merge. */
+        if (btlShuffleDrawViewIsFadeDone(*(s32 *)&shuffleContext->viewTask) == 0) {
             goto done;
         }
         sdkSndStartStream(1, 5, 2, 0);
@@ -602,7 +604,7 @@ s32 btlShuffleSeqStep(u8 *context) {
             }
             i1++;
         }
-        btlShuffleDrawViewClearFade(*(s32 *)(context + 0x1F294));
+        btlShuffleDrawViewClearFade(*(s32 *)&shuffleContext->viewTask);
         btlShuffleDrawViewRequestStep(*(s32 *)&((BtlShuffleContext *)context)->viewTask, 0xFF, 0xFF, 0xFF);
         *seq = 2;
         /* fallthrough */
@@ -623,7 +625,7 @@ s32 btlShuffleSeqStep(u8 *context) {
         goto done;
 
     case 4:
-        if (btlShuffleDrawViewIsFadeDone(*(s32 *)(context + 0x1F294)) == 0) {
+        if (btlShuffleDrawViewIsFadeDone(*(s32 *)&shuffleContext->viewTask) == 0) {
             goto done;
         }
         sdkSndStartStream(1, 5, 2, 1);
@@ -641,7 +643,7 @@ s32 btlShuffleSeqStep(u8 *context) {
             }
             i4++;
         }
-        btlShuffleDrawViewClearFade(*(s32 *)(context + 0x1F294));
+        btlShuffleDrawViewClearFade(*(s32 *)&shuffleContext->viewTask);
         btlShuffleDrawViewRequestStep(*(s32 *)&((BtlShuffleContext *)context)->viewTask, 0, 0, 0);
         *seq = 5;
         /* fallthrough */
@@ -664,8 +666,8 @@ done:
 // FUN_003798D0
 void btlShuffleSeqClearA(u8 *context, s32 count) {
     ((BtlShuffleMessageState *)(context + 0x1F23C))->phase = 0;
-    /* measured: typed message/archive loads change one argument-register instruction byte. */
-    fclMiscEnsureMesWindow(*(s32 *)(context + 0x1F2E0));
+    /* Keep the archive selector in its signed word representation. */
+    fclMiscEnsureMesWindow(((BtlShuffleContext *)context)->textureBlobs[1]);
     fclMesWindowShowItemRecord(count);
 }
 
@@ -698,8 +700,8 @@ s32 btlShuffleSeqFlag(u8 *context) {
 // FUN_003799D0
 void btlShuffleSeqReset(u8 *context) {
     memset(context + 0x1F244, 0, 8);
-    /* measured: typed message/archive loads change one argument-register instruction byte. */
-    nmMesWindowOpenCurrent((u8 *)(*(s32 *)(context + 0x1F2DC)));
+    /* Keep the archive selector in its signed word representation. */
+    nmMesWindowOpenCurrent((u8 *)(((BtlShuffleContext *)context)->textureBlobs[0]));
     nmMesWindowSetCurrentParam(0x14);
     nmMesWindowSetCurrentFlag(0);
     nmMesWindowRequestRefresh();
@@ -794,9 +796,10 @@ s32 btlShuffleSeqCardCount(u8 *context, s32 cardIndex) {
 /* Wait for the result task, rebuilding the deck when another round is requested. */
 // FUN_00379D70
 s32 btlShuffleSeqDispatch(u8 *context) {
-    /* measured: these task-result reloads must retain byte-pointer aliasing to preserve the saved-register set. */
-    if (btlShuffleRosterHasResult(*(s32 *)(context + 0x1F290)) != 0) {
-        s32 r = btlShuffleRosterRequestResult(*(s32 *)(context + 0x1F290));
+    BtlShuffleContext *shuffleContext = (BtlShuffleContext *)(context);
+    /* measured: the separate context alias preserves the task-result saved-register set. */
+    if (btlShuffleRosterHasResult(*(s32 *)&shuffleContext->rosterTask) != 0) {
+        s32 r = btlShuffleRosterRequestResult(*(s32 *)&shuffleContext->rosterTask);
         *(s32 *)&((BtlShuffleContext *)context)->rosterTask = 0;
         switch (r) {
         case 1:

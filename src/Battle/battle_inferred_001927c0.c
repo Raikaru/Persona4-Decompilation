@@ -348,7 +348,7 @@ s32 btlRelease(void)
     btlMainRelease();
     btlEffectFreeAllNodes();
     btlVoiceFreePlaybackBuffers();
-    func_001f73c0();
+    btlSoundReleaseNoop();
     btlCameraResetWorkList();
     btlSoundStopAndReleaseHandle();
     btlFormationClearSlots();
