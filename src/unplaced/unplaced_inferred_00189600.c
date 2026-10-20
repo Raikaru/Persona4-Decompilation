@@ -84,9 +84,10 @@ extern s32 kwlnGetCamera(void);
 extern s32 RwCameraFrustumTestSphere(u8 *, s32);
 extern s32 FldStepIndex(void);
 extern u8 *iGpffff9db0;
-#pragma push
+/* Unit settings shared by the camera, panel and NPC routines. */
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+#pragma push
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -156,13 +157,12 @@ void FldLmapCameraMoveTo(u8 *task, s32 mode, s32 preset, f32 speed)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 /* Establish the sky/panel render-state preset before queued primitives draw. */
 // FUN_00189870
+/* measured: subscript/address-form table bases rematerialize without propagation off (44 differing words). */
 #pragma opt_propagation off
 void FldSkyApplyDefaultPreset(void)
 {
@@ -181,8 +181,6 @@ void FldSkyApplyDefaultPreset(void)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -191,6 +189,7 @@ void FldSkyApplyDefaultPreset(void)
 /* Measured: 1348 executable bytes, 26 resolved relocations, 12 zero tail bytes.
  * Preserve integer-to-float conversions and reloads across rendering callbacks.
  * Indexed addresses stay integer-valued until their final pointer conversion. */
+/* measured: literal and explicitly staged red retain in-loop constants without loop invariants (16 differing words). */
 #pragma opt_loop_invariants on
 s32 FldPanel2dUpdate(u8 *task)
 {
@@ -302,8 +301,6 @@ s32 FldPanel2dUpdate(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -317,8 +314,6 @@ void FldPanel2dDestroy(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -345,8 +340,6 @@ void FldPanel2dTaskCreate(void)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -363,8 +356,6 @@ s32 FldPanel2dRelease(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -376,8 +367,6 @@ void FldPanel2dSetState(u8 *task, s32 hidden)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -433,8 +422,6 @@ void FldPanel2dSelectEntry(s32 entryIndex)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -460,8 +447,6 @@ extern s32 fldNpcControlIsBusy(unsigned char *);
 extern s32 kwlnGetCamera(void);
 extern s16 mdlGetLayerAnimation(s32, s32);
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -480,8 +465,6 @@ void FldNpcControlDestroy(u8 *task) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -505,8 +488,6 @@ s32 FldNpcControlTaskCreate(s32 parent, s32 actor)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -525,8 +506,6 @@ s32 FldNpcControlReady(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -538,6 +517,7 @@ s32 FldNpcControlReady(u8 *task)
    vector normalize; -O2 reorders it into a mismatching form. */
 #pragma optimization_level 1
 #pragma push
+/* measured: staged/direct animation calls without CSE each retain one differing constant-load instruction. */
 #pragma opt_common_subs on
 void FldNpcControlFacePlayer(u8 *task)
 {
@@ -608,8 +588,6 @@ void FldNpcControlFacePlayer(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 1
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -618,6 +596,7 @@ void FldNpcControlFacePlayer(u8 *task)
 /* Restore the saved heading, using the turn animation only when outside tolerance. */
 // FUN_0018BDD0
 #pragma push
+/* measured: staged/direct animation calls without CSE each retain one differing constant-load instruction. */
 #pragma opt_common_subs on
 void FldNpcControlTurnBack(u8 *task)
 {
@@ -663,8 +642,6 @@ void FldNpcControlTurnBack(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
@@ -684,8 +661,6 @@ void FldNpcSetPositionLock(u8 *task, s32 locked) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off

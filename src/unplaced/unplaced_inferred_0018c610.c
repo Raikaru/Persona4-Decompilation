@@ -27,6 +27,7 @@ typedef struct MaterialTextureContext {
     RwTexture *texture;
 } MaterialTextureContext;
 
+/* Unit settings for the material texture callback. */
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on

@@ -73,6 +73,7 @@ extern f32 iGpffffbb24;
 
 /* 540/544 bytes; twenty resolved relocations; four zero alignment bytes.
  * The pointer switch retains the retail null guard and separate backedge. */
+/* measured: baseline removal differs by 3 words; an explicit state local and an if-null backedge do not match. */
 #pragma opt_loop_invariants on
 /* Poll queued directory requests and wake the resource worker once ready. */
 /* measured: direct fields change instructions; local aliases retain MATCH, with MEMBER for the measured poll-state culprits. */

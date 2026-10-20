@@ -27,6 +27,7 @@ extern void func_003dcc70(f32 *result, f32 *from, f32 *to);
 #include "btl_camera_sequence_internal.h"
 #include "datPersona_internal.h"
 #include "datUnit_internal.h"
+/* Unit settings for transform translation and rotation blending. */
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on

@@ -166,8 +166,9 @@ s32 sdkSndTransferToIop(s32 handle, void *data, s32 size)
 /* Advances six decode slots through file or memory payload transfers and decoder creation. */
 // FUN_0045B7C0
 #pragma push
-#pragma opt_common_subs off
+/* measured: baseline removal differs by 509 words; indexed-slot and single-toggle probes also fail. */
 #pragma opt_propagation off
+#pragma opt_common_subs off
 void sdkSndUpdateDecodeSlots(void)
 {
     s32 size;
@@ -521,8 +522,9 @@ void sdkSndStopStreamSlot(s16 index, s16 stream)
    Preserve the separate pre-stop and post-stop address computations and
    the output-handle load before the final halfword argument promotions. */
 #pragma push
-#pragma opt_common_subs off
+/* measured: baseline removal differs by 98 words; sizeof indexing and either single-toggle probe also fail. */
 #pragma opt_propagation off
+#pragma opt_common_subs off
 /* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
 // FUN_0045C640
 void sdkSndStartStreamSlot(s16 index, s16 stream, s16 value, s16 flags)

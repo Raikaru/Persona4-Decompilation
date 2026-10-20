@@ -70,6 +70,7 @@ void *sdkClumpCollectAtomic(void *atomic, void *clump) {
    retail table-base preheaders and both loop bodies exactly (nd 15 -> 0).
    Committed at nd 0. */
 /* measured: opt_loop_invariants probe for the retail base preheader. */
+/* measured: baseline removal differs by 15 words; scoped/shared table pointers and category snapshots leave at least 5. */
 #pragma opt_loop_invariants on
 /* Keeps the highest table-ranked material category and records the optional user-data flag. */
 // FUN_00462960

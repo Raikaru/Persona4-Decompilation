@@ -131,6 +131,7 @@ void H_Dbprt_Flush()
  * record; keeping that ownership reproduces the vertex-loop preheader.
  * See docs/probe_archive/Debug_grid_0044f720_20260924.md. */
 #pragma push
+/* measured: baseline removal differs by 15 words; cached near depth/white still differs by 16. */
 #pragma opt_loop_invariants on
 /* The glyph atlas has sixteen columns. Keep this conversion signed so
  * its remainder operation also describes negative input values. */
