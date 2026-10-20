@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "h_cdvd_internal.h"
+#include "sdk_list_state.h"
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -240,21 +241,14 @@ static inline s32 fontAtlasColumn(s32 value)
 
 #pragma push
 #pragma pop
-/* The visible range, step, limit, selection and scroll offset share one list state. */
-typedef struct HCdvdListState {
-    u8 pad00[0x14];
-    s32 visibleCount;
-    u8 pad18[4];
-    s32 step;
-    s32 count;
-    s32 selected;
-    s32 offset;
-} HCdvdListState;
 
-// Intent: held-input repeat step forward. Advances the record's counter at +0x28 by the step at +0x1C, clamped to the limit at +0x20. Returns 0 at the end of the list.
+/* Advance the visible window by the configured repeat step, clamping at the end.
+ * Returns zero when already at the end and selects the last visible item. */
 // FUN_004543D0
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 s32 sdkListStateRepeatForward(u8 *state) {
+    /* Measured: this local preserves MATCH for stores and post-store reloads;
+     * access-site casts alone changed instruction selection in those accesses. */
+    SdkListState *listState = (SdkListState *)state;
     s32 visibleCount;
     s32 nextOffset;
     s32 offset;
@@ -263,58 +257,60 @@ s32 sdkListStateRepeatForward(u8 *state) {
     s32 reloadedVisibleCount;
     s32 clampedCount;
 
-    visibleCount = *(s32 *)(state + 0x14);
-    count = *(s32 *)(state + 0x20);
+    visibleCount = ((SdkListState *)state)->visibleRows;
+    count = ((SdkListState *)state)->itemCount;
     clampedCount = visibleCount;
     if (count < visibleCount) {
         clampedCount = count;
     }
-    offset = *(s32 *)(state + 0x28);
+    offset = ((SdkListState *)state)->scroll;
     if ((offset + visibleCount) >= count) {
         goto zero;
     }
-    nextOffset = offset + *(s32 *)(state + 0x1C);
-    *(s32 *)(state + 0x28) = nextOffset;
-    reloadedVisibleCount = *(s32 *)(state + 0x14);
-    reloadedCount = *(s32 *)(state + 0x20);
+    nextOffset = offset + ((SdkListState *)state)->unk1C;
+    listState->scroll = nextOffset;
+    reloadedVisibleCount = listState->visibleRows;
+    reloadedCount = listState->itemCount;
     if (reloadedCount >= (nextOffset + reloadedVisibleCount)) {
         goto one;
     }
-    *(s32 *)(state + 0x28) = reloadedCount - reloadedVisibleCount;
+    listState->scroll = reloadedCount - reloadedVisibleCount;
     goto one;
 zero:
-    *(s32 *)(state + 0x28) = count - clampedCount;
-    *(s32 *)(state + 0x24) = clampedCount - 1;
+    listState->scroll = count - clampedCount;
+    ((SdkListState *)state)->cursor = clampedCount - 1;
     return 0;
 one:
     return 1;
 }
 
-// Intent: held-input repeat step back. Decrements the record's counter at +0x28 by the step at +0x1C, clamped at zero. Returns 0 at the start of the list.
+/* Move the visible window back by the repeat step, clamping its scroll to zero.
+ * Returns zero when already at the start and resets the visible cursor. */
 // FUN_00454460
 /* The three exits are laid out with explicit gotos because retail places the
    `return 0` block and the `return 1` block out of line, in that order, after
    the main body. The natural nested-if / result-variable spellings all merge
    them into one epilogue and come out two words short (nd 24). */
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 s32 sdkListStateRepeatBack(u8 *state) {
+    /* Measured: stores through this local retain MATCH; access-site casts do not. */
+    SdkListState *listState = (SdkListState *)state;
     s32 offset;
     s32 nextOffset;
 
-    offset = *(s32 *)(state + 0x28);
+    offset = ((SdkListState *)state)->scroll;
     if (offset <= 0) {
         goto zero;
     }
-    nextOffset = offset - *(s32 *)(state + 0x1C);
-    *(s32 *)(state + 0x28) = nextOffset;
+    nextOffset = offset - ((SdkListState *)state)->unk1C;
+    listState->scroll = nextOffset;
     if (nextOffset >= 0) {
         goto one;
     }
-    *(s32 *)(state + 0x28) = 0;
+    listState->scroll = 0;
     goto one;
 zero:
-    *(s32 *)(state + 0x28) = 0;
-    *(s32 *)(state + 0x24) = 0;
+    listState->scroll = 0;
+    ((SdkListState *)state)->cursor = 0;
     return 0;
 one:
     return 1;

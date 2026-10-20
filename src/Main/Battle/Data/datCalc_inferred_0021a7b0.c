@@ -11,7 +11,7 @@
 #include "btl_shuffle_draw_internal.h"
 #include "datPersona_internal.h"
 #include "btl_unit_internal.h"
-
+#include "btl_ui_task_internal.h"
 /* Adjacent BtlUnit gauge blocks at +0xA28/+0xA3C establish the 0x14 stride. */
 typedef struct BtlGaugeTween
 {
@@ -121,8 +121,8 @@ union ColorWord {
 };
 
 // Intent: draw a panel flourish with sky vertices and its fade. [inferred]
+/* Packed halfword index pairs and RwCamera.nearPlane determine the sky packet geometry. */
 // FUN_0021A7B0
-/* The index pairs are copied as packed halfwords; camera +0x80 is RwCamera.nearPlane (the camera header conflicts with the sky matrix tags here). */
 void btlPanelDrawFlourish(u8 *task, u8 *state)
 {
     PackedVec2f effectPosition;
@@ -185,17 +185,17 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
             s32 firstIndex;
             s32 secondIndex;
             screenDepth = D_008872F8[0];
-            reciprocalDepth = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+            reciprocalDepth = 1.0f / ((RwCamera *)((u8 *)(u32)kwlnGetCamera()))->nearPlane;
             sourceIndices = D_00628FA0;
             outputIndices = indexBytes;
             pairsLeft = 6;
             do {
                 firstIndex = *(s16 *)sourceIndices;
-                secondIndex = *(s16 *)(sourceIndices + 2);
+                secondIndex = ((s16 *)sourceIndices)[1];
                 sourceIndices += 4;
                 pairsLeft -= 1;
                 *(s16 *)outputIndices = (s16)firstIndex;
-                *(s16 *)(outputIndices + 2) = (s16)secondIndex;
+                ((s16 *)outputIndices)[1] = (s16)secondIndex;
                 outputIndices += 4;
             } while (pairsLeft > 0);
             /* Keep the first vertex cursor at the packet byte-address boundary. */
@@ -317,11 +317,12 @@ void btlUnitGaugeClear(s32 unitAddress)
 }
 
 // Intent: draw a unit's gauge with its HP fraction and fill. [inferred]
+/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
 // FUN_0021AEB0
-/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
- * retain byte accesses to the layouts above and BtlUnit for an exact match. */
+
 void btlGaugeDrawUnit(s32 task, u8 *unit, f32 x, f32 y, s32 visible, f32 hpRatio)
 {
+    BtlUnit *battleUnit = (BtlUnit *)(unit);
     f32 minimumFill;
     f32 fill;
     u16 *unitData;
@@ -329,10 +330,10 @@ void btlGaugeDrawUnit(s32 task, u8 *unit, f32 x, f32 y, s32 visible, f32 hpRatio
 
     fill = hpRatio;
     if (visible != 0) {
-        unitData = *(u16 **)(unit + 0xA64);
+        unitData = (u16 *)((BtlUnit *)(unit))->datUnit;
         if ((unitData != NULL) &&
             (datCalcIsDead((u8 *)unitData, 0) == 0)) {
-            checkedData = *(u16 **)(unit + 0xA64);
+            checkedData = (u16 *)battleUnit->datUnit;
             if ((*checkedData & 0x20) != 0) {
                 if ((datCalcGetHp((s32)checkedData) & 0xFFFF) <= 1) {
                     goto callback;
@@ -351,11 +352,12 @@ callback:
 }
 
 // Intent: refresh the HP ratio of each party gauge. [inferred]
+/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
 // FUN_0021AFA0
-/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
- * retain byte accesses to the layouts above and BtlUnit for an exact match. */
+
 void btlGaugeRefreshAll(void)
 {
+    BtlUnit *gaugeUnit;
     u8 *p;
     u8 *work;
     u32 i;
@@ -365,21 +367,22 @@ s16 value1;
     i = 0;
     goto outer_test;
 outer_body:
-    p = *(u8 **)(iGpffffb3ac + (i * 8) + 0x178);
+    p = ((BtlBattleState *)(iGpffffb3ac))->unitLists[i * 2];
     goto loop_test;
 loop_body:
-    if (*(u8 **)(p + 0xA64) != NULL) {
+    gaugeUnit = (BtlUnit *)p;
+    if ((u8 *)((BtlUnit *)(p))->datUnit != NULL) {
         work = p + 0xA28;
-        if (*(s16 *)(p + 0xA38) >= 0 &&
-            *(s16 *)(p + 0xA38) < 0xC) {
-            value0 = (s16)datCalcGetHp(*(s32 *)(p + 0xA64));
-            value1 = (s16)datCalcMaxHp(*(s32 *)(p + 0xA64));
-            *(s16 *)(work + 0x10) = -1;
+        if (((BtlUnit *)(p))->hpGaugeMarker >= 0 &&
+            ((BtlUnit *)(p))->hpGaugeMarker < 0xC) {
+            value0 = (s16)datCalcGetHp((s32)((BtlUnit *)(p))->datUnit);
+            value1 = (s16)datCalcMaxHp((s32)gaugeUnit->datUnit);
+            ((BtlGaugeTween *)(work))->frame = -1;
             *(f32 *)work = -1.0f;
-            *(f32 *)(work + 4) = (f32)value0 / (f32)value1;
+            ((BtlGaugeTween *)(work))->fill = (f32)value0 / (f32)value1;
         }
     }
-    p = *(u8 **)(p + 0xA6C);
+    p = (u8 *)((BtlUnit *)(p))->nextUnit;
 loop_test:
     if (p != NULL) {
         goto loop_body;
@@ -392,11 +395,12 @@ outer_test:
 }
 
 // Intent: return a unit's HP as a fraction of its max HP. [inferred]
+/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
 // FUN_0021B0A0
-/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
- * retain byte accesses to the layouts above and BtlUnit for an exact match. */
+
 f32 btlGaugeHpRatio(u8 *unit)
 {
+    BtlUnit *battleUnit = (BtlUnit *)(unit);
     typedef struct DatUnit DatUnit;
     extern s32 datCalcGetHp(DatUnit *unit);
     extern s32 datCalcMaxHp(DatUnit *unit);
@@ -405,15 +409,15 @@ f32 btlGaugeHpRatio(u8 *unit)
     u32 maxHp;
     u32 hp;
 
-    if (*(s32 *)(unit + 0xA64) == 0) {
+    if ((s32)((BtlUnit *)(unit))->datUnit == 0) {
         return 0.0f;
     }
-    maxHp = (u32)datCalcMaxHp((DatUnit *)*(s32 *)(unit + 0xA64));
+    maxHp = (u32)datCalcMaxHp((DatUnit *)(s32)((BtlUnit *)(unit))->datUnit);
     maxHpFloat = (f32)maxHp;
     if (maxHpFloat == 0.0f) {
         return 0.0f;
     }
-    hp = (u32)datCalcGetHp((DatUnit *)*(s32 *)(unit + 0xA64));
+    hp = (u32)datCalcGetHp((DatUnit *)(s32)battleUnit->datUnit);
     hpFloat = (f32)hp;
     return hpFloat / maxHpFloat;
 }
@@ -425,9 +429,9 @@ void btlGaugeInitValue(u8 *valueState, s32 value)
     memset(valueState, 0, 4);
     *(s32 *)valueState = value;
 }
-
+/* Gauge-component initialization hook called by btlUiTaskInit; retail deliberately leaves its state untouched. */
 // FUN_0021B1E0
-void func_0021b1e0(void)
+void btlGaugeInitNoop(void)
 {
 }
 
@@ -435,7 +439,7 @@ void func_0021b1e0(void)
 // FUN_0021B1F0
 // measured: loop-invariant constant hoisting probe for func_0021b1f0.
 #pragma opt_loop_invariants on
-/* Battle-global list heads use +0x178 with eight-byte slots; their owning global layout is not recovered here. The tween is the BtlUnit +0xA28 subobject. */
+/* Head/tail pairs belong to BtlBattleState; the tween is the BtlUnit HP-gauge subobject. */
 void btlGaugeStepAll(s32 unusedTask, s32 *taskPointer)
 {
     f32 fraction;
@@ -448,11 +452,11 @@ void btlGaugeStepAll(s32 unusedTask, s32 *taskPointer)
     if ((*(s32 *)kwlnTaskGetWork((void *)*taskPointer) & 1) != 0) {
         listIndex = 0;
         while (listIndex < 2U) {
-            unit = *(u8 **)(iGpffffb3ac + listIndex * 8 + 0x178);
+            unit = ((BtlBattleState *)(iGpffffb3ac))->unitLists[listIndex * 2];
             while (unit != NULL) {
                 if (*(s32 *)&((BtlUnit *)unit)->datUnit != 0) {
                     gauge = unit + 0xA28;
-                    fraction = *(f32 *)(unit + 0xA28);
+                    fraction = ((BtlUnit *)(unit))->hpGauge.ratio;
                     if (!(fraction < 0.0f)) {
                         ((BtlGaugeTween *)gauge)->targetFill = fraction;
                         ((BtlGaugeTween *)gauge)->startFill = ((BtlGaugeTween *)gauge)->fill;
@@ -576,7 +580,7 @@ typedef struct {
  * Nine float formals precede the color union to preserve caller scheduling. */
 // Intent: draw one textured four-vertex strip at a panel position. [inferred]
 // FUN_0021B630
-/* Camera +0x80 is RwCamera.nearPlane; the full camera header conflicts with the sky vertex matrix tags in this unit. */
+/* RwCamera.nearPlane supplies reciprocal depth for the four sky vertices. */
 void btlPanelDrawQuad(f32 x, f32 y, f32 depth, f32 width,
                    f32 height, f32 u0, f32 v0, f32 u1,
                    f32 v1, union ColorWord packedColor)
@@ -596,7 +600,7 @@ void btlPanelDrawQuad(f32 x, f32 y, f32 depth, f32 width,
     f32 scale;
 
     zval = D_008872F8[0] - depth;
-    scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
+    scale = 1.0f / ((RwCamera *)(kwlnGetCamera()))->nearPlane;
     u0 = u0 / 256.0f;
     v0 = v0 / 256.0f;
     u1 = u1 / 256.0f;
@@ -755,8 +759,9 @@ s32 btlAdvantageGetRaster(void)
 
 #pragma push
 #pragma opt_loop_invariants off
+/* Advantage-component initialization hook called by btlUiTaskInit; retail deliberately leaves its state untouched. */
 // FUN_0021BE70
-void func_0021be70(void)
+void btlAdvantageInitNoop(void)
 {
 }
 #pragma pop
@@ -861,8 +866,8 @@ static inline void btlAdvantageBuildQuad(f32 x, f32 y, f32 z,
     BtlShuffleSkyVertex vertices[4];
     s32 count = 0;
     f32 depth = D_008872F8[0] - z;
-    /* RwCamera.nearPlane at +0x80; the camera header conflicts with these sky matrix tags. */
-    f32 reciprocalZ = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
+    /* Reciprocal depth uses the shared native camera near-plane field. */
+    f32 reciprocalZ = 1.0f / ((RwCamera *)(kwlnGetCamera()))->nearPlane;
     u0 /= 256.0f;
     v0 /= 256.0f;
     u1 /= 256.0f;
@@ -891,11 +896,13 @@ static inline u16 btlAdvantageChooseSegments(void)
 #pragma push
 #pragma opt_loop_invariants off
 // Intent: draw the advantage panel's background, segments and random pattern. [inferred]
+/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
 // FUN_0021BE80
-/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
- * retain byte accesses to the layouts above and BtlUnit for an exact match. */
+
 void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
 {
+    BtlAdvantageState *advantageState;
+    BtlAdvantageState *advantageWork;
     extern BtlShuffleRenderStateSet D_00887300[];
     extern u32 RpRandom(void);
     extern s32 RpSkyRenderStateSet(enum RpSkyRenderState state, void *value);
@@ -907,19 +914,20 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
     (void)drawPayload;
     (void)callback;
     work = (u8 *)(u32)workAddress;
-    kwlnTaskGetWork(*(void **)(work + 8));
+    advantageWork = (BtlAdvantageState *)work;
+    kwlnTaskGetWork(((BtlAdvantageState *)(work))->task);
     btlUiSetRenderStates();
     if (*(u16 *)work & 1) {
-        if (*(u16 *)(work + 2) < 48) {
-            if (*(u16 *)(iGpffffb3ac + 0x1A) == 1) {
-                if (*(u16 *)(work + 2) == 4) {
+        if (((BtlAdvantageState *)(work))->frame < 48) {
+            if (((BtlBattleState *)(iGpffffb3ac))->openingSide == 1) {
+                if (((BtlAdvantageState *)(work))->frame == 4) {
                     sdkSndStartStream(1, 14, 2, 0);
                 }
                 color.bytes[0] = 0x2D;
                 color.bytes[1] = 0x9F;
                 color.bytes[2] = 0xFF;
                 color.bytes[3] = 0xFF;
-                btlEffectDrawSkyPulse(color.word, *(u16 *)(work + 2));
+                btlEffectDrawSkyPulse(color.word, advantageWork->frame);
                 D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)iGpffffb470);
                 btlAdvantageBackground();
                 RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
@@ -927,10 +935,10 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
                 color.bytes[1] = 0x9E;
                 color.bytes[2] = 0xFF;
                 color.bytes[3] = 0xFF;
-                index = *(u16 *)(work + 4);
+                index = ((BtlAdvantageState *)(work))->segments;
                 btlAdvantageSegment(index, color);
                 btlAdvantageSegment(index + 6, color);
-                index = (*(u16 *)(work + 4) + 1) % 6;
+                index = (advantageWork->segments + 1) % 6;
                 btlAdvantageSegment(index, color);
                 btlAdvantageSegment(index + 6, color);
                 RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
@@ -943,19 +951,21 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
                     btlAdvantageBuildQuad(tile->x, tile->y, 0.0f, tile->width, tile->height,
                         tile->u, tile->v, tile->u + tile->width, tile->v + tile->height, color);
                 }
-                if (++*(u16 *)(work + 4) >= 6) {
-                    *(u16 *)(work + 4) = 0;
+                advantageState = (BtlAdvantageState *)(work);
+                if (++advantageWork->segments >= 6) {
+                    advantageState->segments = 0;
                 }
 
             } else {
-                if (*(u16 *)(work + 2) == 4) {
+                if (((BtlAdvantageState *)(work))->frame == 4) {
                     sdkSndStartStream(1, 14, 2, 1);
                 }
                 color.bytes[0] = 0xFF;
                 color.bytes[1] = 0x24;
                 color.bytes[2] = 0x23;
                 color.bytes[3] = 0xFF;
-                btlEffectDrawSkyPulse(color.word, *(u16 *)(work + 2));
+                advantageState = (BtlAdvantageState *)(work);
+                btlEffectDrawSkyPulse(color.word, advantageState->frame);
                 D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)iGpffffb470);
                 btlAdvantageBackground();
                 RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
@@ -970,7 +980,7 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
                             btlAdvantageSegment(index, color);
                         }
                     }
-                    if (*(u16 *)(work + 4) & bit) {
+                    if (((BtlAdvantageState *)(work))->segments & bit) {
                         btlAdvantageSegment(index, color);
                     }
                 }
@@ -984,11 +994,13 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
                     btlAdvantageBuildQuad(tile->x, tile->y, 0.0f, tile->width, tile->height,
                         tile->u, tile->v, tile->u + tile->width, tile->v + tile->height, color);
                 }
-                if (*(u16 *)(work + 2) % 2 == 0) {
-                    *(u16 *)(work + 4) = btlAdvantageChooseSegments();
+                advantageState = (BtlAdvantageState *)(work);
+                if (advantageState->frame % 2 == 0) {
+                    ((BtlAdvantageState *)(work))->segments = btlAdvantageChooseSegments();
                 }
             }
-            ++*(u16 *)(work + 2);
+            advantageState = (BtlAdvantageState *)(work);
+            ++advantageState->frame;
         } else {
             *(u16 *)work &= (u16)~1;
         }
@@ -999,28 +1011,28 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
 #pragma push
 #pragma opt_loop_invariants off
 // Intent: start a shuffle task and mark it ready. [inferred]
+/* The owning battle UI task stores the advantage ready flag and frame counter in this component. */
 // FUN_0021D440
-/* The child task-work tail at +0x9E4/+0x9E6 has no allocation/layout evidence here; retain the flag and halfword counter offsets. */
 void btlShuffleStart(s32 task)
 {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
-    *(s16 *)(p + 0x9E6) = 0;
-    *(u16 *)(p + 0x9E4) = *(u16 *)(p + 0x9E4) | 1;
+    ((BtlAdvantageState *)(((BtlUiTaskWork *)(p))->advantage))->frame = 0;
+    ((BtlAdvantageState *)(((BtlUiTaskWork *)(p))->advantage))->flags = ((BtlAdvantageState *)(((BtlUiTaskWork *)(p))->advantage))->flags | 1;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
 // Intent: report whether the shuffle task is not ready. [inferred]
+/* Read the advantage ready flag written by btlShuffleStart in the owning battle UI task. */
 // FUN_0021D470
-/* The child task-work allocation is not established here; +0x9E4 is the same ready flag written by btlShuffleStart. */
 s32 btlShuffleIsIdle(s32 task)
 {
     s32 flag;
 
-    flag = (*(u16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x9E4) & 1) != 0;
+    flag = (((BtlAdvantageState *)(((BtlUiTaskWork *)((u8 *)kwlnTaskGetWork((void *)task)))->advantage))->flags & 1) != 0;
     return flag ^ 1;
 }
 #pragma pop
@@ -1028,11 +1040,13 @@ s32 btlShuffleIsIdle(s32 task)
 #pragma push
 #pragma opt_loop_invariants off
 // Intent: advance the shuffle task state machine. [inferred]
+/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
 // FUN_0021D4A0
-/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
- * retain byte accesses to the layouts above and BtlUnit for an exact match. */
+
 s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
 {
+    BtlResultWork *resultState;
+    BtlResultWork *resultWork;
     s32 task = (s32)sdkTaskBytes;
     extern s32 btlShuffleTaskIsCancelRequested(s32 task);
     extern s32 btlShuffleTaskIsCancelRequestedFor(KwlnTask *task);
@@ -1062,20 +1076,21 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     s32 ready;
 
     work = (u8 *)kwlnTaskGetWork((void *)task);
-    switch (*(s32 *)(work + 4)) {
+    resultWork = (BtlResultWork *)work;
+    switch (((BtlResultWork *)(work))->phase) {
     case 1:
-        *(s32 *)(work + 4) = 2;
+        resultWork->phase = 2;
         break;
     case 2:
         flags = *(s32 *)work;
         if ((flags & 1) == 0 || (flags & 4) == 0) {
             if ((flags & 2) != 0) {
                 ready = 1;
-                if ((*(s32 *)(work + 0x60) & 1) != 0 &&
-                    btlShuffleTaskIsCancelRequested(*(s32 *)(work + 0x938)) != 0) {
+                if ((((BtlResultWork *)(work))->awardFlags & 1) != 0 &&
+                    btlShuffleTaskIsCancelRequested(((BtlResultWork *)(work))->shuffleTask) != 0) {
                     ready = 0;
                 }
-                if (btlShuffleTaskIsCancelRequestedFor(*(KwlnTask **)(work + 0x93C)) != 0) {
+                if (btlShuffleTaskIsCancelRequestedFor((KwlnTask *)((BtlResultWork *)(work))->resultTask) != 0) {
                     ready = 0;
                 }
                 if (ready != 0) {
@@ -1089,98 +1104,99 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
             break;
         }
     case 3:
-        flags = *(s32 *)(work + 0x60);
+        flags = ((BtlResultWork *)(work))->awardFlags;
         if ((flags & 1) != 0) {
-            btlShuffleTaskSetBusy(*(s32 *)(work + 0x938));
-            *(s32 *)(work + 4) = 4;
+            btlShuffleTaskSetBusy(((BtlResultWork *)(work))->shuffleTask);
+            resultWork->phase = 4;
         } else {
             btlXpPrepareAwards(work + 0x60, work + 8);
-            btlResultSimpleSetDoneFlag(*(s32 *)(work + 0x93C));
-            *(s32 *)(work + 4) = 5;
+            btlResultSimpleSetDoneFlag(((BtlResultWork *)(work))->resultTask);
+            resultWork->phase = 5;
         }
         break;
     case 4:
-        if (btlShuffleTaskIsBusy(*(s32 *)(work + 0x938)) == 0) {
-            btlShuffleTaskResetPhase(*(s32 *)(work + 0x938));
-            *(s32 *)(work + 0x938) = 0;
+        if (btlShuffleTaskIsBusy(((BtlResultWork *)(work))->shuffleTask) == 0) {
+            btlShuffleTaskResetPhase(resultWork->shuffleTask);
+            resultWork->shuffleTask = 0;
             btlXpPrepareAwards(work + 0x60, work + 8);
-            btlResultSimpleSetDoneFlag(*(s32 *)(work + 0x93C));
-            *(s32 *)(work + 4) = 5;
+            btlResultSimpleSetDoneFlag(((BtlResultWork *)(work))->resultTask);
+            resultWork->phase = 5;
         }
         break;
     case 5:
-        if (btlResultSimpleIsDone(*(s32 *)(work + 0x93C)) == 0) {
-            btlResultSimpleOnConfirm(*(s32 *)(work + 0x93C));
-            *(s32 *)(work + 0x93C) = 0;
-            flags = *(s32 *)(work + 0x60);
+        if (btlResultSimpleIsDone(((BtlResultWork *)(work))->resultTask) == 0) {
+            btlResultSimpleOnConfirm(resultWork->resultTask);
+            resultWork->resultTask = 0;
+            flags = ((BtlResultWork *)(work))->awardFlags;
             if ((flags & 2) != 0) {
                 btlXpApplyAwards(work + 0x60, work + 8);
-                *(s32 *)(work + 0x940) = btlLogoTitleCreate(task);
-                *(s32 *)(work + 4) = 6;
+                ((BtlResultWork *)(work))->titleTask = btlLogoTitleCreate(task);
+                resultWork->phase = 6;
             } else if ((flags & 8) != 0) {
                 btlXpApplyAwards(work + 0x60, work + 8);
-                *(s32 *)(work + 0x944) = btlResultOverlayCreate(task);
-                *(s32 *)(work + 4) = 7;
+                ((BtlResultWork *)(work))->overlayTask = btlResultOverlayCreate(task);
+                resultWork->phase = 7;
             } else if ((flags & 0x10) != 0) {
                 btlXpApplyAwards(work + 0x60, work + 8);
                 btlXpAddRosterExp(work + 0x60);
-                *(s32 *)(work + 0x948) = btlResultSummaryCreate(task);
-                *(s32 *)(work + 4) = 8;
+                ((BtlResultWork *)(work))->summaryTask = btlResultSummaryCreate(task);
+                resultWork->phase = 8;
             } else {
                 btlXpApplyAwards(work + 0x60, work + 8);
                 btlXpAddRosterExp(work + 0x60);
                 btlXpAddPartyExp((s32)(work + 0x60));
-                *(s32 *)(work + 4) = 9;
+                resultWork->phase = 9;
             }
         }
         break;
     case 6:
-        if (btlLogoTitleIsReady(*(KwlnTask **)(work + 0x940)) == 0) {
-            btlLogoTitleAdvance(*(KwlnTask **)(work + 0x940));
-            *(s32 *)(work + 0x940) = 0;
-            flags = *(s32 *)(work + 0x60);
+        if (btlLogoTitleIsReady((KwlnTask *)((BtlResultWork *)(work))->titleTask) == 0) {
+            btlLogoTitleAdvance((KwlnTask *)resultWork->titleTask);
+            resultWork->titleTask = 0;
+            flags = ((BtlResultWork *)(work))->awardFlags;
             if ((flags & 8) != 0) {
-                *(s32 *)(work + 0x944) = btlResultOverlayCreate(task);
-                *(s32 *)(work + 4) = 7;
+                ((BtlResultWork *)(work))->overlayTask = btlResultOverlayCreate(task);
+                resultWork->phase = 7;
             } else if ((flags & 0x10) != 0) {
                 btlXpAddRosterExp(work + 0x60);
-                *(s32 *)(work + 0x948) = btlResultSummaryCreate(task);
-                *(s32 *)(work + 4) = 8;
+                ((BtlResultWork *)(work))->summaryTask = btlResultSummaryCreate(task);
+                resultWork->phase = 8;
             } else {
                 btlXpAddRosterExp(work + 0x60);
                 btlXpAddPartyExp((s32)(work + 0x60));
-                *(s32 *)(work + 4) = 9;
+                resultWork->phase = 9;
             }
         }
         break;
     case 7:
-        if (btlResultOverlayIsReady(*(KwlnTask **)(work + 0x944)) == 0) {
-            btlResultOverlayStart(*(KwlnTask **)(work + 0x944));
-            *(s32 *)(work + 0x944) = 0;
-            flags = *(s32 *)(work + 0x60);
+        if (btlResultOverlayIsReady((KwlnTask *)((BtlResultWork *)(work))->overlayTask) == 0) {
+            btlResultOverlayStart((KwlnTask *)resultWork->overlayTask);
+            resultWork->overlayTask = 0;
+            flags = ((BtlResultWork *)(work))->awardFlags;
             if ((flags & 0x10) != 0) {
-                *(s32 *)(work + 0x948) = btlResultSummaryCreate(task);
-                *(s32 *)(work + 4) = 8;
+                ((BtlResultWork *)(work))->summaryTask = btlResultSummaryCreate(task);
+                resultWork->phase = 8;
             } else {
             btlXpAddPartyExp((s32)(work + 0x60));
-                *(s32 *)(work + 4) = 9;
+                resultWork->phase = 9;
             }
         }
         break;
     case 8:
-        if (btlResultSummaryIsReady(*(KwlnTask **)(work + 0x948)) == 0) {
-            btlResultSummaryStart(*(KwlnTask **)(work + 0x948));
-            *(s32 *)(work + 0x948) = 0;
-            *(s32 *)(work + 4) = 9;
+        if (btlResultSummaryIsReady((KwlnTask *)((BtlResultWork *)(work))->summaryTask) == 0) {
+            btlResultSummaryStart((KwlnTask *)resultWork->summaryTask);
+            resultWork->summaryTask = 0;
+            resultWork->phase = 9;
         }
         break;
     case 9:
+        resultState = (BtlResultWork *)(work);
         if (btlShuffleFindTask() == 0 &&
             btlLogoTaskExists() == 0 &&
             btlLogoTitleExists() == 0 &&
             btlResultOverlayExists() == 0 &&
             btlResultSummaryExists() == 0) {
-            *(s32 *)(work + 4) = 0;
+            resultState->phase = 0;
         }
         break;
     }

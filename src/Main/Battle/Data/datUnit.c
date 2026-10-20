@@ -2,6 +2,7 @@
 /* Original translation unit datUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "datUnit_internal.h"
+#include "dat_enemy_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 
@@ -11,17 +12,6 @@ extern void (*jtbl_008873EC[])(void *);
  * string D_00635928, DatUnit stride 0x30 (P3: 0x2C), enemy-table stride
  * 0x3C (P3: 0x3E), chkmemAllocSiteTag location calls, jtbl_008873E8 malloc. */
 
-typedef struct DatEnemyUnitInit
-{
-    u16 flags;
-    u8 unknown02;
-    u8 level;
-    u16 hp;
-    u16 sp;
-    u8 unknown08[6];
-    u16 skills[8];
-    u8 unknown1E[0x1E];
-} DatEnemyUnitInit;
 
 typedef struct EncountTblEntry
 {
@@ -44,8 +34,8 @@ extern u8* iGpffffb3c4;              /* 0x007644B4 (gp-0x4C3C): enemy data table
 extern u8* iGpffffb414;              /* 0x00764504 (gp-0x4BEC) */
 
 
-// FUN_00231580
 /* Allocate a PC group and initialize its single persistent unit record. */
+// FUN_00231580
 DatUnitPc* datUnitCreatePc(u16 pcId)
 {
     DatUnitPc* pc;
@@ -66,7 +56,7 @@ DatUnitPc* datUnitCreatePc(u16 pcId)
 /* measured: canonical iGpffffb414 GP symbol and explicit offset local produce the retail global-load ordering and exact 368-byte object. */
 #pragma opt_loop_invariants on
 // FUN_00231630
-/* Typed enemy/encounter indexing adds address temporaries under b210; retain the byte offsets to DatEnemyUnitInit/EncountTblEntry for MATCH. */
+/* Preserve the measured cursor arithmetic while naming the enemy and encounter row members. */
 /* Allocate a six-slot enemy group and initialize the nonempty IDs from the five-entry encounter row. */
 DatUnitEc* datUnitCreateEncounterGroup(u16 encountId)
 {
@@ -88,7 +78,7 @@ DatUnitEc* datUnitCreateEncounterGroup(u16 encountId)
         for (; (u32)(i & 0xFFFF) < 5U; i++)
         {
             ioff = (u32)i * 2;
-            if (*(u16 *)((u8 *)entry + ioff + 8) != 0)
+            if (((EncountTblEntry *)((u8 *)entry + ioff))->enmIds[0] != 0)
             {
                 count = (count + 1) & 0xFFFF;
             }
@@ -118,8 +108,8 @@ DatUnitEc* datUnitCreateEncounterGroup(u16 encountId)
 }
 #pragma opt_loop_invariants off
 
-// FUN_002317A0
 /* Initialize the first free enemy slot and increment the encounter group count. */
+// FUN_002317A0
 DatUnit* datUnitAddEncounterUnit(DatUnitEc* ec, u16 id)
 {
     u16 i;
@@ -146,8 +136,8 @@ DatUnit* datUnitAddEncounterUnit(DatUnitEc* ec, u16 id)
     return curr;
 }
 
-// FUN_002318C0
 /* Clear the matching enemy slot ID and decrement the encounter group count. */
+// FUN_002318C0
 void datUnitRemoveEncounterUnit(DatUnitEc* ec, DatUnit* unit)
 {
     u16 i;
@@ -178,8 +168,8 @@ void datUnitFree(s32 allocation)
     jtbl_008873EC[0]((void *)allocation);
 }
 
-// FUN_002319F0
 /* Return true only when every occupied enemy slot, or the single PC unit, is dead. */
+// FUN_002319F0
 u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase)
 {
     u16 i;
@@ -215,7 +205,7 @@ u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase)
  * opt_loop_invariants MWCC rematerializes them inside the loop. */
 #pragma opt_loop_invariants on
 // FUN_00231AF0
-/* Typed enemy/encounter indexing adds address temporaries under b210; retain the byte offsets to DatEnemyUnitInit/EncountTblEntry for MATCH. */
+/* Preserve the measured cursor arithmetic while naming the enemy and encounter row members. */
 /* Initialize PC flags or copy enemy defaults, clear all buff levels and set both unit IDs. */
 u32 datUnitInit(DatUnit* unit, u8 genus, u16 id)
 {
@@ -235,15 +225,15 @@ u32 datUnitInit(DatUnit* unit, u8 genus, u16 id)
         if ((id & 0xFFFF) >= 0x150) kAssertFail(D_00635928, 0xDA);
         unit->flags = 4;
         unit->level = iGpffffb3c4[id * 0x3c + 3];
-        unit->hp = *(u16*)((u8*)(uintptr_t)((u32)id * 0x3c) +
-                          (uintptr_t)iGpffffb3c4 + 4);
-        unit->sp = *(u16*)((u8*)(uintptr_t)((u32)id * 0x3c) +
-                          (uintptr_t)iGpffffb3c4 + 6);
+        unit->hp = ((DatEnemyUnitInit *)((u8*)(uintptr_t)((u32)id * 0x3c) +
+                          (uintptr_t)iGpffffb3c4))->hp;
+        unit->sp = ((DatEnemyUnitInit *)((u8*)(uintptr_t)((u32)id * 0x3c) +
+                          (uintptr_t)iGpffffb3c4))->sp;
         unit->bad = 0;
-        if (*(u16*)(iGpffffb3c4 + id * 0x3c) & 8) unit->flags |= 0x8;
-        if (*(u16*)(iGpffffb3c4 + id * 0x3c) & 0x10) unit->flags |= 0x10;
-        if (*(u16*)(iGpffffb3c4 + id * 0x3c) & 0x100) unit->flags |= 0x40;
-        if (*(u16*)(iGpffffb3c4 + id * 0x3c) & 0x200) unit->flags |= 0x80;
+        if (((DatEnemyUnitInit *)(iGpffffb3c4 + id * 0x3c))->flags & 8) unit->flags |= 0x8;
+        if (((DatEnemyUnitInit *)(iGpffffb3c4 + id * 0x3c))->flags & 0x10) unit->flags |= 0x10;
+        if (((DatEnemyUnitInit *)(iGpffffb3c4 + id * 0x3c))->flags & 0x100) unit->flags |= 0x40;
+        if (((DatEnemyUnitInit *)(iGpffffb3c4 + id * 0x3c))->flags & 0x200) unit->flags |= 0x80;
         for (i = 0; i < 8; i++)
         {
             u16 skill = ((DatEnemyUnitInit*)iGpffffb3c4)[id].skills[i];

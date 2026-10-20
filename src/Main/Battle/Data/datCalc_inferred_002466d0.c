@@ -19,14 +19,14 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 {
     return left + right;
 }
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
+
+
 
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 002466d0-002466d0 */
-
+/* IMANISHI (STAFF) sequence start hook at row 0x005DD250 +4; retail performs no initialization. See sequenceRequest: start/poll/stop use row offsets +4/+8/+12. */
 // FUN_002466D0
-void func_002466d0(void)
+void imanishiStaffStartNoop(void)
 {
 }
 

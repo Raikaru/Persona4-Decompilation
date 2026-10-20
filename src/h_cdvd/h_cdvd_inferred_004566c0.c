@@ -245,10 +245,14 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma pop
 #pragma push
 #pragma pop
-// Intent: file-record open callback. Builds the path from the base and the name, opens the file, and seeks to its end. Returns 1 on success, 2 for a null name, 3 when the open fails.
+/* Open a file-device slot, record its length with an end seek, then rewind.
+ * Returns 1 on success, 2 for a null name, or 3 for open failure. The null
+ * check follows path construction; name is already used before that check. */
 // FUN_004566C0
-/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
 s32 H_Cdvd_FileOpen(s32 unusedContext, u8 *slot, u8 *name, s32 openMode) {
+    /* Measured: descriptor reload through this local retains MATCH, whereas
+     * an access-site cast changes instruction selection after the length store. */
+    HCdvdFileSlot *fileSlot = (HCdvdFileSlot *)slot;
     u8 path[0x100];
     s32 bit0;
     s32 handle;
@@ -280,16 +284,16 @@ s32 H_Cdvd_FileOpen(s32 unusedContext, u8 *slot, u8 *name, s32 openMode) {
     if ((bit1 != 0) && !(openMode & 8)) {
         flags |= 0x400;
     }
-    *(s32 *)(slot + 0x30) = 0;
-    *(s64 *)(slot + 0x10) = 0;
+    ((HCdvdFileSlot *)slot)->unk30 = 0;
+    ((HCdvdFileSlot *)slot)->position = 0;
     handle = func_00426cf0(&path, flags, 0x1FF);
-    *(s32 *)(slot + 0x74) = handle;
+    ((HCdvdFileSlot *)slot)->descriptor = handle;
     if (handle < 0) {
         return 3;
     }
-    *(s64 *)(slot + 0) = (s64)func_004270f8(handle, 0, 2);
-    func_004270f8(*(s32 *)(slot + 0x74), 0, 0);
-    *(s32 *)(slot + 0x3C) = 1;
+    ((HCdvdFileSlot *)slot)->length = (s64)func_004270f8(handle, 0, 2);
+    func_004270f8(fileSlot->descriptor, 0, 0);
+    ((HCdvdFileSlot *)slot)->active = 1;
     return 1;
 }
 
