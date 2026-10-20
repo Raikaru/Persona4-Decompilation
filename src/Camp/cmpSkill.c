@@ -315,12 +315,14 @@ static inline s32 cmpSkillListContains(u16 *skills, u16 skill)
    use `> 0xFF` for the second bound, and the record-table lookup names the doubled index in a local so
    b210 emits `addu index,base`. The fa80 calls pass the original mode value v, not a list result. */
 /* Collect usable skills, keep the strongest duplicate source, sort by skill ID, and restore the lead persona. */
+/* measured: per-access bisection keeps record-pointer copies but uses the owning-array key for the outcome query; together these retain MATCH. */
 // FUN_00138490
 #pragma push
 #pragma opt_loop_invariants on
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 964 instruction bytes and was reverted. */
+/* measured: earlier CmpSkillWork typing changed 964 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpSkillBuildAbilityList(void *work)
 {
+    CmpSkillWork *menu = (CmpSkillWork *)work;
     s16 savedLeadSlot;
     s32 duplicateOuterIndex;
     CmpSkillRecord *candidateRecord;
@@ -347,10 +349,10 @@ void cmpSkillBuildAbilityList(void *work)
 
     savedLeadSlot = -1;
     skillCount = 0;
-    memberId = *(s16 *)((u8 *)work + 0x5C);
+    memberId = menu->selectedParty;
     {
         s32 off = memberId * 2;
-        memberId = *(s16 *)((u8 *)(off + (s32)work) + 0xF4);
+        memberId = ((CmpSkillWork *)((u8 *)(off + (s32)work)))->partyIds[0];
     }
     if (memberId == 1) {
         savedLeadSlot = datPersonaGetLeadSlot();
@@ -361,7 +363,7 @@ void cmpSkillBuildAbilityList(void *work)
                 for (skillSlot = 0; skillSlot < 8; skillSlot++) {
                     outerEntry = workBytes + skillCount * 12;
                     if (datPersonaFillSkillCostRow(1, (struct DatPersonaRecord *)personaAddress, skillSlot, outerEntry + 0x100) != 0) {
-                        *(s16 *)(outerEntry + 0x100) = (s16)queryIndex;
+                        ((CmpSkillWork *)outerEntry)->skills[0].fields.id = (s16)queryIndex;
                         skillCount++;
                     }
                 }
@@ -372,75 +374,75 @@ void cmpSkillBuildAbilityList(void *work)
         for (queryIndex = 0; queryIndex < 8; queryIndex++) {
             outerEntry = workBytes + skillCount * 12;
             if (datPersonaFillSkillCostRow(memberId, (struct DatPersonaRecord *)personaAddress, queryIndex, outerEntry + 0x100) != 0) {
-                *(s16 *)(outerEntry + 0x100) = -1;
+                ((CmpSkillWork *)outerEntry)->skills[0].fields.id = -1;
                 skillCount++;
             }
         }
     }
     for (duplicateOuterIndex = 0; duplicateOuterIndex < skillCount; duplicateOuterIndex++) {
         outerEntry = workBytes + duplicateOuterIndex * 12;
-        currentSkill = *(u16 *)(outerEntry + 0x102);
+        currentSkill = ((CmpSkillWork *)outerEntry)->skills[0].fields.key;
         for (duplicateInnerIndex = duplicateOuterIndex + 1; duplicateInnerIndex < skillCount; duplicateInnerIndex++) {
             candidateEntry = workBytes + duplicateInnerIndex * 12;
             candidateSkillPtr = (u16 *)(candidateEntry + 0x102);
             candidateSkill = *candidateSkillPtr;
             if (currentSkill == candidateSkill) {
                 if (currentSkill < 0x1B8 && savedLeadSlot != -1) {
-                    hasPassive = cmpSkillListContains(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(outerEntry + 0x100))), 0x20A);
+                    hasPassive = cmpSkillListContains(datPersonaGetSkills(datPersonaRosterSlot(((CmpSkillWork *)outerEntry)->skills[0].fields.id)), 0x20A);
                     if (hasPassive == 0) {
                         candidateRecord = (CmpSkillRecord *)(candidateEntry + 0x100);
-                        hasPassive = cmpSkillListContains(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(candidateEntry + 0x100))), 0x20A);
+                        hasPassive = cmpSkillListContains(datPersonaGetSkills(datPersonaRosterSlot(((CmpSkillWork *)candidateEntry)->skills[0].fields.id)), 0x20A);
                         if (hasPassive != 0) {
-                            *(CmpSkillRecord *)(outerEntry + 0x100) = *candidateRecord;
+                            ((CmpSkillRecord *)(outerEntry + 0x100))[0] = *candidateRecord;
                         } else {
-                            datPersonaSetLeadSlot(*(s16 *)(outerEntry + 0x100));
-                            datCalcSkillOutcomeById(memberId, memberId, *(u16 *)(outerEntry + 0x102), 0, &firstOutcome, 0, 0);
+                            datPersonaSetLeadSlot(((CmpSkillRecord *)(outerEntry + 0x100))->id);
+                            datCalcSkillOutcomeById(memberId, memberId, menu->skills[duplicateOuterIndex].fields.key, 0, &firstOutcome, 0, 0);
                             datPersonaSetLeadSlot(candidateRecord->id);
                             datCalcSkillOutcomeById(memberId, memberId, *candidateSkillPtr, 0, &secondOutcome, 0, 0);
                             if (firstOutcome < secondOutcome) {
-                                *(CmpSkillRecord *)(outerEntry + 0x100) = *candidateRecord;
+                                ((CmpSkillRecord *)(outerEntry + 0x100))[0] = *candidateRecord;
                             }
                         }
                     }
                 }
                 skillCount--;
                 lastEntry = workBytes + skillCount * 12;
-                *(CmpSkillRecord *)(candidateEntry + 0x100) = *(CmpSkillRecord *)(lastEntry + 0x100);
+                ((CmpSkillWork *)candidateEntry)->skills[0].fields = ((CmpSkillWork *)lastEntry)->skills[0].fields;
                 duplicateInnerIndex--;
-                *(s32 *)(lastEntry + 0x104) = 0;
-                *(s32 *)(lastEntry + 0x108) = 0;
-                *(u16 *)(lastEntry + 0x102) = 0;
-                *(s16 *)(lastEntry + 0x100) = -1;
+                *(s32 *)&((CmpSkillWork *)lastEntry)->skills[0].fields.a = 0;
+                *(s32 *)&((CmpSkillWork *)lastEntry)->skills[0].fields.b = 0;
+                ((CmpSkillWork *)lastEntry)->skills[0].fields.key = 0;
+                ((CmpSkillWork *)lastEntry)->skills[0].fields.id = -1;
             }
         }
     }
-    *(s16 *)(workBytes + 0x580) = (s16)skillCount;
+    menu->skillCount = (s16)skillCount;
     for (sortOuterIndex = 0; sortOuterIndex < skillCount; sortOuterIndex++) {
         u8 *outer;
         outer = workBytes + sortOuterIndex * 12;
-        outerTmp = *(CmpSkillRecord *)(outer + 0x100);
+        outerTmp = ((CmpSkillWork *)outer)->skills[0].fields;
         for (sortInnerIndex = sortOuterIndex + 1; sortInnerIndex < skillCount; sortInnerIndex++) {
             u8 *inner;
             CmpSkillRecord *ip;
 
             inner = workBytes + sortInnerIndex * 12;
             ip = (CmpSkillRecord *)(inner + 0x100);
-            innerTmp = *(CmpSkillRecord *)(inner + 0x100);
+            innerTmp = ((CmpSkillWork *)inner)->skills[0].fields;
             if (innerTmp.key >= 0xC0 && innerTmp.key < 0x100) {
                 if (outerTmp.key >= 0xC0 && outerTmp.key < 0x100) {
                     if (innerTmp.key < outerTmp.key) {
-                        *(CmpSkillRecord *)(outer + 0x100) = innerTmp;
+                        ((CmpSkillRecord *)(outer + 0x100))[0] = innerTmp;
                         *ip = outerTmp;
                         outerTmp = innerTmp;
                     }
                 } else {
-                    *(CmpSkillRecord *)(outer + 0x100) = innerTmp;
+                    ((CmpSkillRecord *)(outer + 0x100))[0] = innerTmp;
                     *ip = outerTmp;
                     outerTmp = innerTmp;
                 }
             } else if (outerTmp.key < 0xC0 || outerTmp.key > 0xFF) {
                 if (innerTmp.key < outerTmp.key) {
-                    *(CmpSkillRecord *)(outer + 0x100) = innerTmp;
+                    ((CmpSkillRecord *)(outer + 0x100))[0] = innerTmp;
                     *ip = outerTmp;
                     outerTmp = innerTmp;
                 }
@@ -450,7 +452,7 @@ void cmpSkillBuildAbilityList(void *work)
     if (savedLeadSlot != -1) {
         datPersonaSetLeadSlot(savedLeadSlot);
     }
-    if (*(s16 *)(workBytes + 0x580) > 0x60) {
+    if (menu->skillCount > 0x60) {
         kAssertFail(D_005ED9C0, 0x336);
     }
     cmpSkillSetSelection((s16 *)work, 1, 0);
@@ -460,14 +462,15 @@ void cmpSkillBuildAbilityList(void *work)
 
 // Advances the menu state from 0 to 1; returns 1 for states 0 and 1, 0 otherwise [inferred].
 // FUN_00138AD0
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 45 instruction bytes and was reverted. */
+/* measured: earlier CmpSkillWork typing changed 45 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpSkillStateStep(u8 *work) {
-    s32 phase = *(s32 *)(work + 0x14);
+    CmpSkillWork *menu = (CmpSkillWork *)work;
+    s32 phase = menu->phase;
 
     switch (phase) {
     case 0:
         phase += 1;
-        *(s32 *)(work + 0x14) = phase;
+        menu->phase = phase;
         return 1;
     case 1:
         return 1;
@@ -481,20 +484,21 @@ s32 cmpSkillStateStep(u8 *work) {
 /* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 162 instruction bytes and was reverted. */
 s32 cmpSkillMenuUpdate(u8 *work)
 {
+    CmpSkillWork *menu = (CmpSkillWork *)work;
     s32 i;
     s32 result = 1;
     u8 *rowBase;
     s32 frame;
 
-    frame = *(s16 *)(work + 0x20);
+    frame = menu->frame;
     if (frame < 0x64) {
-        *(s16 *)(work + 0x20) = frame + 1;
+        menu->frame = frame + 1;
     }
     for (i = 0; i < 0x26; i++) {
         rowBase = work + i * 0x30;
-        frame = *(s16 *)(work + 0x20);
+        frame = menu->frame;
         radarAnimateValue(rowBase + 0x584, frame, 0);
-        if (*(u8 *)(rowBase + 0x59E) != 0) {
+        if (((CmpSkillWork *)(rowBase))->animation[0].alpha != 0) {
             result = 0;
         }
     }
@@ -969,9 +973,10 @@ void cmpSkillStepScrollRows(void *work)
 #pragma opt_loop_invariants on
 /* Snapshot current row poses and apply the selected skill-menu layout, footer and visibility flags. */
 // FUN_0013A530
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 669 instruction bytes and was reverted. */
+/* measured: earlier CmpSkillWork typing changed 669 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpSkillSetMode(u8 *work, s32 mode)
 {
+    CmpSkillWork *menu = (CmpSkillWork *)work;
     s32 i;
     s32 j;
     u8 *table;
@@ -980,74 +985,74 @@ s32 cmpSkillSetMode(u8 *work, s32 mode)
     f32 value;
 
     table = 0;
-    if (*(s32 *)(work + 0x18) == mode) {
+    if (menu->mode == mode) {
         return 0;
     }
     for (i = 0; i < 0x26; i++) {
         rowBase = work + i * 0x30;
-        *(f32 *)(rowBase + 0x584) = *(f32 *)(rowBase + 0x594);
-        *(f32 *)(rowBase + 0x588) = *(f32 *)(rowBase + 0x598);
-        *(u16 *)(rowBase + 0x5A0) = *(u16 *)(rowBase + 0x5A4);
-        *(u16 *)(rowBase + 0x5A6) = *(u16 *)(rowBase + 0x5AA);
-        *(u8 *)(rowBase + 0x59C) = *(u8 *)(rowBase + 0x59E);
+        ((CmpSkillWork *)(rowBase))->animation[0].sourceX = ((CmpSkillWork *)(rowBase))->animation[0].x;
+        ((CmpSkillWork *)(rowBase))->animation[0].sourceY = ((CmpSkillWork *)(rowBase))->animation[0].y;
+        ((CmpSkillWork *)(rowBase))->animation[0].sourceScaleX = ((CmpSkillWork *)(rowBase))->animation[0].scaleX;
+        ((CmpSkillWork *)(rowBase))->animation[0].sourceScaleY = ((CmpSkillWork *)(rowBase))->animation[0].scaleY;
+        ((CmpSkillWork *)(rowBase))->animation[0].sourceAlpha = ((CmpSkillWork *)(rowBase))->animation[0].alpha;
     }
     switch (mode) {
     case 0:
         table = D_005EB5D0;
-        *(s32 *)(work + 0x1C) = 0x220B;
-        *(s16 *)(work + 0x582) = 0;
+        *(s32 *)&menu->visible = 0x220B;
+        menu->footerMode = 0;
         break;
     case 1:
         table = D_005EBA00;
         break;
     case 2:
-        *(s32 *)(work + 0x1C) = 0x220B;
+        *(s32 *)&menu->visible = 0x220B;
         table = D_005EBE30;
-        *(s16 *)(work + 0x582) = 0;
+        menu->footerMode = 0;
         break;
     case 3:
-        *(s32 *)(work + 0x1C) = 0x269B;
+        *(s32 *)&menu->visible = 0x269B;
         table = D_005EC260;
-        *(s16 *)(work + 0x582) = 1;
+        menu->footerMode = 1;
         break;
     case 4:
-        *(s32 *)(work + 0x1C) = 0x241B;
+        *(s32 *)&menu->visible = 0x241B;
         table = D_005EC690;
-        *(s16 *)(work + 0x582) = 1;
+        menu->footerMode = 1;
         break;
     case 5:
         table = D_005ECAC0;
-        *(s32 *)(work + 0x1C) = 0xC61;
-        *(f32 *)(work + 0x8B8) =
-            34.0f * (f32)*(s16 *)(work + 0x5E);
-        *(s16 *)(work + 0x582) = 0;
+        *(s32 *)&menu->visible = 0xC61;
+        menu->animation[17].sourceY =
+            34.0f * (f32)menu->selectedRow;
+        menu->footerMode = 0;
         break;
     case 6:
         table = D_005ECAC0;
-        *(s32 *)(work + 0x1C) = 0x1861;
-        *(s16 *)(work + 0x582) = 0;
+        *(s32 *)&menu->visible = 0x1861;
+        menu->footerMode = 0;
         break;
     case 7:
         table = D_005ECEF0;
-        *(s32 *)(work + 0x1C) = 0xD61;
-        *(f32 *)(work + 0x8B8) =
-            34.0f * (f32)*(s16 *)(work + 0x5E);
-        *(s16 *)(work + 0x582) = 0;
+        *(s32 *)&menu->visible = 0xD61;
+        menu->animation[17].sourceY =
+            34.0f * (f32)menu->selectedRow;
+        menu->footerMode = 0;
         break;
     case 8:
         table = D_005ECEF0;
-        *(s32 *)(work + 0x1C) = 0x1961;
-        *(s16 *)(work + 0x582) = 0;
+        *(s32 *)&menu->visible = 0x1961;
+        menu->footerMode = 0;
         break;
     case 9:
         table = D_005ED320;
-        *(s32 *)(work + 0x1C) = 0x249B;
-        *(s16 *)(work + 0x582) = 2;
+        *(s32 *)&menu->visible = 0x249B;
+        menu->footerMode = 2;
         break;
     case 10:
         table = D_005ED320;
-        *(s32 *)(work + 0x1C) = 0x249B;
-        *(s16 *)(work + 0x582) = 2;
+        *(s32 *)&menu->visible = 0x249B;
+        menu->footerMode = 2;
         break;
     default:
         kAssertFail(D_005ED9C0, 0x5C9);
@@ -1060,18 +1065,18 @@ s32 cmpSkillSetMode(u8 *work, s32 mode)
         for (j = 0; j < 0x26; j++) {
             src = table + j * 0x1C;
             rowBase = work + j * 0x30;
-            *(f32 *)(rowBase + 0x58C) = *(f32 *)(src + 0);
-            *(f32 *)(rowBase + 0x590) = *(f32 *)(src + 4);
-            *(u8 *)(rowBase + 0x59D) = *(u8 *)(src + 0x10);
-            value = *(f32 *)(src + 8);
-            *(u16 *)(rowBase + 0x5A2) = (u16)value;
-            value = *(f32 *)(src + 0xC);
-            *(u16 *)(rowBase + 0x5A8) = (u16)value;
-            *(s32 *)(rowBase + 0x5AC) = *(s32 *)(src + 0x14);
-            *(s32 *)(rowBase + 0x5B0) = *(s32 *)(src + 0x18);
+            ((CmpSkillWork *)(rowBase))->animation[0].targetX = ((CmpSkillLayoutRow *)(src))->x;
+            ((CmpSkillWork *)(rowBase))->animation[0].targetY = ((CmpSkillLayoutRow *)(src))->y;
+            ((CmpSkillWork *)(rowBase))->animation[0].targetAlpha = ((CmpSkillLayoutRow *)(src))->alpha;
+            value = ((CmpSkillLayoutRow *)(src))->width;
+            ((CmpSkillWork *)(rowBase))->animation[0].targetScaleX = (u16)value;
+            value = ((CmpSkillLayoutRow *)(src))->height;
+            ((CmpSkillWork *)(rowBase))->animation[0].targetScaleY = (u16)value;
+            ((CmpSkillWork *)(rowBase))->animation[0].mode = ((CmpSkillLayoutRow *)(src))->startFrame;
+            ((CmpSkillWork *)(rowBase))->animation[0].duration = ((CmpSkillLayoutRow *)(src))->endFrame;
         }
-        *(s32 *)(work + 0x18) = mode;
-        *(s16 *)(work + 0x20) = 0;
+        menu->mode = mode;
+        menu->frame = 0;
     }
     return 1;
 }
@@ -1109,33 +1114,34 @@ void cmpSkillSetPartyCursorMotion(u8 *work)
 #pragma opt_loop_invariants off
 /* Place the scrolling-row overlay at the upper or lower list edge according to scroll direction. */
 // FUN_0013A930
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 33 instruction bytes and was reverted. */
+/* measured: earlier CmpSkillWork typing changed 33 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpSkillLayoutScrollRows(void *work)
 {
+    CmpSkillWork *menu = (CmpSkillWork *)work;
     f32 rowY;
     f32 bottomY;
-    *(u32 *)((u8 *)work + 0x11E4) = 0x437F0000;
-    *(u32 *)((u8 *)work + 0x11EC) = 0x437F0000;
-    *(u32 *)((u8 *)work + 0x11F4) = 0x437F0000;
-    *(u8 *)((u8 *)work + 0x11FC) = 0xFF;
-    *(u8 *)((u8 *)work + 0x11FE) = 0xFF;
-    *(u8 *)((u8 *)work + 0x11FD) = 0;
-    *(u32 *)((u8 *)work + 0x1220) = 0;
-    if (*(s16 *)((u8 *)work + 0x60) > *(s16 *)((u8 *)work + 0xAC)) {
-        rowY = 21.0f + *(f32 *)((u8 *)work + 0x8F8);
-        *(f32 *)((u8 *)work + 0x11F8) = rowY;
-        *(f32 *)((u8 *)work + 0x11E8) = rowY;
-        *(f32 *)((u8 *)work + 0x11F0) = *(f32 *)((u8 *)work + 0x11F8) - 10.0f;
-        *(u32 *)((u8 *)work + 0x1218) = 0xC1200000;
+    *(u32 *)&menu->animation[66].sourceX = 0x437F0000;
+    *(u32 *)&menu->animation[66].targetX = 0x437F0000;
+    *(u32 *)&menu->animation[66].x = 0x437F0000;
+    menu->animation[66].sourceAlpha = 0xFF;
+    menu->animation[66].alpha = 0xFF;
+    menu->animation[66].targetAlpha = 0;
+    *(u32 *)&menu->animation[67].targetY = 0;
+    if (menu->scrollRow > menu->previousSelection[2]) {
+        rowY = 21.0f + menu->animation[18].y;
+        menu->animation[66].y = rowY;
+        menu->animation[66].sourceY = rowY;
+        menu->animation[66].targetY = menu->animation[66].y - 10.0f;
+        *(u32 *)&menu->animation[67].sourceY = 0xC1200000;
     } else {
-        bottomY = 21.0f + *(f32 *)((u8 *)work + 0x9E8);
+        bottomY = 21.0f + menu->animation[23].y;
         rowY = 170.0f + bottomY;
-        *(f32 *)((u8 *)work + 0x11F8) = rowY;
-        *(f32 *)((u8 *)work + 0x11E8) = rowY;
-        *(f32 *)((u8 *)work + 0x11F0) = 10.0f + *(f32 *)((u8 *)work + 0x11F8);
-        *(u32 *)((u8 *)work + 0x1218) = 0x41200000;
+        menu->animation[66].y = rowY;
+        menu->animation[66].sourceY = rowY;
+        menu->animation[66].targetY = 10.0f + menu->animation[66].y;
+        *(u32 *)&menu->animation[67].sourceY = 0x41200000;
     }
-    *(s16 *)((u8 *)work + 0x22) = 0;
+    menu->scrollFrame = 0;
 }
 
 /* measured: same lui-hoist floor as func_0013a8a0 (constant 0x41C80000 into
@@ -1234,6 +1240,7 @@ s32 cmpSkillRowsSettled(u8 *work)
    object order because b210 lays case bodies out in declaration order.
    The unsigned-halfword ID is forwarded unchanged. The signed-halfword
    result projection before adding one matches the retail switch index. */
+/* Return the element-label ID for a skill; IDs at or above 0x1B8 use label 0x35, and missing elements return -1. */
 // FUN_0013AC30
 s32 cmpSkillElementLabelId(u16 skillId) {
     s32 elementIndex;
