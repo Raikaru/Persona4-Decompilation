@@ -17,6 +17,7 @@ u8 clndGetMoonPhase(s32 daysSinceApr5)
 
 
 
+/* Test the current date against inclusive endpoints within the same year. */
 // FUN_0014BDB0
 u32 clndIsDateInRange(u32 startMonth, u32 startDay, u32 endMonth, u32 endDay)
 {

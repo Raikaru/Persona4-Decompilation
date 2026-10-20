@@ -57,9 +57,9 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 002519e0-00251d30 */
 
-// FUN_002519E0
 /* Candidate reconstructed from retail dispatch and generated source. */
 /* Load the rank-up card resources, wait for confirmation, then finish after the exit delay. */
+// FUN_002519E0
 s32 cmmRankUpCardTaskUpdate(u8 *sdkTaskBytes) {
     /* CmmRankUpCardTask proves these word slots; typed member access changed MWCC allocation. */
     s32 taskHandle = (s32)sdkTaskBytes;
@@ -146,8 +146,8 @@ block_15:
     return 0;
 }
 
-// FUN_00251CE0
 /* Destroy the card sprite pack, then free its task work. */
+// FUN_00251CE0
 void cmmRankUpCardTaskDestroy(u8 *task)
 {
     void *work;
@@ -157,8 +157,8 @@ void cmmRankUpCardTaskDestroy(u8 *task)
     (*jtbl_008873EC)(work);
 }
 
-// FUN_00251D30
 /* Find the first inactive entry among sixteen 0x78-byte rank-up records. */
+// FUN_00251D30
 u8 *cmmRankUpFindFreeEntry(u8 *entries) {
     s32 entryIndex;
     CmmRankUpEntry *entry;

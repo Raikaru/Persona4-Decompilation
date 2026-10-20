@@ -39,6 +39,8 @@ void cutinDrawTaskDestroy(u8 *task);
 
 
 /* The constructor allocates 0x2C bytes; the update and destructor share these offsets. */
+typedef union CutinPackedIds { s32 word; s16 half[2]; } CutinPackedIds;
+
 typedef struct CutinDrawWork {
     s32 state;
     s16 firstId;
@@ -54,10 +56,13 @@ typedef struct CutinDrawWork {
     s32 directory;
 } CutinDrawWork;
 
-// FUN_00120BC0
 /* Load the cutin directory, create its effect, then draw and poll it while enabled. */
+// FUN_00120BC0
 s32 cutinDrawTaskUpdate(u8 *task)
 {
+    CutinDrawWork *effectWork;
+    CutinDrawWork *cutinWork;
+
     struct {
         f32 x;
         f32 y;
@@ -69,45 +74,47 @@ s32 cutinDrawTaskUpdate(u8 *task)
     u8 *work;
 
     /* CutinDrawWork offsets are proven below; member access changed retail scheduling (four bytes). */
-    work = *(u8 **)(task + 0x38);
+    work = ((struct KwlnTask *)task)->work;
+    effectWork = (CutinDrawWork *)work;
+    cutinWork = (CutinDrawWork *)work;
     state = *(s32 *)work;
     switch (state) {
     case 0:
-        sprintf(directoryPath, D_005E4FA0, *(s16 *)(work + 4),
-                      *(s16 *)(work + 6));
+        sprintf(directoryPath, D_005E4FA0, ((CutinDrawWork *)work)->firstId,
+                      ((CutinDrawWork *)work)->secondId);
         func_00440b68(&iGpffff9c28, D_005E4FB8, 0x28);
-        *(s32 *)(work + 0x28) = H_Cdvd_AcquireDirectory(directoryPath, 0);
+        ((CutinDrawWork *)work)->directory = H_Cdvd_AcquireDirectory(directoryPath, 0);
         *(s32 *)work = 1;
         break;
     case 1:
-        if (H_Cdvd_IsFileLoaded(*(s32 *)(work + 0x28)) != 0) {
-            sprintf(resourcePath, D_005E4FA0, *(s16 *)(work + 4),
-                          *(s16 *)(work + 6));
-            *(u8 **)(work + 0x24) = mdlEffectCreateFromResource(H_Cdvd_LookupRequest(resourcePath, 0));
+        if (H_Cdvd_IsFileLoaded(((CutinDrawWork *)work)->directory) != 0) {
+            sprintf(resourcePath, D_005E4FA0, ((CutinDrawWork *)work)->firstId,
+                          ((CutinDrawWork *)work)->secondId);
+            ((CutinDrawWork *)work)[0].effect.pointer = mdlEffectCreateFromResource(H_Cdvd_LookupRequest(resourcePath, 0));
             *(s32 *)work = 2;
         }
         break;
     case 2:
-        position.x = *(f32 *)(work + 0x1C);
-        position.y = *(f32 *)(work + 0x20);
+        position.x = ((CutinDrawWork *)work)->x;
+        position.y = ((CutinDrawWork *)work)->y;
         position.z = 0;
-        if (*(s32 *)(work + 0x14) != 0) {
-            if (*(s32 *)(work + 0xC) != 0 && *(s32 *)(work + 0x10) != 0) {
-                mdlEffectUpdate(*(s32 *)(work + 0x24));
-                *(s32 *)(work + 0x10) = 0;
-                *(s32 *)(work + 0xC) = 0;
+        if (((CutinDrawWork *)work)->drawEnabled != 0) {
+            if (((CutinDrawWork *)work)->active != 0 && ((CutinDrawWork *)work)->resetRequested != 0) {
+                mdlEffectUpdate(((CutinDrawWork *)work)->effect.handle);
+                cutinWork->resetRequested = 0;
+                cutinWork->active = 0;
             }
-            if (*(s32 *)(work + 0x18) == 0) {
+            if (((CutinDrawWork *)work)->soundStarted == 0) {
                 sdkSndStartStream(0, 0, 5, 0);
-                *(s32 *)(work + 0x18) = 1;
+                cutinWork->soundStarted = 1;
             }
-            mdlEffectSetChildPositionVec(*(s32 *)(work + 0x24), &position);
-            mdlEffectCommitAndAdvance(*(u8 **)(work + 0x24));
-            mdlEffectFlushWithTable(D_005DC974, *(s32 *)(work + 0x24));
-            if (mdlEffectIsActive(*(s32 *)(work + 0x24)) != 0) {
-                *(s32 *)(work + 0xC) = 1;
+            mdlEffectSetChildPositionVec(((CutinDrawWork *)work)->effect.handle, &position);
+            mdlEffectCommitAndAdvance(effectWork->effect.pointer);
+            mdlEffectFlushWithTable(D_005DC974, cutinWork->effect.handle);
+            if (mdlEffectIsActive(cutinWork->effect.handle) != 0) {
+                cutinWork->active = 1;
             }
-            if (mdlEffectIsFinished(*(s32 *)(work + 0x24)) != 0) {
+            if (mdlEffectIsFinished(cutinWork->effect.handle) != 0) {
                 return -1;
             }
         }
@@ -118,8 +125,8 @@ s32 cutinDrawTaskUpdate(u8 *task)
 
 
 
-// FUN_00120DB0
 /* Destroy the cutin effect and directory before freeing the task work. */
+// FUN_00120DB0
 void cutinDrawTaskDestroy(u8 *task)
 {
     CutinDrawWork *work;
@@ -177,7 +184,7 @@ s32 cutinDrawTaskCreate(s32 unused, s32 packedIds)
   result = *(s16 *)&packed;
   lo = result;
   /* Packed IDs are read as two little-endian signed halfwords from the stack. */
-  hi = *(s16 *)((u8 *)&packed + 2);
+  hi = ((CutinPackedIds *)&packed)->half[1];
   work->firstId = lo;
   work->secondId = hi;
   result = (s32)kwlnTaskCreate((const void *)(D_005E4FC8), 0xF, 0, 0, cutinDrawTaskUpdate, cutinDrawTaskDestroy, (u8 *)(work));

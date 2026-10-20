@@ -11,7 +11,9 @@
 typedef struct Model {
     u8 pad00[0xD8];
     s32 flags;
-    u8 padDC[0x108 - 0xDC];
+    u8 padDC[0xF4 - 0xDC];
+    f32 layerSpeed;              /* 0xF4: layers[0].speed, mdlSetLayerWeight */
+    u8 padF8[0x108 - 0xF8];
     f32 layerBlend;              /* 0x108: layers[0].blend */
     u8 pad10C[0x260 - 0x10C];
     u8 drawFlags;

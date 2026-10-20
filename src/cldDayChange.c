@@ -4,6 +4,7 @@
 /* Persona 4 USA decompilation - cldDayChange.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "member_access.h"
 #include "btl_effect_internal.h"
 
 /* The task constructors allocate 0x24 bytes; their callbacks agree on these words. */
@@ -12,7 +13,7 @@ typedef struct CldDayChangeWork {
     s32 flags;
     s32 sprites;
     s32 renderList;
-    s32 month;
+    union { s32 month; u32 monthUnsigned; };
     s32 nextMonth;
     s32 frame;
     s32 markerSprites;
@@ -672,31 +673,31 @@ void cldDayChangeDrawFrame(s32 unused, s32 task)
 
     /* CldDayChangeWork offsets retained: typed month loads change MWCC scheduling (nd 45). */
     work = kwlnTaskGetWork(task);
-    state = *(s32 *)(work + 0) - 4;
+    state = ((CldDayChangeWork *)work)->state - 4;
     switch (state) {
     case 0:
     case 1:
-        ratio = (f32)*(s32 *)(work + 0x18) / 7.0f;
+        ratio = (f32)((CldDayChangeWork *)work)->frame / 7.0f;
         alpha = (s32)(255.0f * ratio);
         value = 336.0f + 128.0f * cosf(iGpffff84a4 * ratio);
-        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, *(s32 *)(work + 0x10));
-        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, *(u32 *)(work + 0x10),
-                      *(s32 *)(work + 0x1C));
+        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, ((CldDayChangeWork *)work)->month);
+        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, MEMBER(u32, work, CldDayChangeWork, monthUnsigned),
+                      ((CldDayChangeWork *)work)->markerSprites);
         break;
     case 2:
     case 3:
-        cldDayChangeDrawMonthOutline(0x150, 0, 0.0f, 0xFF, *(s32 *)(work + 0x10));
-        cldDayChangeDrawMarker(0x150, 0, 0.0f, 0xFF, *(u32 *)(work + 0x10),
-                      *(s32 *)(work + 0x1C));
+        cldDayChangeDrawMonthOutline(0x150, 0, 0.0f, 0xFF, ((CldDayChangeWork *)work)->month);
+        cldDayChangeDrawMarker(0x150, 0, 0.0f, 0xFF, MEMBER(u32, work, CldDayChangeWork, monthUnsigned),
+                      ((CldDayChangeWork *)work)->markerSprites);
         break;
     case 4:
     case 5:
-        ratio = (f32)*(s32 *)(work + 0x18) / 10.0f;
+        ratio = (f32)((CldDayChangeWork *)work)->frame / 10.0f;
         alpha = (s32)(255.0f * (1.0f - ratio));
         value = 336.0f - 192.0f * sinf(iGpffff84a4 * ratio);
-        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, *(s32 *)(work + 0x10));
-        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, *(u32 *)(work + 0x10),
-                      *(s32 *)(work + 0x1C));
+        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, ((CldDayChangeWork *)work)->month);
+        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, MEMBER(u32, work, CldDayChangeWork, monthUnsigned),
+                      ((CldDayChangeWork *)work)->markerSprites);
         break;
     }
 }
