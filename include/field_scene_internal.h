@@ -29,11 +29,12 @@ typedef struct FieldSceneState {
     u8 pad18[4];
     void *sceneTask;
     void *filterTask;
-    u8 pad24[4];
+    s32 templateCount;          /* 0x24: active board-template resources */
     FieldSceneTemplateResource templates[16]; /* 0x28 */
     void *primaryTasks[4];      /* 0x68 */
     void *secondaryTasks[4];    /* 0x78 */
-    u8 pad88[8];
+    s32 sceneFlags;             /* 0x88: FldRootCreate input */
+    u8 pad8c[4];
     s32 loadState;              /* 0x90 */
     s32 timer;
 } FieldSceneState;
