@@ -74,6 +74,7 @@ extern void shdDrawEntryRow(f32, f32, s32, u8 *);
 // measured: opt_loop_invariants on fixes the parameter allocation and pre-loop
 // mask placement; declaring runIndex after the three list-walk locals gives the
 // retail $s4/$s3/$s2/$s1 allocation (old declaration order was nd 22).
+/* measured: baseline differs by 86 words; pre-loop color masking and run-index lifetime probes still differ. */
 #pragma opt_loop_invariants on
 // Intent: Draw a block of text runs, centred or left-aligned, from a text table entry; returns the block height [inferred]
 // FUN_0025DB00
