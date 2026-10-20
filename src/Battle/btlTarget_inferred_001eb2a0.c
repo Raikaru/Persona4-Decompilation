@@ -142,17 +142,17 @@ void btlTargetResetCommandRecord(u8 *record) {
 
     work = record;
     btlTargetResetRecordCounter(work);
-    ((BtlTargetRecord *)work)->command = 0;
-    ((BtlTargetRecord *)work)->skill = 0;
-    ((BtlTargetRecord *)work)->kind = 0;
-    ((BtlTargetRecord *)work)->unk50 = 0;
-    ((BtlTargetRecord *)work)->unk54 = 0;
-    ((BtlTargetRecord *)work)->unk58 = 0;
+    ((BtlAiCommandWork *)work)->command = 0;
+    ((BtlAiCommandWork *)work)->skill = 0;
+    ((BtlAiCommandWork *)work)->kind = 0;
+    ((BtlAiCommandWork *)work)->unk50 = 0;
+    ((BtlAiCommandWork *)work)->unk54 = 0;
+    ((BtlAiCommandWork *)work)->unk58 = 0;
     memset(work + 0x3E, 0, 6);
 }
 
 // FUN_001EB410
 void btlTargetResetRecordCounter(u8 *record) {
-    ((BtlTargetRecord *)record)->count = 0;
+    ((BtlAiCommandWork *)record)->targetCount = 0;
 }
 

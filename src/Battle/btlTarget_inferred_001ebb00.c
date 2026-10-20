@@ -243,11 +243,11 @@ void btlAiChooseUsableAttackSkill(u8 *action, u8 *command)
     }
     available = count & 0xFFFF;
     if (available == 0) {
-        ((BtlTargetRecord *)command)->kind = 1;
-        ((BtlTargetRecord *)command)->command = datCalcDefaultSkillId((u8 *)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit));
+        ((BtlAiCommandWork *)command)->kind = 1;
+        ((BtlAiCommandWork *)command)->command = datCalcDefaultSkillId((u8 *)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit));
     } else {
-        ((BtlTargetRecord *)command)->kind = 2;
-        ((BtlTargetRecord *)command)->command = choices[datCalcRandomBelow(available)];
+        ((BtlAiCommandWork *)command)->kind = 2;
+        ((BtlAiCommandWork *)command)->command = choices[datCalcRandomBelow(available)];
     }
 }
 
