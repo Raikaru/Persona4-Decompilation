@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "sdk_filer_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -230,12 +231,11 @@ typedef struct MovieNativeWork {
  * A real interrupt-state local retains the retail spill under register pressure. */
 // FUN_00467880
 /* Draw the current directory page, selection highlight and proportional scrollbar. */
-/* FilerTable proves the page/row/count offsets; member-access conversion
- * changes b210 register allocation and loses MATCH, so retain raw addressing.
- * The local FilerDrawPacket casts expose packed position/color words, not pointers. */
+/* FilerDrawPacket bit casts expose packed position/color words, not pointers. */
 /* measured: honest void *table plus explicit function-pointer casts; object 848B/window 848B/nd 0; no H001 waiver. */
 void filerDrawDirectory(u8 *directory)
 {
+    FilerTable *directoryState = (FilerTable *)directory;
     extern u32 func_003e8110(u32 camera);
     extern u32 func_003e8120(u32 camera);
     extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
@@ -267,27 +267,27 @@ void filerDrawDirectory(u8 *directory)
         (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(0));
         work.textXBits = 0x40800000;
         work.textY = 4.0f;
-        H_Dbprt_FmtAt(*(s64 *)(void *)&work.textXBits, &iGpffffb01c, directory);
+        H_Dbprt_FmtAt(*(s64 *)&work.textXBits, &iGpffffb01c, directory);
         work.textY += 2.0f;
         i = 0;
         while (i < 10) {
-            entry = directory + (*(s16 *)(directory + 0x80F84) + i) * 0x108;
+            entry = directory + (((FilerTable *)directory)->firstVisible + i) * 0x108;
             data = entry + 0x100;
-            if (*(s32 *)(entry + 0x204) == 0) {
+            if (((FilerTable *)entry)->entries[0].active == 0) {
                 break;
             }
-            kind = *(s32 *)(data + 0x100);
+            kind = ((FilerEntry *)data)->type;
             switch (kind) {
             case 0:
-                H_Dbprt_FmtAt(*(s64 *)(void *)&work.textXBits,
+                H_Dbprt_FmtAt(*(s64 *)&work.textXBits,
                               &iGpffffb01c, data);
                 break;
             case 1:
-                H_Dbprt_FmtAt(*(s64 *)(void *)&work.textXBits,
+                H_Dbprt_FmtAt(*(s64 *)&work.textXBits,
                               (char *)&D_00712A20, data);
                 break;
             default:
-                H_Dbprt_FmtAt(*(s64 *)(void *)&work.textXBits,
+                H_Dbprt_FmtAt(*(s64 *)&work.textXBits,
                               (char *)&D_00712A30, data);
                 break;
             }
@@ -295,42 +295,42 @@ void filerDrawDirectory(u8 *directory)
             i++;
         }
         work.rectangleX = 0x30;
-        *(s32 *)(void *)&work.rectangleYBits = 0x30;
+        *(s32 *)&work.rectangleYBits = 0x30;
         work.rectangleWidth = 0x190;
         work.rectangleHeight = 0x90;
-        *(u8 *)(void *)&work.alpha = 0xFF;
+        *(u8 *)&work.alpha = 0xFF;
         work.blue = 0x1E;
         work.green = 0x1E;
         work.red = 0x1E;
         PrimDrawFlatRectangle((u8 *)&work.red,
-                      (f32 *)(void *)&work.rectangleX, 0.0f, 1);
+                      (f32 *)&work.rectangleX, 0.0f, 1);
         work.rectangleX = 0x30;
-        *(s32 *)(void *)&work.rectangleYBits =
+        *(s32 *)&work.rectangleYBits =
             (s32)(0.0f + 72.0f +
-                  12.0f * (f32)*(s16 *)(directory + 0x80F82));
+                  12.0f * (f32)directoryState->selection);
         work.rectangleWidth = 0x184;
         work.rectangleHeight = 0xC;
-        *(u8 *)(void *)&work.alpha = 0xFF;
-        *(u8 *)(void *)&work.blue = 0xFF;
+        *(u8 *)&work.alpha = 0xFF;
+        *(u8 *)&work.blue = 0xFF;
         work.green = 0x50;
         work.red = 0x50;
         PrimDrawFlatRectangle((u8 *)&work.red,
-                      (f32 *)(void *)&work.rectangleX, 0.0f, 1);
+                      (f32 *)&work.rectangleX, 0.0f, 1);
         work.rectangleX = 0x1B4;
-        *(s32 *)(void *)&work.rectangleYBits =
+        *(s32 *)&work.rectangleYBits =
             (s32)(72.0f +
-                  (f32)(((*(s16 *)(directory + 0x80F82) +
-                          *(s16 *)(directory + 0x80F84)) *
+                  (f32)(((((FilerTable *)directory)->selection +
+                          ((FilerTable *)directory)->firstVisible) *
                          0x78) /
-                        *(s16 *)(directory + 0x80F86)));
+                        MEMBER(s16, directory, FilerTable, entryCount)));
         work.rectangleWidth = 0xC;
-        work.rectangleHeight = 0x78 / *(s16 *)(directory + 0x80F86);
-        *(u8 *)(void *)&work.alpha = 0xFF;
-        *(u8 *)(void *)&work.blue = 0x80;
-        *(u8 *)(void *)&work.green = 0x80;
-        *(u8 *)(void *)&work.red = 0x80;
+        work.rectangleHeight = 0x78 / ((FilerTable *)directory)->entryCount;
+        *(u8 *)&work.alpha = 0xFF;
+        *(u8 *)&work.blue = 0x80;
+        *(u8 *)&work.green = 0x80;
+        *(u8 *)&work.red = 0x80;
         PrimDrawFlatRectangle((u8 *)&work.red,
-                      (f32 *)(void *)&work.rectangleX, 0.0f, 1);
+                      (f32 *)&work.rectangleX, 0.0f, 1);
         (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(work.savedRenderState));
         func_003e8110((u32)kwlnGetCamera());
     }

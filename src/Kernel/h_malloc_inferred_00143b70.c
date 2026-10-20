@@ -254,8 +254,9 @@ extern void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 opt
 /* measured: opt_loop_invariants on probe for radarDrawSegment. */
 /* measured: closes opt_loop_invariants on probe for radarDrawSegment. */
 /* measured: restores opt_propagation after radarDrawSegment probe. */
+/* Empty NIIDA sequence start callback (table row at 0x005DD110, start at +4). */
 // FUN_00143B70
-void func_00143b70(void)
+void niidaSequenceStartNoop(void)
 {
 }
 

@@ -1,10 +1,10 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2504 of 13102 symbols carry a recovered name.
+// 2509 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
-func_00100218 = 0x00100218; // type:func
-func_00100220 = 0x00100220; // type:func
+kwlnExitRuntime = 0x00100218; // type:func
+kwlnExitThread = 0x00100220; // type:func
 kwlnProbeHeapBudget = 0x00100230; // type:func
 func_001002c0 = 0x001002C0; // type:func
 kwlnHandleTimerInterrupt = 0x00100310; // type:func
@@ -713,9 +713,9 @@ func_00142bf0 = 0x00142BF0; // type:func
 func_00142d80 = 0x00142D80; // type:func
 func_00142f20 = 0x00142F20; // type:func
 func_001437b0 = 0x001437B0; // type:func
-func_00143b70 = 0x00143B70; // type:func
-func_00143b80 = 0x00143B80; // type:func
-func_00143b90 = 0x00143B90; // type:func
+niidaSequenceStartNoop = 0x00143B70; // type:func
+niidaSequencePollNoop = 0x00143B80; // type:func
+niidaSequenceStopNoop = 0x00143B90; // type:func
 func_00143ba0 = 0x00143BA0; // type:func
 func_00143c90 = 0x00143C90; // type:func
 func_00143cf0 = 0x00143CF0; // type:func

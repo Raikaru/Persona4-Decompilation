@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
@@ -255,10 +256,9 @@ typedef struct MovieNativeWork {
  * 12 zero alignment bytes. Ghidra and IDA agree on the 2000-entry cap,
  * type/name ordering, and 264-byte record copies; both split the local
  * directory entry, whose complete 324-byte backend layout supplies the frame. */
-/* FilerTable proves the count/record offsets; the fully typed loop loses
- * MATCH under b210, so retain the measured byte-base sort cursor. */
 void sdkFilerScanDirectory(u8 *work)
 {
+    FilerTable *directoryState = (FilerTable *)work;
     extern s32 func_00428550(u8 *path);
     extern s32 func_00428780(s32 handle, void *out);
     extern s32 func_00428618(s32 handle);
@@ -275,7 +275,7 @@ void sdkFilerScanDirectory(u8 *work)
     u8 *sortEntry;
     s16 *count;
 
-    *(s16 *)(work + 0x80F86) = 0;
+    directoryState->entryCount = 0;
     for (clearIndex = 0; clearIndex < 2000; clearIndex++) {
         ((FilerTable *)work)->entries[clearIndex].active = 0;
     }
@@ -284,7 +284,7 @@ void sdkFilerScanDirectory(u8 *work)
         if (func_00428780(handle, &dirent) <= 0) {
             break;
         }
-        (*(s16 *)(work + 0x80F86))++;
+        (((FilerTable *)work)->entryCount)++;
         dirent.stat.mode &= 0xF000;
         ((FilerTable *)work)->entries[readIndex].active = 1;
         switch (dirent.stat.mode) {
@@ -303,10 +303,10 @@ void sdkFilerScanDirectory(u8 *work)
         }
     }
     func_00428618(handle);
-    if (*(s16 *)(work + 0x80F86) >= 2) {
-        for (sortIndex = 0; sortIndex < *(s16 *)(work + 0x80F86); sortIndex++) {
+    if (directoryState->entryCount >= 2) {
+        for (sortIndex = 0; sortIndex < ((FilerTable *)work)->entryCount; sortIndex++) {
             sortEntry = work + sortIndex * 0x108;
-            selected = *(FilerEntry *)(sortEntry + 0x100);
+            selected = MEMBER(FilerEntry, sortEntry, FilerTable, entries[0]);
             compareIndex = sortIndex;
             count = (s16 *)(work + 0x80F86);
             for (; compareIndex < *count; compareIndex++) {
@@ -346,7 +346,7 @@ void sdkFilerScanDirectory(u8 *work)
                 if (shouldSwap != 0) {
                     swapped = ((FilerTable *)work)->entries[compareIndex];
                     ((FilerTable *)work)->entries[compareIndex] = selected;
-                    *(FilerEntry *)(sortEntry + 0x100) = swapped;
+                    ((FilerTable *)sortEntry)->entries[0] = swapped;
                     selected = swapped;
                 }
             }
