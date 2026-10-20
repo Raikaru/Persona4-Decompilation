@@ -449,6 +449,7 @@ void shdPersonaDrawRowName(Vec2f basePosition, f32 depth, u8 alpha, s16 *descrip
 
 /* 768/768 bytes and twenty-two resolved relocations. The shared 24-byte
  * jump table remains exact; packed coordinates retain the retail ABI. */
+/* measured: baseline removal differs by 178 words; hoisted gauge coordinates and single-toggle probes still differ. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_common_subs off
@@ -790,6 +791,7 @@ extern f32 iGpffff82fc;
  * retail zero-tail bytes. Proof: build/first-party-focus-20260921/persona-w4. */
 // Intent: Draw one stat gauge: meter background, remaining span and optional bonus span [inferred]
 // FUN_00116D40
+/* measured: baseline removal differs by 196 words; named MEMBER coordinate accesses still leave 524 differing bytes. */
 #pragma push
 #pragma opt_scalarize off
 void shdPersonaDrawGaugeBar(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 added,
@@ -936,6 +938,7 @@ void shdPersonaDrawLevelDigits(s64 packedPosition, f32 depth, s32 color, u32 lev
    differences and twelve retail zero-tail bytes. */
 // Intent: Draw an unsigned number as right-aligned digit sprites, stepping left per digit, with optional wide spacing [inferred]
 // FUN_00117310
+/* measured: baseline removal differs by 12 words; narrowed cached inverse alpha still changes loop allocation. */
 #pragma push
 #pragma opt_loop_invariants on
 void shdPersonaDrawDigits(Vec2f basePosition, f32 depth, s32 color, u32 number, u32 texture, s32 rightAligned)
@@ -1021,10 +1024,6 @@ extern char D_005E5810[];
 extern char D_005E5830[];
 extern char D_005E5850[];
 extern char D_005E57F0[];
-/* measured: retail hoists the D_005E4880 loop base (lui/addiu) into $a1 before
-   the initial branch to the loop test; mwcc b210 rematerialises it in the body
-   each iteration — #pragma opt_loop_invariants on restores the hoist. */
-#pragma opt_loop_invariants on
 // Intent: Initialise a persona panel task: counters, child-task callbacks, texture ids and the ten channel rectangles [inferred]
 /* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_001175E0
@@ -1034,6 +1033,7 @@ void shdPersonaTaskInit(u8 *task, s32 inputState, s32 inputOpenDuration, s32 inp
     s32 i;
     u8 *src;
     u8 *dst;
+    u8 *presets;
 
     b = ((SdkTask *)task)->work;
     ((PersonaRenderWork *)b)->state = inputState;
@@ -1053,8 +1053,10 @@ void shdPersonaTaskInit(u8 *task, s32 inputState, s32 inputOpenDuration, s32 inp
     ((PersonaRenderWork *)b)->sprites[1] = (s32)resourceFindByName(D_005E5830);
     ((PersonaRenderWork *)b)->sprites[2] = (s32)resourceFindByName(D_005E5850);
     ((PersonaRenderWork *)b)->sprites[3] = (s32)resourceFindByName(D_005E57F0);
-    for (i = 0; i < 0xA; i++) {
-        src = D_005E4880 + i * 0x14;
+    i = 0;
+    presets = D_005E4880;
+    for (; i < 0xA; i++) {
+        src = presets + i * sizeof(ShdPersonaChannelPreset);
         dst = b + i * 0x24;
         ((PersonaRenderWork *)dst)->channels[0].current.x = ((ShdPersonaChannelPreset *)src)->position.x;
         ((PersonaRenderWork *)dst)->channels[0].current.y = ((ShdPersonaChannelPreset *)src)->position.y;
@@ -1069,7 +1071,6 @@ void shdPersonaTaskInit(u8 *task, s32 inputState, s32 inputOpenDuration, s32 inp
 }
 
 
-#pragma opt_loop_invariants off
 
 
 // Intent: Create a persona panel child task with update and destroy callbacks, then initialise it from arg1 to arg4 [inferred]
@@ -1219,6 +1220,7 @@ static inline f32 shdPersonaFallingPhase(s32 frame, s32 first, s32 last)
 // Intent: Update and draw the card-open effect: growing panel scale, 24 radial particles, four corner marks and a pulse ring [inferred]
 /* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00117980
+/* measured: baseline removal differs by 207 words; explicit corner rotation/color hoists still leave 353 differing bytes. */
 #pragma push
 #pragma opt_loop_invariants on
 void shdPersonaDrawEffect(u8 *panel)
@@ -1433,9 +1435,9 @@ typedef union PersonaPanelPosition {
  * alignment bytes. Preserve the incoming coordinate object and the
  * per-call Y-offset conversion rather than eagerly splitting their values.
  * See docs/probe_archive/Persona_renderer_001187b0_20260923.md. */
+/* measured: access-site aggregate typing removes scalarize override; propagation-on still differs by 343 bytes. */
 #pragma push
 #pragma opt_propagation off
-#pragma opt_scalarize off
 // Intent: Draw one persona panel's four sprites at a position offset from the base coordinates [inferred]
 // FUN_001187B0
 void shdPersonaDrawPanelSprites(u8 *work, PersonaPanelPosition position, u8 opacity,
@@ -1454,10 +1456,10 @@ void shdPersonaDrawPanelSprites(u8 *work, PersonaPanelPosition position, u8 opac
 
     basePosition.packed = baseCoordinates;
     angle = rotation;
-    offsetY = position.coordinates[1];
+    offsetY = ((PersonaPanelPosition *)&position)->coordinates[1];
     baseY = basePosition.xy.y;
     resource = ((PersonaRenderWork *)work)->sprites[2];
-    offsetX = position.coordinates[0];
+    offsetX = ((PersonaPanelPosition *)&position)->coordinates[0];
     baseX = basePosition.xy.x;
     originX = offsetX + baseX;
     originY = offsetY + baseY;
@@ -1504,6 +1506,7 @@ extern f32 iGpffff8094;
 // Intent: Draw the sliding background panels for the persona screen; their phases follow the frame counter at 0x520 [inferred]
 /* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00118A20
+/* measured: baseline removal differs by 32 words; pointer-walk color loops still leave 619 differing bytes. */
 #pragma push
 #pragma opt_loop_invariants on
 void shdPersonaDrawSlidingPanels(u8 *panel)
@@ -1694,6 +1697,7 @@ void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
    2.0f/$f4, 0.0f/$f3, -450.0f/$f1, 0x5A/$7, 0xFF/$6, 1/$3).
    Removing the pragma was measured at nd 0 -> nd 136: the accumulator seed
    sinks into the loop and the fusion breaks into add.s + adda.s + madd.s. */
+/* measured: baseline removal differs by 68 words; explicit horizontal/vertical scale locals do not recover the preheader. */
 #pragma opt_loop_invariants on
 // Intent: Draw the six-quad particle strip for a persona panel, with per-quad positions and blend alpha from arg1 [inferred]
 // FUN_001190F0
@@ -2473,12 +2477,6 @@ extern f32 iGpffff8094;
    the post-loop differs: 0x510 vs 0x50C and the four chained mask clears
    ~4/~0x80000/~0x200000/~0x800000 + the 0x505==0 ?? 0x400000 clear/or).
    opt_propagation off (FLYDraw) does NOT apply — multi-use loop base. */
-#pragma push
-/* measured: opt_propagation off reproduces the retail loop's halfword/float
-   load order. The float-to-byte tail is a plain `(u8)acc` cast: the compiler's
-   own float->unsigned sequence lands in $a0 like retail; hand-expanding the
-   2^31 branch (the old "output-GPR floor") is what moved it to $v1. */
-#pragma opt_propagation off
 // Intent: Tween the ten channels toward their targets over the closing window; clears the closing flag 0x4 when done [inferred]
 /* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0011AE90
@@ -2541,7 +2539,6 @@ void shdPersonaTweenChannelsClose(u8 *panel)
         }
     }
 }
-#pragma pop
 
 
 
@@ -3380,6 +3377,7 @@ void shdPersonaBeginDisplay(u8 *task, s32 category, s32 personaAddress, s8 curso
 
 /* The ordered halfword observation keeps the retail per-record sample load;
    loop-invariant motion preserves the accumulator/FMA instruction pairs. */
+/* measured: baseline removal differs by 137 words; channel pointer traversal still leaves 312 differing bytes. */
 #pragma push
 #pragma opt_loop_invariants on
 // Intent: Tween the comparison display from its start values toward its targets over the comparison window [inferred]
@@ -3548,6 +3546,7 @@ void shdPersonaEndSelection(u8 *task, s32 mode)
    reproduces retail's top lh/lwc1 order. Remaining: output GPR colouring
    ($v1 vs retail $a0) at 0x130/0x138/0x154/0x158/0x15C, plus the
    relocation-owned GP word at 0x06C. */
+/* measured: baseline differs by two load-order words; MEMBER loads, conversion order and widened frame locals still differ. */
 #pragma push
 /* measured: opt_propagation off reproduces the retail lh/lwc1 prologue order;
    the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
@@ -3616,6 +3615,7 @@ void shdPersonaTweenSelectionOpen(u8 *panel)
    coloring. Retail parameter audit uses only `$a0` (arg0); no hidden args or
    mixed-class order. Direct stores, raw staging, declaration reorder, and
    pragma alternatives were ruled out. */
+/* measured: baseline differs by two load-order words; MEMBER loads, conversion order and widened frame locals still differ. */
 #pragma push
 /* measured: opt_propagation off reproduces the retail lh/lwc1 prologue order;
    the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
@@ -4047,6 +4047,7 @@ extern s32 (*D_00887310[])(s32, void *, s32);
  * retail zero-tail bytes. Proof: build/first-party-focus-20260921/persona-w4. */
 // Intent: Draw two adjacent quad strips with a 64-byte vertex layout from depth, colour and edge arguments [inferred]
 // FUN_0011D5B0
+/* measured: baseline removal differs by 299 words; explicit channel-conversion hoists still leave 1031 differing bytes. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
@@ -4526,6 +4527,7 @@ extern u16 *iGpffffb3ec;
    `func_003b7060() & 0x1000` is required for retail's COP1 sequence. */
 /* measured: opt_loop_invariants hoists the per-iteration `andi` and the
    `1` constant into the preheader; disabling it rematerialises both. */
+/* measured: baseline removal differs by 103 words; pointer-walk pair traversal still leaves 309 differing bytes. */
 #pragma opt_loop_invariants on
 /* measured: final reconstruction is byte-exact (object 688B/window 688B,
    normalized_diff 0). Explicit goto joins preserve the retail false tails,

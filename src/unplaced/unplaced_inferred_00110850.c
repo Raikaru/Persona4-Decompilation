@@ -63,9 +63,12 @@ static inline s64 calendarLoadSignedByte(s8 *ptr)
     return value;
 }
 
+/* Shared calendar-unit optimizer settings, formerly repeated around each function. */
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+#pragma opt_common_subs on
+#pragma opt_rebuildconditionals on
 // Intent: Return a day-table value for day arg0 and phase arg1: a flag-based result for today's date, else the byte from the day table [inferred]
 // FUN_00110850
 s64 calGetDayTableValue(s32 day, u32 phase)
@@ -112,10 +115,9 @@ block_12:
     phaseOffset = phaseIndex * 2;
     return (s64) ((s64) *((u8 *)(phaseOffset + dayAddress)) << 0x38) >> 0x38;
 }
-#pragma pop
 
+/* measured: baseline differs by 27 bytes; indexed signed-byte access and propagation-only probes still differ. */
 #pragma push
-#pragma opt_loop_invariants off
 #pragma opt_propagation off
 #pragma opt_common_subs off
 // Intent: Return the day-table entry for a day and phase: the override value when one is set, else the stored byte [inferred]
@@ -176,8 +178,8 @@ static inline s64 calendarOverrideValue(s32 date, s32 phase)
 
 s32 calDayOfYearFromMonthDay(s32 month, s32 day);
 
+/* measured: baseline differs by 145 bytes; table-alias indexing and propagation-only probes still differ. */
 #pragma push
-#pragma opt_loop_invariants off
 #pragma opt_propagation off
 #pragma opt_common_subs off
 // Intent: Return the day-table entry for a month and day, choosing phase 3 or 4 from the day-of-year test [inferred]
@@ -209,10 +211,6 @@ s64 calGetDayEntryForMonthDay(s32 month, s32 day)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
 // Intent: Return the packed 16-bit day entry for day arg0, combining two byte table values [inferred]
 // FUN_00110C50
 s32 calGetPackedDayEntry(s32 day, s32 referenceDay)
@@ -249,27 +247,16 @@ s32 calGetPackedDayEntry(s32 day, s32 referenceDay)
     }
     return ((firstValue & 0xFFFF) + ((secondValue & 0xFFFF) * 0x10)) & 0xFFFF;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
 // Intent: Return whether the day table has an entry for day day [inferred]
 // FUN_00110D30
 s32 calHasDayEntry(s32 day)
 {
     return D_005E3A00[day * 6] != 0;
 }
-#pragma pop
 
 s32 calDayOfYearFromMonthDay(s32 day, s32 );
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals off
 // Intent: Return flag 1 when day-of-year day is in Apr 1 to Jun 12 or on or after Oct 10, and flag 2 when the day table has an entry for the current day [inferred]
 // FUN_00110D60
 s32 calGetDayWindowFlags(s32 day)
@@ -310,26 +297,14 @@ block_10:
     }
     return flags;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Set the state-image pending flag that calRestoreStateImage reads [inferred]
 // FUN_00110E70
 void calSetStateImagePending(s32 pending)
 {
     iGpffffb1b4 = pending;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Capture the current save state into the state buffer and mark it pending [inferred]
 // FUN_00110E80
 void calCaptureStateImage(void) {
@@ -344,13 +319,10 @@ void calCaptureStateImage(void) {
     jtbl_008873EC[0](image);
     iGpffffb1b4 = 1;
 }
-#pragma pop
 
+/* measured: baseline differs by two argument-order words; typed buffer access and local-lifetime probes still differ. */
 #pragma push
-#pragma opt_loop_invariants off
 #pragma opt_propagation off
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Restore the captured state image when one is pending, then clear the pending flag [inferred]
 // FUN_00110F00
 s32 calRestoreStateImage(void)
@@ -384,11 +356,6 @@ s32 calRestoreStateImage(void)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Destroy the scheduler, then run the two cleanup calls with arguments (1, 1) and (0x1B, 0, 0, 8) [inferred]
 // FUN_00110FC0
 void sdlSchedulerTeardown(void) {
@@ -396,13 +363,7 @@ void sdlSchedulerTeardown(void) {
     fadeBeginTransition(1, 1);
     sequenceRequest(0x1B, 0, 0, 8);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Release the active script-process handle if one exists; kwln registers it as a callback [inferred]
 // FUN_00111010
 void scrReleaseActiveHandle(void)
@@ -413,13 +374,7 @@ void scrReleaseActiveHandle(void)
         scrProcessReleaseNoop(handle);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Set the six default day flags (0x39 to 0x3E) and clear the saved mask when arg0 is nonzero [inferred]
 // FUN_00111050
 void calSetDefaultDayFlags(s32 clearSavedMask)
@@ -434,13 +389,7 @@ void calSetDefaultDayFlags(s32 clearSavedMask)
         iGpffffb1bc = 0;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Read the six day flags in the flag table into a six-bit mask [inferred]
 // FUN_001110E0
 s32 calReadDayFlagMask(void) {
@@ -455,13 +404,7 @@ s32 calReadDayFlagMask(void) {
     }
     return mask;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Write each of the six day flags from the matching bit of a six-bit mask [inferred]
 // FUN_00111160
 void calWriteDayFlagMask(s32 mask)
@@ -476,13 +419,7 @@ void calWriteDayFlagMask(s32 mask)
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Read the six day flags into a mask, mark it valid with bit 31, and store it as the saved mask [inferred]
 // FUN_00111200
 s32 calCaptureDayFlagMask(void)
@@ -501,13 +438,7 @@ s32 calCaptureDayFlagMask(void)
     iGpffffb1bc = result;
     return result;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Restore the six day flags from the saved mask when it is valid, else from the defaults, then clear the saved mask [inferred]
 // FUN_00111290
 void calRestoreDayFlagMask(void)
@@ -534,15 +465,9 @@ void calRestoreDayFlagMask(void)
     }
     iGpffffb1bc = 0;
 }
-#pragma pop
 
 void datSetStateTableEntry(s32 , u8 );
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 /* Measured: 1032 bytes, 58 resolved relocations, eight zero alignment bytes.
  * Default names are separate eight-byte objects. Keep each table's base
  * with the trailing halfword offsets and reload maxima after Persona setup. */

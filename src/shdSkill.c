@@ -36,9 +36,6 @@ void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 t
    Preserve live flag, ID, and style reads across draw callbacks and sample
    costs after the text call. Keep the dash row's Y lifetime separate. */
 // FUN_001138C0
-#pragma push
-#pragma opt_propagation off
-#pragma opt_scalarize off
 void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode)
 {
     typedef ShdSkillVector PayloadVector;
@@ -182,7 +179,6 @@ void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descript
         }
     }
 }
-#pragma pop
 
 /* measured: re-confirmed nd 5 this wave (reloc-masked; probe_variants reports
    11 unmasked) with the m2c-faithful 9-arg 275020 spelling -- the only
@@ -223,6 +219,7 @@ void ShdSkill_DrawEntryName(Vec2f position, f32 scale, u8 alpha, void *descripto
    updates, and the plain-char font lookup with scalar propagation disabled. */
 /* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00113EF0
+/* measured: baseline and either single-toggle form differ; scalarization/propagation probes retain both settings. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_scalarize off
@@ -327,6 +324,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
    digit/label lifetimes across sprite submissions. */
 /* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_00114460
+/* measured: baseline and either single-toggle form differ; scalarization/propagation probes retain both settings. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_scalarize off
