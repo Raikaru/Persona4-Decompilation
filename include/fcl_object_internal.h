@@ -14,9 +14,14 @@ typedef struct FclObject {
     u8 unk06[0x2];
     f32 anchorValue;
     u8 pad0C[0x10];
-    FclVec2 targetPosition;      /* +0x1C: slide destination */
-    FclVec2 positionEnd;        /* +0x24: panel tween endpoint */
-    FclVec2 anchorPosition;
+    union {
+        struct {
+            FclVec2 targetPosition; /* +0x1C: slide destination */
+            FclVec2 positionEnd;    /* +0x24: panel tween endpoint */
+            FclVec2 anchorPosition;
+        };
+        FclVec2 positionKeys[3];    /* start, endpoint and current position */
+    };
     s16 positionFrames;
     s16 positionDuration;
     s16 positionDelay;
@@ -35,15 +40,30 @@ typedef struct FclObject {
     u8 pad86[2];
     s16 revealDuration;
     u8 pad8A[2];
-    f32 targetScale;
-    u8 pad90[4];
-    f32 scaleX;
-    u8 unk98[0x8];
-    f32 scale;
+    union {
+        struct {
+            f32 targetScale;
+            u8 pad90[4];
+            f32 scaleX;
+        };
+        f32 scaleXKeys[3];
+    };
+    union {
+        struct {
+            u8 unk98[0x8];
+            f32 scale;
+        };
+        f32 scaleYKeys[3];
+    };
     u8 padA4[0x18];
-    f32 targetTween;
-    f32 startTween;
-    f32 tweenValue;
+    union {
+        struct {
+            f32 targetTween;
+            f32 startTween;
+            f32 tweenValue;
+        };
+        f32 tweenKeys[3];
+    };
     s16 tweenDuration;
     u8 padCA[5];
     u8 tweenLoop;
