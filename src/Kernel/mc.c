@@ -10,6 +10,9 @@
 #include "fr_font_internal.h"
 #include "h_cdvd.h"
 
+/* Unit settings: independent variable-lifetime optimization enabled. */
+#pragma opt_lifetimes on
+
 /* The SDK getter requires the callback task and returns a packed address. */
 extern u32 kwlnTaskGetWork(void *task);
 extern void *PrimAllocQueueNode(void);
@@ -1286,7 +1289,6 @@ s32 mcAnimateTransition(s32 task) {
  * its own remaining-progress lifetime; wave stays the sine result until the
  * selected-card slide. Keep the pulse multiplication separate from scale. */
 /* measured: baseline removal differs in 77 bytes; typed screen access instead of MEMBER; narrow lifetime of smoothing float temporaries also differ. */
-#pragma opt_lifetimes on
 /* Slide and fade the slot list in while interpolating its 16.16 scroll position. */
 // FUN_002A4F20
 s32 mcRunScreenFrame(s32 taskAddress)
@@ -1405,7 +1407,6 @@ s32 mcRunScreenFrame(s32 taskAddress)
     }
     return 0;
 }
-#pragma opt_lifetimes off
 
 /* Recovered 2026-09-28 (lane 5): exact under MWCC b210/O2, 564/564 instructions.
    Shape: five frame-driven ramp phases, each with its own float local (retail
@@ -1424,7 +1425,6 @@ s32 mcRunScreenFrame(s32 taskAddress)
    that order (77 edits without the pragma, 0 with it).  mcDrawSlotDial is declared (f32, f32, f32, u8, u8 *, s32, s32,
    f32, u8 *): that parameter order reproduces retail's argument emission order. */
 /* measured: baseline removal differs in 78 bytes; typed screen access instead of MEMBER; narrow lifetime of smoothing float temporaries also differ. */
-#pragma opt_lifetimes on
 /* Fade screen components out and slide the selected slot offscreen. */
 // FUN_002A5630
 s32 mcRunScreenExitFrame(s32 taskAddress)
@@ -1570,10 +1570,8 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
     }
     return 0;
 }
-#pragma opt_lifetimes off
 
 #pragma push
-#pragma opt_lifetimes on
 
 /* Displacement from the whole row to the animated 16.16 scroll position. */
 
@@ -2191,9 +2189,7 @@ static inline u32 mcUnsignedColorRgb(const u32 *rgba)
 {
     return *rgba >> 8;
 }
-#pragma push
 /* measured: baseline removal differs in 228 bytes; reuse named screen alias; reread screen through original pointer also differ. */
-#pragma opt_lifetimes on
 /* The number and optional icon own separate coordinate and RGB values.
  * Border alpha is full-width; sprite interfaces consume its low byte.
  * The inset is evaluated as remaining scale, pixel span, then half span.
@@ -2505,7 +2501,6 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
     PrimDrawFlatRectangle(&color, &rectangle, depth, 0);
 }
 
-#pragma pop
 
 /* measured: baseline removal differs in 819 bytes; retain separate packed color local; initialize copy cursors at first use also differ. */
 #pragma opt_common_subs off
@@ -2633,9 +2628,7 @@ static inline s32 mcColorRgb(const McColorWord *color)
 {
     return color->rgba >> 8;
 }
-#pragma push
 /* measured: baseline removal differs in 87 bytes; reuse named screen alias; reread screen through original pointer also differ. */
-#pragma opt_lifetimes on
 
 /* Find the matching area and room name, falling back to the first table entry. */
 static inline const char *mcLocationName(s32 area, s32 room)
@@ -2836,7 +2829,6 @@ void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress
     shdSpriteDrawNow(tmpX2, tmpY2, depth, dateRgb, (u8)alpha, 0x1E, 0, (u8 *)(screenState->spritePack), 0);
 }
 
-#pragma pop
 
 /* measured: cyclic saved-register rotation in the 5-int/3-float prologue --
    retail colors alpha->$s0, recordAddress->$s4, slotIndex->$s3, work->$s2; mwcc b210 always

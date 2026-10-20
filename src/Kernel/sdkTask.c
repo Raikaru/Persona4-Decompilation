@@ -4,6 +4,9 @@
 #include "type.h"
 #include "sdk_pad_record.h"
 
+/* Unit settings: loop-invariant motion enabled; measured: all 23 owner functions remain MATCH. */
+#pragma opt_loop_invariants on
+
 extern s32 func_003e1220(u32 a0, u32 a1, u32 a2, u32 a3, void* a4, u32 a5);
 /* GP-relative scalar at gp -0x45E8 (absolute 0x00764B08). */
 extern s32 iGpffffba18;
@@ -318,7 +321,6 @@ err:
  * 0x80 constant are rematerialized inside the init loop (nd 68); with it they
  * hoist to the preheader and the function matches byte-for-byte. */
 /* measured: baseline removal differs in 44 bytes; typed pad record cursor; pointer-induction pad initialization also differ. */
-#pragma opt_loop_invariants on
 s32 kwlnTaskRunUpdate(KwlnTask* task)
 {
     SdkTaskUpdate fn;
@@ -370,8 +372,6 @@ s32 kwlnTaskRunUpdate(KwlnTask* task)
     iGpffffba10 = 0;
     return 1;
 }
-/* measured: see the annotation above the matching `on` pragma (func_00451430). */
-#pragma opt_loop_invariants off
 
 /* Visit runnable tasks while allowing callbacks to unlink the current node. */
 // FUN_004515B0
@@ -597,7 +597,6 @@ void kwlnTaskDumpNode(KwlnTask* task, s32 depth)
  * base address are rematerialized inside the fill loop (nd 65); with it they
  * hoist to the preheader and the function matches byte-for-byte. */
 /* measured: baseline removal differs in 170 bytes; pointer fill loop; named fill byte outside loop also differ. */
-#pragma opt_loop_invariants on
 void kwlnTaskDumpAll(void)
 {
     s32 i;
@@ -640,8 +639,6 @@ void kwlnTaskDumpAll(void)
     }
     func_00440b68(&iGpffffac5c);
 }
-/* measured: see the annotation above the matching `on` pragma (func_00451b70). */
-#pragma opt_loop_invariants off
 /* Create the fixed-size task pool with the requested capacity. */
 // FUN_00451CA0
 void kwlnTaskInitPool(s32 capacity)
@@ -903,7 +900,6 @@ s32 kwlnTaskGetState(void* task)
  * three list heads are rematerialized inside the dispatch loop; with it they
  * hoist to the preheader and the function matches byte-for-byte. */
 /* measured: baseline removal differs in 134 bytes; if-else scheduler list selection; for-loop scheduler list traversal also differ. */
-#pragma opt_loop_invariants on
 KwlnTask* kwlnTaskGetTaskByName(const char* name)
 {
     KwlnTask* node;
@@ -954,8 +950,6 @@ KwlnTask* kwlnTaskGetTaskByName(const char* name)
     }
     return 0;
 }
-/* measured: see the annotation above the matching `on` pragma (func_00452380). */
-#pragma opt_loop_invariants off
 
 /* Test membership in any of the three scheduler lists. */
 // FUN_00452490
@@ -963,7 +957,6 @@ KwlnTask* kwlnTaskGetTaskByName(const char* name)
  * rematerialized inside the loop (nd 25); with it they hoist to the
  * preheader and the function matches byte-for-byte. */
 /* measured: baseline removal differs in 90 bytes; if-else scheduler list selection; for-loop scheduler list traversal also differ. */
-#pragma opt_loop_invariants on
 s32 kwlnTaskIsLinked(void* target)
 {
     s32 idx;
@@ -996,8 +989,6 @@ s32 kwlnTaskIsLinked(void* target)
     }
     return 0;
 }
-/* measured: see the annotation above the matching `on` pragma (func_00452490). */
-#pragma opt_loop_invariants off
 // FUN_00452540
 u32 kwlnTaskGetTimer(void* task)
 {

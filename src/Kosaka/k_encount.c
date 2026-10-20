@@ -2,6 +2,11 @@
 #include "include_asm.h"
 #include "type.h"
 
+/* Unit settings: propagation disabled and loop-invariant motion enabled. */
+#pragma opt_propagation off
+/* measured: these unit settings retain all six owner MATCHes. */
+#pragma opt_loop_invariants on
+
 /* Encounter-selection helpers (Kosaka unit).
  *
  * gp-relative globals (GP base 0x007690F0, see config/symbol_data_addrs.txt):
@@ -76,7 +81,6 @@ typedef struct EncWeightedTable {
 // FUN_00161A70
 /* measured: forces the single-use gp base load ahead of the index chain. */
 /* measured: baseline removal differs in 16 bytes; typed encounter table indexing; name encounter table entry before load also differ. */
-#pragma opt_propagation off
 s32 Encount_GetEntryFlags(s32 field, s32 room, s32 entryIndex) {
     s32 result;
     u8 *base;
@@ -88,14 +92,12 @@ s32 Encount_GetEntryFlags(s32 field, s32 room, s32 entryIndex) {
     }
     return result;
 }
-/* measured: restores the file default after the function above. */
-#pragma opt_propagation on
 
+/* Return the entry's rate4 value for supported field and room encounter bands. */
 // FUN_00161B10
 /* measured: same recipe as FUN_00161A70 -- the pragma forces the single-use gp
    base load ahead of the index chain. */
 /* measured: baseline removal differs in 16 bytes; typed encounter table indexing; name encounter table entry before load also differ. */
-#pragma opt_propagation off
 s32 Encount_GetEntryRate(s32 field, s32 room, s32 entryIndex) {
     s32 result;
     u8 *base;
@@ -107,14 +109,12 @@ s32 Encount_GetEntryRate(s32 field, s32 room, s32 entryIndex) {
     }
     return result;
 }
-/* measured: restores the file default after the function above. */
-#pragma opt_propagation on
 
+/* Return the entry's rate3 value unless FldStepBandValue supplies a byte override. */
 // FUN_001619B0
 /* measured: same pair of levers as FUN_00161A70 -- the pragma brings the gp base
    load ahead of the index chain, the helper holds the offset-first addu. */
 /* measured: baseline removal differs in 16 bytes; typed encounter table indexing; name encounter table entry before load also differ. */
-#pragma opt_propagation off
 s32 Encount_GetEntryRateOrOverride(s32 field, s32 room, s32 entryIndex) {
     s32 result;
     s32 idx;
@@ -133,8 +133,6 @@ s32 Encount_GetEntryRateOrOverride(s32 field, s32 room, s32 entryIndex) {
     }
     return result;
 }
-/* measured: restores the file default after the function above. */
-#pragma opt_propagation on
 
 /* The encounter tables and the constants 1/-1 are loop invariants that retail
    hoists ahead of both loops. */
@@ -142,7 +140,6 @@ s32 Encount_GetEntryRateOrOverride(s32 field, s32 room, s32 entryIndex) {
    s16 id once into $t2); without it the bases are rematerialised per iteration
    (nd 45). `id == *(u16 *)(q + 2)` keeps retail's bne operand order. */
 /* measured: baseline removal differs in 137 bytes; typed active-slot array indexing; cache identifier table base outside loop also differ. */
-#pragma opt_loop_invariants on
 /* Search live encounter slots for an identifier in the tracked identifier table. */
 // FUN_00161BB0
 s32 Encount_IsEncounterActive(s16 id) {
@@ -169,8 +166,6 @@ s32 Encount_IsEncounterActive(s16 id) {
     }
     return result;
 }
-/* measured: closes the hoisting scope after Encount_IsEncounterActive. */
-#pragma opt_loop_invariants off
 /* Typed table aliases retain the two normal-rate load address orders under b210. */
 // FUN_00161630
 /* Choose a category, then draw an encounter from its weighted entries.
@@ -290,9 +285,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
    count it. The first pass sums the weights, the second draws against it. */
 /* measured: opt_loop_invariants on hoists the D_005F1260/D_007E80A0 bases and
    the constants ahead of both loops, as retail does. */
-#pragma push
 /* measured: baseline removal differs in 749 bytes; typed record array indexing; cache active-slot and identifier table bases also differ. */
-#pragma opt_loop_invariants on
 u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
 {
     u8 *base;
@@ -415,4 +408,3 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
     }
     return found;
 }
-#pragma pop

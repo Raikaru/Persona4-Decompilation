@@ -21,6 +21,9 @@
 #include "fcl_object_internal.h"
 
 #include "member_access.h"
+
+/* Unit settings: independent variable-lifetime optimization enabled. */
+#pragma opt_lifetimes on
 /* fclDrawTaskCreate allocates and clears exactly 0x14 bytes. The setters
    below establish the selector, flag and extra-value offsets independently. */
 typedef struct {
@@ -474,6 +477,8 @@ u8 *fclDrawGetResource(u8 *task) {
 #pragma push
 /* measured: baseline C nd 601B; adjacent-local declaration probe nd 605B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
+/* measured: unit lifetimes-on changes this row's owner comparison by 16 normalized bytes. */
+#pragma opt_lifetimes off
 // Draw a combine-list row's bars and label at position, retaining its sprite handle in work+0x258.
 // Kinds 0x174 and 0x160 add extra cells; kind 0x16C draws through fclCombineDrawListRowPlain at a fixed position.
 // FUN_003147E0
@@ -1699,11 +1704,9 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
    The digit pair uses the shared native aggregate/depth contract. */
 // Fcl combine persona row: draws list row `row` at position (art, arcana, labels and level digits). checkAvailability == 1 reads the row's availability from the slot list; availability 2 adds the special-row backdrop and cursor sprites, and in mode 0 also creates the selection cursors (0x1C7, 0x2E8). Mode 1 transitions the existing sprites.
 // FUN_0031AC10
-#pragma push
 /* measured: opt_lifetimes splits the two nonoverlapping transition-scale
    lifetimes and restores the retail saved-register allocation. */
 /* measured: baseline C nd 74B; adjacent-local declaration probe nd 74B; retain settings for owner MATCH. */
-#pragma opt_lifetimes on
 /* The name sits two pixels below rowY. The digit pair and special-row
    backdrop retain rowY (retail keeps it unchanged in $f22). */
 void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 persona, s16 level, s16 delay, s8 mode, s8 checkAvailability, u8 alpha) {
@@ -1875,7 +1878,6 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
     }
 }
 
-#pragma pop
 
 
 /* The coordinate pairs are FclVec2 values: fclMakeVec2 returns its point by
@@ -2289,9 +2291,7 @@ void fclCombineFlashSlot(u8 *task, s8 slot) {
    Retail has no default resource: its saved $s6 is unspecified outside this
    domain. See build/first-party-finish-20260929/FclFinish/
    resume-header-call-domain.json and resume-e5-proof/receipt.json. */
-#pragma push
 /* measured: baseline C nd 31B; adjacent-local declaration probe nd 41B; retain settings for owner MATCH. */
-#pragma opt_lifetimes on
 // Draw slot-field chips and values at position with delay/mode; alternateSprites, narrowLayout and variant select the layout.
 // FUN_0031E5B0
 void fclCombineDrawSlotFields(u8 *task, FclVec2 position, s16 delay, s8 mode, s32 alternateSprites, s32 narrowLayout, s32 variant) {
@@ -2548,8 +2548,10 @@ void fclCombineDrawSlotFields(u8 *task, FclVec2 position, s16 delay, s8 mode, s3
     }
     sdkSpriteFreeNode(h5);
 }
-#pragma pop
 
+#pragma push
+/* measured: unit lifetimes-on changes fclCombineDrawSlotLabels by 55 normalized bytes. */
+#pragma opt_lifetimes off
 /* Point-by-value construction as in fclCombineDrawPersonaCard.  Reading the first x
    through `*(f32 *)&arg1` makes the homed anchor addressable, so its halves
    are reloaded after each call (retail's sp58/sp5C loads) instead of being
@@ -2659,6 +2661,7 @@ void fclCombineDrawSlotLabels(u8 *task, FclVec2 position, s16 delay, s8 mode) {
     }
     sdkSpriteFreeNode(node3);
 }
+#pragma pop
 
 /* measured: nd 182-209 (4 attempts: FclVec2* base local 188, FclVec2* tbl+
    draft shapes 191, u8* tbl draft-exact 182, draft-exact + inline casts 209;
@@ -3158,9 +3161,7 @@ static inline void fclShowCombineCursorArrows(u8 *work)
    Whole owner: 5484 bytes plus four zero tail bytes; 164 resolved relocations. */
 // Handle grid navigation and transitions: confirm enters selectedState, cancel enters cancelState, and mode selects the card path.
 // FUN_00321E60
-#pragma push
 /* measured: baseline C nd 241B; adjacent-local declaration probe nd 241B; retain settings for owner MATCH. */
-#pragma opt_lifetimes on
 void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelState) {
     /* measured: Remaining selection/row-task member substitutions change b210 codegen (nd 602..4002). */
     extern u16 D_008C027A[];
@@ -3418,7 +3419,6 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
     }
 }
 
-#pragma pop
 
 // measured: nd N/A (draw-family, s64-param floor). 29x 6150 + 17x 2a60 + 12x 2970 + 8x 6a70 + 7x 6c30: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 /* measured: probe_variants 366 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003233d0 --candidate V9=/var/tmp/cold3233d0/v9.c`; fnalign retail 587 vs object 586 instrs (1 short, 0.17% within 3% rule, 53 edits +3 reloc-only) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_003233d0 --candidate /var/tmp/cold3233d0/v9.c --quiet`; live measure_guarded GUARDED_SCORE func_003233d0: 366. Prior file note nd N/A was bare INCLUDE_ASM with no banked body (no archive); this is the first banked floor since bare. */
@@ -3545,6 +3545,9 @@ void fclCombineRefreshRosterSelection(u8 *task) {
     }
 }
 
+#pragma push
+/* measured: unit lifetimes-on changes fclCombineDrawSidePanels by 50 normalized bytes. */
+#pragma opt_lifetimes off
 /* The mode is a signed byte across the title and row calls. Positions and
    colors are native aggregates. `hidden` and `shown` are declared before
    `res` and passed through `(s32)` conversions at every call. The repeated
@@ -3637,6 +3640,7 @@ void fclCombineDrawSidePanels(u8 *task, s32 delayStep, s8 mode) {
         fclSpriteStartAlphaAt(0xBC, (s32)shown, (s32)hidden, 0, 0, 0);
     }
 }
+#pragma pop
 
 /* 00324410 body archived at build/WBFclCombineDraw_00324410_body.c.txt.
    Best complete candidate measured nd 118, object 616/624 after changing only
@@ -3725,9 +3729,7 @@ void fclCombineStepSidePanel(u8 *task, s16 sprite, s8 side) {
    its split lifetime is numbered after its sign-extended copy, and `on`/`off`
    are passed as (s32) conversions so they stay locals (docs/matching.md,
    "Keep a load local alive"); together they give retail's $s1/$s2/$s3. */
-#pragma push
 /* measured: baseline C nd 18B; adjacent-local declaration probe nd 28B; retain settings for owner MATCH. */
-#pragma opt_lifetimes on
 // Redraw the pair-grid frame, headers, lists and side panels for mode using delayStep between rows.
 // FUN_00324680
 void fclCombineDrawPairLayout(u8 *task, s32 delayStep, s8 mode) {
@@ -3827,7 +3829,6 @@ void fclCombineDrawPairLayout(u8 *task, s32 delayStep, s8 mode) {
     drawColor10 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
     ((FclCombineRowSprite *)fclSpriteEntry(0xCD))->color = drawColor10;
 }
-#pragma pop
 
 // Create slot's frame sprites at position, or fade them out when mode is 1.
 // FUN_00324F80

@@ -14,7 +14,8 @@
    Best probes (object/window, nd): 00477810 232/240 nd169; 004776C0
    264/272 nd6; 00474BA0 316/320 nd153; 00475B90 304/320 nd147;
    00473710 332/352 nd202; 00477FB0 388/400 nd272. */
-/* Keep optimization pragmas scoped to the functions whose retail code requires them. */
+/* Unit settings: loop-invariant motion enabled; differing settings stay scoped below. */
+#pragma opt_loop_invariants on
 #include "type.h"
 #include "model_matrix_internal.h"
 #include "mdl_file_internal.h"
@@ -648,7 +649,6 @@ extern void mdlSetAuxValue(void* model, int value);
  * whole-owner instruction/size comparison. Other proven fields are typed. */
 /* measured: typed entry/float identity stores still differ (nd 131 bytes); retain loop hoisting. */
 // FUN_00470E90
-#pragma opt_loop_invariants on
 u8* mdlDispatchAnimTableCreate(u16 count)
 {
     s32 size;
@@ -679,7 +679,6 @@ u8* mdlDispatchAnimTableCreate(u16 count)
     *(s16 *)&((MdlDispatchAnimTable *)table)->references = 1;
     return table;
 }
-#pragma opt_loop_invariants off
 
 /* MATCHED this wave (nd 0, object 452B/window 464B): the former CSE-of-mask
    floor was disproved.  `#pragma opt_common_subs off`, declaration order
@@ -859,7 +858,6 @@ struct RpHAnimHierarchy
 #pragma push
 /* measured: without opt_loop_invariants the per-node mode masks are not hoisted
  * (554 fnalign edits); opt_lifetimes gives the s0/s1 list-walk colours (+9 without). */
-#pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 
 /* Read the scalar snapshot retained across the hierarchy callbacks. */
@@ -2092,8 +2090,6 @@ void mdlAttachSlotHierarchy(u8 *layer, u8 *clump, s32 setupMatFx)
 extern s32 func_003d5bc0(void* a, f32 b);
 
 /* measured: probing opt_loop_invariants on for loop-constant placement. */
-#pragma push
-#pragma opt_loop_invariants on
 /* Rebases each node of a layer's output pose by the layer's reference rotation and input clip: out = out * conj(rotation) * input (normalized quaternions), and out.values += rotation.values - input.values. The consumer of the output pose is not yet traced. */
 /* measured: keep the reference-interpolator and hierarchy snapshots before the node loop
  * byte-addressed: access-site typing/indexed alternatives change the
@@ -2226,7 +2222,6 @@ void mdlRebaseLayerPose(u8 *layer)
         }
     }
 }
-#pragma pop
 
 extern void mdlRebaseLayerPose(u8* layer);
 extern s32 func_003d5e90(void* a, void* b, void* c, f32 d);
@@ -4356,7 +4351,6 @@ void mdlSetFrameColorByName(void* model, int name, u8 alpha)
 /* measured: narrow loop counters still differ (nd 89 bytes); retain loop hoisting. */
 // FUN_00477810
 /* measured probe: hoist invariant constant for retail prologue. */
-#pragma opt_loop_invariants on
 void mdlBuildScaledSlotRecords(void *model, void *properties)
 {
     s32 propertyIndex;
@@ -4408,10 +4402,8 @@ void mdlBuildScaledSlotRecords(void *model, void *properties)
     }
 }
 /* measured probe: close invariant pragma. */
-#pragma opt_loop_invariants off
 
 /* Removing this loses 0x00477900 (MATCH nd0 -> MISMATCH nd51) - measured W161 (ported from P3FES donor; re-probed in P4: nd0 -> nd51). */
-#pragma opt_loop_invariants on
 
 /* Doubles each morph target's bounding-sphere radius and sets interpolator flag 2.
  * The volatile sphere snapshot is an existing measured matching requirement. */
@@ -4470,7 +4462,6 @@ done:
     ((struct RpAtomic *)atomicData)->interpolatorFlags = ((struct RpAtomic *)atomicData)->interpolatorFlags | 2;
     return atomic;
 }
-#pragma opt_loop_invariants off
 
 
 
@@ -6425,7 +6416,6 @@ s32 mdlPrepareSlotModel(u8 *model, u16 slotIndex)
 /* measured: removing the pragma regresses this MATCH (nd 0) to a re-mask/hoist
    mismatch; the struct-access spelling needs it to reproduce retail's andi re-mask. */
 #pragma push
-#pragma opt_loop_invariants on
 #pragma opt_propagation off
 /* Copies matrix into the +0x90 matrix of every attached slot model. */
 /* measured: a cached typed slot base still differs (nd 36 bytes); retain propagation-off and loop hoisting. */
@@ -6510,8 +6500,6 @@ void mdlFreeAuxBlock(void* model)
    frame; the 0xf0f000e1 attachment table is allocated inline with table,
    size and count declared before payload (retail s5/s4/s2, payload s3).
    opt_loop_invariants hoists the -1 fill and loop constants as retail does. */
-#pragma push
-#pragma opt_loop_invariants on
 /* Material and UV headers share only the first entry-array pointer; the
  * eight-byte entries are indexed here without assuming either header extent. */
 
@@ -6999,7 +6987,6 @@ s32 mdlReadAuxChunks(u8 *model)
     return 1;
 }
 
-#pragma pop
 
 
 
