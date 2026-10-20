@@ -173,9 +173,10 @@ s32 btlUnitGetMotionState(BtlUnit *unit) {
     return 0;
 }
 
-// FUN_00198840
+/* Report whether a party or enemy unit is playing its configured rest motion. */
 /* Ported from P3FES btlUnit00282c60: the P4 genus/flag/value fields retain
    the donor layout at 0xA2/0x98/0x9DA, with the result comparing unk_9EC. */
+// FUN_00198840
 u32 btlUnitIsAtRestMotion(BtlUnit *unit)
 {
     s16 val;
@@ -194,9 +195,10 @@ u32 btlUnitIsAtRestMotion(BtlUnit *unit)
     return 0;
 }
 
-// FUN_001988B0
+/* Report walking motion one only for party and enemy unit kinds. */
 /* Ported from P3FES btlUnit00282cd0: the P4 genus/flag/value fields retain
    the donor layout at 0xA2/0x98/0x9DA, with the result testing val == 1. */
+// FUN_001988B0
 u32 btlUnitIsWalkingMotion(BtlUnit *unit)
 {
     s16 val;

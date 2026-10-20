@@ -105,7 +105,7 @@ extern u8 D_0060A0E0[];
 extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void btlTargetResetRadiusState(void);
-extern void func_00194660(void);
+extern void btlPacketInitNoop(void);
 extern void btlCameraInitSystem(void);
 extern void btlSoundResetSlotQueue(void);
 extern void btlVoiceResetPlaybackState(void);
@@ -324,7 +324,7 @@ void btlInit(void)
     datSetFlag(0x1435, 0);
     datSetFlag(0x1438, 0);
     btlTargetResetRadiusState();
-    func_00194660();
+    btlPacketInitNoop();
     btlCameraInitSystem();
     btlSoundResetSlotQueue();
     btlVoiceResetPlaybackState();

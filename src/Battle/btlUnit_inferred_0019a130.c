@@ -171,11 +171,12 @@ void btlUnitHoldPendingResNullified(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019A150
 /* measured: typing the remaining amplitude reads/write or counter increment changes MATCH to MISMATCH. */
 /* Alternate a decaying displacement along the rotated direction, clearing it once it settles. */
+// FUN_0019A150
 s32 btlUnitResNullifiedPacketUpdate(u8 *packetWork)
 {
+    BtlUnitResNullifiedPacket *typedPacketWork = (BtlUnitResNullifiedPacket *)packetWork;
     RwV3d direction;
     f32 amplitude;
     u8 *unit;
@@ -186,15 +187,15 @@ s32 btlUnitResNullifiedPacketUpdate(u8 *packetWork)
         goto block_2;
     RtQuatTransformVectors(&direction, &D_0060A0D0, 1, unit + 0x1C);
     if ((((BtlUnitResNullifiedPacket *)packetWork)->counter & 1) != 0)
-        amplitude = *(f32 *)(packetWork + 4) *
+        amplitude = typedPacketWork->amplitude *
                  (0.5f + (0.5f * effMiscRandFloat(0)));
     else
-        amplitude = (-*(f32 *)(packetWork + 4)) *
+        amplitude = (-typedPacketWork->amplitude) *
                  (0.5f + (0.5f * effMiscRandFloat(0)));
     ((BtlUnit *)unit)->posOffset.x = direction.x * amplitude;
     ((BtlUnit *)unit)->posOffset.y = direction.y * amplitude;
     ((BtlUnit *)unit)->posOffset.z = direction.z * amplitude;
-    *(f32 *)(packetWork + 4) = *(f32 *)(packetWork + 4) * fGpffff82d0;
+    typedPacketWork->amplitude = typedPacketWork->amplitude * fGpffff82d0;
     ((BtlUnit *)unit)->unk_9d8 |= 1;
     goto block_3;
 block_2:
@@ -204,7 +205,7 @@ block_2:
     ((BtlUnit *)unit)->unk_9d8 &= 0xFFFE;
     return 1;
 block_3:
-    *(s32 *)(packetWork + 8) += 1;
+    typedPacketWork->counter += 1;
     return 0;
 }
 

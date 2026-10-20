@@ -171,11 +171,12 @@ void btlUnitHoldPendingEnemyDodge(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019A680
 /* measured: typing the remaining velocity writes or counter increment changes MATCH to MISMATCH. */
 /* Integrate outward and return phases of a bounded dodge displacement, then clear the offset. */
+// FUN_0019A680
 s32 btlUnitEnemyDodgePacketUpdate(u8 *packetWork)
 {
+    BtlUnitDodgePacket *typedPacketWork = (BtlUnitDodgePacket *)packetWork;
     RwV3d direction;
     f32 progress;
     f32 returnProgress;
@@ -200,20 +201,20 @@ s32 btlUnitEnemyDodgePacketUpdate(u8 *packetWork)
     if (!(velocity < 0.0f)) {
         progress = ((BtlUnitDodgePacket *)packetWork)->progress;
         nextOutProgress = (1.0f - progress) * velocity;
-        *(f32 *)(packetWork + 0xC) = velocity + fGpffff82d8;
+        typedPacketWork->velocity = velocity + fGpffff82d8;
         progress = ((BtlUnitDodgePacket *)packetWork)->progress;
         offset = distance * progress;
         nextOutProgress = btlUnitAddProgress(progress, nextOutProgress);
         ((BtlUnitDodgePacket *)packetWork)->progress = nextOutProgress;
         if (!(nextOutProgress < fGpffff82d4))
-            *(f32 *)(packetWork + 0xC) = fGpffff82dc;
+            typedPacketWork->velocity = fGpffff82dc;
         goto block_11;
     }
     returnStep = -velocity;
     returnProgress = ((BtlUnitDodgePacket *)packetWork)->progress;
     nextProgress = returnProgress * returnStep;
     returnStep = fGpffff80f0;
-    *(f32 *)(packetWork + 0xC) = velocity - returnStep;
+    typedPacketWork->velocity = velocity - returnStep;
     returnProgress = ((BtlUnitDodgePacket *)packetWork)->progress;
     offset = distance * returnProgress;
     nextProgress = returnProgress - nextProgress;
@@ -235,7 +236,7 @@ block_11:
         ((BtlUnit *)unit)->posOffset.z = direction.z * offset;
         ((BtlUnit *)unit)->flags2 |= 4;
     }
-    *(s32 *)(packetWork + 4) += 1;
+    typedPacketWork->counter += 1;
     return 0;
 }
 

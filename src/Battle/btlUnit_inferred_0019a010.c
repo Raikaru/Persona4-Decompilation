@@ -171,8 +171,8 @@ void btlUnitHoldPendingMotionRequest(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019A030
 /* Apply the stored rest motion only when it differs from current playback. */
+// FUN_0019A030
 u32 btlUnitMotionRequestPacketUpdate(void *workData)
 {
     u8 *packet = (u8 *)workData;

@@ -19,7 +19,7 @@ extern void btlMainSyncSceneDrawColors(void);
 extern void btlCameraApplyView(void);
 extern void btlUnitUpdateAll(void);
 extern void btlSoundStepMessagePhase(void);
-extern void func_001f9be0(void);
+extern void btlVoiceUpdateNoop(void);
 extern void btlSoundAdvanceSlotQueue(void);
 extern void btlTargetUpdateDamagePhaseInput(void);
 extern void btlDestroyTask(void);
@@ -98,7 +98,7 @@ s32 btlUpdateTask(u8 *unusedTask)
         btlCameraApplyView();
         btlUnitUpdateAll();
         btlSoundStepMessagePhase();
-        func_001f9be0();
+        btlVoiceUpdateNoop();
         btlSoundAdvanceSlotQueue();
         btlPacketStepSide(1);
         btlTargetUpdateDamagePhaseInput();

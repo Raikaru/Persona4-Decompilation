@@ -175,11 +175,12 @@ void btlUnitHoldPendingMotionSpeed(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019AB00
 /* measured: typing either remaining model-present test changes MATCH to MISMATCH; the initial test is typed. */
 /* Restart the current motion with the requested rate/options while preserving its frame. */
+// FUN_0019AB00
 u32 btlUnitMotionSpeedPacketUpdate(void *workData)
 {
+    BtlUnit *typedUnit;
     u8 *packetWork = (u8 *)workData;
     u8 *unit;
     u16 frame;
@@ -193,15 +194,16 @@ u32 btlUnitMotionSpeedPacketUpdate(void *workData)
     rate = ((BtlUnitMotionSpeedPacket *)packetWork)->rate;
     frame = ((BtlUnitMotionSpeedPacket *)packetWork)->frame;
     unit = ((BtlUnitMotionSpeedPacket *)packetWork)->unit;
+    typedUnit = (BtlUnit *)unit;
     if (((BtlUnit *)unit)->flags2 & 2) {
         btlUnitClearModelState(unit, 4);
-        if (*(s32 *)(unit + 0x98) & 2)
+        if (*(s32 *)&typedUnit->flags2 & 2)
             narrowFrame = (s32)(s16)(s32)mdlGetLayerWeight((s32)((BtlUnit *)unit)->layerHandle, 0);
         else
             narrowFrame = 0;
         savedFrame = narrowFrame;
         btlUnitSetMotionOrdered((motion = ((BtlUnit *)unit)->currentMotion, motion), unit, frame, rate, option);
-        if (*(s32 *)(unit + 0x98) & 2)
+        if (*(s32 *)&typedUnit->flags2 & 2)
             mdlSetLayerTime(((BtlUnit *)unit)->layerHandle, 0, (f32)savedFrame);
         btlUnitApplyModelState(unit, 4);
     }

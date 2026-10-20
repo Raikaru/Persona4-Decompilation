@@ -170,9 +170,9 @@ void btlUnitHoldPendingMotionSettle(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019A8F0
 /* Ported from P3FES btlUnitUpdate00284c90Packet: the packet's unit
    pointer is at offset 0 and its comparison field is at offset 0x9EC. */
+// FUN_0019A8F0
 u32 btlUnitMotionSettlePacketUpdate(void *work)
 {
     u8 *unit;

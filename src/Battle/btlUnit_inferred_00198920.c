@@ -181,11 +181,12 @@ static inline u16 motionModeFlags(u16 option)
  * tail bytes. Animation and blend frames retain their halfword domains through
  * the model dispatcher. The table views keep rate and follow-up lifetimes
  * separate; the shared motion contracts preserve all existing callers. */
-// FUN_00198920
-/* measured: remaining mode/count/model/table reloads and the rate bit-pattern store change MATCH to MISMATCH when typed. */
+/* measured: distinct typed unit aliases retain mode/count/model/table reloads and the named rate bit-pattern store. */
 /* Resolve motion and playback rate, publish bounds, and configure follow-up animation state. */
+// FUN_00198920
 void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
 {
+    BtlUnit *unitFields = (BtlUnit *)unit;
     extern f32 iGpffff80d4;
     extern f32 iGpffff812c;
     extern u8 *btlUnitGetRecordPtr(u8 *unit, s32 motion);
@@ -205,7 +206,7 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
             table = (MotionTableEntry *)((BtlUnit *)unit)->motionRates;
             ((BtlUnit *)unit)->motionRate = rate * ((f32)table[motionId].ratePercent / 100.0f);
         } else {
-            *(s32 *)(unit + 0x9E0) = 0x3F800000;
+            unitFields->motionRateBits = 0x3F800000;
         }
         option = option & 0xFFFF;
         modeFlags = motionModeFlags(option);
@@ -228,14 +229,14 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
         } else {
             mdlSetLayerHandleFlag(((BtlUnit *)unit)->layerHandle);
         }
-        if ((*(u16 *)(unit + 0x9D8) & 0x20) != 0) {
+        if ((unitFields->unk_9d8 & 0x20) != 0) {
             frame = 0;
         }
-        if ((*(u16 *)(unit + 0x9D8) & 0x40) != 0) {
+        if ((unitFields->unk_9d8 & 0x40) != 0) {
             motionId = 27;
         }
-        mdlDispatchAnimIfPresent(*(u8 **)(unit + 0xA00), 0, (s32)(s16)motionId, frame, modeFlags);
-        mdlSetLayerWeight(*(u8 **)(unit + 0xA00), 0, ((BtlUnit *)unit)->motionRate);
+        mdlDispatchAnimIfPresent(unitFields->layerHandle, 0, (s32)(s16)motionId, frame, modeFlags);
+        mdlSetLayerWeight(unitFields->layerHandle, 0, ((BtlUnit *)unit)->motionRate);
         bounds = (s16 *)btlUnitGetRecordPtr(unit, motionIndex);
         ((BtlUnit *)unit)->sphereCenter.x = (f32)bounds[0];
         ((BtlUnit *)unit)->sphereCenter.y = (f32)bounds[1];
@@ -245,17 +246,17 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
         switch (motion) {
         case 8:
         case 16:
-            if ((u16)motionId < *(u16 *)(unit + 0x9E4)) {
+            if ((u16)motionId < unitFields->motionCount) {
                 base = &((MotionTableEntry *)(u8 *)((BtlUnit *)unit)->motionRates)[(u16)motionId];
                 if (base->followMotion >= 0 && base->followFrame > 0) {
-                    *(u16 *)(unit + 0x9D8) = *(u16 *)(unit + 0x9D8) | 4;
-                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->motion = ((MotionTableEntry *)*(u8 **)(unit + 0x9F8))[(u16)motionId].followMotion;
-                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->frame = ((MotionTableEntry *)btlUnitAddBaseToOffset((u16)motionId * sizeof(MotionTableEntry), *(s32 *)(unit + 0x9F8)))->followFrame;
+                    unitFields->unk_9d8 = unitFields->unk_9d8 | 4;
+                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->motion = ((MotionTableEntry *)(u8 *)unitFields->motionRates)[(u16)motionId].followMotion;
+                    ((BtlUnitFollowMotion *)(unit + 0x9E6))->frame = ((MotionTableEntry *)btlUnitAddBaseToOffset((u16)motionId * sizeof(MotionTableEntry), (s32)unitFields->motionRates))->followFrame;
                 }
             }
             break;
         default:
-            *(u16 *)(unit + 0x9D8) = *(u16 *)(unit + 0x9D8) & 0xFFFB;
+            unitFields->unk_9d8 = unitFields->unk_9d8 & 0xFFFB;
             break;
         }
         if (option == 0) {
@@ -274,7 +275,7 @@ void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option)
                 ((BtlUnitRestMotion *)(unit + 0x9EC))->nextMotion = 0;
                 break;
             default:
-                if ((u16)motionId < *(u16 *)(unit + 0x9E4)) {
+                if ((u16)motionId < unitFields->motionCount) {
                     table = (MotionTableEntry *)((BtlUnit *)unit)->motionRates;
                     ((BtlUnitRestMotion *)(unit + 0x9EC))->nextMotion = table[motionId].nextMotion;
                 } else {

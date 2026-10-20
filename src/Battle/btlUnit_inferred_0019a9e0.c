@@ -172,8 +172,8 @@ void btlUnitHoldPendingModelFrame(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019AA00
 /* Set layer zero to the packet frame when the unit owns a model. */
+// FUN_0019AA00
 s32 btlUnitModelFramePacketUpdate(u8 *packetWork)
 {
     s16 frame;

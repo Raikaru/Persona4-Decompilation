@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "model_battle_internal.h"
 #include "mdl_file_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_unit_packet_internal.h"
@@ -206,11 +208,13 @@ static inline void btlUnitMultiplyColor(RwRGBA *dst, const u8 *src)
  * against the `mode` left from an earlier entry (0x0019CDE0); the C reads
  * `mode` uninitialised there in the same way. */
 #pragma push
-// FUN_0019C0D0
 /* measured: remaining color/flags/model sites lose MATCH when typed; +0xAC is byte-tested and +0x4E is packed RGBA. */
 /* Advance each unit, publish changed transform/color state, and refresh status-effect placement. */
+// FUN_0019C0D0
 void btlUnitUpdateAll(void)
 {
+
+    BtlUnit *typedEntry;
     extern u32 btlUnitUpdateFollowPath(u8 *context);
     extern void btlBossCopyPartnerMark(u8 *unit);
     extern void SceneDraw_SetResPersona(u16 resTypeId, u32 persona);
@@ -236,6 +240,7 @@ void btlUnitUpdateAll(void)
 
     for (i = 0; i < 4; i++) {
         entry = ((BtlBattleState *)D_0076449C)->unitLists[i * 2 + 1];
+        typedEntry = (BtlUnit *)entry;
         while (entry != NULL) {
             btlUnitUpdateFollowPath(entry);
             btlUnitUpdateMotionLayer(entry);
@@ -248,7 +253,7 @@ void btlUnitUpdateAll(void)
                     u16 id;
 
                     if ((id = ((BtlUnit *)entry)->sceneDrawId) != 0) {
-                        SceneDraw_SetResPersona(id, *(u8 *)(entry + 0xAC) == 1);
+                        SceneDraw_SetResPersona(id, *(u8 *)&((BtlUnit *)entry)->unk_ac == 1);
                     }
                 }
                 break;
@@ -270,21 +275,21 @@ void btlUnitUpdateAll(void)
                     }
                     alpha = ((BtlUnit *)entry)->cols[1].alpha;
                     if (minAlpha + 0x20 < alpha) {
-                        *(u8 *)(entry + 0x37) = alpha - 0x20;
+                        typedEntry->cols[1].alpha = alpha - 0x20;
                     } else {
-                        *(u8 *)(entry + 0x37) = minAlpha;
+                        typedEntry->cols[1].alpha = minAlpha;
                     }
-                    *(s32 *)(entry + 0x98) |= 4;
+                    *(s32 *)&typedEntry->flags2 |= 4;
                 } else {
                     s32 alpha = ((BtlUnit *)entry)->cols[1].alpha;
 
                     if (alpha < 0xFF) {
                         if (alpha < 0xDF) {
-                            *(u8 *)(entry + 0x37) = alpha + 0x20;
+                            typedEntry->cols[1].alpha = alpha + 0x20;
                         } else {
-                            *(u8 *)(entry + 0x37) = 0xFF;
+                            typedEntry->cols[1].alpha = 0xFF;
                         }
-                        *(s32 *)(entry + 0x98) |= 4;
+                        *(s32 *)&typedEntry->flags2 |= 4;
                     }
                 }
                 blendTicks = ((BtlUnit *)entry)->unk_4c;
@@ -298,10 +303,10 @@ void btlUnitUpdateAll(void)
                     ((BtlUnit *)entry)->cols[4].green = b + (u32)(blendFactor * (f32)(s32)(((BtlUnitColorTransition *)(entry + 0x40))->start.green - b));
                     b = ((BtlUnitColorTransition *)(entry + 0x40))->target.blue;
                     ((BtlUnit *)entry)->cols[4].blue = b + (u32)(blendFactor * (f32)(s32)(((BtlUnitColorTransition *)(entry + 0x40))->start.blue - b));
-                    *(s32 *)(entry + 0x98) |= 4;
-                    *(u16 *)(entry + 0x4C) = *(u16 *)(entry + 0x4C) - 1;
+                    *(s32 *)&typedEntry->flags2 |= 4;
+                    typedEntry->unk_4c = typedEntry->unk_4c - 1;
                 }
-                if ((*(s32 *)(entry + 0x98) & 4) != 0) {
+                if ((*(s32 *)&typedEntry->flags2 & 4) != 0) {
                     BtlUnitMatrix matrix;
                     f32 translation[3];
                     RwRGBA color;
@@ -338,11 +343,11 @@ void btlUnitUpdateAll(void)
                     matrix.flags = 3;
                     mdlApplyModelMatrix(((BtlUnit *)entry)->layerHandle, &matrix, 0);
                     translation[0] = translation[1] = translation[2] = ((BtlUnit *)entry)->scale;
-                    mdlScale(*(u8 **)(entry + 0xA00), translation, 2);
+                    mdlScale(typedEntry->layerHandle, translation, 2);
                     translation[0] = ((BtlUnit *)entry)->pos.x + ((BtlUnit *)entry)->posOffset.x;
                     translation[1] = ((BtlUnit *)entry)->pos.y + ((BtlUnit *)entry)->posOffset.y;
                     translation[2] = ((BtlUnit *)entry)->pos.z + ((BtlUnit *)entry)->posOffset.z;
-                    mdlTranslateMatrix(*(u8 **)(entry + 0xA00), translation, 2);
+                    mdlTranslateMatrix(typedEntry->layerHandle, translation, 2);
                     color = ((BtlUnit *)entry)->cols[0];
                     btlUnitMultiplyColor(&color, entry + 0x34);
                     btlUnitMultiplyColor(&color, entry + 0x3C);
@@ -358,15 +363,15 @@ void btlUnitUpdateAll(void)
                         btlUnitApplyModelState(entry, 5);
                     }
                     {
-                        s32 *skyTest = (s32 *)(*(u8 **)(entry + 0xA00) + 0xE8);
+                        s32 *skyTest = (s32 *)(typedEntry->layerHandle + 0xE8);
 
                         if (*skyTest != renderTest) {
                             u32 childIndex;
 
                             *skyTest = renderTest;
                         for (childIndex = 0; childIndex < 5; childIndex++) {
-                            /* The shared model layout does not expose these 12-byte child slots at +0x290. */
-                            u8 *childModel = *(u8 **)((u32)*(u8 **)(entry + 0xA00) + childIndex * 12 + 0x290);
+                            /* measured: direct and local attachment indexing change UpdateAll codegen; retain byte-address order. */
+                            u8 *childModel = MEMBER(u8 *, (u32)typedEntry->layerHandle + childIndex * 12, Model, attachedWpns[0].wpnMdl);
 
                             if (childModel != NULL) {
                                 ((MdlFileModel *)childModel)->skyTest = renderTest;
@@ -378,10 +383,10 @@ void btlUnitUpdateAll(void)
                         RwRGBA *colorPtr = &color;
 
                         ((BtlUnitColorTransition *)(entry + 0x40))->published = *colorPtr;
-                        mdlSetColor(*(u8 **)(entry + 0xA00), (s32 *)colorPtr);
+                        mdlSetColor(typedEntry->layerHandle, (s32 *)colorPtr);
                     }
                     btlTargetRefreshRadiusNode(entry);
-                    *(s32 *)(entry + 0x98) &= ~4;
+                    *(s32 *)&typedEntry->flags2 &= ~4;
                 }
                 {
                     u8 *model = ((BtlUnit *)entry)->layerHandle;
@@ -400,22 +405,23 @@ void btlUnitUpdateAll(void)
                         if (effectSlot != (s16)btlPacketGetValue(((BtlUnitResources *)(entry + 0xA04))->placement)) {
                             btlEffectFlagToColor(statusFlags, entry + 0x48);
                             ((BtlUnitColorTransition *)(entry + 0x40))->start = ((BtlUnitColorTransition *)(entry + 0x40))->current;
-                            *(u16 *)(entry + 0x4C) = 8;
+                            typedEntry->unk_4c = 8;
                             btlPacketSetValue((u8 *)((BtlUnitResources *)(entry + 0xA04))->placement, effectSlot);
                         }
                     }
-                    btlPacketSetTag((u8 *)((BtlUnitResources *)(entry + 0xA04))->placement, *(u32 *)(entry + 0x4E));
+                    btlPacketSetTag((u8 *)((BtlUnitResources *)(entry + 0xA04))->placement, *(u32 *)&((BtlUnit *)entry)->unk_4e);
                     btlEffectRefreshPlacementState((u8 *)((BtlUnitResources *)(entry + 0xA04))->placement);
                 }
             }
             entry = (u8 *)((BtlUnit *)entry)->prevUnit;
+            typedEntry = (BtlUnit *)entry;
         }
     }
 }
 
 #pragma pop
-// FUN_0019CFB0
 /* Refresh look-at targets for modeled units in all four genus lists. */
+// FUN_0019CFB0
 void btlUnitUpdateAllLookAtTargets(void) {
     u32 i;
     u8 *entry;
@@ -441,29 +447,31 @@ loop_7:
     }
 }
 
-// FUN_0019D040
 /* measured: typing either remaining visibility-bit update changes MATCH to MISMATCH. */
 /* Request model visibility and synchronize the scene resource visibility when one exists. */
+// FUN_0019D040
 void btlUnitShowModel(u8 *unit) {
+    BtlUnit *typedUnit = (BtlUnit *)unit;
     ((BtlUnit *)unit)->flags3 &= ~0x1000;
     btlUnitClearModelState(unit, 5);
     if (((BtlUnit *)unit)->sceneDrawId != 0) {
         SceneDraw_SetResVisibleChecked(((BtlUnit *)unit)->sceneDrawId, 1);
-        *(s32 *)(unit + 0x9C) &= ~2;
+        *(s32 *)&typedUnit->flags3 &= ~2;
         return;
     }
-    *(s32 *)(unit + 0x9C) |= 2;
+    *(s32 *)&typedUnit->flags3 |= 2;
 }
 
-// FUN_0019D0C0
 /* measured: typing the final visibility-bit clear changes MATCH to MISMATCH. */
 /* Hide both the model and its scene resource, clearing the queued visibility bit. */
+// FUN_0019D0C0
 void btlUnitHideModel(u8 *unit) {
+    BtlUnit *typedUnit = (BtlUnit *)unit;
     ((BtlUnit *)unit)->flags3 |= 0x1000;
     btlUnitClearModelState(unit, 5);
     if (((BtlUnit *)unit)->sceneDrawId != 0) {
         SceneDraw_SetResVisibleChecked(((BtlUnit *)unit)->sceneDrawId, 0);
     }
-    *(s32 *)(unit + 0x9C) &= ~2;
+    *(s32 *)&typedUnit->flags3 &= ~2;
 }
 

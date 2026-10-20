@@ -195,11 +195,12 @@ extern u8 D_00794150[];
 // FUN_0019DEA0
 void btlUnitRequestLookAt(u8 *unit)
 {
+    BtlUnit *typedUnit = (BtlUnit *)unit;
     if ((((BtlUnit *)unit)->flags2 & 2) != 0) {
         if (mdlHasActiveMode(((BtlUnit *)unit)->layerHandle) != 0) {
             /* measured: repeated typed layer loads hoist +0xA00 into an extra saved register (108B vs 96B). */
-            mdlSetLookAtActive(*(u8 **)(unit + 0xA00));
-            mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
+            mdlSetLookAtActive(typedUnit->layerHandle);
+            mdlSetLookAtRequested(typedUnit->layerHandle);
         }
     }
 }

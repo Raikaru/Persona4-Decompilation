@@ -27,8 +27,13 @@ typedef struct DatUnit
     u16 sp;             // 0x0A
     u32 bad;            // 0x0C
     s8 aiTactic;        // 0x10
-    u8 unknown11[0x1F]; // 0x11
+    u8 unknown11[0x1B]; // 0x11..0x2B
+    u16 messageCode;    // 0x2C: status/skill message selected during hit resolution
+    u8 pad2E[2];
 } DatUnit;
+
+typedef char DatUnitSizeCheck[sizeof(DatUnit) == 0x30 ? 1 : -1];
+typedef char DatUnitMessageCodeOffsetCheck[(u32)&((DatUnit *)0)->messageCode == 0x2C ? 1 : -1];
 
 typedef struct DatUnitGenusBase
 {
