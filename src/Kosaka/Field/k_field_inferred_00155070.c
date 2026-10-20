@@ -1,3 +1,6 @@
+#include "member_access.h"
+#include "resrc_manager_internal.h"
+#include "rw_camera_internal.h"
 /* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Event/Fcl/fclBankManager.c; members 00155070-001552a0 */
 
 #include "mt_scene_internal.h"
@@ -7,6 +10,7 @@
 #include "sdk_task_registration.h"
 #include "sdktask.h"
 #include "type.h"
+typedef struct FldCameraMatrixPair { s32 first; s32 second; } FldCameraMatrixPair;
 #include "field_light_internal.h"
 #include "field_frame_internal.h"
 #include "rw_types_internal.h"
@@ -36,7 +40,7 @@ extern s32 kwlnGetCamera(void);
 #pragma push
 #pragma opt_loop_invariants on
 // Intent: Apply the camera parameters from resource 0x14: field of view, view offset, distance, the slot vectors and the frame slot buffer [inferred]
-/* The camera resource has version-specific parameters at +0x140..0x304; bytewise slot/matrix copies retain the measured load/store order. */
+/* Resource camera parameters occupy +0x140..0x304; scalar-pair copies retain load/store order, and MEMBER preserves view-distance aliasing. */
 // FUN_00155070
 void MT_Scene_ApplyCameraParams(void)
 {
@@ -44,28 +48,28 @@ void MT_Scene_ApplyCameraParams(void)
     u8 *cameraResource;
     u8 *slotDestination;
     u8 *matrixSource;
-    s16 *firstWord;
+    s32 firstWord;
     s32 secondWord;
     s32 pairsRemaining;
     s32 slotIndex;
 
     cameraResource = MT_Scene_GetResListHead(0x14);
     if (cameraResource != NULL) {
-        K_View_SetFov((void *)kwlnGetCamera(), *(f32 *)(cameraResource + 0x144));
-        func_003e0670(slotMatrix, *(s32 *)(cameraResource + 0x148));
-        func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), slotMatrix, 0);
-        FldCameraAdvanceCurve(MT_Scene_GetFrameState()[1], *(s32 *)(cameraResource + 0x140));
+        K_View_SetFov((void *)kwlnGetCamera(), ((ResrcRecord *)(cameraResource))->cameraFov);
+        func_003e0670(slotMatrix, ((ResrcRecord *)(cameraResource))->cameraMatrix);
+        func_003e9cb0((s32)((RwCamera *)(kwlnGetCamera()))->object.object.parent, slotMatrix, 0);
+        FldCameraAdvanceCurve(MT_Scene_GetFrameState()[1], ((ResrcRecord *)(cameraResource))->cameraCurve);
         FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], cameraResource + 0x150);
-        if ((*(f32 *)(cameraResource + 0x15C) == 0.0f) &&
+        if ((((ResrcRecord *)(cameraResource))->cameraViewDistance == 0.0f) &&
             (FldMap_IsCurrentInEitherBand() == 1)) {
-            *(f32 *)(cameraResource + 0x15C) = 20.0f;
+            MEMBER(f32, cameraResource, ResrcRecord, cameraViewDistance) = 20.0f; /* measured: ResrcRecord.cameraViewDistance: local nd11; MEMBER retains reload behavior. */
         }
-        FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], *(f32 *)(cameraResource + 0x15C));
-        fldCameraSetFollowHeight(MT_Scene_GetFrameState()[1], *(f32 *)(cameraResource + 0x160));
+        FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], MEMBER(f32, cameraResource, ResrcRecord, cameraViewDistance)); /* measured: ResrcRecord.cameraViewDistance: local nd11; MEMBER retains reload behavior. */
+        fldCameraSetFollowHeight(MT_Scene_GetFrameState()[1], ((ResrcRecord *)(cameraResource))->cameraFollowHeight);
         slotIndex = 0;
         goto loop_test;
 loop_body:
-        if (*(s8 *)(cameraResource + slotIndex + 0x164) != 0) {
+        if (((ResrcRecord *)(cameraResource + slotIndex))->cameraSlotEnabled[0] != 0) {
             FldFrame_SetSlotVector(MT_Scene_GetFrameState()[1],
                           (s8)slotIndex,
                           cameraResource + slotIndex * 0xC + 0x184);
@@ -75,17 +79,17 @@ loop_test:
         if (slotIndex < 0x20) {
             goto loop_body;
         }
-        func_003e0670(slotMatrix, *(s32 *)(cameraResource + 0x14C));
+        func_003e0670(slotMatrix, ((ResrcRecord *)(cameraResource))->cameraSlotMatrix);
         slotDestination = FldFrame_GetSlotBuffer(MT_Scene_GetFrameState()[1]);
         matrixSource = slotMatrix;
         pairsRemaining = 8;
         do {
-            firstWord = *(s16 **)matrixSource;
-            secondWord = *(s32 *)(matrixSource + 4);
+            firstWord = ((FldCameraMatrixPair *)matrixSource)->first;
+            secondWord = ((FldCameraMatrixPair *)(matrixSource))->second;
             matrixSource += 8;
             pairsRemaining -= 1;
-            *(s16 **)slotDestination = firstWord;
-            *(s32 *)(slotDestination + 4) = secondWord;
+            ((FldCameraMatrixPair *)slotDestination)->first = firstWord;
+            ((FldCameraMatrixPair *)(slotDestination))->second = secondWord;
             slotDestination += 8;
         } while (pairsRemaining > 0);
         FldCameraUpdateLookAt(MT_Scene_GetFrameState()[1]);

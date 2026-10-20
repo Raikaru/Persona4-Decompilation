@@ -1,5 +1,5 @@
 #include "primitive_queue_internal.h"
-#include "Kosaka/k_fld_rw_internal.h"
+#include "Kosaka/k_fldResource_internal.h"
 #include "resrc_manager_internal.h"
 #include "h_cdvd_request_internal.h"
 #include "rw_types_internal.h"
@@ -159,45 +159,7 @@ extern s32 D_007E8060[];
 extern s32 iGpffffb208;   /* gp - 0x4DF8 = 0x007642F8 */
 
 
-typedef struct {
-    u16 type;
-    u16 flags;
-    u16 id;
-    u16 pad06;
-    s32 frame;
-    s32 model;
-    s32 effect;
-    union { s32 file; u8 *filePtr; };
-} FldResourceEntry;
 
-/* Object words are 32-bit address carriers: bit 0 selects worlds instead of
- * clumps; 0x80000000/0x40000000/0x20000000 select the draw-object variants.
- * 0x10000000 marks a missing distinct primary object; bit 1 marks a clone. */
-typedef struct {
-    u32 flags;
-    s16 majorId;
-    s16 minorId;
-    union { s32 primaryObject; RpWorld *primaryWorld; };
-    union { s32 primaryDrawObject; u8 *primaryDrawObjectPtr; };
-    s32 alternateObject;
-    s32 secondaryObject;
-    u32 clumpCount;
-    s32 clumps[32];
-    union { s32 drawObjects[32]; void *drawObjectPointers[32]; };
-    u32 entryCount;
-    FldResourceEntry entries[96];
-    s32 animation;
-    union { Vec3 scale; struct { s32 scaleXBits, scaleYBits, scaleZBits; }; }; /* 0xA24 */
-    u8 padA30[0xC];
-    s32 hbnFile;                /* 0xA3C */
-    union { s32 hbnData; u8 *hbnDataPtr; };                /* 0xA40 */
-    u8 *loadWork;               /* 0xA44: separately allocated 0x12C-byte load state */
-    s32 fbnFile;                /* 0xA48 */
-    union { u8 *fbnData; s32 fbnDataWord; }; /* 0xA4C */
-    Vec4 savedAmbientColor;     /* 0xA50 */
-    Vec4 savedDirectionalColor; /* 0xA60 */
-    u8 savedLightMatrix[0x40];  /* 0xA70: copied as eight scalar pairs */
-} FldResource;
 
 
 /* The 0x12C-byte load allocation contains the path and asynchronous readers. */

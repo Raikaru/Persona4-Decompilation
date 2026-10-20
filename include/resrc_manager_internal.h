@@ -56,44 +56,67 @@ struct ResrcRecord
     union {
         struct {
             union {
-                void *slotHandle[2]; /* 0x140. [1] is 0x144 in the per-type cases */
-                s32 slotHandleValue[2]; /* Native signed-word API transport, same handles. */
-                f32 fieldOfView;     /* 0x140. Camera-resource interpretation */
+                struct {
+                    union {
+                        void *slotHandle[2]; /* 0x140. [1] is 0x144 in the per-type cases */
+                        s32 slotHandleValue[2]; /* Native signed-word API transport, same handles. */
+                        f32 fieldOfView;     /* 0x140. Camera-resource interpretation */
+                    };
+                    s32 cameraRes[2];       /* 0x148. Camera resources (RESRC_TYPE_20) */
+                };
+                struct {
+                    f32 placement[3];      /* 0x140. Placement-resource position */
+                    f32 heading;           /* 0x14c. Rotation about the vertical axis */
+                };
             };
-            s32 cameraRes[2];       /* 0x148. Camera resources (RESRC_TYPE_20) */
+            union {
+                u8 unk150[0x8];
+                struct { s32 value150, unk154; };
+            };
+            void *modelHandle158;   /* 0x158. Model data (RESRC_TYPE_MODELUNK) */
+            u8 unk15C[0x8];
+            union {
+                void *modelHandle164; /* 0x164. Model data (RESRC_TYPE_MODELCHAR/NPC) */
+                s32 modelHandle164Value;
+            };
+            u8 unk168[0x4];
+            void *handle16C;        /* 0x16c. Effect handle (RESRC_TYPE_MODELFLD) */
+            u8 unk170[0x30];
+            s32 handle1A0;          /* 0x1a0. RESRC_TYPE_FLD */
+            u8 unk1A4[0x7c];
+            s32 handle220;          /* 0x220 */
+            s32 handle224;          /* 0x224 */
+            void *handle228;        /* 0x228 */
+            void *handle22C;        /* 0x22c */
+            s32 handle230;          /* 0x230 */
+            u8 unk234[0x54];
+            s32 handle288;          /* 0x288. Freed through jtbl_008873EC[0] */
+            u8 unk28C[0x4];
+            void *handle290;        /* 0x290 */
+            s32 handle294;          /* 0x294 */
+            u8 unk298[0xc8];
+            s32 handle360;          /* 0x360 */
         };
         struct {
-            f32 placement[3];      /* 0x140. Placement-resource position */
-            f32 heading;           /* 0x14c. Rotation about the vertical axis */
+            s32 cameraCurve; /* 0x140 */
+            f32 cameraFov;
+            s32 cameraMatrix;
+            s32 cameraSlotMatrix;
+            f32 cameraViewOffset[3];
+            f32 cameraViewDistance;
+            f32 cameraFollowHeight;
+            s8 cameraSlotEnabled[32];
+            f32 cameraSlotVectors[32][3];
+        };
+        struct {
+            f32 lightColor[4];       /* 0x140 */
+            f32 lightTarget[4];      /* 0x150 */
+            f32 lightTransform[16];  /* 0x160 */
+            f32 lightValue[4];       /* 0x1A0 */
+            f32 lightMatrix[16];     /* 0x1B0 */
+            f32 lightScale[3];       /* 0x1F0 */
         };
     };
-    union {
-        u8 unk150[0x8];
-        struct { s32 value150, unk154; };
-    };
-    void *modelHandle158;   /* 0x158. Model data (RESRC_TYPE_MODELUNK) */
-    u8 unk15C[0x8];
-    union {
-        void *modelHandle164; /* 0x164. Model data (RESRC_TYPE_MODELCHAR/NPC) */
-        s32 modelHandle164Value;
-    };
-    u8 unk168[0x4];
-    void *handle16C;        /* 0x16c. Effect handle (RESRC_TYPE_MODELFLD) */
-    u8 unk170[0x30];
-    s32 handle1A0;          /* 0x1a0. RESRC_TYPE_FLD */
-    u8 unk1A4[0x7c];
-    s32 handle220;          /* 0x220 */
-    s32 handle224;          /* 0x224 */
-    void *handle228;        /* 0x228 */
-    void *handle22C;        /* 0x22c */
-    s32 handle230;          /* 0x230 */
-    u8 unk234[0x54];
-    s32 handle288;          /* 0x288. Freed through jtbl_008873EC[0] */
-    u8 unk28C[0x4];
-    void *handle290;        /* 0x290 */
-    s32 handle294;          /* 0x294 */
-    u8 unk298[0xc8];
-    s32 handle360;          /* 0x360 */
 };
 
 #endif
