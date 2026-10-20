@@ -1,3 +1,6 @@
+#include "member_access.h"
+/* Measured alias-sensitive fields use MEMBER; typed access-site, local-pointer
+ * and applicable array forms are recorded in FullBattle2.culprits.tsv. */
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
 #include "list_item_internal.h"
@@ -51,11 +54,11 @@ extern s64 btlGetUID(void);
 extern u32 datCalcRandomBelow(u32);
 extern u32 iGpffffa0b8;
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
+static inline u8 *battleAddByteOffset(s32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
 }
-static inline f32 func_001ba790_mul(f32 left, f32 right)
+static inline f32 battleMultiplyScalar(f32 left, f32 right)
 {
     return left * right;
 }
@@ -150,21 +153,21 @@ void btlActionListUpdate(void)
     u8 *base;
 
     base = (u8 *)iGpffffb3ac;
-    action = *(u8 **)(base + 0x174);
+    action = *(u8 * *)&((BtlBattleState *)(base))->actions;
     goto loop_check;
 loop_body:
-    nextAction = *(u8 **)(action + 0x450);
+    nextAction = *(u8 * *)&((BtlAction *)(action))->next;
     updateReady = 1;
-    if (*(u16 *)(action + 0xE) != 0) {
-        delay = *(u16 *)(action + 0x12);
+    if (*(u16 *)&((BtlAction *)(action))->pendingState != 0) {
+        delay = *(u16 *)&((BtlAction *)(action))->pendingStateTimer;
         if ((s32)delay > 0) {
-            if ((*(u16 *)(action + 0x12) -= 1) != 0) goto decrement_not_zero;
-            pendingState = *(u16 *)(action + 0xE);
-            *(u16 *)(action + 0x10) = *(u16 *)(action + 0xC);
-            *(u16 *)(action + 0xC) = pendingState;
-            *(s32 *)(action + 0x1C) = 0;
+            if ((MEMBER(u16, action, BtlAction, pendingStateTimer) -= 1) != 0) goto decrement_not_zero;
+            pendingState = MEMBER(u16, action, BtlAction, pendingState);
+            *(u16 *)&((BtlAction *)(action))->oldState = *(u16 *)&((BtlAction *)(action))->currState;
+            *(u16 *)&((BtlAction *)(action))->currState = pendingState;
+            *(s32 *)&((BtlAction *)(action))->stateTimer = 0;
             (*(void (**)(u8 *))((u8 *)D_005F6E20 + pendingState * 0xC))(action);
-            *(u16 *)(action + 0xE) = 0;
+            MEMBER(u16, action, BtlAction, pendingState) = 0;
             goto decrement_done;
 decrement_not_zero:
             updateReady = 0;
@@ -173,21 +176,21 @@ decrement_done:
         }
     }
     if (updateReady != 0) {
-        flags = *(u16 *)(action + 0x1A);
+        flags = *(u16 *)&((BtlAction *)(action))->unk_1a;
         if ((flags & 4) == 0) {
-            if ((*(u16 *)(action + 0x18) & 1) != 0) {
-                (*(void (**)(u8 *))((u8 *)D_005F6E20 + *(u16 *)(action + 0xC) * 0xC + 4))(action);
-                *(s32 *)(action + 0x1C) += 2;
+            if ((*(u16 *)&((BtlAction *)(action))->flags & 1) != 0) {
+                (*(void (**)(u8 *))((u8 *)D_005F6E20 + *(u16 *)&((BtlAction *)(action))->currState * 0xC + 4))(action);
+                *(s32 *)&((BtlAction *)(action))->stateTimer += 2;
             } else if ((flags & 2) != 0) {
-                nextNode = *(u8 **)(action + 0x450);
+                nextNode = MEMBER(u8 *, action, BtlAction, next);
                 if (nextNode != NULL) {
-                    *(u8 **)(nextNode + 0x44C) = *(u8 **)(action + 0x44C);
+                    *(u8 * *)&((BtlAction *)(nextNode))->previous = *(u8 * *)&((BtlAction *)(action))->previous;
                 }
-                previousNode = *(u8 **)(action + 0x44C);
+                previousNode = *(u8 * *)&((BtlAction *)(action))->previous;
                 if (previousNode != NULL) {
-                    *(u8 **)(previousNode + 0x450) = *(u8 **)(action + 0x450);
+                    *(u8 * *)&((BtlAction *)(previousNode))->next = MEMBER(u8 *, action, BtlAction, next);
                 } else {
-                    *(u8 **)(iGpffffb3ac + 0x174) = *(u8 **)(action + 0x450);
+                    *(u8 * *)&((BtlBattleState *)(iGpffffb3ac))->actions = MEMBER(u8 *, action, BtlAction, next);
                 }
                 (*jtbl_008873EC)(action);
             }
@@ -207,18 +210,18 @@ void btlActionListDestroyAll(void)
     u8 *previousAction;
     u8 *action;
 
-    action = *(u8 **)(iGpffffb3ac + 0x174);
+    action = *(u8 * *)&((BtlBattleState *)(iGpffffb3ac))->actions;
     goto loop_check;
 loop_body:
-    nextAction = *(u8 **)(action + 0x450);
+    nextAction = *(u8 * *)&((BtlAction *)(action))->next;
     if (nextAction != NULL) {
-        *(u8 **)(nextAction + 0x44C) = *(u8 **)(action + 0x44C);
+        *(u8 * *)&((BtlAction *)(nextAction))->previous = *(u8 * *)&((BtlAction *)(action))->previous;
     }
-    previousAction = *(u8 **)(action + 0x44C);
+    previousAction = *(u8 * *)&((BtlAction *)(action))->previous;
     if (previousAction != NULL) {
-        *(u8 **)(previousAction + 0x450) = *(u8 **)(action + 0x450);
+        *(u8 * *)&((BtlAction *)(previousAction))->next = MEMBER(u8 *, action, BtlAction, next);
     } else {
-        *(u8 **)(iGpffffb3ac + 0x174) = *(u8 **)(action + 0x450);
+        *(u8 * *)&((BtlBattleState *)(iGpffffb3ac))->actions = MEMBER(u8 *, action, BtlAction, next);
     }
     (*jtbl_008873EC)(action);
     action = nextAction;
