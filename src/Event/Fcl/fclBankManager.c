@@ -6,6 +6,8 @@
 
 
 
+typedef struct FclBankPosition { f32 x, y; } FclBankPosition;
+
 extern char iGpffffa890[8];
 extern int iGpffffa898;
 
@@ -304,7 +306,7 @@ void fclBankUpdateFades(void)
                 ratio = (f32)ticks / 5.0f;
                 /* Position accessor has a byte-pointer ABI; the two f32 components are at +0/+4. */
                 *(f32 *)fclBankGetPositionPtr(slot->index) = (f32)x;
-                *(f32 *)(fclBankGetPositionPtr(slot->index) + 4) = 91.0f;
+                ((FclBankPosition *)fclBankGetPositionPtr(slot->index))->y = 91.0f;
                 fclBankSetAlpha(slot->index, (u8)(ratio * 255.0f));
                 fclBankResume(slot->index);
                 if (slot->fadeTicks >= 5) {

@@ -1,4 +1,6 @@
 /* Source unit: src/Battle/btlEffect_001db100.c */
+#include "member_access.h"
+#include "scr_context_internal.h"
 #include "btl_skill_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "datUnit_internal.h"
@@ -224,7 +226,8 @@ void btlCond_ENWEAK_DW_PAI(s32 action, u32 value)
 /* measured: shared usability inlining and explicit signed query guards give
    508B/512B, verify nd0; the remaining four bytes are zero tail padding.
    Keep the entry reload after the value query and the existing s32 input ABI. */
-/* Historical whole-layout probe: normalized diff 376; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 376; measured reloads now use named MEMBER accesses. */
+/* Test whether the unit has a usable skill with the requested element. */
 // FUN_001DB160
 s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
 {
@@ -236,20 +239,20 @@ s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
     u16 *entry;
     s16 queried;
 
-    unit = *(u8 **)(action + 0x30); /* measured: access-site field substitution loses MATCH. */
+    unit = MEMBER(u8 *, action, BtlAction, unit); /* measured: access-site/local/array forms change 20 normalized bytes. */
     queried = datCalcSkillElement((u8 *)((BtlUnit *)unit)->datUnit, 0);
     if (queried != value)
         goto scan;
     return 1;
 scan:
-    count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
-    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    count = datCalcGetTableLength(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: access-site/local/array forms change 325 normalized bytes. */
+    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: access-site/local/array forms change 325 normalized bytes. */
     index = 0;
     limit = count;
     while (index < limit) {
         entry = &commands[index];
         if (*entry != 0 && *entry < 0x1B8) {
-            queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), *entry); /* measured: access-site field substitution loses MATCH. */
+            queried = datCalcSkillElement(MEMBER(u8 *, unit, BtlUnit, datUnit), *entry); /* measured: local alias nd 16, access-site/array nd 326. */
             if (queried != value)
                 goto next;
             if (btlCommandUsable(action, *entry))
@@ -266,7 +269,8 @@ next:
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
-/* Historical whole-layout probe: normalized diff 417; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 417; a separate status-unit pointer retains MATCH. */
+/* Reject blocked elements, status-gated attacks, and unusable physical commands. */
 // FUN_001DB360
 s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
 {
@@ -277,8 +281,10 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
     u16 i;
     s32 limit;
     u16 command;
+    BtlUnit *statusUnit;
 
     unit = (u8 *)((BtlAction *)formation)->unit;
+    statusUnit = (BtlUnit *)unit;
     if (((BtlUnit *)unit)->genus == 1 &&
         func_001f9ce0(formation, (s16)index) == 0) {
         u32 queryIndex = (u16)index;
@@ -298,12 +304,12 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
     }
 
     if (flags & 2) {
-        if (*(u8 *)(unit + 0xA2) == 1) { /* measured: access-site field substitution loses MATCH. */
+        if (statusUnit->genus == 1) {
             if (((BtlUnit *)unit)->datUnit->flags & 0x100)
                 return 0;
         } else {
             count = datCalcGetTableLength(((BtlUnit *)unit)->datUnit);
-            commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+            commands = (u16 *)datCalcSkillList(statusUnit->datUnit);
             i = 0;
             limit = count;
             while (i < limit) {
@@ -762,7 +768,7 @@ typedef struct SortEnt {
     f32 ratio;
 } SortEnt;
 /* Use uniform targeting unless eligible party targets can be ranked by HP ratio and weighted. */
-/* Historical whole-layout probe: normalized diff 815; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 815; the candidate-unit reload retains byte aliasing via MEMBER. */
 // FUN_001DBF20
 s32 btlAICommandPickAiTarget(u8 *action, u32 value) {
     extern u8 D_006095F0[];
@@ -785,6 +791,7 @@ s32 btlAICommandPickAiTarget(u8 *action, u32 value) {
     s32 totalWeight;
     u16 weightedIndex;
     u16 randomWeight;
+    BtlAction *actionRecord = (BtlAction *)action;
 
     classification = btlSkillClassifyTargets(action, action + 0x98, ((BtlAction *)action)->unk_6e, 0);
     if (classification != 0) {
@@ -814,7 +821,7 @@ s32 btlAICommandPickAiTarget(u8 *action, u32 value) {
                 chooseUniformly = 0;
             }
         }
-        targetKind = *(iGpffffb3b8 + *(u16 *)(action + 0x6E) * 40 + 17); /* measured: access-site field substitution loses MATCH. */
+        targetKind = iGpffffb3b8[actionRecord->unk_6e * 40 + MEMBER_OFFSET(DatSkillEntry, effectKind)];
         if (targetKind == 0x10 || targetKind == 0x0E || targetKind == 0x0D || targetKind == 0x0C || targetKind == 0x0A || targetKind == 0x08 || targetKind == 0x04 || targetKind == 0x03 || targetKind == 0x01) {
         } else {
             chooseUniformly = 1;
@@ -829,7 +836,7 @@ s32 btlAICommandPickAiTarget(u8 *action, u32 value) {
                 candidateEntry = action + (candidateIndex & 0xFFFF) * 4 + 0x98;
                 candidateAction = *(u32 *)candidateEntry;
                 maxHp = datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)((u32)((BtlAction *)candidateAction)->unit))->datUnit) & 0xFFFF;
-                currentHp = datCalcGetHp((u32)((BtlUnit *)(*(u32 *)(candidateAction + 0x30)))->datUnit) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
+                currentHp = datCalcGetHp((u32)((BtlUnit *)(MEMBER(u32, candidateAction, BtlAction, unit)))->datUnit) & 0xFFFF; /* measured: access-site/local/array forms change 439 normalized bytes. */
                 rankedTargets[candidateIndex & 0xFFFF].unit = *(u32 *)candidateEntry;
                 rankedTargets[candidateIndex & 0xFFFF].ratio = (f32)currentHp / (f32)maxHp;
                 candidateIndex++;
@@ -1319,7 +1326,7 @@ u32 btlCond_HPMAX(u32 action)
 }
 /* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. */
 /* Select a usable command by predicted remaining target HP and the requested cost class. */
-/* Historical whole-layout probe: normalized diff 21; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 21; a separate target-record pointer retains MATCH. */
 // FUN_001DD1C0
 s32 btlAICommandPickSkillTargetByHp(u8 *action, u8 *target, u16 *commands, u16 count, u32 requestedCostClass) {
     u32 targetHp;
@@ -1333,6 +1340,7 @@ s32 btlAICommandPickSkillTargetByHp(u8 *action, u8 *target, u16 *commands, u16 c
     u8 costKind;
     s32 hpDelta;
     s32 remainingHp;
+    BtlAction *targetRecord = (BtlAction *)target;
 
     targetHp = datCalcGetHp((u32)((BtlUnit *)((u32)((BtlAction *)target)->unit))->datUnit) & 0xFFFF;
     bestCommand = -1;
@@ -1348,7 +1356,7 @@ s32 btlAICommandPickSkillTargetByHp(u8 *action, u8 *target, u16 *commands, u16 c
         else
             costKind = ((DatSkillEntry *)iGpffffb3b8)[commandId].unknown04[4];
         if ((costClass != 0 || (costKind & 0xFF) == 1) && (costClass != 1 || (costKind & 0xFF) == 0)) {
-            hpDelta = datCalcSkillAmount(commandId, (u8 *)*(u32 *)((u32)((BtlAction *)action)->unit + 0xA64), (u8 *)*(u32 *)(*(u32 *)(target + 0x30) + 0xA64), 1, 1, 1, 0, 1); /* measured: access-site field substitution loses MATCH. */
+            hpDelta = datCalcSkillAmount(commandId, (u8 *)((BtlUnit *)(u32)((BtlAction *)action)->unit)->datUnit, (u8 *)targetRecord->unit->datUnit, 1, 1, 1, 0, 1);
             remainingHp = targetHp + hpDelta;
             if (remainingHp > 0 && bestRemainingHp > 0) {
                 if (remainingHp < bestRemainingHp) {
@@ -1366,12 +1374,12 @@ s32 btlAICommandPickSkillTargetByHp(u8 *action, u8 *target, u16 *commands, u16 c
         commandIndex = (commandIndex + 1) & 0xFFFF;
     }
     datCalcClearField18((u32)((BtlUnit *)((u32)((BtlAction *)action)->unit))->datUnit);
-    datCalcClearField18((u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit); /* measured: access-site field substitution loses MATCH. */
+    datCalcClearField18((u32)targetRecord->unit->datUnit);
     return bestCommand;
 }
 /* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. */
 /* Choose the command whose predicted target HP is closest to its maximum. */
-/* Historical whole-layout probe: normalized diff 35; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 35; a separate target-record pointer retains MATCH. */
 // FUN_001DD3A0
 s32 btlAICommandPickSkillTargetNearMaxHp(u8 *action, u8 *target, u16 *commands, u16 count, s32 requestedCostClass) {
     u32 targetHp;
@@ -1385,9 +1393,10 @@ s32 btlAICommandPickSkillTargetNearMaxHp(u8 *action, u8 *target, u16 *commands, 
     u16 commandId;
     u8 costKind;
     s32 distance;
+    BtlAction *targetRecord = (BtlAction *)target;
 
     targetHp = datCalcGetHp((u32)((BtlUnit *)((u32)((BtlAction *)target)->unit))->datUnit) & 0xFFFF;
-    maxHp = datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
+    maxHp = datCalcMaxHp(targetRecord->unit->datUnit) & 0xFFFF;
     bestCommand = -1;
     bestDistance = 0xFFFFFF;
     commandIndex = 0;
@@ -1399,7 +1408,7 @@ s32 btlAICommandPickSkillTargetNearMaxHp(u8 *action, u8 *target, u16 *commands, 
         if (commandId != 0 && commandId < 0x1B8) {
             costKind = ((DatSkillEntry *)iGpffffb3b8)[commandId].unknown04[4];
             if ((costClass != 0 || (costKind & 0xFF) == 1) && (costClass != 1 || (costKind & 0xFF) == 0)) {
-                distance = func_0043c6a0(maxHp - (targetHp + datCalcSkillAmount(commandId, (u8 *)*(u32 *)((u32)((BtlAction *)action)->unit + 0xA64), (u8 *)*(u32 *)(*(u32 *)(target + 0x30) + 0xA64), 1, 1, 1, 0, 1))); /* measured: access-site field substitution loses MATCH. */
+                distance = func_0043c6a0(maxHp - (targetHp + datCalcSkillAmount(commandId, (u8 *)((BtlUnit *)(u32)((BtlAction *)action)->unit)->datUnit, (u8 *)targetRecord->unit->datUnit, 1, 1, 1, 0, 1)));
                 if (distance < bestDistance) {
                     bestCommand = *(u16 *)commandEntry;
                     bestDistance = distance;
@@ -1409,7 +1418,7 @@ s32 btlAICommandPickSkillTargetNearMaxHp(u8 *action, u8 *target, u16 *commands, 
         commandIndex = (commandIndex + 1) & 0xFFFF;
     }
     datCalcClearField18((u32)((BtlUnit *)((u32)((BtlAction *)action)->unit))->datUnit);
-    datCalcClearField18((u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit); /* measured: access-site field substitution loses MATCH. */
+    datCalcClearField18((u32)targetRecord->unit->datUnit);
     return bestCommand;
 }
 /* Recovered: retail's shape is a scoped `opt_propagation off` translation
@@ -1426,7 +1435,7 @@ s32 btlAICommandPickSkillTargetNearMaxHp(u8 *action, u8 *target, u16 *commands, 
    written `(u16)call()` (propagation-off lowers `call() & 0xFFFF` as
    ori/and) this is byte-exact. */
 /* Collect usable commands effective on the target and choose by predicted HP outcome. */
-/* Historical whole-layout probe: normalized diff 627; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 627; command aliases type the body except the measured source reloads. */
 // FUN_001DD570
 #pragma push
 #pragma opt_propagation off
@@ -1448,6 +1457,8 @@ s32 btlAICommandCollectSkillCandidates(u8 *action, u8 *target, s32 costPreferenc
     u8 *usabilityUnit;
     s32 usable;
     s32 selectedCommand;
+    BtlAction *actionRecord = (BtlAction *)action;
+    BtlUnit *commandUnit;
 
     candidateCount = 0;
     sourceUnit = (u8 *)((BtlAction *)action)->unit;
@@ -1456,15 +1467,15 @@ s32 btlAICommandCollectSkillCandidates(u8 *action, u8 *target, s32 costPreferenc
         candidates[0] = 0;
         candidateCount++;
     }
-    commandCount = (u16)datCalcGetTableLength(*(DatUnit **)(sourceUnit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
-    commands = (u16 *)datCalcSkillList(*(DatUnit **)(sourceUnit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    commandCount = (u16)datCalcGetTableLength(MEMBER(DatUnit *, sourceUnit, BtlUnit, datUnit)); /* measured: local alias nd 30, access-site/array nd 633. */
+    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, sourceUnit, BtlUnit, datUnit)); /* measured: local alias nd 30, access-site/array nd 633. */
     commandIndex = 0;
     scanCount = commandCount;
     while (commandIndex < scanCount) {
         entry = commands + commandIndex;
         listCommand = *entry;
         if (listCommand != 0 && listCommand < 0x1B8) {
-            commandElement = (s16)datCalcSkillElement(*(u8 **)(sourceUnit + 0xA64), listCommand); /* measured: access-site field substitution loses MATCH. */
+            commandElement = (s16)datCalcSkillElement(MEMBER(u8 *, sourceUnit, BtlUnit, datUnit), listCommand); /* measured: local alias nd 30, access-site/array nd 602. */
             elementFlags = datCalcElementBit(commandElement);
             if (effectFilter == 0) {
                 if ((elementFlags & 0x7E) == 0)
@@ -1479,17 +1490,18 @@ s32 btlAICommandCollectSkillCandidates(u8 *action, u8 *target, s32 costPreferenc
             command = *entry;
             if (command >= 0x240)
                 kAssertFail(D_006095E0, 0x45F);
-            usabilityUnit = *(u8 **)(action + 0x30); /* measured: access-site field substitution loses MATCH. */
+            usabilityUnit = (u8 *)actionRecord->unit;
+            commandUnit = (BtlUnit *)usabilityUnit;
             if (command < 0x1B8) {
                 if (datCalcChkBadStatus((u32)((BtlUnit *)usabilityUnit)->datUnit, 0x80008) != 0) {
                     usable = 0;
                     goto have_ok;
                 }
-                if (datCalcHasSkill(*(u8 **)(usabilityUnit + 0xA64), command) == 0) { /* measured: access-site field substitution loses MATCH. */
+                if (datCalcHasSkill((u8 *)commandUnit->datUnit, command) == 0) {
                     usable = 0;
                     goto have_ok;
                 }
-                if (datCalcThresholdTrigger(*(u8 **)(usabilityUnit + 0xA64), command) != 0) { /* measured: access-site field substitution loses MATCH. */
+                if (datCalcThresholdTrigger((u8 *)commandUnit->datUnit, command) != 0) {
                     usable = 0;
                     goto have_ok;
                 }
@@ -1538,7 +1550,7 @@ next:
    Allocator capture traced the former selector/count exchange to the healing
    scan's command/index coloring, rather than their declaration order. */
 /* Collect revive, healing or status-cure commands according to the target condition. */
-/* Historical whole-layout probe: normalized diff 1175; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 1175; target aliases type the body except the measured source reloads. */
 // FUN_001DD920
 s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElement, s32 costPreference)
 {
@@ -1553,12 +1565,13 @@ s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElemen
     u32 maxHp;
     s32 currentHp;
     s32 selectedCommand;
+    BtlAction *targetRecord = (BtlAction *)target;
 
     recoveryKind = -1;
     candidateCount = 0;
-    unit = *(u8 **)(action + 0x30); /* measured: access-site field substitution loses MATCH. */
+    unit = MEMBER(u8 *, action, BtlAction, unit); /* measured: access-site/local/array forms change 1241 normalized bytes. */
     commandCount = datCalcGetTableLength(((BtlUnit *)unit)->datUnit);
-    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: access-site/local/array forms change 1248 normalized bytes. */
     if (datCalcIsDead((u32)((BtlUnit *)((u32)((BtlAction *)target)->unit))->datUnit, 0) != 0) {
         recoveryKind = 0;
     } else {
@@ -1567,11 +1580,11 @@ s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElemen
         if (targetHp * 100 <= maxHp * 60) {
             recoveryKind = 1;
         } else {
-            if (datCalcChkBadStatus((u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit, 0xC) != 0) { /* measured: access-site field substitution loses MATCH. */
+            if (datCalcChkBadStatus((u32)targetRecord->unit->datUnit, 0xC) != 0) {
                 recoveryKind = 2;
             } else {
-                currentHp = datCalcGetHp((u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
-                if (currentHp < (s32)(datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit) & 0xFFFF)) /* measured: access-site field substitution loses MATCH. */
+                currentHp = datCalcGetHp((u32)targetRecord->unit->datUnit) & 0xFFFF;
+                if (currentHp < (s32)(datCalcMaxHp(targetRecord->unit->datUnit) & 0xFFFF))
                     recoveryKind = 1;
             }
         }
@@ -1682,7 +1695,7 @@ s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElemen
    copy; the guard and the table index keep their own andi temps, which
    is retail's shape. The callee is unaffected (still exact). */
 /* Collect usable commands of the requested element and choose by predicted HP outcome. */
-/* Historical whole-layout probe: normalized diff 600; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 600; measured source reloads now use named MEMBER accesses. */
 // FUN_001DE000
 #pragma push
 #pragma opt_propagation off
@@ -1712,15 +1725,15 @@ s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 c
         candidates[0] = 0;
         candidateCount++;
     }
-    commandCount = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
-    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    commandCount = datCalcGetTableLength(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: local alias nd 30, access-site/array nd 571. */
+    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: local alias nd 30, access-site/array nd 571. */
     commandIndex = 0;
     scanCount = commandCount;
     for (; commandIndex < scanCount; commandIndex++) {
         entry = commands + commandIndex;
         if (*entry == 0 || *entry >= 0x1B8)
             goto next;
-        queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), *entry); /* measured: access-site field substitution loses MATCH. */
+        queried = datCalcSkillElement(MEMBER(u8 *, unit, BtlUnit, datUnit), *entry); /* measured: local alias nd 30, access-site/array nd 559. */
         if (queried != element)
             goto next;
         command = *entry;
@@ -1762,7 +1775,7 @@ s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 c
    D_00609600 is a real, placeable linker symbol. */
 #pragma opt_loop_invariants on
 /* Rank candidates by missing HP and status bonus, then choose from the ranked weight table. */
-/* Historical whole-layout probe: normalized diff 558; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 558; separate action and candidate pointers retain MATCH. */
 // FUN_001DE370
 u32 btlAICommandPickUnitByHpWeight(u8 *action)
 {
@@ -1772,13 +1785,15 @@ u32 btlAICommandPickUnitByHpWeight(u8 *action)
     s16 scores[16];
     u32 selectionIndex;
     u32 total;
+    BtlAction *actionRecord = (BtlAction *)action;
+    BtlAction *candidateRecord;
 
     if (((BtlAction *)action)->unk_d0 == 1)
         return (u32)((BtlAction *)action)->parameters.candidates[0];
 
     total = 0;
     candidateIndex = 0;
-    while (candidateIndex < *(u16 *)(action + 0xD0)) { /* measured: access-site field substitution loses MATCH. */
+    while (candidateIndex < actionRecord->unk_d0) {
         u8 *unit;
         s16 *score;
         u32 maxHp;
@@ -1788,12 +1803,13 @@ u32 btlAICommandPickUnitByHpWeight(u8 *action)
 
         total += D_00609600[candidateIndex];
         unit = ((BtlAction *)action)->parameters.candidates[candidateIndex];
+        candidateRecord = (BtlAction *)unit;
         score = scores + candidateIndex;
         *score = 0;
         maxHp = datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)((u32)((BtlAction *)unit)->unit))->datUnit) & 0xFFFF;
-        currentHp = datCalcGetHp((u32)((BtlUnit *)(*(u32 *)(unit + 0x30)))->datUnit) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
+        currentHp = datCalcGetHp((u32)candidateRecord->unit->datUnit) & 0xFFFF;
         *score += (s16)(100.0f - 100.0f * ((f32)currentHp / (f32)maxHp));
-        switch (datCalcGetBadStatusNoDown((u32)((BtlUnit *)(*(u32 *)(unit + 0x30)))->datUnit)) { /* measured: access-site field substitution loses MATCH. */
+        switch (datCalcGetBadStatusNoDown((u32)candidateRecord->unit->datUnit)) {
         case 0x40:
             bonus = 50.0f;
             scoreFloat = (f32)*score;
@@ -1812,7 +1828,7 @@ u32 btlAICommandPickUnitByHpWeight(u8 *action)
         one = 1;
         do {
         swapped = 0;
-        for (bubbleIndex = 0; bubbleIndex < *(u16 *)(action + 0xD0) - 1; bubbleIndex++) { /* measured: access-site field substitution loses MATCH. */
+        for (bubbleIndex = 0; bubbleIndex < actionRecord->unk_d0 - 1; bubbleIndex++) {
             s32 left;
             s32 right;
             s16 *nextScore;
@@ -1839,7 +1855,7 @@ u32 btlAICommandPickUnitByHpWeight(u8 *action)
     cumulative = 0;
     random = datCalcRandomBelow(total);
     selectionIndex = 0;
-    for (; selectionIndex < *(u16 *)(action + 0xD0); selectionIndex++) { /* measured: access-site field substitution loses MATCH. */
+    for (; selectionIndex < actionRecord->unk_d0; selectionIndex++) {
         cumulative += D_00609600[selectionIndex];
         if (random < cumulative)
             return (u32)((BtlAction *)((u8 *)(selectionIndex * 4) + (u32)action))->parameters.candidates[0];
@@ -2006,7 +2022,7 @@ u8 *btlAISelectWeightedEntry(u8 *action, u32 index)
    buf[32], case 0/1 switch, iGpffffb444 + x*21 chain. */
 /* KwlnTask+0x20 supplies the procedure priority, decremented by one. */
 /* Start the action procedure, set its message name and attach it to the battle task. */
-/* Historical whole-layout probe: normalized diff 231; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 231; separate action/context pointers retain MATCH. */
 // FUN_001DEBB0
 s32 btlAICommandSpawnActionProc(u8 *action, u8 *work, u32 scriptData, u32 procedureId)
 {
@@ -2015,7 +2031,9 @@ s32 btlAICommandSpawnActionProc(u8 *action, u8 *work, u32 scriptData, u32 proced
     u32 procedureTask;
     u32 speakerName;
     u32 procedureWork;
-    struct ScrData { u8 pad00[0x130]; s32 messageWindow; u8 pad134[0x14]; }; /* VM extent: scrTraceCode.c; +0x130 is passed to itfMesWindowSetString. */
+    BtlAction *actionRecord = (BtlAction *)action;
+    ScrContext *procedureContext;
+    /* ScrContext supplies the message-window manager for the procedure. */
     if (((BtlUnit *)((u32)((BtlAction *)action)->unit))->genus == 0) {
         procedureValue = (u8)((DatUnit *)((u32)((BtlUnit *)((u32)((BtlAction *)action)->unit))->datUnit))->aiTactic;
         sprintf(procedureName, D_00609E20, procedureId, procedureValue);
@@ -2026,16 +2044,17 @@ s32 btlAICommandSpawnActionProc(u8 *action, u8 *work, u32 scriptData, u32 proced
     procedureTask = scrStartProcedureIndex((u8 *)((u32)((struct KwlnTask *)((u32)((BtlBattleState *)(iGpffffb3ac))->cutinTaskParent))->unk20Value - 1), scriptData, procedureValue);
     scrSetTaskProc(procedureTask, action);
     procedureWork = (u32)kwlnTaskGetWork(procedureTask);
-    if (((struct ScrData *)procedureWork)->messageWindow >= 0) {
-        switch (((BtlUnit *)(*(u32 *)(action + 0x30)))->genus) { /* measured: access-site field substitution loses MATCH. */
+    procedureContext = (ScrContext *)procedureWork;
+    if (((ScrContext *)procedureWork)->messageManager >= 0) {
+        switch (actionRecord->unit->genus) {
         case 0:
-            speakerName = (u32)datPersonaNamePart1Alt((s16)((BtlUnit *)(*(u32 *)(action + 0x30)))->charId); /* measured: access-site field substitution loses MATCH. */
+            speakerName = (u32)datPersonaNamePart1Alt((s16)actionRecord->unit->charId);
             break;
         case 1:
-            speakerName = (u32)iGpffffb444 + (((BtlUnit *)(*(u32 *)(action + 0x30)))->charId) * 21; /* measured: access-site field substitution loses MATCH. */
+            speakerName = (u32)iGpffffb444 + actionRecord->unit->charId * 21;
             break;
         }
-        itfMesWindowSetString(*(s32 *)(procedureWork + 0x130), 0, speakerName); /* measured: access-site field substitution loses MATCH. */
+        itfMesWindowSetString(procedureContext->messageManager, 0, speakerName);
     }
     kwlnTaskAddChild((u8 *)((u32)((BtlBattleState *)(iGpffffb3ac))->cutinTaskParent), procedureTask);
     ((BtlAiCommandWork *)work)->procedureTask = procedureTask;
@@ -2056,7 +2075,7 @@ s32 btlAICommandSpawnActionProc(u8 *action, u8 *work, u32 scriptData, u32 proced
    DAT_007ce4cc->iGpffffb3cc, DAT_007ce4d0->iGpffffb42c. func_001de800 declared
    locally as u32 to keep the &0xFFFF mask from folding to 0xff. */
 /* Use an explicit AI procedure when present, otherwise decode a weighted table command. */
-/* Historical whole-layout probe: normalized diff 262; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 262; the genus path retains its action-unit reload via MEMBER. */
 // FUN_001DED30
 void btlAICommandSetUnitAction(s32 action, s32 work)
 {
@@ -2070,7 +2089,7 @@ void btlAICommandSetUnitAction(s32 action, s32 work)
 
     baseActionId = ((BtlUnit *)((s32)((BtlAction *)action)->unit))->charId;
     btlTargetResetCommandRecord((u8 *)work);
-    genus = ((BtlUnit *)(*(s32 *)(action + 0x30)))->genus; /* measured: access-site field substitution loses MATCH. */
+    genus = ((BtlUnit *)(MEMBER(s32, action, BtlAction, unit)))->genus; /* measured: access-site/local/array forms change 262 normalized bytes. */
     switch (genus) {
     case 0:
         actionId = baseActionId;
@@ -2082,7 +2101,7 @@ void btlAICommandSetUnitAction(s32 action, s32 work)
             u32 recordOffset;
 
             /* measured: the integer-domain address spelling forces the early base load (retail lw $a0,-0x4c30($gp) first), ported from donor func_002c70d0 */
-            aiRecord = *(u8 **)((u32)&iGpffffb3d0); /* measured: access-site field substitution loses MATCH. */
+            aiRecord = ((u8 **)((u32)&iGpffffb3d0))[0];
             recordOffset = ((u32)baseActionId * 0x28 + (u32)baseActionId) * 4;
             aiRecord = (u8 *)(recordOffset) + (s32)aiRecord;
             actionId = ((BtlAiRecord *)aiRecord)->procedure;
@@ -2109,12 +2128,13 @@ void btlAICommandSetUnitAction(s32 action, s32 work)
 
 
 /* Clear the procedure-active flag and task handle after the task is no longer linked. */
-/* Historical whole-layout probe: normalized diff 86; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 86; a separate command-work pointer retains MATCH. */
 // FUN_001DEEE0
 u32 btlAICommandTryReleaseProc(s32 work)
 {
   u32 released = 0;
   long taskLinked = 0;
+  BtlAiCommandWork *commandWork = (BtlAiCommandWork *)work;
 
   if (((BtlAiCommandWork *)work)->procedureActive == 0) {
     released = 1;
@@ -2125,8 +2145,8 @@ u32 btlAICommandTryReleaseProc(s32 work)
   else {
     taskLinked = kwlnTaskIsLinked((s32)((BtlAiCommandWork *)work)->procedureTask);
     if (taskLinked == 0) {
-      *(u8 *)(work + 0x30) = 0; /* measured: access-site field substitution loses MATCH. */
-      *(u32 *)(work + 0x4c) = 0; /* measured: access-site field substitution loses MATCH. */
+      commandWork->procedureActive = 0;
+      commandWork->procedureTask = 0;
       released = 1;
     }
     else {
@@ -3707,7 +3727,8 @@ done:
 
 
 /* AI script command 0x210e (p4flow AI.json AI_FUNCTION_010E). */
-/* Historical whole-layout probe: normalized diff 134; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
+/* Return true only when every living matching ally has the requested status. */
 // FUN_001E2550
 s32 btlAICommandSideIdQueryAllBadStatus(void) {
     u32 statusMask;
@@ -3720,6 +3741,7 @@ s32 btlAICommandSideIdQueryAllBadStatus(void) {
     s32 matchingCount;
     u8 *unit;
     u32 allMatch;
+    BtlUnit *matchingUnit;
 
     selector = (1 << (((BtlUnit *)((u32)((BtlAction *)(scrGetAiState()))->unit))->genus)) & 0xFFFF;
     unitValue = scrGetParamInt(0) & 0xFFFF;
@@ -3732,11 +3754,12 @@ s32 btlAICommandSideIdQueryAllBadStatus(void) {
     while (candidateAction != 0) {
         if ((((BtlAction *)candidateAction)->unk_1a & 1) && (((BtlAction *)candidateAction)->unk_1a & 8)) {
             unit = (u8 *)((BtlAction *)candidateAction)->unit;
+            matchingUnit = (BtlUnit *)unit;
             if ((sideMask & (1 << (((BtlUnit *)unit)->genus))) != 0) {
                 if (((BtlUnit *)unit)->charId == unitId) {
                     if (datCalcIsDead((u32)((BtlUnit *)unit)->datUnit, 0) == 0) {
                         livingCount = (livingCount + 1) & 0xFFFF;
-                        if (datCalcChkBadStatus(*(u32 *)(unit + 0xA64), statusMask) != 0) { /* measured: access-site field substitution loses MATCH. */
+                        if (datCalcChkBadStatus((u32)matchingUnit->datUnit, statusMask) != 0) {
                             matchingCount = (matchingCount + 1) & 0xFFFF;
                         }
                     }
@@ -3757,7 +3780,8 @@ s32 btlAICommandSideIdQueryAllBadStatus(void) {
    ranges; #pragma opt_rebuildconditionals off preserves the branchy shift
    sequence and its 392-byte object (retail window 400 bytes). */
 /* AI script command 0x210d (p4flow AI.json AI_FUNCTION_010D). */
-/* Historical whole-layout probe: normalized diff 134; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
+/* Require the requested status on every living matching unit of the opposite side. */
 // FUN_001E26C0
 /* measured: retains the branch-rebuild setting required for the byte-exact body. */
 #pragma opt_rebuildconditionals off
@@ -3772,6 +3796,7 @@ s32 btlAICommandOppSideIdQueryAllBadStatus(void)
     s32 livingCount;
     s32 matchingCount;
     u32 allMatch;
+    BtlUnit *matchingUnit;
 
     if (((BtlUnit *)((u8 *)((BtlAction *)(scrGetAiState()))->unit))->genus != 0)
         goto nonzero;
@@ -3791,11 +3816,12 @@ done:
     while (candidateAction != 0) {
         if ((((BtlAction *)candidateAction)->unk_1a & 1) && (((BtlAction *)candidateAction)->unk_1a & 8)) {
             unitValue = (u8 *)((BtlAction *)candidateAction)->unit;
+            matchingUnit = (BtlUnit *)unitValue;
             if ((sideMask & (1 << (((BtlUnit *)unitValue)->genus))) != 0) {
                 if (((BtlUnit *)unitValue)->charId == selector) {
                     if (datCalcIsDead((u32)((BtlUnit *)unitValue)->datUnit, 0) == 0) {
                         livingCount = (livingCount + 1) & 0xffff;
-                        if (datCalcChkBadStatus(*(u32 *)(unitValue + 0xa64), statusMask) != 0) /* measured: access-site field substitution loses MATCH. */
+                        if (datCalcChkBadStatus((u32)matchingUnit->datUnit, statusMask) != 0)
                             matchingCount = (matchingCount + 1) & 0xffff;
                     }
                 }
@@ -3842,7 +3868,8 @@ s32 btlAICommandOppSideIdQueryHasBuff(void) {
 #pragma opt_rebuildconditionals on
 
 /* AI script command 0x2111 (p4flow AI.json AI_FUNCTION_0111). */
-/* Historical whole-layout probe: normalized diff 134; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
+/* Require a matching buff on every living ally with the requested unit id. */
 // FUN_001E2910
 s32 btlAICommandSideIdQueryAllHasBuff(void) {
     u32 statusMask;
@@ -3855,6 +3882,7 @@ s32 btlAICommandSideIdQueryAllHasBuff(void) {
     s32 matchingCount;
     u8 *unit;
     u32 allMatch;
+    BtlUnit *matchingUnit;
 
     selector = (1 << (((BtlUnit *)((u32)((BtlAction *)(scrGetAiState()))->unit))->genus)) & 0xFFFF;
     unitValue = scrGetParamInt(0) & 0xFFFF;
@@ -3867,11 +3895,12 @@ s32 btlAICommandSideIdQueryAllHasBuff(void) {
     while (candidateAction != 0) {
         if ((((BtlAction *)candidateAction)->unk_1a & 1) && (((BtlAction *)candidateAction)->unk_1a & 8)) {
             unit = (u8 *)((BtlAction *)candidateAction)->unit;
+            matchingUnit = (BtlUnit *)unit;
             if ((sideMask & (1 << (((BtlUnit *)unit)->genus))) != 0) {
                 if (((BtlUnit *)unit)->charId == unitId) {
                     if (datCalcIsDead((u32)((BtlUnit *)unit)->datUnit, 0) == 0) {
                         livingCount = (livingCount + 1) & 0xFFFF;
-                        if (datCalcHasBuffMask(*(DatUnit **)(unit + 0xA64), statusMask) != 0) { /* measured: access-site field substitution loses MATCH. */
+                        if (datCalcHasBuffMask(matchingUnit->datUnit, statusMask) != 0) {
                             matchingCount = (matchingCount + 1) & 0xFFFF;
                         }
                     }
@@ -3890,7 +3919,8 @@ s32 btlAICommandSideIdQueryAllHasBuff(void) {
 /* measured: byte-exact sibling of FUN_001E26C0; reusing c0 for the node
    payload and m for c02 with conditional rebuilds disabled gives nd 0. */
 /* AI script command 0x2110 (p4flow AI.json AI_FUNCTION_0110). */
-/* Historical whole-layout probe: normalized diff 134; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
+/* Require a matching buff on every living opponent with the requested unit id. */
 // FUN_001E2A80
 #pragma opt_rebuildconditionals off
 s32 btlAICommandOppSideIdQueryAllHasBuff(void)
@@ -3904,6 +3934,7 @@ s32 btlAICommandOppSideIdQueryAllHasBuff(void)
     s32 livingCount;
     s32 matchingCount;
     u32 allMatch;
+    BtlUnit *matchingUnit;
 
     if (((BtlUnit *)((u8 *)((BtlAction *)(scrGetAiState()))->unit))->genus != 0)
         goto nonzero;
@@ -3923,11 +3954,12 @@ done:
     while (candidateAction != 0) {
         if ((((BtlAction *)candidateAction)->unk_1a & 1) && (((BtlAction *)candidateAction)->unk_1a & 8)) {
             unitValue = (u8 *)((BtlAction *)candidateAction)->unit;
+            matchingUnit = (BtlUnit *)unitValue;
             if ((sideMask & (1 << (((BtlUnit *)unitValue)->genus))) != 0) {
                 if (((BtlUnit *)unitValue)->charId == selector) {
                     if (datCalcIsDead((u32)((BtlUnit *)unitValue)->datUnit, 0) == 0) {
                         livingCount = (livingCount + 1) & 0xffff;
-                        if (datCalcHasBuffMask(*(DatUnit **)(unitValue + 0xa64), statusMask) != 0) /* measured: access-site field substitution loses MATCH. */
+                        if (datCalcHasBuffMask(matchingUnit->datUnit, statusMask) != 0)
                             matchingCount = (matchingCount + 1) & 0xffff;
                     }
                 }
@@ -5260,17 +5292,19 @@ s32 btlAICommandAiUnlessHpMax(void) {
 }
 
 /* AI script command 0x2091 (p4flow AI.json AI_FUNCTION_0091). */
-/* Historical whole-layout probe: normalized diff 117; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 117; a separate action-record pointer retains MATCH. */
+/* Clear four buff levels before replacing the acting unit's secondary id. */
 // FUN_001E5D90
 s32 btlAICommandScriptSetId2ClearBuffs(void) {
     u8 *action = scrGetAiState();
     u32 secondaryId = scrGetParamInt(0) & 0xFFFF;
     u32 data;
+    BtlAction *actionRecord = (BtlAction *)action;
     datCalcClearBuffLevel((u32)((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->datUnit, 8);
-    datCalcClearBuffLevel((u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit, 9); /* measured: access-site field substitution loses MATCH. */
-    datCalcClearBuffLevel((u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit, 0xA); /* measured: access-site field substitution loses MATCH. */
-    datCalcClearBuffLevel((u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit, 0xB); /* measured: access-site field substitution loses MATCH. */
-    data = (u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit; /* measured: access-site field substitution loses MATCH. */
+    datCalcClearBuffLevel((u32)actionRecord->unit->datUnit, 9);
+    datCalcClearBuffLevel((u32)actionRecord->unit->datUnit, 0xA);
+    datCalcClearBuffLevel((u32)actionRecord->unit->datUnit, 0xB);
+    data = (u32)actionRecord->unit->datUnit;
     ((DatUnit *)(data))->id2 = secondaryId;
     return 1;
 }
@@ -5500,17 +5534,18 @@ s32 btlAICommandIdScriptQueryHasBuff(void) {
 }
 
 /* AI script command 0x2077 (p4flow AI.json AI_FUNCTION_0077). */
-/* Historical whole-layout probe: normalized diff 111; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 111; the three post-calculation reloads retain byte aliasing via MEMBER. */
+/* Predict whether the default attack kills the selected action's unit. */
 // FUN_001E6740
 s32 btlAICommandScriptWouldBeKilled(void) {
     u8 *action = scrGetAiState();
     u8 *target = btlActionFindById(scrGetParamInt(0) & 0xFFFFFFF);
-    s32 hpDelta = datCalcSkillAmount(0, (u8 *)*(u32 *)((u8 *)((BtlAction *)action)->unit + 0xA64), (u8 *)*(u32 *)((u8 *)((BtlAction *)target)->unit + 0xA64), 1, 1, 1, 0, 1); /* measured: access-site field substitution loses MATCH. */
+    s32 hpDelta = datCalcSkillAmount(0, (u8 *)((BtlAction *)action)->unit->datUnit, (u8 *)((BtlAction *)target)->unit->datUnit, 1, 1, 1, 0, 1);
     s32 currentHp;
     s32 remainingHp;
-    datCalcClearField18((u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit); /* measured: access-site field substitution loses MATCH. */
-    datCalcClearField18((u32)((BtlUnit *)(*(u8 **)(target + 0x30)))->datUnit); /* measured: access-site field substitution loses MATCH. */
-    currentHp = (s32)(datCalcGetHp((u32)((BtlUnit *)(*(u8 **)(target + 0x30)))->datUnit) & 0xFFFF); /* measured: access-site field substitution loses MATCH. */
+    datCalcClearField18((u32)((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)))->datUnit); /* measured: access-site/local/array forms change 110 normalized bytes. */
+    datCalcClearField18((u32)((BtlUnit *)(MEMBER(u8 *, target, BtlAction, unit)))->datUnit); /* measured: access-site/local/array forms change 159 normalized bytes. */
+    currentHp = (s32)(datCalcGetHp((u32)((BtlUnit *)(MEMBER(u8 *, target, BtlAction, unit)))->datUnit) & 0xFFFF); /* measured: access-site/local/array forms change 159 normalized bytes. */
     remainingHp = currentHp + hpDelta;
     scrSetReturnInt(remainingHp <= 0);
     return 1;
@@ -5572,7 +5607,8 @@ s32 btlAICommandIdScriptQueryOnSideZero(void) {
     return 1;
 }
 /* AI script command 0x20e4 (p4flow AI.json AI_FUNCTION_00E4). */
-/* Historical whole-layout probe: normalized diff 218; the access-site pass retains only measured raw culprits. */
+/* Historical whole-layout probe: nd 218; a separate subject-unit pointer retains MATCH. */
+/* Report whether the selected unit can use the supplied command id. */
 // FUN_001E6A50
 s32 btlAICommandIdScriptQueryCanUseCommand(void) {
     s32 actionId = scrGetParamInt(0);
@@ -5580,15 +5616,17 @@ s32 btlAICommandIdScriptQueryCanUseCommand(void) {
     u8 *subject = btlActionFindById(actionId & 0xFFFFFFF);
     s32 command = commandId & 0xFFFF;
     s32 usable;
+    BtlUnit *subjectUnit;
     if (command >= 0x240)
         kAssertFail(D_006095E0, 0x45F);
     subject = (u8 *)((BtlAction *)subject)->unit;
+    subjectUnit = (BtlUnit *)subject;
     if (command < 0x1B8) {
         if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)subject)->datUnit, 0x80008) != 0)
             usable = 0;
-        else if (datCalcHasSkill(*(u8 **)(subject + 0xA64), command) == 0) /* measured: access-site field substitution loses MATCH. */
+        else if (datCalcHasSkill((u8 *)subjectUnit->datUnit, command) == 0)
             usable = 0;
-        else if (datCalcThresholdTrigger(*(u8 **)(subject + 0xA64), command) != 0) /* measured: access-site field substitution loses MATCH. */
+        else if (datCalcThresholdTrigger((u8 *)subjectUnit->datUnit, command) != 0)
             usable = 0;
         else
             goto one;

@@ -1,3 +1,4 @@
+#include "scr_context_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
 #include "model_motion_internal.h"
@@ -433,8 +434,8 @@ s32 btlTaskCreate(s32 setupAddress)
 }
 
 /* Count participating living/dead actions and store the battle-end result code. */
-/* BtlBattleState/BtlAction/BtlUnit/DatUnit establish these offsets; retain
- * byte addressing because shared-member typing changed MWCC allocation (nd 335). */
+/* A separate unit pointer preserves the post-query data reload while using
+ * the shared layouts; direct repeated unit->datUnit access changed 335 bytes. */
 // FUN_00193060
 s32 btlCheckBattleEnd(void)
 {
@@ -447,64 +448,66 @@ s32 btlCheckBattleEnd(void)
     u8 *unit;
     u8 *data;
     u8 *battle;
+    BtlUnit *battleUnit;
 
-    *(s16 *)(iGpffffb3ac + 0x1C) = 0;
+    ((BtlBattleState *)iGpffffb3ac)->endState = 0;
     livingPartyCount = 0;
     livingEnemyCount = 0;
     deadCount = 0;
     leaderAlive = 1;
     battle = iGpffffb3ac;
-    if (*(s32 *)(battle + 0x10) & 0x10000000) {
-        *(s16 *)(battle + 0x1C) = 2;
+    if (((BtlBattleState *)battle)->battleFlags & 0x10000000) {
+        ((BtlBattleState *)battle)->endState = 2;
         return 1;
     }
-    action = *(u8 **)(battle + 0x174);
+    action = ((BtlBattleState *)battle)->actions;
     goto loop_18_check;
 loop_18_body:
-    if ((*(u16 *)(action + 0x1A) & 1) &&
-        !(*(u16 *)(action + 0x18) & 0x20)) {
-        unit = *(u8 **)(action + 0x30);
-        if ((datCalcIsDead(*(u8 **)(unit + 0xA64), 0) != 0) &&
-            (data = *(u8 **)(unit + 0xA64),
-             (*(u16 *)(data + 0) & 0x20) == 0)) {
-            if (*(u8 *)(unit + 0xA2) == 0 &&
-                *(u16 *)(data + 2) == 1) {
+    if ((((BtlAction *)action)->unk_1a & 1) &&
+        !(((BtlAction *)action)->flags & 0x20)) {
+        unit = (u8 *)((BtlAction *)action)->unit;
+        battleUnit = (BtlUnit *)unit;
+        if ((datCalcIsDead((u8 *)((BtlUnit *)unit)->datUnit, 0) != 0) &&
+            (data = (u8 *)battleUnit->datUnit,
+             (((DatUnit *)data)->flags & 0x20) == 0)) {
+            if (((BtlUnit *)unit)->genus == 0 &&
+                ((DatUnit *)data)->id == 1) {
                 leaderAlive = 0;
             }
             deadCount += 1;
         } else {
-            genus = *(u8 *)(unit + 0xA2);
+            genus = ((BtlUnit *)unit)->genus;
             switch (genus) {
             case 0:
                 livingPartyCount += 1;
                 break;
             case 1:
-                if (*(s32 *)(unit + 0x9C) & 8) {
+                if (((BtlUnit *)unit)->flags3 & 8) {
                     livingEnemyCount += 1;
                 }
                 break;
             }
         }
     }
-    action = *(u8 **)(action + 0x450);
+    action = (u8 *)((BtlAction *)action)->next;
 loop_18_check:
     if (action != NULL) {
         goto loop_18_body;
     }
     if (leaderAlive == 0 || (livingPartyCount == 0 && deadCount != 0)) {
-        *(s16 *)(iGpffffb3ac + 0x1C) = 2;
+        ((BtlBattleState *)iGpffffb3ac)->endState = 2;
         return 1;
     }
     if (livingPartyCount == 0) {
-        *(s16 *)(iGpffffb3ac + 0x1C) = 3;
+        ((BtlBattleState *)iGpffffb3ac)->endState = 3;
         return 1;
     }
     if (btlUnitReactToDeath() != 0) {
-        *(s16 *)(iGpffffb3ac + 0x1C) = 1;
+        ((BtlBattleState *)iGpffffb3ac)->endState = 1;
         return 1;
     }
     if (livingEnemyCount == 0) {
-        *(s16 *)(iGpffffb3ac + 0x1C) = 1;
+        ((BtlBattleState *)iGpffffb3ac)->endState = 1;
         return 1;
     }
     return 0;
@@ -601,8 +604,8 @@ s32 btlScriptResolvePartyDeath(void)
             if (datCalcIsDead(datUnitGetRecord(1), 0) != 0) {
                 dep = iGpffffb280;
                 scrStartProcedureChecked(0xF, iGpffffb284, dep, 0);
-                /* Script context is opaque here; +0x148 supplies its shutdown-task handle. */
-                KMisc_CreateScrShutdown(*(s32 *)(scrGetContext() + 0x148));
+                /* Shut down the task held by the active interpreter context. */
+                KMisc_CreateScrShutdown(((ScrContext *)scrGetContext())->shutdownTask);
                 sdlSchedulerEnable();
                 iGpffffb3b0 = 1;
                 goto block_13;

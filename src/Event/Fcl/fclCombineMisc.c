@@ -2,6 +2,7 @@
 
 #include "include_asm.h"
 #include "type.h"
+#include "member_access.h"
 #include "datUnit_internal.h"
 
 /* The fusion scan advances by 14 bytes and reads these base-table members. */
@@ -13,6 +14,12 @@ typedef struct FclFusionBaseEntry {
     u16 inheritance;
     u8 pad0c[2];
 } FclFusionBaseEntry;
+/* yListAllocIndexTable allocates 0x62 bytes: 48 signed IDs and a count. */
+typedef struct FclFusionSkillPool {
+    s16 indices[0x30];
+    s16 count;
+} FclFusionSkillPool;
+
 typedef struct FclFusionGate {
     s32 flag;
     s16 persona;
@@ -182,6 +189,7 @@ s32 fclFuseRecipeLookup(u16 *output, s32 recipeKind, u16 *ingredients, s32 ingre
     u16 *skill;
     if (output == NULL || ingredients == NULL || recipeKind >= 5)
         kAssertFail(D_00642F30, 0x17B);
+    /* Interleaved recipe pointers/counts have separately linked +0/+4 aliases. */
     entry = *(u16 **)(D_00642F00 + recipeKind * 8);
     count = *(s32 *)(D_00642F04 + recipeKind * 8);
     row = 0;
@@ -493,6 +501,7 @@ static inline s32 fclSkillWeight(u16 *persona, s32 id)
 // FUN_00312C60
 s8 fclFuseRollPersona(u16 *persona, u8 *deck, s32 deckCount)
 {
+    FclFusionSkillPool *poolFields;
     u8 *pool;
     s32 *weights;
     s32 remaining;
@@ -516,6 +525,7 @@ s8 fclFuseRollPersona(u16 *persona, u8 *deck, s32 deckCount)
         kAssertFail(D_00642F30, 0x3AF);
     }
     pool = yListAllocIndexTable();
+    poolFields = (FclFusionSkillPool *)pool;
     for (i = 0; i < (s8)deckCount; i++) {
         j = 0;
         row = deck + i * 0x30;
@@ -526,7 +536,7 @@ s8 fclFuseRollPersona(u16 *persona, u8 *deck, s32 deckCount)
             }
         }
     }
-    remaining = fclSkillPickCount(*(s16 *)(pool + 0x60));
+    remaining = fclSkillPickCount(((FclFusionSkillPool *)pool)->count);
     freeSlots = 8 - datPersonaCountSkills(persona);
     if (freeSlots == 0) {
         func_00440b68(D_00642F50);
@@ -537,10 +547,10 @@ s8 fclFuseRollPersona(u16 *persona, u8 *deck, s32 deckCount)
         remaining = freeSlots;
     }
     chkmemAllocSiteTag(D_00642F30, 0x3CC);
-    weights = (*jtbl_008873E8)(*(s16 *)(pool + 0x60) * 4, 0x40000);
+    weights = (*jtbl_008873E8)(poolFields->count * 4, 0x40000);
     while (remaining != 0) {
         total = 0;
-        for (k = 0; k < *(s16 *)(pool + 0x60); k++) {
+        for (k = 0; k < MEMBER(s16, pool, FclFusionSkillPool, count); k++) {
             id = ((s16 *)pool)[k];
             weights[k] = fclSkillWeight(persona, id);
             total += weights[k];
@@ -671,12 +681,12 @@ block_16:
                     highestId = highest & 0xFFFF;
                     if ((highestId == 0) ||
                         ((tableAddress = (s32)iGpffffb3d4,
-                          (s32)*(u8 *)(tableAddress + (highestId * 0xE) + 3) <
-                          (s32)*(u8 *)(tableAddress + candidateOffset + 3)) != 0)) {
+                          (s32)((FclFusionBaseEntry *)tableAddress)[highestId].level <
+                          (s32)((FclFusionBaseEntry *)(tableAddress + candidateOffset))->level) != 0)) {
                         candidateId = candidateId ^ 0;
                         highest = (u32)(u16)candidateIndex;
                     }
-                    candidateLevel = *(u8 *)(iGpffffb3d4 + candidateOffset + 3);
+                    candidateLevel = ((FclFusionBaseEntry *)(iGpffffb3d4 + candidateOffset))->level;
                     if ((s32)candidateLevel >= levelThreshold) {
                         excludedIndex = 0;
                         goto loop_28_cond;
@@ -697,7 +707,7 @@ loop_28_done:
                               (selectedId == 0)) ||
                              ((tableAddress = (s32)DAT_007644c4,
                                (s32)candidateLevel <
-                               (s32)*(u8 *)(tableAddress + (selectedId * 0xE) + 3)) != 0))) {
+                               (s32)((FclFusionBaseEntry *)tableAddress)[selectedId].level) != 0))) {
                             candidateId = candidateId ^ 0;
                             selected = (u32)(u16)candidateIndex;
                         }
@@ -809,12 +819,12 @@ block_16:
                     highestId = highest & 0xFFFF;
                     if ((highestId == 0) ||
                         ((tableAddress = (s32)iGpffffb3d4,
-                          (s32)*(u8 *)(tableAddress + (highestId * 0xE) + 3) <
-                          (s32)*(u8 *)(tableAddress + candidateOffset + 3)) != 0)) {
+                          (s32)((FclFusionBaseEntry *)tableAddress)[highestId].level <
+                          (s32)((FclFusionBaseEntry *)(tableAddress + candidateOffset))->level) != 0)) {
                         candidateId = candidateId ^ 0;
                         highest = (u32)(u16)candidateIndex;
                     }
-                    candidateLevel = *(u8 *)(iGpffffb3d4 + candidateOffset + 3);
+                    candidateLevel = ((FclFusionBaseEntry *)(iGpffffb3d4 + candidateOffset))->level;
                     if ((s32)candidateLevel > levelThreshold) {
                         continue;
                     }
@@ -836,8 +846,8 @@ loop_28_done:
                         ((selectedId = selected & 0xFFFF,
                           (selectedId == 0)) ||
                          ((tableAddress = (s32)DAT_007644c4,
-                           (s32)*(u8 *)(tableAddress +
-                                        (selectedId * 0xE) + 3) <
+                           (s32)((FclFusionBaseEntry *)tableAddress)
+                                        [selectedId].level <
                            (s32)candidateLevel)))) {
                         candidateId = candidateId ^ 0;
                         selected = (u32)(u16)candidateIndex;
