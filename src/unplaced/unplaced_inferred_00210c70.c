@@ -248,11 +248,12 @@ void btlDamageDrawPanel(u8 *drawState, u8 *entry)
     }
 }
 
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: fill the decaying trail alpha table for a damage popup. [inferred]
 /* b210: remaining trail flags, wrap-counter and alpha accesses individually differ when typed. */
 // FUN_002112C0
+/* measured: baseline differs by 659 bytes; pointer-loop initialization differs by 682 bytes. */
+#pragma push
+#pragma opt_loop_invariants on
 static void btlDamageBuildTrail(u8 *state, u8 *output)
 {
     s32 i;
@@ -2341,8 +2342,6 @@ void btlPortraitDrawPulse(s32 *hudContext, u8 *panelUnit, f32 originX, f32 origi
 // Intent: draw the portrait roster, updating the selected unit and its portrait effects. [inferred]
 /* b210: typing either selected-unit store changes instructions; roster snapshots use a typed aggregate. */
 // FUN_002167F0
-#pragma push
-#pragma opt_loop_invariants on
 void btlPortraitDrawRoster(u8 *drawContext, u8 *entry)
 {
     s32 *work;
@@ -3164,5 +3163,4 @@ void btlMessageSetHidden(s32 task)
 extern f32 D_008872F8[];
 extern BtlShuffleRenderPrimitive D_00887310[];
 extern s32 kwlnGetCamera(void);
-#pragma pop
 #pragma pop
