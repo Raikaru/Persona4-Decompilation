@@ -163,12 +163,6 @@ extern void btlMainApplyUnitBaseColors();
 extern u8 *btlActionGetQueueSecond(void);
 extern u32 btlCameraBuildFramePair(u8 *, s32, s32, P4CameraFrame *, P4CameraFrame *);
 
-/* Four-byte header precedes the variable-length 0x3C-byte script rows. */
-typedef struct BtlCameraScript {
-    u8 count;
-    u8 flags;
-    s16 curveMode;
-} BtlCameraScript;
 
 typedef struct BtlCameraKeyFrame
 {

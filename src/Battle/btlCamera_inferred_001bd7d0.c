@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "rw_object_internal.h"
 #include "list_item_internal.h"
 #include "rw_geometry_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -236,7 +238,7 @@ void btlCameraApplyView(void)
         matrix.flags = 3;
         matrix.pos = *(CameraBasisVector *)&((BtlBattleState *)D_0076449C)->camera.pose.pos;
         view = ((u8 *)kwlnGetCamera());
-        func_003e9cb0(*(u8 **)(view + 4), &matrix, 0);
+        func_003e9cb0((u8 *)((RwObject *)(view))->parent, &matrix, 0);
         K_View_SetFov(((u8 *)kwlnGetCamera()),
                       fGpffff8048 * ((BtlBattleState *)D_0076449C)->camera.fovRad);
     }
@@ -347,7 +349,7 @@ void btlCameraDrawDebug(void)
 }
 
 // FUN_001BDB60
-/* Initialize the camera curve/list, default pose/FOV, state history, and script work. Raw history indexing retains the three-halfword array stride. */
+/* Initialize the camera curve/list, default pose/FOV, state history, and script work. History indexing retains the three-halfword array stride. */
 void btlCameraInitSystem(void)
 {
     s32 listConfigAddress;
@@ -391,7 +393,7 @@ void btlCameraInitSystem(void)
     goto loop_test;
 loop_body:
     slotIndex = historyIndex;
-    *(s16 *)(D_0076449C + (slotIndex * 2) + 0x108) = 0;
+    *(s16 *)&((BtlBattleState *)(D_0076449C))->camera.stateHistory[slotIndex] = 0;
     historyIndex = (historyIndex + 1) & 0xFFFF;
 loop_test:
     if ((historyIndex & 0xFFFF) < 3) {
@@ -401,6 +403,7 @@ loop_test:
     func_001d12e0(D_0076449C + 0x110);
 }
 
+/* Clear any allocated camera effect work before reuse. */
 // FUN_001BDD30
 /* Reset the optional camera work list. */
 void btlCameraResetWorkList(void)
@@ -421,7 +424,7 @@ void btlCameraSuppressEncounterCallback(void) {
 
 /* measured: opt_propagation off probe for bdd80 nd28 float scheduling. */
 // FUN_001BDD80
-/* Capture the current target and initialize an effect script with its visibility options. Raw offsets retained: the proven camera/action struct rewrite changed whole-file MWCC instructions. */
+/* Capture the current target and initialize an effect script with its visibility options. MEMBER sites retain the aliasing required by the measured camera/action accesses. */
 void btlCameraStartEffect(u8 *camera, u8 *script, s32 options)
 {
     u16 visibilityMode;
@@ -430,39 +433,39 @@ void btlCameraStartEffect(u8 *camera, u8 *script, s32 options)
     u8 *entry;
     u8 *action;
 
-    *(s32 *)(camera + 0x134) = *(s32 *)(*(u8 **)(camera + 0xE0) + 0x38);
-    *(u16 *)(camera + 0x140) = *(u16 *)(*(u8 **)(camera + 0xE0) + 0x6A);
-    action = *(u8 **)(camera + 0xE0);
+    *(s32 *)&((BtlCamera *)(camera))->effectTarget = (s32)((BtlAction *)((u8 *)((BtlCamera *)(camera))->action))->targets[0];
+    ((BtlCamera *)(camera))->effectTargetCount = ((BtlAction *)((u8 *)((BtlCamera *)(camera))->action))->unk_6a;
+    action = (u8 *)((BtlCamera *)(camera))->action;
     workOptions = (u16)options;
     workOptions = workOptions | 1;
-    btlCameraInitWork(camera + 0xEC, (s32)action, *(s32 *)(action + 0x38), script,
+    btlCameraInitWork(camera + 0xEC, (s32)action, MEMBER(s32, action, BtlAction, targets[0]), script,
                   workOptions);
-    *(u16 *)(camera + 0x142) = *(u8 *)(script + 1);
+    ((BtlCamera *)(camera))->effectFlags = ((BtlCameraScript *)(script))->flags;
     entry = btlCameraGetCurrentEntry(camera + 0xEC);
     if (entry != NULL) {
         if ((((BtlCameraScriptEntry *)entry)->focusSource == 1) &&
-            ((*(u16 *)(camera + 0x142) & 2) == 0)) {
-            btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
-            btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
-            *(s32 *)(camera + 0x138) = 1;
+            ((MEMBER(u16, camera, BtlCamera, effectFlags) & 2) == 0)) {
+            btlCameraSetupActionGeometry(MEMBER(u8 *, camera, BtlCamera, action), NULL, NULL, 0.0f, 1);
+            btlCameraSetupActionGeometry(MEMBER(u8 *, camera, BtlCamera, action), NULL, NULL, 0.0f, 8);
+            ((BtlCamera *)(camera))->effectMode = 1;
         } else {
             radius = 0.0f;
-            if ((*(u16 *)(camera + 0x142) & 4) != 0) {
+            if ((MEMBER(u16, camera, BtlCamera, effectFlags) & 4) != 0) {
                 visibilityMode = 0x18;
             } else {
                 visibilityMode = 0xA;
             }
-            btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, radius,
+            btlCameraSetupActionGeometry(MEMBER(u8 *, camera, BtlCamera, action), NULL, NULL, radius,
                           visibilityMode);
-            *(s32 *)(camera + 0x138) = 0;
+            ((BtlCamera *)(camera))->effectMode = 0;
         }
     }
-    *(s32 *)(camera + 0x13C) = 0;
+    ((BtlCamera *)(camera))->effectInterrupted = 0;
 }
 
 /* measured: close opt_propagation probe for bdd80. */
 // FUN_001BDEB0
-/* Advance the effect script only while action, target count, and target identity remain valid. Raw offsets retained: the proven camera/action struct rewrite changed whole-file MWCC instructions. */
+/* Advance the effect script only while action, target count, and target identity remain valid. MEMBER sites retain the aliasing required by the measured camera/action accesses. */
 void btlCameraUpdateEffectList(u8 *camera)
 {
     u16 visibilityMode;
@@ -471,42 +474,42 @@ void btlCameraUpdateEffectList(u8 *camera)
     u8 *target;
     u8 *action;
 
-    action = *(u8 **)(camera + 0xE0);
+    action = (u8 *)((BtlCamera *)(camera))->action;
     if ((action != NULL) &&
-        (*(u16 *)(action + 0x6A) == *(u16 *)(camera + 0x140)) &&
-        (target = *(u8 **)(camera + 0x134), target != NULL) &&
-        (target == *(u8 **)(action + 0x38)) &&
-        ((*(u16 *)(action + 0x1A) & 1) != 0)) {
+        (((BtlAction *)(action))->unk_6a == ((BtlCamera *)(camera))->effectTargetCount) &&
+        (target = ((BtlCamera *)(camera))->effectTarget, target != NULL) &&
+        (target == ((BtlAction *)(action))->targets[0]) &&
+        ((((BtlAction *)(action))->unk_1a & 1) != 0)) {
         if (btlCameraIsEnabled(camera + 0xEC) != 0) {
             btlCameraFrameActionStart(camera, camera + 0xEC);
         }
         entry = btlCameraGetCurrentEntry(camera + 0xEC);
         if (entry != NULL) {
             if ((((BtlCameraScriptEntry *)entry)->focusSource == 1) &&
-                ((*(u16 *)(camera + 0x142) & 2) == 0)) {
-                if (*(s32 *)(camera + 0x13C) != 0) {
-                    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x201);
+                ((((BtlCamera *)(camera))->effectFlags & 2) == 0)) {
+                if (((BtlCamera *)(camera))->effectInterrupted != 0) {
+                    btlCameraSetupActionGeometry(MEMBER(u8 *, camera, BtlCamera, action), NULL, NULL, 0.0f, 0x201);
                 }
-                *(s32 *)(camera + 0x138) = 1;
+                ((BtlCamera *)(camera))->effectMode = 1;
                 return;
             }
-            if (*(s32 *)(camera + 0x138) == 1) {
+            if (((BtlCamera *)(camera))->effectMode == 1) {
                 mode = 3;
             } else {
                 mode = 0xC3;
             }
             visibilityMode = mode & 0xFFFF;
-            if (*(s32 *)(camera + 0x13C) == 0) {
-                if (datCalcIsDead(*(s32 *)(*(u8 **)(*(u8 **)(camera + 0x134) + 0x30) + 0xA64),
+            if (((BtlCamera *)(camera))->effectInterrupted == 0) {
+                if (datCalcIsDead((s32)((BtlUnit *)((u8 *)((BtlAction *)(MEMBER(u8 *, camera, BtlCamera, effectTarget)))->unit))->datUnit,
                                   0) == 0) {
-                    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), camera + 0x9C,
-                                  (f32 *)(*(u8 **)(*(u8 **)(camera + 0x134) + 0x30) + 4),
+                    btlCameraSetupActionGeometry(MEMBER(u8 *, camera, BtlCamera, action), camera + 0x9C,
+                                  (f32 *)((u8 *)((BtlAction *)(MEMBER(u8 *, camera, BtlCamera, effectTarget)))->unit + 4),
                                   50.0f, visibilityMode);
                 }
             } else {
-                btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, visibilityMode);
+                btlCameraSetupActionGeometry(MEMBER(u8 *, camera, BtlCamera, action), NULL, NULL, 0.0f, visibilityMode);
             }
-            *(s32 *)(camera + 0x138) = 0;
+            MEMBER(s32, camera, BtlCamera, effectMode) = 0;
         }
     }
 }
