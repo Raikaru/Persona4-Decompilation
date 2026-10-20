@@ -96,7 +96,7 @@ found:
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
+/* measured: propagation-off differs by 1795 bytes; pointer-led searches with both toggles off still differ by 1785 bytes. */
 #pragma opt_propagation on
 /* Retail keeps the three slot searches independent and restores defaults
  * through a shared return when no slot is selected. The complete matrix
@@ -106,7 +106,7 @@ found:
  * 12 additional zero bytes in the retail alignment tail. */
 // Updates one scene light: computes its model and character matrices from the resource and its defaults [inferred].
 // FUN_0028C580
-#pragma push
+/* measured: hoisting-off differs by 1626 bytes; for-form and entry-pointer searches do not improve it. */
 #pragma opt_loop_invariants on
 void evtUpdateSceneLight(u8 *workBytes, u8 *resource, u8 *defaults)
 {

@@ -81,8 +81,11 @@ typedef struct Model
     s32 clump;
 } Model;
 
-// FUN_002AAF20
+/* measured: all seven functions MATCH with the render callbacks' shared
+ * opt_propagation off setting, without per-function restoration. */
+#pragma opt_propagation off
 /* Allocate a rectangle packet from screen bounds; enqueue it or draw immediately. */
+// FUN_002AAF20
 void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue) {
     f32 bounds[4];
     u8 *clearCursor;
@@ -119,10 +122,8 @@ void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 he
     }
 }
 
-/* measured: opt_propagation off preserves retail's cached render-table base. */
-#pragma opt_propagation off
-// FUN_002AB0E0
 /* Draw a sprite packet with its requested blend/depth flags, then free it. */
+// FUN_002AB0E0
 void titleVisualDrawSpritePacket(u8 *unused, u8 *packet) {
     f32 x;
     f32 y;
@@ -180,7 +181,6 @@ void titleVisualDrawSpritePacket(u8 *unused, u8 *packet) {
     }
     jtbl_008873EC[0](packet);
 }
-#pragma opt_propagation on
 
 /* Pack sprite position, color, and resource selection for immediate drawing or optional draw-queue submission. */
 // FUN_002AB380
@@ -233,8 +233,6 @@ void titleVisualDrawModelPacket(void *unused, u8 *packet) {
     jtbl_008873EC[0](packet);
 }
 
-/* measured: opt_propagation off preserves retail's cached render-table base. */
-#pragma opt_propagation off
 /* Apply title render states and RGBA tint, draw visible model atomics, and close optional blend and mask modes. */
 // FUN_002AB550
 /* Install the title render state and draw the model with the supplied RGBA color. */
@@ -282,7 +280,6 @@ void titleVisualDrawTintedModel(u8 *model, s8 *color) {
         mdlEffectEmitTagPair();
     }
 }
-#pragma opt_propagation on
 
 /* Build a camera-facing scaled model transform and submit a packet while preserving the live model matrix for immediate draws. */
 // FUN_002AB790
@@ -424,8 +421,6 @@ void titleVisualSubmitModel(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, f32 sca
     }
 }
 
-/* measured: opt_propagation off preserves the retail alloc-table base hoist. */
-#pragma opt_propagation off
 // FUN_002ABB30
 /* Bracket the title model with full-screen rectangle packets to establish and restore the mask. */
 void titleVisualDrawMaskedModel(
@@ -550,4 +545,3 @@ void titleVisualDrawMaskedModel(
         titleVisualDraw(NULL, restorePacket);
     }
 }
-#pragma opt_propagation on

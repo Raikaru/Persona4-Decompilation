@@ -227,12 +227,10 @@ extern s32 mainDrawFrameUpdate(u8 *unusedTask);
 extern void mainDrawFrameDestroy(u8 *task);
 
 
-/* Measured: the local vtable pointer matches retail's single $s0
-   D_00887300 materialization only under opt_propagation off. The target is
-   MATCH at normalized_diff 0 with object 260B / window 272B. */
+/* measured: the six render-state callbacks require opt_propagation off;
+ * all five following task functions also MATCH under this shared setting. */
 /* Clear-OT callback: clears the camera and sets the sky state when a camera exists; otherwise reports the error. */
 // FUN_001014B0
-/* measured: opening opt_propagation bracket for the matching vtable probe. */
 #pragma opt_propagation off
 void mainDrawClearCameraAndSky(void) {
     s32 camera;
@@ -252,14 +250,10 @@ void mainDrawClearCameraAndSky(void) {
     }
     kAssertFailAt(D_005DCAD0, D_005DCAE8, 0x5A);
 }
-/* measured: closing opt_propagation bracket after the matching target. */
-#pragma opt_propagation on
 
 
-// FUN_001015C0
-/* measured: func_001015c0 is MATCH with opt_propagation off. */
-#pragma opt_propagation off
 /* Install threshold-tested sky state with source-alpha blending and register this state callback. */
+// FUN_001015C0
 void mainDrawSetSkyThresholdBlendState(void) {
     void (**base)(u32, u32);
 
@@ -278,13 +272,9 @@ void mainDrawSetSkyThresholdBlendState(void) {
     base[0](1, 0);
     TnSetCallback(mainDrawSetSkyThresholdBlendState);
 }
-/* measured: func_001015c0 remains MATCH after restoring opt_propagation on. */
-#pragma opt_propagation on
 
-// FUN_001016F0
-/* measured: func_001016f0 is MATCH with opt_propagation off. */
-#pragma opt_propagation off
 /* Install the normal sky alpha-test and source-alpha blend state, then register this callback. */
+// FUN_001016F0
 void mainDrawSetSkyAlphaBlendState(void) {
     void (**base)(u32, u32);
 
@@ -303,13 +293,9 @@ void mainDrawSetSkyAlphaBlendState(void) {
     base[0](1, 0);
     TnSetCallback(mainDrawSetSkyAlphaBlendState);
 }
-/* measured: func_001016f0 remains MATCH after restoring opt_propagation on. */
-#pragma opt_propagation on
 
-// FUN_00101820
-/* measured: func_00101820 is MATCH with opt_propagation off. */
-#pragma opt_propagation off
 /* Install additive sky blending: ALPHA_1 0x48 computes source times source-alpha plus destination. */
+// FUN_00101820
 void mainDrawSetSkyAdditiveBlendState(void) {
     void (**base)(u32, u32);
 
@@ -328,13 +314,9 @@ void mainDrawSetSkyAdditiveBlendState(void) {
     base[0](1, 0);
     TnSetCallback(mainDrawSetSkyAdditiveBlendState);
 }
-/* measured: func_00101820 remains MATCH after restoring opt_propagation on. */
-#pragma opt_propagation on
 
-// FUN_00101950
-/* measured: func_00101950 is MATCH with opt_propagation off. */
-#pragma opt_propagation off
 /* Install subtractive sky blending: ALPHA_1 0x42 computes destination minus source times source-alpha. */
+// FUN_00101950
 void mainDrawSetSkySubtractiveBlendState(void) {
     void (**base)(u32, u32);
 
@@ -353,13 +335,9 @@ void mainDrawSetSkySubtractiveBlendState(void) {
     base[0](1, 0);
     TnSetCallback(mainDrawSetSkySubtractiveBlendState);
 }
-/* measured: func_00101950 remains MATCH after restoring opt_propagation on. */
-#pragma opt_propagation on
 
-// FUN_00101A80
-/* measured: func_00101a80 is MATCH with opt_propagation off. */
-#pragma opt_propagation off
 /* Install reverse sky blending: ALPHA_1 0x06 computes source minus destination times source-alpha. */
+// FUN_00101A80
 void mainDrawSetSkyReverseBlendState(void) {
     void (**base)(u32, u32);
 
@@ -378,8 +356,6 @@ void mainDrawSetSkyReverseBlendState(void) {
     base[0](1, 0);
     TnSetCallback(mainDrawSetSkyReverseBlendState);
 }
-/* measured: func_00101a80 remains MATCH after restoring opt_propagation on. */
-#pragma opt_propagation on
 
 /* Clear-OT task update: flushes debug print, clears the camera, resets the ordering table and installs the fixed render-state callbacks. */
 // FUN_00101BB0

@@ -513,6 +513,7 @@ u32 K_Clump_StateFlagIsSet(const u32* state)
 
 
 /* measured: opt_propagation off preserves the delimiter preheader instruction order; this bracket was verified at object 592B/window 592B with normalized_diff 0. */
+/* measured: propagation-on differs by 11 bytes; bounded for/while delimiter scans still differ by 294/290 bytes. */
 #pragma opt_propagation off
 /* Scan stream chunk headers and log counts without decoding their payloads. */
 // FUN_00462EB0
