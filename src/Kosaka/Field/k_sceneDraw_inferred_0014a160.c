@@ -277,7 +277,10 @@ extern f32 D_008872F8[];
 /* measured: loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
-/* measured: opt_rebuildconditionals off is scoped to FldMap_IsCurrentInEitherBand. */
+/* measured: the current-map wrapper also MATCHes with the following
+ * predicates' shared conditional-rebuilding setting. */
+#pragma opt_rebuildconditionals off
+/* Test the current field and room against either configured band. */
 // FUN_0014A160
 s32 FldMap_IsCurrentInEitherBand(void) {
     u8 *fieldState;
@@ -286,10 +289,6 @@ s32 FldMap_IsCurrentInEitherBand(void) {
     return FldMap_IsInEitherBand(((FldMapState *)fieldState)->fieldId, ((FldMapState *)fieldState)->roomId);
 }
 
-/* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
-/* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
-/* measured: FldMap_IsInEitherBand MATCH -> MISMATCH without this pragma. */
-#pragma opt_rebuildconditionals off
 /* Test membership in either of the two field bands. */
 // FUN_0014A190
 s32 FldMap_IsInEitherBand(s32 fieldId, s32 roomId) {
@@ -299,7 +298,7 @@ s32 FldMap_IsInEitherBand(s32 fieldId, s32 roomId) {
     return FldMap_IsInBandB(fieldId, roomId) == 1;
 }
 
-/* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
+/* Test the current field and room against the first configured band. */
 // FUN_0014A200
 s32 FldMap_IsCurrentInBandA(void) {
     u8 *fieldState;

@@ -7,12 +7,8 @@
 #include "message_procedure_api.h"
 #include "sdk_snd_internal.h"
 extern s32 D_008815B0[];
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
 // FUN_002746C0
 void datSetIndexedWord(s32 index, s32 value)
 {
     D_008815B0[index] = value;
 }
-#pragma pop

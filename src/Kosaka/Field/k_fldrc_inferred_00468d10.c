@@ -125,6 +125,7 @@ typedef struct MoviePoolEntry { u32 address; u32 size; } MoviePoolEntry;
 
 #pragma push
 #pragma opt_propagation on
+/* measured: baseline hoisting-off and a while-form path scan both differ by 66 bytes; retain loop extraction. */
 #pragma opt_loop_invariants on
 /* Advance queued archive requests ten slots at a time and register their loaded archive entries. */
 /* measured: retained byte-alias state/entry/request accesses changed codegen even individually (8..488 differing bytes); the archive path remains a byte stream from its native header. */
@@ -343,8 +344,8 @@ s32 mwPlayerUpdate(u8 *owner) {
 extern u32 ourGlobals[4096];
 #pragma push
 #pragma opt_propagation on
+/* measured: hoisting-off differs by 2193 bytes; explicit fade-conversion hoisting still differs by 2165 bytes. */
 #pragma opt_loop_invariants on
-#pragma opt_common_subs on
 /* Raw movie-table reads preserve separately linked interior labels and the native 0x28-byte definition stride; rebasing them would change symbol/addend provenance. The primitive-list header is opaque here. */
 /* Advance native movie playback, copy decoded frames, apply fades and submit the display quad. */
 // FUN_00468FF0
