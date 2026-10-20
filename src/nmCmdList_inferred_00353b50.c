@@ -12,6 +12,11 @@
 #include "rw_camera_internal.h"
 #include "camp_menu_internal.h"
 #include "sdk_ot_node.h"
+
+/* Unit settings: configured optimizer baseline; the optimization_level scopes below
+ * reset optimizer state, so their measured exceptions must remain after each reset.
+ * measured: hoisting lifetime splitting leaves only 69/72 functions MATCH. */
+
 extern void datCommunityEntryStep(u8 *);
 extern void nmMesWindowDestroySlot(s8 );
 extern void (*D_008873EC[])(void *);
