@@ -127,7 +127,8 @@ extern void btlFormationSetPlacement(u32 formation);
 extern void btlFormationRefresh(u32 *work);
 extern u32 btlFormationIsReady(u32 *work);
 
-extern u8 btlFormationHasEntry(u32 *work);
+extern /* measured: baseline propagation matches the unchanged predicate. */
+u8 btlFormationHasEntry(u32 *work);
 extern void btlFormationRelease(u32 *work);
 
 extern u8* DAT_0076449c;
@@ -176,7 +177,9 @@ static inline f32 btlFormationGetScaledRadius(const u8 *unit)
  * geometry and phase-specific vector lifetimes. See
  * docs/probe_archive/Formation_001d1f30_20260923.md. */
 #pragma push
+/* measured: baseline nd884; scoped locals, inverted if/else did not match (best nd884); retain opt_propagation off. */
 #pragma opt_propagation off
+/* measured: baseline nd884; scoped locals, inverted if/else did not match (best nd884); retain opt_lifetimes on. */
 #pragma opt_lifetimes on
 /* Place the actor, companion and selected groups using their world-space bounds. */
 // FUN_001D1F30
@@ -618,6 +621,7 @@ void btlFormationEnterTurn(u32 *work)
  * receive its signed interpretation. See
  * docs/probe_archive/Formation_callback_001d2e20_20260924.md. */
 #pragma push
+/* measured: baseline nd268; object/dispatch locals did not match (best nd268); retain opt_propagation off. */
 #pragma opt_propagation off
 extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
 extern s32 btlTargetCanSelectEntry(u8 *, s16, s32);
@@ -947,6 +951,7 @@ BtlPacket *btlFormationCreateReturnPacket(u16 flags)
 }
 /* measured: opt_propagation off required for func_001d3950 (nd 0; default nd 7). */
 #pragma push
+/* measured: baseline nd8; scoped locals, inverted if/else did not match (best nd8); retain opt_propagation off. */
 #pragma opt_propagation off
 /* Put living party units on the 25-unit grid, reserving the active actor's default slot. */
 // FUN_001D3950
@@ -1426,6 +1431,7 @@ void btlFormationRefresh(u32 *work)
 /* Advance effect timing by two and create the runtime formation entry before fading it out. */
 // FUN_001D6010
 /* measured: opt_propagation off preserves func_001d6010's index-before-value argument-load order (MATCH nd0). */
+/* measured: baseline nd6; scoped locals, explicit value caches, pointer iteration did not match (best nd6); retain opt_propagation off. */
 #pragma opt_propagation off
 /* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 u32 btlFormationIsReady(u32 *work)
@@ -1483,8 +1489,6 @@ u32 btlFormationIsReady(u32 *work)
 // measured: #pragma opt_propagation off preserves retail's index-before-value argument-load order; plain C without it emits the two loads in the opposite order. Object 112B, retail window 112B, normalized_diff 0.
 // Committed at nd 0.
 // FUN_001D6170
-/* measured: opt_propagation off probe for 6170 argument loads. */
-#pragma opt_propagation off
 /* Report when the elapsed two-frame count reaches the selected resource duration. */
 /* The index & 0 address term preserves the existing index-before-value evaluation shape under
  * opt_propagation off; do not simplify it. */
@@ -1506,8 +1510,6 @@ u8 btlFormationHasEntry(u32 *work)
     }
     return duration <= (int)work[6];
 }
-/* measured: closes opt_propagation off probe for func_001d6170. */
-#pragma opt_propagation on
 
 
 /* Release the effect-pool node, formation reference and both unit packet references. */

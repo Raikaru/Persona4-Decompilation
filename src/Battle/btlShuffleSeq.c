@@ -86,7 +86,9 @@ extern s32 D_00763AD4;
  * descriptor-count address while retaining each count reload. Together they
  * preserve retail's register allocation. The word buffer holds one 0xFB0-byte
  * record and is completely written before it is read. */
+/* measured: baseline nd494; typed parameter cache, scoped locals, inverted if/else did not match (best nd375); retain opt_common_subs off. */
 #pragma opt_common_subs off
+/* measured: baseline nd494; typed parameter cache, scoped locals, inverted if/else did not match (best nd375); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Reorder whole card records to agree with the repeating descriptor list. */
 // FUN_00378600
@@ -469,6 +471,7 @@ s32 btlShuffleSeqCheck(u8 *context, s32 firstIndex, s32 secondIndex) {
    -0x561C->D_00763AD4 (GP base 0x007690F0). sp30 must be `char[...]` (s32* ->
    char* is illegal in mwcc). 4 attempts. */
 /* measured probe: hoist loop-invariant record type for func_00379240. */
+/* measured: baseline nd34; typed parameter cache, scoped locals did not match (best nd34); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Collect replacement-card slots and open the enabled replacement message. */
 // FUN_00379240

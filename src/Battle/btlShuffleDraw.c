@@ -359,6 +359,7 @@ void btlShuffleDrawLoadSprites(u8 *context) {
    See docs/probe_archive/Shuffle_003742b0_recovery.md. */
 // FUN_003742B0
 #pragma push
+/* measured: baseline nd22; object/dispatch locals did not match (best nd22); retain opt_lifetimes on. */
 #pragma opt_lifetimes on
 s32 btlShuffleDrawLoadBlob(u8 *work)
 {
@@ -994,6 +995,7 @@ f32 btlShuffleDrawWaveScale(u8 *context, s32 cardIndex) {
  * Load both parts of the twelve-byte axis before storing either part.
  * The typed quaternion dot product retains the retail ACC operand order. */
 #pragma push
+/* measured: baseline nd8; typed parameter cache, scoped locals, inverted if/else did not match (best nd8); retain opt_propagation off. */
 #pragma opt_propagation off
 #pragma push
 #pragma pack(4)
@@ -1395,6 +1397,7 @@ void btlShuffleDrawListFree(u8 **list) {
    the trail clock in $f24, the step in the length register and opacity in
    $f22 as retail does. */
 #pragma push
+/* measured: baseline nd840; scoped locals did not match (best nd840); retain opt_lifetimes on. */
 #pragma opt_lifetimes on
 /* Scratch recovery of the three trail styles. The 0x24-byte vertex and
  * position/color setters follow include/rw/sky2/rwcore.h. Matrix flags are
@@ -1425,6 +1428,7 @@ extern f32 iGpffff8408;
 extern f32 iGpffff8308;
 
 #pragma push
+/* measured: baseline nd840; scoped locals did not match (best nd840); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 // FUN_003768E0
 void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
@@ -1841,6 +1845,7 @@ void btlShuffleDrawTaskEnd(u8 *task) {
    Full code/caller/data proof: docs/probe_archive/Shuffle_00377eb0_recovery.md. */
 // FUN_00377EB0
 #pragma push
+/* measured: baseline nd158; scoped locals did not match (best nd158); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 s32 btlShuffleDrawSpawn(u8 *parentTask, s32 selectedCard)
 {
@@ -2003,6 +2008,7 @@ void btlShuffleDrawSetColor(u8 *task, u8 red, u8 green, u8 blue, s32 shaded) {
 /* measured: u32->f32 and f32->u8 written as plain (f32)/(u8) casts;
    opt_loop_invariants on hoists the FMA constants and 0x4f00/0xff. */
 #pragma push
+/* measured: baseline nd415; object/dispatch locals, inverted if/else did not match (best nd415); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Apply alpha and optional corner shading to front vertices; back vertices remain white. */
 // FUN_00378280
