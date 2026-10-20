@@ -3,12 +3,15 @@
 
 #include "type.h"
 #include "mdl_file_internal.h"
+#include "mdl_attachment_internal.h"
 
 /* Partial Model layout, using the canonical member names from mdlManager.c.
  * Its layer blend is at 0xEC + 0x1C; the remaining fields are shared by the
  * battle-state setters and mdlManager's draw/motion state consumers. */
 typedef struct Model {
-    u8 pad00[0x108];
+    u8 pad00[0xD8];
+    s32 flags;
+    u8 padDC[0x108 - 0xDC];
     f32 layerBlend;              /* 0x108: layers[0].blend */
     u8 pad10C[0x260 - 0x10C];
     u8 drawFlags;
@@ -16,7 +19,9 @@ typedef struct Model {
     f32 limit;
     f32 targetLimit;
     f32 limitRate;
-    u8 pad280[0x2D0 - 0x280];
+    u8 pad280[0x28C - 0x280];
+    MdlWpnSlot attachedWpns[5];
+    u8 pad2C8[0x2D0 - 0x2C8];
     MdlMotionState motion;
     void *queue;                 /* 0x2F8 */
 } Model;
