@@ -59,7 +59,7 @@ extern s32 D_00724B8C;
 
 extern void (*jtbl_008873FC[])();
 
-extern void kwlnTaskRegisterCallback(s32 arg0);
+extern void kwlnTaskRegisterCallback(s32 task);
 
 extern void (*jtbl_008873EC[])(void *);
 extern s32 iGpffffbae8;
@@ -93,7 +93,7 @@ extern WindowRenderStateSet D_00887300[];
 extern s32 (*D_00887304[])(RwRenderState state, void *value);
 extern u8 D_008872E0[];
 extern s32 iGpffffaf60;
-extern s32 RwCameraFrustumTestSphere(s32 arg0, u8 *arg1);
+extern s32 RwCameraFrustumTestSphere(s32, u8 *);
 
 extern u32 iGpffffbb14;
 extern u32 iGpffffbb10;
@@ -119,9 +119,9 @@ extern s32 D_00712490[];
 extern s64 D_007615DC;
 extern f32 fGpffff82fc;
 extern f32 fGpffff84f0;
-extern f32 cosf(f32 arg0);
-extern f32 sinf(f32 arg0);
-extern void primLine3D(void *arg0, void *arg1, void *arg2, s32 arg3);
+extern f32 cosf(f32);
+extern f32 sinf(f32);
+extern void primLine3D(void *startPos, void *endPos, void *color, s32 saveAndRestoreRenderState);
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
 typedef RwV3d Code46RingPoint;
@@ -134,7 +134,7 @@ struct Data_00712508 {
 };
 extern struct Data_00712508 D_00712508[] __attribute__((aligned(8)));
 extern f32 fGpffff81f0;
-extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void RwMatrixRotate(void *, void *, s32, f32 fparg0);
 typedef struct RwMatrixTag RwMatrix;
 typedef enum RwOpCombineType {
     rwCOMBINEREPLACE = 0,

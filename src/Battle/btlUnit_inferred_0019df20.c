@@ -132,20 +132,20 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     scrStartProcedureChecked(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
-extern void mdlSetBlendWeight(void *arg0, float arg1);
-extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
+extern void mdlSetBlendWeight(void *model, float value);
+extern void mdlLookAtSetupSetRange(void *model, float pitchLimit, float yawLimit);
 extern f32 DAT_0076112c;
 
 
-extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
 
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)

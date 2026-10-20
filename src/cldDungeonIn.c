@@ -7,7 +7,7 @@
 
 extern u32 kwlnTaskGetWork(void *task);
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *list, u8 *node);
 extern void cldDungeonInDrawFrame(void *unused, void *task);
 extern u8 D_007964F0[];
 extern void nmListDestroyManager(void *a);
@@ -58,7 +58,7 @@ typedef struct DungeonInWork {
     DungeonInList **list;
 } DungeonInWork;
 
-s32 cldDungeonInTaskUpdate(u8 *arg0);
+s32 cldDungeonInTaskUpdate(u8 *task);
 void cldDungeonInTaskDestroy(u8 *task);
 
 /* Release the transition list, clear its activity flag, and stop its sound. */

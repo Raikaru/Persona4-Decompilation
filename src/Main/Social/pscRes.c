@@ -53,11 +53,11 @@ typedef struct PscResourceContext
 } PscResourceContext;
 
 extern void kAssertFail(const void *file, u32 line);
-extern void func_003ec330(s32 arg0);
-extern u32 *pscResFindPersonaCard(s32 arg0);
-extern void *pscResFindArcanaCard(s32 arg0, s32 arg1);
-extern s32 pscResHasPersonaCard(s32 arg0);
-extern void pscResRetainPersonaCard(s32 arg0);
+extern void func_003ec330(s32);
+extern u32 *pscResFindPersonaCard(s32 personaId);
+extern void *pscResFindArcanaCard(s32 group, s32 cardIndex);
+extern s32 pscResHasPersonaCard(s32 personaId);
+extern void pscResRetainPersonaCard(s32 personaId);
 extern s32 pscResFindFreePersonaSlot(void);
 extern u32 *pscResFindFreeRequest(void);
 extern s32 sprintf(char *buf, char *fmt, ...);
@@ -71,8 +71,8 @@ extern char D_00723A80;
 extern char D_00723A88;
 extern char D_00723A90;
 extern char D_00723A98;
-extern s32 pscResHasArcanaCard(s32 arg0, s32 arg1);
-extern void pscResRetainArcanaCard(s32 arg0, s32 arg1);
+extern s32 pscResHasArcanaCard(s32 group, s32 cardIndex);
+extern void pscResRetainArcanaCard(s32 group, s32 cardIndex);
 extern s32 pscResFindFreeArcanaSlot(void);
 extern void strcpy(char *dst, char *src);
 extern char D_0064E550[];
@@ -86,8 +86,8 @@ extern u8 *func_003ec6a0(RwRaster *raster, u8 level, s32 lockMode);
 extern RwRaster *func_003ec2a0(RwRaster *raster);
 extern const u8 D_0064E4E0[];
 extern void *D_0072469C;
-extern s32 H_Cdvd_IsFileLoaded(void *arg0);
-extern void H_Cdvd_Destroy(void *arg0);
+extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
+extern void H_Cdvd_Destroy(void *cdvd);
 
 
 // Intent: Initialises the social card resource context: clears slot flags, refcounts and handles, and publishes it as the singleton [inferred]

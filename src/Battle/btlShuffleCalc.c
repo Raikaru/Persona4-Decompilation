@@ -14,7 +14,7 @@ extern u8 *kwlnGetCamera(void);
 extern u8 *func_003e9700(s32 a0);
 extern void func_003e42a0(void *a0, void *a1, void *a2);
 extern void RwV3dLength(void *a0);
-extern void btlShuffleCalcRotatePointAroundAxis(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, f32 fparg0);
+extern void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, u8 *angle, f32 fparg0);
 extern void RwV3dNormalize(f32 *a0, f32 *a1);
 extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern void func_003dcc70(void *a0, void *a1, void *a2);
@@ -44,7 +44,7 @@ typedef struct ShuffleCalcUnit {
     f32 target[3];
     f32 scale;
 } ShuffleCalcUnit;
-f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 curve);
 
 /* SOLVED -- this was recorded here as a "Commutative FP-mul scheduling floor"
    and re-confirmed as a floor through wave 14. The nd-2 spelling those notes

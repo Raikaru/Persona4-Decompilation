@@ -25,8 +25,8 @@ extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern s32 kwlnGetCurrentWorkValue(void);
 extern void sequenceRequest(s32 id, void *data, s32 size, s32 flag);
 
-extern s32 FldViewerUpdate(u8 *arg0);
-extern void FldViewerDestroy(u8 *arg0);
+extern s32 FldViewerUpdate(u8 *task);
+extern void FldViewerDestroy(u8 *task);
 
 /* Both viewer creators allocate 0x10 bytes; the menu uses the first two words. */
 typedef struct ViewerMenuWork

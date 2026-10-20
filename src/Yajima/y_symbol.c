@@ -45,32 +45,32 @@ extern u8 D_007EFA04[];
 
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 
-extern s32 K_FldEvent_ArePosWithinDist(u8 *arg0, u8 *arg1, f32 arg2);
-extern f32 KDraw_MatrixYawDeg(u8 *arg0);
-extern void *mdlGetMatrix(void *arg0);
+extern s32 K_FldEvent_ArePosWithinDist(u8 *posA, u8 *posB, f32 maxDist);
+extern f32 KDraw_MatrixYawDeg(u8 *matrix);
+extern void *mdlGetMatrix(void *model);
 extern s32 smapGetSpriteHandle(void);
-extern s64 smapRevealTestBit(s32 arg0, s32 arg1);
-extern s32 smapWorldToColumn(RwV3d arg0);
-extern s32 smapWorldToRow(RwV3d arg0);
-extern f32 smapPlayerOffsetX(u8 *arg0, f32 arg1);
-extern f32 smapPlayerOffsetZ(u8 *arg0, f32 arg1);
-extern f32 smapPositionOffsetX(f32 arg1, YVec3f *arg0);
-extern f32 smapPositionOffsetZ(f32 arg1, YVec3f *arg0);
+extern s64 smapRevealTestBit(s32 column, s32 row);
+extern s32 smapWorldToColumn(RwV3d position);
+extern s32 smapWorldToRow(RwV3d position);
+extern f32 smapPlayerOffsetX(u8 *task, f32 cellSize);
+extern f32 smapPlayerOffsetZ(u8 *task, f32 cellSize);
+extern f32 smapPositionOffsetX(f32 cellSize, YVec3f *position);
+extern f32 smapPositionOffsetZ(f32 cellSize, YVec3f *position);
 extern s32 ySymbolIsEnabled(void);
 extern s32 fclPackRgba(u8, u8, u8, u8);
-extern void fclAnchorOffset(f32 *arg0, s64 arg1, f32 arg2, f32 arg3, f32 arg4,
-                          f32 arg5);
+extern void fclAnchorOffset(f32 *destination, s64 mode, f32 width, f32 height, f32 referenceWidth,
+                          f32 referenceHeight);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern f32 sdkSpriteScaledWidth(u8 *arg0);
-extern f32 sdkSpriteScaledHeight(u8 *arg0);
-extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
+extern f32 sdkSpriteScaledWidth(u8 *sprite);
+extern f32 sdkSpriteScaledHeight(u8 *sprite);
+extern u8 *sdkSpriteNewNode(s32 packAddress, s32 recordIndex);
 extern void sdkSpriteFreeNode(void *node);
 
-extern s32 mapSymbolTaskUpdate(u8 *arg0);
-extern void mapSymbolMarkerDestroy(u8 *arg0);
-extern s32 mapSymbolPointUpdate(u8 *arg0);
-extern s32 mapSymbolEntityUpdate(u8 *arg0);
-extern s32 mapSymbolTargetUpdate(u8 *arg0);
+extern s32 mapSymbolTaskUpdate(u8 *task);
+extern void mapSymbolMarkerDestroy(u8 *task);
+extern s32 mapSymbolPointUpdate(u8 *task);
+extern s32 mapSymbolEntityUpdate(u8 *task);
+extern s32 mapSymbolTargetUpdate(u8 *task);
 
 /* Allocations in the four constructors establish these independent work records. */
 typedef union MapSymbolValue {

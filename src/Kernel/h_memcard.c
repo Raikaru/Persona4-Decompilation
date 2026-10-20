@@ -25,7 +25,7 @@ extern char D_007127D0[];
 extern char D_008E4900[];
 extern char D_008E4A20[];
 extern s32 D_008E4B28[];
-extern void sprintf(void* dst, const void* fmt, s32 arg2, s32 arg3);
+extern void sprintf(void* dst, const void* fmt, s32, s32);
 extern void func_00431d78(s32 socket, void* data, void* result);
 extern void func_00440b68();
 extern void func_00431f28();

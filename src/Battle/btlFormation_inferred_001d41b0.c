@@ -24,10 +24,10 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
-extern void memset(u8 *arg0, s32 arg1, s32 arg2);
-extern s8 datCalcRandomBelow(s32 arg0);
+extern void memset(u8 *, s32, s32);
+extern s8 datCalcRandomBelow(s32 limit);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];

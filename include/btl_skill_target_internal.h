@@ -14,7 +14,7 @@ s32 btlTargetIsEntryActive(s16 skill);
 s32 btlTargetCanSelectEntry(u8 *unit, s16 skill, s32 paired);
 
 /* Battle unit group queries defined in code1_001e.c. */
-s32 btlSideAverageLevel(s32 arg0, s32 arg1);
-s32 btlSideCountNotBad(s32 arg0, s32 arg1);
+s32 btlSideAverageLevel(s32 sideMask, s32 excludedStatus);
+s32 btlSideCountNotBad(s32 sideMask, s32 excludedStatus);
 
 #endif

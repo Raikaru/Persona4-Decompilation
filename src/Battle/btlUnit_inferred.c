@@ -81,8 +81,8 @@ extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
 
-extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void mdlSetLayerWeight(u8 *arg0, s32 arg1, f32 arg2);
+extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
+extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -94,7 +94,7 @@ extern f32 DAT_0076112c;
 
 
 extern s32 iGpffffb444;
-extern void btlUnitInitChild(u8 *arg0, u16 arg1);
+extern void btlUnitInitChild(u8 *unit, u16 characterId);
 
 extern void (*jtbl_008873EC[])(void *arg0);
 extern u8 D_005F6C00[];
@@ -107,16 +107,16 @@ extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
 
-extern s64 btlUnitGetMotionId(u8 *arg0, u16 arg1);
-extern s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0);
-extern void btlUnitSetMotion(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
+extern s64 btlUnitGetMotionId(u8 *unit, u16 motion);
+extern s16 btlUnitMotionFrames(u8 *unit, u16 motion, f32 fparg0);
+extern void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00198380-00198380 */
 
-extern s32 btlUnitGetMotionState(u8 *arg0);
-extern u32 btlUnitIsAtRestMotion(u8 *arg0);
-extern u32 btlUnitIsWalkingMotion(u8 *arg0);
-extern s64 btlUnitModelAnimFrame(u8 *arg0);
+extern s32 btlUnitGetMotionState(u8 *unit);
+extern u32 btlUnitIsAtRestMotion(u8 *unit);
+extern u32 btlUnitIsWalkingMotion(u8 *unit);
+extern s64 btlUnitModelAnimFrame(u8 *unit);
 static inline u32 btlUnitAddMotionOffset(u32 offset, u32 base)
 {
     return offset + base;

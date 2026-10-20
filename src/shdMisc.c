@@ -28,15 +28,15 @@ extern char D_0064E2F8[];
 u32 datGetMoney(void);
 s32 resourceFindByName(char *param);
 void kAssertFail(char *, s32);
-void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3,
-                  f32 z, s32 arg4);
+void sdkSpriteDrawOnceAux(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, u8 fade,
+                  f32 z, s32 setStates);
 void RpSkyRenderStateSet(s32 param, s32 value);
 void mdlEffectEmitMaskedTagPair(void);
 void mdlEffectEmitTagPair(void);
 s32 kwlnGetCamera(void);
 f32 cosf(f32 fparg0);
 f32 sinf(f32 fparg0);
-s32 shdFormatGroupedNumber(char *arg0, s32 rem);
+s32 shdFormatGroupedNumber(char *out, s32 rem);
 
 /* Measured: Vec2f-by-value, explicit digit-pointer lifetime and separate alpha
  * extraction reproduce 660 executable bytes and 18 resolved relocations.

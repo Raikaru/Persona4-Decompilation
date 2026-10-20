@@ -26,7 +26,7 @@ extern void sequenceRequest(s32 id, void *data, s32 size, s32 sameMonth);
 extern void cmmTickReverseProgress(void);
 extern s32 scrStartProcedureIndex(s32 kind, u8 *script, s32 index);
 extern s32 scrFindPrcdIdxByName(s32 scriptOrSize, void *fileData);
-extern void memcpy(void *arg0, void *arg1, u32 arg2);
+extern void memcpy(void *, void *, u32);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern s32 kwlnTaskIsLinked(void *task);
 extern u32 kwlnTaskGetWork(void *task);

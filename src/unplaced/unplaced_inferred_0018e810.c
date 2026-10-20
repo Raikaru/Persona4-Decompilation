@@ -33,19 +33,19 @@ extern u8 D_007966D0[];
 extern s64 iGpffff9fd0;
 extern s32 iGpffffb240;
 extern void FldBoardGenerate(s32 mode, s32 value, s32 option);
-extern void FldSmapTileQueueByType(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
-                           f32 arg5, f32 arg6, f32 arg7, s32 arg4);
-extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
+extern void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
+                           f32 x, f32 y, f32 depth, s32 flags);
+extern void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
                           f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                          f32 fparg4, u8 *arg2, s32 arg3,
-                          f32 fparg5, f32 fparg6, f32 fparg7, s32 arg4,
+                          f32 fparg4, u8 *color, s32 texture,
+                          f32 fparg5, f32 fparg6, f32 fparg7, s32 orientation,
                           f32 arg_sp0);
 extern u16 D_008C024E[];
 extern s32 *MT_Scene_GetFrameState(void);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 FldMapTestUpdate(u8 *arg0);
-extern void FldMapTestDestroy(u8 *arg0);
+extern s32 FldMapTestUpdate(u8 *task);
+extern void FldMapTestDestroy(u8 *task);
 extern u8 D_005F57B0[];
 extern u8 D_005F57C0[];
 extern s32 kwlnGetCurrentWorkValue(void);

@@ -19,11 +19,11 @@ extern char D_005DC824[];
 extern char D_0063B5D8[];
 extern char D_005DC7D0[];
 extern char D_0063B580[];
-extern void qsort(u32 *arg0, s32 arg1, s32 arg2,
-                           s32 (*arg3)(u8 **arg0, u8 **arg1));
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+extern void qsort(u32 *, s32, s32,
+                           s32 (*)(u8 **arg0, u8 **arg1));
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
-extern void *memcpy(void *arg0, const void *arg1, u32 arg2);
+extern void *memcpy(void *, const void *, u32);
 extern u8 D_0088152F[];
 typedef struct { s32 value[19]; } Code1_00267800ShapeTable;
 extern Code1_00267800ShapeTable D_00638FD0;
@@ -41,8 +41,8 @@ typedef struct {
 } Code1_00263220State;
 
 extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
-                          s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5,
+                          s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
+                          s32 originX, s32 originY,
                           f32 fparg3, f32 fparg4, f32 fparg5);
 extern char iGpffffa6c4;
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
@@ -56,49 +56,49 @@ typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *)
 extern u8 *kwlnTaskGetWork();
 extern s32 kwlnTaskIsLinked();
 
-extern s32 sdkSpritePackCreate(u8 *arg0);
+extern s32 sdkSpritePackCreate(u8 *descriptor);
 extern u8 D_00637420[];
 
 
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
-extern void cldTimeChangeDraw(s32 arg0, s32 arg1);
+extern void PrimAppendNode(u8 *list, u8 *node);
+extern void cldTimeChangeDraw(s32 unusedQueue, s32 task);
 
-extern void sdkSpritePackDestroy(void *arg0);
+extern void sdkSpritePackDestroy(void *pack);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
-extern void kAssertFail(void *arg0, s32 arg1);
-extern s32 cldTimeChangeUpdate(u8 *arg0);
-extern s32 sdkSndFadeOutChannel(s32 arg0, s32 arg1);
-extern s32 sdkSndStopChannel(s32 arg0);
-extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
-extern s32 shdSpriteEnsureLoaded(u8 *arg0);
+extern void kAssertFail(void *file, s32 line);
+extern s32 cldTimeChangeUpdate(u8 *task);
+extern s32 sdkSndFadeOutChannel(s32, s32);
+extern s32 sdkSndStopChannel(s32 fadeFrames);
+extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
+extern s32 shdSpriteEnsureLoaded(u8 *pack);
 extern u8 D_00638F90[];
-extern void cldTimeChangeQueueDraw(s32 arg0, u8 *arg1);
+extern void cldTimeChangeQueueDraw(s32 taskHandle, u8 *queue);
 extern char D_00637348[];
-extern s32 cldDayChangeRequest(u32 arg0, s32 arg1);
-extern void cldDayChangeMarkDone(u8 *arg0);
-extern s32 cldDayChangeIsDone(s32 arg0);
+extern s32 cldDayChangeRequest(u32 unused, s32 day);
+extern void cldDayChangeMarkDone(u8 *task);
+extern s32 cldDayChangeIsDone(s32 task);
 extern f32 sinf(f32 fparg0);
-extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
-                           s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
-                           s32 arg5, s32 arg6, s32 arg7,
+extern void calDrawWeather(s32 x, s32 y, f32 fparg0, u8 opacity,
+                           s32 weather, s32 highlight, f32 fparg1, f32 fparg2,
+                           s32 clipLeft, s32 clipWidth, s32 font,
                            s32 arg_sp0);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
 extern s32 D_008815B0[];
 extern u8 iGpffffa734;
 
-extern s32 calHasDayEntry(s32 arg0);
+extern s32 calHasDayEntry(s32 day);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void mdlEffectEmitMaskedTagPair(void);
-extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 arg2, s32 arg3);
+extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 depth, s32 preserveState);
 extern void mdlEffectEmitTagPair(void);
-extern s32 shdSpriteEntryWidth(s32 arg0, s32 arg1, u8 *arg2);
+extern s32 shdSpriteEntryWidth(s32 entryId, s32 entryOffset, u8 *pack);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 00266a40-00267b20 */
 
@@ -398,14 +398,14 @@ void cldShapeListDraw(u8 **shapeWork)
     f32 scaleFactor;
     u8 *list;
     f32 time;
-    extern void comuDataRemoveAndReleaseNode(void *shapeWork, void *arg1, void *arg2);
+    extern void comuDataRemoveAndReleaseNode(void *shapeWork, void *source, void *nodeStorage);
     extern f32 D_00761514;
     extern f32 D_00761658;
     extern f32 D_0076165C;
     extern f32 D_00761260;
-    extern s32 cldShapeDraw(u8 **shapeWork, u8 *arg1);
-    extern f32 MT_Scene_CubicBezier(f32 shapeWork, f32 arg1, f32 arg2, f32 arg3,
-                              f32 arg4);
+    extern s32 cldShapeDraw(u8 **shapeWork, u8 *entry);
+    extern f32 MT_Scene_CubicBezier(f32 shapeWork, f32 p1, f32 p2, f32 p3,
+                              f32 t);
 
     work = (u8 *)shapeWork;
     *(s32 *)(work + 0xC) = 0xFF;

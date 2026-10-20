@@ -24,13 +24,13 @@ extern void btlSoundAdvanceSlotQueue(void);
 extern void btlTargetUpdateDamagePhaseInput(void);
 extern void btlDestroyTask(void);
 extern s32 kwlnGetCamera(void);
-extern s32 func_003e8120(s32 arg0);
+extern s32 func_003e8120(s32 camera);
 extern void btlUnitUpdateAllLookAtTargets(void);
 extern void btlUnitQueueAllModelsForDraw(void);
 extern void btlEffectUpdateFadeNodes(void);
 extern void btlCameraDrawDebug(void);
-extern void PrimAppendNode(void *arg0, void *arg1);
-extern void func_003e8110(s32 arg0);
+extern void PrimAppendNode(void *list, void *node);
+extern void func_003e8110(s32 camera);
 extern u8 D_007940C0[];
 extern u8 D_00794120[];
 

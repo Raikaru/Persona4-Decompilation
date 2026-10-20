@@ -23,13 +23,13 @@ void fclCombineDrawStageTiles(u8 *task, s16 delay, s8 mode);
 
 /* Combine-screen placements take their screen positions by value (one
    eight-byte register each), not as packed s64 bits. */
-void fclCombineDrawSlotFields(u8 *task, FclVec2 position, s16 delay, s8 mode, s32 arg4,
-                              s32 arg5, s32 variant);
+void fclCombineDrawSlotFields(u8 *task, FclVec2 position, s16 delay, s8 mode, s32 alternateSprites,
+                              s32 narrowLayout, s32 variant);
 void fclCombineDrawSlotLabels(u8 *task, FclVec2 position, s16 delay, s8 mode);
 void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosition, s32 mode,
                    s32 useHiddenPosition);
 void fclCombineStartMove(u8 *task, FclVec2 start, FclVec2 end, s16 duration,
-                   s16 arg4);
+                   s16 delay);
 
 u8 *fclCombineSlotRecord(u8 *task, s8 slot);
 s32 fclCombineGetWorkAlt(u8 *task);

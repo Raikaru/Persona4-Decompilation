@@ -24,13 +24,13 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
-extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                         s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
-extern s32 yTimeTrackIsIdle(u8 *arg0);
-extern f32 yTimeTrackProgress(u8 *arg0);
-extern s32 yTimeTrackCurrentKey(u8 *arg0, f32 *arg1);
-extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
-extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
+                         s32, f32 farg0, s32, s32, s32);
+extern s32 yTimeTrackIsIdle(u8 *track);
+extern f32 yTimeTrackProgress(u8 *track);
+extern s32 yTimeTrackCurrentKey(u8 *track, f32 *output);
+extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 rgb, u8 alpha, s32 recordIndex, void * pack, s32 setStates);
+extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 rgb, u8 alpha, s32 recordIndex, void * pack, s32 setStates, s16 pivotX, s16 pivotY, f32 farg3, f32 farg4, f32 farg5);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 
@@ -69,11 +69,11 @@ extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
 extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
-extern void yTimeNameDrawReveal(u8 *arg0, s32 arg1);
+extern void yTimeNameDrawReveal(u8 *task, s32 stage);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a12e0-002a12e0 */
 
-extern void yTimeNameDrawSelections(u8 *arg0, s32 arg1);
+extern void yTimeNameDrawSelections(u8 *task, s32 preserveStatus);
 
 
 

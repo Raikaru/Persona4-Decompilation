@@ -24,18 +24,18 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
-extern u8 yTimeTrackClear(s32 arg0);
-extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                         s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
-extern void yTimeTrackAdvance(u8 *arg0);
-extern s32 yTimeTrackIsNotDone(u8 *arg0);
-extern s32 yTimeTrackIsIdle(u8 *arg0);
+extern u8 yTimeTrackClear(s32 track);
+extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
+                         s32, f32 farg0, s32, s32, s32);
+extern void yTimeTrackAdvance(u8 *track);
+extern s32 yTimeTrackIsNotDone(u8 *track);
+extern s32 yTimeTrackIsIdle(u8 *track);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 extern u8 nmMesWindowOpenCurrent(u8 *message);
-extern void nmMesWindowShowCurrentRecord(s32 arg0);
-extern void nmMesWindowSetCurrentParam(s32 arg0);
-extern void nmMesWindowSetCurrentFlag(s32 arg0);
+extern void nmMesWindowShowCurrentRecord(s32 recordIndex);
+extern void nmMesWindowSetCurrentParam(s32 recordIndex);
+extern void nmMesWindowSetCurrentFlag(s32 cursor);
 extern s32 nmMesWindowCurrentAnim(void);
 extern void nmMesWindowResetCurrent(void);
 extern s32 nmMesWindowCurrentOpenState(void);

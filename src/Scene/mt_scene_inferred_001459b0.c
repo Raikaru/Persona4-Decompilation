@@ -106,18 +106,18 @@ extern f32 fGpffff8110;
 
 
 
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
-extern u8 *resrcMngCreateRes(s32 arg0, s32 arg1);
-extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
-extern void Vpad_BuildRotatedQuad(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
+extern u8 *resrcMngCreateRes(s32 resManager, s32 resTypeId);
+extern u8 *resrcMngFindResById(u8 *manager, u16 resourceId);
+extern void Vpad_BuildRotatedQuad(u8 *vertices, const u8 *translation, f32 fparg0, f32 fparg1, f32 fparg2);
 extern u8 *func_003e0f80(void);
 extern void memcpy(void *dest, const void *src, s32 size);
 extern void resrcMngDestroyRes();
-extern void FldResource_Destroy(void *arg0);
-extern void MT_Scene_SpawnIconTask(void *arg0);
-extern void func_003bbb60(s32 arg0);
-extern void func_003e0f40(s32 arg0);
+extern void FldResource_Destroy(void *resource);
+extern void MT_Scene_SpawnIconTask(void *effectHandle);
+extern void func_003bbb60(s32);
+extern void func_003e0f40(s32);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -131,8 +131,8 @@ extern u8 D_005EF870[];
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern void mdlEffectDestroy(s32 arg0);
-extern void mdlDestroyModelObject(s32 arg0);
+extern void mdlEffectDestroy(s32 model);
+extern void mdlDestroyModelObject(s32 model);
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
@@ -155,16 +155,16 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 fparg0, f32 fparg1, f32 fparg2,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
-extern s32 mdlEffectCreateFromResource(s32 arg0);
+extern s32 mdlEffectCreateFromResource(s32 resource);
 extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
-extern void mdlEffectSetUniformScale(s32 arg0, f32 arg1);
+extern void mdlEffectSetUniformScale(s32 effect, f32 scale);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];

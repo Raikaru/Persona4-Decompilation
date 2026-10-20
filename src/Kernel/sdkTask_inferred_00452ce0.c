@@ -79,9 +79,9 @@ extern s16 iGpffffba28;
 extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
-extern void sdkPadUpdateRecord(void *arg0);
-extern void sdkPadCookInput(s32 arg0);
-extern void sdkPadDispatchButtons(s32 arg0);
+extern void sdkPadUpdateRecord(void *record);
+extern void sdkPadCookInput(s32 slot);
+extern void sdkPadDispatchButtons(s32 slot);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -230,9 +230,9 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452ce0-00452ce0 */
 
-extern void sdkPadUpdateRecord(void *arg0);
+extern void sdkPadUpdateRecord(void *record);
 extern void sdkPadCookInput(s32 slot);
-extern void sdkPadDispatchButtons(s32 arg0);
+extern void sdkPadDispatchButtons(s32 slot);
 extern void sdkPadStepSequence(void);
 #pragma pop
 /* measured: restore O2 after func_00450e80. */

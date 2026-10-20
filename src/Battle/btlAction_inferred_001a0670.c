@@ -34,10 +34,10 @@ void btlActionSetState(BtlAction *action, u16 state);
 
 
 void btlActionFinishPresentation(BtlAction *action);
-s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern void btlUnitSelectRecordTable(u8 *arg0);
-extern void btlTargetClearWork(void *arg0);
-extern void btlDamageStart(u8 *arg0, u8 *arg1);
+s64 btlPacketEnqueue(u8 *context, u32 value);
+extern void btlUnitSelectRecordTable(u8 *action);
+extern void btlTargetClearWork(void *work);
+extern void btlDamageStart(u8 *task, u8 *action);
 
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
@@ -46,28 +46,28 @@ extern u8 *iGpffffb3b8;
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
 extern f32 fGpffff811c;
 extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
-extern void btlTargetClearResultBuffer(u8 *arg0);
+extern void btlTargetClearResultBuffer(u8 *result);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *btlPacketCreateHpRatio(u8 *arg0);
+extern u8 *btlPacketCreateHpRatio(u8 *unit);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 s32 btlTargetCanControlDamagePhase(void);
-s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                  s32 (*arg5)(u8 *arg0, s64 arg1));
-u32 btlCountUnitRecordsById(u32 arg0);
-u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+s32 btlEffectFindUnitMatchingCallback(u8 *action, s32 conditionValue, s32 sideMask, s32 statusMask, s32 filterFlags,
+                  s32 (*predicate)(u8 *arg0, s64 arg1));
+u32 btlCountUnitRecordsById(u32 id);
+u8 *func_001f99c0(u8 *, u16, s32, s32, s32);
 s16 btlCameraSelectFormationIndex(void);
 void btlTargetEndDamagePhase(void);
-s32 btlSideCountNotBad(s32 arg0, s32 arg1);
-s32 btlStatusWindowShowSlot2(u8 *arg0);
-u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-s32 datCalcGetSkillMask(u8 *arg0);
-s64 datCalcFindStrongBuff(u8 *arg0);
-s32 datCalcIsGuarding(u16 *arg0);
-s32 btlSoundRollStatusCure(u8 *arg0);
+s32 btlSideCountNotBad(s32 sideMask, s32 excludedStatus);
+s32 btlStatusWindowShowSlot2(u8 *unit);
+u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+s32 datCalcGetSkillMask(u8 *unit);
+s64 datCalcFindStrongBuff(u8 *unit);
+s32 datCalcIsGuarding(u16 *unitFlags);
+s32 btlSoundRollStatusCure(u8 *action);
 s32 btlTaskSlotLinkedSlot2(void);
 
-BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
+BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
 extern f32 D_0076144C;
 
 /* Source unit: src/promoted/code1_001a.c */

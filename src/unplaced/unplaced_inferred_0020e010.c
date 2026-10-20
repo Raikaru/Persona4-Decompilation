@@ -19,7 +19,7 @@ extern void btlSelectionFlushEntries();
 extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
-extern void btlEntryListFlush(u8 *arg0);
+extern void btlEntryListFlush(u8 *head);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00626C30[];
 extern void chkmemAllocSiteTag(const void *file, s32 line);
@@ -38,19 +38,19 @@ extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 D_008872F8[];
 extern s32 kwlnGetCamera(void);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
-extern void btlUiSetRenderMode(s32 arg0);
-extern void btlGaugeSetActive(u8 *arg0, s32 arg1);
-extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
-extern void btlUiSetRect(s32 *arg0, f32 fp0, f32 fp1, f32 fp2, f32 fp3);
+extern void btlUiSetRenderMode(s32 mode);
+extern void btlGaugeSetActive(u8 *gauge, s32 active);
+extern void btlUiSetOrigin(u8 *work, f32 fparg0, f32 fparg1);
+extern void btlUiSetRect(s32 *work, f32 fp0, f32 fp1, f32 fp2, f32 fp3);
 extern void btlUiSetRenderStates(void);
-extern void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 fparg0);
-extern void btlUiSetScale(u8 *arg0, f32 fparg0, f32 fparg1);
-extern void btlUiSetFactorXY(u8 *arg0, f32 fparg0, f32 fparg1);
+extern void btlUiSetTileOffset(u8 *work, s16 x, s32 y, f32 fparg0);
+extern void btlUiSetScale(u8 *work, f32 fparg0, f32 fparg1);
+extern void btlUiSetFactorXY(u8 *work, f32 fparg0, f32 fparg1);
 typedef struct BattleRenderDispatch {
     void (*setState)(u32 state, u32 value);
 } BattleRenderDispatch;
 
-extern void btlSelectionSwapRowState(u8 *arg0, u8 *arg1);
+extern void btlSelectionSwapRowState(u8 *from, u8 *to);
 /* Row offsets are shared by swap and target-mode dispatch. */
 typedef struct BtlSelectionRow {
     u16 drawMode;
@@ -591,8 +591,8 @@ void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y)
 #pragma pop
 
 extern f32 fGpffff8210;
-f32 btlUiSpriteWidth(u8 *task, s32 transition, s32 arg2);
-f32 btlUiSpriteHeight(u8 *task, s32 transition, s32 arg2);
+f32 btlUiSpriteWidth(u8 *task, s32 transition, s32 segment);
+f32 btlUiSpriteHeight(u8 *task, s32 transition, s32 segment);
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on

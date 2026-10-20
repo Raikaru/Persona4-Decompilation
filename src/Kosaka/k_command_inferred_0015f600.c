@@ -11,11 +11,11 @@
 #include "field_light_internal.h"
 #include "field_frame_internal.h"
 #include "rw_types_internal.h"
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void func_003e8110(s32 arg0);
-extern s32 func_003e8120(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
+extern void func_003e8110(s32 camera);
+extern s32 func_003e8120(s32 camera);
 extern s32 kwlnGetCamera(void);
-extern s32 mdlPrepareModel(s32 arg0);
+extern s32 mdlPrepareModel(s32 model);
 #include "Kosaka/k_fldFrame_internal.h"
 #include "scene_event_internal.h"
 #pragma push

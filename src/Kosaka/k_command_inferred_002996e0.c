@@ -12,11 +12,11 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern void mdlEffectSeqStop();
 extern s32 iGpffffa7c8;
-extern void scrDiscardArgs(void *arg0, ...);
+extern void scrDiscardArgs(void *, ...);
 
-s32 mtMiscResourceValue(s32 arg0);
+s32 mtMiscResourceValue(s32 resourceId);
 
-s32 sdkSndFadeOutChannel(s64 arg0, s32 arg1);
+s32 sdkSndFadeOutChannel(s64, s32);
 
 extern s32 iGpffffb538;
 extern u8 D_00882ED0[];
@@ -24,34 +24,34 @@ extern u8 D_00882EF0[];
 extern u8 D_00882EDE[];
 extern u8 D_00882EFE[];
 extern void sprintf(char *buf, const char *fmt, s32 value);
-extern void sdkSndStartChannel(s16 arg0, char *buf);
+extern void sdkSndStartChannel(s16 channelIndex, char *buf);
 extern char D_0063CB30[];
 extern char D_0063D050[];
-extern void sdkSndResetChannel(s32 arg0, s32 arg1);
-extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
-void mdlEffectSeqStart(s32 arg0, s16 arg1);
-s32 sdkSndPlayCue(s16 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32, s32);
+extern void sdkSndFadeOutChannelFrames(s32 channelIndex, s32 requestValue, s32 fadeFrames);
+void mdlEffectSeqStart(s32 duration, s16 sequenceId);
+s32 sdkSndPlayCue(s16, s32);
 s32 sdkSndStopMainChannel(void);
-s32 sdkSndStopChannel(s16 arg0);
+s32 sdkSndStopChannel(s16 fadeFrames);
 
 
 
-extern s64 scrGetParamIntS64(s32 arg0);
-extern void sdkSndRequestTrack(s32 arg0);
-extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
+extern s64 scrGetParamIntS64(s32);
+extern void sdkSndRequestTrack(s32 trackId);
+extern void func_0029e990(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern s32 D_0063CB50[];
-extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
+extern void func_0029e9a0(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern u8 D_0063CFA0[];
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
-extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, f32 farg0, s32 arg5, s32 arg6,
-                          s32 arg7);
+extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
+                          s32, f32 farg0, s32, s32,
+                          s32);
 extern f32 fGpffff8204;
-extern void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
-                          f32 farg3, s32 arg1, s32 arg2);
+extern void mtMiscDrawSpriteAt(s32 image, f32 farg0, f32 farg1, f32 farg2,
+                          f32 farg3, s32 alphaSubtract, s32 centered);
 extern char D_0063C8F0[];
 extern char D_0063C910[];
 extern s32 D_0076462C;
@@ -64,11 +64,11 @@ extern s32 D_0063E830[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 002996e0-00299c20 */
 
-extern void mtMiscCollectType1Records(u8 *arg0);
-extern void mtMiscCollectType2Records(u8 *arg0);
-extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
-extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
-extern void scrDiscardArgs(void *arg0, ...);
+extern void mtMiscCollectType1Records(u8 *eventWork);
+extern void mtMiscCollectType2Records(u8 *eventWork);
+extern void func_0029e990(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void func_0029e9a0(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void scrDiscardArgs(void *, ...);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index

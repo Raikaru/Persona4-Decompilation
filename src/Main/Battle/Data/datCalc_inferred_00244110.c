@@ -2,7 +2,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 extern s32 datScriptTargetIsNotEnemy(void);
-extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
+extern f32 datScriptCalcFloat(s32 term, s32 parameter);
 #include "datScript_internal.h"
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -34,7 +34,7 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 void datScriptCalcPhysicalDamage(void)
 {
     extern s32 datScriptCmdFlag2Set(void);
-    extern f32 sqrtf(f32 arg0);
+    extern f32 sqrtf(f32);
     /* fGpffff82c0: multiplier on the flag-2 branch of the enemy-target physical formula [inferred]. */
     extern f32 fGpffff82c0;
     /* fGpffff824c: scale on the clamped result, after the 30-point offset (datScriptCalcPhysicalDamage) [inferred]. */
@@ -124,7 +124,7 @@ void datScriptCalcPhysicalDamage(void)
 // FUN_00244540
 void datScriptCalcMagicDamage(void)
 {
-    extern f32 sqrtf(f32 arg0);
+    extern f32 sqrtf(f32);
     /* fGpffff824c: scale on the clamped result, after the 30-point offset (datScriptCalcMagicDamage) [inferred]. */
     extern f32 fGpffff824c;
     f32 damageTerm;

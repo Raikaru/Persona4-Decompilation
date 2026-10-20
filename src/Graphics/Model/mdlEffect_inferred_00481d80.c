@@ -26,8 +26,8 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void mdlEffectSelectResourceEntry(u8 *arg0, s32 arg1);
-extern u8 *mdlEffectLoadTrackResource(s32 *arg0);
+extern void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex);
+extern u8 *mdlEffectLoadTrackResource(s32 *source);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007132F0[];
@@ -55,8 +55,8 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00481d80-00481e30 */
 
-extern void mdlEffectSelectResourceEntry(u8 *arg0, s32 arg1);
-extern u8 *mdlEffectLoadTrackResource(s32 *arg0);
+extern void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex);
+extern u8 *mdlEffectLoadTrackResource(s32 *source);
 /* Resolves a track resource, allocates its 0x14-byte track states, and initializes playback. */
 /* Resolves a track resource and allocates initialized playback states with a 0x14-byte stride. */
 // FUN_00481D80

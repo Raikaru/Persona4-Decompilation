@@ -92,11 +92,11 @@ extern s32 iGpffffb444;
 /* RwCameraGetCurrentCamera (reads curCamera); cf. src/renderware/core/bacamera.c */
 extern u8 *kwlnGetCamera(void);
 /* RwCameraBeginUpdate-equivalent, cf. src/renderware/core/bacamera.c */
-extern s32 func_003e8120(u8 *arg0);
+extern s32 func_003e8120(u8 *camera);
 /* RpAtomicRender-equivalent atomic render guard, cf. src/renderware/world/baclump.c */
-extern void func_003c1bd0(s32 arg0);
+extern void func_003c1bd0(s32);
 /* RwCameraEndUpdate-equivalent, cf. src/renderware/core/bacamera.c */
-extern s32 func_003e8110(u8 *arg0);
+extern s32 func_003e8110(u8 *camera);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];

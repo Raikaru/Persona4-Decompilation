@@ -181,34 +181,34 @@ extern s32 D_007E8060[];
 extern u8 *iGpffff9db0;
 extern s32 FldMap_IsCurrentInBandA();
 extern s32 FldMap_IsCurrentInBandB(void);
-extern void FldResource_Destroy(s32 arg0);
+extern void FldResource_Destroy(s32 resource);
 extern s32 FldRc_FileLoadIsReady();
 extern void kAssertFail();
 extern void memcpy();
 extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 FldRc_CreateFileLoadTask();
-extern s32 H_Cdvd_FileExists(void *arg0);
-extern s32 H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
+extern s32 H_Cdvd_FileExists(void *path);
+extern s32 H_Cdvd_AcquireDirectory(void *path, s32 flags);
 extern u8 D_005EFF60[];
 extern s32 D_007D2510[];
 extern u8 D_007D24F0[];
 extern u8 D_005EFFE0[];
-extern s32 FldLoadTaskUpdate(u8 *arg0);
+extern s32 FldLoadTaskUpdate(u8 *task);
 extern void fldLoadTaskOnDestroy(u8 *task);
 extern s32 H_Cdvd_IsFileLoaded();
-extern void MT_Scene_SetWorkPresentFlag(s32 arg0, s32 arg1);
+extern void MT_Scene_SetWorkPresentFlag(s32 task, s32 presentWork);
 extern u8 D_007E31E4[];
 extern u8 D_005F0650[];
-extern u32 datGetFlag(s32 arg0);
-extern s32 datSetFlag(s32 arg0, s32 arg1);
-extern s32 FldStepTaskUpdate(u8 *arg0);
+extern u32 datGetFlag(s32 bit);
+extern s32 datSetFlag(s32 flagId, s32 enabled);
+extern s32 FldStepTaskUpdate(u8 *task);
 extern void FldStepTaskDestroy(u8 *task);
-extern void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2);
+extern void FldCellCreateResources(u16 parentId, u32 column, u32 row);
 extern s32 FldMap_IsCurrentInEitherBand(void);
-extern void FldFrame_SetStateFlags(s32 arg0, s32 arg1);
-extern void MT_Scene_ReleaseWork(s32 arg0);
-extern void mdlDestroyModelObject(s32 arg0);
+extern void FldFrame_SetStateFlags(s32 task, s32 value);
+extern void MT_Scene_ReleaseWork(s32 task);
+extern void mdlDestroyModelObject(s32 model);
 /* Forces b210's offset-first addu operand order. Measured typed cell accesses
  * otherwise swap the two addu source registers in grid routines.
  * The CSE-off placement body keeps the equivalent native integer sum inline. */
@@ -222,18 +222,18 @@ static inline u8 *fldOffsetPointer(u8 *base, s32 offset)
     return base + offset;
 }
 
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern s32 mdlGetClump(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
+extern s32 mdlGetClump(s32 model);
 extern s32 *MT_Scene_GetFrameState(void);
-extern u8 *mdlGetMatrix(s32 arg0);
-extern s32 K_Clump_ClumpHasMatUsrData(s32 arg0, const void *arg1);
+extern u8 *mdlGetMatrix(s32 model);
+extern s32 K_Clump_ClumpHasMatUsrData(s32 clump, const void *name);
 extern u8 D_005F0690[];
 extern u8 D_005F06A0[];
-extern s32 FldFrameTask_GetTileX(s32 arg0);
-extern s32 FldFrameTask_GetTileZ(s32 arg0);
-extern f32 KDraw_MatrixYawDeg(u8 *arg0);
-extern void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3,
-                          s32 arg4, s32 arg5, u8 arg6, s32 *arg7);
+extern s32 FldFrameTask_GetTileX(s32 task);
+extern s32 FldFrameTask_GetTileZ(s32 task);
+extern f32 KDraw_MatrixYawDeg(u8 *matrix);
+extern void FldCellFloodFillDirected(s32 column, s32 row, u8 incoming, u8 limitedDirections,
+                          s32 axisMask, s32 depth, u8 limit, s32 *visibleCount);
 extern s32 D_0076430C;
 extern u8 D_007E8C00[];
 extern s32 D_007E8020[];
@@ -251,11 +251,11 @@ extern u32 D_00764314;
 extern u32 D_00764324;
 extern u32 D_00764328;
 extern u32 RpRandom(void);
-extern void FldTileRotateAttributes(void *arg0, u32 arg1);
-extern s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2);
-extern void FldCellPlaceShape(u8 *arg0, u16 arg1, u16 arg2, s16 arg3);
-extern void FldCellFloodFill(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 *arg5, s32 *arg6);
+extern void FldTileRotateAttributes(void *templateData, u32 directionMask);
+extern s32 FldCellFindPlacement(void *templateData, u32 *outX, u32 *outY);
+extern void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind);
+extern void FldCellFloodFill(s32 x, s32 y, s32 incoming, s32 depth,
+                          s32 limit, s32 *foundTypeTwo, s32 *foundHighType);
 static inline void fldPlaceSpecialShape(u8 specialDirection, s32 x, s32 y,
                                         u8 *tile)
 {
@@ -263,7 +263,7 @@ static inline void fldPlaceSpecialShape(u8 specialDirection, s32 x, s32 y,
 }
 
 extern s32 kwlnGetCamera(void);
-extern s32 mdlPrepareModel(s32 arg0);
+extern s32 mdlPrepareModel(s32 model);
 extern void (*jtbl_008873EC[])(void *);
 #pragma push
 #pragma opt_loop_invariants on
@@ -1588,20 +1588,20 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
     extern s32 D_0076432C;
     extern u8 *iGpffff9db0;
     extern s32 *MT_Scene_GetFrameState(void);
-    extern k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *arg1, u32 arg2);
-    extern s32 MT_Scene_CreateModelFldRes(u16 arg0, s32 arg1);
-    extern s32 MT_Scene_CreateRes11(u16 arg0, s32 arg1);
-    extern s32 MT_Scene_CreateFldRes(u16 arg0, s32 arg1);
-    extern s32 MT_Scene_CreatePointRes14(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes15(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes16(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes17(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes18(u16 arg0, f32 *arg1, f32 fparg0);
+    extern k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *translation, u32 quarterTurns);
+    extern s32 MT_Scene_CreateModelFldRes(u16 resourceId, s32 model);
+    extern s32 MT_Scene_CreateRes11(u16 resourceId, s32 model);
+    extern s32 MT_Scene_CreateFldRes(u16 resourceId, s32 model);
+    extern s32 MT_Scene_CreatePointRes14(u16 resourceId, f32 *position, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes15(u16 resourceId, f32 *position, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes16(u16 resourceId, f32 *position, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes17(u16 resourceId, f32 *position, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes18(u16 resourceId, f32 *position, f32 fparg0);
     extern void resrcMngResetRenderSlots(void);
-    extern void SceneDraw_SetResVisible(u16 arg0, u32 arg1);
+    extern void SceneDraw_SetResVisible(u16 resTypeId, u32 visible);
     extern s32 FldMap_IsCurrentInBandA(void);
     extern s32 FldMap_IsCurrentInBandB(void);
-    extern u16 MT_Scene_FindFreeResId(s32 arg0);
+    extern u16 MT_Scene_FindFreeResId(s32 resourceType);
     extern void Vpad_BuildRotatedQuad(RuntimeVec3 *vertices, const RuntimeVec3 *translation, f32 width, f32 depth, f32 angle);
     extern void *RwMatrixRotate(void *matrix, const void *axis, f32 angle, s32 combine);
     extern void *func_003e42a0(void *out, const void *in, const void *matrix);
@@ -2067,15 +2067,15 @@ loop_5_test:
    Zeroing loop: u32 counter for bnez. */
 s32 FldStepTaskUpdate(u8 *task)
 {
-    extern s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13);
-    extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
-    extern s32 cmpPartyPanelTaskCreate(s32 arg0);
+    extern s32 FldRootCreate(u8 *parent, u16 field, u16 room, s32 entry, s16 spawn, s16 direction, s32 sceneFlags, u8 loadMode, s64 secondaryMode, s64 transitionValue, s64 eventId, s64 eventMajor, s64 eventMinor, s64 eventFlags);
+    extern void *mdlCreateModelObjectFromData(u32 type, u16 id, void *resource, u32 flags);
+    extern s32 cmpPartyPanelTaskCreate(s32 parentTask);
     extern void FldStepUpdateBandRes(void);
     extern void FldStepPreloadBegin(void);
     extern s32 FldStepPreloadCreateTasks(void);
     extern s32 FldStepPreloadFinish(void);
     extern s32 FldStepOpenDataFile(void);
-    extern s32 FldStepCopyLoadedFile(u8 *arg0);
+    extern s32 FldStepCopyLoadedFile(u8 *handle);
     extern char D_005F0630[];
     extern u8 D_007E3720[];
     u8 clearedRecord[12];

@@ -16,7 +16,7 @@ extern void sdkSpritePackDestroy(u32 param_1);
 extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void mcDrawDispatchCallback(void *, void *);
 extern void mcQueueDrawJob(s32);
-extern void mcIconWorkFree(void *arg0);
+extern void mcIconWorkFree(void *allocation);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void kAssertFail(const void *file, u32 line);
 
@@ -73,7 +73,7 @@ extern f32 iGpffff8214;
 extern f32 iGpffff8218;
 extern f32 iGpffff821c;
 extern f32 iGpffff8030;
-extern s32 func_0043c6a0(u32 arg0);
+extern s32 func_0043c6a0(u32);
 extern void mcDrawSlotDial(f32, f32, f32, s32, u8 *, s32, s32, f32, u8 *);
 extern void mcScreenStep(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
 extern void mcDrawFadedColor(s32, s32, s32, void *);

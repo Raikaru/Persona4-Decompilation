@@ -31,8 +31,8 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
 extern f32 fGpffff811c;
-s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                  s32 (*arg5)(u8 *arg0, s64 arg1));
+s32 btlEffectFindUnitMatchingCallback(u8 *action, s32 conditionValue, s32 sideMask, s32 statusMask, s32 filterFlags,
+                  s32 (*predicate)(u8 *arg0, s64 arg1));
 
 extern f32 D_0076144C;
 

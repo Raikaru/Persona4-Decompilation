@@ -108,8 +108,8 @@ void H_Cdvd_UpdateRequests(void)
 {
     extern void sdkPakUpdateDirectoryLoads(void);
     extern void movieLoadStep(void);
-    extern void H_Cdvd_SelectDirectory(void *arg0);
-    extern void H_Cdvd_ParseArchive(void *arg0);
+    extern void H_Cdvd_SelectDirectory(void *dir);
+    extern void H_Cdvd_ParseArchive(void *requestData);
     extern ADXF func_004c85a0(void *name, s32 mode);
     extern void func_004c8a60(ADXF handle);
     extern s32 func_004c9010(ADXF handle, s32 count, void *buffer);

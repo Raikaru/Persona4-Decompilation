@@ -5,18 +5,18 @@
 #include "model_callbacks_internal.h"
 #include "mdl_file_internal.h"
 extern u8 *iGpffffa5f0;
-extern s32 datGetEquippedItemByUnit(s32 arg0, s32 arg1);
+extern s32 datGetEquippedItemByUnit(s32 unitId, s32 slotIndex);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern char D_007636e0;
 extern char D_00635678[];
-extern s32 strlen(const void *arg0);
+extern s32 strlen(const void *);
 extern char D_006357C8[];
 extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
 extern void mdlAttachSlotModelFromResource(void *model, u16 slot, u32 type, u16 id,
                            void *path, u32 flags);
 extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slot, u32 type, u16 id,
                           u32 flags);
-extern void mdlSetAttachedSlotValue(void *arg0, s32 arg1, s32 arg2);
+extern void mdlSetAttachedSlotValue(void *model, s32 slotIndex, s32 frameId);
 extern char D_006357E0[];
 extern char D_00635800[];
 #pragma push
@@ -58,8 +58,8 @@ s32 mdlResolvePacPath(u32 type, u16 id, char *path)
 // FUN_00230D30
 s32 mdlAttachWeaponModelSlots(void *model)
 {
-    extern s32 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
-    extern void mdlSetAttachedSlotValue(u8 *arg0, u16 arg1, s32 arg2);
+    extern s32 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex);
+    extern void mdlSetAttachedSlotValue(u8 *model, u16 slotIndex, s32 frameId);
     u16 id;
     u8 path[0x100];
     s32 leftId;

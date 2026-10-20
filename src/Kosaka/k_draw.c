@@ -9,7 +9,7 @@
 extern u8 D_00887300_abs[];
 typedef s32 (*KDrawFunc)(RwRenderState state, void *value);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
-extern void primAxisLine3D(f32 arg0, u8 *arg1, s32 arg2);
+extern void primAxisLine3D(f32 mat, u8 *length, s32 saveAndRestoreRenderState);
 extern void primCylinderLine3D(f32 *position, f32 width, f32 height, u8 *color, s32 setStates);
 extern u8 iGpffff9dd4;
 typedef struct { u8 c[4]; } Rgba8;

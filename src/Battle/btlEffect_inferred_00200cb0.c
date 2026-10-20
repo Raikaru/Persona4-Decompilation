@@ -19,11 +19,11 @@ typedef struct RwV3d RwV3d;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
-extern f32 sdkSpriteScaledWidth(u8 *arg0);
-extern f32 sdkSpriteScaledHeight(u8 *arg0);
+extern f32 sdkSpriteScaledWidth(u8 *sprite);
+extern f32 sdkSpriteScaledHeight(u8 *sprite);
 
-extern void btlEncounterInitParams(s32 arg0, u8 *arg1);
-extern void btlGaugeInit(u8 *arg0, u8 *arg1);
+extern void btlEncounterInitParams(s32 context, u8 *state);
+extern void btlGaugeInit(u8 *unusedTask, u8 *gauge);
 
 extern void memset(void *destination, s32 value, u32 size);
 
@@ -37,13 +37,13 @@ extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 
-extern void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
-extern void btlEntryListFlush(u8 *arg0);
+extern void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 fparg0, f32 fparg1);
+extern void btlEntryListFlush(u8 *head);
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-extern void btlPanelStartEntry(s32 arg0, s32 arg1);
-extern void btlPanelStartValues(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void btlPanelStartEntry(s32 task, s32 text);
+extern void btlPanelStartValues(s32 task, s32 unit, s32 window, s32 record);
 extern void btlPanelMarkEntryStarted(s32 task);
 
 
@@ -60,11 +60,11 @@ extern void memset(void *dst, s32 value, u32 size);
 
 extern s32 btlUiTaskInit(u8 *task);
 extern void btlUiTaskDestroy(u8 *task);
-extern void btlUiInitComponents(s32 arg0, u8 *arg1);
-extern s32 btlPacketBuildHitFlags(u8 *arg0);
-extern void itfMesWindowReleaseIfActive(s32 arg0);
-extern void sdkSpriteRelease(void *arg0);
-extern void EffBattleSetHandlerTable(void *arg0, void *arg1);
+extern void btlUiInitComponents(s32 task, u8 *work);
+extern s32 btlPacketBuildHitFlags(u8 *work);
+extern void itfMesWindowReleaseIfActive(s32 handle);
+extern void sdkSpriteRelease(void *node);
+extern void EffBattleSetHandlerTable(void *handlers, void *context);
 extern u8 D_00625240[];
 extern f32 fGpffff8184;
 extern f32 fGpffff84a4;
@@ -75,11 +75,11 @@ typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
 extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
-extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 fGpffff82e0, fGpffff82e4;
 extern f32 D_008872F8[];
@@ -87,7 +87,7 @@ extern f32 D_00626890[][2];
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
-extern void btlUiSetRenderMode(s32 arg0);
+extern void btlUiSetRenderMode(s32 mode);
 extern void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
@@ -95,64 +95,64 @@ extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
 extern u8 *iGpffffb3ac;
 
 extern s32 D_00881444_abs[];
-extern void func_0021be70(void *arg0);
-extern void btlEncounterUpdateEntries(void *arg0);
-extern void btlPanelNoOp(void *arg0);
-extern void btlEntryListPrune(void *arg0);
-extern void btlPanelUpdate(void *arg0);
+extern void func_0021be70(void *);
+extern void btlEncounterUpdateEntries(void *state);
+extern void btlPanelNoOp(void *);
+extern void btlEntryListPrune(void *head);
+extern void btlPanelUpdate(void *panel);
 extern f32 fGpffff8478;
 extern f32 fGpffffb478;
-extern void btlSelectionUpdateTransition(u8 *arg0);
-extern void btlPanelLoadModels(void *arg0);
-extern void func_0021b1e0(void *arg0);
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
+extern void btlSelectionUpdateTransition(u8 *transition);
+extern void btlPanelLoadModels(void *panel);
+extern void func_0021b1e0(void *);
+extern void PrimAppendNode(u8 *list, u8 *node);
 extern u8 D_00794810[];
 extern u8 D_00794870[];
 extern u8 D_00794FF0[];
 extern u8 D_00795020[];
 extern u8 D_00795080[];
 
-extern void btlPanelInitWork(u8 *arg0, s32 arg1);
-extern void btlPanelDrawFrame(s32 arg0, u8 *arg1);
-extern void btlSelectionUpdateTransition(u8 *arg0);
-extern void btlPanelDrawBackdropGrid(s32 arg0, u8 *arg1);
+extern void btlPanelInitWork(u8 *panel, s32 task);
+extern void btlPanelDrawFrame(s32 unused, u8 *panel);
+extern void btlSelectionUpdateTransition(u8 *transition);
+extern void btlPanelDrawBackdropGrid(s32 unused, u8 *panel);
 extern void btlPanelDrawDetail(void);
-extern void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1);
-extern void btlSelectionInitTransition(u8 *arg0, s32 arg1);
-extern void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1);
-extern void btlEntryInit(u8 *arg0, s32 arg1);
-extern void btlDamageDrawList(u8 *arg0, u8 *arg1);
+extern void btlPanelDrawSkyFrame(s32 unused, u8 *panel);
+extern void btlSelectionInitTransition(u8 *transition, s32 task);
+extern void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition);
+extern void btlEntryInit(u8 *entry, s32 owner);
+extern void btlDamageDrawList(u8 *drawContext, u8 *state);
 extern void btlDamageDrawBadStatus(void);
-extern void btlDamageDrawBars(s32 arg0, u8 *arg1);
-extern void btlEncounterInitEntry(u8 *arg0, s32 arg1);
+extern void btlDamageDrawBars(s32 drawContext, u8 *state);
+extern void btlEncounterInitEntry(u8 *entry, s32 task);
 extern void btlPortraitDrawRoster(void);
-extern void btlPanelInitRecord(u8 *arg0, s32 arg1);
+extern void btlPanelInitRecord(u8 *panel, s32 task);
 extern void btlMessageDrawTimed(void);
-extern void btlPanelClear(u8 *arg0, s32 arg1);
+extern void btlPanelClear(u8 *panel, s32 task);
 extern void btlPanelAnimate(void);
 extern void btlPanelDrawFlourish(u8 *task, u8 *state);
-extern void btlGaugeInitValue(u8 *arg0, s32 arg1);
-extern void btlGaugeStepAll(s32 arg0, s32 *arg1);
-extern void btlEffectInit(u8 *arg0, s32 arg1);
+extern void btlGaugeInitValue(u8 *valueState, s32 value);
+extern void btlGaugeStepAll(s32 unusedTask, s32 *taskPointer);
+extern void btlEffectInit(u8 *effect, s32 value);
 extern void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback);
-extern s32 itfMesWindowInstall(void *arg0);
+extern s32 itfMesWindowInstall(void *record);
 extern u8 D_006253B0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00200cb0-00201b00 */
 
-extern void btlPanelInitWork(u8 *arg0, s32 arg1);
-extern void btlPanelUpdate(void *arg0);
-extern void btlPanelDrawFrame(s32 arg0, u8 *arg1);
-extern void btlPanelDrawBackdropGrid(s32 arg0, u8 *arg1);
+extern void btlPanelInitWork(u8 *panel, s32 task);
+extern void btlPanelUpdate(void *panel);
+extern void btlPanelDrawFrame(s32 unused, u8 *panel);
+extern void btlPanelDrawBackdropGrid(s32 unused, u8 *panel);
 extern void btlPanelDrawDetail(void);
-extern void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1);
-extern void btlSelectionInitTransition(u8 *arg0, s32 arg1);
-extern void btlSelectionUpdateTransition(u8 *arg0);
-extern void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1);
-extern void btlSelectionPushEntry(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4);
+extern void btlPanelDrawSkyFrame(s32 unused, u8 *panel);
+extern void btlSelectionInitTransition(u8 *transition, s32 task);
+extern void btlSelectionUpdateTransition(u8 *transition);
+extern void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition);
+extern void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *position, u16 flags);
 extern u8 *iGpffffb3b8;
-f32 btlUiSpriteWidth(u8 *arg0, s32 arg1, s32 arg2);
-f32 btlUiSpriteHeight(u8 *arg0, s32 arg1, s32 arg2);
+f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment);
+f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment);
 // Intent: register the overlay-ready callback for the UI object. [inferred]
 // FUN_00200CB0
 void btlUiRegisterAvailability(void) {
@@ -623,11 +623,11 @@ s32 btlPacketBuildHitFlags(u8 *work)
     s32 offset;
 
     extern u8 *iGpffffb3b8;
-    extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
-    extern s32 datCalcElementBit(s16 arg0);
+    extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
+    extern s32 datCalcElementBit(s16 element);
     extern void btlUnitGetHudAnchor(BtlUnit *unit, RwV3d *position);
     extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *unit, RwV3d *position);
-    extern void btlSelectionPushEntry(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4);
+    extern void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *position, u16 flags);
 
     flags = 0;
     inputFlags = ((BtlHitDisplayWork *)work)->effect;

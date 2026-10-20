@@ -14,16 +14,16 @@ static inline f32 p4_0025_add(f32 left, f32 right) {
     return left + right;
 }
 extern s32 D_006367C0[];
-extern void memcpy(void *arg0, void *arg1, s32 arg2);
+extern void memcpy(void *, void *, s32);
 extern s16 D_00636A40[];
 extern char D_00635C00[];
 extern char D_00635C20[];
 extern char D_00635C40[];
 extern char D_00635C60[];
-extern s32 cutinDrawTaskCreate(s32 arg0, s32 arg1);
-extern s32 taskRecordIsDone(s32 arg0);
-extern void taskRecordRequestSecondary(s32 arg0);
-extern void taskRecordSetPosition(s32 arg0, s64 arg1);
+extern s32 cutinDrawTaskCreate(s32 unused, s32 packedIds);
+extern s32 taskRecordIsDone(s32 task);
+extern void taskRecordRequestSecondary(s32 task);
+extern void taskRecordSetPosition(s32 task, s64 packedPosition);
 extern s32 iGpffffb480;
 
 
@@ -31,26 +31,26 @@ extern s32 iGpffffb480;
 void fadeBegin(void);
 s32 fadeIsIdle(void);
 
-s16 datGetPartyId(s32 arg0);
-void datSetPartyId(s32 arg0, s32 arg1);
-s16 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
-void datAssignEquippedItem(s16 arg0, s16 arg1, s16 arg2);
-s32 kwlnTaskIsLinked(s32 arg0);
-void taskRecordRequestPrimary(s32 arg0);
+s16 datGetPartyId(s32 idx);
+void datSetPartyId(s32 idx, s32 pcId);
+s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex);
+void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId);
+s32 kwlnTaskIsLinked(s32 target);
+void taskRecordRequestPrimary(s32 task);
 s32 mcIconTaskCreate(u8 *parent, s32 mode);
 s32 mcIconTaskPoll(void);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
-extern f32 cosf(f32 arg0);
-extern f32 sinf(f32 arg0);
+extern f32 cosf(f32);
+extern f32 sinf(f32);
 extern void shdEnableBlendFlag(void);
 extern void shdDisableBlendFlag(void);
-extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
-                           s32 arg2, s32 arg3, s32 arg4);
-extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
-                           f32 farg0, f32 farg1, s32 arg4);
+extern void PrimDrawPoints(void *colors, void *positions, f32 farg0,
+                           s32 count, s32 primitiveType, s32 preserveState);
+extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
+                           f32 farg0, f32 farg1, s32 preserveState);
 
 
 

@@ -939,7 +939,7 @@ extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
 extern u8 *iGpffffb3b8;
-extern s32 btlActionHasNoTargetClass(u32 arg0);
+extern s32 btlActionHasNoTargetClass(u32 action);
 // FUN_001B99F0
 /* Fade unrelated unit groups while preserving the acting unit and selected target groups. Raw target-
  * list storage is opaque in BtlAction; raw counter increments retain measured callback reloads. */

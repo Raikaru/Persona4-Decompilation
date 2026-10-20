@@ -37,14 +37,14 @@ extern u8 D_00796750[];
 extern u8 D_00796754[];
 extern u8 D_00796758[];
 extern u8 D_0079675C[];
-extern void timeLimitTaskCreate(s32 arg0);
+extern void timeLimitTaskCreate(s32 parent);
 extern s32 timeLimitTaskExists(void);
 extern void timeLimitTaskDestroy(void);
-extern void PrimFreeBatchNode(s32 arg0);
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern s32 fclBankTaskUpdate(u8 *arg0);
-extern void fclBankTaskDestroy(u8 *arg0);
+extern void PrimFreeBatchNode(s32 node);
+extern void chkmemAllocSiteTag(void *file, s32 line);
+extern void RpSkyRenderStateSet(s32, s32);
+extern s32 fclBankTaskUpdate(u8 *task);
+extern void fclBankTaskDestroy(u8 *task);
 extern s32 kwlnGetCamera(void);
 extern u8 D_005DD680[];
 /* RenderWare keeps its engine instance in the `ourGlobals` array
@@ -107,7 +107,7 @@ typedef struct FclBankDrawWork {
 } FclBankDrawWork;
 
 extern u8 D_00796460[];
-extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count);
 extern u8 iGpffff85d0;
 #pragma push
 #pragma tailcall off
@@ -387,7 +387,7 @@ void fclBankTableReset(void)
 void fclBankTableInit(void) {
     extern u8 D_00796460[];
     extern u8 D_00796700[];
-    extern void fclBankSlotLoad(u8 *arg0);
+    extern void fclBankSlotLoad(u8 *slot);
     s16 index;
 
     PrimQueueStateSet(D_00796460, 6, 1);

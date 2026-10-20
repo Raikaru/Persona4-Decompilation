@@ -4,13 +4,13 @@
 #include "type.h"
 #include "btl_shuffle_motion_internal.h"
 extern void *func_003e0f80(void);
-extern void RwMatrixRotate(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern void func_003e42a0(void *arg0, void *arg1, void *arg2);
-extern void func_003e0f40(void *arg0);
-extern void RwV3dNormalize(f32 *arg0, f32 *arg1);
+extern void RwMatrixRotate(void *, void *, f32 fparg0, s32);
+extern void func_003e42a0(void *, void *, void *);
+extern void func_003e0f40(void *);
+extern void RwV3dNormalize(f32 *, f32 *);
 extern u32 RpRandom(void);
-extern void btlShuffleCalcBuildBezierTangents(u8 *arg0, f32 *arg1, f32 fparg0);
-extern void func_003dc740(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+extern void btlShuffleCalcBuildBezierTangents(u8 *points, f32 *displacement, f32 fparg0);
+extern void func_003dc740(void *, void *, f32 fparg0, s32);
 /* Construct the inner Bezier control points from an endpoint displacement and perpendicular tangent. */
 // FUN_00370290
 void btlShuffleCalcBuildBezierTangents(u8 *points, f32 *displacement, f32 tangentLength) {

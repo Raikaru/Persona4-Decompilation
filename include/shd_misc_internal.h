@@ -22,7 +22,7 @@ void shdDrawNumberText(Vec2f position, f32 depth, s32 color, s32 number);
 void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
                    f32 width, f32 height, f32 angle, s32 mode);
 void shdDrawWedge(Vec2f position, f32 depth, s32 color,
-                   f32 angle, s32 arg2, s32 arg3);
+                   f32 angle, s32 blend, s32 farColumn);
 void shdDrawRotatingQuad(Vec2f position, f32 depth, s32 color,
                    f32 radius, f32 angle, s32 mode);
 void shdDrawRectOutline(Vec2f position, f32 depth, s32 color,

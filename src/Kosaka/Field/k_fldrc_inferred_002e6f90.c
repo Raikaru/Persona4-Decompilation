@@ -19,10 +19,10 @@ extern u8 *iGpffffb590;
 extern u8 D_0063FC80[];
 extern u8 D_0063FC90[];
 extern void *(*D_008873F4[])(size_t numObj, size_t sizeObj, u32 hint);
-extern void chkmemAllocSiteTag(const void *arg0, u32 arg1);
-extern void sdkSndFadeOutChannelFrames(s16 arg0, s32 arg1, s32 arg2);
-extern s32 datItemMoonGateFirst(s16 arg0);
-extern s32 datItemMoonGateSecond(s16 arg0);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
+extern void sdkSndFadeOutChannelFrames(s16 channelIndex, s32 requestValue, s32 fadeFrames);
+extern s32 datItemMoonGateFirst(s16 itemId);
+extern s32 datItemMoonGateSecond(s16 itemId);
 /* List indices are halfwords; the count follows the 48 ID slots. */
 typedef struct FclItemIdList {
     s16 ids[0x30];
@@ -156,9 +156,9 @@ loop_test:
 // FUN_002E72C0
 s32 shopSystemUpdate(u8 *task)
 {
-    void fieldSceneLoad(s32 task, s32 arg1);
-    s32 fadeBeginTransition(s32 task, s32 arg1);
-    s32 fadeBeginReturnTransition(s32 task, s32 arg1);
+    void fieldSceneLoad(s32 task, s32 roomId);
+    s32 fadeBeginTransition(s32 task, s32 duration);
+    s32 fadeBeginReturnTransition(s32 task, s32 duration);
     s32 fadeStatus(void);
     s32 fieldSceneLoadStep(void);
     void fieldSceneUnload(void);
@@ -169,7 +169,7 @@ s32 shopSystemUpdate(u8 *task)
     u8 *func_003e9cb0(u8 *task, ...);
     s32 kwlnTaskGetTaskByName(s8 *task);
     u8 *kwlnGetCamera(void);
-    void K_View_SetFov(void *task, f32 arg1);
+    void K_View_SetFov(void *task, f32 fov);
     s32 sdkSndPlayCue(s16 task, ...);
     extern s8 D_0063FC68[];
     s8 state;

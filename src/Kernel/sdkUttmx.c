@@ -57,13 +57,13 @@ extern void memcpy(u8 *dst, void *src, s32 size);
 extern u8 *(*jtbl_008873E8[])(s32 size, s32 align);
 extern void (*jtbl_008873EC[])(void *);
 extern u8 D_00712688[];
-extern void func_003ec2a0(s32 arg0);
-extern void func_003ec2e0(s32 arg0);
-extern u32 func_003ec3d0(s32 arg0, s32 arg1);
-extern s32 func_003ec590(u16 arg0, u16 arg1, s32 arg2, s32 arg3);
-extern u32 func_003ec6a0(s32 arg0, s32 arg1, s32 arg2);
+extern void func_003ec2a0(s32);
+extern void func_003ec2e0(s32);
+extern u32 func_003ec3d0(s32, s32);
+extern s32 func_003ec590(u16, u16, s32, s32);
+extern u32 func_003ec6a0(s32, s32, s32);
 extern void kAssertFail(u8 *file, s32 line);
-extern void tmxDmaCopy(u32 arg0, u32 arg1, u32 arg2);
+extern void tmxDmaCopy(u32 destination, u32 source, u32 byteCount);
 
 #pragma push
 /* W318 measured: opt_loop_invariants on changes 00463570 nd67->0,
@@ -514,7 +514,7 @@ RwImage *tmxImageWriteCallback(RwImage *image, const char *name)
 #pragma opt_loop_invariants on
 void tmxDmaCopy(u32 destination, u32 source, u32 byteCount)
 {
-    extern void func_00421a60(s32 arg0);
+    extern void func_00421a60(s32);
     extern void _rwDMAOpenVIFPktInline(void);
     u32 dst;
     u32 src;
