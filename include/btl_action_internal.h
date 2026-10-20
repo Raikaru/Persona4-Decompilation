@@ -121,7 +121,10 @@ struct BtlAction
         u16 pursuitDelay;
     };
     s32 unk_428;             /* 0x428 */
-    s32 unk_42c;             /* 0x42C */
+    union {
+        s32 unk_42c;         /* 0x42C */
+        u16 roundupTimers[2]; /* Prompt delay and post-choice cooldown. */
+    };
     union {
         s16 unk_430;         /* 0x430 */
         u16 endureResumeState; /* EndureUpdate resumes this state after its packet chain. */

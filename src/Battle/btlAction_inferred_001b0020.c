@@ -1,3 +1,7 @@
+#include "member_access.h"
+/* Measured alias-sensitive fields use MEMBER; typed access-site, local-pointer
+ * and applicable array forms are recorded in FullBattle2.culprits.tsv. */
+#include "btl_character_camera_internal.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
 #include "list_item_internal.h"
@@ -58,11 +62,11 @@ extern void btlBossCollectTargets(u8 *);
 extern u32 iGpffffa0b8;
 s64 btlPacketEnqueue(u8 *, u32);
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
+static inline u8 *battleAddByteOffset(s32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
 }
-static inline f32 func_001ba790_mul(f32 left, f32 right)
+static inline f32 battleMultiplyScalar(f32 left, f32 right)
 {
     return left * right;
 }
@@ -117,7 +121,6 @@ typedef struct BtlEncounterEntry {
 /* Return a surviving, non-active unit to its anchor unless another return sequence owns the camera. */
 void btlActionEndHomeInit(u8 *action)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (592B trial); retain the proven byte offsets for MATCH. */
     extern s32 btlActionGetActiveOrQueueFront(void);
     extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
         extern f32 btlTargetVectorDistance(const RwV3d *first, const RwV3d *second);
@@ -137,12 +140,12 @@ void btlActionEndHomeInit(u8 *action)
     u32 record;
     u32 selector;
 
-    unit = *(u8 **)(action + 0x30);
-    *(s32 *)(action + 0x41C) = 0;
-    if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0) {
-        if ((*(u32 *)(unit + 0x9C) & 0x40) != 0) {
-            *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
-            *(u16 *)(iGpffffb3ac + 0x18) |= 6;
+    unit = *(u8 * *)&((BtlAction *)(action))->unit;
+    *(s32 *)&((BtlAction *)(action))->unk_41c = 0;
+    if (datCalcIsDead(*(s32 *)&((BtlUnit *)(unit))->datUnit, 0) != 0) {
+        if ((*(u32 *)&((BtlUnit *)(unit))->flags3 & 0x40) != 0) {
+            *(u32 *)&((BtlBattleState *)(iGpffffb3ac))->flags |= 0x400000;
+            *(u16 *)&((BtlBattleState *)(iGpffffb3ac))->actionEndFlags |= 6;
         }
         btlActionSetState((BtlAction *)action, 1);
         return;
@@ -151,18 +154,18 @@ void btlActionEndHomeInit(u8 *action)
         btlActionSetState((BtlAction *)action, 1);
         return;
     }
-    if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x400000) != 0 &&
-        (*(u16 *)(iGpffffb3ac + 0x18) & 2) != 0) return;
-    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x180001) != 0) return;
+    if ((*(u32 *)&((BtlBattleState *)(iGpffffb3ac))->flags & 0x400000) != 0 &&
+        (*(u16 *)&((BtlBattleState *)(iGpffffb3ac))->actionEndFlags & 2) != 0) return;
+    if (datCalcChkBadStatus(*(s32 *)&((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)))->datUnit, 0x180001) != 0) return;
     btlUnitGetAnchorPose(unit, (u8 *)&position, NULL, NULL);
-    if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0) {
-        *(s32 *)(action + 0x41C) = 1;
+    if (*(u8 *)&((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)))->genus == 0) {
+        MEMBER(s32, action, BtlAction, unk_41c) = 1;
     }
     if (!(btlTargetVectorDistance((const RwV3d *)(unit + 4), &position) <= 75.0f)) {
         speed = 2;
-        side = !(iGpffffb3b8[*(u16 *)(action + 0x6E) * 0x28] & 2);
-        id = *(u16 *)(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64) + 2);
-        kind = *(u8 *)(*(u8 **)(action + 0x30) + 0xA2);
+        side = !(iGpffffb3b8[*(u16 *)&((BtlAction *)(action))->unk_6e * 0x28] & 2);
+        id = *(u16 *)&((DatUnit *)(*(u8 * *)&((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)))->datUnit))->id;
+        kind = *(u8 *)&((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)))->genus;
         switch (kind) {
         case 0: break;
         case 1:
@@ -170,13 +173,13 @@ void btlActionEndHomeInit(u8 *action)
             offset = (u32)id * 0xE8;
             record = offset + table;
             selector = side * 4;
-            speed = *(u16 *)(selector + record + 0x24);
+            speed = *(u16 *)&((BtlCharacterCameraRow *)(selector + record))->sides[0].returnSpeed;
             break;
         }
-        packet = (u8 *)btlUnitCreateMovePacket(*(BtlUnit **)(action + 0x30), &position, D_005F6D20[speed], 0);
-        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        packet = (u8 *)btlUnitCreateMovePacket(MEMBER(BtlUnit *, action, BtlAction, unit), &position, D_005F6D20[speed], 0);
+        *(s64 *)&((BtlPacket *)(packet))->actionUID = *(s64 *)action;
         btlPacketEnqueue(packet, 1);
-        *(s32 *)(action + 0x41C) = 1;
+        MEMBER(s32, action, BtlAction, unk_41c) = 1;
     }
 }
 
@@ -188,11 +191,11 @@ void btlActionEndHomeUpdate(u8 *action)
     f32 direction[3];
     u8 *packet;
 
-    if (btlUnitIsMoving(*(u8 **)(action + 0x30)) == 0) {
-        if (*(s32 *)(action + 0x41C) == 1) {
-            btlUnitGetAnchorPose(*(u8 **)(action + 0x30), NULL, NULL, direction);
-            packet = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)(*(u8 **)(action + 0x30)), (const RwV3d *)(direction), (u32)(0));
-            *(s64 *)(packet + 0x60) = *(s64 *)action;
+    if (btlUnitIsMoving(*(u8 * *)&((BtlAction *)(action))->unit) == 0) {
+        if (*(s32 *)&((BtlAction *)(action))->unk_41c == 1) {
+            btlUnitGetAnchorPose(MEMBER(u8 *, action, BtlAction, unit), NULL, NULL, direction);
+            packet = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)), (const RwV3d *)(direction), (u32)(0));
+            *(s64 *)&((BtlPacket *)(packet))->actionUID = *(s64 *)action;
             btlPacketEnqueue(packet, 1);
         }
         btlActionSetState((BtlAction *)action, 1);
@@ -210,30 +213,30 @@ void btlActionDeadInit(u8 *action)
     s32 flags;
     s32 updatedFlags;
 
-    unit = *(u8 **)(action + 0x30);
+    unit = *(u8 * *)&((BtlAction *)(action))->unit;
     btlOrderRemoveActionAll(action);
-    genus = *(u8 *)(unit + 0xA2);
+    genus = *(u8 *)&((BtlUnit *)(unit))->genus;
     switch (genus) {
     case 0:
-        datCalcClearAllBuffs(*(u8 **)(unit + 0xA64));
+        datCalcClearAllBuffs(*(u8 * *)&((BtlUnit *)(unit))->datUnit);
         return;
     case 1:
         btlTargetRecordDefeatReward(action);
-        flags = *(s32 *)(unit + 0x9C);
+        flags = *(s32 *)&((BtlUnit *)(unit))->flags3;
         if ((flags & 0x20) == 0 && (flags & 0x100) == 0) {
             packet = (u8 *)btlUnitCreateColorPacket((BtlUnit *)unit, 0xFFFFFF, 6, 0, 4, 0);
-            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            *(s64 *)&((BtlPacket *)(packet))->actionUID = *(s64 *)action;
             btlPacketEnqueue(packet, 1);
-            packet = (u8 *)btlFormationCreatePacket((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)unit, (u32)unit, 0, 0);
-            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            packet = (u8 *)btlFormationCreatePacket((u32)*(s32 *)&((BtlBattleState *)(iGpffffb3ac))->formations[17], (u32)unit, (u32)unit, 0, 0);
+            *(s64 *)&((BtlPacket *)(packet))->actionUID = *(s64 *)action;
             btlPacketEnqueue(packet, 2);
             packet = (u8 *)btlSoundCreateChannelCuePacket(0xA, 2, 0xA);
-            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            *(s64 *)&((BtlPacket *)(packet))->actionUID = *(s64 *)action;
             btlPacketEnqueue(packet, 1);
         }
-        updatedFlags = *(s32 *)(unit + 0x9C);
+        updatedFlags = MEMBER(s32, unit, BtlUnit, flags3);
         if ((updatedFlags & 0x40) == 0 && (updatedFlags & 8) != 0) {
-            *(s32 *)(unit + 0x9C) = updatedFlags & ~8;
+            MEMBER(s32, unit, BtlUnit, flags3) = updatedFlags & ~8;
         }
         return;
     default:
@@ -249,26 +252,26 @@ void btlActionDeadUpdate(u8 *action)
     u8 genus;
     u8 *unit;
 
-    unit = *(u8 **)(action + 0x30);
-    genus = *(u8 *)(unit + 0xA2);
+    unit = *(u8 * *)&((BtlAction *)(action))->unit;
+    genus = *(u8 *)&((BtlUnit *)(unit))->genus;
     switch (genus) {
     case 0:
-        if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) == 0) {
-            *(s32 *)(unit + 0x9C) &= ~1;
+        if (datCalcIsDead(*(s32 *)&((BtlUnit *)(unit))->datUnit, 0) == 0) {
+            *(s32 *)&((BtlUnit *)(unit))->flags3 &= ~1;
             btlActionQueuePush(action);
-            if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
+            if ((*(s32 *)&((BtlBattleState *)(iGpffffb3ac))->flags & 0x200000) != 0) {
                 btlBossCollectTargets((u8 *)btlActionGetQueueFront());
             }
             btlActionSetState((BtlAction *)action, 1);
         }
         break;
     case 1:
-        if ((*(s32 *)(unit + 0x9C) & 0x40) == 0) {
+        if ((*(s32 *)&((BtlUnit *)(unit))->flags3 & 0x40) == 0) {
             btlActionSetState((BtlAction *)action, 0x24);
             return;
         }
-        if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) == 0) {
-            *(s32 *)(unit + 0x9C) &= ~1;
+        if (datCalcIsDead(*(s32 *)&((BtlUnit *)(unit))->datUnit, 0) == 0) {
+            MEMBER(s32, unit, BtlUnit, flags3) &= ~1;
             btlActionQueuePush(action);
             btlActionSetState((BtlAction *)action, 1);
         }
@@ -332,11 +335,11 @@ void btlActionExitUpdate(u8 *action)
                 base = (u8 *)iGpffffb3ac;
                 while (slotIndex < 4U) {
                     offset = slotIndex * 4;
-                    entry = *(u8 **)(base + offset + 0xC74);
+                    entry = *(u8 * *)&((BtlBattleState *)(base + offset))->encounter.partyUnits[0];
                     if (entry != NULL) {
                         if (((BtlEncounterEntry *)entry)->unitData ==
                             ((BtlUnit *)unit)->datUnit) {
-                            found = *(u8 **)(func_001bf3a0_add(offset, base) + 0xC74);
+                            found = *(u8 * *)&((BtlBattleState *)(battleAddByteOffset(offset, base)))->encounter.partyUnits[0];
                             break;
                         }
                     }
@@ -347,7 +350,7 @@ void btlActionExitUpdate(u8 *action)
                     slotIndex = 0;
                     while (slotIndex < 3U) {
                         offset = slotIndex * 8;
-                        entry = *(u8 **)(table + offset + 0xC94);
+                        entry = *(u8 * *)&((BtlBattleState *)(table + offset))->encounter.units[0].unit;
                         if (entry != NULL &&
                             ((BtlEncounterEntry *)entry)->unitData == ((BtlUnit *)unit)->datUnit) {
                             found = entry;

@@ -74,6 +74,7 @@ typedef struct BtlSoundEnemyStatusRow { u16 flags; u8 pad02[0x3A]; } BtlSoundEne
 
 /* The encounter record selects a 0x18-byte music rule through its halfword at eight. */
 typedef struct BtlSoundEncounterRecord { u8 pad00[8]; u16 trackRule; } BtlSoundEncounterRecord;
-typedef struct BtlSoundTrackRule { u8 pad00[0x16]; u16 selector; } BtlSoundTrackRule;
+/* Boss setup reads bit 0x20 of the same 0x18-byte rule's leading flags. */
+typedef struct BtlSoundTrackRule { s32 flags; u8 pad04[0x12]; u16 selector; } BtlSoundTrackRule;
 
 #endif
