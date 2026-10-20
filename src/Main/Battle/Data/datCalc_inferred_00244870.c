@@ -2,7 +2,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 extern s32 datScriptTargetIsNotEnemy(void);
-extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
+extern f32 datScriptCalcFloat(s32 term, s32 parameter);
 #include "datScript_internal.h"
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -32,26 +32,26 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 void datScriptCalcHitRate(void)
 {
     extern f32 fGpffff824c;
-    f32 temp_f21;
-    f32 temp_f20;
-    f32 temp_f0;
-    f32 temp_f1;
+    f32 agilityRatio;
+    f32 accuracyTerm;
+    f32 hitRate;
+    f32 skillAccuracy;
 
     if (datScriptTargetIsNotEnemy() != 0) {
-        temp_f20 = add_f32_ordered(200.0f, datScriptCalcFloat(0xD, 3));
-        temp_f0 = add_f32_ordered(200.0f, datScriptCalcFloat(0xE, 3));
-        temp_f20 = temp_f20 / temp_f0;
-        temp_f0 = temp_f20 * datScriptCalcFloat(0x11, 0);
+        accuracyTerm = add_f32_ordered(200.0f, datScriptCalcFloat(0xD, 3));
+        hitRate = add_f32_ordered(200.0f, datScriptCalcFloat(0xE, 3));
+        accuracyTerm = accuracyTerm / hitRate;
+        hitRate = accuracyTerm * datScriptCalcFloat(0x11, 0);
     } else {
-        temp_f20 = add_f32_ordered(200.0f, datScriptCalcFloat(0xD, 3));
-        temp_f0 = add_f32_ordered(200.0f, datScriptCalcFloat(0xE, 3));
-        temp_f21 = temp_f20 / temp_f0;
-        temp_f20 = datScriptCalcFloat(0x1F, 0) / fGpffff824c;
-        temp_f1 = datScriptCalcFloat(0x11, 0) - temp_f20;
-        if (temp_f1 <= 0.0f)
-            temp_f1 = 1.0f;
-        temp_f0 = temp_f21 * temp_f1;
+        accuracyTerm = add_f32_ordered(200.0f, datScriptCalcFloat(0xD, 3));
+        hitRate = add_f32_ordered(200.0f, datScriptCalcFloat(0xE, 3));
+        agilityRatio = accuracyTerm / hitRate;
+        accuracyTerm = datScriptCalcFloat(0x1F, 0) / fGpffff824c;
+        skillAccuracy = datScriptCalcFloat(0x11, 0) - accuracyTerm;
+        if (skillAccuracy <= 0.0f)
+            skillAccuracy = 1.0f;
+        hitRate = agilityRatio * skillAccuracy;
     }
-    datScriptSetResult(temp_f0);
+    datScriptSetResult(hitRate);
 }
 

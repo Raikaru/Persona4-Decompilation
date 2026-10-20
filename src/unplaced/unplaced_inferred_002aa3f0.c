@@ -3,51 +3,58 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "primitive_queue_internal.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
+typedef struct TitleVisualPacket {
+    f32 x, y, width, height, depth;
+    u8 red, green, blue, alpha;
+    s32 flags;
+} TitleVisualPacket;
+
 extern void (*jtbl_008873EC[])(void *);
-s32 kwlnTaskGetTaskByName(void *arg0);
+s32 kwlnTaskGetTaskByName(void *);
 extern s32 D_00882F20[];
 extern s32 D_00763918;
 extern s32 D_00764634;
 extern u8 D_0063EE40[];
 extern void memset(void *dst, s32 value, u32 size);
-extern s32 loadingSpinnerTaskUpdate(u8 *arg0);
+extern s32 loadingSpinnerTaskUpdate(u8 *);
 extern void loadingSpinnerDraw(void);
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void RpSkyRenderStateGet(s32 arg0, s32 *arg1);
+extern void (*D_00887300[])(s32 , s32 );
+extern void RpSkyRenderStateSet(s32 , s32 );
+extern void RpSkyRenderStateGet(s32 , s32 *);
 extern void shdEnableBlendFlag(void);
 extern void shdDisableBlendFlag(void);
-extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 arg2, s32 arg3);
+extern void PrimDrawFlatRectangle(u8 *, f32 *, f32 , s32 );
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *arg0, void *arg1);
+extern void PrimAppendNode(void *, void *);
 extern u8 D_007966A0[];
-typedef struct P4_002aabf0_Work {
+typedef struct TitleVisualDrawState {
     f32 values[4];
     s32 pad80;
-    s32 sp84;
-    s32 sp88;
+    s32 savedStateTwo;
+    s32 savedStateThree;
     u8 colors[4];
-} P4_002aabf0_Work;
+} TitleVisualDrawState;
 
-typedef struct P4_002aa450_Pair {
+typedef struct LoadingSpinnerVector {
     s64 bits;
     f32 value;
-} P4_002aa450_Pair;
+} LoadingSpinnerVector;
 
-typedef struct P4_002aa450_Work {
+typedef struct LoadingSpinnerDrawState {
     u8 matrix[0x40];
-    P4_002aa450_Pair pair4;
-    P4_002aa450_Pair pair3;
-    P4_002aa450_Pair pair2;
-    P4_002aa450_Pair pair1;
-    P4_002aa450_Pair pair0;
-} P4_002aa450_Work;
+    LoadingSpinnerVector pair4;
+    LoadingSpinnerVector pair3;
+    LoadingSpinnerVector pair2;
+    LoadingSpinnerVector pair1;
+    LoadingSpinnerVector pair0;
+} LoadingSpinnerDrawState;
 
-static inline f32 p4_002aa450_mul(f32 left, f32 right) {
+static inline f32 loadingSpinnerMultiply(f32 left, f32 right) {
     return left * right;
 }
 
@@ -56,9 +63,9 @@ struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
                           const struct RwMatrixTag *matrix, void *queue);
-extern void RwMatrixRotate(void *arg0, void *arg1, f32 farg0, s32 arg2);
-extern void RwMatrixScale(void *arg0, void *arg1, s32 arg2);
-extern void func_003e4320(void *arg0, void *arg1, void *arg2);
+extern void RwMatrixRotate(void *, void *, f32 , s32 );
+extern void RwMatrixScale(void *, void *, s32 );
+extern void func_003e4320(void *, void *, void *);
 extern f32 fGpffff855c;
 extern u8 D_0063EDF0[];
 extern u8 D_0063EDF8[];
@@ -77,6 +84,7 @@ extern u8 D_00882F2C[];
 #pragma opt_propagation on
 #pragma no_branch_likely off
 #pragma opt_loop_invariants off
+/* Return zero while the memory-card icon task exists; otherwise distinguish pending and completed status. */
 // FUN_002AA3F0
 s32 mcIconTaskPoll(void) {
     s32 r;
@@ -101,16 +109,16 @@ void loadingSpinnerDraw(void) {
     s64 bits;
     s32 *state;
     u8 *source;
-    P4_002aa450_Work work;
+    LoadingSpinnerDrawState work;
     f32 phase;
     f32 offset;
     f32 ratio;
     f32 angle;
     f32 value;
     f32 scale;
-    f32 color_x;
-    f32 color_y;
-    s32 color_value;
+    f32 drawY;
+    f32 drawX;
+    s32 backdropY;
     s32 temp;
 
     state = (s32 *)D_00882F20;
@@ -146,27 +154,27 @@ void loadingSpinnerDraw(void) {
     phase = (f32)state[2] / 60.0f;
     scale = 10.0f;
     offset = 1.0f - ratio;
-    offset = p4_002aa450_mul(scale, offset);
+    offset = loadingSpinnerMultiply(scale, offset);
     offset = -80.0f - offset;
     RwMatrixRotate(work.matrix, &work.pair0, offset, 0);
     func_003e4320(&work.pair3, &work.pair3, work.matrix);
     angle = 360.0f * phase;
     RwMatrixRotate(work.matrix, &work.pair3, angle, 2);
     RwMatrixScale(work.matrix, &work.pair4, 2);
-    color_x = (f32)0x1A3;
-    color_y = (f32)0x242;
-    color_value = 397;
-    sflDataDrawQuad((s32)color_y, (s32)color_x, 0.0f, 0x18, 0x1F, 0xFF00, 0xFF, 1, 0,
+    drawY = (f32)0x1A3;
+    drawX = (f32)0x242;
+    backdropY = 397;
+    sflDataDrawQuad((s32)drawX, (s32)drawY, 0.0f, 0x18, 0x1F, 0xFF00, 0xFF, 1, 0,
                   0, (const struct RwMatrixTag *)work.matrix, 0);
     RwMatrixRotate(work.matrix, &work.pair0, offset, 0);
     RwMatrixRotate(work.matrix, &work.pair3, 120.0f + angle, 2);
     RwMatrixScale(work.matrix, &work.pair4, 2);
-    sflDataDrawQuad((s32)color_y, (s32)color_x, 0.0f, 0x18, 0x1F, 0xFFFF00, 0xFF, 1, 0,
+    sflDataDrawQuad((s32)drawX, (s32)drawY, 0.0f, 0x18, 0x1F, 0xFFFF00, 0xFF, 1, 0,
                   0, (const struct RwMatrixTag *)work.matrix, 0);
     RwMatrixRotate(work.matrix, &work.pair0, offset, 0);
     RwMatrixRotate(work.matrix, &work.pair3, 240.0f + angle, 2);
     RwMatrixScale(work.matrix, &work.pair4, 2);
-    sflDataDrawQuad((s32)color_y, (s32)color_x, 0.0f, 0x18, 0x1F, 0xFF0000, 0xFF, 1, 0,
+    sflDataDrawQuad((s32)drawX, (s32)drawY, 0.0f, 0x18, 0x1F, 0xFF0000, 0xFF, 1, 0,
                   0, (const struct RwMatrixTag *)work.matrix, 0);
     RwMatrixRotate(work.matrix, &work.pair1, fGpffff855c, 0);
     RwMatrixRotate(work.matrix, &work.pair2, 357.0f * phase + 3.0f, 2);
@@ -174,7 +182,7 @@ void loadingSpinnerDraw(void) {
     ((f32 *)&work.pair4)[1] *= ratio;
     ((f32 *)&work.pair4)[2] *= ratio;
     RwMatrixScale(work.matrix, &work.pair4, 2);
-    sflDataDrawQuad((s32)color_y, (s32)(color_value - ratio * 2.0f), 0.0f, 0x22, 0x2C,
+    sflDataDrawQuad((s32)drawX, (s32)(backdropY - ratio * 2.0f), 0.0f, 0x22, 0x2C,
                   0xE6E6E6, 0xFF, 1, 0x11, 0x16,
                   (const struct RwMatrixTag *)work.matrix, 0);
 }
@@ -187,9 +195,9 @@ void loadingSpinnerDraw(void) {
 #pragma opt_loop_invariants off
 // Intent: Loading spinner task update: run its show/hide state machine and queue its draw [inferred]
 // FUN_002AA890
-s32 loadingSpinnerTaskUpdate(u8 *arg0) {
+s32 loadingSpinnerTaskUpdate(u8 *task) {
     s32 *state;
-    u8 *temp_2;
+    u8 *node;
 
     state = D_00882F20;
     switch (state[1]) {
@@ -222,10 +230,10 @@ s32 loadingSpinnerTaskUpdate(u8 *arg0) {
                 state[1] = 1;
             }
         }
-        temp_2 = PrimAllocQueueNode();
-        *(void **)(temp_2 + 8) = (void *)loadingSpinnerDraw;
-        *(u8 **)(temp_2 + 0x10) = arg0;
-        PrimAppendNode(D_007966A0, temp_2);
+        node = PrimAllocQueueNode();
+        ((PrimQueueNode *)node)->callback = (void *)loadingSpinnerDraw;
+        ((PrimQueueNode *)node)->argument.data = task;
+        PrimAppendNode(D_007966A0, node);
         break;
     }
     return 0;
@@ -238,7 +246,7 @@ s32 loadingSpinnerTaskUpdate(u8 *arg0) {
 #pragma no_branch_likely off
 #pragma opt_loop_invariants off
 // FUN_002AAA00
-void func_002aaa00(u8 *unusedTask)
+void loadingSpinnerTaskDestroy(u8 *unusedTask)
 {
 }
 #pragma pop
@@ -252,7 +260,7 @@ void func_002aaa00(u8 *unusedTask)
 // FUN_002AAA10
 void loadingSpinnerTaskCreate(void) {
     memset(D_00882F20, 0, 0x10);
-    (s32)kwlnTaskCreateChild((void *)(NULL), (const void *)(D_0063EE40), 0xF, 0, 0, loadingSpinnerTaskUpdate, func_002aaa00, (u8 *)(NULL));
+    (s32)kwlnTaskCreateChild((void *)(NULL), (const void *)(D_0063EE40), 0xF, 0, 0, loadingSpinnerTaskUpdate, loadingSpinnerTaskDestroy, (u8 *)(NULL));
 }
 #pragma pop
 
@@ -288,7 +296,7 @@ void loadingSpinnerRequestHide(void) {
 // Intent: Apply the shared title sky base render preset; callers set the pass-specific sky state after it [inferred]
 // FUN_002AAAC0
 void titleSkyApplyBasePreset(void) {
-    void (**base)(s32 arg0, s32 arg1);
+    void (**base)(s32 , s32 );
 
     base = D_00887300;
     base[0](0xA, 5);
@@ -314,54 +322,54 @@ void titleSkyApplyBasePreset(void) {
 #pragma opt_loop_invariants off
 // Intent: Title visual draw callback: read a 0x1C packet (rect, depth, colour, flags) and draw a flat rectangle [inferred]
 // FUN_002AABF0
-void titleVisualDraw(void *arg0, u8 *arg1) {
-    P4_002aabf0_Work work;
+void titleVisualDraw(void *unusedQueue, u8 *packet) {
+    TitleVisualDrawState work;
     u8 *ptr;
-    void (**base)(s32 arg0, s32 arg1);
-    f32 temp_f20;
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_17_2;
-    s32 temp_18;
-    s32 temp_19;
-    u8 temp_6;
-    u8 temp_7;
-    u8 temp_8;
-    u8 temp_9;
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
+    void (**base)(s32 unusedQueue, s32 packet);
+    f32 depth;
+    s32 maskedDraw;
+    s32 preserveStateTwo;
+    s32 blendFlag;
+    s32 preserveStateThree;
+    s32 flags;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+    f32 height;
+    f32 width;
+    f32 y;
+    f32 x;
 
-    ptr = arg1;
-    temp_6 = ptr[0x14];
-    temp_7 = ptr[0x15];
-    temp_8 = ptr[0x16];
-    temp_9 = ptr[0x17];
-    work.colors[0] = temp_6;
-    work.colors[1] = temp_7;
-    work.colors[2] = temp_8;
-    work.colors[3] = temp_9;
-    temp_f3 = *(f32 *)(ptr + 0);
-    temp_f2 = *(f32 *)(ptr + 4);
-    temp_f1 = *(f32 *)(ptr + 8);
-    temp_f0 = *(f32 *)(ptr + 0xC);
-    work.values[0] = temp_f3;
-    work.values[1] = temp_f2;
-    work.values[2] = temp_f1;
-    work.values[3] = temp_f0;
-    temp_f20 = *(f32 *)(ptr + 0x10);
-    temp_19 = *(s32 *)(ptr + 0x18);
-    temp_18 = temp_19 & 0x100;
-    if (temp_18 != 0) {
-        RpSkyRenderStateGet(3, &work.sp88);
+    ptr = packet;
+    red = ((TitleVisualPacket *)ptr)->red;
+    green = ((TitleVisualPacket *)ptr)->green;
+    blue = ((TitleVisualPacket *)ptr)->blue;
+    alpha = ((TitleVisualPacket *)ptr)->alpha;
+    work.colors[0] = red;
+    work.colors[1] = green;
+    work.colors[2] = blue;
+    work.colors[3] = alpha;
+    x = ((TitleVisualPacket *)ptr)->x;
+    y = ((TitleVisualPacket *)ptr)->y;
+    width = ((TitleVisualPacket *)ptr)->width;
+    height = ((TitleVisualPacket *)ptr)->height;
+    work.values[0] = x;
+    work.values[1] = y;
+    work.values[2] = width;
+    work.values[3] = height;
+    depth = ((TitleVisualPacket *)ptr)->depth;
+    flags = ((TitleVisualPacket *)ptr)->flags;
+    preserveStateThree = flags & 0x100;
+    if (preserveStateThree != 0) {
+        RpSkyRenderStateGet(3, &work.savedStateThree);
     }
-    temp_17 = temp_19 & 0x200;
-    if (temp_17 != 0) {
-        RpSkyRenderStateGet(2, &work.sp84);
+    preserveStateTwo = flags & 0x200;
+    if (preserveStateTwo != 0) {
+        RpSkyRenderStateGet(2, &work.savedStateTwo);
     }
-    if (temp_18 != 0) {
-        RpSkyRenderStateGet(3, &work.sp88);
+    if (preserveStateThree != 0) {
+        RpSkyRenderStateGet(3, &work.savedStateThree);
     }
     base = D_00887300;
     base[0](0xA, 5);
@@ -377,40 +385,40 @@ void titleVisualDraw(void *arg0, u8 *arg1) {
     RpSkyRenderStateSet(3, 0x50003);
     RpSkyRenderStateSet(2, 0x44);
     base[0](1, 0);
-    if (temp_18 != 0) {
-        RpSkyRenderStateSet(3, work.sp88);
+    if (preserveStateThree != 0) {
+        RpSkyRenderStateSet(3, work.savedStateThree);
     }
-    if (temp_17 != 0) {
-        RpSkyRenderStateSet(2, work.sp84);
+    if (preserveStateTwo != 0) {
+        RpSkyRenderStateSet(2, work.savedStateTwo);
     }
-    if (temp_19 & 1) {
+    if (flags & 1) {
         base[0](6, 1);
     }
-    if (temp_19 & 2) {
+    if (flags & 2) {
         base[0](8, 1);
     }
-    if (temp_19 & 4) {
+    if (flags & 4) {
         RpSkyRenderStateSet(3, 0x5000D);
     }
-    if (temp_19 & 8) {
+    if (flags & 8) {
         RpSkyRenderStateSet(2, 0x54);
     }
-    if (temp_19 & 0x20) {
+    if (flags & 0x20) {
         RpSkyRenderStateSet(2, 0x58);
     }
-    temp_17_2 = temp_19 & 0x40;
-    if (temp_17_2 != 0) {
+    blendFlag = flags & 0x40;
+    if (blendFlag != 0) {
         shdEnableBlendFlag();
     }
-    temp_16 = temp_19 & 0x10;
-    if (temp_16 != 0) {
+    maskedDraw = flags & 0x10;
+    if (maskedDraw != 0) {
         mdlEffectEmitMaskedTagPair();
     }
-    PrimDrawFlatRectangle(work.colors, work.values, temp_f20, 0);
-    if (temp_16 != 0) {
+    PrimDrawFlatRectangle(work.colors, work.values, depth, 0);
+    if (maskedDraw != 0) {
         mdlEffectEmitTagPair();
     }
-    if (temp_17_2 != 0) {
+    if (blendFlag != 0) {
         shdDisableBlendFlag();
     }
     jtbl_008873EC[0](ptr);

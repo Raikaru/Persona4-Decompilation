@@ -1,10 +1,11 @@
+#include "btl_effect_internal.h"
+#include "btl_action_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
-typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001d7f10_add(s32 left, s32 right)
 {
     return left + right;
@@ -13,14 +14,14 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
-extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
+extern void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u32 sideFlags, u32 filterFlags, u32 statusMask);
 
-extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern char D_005DC824[];
@@ -29,8 +30,8 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
-extern void memset(u8 *arg0, s32 arg1, s32 arg2);
+extern u8 *(*jtbl_008873E8[])(s32 input, s32 value);
+extern void memset(u8 *input, s32 value, s32 options);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -57,22 +58,7 @@ typedef int (*code)();
 
 
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
 
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
 
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
@@ -96,8 +82,10 @@ extern f32 fGpffff8110;
  * Active battle actions receive type-0/1 work from func_0019f5f0 through
  * btlActionSetUnit. Type-2 auxiliary work lives at work+0xA0C instead.
  * This construction contract defines both sides before they are used. */
+/* Collect active actions selected by relative side, self-exclusion, death and status filters into the target array.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D7C60
-void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4)
+void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u32 sideFlags, u32 filterFlags, u32 statusMask)
 {
     u16 sideA;
     u16 sideB;
@@ -112,13 +100,13 @@ void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg
     u8 *unit;
     u8 *work;
     u8 utype;
-    memset(arg1, 0, 0x30);
-    *(u16 *)(arg1 + 0x38) = 0;
-    *(u16 *)(arg1 + 0x3A) = 0;
-    *(u8 *)(arg1 + 0x3C) = 0;
-    *(u8 *)(arg1 + 0x3C) |= 1;
-    if (arg0 != NULL) {
-        switch (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2)) {
+    memset(selection, 0, 0x30);
+    *(u16 *)(selection + 0x38) = 0;
+    *(u16 *)(selection + 0x3A) = 0;
+    *(u8 *)(selection + 0x3C) = 0;
+    *(u8 *)(selection + 0x3C) |= 1;
+    if (action != NULL) {
+        switch (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2)) {
         case 0:
             sideA = 1;
             sideB = 2;
@@ -133,7 +121,7 @@ void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg
         sideB = 2;
     }
     mask = 0;
-    eff = arg2 & 0xFF;
+    eff = sideFlags & 0xFF;
     if ((eff & 1) != 0) {
         mask |= sideA;
     }
@@ -143,10 +131,10 @@ void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg
     if ((eff & 4) != 0) {
         mask |= 4;
     }
-    flt = arg3 & 0xFF;
+    flt = filterFlags & 0xFF;
     if ((flt & 1) != 0) {
-        *(u8 **)(arg1 + 0) = arg0;
-        *(u16 *)(arg1 + 0x38) = 1;
+        *(u8 **)(selection + 0) = action;
+        *(u16 *)(selection + 0x38) = 1;
         return;
     }
     unit = *(u8 **)(iGpffffb3ac + 0x174);
@@ -156,7 +144,7 @@ void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg
     skipDead = flt & 4;
     needAlive = flt & 8;
     while (unit != NULL) {
-        if ((arg0 == NULL || (*(u16 *)(unit + 0x1A) & 8) != 0) &&
+        if ((action == NULL || (*(u16 *)(unit + 0x1A) & 8) != 0) &&
             (*(u16 *)(unit + 0x1A) & 1) != 0) {
             work = *(u8 **)(unit + 0x30);
             utype = *(u8 *)(work + 0xA2);
@@ -165,24 +153,24 @@ void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg
                     if (need4 != 0) {
                         goto store;
                     }
-                    if (needExcl == 0 || arg0 != unit) {
+                    if (needExcl == 0 || action != unit) {
                         if (skipDead != 0 || datCalcIsDead(*(u8 **)(work + 0xA64), 0) == 0) {
                             if (needAlive != 0) {
                                 if (datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), 0x100000) == 0) {
                                     goto next;
                                 }
                                 goto store;
-                            } else if (arg4 == 0 ||
+                            } else if (statusMask == 0 ||
                                 ((*(s32 *)(*(u8 **)(work + 0xA64) + 0xC) & 0xFFEFFFFF) != 0 &&
-                                 datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), arg4) == 0)) {
+                                 datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), statusMask) == 0)) {
                                 goto store;
                             }
                         }
                     }
                     goto next;
 store:
-                    *(u8 **)(arg1 + (u32)*(u16 *)(arg1 + 0x38) * 4) = unit;
-                    *(u16 *)(arg1 + 0x38) = (u16)(*(u16 *)(arg1 + 0x38) + 1);
+                    *(u8 **)(selection + (u32)*(u16 *)(selection + 0x38) * 4) = unit;
+                    *(u16 *)(selection + 0x38) = (u16)(*(u16 *)(selection + 0x38) + 1);
                 }
             }
         }
@@ -191,37 +179,39 @@ next:
     }
 }
 
+/* Read the skill's target classification and optionally gather its targets, reversing relative-side filters when requested.
+ * Raw offsets retained: The 0x28-byte skill table rows retain byte addressing because their complete parameter layout is not established in this unit. */
 // FUN_001D7F10
-u16 btlSkillClassifyTargets(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
+u16 btlSkillClassifyTargets(u8 *action, u8 *selection, u16 skillId, u32 reverseSides)
 {
     u32 effect;
     s32 offset;
-    u32 bVar4;
-    if (arg1 != NULL) {
-        offset = (arg2 & 0xFFFF) * 0x28;
+    u32 filterFlags;
+    if (selection != NULL) {
+        offset = (skillId & 0xFFFF) * 0x28;
         effect = *(u8 *)((u8 *)p4_001d7f10_add(
             offset, (s32)iGpffffb3b8) + 9);
-        bVar4 = *(u8 *)((u8 *)(u32)iGpffffb3b8 + offset + 0xA);
-        if (arg3 != 0) {
-            arg3 = (u8)effect;
-            if (((arg3 & 1) != 0) && ((arg3 & 2) == 0)) {
+        filterFlags = *(u8 *)((u8 *)(u32)iGpffffb3b8 + offset + 0xA);
+        if (reverseSides != 0) {
+            reverseSides = (u8)effect;
+            if (((reverseSides & 1) != 0) && ((reverseSides & 2) == 0)) {
                 effect = (u8)(effect & 0xFE);
                 effect = (u8)(effect | 2);
-            } else if (((arg3 & 2) != 0) && ((arg3 & 1) == 0)) {
+            } else if (((reverseSides & 2) != 0) && ((reverseSides & 1) == 0)) {
                 effect = (u8)(effect & 0xFD);
                 effect = (u8)(effect | 1);
             }
-            if (((u8)bVar4 & 1) != 0) {
-                bVar4 = (u8)(bVar4 & 0xFE);
-                bVar4 = (u8)(bVar4 | 2);
+            if (((u8)filterFlags & 1) != 0) {
+                filterFlags = (u8)(filterFlags & 0xFE);
+                filterFlags = (u8)(filterFlags | 2);
             }
         }
-        btlEffectCollectTargetUnits(arg0, arg1, effect, bVar4,
+        btlEffectCollectTargetUnits(action, selection, effect, filterFlags,
                       *(u16 *)((u8 *)p4_001d7f10_add(
                           (s32)offset, (s32)iGpffffb3b8) + 0xC));
     }
-    arg0 = (u8 *)(u32)iGpffffb3b8;
-    return (arg0 + (arg2 & 0xFFFF) * 0x28)[8];
+    action = (u8 *)(u32)iGpffffb3b8;
+    return (action + (skillId & 0xFFFF) * 0x28)[8];
 }
 
 #pragma push
@@ -232,14 +222,15 @@ u16 btlSkillClassifyTargets(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
 /* measured: btlEffectSelectNeighbourTarget MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
 /* Select a neighbouring battle target by screen position, facing, or chain order. */
+/* Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D8010
-void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
-    extern void btlUnitGetSphereWorldCenter(u8 *a0, f32 *a1);
+void btlEffectSelectNeighbourTarget(u8 *action, u8 *selection) {
+    extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
     extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 btlTargetAngleBetween(f32 *a0, f32 *a1, f32 *a2, f32 *a3);
-    extern s32 btlEffectCollectGenusMask(u8 *a0);
-    extern u8 *btlFormationCurrentEntry(u8 *a0);
+    extern f32 btlTargetAngleBetween(f32 *first, f32 *second, f32 *point, f32 *projection);
+    extern s32 btlEffectCollectGenusMask(u8 *selection);
+    extern u8 *btlFormationCurrentEntry(u8 *formation);
     extern u16 D_008C027A[];
     extern u16 D_008C0276[];
     extern u8 D_00881430[];
@@ -266,7 +257,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
 #define OUTXZ (&stk[20])
 #define DELTA (&stk[18])
 #define DIR (&stk[16])
-    if (*(u16 *)(arg1 + 0x38) <= 1) {
+    if (*(u16 *)(selection + 0x38) <= 1) {
         return;
     }
     if (D_008C027A[0] & 0x2000) {
@@ -284,7 +275,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
     } else {
         return;
     }
-    if ((btlEffectCollectGenusMask(arg1) & 0xFFFF) == 1) {
+    if ((btlEffectCollectGenusMask(selection) & 0xFFFF) == 1) {
         switch (mode) {
         case 0:
         case 4:
@@ -312,8 +303,8 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
         }
         selected = 0;
         i = 0;
-        while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
-            u8 *unit = *(u8 **)(arg1 + ((u16)i * 4));
+        while ((i & 0xFFFF) < (s32)*(u16 *)(selection + 0x38)) {
+            u8 *unit = *(u8 **)(selection + ((u16)i * 4));
             u8 *ud = *(u8 **)(unit + 0x30);
             f32 len;
             btlUnitGetSphereWorldCenter(ud, POS);
@@ -362,7 +353,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
                 }
             } while (swapped != 0);
             {
-                u8 *curPtr = btlFormationCurrentEntry(arg1);
+                u8 *curPtr = btlFormationCurrentEntry(selection);
                 for (i = 0; (i & 0xFFFF) < nn; i = (i + 1) & 0xFFFF) {
                     if (entries[(u16)i].unit == curPtr) {
                         break;
@@ -370,13 +361,13 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
                 }
                 if ((mode & 0xFFFF) == 5) {
                     if ((i & 0xFFFF) + 1 == nn) {
-                        selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
+                        selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(selection + 0x3A);
                     } else {
                         selected = entries[((i & 0xFFFF) + 1) & 0xFFFF].idx;
                     }
                 } else {
                     if ((i & 0xFFFF) == 0) {
-                        selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(arg1 + 0x3A);
+                        selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(selection + 0x3A);
                     } else {
                         selected = entries[((i & 0xFFFF) - 1) & 0xFFFF].idx;
                     }
@@ -387,8 +378,8 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
     }
     case 0:
     case 1: {
-        btlUnitGetSphereWorldCenter(*(u8 **)(arg0 + 0x30), POS);
-        btlUnitGetGroupBounds(btlEffectCollectGenusMask(arg1) & 0xFFFF, 0, (RwV3d *)CENTER, 0, 0, 1);
+        btlUnitGetSphereWorldCenter(*(u8 **)(action + 0x30), POS);
+        btlUnitGetGroupBounds(btlEffectCollectGenusMask(selection) & 0xFFFF, 0, (RwV3d *)CENTER, 0, 0, 1);
         BASEXZ[0] = POS[0];
         BASEXZ[1] = POS[2];
         CENTERXZ[0] = CENTER[0];
@@ -400,8 +391,8 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
         func_003e41e0(DIR, DIR);
         selected = 0;
         i = 0;
-        while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
-            u8 *unit = *(u8 **)(arg1 + ((u16)i * 4));
+        while ((i & 0xFFFF) < (s32)*(u16 *)(selection + 0x38)) {
+            u8 *unit = *(u8 **)(selection + ((u16)i * 4));
             u8 *ud = *(u8 **)(unit + 0x30);
             f32 dist;
             f32 dot;
@@ -446,7 +437,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
                 }
             } while (swapped != 0);
             {
-                u8 *curPtr = btlFormationCurrentEntry(arg1);
+                u8 *curPtr = btlFormationCurrentEntry(selection);
                 for (i = 0; (i & 0xFFFF) < nn; i = (i + 1) & 0xFFFF) {
                     if (entries[(u16)i].unit == curPtr) {
                         break;
@@ -454,13 +445,13 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
                 }
                 if ((mode & 0xFFFF) == 1) {
                     if ((i & 0xFFFF) + 1 == nn) {
-                        selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
+                        selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(selection + 0x3A);
                     } else {
                         selected = entries[((i & 0xFFFF) + 1) & 0xFFFF].idx;
                     }
                 } else {
                     if ((i & 0xFFFF) == 0) {
-                        selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(arg1 + 0x3A);
+                        selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(selection + 0x3A);
                     } else {
                         selected = entries[((i & 0xFFFF) - 1) & 0xFFFF].idx;
                     }
@@ -479,8 +470,8 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
 
         n = 0;
         i = 0;
-        while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
-            unit = *(u8 **)(arg1 + ((u16)i * 4));
+        while ((i & 0xFFFF) < (s32)*(u16 *)(selection + 0x38)) {
+            unit = *(u8 **)(selection + ((u16)i * 4));
             if ((*(u16 *)(unit + 0x1A) & 1) != 0) {
                 ud = *(u8 **)(unit + 0x30);
                 if (*(u8 *)(ud + 0xA2) == 0) {
@@ -527,7 +518,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
             } while (depth != 0);
         }
         {
-            u8 *curPtr = btlFormationCurrentEntry(arg1);
+            u8 *curPtr = btlFormationCurrentEntry(selection);
             s32 nn = n & 0xFFFF;
             for (i = 0; (i & 0xFFFF) < nn; i = (i + 1) & 0xFFFF) {
                 if (entries[(u16)i].unit == curPtr) {
@@ -540,13 +531,13 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
             }
             if ((mode & 0xFFFF) == 2) {
                 if ((i & 0xFFFF) + 1 == nn) {
-                    selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
+                    selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(selection + 0x3A);
                 } else {
                     selected = entries[((i & 0xFFFF) + 1) & 0xFFFF].idx;
                 }
             } else {
                 if ((i & 0xFFFF) == 0) {
-                    selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(arg1 + 0x3A);
+                    selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(selection + 0x3A);
                 } else {
                     selected = entries[((i & 0xFFFF) - 1) & 0xFFFF].idx;
                 }
@@ -555,9 +546,11 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
         break;
     }
     }
-    if (*(u16 *)(arg1 + 0x3A) != (selected & 0xFFFF)) {
-        *(u16 *)(arg1 + 0x3A) = selected;
-        *(u8 *)(arg1 + 0x3C) |= 1;
+    if (*(u16 *)(selection + 0x3A) != (selected & 0xFFFF)) {
+        *(u16 *)(selection + 0x3A) = selected;
+        *(u8 *)(selection + 0x3C) |= 1;
     }
 }
 
+/* Restore the scoped target-selection settings at the end of this unit. */
+#pragma pop

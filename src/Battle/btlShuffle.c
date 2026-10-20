@@ -3,17 +3,32 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "btl_shuffle_draw_internal.h"
+#include "btl_shuffle_task_internal.h"
+#include "datUnit_internal.h"
+#include "sdktask.h"
+#include "btl_result_ui_internal.h"
+
+/* Partial interpretation of BtlResultWork.parameters (0x58 bytes at parent +8).
+ * The shuffle result callback resets these fields through the saved parent work. */
+typedef struct BtlShuffleResultParameters {
+    u16 flags;
+    u8 pad02[2];
+    u32 unk04, unk08;
+    u8 pad0C[0x24];
+    u32 unk30;
+    u8 pad34[0x24];
+} BtlShuffleResultParameters;
 
 
-extern void btlShuffleDrawTaskUpdate(u8 *arg0);
+extern void btlShuffleDrawTaskUpdate(u8 *work);
 
-extern void btlShuffleDrawQueueCardsB(u8 *arg0);
+extern void btlShuffleDrawQueueCardsB(u8 *context);
 
 extern u16 *kwlnTaskGetWork();
 
-extern s32 kwlnTaskGetTaskByName(void *arg0);
+extern s32 kwlnTaskGetTaskByName(void *name);
 
-extern u32 datCalcRandomBelow(u32 max);
+extern u32 datCalcRandomBelow(u32 limit);
 
 extern void kAssertFail(const void *file, s32 line);
 
@@ -31,31 +46,31 @@ extern void memset(void *dst, s32 value, s32 size);
 
 
 
-extern void pscResInitScene(u8 *arg0, s32 arg1);
+extern void pscResInitScene(u8 *work, s32 resetCamera);
 
-extern void btlShuffleDrawSetup(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void btlShuffleDrawSetup(u8 *context, s32 parentTask, s32 cardCount, s32 pattern, s32 difficulty);
 
-extern void btlShuffleRandomizeOrder(u8 *arg0, u8 *arg1);
+extern void btlShuffleRandomizeOrder(u8 *cards, u8 *selection);
 
 extern u8 D_0064E7A0[];
 
-extern s32 btlShuffleTaskUpdate(u8 *task);
+extern s32 btlShuffleTaskUpdate(u8 *unusedTask);
 
-extern void btlShuffleTaskDestroy(u8 *task);
+extern void btlShuffleTaskDestroy(u8 *unusedTask);
 
-extern u16 datCalcMaxHpById(s16 character);
+extern u16 datCalcMaxHpById(s16 unitId);
 
-extern void datSetUnitHp(s16 character, s16 value);
+extern void datSetUnitHp(s16 unitId, s16 hp);
 
-extern u32 datCalcIsDeadById(s16 param);
+extern u32 datCalcIsDeadById(s16 unitId);
 
 extern s32 datGetPartyId();
 
-extern u16 datCalcMaxSpById(s16 character);
+extern u16 datCalcMaxSpById(s16 unitId);
 
-extern u32 datCalcGetSpById(s16 character);
+extern u32 datCalcGetSpById(s16 unitId);
 
-extern void datSetUnitSp(s16 character, s16 value);
+extern void datSetUnitSp(s16 unitId, s16 sp);
 
 extern u8 D_0064E5F0[];
 
@@ -67,11 +82,11 @@ extern s32 datPersonaRosterCapacity();
 
 extern s32 datPersonaGetLeadSlot();
 
-extern s32 datPersonaRosterSlotActive(s16 slot);
+extern s32 datPersonaRosterSlotActive(s16 slotIndex);
 
 extern s32 datPersonaFindRosterSlotById();
 
-extern struct DatPersonaRecord *datPersonaRosterSlot(s16 slot);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 slotIndex);
 
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern s32 datPersonaGetLevel();
@@ -87,7 +102,7 @@ extern u8 *iGpffffb3f0;
 extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3ec;
 extern u16 *datPersonaGetSkills(struct DatPersonaRecord *persona);
-extern s32 datPersonaReplaceSkill(u8 *arg0, s16 arg1, u16 arg2);
+extern s32 datPersonaReplaceSkill(u8 *persona, s16 oldSkill, u16 newSkill);
 
 extern s32 D_0064E7B0[];
 
@@ -97,15 +112,15 @@ extern u16 D_0064E7B6[];
 
 extern s32 D_0064E7B8[];
 
-extern void func_00106550(s32 arg0, u32 arg1);
+extern void datSetScriptValue(s32 index, u32 value);
 
-extern s32 datGetFlag(s32 id);
+extern s32 datGetFlag(s32 bit);
 
-extern void datSetFlag(s32 a, s32 b);
+extern void datSetFlag(s32 flagId, s32 enabled);
 
-extern void pscResTeardown(u8 *arg0);
+extern void pscResTeardown(u8 *unusedTask);
 
-extern void btlShuffleDrawRelease(u8 *arg0);
+extern void btlShuffleDrawRelease(u8 *context);
 
 extern void (*jtbl_008873EC[])(void *ptr);
 
@@ -118,71 +133,73 @@ extern u8 D_0064E670[];
 extern u8 D_0064E6A0[];
 extern u16 datPersonaCountValidMembers(void);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern u8 datPersonaGetStat(u8 *arg0, u16 arg1);
+extern u8 datPersonaGetStat(u8 *persona, u16 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern u8 datPersonaGetBuffedStat(u8 *arg0, u16 arg1);
+extern u8 datPersonaGetBuffedStat(u8 *persona, u16 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern s32 datPersonaAddStat(u8 *arg0, u16 arg1, s8 arg2);
+extern s32 datPersonaAddStat(u8 *persona, u16 statIndex, s8 delta);
 extern u8 D_00793E80[];
 
-extern s32 iGpffffa9c0;
+extern s32 iGpffffa9c0; /* two draw-queue indices, accessed through the original GP-relative base */
 
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *list, u8 *node);
 
-extern void btlShuffleDrawLoadSprites(u8 *arg0);
+extern void btlShuffleDrawLoadSprites(u8 *context);
 
-extern s32 btlShuffleDrawLoadBlob(u8 *arg0);
+extern s32 btlShuffleDrawLoadBlob(u8 *work);
 
-extern void btlShuffleDrawTaskInit(u8 *arg0, u8 *arg1);
+extern void btlShuffleDrawTaskInit(u8 *context, u8 *cardIndex);
 
 extern s32 pscResIsIdle(void);
 
-extern void btlShuffleDrawViewRestore(u8 *arg0);
+extern void btlShuffleDrawViewRestore(u8 *context);
 
-extern void btlShuffleDrawFrame(u8 *arg0);
+extern void btlShuffleDrawFrame(u8 *context);
 
 extern s32 btlEncounterIsActive(void);
 
-extern s32 btlShuffleSeqCardTask(u8 *arg0);
+extern s32 btlShuffleSeqCardTask(u8 *context);
 
 extern u8 nmMesWindowOpenCurrent(u8 *message);
 
-extern void nmMesWindowShowCurrentRecord(s32 arg0);
+extern void nmMesWindowShowCurrentRecord(s32 recordIndex);
 
-extern void nmMesWindowStepCurrent(s32 arg0);
+extern void nmMesWindowStepCurrent(s32 release);
 
 extern s32 nmMesWindowCurrentOpenState(void);
 
-extern void nmMesWindowCloseCurrent(s32 arg0);
+extern void nmMesWindowCloseCurrent(s32 release);
 
 extern void nmMesWindowResetCurrent(void);
 
-extern void btlShuffleSeqClearA(u8 *arg0, s32 arg1);
+extern void btlShuffleSeqClearA(u8 *context, s32 count);
 
-extern s32 btlShuffleSeqFlag(u8 *arg0);
+extern s32 btlShuffleSeqFlag(u8 *context);
 
 
 
+/* Drive shuffle resource loading, introduction messages, card selection, and delayed task termination. */
 // FUN_0036E140
 s32 btlShuffleTaskUpdate(u8 *unusedTask)
 {
-    u8 *work = (u8 *)kwlnTaskGetWork();
+    BtlShuffleTaskWork *work = (BtlShuffleTaskWork *)kwlnTaskGetWork();
     s32 i;
     u16 flags;
     u16 cnt;
 
     for (i = 0; i < 2; i++) {
-        u8 *p = work + i * 0x30;
-        *(s32 *)(p + 0xC) = 0;
-        *(s32 *)(p + 0x10) = 0;
-        PrimAppendNode((u8 *)D_00793E80 + *(s32 *)((u8 *)&iGpffffa9c0 + i * 4) * 0x30, p + 0xC);
+        BtlShuffleTaskWork *p = (BtlShuffleTaskWork *)((u8 *)work + i * 0x30);
+        *(s32 *)&p->queues[0].node.pad00[0] = 0;
+        *(s32 *)&p->queues[0].node.pad00[4] = 0;
+        /* measured: an array declaration changes loop hoisting and register allocation. */
+        PrimAppendNode((u8 *)D_00793E80 + *(s32 *)((u8 *)&iGpffffa9c0 + i * 4) * 0x30, (u8 *)p + 0xC);
     }
-    switch (*(s32 *)(work + 8)) {
+    switch (work->phase) {
     case 0:
-        *(s32 *)(work + 8) = 1;
+        work->phase = 1;
         break;
     case 1:
-        flags = *(u16 *)work;
+        flags = work->flags;
         if ((flags & 1) != 0) {
             if ((flags & 8) != 0) {
                 goto case2_body;
@@ -192,61 +209,61 @@ s32 btlShuffleTaskUpdate(u8 *unusedTask)
             break;
         }
         if (((flags & 0x10) == 0) && ((flags & 0x80) == 0)) {
-            btlShuffleDrawLoadSprites(work + 0x70);
-            *(u16 *)work |= 0x80;
+            btlShuffleDrawLoadSprites((u8 *)work + 0x70);
+            work->flags |= 0x80;
         }
-        if (((*(u16 *)work) & 0x80) != 0) {
-            if (btlShuffleDrawLoadBlob(work + 0x70) != 0) {
-                *(u16 *)work |= 0x10;
-                *(u16 *)work &= (u16)~0x80;
+        if (((work->flags) & 0x80) != 0) {
+            if (btlShuffleDrawLoadBlob((u8 *)work + 0x70) != 0) {
+                work->flags |= 0x10;
+                work->flags &= (u16)~0x80;
             }
         }
-        flags = *(u16 *)work;
+        flags = work->flags;
         if (((flags & 0x20) == 0) && ((flags & 0x40) == 0) && ((flags & 0x10) != 0)) {
-            btlShuffleDrawTaskInit(work + 0x70, work + 0x1F2C0);
-            *(u16 *)work |= 0x40;
+            btlShuffleDrawTaskInit((u8 *)work + 0x70, (u8 *)work + 0x1F2C0);
+            work->flags |= 0x40;
         }
-        if (((*(u16 *)work) & 0x40) != 0) {
+        if (((work->flags) & 0x40) != 0) {
             if (pscResIsIdle() != 0) {
-                *(u16 *)work |= 0x20;
-                *(u16 *)work &= (u16)~0x40;
+                work->flags |= 0x20;
+                work->flags &= (u16)~0x40;
             }
         }
-        flags = *(u16 *)work;
+        flags = work->flags;
         if (((flags & 0x10) != 0) && ((flags & 0x20) != 0)) {
-            *(u16 *)work = flags | 8;
-            *(u16 *)work &= (u16)~4;
+            work->flags = flags | 8;
+            work->flags &= (u16)~4;
         }
         break;
     case 2:
 case2_body:
-        btlShuffleDrawViewRestore(work + 0x70);
-        *(s32 *)(work + 8) = 3;
+        btlShuffleDrawViewRestore((u8 *)work + 0x70);
+        work->phase = 3;
         /* fallthrough */
     case 3:
-        btlShuffleDrawFrame(work + 0x70);
-        *(u16 *)work |= 2;
+        btlShuffleDrawFrame((u8 *)work + 0x70);
+        work->flags |= 2;
         if (datGetFlag(0x1430) == 0) {
-            *(s32 *)(work + 4) = 0;
-            *(s32 *)(work + 8) = 7;
+            work->messageIndex = 0;
+            work->phase = 7;
             break;
         }
-        *(s32 *)(work + 8) = 4;
+        work->phase = 4;
         /* fallthrough */
     case 4:
-        if (((*(u16 *)work) & 0x100) == 0) {
+        if (((work->flags) & 0x100) == 0) {
             if (btlEncounterIsActive() != 0) {
                 break;
             }
-            *(u16 *)work |= 0x100;
+            work->flags |= 0x100;
         }
-        if (btlShuffleSeqCardTask(work + 0x70) != 0) {
-            *(u16 *)work &= (u16)~1;
-            *(s32 *)(work + 8) = 6;
+        if (btlShuffleSeqCardTask((u8 *)work + 0x70) != 0) {
+            work->flags &= (u16)~1;
+            work->phase = 6;
         }
         break;
     case 5:
-        cnt = ++*(u16 *)(work + 2);
+        cnt = ++work->frames;
         if ((cnt & 0xFFFF) < 0xA) {
             break;
         }
@@ -257,41 +274,41 @@ case2_body:
         if (btlEncounterIsActive() != 0) {
             break;
         }
-        cnt = ++*(u16 *)(work + 2);
+        cnt = ++work->frames;
         if ((cnt & 0xFFFF) < 0x1E) {
             break;
         }
-        *(u16 *)(work + 2) = 0;
-        nmMesWindowOpenCurrent((u8 *)(*(s32 *)(work + 0x1F354)));
+        work->frames = 0;
+        nmMesWindowOpenCurrent((u8 *)work->drawing.textureBlobs[2]);
         nmMesWindowShowCurrentRecord(0);
-        *(s32 *)(work + 8) = 8;
+        work->phase = 8;
         /* fallthrough */
     case 8:
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             {
-                s32 t = *(s32 *)(work + 4) + 1;
-                *(s32 *)(work + 4) = t;
+                s32 t = work->messageIndex + 1;
+                work->messageIndex = t;
                 if (t < 4) {
-                    nmMesWindowShowCurrentRecord(*(s32 *)(work + 4));
+                    nmMesWindowShowCurrentRecord(work->messageIndex);
                 } else {
                     nmMesWindowResetCurrent();
-                    btlShuffleSeqClearA(work + 0x70, 0);
-                    *(s32 *)(work + 8) = 9;
+                    btlShuffleSeqClearA((u8 *)work + 0x70, 0);
+                    work->phase = 9;
                 }
             }
         }
         break;
     case 9:
-        if (btlShuffleSeqFlag(work + 0x70) == 0) {
+        if (btlShuffleSeqFlag((u8 *)work + 0x70) == 0) {
             break;
         }
-        cnt = ++*(u16 *)(work + 2);
+        cnt = ++work->frames;
         if ((cnt & 0xFFFF) < 0x1E) {
             break;
         }
-        *(s32 *)(work + 8) = 4;
+        work->phase = 4;
         break;
     default:
         kAssertFail(D_0064E790, 0x178);
@@ -301,23 +318,24 @@ case2_body:
 }
 
 // FUN_0036E580
-void btlShuffleQueueDraw(u8 *arg0, u16 *arg1)
+void btlShuffleQueueDraw(u8 *queue, u16 *work)
 {
-    if (*arg1 & 2) {
-        btlShuffleDrawTaskUpdate((u8 *)arg1 + 0x70);
+    if (*work & 2) {
+        btlShuffleDrawTaskUpdate((u8 *)work + 0x70);
     }
 }
 
 
 
 // FUN_0036E5C0
-void btlShuffleQueueSeqDraw(u8 *arg0, u16 *arg1)
+void btlShuffleQueueSeqDraw(u8 *queue, u16 *work)
 {
-    if (*arg1 & 2) {
-        btlShuffleDrawQueueCardsB((u8 *)arg1 + 0x70);
+    if (*work & 2) {
+        btlShuffleDrawQueueCardsB((u8 *)work + 0x70);
     }
 }
 
+/* Release scene and drawing resources, marking the introduction as seen. */
 // FUN_0036E600
 void btlShuffleTaskDestroy(u8 *unusedTask)
 {
@@ -331,8 +349,9 @@ void btlShuffleTaskDestroy(u8 *unusedTask)
     jtbl_008873EC[0](work);
 }
 
+/* Allocate the parent work, register both draw callbacks, and initialize the shuffled card specification list. */
 // FUN_0036E690
-s32 btlShuffleTaskCreate(u8 *arg0, u8 *arg1)
+s32 btlShuffleTaskCreate(u8 *parent, u8 *selection)
 {
     u8 *work;
     s32 handle;
@@ -341,18 +360,18 @@ s32 btlShuffleTaskCreate(u8 *arg0, u8 *arg1)
     chkmemAllocSiteTag(D_0064E7A0, 0x3A);
     work = (u8 *)(*jtbl_008873E8)(0x21ABC, 0x40000);
     memset(work, 0, 0x21ABC);
-    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064E780), 0x12, 0, 0, btlShuffleTaskUpdate, btlShuffleTaskDestroy, (u8 *)(work));
-    tmp = (s32)kwlnTaskGetWork(arg0);
-    *(s32 *)(work + 8) = 0;
-    *(s32 *)(work + 0x6C) = tmp;
-    *(s32 *)(work + 0x14) = (s32)(void *)btlShuffleQueueDraw;
-    *(s32 *)(work + 0x1C) = (s32)work;
-    *(s32 *)(work + 0x44) = (s32)(void *)btlShuffleQueueSeqDraw;
-    *(s32 *)(work + 0x4C) = (s32)work;
+    handle = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0064E780), 0x12, 0, 0, btlShuffleTaskUpdate, btlShuffleTaskDestroy, (u8 *)(work));
+    tmp = (s32)kwlnTaskGetWork(parent);
+    ((BtlShuffleTaskWork *)work)->phase = 0;
+    *(s32 *)&((BtlShuffleTaskWork *)work)->parentWork = tmp;
+    *(s32 *)&((BtlShuffleTaskWork *)work)->queues[0].node.callback = (s32)(void *)btlShuffleQueueDraw;
+    *(s32 *)&((BtlShuffleTaskWork *)work)->queues[0].node.argument.data = (s32)work;
+    *(s32 *)&((BtlShuffleTaskWork *)work)->queues[1].node.callback = (s32)(void *)btlShuffleQueueSeqDraw;
+    *(s32 *)&((BtlShuffleTaskWork *)work)->queues[1].node.argument.data = (s32)work;
     pscResInitScene(work + 0x1F384, 0);
-    btlShuffleDrawSetup(work + 0x70, handle, *(s32 *)(arg1 + 0xC),
-                  *(s32 *)(arg1 + 0x10), *(s32 *)(arg1 + 0x14));
-    btlShuffleRandomizeOrder(work + 0x1F2C0, arg1);
+    btlShuffleDrawSetup(work + 0x70, handle, ((BtlShuffleSelection *)selection)->cardCount,
+                  ((BtlShuffleSelection *)selection)->pattern, ((BtlShuffleSelection *)selection)->difficulty);
+    btlShuffleRandomizeOrder(work + 0x1F2C0, selection);
     return handle;
 }
 
@@ -364,13 +383,14 @@ void btlShuffleTaskSetBusy(void)
     *work |= BTL_SHUFFLE_FLAG_BUSY;
 }
 
+/* Start the ten-frame termination delay and reset its elapsed counter. */
 // FUN_0036E810
 void btlShuffleTaskResetPhase(void)
 {
     u16 *work = kwlnTaskGetWork();
 
-    work[1] = 0;
-    *(u32 *)(work + 4) = 5;
+    ((BtlShuffleTaskWork *)work)->frames = 0;
+    *(u32 *)&((BtlShuffleTaskWork *)work)->phase = 5;
 }
 
 // FUN_0036E840
@@ -400,41 +420,42 @@ s32 btlShuffleFindTask(void)
 }
 
 // FUN_0036E900
-void *func_0036e900(void *arg0)
+void *btlShuffleGetParentWork(void *task)
 {
-    return *(void **)(*(u32 *)((u8 *)arg0 + 0x38) + 0x6C);
+    return ((BtlShuffleTaskWork *)((SdkTask *)task)->work)->parentWork;
 }
 
 // FUN_0036E910
-void *func_0036e910(void *arg0)
+void *btlShuffleGetDrawContext(void *task)
 {
-    return (u8 *)*(void **)((u8 *)arg0 + 0x38) + 0x70;
+    return (u8 *)((SdkTask *)task)->work + 0x70;
 }
 
+/* Choose a pattern from cumulative weights for the clamped level decade. */
 // FUN_0036E920
 /* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
  * table base (lui/addiu/addu) inside the loop instead of hoisting it (nd 21);
  * with it the preheader hoist matches retail. */
 #pragma opt_loop_invariants on
-s32 btlShuffleRollBelow(u8 arg0)
+s32 btlShuffleRollBelow(u8 level)
 {
-    s32 x = arg0 & 0xFF;
-    s32 q;
-    s32 sum;
+    s32 clampedLevel = level & 0xFF;
+    s32 decade;
+    s32 weightSum;
     s32 i;
-    s32 r;
+    s32 roll;
 
-    if (x == 0) {
-        x = 1;
-    } else if (x > 0x63) {
-        x = 0x63;
+    if (clampedLevel == 0) {
+        clampedLevel = 1;
+    } else if (clampedLevel > 0x63) {
+        clampedLevel = 0x63;
     }
-    q = (x - 1) / 10;
-    r = datCalcRandomBelow(0x64);
-    sum = 0;
+    decade = (clampedLevel - 1) / 10;
+    roll = datCalcRandomBelow(0x64);
+    weightSum = 0;
     for (i = 0; i < 5; i++) {
-        sum += D_0064E610[q * 5 + i];
-        if (r < sum) {
+        weightSum += D_0064E610[decade * 5 + i];
+        if (roll < weightSum) {
             break;
         }
     }
@@ -446,28 +467,29 @@ s32 btlShuffleRollBelow(u8 arg0)
 /* measured: see annotation above (func_0036e920). */
 #pragma opt_loop_invariants off
 
+/* Choose a card count from the level range, then apply the selected pattern constraints. */
 // FUN_0036EA00
-s32 btlShuffleRollCard(s32 arg0, u8 arg1)
+s32 btlShuffleRollCard(s32 pattern, u8 level)
 {
-    s32 x = arg1 & 0xFF;
-    s32 q;
-    s32 lo;
-    s32 hi;
+    s32 clampedLevel = level & 0xFF;
+    s32 decade;
+    s32 minimum;
+    s32 maximum;
     s32 result;
 
-    if (x == 0) {
-        x = 1;
-    } else if (x > 0x63) {
-        x = 0x63;
+    if (clampedLevel == 0) {
+        clampedLevel = 1;
+    } else if (clampedLevel > 0x63) {
+        clampedLevel = 0x63;
     }
-    q = (x - 1) / 10;
-    lo = D_0064E5F0[q * 2];
-    hi = D_0064E5F1[q * 2];
-    if (hi == lo) {
-        return hi;
+    decade = (clampedLevel - 1) / 10;
+    minimum = D_0064E5F0[decade * 2];
+    maximum = D_0064E5F1[decade * 2];
+    if (maximum == minimum) {
+        return maximum;
     }
-    result = lo + datCalcRandomBelow((u32)(hi - lo + 1));
-    switch (arg0) {
+    result = minimum + datCalcRandomBelow((u32)(maximum - minimum + 1));
+    switch (pattern) {
     case 0:
         break;
     case 1:
@@ -498,36 +520,37 @@ s32 btlShuffleRollCard(s32 arg0, u8 arg1)
     }
     return result;
 }
+/* Choose an unlocked pattern variant from its cumulative level-decade weights. */
 // FUN_0036EB50
 /* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
  * table base (lui/addiu/addu) inside the loop instead of hoisting it (nd 21);
  * with it the preheader hoist matches retail. */
 #pragma opt_loop_invariants on
-s32 btlShuffleRollFlagged(s32 arg0, u8 arg1)
+s32 btlShuffleRollFlagged(s32 pattern, u8 level)
 {
-    s32 x = arg1 & 0xFF;
-    s32 q;
-    s32 limit;
+    s32 clampedLevel = level & 0xFF;
+    s32 decade;
+    s32 roll;
     s32 i;
-    s32 sum;
+    s32 weightSum;
 
-    if (x == 0) {
-        x = 1;
-    } else if (x > 0x63) {
-        x = 0x63;
+    if (clampedLevel == 0) {
+        clampedLevel = 1;
+    } else if (clampedLevel > 0x63) {
+        clampedLevel = 0x63;
     }
-    q = (x - 1) / 10;
-    limit = datCalcRandomBelow(0x64);
-    sum = 0;
+    decade = (clampedLevel - 1) / 10;
+    roll = datCalcRandomBelow(0x64);
+    weightSum = 0;
     i = 0;
-    switch (arg0) {
+    switch (pattern) {
     case 0:
     case 1:
     case 2:
         if (datGetFlag(0x1431) != 0) {
             while (i < 3) {
-                sum += D_0064E650[q * 3 + i];
-                if (limit < sum) {
+                weightSum += D_0064E650[decade * 3 + i];
+                if (roll < weightSum) {
                     break;
                 }
                 i++;
@@ -540,8 +563,8 @@ s32 btlShuffleRollFlagged(s32 arg0, u8 arg1)
     case 3:
         if (datGetFlag(0x1432) != 0) {
             while (i < 4) {
-                sum += D_0064E670[q * 4 + i];
-                if (limit < sum) {
+                weightSum += D_0064E670[decade * 4 + i];
+                if (roll < weightSum) {
                     break;
                 }
                 i++;
@@ -554,8 +577,8 @@ s32 btlShuffleRollFlagged(s32 arg0, u8 arg1)
     case 4:
         if (datGetFlag(0x1433) != 0) {
             while (i < 3) {
-                sum += D_0064E6A0[q * 3 + i];
-                if (limit < sum) {
+                weightSum += D_0064E6A0[decade * 3 + i];
+                if (roll < weightSum) {
                     break;
                 }
                 i++;
@@ -571,24 +594,25 @@ s32 btlShuffleRollFlagged(s32 arg0, u8 arg1)
 /* measured: see annotation above (func_0036eb50). */
 #pragma opt_loop_invariants off
 
+/* Choose the persona-card count using descending cumulative thresholds for the total card count. */
 // FUN_0036EDA0
-s32 btlShuffleRollIndex(s32 arg0)
+s32 btlShuffleRollIndex(s32 cardCount)
 {
     s32 i;
-    s32 v = arg0 - 3;
-    s32 r;
-    u8 *tbl;
+    s32 tableIndex = cardCount - 3;
+    s32 roll;
+    u8 *thresholds;
 
-    if (v < 0) {
-        v = 0;
-    } else if ((u32)v >= 6) {
-        v = 5;
+    if (tableIndex < 0) {
+        tableIndex = 0;
+    } else if ((u32)tableIndex >= 6) {
+        tableIndex = 5;
     }
-    r = datCalcRandomBelow(0x64);
+    roll = datCalcRandomBelow(0x64);
     i = 3;
-    tbl = D_0064E5D0 + v * 4;
+    thresholds = D_0064E5D0 + tableIndex * 4;
     for (; i > 0; i--) {
-        if (tbl[i] > r) {
+        if (thresholds[i] > roll) {
             break;
         }
     }
@@ -598,7 +622,7 @@ s32 btlShuffleRollIndex(s32 arg0)
     return i + 1;
 }
 
-extern s32 datCalcGetLevelById(s32 arg0);
+extern s32 datCalcGetLevelById(s32 unitId);
 extern u8 D_0064E76F[];
 extern u8 *iGpffffb3d4;
 
@@ -610,28 +634,29 @@ extern u8 *iGpffffb3d4;
  * opt_loop_invariants on is required; without it verify reports MISMATCH. */
 #pragma push
 #pragma opt_loop_invariants on
+/* Build and shuffle owned, higher-level, and ordinary persona pools, then choose the result card candidates. */
 // FUN_0036EE60
-s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2)
+s32 btlShuffleSelectMember(u8 *selection, s16 encounterLevel, s32 unusedMode)
 {
     s16 listC[256];
     s16 listB[256];
     s16 listA[256];
-    s16 lvl;
-    s16 hi;
-    s16 cap;
-    s16 lo;
-    s16 mlvl;
+    s16 playerLevel;
+    s16 maximumLevel;
+    s16 levelCap;
+    s16 minimumLevel;
+    s16 personaLevel;
     s32 i;
     u16 nB;
     u16 nA;
-    s32 nDraw;
+    s32 drawCount;
     u16 nC;
     s32 bCount;
     s32 cCount;
     s32 total;
-    s32 e;
+    s32 selectedCount;
     u16 r2;
-    s16 tmp;
+    s16 swappedPersona;
     s32 drawIndex;
     u16 aIdx;
     u16 bIdx;
@@ -639,53 +664,54 @@ s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2)
     u16 r1;
     s16 item;
     u32 rate = 0;
+    BtlShuffleSelection *setup = (BtlShuffleSelection *)selection;
 
-    lvl = datCalcGetLevelById(1) & 0xFF;
-    if (lvl > 0 && (u32)lvl < 10) {
-        hi = D_0064E76F[lvl];
-        lo = 1;
-    } else if (lvl >= arg1) {
-        hi = arg1 - 5;
-        lo = arg1 - 10;
+    playerLevel = datCalcGetLevelById(1) & 0xFF;
+    if (playerLevel > 0 && (u32)playerLevel < 10) {
+        maximumLevel = D_0064E76F[playerLevel];
+        minimumLevel = 1;
+    } else if (playerLevel >= encounterLevel) {
+        maximumLevel = encounterLevel - 5;
+        minimumLevel = encounterLevel - 10;
     } else {
-        hi = lvl - 5;
-        lo = lvl - 10;
+        maximumLevel = playerLevel - 5;
+        minimumLevel = playerLevel - 10;
     }
-    cap = lvl + 3;
-    if (cap > 99) {
-        cap = 99;
+    levelCap = playerLevel + 3;
+    if (levelCap > 99) {
+        levelCap = 99;
     }
-    if (lo < 0) {
-        lo = 0;
+    if (minimumLevel < 0) {
+        minimumLevel = 0;
     }
-    if (hi < 0) {
-        hi = 0;
+    if (maximumLevel < 0) {
+        maximumLevel = 0;
     }
     nC = 0;
     nB = 0;
     nA = 0;
     for (i = 0; i < 256; i++) {
-        u8 *rec = iGpffffb3d4;
-        rec += i * 14;
+        u8 *candidate = iGpffffb3d4;
+        candidate += i * 14;
 
-        if ((*(u16 *)rec & 0xDB) != 0) {
+        if ((((BtlShufflePersonaCandidate *)candidate)->flags & 0xDB) != 0) {
             continue;
         }
-        mlvl = rec[3];
-        if (mlvl > cap) {
+        personaLevel = ((BtlShufflePersonaCandidate *)candidate)->level;
+        if (personaLevel > levelCap) {
             continue;
         }
-        if (mlvl <= lvl) {
-            if (hi < mlvl) {
+        if (personaLevel <= playerLevel) {
+            if (maximumLevel < personaLevel) {
                 continue;
             }
-            if (mlvl < lo) {
+            if (personaLevel < minimumLevel) {
                 continue;
             }
         }
         if ((s16)datPersonaFindRosterSlotById((s16)i) != -1) {
             listA[nA++] = i;
-        } else if (lvl < mlvl) {
+        } else if (playerLevel < personaLevel) {
             listB[nB++] = i;
         } else {
             listC[nC++] = i;
@@ -703,9 +729,9 @@ s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2)
             r1 = datCalcRandomBelow(cCount);
             r2 = datCalcRandomBelow(cCount);
             if (r1 != r2) {
-                tmp = listC[r1];
+                swappedPersona = listC[r1];
                 listC[r1] = listC[r2];
-                listC[r2] = tmp;
+                listC[r2] = swappedPersona;
             }
         }
     }
@@ -715,9 +741,9 @@ s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2)
             r1 = datCalcRandomBelow(nB);
             r2 = datCalcRandomBelow(nB);
             if (r1 != r2) {
-                tmp = listB[r1];
+                swappedPersona = listB[r1];
                 listB[r1] = listB[r2];
-                listB[r2] = tmp;
+                listB[r2] = swappedPersona;
             }
         }
     }
@@ -727,24 +753,24 @@ s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2)
             r1 = datCalcRandomBelow(nA);
             r2 = datCalcRandomBelow(nA);
             if (r1 != r2) {
-                tmp = listA[r1];
+                swappedPersona = listA[r1];
                 listA[r1] = listA[r2];
-                listA[r2] = tmp;
+                listA[r2] = swappedPersona;
             }
         }
     }
-    *(s32 *)(arg0 + 0x10) = btlShuffleRollBelow(arg1);
-    *(s32 *)(arg0 + 0x14) = btlShuffleRollFlagged(*(s32 *)(arg0 + 0x10), arg1);
-    *(s32 *)(arg0 + 0xC) = btlShuffleRollCard(*(s32 *)(arg0 + 0x10), arg1);
-    nDraw = btlShuffleRollIndex(*(s32 *)(arg0 + 0xC));
-    if (total < nDraw) {
-        nDraw = total;
+    setup->pattern = btlShuffleRollBelow(encounterLevel);
+    setup->difficulty = btlShuffleRollFlagged(setup->pattern, encounterLevel);
+    setup->cardCount = btlShuffleRollCard(setup->pattern, encounterLevel);
+    drawCount = btlShuffleRollIndex(setup->cardCount);
+    if (total < drawCount) {
+        drawCount = total;
     }
     bIdx = 0;
     cIdx = 0;
     aIdx = 0;
-    e = 0;
-    for (drawIndex = 0; drawIndex < nDraw; drawIndex++) {
+    selectedCount = 0;
+    for (drawIndex = 0; drawIndex < drawCount; drawIndex++) {
         if (datCalcRandomBelow(100) < rate && bIdx < bCount) {
             item = listB[bIdx++];
         } else if (cIdx < cCount) {
@@ -758,14 +784,14 @@ s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2)
         } else {
             continue;
         }
-        ((s16 *)arg0)[e] = item;
-        e++;
+        setup->personas[selectedCount] = item;
+        selectedCount++;
     }
-    if (e == 0) {
+    if (selectedCount == 0) {
         return 0;
     }
-    *(s32 *)(arg0 + 8) = e;
-    if (aIdx == e && datCalcRandomBelow(100) >= 20) {
+    setup->personaCount = selectedCount;
+    if (aIdx == selectedCount && datCalcRandomBelow(100) >= 20) {
         return 0;
     }
     return 1;
@@ -777,100 +803,104 @@ typedef struct {
     f32 b;
 } ShuffleCard2;
 
+/* Fill persona and miscellaneous card specifications, then shuffle their eight-byte records. */
 // FUN_0036F410
-void btlShuffleRandomizeOrder(u8 *arg0, u8 *arg1)
+void btlShuffleRandomizeOrder(u8 *cards, u8 *selection)
 {
     s32 i;
-    u32 v;
-    s32 idx;
-    f32 f;
-    ShuffleCard2 tmp;
+    u32 randomBits;
+    s32 swapIndex;
+    f32 randomFraction;
+    ShuffleCard2 swappedCard;
 
-    for (i = 0; i < *(s32 *)(arg1 + 0xC); i++) {
-        if (i < *(s32 *)(arg1 + 8)) {
-            *(s32 *)(arg0 + i * 8) = 0;
-            *(u16 *)(arg0 + i * 8 + 4) = *(u16 *)(arg1 + i * 2);
-            *(u16 *)(arg0 + i * 8 + 6) = 0;
+    for (i = 0; i < ((BtlShuffleSelection *)selection)->cardCount; i++) {
+        if (i < ((BtlShuffleSelection *)selection)->personaCount) {
+            ((BtlShuffleCardSpec *)cards)[i].kind = 0;
+            ((BtlShuffleCardSpec *)cards)[i].id = *(u16 *)&((BtlShuffleSelection *)selection)->personas[i];
+            ((BtlShuffleCardSpec *)cards)[i].index = 0;
         } else {
-            v = RpRandom() & 0xFFF;
-            f = (f32)v;
-            if (100.0f * (f / 4096.0f) < 30.0f) {
-                *(s32 *)(arg0 + i * 8) = 3;
+            randomBits = RpRandom() & 0xFFF;
+            randomFraction = (f32)randomBits;
+            if (100.0f * (randomFraction / 4096.0f) < 30.0f) {
+                ((BtlShuffleCardSpec *)cards)[i].kind = 3;
             } else {
-                *(s32 *)(arg0 + i * 8) = 2;
+                ((BtlShuffleCardSpec *)cards)[i].kind = 2;
             }
-            *(u16 *)(arg0 + i * 8 + 4) = 0;
-            *(u16 *)(arg0 + i * 8 + 6) = 0;
+            ((BtlShuffleCardSpec *)cards)[i].id = 0;
+            ((BtlShuffleCardSpec *)cards)[i].index = 0;
         }
     }
-    for (i = *(s32 *)(arg1 + 0xC) - 1; i > 0; i--) {
-        v = RpRandom() & 0xFFF;
-        f = (f32)v / 4096.0f;
-        idx = (s32)((f32)i * f);
-        tmp = ((ShuffleCard2 *)arg0)[i];
-        ((ShuffleCard2 *)arg0)[i] = ((ShuffleCard2 *)arg0)[idx];
-        ((ShuffleCard2 *)arg0)[idx] = tmp;
+    for (i = ((BtlShuffleSelection *)selection)->cardCount - 1; i > 0; i--) {
+        randomBits = RpRandom() & 0xFFF;
+        randomFraction = (f32)randomBits / 4096.0f;
+        swapIndex = (s32)((f32)i * randomFraction);
+        swappedCard = ((ShuffleCard2 *)cards)[i];
+        ((ShuffleCard2 *)cards)[i] = ((ShuffleCard2 *)cards)[swapIndex];
+        ((ShuffleCard2 *)cards)[swapIndex] = swappedCard;
     }
 }
+/* Clear the parent result's shuffle bookkeeping and set its reset flag. */
 // FUN_0036F620
-void btlShuffleResetSlot(u8 *arg0)
+void btlShuffleResetSlot(u8 *slot)
 {
-    *(u32 *)(arg0 + 0xC) = 0;
-    *(u32 *)(arg0 + 0x10) = 0;
-    *(u32 *)(arg0 + 0x38) = 0;
-    *(u16 *)(arg0 + 8) |= 4;
+    ((BtlShuffleResultParameters *)((BtlResultWork *)slot)->parameters)->unk04 = 0;
+    ((BtlShuffleResultParameters *)((BtlResultWork *)slot)->parameters)->unk08 = 0;
+    ((BtlShuffleResultParameters *)((BtlResultWork *)slot)->parameters)->unk30 = 0;
+    ((BtlShuffleResultParameters *)((BtlResultWork *)slot)->parameters)->flags |= 4;
 }
 
+/* Consume the pending reward rule, apply or defer the selected rule, and return the previous selector pair. */
 // FUN_0036F640
-s32 btlShuffleBuildRoster(s32 arg0, s32 *arg1)
+s32 btlShuffleBuildRoster(s32 selector, s32 *result)
 {
+    /* The table has linker-visible aliases at each field; retain those distinct relocation bases. */
     u32 idx;
-    u16 a;
-    u16 b;
-    u32 result;
+    u16 kind;
+    u16 variant;
+    u32 previousSelector;
     u32 idx2;
-    u8 *p;
-    s32 (*fn)(s32, s32 *);
+    u8 *rule;
+    s32 (*applyRule)(s32, s32 *);
 
-    memset(arg1, 0, 0xC);
+    memset(result, 0, 0xC);
     if (datGetFlag(0x1403) != 0) {
-        a = 0;
-        b = 0;
+        kind = 0;
+        variant = 0;
         for (idx = 0; idx < 0x2C; idx++) {
-            p = (u8 *)D_0064E7B0 + idx * 12;
-            if (datGetFlag(*(s32 *)p) != 0) {
-                a = *(u16 *)((u8 *)D_0064E7B4 + idx * 12);
-                b = *(u16 *)((u8 *)D_0064E7B6 + idx * 12);
-                datSetFlag(*(s32 *)p, 0);
+            rule = (u8 *)D_0064E7B0 + idx * 12;
+            if (datGetFlag(((BtlShuffleRewardRule *)rule)->flag) != 0) {
+                kind = *(u16 *)((u8 *)D_0064E7B4 + idx * 12);
+                variant = *(u16 *)((u8 *)D_0064E7B6 + idx * 12);
+                datSetFlag(((BtlShuffleRewardRule *)rule)->flag, 0);
                 break;
             }
         }
-        result = (u32)b | ((u32)a << 16);
+        previousSelector = (u32)variant | ((u32)kind << 16);
         datSetFlag(0x1403, 0);
     } else {
-        result = 0;
+        previousSelector = 0;
     }
     for (idx2 = 0; idx2 < 0x2C; idx2++) {
-        p = (u8 *)D_0064E7B0 + idx2 * 12;
-        if (arg0 == (s32)(*(u16 *)(p + 6) | (*(u16 *)(p + 4) << 16))) {
-            fn = (s32 (*)(s32, s32 *))*(s32 *)((u8 *)D_0064E7B8 + idx2 * 12);
-            if (fn == NULL) {
-                *arg1 = 1;
-                datSetFlag(*(s32 *)p, 1);
+        rule = (u8 *)D_0064E7B0 + idx2 * 12;
+        if (selector == (s32)(((BtlShuffleRewardRule *)rule)->variant | (((BtlShuffleRewardRule *)rule)->kind << 16))) {
+            applyRule = (s32 (*)(s32, s32 *))*(s32 *)((u8 *)D_0064E7B8 + idx2 * 12);
+            if (applyRule == NULL) {
+                *result = 1;
+                datSetFlag(((BtlShuffleRewardRule *)rule)->flag, 1);
                 datSetFlag(0x1403, 1);
             } else {
-                *arg1 = fn(arg0, arg1);
-                datSetFlag(*(s32 *)p, 0);
+                *result = applyRule(selector, result);
+                datSetFlag(((BtlShuffleRewardRule *)rule)->flag, 0);
                 datSetFlag(0x1403, 0);
             }
-            func_00106550(0x10, 0);
+            datSetScriptValue(0x10, 0);
             break;
         }
         if (idx2 == 0x2C) {
             kAssertFail(D_0064E790, 0x4A1);
         }
     }
-    return result;
+    return previousSelector;
 }
 /* Choose a random listed persona, collect the skill pairs from the
    iGpffffb3ec table that match one of its skills and whose partner skill it
@@ -889,97 +919,97 @@ static inline u16 *shuffleCandidateField(s32 offset, void *base)
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
-s32 btlShufflePickRosterMember(s32 arg0, u8 *arg1)
+s32 btlShufflePickRosterMember(s32 selector, u8 *result)
 {
     u8 *list[12];
-    union { u32 word; u16 skills[2]; } cand[8];
-    s32 flag = arg0 & 0xFFFF;
+    union { u32 word; u16 skills[2]; } candidates[8];
+    s32 reverse = selector & 0xFFFF;
     u16 count = datPersonaRosterCapacity();
-    u8 *p;
+    u8 *persona;
     u16 *skills;
     u16 i;
-    u16 n;
+    u16 rosterCount;
     u16 j;
-    u16 nc;
+    u16 candidateCount;
     u16 m;
     u16 r;
-    u8 *tbl;
+    u8 *pairs;
     u16 first;
     u16 second;
     u16 k;
 
-    n = 0;
+    rosterCount = 0;
     if (count > 12) {
         kAssertFail(D_0064E790, 1207);
     }
     for (i = 0; i < count; i++) {
         if (datPersonaRosterSlotActive((s16)i) != 0) {
-            list[n] = (u8 *)datPersonaRosterSlot((s16)i);
-            n++;
+            list[rosterCount] = (u8 *)datPersonaRosterSlot((s16)i);
+            rosterCount++;
         }
     }
-    if (n == 0) {
+    if (rosterCount == 0) {
         return 0;
     }
-    p = list[datCalcRandomBelow(n)];
-    skills = datPersonaGetSkills((struct DatPersonaRecord *)p);
-    nc = 0;
+    persona = list[datCalcRandomBelow(rosterCount)];
+    skills = datPersonaGetSkills((struct DatPersonaRecord *)persona);
+    candidateCount = 0;
     m = 0;
-    tbl = iGpffffb3ec;
+    pairs = iGpffffb3ec;
     for (; m < 8; m++) {
         if (skills[m] == 0) {
             continue;
         }
         j = 0;
-        if (flag != 0) {
-            for (; skills[m] != *(u16 *)(tbl + j * 4) && *(u16 *)(tbl + j * 4) != 0; j++) {
+        if (reverse != 0) {
+            for (; skills[m] != ((BtlShuffleSkillPair *)pairs)[j].first && ((BtlShuffleSkillPair *)pairs)[j].first != 0; j++) {
             }
-            if (*(u16 *)(tbl + j * 4) == 0) {
+            if (((BtlShuffleSkillPair *)pairs)[j].first == 0) {
                 continue;
             }
             for (k = 0; k < 8; k++) {
-                if (skills[k] != 0 && skills[k] == *(u16 *)(tbl + j * 4 + 2)) {
+                if (skills[k] != 0 && skills[k] == ((BtlShuffleSkillPair *)pairs)[j].second) {
                     break;
                 }
             }
             if (k >= 8) {
-                cand[nc].skills[0] = *(u16 *)(tbl + j * 4);
-                cand[nc].skills[1] = *(u16 *)(tbl + j * 4 + 2);
-                nc++;
+                candidates[candidateCount].skills[0] = ((BtlShuffleSkillPair *)pairs)[j].first;
+                candidates[candidateCount].skills[1] = ((BtlShuffleSkillPair *)pairs)[j].second;
+                candidateCount++;
             }
         } else {
-            for (; skills[m] != *(u16 *)(tbl + j * 4 + 2) && *(u16 *)(tbl + j * 4 + 2) != 0; j++) {
+            for (; skills[m] != ((BtlShuffleSkillPair *)pairs)[j].second && ((BtlShuffleSkillPair *)pairs)[j].second != 0; j++) {
             }
-            if (*(u16 *)(tbl + j * 4 + 2) == 0) {
+            if (((BtlShuffleSkillPair *)pairs)[j].second == 0) {
                 continue;
             }
             for (k = 0; k < 8; k++) {
-                if (skills[k] != 0 && skills[k] == *(u16 *)(tbl + j * 4)) {
+                if (skills[k] != 0 && skills[k] == ((BtlShuffleSkillPair *)pairs)[j].first) {
                     break;
                 }
             }
             if (k >= 8) {
-                cand[nc].skills[0] = *(u16 *)(tbl + j * 4 + 2);
-                cand[nc].skills[1] = *(u16 *)(tbl + j * 4);
-                nc++;
+                candidates[candidateCount].skills[0] = ((BtlShuffleSkillPair *)pairs)[j].second;
+                candidates[candidateCount].skills[1] = ((BtlShuffleSkillPair *)pairs)[j].first;
+                candidateCount++;
             }
         }
     }
-    if (nc == 0) {
+    if (candidateCount == 0) {
         return 0;
     }
-    r = datCalcRandomBelow(nc);
+    r = datCalcRandomBelow(candidateCount);
     {
         /* Each field address is formed from the chosen entry separately. */
-        u16 *field = shuffleCandidateField(2, (u8 *)cand + r * 4);
+        u16 *field = shuffleCandidateField(2, (u8 *)candidates + r * 4);
         second = *field;
-        field = shuffleCandidateField(r * 4, cand);
+        field = shuffleCandidateField(r * 4, candidates);
         first = *field;
     }
-    datPersonaReplaceSkill(p, (s16)first, second);
-    *(u16 *)(arg1 + 4) = *(u16 *)(p + 2);
-    *(u16 *)(arg1 + 8) = first;
-    *(u16 *)(arg1 + 6) = second;
+    datPersonaReplaceSkill(persona, (s16)first, second);
+    ((BtlShuffleRewardResult *)result)->personaId = ((DatPersonaRecord *)persona)->id;
+    ((BtlShuffleRewardResult *)result)->previous = first;
+    ((BtlShuffleRewardResult *)result)->replacement = second;
     return 1;
 }
 
@@ -990,46 +1020,48 @@ s32 btlShufflePickRosterMember(s32 arg0, u8 *arg1)
  * coloring ($s2/$s1) while u16 r and i use $s0/$s3. The explicit s16
  * conversion for the datCalcIsDeadById argument and re-conversion of r in the
  * flagged branch reproduce retail's sign-extension schedule. */
+/* Restore living party members to maximum HP or reduce them to one HP; always include the protagonist. */
 // FUN_0036FBE0
-s32 btlShuffleIsPartyMember(s32 arg0)
+s32 btlShuffleIsPartyMember(s32 selector)
 {
-    s16 s;
+    s16 character;
     u16 i;
-    u16 r;
-    s32 flag = arg0 & 0xFFFF;
+    u16 partyId;
+    s32 restore = selector & 0xFFFF;
 
-    if (flag != 0) {
+    if (restore != 0) {
         datSetUnitHp(1, (s16)datCalcMaxHpById(1));
     } else {
         datSetUnitHp(1, 1);
     }
     i = 0;
     for (; i < 4; i++) {
-        r = (u16)datGetPartyId(i);
-        if (r != 0) {
-            s = (s16)r;
-            if (datCalcIsDeadById(s) == 0) {
-                if (flag != 0) {
-                    datSetUnitHp((s16)r, (s16)datCalcMaxHpById((s16)r));
+        partyId = (u16)datGetPartyId(i);
+        if (partyId != 0) {
+            character = (s16)partyId;
+            if (datCalcIsDeadById(character) == 0) {
+                if (restore != 0) {
+                    datSetUnitHp((s16)partyId, (s16)datCalcMaxHpById((s16)partyId));
                 } else {
-                    datSetUnitHp(s, 1);
+                    datSetUnitHp(character, 1);
                 }
             }
         }
     }
     return 1;
 }
+/* Replace the lowest-level eligible non-lead persona through the selected replacement table column. */
 // FUN_0036FD00
-s32 btlShuffleFindLeadMember(s32 arg0, u8 *arg1)
+s32 btlShuffleFindLeadMember(s32 selector, u8 *result)
 {
-    s32 flag = arg0 & 0xFFFF;
+    s32 column = selector & 0xFFFF;
     s32 count = (u16)datPersonaRosterCapacity();
-    u8 *p;
+    u8 *persona;
     u8 *best = NULL;
     u16 i;
-    u16 min = 0x64;
-    u16 bestFlag = 0;
-    u16 t;
+    u16 minimumLevel = 0x64;
+    u16 replacementId = 0;
+    u16 candidateId;
 
     for (i = 0; i < count; i++) {
         if (i == (s16)datPersonaGetLeadSlot()) {
@@ -1038,47 +1070,48 @@ s32 btlShuffleFindLeadMember(s32 arg0, u8 *arg1)
         if (datPersonaRosterSlotActive((s16)i) == 0) {
             continue;
         }
-        p = (u8 *)datPersonaRosterSlot((s16)i);
-        if (flag != 0) {
-            t = *(u16 *)((u8 *)iGpffffb3f0 + *(u16 *)(p + 2) * 4 + 2);
+        persona = (u8 *)datPersonaRosterSlot((s16)i);
+        if (column != 0) {
+            candidateId = ((BtlShufflePersonaPair *)iGpffffb3f0)[((DatPersonaRecord *)persona)->id].second;
         } else {
-            t = *(u16 *)((u8 *)iGpffffb3f0 + *(u16 *)(p + 2) * 4);
+            candidateId = ((BtlShufflePersonaPair *)iGpffffb3f0)[((DatPersonaRecord *)persona)->id].first;
         }
-        if (t != 0 && (s16)datPersonaFindRosterSlotById((s16)t) == -1 && (datPersonaGetLevel(p) & 0xFF) < min) {
-            best = p;
-            min = datPersonaGetLevel(p) & 0xFF;
-            bestFlag = t & 0xFFFF;
+        if (candidateId != 0 && (s16)datPersonaFindRosterSlotById((s16)candidateId) == -1 && (datPersonaGetLevel(persona) & 0xFF) < minimumLevel) {
+            best = persona;
+            minimumLevel = datPersonaGetLevel(persona) & 0xFF;
+            replacementId = candidateId & 0xFFFF;
         }
     }
     if (best == NULL) {
         return 0;
     }
-    *(u16 *)(arg1 + 4) = *(u16 *)(best + 2);
-    *(s16 *)(arg1 + 8) = bestFlag;
-    datPersonaRemoveRosterMemberById(*(u16 *)(best + 2));
-    datPersonaAddRosterMember(bestFlag);
+    ((BtlShuffleRewardResult *)result)->personaId = ((DatPersonaRecord *)best)->id;
+    *(s16 *)&((BtlShuffleRewardResult *)result)->previous = replacementId;
+    datPersonaRemoveRosterMemberById(((DatPersonaRecord *)best)->id);
+    datPersonaAddRosterMember(replacementId);
     return 1;
 }
 
+/* Restore living party members to maximum SP or halve their current SP; always include the protagonist. */
 // FUN_0036FED0
-s32 btlShuffleCountPartyMembers(s32 arg0)
+s32 btlShuffleCountPartyMembers(s32 selector)
 {
-    u16 flag = (u16)arg0;
+    u16 restore = (u16)selector;
     u16 i;
-    u16 r;
+    u16 partyId;
 
-    if (flag != 0) {
+    if (restore != 0) {
         datSetUnitSp(1, (s16)datCalcMaxSpById(1));
     } else {
         datSetUnitSp(1, (s16)((u32)((u16)datCalcGetSpById(1)) >> 1));
     }
     for (i = 0; i < 4; i++) {
-        r = (u16)datGetPartyId(i);
-        if (r != 0 && datCalcIsDeadById((s16)r) == 0) {
-            if (flag != 0) {
-                datSetUnitSp((s16)r, (s16)datCalcMaxSpById((s16)r));
+        partyId = (u16)datGetPartyId(i);
+        if (partyId != 0 && datCalcIsDeadById((s16)partyId) == 0) {
+            if (restore != 0) {
+                datSetUnitSp((s16)partyId, (s16)datCalcMaxSpById((s16)partyId));
             } else {
-                datSetUnitSp((s16)r, (s16)((u32)((u16)datCalcGetSpById((s16)r)) >> 1));
+                datSetUnitSp((s16)partyId, (s16)((u32)((u16)datCalcGetSpById((s16)partyId)) >> 1));
             }
         }
     }
@@ -1090,64 +1123,65 @@ s32 btlShuffleCountPartyMembers(s32 arg0)
 /* masking; s32 flag + (flag & 0xFFFF) keeps the redundant andi; s16 v/t give */
 /* the dsll32/dsra32 schedule, sum = t+v with (sum > 0x63) and (t <= v) fix the */
 /* slti/slt $at coloring. */
+/* Apply the selected random stat increase or decrease to a roster persona, respecting the one-to-99 limits. */
 // FUN_00370020
-s32 btlShuffleBuffedStat(s32 arg0, u8 *arg1)
+s32 btlShuffleBuffedStat(s32 selector, u8 *result)
 {
-    s32 flag = arg0 & 0xFFFF;
-    u16 sel = (u16)((u32)(arg0 & 0xFFFF0000) >> 16);
-    u8 *p;
-    u16 kind;
-    s16 v;
-    s16 t;
+    s32 increase = selector & 0xFFFF;
+    u16 effect = (u16)((u32)(selector & 0xFFFF0000) >> 16);
+    u8 *persona;
+    u16 stat;
+    s16 change;
+    s16 current;
 
-    switch (sel) {
+    switch (effect) {
     case 8:
-        kind = 3;
+        stat = 3;
         break;
     case 9:
-        kind = 0;
+        stat = 0;
         break;
     case 11:
-        kind = 4;
+        stat = 4;
         break;
     case 12:
-        kind = 1;
+        stat = 1;
         break;
     case 13:
-        kind = 2;
+        stat = 2;
         break;
     default:
         kAssertFail(D_0064E790, 0x5D6);
         break;
     }
-    p = (u8 *)datPersonaRosterSlot((s16)datCalcRandomBelow(datPersonaCountValidMembers() & 0xFFFF));
-    if (p == NULL) {
+    persona = (u8 *)datPersonaRosterSlot((s16)datCalcRandomBelow(datPersonaCountValidMembers() & 0xFFFF));
+    if (persona == NULL) {
         kAssertFail(D_0064E790, 0x5DC);
     }
-    if ((flag & 0xFFFF) != 0) {
+    if ((increase & 0xFFFF) != 0) {
         s32 sum;
-        v = (s16)(datCalcRandomBelow(3) + 1);
-        t = (s16)(datPersonaGetBuffedStat(p, kind) & 0xFF);
-        if (t >= 0x63) {
+        change = (s16)(datCalcRandomBelow(3) + 1);
+        current = (s16)(datPersonaGetBuffedStat(persona, stat) & 0xFF);
+        if (current >= 0x63) {
             return 0;
         }
-        sum = t + v;
+        sum = current + change;
         if (sum > 0x63) {
-            v = 0x63 - t;
+            change = 0x63 - current;
         }
-        datPersonaAddStat(p, kind, (s8)v);
+        datPersonaAddStat(persona, stat, (s8)change);
     } else {
-        v = (s16)(datCalcRandomBelow(1) + 1);
-        t = (s16)(datPersonaGetStat(p, kind) & 0xFF);
-        if (t < 2) {
+        change = (s16)(datCalcRandomBelow(1) + 1);
+        current = (s16)(datPersonaGetStat(persona, stat) & 0xFF);
+        if (current < 2) {
             return 0;
         }
-        if (t <= v) {
-            v = t - 1;
+        if (current <= change) {
+            change = current - 1;
         }
-        datPersonaAddStat(p, kind, (s8)(-v));
+        datPersonaAddStat(persona, stat, (s8)(-change));
     }
-    *(u16 *)(arg1 + 4) = *(u16 *)(p + 2);
-    *(u16 *)(arg1 + 8) = (u16)v;
+    ((BtlShuffleRewardResult *)result)->personaId = ((DatPersonaRecord *)persona)->id;
+    ((BtlShuffleRewardResult *)result)->previous = (u16)change;
     return 1;
 }

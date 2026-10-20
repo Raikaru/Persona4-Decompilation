@@ -1,3 +1,5 @@
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 /* Grouped verified Persona 4 source units. */
 /* The original guards were independently verified before grouping. */
 #include "include_asm.h"
@@ -15,7 +17,8 @@ extern u8 *D_0076449C;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/Battle/btlOrder_grouped.c; members 001b0d70-001b1280 */
 
 // FUN_001B0D70
-s32 btlActionQueuePush(u8 *arg0)
+/* Append an action to the first empty order slot; return zero if all twelve slots are occupied. */
+s32 btlActionQueuePush(u8 *action)
 {
     s32 *p;
     u32 i;
@@ -39,12 +42,13 @@ after:
     }
     return 0;
 store:
-    *p = (s32)arg0;
+    *p = (s32)action;
     return 1;
 }
 
 // FUN_001B0E30
-s32 btlActionActiveListPush(s32 arg0)
+/* Append a follow-up action to the twelve-slot active list; return zero when full. */
+s32 btlActionActiveListPush(s32 action)
 {
     s32 *p;
     u32 i;
@@ -68,42 +72,44 @@ after:
     }
     return 0;
 store:
-    *p = arg0;
+    *p = action;
     return 1;
 }
 
 /* measured: opt_rebuildconditionals off probe for 0e90 guard polarity. */
 // FUN_001B0E90
-s32 btlActionCanRunNow(u8 *arg0)
+/* Allow queued or follow-up actions to run only when their order slot is currently eligible. */
+s32 btlActionCanRunNow(u8 *action)
 {
-    s32 temp;
-    u8 *p;
+    s32 activeAction;
+    u8 *battle;
 
-    if (*(u8 *)(arg0 + 0x28) != 0) {
+    if (((BtlAction *)action)->unk_28 != 0) {
         goto ret1;
     }
-    if (*(u8 *)(arg0 + 0x29) == 0) {
+    if (((BtlAction *)action)->unk_29 == 0) {
         goto check;
     }
 ret1:
     return 1;
 check:
-    p = (u8 *)iGpffffb3ac;
-    if ((*(s32 *)(p + 0xC) & 8) == 0) {
+    battle = (u8 *)iGpffffb3ac;
+    if ((*(s32 *)&((BtlBattleState *)battle)->flags & 8) == 0) {
         return 1;
     }
-    if ((*(u16 *)(arg0 + 0x18) & 4) == 0) {
-        temp = *(s32 *)(p + 0x2CC);
-        if ((temp != 0) && ((u8 *)temp == arg0)) {
+    if ((((BtlAction *)action)->flags & 4) == 0) {
+        activeAction = ((BtlBattleState *)battle)->activeActions[0];
+        if ((activeAction != 0) && ((u8 *)activeAction == action)) {
             return 1;
         }
     }
-    return *(s32 *)(p + 0x2A0) == (s32)arg0;
+    return ((BtlBattleState *)battle)->actionQueue[1] == (s32)action;
 }
 
 /* measured: close opt_rebuildconditionals off for func_001b0e90. */
 // FUN_001B0F20
-s32 btlActionQueueMoveToFront(s32 arg0)
+/* Find an action in the twelve-slot queue and shift its predecessors back one position. */
+s32 btlActionQueueMoveToFront(s32 action)
 {
     s32 *p;
     u32 i;
@@ -112,7 +118,7 @@ s32 btlActionQueueMoveToFront(s32 arg0)
     i = 0;
     goto check;
 loop:
-    if (*p == arg0) {
+    if (*p == action) {
         goto after;
     }
     p++;
@@ -132,22 +138,23 @@ shift:
         p--;
         i--;
     }
-    *p = arg0;
+    *p = action;
     return 1;
 }
 
 // FUN_001B0FA0
-s32 btlActionQueueMoveToBack(u8 *arg0)
+/* Move a queued action behind the occupied suffix, preserving the relative order of other entries. */
+s32 btlActionQueueMoveToBack(u8 *action)
 {
     s32 *p;
     u32 i;
-    s32 temp;
+    s32 nextAction;
 
     p = (s32 *)(D_0076449C + 0x29C);
     i = 0;
     goto check;
 loop:
-    if (*p == (s32)arg0) {
+    if (*p == (s32)action) {
         goto after;
     }
     p++;
@@ -162,11 +169,11 @@ after:
     }
     return 0;
 compact:
-    temp = *(p + 1);
-    if (temp == 0) {
+    nextAction = *(p + 1);
+    if (nextAction == 0) {
         goto store;
     }
-    *p = temp;
+    *p = nextAction;
     p++;
     i++;
 limit:
@@ -174,7 +181,7 @@ limit:
         goto compact;
     }
 store:
-    *p = (s32)arg0;
+    *p = (s32)action;
     return 1;
 }
 
@@ -195,15 +202,16 @@ store:
 #pragma opt_loop_invariants on
 /* measured: func_001b1020 MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
-void btlActionQueueSortByRank(s32 arg0)
+/* Sort descending by agility, optionally applying the enemy-only 90 through 110 percent random factor. */
+void btlActionQueueSortByRank(s32 randomizeEnemies)
 {
     u8 ranks[0xC];
-    u8 curr_rank;
+    u8 currentRank;
     s32 swapped;
     BtlAction **scan;
     u32 i;
     BtlAction *curr;
-    u8 next_rank;
+    u8 nextRank;
     BtlAction *next;
     BtlAction **sort;
     u32 j;
@@ -214,10 +222,10 @@ void btlActionQueueSortByRank(s32 arg0)
         if (curr == NULL) {
             break;
         }
-        if (arg0 != 0 && (*(u8 *)(*(u8 **)((u8 *)curr + 0x30) + 0xA2)) == 1) {
-            u32 r19 = datCalcGetBattleStat(*(u8 **)(*(u8 **)((u8 *)curr + 0x30) + 0xA64), PERSONA_STAT_AGI) & 0xFF;
+        if (randomizeEnemies != 0 && (((BtlUnit *)*(u8 * *)&((BtlAction *)(u8 *)curr)->unit)->genus) == 1) {
+            u32 agility = datCalcGetBattleStat(*(u8 * *)&((BtlUnit *)*(u8 * *)&((BtlAction *)(u8 *)curr)->unit)->datUnit, PERSONA_STAT_AGI) & 0xFF;
             u32 bonus = datCalcRandomBelow(0x15) + 0x5A;
-            u32 score = (r19 * bonus) / 100U;
+            u32 score = (agility * bonus) / 100U;
             if (score == 0) {
                 score = 1;
             } else if (score > 99U) {
@@ -225,7 +233,7 @@ void btlActionQueueSortByRank(s32 arg0)
             }
             ranks[i] = (u8)score;
         } else {
-            ranks[i] = datCalcGetBattleStat(*(u8 **)(*(u8 **)((u8 *)curr + 0x30) + 0xA64), PERSONA_STAT_AGI);
+            ranks[i] = datCalcGetBattleStat(*(u8 * *)&((BtlUnit *)*(u8 * *)&((BtlAction *)(u8 *)curr)->unit)->datUnit, PERSONA_STAT_AGI);
         }
         scan++;
     }
@@ -237,13 +245,13 @@ void btlActionQueueSortByRank(s32 arg0)
             curr = *sort;
             next = sort[1];
             if (curr != NULL && next != NULL) {
-                curr_rank = ranks[j];
-                next_rank = ranks[j + 1];
-                if (curr_rank < next_rank) {
+                currentRank = ranks[j];
+                nextRank = ranks[j + 1];
+                if (currentRank < nextRank) {
                     *sort = next;
                     sort[1] = curr;
-                    ranks[j] = next_rank;
-                    ranks[j + 1] = curr_rank;
+                    ranks[j] = nextRank;
+                    ranks[j + 1] = currentRank;
                     swapped = 1;
                 }
             }
@@ -263,7 +271,7 @@ void btlActionQueueSortByRank(s32 arg0)
 #pragma opt_lifetimes on
 /* measured: func_001b11c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void btlActionQueueSortKeepingKind(s32 arg0)
+void btlActionQueueSortKeepingKind(s32 genus)
 {
     u32 count;
     u16 key;
@@ -282,7 +290,7 @@ void btlActionQueueSortKeepingKind(s32 arg0)
         i++;
     }
     count = i;
-    key = arg0;
+    key = genus;
     do {
         changed = 0;
         scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
@@ -291,8 +299,8 @@ void btlActionQueueSortKeepingKind(s32 arg0)
             left = scan[0];
             right = scan[1];
             if (left != NULL && right != NULL) {
-                kind = *(u8 *)(*(u8 **)(left + 0x30) + 0xA2);
-                if (kind != *(u8 *)(*(u8 **)(right + 0x30) + 0xA2) && kind != key) {
+                kind = ((BtlUnit *)*(u8 * *)&((BtlAction *)left)->unit)->genus;
+                if (kind != ((BtlUnit *)*(u8 * *)&((BtlAction *)right)->unit)->genus && kind != key) {
                     scan[0] = right;
                     scan[1] = left;
                     changed = 1;
@@ -306,7 +314,8 @@ void btlActionQueueSortKeepingKind(s32 arg0)
 
 #pragma pop
 // FUN_001B1280
-void btlActionQueueRequeueLeadingEnemies(s32 arg0)
+/* Move half of a leading two-to-five-enemy group behind the remaining order entries. */
+void btlActionQueueRequeueLeadingEnemies(s32 genus)
 {
     u8 *base;
     u8 **scan;
@@ -315,10 +324,10 @@ void btlActionQueueRequeueLeadingEnemies(s32 arg0)
     s32 key;
     u32 i;
     s32 count;
-    s32 reverse_count;
+    s32 requeueCount;
     u32 j;
 
-    key = arg0 & 0xFFFF;
+    key = genus & 0xFFFF;
     if (key != 1) {
         return;
     }
@@ -329,32 +338,32 @@ void btlActionQueueRequeueLeadingEnemies(s32 arg0)
         if (obj == NULL) {
             break;
         }
-        if ((*(u8 *)(*(u8 **)(obj + 0x30) + 0xA2) != key)) {
+        if ((((BtlUnit *)*(u8 * *)&((BtlAction *)obj)->unit)->genus != key)) {
             break;
         }
         count++;
         scan++;
     }
-    reverse_count = 2;
+    requeueCount = 2;
     switch (count) {
     case 5:
-        reverse_count = 2;
+        requeueCount = 2;
         break;
     case 4:
-        reverse_count = 2;
+        requeueCount = 2;
         break;
     case 3:
-        reverse_count = 1;
+        requeueCount = 1;
         break;
     case 2:
-        reverse_count = 1;
+        requeueCount = 1;
         break;
     case 1:
     default:
         return;
     }
     start = (u8 **)(base + (count - 1) * 4 + 0x29C);
-    for (j = 0; j < (u32)reverse_count; j++) {
+    for (j = 0; j < (u32)requeueCount; j++) {
         btlActionQueueMoveToBack(*start);
         start--;
     }

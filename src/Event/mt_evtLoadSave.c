@@ -4,12 +4,12 @@
 
 
 
-// Intent: Lerps param_2 toward param_3 by param_1 when param_4 is nonzero; otherwise returns param_2 unchanged [inferred]
+/* Blend current toward target when enabled; otherwise preserve current. */
 // FUN_0028F960
-float evtLerpFloatIfEnabled(float param_1, float param_2, float param_3, long param_4)
+float evtLerpFloatIfEnabled(float blend, float current, float target, long enabled)
 {
-    if (param_4 != 0) {
-        param_2 = param_2 * (1.0f - param_1) + param_3 * param_1;
+    if (enabled != 0) {
+        current = current * (1.0f - blend) + target * blend;
     }
-    return param_2;
+    return current;
 }

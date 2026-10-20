@@ -3,21 +3,22 @@
 #include "sdk_task_registration.h"
 /* Original translation unit k_texStrip.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "kwln_task_internal.h"
+#include "h_cdvd_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 
-extern void func_00428618(s32 arg0);
+extern void func_00428618(s32 value);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
-extern void func_00440b68(const char *fmt, ...);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void *func_003ef650(void *arg0, const char *arg1);
-extern void func_003ef610(s32 arg0);
-extern void func_003ef5b0(s32 arg0, s32 arg1);
+extern void *func_003ef650(void *value, const char *other);
+extern void func_003ef610(s32 value);
+extern void func_003ef5b0(s32 value, s32 other);
 
-extern s32 func_00468170(void *arg0, const char *arg1);
-extern s32 func_004680f0(s32 arg0, void *arg1);
-extern void K_Clump_LogCodeCounts(void *arg0);
-extern void kwlnTaskDestroyWithHierarchy(s32 handle);
+extern s32 sdkFilerTaskCreate(void *parent, const char *path);
+extern s32 sdkFilerPollResult(s32 task, void *resultPath);
+extern void K_Clump_LogCodeCounts(void *path);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern char D_005F6168[];
 extern char D_005F6178[];
 extern char D_005F6190[];
@@ -37,13 +38,12 @@ extern s32 func_003e6a90(s32 a);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 func_004288d8(void *a, void *b);
 extern u8 *H_Cdvd_AcquireDirectory(void *path, s32 flags);
-extern void H_Cdvd_ReadSync(void *handle);
-extern void H_Cdvd_Destroy(void *handle);
+extern void H_Cdvd_ReadSync(void *cdvd);
 extern char *strcat(char *dst, const char *src);
-extern void func_003ef1b0(s32 arg0);
-extern void func_003ef260(s32 arg0, s32 (*arg1)(s32, s32), s32 arg2);
-extern void func_003e6870(void *arg0, void *arg1);
-extern s32 K_TexStripNameInsert(s32 arg0, s32 arg1);
+extern void func_003ef1b0(s32 value);
+extern void func_003ef260(s32 value, s32 (*other)(s32, s32), s32 flags);
+extern void func_003e6870(void *value, void *other);
+extern s32 K_TexStripNameInsert(s32 texture, s32 dictionary);
 extern char D_005F63F0[];
 extern char D_005F6430[];
 extern char D_005F6450[];
@@ -63,9 +63,9 @@ extern s32 func_00428780(s32 handle, void *out);
 extern s32 strcmp(const char *a, const char *b);
 extern char *strcpy(char *dst, const char *src);
 extern u8 *FldResource_Create(void *path);
-extern s32 FldResource_IsFileLoaded(void *hdr);
-extern void FldResource_ParseChunks(void *hdr);
-extern s32 FldResource_PollLoads(void *hdr);
+extern s32 FldResource_IsFileLoaded(void *resource);
+extern void FldResource_ParseChunks(void *resource);
+extern s32 FldResource_PollLoads(void *resource);
 extern s32 K_Clump_CountIntUsrData(void *object, const char *name);
 extern s32 func_00426cf0(void *path, s32 a, s32 b);
 extern size_t strlen(const char *buf);
@@ -73,8 +73,8 @@ extern s32 func_00427338(s32 fd, void *buf, s32 n);
 extern s32 func_004275a8(s32 fd, void *buf, s32 n);
 extern void func_00426f80(s32 fd);
 extern void func_00428f08(void *a, s32 b);
-extern void FldResource_Destroy(void *hdr);
-extern void K_Clump_FreeTextureNameList(void *a);
+extern void FldResource_Destroy(void *resource);
+extern void K_Clump_FreeTextureNameList(void *listHead);
 extern char D_005F61D0[];
 extern char D_005F61F8[];
 extern char D_005F6210[];
@@ -90,11 +90,11 @@ extern char D_005F6350[];
 extern char D_005F6370[];
 extern char D_005F63B0[];
 
-s32 K_TexStripLoadRecords(u8 *arg0, void *arg1);
-void K_TexStripApplyNames(u8 *arg0, void *arg1, u8 *arg2);
-s32 K_TexStripBuildUpdate(u8 *arg0);
-s32 K_TexStripRecordCount(u8 *arg0, void *arg1);
-s32 K_TexStripLoadUpdate(u8 *arg0);
+s32 K_TexStripLoadRecords(u8 *input, void *outputPath);
+void K_TexStripApplyNames(u8 *input, void *outputPath, u8 *workData);
+s32 K_TexStripBuildUpdate(u8 *task);
+s32 K_TexStripRecordCount(u8 *input, void *outputPath);
+s32 K_TexStripLoadUpdate(u8 *task);
 
 /* Source unit: src/promoted/k_texStrip.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_texStrip.c; members 00190680-00191d90 */
@@ -116,61 +116,110 @@ s32 K_TexStripLoadUpdate(u8 *arg0);
 // coloring. Shared-callee probe: retail func_003deff0 first-uses a0 as a forwarded
 // pointer, saves a1/a2, and masks a3/t0, proving five args `(void *,s32,s32,s32,s32)`;
 // existing calls already pass all five, so no prototype change was needed.
-// FUN_00190680
-s32 K_TexStripLoadRecords(u8 *arg0, void *arg1) {
-    s32 sp[2];
-    union { s32 s[4]; u32 u[4]; } spill;
-    s32 buffer[5];
-    s32 var_20;
-    s32 temp_19;
-    s32 temp_18;
-    u8 *temp_2;
-    u8 *var_16;
+/* Both build/load creators allocate 0xe74 bytes. Directory reads start at
+ * 0x08, their name at 0x48; the three 256-entry tables and counters below are
+ * addressed by both update paths. Handles retain the existing 32-bit storage. */
+typedef struct TexStripWork
+{
+    s32 state;
+    s32 directory;
+    u8 directoryStat[0x40];
+    char fileName[0x100];
+    u8 pad148[4];
+    char resourcePath[0x100];
+    s32 resource;
+    s32 archive;
+    s32 textureCount;
+    s32 textureIds[0x100];
+    s32 textureDictionaries[0x100];
+    s32 fileCount;
+    s32 fileIds[0x100];
+    s32 textureIndex;
+    s32 textureArchive;
+    s32 sourceBytes;
+    s32 outputBytes;
+    s32 fieldId;
+    s32 textureId;
+} TexStripWork;
+/* Resource header prefix plus its separately owned texture-name allocation. */
+typedef struct FldResource
+{
+    u8 pad00[4];
+    s16 fieldId;
+    s16 roomId;
+    u8 pad08[0x10];
+    u32 clumpCount;
+    s32 clumps[1]; /* first entry; remaining array span is opaque here */
+    u8 pad20[0xA24];
+    s32 textureNames;
+} FldResource;
+typedef struct FldResourceTextureNames
+{
+    u8 pad00[0x128];
+    void *names;
+} FldResourceTextureNames;
+typedef struct TexStripCodeLogWork
+{
+    s32 state;
+    s32 filerTask;
+} TexStripCodeLogWork;
 
-    var_20 = 0;
-    sp[0] = *(s32 *)(arg0 + 0x110);
-    sp[1] = *(s32 *)(arg0 + 0x118);
-    temp_19 = func_003e2f60(3, 1, &sp[0]);
-    temp_18 = func_003e2f60(2, 2, (s32 *)arg1);
-    if ((temp_19 != 0) && (temp_18 != 0)) {
+/* Copy the chunk stream, reading texture dictionaries and stripping QTEX prefixes. */
+// FUN_00190680
+s32 K_TexStripLoadRecords(u8 *input, void *outputPath) {
+    s32 inputBuffer[2];
+    union { s32 s[4]; u32 u[4]; } chunk;
+    s32 buffer[5];
+    s32 dictionary;
+    s32 inputStream;
+    s32 outputStream;
+    u8 *textureBuffer;
+    u8 *chunkBuffer;
+
+    dictionary = 0;
+    inputBuffer[0] = (s32)((HCdvd *)input)->fileMemory;
+    inputBuffer[1] = (s32)((HCdvd *)input)->fileSize;
+    inputStream = func_003e2f60(3, 1, &inputBuffer[0]);
+    outputStream = func_003e2f60(2, 2, (s32 *)outputPath);
+    if ((inputStream != 0) && (outputStream != 0)) {
         goto loop_check;
 loop_body:
-        switch (spill.s[0]) {
+        switch (chunk.s[0]) {
         case 0x16:
-            var_20 = func_003e6a90(temp_19);
+            dictionary = func_003e6a90(inputStream);
             break;
         case 0xF0F000E0:
-            func_003e2910(temp_19, &buffer[0], 0x14);
-            func_003deff0(temp_18, (u32)spill.s[0], (u32)spill.s[1], spill.s[2], spill.s[3]);
-            func_003e2ab0(temp_18, &buffer[0], 0x14);
-            func_003e2ce0(temp_19, buffer[2]);
+            func_003e2910(inputStream, &buffer[0], 0x14);
+            func_003deff0(outputStream, (u32)chunk.s[0], (u32)chunk.s[1], chunk.s[2], chunk.s[3]);
+            func_003e2ab0(outputStream, &buffer[0], 0x14);
+            func_003e2ce0(inputStream, buffer[2]);
             chkmemAllocSiteTag(D_005F6168, 0xBB);
-            temp_2 = D_008873F4[0](1, buffer[1] + buffer[2], 0x40000);
-            func_003e2910(temp_19, temp_2 + buffer[2], buffer[1]);
-            func_003e2ab0(temp_18, temp_2, buffer[1] + buffer[2]);
-            jtbl_008873EC[0](temp_2);
+            textureBuffer = D_008873F4[0](1, buffer[1] + buffer[2], 0x40000);
+            func_003e2910(inputStream, textureBuffer + buffer[2], buffer[1]);
+            func_003e2ab0(outputStream, textureBuffer, buffer[1] + buffer[2]);
+            jtbl_008873EC[0](textureBuffer);
             break;
         default:
-            if (spill.s[1] != 0) {
+            if (chunk.s[1] != 0) {
                 chkmemAllocSiteTag(D_005F6168, 0xCA);
-                var_16 = D_008873F4[0](1, spill.u[1], 0x40000);
-                func_003e2910(temp_19, var_16, spill.s[1]);
+                chunkBuffer = D_008873F4[0](1, chunk.u[1], 0x40000);
+                func_003e2910(inputStream, chunkBuffer, chunk.s[1]);
             }
-            func_003deff0(temp_18, (u32)spill.s[0], (u32)spill.s[1], spill.s[2], spill.s[3]);
-            if (spill.s[1] != 0) {
-                func_003e2ab0(temp_18, var_16, spill.s[1]);
-                jtbl_008873EC[0](var_16);
+            func_003deff0(outputStream, (u32)chunk.s[0], (u32)chunk.s[1], chunk.s[2], chunk.s[3]);
+            if (chunk.s[1] != 0) {
+                func_003e2ab0(outputStream, chunkBuffer, chunk.s[1]);
+                jtbl_008873EC[0](chunkBuffer);
             }
             break;
         }
 loop_check:
-        if (func_003df3c0(temp_19, &spill.s[0]) != 0) {
+        if (func_003df3c0(inputStream, &chunk.s[0]) != 0) {
             goto loop_body;
         }
-        func_003e2e40(temp_19, 0);
-        func_003e2e40(temp_18, 0);
+        func_003e2e40(inputStream, 0);
+        func_003e2e40(outputStream, 0);
     }
-    return var_20;
+    return dictionary;
 }
 
 /* Look up the texture name, detach and insert it when absent, then report
@@ -180,18 +229,18 @@ loop_check:
 /* measured: K_TexStripNameInsert MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 // FUN_00190920
-s32 K_TexStripNameInsert(s32 arg0, s32 arg1) {
-    if (func_003ef650((void *)arg1, (char *)arg0 + 0x10) == 0) {
-        func_003ef610(arg0);
-        func_003ef5b0(arg1, arg0);
-        func_00440b68(D_005F6178, (char *)arg0 + 0x10);
-        if (func_003ef650((void *)arg1, (char *)arg0 + 0x10) != 0) {
-            func_00440b68(D_005F6190, (char *)arg0 + 0x10);
+s32 K_TexStripNameInsert(s32 texture, s32 dictionary) {
+    if (func_003ef650((void *)dictionary, (char *)texture + 0x10) == 0) {
+        func_003ef610(texture);
+        func_003ef5b0(dictionary, texture);
+        func_00440b68(D_005F6178, (char *)texture + 0x10);
+        if (func_003ef650((void *)dictionary, (char *)texture + 0x10) != 0) {
+            func_00440b68(D_005F6190, (char *)texture + 0x10);
         }
     } else {
-        func_00440b68(D_005F61B0, (char *)arg0 + 0x10);
+        func_00440b68(D_005F61B0, (char *)texture + 0x10);
     }
-    return arg0;
+    return texture;
 }
 
 /* measured: restore CSE after the exact 00190920 call sequence. */
@@ -203,67 +252,69 @@ s32 K_TexStripNameInsert(s32 arg0, s32 arg1) {
 // into $a1/$a2 before moving temp_19 into $a0, while b210 materializes the first argument
 // first. Casting those two stack values to u32 reproduces the retail order and closes this
 // function (normalized_diff 0).
+/* Merge texture dictionaries into the resource stream while copying all other chunks. */
 // FUN_001909F0
-void K_TexStripApplyNames(u8 *arg0, void *arg1, u8 *arg2) {
-    s32 sp[2];
-    union { s32 s[4]; u32 u[4]; } spill;
-    s32 temp_20;
-    s32 temp_19;
-    s32 temp_18;
-    s32 temp_4;
-    u32 var_17;
-    u8 *var_16;
+void K_TexStripApplyNames(u8 *input, void *outputPath, u8 *workData) {
+    s32 inputBuffer[2];
+    union { s32 s[4]; u32 u[4]; } chunk;
+    s32 inputStream;
+    s32 outputStream;
+    s32 dictionary;
+    s32 sourceDictionary;
+    u32 textureIndex;
+    u8 *chunkBuffer;
 
-    sp[0] = *(s32 *)(arg0 + 0x110);
-    sp[1] = *(s32 *)(arg0 + 0x118);
-    temp_20 = func_003e2f60(3, 1, &sp[0]);
-    temp_19 = func_003e2f60(2, 2, (s32 *)arg1);
-    if ((temp_20 != 0) && (temp_19 != 0)) {
+    inputBuffer[0] = (s32)((HCdvd *)input)->fileMemory;
+    inputBuffer[1] = (s32)((HCdvd *)input)->fileSize;
+    inputStream = func_003e2f60(3, 1, &inputBuffer[0]);
+    outputStream = func_003e2f60(2, 2, (s32 *)outputPath);
+    if ((inputStream != 0) && (outputStream != 0)) {
         goto loop_check;
 loop_body:
-        switch (spill.s[0]) {
+        switch (chunk.s[0]) {
         case 0x16:
-            temp_18 = func_003e6a90(temp_20);
-            var_17 = 0;
+            dictionary = func_003e6a90(inputStream);
+            textureIndex = 0;
             goto item_check;
 item_body:
-            temp_4 = *(s32 *)(arg2 + var_17 * 4 + 0x658);
-            if (temp_4 != 0) {
-                func_003ef260(temp_4, K_TexStripNameInsert, temp_18);
+            sourceDictionary = ((TexStripWork *)workData)->textureDictionaries[textureIndex];
+            if (sourceDictionary != 0) {
+                func_003ef260(sourceDictionary, K_TexStripNameInsert, dictionary);
             }
-            var_17++;
+            textureIndex++;
 item_check:
-            if (var_17 < *(u32 *)(arg2 + 0x254)) {
+            if (textureIndex < (u32)((TexStripWork *)workData)->textureCount) {
                 goto item_body;
             }
-            func_003e6870((void *)temp_18, (void *)temp_19);
-            func_003ef1b0(temp_18);
+            func_003e6870((void *)dictionary, (void *)outputStream);
+            func_003ef1b0(dictionary);
             break;
         default:
-            if (spill.s[1] != 0) {
+            if (chunk.s[1] != 0) {
                 chkmemAllocSiteTag(D_005F6168, 0x141);
-                var_16 = D_008873F4[0](1, spill.u[1], 0x40000);
-                func_003e2910(temp_20, var_16, spill.s[1]);
+                chunkBuffer = D_008873F4[0](1, chunk.u[1], 0x40000);
+                func_003e2910(inputStream, chunkBuffer, chunk.s[1]);
             }
-            func_003deff0(temp_19, (u32)spill.s[0], (u32)spill.s[1], spill.s[2], spill.s[3]);
-            if (spill.s[1] != 0) {
-                func_003e2ab0(temp_19, var_16, spill.s[1]);
-                jtbl_008873EC[0](var_16);
+            func_003deff0(outputStream, (u32)chunk.s[0], (u32)chunk.s[1], chunk.s[2], chunk.s[3]);
+            if (chunk.s[1] != 0) {
+                func_003e2ab0(outputStream, chunkBuffer, chunk.s[1]);
+                jtbl_008873EC[0](chunkBuffer);
             }
             break;
         }
 loop_check:
-        if (func_003df3c0(temp_20, &spill.s[0]) != 0) {
+        if (func_003df3c0(inputStream, &chunk.s[0]) != 0) {
             goto loop_body;
         }
-        func_003e2e40(temp_20, 0);
-        func_003e2e40(temp_19, 0);
+        func_003e2e40(inputStream, 0);
+        func_003e2e40(outputStream, 0);
     }
 }
 
 /* measured: complete file-stat records, per-state loop lifetimes, and live
    resource reloads reproduce retail. See docs/probe_archive/
    TexStrip_00190c10_20261005.md for owner and relocation evidence. */
+/* Enumerate resource files, collect texture/file IDs, and write stripped assets plus a manifest. */
 // FUN_00190C10
 #pragma push
 /* measured: K_TexStripBuildUpdate MATCH -> MISMATCH without this pragma. */
@@ -287,68 +338,68 @@ s32 K_TexStripBuildUpdate(u8 *task)
     TexStripFileStat copyStat;
     KClumpIntPropertyResult kindProperty;
     KClumpIntPropertyResult idProperty;
-    s32 *work;
+    TexStripWork *work;
 
-    work = *(s32 **)(task + 0x38);
-    switch (work[0]) {
+    work = (TexStripWork *)((KwlnTask *)task)->work;
+    switch (work->state) {
     case 0:
-        work[1] = func_00428550(D_005F61D0);
-        if (work[1] < 0) {
+        work->directory = func_00428550(D_005F61D0);
+        if (work->directory < 0) {
             return -1;
         }
-        work[0]++;
+        work->state++;
         break;
     case 1: {
         s32 tmp;
         char *p;
-        tmp = func_00428780(work[1], (void *)&work[2]);
+        tmp = func_00428780(work->directory, work->directoryStat);
         if (tmp > 0) {
-            if (strcmp((void *)&work[0x12], &D_00763138) != 0 &&
-                strcmp((void *)&work[0x12], &D_0076313C) != 0) {
-                for (p = (char *)&work[0x12]; *p != '.' && *p != 0; p++) {
+            if (strcmp((void *)&work->fileName, &D_00763138) != 0 &&
+                strcmp((void *)&work->fileName, &D_0076313C) != 0) {
+                for (p = (char *)&work->fileName; *p != '.' && *p != 0; p++) {
                 }
                 if (strcmp(p, &D_00763140) == 0) {
-                    strcpy((void *)&work[0x53], D_005F61F8);
-                    strcat((void *)&work[0x53], (void *)&work[0x12]);
-                    work[0x93] = (s32)FldResource_Create((void *)&work[0x53]);
-                    func_00440b68(D_005F6210, &work[0x53]);
-                    work[0] = 2;
+                    strcpy((void *)&work->resourcePath, D_005F61F8);
+                    strcat((void *)&work->resourcePath, (void *)&work->fileName);
+                    work->resource = (s32)FldResource_Create((void *)&work->resourcePath);
+                    func_00440b68(D_005F6210, &work->resourcePath);
+                    work->state = 2;
                 }
             }
         } else {
-            work[0] = 8;
+            work->state = 8;
         }
         break;
     }
     case 2:
-        if (FldResource_IsFileLoaded((void *)work[0x93]) != 0) {
-            FldResource_ParseChunks((void *)work[0x93]);
-            work[0] = 3;
+        if (FldResource_IsFileLoaded((void *)work->resource) != 0) {
+            FldResource_ParseChunks((void *)work->resource);
+            work->state = 3;
         }
         break;
     case 3: {
         u32 resourceIndex;
         s32 propertyIndex;
-        if (FldResource_PollLoads((void *)work[0x93]) != 0) {
-            work[0x95] = 0;
-            work[0x296] = 0;
-            for (resourceIndex = 0; resourceIndex < ((u32 *)work[0x93])[6]; resourceIndex++) {
+        if (FldResource_PollLoads((void *)work->resource) != 0) {
+            work->textureCount = 0;
+            work->fileCount = 0;
+            for (resourceIndex = 0; resourceIndex < ((FldResource *)work->resource)->clumpCount; resourceIndex++) {
                 u32 resourceOffset = resourceIndex * 4;
-                s32 propertyCount = K_Clump_CountIntUsrData((void *)((s32 *)((u32)work[0x93] + resourceOffset))[7], D_005F6230);
+                s32 propertyCount = K_Clump_CountIntUsrData((void *)((FldResource *)((u32)work->resource + resourceOffset))->clumps[0], D_005F6230);
                 for (propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
-                    K_Clump_GetIntUsrDataAt(&kindProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6230, propertyIndex);
+                    K_Clump_GetIntUsrDataAt(&kindProperty, (void *)((FldResource *)(resourceOffset + (u32)work->resource))->clumps[0], D_005F6230, propertyIndex);
                     if (kindProperty.value == 0) {
-                        K_Clump_GetIntUsrDataAt(&idProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6250, propertyIndex);
-                        work[work[0x95] + 0x96] = idProperty.value;
-                        work[0x95]++;
+                        K_Clump_GetIntUsrDataAt(&idProperty, (void *)((FldResource *)(resourceOffset + (u32)work->resource))->clumps[0], D_005F6250, propertyIndex);
+                        work->textureIds[work->textureCount] = idProperty.value;
+                        work->textureCount++;
                     } else if (kindProperty.value == 1) {
-                        K_Clump_GetIntUsrDataAt(&idProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6250, propertyIndex);
-                        work[work[0x296] + 0x297] = idProperty.value;
-                        work[0x296]++;
+                        K_Clump_GetIntUsrDataAt(&idProperty, (void *)((FldResource *)(resourceOffset + (u32)work->resource))->clumps[0], D_005F6250, propertyIndex);
+                        work->fileIds[work->fileCount] = idProperty.value;
+                        work->fileCount++;
                     }
                 }
             }
-            work[0] = 4;
+            work->state = 4;
         }
         break;
     }
@@ -359,7 +410,7 @@ s32 K_TexStripBuildUpdate(u8 *task)
         u32 fileIndex;
         s32 descriptor;
         strcpy(sourcePath, D_005F6270);
-        for (p = (char *)&work[0x53]; *p != 0; p++) {
+        for (p = (char *)&work->resourcePath; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
@@ -369,24 +420,24 @@ s32 K_TexStripBuildUpdate(u8 *task)
         strcpy(q, &D_00763148);
         D_00764498 = func_00426cf0(sourcePath, 0x603, 0x1FF);
         if (D_00764498 >= 0) {
-            work[0x399] = 0;
-            work[0x39A] = 0;
-            sprintf(manifestLine, D_005F62A0, ((s16 *)work[0x93])[2], ((s16 *)work[0x93])[3]);
+            work->sourceBytes = 0;
+            work->outputBytes = 0;
+            sprintf(manifestLine, D_005F62A0, ((FldResource *)work->resource)->fieldId, ((FldResource *)work->resource)->roomId);
             func_004275a8(D_00764498, manifestLine, strlen(manifestLine));
-            for (textureIndex = 0; textureIndex < (u32)work[0x95]; textureIndex++) {
-                if (work[textureIndex + 0x96] != 0) {
-                    sprintf(manifestLine, D_005F62B0, ((s16 *)work[0x93])[2], work[textureIndex + 0x96]);
+            for (textureIndex = 0; textureIndex < (u32)work->textureCount; textureIndex++) {
+                if (work->textureIds[textureIndex] != 0) {
+                    sprintf(manifestLine, D_005F62B0, ((FldResource *)work->resource)->fieldId, work->textureIds[textureIndex]);
                     func_004275a8(D_00764498, manifestLine, strlen(manifestLine));
                 }
             }
-            for (fileIndex = 0; fileIndex < (u32)work[0x296]; fileIndex++) {
+            for (fileIndex = 0; fileIndex < (u32)work->fileCount; fileIndex++) {
                 u8 *copyBuffer;
-                s32 *item = (s32 *)((u8 *)&work[fileIndex] + 0xA5C);
-                sprintf(manifestLine, D_005F62C0, ((s16 *)work[0x93])[2], *item);
+                s32 *item = &work->fileIds[fileIndex];
+                sprintf(manifestLine, D_005F62C0, ((FldResource *)work->resource)->fieldId, *item);
                 func_004275a8(D_00764498, manifestLine, strlen(manifestLine));
-                sprintf(sourcePath, D_005F62D0, ((s16 *)work[0x93])[2], *item);
+                sprintf(sourcePath, D_005F62D0, ((FldResource *)work->resource)->fieldId, *item);
                 func_004288d8(sourcePath, &fileStat);
-                sprintf(targetPath, D_005F6310, ((s16 *)work[0x93])[2], *item);
+                sprintf(targetPath, D_005F6310, ((FldResource *)work->resource)->fieldId, *item);
                 func_004288d8(sourcePath, &copyStat);
                 chkmemAllocSiteTag(D_005F6168, 0x166);
                 copyBuffer = D_008873F4[0](1, copyStat.size, 0x40000);
@@ -405,47 +456,47 @@ s32 K_TexStripBuildUpdate(u8 *task)
                 }
             }
         }
-        work[0x397] = 0;
-        work[0] = 5;
+        work->textureIndex = 0;
+        work->state = 5;
         break;
     }
     case 5: {
         char *p;
         s32 *hdr;
-        if ((u32)work[0x397] < (u32)work[0x95]) {
-            if (work[work[0x397] + 0x96] != 0) {
-                sprintf(modelPath, D_005F6350, ((s16 *)((s32 *)work[0x93]))[2], work[work[0x397] + 0x96]);
+        if ((u32)work->textureIndex < (u32)work->textureCount) {
+            if (work->textureIds[work->textureIndex] != 0) {
+                sprintf(modelPath, D_005F6350, ((FldResource *)work->resource)->fieldId, work->textureIds[work->textureIndex]);
                 func_00440b68(&D_00763150, D_005F6168, 0x263);
                 p = (char *)H_Cdvd_AcquireDirectory(modelPath, 0);
-                work[0x398] = (s32)p;
+                work->textureArchive = (s32)p;
                 H_Cdvd_ReadSync(p);
-                work[0] = 6;
+                work->state = 6;
             } else {
-                work[0x397]++;
+                work->textureIndex++;
             }
         } else {
-            FldResource_Destroy((void *)work[0x93]);
-            hdr = (s32 *)work[0x93];
-            hdr = (s32 *)hdr[0x291];
-            K_Clump_FreeTextureNameList((void *)hdr[0x4A]);
-            hdr = (s32 *)work[0x93];
-            jtbl_008873EC[0]((void *)hdr[0x291]);
-            hdr = (s32 *)work[0x93];
-            hdr[0x291] = 0;
-            work[0x93] = 0;
-            work[0] = 7;
+            FldResource_Destroy((void *)work->resource);
+            hdr = (s32 *)work->resource;
+            hdr = (s32 *)((FldResource *)hdr)->textureNames;
+            K_Clump_FreeTextureNameList((void *)((FldResourceTextureNames *)hdr)->names);
+            hdr = (s32 *)work->resource;
+            jtbl_008873EC[0]((void *)((FldResource *)hdr)->textureNames);
+            hdr = (s32 *)work->resource;
+            ((FldResource *)hdr)->textureNames = 0;
+            work->resource = 0;
+            work->state = 7;
         }
         break;
     }
     case 6: {
         s32 tmp;
-        sprintf(texturePath, D_005F6370, ((s16 *)work[0x93])[2], work[work[0x397] + 0x96]);
-        tmp = K_TexStripLoadRecords((u8 *)work[0x398], texturePath);
-        work[work[0x397] + 0x196] = tmp;
-        H_Cdvd_Destroy((void *)work[0x398]);
-        work[0x398] = 0;
-        work[0x397]++;
-        work[0] = 5;
+        sprintf(texturePath, D_005F6370, ((FldResource *)work->resource)->fieldId, work->textureIds[work->textureIndex]);
+        tmp = K_TexStripLoadRecords((u8 *)work->textureArchive, texturePath);
+        work->textureDictionaries[work->textureIndex] = tmp;
+        H_Cdvd_Destroy((void *)work->textureArchive);
+        work->textureArchive = 0;
+        work->textureIndex++;
+        work->state = 5;
         break;
     }
     case 7: {
@@ -453,34 +504,34 @@ s32 K_TexStripBuildUpdate(u8 *task)
         u8 *resource;
         u32 cleanupIndex;
         func_00440b68(&D_00763150, D_005F6168, 0x2A0);
-        resource = H_Cdvd_AcquireDirectory((void *)&work[0x53], 0);
-        work[0x94] = (s32)resource;
+        resource = H_Cdvd_AcquireDirectory((void *)&work->resourcePath, 0);
+        work->archive = (s32)resource;
         H_Cdvd_ReadSync(resource);
         strcpy(resourcePath, D_005F63B0);
-        for (p = (char *)&work[0x53]; *p != 0; p++) {
+        for (p = (char *)&work->resourcePath; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
         strcat(resourcePath, p + 1);
-        K_TexStripApplyNames((u8 *)work[0x94], resourcePath, (u8 *)work);
-        H_Cdvd_Destroy((void *)work[0x94]);
+        K_TexStripApplyNames((u8 *)work->archive, resourcePath, (u8 *)work);
+        H_Cdvd_Destroy((void *)work->archive);
         strcpy(resourcePath, D_005F63B0);
-        for (p = (char *)&work[0x53]; *p != 0; p++) {
+        for (p = (char *)&work->resourcePath; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
         strcat(resourcePath, p + 1);
         func_004288d8(resourcePath, &fileStat);
-        work[0x39A] += fileStat.size;
-        for (cleanupIndex = 0; cleanupIndex < (u32)work[0x95]; cleanupIndex++) {
-            s32 *item = (s32 *)((u8 *)&work[cleanupIndex] + 0x658);
+        work->outputBytes += fileStat.size;
+        for (cleanupIndex = 0; cleanupIndex < (u32)work->textureCount; cleanupIndex++) {
+            s32 *item = &work->textureDictionaries[cleanupIndex];
             if (*item != 0) {
                 func_003ef1b0(*item);
                 *item = 0;
             }
         }
         func_00426f80(D_00764498);
-        work[0] = 1;
+        work->state = 1;
         break;
     }
     case 8:
@@ -490,19 +541,23 @@ s32 K_TexStripBuildUpdate(u8 *task)
 }
 
 #pragma pop
+/* Close the directory iterator before releasing the build task work. */
 // FUN_001915C0
-void K_TexStripBuildTaskDestroy(u8 *arg0)
+/* TexStripWork stores the directory handle at offset 4. Typed task/work
+ * access changed five instruction bytes; keep byte access and the final slot reload. */
+void K_TexStripBuildTaskDestroy(u8 *task)
 {
-    s32 handle;
+    s32 directory;
 
-    handle = *(s32 *)(*(u8 **)(arg0 + 0x38) + 4);
-    if (handle >= 0)
+    directory = *(s32 *)(*(u8 **)(task + 0x38) + 4);
+    if (directory >= 0)
     {
-        func_00428618(handle);
+        func_00428618(directory);
     }
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](*(u8 **)(task + 0x38));
 }
 
+/* Allocate and start the resource texture-strip build task. */
 // FUN_00191610
 s32 K_TexStripBuildTaskCreate(void)
 {
@@ -523,131 +578,133 @@ s32 K_TexStripBuildTaskCreate(void)
 // and retail saved-register allocation are unchanged.
 // The `(u32)` casts on spill.s[0] and spill.s[1] in func_003deff0 reproduce retail's
 // argument-materialization order (loads before the first-argument move).
+/* Copy a resource stream and retain the texture dictionary chunk handle. */
 // FUN_001916A0
-s32 K_TexStripRecordCount(u8 *arg0, void *arg1)
+s32 K_TexStripRecordCount(u8 *input, void *outputPath)
 {
-    s32 sp[2];
-    union { s32 s[4]; u32 u[4]; } spill;
-    s32 var_19;
-    s32 temp_18;
-    s32 temp_17;
-    u8 *var_16;
+    s32 inputBuffer[2];
+    union { s32 s[4]; u32 u[4]; } chunk;
+    s32 dictionary;
+    s32 inputStream;
+    s32 outputStream;
+    u8 *chunkBuffer;
 
-    var_19 = 0;
-    sp[0] = *(s32 *)(arg0 + 0x110);
-    sp[1] = *(s32 *)(arg0 + 0x118);
-    temp_18 = func_003e2f60(3, 1, &sp[0]);
-    temp_17 = func_003e2f60(2, 2, (s32 *)arg1);
-    if ((temp_18 != 0) && (temp_17 != 0)) {
+    dictionary = 0;
+    inputBuffer[0] = (s32)((HCdvd *)input)->fileMemory;
+    inputBuffer[1] = (s32)((HCdvd *)input)->fileSize;
+    inputStream = func_003e2f60(3, 1, &inputBuffer[0]);
+    outputStream = func_003e2f60(2, 2, (s32 *)outputPath);
+    if ((inputStream != 0) && (outputStream != 0)) {
         goto loop_check;
 loop_body:
-        switch (spill.s[0]) {
+        switch (chunk.s[0]) {
         case 0x16:
-            var_19 = func_003e6a90(temp_18);
+            dictionary = func_003e6a90(inputStream);
             break;
         default:
-            if (spill.s[1] != 0) {
+            if (chunk.s[1] != 0) {
                 chkmemAllocSiteTag(D_005F6168, 0x330);
-                var_16 = D_008873F4[0](1, spill.u[1], 0x40000);
-                func_003e2910(temp_18, var_16, spill.s[1]);
+                chunkBuffer = D_008873F4[0](1, chunk.u[1], 0x40000);
+                func_003e2910(inputStream, chunkBuffer, chunk.s[1]);
             }
-            func_003deff0(temp_17, (u32)spill.s[0], (u32)spill.s[1], spill.s[2], spill.s[3]);
-            if (spill.s[1] != 0) {
-                func_003e2ab0(temp_17, var_16, spill.s[1]);
-                jtbl_008873EC[0](var_16);
+            func_003deff0(outputStream, (u32)chunk.s[0], (u32)chunk.s[1], chunk.s[2], chunk.s[3]);
+            if (chunk.s[1] != 0) {
+                func_003e2ab0(outputStream, chunkBuffer, chunk.s[1]);
+                jtbl_008873EC[0](chunkBuffer);
             }
             break;
         }
 loop_check:
-        if (func_003df3c0(temp_18, &spill.s[0]) != 0) {
+        if (func_003df3c0(inputStream, &chunk.s[0]) != 0) {
             goto loop_body;
         }
-        func_003e2e40(temp_18, 0);
-        func_003e2e40(temp_17, 0);
+        func_003e2e40(inputStream, 0);
+        func_003e2e40(outputStream, 0);
     }
-    return var_19;
+    return dictionary;
 }
 
+/* Load each field texture dictionary, merge names into its resource, and release handles. */
 // FUN_00191850
-s32 K_TexStripLoadUpdate(u8 *arg0)
+s32 K_TexStripLoadUpdate(u8 *task)
 {
-    char buf240[0x40];
-    char buf140[0x100];
-    char buf40[0x100];
-    s32 *work;
-    s32 i;
-    u8 *temp1;
-    u8 *temp2;
+    char fileStat[0x40];
+    char texturePath[0x100];
+    char resourcePath[0x100];
+    TexStripWork *work;
+    s32 textureIndex;
+    u8 *textureArchive;
+    u8 *resourceArchive;
 
-    work = *(s32 **)(arg0 + 0x38);
-    switch (work[0])
+    work = (TexStripWork *)((KwlnTask *)task)->work;
+    switch (work->state)
     {
     case 0:
-        work[0x39C] = 2;
-        work[0x95] = 0;
-        work[0] = work[0] + 1;
+        work->textureId = 2;
+        work->textureCount = 0;
+        work->state = work->state + 1;
         /* fallthrough */
     case 1:
-        sprintf((char *)&work[0x53], D_005F63F0, work[0x39B], work[0x39C]);
-        if (func_004288d8(&work[0x53], buf240) == 0)
+        sprintf((char *)&work->resourcePath, D_005F63F0, work->fieldId, work->textureId);
+        if (func_004288d8(&work->resourcePath, fileStat) == 0)
         {
-            sprintf((char *)&work[0x53], D_005F6430, work[0x39B], work[0x39C]);
+            sprintf((char *)&work->resourcePath, D_005F6430, work->fieldId, work->textureId);
             func_00440b68(&D_00763150, D_005F6168, 0x36E);
-            temp1 = (u8 *)H_Cdvd_AcquireDirectory(&work[0x53], 0);
-            work[0x94] = (s32)temp1;
-            H_Cdvd_ReadSync(temp1);
-            work[0] = 2;
-            work[0x39C] = work[0x39C] + 1;
-            func_00440b68(&D_00763128, &work[0x53]);
+            textureArchive = (u8 *)H_Cdvd_AcquireDirectory(&work->resourcePath, 0);
+            work->archive = (s32)textureArchive;
+            H_Cdvd_ReadSync(textureArchive);
+            work->state = 2;
+            work->textureId = work->textureId + 1;
+            func_00440b68(&D_00763128, &work->resourcePath);
         }
         else
         {
-            work[0x39C] = work[0x39C] + 1;
-            if (work[0x39C] > 0xF)
+            work->textureId = work->textureId + 1;
+            if (work->textureId > 0xF)
             {
-                work[0] = 3;
+                work->state = 3;
             }
         }
         break;
     case 2:
-        sprintf(buf140, D_005F6450);
-        strcat(buf140, (char *)&work[0x53]);
-        strcat(buf140, &D_00763158);
-        work[work[0x95] + 0x196] = K_TexStripRecordCount((u8 *)work[0x94], buf140);
-        H_Cdvd_Destroy((u8 *)work[0x94]);
-        work[0x94] = 0;
-        work[0x95] = work[0x95] + 1;
-        work[0] = 1;
+        sprintf(texturePath, D_005F6450);
+        strcat(texturePath, (char *)&work->resourcePath);
+        strcat(texturePath, &D_00763158);
+        work->textureDictionaries[work->textureCount] = K_TexStripRecordCount((u8 *)work->archive, texturePath);
+        H_Cdvd_Destroy((HCdvd *)work->archive);
+        work->archive = 0;
+        work->textureCount = work->textureCount + 1;
+        work->state = 1;
         break;
     case 3:
-        sprintf((char *)&work[0x53], D_005F6470, work[0x39B]);
+        sprintf((char *)&work->resourcePath, D_005F6470, work->fieldId);
         func_00440b68(&D_00763150, D_005F6168, 0x39B);
-        temp2 = (u8 *)H_Cdvd_AcquireDirectory(&work[0x53], 0);
-        work[0x94] = (s32)temp2;
-        H_Cdvd_ReadSync(temp2);
-        sprintf(buf40, D_005F6450);
-        strcat(buf40, (char *)&work[0x53]);
-        strcat(buf40, &D_00763158);
-        K_TexStripApplyNames((u8 *)work[0x94], buf40, (u8 *)work);
-        for (i = 0; i < (u32)work[0x95]; i++)
+        resourceArchive = (u8 *)H_Cdvd_AcquireDirectory(&work->resourcePath, 0);
+        work->archive = (s32)resourceArchive;
+        H_Cdvd_ReadSync(resourceArchive);
+        sprintf(resourcePath, D_005F6450);
+        strcat(resourcePath, (char *)&work->resourcePath);
+        strcat(resourcePath, &D_00763158);
+        K_TexStripApplyNames((u8 *)work->archive, resourcePath, (u8 *)work);
+        for (textureIndex = 0; textureIndex < (u32)work->textureCount; textureIndex++)
         {
-            s32 *elem = (s32 *)((u8 *)work + i * 4 + 0x658);
-            if (*(s32 *)((u8 *)work + i * 4 + 0x658) != 0)
+            s32 *dictionary = &work->textureDictionaries[textureIndex];
+            if (*&work->textureDictionaries[textureIndex] != 0)
             {
-                func_003ef1b0(*(s32 *)((u8 *)work + i * 4 + 0x658));
-                *elem = 0;
+                func_003ef1b0(*&work->textureDictionaries[textureIndex]);
+                *dictionary = 0;
             }
         }
-        H_Cdvd_Destroy((u8 *)work[0x94]);
-        work[0x94] = 0;
-        work[0x39B] = work[0x39B] + 1;
-        if (work[0x39B] > 0x30)
+        H_Cdvd_Destroy((HCdvd *)work->archive);
+        work->archive = 0;
+        work->fieldId = work->fieldId + 1;
+        if (work->fieldId > 0x30)
         {
-            work[0] = 4;
+            work->state = 4;
         }
         else
         {
-            work[0] = 0;
+            work->state = 0;
         }
         break;
     case 4:
@@ -658,19 +715,23 @@ s32 K_TexStripLoadUpdate(u8 *arg0)
     return 0;
 }
 
+/* Close any directory handle before freeing load-task work. */
 // FUN_00191B70
-void K_TexStripLoadDestroy(u8 *arg0)
+/* TexStripWork stores the directory handle at offset 4. Typed task/work
+ * access changed five instruction bytes; keep byte access and the final slot reload. */
+void K_TexStripLoadDestroy(u8 *task)
 {
-    s32 handle;
+    s32 directory;
 
-    handle = *(s32 *)(*(u8 **)(arg0 + 0x38) + 4);
-    if (handle >= 0)
+    directory = *(s32 *)(*(u8 **)(task + 0x38) + 4);
+    if (directory >= 0)
     {
-        func_00428618(handle);
+        func_00428618(directory);
     }
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](*(u8 **)(task + 0x38));
 }
 
+/* Start texture loading at field ID 0x28 and texture ID one. */
 // FUN_00191BC0
 s32 K_TexStripLoadTaskCreate(void)
 {
@@ -684,37 +745,38 @@ s32 K_TexStripLoadTaskCreate(void)
         return 0;
     }
     ret = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, K_TexStripLoadUpdate, K_TexStripLoadDestroy, (u8 *)(mem));
-    *(s32 *)((u8 *)mem + 0xE6C) = 0x28;
-    *(s32 *)((u8 *)mem + 0xE70) = 1;
+    ((TexStripWork *)mem)->fieldId = 0x28;
+    ((TexStripWork *)mem)->textureId = 1;
     return ret;
 }
 
+/* Repeatedly request a filename and log its clump code counts until an empty result. */
 // FUN_00191C70
-s32 K_TexStripCodeLogUpdate(u8 *arg0)
+s32 K_TexStripCodeLogUpdate(u8 *task)
 {
-    s32 *work;
-    char buf[0x80];
+    TexStripCodeLogWork *work;
+    char path[0x80];
 
-    work = *(s32 **)(arg0 + 0x38);
-    switch (work[0])
+    work = (TexStripCodeLogWork *)((KwlnTask *)task)->work;
+    switch (work->state)
     {
     case 0:
-        work[1] = func_00468170(arg0, D_005F6490);
-        work[0] = work[0] + 1;
+        work->filerTask = sdkFilerTaskCreate(task, D_005F6490);
+        work->state = work->state + 1;
         break;
     case 1:
-        if (func_004680f0(work[1], buf) == 1)
+        if (sdkFilerPollResult(work->filerTask, path) == 1)
         {
-            if (buf[0] == 0)
+            if (path[0] == 0)
             {
-                work[0] = 2;
+                work->state = 2;
             }
             else
             {
-                K_Clump_LogCodeCounts(buf);
+                K_Clump_LogCodeCounts(path);
             }
-            kwlnTaskDestroyWithHierarchy(work[1]);
-            work[0] = 0;
+            kwlnTaskDestroyWithHierarchy(work->filerTask);
+            work->state = 0;
         }
         break;
     case 2:
@@ -724,10 +786,11 @@ s32 K_TexStripCodeLogUpdate(u8 *arg0)
 }
 
 // FUN_00191D60
-void K_TexStripCodeLogDestroy(u8 *arg0) {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+void K_TexStripCodeLogDestroy(u8 *task) {
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
+/* Allocate the two-word code-log task state and start the filename requester. */
 // FUN_00191D90
 s32 K_TexStripCodeLogTaskCreate(void)
 {

@@ -1,3 +1,4 @@
+#include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -38,15 +39,15 @@ extern u16 D_0076455A;
 extern f32 D_007613E0;
 extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32, u32);
 extern u8 *iGpffffb3c4;
 extern u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
-extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
-extern s32 sdkSndIsChannelPlaying(s32 arg0);
+extern s32 (*D_00624FF0[])(u8 *, s32, s32);
+extern s32 sdkSndIsChannelPlaying(s32);
 
 
 
@@ -66,9 +67,9 @@ extern u16 D_00624FD8[];
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
-extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
+extern void sdkSndFadeOutChannelFrames(s32, s32, s32);
 
-extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
+extern s32 sdkSndStartIndexedSource(s32, s32, s32);
 
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
@@ -77,19 +78,19 @@ extern u8 D_006251F0[];
 
 
 
-extern u8 *btlPacketAlloc(s32 type, s32 workSize);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 
 
 
-extern s32 btlSoundMarkSlotReady(u8 **arg0);
+extern s32 btlSoundMarkSlotReady(u8 **);
 
-extern s32 btlSoundClearSlotReady(u8 **arg0);
+extern s32 btlSoundClearSlotReady(u8 **);
 extern s32 iGpffffb464;
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void sprintf(void *dst, void *fmt, ...);
-extern s32 H_Cdvd_StartStreamLoad(s32 arg0, void *arg1, s32 arg2, void *arg3);
-extern s32 func_004c7ef8(s32 arg0);
+extern s32 H_Cdvd_StartStreamLoad(s32, void *, s32, void *);
+extern s32 func_004c7ef8(s32);
 extern u8 D_00624F50[];
 extern u8 D_00624F60[];
 extern u8 D_00624F80[];
@@ -108,10 +109,10 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f8380-001f9650 */
 
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlSoundRollStatusCure(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern s32 btlActionHasNoTargetClass(u32);
+extern s32 btlSoundRollStatusCure(u8 *);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *);
 extern void btlSoundAdvanceSlotQueue(void);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
@@ -143,125 +144,136 @@ extern void btlSoundAdvanceSlotQueue(void);
 /* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
 /* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
 // FUN_001F8380
-s32 btlSoundMarkSlotReady(u8 **arg0)
+/* Set model flag 0x40 only for a unit with an active model. */
+s32 btlSoundMarkSlotReady(u8 **work)
 {
-    u8 *temp_3;
-    u8 *temp_3_2;
+    /* Raw access: Only the model flag halfword at +0x2E0 is established here; the owning model layout is opaque. */
+    u8 *unit;
+    u8 *model;
 
-    temp_3 = *arg0;
-    if (*(s32 *)(temp_3 + 0x98) & 2) {
-        temp_3_2 = *(u8 **)(temp_3 + 0xA00);
-        *(u16 *)(temp_3_2 + 0x2E0) |= 0x40;
+    unit = *work;
+    if ((s32)(((BtlUnit *)unit)->flags2) & 2) {
+        model = ((BtlUnit *)unit)->layerHandle;
+        *(u16 *)(model + 0x2E0) |= 0x40;
     }
     return 1;
 }
 
 // FUN_001F83B0
+/* Create packet 0x90B to set the active model ready bit on its unit. */
 u8 *btlSoundCreateMarkReadyPacket(u32 value)
 {
+    /* Raw access: The allocator exposes void workData; this packet owns one scalar u32, not an offset-based object. */
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x90B, 0x4);
-    *(void **)(packet + 0x6C) = (void *)btlSoundMarkSlotReady;
-    *(u32 *)*(u8 **)(packet + 0x78) = value;
+    ((BtlPacket *)packet)->updateFunc = (void *)btlSoundMarkSlotReady;
+    *(u32 *)((BtlPacket *)packet)->workData = value;
     return packet;
 }
 
 // FUN_001F8400
-s32 btlSoundClearSlotReady(u8 **arg0)
+/* Clear model flag 0x40 only for a unit with an active model. */
+s32 btlSoundClearSlotReady(u8 **work)
 {
-    u8 *temp_3;
-    u8 *temp_3_2;
+    /* Raw access: Only the model flag halfword at +0x2E0 is established here; the owning model layout is opaque. */
+    u8 *unit;
+    u8 *model;
 
-    temp_3 = *arg0;
-    if (*(s32 *)(temp_3 + 0x98) & 2) {
-        temp_3_2 = *(u8 **)(temp_3 + 0xA00);
-        *(u16 *)(temp_3_2 + 0x2E0) &= 0xFFBF;
+    unit = *work;
+    if ((s32)(((BtlUnit *)unit)->flags2) & 2) {
+        model = ((BtlUnit *)unit)->layerHandle;
+        *(u16 *)(model + 0x2E0) &= 0xFFBF;
     }
     return 1;
 }
 
 // FUN_001F8430
+/* Create packet 0x90C to clear the active model ready bit on its unit. */
 u8 *btlSoundCreateClearReadyPacket(u32 value)
 {
+    /* Raw access: The allocator exposes void workData; this packet owns one scalar u32, not an offset-based object. */
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x90C, 0x4);
-    *(void **)(packet + 0x6C) = (void *)btlSoundClearSlotReady;
-    *(u32 *)*(u8 **)(packet + 0x78) = value;
+    ((BtlPacket *)packet)->updateFunc = (void *)btlSoundClearSlotReady;
+    *(u32 *)((BtlPacket *)packet)->workData = value;
     return packet;
 }
 
 // FUN_001F8480
+/* Allocate and stream-load banks three through five, retrying requests that return state four. */
 void btlSoundLoadBanks(void)
 {
     void **allocator;
-    u8 sp30[0x100];
-    u8 *temp_16;
-    u8 *temp_17;
-    u8 *temp_17_2;
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 temp_2_3;
+    u8 path[0x100];
+    u8 *bankFive;
+    u8 *bankThree;
+    u8 *bankFour;
+    s32 bankThreeStatus;
+    s32 bankFourStatus;
+    s32 bankFiveStatus;
 
     chkmemAllocSiteTag(&D_00624F50, 0x3A);
     allocator = (void **)jtbl_008873E8;
-    temp_17 = ((u8 *(*)(u32, u32))allocator[0])(0xBE4, 0x40000);
-    sprintf(sp30, &D_00624F60);
-    H_Cdvd_StartStreamLoad(3, sp30, 0, temp_17);
+    bankThree = ((u8 *(*)(u32, u32))allocator[0])(0xBE4, 0x40000);
+    sprintf(path, &D_00624F60);
+    H_Cdvd_StartStreamLoad(3, path, 0, bankThree);
     goto loop_3_test;
 loop_3_retry:
-    if (temp_2 != 4) {
+    if (bankThreeStatus != 4) {
         goto loop_3_test;
     }
-    H_Cdvd_StartStreamLoad(3, sp30, 0, temp_17);
+    H_Cdvd_StartStreamLoad(3, path, 0, bankThree);
 loop_3_test:
-    temp_2 = func_004c7ef8(3);
-    if (temp_2 != 3) {
+    bankThreeStatus = func_004c7ef8(3);
+    if (bankThreeStatus != 3) {
         goto loop_3_retry;
     }
     iGpffffb460 = 1;
     chkmemAllocSiteTag(&D_00624F50, 0x3A);
-    temp_17_2 = ((u8 *(*)(u32, u32))allocator[0])(0x630, 0x40000);
-    sprintf(sp30, &D_00624F80);
-    H_Cdvd_StartStreamLoad(4, sp30, 0, temp_17_2);
+    bankFour = ((u8 *(*)(u32, u32))allocator[0])(0x630, 0x40000);
+    sprintf(path, &D_00624F80);
+    H_Cdvd_StartStreamLoad(4, path, 0, bankFour);
     goto loop_7_test;
 loop_7_retry:
-    if (temp_2_2 != 4) {
+    if (bankFourStatus != 4) {
         goto loop_7_test;
     }
-    H_Cdvd_StartStreamLoad(4, sp30, 0, temp_17_2);
+    H_Cdvd_StartStreamLoad(4, path, 0, bankFour);
 loop_7_test:
-    temp_2_2 = func_004c7ef8(4);
-    if (temp_2_2 != 3) {
+    bankFourStatus = func_004c7ef8(4);
+    if (bankFourStatus != 3) {
         goto loop_7_retry;
     }
     chkmemAllocSiteTag(&D_00624F50, 0x3A);
-    temp_16 = ((u8 *(*)(u32, u32))allocator[0])(0x4A0, 0x40000);
-    sprintf(sp30, &D_00624FA0);
-    H_Cdvd_StartStreamLoad(5, sp30, 0, temp_16);
+    bankFive = ((u8 *(*)(u32, u32))allocator[0])(0x4A0, 0x40000);
+    sprintf(path, &D_00624FA0);
+    H_Cdvd_StartStreamLoad(5, path, 0, bankFive);
     goto loop_11_test;
 loop_11_retry:
-    if (temp_2_3 != 4) {
+    if (bankFiveStatus != 4) {
         goto loop_11_test;
     }
-    H_Cdvd_StartStreamLoad(5, sp30, 0, temp_16);
+    H_Cdvd_StartStreamLoad(5, path, 0, bankFive);
 loop_11_test:
-    temp_2_3 = func_004c7ef8(5);
-    if (temp_2_3 != 3) {
+    bankFiveStatus = func_004c7ef8(5);
+    if (bankFiveStatus != 3) {
         goto loop_11_retry;
     }
     iGpffffb464 = 1;
 }
 
 // FUN_001F8690
-void btlSoundPlayIndexed(s32 arg0) {
+/* Play the narrowed voice index on bank/channel three using the stored sound selector. */
+void btlSoundPlayIndexed(s32 voiceIndex) {
+    /* Raw access: The unclassified battle +0xB30 sound selector has no established owning playback subobject. */
     s32 value;
     u16 index;
 
     value = *(u16 *)(iGpffffb3ac + 0xB30);
-    index = (u16)arg0;
-    func_0045ae10(value, 3, index);
+    index = (u16)voiceIndex;
+    sdkSndStartIndexedSource(value, 3, index);
 }
 
 // FUN_001F86D0
@@ -270,26 +282,29 @@ void btlSoundStopBank3(void) {
 }
 
 // FUN_001F8700
-s32 btlSoundGetPersonaVoiceIndex(u8 *arg0, s32 arg1)
+/* Resolve a persona voice variant; missing child units and enemy units have no voice. */
+s32 btlSoundGetPersonaVoiceIndex(u8 *action, s32 voiceIndex)
 {
-    s32 temp_2;
-    u8 *temp_4;
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    s32 personaId;
+    u8 *unit;
 
-    temp_4 = *(u8 **)(arg0 + 0x30);
-    if (*(s32 *)(temp_4 + 0xA0C) == 0)
+    unit = (u8 *)(((BtlAction *)action)->unit);
+    if ((s32)(((BtlUnit *)unit)->childUnit) == 0)
     {
         return -1;
     }
-    if (*(u8 *)(temp_4 + 0xA2) == 1)
+    if (((BtlUnit *)unit)->genus == 1)
     {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0)
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action)
     {
-        return arg1 - 1;
+        return voiceIndex - 1;
     }
-    temp_2 = datPersonaGetRecordId(*(u16 *)(temp_4 + 0xA4)) & 0xFFFF;
-    switch (temp_2)
+    personaId = datPersonaGetRecordId(((BtlUnit *)unit)->charId) & 0xFFFF;
+    switch (personaId)
     {
     case 0xC0:
     case 0xC2:
@@ -298,7 +313,7 @@ s32 btlSoundGetPersonaVoiceIndex(u8 *arg0, s32 arg1)
     case 0xC8:
     case 0xCA:
     case 0xCC:
-        return (s32)D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x22;
+        return (s32)D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x22;
     case 0xC1:
     case 0xC3:
     case 0xC5:
@@ -306,66 +321,72 @@ s32 btlSoundGetPersonaVoiceIndex(u8 *arg0, s32 arg1)
     case 0xC9:
     case 0xCB:
     case 0xCD:
-        return (s32)D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x23;
+        return (s32)D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x23;
     default:
         return -1;
     }
 }
 
 // FUN_001F8810
-s32 btlSoundGetSlotVoiceIndex(u8 *arg0, s32 arg1)
+/* Resolve a party slot voice only for a living, status-eligible non-selected actor. */
+s32 btlSoundGetSlotVoiceIndex(u8 *action, s32 slot)
 {
-    u8 *temp_4;
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    u8 *unit;
 
-    temp_4 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_4 + 0xA2) == 1)
+    unit = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)unit)->genus == 1)
     {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0)
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action)
     {
         return -1;
     }
-    if (arg1 >= 5)
+    if (slot >= 5)
     {
         return -1;
     }
-    if (datCalcIsDead((s32)((u8 *)*(s32 *)(temp_4 + 0xA64)), 0) != 0)
+    if (datCalcIsDead((s32)((u8 *)(s32)(((BtlUnit *)unit)->datUnit)), 0) != 0)
     {
         return -1;
     }
-    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x1001D7) != 0)
+    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x1001D7) != 0)
     {
         return -1;
     }
-    return (s32)D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] +
-           (s32)D_00624FD8[arg1];
+    return (s32)D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] +
+           (s32)D_00624FD8[slot];
 }
 
 // FUN_001F8920
-s32 btlSoundPickActionVoice(u8 *arg0)
+/* Choose a random action voice from the unit-specific range, or return -1 when unavailable. */
+s32 btlSoundPickActionVoice(u8 *action)
 {
-    extern s32 func_0022bd20(void);
-    s32 temp_16;
-    s32 var_2;
-    u16 temp_2;
-    u8 *temp_3;
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    extern s32 btlEncounterIsBoss(void);
+    s32 voiceBase;
+    s32 voice;
+    u16 unitId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) == 0) {
-        if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
-            var_2 = -1;
+    unit = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)unit)->genus == 0) {
+        if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
+            voice = -1;
         } else {
-            temp_16 = (s32)D_00624FC0[*(u16 *)(temp_3 + 0xA4)] + 7;
-            var_2 = temp_16 + datCalcRandomBelow(3);
+            voiceBase = (s32)D_00624FC0[((BtlUnit *)unit)->charId] + 7;
+            voice = voiceBase + datCalcRandomBelow(3);
         }
-        return var_2;
+        return voice;
     }
-    if (func_0022bd20() == 0) {
+    if (btlEncounterIsBoss() == 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
-    switch (temp_2) {
+    unitId = *(u16 *)(*(u8 **)(action + 0x30) + 0xA4);
+    switch (unitId) {
     case 0x100:
         return datCalcRandomBelow(3) + 0x417;
     case 0x101:
@@ -402,111 +423,117 @@ s32 btlSoundPickActionVoice(u8 *arg0)
 }
 
 // FUN_001F8B00
-s32 btlSoundPickIdleVoice(u8 *arg0)
+/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+s32 btlSoundPickIdleVoice(u8 *action)
 {
     s32 value;
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(work + 0xA2) != 0) {
+    work = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)work)->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x78;
+    value = D_00624FC0[((BtlUnit *)work)->charId] + 0x78;
     return value + datCalcRandomBelow(5);
 }
 
 // FUN_001F8B90
-s32 btlSoundPickHurtVoice(u8 *arg0)
+/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+s32 btlSoundPickHurtVoice(u8 *action)
 {
     s32 value;
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(work + 0xA2) != 0) {
+    work = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)work)->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x63;
+    value = D_00624FC0[((BtlUnit *)work)->charId] + 0x63;
     return value + datCalcRandomBelow(3);
 }
 
 // FUN_001F8C20
-s32 btlSoundPickDamageVoice(u8 *arg0, s32 arg1)
+/* Select the unit-relative voice variant after excluding enemy and selected actors. */
+s32 btlSoundPickDamageVoice(u8 *action, s32 variant)
 {
     s32 value;
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(work + 0xA2) != 0) {
+    work = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)work)->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    if (arg1 != 0) {
-        value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x6F;
+    if (variant != 0) {
+        value = D_00624FC0[((BtlUnit *)work)->charId] + 0x6F;
         return value + datCalcRandomBelow(3);
     }
-    value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x72;
+    value = D_00624FC0[((BtlUnit *)work)->charId] + 0x72;
     return value + datCalcRandomBelow(3);
 }
 
 // FUN_001F8CE0
-s32 btlSoundPickDownVoice(u8 *arg0)
+/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+s32 btlSoundPickDownVoice(u8 *action)
 {
     s32 value;
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(work + 0xA2) != 0) {
+    work = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)work)->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x75;
+    value = D_00624FC0[((BtlUnit *)work)->charId] + 0x75;
     return value + datCalcRandomBelow(3);
 }
 
 // FUN_001F8D70
-s32 btlSoundPickCommandVoice(u8 *arg0, s32 arg1)
+/* Select the unit-relative voice variant after excluding enemy and selected actors. */
+s32 btlSoundPickCommandVoice(u8 *action, s32 variant)
 {
     s32 value;
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(work + 0xA2) != 0) {
+    work = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)work)->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    if (arg1 != 0) {
+    if (variant != 0) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x2C;
+    value = D_00624FC0[((BtlUnit *)work)->charId] + 0x2C;
     return value + datCalcRandomBelow(3);
 }
 
 // FUN_001F8E10
-s32 btlSoundPickStartVoice(u8 *arg0)
+/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+s32 btlSoundPickStartVoice(u8 *action)
 {
     s32 value;
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(work + 0xA2) != 0) {
+    work = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)work)->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x29;
+    value = D_00624FC0[((BtlUnit *)work)->charId] + 0x29;
     return value + datCalcRandomBelow(3);
 }
 
@@ -514,274 +541,293 @@ s32 btlSoundPickStartVoice(u8 *arg0)
 /* measured: btlSoundPickPartnerCallVoice MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001F8EA0
-s32 btlSoundPickPartnerCallVoice(u8 *arg0, s32 arg1)
+/* Select the unit-relative voice variant after excluding enemy and selected actors. */
+s32 btlSoundPickPartnerCallVoice(u8 *action, s32 variant)
 {
     s32 five;
     s32 value;
     s32 i;
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(work + 0xA2) != 0) {
+    work = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)work)->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
     value = 0x10;
     i = 1;
     five = 5;
     while (i <= 8) {
-        if (i == arg1) {
+        if (i == variant) {
             break;
         }
-        if ((i != five) && (i != *(u16 *)(work + 0xA4))) {
+        if ((i != five) && (i != ((BtlUnit *)work)->charId)) {
             value += 1;
         }
         i += 1;
     }
 done:
-    return value + D_00624FC0[*(u16 *)(work + 0xA4)];
+    return value + D_00624FC0[((BtlUnit *)work)->charId];
 }
 
 /* measured: close opt_propagation after btlSoundPickPartnerCallVoice probe. */
 /* measured: opt_propagation off preserves btlSoundPickPartnerReplyVoice's loop constants. */
 // FUN_001F8F40
-s32 btlSoundPickPartnerReplyVoice(u8 *arg0, s32 arg1)
+/* Select the unit-relative voice variant after excluding enemy and selected actors. */
+s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant)
 {
     s32 five;
     s32 value;
     s32 i;
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(work + 0xA2) != 0) {
+    work = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)work)->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
     value = 0x16;
     i = 1;
     five = 5;
     while (i <= 8) {
-        if (i == arg1) {
+        if (i == variant) {
             break;
         }
-        if ((i != five) && (i != *(u16 *)(work + 0xA4))) {
+        if ((i != five) && (i != ((BtlUnit *)work)->charId)) {
             value += 1;
         }
         i += 1;
     }
-    return value + D_00624FC0[*(u16 *)(work + 0xA4)];
+    return value + D_00624FC0[((BtlUnit *)work)->charId];
 }
 
 /* measured: close opt_propagation after btlSoundPickPartnerReplyVoice probe. */
 /* measured: opt_propagation off preserves btlSoundPickPartnerAssistVoice's loop constants. */
 // FUN_001F8FE0
-s32 btlSoundPickPartnerAssistVoice(u8 *arg0, s32 arg1)
+/* Select the unit-relative voice variant after excluding enemy and selected actors. */
+s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant)
 {
     s32 five;
     s32 value;
     s32 i;
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(work + 0xA2) != 0) {
+    work = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)work)->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
     value = 0x1C;
     i = 1;
     five = 5;
     while (i <= 8) {
-        if (i == arg1) {
+        if (i == variant) {
             break;
         }
-        if ((i != five) && (i != *(u16 *)(work + 0xA4))) {
+        if ((i != five) && (i != ((BtlUnit *)work)->charId)) {
             value += 1;
         }
         i += 1;
     }
-    return value + D_00624FC0[*(u16 *)(work + 0xA4)];
+    return value + D_00624FC0[((BtlUnit *)work)->charId];
 }
 
 /* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
 // FUN_001F9080
-s32 btlSoundPickGuardVoice(u8 *arg0) {
+/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+s32 btlSoundPickGuardVoice(u8 *action) {
     u8 *p;
 
-    p = *(u8 **)(arg0 + 0x30);
+    p = (u8 *)(((BtlAction *)action)->unit);
     if (p[0xA2] != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    return D_00624FC0[*(u16 *)(p + 0xA4)] + 0x45;
+    return D_00624FC0[((BtlUnit *)p)->charId] + 0x45;
 }
 
 /* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
 // FUN_001F90E0
-s32 btlSoundPickRandomPartnerVoice(u8 *arg0)
+/* Choose a living eligible party partner while channel three is idle, then select its voice variant. */
+s32 btlSoundPickRandomPartnerVoice(u8 *action)
 {
-    s32 temp_16;
-    s32 temp_4;
-    u8 *var_17;
-    s32 var_16;
-    s32 var_5;
-    u32 var_6;
-    s32 var_7;
-    u8 *temp_3;
-    u8 *temp_4_2;
-    u8 *sp60[12];
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    s32 voiceBase;
+    s32 count;
+    u8 *candidate;
+    s32 candidateCount;
+    s32 unitId;
+    u32 voiceOffset;
+    s32 skippedId;
+    u8 *unit;
+    u8 *partner;
+    u8 *candidates[12];
 
     if (sdkSndIsChannelPlaying(3) == 1) {
         return -1;
     }
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)(((BtlAction *)action)->unit);
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    if (datCalcChkBadStatus(*(s32 *)(temp_3 + 0xA64), 0x110) != 0) {
+    if (datCalcChkBadStatus((s32)(((BtlUnit *)unit)->datUnit), 0x110) != 0) {
         return -1;
     }
-    var_16 = 0;
-    var_17 = *(u8 **)(iGpffffb3ac + 0x178);
-    while (var_17 != NULL) {
-        if ((datCalcIsDead((s32)(*(u8 **)(var_17 + 0xA64)), 0) == 0) &&
-            (datCalcChkBadStatus(*(s32 *)(var_17 + 0xA64), 0x1001D7) == 0) &&
-            (*(u16 *)(var_17 + 0xA4) != 1) &&
-            (var_17 != *(u8 **)(arg0 + 0x30))) {
-            sp60[(u16)var_16] = var_17;
-            var_16 = (u16)(var_16 + 1);
+    candidateCount = 0;
+    candidate = ((BtlBattleState *)iGpffffb3ac)->unitLists[0];
+    while (candidate != NULL) {
+        if ((datCalcIsDead((s32)((u8 *)(((BtlUnit *)candidate)->datUnit)), 0) == 0) &&
+            (datCalcChkBadStatus(*(s32 *)(candidate + 0xA64), 0x1001D7) == 0) &&
+            (((BtlUnit *)candidate)->charId != 1) &&
+            (candidate != *(u8 **)(action + 0x30))) {
+            candidates[(u16)candidateCount] = candidate;
+            candidateCount = (u16)(candidateCount + 1);
         }
-        var_17 = *(u8 **)(var_17 + 0xA6C);
+        candidate = (u8 *)(((BtlUnit *)candidate)->nextUnit);
     }
-    temp_4 = (u16)var_16;
-    if (temp_4 == 0) {
+    count = (u16)candidateCount;
+    if (count == 0) {
         return -1;
     }
-    temp_4_2 = sp60[datCalcRandomBelow(temp_4)];
-    if (temp_4_2 == NULL) {
+    partner = candidates[datCalcRandomBelow(count)];
+    if (partner == NULL) {
         return -1;
     }
-    var_6 = 0x32;
-    var_5 = 1;
-    var_7 = 5;
-    while (var_5 <= 8) {
-        if (var_5 == *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)) {
+    voiceOffset = 0x32;
+    unitId = 1;
+    skippedId = 5;
+    while (unitId <= 8) {
+        if (unitId == *(u16 *)(*(u8 **)(action + 0x30) + 0xA4)) {
             break;
         }
-        if ((var_5 != var_7) && (var_5 != *(u16 *)(temp_4_2 + 0xA4))) {
-            var_6 += 3;
+        if ((unitId != skippedId) && (unitId != ((BtlUnit *)partner)->charId)) {
+            voiceOffset += 3;
         }
-        var_5 += 1;
+        unitId += 1;
     }
-    temp_16 = var_6 + D_00624FC0[*(u16 *)(temp_4_2 + 0xA4)];
-    return temp_16 + datCalcRandomBelow(3, var_5, var_6);
+    voiceBase = voiceOffset + D_00624FC0[((BtlUnit *)partner)->charId];
+    return voiceBase + datCalcRandomBelow(3, unitId, voiceOffset);
 }
 
 /* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
 // FUN_001F92C0
-s32 btlSoundPickStatusCueVoice(u8 *arg0)
+/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+s32 btlSoundPickStatusCueVoice(u8 *action)
 {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 value;
 
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
+    if (((s32)(((BtlBattleState *)iGpffffb3ac)->flags) & 0x200000) != 0) {
         return -1;
     }
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+    if (datCalcChkBadStatus((s32)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit),
                       0x1001D7) != 0) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x51;
+    value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x51;
     return value + datCalcRandomBelow(3);
 }
 
 // FUN_001F93A0
-s32 btlSoundPickHpTierVoice(u8 *arg0)
+/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+s32 btlSoundPickHpTierVoice(u8 *action)
 {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 type;
     s32 value;
 
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
+    if (((s32)(((BtlBattleState *)iGpffffb3ac)->flags) & 0x200000) != 0) {
         return -1;
     }
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+    if (datCalcChkBadStatus((s32)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit),
                       0x1001D7) != 0) {
         return -1;
     }
     type = func_001ef720(2, 0x80000) & 0xFFFF;
     switch (type) {
     case 4:
-        value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x54;
+        value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x54;
         return value + datCalcRandomBelow(3);
     case 3:
-        value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x57;
+        value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x57;
         return value + datCalcRandomBelow(3);
     case 2:
-        value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x5A;
+        value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x5A;
         return value + datCalcRandomBelow(3);
     case 1:
-        value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x5D;
+        value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x5D;
         return value + datCalcRandomBelow(3);
     }
     return -1;
 }
 
 // FUN_001F9570
-s32 btlSoundPickGroupVoice(u8 *arg0)
+/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+s32 btlSoundPickGroupVoice(u8 *action)
 {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 value;
 
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
+    if (((s32)(((BtlBattleState *)iGpffffb3ac)->flags) & 0x200000) != 0) {
         return -1;
     }
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+    if (datCalcChkBadStatus((s32)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit),
                       0x1001D7) != 0) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x69;
+    value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x69;
     return value + datCalcRandomBelow(3);
 }
 
 // FUN_001F9650
-s32 btlSoundPickKnockVoice(u8 *arg0)
+/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+s32 btlSoundPickKnockVoice(u8 *action)
 {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 value;
 
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->genus != 0) {
         return -1;
     }
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
         return -1;
     }
-    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+    if (datCalcChkBadStatus((s32)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit),
                       0x1001D7) != 0) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x66;
+    value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x66;
     return value + datCalcRandomBelow(3);
 }
 

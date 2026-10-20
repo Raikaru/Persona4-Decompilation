@@ -5,6 +5,8 @@
 #include "rw/plcore/barenderstate.h"
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
+#include "scene_task_internal.h"
+#include "kwln_task_internal.h"
 extern s32 iGpffffb4bc;
 extern s32 iGpffffa730;
 
@@ -17,8 +19,8 @@ extern char D_005DC824[];
 extern char D_0063B5D8[];
 extern char D_005DC7D0[];
 extern char D_0063B580[];
-extern void qsort(u32 *arg0, s32 arg1, s32 arg2,
-                           s32 (*arg3)(u8 **arg0, u8 **arg1));
+extern void qsort(u32 *, s32, s32,
+                           s32 (*)(u8 **arg0, u8 **arg1));
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern u8 D_0088152F[];
 typedef struct { s32 value[19]; } Code1_00267800ShapeTable;
@@ -35,28 +37,19 @@ typedef struct {
     s32 field1C;
     s32 field20;
 } Code1_00263220State;
-static inline f32 mtSceneMulF32(f32 left, f32 right)
-{
-    return left * right;
-}
-extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
-                          s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5,
-                          f32 fparg3, f32 fparg4, f32 fparg5);
+
+extern void PrimDrawContour(f32 x, f32 y, f32 depth,
+                          s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
+                          s32 originX, s32 originY,
+                          f32 rotation, f32 scaleX, f32 scaleY);
 extern char iGpffffa6c4;
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-static inline u32 *rbRingNextNode(s32 offset, u32 *base)
-{
-    return (u32 *)((u8 *)base + offset + 8);
-}
-static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
-{
-    return base + index;
-}
+
+
 
 
 extern u8 D_00637420[];
@@ -71,10 +64,10 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
-                           s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
-                           s32 arg5, s32 arg6, s32 arg7,
-                           s32 arg_sp0);
+extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity,
+                           s32 weather, s32 highlight, f32 scaleX, f32 scaleY,
+                           s32 clipLeft, s32 clipWidth, s32 font,
+                           s32 forcedHighlight);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
 extern s32 D_008815B0[];
@@ -119,17 +112,18 @@ extern f32 D_007612C4;
 /* Copy complete table objects; renderer callbacks may change the item index. */
 // Intent: Scene icon task update, the callback created by MT_Scene_SpawnIconTask [inferred]
 // FUN_00268A70
-s32 MT_Scene_IconTaskUpdate(u8 *arg0)
+/* The effect is at +4 in SceneIconWork; typed member access retains an extra member address across the destroy call (16 differing words). */
+s32 MT_Scene_IconTaskUpdate(u8 *task)
 {
-    s32 temp_2;
-    u8 *temp_16;
+    s32 remainingFrames;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_2 = *(s32 *)temp_16 - 1;
-    *(s32 *)temp_16 = temp_2;
-    if (temp_2 < 0) {
-        mdlEffectDestroy((u8 *)*(s32 *)(temp_16 + 4));
-        *(s32 *)(temp_16 + 4) = 0;
+    work = ((struct KwlnTask *)task)->work;
+    remainingFrames = ((SceneIconWork *)work)->remainingFrames - 1;
+    ((SceneIconWork *)work)->remainingFrames = remainingFrames;
+    if (remainingFrames < 0) {
+        mdlEffectDestroy((u8 *)*(s32 *)(work + 4));
+        *(s32 *)(work + 4) = 0;
         return -1;
     }
     return 0;
@@ -137,17 +131,18 @@ s32 MT_Scene_IconTaskUpdate(u8 *arg0)
 
 // Intent: Scene icon task destroy: releases the icon resource and the task work block [inferred]
 // FUN_00268AD0
-void MT_Scene_IconTaskDestroy(u8 *arg0)
+/* Keep the +4 effect slot as a raw access: the typed member form changes b210 address lifetimes across destruction. */
+void MT_Scene_IconTaskDestroy(u8 *task)
 {
-    u8 *temp_16;
-    u8 *temp_4;
+    u8 *work;
+    u8 *effect;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_4 = *(u8 **)(temp_16 + 4);
-    if (temp_4 != NULL) {
-        mdlEffectDestroy(temp_4);
-        *(u8 **)(temp_16 + 4) = NULL;
+    work = ((struct KwlnTask *)task)->work;
+    effect = *(u8 **)(work + 4);
+    if (effect != NULL) {
+        mdlEffectDestroy(effect);
+        *(u8 **)(work + 4) = NULL;
     }
-    jtbl_008873EC[0](temp_16);
+    jtbl_008873EC[0](work);
 }
 

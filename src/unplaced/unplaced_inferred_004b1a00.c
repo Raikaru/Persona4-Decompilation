@@ -8,29 +8,34 @@
 #include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
 #include "effect_vu0_internal.h"
-extern void func_004b1a00(u8 *arg0, u8 *arg1);
-extern s32 func_00481e30(s32 arg0);
-extern void func_00481ee0(s32 arg0);
-extern void TlpRelease(s32 arg0);
-extern s32 TlpAddRef(s32 arg0);
+extern void mdlEffectScreenSpriteCopyResource(u8 *destination, u8 *source);
+extern s32 mdlEffectShareTrackInstance(s32 source);
+extern void mdlEffectReleaseTrackInstance(s32 instance);
+extern void TlpRelease(s32 work);
+extern s32 TlpAddRef(s32 work);
+/* Replace the screen sprite track resource, or reference the source TLP when no track is present. */
+/* measured: individual source/destination track and TLP typing changes resource-transfer scheduling (normalized_diff 102..106); retain their byte-base accesses. */
 // FUN_004B1A00
-void func_004b1a00(u8 *arg0, u8 *arg1) {
-    s32 temp_4;
-    s32 temp_4_2;
+/* Replace the screen sprite's track resource, or share its TLP when no track is present. */
+void mdlEffectScreenSpriteCopyResource(u8 *destination, u8 *source) {
+    s32 previousTracks;
+    s32 previousTlp;
 
-    if (*(s32 *)(arg1 + 0xAC) != 0) {
-        temp_4 = *(s32 *)(arg0 + 0xAC);
-        if (temp_4 != 0) {
-            func_00481ee0(temp_4);
+    /* measured: typed resource fields change reload scheduling (nd 72 whole-layout,
+     * nd 61 destination-only); retain byte-base aliasing for this resource transfer. */
+    if (*(s32 *)(source + 0xAC) != 0) {
+        previousTracks = *(s32 *)(destination + 0xAC);
+        if (previousTracks != 0) {
+            mdlEffectReleaseTrackInstance(previousTracks);
         }
-        *(s32 *)(arg0 + 0xAC) = func_00481e30(*(s32 *)(arg1 + 0xAC));
+        *(s32 *)(destination + 0xAC) = mdlEffectShareTrackInstance(*(s32 *)(source + 0xAC));
         return;
     }
-    if (*(s32 *)(arg1 + 0xA8) != 0) {
-        temp_4_2 = *(s32 *)(arg0 + 0xA8);
-        if (temp_4_2 != 0) {
-            TlpRelease(temp_4_2);
+    if (*(s32 *)(source + 0xA8) != 0) {
+        previousTlp = *(s32 *)(destination + 0xA8);
+        if (previousTlp != 0) {
+            TlpRelease(previousTlp);
         }
-        *(s32 *)(arg0 + 0xA8) = TlpAddRef(*(s32 *)(arg1 + 0xA8));
+        *(s32 *)(destination + 0xA8) = TlpAddRef(*(s32 *)(source + 0xA8));
     }
 }

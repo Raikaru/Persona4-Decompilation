@@ -10,6 +10,7 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "rw_types_internal.h"
+#include "btl_unit_internal.h"
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
@@ -28,17 +29,17 @@ typedef struct DatUnit DatUnit;
 extern f32 fGpffff8474;
 extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
-extern u8 *iGpffffb3ac;
-extern u8 *iGpffffb3b8;
-extern u8 *iGpffffb3c0;
-extern u8 *iGpffffb3cc;
+extern u8 *iGpffffb3ac; /* active battle context */
+extern u8 *iGpffffb3b8; /* skill table, DatSkillEntry rows */
+extern u8 *iGpffffb3c0; /* party visual records, stride 0x14C */
+extern u8 *iGpffffb3cc; /* enemy visual records, stride 0xE8 */
 
 
 extern u8 *iGpffff9db0;
-extern u8 *D_0076449C;
-extern u8 *iGpffffb3ac;
+extern u8 *D_0076449C; /* active battle context */
+extern u8 *iGpffffb3ac; /* active battle context */
 extern u8 *iGpffffb414;
-extern u8 *iGpffffb3e0;
+extern u8 *iGpffffb3e0; /* child visual records, stride 0x58 */
 extern s32 iGpffffb430;
 extern s32 iGpffffb434;
 extern s32 iGpffffb438;
@@ -71,7 +72,7 @@ extern f32 fGpffff80f0;
 extern f32 fGpffff82dc;
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
-extern void btlUnitRequestLookAt(u8 *arg0);
+extern void btlUnitRequestLookAt(u8 *unit);
 extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 
@@ -132,9 +133,9 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     scrStartProcedureChecked(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern int mdlHasActiveMode(void *arg0);
-extern void mdlSetLookAtActive(void *arg0);
-extern void mdlSetLookAtRequested(void *arg0);
+extern int mdlHasActiveMode(void *model);
+extern void mdlSetLookAtActive(void *model);
+extern void mdlSetLookAtRequested(void *model);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
@@ -144,7 +145,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
@@ -190,13 +191,15 @@ extern u8 D_00794150[];
  * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
+/* Request a look-at refresh only for a loaded model in an active mode. */
 // FUN_0019DEA0
-void btlUnitRequestLookAt(u8 *arg0)
+void btlUnitRequestLookAt(u8 *unit)
 {
-    if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
-        if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {
-            mdlSetLookAtActive(*(u8 **)(arg0 + 0xA00));
-            mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
+    if ((((BtlUnit *)unit)->flags2 & 2) != 0) {
+        if (mdlHasActiveMode(((BtlUnit *)unit)->layerHandle) != 0) {
+            /* measured: repeated typed layer loads hoist +0xA00 into an extra saved register (108B vs 96B). */
+            mdlSetLookAtActive(*(u8 **)(unit + 0xA00));
+            mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
         }
     }
 }

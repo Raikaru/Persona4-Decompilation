@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
@@ -43,11 +44,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *instance, s32 value);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 instance, u32 value);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -73,34 +74,38 @@ void DistortParticleProjectRecordsSky(void *object) {
 
 // Clears the node at +0x6C of the record at +0x5C and appends it to the table that TnGetOffset1C selects from the inner kind at +0x54.
 // FUN_004B0FD0
-void DistortParticleAppendNode(u8 *arg0)
+void DistortParticleAppendNode(u8 *instance)
 {
     u8 *node;
     u8 *inner;
 
-    node = *(u8 **)(arg0 + 0x5C);
+    node = ((DistortParticleInstance *)instance)->list;
     if (node != NULL) {
-        inner = *(u8 **)(node + 0x20);
-        *(s32 *)(arg0 + 0x6C) = 0;
-        *(s32 *)(arg0 + 0x70) = 0;
-        PrimAppendNode(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
+        inner = ((MdlEffectEmitter *)node)->parameters;
+        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
+        *(s32 *)(instance + 0x6C) = 0;
+        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
+        *(s32 *)(instance + 0x70) = 0;
+        PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x6C);
     }
 }
 
 // Runs DistortParticleUpdateRecords, then clears and appends the node at +0x6C of the record at +0x5C, as DistortParticleAppendNode does.
 // FUN_004B1030
-void DistortParticleUpdateAndAppendNode(u8 *arg0)
+void DistortParticleUpdateAndAppendNode(u8 *instance)
 {
     u8 *node;
     u8 *inner;
 
     DistortParticleUpdateRecords();
-    node = *(u8 **)(arg0 + 0x5C);
+    node = ((DistortParticleInstance *)instance)->list;
     if (node != NULL) {
-        inner = *(u8 **)(node + 0x20);
-        *(s32 *)(arg0 + 0x6C) = 0;
-        *(s32 *)(arg0 + 0x70) = 0;
-        PrimAppendNode(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
+        inner = ((MdlEffectEmitter *)node)->parameters;
+        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
+        *(s32 *)(instance + 0x6C) = 0;
+        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
+        *(s32 *)(instance + 0x70) = 0;
+        PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x6C);
     }
 }
 

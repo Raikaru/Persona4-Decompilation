@@ -16,7 +16,7 @@ extern u8 *D_007246AC;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
 extern u8 D_0064EED0[];
-extern void func_00389cb0(u8 *arg0);
+extern void btlShuffleInitWaveStrips(u8 *drawWork);
 
 extern u8 *iGpffffb5b0;
 extern u8 D_00794990[];
@@ -30,12 +30,12 @@ extern f32 D_008872F8[];
 extern u8 D_0064F0E0[];
 extern u8 D_0064EEF0[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
-extern void sdkSpriteDrawOnceAt(s32 resource, s32 slot, f32 x, f32 y,
-                          u8 r, u8 g, u8 b, u8 alpha);
-extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                          f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                          u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0,
-                          s16 arg_sp8);
+extern void sdkSpriteDrawOnceAt(s32 packAddress, s32 image, f32 x, f32 y,
+                          u8 red, u8 green, u8 blue, u8 alpha);
+extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
+                          f32 depth, u8 red, u8 green, u8 blue, u8 alpha,
+                          u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
+                          s16 pivotY);
 static inline u32 add_offset_first_0038(u32 offset, u32 base)
 {
     return offset + base;
@@ -44,7 +44,7 @@ static inline u32 add_offset_first_0038(u32 offset, u32 base)
 /* Source unit: src/promoted/code1_0038.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0038.c; members 0038ee10-0038ee10 */
 
-extern void func_00389cb0(u8 *arg0);
+extern void btlShuffleInitWaveStrips(u8 *drawWork);
 /* measured: opt_rebuildconditionals off preserves the retail positive branch. */
 /* measured: restore conditional rebuilding after this function. */
 /* measured: opt_loop_invariants on hoists the conversion constants into the retail preheader. */

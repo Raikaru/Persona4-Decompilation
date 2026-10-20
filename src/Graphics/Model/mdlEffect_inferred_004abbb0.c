@@ -1,3 +1,5 @@
+#include "mdl_file_internal.h"
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -22,7 +24,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
 extern void mdlDestroyModelObject();
@@ -59,14 +61,14 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
-extern void mdlInitIdentityMatrix(void *arg0);
-extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
-extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
-extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
+extern void mdlInitIdentityMatrix(void *matrixWords);
+extern s32 mdlLayerIsPresent(void *model, s32 layer);
+extern void mdlSetLayerWeight(void *model, s32 layer, f32 speed);
+extern void mdlSetResetCallback(void *model, void (*size)(void), void *count);
 extern void EffModelResetCallback(void);
 extern u8 D_0071401C[];
 extern u8 D_00714014[];
@@ -79,16 +81,16 @@ extern f32 fGpffffbb74;
 extern f32 fGpffffbb70;
 extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
-extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
-extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
+extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
+extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *memory, u32 size, u32 flags);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004abbb0-004abd60 */
 
-extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, u8 *arg1);
-extern void func_004a8250(u8 *arg0, u8 *arg1);
-extern void func_004a8440(u8 *arg0, u8 *arg1);
-extern void func_004a86c0(u8 *arg0, u8 *arg1);
+extern s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildRectQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *vertices);
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
@@ -103,24 +105,26 @@ extern void func_004a86c0(u8 *arg0, u8 *arg1);
 /* measured: close loop-invariant conversion scope for func_004a8440. */
 /* measured: loop-invariant conversion preloads for func_004a86c0. */
 /* measured: close loop-invariant conversion scope for func_004a86c0. */
+/* Initialize the model transform and first animation layer, clear flag 2 and install the effect reset callback. */
 // FUN_004ABBB0
-void EffModelInit(u8 *arg0)
+void EffModelInit(u8 *model)
 {
-    mdlInitIdentityMatrix(arg0);
-    if (mdlLayerIsPresent(arg0, 0) != 0) {
-        mdlDispatchAnimIfPresent(arg0, 0, 0, 0, 0);
-        mdlSetLayerWeight(arg0, 0, 1.0f);
+    mdlInitIdentityMatrix(model);
+    if (mdlLayerIsPresent(model, 0) != 0) {
+        mdlDispatchAnimIfPresent(model, 0, 0, 0, 0);
+        mdlSetLayerWeight(model, 0, 1.0f);
     }
-    *(s32 *)(arg0 + 0xD8) &= ~2;
-    mdlSetResetCallback(arg0, EffModelResetCallback, arg0);
+    ((MdlFileModel *)model)->flags &= ~2;
+    mdlSetResetCallback(model, EffModelResetCallback, model);
 }
 
 /* Measured: scoped propagation preserves constant-first model lookup arguments. */
 #pragma push
+/* Find an unused type-six model ID, create from memory and initialize its first animation layer. */
 // FUN_004ABC50
-u8 *func_004abc50(u8 *arg0, s32 arg1)
+u8 *mdlEffectCreateUniqueModel(u8 *model, s32 size)
 {
-    u8 *temp_2;
+    u8 *createdModel;
     u32 lookupType;
 
     goto loop_004abc50_check;
@@ -131,21 +135,22 @@ loop_004abc50_check:
     if (mdlFindModelObject(lookupType, iGpffffbb90, 0) != 0) {
         goto loop_004abc50_body;
     }
-    temp_2 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, arg0, (u32)arg1, 1);
-    mdlInitIdentityMatrix(temp_2);
-    if (mdlLayerIsPresent(temp_2, 0) != 0) {
-        mdlDispatchAnimIfPresent(temp_2, 0, 0, 0, 0);
-        mdlSetLayerWeight(temp_2, 0, 1.0f);
+    createdModel = mdlCreateModelObjectFromMemory(6, iGpffffbb90, model, (u32)size, 1);
+    mdlInitIdentityMatrix(createdModel);
+    if (mdlLayerIsPresent(createdModel, 0) != 0) {
+        mdlDispatchAnimIfPresent(createdModel, 0, 0, 0, 0);
+        mdlSetLayerWeight(createdModel, 0, 1.0f);
     }
-    *(s32 *)(temp_2 + 0xD8) &= ~2;
-    mdlSetResetCallback(temp_2, EffModelResetCallback, temp_2);
+    ((MdlFileModel *)createdModel)->flags &= ~2;
+    mdlSetResetCallback(createdModel, EffModelResetCallback, createdModel);
     iGpffffbb90 += 1;
-    return temp_2;
+    return createdModel;
 }
 
 #pragma pop
+/* Forward model destruction to mdlDestroyModelObject. */
 // FUN_004ABD60
-void func_004abd60(void)
+void mdlEffectDestroyModel(void)
 {
     mdlDestroyModelObject();
 }

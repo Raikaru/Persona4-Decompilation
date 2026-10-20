@@ -20,13 +20,13 @@ extern void fclMiscCloseActiveHandle(void);
 
 
 
-extern u64 fclMiscPruneLists(u8 *arg0);
+extern u64 fclMiscPruneLists(u8 *manager);
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
 extern char D_0063F2A0[];
 extern char D_007488E8[];
-extern void sdkSndResetChannel(s32 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32, s32);
 
 
 extern u8 *D_00882F40[];
@@ -87,7 +87,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bd3e0-002bd410 */
 
-extern void func_002b5120(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: a typed vtable base local with propagation disabled reproduces the
    retail single D_00887300 address hoist and saved-register frame. */
 /* measured: restores opt_propagation after func_002b5120. */
@@ -106,6 +106,7 @@ void fclMiscPruneGlobal(void) {
     fclMiscPruneLists(D_0072466C);
 }
 
+/* Stop channel 1 before closing the active message handle. */
 // FUN_002BD410
 void fclMiscStopAndClose(void)
 {

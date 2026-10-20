@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "sdktask.h"
 #include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -20,50 +21,63 @@ extern void datSetPendingDateIndex();
 extern void datSetPendingTimeSlot();
 extern void datSetPendingFlag();
 extern s32 calHasDayEntry();
-extern void func_00260450(void);
-typedef struct {
-    f32 x;
-    f32 y;
-} SVec2_0012;
+extern void cldSchedulerStart(void);
+/* Task work fields read/written by the accessors below; +0x18 is unknown. */
+typedef struct CalendarStepWork {
+    s32 state;
+    s32 unk4;
+    u8 pad8[8];
+    s32 request10;
+    s32 request14;
+    s32 unk18;
+    struct { f32 x, y; } position;
+} CalendarStepWork;
 
+typedef struct { f32 x, y; } TaskRecordPosition;
+
+/* Report whether the task work state has reached 2. */
 // FUN_00120EE0
-s32 taskRecordIsDone(void *arg0)
+s32 taskRecordIsDone(void *task)
 {
-    return *(s32 *)(*(u8 **)((u8 *)arg0 + 0x38)) == 2;
+    return ((CalendarStepWork *)((SdkTask *)task)->work)->state == 2;
 }
 
+/* Set the request word at +0x14; its consumer is outside this unit. */
 // FUN_00120F00
-void func_00120f00(void *arg0)
+void taskRecordRequestSecondary(void *task)
 {
-    *(s32 *)(*(u8 **)((u8 *)arg0 + 0x38) + 0x14) = 1;
+    ((CalendarStepWork *)((SdkTask *)task)->work)->request14 = 1;
 }
 
+/* Set the request word at +0x10; its consumer is outside this unit. */
 // FUN_00120F20
-void func_00120f20(void *arg0)
+void taskRecordRequestPrimary(void *task)
 {
-    *(s32 *)(*(u8 **)((u8 *)arg0 + 0x38) + 0x10) = 1;
+    ((CalendarStepWork *)((SdkTask *)task)->work)->request10 = 1;
 }
 
+/* Copy the packed two-float position into the task work. */
 // FUN_00120F40
-void taskRecordSetPosition(u8 *arg0, s64 arg1)
+void taskRecordSetPosition(u8 *task, s64 packedPosition)
 {
-    SVec2_0012 sp8;
-    u8 *temp_3;
-    *(s64 *)&sp8 = arg1;
-    temp_3 = *(u8 **)(arg0 + 0x38);
-    *(SVec2_0012 *)(temp_3 + 0x1C) = sp8;
+    TaskRecordPosition position;
+    u8 *work;
+    *(s64 *)&position = packedPosition;
+    work = ((SdkTask *)task)->work;
+    *(TaskRecordPosition *)&((CalendarStepWork *)work)->position = position;
 }
 
+/* Apply a pending date, then prepare the next valid calendar time slot. */
 // FUN_00120F70
-s32 calendarStepTimeSlot(u8 *arg0) {
-    s32 *temp_16;
-    s32 temp_3;
+s32 calendarStepTimeSlot(u8 *task) {
+    s32 *state;
+    s32 currentState;
 
-    temp_16 = *(s32 **)(arg0 + 0x38);
-    temp_3 = *temp_16;
-    switch (temp_3) {
+    state = (s32 *)((SdkTask *)task)->work;
+    currentState = *state;
+    switch (currentState) {
     case 0:
-        *temp_16 = 2;
+        *state = 2;
     case 2:
         if ((iGpffffb1c8 == 0) && (datGetPendingFlag() != 0)) {
             datSetDateIndex(datGetPendingDateIndex());
@@ -88,23 +102,25 @@ s32 calendarStepTimeSlot(u8 *arg0) {
             }
         }
         datSetPendingFlag(1);
-        *temp_16 = 3;
+        *state = 3;
     case 3:
-        func_00260450();
+        cldSchedulerStart();
         return -1;
     default:
         return 0;
     }
 }
 
+/* Release the task work and clear the active task indicator. */
 // FUN_00121170
-void taskRecordDestroy(u8 *arg0)
+void taskRecordDestroy(u8 *task)
 {
-    void *p = *(void **)((u8 *)arg0 + 0x38);
+    void *work = ((SdkTask *)task)->work;
     D_007242B0 = 0;
-    jtbl_008873EC[0](p);
+    jtbl_008873EC[0](work);
 }
 
+/* Task callback with no work; keep the registered callback signature. */
 // FUN_001211A0
 s32 func_001211a0(u8 *unusedTask)
 {

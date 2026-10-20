@@ -7,9 +7,9 @@ extern f32 fGpffff81f0;
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
 extern f32 fGpffff8200;
-extern f32 cosf(f32 fparg0);
-extern f32 sinf(f32 fparg0);
-extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
+extern f32 cosf(f32 angle);
+extern f32 sinf(f32 angle);
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState);
 extern s32 iGpffffb9e8;
 struct RwCamera;
 struct RwSphere;
@@ -236,8 +236,8 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 0045ed60-0045ee00 */
 
-extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_0045b430(void);
+extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
+extern void mdlRenderInitializeBuffers(void);
 #pragma push
 #pragma pop
 #pragma push
@@ -272,133 +272,136 @@ extern void func_0045b430(void);
 /* Honest plain-C best is the 1-word common-off body, still MISMATCH. */
 /* measured: PrimDrawFlatTriangle MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Replicate one RGBA color across the three positions and submit one triangle.
+ * Preserve the measured legacy volatile input; removing it is outside this cleanup. */
 // FUN_0045ED60
-void PrimDrawFlatTriangle(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0) {
+void PrimDrawFlatTriangle(volatile u8 *color, void *positions, s32 preserveState, f32 depth) {
     u8 colors[12];
     u8 *ptr = colors;
-    u8 color0;
-    u8 color1;
-    u8 color2;
-    u8 color3;
-    color0 = arg0[0];
-    color1 = arg0[1];
-    color2 = arg0[2];
-    color3 = arg0[3];
-    colors[0] = color0;
-    colors[1] = color1;
-    colors[2] = color2;
-    colors[3] = color3;
-    color0 = arg0[0];
-    color1 = arg0[1];
-    color2 = arg0[2];
-    color3 = arg0[3];
-    colors[4] = color0;
-    colors[5] = color1;
-    colors[6] = color2;
-    colors[7] = color3;
-    color0 = arg0[0];
-    color1 = arg0[1];
-    color2 = arg0[2];
-    color3 = arg0[3];
-    colors[8] = color0;
-    colors[9] = color1;
-    colors[10] = color2;
-    colors[11] = color3;
-    PrimDrawPoints(ptr, arg1, fparg0, 3, 3, arg2);
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+    red = color[0];
+    green = color[1];
+    blue = color[2];
+    alpha = color[3];
+    colors[0] = red;
+    colors[1] = green;
+    colors[2] = blue;
+    colors[3] = alpha;
+    red = color[0];
+    green = color[1];
+    blue = color[2];
+    alpha = color[3];
+    colors[4] = red;
+    colors[5] = green;
+    colors[6] = blue;
+    colors[7] = alpha;
+    red = color[0];
+    green = color[1];
+    blue = color[2];
+    alpha = color[3];
+    colors[8] = red;
+    colors[9] = green;
+    colors[10] = blue;
+    colors[11] = alpha;
+    PrimDrawPoints(ptr, positions, depth, 3, 3, preserveState);
 }
 
 /* measured: restores propagation after PrimDrawFlatTriangle. */
 /* measured: PrimDrawRadialTriangle MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
+/* Construct three corners 120 degrees apart around the screen center and draw a flat triangle. */
 // FUN_0045EE00
-void PrimDrawRadialTriangle(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg1, u8 *arg4) {
+void PrimDrawRadialTriangle(s32 centerX, s32 centerY, u8 *color, s32 radius, f32 angle, f32 depth, u8 *preserveState) {
     u8 colors[12];
     f32 coords[6];
-    u8 color0;
-    u8 color1;
-    u8 color2;
-    u8 color3;
-    f32 temp_f23;
-    f32 temp_f22;
-    f32 temp_f22_3;
-    f32 temp_f21;
-    f32 temp_f0;
-    temp_f23 = fGpffff8200 * fparg0;
-    temp_f22 = sinf(temp_f23);
-    temp_f0 = cosf(temp_f23);
-    arg3 = -arg3;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+    f32 radians;
+    f32 sine;
+    f32 lastRadians;
+    f32 lastSine;
+    f32 cosine;
+    radians = fGpffff8200 * angle;
+    sine = sinf(radians);
+    cosine = cosf(radians);
+    radius = -radius;
     {
         f32 zero;
         f32 scale;
         zero = 0.0f;
-        scale = (f32)arg3;
-        coords[0] = (f32)arg0 + (zero * temp_f0 + scale * temp_f22);
-        coords[1] = (f32)arg1 + (zero * -temp_f22 + scale * temp_f0);
+        scale = (f32)radius;
+        coords[0] = (f32)centerX + (zero * cosine + scale * sine);
+        coords[1] = (f32)centerY + (zero * -sine + scale * cosine);
     }
-    color0 = arg2[0];
-    color1 = arg2[1];
-    color2 = arg2[2];
-    color3 = arg2[3];
-    colors[0] = color0;
-    colors[1] = color1;
-    colors[2] = color2;
-    colors[3] = color3;
+    red = color[0];
+    green = color[1];
+    blue = color[2];
+    alpha = color[3];
+    colors[0] = red;
+    colors[1] = green;
+    colors[2] = blue;
+    colors[3] = alpha;
 
     {
         f32 offset;
         offset = 120.0f;
-        fparg0 = add_f32(offset, fparg0);
+        angle = add_f32(offset, angle);
     }
-    if (!(fparg0 < 360.0f)) {
-        fparg0 -= 360.0f;
+    if (!(angle < 360.0f)) {
+        angle -= 360.0f;
     }
-    temp_f23 = fGpffff8200 * fparg0;
-    temp_f22 = sinf(temp_f23);
-    temp_f0 = cosf(temp_f23);
+    radians = fGpffff8200 * angle;
+    sine = sinf(radians);
+    cosine = cosf(radians);
     {
         f32 zero;
         f32 scale;
         zero = 0.0f;
-        scale = (f32)arg3;
-        coords[2] = (f32)arg0 + (zero * temp_f0 + scale * temp_f22);
-        coords[3] = (f32)arg1 + (zero * -temp_f22 + scale * temp_f0);
+        scale = (f32)radius;
+        coords[2] = (f32)centerX + (zero * cosine + scale * sine);
+        coords[3] = (f32)centerY + (zero * -sine + scale * cosine);
     }
-    color0 = arg2[0];
-    color1 = arg2[1];
-    color2 = arg2[2];
-    color3 = arg2[3];
-    colors[4] = color0;
-    colors[5] = color1;
-    colors[6] = color2;
-    colors[7] = color3;
+    red = color[0];
+    green = color[1];
+    blue = color[2];
+    alpha = color[3];
+    colors[4] = red;
+    colors[5] = green;
+    colors[6] = blue;
+    colors[7] = alpha;
 
     {
         f32 offset;
         offset = 120.0f;
-        fparg0 = add_f32(offset, fparg0);
+        angle = add_f32(offset, angle);
     }
-    if (!(fparg0 < 360.0f)) {
-        fparg0 -= 360.0f;
+    if (!(angle < 360.0f)) {
+        angle -= 360.0f;
     }
-    temp_f22_3 = fGpffff8200 * fparg0;
-    temp_f21 = sinf(temp_f22_3);
-    temp_f0 = cosf(temp_f22_3);
+    lastRadians = fGpffff8200 * angle;
+    lastSine = sinf(lastRadians);
+    cosine = cosf(lastRadians);
     {
         f32 zero;
         f32 scale;
         zero = 0.0f;
-        scale = (f32)arg3;
-        coords[4] = (f32)arg0 + (zero * temp_f0 + scale * temp_f21);
-        coords[5] = (f32)arg1 + (zero * -temp_f21 + scale * temp_f0);
+        scale = (f32)radius;
+        coords[4] = (f32)centerX + (zero * cosine + scale * lastSine);
+        coords[5] = (f32)centerY + (zero * -lastSine + scale * cosine);
     }
-    color0 = arg2[0];
-    color1 = arg2[1];
-    color2 = arg2[2];
-    color3 = arg2[3];
-    colors[8] = color0;
-    colors[9] = color1;
-    colors[10] = color2;
-    colors[11] = color3;
-    PrimDrawPoints(colors, coords, fparg1, 3, 3, (s32)arg4);
+    red = color[0];
+    green = color[1];
+    blue = color[2];
+    alpha = color[3];
+    colors[8] = red;
+    colors[9] = green;
+    colors[10] = blue;
+    colors[11] = alpha;
+    PrimDrawPoints(colors, coords, depth, 3, 3, (s32)preserveState);
 }
 

@@ -3,6 +3,8 @@
 #include "sdk_task_registration.h"
 #include "sdk_lbox_internal.h"
 #include "type.h"
+#include "sdk_filer_internal.h"
+#include "kwln_task_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -117,8 +119,8 @@ extern f32 fGpffff84f0;
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
 typedef RwV3d Code46RingPoint;
-extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
-                         u8 *color, f32 *matrix, s32 setStates);
+extern void primCircleLine3D(const Code46RingPoint *center, f32 radius,
+                         u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;
@@ -173,17 +175,6 @@ extern f32 fGpffff81cc;
 
 
 
-
-typedef struct FilerEntry {
-    char name[256];
-    s32 type;
-    s32 active;
-} FilerEntry;
-
-typedef struct FilerTable {
-    u8 path[256];
-    FilerEntry entries[2000];
-} FilerTable;
 
 typedef struct FilerStat {
     u32 mode;
@@ -290,21 +281,31 @@ typedef struct MovieNativeWork {
 #pragma push
 /* measured: share the checked path index and hoist the slash constant. */
 #pragma pop
+/* FilerTable ends at +0x80F88; polling reads the following result flag/path. */
+typedef struct FilerWork {
+    FilerTable table;
+    s32 hasResult;
+    u8 pad80F8C[4];
+    char resultPath[1];
+} FilerWork;
+
+/* Free the filer work owned by this task. */
 // FUN_004680C0
-void func_004680c0(u8 *arg0)
+void sdkFilerFreeTaskWork(u8 *task)
 {
-    jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)(s32)((KwlnTask *)task)->work);
 }
 
+/* Return completion state and copy a result path only when one was selected. */
 // FUN_004680F0
-s32 func_004680f0(u8 *arg0, s8 *arg1) {
+s32 sdkFilerPollResult(u8 *task, s8 *resultPath) {
     u8 *record;
 
-    record = (u8 *)(*(u8 **)(arg0 + 0x38));
-    *arg1 = 0;
-    if (*(s16 *)(record + 0x80F80) == 3) {
-        if (*(s32 *)(record + 0x80F88) != 0) {
-            strcpy((char *)arg1, (char *)record + 0x80F90);
+    record = (u8 *)(((KwlnTask *)task)->work);
+    *resultPath = 0;
+    if (((FilerWork *)record)->table.unk80F80 == 3) {
+        if (((FilerWork *)record)->hasResult != 0) {
+            strcpy((char *)resultPath, ((FilerWork *)record)->resultPath);
         }
         return 1;
     }

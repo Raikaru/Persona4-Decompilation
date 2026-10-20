@@ -44,7 +44,7 @@ extern u8 D_00796754[];
 extern u8 D_00796758[];
 extern u8 D_0079675C[];
 extern s32 initBootChainStart(void);
-extern s32 kwlnTaskGetTaskByName(void *arg0);
+extern s32 kwlnTaskGetTaskByName(void *name);
 
 extern s32 iGpffff85b8;
 extern s32 iGpffffb194;

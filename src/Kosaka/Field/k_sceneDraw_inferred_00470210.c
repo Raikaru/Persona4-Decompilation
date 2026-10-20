@@ -1,3 +1,4 @@
+#include "kwln_task_internal.h"
 #include "sdk_lbox_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -9,7 +10,7 @@ extern MdlTypeCallback iGpffffbb30;
 extern MdlNameCallback iGpffffbb34;
 extern MdlSetupCallback iGpffffbb38;
 extern void (*iGpffffbb3c)();
-extern void sdkLboxClear(u8 *arg0);
+extern void sdkLboxClear(u8 *task);
 extern void (*jtbl_008873EC[])(void *);
 extern s32 iGpffffbb28;
 struct RuntimeWork;
@@ -51,11 +52,11 @@ static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 00470210-00470210 */
 
-extern void sdkLboxClear(u8 *arg0);
+extern void sdkLboxClear(u8 *task);
 // FUN_00470210
-void sdkLboxDestroy(u8 *arg0)
+void sdkLboxDestroy(u8 *task)
 {
-    sdkLboxClear(arg0);
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    sdkLboxClear(task);
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 

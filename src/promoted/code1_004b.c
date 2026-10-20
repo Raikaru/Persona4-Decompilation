@@ -6,6 +6,7 @@
 #include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
 #include "effect_vu0_internal.h"
+#include "rw_raster_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern s32 kwlnGetCamera(void);
@@ -14,9 +15,9 @@ extern s32 iGpffffbb9c;
 extern u8 *iGpffffbba0;
 /* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
 extern s32 (*iGpffffbba4)(void);
-extern void mdlEffectDestroyWithNodes(u8 *model);
+extern void mdlEffectDestroyWithNodes(u8 *effect);
 extern void func_00485fe0();
-extern void func_00485630(u8 *object);
+extern void mdlEffectCommitTreeFrame(u8 *effect);
 extern void func_00486400();
 extern s32 func_00486060(u8 *);
 extern void func_004860f0();
@@ -26,19 +27,19 @@ extern void DistortParticleProjectRecords();
 extern s32 iGpffffbb98;
 extern s32 iGpffffbb94;
 extern s32 D_00922DA0[];
-extern void func_004a7c00(u8 *arg0, s32 arg1);
-extern void func_004a7a50(void);
+extern void mdlEffectApplyShakeEnvelope(u8 *record, s32 elapsed);
+extern void mdlEffectResetSequenceFrame(void);
 extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
-extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
-extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
+extern u_long128 mdlEffectStoreQuadA(s32 instance, u32 *quadData);
+extern u_long128 mdlEffectStoreQuadB(s32 instance, u32 *quadData);
 extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
-extern void TnSetTableBase(void *arg0);
-extern void func_00485870(void *arg0);
-extern void func_00485ae0(void *arg0);
-extern void func_004861f0(void *arg0, f32 *arg1);
-extern void func_004b1ad0(u8 *arg0);
+extern void TnSetTableBase(void *table);
+extern void mdlEffectFlushTreeFrame(void *effect);
+extern void mdlEffectAdvanceAndDrawChildren(void *instance);
+extern void func_004861f0(void *, f32 *);
+extern void mdlEffectUpdateScreenSprite(u8 *instance);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -47,18 +48,18 @@ typedef struct {
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
 extern void LineNovaUpdateCameraQuads(void);
-extern void func_003efd20(u8 *arg0, s32 arg1);
-extern void func_003e9390(s32 arg0);
-extern void func_003ec330(s32 arg0);
-extern void RpSkyTexCacheRasterLock(s32 arg0, s32 arg1);
-extern void func_003e8440(u8 *arg0);
-extern u8 *GeometryCloneBlock(s32 arg0);
-extern void memcpy(void *arg0, void *arg1, s32 arg2);
-extern void func_004b1a00(u8 *arg0, u8 *arg1);
-extern s32 func_00481e30(s32 arg0);
-extern void func_00481ee0(s32 arg0);
-extern void TlpRelease(s32 arg0);
-extern s32 TlpAddRef(s32 arg0);
+extern void func_003efd20(u8 *, s32);
+extern void func_003e9390(s32);
+extern void func_003ec330(s32);
+extern void RpSkyTexCacheRasterLock(s32, s32);
+extern void func_003e8440(u8 *);
+extern u8 *GeometryCloneBlock(s32 source);
+extern void memcpy(void *, void *, s32);
+extern void mdlEffectScreenSpriteCopyResource(u8 *destination, u8 *source);
+extern s32 mdlEffectShareTrackInstance(s32 source);
+extern void mdlEffectReleaseTrackInstance(s32 instance);
+extern void TlpRelease(s32 work);
+extern s32 TlpAddRef(s32 work);
 
 /* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
    func_004bd628, func_004bd640, func_004bd658, func_004bd670,
@@ -69,35 +70,35 @@ extern u8 D_00714650[];
 extern u8 D_00714660[];
 extern u8 D_00714658[];
 
-extern void mdlEffectGetPositionVec(u8 *arg0, u32 *arg1);
+extern void mdlEffectGetPositionVec(u8 *object, u32 *output);
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
-extern void initVariables(u8 *arg0);
-extern void func_00486330(u8 *arg0, void *arg1);
-extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
+extern void func_004bd6a0(u8 *, s32);
+extern void initVariables(u8 *);
+extern void func_00486330(u8 *, void *);
+extern void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ);
 extern f32 iGpffff836c;
-extern void mdlEffectGetOrientationVec(u8 *arg0, u32 *arg1);
-extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
-extern void effMiscMatrixToQuatVU(f32 *arg0);
+extern void mdlEffectGetOrientationVec(u8 *object, u32 *output);
+extern void mdlEffectBuildBasisRows(void *output, void *orientation);
+extern void effMiscMatrixToQuatVU(f32 *matrix);
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
-extern void kAssertFail(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
-extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
-extern s32 func_00481d80(u16 *arg0);
-extern s32 TnSlotObject(u16 arg0);
-extern void func_003c42b0(s32 arg0, s32 arg1);
-extern s32 TlpCreate(u16 *arg0);
-extern void func_003e8110(u8 *arg0);
-extern s32 func_003e8120(u8 *arg0);
+extern void memset(void *, s32, s32);
+extern void GeometryBlockSetTextureFromHandle(u8 *block, u16 *handle);
+extern s32 mdlEffectCreateTrackInstance(u16 *source);
+extern s32 TnSlotObject(u16 slotIndex);
+extern void func_003c42b0(s32, s32);
+extern s32 TlpCreate(u16 *desc);
+extern void func_003e8110(u8 *camera);
+extern s32 func_003e8120(u8 *camera);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern u8 *RpSkyGetDisplayBufferRaster(void);
-extern u8 D_008872FC_abs[];
-extern BtlShuffleRenderStateSet D_00887300[];
-extern BtlShuffleRenderPrimitive D_00887310_abs[];
+extern u8 D_008872FC_abs[]; /* screen-space depth for immediate-mode vertices */
+extern BtlShuffleRenderStateSet D_00887300[]; /* active render-state dispatch */
+extern BtlShuffleRenderPrimitive D_00887310_abs[]; /* immediate-mode primitive dispatch */
 
 extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
@@ -105,13 +106,13 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern void DistortParticleProjectRecords();
 
-extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
 
 extern u32 mdlEffectGetPackedColorWord(void *object);
 
 typedef signed __int128 s128;
 
-extern void *func_004b16c0(void *opaqueSource);
+extern void *mdlEffectCreateScreenSprite(void *opaqueSource);
 
 /* Screen-space sprite update, the EffSpriteUpdate sibling. It shares the COP2
  * colour pack (the asm writes the packed frame slot, retail reloads it) and
@@ -135,84 +136,88 @@ typedef struct EffScreenSpriteRGBA {
 #pragma pop
 /* measured: opt_propagation off retains the cached D_00887300 base and retail frame. */
 // Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
+/* Capture the display raster into the crossfade camera's 512x256 target.
+ * Returns zero if camera begin-update fails, otherwise submits an opaque
+ * triangle strip with UVs scaled from the 640x448 display and returns one. */
+/* Camera accesses retain byte offsets: the proven CrossfadeWork.camera at +0xC
+ * (effCrossfade.c) and SDK farPlane at +0x84 caused MWCC to cache the camera
+ * member address, add an instruction, and swap saved registers when typed. */
 // FUN_004B2780
 #pragma opt_propagation off
-s32 func_004b2780(u8 *arg0) {
-    struct {
-        u8 packet[0xF0];
-        u8 pad[0x10];
-    } work;
-    f32 temp_f21;
-    f32 temp_f20;
-    f32 temp_f0;
-    f32 temp_f2;
-    BtlShuffleRenderStateSet *base;
-    u8 *temp_17;
-    u8 *temp_2;
+s32 effCrossfadeCaptureDisplay(u8 *object) {
+    BtlShuffleSkyVertex vertices[4];
+    f32 textureWidth;
+    f32 textureHeight;
+    f32 reciprocalFarPlane;
+    f32 screenDepth;
+    BtlShuffleRenderStateSet *renderState;
+    u8 *textureRaster;
+    u8 *displayRaster;
 
-    if (func_003e8120(*(u8 **)(arg0 + 0xC)) == 0) {
+    if (func_003e8120(*(u8 **)(object + 0xC)) == 0) {
         return 0;
     }
-    temp_2 = RpSkyGetDisplayBufferRaster();
-    temp_17 = temp_2;
-    temp_f21 = 640.0f / (f32)*(s32 *)(temp_2 + 0xC);
-    temp_f20 = 448.0f / (f32)*(s32 *)(temp_2 + 0x10);
+    displayRaster = RpSkyGetDisplayBufferRaster();
+    textureRaster = displayRaster;
+    textureWidth = 640.0f / (f32)((RwRaster *)displayRaster)->width;
+    textureHeight = 448.0f / (f32)((RwRaster *)displayRaster)->height;
+    /* Retain the platform-specific packed Sky2 render-state values for capture. */
     RpSkyRenderStateSet(2, (void *)0x2024);
     RpSkyRenderStateSet(3, (void *)0x717FB);
-    base = D_00887300;
-    base[0]((RwRenderState)0xE, (void *)0);
-    base[0]((RwRenderState)6, (void *)0);
-    base[0]((RwRenderState)8, (void *)0);
-    base[0]((RwRenderState)9, (void *)2);
-    base[0]((RwRenderState)0xC, (void *)1);
-    base[0]((RwRenderState)1, (void *)(u32)temp_17);
-    base[0]((RwRenderState)3, (void *)3);
-    base[0]((RwRenderState)4, (void *)3);
-    temp_f2 = *(f32 *)D_008872FC_abs;
-    temp_f0 = 1.0f / *(f32 *)(*(u8 **)(arg0 + 0xC) + 0x84);
-    *(s32 *)(work.packet + 0x00) = 0;
-    *(s32 *)(work.packet + 0x04) = 0;
-    *(f32 *)(work.packet + 0x08) = temp_f2;
-    *(s32 *)(work.packet + 0x20) = 0x437F0000;
-    *(s32 *)(work.packet + 0x24) = 0x437F0000;
-    *(s32 *)(work.packet + 0x28) = 0x437F0000;
-    *(s32 *)(work.packet + 0x2C) = 0x437F0000;
-    *(f32 *)(work.packet + 0x18) = temp_f0;
-    *(s32 *)(work.packet + 0x10) = 0;
-    *(s32 *)(work.packet + 0x14) = 0;
-    *(s32 *)(work.packet + 0x40) = 0;
-    *(s32 *)(work.packet + 0x44) = 0x43800000;
-    *(f32 *)(work.packet + 0x48) = temp_f2;
-    *(s32 *)(work.packet + 0x60) = 0x437F0000;
-    *(s32 *)(work.packet + 0x64) = 0x437F0000;
-    *(s32 *)(work.packet + 0x68) = 0x437F0000;
-    *(s32 *)(work.packet + 0x6C) = 0x437F0000;
-    *(f32 *)(work.packet + 0x58) = temp_f0;
-    *(s32 *)(work.packet + 0x50) = 0;
-    *(f32 *)(work.packet + 0x54) = temp_f20;
-    *(s32 *)(work.packet + 0x80) = 0x44000000;
-    *(s32 *)(work.packet + 0x84) = 0;
-    *(f32 *)(work.packet + 0x88) = temp_f2;
-    *(s32 *)(work.packet + 0xA0) = 0x437F0000;
-    *(s32 *)(work.packet + 0xA4) = 0x437F0000;
-    *(s32 *)(work.packet + 0xA8) = 0x437F0000;
-    *(s32 *)(work.packet + 0xAC) = 0x437F0000;
-    *(f32 *)(work.packet + 0x98) = temp_f0;
-    *(f32 *)(work.packet + 0x90) = temp_f21;
-    *(s32 *)(work.packet + 0x94) = 0;
-    *(s32 *)(work.packet + 0xC0) = 0x44000000;
-    *(s32 *)(work.packet + 0xC4) = 0x43800000;
-    *(f32 *)(work.packet + 0xC8) = temp_f2;
-    *(s32 *)(work.packet + 0xE0) = 0x437F0000;
-    *(s32 *)(work.packet + 0xE4) = 0x437F0000;
-    *(s32 *)(work.packet + 0xE8) = 0x437F0000;
-    *(s32 *)(work.packet + 0xEC) = 0x437F0000;
-    *(f32 *)(work.packet + 0xD8) = temp_f0;
-    *(f32 *)(work.packet + 0xD0) = temp_f21;
-    *(f32 *)(work.packet + 0xD4) = temp_f20;
-    D_00887310_abs[0]((BtlShufflePrimitive)4, (BtlShuffleSkyVertex *)work.packet, 4);
-    base[0]((RwRenderState)1, (void *)0);
-    func_003e8110(*(u8 **)(arg0 + 0xC));
+    renderState = D_00887300;
+    renderState[0](rwRENDERSTATEFOGENABLE, (void *)0);
+    renderState[0](rwRENDERSTATEZTESTENABLE, (void *)0);
+    renderState[0](rwRENDERSTATEZWRITEENABLE, (void *)0);
+    renderState[0](rwRENDERSTATETEXTUREFILTER, (void *)2);
+    renderState[0](rwRENDERSTATEVERTEXALPHAENABLE, (void *)1);
+    renderState[0](rwRENDERSTATETEXTURERASTER, (void *)(u32)textureRaster);
+    renderState[0](rwRENDERSTATETEXTUREADDRESSU, (void *)3);
+    renderState[0](rwRENDERSTATETEXTUREADDRESSV, (void *)3);
+    screenDepth = *(f32 *)D_008872FC_abs;
+    reciprocalFarPlane = 1.0f / *(f32 *)(*(u8 **)(object + 0xC) + 0x84);
+    vertices[0].u.els.scrVertex.x = 0.0f;
+    vertices[0].u.els.scrVertex.y = 0.0f;
+    vertices[0].u.els.scrVertex.z = screenDepth;
+    vertices[0].u.els.color.r = 255.0f;
+    vertices[0].u.els.color.g = 255.0f;
+    vertices[0].u.els.color.b = 255.0f;
+    vertices[0].u.els.color.a = 255.0f;
+    vertices[0].u.els.recipZ = reciprocalFarPlane;
+    vertices[0].u.els.u = 0.0f;
+    vertices[0].u.els.v = 0.0f;
+    vertices[1].u.els.scrVertex.x = 0.0f;
+    vertices[1].u.els.scrVertex.y = 256.0f;
+    vertices[1].u.els.scrVertex.z = screenDepth;
+    vertices[1].u.els.color.r = 255.0f;
+    vertices[1].u.els.color.g = 255.0f;
+    vertices[1].u.els.color.b = 255.0f;
+    vertices[1].u.els.color.a = 255.0f;
+    vertices[1].u.els.recipZ = reciprocalFarPlane;
+    vertices[1].u.els.u = 0.0f;
+    vertices[1].u.els.v = textureHeight;
+    vertices[2].u.els.scrVertex.x = 512.0f;
+    vertices[2].u.els.scrVertex.y = 0.0f;
+    vertices[2].u.els.scrVertex.z = screenDepth;
+    vertices[2].u.els.color.r = 255.0f;
+    vertices[2].u.els.color.g = 255.0f;
+    vertices[2].u.els.color.b = 255.0f;
+    vertices[2].u.els.color.a = 255.0f;
+    vertices[2].u.els.recipZ = reciprocalFarPlane;
+    vertices[2].u.els.u = textureWidth;
+    vertices[2].u.els.v = 0.0f;
+    vertices[3].u.els.scrVertex.x = 512.0f;
+    vertices[3].u.els.scrVertex.y = 256.0f;
+    vertices[3].u.els.scrVertex.z = screenDepth;
+    vertices[3].u.els.color.r = 255.0f;
+    vertices[3].u.els.color.g = 255.0f;
+    vertices[3].u.els.color.b = 255.0f;
+    vertices[3].u.els.color.a = 255.0f;
+    vertices[3].u.els.recipZ = reciprocalFarPlane;
+    vertices[3].u.els.u = textureWidth;
+    vertices[3].u.els.v = textureHeight;
+    D_00887310_abs[0](rwPRIMTYPETRISTRIP, vertices, 4);
+    renderState[0](rwRENDERSTATETEXTURERASTER, (void *)0);
+    func_003e8110(*(u8 **)(object + 0xC));
     return 1;
 }
 #pragma opt_propagation on

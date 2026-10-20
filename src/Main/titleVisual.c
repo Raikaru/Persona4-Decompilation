@@ -1,97 +1,138 @@
 #include "include_asm.h"
 /* Original translation unit titleVisual.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "primitive_queue_internal.h"
 
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u8 *PrimAllocQueueNode();
-extern void PrimAppendNode(void *arg0, void *arg1);
+extern void PrimAppendNode(void *list, void *node);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 D_0063EE50[];
-extern void titleVisualDraw(void *arg0, void *arg1);
-extern void func_002ab550(u8 *arg0, s8 *arg1);
-extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void titleVisualDraw(void *unusedQueue, void *packet);
+extern void titleVisualDrawTintedModel(u8 *model, s8 *color);
+extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
+extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void shdEnableBlendFlag(void);
 extern void shdDisableBlendFlag(void);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
-extern void mdlSetColor(void *arg0, void *arg1);
-extern void mdlApplyColorToAtomics(void *arg0);
-extern void mdlUpdateModelMatrix(void *arg0);
-extern void mdlPrepareItemSlots(void *arg0);
-extern void mdlDrawVisibleAtomics(s32 arg0);
+extern void mdlSetColor(void *model, void *color);
+extern void mdlApplyColorToAtomics(void *model);
+extern void mdlUpdateModelMatrix(void *model);
+extern void mdlPrepareItemSlots(void *model);
+extern void mdlDrawVisibleAtomics(s32 clump);
 extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
-extern void func_001102f0(void *arg0, s32 arg1, s32 arg2, f32 fparg0);
+extern void datScreenPointToWorldPosition(void *output, s32 screenX, s32 screenY, f32 distance);
 extern void *kwlnGetCamera(void);
-extern u8 *func_003e9700(s32 arg0);
+extern u8 *func_003e9700(s32);
 extern void RwV3dNormalize(void *a, void *b);
-extern void RwMatrixUpdate(void *arg0);
+extern void RwMatrixUpdate(void *);
 extern void RwMatrixScale(void *a0, void *a1, s32 a2);
 extern void RwMatrixMultiply(void *a, void *b, void *c);
 extern void RwMatrixTranslate(void *dst, void *src, s32 mode);
-extern void *mdlGetMatrix(u32 arg0);
-extern void func_002ab0e0(u8 *arg0, u8 *arg1);
-extern void func_002ab4b0(void *arg0, u8 *arg1);
+extern void *mdlGetMatrix(u32 model);
+extern void titleVisualDrawSpritePacket(u8 *unused, u8 *packet);
+extern void titleVisualDrawModelPacket(void *unused, u8 *packet);
 
 typedef struct { f32 v0, v1, v2, v3; } Float4;
 typedef struct { u8 b0, b1, b2, b3; } Byte4;
 typedef signed __int128 s128;
 
+/* Packet sizes are established by the three allocators below (0x1C/0x60).
+ * Rect bounds preserve integer bits in the original four-float copy transport. */
+typedef struct TitleRectPacket
+{
+    Float4 bounds;
+    f32 depth;
+    Byte4 color;
+    s32 flags;
+} TitleRectPacket;
+
+typedef struct TitleSpritePacket
+{
+    f32 x, y, depth;
+    s32 color;
+    s32 flags;
+    void *resource;
+    s32 spriteIndex;
+} TitleSpritePacket;
+
+typedef struct TitleModelPacket
+{
+    u32 color;
+    u8 pad04[0xC];
+    f32 matrix[16];
+    s32 flags;
+    u8 *model;
+    u8 pad58[8];
+} TitleModelPacket;
+
+/* Model prefix agrees with mdlManager.c: flags +0xD8, clump +0xDC.
+ * Matrices and the rest of the model remain owned by the mdl API. */
+typedef struct Model
+{
+    u8 pad00[0xD8];
+    s32 flags;
+    s32 clump;
+} Model;
+
 // FUN_002AAF20
-void func_002aaf20(f32 fparg0, f32 fparg1, f32 fparg2, u8 *arg0, f32 fparg3, f32 fparg4, s32 arg1, void *arg2) {
-    f32 sp70[4];
-    u8 *var_3;
-    s32 var_2;
-    u8 *temp_16;
-    u8 *temp_2;
+/* Allocate a rectangle packet from screen bounds; enqueue it or draw immediately. */
+void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue) {
+    f32 bounds[4];
+    u8 *clearCursor;
+    s32 bytesRemaining;
+    u8 *packet;
+    u8 *drawNode;
 
     chkmemAllocSiteTag(D_0063EE50, 0x91);
-    temp_16 = D_008873F4[0](1, 0x1C, 0x40000);
-    var_3 = (u8 *)&sp70[0];
-    var_2 = 0x10;
-    if (var_3 != NULL) {
+    packet = D_008873F4[0](1, 0x1C, 0x40000);
+    clearCursor = (u8 *)&bounds[0];
+    bytesRemaining = 0x10;
+    if (clearCursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-            var_2 -= 1;
-        } while (var_2 != 0);
+            *clearCursor = 0;
+            clearCursor += 1;
+            bytesRemaining -= 1;
+        } while (bytesRemaining != 0);
     }
-    *(s32 *)&sp70[0] = (s32)fparg0;
-    *(s32 *)&sp70[1] = (s32)fparg1;
-    *(s32 *)&sp70[2] = (s32)(fparg0 + fparg3);
-    *(s32 *)&sp70[3] = (s32)(fparg1 + fparg4);
-    *(Float4 *)(temp_16 + 0) = *(Float4 *)&sp70[0];
-    *(f32 *)(temp_16 + 0x10) = fparg2;
-    *(Byte4 *)(temp_16 + 0x14) = *(Byte4 *)arg0;
-    *(s32 *)(temp_16 + 0x18) = arg1;
-    if (arg2 != NULL) {
-        temp_2 = PrimAllocQueueNode();
-        *(void **)(temp_2 + 8) = (void *)titleVisualDraw;
-        *(u8 **)(temp_2 + 0x10) = temp_16;
-        PrimAppendNode(arg2, temp_2);
+    *(s32 *)&bounds[0] = (s32)x;
+    *(s32 *)&bounds[1] = (s32)y;
+    *(s32 *)&bounds[2] = (s32)(x + width);
+    *(s32 *)&bounds[3] = (s32)(y + height);
+    ((TitleRectPacket *)packet)->bounds = *(Float4 *)&bounds[0];
+    ((TitleRectPacket *)packet)->depth = depth;
+    ((TitleRectPacket *)packet)->color = *(Byte4 *)color;
+    ((TitleRectPacket *)packet)->flags = flags;
+    if (queue != NULL) {
+        drawNode = PrimAllocQueueNode();
+        ((PrimQueueNode *)drawNode)->callback = (void *)titleVisualDraw;
+        ((PrimQueueNode *)drawNode)->argument.data = packet;
+        PrimAppendNode(queue, drawNode);
     } else {
-        titleVisualDraw(NULL, temp_16);
+        titleVisualDraw(NULL, packet);
     }
 }
 
 /* measured: opt_propagation off preserves retail's cached render-table base. */
 #pragma opt_propagation off
 // FUN_002AB0E0
-void func_002ab0e0(u8 *arg0, u8 *arg1) {
-    f32 temp_5;
-    f32 temp_4;
-    f32 temp_3;
-    u32 temp_2;
-    s32 temp_1;
+/* Draw a sprite packet with its requested blend/depth flags, then free it. */
+void titleVisualDrawSpritePacket(u8 *unused, u8 *packet) {
+    f32 x;
+    f32 y;
+    f32 depth;
+    u32 packedColor;
+    s32 flags;
     void (**render)(u32 state, u32 value);
 
-    temp_2 = *(u32 *)(arg1 + 0xC);
-    temp_5 = *(f32 *)(arg1 + 0);
-    temp_4 = *(f32 *)(arg1 + 4);
-    temp_3 = *(f32 *)(arg1 + 8);
-    temp_1 = *(s32 *)(arg1 + 0x10);
+    packedColor = *(u32 *)&((TitleSpritePacket *)packet)->color;
+    x = ((TitleSpritePacket *)packet)->x;
+    y = ((TitleSpritePacket *)packet)->y;
+    depth = ((TitleSpritePacket *)packet)->depth;
+    flags = ((TitleSpritePacket *)packet)->flags;
     render = &D_00887300[0];
     (*render)(10, 5);
     (*render)(11, 6);
@@ -106,87 +147,94 @@ void func_002ab0e0(u8 *arg0, u8 *arg1) {
     RpSkyRenderStateSet(3, 0x50003);
     RpSkyRenderStateSet(2, 0x44);
     (*render)(1, 0);
-    if ((temp_1 & 1) != 0) {
+    if ((flags & 1) != 0) {
         (*render)(6, 1);
     }
-    if ((temp_1 & 2) != 0) {
+    if ((flags & 2) != 0) {
         (*render)(8, 1);
     }
-    if ((temp_1 & 4) != 0) {
+    if ((flags & 4) != 0) {
         RpSkyRenderStateSet(3, 0x5000D);
     }
-    if ((temp_1 & 8) != 0) {
+    if ((flags & 8) != 0) {
         RpSkyRenderStateSet(2, 0x54);
     }
-    if ((temp_1 & 0x20) != 0) {
+    if ((flags & 0x20) != 0) {
         RpSkyRenderStateSet(2, 0x58);
     }
-    if ((temp_1 & 0x40) != 0) {
+    if ((flags & 0x40) != 0) {
         shdEnableBlendFlag();
     }
-    if ((temp_1 & 0x10) != 0) {
+    if ((flags & 0x10) != 0) {
         mdlEffectEmitMaskedTagPair();
     }
-    shdSpriteDrawNow(temp_5, temp_4, temp_3, (s32)(temp_2 >> 8), (s32)(temp_2 & 0xFF), *(s32 *)(arg1 + 0x18), 0, (u8 *)(*(s32 *)(arg1 + 0x14)), 0);
-    if ((temp_1 & 0x10) != 0) {
+    shdSpriteDrawNow(x, y, depth, (s32)(packedColor >> 8), (s32)(packedColor & 0xFF), ((TitleSpritePacket *)packet)->spriteIndex, 0, (u8 *)(*(s32 *)&((TitleSpritePacket *)packet)->resource), 0);
+    if ((flags & 0x10) != 0) {
         mdlEffectEmitTagPair();
     }
-    if ((temp_1 & 0x40) != 0) {
+    if ((flags & 0x40) != 0) {
         shdDisableBlendFlag();
     }
-    jtbl_008873EC[0](arg1);
+    jtbl_008873EC[0](packet);
 }
 #pragma opt_propagation on
 
 // FUN_002AB380
-void func_002ab380(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, void *arg5) {
-    u8 *temp_2;
-    u8 *temp_2_2;
+/* Build a tinted sprite packet and dispatch it through the optional draw queue. */
+void titleVisualSubmitSprite(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 spriteIndex, void *resource, s32 flags, void *queue) {
+    u8 *packet;
+    u8 *drawNode;
 
     chkmemAllocSiteTag(D_0063EE50, 0xE1);
-    temp_2 = D_008873F4[0](1, 0x1C, 0x40000);
-    *(f32 *)(temp_2 + 0) = fparg0;
-    *(f32 *)(temp_2 + 4) = fparg1;
-    *(f32 *)(temp_2 + 8) = fparg2;
-    *(s32 *)(temp_2 + 0xC) = (arg0 << 8) | arg1;
-    *(s32 *)(temp_2 + 0x10) = arg4;
-    *(void **)(temp_2 + 0x14) = arg3;
-    *(s32 *)(temp_2 + 0x18) = arg2;
-    if (arg5 != NULL) {
-        temp_2_2 = PrimAllocQueueNode();
-        *(void **)(temp_2_2 + 8) = (void *)func_002ab0e0;
-        *(u8 **)(temp_2_2 + 0x10) = temp_2;
-        PrimAppendNode(arg5, temp_2_2);
+    packet = D_008873F4[0](1, 0x1C, 0x40000);
+    ((TitleSpritePacket *)packet)->x = x;
+    ((TitleSpritePacket *)packet)->y = y;
+    ((TitleSpritePacket *)packet)->depth = depth;
+    ((TitleSpritePacket *)packet)->color = (rgb << 8) | alpha;
+    ((TitleSpritePacket *)packet)->flags = flags;
+    ((TitleSpritePacket *)packet)->resource = resource;
+    ((TitleSpritePacket *)packet)->spriteIndex = spriteIndex;
+    if (queue != NULL) {
+        drawNode = PrimAllocQueueNode();
+        ((PrimQueueNode *)drawNode)->callback = (void *)titleVisualDrawSpritePacket;
+        ((PrimQueueNode *)drawNode)->argument.data = packet;
+        PrimAppendNode(queue, drawNode);
         return;
     }
-    func_002ab0e0(NULL, temp_2);
+    titleVisualDrawSpritePacket(NULL, packet);
 }
 
 // FUN_002AB4B0
-void func_002ab4b0(void *arg0, u8 *arg1) {
-    s8 sp4C[4];
-    u8 *temp_18;
-    s32 temp_17;
-    u32 temp_3;
+/* Draw a queued model with its saved flags and matrix, restoring the live flags afterward. */
+/* Typed Model/TitleModelPacket accesses change b210 register allocation; retain
+ * their proven +0xD8/+0xDC and +0x50/+0x54 byte accesses for MATCH. */
+void titleVisualDrawModelPacket(void *unused, u8 *packet) {
+    s8 color[4];
+    u8 *model;
+    s32 savedFlags;
+    u32 packedColor;
 
-    temp_3 = *(u32 *)arg1;
-    sp4C[0] = (s8)(temp_3 >> 24);
-    sp4C[1] = (s8)(temp_3 >> 16);
-    sp4C[2] = (s8)(temp_3 >> 8);
-    sp4C[3] = (s8)temp_3;
-    temp_18 = *(u8 **)(arg1 + 0x54);
-    temp_17 = *(s32 *)(temp_18 + 0xD8);
-    *(s32 *)(temp_18 + 0xD8) = *(s32 *)(arg1 + 0x50);
-    mdlApplyModelMatrix(temp_18, arg1 + 0x10, 0);
-    func_002ab550(temp_18, sp4C);
-    *(s32 *)(temp_18 + 0xD8) = temp_17;
-    jtbl_008873EC[0](arg1);
+    packedColor = *(u32 *)packet;
+    color[0] = (s8)(packedColor >> 24);
+    color[1] = (s8)(packedColor >> 16);
+    color[2] = (s8)(packedColor >> 8);
+    color[3] = (s8)packedColor;
+    model = *(u8 **)(packet + 0x54);
+    savedFlags = *(s32 *)(model + 0xD8);
+    *(s32 *)(model + 0xD8) = *(s32 *)(packet + 0x50);
+    mdlApplyModelMatrix(model, packet + 0x10, 0);
+    titleVisualDrawTintedModel(model, color);
+    *(s32 *)(model + 0xD8) = savedFlags;
+    jtbl_008873EC[0](packet);
 }
 
 /* measured: opt_propagation off preserves retail's cached render-table base. */
 #pragma opt_propagation off
 // FUN_002AB550
-void func_002ab550(u8 *arg0, s8 *arg1) {
+/* Install the title render state and draw the model with the supplied RGBA color. */
+/* Typed Model/TitleModelPacket accesses change b210 register allocation; retain
+ * their proven +0xD8/+0xDC and +0x50/+0x54 byte accesses for MATCH. */
+void titleVisualDrawTintedModel(u8 *model, s8 *color) {
     void (**render)(u32 state, u32 value);
 
     render = D_00887300;
@@ -203,289 +251,293 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
     RpSkyRenderStateSet(3, 0x50003);
     RpSkyRenderStateSet(2, 0x44);
     render[0](1, 0);
-    if ((*(s32 *)(arg0 + 0xD8) & 8) != 0) {
+    if ((*(s32 *)(model + 0xD8) & 8) != 0) {
         render[0](6, 1);
     }
-    if ((*(s32 *)(arg0 + 0xD8) & 0x10) != 0) {
+    if ((*(s32 *)(model + 0xD8) & 0x10) != 0) {
         render[0](8, 1);
     }
-    if ((*(s32 *)(arg0 + 0xD8) & 0x40000) != 0) {
+    if ((*(s32 *)(model + 0xD8) & 0x40000) != 0) {
         shdEnableBlendFlag();
     }
-    if ((*(s32 *)(arg0 + 0xD8) & 0x100000) != 0) {
+    if ((*(s32 *)(model + 0xD8) & 0x100000) != 0) {
         mdlEffectEmitMaskedTagPair();
     }
-    mdlSetColor(arg0, arg1);
-    mdlApplyColorToAtomics(arg0);
-    mdlUpdateModelMatrix(arg0);
-    mdlPrepareItemSlots(arg0);
-    mdlDrawVisibleAtomics(*(s32 *)(arg0 + 0xDC));
-    if ((*(s32 *)(arg0 + 0xD8) & 0x40000) != 0) {
+    mdlSetColor(model, color);
+    mdlApplyColorToAtomics(model);
+    mdlUpdateModelMatrix(model);
+    mdlPrepareItemSlots(model);
+    mdlDrawVisibleAtomics(*(s32 *)(model + 0xDC));
+    if ((*(s32 *)(model + 0xD8) & 0x40000) != 0) {
         shdDisableBlendFlag();
     }
-    if ((*(s32 *)(arg0 + 0xD8) & 0x100000) != 0) {
+    if ((*(s32 *)(model + 0xD8) & 0x100000) != 0) {
         mdlEffectEmitTagPair();
     }
 }
 #pragma opt_propagation on
 
 // FUN_002AB790
-void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 fparg3, s32 arg2, u8 *arg3, void *arg4) {
-    s8 sp14C[4];
-    f32 sp140[3];
-    f32 sp130[3];
-    f32 sp120[3];
-    f32 spE0[16];
-    f32 spA0[16];
-    void *temp_ret;
-    s32 v17;
-    s32 v16;
-    u8 *var_2;
-    u8 *var_6;
-    s32 var_5;
-    s128 *var_5_2;
-    s128 *var_4;
-    s32 var_3;
-    u8 *temp_2_2;
-    u8 *temp_2_4;
-    s32 temp_17;
-    u8 *temp_18;
-    u32 temp_3_4;
-    u8 *var_2_2;
-    s32 temp_4;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_2_3;
-    s32 temp_4_2;
-    s32 temp_3_3;
-    s128 temp_2;
-    u8 *var_6_2;
-    u8 *var_5_3;
-    s32 var_4_2;
-    u8 *var_6_3;
-    s32 var_5_4;
+/* Build a camera-facing scaled model matrix and submit a model packet; immediate drawing restores the live matrix. */
+/* Typed Model/TitleModelPacket accesses change b210 register allocation; retain
+ * their proven +0xD8/+0xDC and +0x50/+0x54 byte accesses for MATCH. */
+void titleVisualSubmitModel(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, f32 scale, s32 projectPosition, u8 *model, void *queue) {
+    s8 color[4];
+    f32 translation[3];
+    f32 scaleVector[3];
+    f32 projectedPosition[3];
+    f32 drawMatrix[16];
+    f32 combinedMatrix[16];
+    void *modelMatrix;
+    s32 screenY;
+    s32 screenX;
+    u8 *cameraMatrixCursor;
+    u8 *matrixCopyCursor;
+    s32 cameraPairsRemaining;
+    s128 *combinedQuadwords;
+    s128 *drawQuadwords;
+    s32 quadwordsRemaining;
+    u8 *packet;
+    u8 *drawNode;
+    s32 savedFlags;
+    u8 *drawModel;
+    u32 packedColor;
+    u8 *savedMatrixCursor;
+    s32 cameraFirstWord;
+    s32 cameraSecondWord;
+    s32 packetFirstWord;
+    s32 packetSecondWord;
+    s32 savedFirstWord;
+    s32 savedSecondWord;
+    s128 matrixQuadword;
+    u8 *packetMatrixSource;
+    u8 *packetMatrixCursor;
+    s32 packetPairsRemaining;
+    u8 *restoreMatrixCursor;
+    s32 restorePairsRemaining;
 
-    temp_ret = mdlGetMatrix((u32)(s32)arg3);
-    v17 = (s32)fparg1;
-    v16 = (s32)fparg0;
-    func_001102f0(sp120, v16, v17, fparg2);
-    var_2 = func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4));
-    var_6 = (u8 *)spE0;
-    var_5 = 8;
+    modelMatrix = mdlGetMatrix((u32)(s32)model);
+    screenY = (s32)y;
+    screenX = (s32)x;
+    datScreenPointToWorldPosition(projectedPosition, screenX, screenY, depth);
+    cameraMatrixCursor = func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4));
+    matrixCopyCursor = (u8 *)drawMatrix;
+    cameraPairsRemaining = 8;
     do {
-        temp_4 = *(s32 *)(var_2 + 0);
-        temp_3 = *(s32 *)(var_2 + 4);
-        var_2 += 8;
-        var_5 -= 1;
-        *(s32 *)(var_6 + 0) = temp_4;
-        *(s32 *)(var_6 + 4) = temp_3;
-        var_6 += 8;
-    } while (var_5 > 0);
-    spE0[8] = sp120[0] - spE0[12];
-    spE0[9] = sp120[1] - spE0[13];
-    spE0[10] = sp120[2] - spE0[14];
-    RwV3dNormalize(&spE0[8], &spE0[8]);
-    spE0[12] -= spE0[12];
-    spE0[13] -= spE0[13];
-    spE0[14] -= spE0[14];
-    RwMatrixUpdate(spE0);
-    sp130[2] = fparg3;
-    sp130[1] = fparg3;
-    sp130[0] = fparg3;
-    RwMatrixScale(spE0, sp130, 0);
-    RwMatrixMultiply(spA0, spE0, temp_ret);
-    var_5_2 = (s128 *)spA0;
-    var_4 = (s128 *)spE0;
-    var_3 = 4;
+        cameraFirstWord = *(s32 *)(cameraMatrixCursor + 0);
+        cameraSecondWord = *(s32 *)(cameraMatrixCursor + 4);
+        cameraMatrixCursor += 8;
+        cameraPairsRemaining -= 1;
+        *(s32 *)(matrixCopyCursor + 0) = cameraFirstWord;
+        *(s32 *)(matrixCopyCursor + 4) = cameraSecondWord;
+        matrixCopyCursor += 8;
+    } while (cameraPairsRemaining > 0);
+    drawMatrix[8] = projectedPosition[0] - drawMatrix[12];
+    drawMatrix[9] = projectedPosition[1] - drawMatrix[13];
+    drawMatrix[10] = projectedPosition[2] - drawMatrix[14];
+    RwV3dNormalize(&drawMatrix[8], &drawMatrix[8]);
+    drawMatrix[12] -= drawMatrix[12];
+    drawMatrix[13] -= drawMatrix[13];
+    drawMatrix[14] -= drawMatrix[14];
+    RwMatrixUpdate(drawMatrix);
+    scaleVector[2] = scale;
+    scaleVector[1] = scale;
+    scaleVector[0] = scale;
+    RwMatrixScale(drawMatrix, scaleVector, 0);
+    RwMatrixMultiply(combinedMatrix, drawMatrix, modelMatrix);
+    combinedQuadwords = (s128 *)combinedMatrix;
+    drawQuadwords = (s128 *)drawMatrix;
+    quadwordsRemaining = 4;
     do {
-        temp_2 = *var_5_2;
-        var_5_2 += 1;
-        var_3 -= 1;
-        *var_4 = temp_2;
-        var_4 += 1;
-    } while (var_3 > 0);
-    if (arg2 != 0) {
-        func_001102f0(sp140, v16, v17, fparg2);
+        matrixQuadword = *combinedQuadwords;
+        combinedQuadwords += 1;
+        quadwordsRemaining -= 1;
+        *drawQuadwords = matrixQuadword;
+        drawQuadwords += 1;
+    } while (quadwordsRemaining > 0);
+    if (projectPosition != 0) {
+        datScreenPointToWorldPosition(translation, screenX, screenY, depth);
     } else {
-        sp140[0] = fparg0;
-        sp140[1] = fparg1;
-        sp140[2] = fparg2;
+        translation[0] = x;
+        translation[1] = y;
+        translation[2] = depth;
     }
-    RwMatrixTranslate(spE0, sp140, 2);
+    RwMatrixTranslate(drawMatrix, translation, 2);
     chkmemAllocSiteTag(D_0063EE50, 0x16B);
-    temp_2_2 = D_008873F4[0](1, 0x60, 0x40000);
-    *(u32 *)(temp_2_2 + 0) = (arg0 << 8) | arg1;
-    *(s32 *)(temp_2_2 + 0x50) = *(s32 *)(arg3 + 0xD8);
-    var_6_2 = (u8 *)spE0;
-    var_5_3 = temp_2_2 + 0x10;
-    var_4_2 = 8;
+    packet = D_008873F4[0](1, 0x60, 0x40000);
+    *(u32 *)(packet + 0) = (rgb << 8) | alpha;
+    *(s32 *)(packet + 0x50) = *(s32 *)(model + 0xD8);
+    packetMatrixSource = (u8 *)drawMatrix;
+    packetMatrixCursor = packet + 0x10;
+    packetPairsRemaining = 8;
     do {
-        temp_3_2 = *(s32 *)(var_6_2 + 0);
-        temp_2_3 = *(s32 *)(var_6_2 + 4);
-        var_6_2 += 8;
-        var_4_2 -= 1;
-        *(s32 *)(var_5_3 + 0) = temp_3_2;
-        *(s32 *)(var_5_3 + 4) = temp_2_3;
-        var_5_3 += 8;
-    } while (var_4_2 > 0);
-    *(u8 **)(temp_2_2 + 0x54) = arg3;
-    if (arg4 != NULL) {
-        temp_2_4 = PrimAllocQueueNode();
-        *(void **)(temp_2_4 + 8) = (void *)func_002ab4b0;
-        *(u8 **)(temp_2_4 + 0x10) = temp_2_2;
-        PrimAppendNode(arg4, temp_2_4);
+        packetFirstWord = *(s32 *)(packetMatrixSource + 0);
+        packetSecondWord = *(s32 *)(packetMatrixSource + 4);
+        packetMatrixSource += 8;
+        packetPairsRemaining -= 1;
+        *(s32 *)(packetMatrixCursor + 0) = packetFirstWord;
+        *(s32 *)(packetMatrixCursor + 4) = packetSecondWord;
+        packetMatrixCursor += 8;
+    } while (packetPairsRemaining > 0);
+    *(u8 **)(packet + 0x54) = model;
+    if (queue != NULL) {
+        drawNode = PrimAllocQueueNode();
+        *(void **)(drawNode + 8) = (void *)titleVisualDrawModelPacket;
+        *(u8 **)(drawNode + 0x10) = packet;
+        PrimAppendNode(queue, drawNode);
     } else {
-        var_2_2 = mdlGetMatrix((u32)(s32)arg3);
-        var_6_3 = (u8 *)spE0;
-        var_5_4 = 8;
+        savedMatrixCursor = mdlGetMatrix((u32)(s32)model);
+        restoreMatrixCursor = (u8 *)drawMatrix;
+        restorePairsRemaining = 8;
         do {
-            temp_4_2 = *(s32 *)(var_2_2 + 0);
-            temp_3_3 = *(s32 *)(var_2_2 + 4);
-            var_2_2 += 8;
-            var_5_4 -= 1;
-            *(s32 *)(var_6_3 + 0) = temp_4_2;
-            *(s32 *)(var_6_3 + 4) = temp_3_3;
-            var_6_3 += 8;
-        } while (var_5_4 > 0);
-        temp_3_4 = *(u32 *)(temp_2_2 + 0);
-        sp14C[0] = (s8)(temp_3_4 >> 24);
-        sp14C[1] = (s8)(temp_3_4 >> 16);
-        sp14C[2] = (s8)(temp_3_4 >> 8);
-        sp14C[3] = (s8)temp_3_4;
-        temp_18 = *(u8 **)(temp_2_2 + 0x54);
-        temp_17 = *(s32 *)(temp_18 + 0xD8);
-        *(s32 *)(temp_18 + 0xD8) = *(s32 *)(temp_2_2 + 0x50);
-        mdlApplyModelMatrix(temp_18, temp_2_2 + 0x10, 0);
-        func_002ab550(temp_18, sp14C);
-        *(s32 *)(temp_18 + 0xD8) = temp_17;
-        jtbl_008873EC[0](temp_2_2);
-        mdlApplyModelMatrix(arg3, spE0, 0);
+            savedFirstWord = *(s32 *)(savedMatrixCursor + 0);
+            savedSecondWord = *(s32 *)(savedMatrixCursor + 4);
+            savedMatrixCursor += 8;
+            restorePairsRemaining -= 1;
+            *(s32 *)(restoreMatrixCursor + 0) = savedFirstWord;
+            *(s32 *)(restoreMatrixCursor + 4) = savedSecondWord;
+            restoreMatrixCursor += 8;
+        } while (restorePairsRemaining > 0);
+        packedColor = *(u32 *)(packet + 0);
+        color[0] = (s8)(packedColor >> 24);
+        color[1] = (s8)(packedColor >> 16);
+        color[2] = (s8)(packedColor >> 8);
+        color[3] = (s8)packedColor;
+        drawModel = *(u8 **)(packet + 0x54);
+        savedFlags = *(s32 *)(drawModel + 0xD8);
+        *(s32 *)(drawModel + 0xD8) = *(s32 *)(packet + 0x50);
+        mdlApplyModelMatrix(drawModel, packet + 0x10, 0);
+        titleVisualDrawTintedModel(drawModel, color);
+        *(s32 *)(drawModel + 0xD8) = savedFlags;
+        jtbl_008873EC[0](packet);
+        mdlApplyModelMatrix(model, drawMatrix, 0);
     }
 }
 
 /* measured: opt_propagation off preserves the retail alloc-table base hoist. */
 #pragma opt_propagation off
 // FUN_002ABB30
-void func_002abb30(
-    f32 fparg0,
-    f32 fparg1,
-    f32 fparg2,
-    s32 arg0,
-    s32 arg1,
-    f32 fparg3,
-    s32 arg2,
-    u8 *arg3,
-    void *arg4
+/* Bracket the title model with full-screen rectangle packets to establish and restore the mask. */
+void titleVisualDrawMaskedModel(
+    f32 x,
+    f32 y,
+    f32 depth,
+    s32 rgb,
+    s32 alpha,
+    f32 scale,
+    s32 projectPosition,
+    u8 *model,
+    void *queue
 ) {
-    f32 sp90[4];
-    f32 spA0[4];
-    f32 spB0[4];
-    f32 spC8[2];
-    u8 *var;
+    f32 backgroundBounds[4];
+    f32 foregroundBounds[4];
+    f32 restoreBounds[4];
+    f32 clearColor[2];
+    u8 *clearCursor;
     s32 count;
     u8 *packet;
-    u8 *packet3;
+    u8 *restorePacket;
     u8 *callback;
     u32 color;
     void *(**alloc)(size_t, size_t, u32);
 
-    var = (u8 *)&spC8[0];
+    clearCursor = (u8 *)&clearColor[0];
     count = 4;
-    if (var != NULL) {
+    if (clearCursor != NULL) {
         do {
-            *var = 0;
-            var += 1;
+            *clearCursor = 0;
+            clearCursor += 1;
             count -= 1;
         } while (count != 0);
     }
-    spC8[1] = spC8[0];
+    clearColor[1] = clearColor[0];
     chkmemAllocSiteTag(D_0063EE50, 0x91);
     alloc = D_008873F4;
     packet = alloc[0](1, 0x1C, 0x40000);
-    var = (u8 *)&sp90[0];
+    clearCursor = (u8 *)&backgroundBounds[0];
     count = 0x10;
-    if (var != NULL) {
+    if (clearCursor != NULL) {
         do {
-            *var = 0;
-            var += 1;
+            *clearCursor = 0;
+            clearCursor += 1;
             count -= 1;
         } while (count != 0);
     }
-    *(s32 *)&sp90[0] = 0;
-    *(s32 *)&sp90[1] = 0;
-    *(s32 *)&sp90[2] = 640;
-    *(s32 *)&sp90[3] = 480;
-    *(Float4 *)(packet + 0) = *(Float4 *)&sp90[0];
-    *(s32 *)(packet + 0x10) = 0;
-    *(Byte4 *)(packet + 0x14) = *(Byte4 *)&spC8[1];
-    *(s32 *)(packet + 0x18) = 0x12;
-    if (arg4 != NULL) {
+    *(s32 *)&backgroundBounds[0] = 0;
+    *(s32 *)&backgroundBounds[1] = 0;
+    *(s32 *)&backgroundBounds[2] = 640;
+    *(s32 *)&backgroundBounds[3] = 480;
+    ((TitleRectPacket *)packet)->bounds = *(Float4 *)&backgroundBounds[0];
+    *(s32 *)&((TitleRectPacket *)packet)->depth = 0;
+    ((TitleRectPacket *)packet)->color = *(Byte4 *)&clearColor[1];
+    ((TitleRectPacket *)packet)->flags = 0x12;
+    if (queue != NULL) {
         callback = PrimAllocQueueNode();
-        *(void **)(callback + 8) = (void *)titleVisualDraw;
-        *(u8 **)(callback + 0x10) = packet;
-        PrimAppendNode(arg4, callback);
+        ((PrimQueueNode *)callback)->callback = (void *)titleVisualDraw;
+        ((PrimQueueNode *)callback)->argument.data = packet;
+        PrimAppendNode(queue, callback);
     } else {
         titleVisualDraw(NULL, packet);
     }
-    func_002ab790(fparg0, fparg1, fparg2, arg0, arg1, fparg3, arg2, arg3, arg4);
-    color = (u32)((arg0 << 8) | arg1);
-    ((u8 *)&spC8[1])[0] = (u8)(color >> 24);
-    ((u8 *)&spC8[1])[1] = (u8)(color >> 16);
-    ((u8 *)&spC8[1])[2] = (u8)(color >> 8);
-    ((u8 *)&spC8[1])[3] = (u8)color;
+    titleVisualSubmitModel(x, y, depth, rgb, alpha, scale, projectPosition, model, queue);
+    color = (u32)((rgb << 8) | alpha);
+    ((u8 *)&clearColor[1])[0] = (u8)(color >> 24);
+    ((u8 *)&clearColor[1])[1] = (u8)(color >> 16);
+    ((u8 *)&clearColor[1])[2] = (u8)(color >> 8);
+    ((u8 *)&clearColor[1])[3] = (u8)color;
     chkmemAllocSiteTag(D_0063EE50, 0x91);
     packet = alloc[0](1, 0x1C, 0x40000);
-    var = (u8 *)&spA0[0];
+    clearCursor = (u8 *)&foregroundBounds[0];
     count = 0x10;
-    if (var != NULL) {
+    if (clearCursor != NULL) {
         do {
-            *var = 0;
-            var += 1;
+            *clearCursor = 0;
+            clearCursor += 1;
             count -= 1;
         } while (count != 0);
     }
-    *(s32 *)&spA0[0] = 0;
-    *(s32 *)&spA0[1] = 0;
-    *(s32 *)&spA0[2] = 640;
-    *(s32 *)&spA0[3] = 480;
-    *(Float4 *)(packet + 0) = *(Float4 *)&spA0[0];
-    *(f32 *)(packet + 0x10) = 1.0f;
-    *(Byte4 *)(packet + 0x14) = *(Byte4 *)&spC8[1];
-    *(s32 *)(packet + 0x18) = 1;
-    if (arg4 != NULL) {
+    *(s32 *)&foregroundBounds[0] = 0;
+    *(s32 *)&foregroundBounds[1] = 0;
+    *(s32 *)&foregroundBounds[2] = 640;
+    *(s32 *)&foregroundBounds[3] = 480;
+    ((TitleRectPacket *)packet)->bounds = *(Float4 *)&foregroundBounds[0];
+    ((TitleRectPacket *)packet)->depth = 1.0f;
+    ((TitleRectPacket *)packet)->color = *(Byte4 *)&clearColor[1];
+    ((TitleRectPacket *)packet)->flags = 1;
+    if (queue != NULL) {
         callback = PrimAllocQueueNode();
-        *(void **)(callback + 8) = (void *)titleVisualDraw;
-        *(u8 **)(callback + 0x10) = packet;
-        PrimAppendNode(arg4, callback);
+        ((PrimQueueNode *)callback)->callback = (void *)titleVisualDraw;
+        ((PrimQueueNode *)callback)->argument.data = packet;
+        PrimAppendNode(queue, callback);
     } else {
         titleVisualDraw(NULL, packet);
     }
     chkmemAllocSiteTag(D_0063EE50, 0x91);
-    packet3 = alloc[0](1, 0x1C, 0x40000);
-    var = (u8 *)&spB0[0];
+    restorePacket = alloc[0](1, 0x1C, 0x40000);
+    clearCursor = (u8 *)&restoreBounds[0];
     count = 0x10;
-    if (var != NULL) {
+    if (clearCursor != NULL) {
         do {
-            *var = 0;
-            var += 1;
+            *clearCursor = 0;
+            clearCursor += 1;
             count -= 1;
         } while (count != 0);
     }
-    *(s32 *)&spB0[0] = 0;
-    *(s32 *)&spB0[1] = 0;
-    *(s32 *)&spB0[2] = 640;
-    *(s32 *)&spB0[3] = 480;
-    *(Float4 *)(packet3 + 0) = *(Float4 *)&spB0[0];
-    *(s32 *)(packet3 + 0x10) = 0;
-    *(Byte4 *)(packet3 + 0x14) = *(Byte4 *)&spC8[1];
-    *(s32 *)(packet3 + 0x18) = 8;
-    if (arg4 != NULL) {
+    *(s32 *)&restoreBounds[0] = 0;
+    *(s32 *)&restoreBounds[1] = 0;
+    *(s32 *)&restoreBounds[2] = 640;
+    *(s32 *)&restoreBounds[3] = 480;
+    ((TitleRectPacket *)restorePacket)->bounds = *(Float4 *)&restoreBounds[0];
+    *(s32 *)&((TitleRectPacket *)restorePacket)->depth = 0;
+    ((TitleRectPacket *)restorePacket)->color = *(Byte4 *)&clearColor[1];
+    ((TitleRectPacket *)restorePacket)->flags = 8;
+    if (queue != NULL) {
         callback = PrimAllocQueueNode();
-        *(void **)(callback + 8) = (void *)titleVisualDraw;
-        *(u8 **)(callback + 0x10) = packet3;
-        PrimAppendNode(arg4, callback);
+        ((PrimQueueNode *)callback)->callback = (void *)titleVisualDraw;
+        ((PrimQueueNode *)callback)->argument.data = restorePacket;
+        PrimAppendNode(queue, callback);
     } else {
-        titleVisualDraw(NULL, packet3);
+        titleVisualDraw(NULL, restorePacket);
     }
 }
 #pragma opt_propagation on

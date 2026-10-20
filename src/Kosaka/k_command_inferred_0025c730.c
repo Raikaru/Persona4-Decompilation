@@ -19,17 +19,17 @@ extern char D_00635C60[];
 extern s32 iGpffffb480;
 
 
-extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 icon);
 
 
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
-extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
-                           s32 arg2, s32 arg3, s32 arg4);
-extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
-                           f32 farg0, f32 farg1, s32 arg4);
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth,
+                           s32 count, s32 primitiveType, s32 preserveState);
+extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
+                           f32 angle, f32 depth, s32 preserveState);
 
 
 
@@ -46,12 +46,12 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 
 // FUN_0025C730
 s32 scrCommonCheckResSlot(void) {
-    s32 temp_16;
-    s32 temp_17;
+    s32 resourceId;
+    s32 iconId;
 
-    temp_16 = scrGetParamInt(0);
-    temp_17 = scrGetParamInt(1);
-    MT_Scene_SpawnResIconTask(((temp_16 & 0x3FF) | 0xC00) & 0xFFFF, temp_17 & 0xFF);
+    resourceId = scrGetParamInt(0);
+    iconId = scrGetParamInt(1);
+    MT_Scene_SpawnResIconTask(((resourceId & 0x3FF) | 0xC00) & 0xFFFF, iconId & 0xFF);
     return 1;
 }
 

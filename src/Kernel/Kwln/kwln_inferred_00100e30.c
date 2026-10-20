@@ -7,7 +7,7 @@
 typedef struct RwImage RwImage;
 
 extern u8 *D_00764298;
-extern void func_004ccb38(s32 arg0);
+extern void func_004ccb38(s32);
 extern void kwlnMainLoop(void);
 extern u8 D_00559810[];
 extern u8 D_00559820[];
@@ -53,39 +53,39 @@ extern s32 iGpffffb1a0;
 extern s32 iGpffffb19c;
 extern void H_Cdvd_UpdateRequests(void);
 extern void resourceLoadSprites(void);
-extern void func_0045b7c0(void);
+extern void sdkSndUpdateDecodeSlots(void);
 extern void sdkSndUpdate(void);
 extern void sdkPadUpdateAll(void);
 extern s32 kwlnTaskRunFrame(void);
 extern void func_00466580(void);
-extern void func_003e5510(s32 arg0);
+extern void func_003e5510(s32);
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
 extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern f32 iGpffffba6c;
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32, s32);
 extern void kwlnInitIop(void);
 extern void kwlnInitEngine(void);
 extern void kwlnInitSubsystems(void);
-extern void RpRandomSeed(s32 arg0);
-extern void RpRandomSeedMT(s32 arg0);
+extern void RpRandomSeed(s32);
+extern void RpRandomSeedMT(s32);
 extern s32 kwlnEnableInterrupts(void);
 extern void mainDrawStartClearOt(void);
 extern void mainDrawStartFrame(void);
-extern void func_001028c0(void);
-extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void sequenceCreate(void);
+extern void sequenceRequest(s32 sequenceId, s32 parameters, s32 parameterSize, s32 delay);
 extern void func_0010d7b0(void);
 extern void tickerStartTask(void);
-extern void func_00122430(s32 arg0);
-extern u8 *resrcMngSpawnRenderTask(u8 *parent);
+extern void fadeCreateController(s32 parentTask);
+extern u8 *resrcMngSpawnRenderTask(u8 *parentTask);
 extern void FldFilterLoadFile(void);
 extern void btlUnitLoadSyncedAssets(void);
 extern void mdlAppRegisterModelCallbacks(void);
 extern void mdlAppPreloadResource(void);
 extern void cmmLoadTables(void);
-extern void func_0025ff90(void);
+extern void cldSchedulerInit(void);
 extern void cldDayChangePreloadData(void);
 extern void mtSceneIconLoadDirectory(void);
 extern void frFontStartup(void);
@@ -93,14 +93,14 @@ extern void itfMesLoadData(void);
 extern void itfMesInitManager(void);
 extern void scrInitPools(void);
 extern void loadingSpinnerTaskCreate(void);
-extern void func_002bdf20(void);
+extern void fclShopLoadMessageResources(void);
 extern void nLineInit(void);
-extern void RpSkySelectTrueTSClipper(s32 arg0);
-extern void RpSkySelectTrueTLClipper(s32 arg0);
-extern void func_00418b18(s32 arg0);
-extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern void func_0044f570(s32 arg0);
-extern void kwlnTaskInitPool(s32 arg0);
+extern void RpSkySelectTrueTSClipper(s32);
+extern void RpSkySelectTrueTLClipper(s32);
+extern void func_00418b18(s32);
+extern void memset(void *, s32, s32);
+extern void sdkDbprtInit(s32 cameraAddress);
+extern void kwlnTaskInitPool(s32 capacity);
 extern void H_Cdvd_ResetStreamState(void);
 extern void H_Cdvd_InitDevices(void);
 extern s32 kwlnGetCamera(void);
@@ -140,29 +140,29 @@ typedef struct {
 } Float2_0010;
 extern u8 D_00796460[];
 extern void sdkSndInit(void);
-extern void sdkSndSetSlotTrack(s32 arg0, s32 arg1);
-extern void func_0045b430(void);
-extern void PrimCreatePools(s32 arg0, s32 arg1);
-extern void func_00463520(void);
+extern void sdkSndSetSlotTrack(s32 slotIndex, s32 trackId);
+extern void mdlRenderInitializeBuffers(void);
+extern void PrimCreatePools(s32 queueCount, s32 batchCount);
+extern void hMaestroCreateServicesTask(void);
 extern void func_00466680(void);
-extern void sdkSetActiveHandle(s32 arg0);
-extern void mdlResetModelTable(s32 arg0);
-extern void TnSetTableBase(s32 arg0);
-extern void TnInitModule(s32 arg0);
-extern void func_004b3250(s32 arg0);
-extern void AfPackInit(s32 arg0, s32 arg1);
-extern void func_004c6eb0(s32 arg0);
-extern s32 func_004c6f50(s32 arg0, s32 arg1, s32 arg2);
-extern void func_004c7188(s32 arg0);
+extern void sdkSetActiveHandle(s32 handle);
+extern void mdlResetModelTable(s32 model);
+extern void TnSetTableBase(s32 table);
+extern void TnInitModule(s32 taskPriority);
+extern void mdlEffectSetGlobalValue(s32 value);
+extern void AfPackInit(s32 drawList, s32 taskPriority);
+extern void func_004c6eb0(s32);
+extern s32 func_004c6f50(s32, s32, s32);
+extern void func_004c7188(s32);
 extern void func_004ca720(void);
-extern void func_004cc200(s32 arg0, s32 arg1);
-extern void func_004cc218(s32 arg0);
-extern void func_004cd470(s32 arg0, s32 arg1);
-extern void mwPlyInitSfdFx(void *arg0);
+extern void func_004cc200(s32, s32);
+extern void func_004cc218(s32);
+extern void func_004cd470(s32, s32);
+extern void mwPlyInitSfdFx(void *iprm);
 extern void func_004d8c78(void);
-extern void func_004f2798(s32 arg0, s32 arg1);
-extern void func_004f34b0(s32 arg0);
-extern void func_004f5bf0(s32 arg0, s32 arg1, s32 arg2);
+extern void func_004f2798(s32, s32);
+extern void func_004f34b0(s32);
+extern void func_004f5bf0(s32, s32, s32);
 extern void func_00100dd0(void);
 extern void func_00100e00(void);
 extern void scrReleaseActiveHandle(void);
@@ -235,7 +235,7 @@ void kwlnInitSubsystems(void)
     H_Cdvd_ResetStreamState();
     H_Cdvd_InitDevices();
     func_0010d7b0();
-    func_0045b430();
+    mdlRenderInitializeBuffers();
     sdkSndInit();
     memset(&D_00764D10[0], 0, 0x14);
     D_00764D10[0] = (s32)((u8 *)&D_00761690 + 4);
@@ -273,6 +273,8 @@ void kwlnInitSubsystems(void)
     func_004f2798((s32)((u8 *)&D_00761690 + 20), (s32)&D_005DB850);
     func_004c7188((s32)((u8 *)&D_00761690 + 8));
     memset(&D_00764D30[0], 0, 0x20);
+    /* This external scalar names only the start of a linker-owned constant
+     * sequence; no complete aggregate declaration proves the adjacent +8 value. */
     D_00764D30[0] = *(f32 *)((u8 *)&fGpffff8030 + 8);
     one = 1;
     D_00764D34[0] = one;
@@ -284,13 +286,13 @@ void kwlnInitSubsystems(void)
     sdkSndSetSlotTrack(1, 2);
     mdlResetModelTable((s32)&D_005DC878);
     mdlAppRegisterModelCallbacks();
-    func_0044f570(kwlnGetCamera());
+    sdkDbprtInit(kwlnGetCamera());
     RpSkySelectTrueTSClipper(1);
     RpSkySelectTrueTLClipper(1);
     func_00466680();
     TnInitModule(0xC7);
     TnSetTableBase((s32)&D_005DC7D0);
-    func_004b3250((s32)&D_007948A0);
+    mdlEffectSetGlobalValue((s32)&D_007948A0);
     AfPackInit((s32)&D_00794510, 0xC7);
     btlUnitLoadSyncedAssets();
     cmmLoadTables();
@@ -299,20 +301,20 @@ void kwlnInitSubsystems(void)
     frFontStartup();
     itfMesInitManager();
     itfMesLoadData();
-    func_002bdf20();
+    fclShopLoadMessageResources();
     scrInitPools();
     cldDayChangePreloadData();
-    func_0025ff90();
+    cldSchedulerInit();
     mainDrawStartClearOt();
     mainDrawStartFrame();
-    func_00463520();
-    func_001028c0();
+    hMaestroCreateServicesTask();
+    sequenceCreate();
     FldFilterLoadFile();
     loadingSpinnerTaskCreate();
-    func_001029a0(0x1E, 0, 0, 0);
+    sequenceRequest(0x1E, 0, 0, 0);
     resrcMngSpawnRenderTask(NULL);
     tickerStartTask();
-    func_00122430(0);
+    fadeCreateController(0);
     nLineInit();
 }
 
@@ -334,7 +336,7 @@ s32 kwlnRunFrame(void)
     iGpffffb194 = *(u32 *)0x10000000;
     H_Cdvd_UpdateRequests();
     resourceLoadSprites();
-    func_0045b7c0();
+    sdkSndUpdateDecodeSlots();
     sdkSndUpdate();
     sdkPadUpdateAll();
     if (kwlnTaskRunFrame() == 0) {
@@ -370,7 +372,8 @@ loop_1:
 
 /* measured: func_001013a0 is a live plain-C MATCH (272B window, 272B object, normalized_diff 0); staging kind = 4 before data = &iGpffffba6c reproduces retail's argument materialization order. */
 // FUN_001013A0
-void func_001013a0(void)
+/* Install the optional global render-state configuration, including packed color. */
+void kwlnApplyRenderStateConfig(void)
 {
     u32 color;
     s32 kind;

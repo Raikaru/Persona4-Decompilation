@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
@@ -22,7 +23,7 @@ extern s32 D_00922DA0[];
 extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
-extern void func_004b1ad0(u8 *arg0);
+extern void mdlEffectUpdateScreenSprite(u8 *instance);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -44,12 +45,12 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *instance, s32 value);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
-extern void func_003c42b0(s32 arg0, s32 arg1);
+extern void *(*jtbl_008873E8[])(u32 instance, u32 value);
+extern void func_003c42b0(s32 instance, s32 value);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -75,22 +76,23 @@ typedef struct EffScreenSpriteRGBA {
 #pragma push
 /* measured: func_004b1ad0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Sample sprite color, size and texture animation, project its corners through the camera and queue the geometry. */
 // FUN_004B1AD0
-void func_004b1ad0(u8 *arg0)
+void mdlEffectUpdateScreenSprite(u8 *instance)
 {
-    extern s32 mdlEffectSamplePackedColor(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-    extern f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
-    extern void mdlEffectWrapTrackFrames(s32 arg0, u32 arg1);
-    extern void mdlEffectEvalSubPose(s32 arg0, f32 *arg1);
-    extern void TlpSelectFrame(void *arg0, u32 arg1, f32 *arg2);
-    extern void GeometryBlockGetTextureInfo(s32 arg0, u32 *arg1);
-    extern void func_003c22f0(void *arg0);
-    extern void func_003c42b0(void *arg0, s32 arg1);
-    extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-    extern void PrimAppendNode(void *arg0, void *arg1);
-    extern s32 TnGetOffset38(u16 arg0);
-    extern f32 cosf(f32 arg0);
-    extern f32 sinf(f32 arg0);
+    extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
+    extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
+    extern void mdlEffectWrapTrackFrames(s32 instance, u32 frame);
+    extern void mdlEffectEvalSubPose(s32 instance, f32 *output);
+    extern void TlpSelectFrame(void *work, u32 index, f32 *out);
+    extern void GeometryBlockGetTextureInfo(s32 block, u32 *info);
+    extern void func_003c22f0(void *instance);
+    extern void func_003c42b0(void *instance, s32 value);
+    extern void func_003e9cb0(void *frame, void *transform, s32 combine);
+    extern void PrimAppendNode(void *list, void *node);
+    extern s32 TnGetOffset38(u16 slotIndex);
+    extern f32 cosf(f32 instance);
+    extern f32 sinf(f32 instance);
     extern f32 D_00761134;
     extern f32 fGpffff8084;
     EffScreenSpriteRGBA color;
@@ -113,9 +115,10 @@ void func_004b1ad0(u8 *arg0)
     f32 *vertex;
     f32 *uv;
 
-    total = *(s32 *)(arg0 + 0x98);
-    count = *(s32 *)(arg0 + 0x8);
-    sprite = *(u8 **)(arg0 + 0xA4);
+    total = ((MdlEffectScreenSprite *)instance)->duration;
+    count = ((MdlEffectScreenSprite *)instance)->age;
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    sprite = *(u8 **)(instance + 0xA4);
     if (count == 0) {
         return;
     }
@@ -123,10 +126,10 @@ void func_004b1ad0(u8 *arg0)
         return;
     }
     {
-        s32 tint = mdlEffectSamplePackedColor(arg0 + 0xC, arg0 + 0x30, count, total);
+        s32 tint = mdlEffectSamplePackedColor(instance + 0xC, instance + 0x30, count, total);
         f32 unit;
 
-        baseWord = *(u32 *)arg0;
+        baseWord = *(u32 *)instance;
         {
             const u32 *word = &baseWord;
 
@@ -149,24 +152,26 @@ void func_004b1ad0(u8 *arg0)
         "sw $2, packed\n" : "=m"(packed) : : "$2", "$vf2", "$vf10");
     *(u32 *)&color = packed;
     if (color.alpha != 0xFF) {
-        *(EffScreenSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
+        *(EffScreenSpriteRGBA *)&((RpMaterial *)((EffGeometryBlock *)sprite)->material)->color = color;
     } else {
         color.alpha = 0xFE;
-        *(EffScreenSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
+        *(EffScreenSpriteRGBA *)&((RpMaterial *)((EffGeometryBlock *)sprite)->material)->color = color;
         color.alpha = 0xFF;
     }
-    scale = mdlEffectSampleScalarKeys(arg0 + 0x40, count, total) / 100.0f;
-    spin = mdlEffectSampleScalarKeys(arg0 + 0x6C, count, total);
+    scale = mdlEffectSampleScalarKeys(instance + 0x40, count, total) / 100.0f;
+    spin = mdlEffectSampleScalarKeys(instance + 0x6C, count, total);
     spin += fGpffff8084;
-    if (*(s32 *)(arg0 + 0xAC) != 0) {
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    if (*(s32 *)(instance + 0xAC) != 0) {
         f32 cellW;
         f32 cellH;
         f32 y0;
         f32 x0;
         f32 x1;
 
-        mdlEffectWrapTrackFrames(*(s32 *)(arg0 + 0xAC), count);
-        mdlEffectEvalSubPose(*(s32 *)(arg0 + 0xAC), animation);
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlEffectWrapTrackFrames(*(s32 *)(instance + 0xAC), count);
+        mdlEffectEvalSubPose(((MdlEffectScreenSprite *)instance)->tracks, animation);
         cellW = 16.0f * animation[12];
         cellH = 16.0f * animation[13];
         x0 = animation[6] * cellW;
@@ -188,12 +193,13 @@ void func_004b1ad0(u8 *arg0)
         info.size[0] = (u32)animation[12];
         info.size[1] = (u32)animation[13];
         spin += animation[4];
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&animation[5]);
-    } else if (*(void **)(arg0 + 0xA8) != NULL) {
+    } else if ((void *)((MdlEffectScreenSprite *)instance)->tlp != NULL) {
         s32 w;
         s32 h;
 
-        TlpSelectFrame(*(void **)(arg0 + 0xA8), count, texture);
+        TlpSelectFrame((void *)((MdlEffectScreenSprite *)instance)->tlp, count, texture);
         w = (s32)(16.0f * texture[2]);
         h = (s32)(16.0f * texture[3]);
         info.corner[2] = 0;
@@ -212,6 +218,7 @@ void func_004b1ad0(u8 *arg0)
         info.rect[3] = (f32)(h >> 5);
         info.size[0] = (u32)texture[2];
         info.size[1] = (u32)texture[3];
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&texture[4]);
     } else {
         s32 w;
@@ -235,12 +242,13 @@ void func_004b1ad0(u8 *arg0)
         info.size[0] = frame[0];
         info.size[1] = frame[1];
     }
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(sprite + 0x10) + 0x18), 0xFF2);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    RpGeometryLock(((RpAtomic *)*(u8 **)(sprite + 0x10))->geometry, 0xFF2);
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(sprite + 0x10) + 0x18);
+        u8 *geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)sprite)->atomic)->geometry;
 
-        vertex = *(f32 **)(*(u8 **)(geometry + 0x5C) + 0x14);
-        uv = *(f32 **)(geometry + 0x34);
+        vertex = ((RpMorphTarget *)(u8 *)((RpGeometry *)geometry)->morphTarget)->vertices;
+        uv = ((RpGeometry *)geometry)->texCoords[0];
     }
     left = info.rect[0] * scale;
     top = info.rect[1] * scale;
@@ -293,10 +301,10 @@ f32 *camera;
         u32 i;
 
         camera = (f32 *)((u8 *)kwlnGetCamera() + 0x68);
-        nearZ = *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
-        farZ = *(f32 *)((u8 *)kwlnGetCamera() + 0x84);
-        offsetX = (f32)*(s32 *)(arg0 + 0x9C);
-        offsetY = (f32)*(s32 *)(arg0 + 0xA0);
+        nearZ = ((MdlEffectCamera *)(u8 *)kwlnGetCamera())->nearPlane;
+        farZ = ((MdlEffectCamera *)(u8 *)kwlnGetCamera())->farPlane;
+        offsetX = (f32)((MdlEffectScreenSprite *)instance)->offsetX;
+        offsetY = (f32)((MdlEffectScreenSprite *)instance)->offsetY;
         depth = ((f32)(-65535) * nearZ * farZ) / ((f32)(-65535) * farZ - -31.0f * (farZ - nearZ));
         halfW = 2.0f * (camera[0] * depth);
         halfH = 2.0f * (camera[1] * depth);
@@ -311,26 +319,29 @@ f32 *camera;
         }
     }
     {
-        u8 *owner = *(u8 **)(arg0 + 0xA4);
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *owner = ((MdlEffectScreenSprite *)instance)->geometry;
+        u8 *geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
 
         func_003c22f0(geometry);
         if ((*(u16 *)owner & 4) != 0) {
-            *(u16 *)(geometry + 0xC) |= 1;
+            ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
     {
         u8 *scene = (u8 *)kwlnGetCamera();
 
-        func_003e9cb0(*(void **)(sprite + 0xC), (void *)((u32)*(u8 **)(scene + 4) + 0x10), 0);
+        /* This callback consumes the geometry frame word beyond the shared block prefix; no full frame-owning subtype is established here. */
+        func_003e9cb0(*(void **)(sprite + 0xC), (void *)((u32)((MdlEffectCamera *)scene)->frame + 0x10), 0);
     }
     *(u16 *)sprite &= 0xFFFE;
     {
-        s32 light = TnGetOffset38(*(u16 *)(arg0 + 0x34));
+        s32 light = TnGetOffset38(((MdlEffectScreenSprite *)instance)->scene);
 
+        /* The embedded draw-list link is opaque in the shared geometry-block type; retain its two word clears. */
         *(u32 *)(sprite + 0x18) = 0;
+        /* The embedded draw-list link is opaque in the shared geometry-block type; retain its two word clears. */
         *(u32 *)(sprite + 0x1C) = 0;
         PrimAppendNode((void *)light, sprite + 0x18);
     }
 }
-
+#pragma pop

@@ -1,3 +1,4 @@
+#include "sdk_pad_record.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -79,7 +80,7 @@ extern s16 iGpffffba28;
 extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
-extern void sdkPadCookInput(s32 arg0);
+extern void sdkPadCookInput(s32 slot);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -90,7 +91,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -228,7 +229,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452db0-00452db0 */
 
-extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex);
 #pragma pop
 /* measured: restore O2 after func_00450e80. */
 /* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
@@ -241,61 +242,63 @@ extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
 /* measured: func_00452db0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // Intent: cooks the raw input of slot `slot`. Keeps the raw button bits 4..7, sets the analog direction bits outside the 0x5B..0xA5 neutral band, and runs the button repeat.
+/* SdkPadRecord proves the field layout; interior-symbol accesses preserve
+ * MATCH where typed record fields changed the measured address/load order. */
 // FUN_00452DB0
 void sdkPadCookInput(s32 slot) {
-    unsigned off2;
-    s32 off;
+    unsigned edgeOffset;
+    s32 recordOffset;
     u16 *cooked;
-    u16 *rawHw;
+    u16 *rawButtons;
     u16 *edge;
     u16 raw;
-    u16 cookedVal;
-    u8 *ana3;
-    u8 *ana0;
-    u8 *ana1;
-    u8 *ana2;
+    u16 directions;
+    u8 *rightY;
+    u8 *leftX;
+    u8 *leftY;
+    u8 *rightX;
 
-    off = slot * 0x4A;
-    rawHw = (u16 *)(D_008C02EC + off);
-    cooked = (u16 *)(D_008C02F6 + off);
-    *cooked = (u16)(*rawHw & 0xF0);
-    ana0 = D_008C02FC + off;
-    if ((s32)*ana0 > 0xA5) {
+    recordOffset = slot * 0x4A;
+    rawButtons = (u16 *)(D_008C02EC + recordOffset);
+    cooked = (u16 *)(D_008C02F6 + recordOffset);
+    *cooked = (u16)(*rawButtons & 0xF0);
+    leftX = D_008C02FC + recordOffset;
+    if ((s32)*leftX > 0xA5) {
         *cooked |= 0x2000;
     }
-    if ((s32)*ana0 < 0x5B) {
+    if ((s32)*leftX < 0x5B) {
         *cooked |= 0x8000;
     }
-    ana1 = D_008C02FD + off;
-    if ((s32)*ana1 > 0xA5) {
+    leftY = D_008C02FD + recordOffset;
+    if ((s32)*leftY > 0xA5) {
         *cooked |= 0x4000;
     }
-    if ((s32)*ana1 < 0x5B) {
+    if ((s32)*leftY < 0x5B) {
         *cooked |= 0x1000;
     }
-    ana2 = D_008C02FE + off;
-    if ((s32)*ana2 > 0xA5) {
+    rightX = D_008C02FE + recordOffset;
+    if ((s32)*rightX > 0xA5) {
         *cooked |= 0x40;
     }
-    if ((s32)*ana2 < 0x5B) {
+    if ((s32)*rightX < 0x5B) {
         *cooked |= 0x80;
     }
-    ana3 = D_008C02FF + off;
-    if ((s32)*ana3 > 0xA5) {
+    rightY = D_008C02FF + recordOffset;
+    if ((s32)*rightY > 0xA5) {
         *cooked |= 0x20;
     }
-    if ((s32)*ana3 < 0x5B) {
+    if ((s32)*rightY < 0x5B) {
         *cooked |= 0x10;
     }
     /* The unsigned second offset preserves the retail stride recompute
-       after the analog-byte accesses, without extending off's lifetime. */
-    off2 = (unsigned)slot * 0x4A;
-    raw = *(u16 *)(D_008C02EC + off2);
-    edge = (u16 *)(D_008C02EE + off2);
-    *edge = (u16)(raw & (raw ^ *(u16 *)(D_008C02F0 + off2)));
-    cookedVal = *(u16 *)(D_008C02F6 + off2);
-    *(u16 *)(D_008C02F8 + off2) = (u16)(cookedVal & (cookedVal ^ *(u16 *)(D_008C02FA + off2)));
-    *(u16 *)(D_008C02F2 + off2) = *edge;
+       after the analog-byte accesses, without extending recordOffset's lifetime. */
+    edgeOffset = (unsigned)slot * 0x4A;
+    raw = *(u16 *)(D_008C02EC + edgeOffset);
+    edge = (u16 *)(D_008C02EE + edgeOffset);
+    *edge = (u16)(raw & (raw ^ *(u16 *)(D_008C02F0 + edgeOffset)));
+    directions = *(u16 *)(D_008C02F6 + edgeOffset);
+    *(u16 *)(D_008C02F8 + edgeOffset) = (u16)(directions & (directions ^ *(u16 *)(D_008C02FA + edgeOffset)));
+    *(u16 *)(D_008C02F2 + edgeOffset) = *edge;
     sdkPadRepeatButton(slot, 0x1000, 0);
     sdkPadRepeatButton(slot, 0x4000, 1);
     sdkPadRepeatButton(slot, 0x8000, 2);
@@ -309,4 +312,5 @@ void sdkPadCookInput(s32 slot) {
     sdkPadRepeatButton(slot, 0x10, 0xA);
     sdkPadRepeatButton(slot, 0x80, 0xB);
 }
+#pragma pop
 

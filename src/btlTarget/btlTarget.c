@@ -22,19 +22,31 @@ typedef struct BtlTargetSimpleWork
     u32 param;
 } BtlTargetSimpleWork;
 
+/* Both halfword pairs are copied independently; intervening state is unknown. */
+typedef struct BtlTarget {
+    u8 pad00[0x34];
+    u16 unk34;
+    u16 unk36;
+    u8 pad38[0xC];
+    u16 unk44;
+    u16 unk46;
+} BtlTarget;
+
 u32 btlTargetSimpleCommand(BtlTargetSimpleWork* work);
 
 
 
+/* Snapshot the two target halfwords into their saved pair. */
 // FUN_001EB420
-void func_001eb420(u8* target)
+void btlTargetSavePair(u8* target)
 {
-    *(u16*)(target + 0x44) = *(u16*)(target + 0x34);
-    *(u16*)(target + 0x46) = *(u16*)(target + 0x36);
+    ((BtlTarget*)target)->unk44 = ((BtlTarget*)target)->unk34;
+    ((BtlTarget*)target)->unk46 = ((BtlTarget*)target)->unk36;
 }
 
+/* Allocate packet 0x801 and initialize its eight-byte command work block. */
 // FUN_001F6030
-BtlPacket* func_001f6030(u16 command, u32 param)
+BtlPacket* btlTargetCreateSimplePacket(u16 command, u32 param)
 {
     BtlPacket* packet = func_00194470(0x801, 8);
     BtlTargetSimpleWork* work;

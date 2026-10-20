@@ -1,3 +1,5 @@
+#include "h_cdvd_internal.h"
+#include "kwln_task_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Source unit: src/Kosaka/k_clump/k_clumpInstance.c */
@@ -18,41 +20,39 @@ typedef struct ClumpWork
     u8 *field_450;    /* 0x450 */
 } ClumpWork;
 
-extern void *func_003e2f60(s32 arg0, s32 arg1, void *arg2);
-extern s32 func_003df3c0(void *arg0, s32 *arg1);
-extern void *func_003e6a90(void *arg0);
-extern void func_003e6870(void *arg0, void *arg1);
-extern void func_003ef1b0(void *arg0);
-extern void *func_003c0f20(void *arg0);
-extern s32 K_Clump_ClumpHasMatUsrData(void *arg0, const char *arg1);
-extern void func_003c0960(void *arg0, void *arg1);
-extern void kAssertFail(const char *arg0, s32 arg1);
-extern void chkmemAllocSiteTag(const char *arg0, s32 arg1);
+extern void *func_003e2f60(s32, s32, void *);
+extern s32 func_003df3c0(void *, s32 *);
+extern void *func_003e6a90(void *);
+extern void func_003e6870(void *, void *);
+extern void func_003ef1b0(void *);
+extern void *func_003c0f20(void *);
+extern s32 K_Clump_ClumpHasMatUsrData(void *clump, const char *name);
+extern void func_003c0960(void *, void *);
+extern void kAssertFail(const char *file, s32 line);
+extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
-extern void func_003e2910(void *arg0, void *arg1, s32 arg2);
-extern void func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_003e2ab0(void *arg0, void *arg1, s32 arg2);
-extern void K_Clump_FreeTextureNameList(void *arg0);
-extern void func_003e2e40(void *arg0, s32 arg1);
-extern void *K_Clump_RenderAtomicCallBack(void *object, void *data);
-extern void K_Clump_ReadChunks(u8 *arg0, s32 *arg1, u8 *arg2);
-extern s32 K_Clump_LoadDirUpdate(u8 *arg0);
-extern void K_Clump_LoadDestroy(u8 *arg0);
+extern void func_003e2910(void *, void *, s32);
+extern void func_003deff0(void *, s32, s32, s32, s32);
+extern void func_003e2ab0(void *, void *, s32);
+extern void K_Clump_FreeTextureNameList(void *listHead);
+extern void func_003e2e40(void *, s32);
+extern void *K_Clump_RenderAtomicCallBack(void *atomic, void *data);
+extern void K_Clump_ReadChunks(u8 *directory, s32 *outputPath, u8 *workBytes);
+extern s32 K_Clump_LoadDirUpdate(u8 *task);
+extern void K_Clump_LoadDestroy(u8 *task);
 extern char D_005F64C0[];
 extern char D_005F64E0[];
 extern char D_005F6500[];
-extern s32 func_00428550(const char *arg0);
-extern s32 func_00428780(s32 arg0, void *arg1);
-extern s32 atoi(const char *arg0);
-extern void strcat(void *arg0, const char *arg1);
-extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
-extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
-extern void H_Cdvd_ReadSync(void *arg0);
-extern void H_Cdvd_Destroy(void *arg0);
-extern void func_003c0700(void *arg0);
+extern s32 func_00428550(const char *);
+extern s32 func_00428780(s32, void *);
+extern s32 atoi(const char *);
+extern void strcat(void *, const char *);
+extern u8 *H_Cdvd_AcquireDirectory(void *path, s32 flags);
+extern void H_Cdvd_ReadSync(void *cdvd);
+extern void func_003c0700(void *);
 
-extern s32 func_00428618(s32 arg0);
+extern s32 func_00428618(s32);
 extern char D_005F6520[];
 extern char D_005F6550[];
 extern char D_005F6570[];
@@ -68,86 +68,90 @@ extern char iGpffffa080;
    Committed at nd 10. */
 
 
+/* Copy stream chunks to disk, rewriting texture dictionaries and clumps while retaining texture names. */
+/* measured: typing the remaining count loads or initial count store individually loses MATCH; the item array
+ * and CDVD source fields are typed. */
 // FUN_00191E90
-void K_Clump_ReadChunks(u8 *arg0, s32 *arg1, u8 *arg2)
+void K_Clump_ReadChunks(u8 *directory, s32 *outputPath, u8 *workBytes)
 {
-    s32 sp70[8];
-    union { s32 s[4]; u32 u[4]; } sp50;
+    s32 streamContext[8];
+    union { s32 s[4]; u32 u[4]; } chunkHeader;
     s32 i;
-    void *s1;
-    void *s0;
-    void *s3;
+    void *inputStream;
+    void *outputStream;
+    void *chunkData;
 
-    sp70[7] = 0;
-    sp70[4] = *(s32 *)(arg0 + 0x110);
-    sp70[5] = *(s32 *)(arg0 + 0x118);
-    s1 = func_003e2f60(3, 1, &sp70[4]);
-    s0 = func_003e2f60(2, 2, arg1);
-    *(s32 *)(arg2 + 0x14C) = 0;
+    streamContext[7] = 0;
+    streamContext[4] = (s32)((HCdvd *)directory)->fileMemory;
+    streamContext[5] = (s32)((HCdvd *)directory)->fileSize;
+    inputStream = func_003e2f60(3, 1, &streamContext[4]);
+    outputStream = func_003e2f60(2, 2, outputPath);
+    *(s32 *)(workBytes + 0x14C) = 0;
     for (i = 0; i < 0x80; i++)
     {
-        *(s32 *)(arg2 + i * 4 + 0x150) = 0;
+        ((ClumpWork *)workBytes)->items[i] = 0;
     }
-    if (s1 != NULL && s0 != NULL)
+    if (inputStream != NULL && outputStream != NULL)
     {
-        while (func_003df3c0(s1, &sp50.s[0]) != 0)
+        while (func_003df3c0(inputStream, &chunkHeader.s[0]) != 0)
         {
-            switch (sp50.s[0])
+            switch (chunkHeader.s[0])
             {
             case 0x16:
-                s3 = func_003e6a90(s1);
-                func_003e6870(s3, s0);
-                func_003ef260((const struct RwTexDictionary *)s3, &K_Clump_AppendTextureName, &sp70[7]);
-                func_003ef1b0(s3);
+                chunkData = func_003e6a90(inputStream);
+                func_003e6870(chunkData, outputStream);
+                func_003ef260((const struct RwTexDictionary *)chunkData, &K_Clump_AppendTextureName, &streamContext[7]);
+                func_003ef1b0(chunkData);
                 break;
             case 0x10:
-                *(s32 *)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150) =
-                    (s32)func_003c0f20(s1);
-                if (K_Clump_ClumpHasMatUsrData(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
+                ((ClumpWork *)workBytes)->items[*(s32 *)(workBytes + 0x14C)] =
+                    (s32)func_003c0f20(inputStream);
+                if (K_Clump_ClumpHasMatUsrData((void *)((ClumpWork *)workBytes)->items[*(s32 *)(workBytes + 0x14C)],
                                   D_005F64C0) == 0 &&
-                    K_Clump_ClumpHasMatUsrData(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
+                    K_Clump_ClumpHasMatUsrData((void *)((ClumpWork *)workBytes)->items[*(s32 *)(workBytes + 0x14C)],
                                   D_005F64E0) == 0)
                 {
-                    if (*(s32 *)(arg2 + 0x14C) != 0)
+                    if (((ClumpWork *)workBytes)->count != 0)
                     {
-                        RpClumpForAllAtomics(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
+                        RpClumpForAllAtomics((void *)((ClumpWork *)workBytes)->items[((ClumpWork *)workBytes)->count],
                                              K_Clump_RenderAtomicCallBack, NULL);
                     }
                 }
-                func_003c0960(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150), s0);
-                *(s32 *)(arg2 + 0x14C) = *(s32 *)(arg2 + 0x14C) + 1;
+                func_003c0960((void *)((ClumpWork *)workBytes)->items[*(s32 *)(workBytes + 0x14C)], outputStream);
+                ((ClumpWork *)workBytes)->count = ((ClumpWork *)workBytes)->count + 1;
                 break;
             case 0xF0F000E0:
                 kAssertFail(D_005F6500, 0x93);
                 break;
             default:
                 chkmemAllocSiteTag(D_005F6500, 0x9A);
-                s3 = D_008873F4[0](1, sp50.u[1], 0x40000);
-                func_003e2910(s1, s3, sp50.s[1]);
-                func_003deff0((void *)s0, (u32)sp50.s[0], (u32)sp50.s[1], sp50.s[2], sp50.s[3]);
-                func_003e2ab0(s0, s3, sp50.s[1]);
-                jtbl_008873EC[0](s3);
+                chunkData = D_008873F4[0](1, chunkHeader.u[1], 0x40000);
+                func_003e2910(inputStream, chunkData, chunkHeader.s[1]);
+                func_003deff0((void *)outputStream, (u32)chunkHeader.s[0], (u32)chunkHeader.s[1], chunkHeader.s[2], chunkHeader.s[3]);
+                func_003e2ab0(outputStream, chunkData, chunkHeader.s[1]);
+                jtbl_008873EC[0](chunkData);
                 break;
             }
         }
-        if (sp70[7] != 0)
+        if (streamContext[7] != 0)
         {
-            K_Clump_FreeTextureNameList((void *)sp70[7]);
+            K_Clump_FreeTextureNameList((void *)streamContext[7]);
         }
-        func_003e2e40(s1, 0);
-        func_003e2e40(s0, 0);
+        func_003e2e40(inputStream, 0);
+        func_003e2e40(outputStream, 0);
     }
 }
 
 
 /* measured: opt_loop_invariants hoists the '.' and '/' loop constants. */
 #pragma opt_loop_invariants on
+/* Enumerate candidate model files, rewrite their streams, then destroy the temporary clumps. */
 // FUN_001921A0
-s32 K_Clump_LoadDirUpdate(u8 *arg0)
+s32 K_Clump_LoadDirUpdate(u8 *task)
 {
     ClumpWork *work;
-    char *name_cursor;
-    char *path_cursor;
+    char *extension;
+    char *fileName;
     s32 i;
     s32 result;
     struct Local {
@@ -156,7 +160,7 @@ s32 K_Clump_LoadDirUpdate(u8 *arg0)
         char pad[0x30];
     } local;
 
-    work = *(ClumpWork **)(arg0 + 0x38);
+    work = (ClumpWork *)((KwlnTask *)task)->work;
     switch (work->state)
     {
     case 0:
@@ -175,12 +179,12 @@ s32 K_Clump_LoadDirUpdate(u8 *arg0)
             if (strcmp(work->name, &iGpffffa06c) != 0 &&
                 strcmp(work->name, &iGpffffa070) != 0)
             {
-                name_cursor = work->name;
-                while (*name_cursor != '.' && *name_cursor != '\0')
+                extension = work->name;
+                while (*extension != '.' && *extension != '\0')
                 {
-                    name_cursor++;
+                    extension++;
                 }
-                if (strcmp(name_cursor, &iGpffffa078) == 0)
+                if (strcmp(extension, &iGpffffa078) == 0)
                 {
                     local.suffix[0] = work->name[1];
                     local.suffix[1] = work->name[2];
@@ -205,17 +209,17 @@ s32 K_Clump_LoadDirUpdate(u8 *arg0)
         work->field_450 = H_Cdvd_AcquireDirectory(work->path, 0);
         H_Cdvd_ReadSync(work->field_450);
         strcpy(local.buffer, D_005F6570);
-        path_cursor = work->path;
-        while (*path_cursor != '\0')
+        fileName = work->path;
+        while (*fileName != '\0')
         {
-            path_cursor++;
+            fileName++;
         }
-        for (; *path_cursor != '/'; path_cursor--)
+        for (; *fileName != '/'; fileName--)
         {
         }
-        strcat(local.buffer, path_cursor + 1);
+        strcat(local.buffer, fileName + 1);
         K_Clump_ReadChunks(work->field_450, (s32 *)local.buffer, (u8 *)work);
-        H_Cdvd_Destroy(work->field_450);
+        H_Cdvd_Destroy((HCdvd *)work->field_450);
         work->state = 3;
         break;
     case 3:
@@ -225,9 +229,9 @@ s32 K_Clump_LoadDirUpdate(u8 *arg0)
     case 5:
         for (i = 0; i < work->count; i++)
         {
-            if (*(s32 *)((u8 *)work + i * 4 + 0x150) != 0)
+            if ((s32)work->items[i] != 0)
             {
-                func_003c0700((void *)*(s32 *)((u8 *)work + i * 4 + 0x150));
+                func_003c0700((void *)(s32)work->items[i]);
             }
         }
         work->state = 1;
@@ -242,21 +246,26 @@ s32 K_Clump_LoadDirUpdate(u8 *arg0)
 
 
 
+/* Close the directory enumeration handle and release task work. */
+/* measured: typed task->work changes generated instructions across the free/close callbacks; retain byte-pointer aliasing. */
+/* measured: typing the initial task-work load loses MATCH; the directory handle member and final task-work
+ * read stay typed. */
 // FUN_00192480
-void K_Clump_LoadDestroy(u8 *arg0)
+void K_Clump_LoadDestroy(u8 *task)
 {
     s32 handle;
 
-    handle = *(s32 *)(*(u8 **)(arg0 + 0x38) + 4);
+    handle = ((ClumpWork *)*(u8 **)(task + 0x38))->field_4;
     if (handle >= 0)
     {
         func_00428618(handle);
     }
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
 
 
+/* Create the directory-rewrite task with its 0x454-byte work block. */
 // FUN_001924D0
 s32 K_Clump_CreateLoadTask(void)
 {

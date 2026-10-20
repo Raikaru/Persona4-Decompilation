@@ -3,7 +3,7 @@
 /* Original translation unit k_fldEnvironment.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-extern void func_00161460(s32 arg0, s32 arg1, s32 arg2);
+extern void fldFilterBeginTransition(s32 arg0, s32 arg1, s32 arg2);
 extern void FldFilterSetIndex(s32 arg0);
 
 extern s16 datGetDateIndex(void);
@@ -45,7 +45,7 @@ extern s32 *MT_Scene_GetFrameState(void);
 extern void FldCameraAdvanceCurve();
 extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
-extern void func_0016ea30(s32 arg0, f32 arg1);
+extern void fldCameraSetFollowHeight(s32 arg0, f32 arg1);
 extern void FldFrame_SetSlotVector(s32 arg0, s32 arg1, void *arg2);
 extern u8 *FldFrame_GetSlotBuffer(s32 arg0);
 extern void FldCameraUpdateLookAt(s32 arg0);

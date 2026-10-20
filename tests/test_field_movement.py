@@ -62,8 +62,8 @@ class FieldMovementTests(unittest.TestCase):
                 generator('idle_threshold')(source.replace('c148 > 360', 'c148 >= 360'))
             with self.assertRaises(AssertionError):
                 generator('semantic_repairs')(source.replace(
-                    'modelMatrix = *(MovementMatrix *)((u8 *)mdlGetClumpFrame',
-                    'modelMatrix = *(MovementMatrix *)((u8 *)wrongFrame'))
+                    'modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)mdlGetClumpFrame',
+                    'modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)wrongFrame'))
 
     @unittest.skipUnless(shutil.which('cc'), 'host compiler unavailable')
     def test_extracted_bounded_semantics(self):
@@ -109,8 +109,8 @@ class FieldMovementTests(unittest.TestCase):
             '/* else if (c148 > 360) */\n    else if (c148 >= 360)')
         with self.assertRaises(AttributeError):
             generator('idle_threshold')(changed)
-        copy = ('        modelMatrix = *(MovementMatrix *)((u8 *)mdlGetClumpFrame'
-                '(*(void **)(*(s32 *)(h + 0x18) + 0x164)) + 0x10);')
+        copy = ('        modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)mdlGetClumpFrame('
+                '((ResrcRecord *)(*(s32 *)(h + 0x18)))->modelHandle164)))->modelling;')
         self.assertEqual(source.count(copy), 1)
         changed = source.replace(copy, '/*' + copy + '*/\n' + copy.replace('mdlGetClumpFrame', 'wrongFrame'))
         with self.assertRaises(AssertionError):
@@ -123,8 +123,8 @@ class FieldMovementTests(unittest.TestCase):
     def test_bad_matrix_copy_rejected(self):
         with self.assertRaises(AssertionError):
             generator('semantic_repairs')(OWNER.read_text().replace(
-                'modelMatrix = *(MovementMatrix *)((u8 *)mdlGetClumpFrame',
-                'modelMatrix = *(MovementMatrix *)((u8 *)wrongFrame'))
+                'modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)mdlGetClumpFrame',
+                'modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)wrongFrame'))
 
 
 if __name__ == '__main__':

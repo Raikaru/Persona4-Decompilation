@@ -4,20 +4,20 @@
 #include "type.h"
 
 /* Item IDs are signed halfwords; flag-table indices are signed words. */
-void datItemSetCount(s16 item, s32 quantity);
-u32 func_00106850(s16 item);
-s8 datItemAvailableMonth(s16 item);
-s8 datItemAvailableDay(s16 item);
-s64 datItemBankOffset(s16 item);
-void datSetStateTableEntry(s32 item, u8 flags);
-u8 clndGetMoonPhase(s32 index);
-void func_002bc4b0(f32 depth, s16 item, s32 x, s32 y, s32 color, s32 font, s32 mode);
-s32 func_002bdff0(s16 item);
-s32 fclMoonPhaseAtLeast(s32 index, s32 required);
-s32 func_002be1b0(s16 item);
+void datItemSetCount(s16 itemId, s32 count);
+u32 datEntryGetKind(s16 itemId);
+s8 datItemAvailableMonth(s16 itemId);
+s8 datItemAvailableDay(s16 itemId);
+s64 datItemBankOffset(s16 encodedItemId);
+void datSetStateTableEntry(s32 index, u8 flags);
+u8 clndGetMoonPhase(s32 daysSinceApr5);
+void fclMesWindowDrawItemCategory(f32 inputDepth, s16 item, s32 x, s32 y, s32 inputColor, s32 inputFont, s32 inputMode);
+s32 fclItemIsDateAvailable(s16 item);
+s32 fclMoonPhaseAtLeast(s32 dateIndex, s32 requiredPhase);
+s32 datEntryEvaluateFlags(s16 item);
 s32 datItemPriceCompare(const void *left, const void *right);
-s32 yListValueAt(s32 row);
+s32 yListValueAt(s32 index);
 void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order);
-void yListRebuildFor(u8 *owner, s32 filterA, s32 filterB, s8 kind, s32 order);
+void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order);
 
 #endif

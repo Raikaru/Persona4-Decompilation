@@ -3,6 +3,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
+#include "mdl_effect_resource_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 typedef struct RwV3d
@@ -25,9 +26,9 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void func_00484790(u8 *arg0);
-extern void func_004847e0(u8 *arg0);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void mdlEffectReleasePrimarySource(u8 *instance);
+extern void mdlEffectReleaseSecondarySource(u8 *instance);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
@@ -56,63 +57,75 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484570-004846d0 */
 
-extern void func_00484790(u8 *arg0);
-extern void func_004847e0(u8 *arg0);
+extern void mdlEffectReleasePrimarySource(u8 *instance);
+extern void mdlEffectReleaseSecondarySource(u8 *instance);
+/* Allocate a primitive record and construct its kind-specific payload. */
 // FUN_00484570
-u8 *func_00484570(u8 *arg0)
+u8 *mdlEffectCreatePrimitiveRecord(u8 *source)
 {
-    u32 temp_3;
-    u16 temp_18;
-    u8 *temp_2;
+    u32 tag;
+    u16 kind;
+    u8 *record;
 
-    temp_3 = *(u32 *)(arg0 + 0);
-    if (temp_3 <= 0xD2U) {
+    tag = ((MdlEffectPrimitiveRecord *)source)->tag.value;
+    if (tag <= 0xD2U) {
         goto code1_0048_84570_after_check;
     } else {
         kAssertFail(D_00713470, 0x2D7);
     }
 code1_0048_84570_after_check:
-    temp_18 = *(u16 *)(arg0 + 4);
+    kind = ((MdlEffectPrimitiveRecord *)source)->kind;
     chkmemAllocSiteTag(D_00713470, 0x21);
-    temp_2 = jtbl_008873E8[0](0x2C, 0x40000);
-    if (temp_2 == NULL) {
+    record = jtbl_008873E8[0](0x2C, 0x40000);
+    if (record == NULL) {
         kAssertFail(D_00713470, 0x22);
     }
-    memset(temp_2, 0, 0x2C);
-    *(s32 *)(temp_2 + 0) = 0xD2;
-    *(u16 *)(temp_2 + 4) = temp_18;
-    *(u16 *)(temp_2 + 0xC) = *(u16 *)(arg0 + 0xC);
-    *(u16 *)(temp_2 + 0x1C) = *(u16 *)(arg0 + 0x1C);
-    if (*(u16 *)(temp_2 + 4) >= 0x21U) {
+    memset(record, 0, 0x2C);
+    ((MdlEffectPrimitiveRecord *)record)->tag.signedValue = 0xD2;
+    *(u16 *)(record + 4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    ((MdlEffectPrimitiveRecord *)record)->id = ((MdlEffectPrimitiveRecord *)source)->id;
+    ((MdlEffectPrimitiveRecord *)record)->sourceKind = ((MdlEffectPrimitiveRecord *)source)->sourceKind;
+    if (*(u16 *)(record + 4) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
         kAssertFail(D_00713470, 0x2DD);
     }
-    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(temp_2 + 4) << 6)) == NULL) {
+    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(record + 4) << 6)) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
         kAssertFail(D_00713470, 0x2DE);
     }
-    *(void **)(temp_2 + 8) =
-        (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(temp_2 + 4) << 6)))(
-            arg0);
-    return temp_2;
+    ((MdlEffectPrimitiveRecord *)record)->instance.pointer =
+        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)record)->kind << 6)))( /* The 0x40-byte kind table has slot-specific callback signatures. */
+            source);
+    return record;
 }
 
+/* Destroy the kind-specific payload, release source sections and free the record. */
 // FUN_004846D0
-void func_004846d0(u8 *arg0) {
-    s32 (*temp_2)(s32);
-    u8 *base;
+void mdlEffectDestroyPrimitiveRecord(u8 *recordData) {
+    s32 (*releaseCallback)(s32);
+    u8 *record;
 
-    base = arg0;
-    if (*(s32 *)(base + 8) != 0) {
-        temp_2 = *(s32 (**)(s32))(D_00713490 +
-            (*(u16 *)(base + 4) << 6));
-        if (temp_2 == NULL) {
+    record = recordData;
+    if (*(s32 *)(record + 8) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        releaseCallback = *(s32 (**)(s32))(D_00713490 +
+            (*(u16 *)(record + 4) << 6)); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (releaseCallback == NULL) {
             kAssertFail(D_00713470, 0x2EB);
         }
         code1_0048_call(
-            *(s32 (**)(s32))(D_00713490 + (*(u16 *)(base + 4) << 6)),
-            *(s32 *)(base + 8));
+            *(s32 (**)(s32))(D_00713490 + (((MdlEffectPrimitiveRecord *)record)->kind << 6)),
+            ((MdlEffectPrimitiveRecord *)record)->instance.handle);
     }
-    func_00484790(base);
-    func_004847e0(base);
-    (*jtbl_008873EC)(base);
+    mdlEffectReleasePrimarySource(record);
+    mdlEffectReleaseSecondarySource(record);
+    (*jtbl_008873EC)(record);
 }
+
+
+
+
+
+
+
+
+
+
 

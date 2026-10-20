@@ -9,6 +9,9 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "btl_unit_internal.h"
+#include "btl_unit_look_internal.h"
+#include "model_battle_internal.h"
+#include "resrc_manager_internal.h"
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
@@ -27,17 +30,17 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern f32 fGpffff8474;
 extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
-extern u8 *iGpffffb3ac;
-extern u8 *iGpffffb3b8;
-extern u8 *iGpffffb3c0;
-extern u8 *iGpffffb3cc;
+extern u8 *iGpffffb3ac; /* active battle context */
+extern u8 *iGpffffb3b8; /* skill table, DatSkillEntry rows */
+extern u8 *iGpffffb3c0; /* party visual records, stride 0x14C */
+extern u8 *iGpffffb3cc; /* enemy visual records, stride 0xE8 */
 
 
 extern u8 *iGpffff9db0;
-extern u8 *D_0076449C;
-extern u8 *iGpffffb3ac;
+extern u8 *D_0076449C; /* active battle context */
+extern u8 *iGpffffb3ac; /* active battle context */
 extern u8 *iGpffffb414;
-extern u8 *iGpffffb3e0;
+extern u8 *iGpffffb3e0; /* child visual records, stride 0x58 */
 extern s32 iGpffffb430;
 extern s32 iGpffffb434;
 extern s32 iGpffffb438;
@@ -58,7 +61,7 @@ extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
 extern P4_95730_Vec3 D_0060A0D0;
@@ -131,34 +134,34 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     scrStartProcedureChecked(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern void btlCameraSetUnitSlotValue(u8 *arg0, s32 arg1, s32 arg2);
-extern void btlTargetRemoveRadiusNode(u8 *arg0);
-extern int mdlHasActiveMode(void *arg0);
-extern void mdlSetLookAtActive(void *arg0);
-extern void mdlSetLookAtRequested(void *arg0);
-extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
-extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
-extern void mdlSetBattleStateFlag(void *arg0);
-extern void mdlSetAlphaBlend(void *arg0);
-extern void mdlSetLookStateWord(void *arg0, u16 arg1);
-extern u16 mdlGetLookStateWord(void *arg0);
+extern void btlCameraSetUnitSlotValue(u8 *unit, s32 slotIndex, s32 slotValue);
+extern void btlTargetRemoveRadiusNode(u8 *unit);
+extern int mdlHasActiveMode(void *model);
+extern void mdlSetLookAtActive(void *model);
+extern void mdlSetLookAtRequested(void *model);
+extern u8 *resrcMngFindResById(u8 *manager, u16 resourceId);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
+extern void mdlSetBattleStateFlag(void *model);
+extern void mdlSetAlphaBlend(void *model);
+extern void mdlSetLookStateWord(void *model, u16 value);
+extern u16 mdlGetLookStateWord(void *model);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
-extern void mdlClearBattleStateFlag(void *arg0);
-extern void mdlClearAlphaBlend(void *arg0);
-extern void mdlSetBlendWeight(void *arg0, float arg1);
-extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
+extern void mdlClearBattleStateFlag(void *model);
+extern void mdlClearAlphaBlend(void *model);
+extern void mdlSetBlendWeight(void *model, float value);
+extern void mdlLookAtSetupSetRange(void *model, float pitchLimit, float yawLimit);
 extern f32 DAT_0076112c;
 
 
-extern void btlUnitClearModelState(u8 *arg0, s32 arg1);
-extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
-extern u8 *btlSoundGetCharacterBank(u8 *arg0);
+extern void btlUnitClearModelState(u8 *unit, s32 mode);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
+extern u8 *btlSoundGetCharacterBank(u8 *unit);
 
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
@@ -172,7 +175,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void btlUnitUpdateLookAtTarget(u8 *arg0);
+extern void btlUnitUpdateLookAtTarget(u8 *unit);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
@@ -207,105 +210,113 @@ extern u8 D_00794150[];
  * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
+/* Unlink and release all four genus lists, including camera-slot ownership. */
 // FUN_0019D670
 void btlUnitFreeRemovedUnits(void)
 {
+    /* measured: repeated typed list-link reads retain field addresses across
+     * callbacks; the later link reloads preserve byte aliasing. */
     u8 *unit;
-    u8 *next;
-    u32 i;
-    u8 *linked;
-    u8 *linked2;
-    u8 unitType;
-    s8 status;
+    u8 *nextUnit;
+    u32 genusIndex;
+    u8 *nextLink;
+    u8 *previousLink;
+    u8 genus;
+    s8 cameraSlot;
 
-    for (i = 0; i < 4; i++) {
-        unit = *(u8 **)(iGpffffb3ac + (i * 8) + 0x178);
+    for (genusIndex = 0; genusIndex < 4; genusIndex++) {
+        unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[genusIndex * 2];
         while (unit != NULL) {
-            next = *(u8 **)(unit + 0xA6C);
-            unitType = *(u8 *)(unit + 0xA2);
+            nextUnit = *(u8 **)&((BtlUnit *)unit)->nextUnit;
+            genus = ((BtlUnit *)unit)->genus;
             btlUnitReleaseAllResources(unit);
             btlTargetRemoveRadiusNode(unit);
-            status = *(s8 *)(unit + 0x9FC);
-            if (status >= 0)
-                btlCameraSetUnitSlotValue(unit, status, 0);
-            linked = *(u8 **)(unit + 0xA6C);
-            if (linked != NULL)
-                *(u8 **)(linked + 0xA68) = *(u8 **)(unit + 0xA68);
+            cameraSlot = ((BtlUnit *)unit)->cameraSlot;
+            if (cameraSlot >= 0)
+                btlCameraSetUnitSlotValue(unit, cameraSlot, 0);
+            nextLink = *(u8 **)(unit + 0xA6C);
+            if (nextLink != NULL)
+                *(u8 **)&((BtlUnit *)nextLink)->prevUnit = *(u8 **)&((BtlUnit *)unit)->prevUnit;
             else
-                *(u8 **)(iGpffffb3ac + ((unitType & 0xFF) * 8) + 0x17C) =
+                ((BtlBattleState *)iGpffffb3ac)->unitLists[(genus & 0xFF) * 2 + 1] =
                     *(u8 **)(unit + 0xA68);
-            linked2 = *(u8 **)(unit + 0xA68);
-            if (linked2 != NULL)
-                *(u8 **)(linked2 + 0xA6C) = *(u8 **)(unit + 0xA6C);
+            previousLink = *(u8 **)(unit + 0xA68);
+            if (previousLink != NULL)
+                *(u8 **)&((BtlUnit *)previousLink)->nextUnit = *(u8 **)(unit + 0xA6C);
             else
-                *(u8 **)(iGpffffb3ac + ((unitType & 0xFF) * 8) + 0x178) =
+                ((BtlBattleState *)iGpffffb3ac)->unitLists[(genus & 0xFF) * 2] =
                     *(u8 **)(unit + 0xA6C);
             jtbl_008873EC[0](unit);
-            unit = next;
+            unit = nextUnit;
         }
     }
 }
 
 /* measured: plain-C switch reconstruction reproduces the 488-byte object against the 496-byte retail window; the jump-table base register remains the residual. Committed at nd 61. */
+/* Enable one model presentation mode; modes 1..4 affect draw/look/sound state,
+ * while mode 6 marks the scene resource. */
 // FUN_0019D7A0
-void btlUnitApplyModelState(u8 *arg0, s32 arg1)
+void btlUnitApplyModelState(u8 *unit, s32 mode)
 {
-    s32 temp_4;
-    u16 temp_5;
-    u16 temp_3;
-    u8 *temp_2;
-    u8 *temp_3_2;
-    u8 *temp_4_2;
-    if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
-        temp_3 = (u16)arg1;
-        switch (temp_3) {
+    /* measured: repeated typed layerHandle loads hoist unit+0xA00 into
+     * a saved register; subsequent handle reloads remain byte-addressed. */
+    s32 stateFlags;
+    u16 sceneDrawId;
+    u16 selectedMode;
+    u8 *resource;
+    u8 *model;
+    u8 *soundModel;
+    if ((*(s32 *)&((BtlUnit *)unit)->flags2 & 2) != 0) {
+        selectedMode = (u16)mode;
+        switch (selectedMode) {
         case 6:
-            temp_5 = *(u16 *)(arg0 + 0x9FE);
-            if ((temp_5 != 0) &&
-                (((s32)(temp_5 & 0xFFC00) >> 10) == 1)) {
-                temp_2 = resrcMngFindResById(*(u8 **)(iGpffff9db0 + 8), temp_5);
-                *(s32 *)(temp_2 + 0x22C) = 0x34;
-                *(s32 *)(temp_2 + 0x28) |= 0x04000000;
+            sceneDrawId = ((BtlUnit *)unit)->sceneDrawId;
+            if ((sceneDrawId != 0) &&
+                (((s32)(sceneDrawId & 0xFFC00) >> 10) == 1)) {
+                /* The enclosing scene context is opaque; +8 holds its resource manager. */
+                resource = resrcMngFindResById(*(u8 **)(iGpffff9db0 + 8), sceneDrawId);
+                *(s32 *)&((ResrcRecord *)resource)->handle22C = 0x34;
+                *(s32 *)&((ResrcRecord *)resource)->unk28 |= 0x04000000;
                 return;
             }
             break;
         case 1:
-            temp_4 = *(s32 *)(iGpffffb3ac + 0x10);
-            if (((temp_4 & 0x100) == 0) ||
-                (*(u8 *)(arg0 + 0xA2) != 0)) {
-                if (((temp_4 & 0x200) == 0) ||
-                    (*(u8 *)(arg0 + 0xA2) != 1)) {
-                    mdlSetBattleStateFlag(*(u8 **)(arg0 + 0xA00));
-                    *(u8 **)(*(u8 **)(arg0 + 0xA00) + 0x2F8) =
+            stateFlags = ((BtlBattleState *)iGpffffb3ac)->battleFlags;
+            if (((stateFlags & 0x100) == 0) ||
+                (((BtlUnit *)unit)->genus != 0)) {
+                if (((stateFlags & 0x200) == 0) ||
+                    (((BtlUnit *)unit)->genus != 1)) {
+                    mdlSetBattleStateFlag(((BtlUnit *)unit)->layerHandle);
+                    *(u8 **)&((Model *)(*(u8 **)(unit + 0xA00)))->queue =
                         D_007940F0;
-                    *(f32 *)(*(u8 **)(arg0 + 0xA00) + 0x274) =
+                    ((Model *)(*(u8 **)(unit + 0xA00)))->limit =
                         fGpffff80fc;
-                    temp_3_2 = *(u8 **)(arg0 + 0xA00);
-                    *(f32 *)(temp_3_2 + 0x278) =
-                        *(f32 *)(temp_3_2 + 0x274);
-                    *(s32 *)(*(u8 **)(arg0 + 0xA00) + 0x27C) =
+                    model = *(u8 **)(unit + 0xA00);
+                    ((Model *)model)->targetLimit =
+                        ((Model *)model)->limit;
+                    *(s32 *)&((Model *)(*(u8 **)(unit + 0xA00)))->limitRate =
                         0x3F800000;
                     return;
                 }
             }
             break;
         case 2:
-            mdlSetAlphaBlend(*(u8 **)(arg0 + 0xA00));
+            mdlSetAlphaBlend(*(u8 **)(unit + 0xA00));
             return;
         case 3:
-            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)((mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) &
+            mdlSetLookStateWord(*(u8 **)(unit + 0xA00), (u16)((mdlGetLookStateWord(*(u8 **)(unit + 0xA00)) &
                    0xFFFF) | 0x1000));
-            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)((mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) &
+            mdlSetLookStateWord(*(u8 **)(unit + 0xA00), (u16)((mdlGetLookStateWord(*(u8 **)(unit + 0xA00)) &
                    0xFFFF) | 0x2000));
-            temp_4 = mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
-            temp_4 = temp_4 & -0x801;
-            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
+            stateFlags = mdlGetLookStateWord(*(u8 **)(unit + 0xA00)) & 0xFFFF;
+            stateFlags = stateFlags & -0x801;
+            mdlSetLookStateWord(*(u8 **)(unit + 0xA00), (u16)stateFlags);
             return;
         case 4:
-            *(s32 *)(*(u8 **)(arg0 + 0xA00) + 0x2DC) =
-                (s32)btlSoundGetCharacterBank(arg0);
-            temp_4_2 = *(u8 **)(arg0 + 0xA00);
-            *(u16 *)(temp_4_2 + 0x2E0) |= 0x10;
+            ((Model *)(*(u8 **)(unit + 0xA00)))->motion.request =
+                (s32)btlSoundGetCharacterBank(unit);
+            soundModel = *(u8 **)(unit + 0xA00);
+            ((Model *)soundModel)->motion.flags |= 0x10;
             break;
         case 0:
         case 5:
@@ -314,51 +325,55 @@ void btlUnitApplyModelState(u8 *arg0, s32 arg1)
     }
 }
 
+/* Undo the selected model presentation mode and reset its associated state. */
 // FUN_0019D990
-void btlUnitClearModelState(u8 *arg0, s32 arg1)
+void btlUnitClearModelState(u8 *unit, s32 mode)
 {
-    s32 temp_4;
-    u16 temp_5;
-    u32 temp_3;
-    u8 *temp_2;
-    u8 *temp_4_2;
-    if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
-        temp_3 = (u32)arg1 & 0xFFFF;
-        switch (temp_3) {
+    /* measured: repeated typed layerHandle loads hoist unit+0xA00 into
+     * a saved register; subsequent handle reloads remain byte-addressed. */
+    s32 lookFlags;
+    u16 sceneDrawId;
+    u32 selectedMode;
+    u8 *resource;
+    u8 *model;
+    if ((*(s32 *)&((BtlUnit *)unit)->flags2 & 2) != 0) {
+        selectedMode = (u32)mode & 0xFFFF;
+        switch (selectedMode) {
         case 6:
-            temp_5 = *(u16 *)(arg0 + 0x9FE);
-            if ((temp_5 != 0) &&
-                (((s32)(temp_5 & 0xFFC00) >> 10) == 1)) {
-                temp_2 = resrcMngFindResById(*(u8 **)(iGpffff9db0 + 8), temp_5);
-                *(s32 *)(temp_2 + 0x28) &= 0xFBFFFFFF;
+            sceneDrawId = ((BtlUnit *)unit)->sceneDrawId;
+            if ((sceneDrawId != 0) &&
+                (((s32)(sceneDrawId & 0xFFC00) >> 10) == 1)) {
+                /* The enclosing scene context is opaque; +8 holds its resource manager. */
+                resource = resrcMngFindResById(*(u8 **)(iGpffff9db0 + 8), sceneDrawId);
+                *(s32 *)&((ResrcRecord *)resource)->unk28 &= 0xFBFFFFFF;
                 return;
             }
             break;
         case 1:
-            mdlClearBattleStateFlag(*(u8 **)(arg0 + 0xA00));
-            temp_4_2 = *(u8 **)(arg0 + 0xA00);
-            *(u8 *)(temp_4_2 + 0x260) &= 0xE2;
+            mdlClearBattleStateFlag(((BtlUnit *)unit)->layerHandle);
+            model = *(u8 **)(unit + 0xA00);
+            ((Model *)model)->drawFlags &= 0xE2;
             return;
         case 2:
-            mdlClearAlphaBlend(*(u8 **)(arg0 + 0xA00));
+            mdlClearAlphaBlend(*(u8 **)(unit + 0xA00));
             return;
         case 3:
-            mdlSetBlendWeight(*(u8 **)(arg0 + 0xA00), DAT_0076112c);
-            mdlLookAtSetupSetRange(*(u8 **)(arg0 + 0xA00), 70.0f, 80.0f);
-            mdlSetLookAtActive(*(u8 **)(arg0 + 0xA00));
-            mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
-            temp_4 = mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
-            temp_4 = temp_4 & -0x2001;
-            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
-            temp_4 = mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
-            temp_4 = temp_4 & -0x1001;
-            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
-            *(s16 *)(arg0 + 0xB0) = 0;
+            mdlSetBlendWeight(*(u8 **)(unit + 0xA00), DAT_0076112c);
+            mdlLookAtSetupSetRange(*(u8 **)(unit + 0xA00), 70.0f, 80.0f);
+            mdlSetLookAtActive(*(u8 **)(unit + 0xA00));
+            mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
+            lookFlags = mdlGetLookStateWord(*(u8 **)(unit + 0xA00)) & 0xFFFF;
+            lookFlags = lookFlags & -0x2001;
+            mdlSetLookStateWord(*(u8 **)(unit + 0xA00), (u16)lookFlags);
+            lookFlags = mdlGetLookStateWord(*(u8 **)(unit + 0xA00)) & 0xFFFF;
+            lookFlags = lookFlags & -0x1001;
+            mdlSetLookStateWord(*(u8 **)(unit + 0xA00), (u16)lookFlags);
+            *(s16 *)&((BtlUnit *)unit)->lookAtMode = 0;
             return;
         case 4:
-            temp_4_2 = *(u8 **)(arg0 + 0xA00);
-            *(u16 *)(temp_4_2 + 0x2E0) &= 0xFFEF;
-            *(s32 *)(*(u8 **)(arg0 + 0xA00) + 0x2DC) = 0;
+            model = *(u8 **)(unit + 0xA00);
+            ((Model *)model)->motion.flags &= 0xFFEF;
+            ((Model *)(*(u8 **)(unit + 0xA00)))->motion.request = 0;
             break;
         case 0:
         case 5:
@@ -375,83 +390,86 @@ void btlUnitClearModelState(u8 *arg0, s32 arg1)
    real prototype at block scope (it is defined later in the unit). The scale
    multiplies are inline `*(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C)` so the
    0x80 load precedes the 0x2C load. */
-void btlUnitUpdateLookAtTarget(u8 *arg0)
+/* Resolve a fixed or unit-relative look point for an idle, loaded model. */
+void btlUnitUpdateLookAtTarget(u8 *unit)
 {
-    extern void mdlSetLookAtTargetPoint(void *arg0, void *arg1);
-    extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
+    /* measured: repeated typed model/look-state addresses add saved registers;
+     * the corresponding flags, handle, mode, id and data reloads stay byte-addressed. */
+    extern void mdlSetLookAtTargetPoint(void *model, void *target);
+    extern s32 mdlComputeIndexedAttachMatrix(void *model, s32 index, void *destination);
     extern f32 DAT_007613f8;
-    extern u8 *btlUnitFindById(s32 arg0);
-    P4_95730_Vec3 pos;
-    P4_95730_Vec3 scaled;
-    P4_95730_Vec3 rotated;
-    P4_95730_Vec3 scaled2;
-    P4_95730_Vec3 rotated2;
-    s16 mode;
+    extern u8 *btlUnitFindById(s32 unitId);
+    P4_95730_Vec3 lookPoint;
+    P4_95730_Vec3 scaledCenter;
+    P4_95730_Vec3 rotatedCenter;
+    P4_95730_Vec3 modelScaledCenter;
+    P4_95730_Vec3 modelRotatedCenter;
+    s16 motion;
     u8 *target;
 
-    if (*(s32 *)(arg0 + 0x98) & 2) {
-        if (*(s32 *)(arg0 + 0x98) & 2) {
-            mode = *(s16 *)(arg0 + 0x9DA);
+    if (*(s32 *)&((BtlUnit *)unit)->flags2 & 2) {
+        if (*(s32 *)(unit + 0x98) & 2) {
+            motion = ((BtlUnit *)unit)->currentMotion;
         } else {
-            mode = 0;
+            motion = 0;
         }
-        if (mode == 0x11) {
+        if (motion == 0x11) {
             goto case11;
         }
-        if (mode != 0) {
+        if (motion != 0) {
             goto def;
         }
         goto case0;
     case11:
-        if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {
-            mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
+        if (mdlHasActiveMode(((BtlUnit *)unit)->layerHandle) != 0) {
+            mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
         }
         return;
     def:
-        if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {
-            mdlSetLookAtActive(*(u8 **)(arg0 + 0xA00));
-            mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
+        if (mdlHasActiveMode(*(u8 **)(unit + 0xA00)) != 0) {
+            mdlSetLookAtActive(*(u8 **)(unit + 0xA00));
+            mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
         }
         return;
     case0:
-            if (*(s32 *)(arg0 + 0xA64) != 0 && datCalcChkBadStatus(*(s32 *)(arg0 + 0xA64), 0x100) != 0) {
-                if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {
-                    mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
+            if (*(s32 *)&((BtlUnit *)unit)->datUnit != 0 && datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100) != 0) {
+                if (mdlHasActiveMode(*(u8 **)(unit + 0xA00)) != 0) {
+                    mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
                 }
                 return;
             }
-            if (*(u16 *)(arg0 + 0xB0) != 0 && !(*(f32 *)(*(u8 **)(arg0 + 0xA00) + 0x108) < 1.0f) && !(mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) & 0x200)) {
-                switch (*(u16 *)(arg0 + 0xB0)) {
+            if (((BtlUnit *)unit)->lookAtMode != 0 && !(((Model *)(*(u8 **)(unit + 0xA00)))->layerBlend < 1.0f) && !(mdlGetLookStateWord(*(u8 **)(unit + 0xA00)) & 0x200)) {
+                switch (*(u16 *)(unit + 0xB0)) {
                 case 1:
-                    mdlSetLookAtTargetPoint(*(u8 **)(arg0 + 0xA00), arg0 + 0xB8);
+                    mdlSetLookAtTargetPoint(*(u8 **)(unit + 0xA00), &((BtlUnit *)unit)->lookAtTargetPos);
                     return;
                 case 2:
-                    if (*(s32 *)(arg0 + 0xB4) != 0) {
-                        target = btlUnitFindById(*(s32 *)(arg0 + 0xB4) & 0xFFFF);
-                        if (target != NULL && target != arg0) {
-                            if (!(*(s32 *)(target + 0x98) & 2)) {
-                                scaled.x = *(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C);
-                                scaled.y = *(f32 *)(target + 0x84) * *(f32 *)(target + 0x2C);
-                                scaled.z = *(f32 *)(target + 0x88) * *(f32 *)(target + 0x2C);
-                                RtQuatTransformVectors(&rotated, &scaled, 1, target + 0x1C);
-                                pos.x = rotated.x + *(f32 *)(target + 4);
-                                pos.y = rotated.y + *(f32 *)(target + 8);
-                                pos.z = rotated.z + *(f32 *)(target + 0xC);
-                            } else if (mdlComputeIndexedAttachMatrix(*(u8 **)(target + 0xA00), 0, &pos) == 0) {
-                                scaled2.x = *(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C);
-                                scaled2.y = *(f32 *)(target + 0x84) * *(f32 *)(target + 0x2C);
-                                scaled2.z = *(f32 *)(target + 0x88) * *(f32 *)(target + 0x2C);
-                                RtQuatTransformVectors(&rotated2, &scaled2, 1, target + 0x1C);
-                                pos.x = rotated2.x + *(f32 *)(target + 4);
-                                pos.y = rotated2.y + *(f32 *)(target + 8);
-                                pos.z = rotated2.z + *(f32 *)(target + 0xC);
+                    if (*(s32 *)&((BtlUnit *)unit)->lookAtTargetId != 0) {
+                        target = btlUnitFindById(*(s32 *)(unit + 0xB4) & 0xFFFF);
+                        if (target != NULL && target != unit) {
+                            if (!(*(s32 *)&((BtlUnit *)target)->flags2 & 2)) {
+                                scaledCenter.x = ((BtlUnit *)target)->sphereCenter.x * ((BtlUnit *)target)->scale;
+                                scaledCenter.y = ((BtlUnit *)target)->sphereCenter.y * ((BtlUnit *)target)->scale;
+                                scaledCenter.z = ((BtlUnit *)target)->sphereCenter.z * ((BtlUnit *)target)->scale;
+                                RtQuatTransformVectors(&rotatedCenter, &scaledCenter, 1, &((BtlUnit *)target)->rot);
+                                lookPoint.x = rotatedCenter.x + ((BtlUnit *)target)->pos.x;
+                                lookPoint.y = rotatedCenter.y + ((BtlUnit *)target)->pos.y;
+                                lookPoint.z = rotatedCenter.z + ((BtlUnit *)target)->pos.z;
+                            } else if (mdlComputeIndexedAttachMatrix(((BtlUnit *)target)->layerHandle, 0, &lookPoint) == 0) {
+                                modelScaledCenter.x = ((BtlUnit *)target)->sphereCenter.x * ((BtlUnit *)target)->scale;
+                                modelScaledCenter.y = ((BtlUnit *)target)->sphereCenter.y * ((BtlUnit *)target)->scale;
+                                modelScaledCenter.z = ((BtlUnit *)target)->sphereCenter.z * ((BtlUnit *)target)->scale;
+                                RtQuatTransformVectors(&modelRotatedCenter, &modelScaledCenter, 1, &((BtlUnit *)target)->rot);
+                                lookPoint.x = modelRotatedCenter.x + ((BtlUnit *)target)->pos.x;
+                                lookPoint.y = modelRotatedCenter.y + ((BtlUnit *)target)->pos.y;
+                                lookPoint.z = modelRotatedCenter.z + ((BtlUnit *)target)->pos.z;
                             }
-                            pos.y += *(f32 *)(target + 0x8C) * *(f32 *)(target + 0x2C) * DAT_007613f8;
-                            mdlSetLookAtTargetPoint(*(u8 **)(arg0 + 0xA00), &pos);
+                            lookPoint.y += ((BtlUnit *)target)->unk_8c * ((BtlUnit *)target)->scale * DAT_007613f8;
+                            mdlSetLookAtTargetPoint(*(u8 **)(unit + 0xA00), &lookPoint);
                             return;
                         }
-                        mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
-                        *(s32 *)(arg0 + 0xB4) = 0;
+                        mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
+                        *(s32 *)(unit + 0xB4) = 0;
                     }
                     break;
                 }

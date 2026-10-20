@@ -4,14 +4,15 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "dat_panel_internal.h"
 #include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
-extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern u8 *resourceFindByName(char *filename);
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
+extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 depth, s32 preserveState);
+extern u8 *resourceFindByName(char *name);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5830[];
 extern u8 D_005E5850[];
@@ -29,18 +30,18 @@ void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s
 #pragma opt_lifetimes on
 void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName)
 {
-    extern u8 *resourceFindByName(char *filename);
+    extern u8 *resourceFindByName(char *name);
     extern void kAssertFail(const void *file, s32 line);
-    extern u32 datPersonaDisplayName(s16 unit);
-    extern u32 datPersonaNamePart1(s16 unit);
+    extern u32 datPersonaDisplayName(s16 unitId);
+    extern u32 datPersonaNamePart1(s16 unitId);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
-    extern u32 datCalcGetHpById(s16 unit);
-    extern u16 datCalcMaxHpById(s16 unit);
-    extern u32 datCalcGetSpById(s16 unit);
-    extern u16 datCalcMaxSpById(s16 unit);
-    extern void sdkSpriteDrawOnceTinted(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, u8 red, u8 green, u8 blue, f32 depth, s32 flags);
-    extern void sdkSpriteDrawOnce(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, f32 depth, s32 flags);
-    extern void PrimDrawFlatRectangle(void *color, void *rectangle, f32 depth, s32 mode);
+    extern u32 datCalcGetHpById(s16 unitId);
+    extern u16 datCalcMaxHpById(s16 unitId);
+    extern u32 datCalcGetSpById(s16 unitId);
+    extern u16 datCalcMaxSpById(s16 unitId);
+    extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
+    extern void sdkSpriteDrawOnce(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, f32 z, s32 setStates);
+    extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 depth, s32 preserveState);
     extern u8 D_005E5830[];
     extern u8 D_005E5850[];
     extern u8 D_005E4F88[];
@@ -79,8 +80,8 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     if (helpSprites == 0) {
         kAssertFail(D_005E4F88, 0xB2);
     }
-    unit = *(s16 *)entry;
-    entryStyle = *(s16 *)(entry + 6);
+    unit = ((DatPanelEntry*)entry)->unit;
+    entryStyle = ((DatPanelEntry*)entry)->style;
     switch (entryStyle) {
     case 0:
         fontStyle = 6;
@@ -107,7 +108,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     numberColor.b[3] = (u8)opacity;
     point.x = origin.x;
     point.y = origin.y;
-    if (*(s32 *)(entry + 8) == 3) {
+    if (((DatPanelEntry*)entry)->kind == 3) {
         point.y = origin.y - 5.0f;
     }
     alpha = opacity & 0xFF;
@@ -204,6 +205,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
 #pragma pop
 
 // FUN_00120AE0
+/* Draw decimal digits right-to-left with inverted sprite alpha and sixteen-pixel spacing. */
 void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites)
 {
     s32 alpha;

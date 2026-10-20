@@ -7,19 +7,19 @@ typedef struct RwRaster RwRaster;
 extern u8 D_007D0F00[];
 extern RwRaster *RpSkyTexGetTex0(RwRaster *raster, u32 *msb, u32 *lsb);
 extern void func_003f34e0(void* packet, u32 size);
-extern void gsBuildTextureUploadFixedStride(u32 texture, void* packet, u32 source, s32 a3,
-                           s32 a4, s32 a5, s32 a6, s32 a7, s32 a8, s32 a9);
-extern void gsBuildTextureUploadPacket(u32 texture, u8* packet, u32 source, s32 a3,
-                          s32 a4, s32 a5, s32 a6, s32 a7, s32 a8, s32 a9,
-                          s32 a10);
+extern void gsBuildTextureUploadFixedStride(u32 texture, void* packet, u32 source, s32 destinationX,
+                           s32 destinationY, s32 width, s32 height, s32 sourceColumn, s32 sourceRow, s32 skipRows);
+extern void gsBuildTextureUploadPacket(u32 texture, u8* packetOut, u32 sourceBase, s32 sourceStride,
+                          s32 destinationX, s32 destinationY, s32 textureWidth, s32 textureHeight, s32 sourceColumn, s32 sourceRow,
+                          s32 skipRows);
 
-extern void* poolAlloc(size_t size);
+extern void* poolAlloc(size_t requestedSize);
 extern void memset(void* dst, u32 value, u32 size);
 
-extern void gsPackDmaTag(u64* out, u32 a1, s32 a2, u32 a3, u32 a4,
-                          u32 a5, u32 a6);
-extern void gsPackGifTag(u32* out, u64 address, s32 a2, s32 a3, s32 a4,
-                          s32 a5, s32 a6, u32 a7);
+extern void gsPackDmaTag(u64* out, u32 scratchpad, s32 address, u32 interrupt, u32 tagId,
+                          u32 priority, u32 quadwordCount);
+extern void gsPackGifTag(u32* out, u64 address, s32 registerCount, s32 format, s32 primitive,
+                          s32 primitiveEnable, s32 endOfPacket, u32 loopCount);
 extern void gsPackBitbltBuf(u32* output, u32 image, u32 width, u32 height);
 extern void gsPackTrxPos(u32* output, u32 flag, u32 image, u32 height);
 extern void gsPackTrxReg(u32* out, u32 x, u32 y);
@@ -59,11 +59,11 @@ void gsUploadRasterTiles(RwRaster *source, u32 owner, s32 tileIndex, s32 tileCou
 
 // Intent: Build a texture upload packet with a fixed 0x400 stride [inferred]
 // FUN_00143C90
-void gsBuildTextureUploadFixedStride(u32 texture, void* packet, u32 source, s32 a3, s32 a4,
-                   s32 a5, s32 a6, s32 a7, s32 a8, s32 a9)
+void gsBuildTextureUploadFixedStride(u32 texture, void* packet, u32 source, s32 destinationX, s32 destinationY,
+                   s32 width, s32 height, s32 sourceColumn, s32 sourceRow, s32 skipRows)
 {
-    gsBuildTextureUploadPacket(texture, packet, source, 0x400, a3, a4, a5, a6, a7, a8,
-                  a9);
+    gsBuildTextureUploadPacket(texture, packet, source, 0x400, destinationX, destinationY, width, height, sourceColumn, sourceRow,
+                  skipRows);
 }
 
 
@@ -75,10 +75,10 @@ void gsBuildTextureUploadFixedStride(u32 texture, void* packet, u32 source, s32 
    DMA tag slots intentionally leave their upper eight bytes untouched. */
 // Intent: Build a texture upload packet: DMA and GIF tags, BITBLTBUF, TRXPOS, TRXREG and TRXDIR for each column [inferred]
 // FUN_00143CF0
-void gsBuildTextureUploadPacket(u32 arg0, u8* arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0, s32 arg_sp8, s32 arg_sp10)
+void gsBuildTextureUploadPacket(u32 texture, u8* packetOut, u32 sourceBase, s32 sourceStride, s32 destinationX, s32 destinationY, s32 textureWidth, s32 textureHeight, s32 sourceColumn, s32 sourceRow, s32 skipRows)
 {
-    s32 columns = arg6 >> 4;
-    s32 rows = arg7 >> 4;
+    s32 columns = textureWidth >> 4;
+    s32 rows = textureHeight >> 4;
     s32 width;
     u8* packet;
     s32 i;
@@ -88,24 +88,24 @@ void gsBuildTextureUploadPacket(u32 arg0, u8* arg1, u32 arg2, s32 arg3, s32 arg4
     s32 last;
     s32 stride;
     s32 gapStride;
-    savedY = arg5;
-    gsPackDmaTag((u64*)arg1, 0, 0, 0, 1, 0, 3);
-    gsPackGifTag((u32*)(arg1 + 0x10), 0xE, 1, 0, 0, 0, 0, 2);
-    width = ((arg6 + 63) / 64) * 64;
-    gsPackBitbltBuf((u32*)(arg1 + 0x20), arg0, width / 64, 0);
-    gsPackTrxReg((u32*)(arg1 + 0x30), 16, rows * 16);
-    packet = arg1 + 0x40;
-    source = arg2 + (arg_sp0 >> 4) * (arg3 * (rows + (arg_sp10 >> 4)));
-    source += arg3 * (arg_sp8 >> 4);
+    savedY = destinationY;
+    gsPackDmaTag((u64*)packetOut, 0, 0, 0, 1, 0, 3);
+    gsPackGifTag((u32*)(packetOut + 0x10), 0xE, 1, 0, 0, 0, 0, 2);
+    width = ((textureWidth + 63) / 64) * 64;
+    gsPackBitbltBuf((u32*)(packetOut + 0x20), texture, width / 64, 0);
+    gsPackTrxReg((u32*)(packetOut + 0x30), 16, rows * 16);
+    packet = packetOut + 0x40;
+    source = sourceBase + (sourceColumn >> 4) * (sourceStride * (rows + (skipRows >> 4)));
+    source += sourceStride * (sourceRow >> 4);
     i = 0;
     count = (rows * 1024) / 16;
-    stride = arg3 * rows;
-    gapStride = arg3 * (arg_sp10 >> 4);
+    stride = sourceStride * rows;
+    gapStride = sourceStride * (skipRows >> 4);
     while (i < columns) {
         last = (i == columns - 1) ? 1 : 0;
         gsPackDmaTag((u64*)packet, 0, 0, 0, 1, 0, 4);
         gsPackGifTag((u32*)(packet + 0x10), 0xE, 1, 0, 0, 0, 0, 2);
-        gsPackTrxPos((u32*)(packet + 0x20), 0, arg4 + i * 16, savedY);
+        gsPackTrxPos((u32*)(packet + 0x20), 0, destinationX + i * 16, savedY);
         gsPackTrxDir((u32*)(packet + 0x30), 0);
         gsPackGifTag((u32*)(packet + 0x40), 0, 0, 2, 0, 0, last, count);
         gsPackDmaTag((u64*)(packet + 0x50), 0, source & 0x0fffffff, 0, 3, 0, count);
@@ -118,17 +118,17 @@ void gsBuildTextureUploadPacket(u32 arg0, u8* arg1, u32 arg2, s32 arg3, s32 arg4
 }
 // Intent: Store a 64-bit DMA tag word: id, quadword count and address [inferred]
 // FUN_00143F90
-void gsPackDmaTag(u64* out, u32 a1, s32 a2, u32 a3, u32 a4, u32 a5,
-                   u32 a6)
+void gsPackDmaTag(u64* out, u32 scratchpad, s32 address, u32 interrupt, u32 tagId, u32 priority,
+                   u32 quadwordCount)
 {
     u64 packet;
 
-    packet = ((u64)a1 << 0x3f) |
-             ((u64)(u32)(a2 & ~0xf) << 0x20) |
-             ((u64)a3 << 0x1f) |
-             ((u64)a4 << 0x1c) |
-             ((u64)a5 << 0x1a) |
-             (u64)a6;
+    packet = ((u64)scratchpad << 0x3f) |
+             ((u64)(u32)(address & ~0xf) << 0x20) |
+             ((u64)interrupt << 0x1f) |
+             ((u64)tagId << 0x1c) |
+             ((u64)priority << 0x1a) |
+             (u64)quadwordCount;
     *out = packet;
 }
 
@@ -136,12 +136,12 @@ void gsPackDmaTag(u64* out, u32 a1, s32 a2, u32 a3, u32 a4, u32 a5,
 
 // Intent: Store a GIF tag (NLOOP, EOP, FLG, NREG) and its address [inferred]
 // FUN_00144000
-void gsPackGifTag(u32* out, u64 address, s32 a2, s32 a3, s32 a4, s32 a5,
-                   s32 a6, u32 a7)
+void gsPackGifTag(u32* out, u64 address, s32 registerCount, s32 format, s32 primitive, s32 primitiveEnable,
+                   s32 endOfPacket, u32 loopCount)
 {
-    out[0] = ((u32)a6 << 0xf) | a7;
-    out[1] = ((u32)a5 << 0xe) | ((u32)a4 << 0xf) |
-             ((u32)a3 << 0x1a) | ((u32)a2 << 0x1c);
+    out[0] = ((u32)endOfPacket << 0xf) | loopCount;
+    out[1] = ((u32)primitiveEnable << 0xe) | ((u32)primitive << 0xf) |
+             ((u32)format << 0x1a) | ((u32)registerCount << 0x1c);
     out[2] = (u32)(address & 0xffffffffULL);
     out[3] = (u32)(address >> 0x20);
 }
@@ -208,6 +208,8 @@ void gsPackTrxDir(u32* out, u32 value)
 
 
 // FUN_0046A6F0
+/* Allocate count elements and clear the complete byte extent. Allocation failure
+ * is passed directly to memset, matching the allocator's existing contract. */
 
 void* H_Calloc(u32 count, size_t size)
 {

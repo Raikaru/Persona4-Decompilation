@@ -4,6 +4,32 @@
 #include "sdk_snd_internal.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
+#include "fr_font_objects.h"
+#include "primitive_queue_internal.h"
+
+/* The constructor allocates 0x2C bytes; update and draw share this layout. */
+typedef struct ShdWindowAnimation {
+    s32 unk0;
+    s32 flags; /* bit 0 opens; bit 1 closes */
+    u8 pad8[8];
+    s32 frame;
+} ShdWindowAnimation;
+typedef struct ShdWindowWork {
+    s32 state;
+    s32 flags; /* bit 2 requests completion */
+    s32 value;
+    s32 entryIndex;
+    s32 delay;
+    s32 selection;
+    ShdWindowAnimation animation;
+} ShdWindowWork;
+typedef struct ShdWindowEntry {
+    s32 text;
+    union {
+        s32 word;
+        struct { u16 kind, initialSelection; } fields;
+    } behavior;
+} ShdWindowEntry;
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -21,7 +47,7 @@ extern u8 D_00796670[];
 extern u16 D_008C024E[];
 extern u16 D_008C0276[];
 
-extern s32 shdWindowTaskUpdate(u8 *task);
+extern s32 shdWindowTaskUpdate(u8 *sdkTaskBytes);
 extern void shdWindowDrawQueued(s32, s32);
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
@@ -34,7 +60,7 @@ extern void frFontSetGlyphColor(u8 *, s32);
 extern void frFontListKeepOrRelease(u8 *);
 extern f32 iGpffff8094;
 extern f32 sinf(f32);
-extern void func_00366670(s32, s32, f32, s32, s32, s32, s32, s32, s32,
+extern void sflDataDrawWideRoundedFrame(s32, s32, f32, s32, s32, s32, s32, s32, s32,
                          s16, void *, f32, f32, f32);
 extern void shdDrawEntryRow(f32, f32, s32, u8 *);
 
@@ -45,55 +71,55 @@ extern void shdDrawEntryRow(f32, f32, s32, u8 *);
 // retail never has.
 
 // measured: opt_loop_invariants on fixes the parameter allocation and pre-loop
-// mask placement; declaring var_17 after the three list-walk locals gives the
+// mask placement; declaring runIndex after the three list-walk locals gives the
 // retail $s4/$s3/$s2/$s1 allocation (old declaration order was nd 22).
 #pragma opt_loop_invariants on
 // Intent: Draw a block of text runs, centred or left-aligned, from a text table entry; returns the block height [inferred]
 // FUN_0025DB00
-s32 shdDrawTextBlock(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
-                  s32 arg3)
+s32 shdDrawTextBlock(f32 x, f32 y, s32 unusedColor, s32 color, s32 entryIndex,
+                  s32 centered)
 {
-    u8 *sp9C;
-    s32 temp_22;
-    u8 *var_18;
-    u8 *var_19;
-    s32 var_20;
-    s32 var_17;
+    u8 *remainingText;
+    s32 textOrHeight;
+    u8 *run;
+    u8 *glyph;
+    s32 runWidth;
+    s32 runIndex;
 
-    arg1 |= -0x100;
-    if (arg2 >= 0x17) {
+    color |= -0x100;
+    if (entryIndex >= 0x17) {
         kAssertFail(&D_00637248, 0x75);
     }
-    temp_22 = *(s32 *)((u8 *)&D_00637190 + arg2 * 8);
-    var_17 = 0;
-    sp9C = frFontBuildTextSimple(0, 0, 2, 0, 0, 0xFF, temp_22, 0);
-    temp_22 = frFontCountRuns(sp9C) * 0x1C;
+    textOrHeight = ((ShdWindowEntry *)D_00637190)[entryIndex].text;
+    runIndex = 0;
+    remainingText = frFontBuildTextSimple(0, 0, 2, 0, 0, 0xFF, textOrHeight, 0);
+    textOrHeight = frFontCountRuns(remainingText) * 0x1C;
 
-    while (sp9C != NULL) {
-        var_18 = frFontSplitRun(&sp9C, 0);
-        if (var_18 == NULL) {
-            var_18 = sp9C;
-            sp9C = NULL;
+    while (remainingText != NULL) {
+        run = frFontSplitRun(&remainingText, 0);
+        if (run == NULL) {
+            run = remainingText;
+            remainingText = NULL;
         }
-        var_19 = var_18;
-        var_20 = 0;
-        while (var_19 != NULL) {
-            var_20 += frFontNodeWidth(var_19);
-            var_19 = *(u8 **)(var_19 + 0x24);
+        glyph = run;
+        runWidth = 0;
+        while (glyph != NULL) {
+            runWidth += frFontNodeWidth(glyph);
+            glyph = (u8 *)((FrFontTextRun *)glyph)->previous;
         }
-        if (arg3 != 0) {
-            frFontMoveListToFloat(var_18,
-                          fparg0 - (f32)var_20 / 2.0f,
-                          fparg1 + 28.0f * (f32)var_17 - (f32)temp_22 / 2.0f);
+        if (centered != 0) {
+            frFontMoveListToFloat(run,
+                          x - (f32)runWidth / 2.0f,
+                          y + 28.0f * (f32)runIndex - (f32)textOrHeight / 2.0f);
         } else {
-            frFontMoveListToFloat(var_18, fparg0, fparg1);
+            frFontMoveListToFloat(run, x, y);
         }
-        frFontSetGlyphColor(var_18, arg1);
-        frFontDrawList(var_18, 1, 0);
-        frFontListKeepOrRelease(var_18);
-        var_17++;
+        frFontSetGlyphColor(run, color);
+        frFontDrawList(run, 1, 0);
+        frFontListKeepOrRelease(run);
+        runIndex++;
     }
-    return var_17 * 0x1C;
+    return runIndex * 0x1C;
 }
 // measured: closes the shdDrawTextBlock loop-invariant bracket.
 #pragma opt_loop_invariants off
@@ -125,8 +151,8 @@ s32 shdDrawTextBlock(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 // prop/dead/loopinv/strength pairs; 157 csoff+propoff, 165 csoff group,
 // 220-224 peephole group, 244-247 schedule group). No pair wins; floor stands.
 // `python3 -E -s tools/pragma_sweep.py src/shdWindow.c shdDrawEntryRow --pairs`.
-extern s8 frFontExGlyphHeight(char param_1);
-extern void K_SineRingDraw(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
+extern s8 frFontExGlyphHeight(char index);
+extern void K_SineRingDraw(f32 centerX, f32 centerY, f32 depth, s32 packedColor);
 // MATCH.  The last six words were the emission slot of `mtc1 $zero, $f12`
 // at the two func_00366670 calls: retail materialises that first float
 // argument before the packed-colour shift/mask pair, this file did it after.
@@ -153,146 +179,148 @@ extern void K_SineRingDraw(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
 // after one, two, three or four of them, all compile identically.  After
 // five it scores 4, after six or more it scores 6 again.
 // Intent: Draw one entry row: a bar and its text, chosen by the row kind [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0025DD30
-void shdDrawEntryRow(f32 param_1, f32 param_2, s32 color, u8 *data) {
+void shdDrawEntryRow(f32 offsetX, f32 offsetY, s32 color, u8 *data) {
     struct ShdWindowQuad { f32 a, b, c, d; };
     f32 table[4];
     s32 y;
     s32 kind;
-    f32 var;
-    f32 xprog;
-    s32 ret;
+    f32 textY;
+    f32 textX;
+    s32 textHeight;
 
     *(struct ShdWindowQuad *)table = *(struct ShdWindowQuad *)D_00637260;
     frFontExGlyphHeight(2);
-    y = *(s32 *)(data + 12);
+    y = ((ShdWindowWork *)data)->entryIndex;
     if (y >= 0x17) {
         kAssertFail(D_00637248, 121);
     }
-    kind = *(u16 *)(D_00637190 + y * 8 + 4);
-    xprog = 228.0f + param_1;
+    kind = ((ShdWindowEntry *)D_00637190)[y].behavior.fields.kind;
+    textX = 228.0f + offsetX;
     if (kind == 2) {
-        var = ((150.0f + param_2) - 6.0f) - 37.5f;
+        textY = ((150.0f + offsetY) - 6.0f) - 37.5f;
     } else {
-        var = (150.0f + param_2) - 6.0f;
+        textY = (150.0f + offsetY) - 6.0f;
     }
-    ret = shdDrawTextBlock(xprog, var, 0xFFFFFF, color, *(s32 *)(data + 12), 1);
-    y = (s32)(49.0f + (var + (f32)(ret >> 1)));
+    textHeight = shdDrawTextBlock(textX, textY, 0xFFFFFF, color, *(s32 *)(data + 0xC), 1);
+    y = (s32)(49.0f + (textY + (f32)(textHeight >> 1)));
     switch (kind) {
     case 2:
-        if (*(s32 *)(data + 20) == 0) {
+        if (((ShdWindowWork *)data)->selection == 0) {
             u32 combined = (color & 0xFF) | -256;
-            func_00366670((s32)(110.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
-            frFontExDrawText(163.0f + param_1, (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8], 0, (const char *)iGpffffa6a0, 8, 0);
-            frFontExDrawText((f32)293 + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 1, (const char *)iGpffffa6a4, 8, 0);
+            sflDataDrawWideRoundedFrame((s32)(110.0f + offsetX), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+            frFontExDrawText(163.0f + offsetX, (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 0x14) * 8], 0, (const char *)iGpffffa6a0, 8, 0);
+            frFontExDrawText((f32)293 + offsetX, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 0x14) * 8 + 4], 1, (const char *)iGpffffa6a4, 8, 0);
         } else {
             u32 combined = (color & 0xFF) | -256;
-            func_00366670((s32)(240.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
-            frFontExDrawText(163.0f + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8], 1, (const char *)iGpffffa6a0, 8, 0);
-            frFontExDrawText(3.0f + ((f32)293 + param_1), (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 0, (const char *)iGpffffa6a4, 8, 0);
+            sflDataDrawWideRoundedFrame((s32)(240.0f + offsetX), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+            frFontExDrawText(163.0f + offsetX, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 0x14) * 8], 1, (const char *)iGpffffa6a0, 8, 0);
+            frFontExDrawText(3.0f + ((f32)293 + offsetX), (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 0x14) * 8 + 4], 0, (const char *)iGpffffa6a4, 8, 0);
         }
         break;
     case 1:
-        K_SineRingDraw((f32)399 + param_1, 255.0f + param_2, 0.0f, -1);
+        K_SineRingDraw((f32)399 + offsetX, 255.0f + offsetY, 0.0f, -1);
         break;
     }
 }
 // Intent: Window task update: run the open and close state machine and queue the draw callback [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0025E170
 s32 shdWindowTaskUpdate(u8 *sdkTaskBytes)
 {
-    s32 arg0 = (s32)sdkTaskBytes;
-    u8 *p;
-    s32 temp_18;
-    s32 temp_3_2;
-    s32 temp_2_2;
-    s32 temp_2_4;
-    s32 temp_3;
-    u16 temp_3_3;
-    u8 *temp_2;
-    u8 *temp_2_3;
+    s32 taskHandle = (s32)sdkTaskBytes;
+    u8 *work;
+    s32 entryIndex;
+    s32 openingFlags;
+    s32 nextFrame;
+    s32 closingFlags;
+    s32 state;
+    u16 kind;
+    u8 *unusedWork;
+    u8 *drawNode;
 
-    p = (u8 *)kwlnTaskGetWork();
-    temp_3 = *(s32 *)p;
-    switch (temp_3) {
+    work = (u8 *)kwlnTaskGetWork();
+    state = ((ShdWindowWork *)work)->state;
+    switch (state) {
     case 0:
-        *(s32 *)p = 2;
-        *(s32 *)(p + 4) = *(s32 *)(p + 4) | 1;
-        temp_3_2 = *(s32 *)(p + 0x1C) | 1;
-        *(s32 *)(p + 0x1C) = temp_3_2;
-        *(s32 *)(p + 0x1C) = temp_3_2 & ~2;
-        temp_18 = *(s32 *)(p + 0xC);
-        if (temp_18 >= 0x17) {
+        ((ShdWindowWork *)work)->state = 2;
+        ((ShdWindowWork *)work)->flags = ((ShdWindowWork *)work)->flags | 1;
+        openingFlags = ((ShdWindowWork *)work)->animation.flags | 1;
+        ((ShdWindowWork *)work)->animation.flags = openingFlags;
+        ((ShdWindowWork *)work)->animation.flags = openingFlags & ~2;
+        entryIndex = ((ShdWindowWork *)work)->entryIndex;
+        if (entryIndex >= 0x17) {
             kAssertFail(&D_00637248, 0x7D);
         }
-        switch (((*(s32 *)((u8 *)&D_00637190 + temp_18 * 8 + 4)) >> 16)) {
+        switch (((((ShdWindowEntry *)D_00637190)[entryIndex].behavior.word) >> 16)) {
         case 1:
-            *(s32 *)(p + 0x14) = 1;
+            ((ShdWindowWork *)work)->selection = 1;
             break;
         }
         /* fallthrough */
     case 2:
-        *(s32 *)p = 3;
-        *(s32 *)(p + 0x10) = 0;
+        ((ShdWindowWork *)work)->state = 3;
+        ((ShdWindowWork *)work)->delay = 0;
         /* fallthrough */
     case 3:
-        temp_2_2 = *(s32 *)(p + 0x10) + 1;
-        *(s32 *)(p + 0x10) = temp_2_2;
-        if (temp_2_2 >= 5) {
-            *(s32 *)(p + 0x10) = 0;
-            *(s32 *)p = 6;
+        nextFrame = ((ShdWindowWork *)work)->delay + 1;
+        ((ShdWindowWork *)work)->delay = nextFrame;
+        if (nextFrame >= 5) {
+            *(s32 *)(work + 0x10) = 0;
+            ((ShdWindowWork *)work)->state = 6;
         }
         goto block_37;
     case 6:
-        temp_18 = *(s32 *)(p + 0xC);
-        if (temp_18 >= 0x17) {
+        entryIndex = ((ShdWindowWork *)work)->entryIndex;
+        if (entryIndex >= 0x17) {
             kAssertFail(&D_00637248, 0x79);
         }
-        temp_3_3 = *(u16 *)((u8 *)&D_00637190 + temp_18 * 8 + 4);
-        switch (temp_3_3) {
+        kind = ((ShdWindowEntry *)D_00637190)[entryIndex].behavior.fields.kind;
+        switch (kind) {
         case 0:
             break;
         case 1:
             if ((D_008C024E[0] & 0x40) || (D_008C024E[0] & 0x20)) {
-                *(s32 *)(p + 4) = *(s32 *)(p + 4) | 4;
+                ((ShdWindowWork *)work)->flags = ((ShdWindowWork *)work)->flags | 4;
                 sdkSndStartStream(0, 0, 0, 1);
             }
             break;
         case 2:
             if (D_008C0276[0] & 0x8000) {
-                if (*(s32 *)(p + 0x14) != 0) {
+                if (((ShdWindowWork *)work)->selection != 0) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                *(s32 *)(p + 0x14) = 0;
+                *(s32 *)(work + 0x14) = 0;
             } else if (D_008C0276[0] & 0x2000) {
-                if (*(s32 *)(p + 0x14) != 1) {
+                if (((ShdWindowWork *)work)->selection != 1) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                *(s32 *)(p + 0x14) = 1;
+                *(s32 *)(work + 0x14) = 1;
             } else if (D_008C024E[0] & 0x40) {
-                *(s32 *)(p + 4) = *(s32 *)(p + 4) | 4;
+                ((ShdWindowWork *)work)->flags = ((ShdWindowWork *)work)->flags | 4;
                 sdkSndStartStream(0, 0, 0, 1);
             }
             break;
         }
-        if (*(s32 *)(p + 4) & 4) {
-            *(s32 *)p = 1;
-            temp_2_4 = *(s32 *)(p + 0x1C) & ~1;
-            *(s32 *)(p + 0x1C) = temp_2_4;
-            *(s32 *)(p + 0x1C) = temp_2_4 | 2;
+        if (((ShdWindowWork *)work)->flags & 4) {
+            ((ShdWindowWork *)work)->state = 1;
+            closingFlags = ((ShdWindowWork *)work)->animation.flags & ~1;
+            ((ShdWindowWork *)work)->animation.flags = closingFlags;
+            ((ShdWindowWork *)work)->animation.flags = closingFlags | 2;
         }
         goto block_37;
     case 1:
-        if (!(*(s32 *)(p + 0x1C) & 2)) {
+        if (!(((ShdWindowWork *)work)->animation.flags & 2)) {
             return -1;
         }
         goto block_37;
     }
 block_37:
-    temp_2_3 = (u8 *)PrimAllocQueueNode();
-    *(void (**)(s32, s32))(temp_2_3 + 8) = shdWindowDrawQueued;
-    *(s32 *)(temp_2_3 + 0x10) = arg0;
-    PrimAppendNode(&D_00796670, temp_2_3);
+    drawNode = (u8 *)PrimAllocQueueNode();
+    ((PrimQueueNode *)drawNode)->callback = (void *)shdWindowDrawQueued;
+    ((PrimQueueNode *)drawNode)->argument.handle = taskHandle;
+    PrimAppendNode(&D_00796670, drawNode);
     return 0;
 }
 
@@ -301,57 +329,58 @@ block_37:
 // count clamp reproduce retail's branch layout. Packing the color channels
 // through (s8)(s32) preserves the retail sign-extension sequence.
 // Intent: Queued window draw: step the open or close counter and draw the bar and its row [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0025E4A0
-void shdWindowDrawQueued(s32 arg0, s32 arg1)
+void shdWindowDrawQueued(s32 unusedQueue, s32 taskHandle)
 {
-    u8 *p;
-    u8 *temp_5;
+    u8 *work;
+    u8 *animation;
     s32 action;
     s32 flags;
     s32 count;
-    f32 temp_f20;
+    f32 opacity;
     f32 frac;
     u32 color;
 
-    p = (u8 *)kwlnTaskGetWork(arg1);
-    temp_5 = p + 0x18;
+    work = (u8 *)kwlnTaskGetWork(taskHandle);
+    animation = work + 0x18;
     action = 0;
-    flags = *(s32 *)(p + 0x1C);
+    flags = ((ShdWindowWork *)work)->animation.flags;
     if (flags & 1) {
-        count = *(s32 *)(temp_5 + 0x10);
+        count = ((ShdWindowAnimation *)animation)->frame;
         if (count < 5) {
-            *(s32 *)(temp_5 + 0x10) = count + 1;
+            *(s32 *)(animation + 0x10) = count + 1;
         } else {
-            *(s32 *)(temp_5 + 4) = flags & ~1;
-            *(s32 *)(temp_5 + 0x10) = 7;
+            ((ShdWindowAnimation *)animation)->flags = flags & ~1;
+            *(s32 *)(animation + 0x10) = 7;
         }
         action = 1;
     } else if (flags & 2) {
-        count = *(s32 *)(temp_5 + 0x10);
+        count = ((ShdWindowAnimation *)animation)->frame;
         if (count > 0) {
-            *(s32 *)(temp_5 + 0x10) = count - 1;
+            *(s32 *)(animation + 0x10) = count - 1;
         } else {
-            *(s32 *)(temp_5 + 4) = flags & ~2;
+            ((ShdWindowAnimation *)animation)->flags = flags & ~2;
         }
         action = 0;
     }
 
     switch (action) {
     case 1:
-        count = *(s32 *)(temp_5 + 0x10);
+        count = ((ShdWindowAnimation *)animation)->frame;
         count = count < 3 ? count : 3;
-        temp_f20 = sinf((iGpffff8094 * (f32)count) / 3.0f);
-        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - temp_f20)), 0.0f, 456, (s32)(300.0f * temp_f20), 0x2D2D2D, 255, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
-        shdDrawEntryRow(92.0f, 74.0f, (s32)(255.0f * temp_f20), p);
+        opacity = sinf((iGpffff8094 * (f32)count) / 3.0f);
+        sflDataDrawWideRoundedFrame(92, (s32)(74.0f + 150.0f * (1.0f - opacity)), 0.0f, 456, (s32)(300.0f * opacity), 0x2D2D2D, 255, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
+        shdDrawEntryRow(92.0f, 74.0f, (s32)(255.0f * opacity), work);
         break;
     case 0:
-        count = *(s32 *)(temp_5 + 0x10);
+        count = ((ShdWindowAnimation *)animation)->frame;
         count = count < 3 ? count : 3;
         frac = (f32)count / 3.0f;
-        temp_f20 = 255.0f * frac;
+        opacity = 255.0f * frac;
         color = 0x2D2D2D00 | (((s8)(s32)(255.0f * frac)) & 0xFF);
-        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - frac)), 0.0f, 456, (s32)(10.0f + 290.0f * frac), color >> 8, color & 0xFF, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
-        shdDrawEntryRow(92.0f, 74.0f, (s32)temp_f20, p);
+        sflDataDrawWideRoundedFrame(92, (s32)(74.0f + 150.0f * (1.0f - frac)), 0.0f, 456, (s32)(10.0f + 290.0f * frac), color >> 8, color & 0xFF, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
+        shdDrawEntryRow(92.0f, 74.0f, (s32)opacity, work);
         break;
     }
 }
@@ -360,32 +389,33 @@ void shdWindowDrawQueued(s32 arg0, s32 arg1)
 // FUN_0025E7C0
 void shdWindowTaskDestroy(u8 *unusedTask)
 {
-    int iVar1;
+    int work;
 
-    iVar1 = kwlnTaskGetWork();
-    DAT_008873ec_abs[0](iVar1);
+    work = kwlnTaskGetWork();
+    DAT_008873ec_abs[0](work);
 }
 // Intent: Create the window task with its update and destroy callbacks [inferred]
 // FUN_0025E800
-void shdWindowTaskCreate(s32 arg0, s32 arg1, s32 arg2)
+void shdWindowTaskCreate(s32 parentTask, s32 value, s32 entryIndex)
 {
-    u8 *temp_2;
+    u8 *work;
 
     chkmemAllocSiteTag(&D_00637248, 0x204);
-    temp_2 = D_008873F4[0](1, 0x2C, 0x40000);
-    *(s32 *)(temp_2 + 8) = arg1;
-    *(s32 *)(temp_2 + 0xC) = arg2;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00637270), 0xF, 0, 0, shdWindowTaskUpdate, shdWindowTaskDestroy, (u8 *)(temp_2));
+    work = D_008873F4[0](1, 0x2C, 0x40000);
+    ((ShdWindowWork *)work)->value = value;
+    ((ShdWindowWork *)work)->entryIndex = entryIndex;
+    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_00637270), 0xF, 0, 0, shdWindowTaskUpdate, shdWindowTaskDestroy, (u8 *)(work));
 }
 
 // Intent: Mark the window as finished by setting bit 4 of its flags [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0025E8B0
 void shdWindowMarkDone(void) {
-    u8 *p = (u8 *)kwlnTaskGetWork();
-    s32 v = *(s32 *)(p + 0x4);
+    u8 *work = (u8 *)kwlnTaskGetWork();
+    s32 flags = ((ShdWindowWork *)work)->flags;
 
-    if (!(v & 4)) {
-        *(s32 *)(p + 0x4) = v | 4;
+    if (!(flags & 4)) {
+        *(s32 *)(work + 0x4) = flags | 4;
     }
 }
 
@@ -393,32 +423,32 @@ void shdWindowMarkDone(void) {
 // FUN_0025E8F0
 s32 shdWindowQueryState(void)
 {
-    u8 *p;
-    s32 v17;
-    s32 b;
-    u16 t;
+    u8 *work;
+    s32 finished;
+    s32 entryIndex;
+    u16 kind;
 
-    p = (u8 *)kwlnTaskGetWork();
-    v17 = 0;
-    if (*(s32 *)(p + 4) & 4) {
-        v17 = 1;
+    work = (u8 *)kwlnTaskGetWork();
+    finished = 0;
+    if (((ShdWindowWork *)work)->flags & 4) {
+        finished = 1;
     }
-    b = *(s32 *)(p + 0xC);
-    if (b >= 0x17) {
+    entryIndex = ((ShdWindowWork *)work)->entryIndex;
+    if (entryIndex >= 0x17) {
         kAssertFail(&D_00637248, 0x79);
     }
-    t = *(u16 *)((u8 *)&D_00637190 + b * 8 + 4);
-    switch (t) {
+    kind = ((ShdWindowEntry *)D_00637190)[entryIndex].behavior.fields.kind;
+    switch (kind) {
     case 0:
         return 1;
     case 1:
-        if (v17 != 0) {
+        if (finished != 0) {
             return 1;
         }
         goto ret0;
     case 2:
-        if (v17 != 0) {
-            return *(s32 *)(p + 0x14) + 1;
+        if (finished != 0) {
+            return ((ShdWindowWork *)work)->selection + 1;
         }
         goto ret0;
     default:

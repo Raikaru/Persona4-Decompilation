@@ -4,7 +4,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
-extern void func_0010e710(s32, u8 *, s32);
+extern void datSaveRestoreImage(s32, u8 *, s32);
 extern s32 iGpffffb1b4;
 extern u8 iGpffff9bb8[8]; /* Default surname at gp - 0x6448. */
 extern u8 iGpffff9bc0[8]; /* Default given name at gp - 0x6440. */
@@ -25,16 +25,24 @@ extern s32 iGpffffb19c;
 extern s32 iGpffffb1b8;
 extern s32 iGpffffb1f0;
 extern void (*jtbl_008873EC[])(void *);
-extern u8 *datSaveBuildImage(s32 a, s32 *b, s32 c);
+extern u8 *datSaveBuildImage(s32 version, s32 *outSize, s32 compact);
 extern u8 D_007BBF00[];
 extern void memcpy(void *dst, void *src, s32 n);
 extern s16 D_00797B7A[];
 extern s32 D_005E4610[];
-extern s32 datGetFlag(s32 arg0);
+extern s32 datGetFlag(s32 );
 extern s8 calendarGetValueLowByte(void);
 extern s16 calendarStateDaysSinceApr5(void);
 extern s16 calendarStatePeriod(void);
-static inline s32 p4_00110850_add(s32 offset, s32 base)
+/* Calendar tables use six-byte rows and separate linker aliases for each
+ * column. Keep byte arithmetic here: the scoped no-propagation helpers retain
+ * the measured address materialization, and the alias bases must not move. */
+typedef struct CalendarDayColumn {
+    union { u16 packed; u8 bytes[2]; } value;
+    u8 pad2[4];
+} CalendarDayColumn;
+
+static inline s32 calendarAddDayOffset(s32 offset, s32 base)
 {
     s32 temp;
 
@@ -42,12 +50,12 @@ static inline s32 p4_00110850_add(s32 offset, s32 base)
     return base + temp;
 }
 
-static inline s32 p4_0011_add_left(s32 left, s32 right)
+static inline s32 calendarAddPhaseOffset(s32 left, s32 right)
 {
     return left + right;
 }
 
-static inline s64 p4_0011_load_s8(s8 *ptr)
+static inline s64 calendarLoadSignedByte(s8 *ptr)
 {
     s64 temp;
 
@@ -60,15 +68,15 @@ static inline s64 p4_0011_load_s8(s8 *ptr)
 #pragma opt_propagation on
 // Intent: Return a day-table value for day arg0 and phase arg1: a flag-based result for today's date, else the byte from the day table [inferred]
 // FUN_00110850
-s64 calGetDayTableValue(s32 arg0, u32 arg1)
+s64 calGetDayTableValue(s32 day, u32 phase)
 {
-    s32 temp_4;
-    s32 temp_5;
-    s32 temp_6;
-    u32 var_5;
+    s32 dayOffset;
+    s32 dayAddress;
+    s32 phaseOffset;
+    u32 phaseIndex;
 
-    var_5 = arg1;
-    if ((arg0 == D_00797B7A[0]) && (var_5 == D_00797B7C[0])) {
+    phaseIndex = phase;
+    if ((day == D_00797B7A[0]) && (phaseIndex == D_00797B7C[0])) {
         if (D_0079B40C[0] & 8) {
             return 0;
         }
@@ -87,22 +95,22 @@ s64 calGetDayTableValue(s32 arg0, u32 arg1)
         goto block_12;
     }
 block_12:
-    switch (var_5) {
+    switch (phaseIndex) {
     case 0:
     case 1:
-        var_5 = 0;
+        phaseIndex = 0;
         break;
     case 2:
     case 3:
     case 4:
     case 5:
-        var_5 = 1;
+        phaseIndex = 1;
         break;
     }
-    temp_4 = arg0 * 6;
-    temp_5 = p4_00110850_add(temp_4, (s32)&D_005E3A02);
-    temp_6 = var_5 * 2;
-    return (s64) ((s64) *((u8 *)(temp_6 + temp_5)) << 0x38) >> 0x38;
+    dayOffset = day * 6;
+    dayAddress = calendarAddDayOffset(dayOffset, (s32)&D_005E3A02);
+    phaseOffset = phaseIndex * 2;
+    return (s64) ((s64) *((u8 *)(phaseOffset + dayAddress)) << 0x38) >> 0x38;
 }
 #pragma pop
 
@@ -112,7 +120,7 @@ block_12:
 #pragma opt_common_subs off
 // Intent: Return the day-table entry for a day and phase: the override value when one is set, else the stored byte [inferred]
 // FUN_00110960
-s64 calGetDayEntryByPhase(s32 arg0, u32 arg1)
+s64 calGetDayEntryByPhase(s32 day, u32 phase)
 {
     s32 loaded;
     s32 value;
@@ -120,12 +128,12 @@ s64 calGetDayEntryByPhase(s32 arg0, u32 arg1)
     s32 selection;
 
     result = -1;
-    if ((arg0 == (s16)calendarStateDaysSinceApr5()) &&
-        (arg1 == (s16)calendarStatePeriod())) {
+    if ((day == (s16)calendarStateDaysSinceApr5()) &&
+        (phase == (s16)calendarStatePeriod())) {
         result = (s8)calendarGetValueLowByte();
     }
     if ((s8)result == -1) {
-        switch (arg1) {
+        switch (phase) {
         case 0:
         case 1:
             selection = 0;
@@ -137,11 +145,11 @@ s64 calGetDayEntryByPhase(s32 arg0, u32 arg1)
             selection = 1;
             break;
         }
-        value = arg0 * 6;
-        value = p4_00110850_add(value, (s32)&D_005E3A02);
+        value = day * 6;
+        value = calendarAddDayOffset(value, (s32)&D_005E3A02);
         selection *= 2;
-        value = p4_0011_add_left(selection, value);
-        loaded = p4_0011_load_s8((s8 *)value);
+        value = calendarAddPhaseOffset(selection, value);
+        loaded = calendarLoadSignedByte((s8 *)value);
         result = loaded;
     }
     return result;
@@ -158,14 +166,14 @@ static inline s64 calendarOverrideValue(s32 date, s32 phase)
     if (date == (s16)calendarStateDaysSinceApr5() && (s16)calendarStatePeriod() == phase)
         result = (s8)calendarGetValueLowByte();
     if ((s8)result == -1) {
-        address = p4_00110850_add(date * 6, (s32)D_005E3A02);
-        loaded = p4_0011_load_s8((s8 *)address + 2);
+        address = calendarAddDayOffset(date * 6, (s32)D_005E3A02);
+        loaded = calendarLoadSignedByte((s8 *)address + 2);
         result = loaded;
     }
     return result;
 }
 
-s32 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
+s32 calDayOfYearFromMonthDay(s32 month, s32 day);
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -175,7 +183,7 @@ s32 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
 // FUN_00110A60
 s64 calGetDayEntryForMonthDay(s32 month, s32 day)
 {
-    extern s32 calHasDayEntry(s32 date);
+    extern s32 calHasDayEntry(s32 day);
     s32 previous;
     s32 total;
     s32 next;
@@ -206,39 +214,39 @@ s64 calGetDayEntryForMonthDay(s32 month, s32 day)
 #pragma opt_common_subs on
 // Intent: Return the packed 16-bit day entry for day arg0, combining two byte table values [inferred]
 // FUN_00110C50
-s32 calGetPackedDayEntry(s32 arg0, s32 arg1)
+s32 calGetPackedDayEntry(s32 day, s32 referenceDay)
 {
-    s32 temp_3_3;
-    s32 temp_4;
-    s32 temp_5;
-    s32 temp_2;
-    u16 temp_3;
-    u16 temp_3_2;
-    s32 var_2;
-    s32 var_5;
+    s32 dayOffset;
+    s32 futureDayOffset;
+    s32 firstAlternate;
+    s32 secondAlternate;
+    u16 firstEntry;
+    u16 secondEntry;
+    s32 secondValue;
+    s32 firstValue;
 
-    if ((arg1 + 3) < arg0) {
-        temp_4 = arg0 * 6;
-        temp_3 = *(u16 *)((s32)&D_005E3A02 + temp_4);
-        if (temp_3 & 0x8000) {
-            temp_5 = (u16)(temp_3 & 0x7F00) >> 8;
-            var_5 = temp_5 & 0xFFFF;
+    if ((referenceDay + 3) < day) {
+        futureDayOffset = day * 6;
+        firstEntry = ((CalendarDayColumn *)((s32)&D_005E3A02 + futureDayOffset))->value.packed;
+        if (firstEntry & 0x8000) {
+            firstAlternate = (u16)(firstEntry & 0x7F00) >> 8;
+            firstValue = firstAlternate & 0xFFFF;
         } else {
-            var_5 = temp_3 & 0xFF;
+            firstValue = firstEntry & 0xFF;
         }
-        temp_3_2 = *(u16 *)((s32)&D_005E3A04 + temp_4);
-        if (temp_3_2 & 0x8000) {
-            temp_2 = (u16)(temp_3_2 & 0x7F00) >> 8;
-            var_2 = temp_2 & 0xFFFF;
+        secondEntry = ((CalendarDayColumn *)((s32)&D_005E3A04 + futureDayOffset))->value.packed;
+        if (secondEntry & 0x8000) {
+            secondAlternate = (u16)(secondEntry & 0x7F00) >> 8;
+            secondValue = secondAlternate & 0xFFFF;
         } else {
-            var_2 = temp_3_2 & 0xFF;
+            secondValue = secondEntry & 0xFF;
         }
     } else {
-        temp_3_3 = arg0 * 6;
-        var_5 = *(u8 *)((s32)&D_005E3A02 + temp_3_3);
-        var_2 = *(u8 *)((s32)&D_005E3A04 + temp_3_3);
+        dayOffset = day * 6;
+        firstValue = ((CalendarDayColumn *)((s32)&D_005E3A02 + dayOffset))->value.bytes[0];
+        secondValue = ((CalendarDayColumn *)((s32)&D_005E3A04 + dayOffset))->value.bytes[0];
     }
-    return ((var_5 & 0xFFFF) + ((var_2 & 0xFFFF) * 0x10)) & 0xFFFF;
+    return ((firstValue & 0xFFFF) + ((secondValue & 0xFFFF) * 0x10)) & 0xFFFF;
 }
 #pragma pop
 
@@ -246,60 +254,60 @@ s32 calGetPackedDayEntry(s32 arg0, s32 arg1)
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 #pragma opt_common_subs on
-// Intent: Return whether the day table has an entry for day arg0 [inferred]
+// Intent: Return whether the day table has an entry for day day [inferred]
 // FUN_00110D30
-s32 calHasDayEntry(s32 arg0)
+s32 calHasDayEntry(s32 day)
 {
-    return D_005E3A00[arg0 * 6] != 0;
+    return D_005E3A00[day * 6] != 0;
 }
 #pragma pop
 
-s32 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
+s32 calDayOfYearFromMonthDay(s32 day, s32 );
 
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 #pragma opt_common_subs on
 #pragma opt_rebuildconditionals off
-// Intent: Return flag 1 when day-of-year arg0 is in Apr 1 to Jun 12 or on or after Oct 10, and flag 2 when the day table has an entry for the current day [inferred]
+// Intent: Return flag 1 when day-of-year day is in Apr 1 to Jun 12 or on or after Oct 10, and flag 2 when the day table has an entry for the current day [inferred]
 // FUN_00110D60
-s32 calGetDayWindowFlags(s32 arg0)
+s32 calGetDayWindowFlags(s32 day)
 {
-    s32 temp_18;
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 var_16;
-    s32 var_2;
-    s32 var_2_2;
+    s32 springStart;
+    s32 springEnd;
+    s32 autumnStart;
+    s32 autumnEnd;
+    s32 flags;
+    s32 inSpringWindow;
+    s32 inAutumnWindow;
 
-    var_16 = 0;
-    temp_18 = calDayOfYearFromMonthDay(4, 1);
-    temp_2 = calDayOfYearFromMonthDay(6, 0xC);
-    if ((arg0 >= temp_18) && (arg0 <= temp_2)) {
-        var_2 = 1;
+    flags = 0;
+    springStart = calDayOfYearFromMonthDay(4, 1);
+    springEnd = calDayOfYearFromMonthDay(6, 0xC);
+    if ((day >= springStart) && (day <= springEnd)) {
+        inSpringWindow = 1;
     } else {
-        var_2 = 0;
+        inSpringWindow = 0;
     }
-    if (var_2 == 0) {
-        temp_2_2 = calDayOfYearFromMonthDay(0xA, 0xA);
-        temp_2_3 = temp_2_2 + 0x16C;
-        if ((arg0 >= temp_2_2) && (arg0 <= temp_2_3)) {
-            var_2_2 = 1;
+    if (inSpringWindow == 0) {
+        autumnStart = calDayOfYearFromMonthDay(0xA, 0xA);
+        autumnEnd = autumnStart + 0x16C;
+        if ((day >= autumnStart) && (day <= autumnEnd)) {
+            inAutumnWindow = 1;
         } else {
-            var_2_2 = 0;
+            inAutumnWindow = 0;
         }
-        if (var_2_2 != 0) {
+        if (inAutumnWindow != 0) {
             goto block_10;
         }
     } else {
 block_10:
-        var_16 |= 1;
+        flags |= 1;
     }
     if (D_005E3A00[D_00797B7A[0] * 6] != 0) {
-        var_16 |= 2;
+        flags |= 2;
     }
-    return var_16;
+    return flags;
 }
 #pragma pop
 
@@ -310,9 +318,9 @@ block_10:
 #pragma opt_rebuildconditionals on
 // Intent: Set the state-image pending flag that calRestoreStateImage reads [inferred]
 // FUN_00110E70
-void calSetStateImagePending(s32 arg0)
+void calSetStateImagePending(s32 pending)
 {
-    iGpffffb1b4 = arg0;
+    iGpffffb1b4 = pending;
 }
 #pragma pop
 
@@ -324,15 +332,15 @@ void calSetStateImagePending(s32 arg0)
 // Intent: Capture the current save state into the state buffer and mark it pending [inferred]
 // FUN_00110E80
 void calCaptureStateImage(void) {
-    s32 sp3C;
-    u8 *p;
-    s32 n;
+    s32 imageSize;
+    u8 *image;
+    s32 byteCount;
 
-    p = datSaveBuildImage(0, &sp3C, 1);
-    n = sp3C;
-    memcpy(D_007BBF00, p, n);
-    iGpffffb1b8 = n;
-    jtbl_008873EC[0](p);
+    image = datSaveBuildImage(0, &imageSize, 1);
+    byteCount = imageSize;
+    memcpy(D_007BBF00, image, byteCount);
+    iGpffffb1b8 = byteCount;
+    jtbl_008873EC[0](image);
     iGpffffb1b4 = 1;
 }
 #pragma pop
@@ -346,32 +354,32 @@ void calCaptureStateImage(void) {
 // FUN_00110F00
 s32 calRestoreStateImage(void)
 {
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_18;
+    s32 savedState;
+    s32 dayFlags;
+    s32 imageSize;
     s32 buffer;
     s32 zero;
-    s32 var_2;
+    s32 restored;
 
-    var_2 = 0;
-    temp_16 = iGpffffb19c;
+    restored = 0;
+    savedState = iGpffffb19c;
     if (iGpffffb1b4 != 0) {
         sdlSchedulerDestroy();
-        func_00122520(1, 1);
-        temp_17 = calReadDayFlagMask();
+        fadeBeginTransition(1, 1);
+        dayFlags = calReadDayFlagMask();
         datInitDefaultGameState();
         iGpffffb1f0 = 1;
         buffer = (s32)&D_007BBF00;
-        temp_18 = iGpffffb1b8;
+        imageSize = iGpffffb1b8;
         zero = 0;
         buffer += 4;
-        func_0010e710(zero, (u8 *)buffer, temp_18);
-        calWriteDayFlagMask(temp_17);
-        iGpffffb19c = temp_16;
-        func_001029a0(0x1A, 0, 0, 0);
-        var_2 = 1;
+        datSaveRestoreImage(zero, (u8 *)buffer, imageSize);
+        calWriteDayFlagMask(dayFlags);
+        iGpffffb19c = savedState;
+        sequenceRequest(0x1A, 0, 0, 0);
+        restored = 1;
     }
-    return var_2;
+    return restored;
 }
 #pragma pop
 
@@ -384,8 +392,8 @@ s32 calRestoreStateImage(void)
 // FUN_00110FC0
 void sdlSchedulerTeardown(void) {
     sdlSchedulerDestroy();
-    func_00122520(1, 1);
-    func_001029a0(0x1B, 0, 0, 8);
+    fadeBeginTransition(1, 1);
+    sequenceRequest(0x1B, 0, 0, 8);
 }
 #pragma pop
 
@@ -398,10 +406,10 @@ void sdlSchedulerTeardown(void) {
 // FUN_00111010
 void scrReleaseActiveHandle(void)
 {
-    s32 temp_2;
+    s32 handle;
 
-    if ((temp_2 = func_0029e970()) != 0) {
-        func_0029e980(temp_2);
+    if ((handle = func_0029e970()) != 0) {
+        func_0029e980(handle);
     }
 }
 #pragma pop
@@ -413,7 +421,7 @@ void scrReleaseActiveHandle(void)
 #pragma opt_rebuildconditionals on
 // Intent: Set the six default day flags (0x39 to 0x3E) and clear the saved mask when arg0 is nonzero [inferred]
 // FUN_00111050
-void calSetDefaultDayFlags(s32 arg0)
+void calSetDefaultDayFlags(s32 clearSavedMask)
 {
     datSetFlag(0x39, 1);
     datSetFlag(0x3A, 1);
@@ -421,7 +429,7 @@ void calSetDefaultDayFlags(s32 arg0)
     datSetFlag(0x3C, 1);
     datSetFlag(0x3D, 1);
     datSetFlag(0x3E, 0);
-    if (arg0 != 0) {
+    if (clearSavedMask != 0) {
         iGpffffb1bc = 0;
     }
 }
@@ -435,16 +443,16 @@ void calSetDefaultDayFlags(s32 arg0)
 // Intent: Read the six day flags in the flag table into a six-bit mask [inferred]
 // FUN_001110E0
 s32 calReadDayFlagMask(void) {
-    u32 var_17;
-    s32 var_16;
+    u32 flagIndex;
+    s32 mask;
 
-    var_16 = 0;
-    for (var_17 = 0; var_17 < 6U; var_17++) {
-        if (datGetFlag(D_005E4610[var_17]) != 0) {
-            var_16 |= 1 << var_17;
+    mask = 0;
+    for (flagIndex = 0; flagIndex < 6U; flagIndex++) {
+        if (datGetFlag(D_005E4610[flagIndex]) != 0) {
+            mask |= 1 << flagIndex;
         }
     }
-    return var_16;
+    return mask;
 }
 #pragma pop
 
@@ -455,15 +463,15 @@ s32 calReadDayFlagMask(void) {
 #pragma opt_rebuildconditionals on
 // Intent: Write each of the six day flags from the matching bit of a six-bit mask [inferred]
 // FUN_00111160
-void calWriteDayFlagMask(s32 arg0)
+void calWriteDayFlagMask(s32 mask)
 {
-    u32 var_16;
-    var_16 = 0;
-    for (var_16 = 0; var_16 < 6U; var_16++) {
-        if (arg0 & (1 << var_16)) {
-            datSetFlag(D_005E4610[var_16], 1);
+    u32 flagIndex;
+    flagIndex = 0;
+    for (flagIndex = 0; flagIndex < 6U; flagIndex++) {
+        if (mask & (1 << flagIndex)) {
+            datSetFlag(D_005E4610[flagIndex], 1);
         } else {
-            datSetFlag(D_005E4610[var_16], 0);
+            datSetFlag(D_005E4610[flagIndex], 0);
         }
     }
 }
@@ -478,17 +486,17 @@ void calWriteDayFlagMask(s32 arg0)
 // FUN_00111200
 s32 calCaptureDayFlagMask(void)
 {
-    u32 var_17;
-    s32 var_16;
+    u32 flagIndex;
+    s32 mask;
     s32 result;
 
-    var_16 = 0;
-    for (var_17 = 0; var_17 < 6U; var_17++) {
-        if (datGetFlag(D_005E4610[var_17]) != 0) {
-            var_16 |= 1 << var_17;
+    mask = 0;
+    for (flagIndex = 0; flagIndex < 6U; flagIndex++) {
+        if (datGetFlag(D_005E4610[flagIndex]) != 0) {
+            mask |= 1 << flagIndex;
         }
     }
-    result = var_16 | 0x80000000;
+    result = mask | 0x80000000;
     iGpffffb1bc = result;
     return result;
 }
@@ -503,16 +511,16 @@ s32 calCaptureDayFlagMask(void)
 // FUN_00111290
 void calRestoreDayFlagMask(void)
 {
-    s32 temp_16;
-    u32 var_17;
+    s32 savedMask;
+    u32 flagIndex;
 
-    temp_16 = iGpffffb1bc;
-    if (temp_16 & 0x80000000) {
-        for (var_17 = 0; var_17 < 6U; var_17++) {
-            if (temp_16 & (1 << var_17)) {
-                datSetFlag(D_005E4610[var_17], 1);
+    savedMask = iGpffffb1bc;
+    if (savedMask & 0x80000000) {
+        for (flagIndex = 0; flagIndex < 6U; flagIndex++) {
+            if (savedMask & (1 << flagIndex)) {
+                datSetFlag(D_005E4610[flagIndex], 1);
             } else {
-                datSetFlag(D_005E4610[var_17], 0);
+                datSetFlag(D_005E4610[flagIndex], 0);
             }
         }
     } else {
@@ -527,7 +535,7 @@ void calRestoreDayFlagMask(void)
 }
 #pragma pop
 
-void datSetStateTableEntry(s32 arg0, u8 arg1);
+void datSetStateTableEntry(s32 , u8 );
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -549,13 +557,13 @@ void datInitDefaultGameState(void)
     u16 datCalcMaxSpById(s16);
     void datSetCategoryValueById(s16, s16, s16);
     void datCalcInitUnitById(s16);
-    void func_00105690(s16, u8);
+    void datSetHeroLevel(s16, u8);
     void datSetUnitHp(s16, s16);
     void datSetUnitSp(s16, s16);
     void datSetHeroExp(s16, u32);
-    void func_00105c90(s16, s16);
+    void datSetUnitRecordTailValue(s16, s16);
     void datCalcSetBadStatusById(s16, s16);
-    void func_00105dc0(s16, s16, s16);
+    void datSetEquippedItemByUnit(s16, s16, s16);
     void datSetMoney(u32);
     void datSetPartyId(s32, s16);
     void datSetDateIndex(s16);
@@ -563,17 +571,17 @@ void datInitDefaultGameState(void)
     void datSetPendingDateIndex(s16);
     void datSetPendingTimeSlot(u8);
     void datSetPendingFlag(u32);
-    void func_00106480(void);
+    void datClearFlags(void);
     void datPersonaClearRosterMode(void);
-    void func_001065c0(void);
-    void func_00106d40(s16, s16, s16);
+    void datClearScriptValues(void);
+    void datAssignEquippedItem(s16, s16, s16);
     void cmmCommunityClearTable(void);
     s32 datPersonaPlaceRosterMember(s32, u16);
     void datPersonaResetRosterMode(s16);
-    void func_0010d490(u8 *, u8 *);
-    void func_0010f390(void);
-    void func_0010f4c0(void);
-    void func_0010fc80(void);
+    void datSetHeroNameParts(u8 *, u8 *);
+    void datClearCollectionBitmap(void);
+    void datResetBattleUnitSaveTable(void);
+    void datClearPersonaRecordCache(void);
     void MT_Scene_ResetFrameState(void);
     void FldStepResetTables(void);
     void FldStateTablesClear(void);
@@ -582,16 +590,16 @@ void datInitDefaultGameState(void)
 
     calSetStateImagePending(0);
     datSetPendingFlag(0);
-    func_0010d490(iGpffff9bb8, iGpffff9bc0);
+    datSetHeroNameParts(iGpffff9bb8, iGpffff9bc0);
     datSetMoney(0);
-    func_0010fc80();
+    datClearPersonaRecordCache();
 
     i = 1;
     goto loop_1_check;
 loop_1:
     datCalcInitUnitById((s16)i);
     if (i == 1) {
-        func_00105690((s16)i, 1);
+        datSetHeroLevel((s16)i, 1);
         datSetHeroExp((s16)i, 0);
     }
     datSetUnitHp((s16)i, 1);
@@ -605,14 +613,15 @@ loop_2_check:
     if (j < 5) {
         goto loop_2;
     }
-    func_00105c90((s16)i, 0);
+    datSetUnitRecordTailValue((s16)i, 0);
     datCalcSetBadStatusById((s16)i, 0);
-    func_00105dc0((s16)i, 0, -1);
-    func_00105dc0((s16)i, 1, -1);
-    func_00105dc0((s16)i, 2, -1);
+    datSetEquippedItemByUnit((s16)i, 0, -1);
+    datSetEquippedItemByUnit((s16)i, 1, -1);
+    datSetEquippedItemByUnit((s16)i, 2, -1);
     datPersonaResetRosterMode((s16)i);
+    /* Keep the one-past row cursor: retail loads the preceding halfword. */
     q = (u8 *)D_005E4630 + i * 2;
-    datPersonaPlaceRosterMember(i & 0xFFFF, *(u16 *)(q - 2));
+    datPersonaPlaceRosterMember(i & 0xFFFF, ((u16 *)q)[-1]);
     datSetUnitHp((s16)i, (s16)datCalcMaxHpById((s16)i));
     datSetUnitSp((s16)i, (s16)datCalcMaxSpById((s16)i));
     i++;
@@ -621,8 +630,8 @@ loop_1_check:
         goto loop_1;
     }
 
-    func_00106480();
-    func_001065c0();
+    datClearFlags();
+    datClearScriptValues();
     datPersonaClearRosterMode();
     datSetTimeSlot(5);
     datSetDateIndex(9);
@@ -641,10 +650,11 @@ loop_3_check:
     i = 1;
     goto loop_4_check;
 loop_4:
+    /* Three halfwords per unit; retain the measured trailing offsets. */
     p = (u8 *)D_005E4650 + i * 6;
-    func_00106d40((s16)i, 0, *(s16 *)(p - 6));
-    func_00106d40((s16)i, 1, *(s16 *)(p - 4));
-    func_00106d40((s16)i, 2, *(s16 *)(p - 2));
+    datAssignEquippedItem((s16)i, 0, ((s16 *)p)[-3]);
+    datAssignEquippedItem((s16)i, 1, ((s16 *)p)[-2]);
+    datAssignEquippedItem((s16)i, 2, ((s16 *)p)[-1]);
     i++;
 loop_4_check:
     if (i < 11) {
@@ -658,8 +668,8 @@ loop_4_check:
     MT_Scene_ResetFrameState();
     FldStateTablesClear();
     FldStepResetTables();
-    func_0010f390();
-    func_0010f4c0();
+    datClearCollectionBitmap();
+    datResetBattleUnitSaveTable();
     cmmCommunityClearTable();
 
     i = 0;

@@ -213,7 +213,7 @@ extern s32 D_00762EA0;
 extern s32 mdlEffectCreateFromResource(s32 arg0);
 extern void mdlEffectStart(s32 arg0);
 extern s32 mdlEffectClone(s32 arg0);
-extern void func_004b1250(void *object, f32 *position);
+extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 extern s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
 extern void mdlEffectSetUniformScale(s32 arg0, f32 arg1);
 
@@ -545,7 +545,7 @@ static inline u32 fieldTransitionEntryActive(u32 index)
     if (*(s32 *)(entry + 0x48) != 0 && *(u8 **)(entry + 0x54) != NULL) active = 1;
     return active != 0;
 }
-extern void func_00122520(s32 enabled, s32 mode);
+extern void fadeBeginTransition(s32 enabled, s32 mode);
 extern void H_Fade_SetCustomColor(s32 red, s32 green, s32 blue);
 extern void RwV3dNormalize(f32 *destination, f32 *source);
 extern u8 iGpffff9dd8[8];

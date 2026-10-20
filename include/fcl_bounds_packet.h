@@ -31,6 +31,6 @@ void fclSpriteStartBoundsMove(u8 *task, FclVec2 start, FclVec2 end,
                    u32 duration);
 void fclSpriteStartBoundsMoveFade(u8 *task, FclVec2 start, FclVec2 end,
                    FclBoundsPacket startBounds, FclBoundsPacket endBounds,
-                   u32 duration, s16 mode);
+                   u32 duration, s16 timer);
 
 #endif

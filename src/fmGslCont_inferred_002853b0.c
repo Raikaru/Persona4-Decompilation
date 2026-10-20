@@ -7,11 +7,11 @@
 #include "scene_light_override_internal.h"
 #include "evt_internal.h"
 
-s32 kwlnTaskGetTaskByName(void *arg0);
+s32 kwlnTaskGetTaskByName(void *name);
 extern s32 D_0063C368[];
 
 
-extern void kAssertFail(void *arg0, s32 arg1);
+extern void kAssertFail(void *file, s32 line);
 extern s32 D_0063C1D0[];
 extern u8 D_0063C2B8[];
 extern f32 D_00882214[];
@@ -41,16 +41,16 @@ extern u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary,
 extern char D_0063C340[];
 extern char D_0063C380[];
 extern char D_0063C350[];
-extern void evtPolygonMovieLerpPose(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
-                          f32 *arg4);
+extern void evtPolygonMovieLerpPose(s32 enabled, f32 blend, f32 *fromPose, f32 *toPose,
+                          f32 *outPose);
 typedef signed __int128 s128;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 
 
 
-static inline s32 func_0028_sum(u16 arg0, s16 arg1) {
-    return (s32)arg0 + arg1;
+static inline s32 func_0028_sum(u16 value, s16 otherValue) {
+    return (s32)value + otherValue;
 }
 
 extern u8 iGpffffa790;
@@ -61,13 +61,15 @@ extern u8 D_005EFA20[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0028; members 002853b0-002853f0 */
 
+/* Empty event callback; the caller receives success. */
 // FUN_002853B0
-s32 func_002853b0(void) {
+s32 evtNoopCallback(void) {
     return 0;
 }
 
+/* Perform the event task lookup; this callback does not consume its result. */
 // FUN_002853C0
-void func_002853c0(void) {
+void evtLookupTask(void) {
     kwlnTaskGetTaskByName(&iGpffffa790);
 }
 
@@ -76,15 +78,15 @@ void func_002853c0(void) {
 #pragma opt_loop_invariants on
 // Event key table: index of 'arg0' in the 58-entry key table, 0 when absent.
 // FUN_002853F0
-s32 evtKeyIndex(s32 arg0) {
+s32 evtKeyIndex(s32 key) {
     s32 i;
 
-    if (arg0 >= 0x3A) {
+    if (key >= 0x3A) {
         kAssertFail(D_0063C2B8, 0x1E6);
     }
     i = 0;
     while (i < 0x3A) {
-        if (arg0 == D_0063C1D0[i]) {
+        if (key == D_0063C1D0[i]) {
             return i;
         }
         i++;

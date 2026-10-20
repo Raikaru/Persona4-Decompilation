@@ -1,3 +1,4 @@
+#include "nm_message_record.h"
 #include "btl_action_internal.h"
 #include "list_item_internal.h"
 #include "fcl_color.h"
@@ -16,7 +17,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 {
     return right * left;
 }
-extern void nmMesWindowStepCurrent(s32 arg0);
+extern void nmMesWindowStepCurrent(s32 release);
 
 
 
@@ -39,16 +40,16 @@ extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
 extern s32 *nmMesWindowCurrent();
-extern void itfMesWindowSetState(s32 arg0, s8 arg1);
-extern void itfMesWindowRelease(s32 arg0);
-extern void itfMesWindowClear(s32 arg0, s32 arg1);
+extern void itfMesWindowSetState(s32 handle, s8 state);
+extern void itfMesWindowRelease(s32 handle);
+extern void itfMesWindowClear(s32 handle, s32 clearLabel);
 extern s32 itfMesWindowState();
-extern s32 itfMesWindowGetAnim(s32 arg0);
-extern void itfMesWindowLayout(s32 arg0, s32 arg1);
-extern void itfMesWindowSetCursor(s32 arg0, s32 arg1);
-extern u32 itfMesWindowSetParam(s32 arg0, s32 arg1, s32 arg2);
-extern void nmMesWindowSetCurrentRunning(s32 arg0);
-extern void nmMesWindowSetSlotRunning(s64 arg0, s32 arg1);
+extern s32 itfMesWindowGetAnim(s32 handle);
+extern void itfMesWindowLayout(s32 handle, s32 recordIndex);
+extern void itfMesWindowSetCursor(s32 handle, s32 entryIndex);
+extern u32 itfMesWindowSetParam(s32 handle, s32 button, s32 entryIndex);
+extern void nmMesWindowSetCurrentRunning(s32 running);
+extern void nmMesWindowSetSlotRunning(s64 slotIndex, s32 running);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -87,7 +88,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bb7c0-002bbcf0 */
 
-extern void func_002b5120(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: opt_rebuildconditionals off probe for min/max */
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */
@@ -121,77 +122,68 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
 // Intent: advances the state machine of the current message window; `arg0` releases the window once it closes.
 // FUN_002BB7C0
-void nmMesWindowStepCurrent(s32 arg0)
+void nmMesWindowStepCurrent(s32 release)
 {
-    typedef struct {
-        s32 id;
-        s8 status;
-        s8 flag;
-        u8 pad6[2];
-        s32 next;
-        s8 fieldC;
-        s8 result;
-    } Item;
-    s32 temp_4;
-    s8 temp_5;
-    Item *temp_2;
+    s32 handle;
+    s8 state;
+    NmMesWindowRecord *record;
 
-    temp_2 = (Item *)nmMesWindowCurrent();
-    if ((temp_2 != NULL) && (temp_4 = temp_2->id, temp_4 >= 0)) {
-        temp_5 = temp_2->status;
-        switch (temp_5) {
+    record = (NmMesWindowRecord *)nmMesWindowCurrent();
+    if ((record != NULL) && (handle = record->handle, handle >= 0)) {
+        state = record->state;
+        switch (state) {
         case 0:
             return;
         case 1:
-            if (itfMesWindowState(temp_4, temp_5) < 0) {
-                temp_2->status = 2;
+            if (itfMesWindowState(handle, state) < 0) {
+                record->state = 2;
                 break;
             }
             break;
         case 2:
         {
-            s32 *temp_2_2;
-            s32 *temp_2_3;
-            s32 temp_4_2;
-            s32 var_3;
-            s32 var_3_2;
+            s32 *currentWords;
+            s32 *resultWords;
+            s32 animationHandle;
+            s32 latched;
+            s32 result;
 
-            if (temp_2->next >= 0) {
+            if (record->pendingRecord >= 0) {
                 if (iGpffffb578 == 1) {
-                    itfMesWindowSetParam(temp_4, 6, 1);
+                    itfMesWindowSetParam(handle, 6, 1);
                 }
-                itfMesWindowSetCursor(temp_2->id, temp_2->fieldC);
-                itfMesWindowLayout(temp_2->id, temp_2->next);
-                temp_2->next = -1;
+                itfMesWindowSetCursor(record->handle, record->cursor);
+                itfMesWindowLayout(record->handle, record->pendingRecord);
+                record->pendingRecord = -1;
             }
-            if (temp_2->flag == 0) {
-                temp_2_2 = nmMesWindowCurrent();
-                if (temp_2_2 == NULL) {
-                    var_3 = 0;
+            if (record->paused == 0) {
+                currentWords = nmMesWindowCurrent();
+                if (currentWords == NULL) {
+                    latched = 0;
                 } else {
-                    temp_4_2 = temp_2_2[0];
-                    if (temp_4_2 < 0) {
-                        var_3 = 0;
-                    } else if (itfMesWindowGetAnim(temp_4_2) < 0) {
-                        var_3 = 0;
+                    animationHandle = currentWords[0];
+                    if (animationHandle < 0) {
+                        latched = 0;
+                    } else if (itfMesWindowGetAnim(animationHandle) < 0) {
+                        latched = 0;
                     } else {
-                        temp_2_3 = nmMesWindowCurrent();
-                        if (temp_2_3 == NULL) {
-                            var_3_2 = -1;
+                        resultWords = nmMesWindowCurrent();
+                        if (resultWords == NULL) {
+                            result = -1;
                         } else {
-                            temp_4_2 = temp_2_3[0];
-                            if (temp_4_2 < 0) {
-                                var_3_2 = -1;
+                            animationHandle = resultWords[0];
+                            if (animationHandle < 0) {
+                                result = -1;
                             } else {
-                                var_3_2 = itfMesWindowGetAnimAux(temp_4_2);
+                                result = itfMesWindowGetAnimAux(animationHandle);
                             }
                         }
-                        *((s8 *)temp_2_2 + 0xD) = var_3_2;
-                        var_3 = 1;
+                        ((NmMesWindowRecord *)currentWords)->result = result;
+                        latched = 1;
                     }
                 }
-                if (var_3 == 0) {
-                    temp_2->status = 3;
+                if (latched == 0) {
+                    record->state = 3;
                     break;
                 }
             }
@@ -199,19 +191,19 @@ void nmMesWindowStepCurrent(s32 arg0)
         }
         case 3:
         {
-            Item *temp_2_4;
+            NmMesWindowRecord *closingRecord;
 
-            temp_2_4 = (Item *)nmMesWindowCurrent();
-            if (temp_2_4 != NULL) {
-                temp_4 = temp_2_4->id;
-                if (temp_4 >= 0) {
-                    itfMesWindowSetState(temp_4, 0);
-                    if (arg0 != 0) {
-                        itfMesWindowRelease(temp_2_4->id);
+            closingRecord = (NmMesWindowRecord *)nmMesWindowCurrent();
+            if (closingRecord != NULL) {
+                handle = closingRecord->handle;
+                if (handle >= 0) {
+                    itfMesWindowSetState(handle, 0);
+                    if (release != 0) {
+                        itfMesWindowRelease(closingRecord->handle);
                     }
-                    itfMesWindowClear(temp_2_4->id, 0);
+                    itfMesWindowClear(closingRecord->handle, 0);
                     nmMesWindowSetCurrentRunning(1);
-                    temp_2_4->status = 0;
+                    closingRecord->state = 0;
                 }
             }
             break;
@@ -220,122 +212,113 @@ void nmMesWindowStepCurrent(s32 arg0)
     }
 }
 
-// Intent: advances the state machine of slot `arg0`; `arg1` releases the window once it closes.
+// Intent: advances the state machine of slot `release`; `arg1` releases the window once it closes.
 // FUN_002BB9E0
-void nmMesWindowStepSlot(s32 arg0, s32 arg1)
+void nmMesWindowStepSlot(s32 slotIndex, s32 release)
 {
-    typedef struct {
-        s32 id;
-        s8 status;
-        s8 flag;
-        u8 pad6[2];
-        s32 next;
-        s8 fieldC;
-        s8 result;
-    } Item;
     extern void nmMesWindowSetSlotRunning();
-    s32 temp_4;
-    s32 saved_arg1;
-    s32 temp_4_3;
-    s32 temp_4_4;
-    s32 temp_4_5;
-    s32 var_3;
-    s64 temp_18;
-    s8 temp_5;
-    s32 var_4;
-    s32 var_4_2;
-    Item **temp_16;
-    Item **temp_16_2;
-    Item **temp_17;
-    Item **temp_5_2;
-    Item *temp_2;
-    Item *temp_2_2;
-    Item *temp_3;
-    Item *temp_3_2;
-    Item *temp_4_2;
-    Item *temp_6;
-    saved_arg1 = arg1;
-    temp_18 = (s8)arg0;
-    temp_17 = &((Item **)D_00882F40)[(s8)temp_18];
-    temp_6 = *temp_17;
-    if ((temp_6 != NULL) && (temp_4 = temp_6->id, temp_4 >= 0)) {
-        temp_5 = temp_6->status;
-        switch (temp_5) {
+    s32 handle;
+    s32 releaseMessage;
+    s32 animationHandle;
+    s32 resultHandle;
+    s32 closingHandle;
+    s32 latched;
+    s64 index;
+    s8 state;
+    s32 result;
+    s32 closingResult;
+    NmMesWindowRecord **layoutSlot;
+    NmMesWindowRecord **closingSlot;
+    NmMesWindowRecord **slot;
+    NmMesWindowRecord **resultSlot;
+    NmMesWindowRecord *layoutRecord;
+    NmMesWindowRecord *pendingRecord;
+    NmMesWindowRecord *resultRecord;
+    NmMesWindowRecord *closingRecord;
+    NmMesWindowRecord *animationRecord;
+    NmMesWindowRecord *record;
+    releaseMessage = release;
+    index = (s8)slotIndex;
+    slot = &((NmMesWindowRecord **)D_00882F40)[(s8)index];
+    record = *slot;
+    if ((record != NULL) && (handle = record->handle, handle >= 0)) {
+        state = record->state;
+        switch (state) {
         case 0:
             return;
         case 1:
-            if (itfMesWindowState(temp_4, temp_5, temp_6) < 0) {
-                (*temp_17)->status = 2;
+            if (itfMesWindowState(handle, state, record) < 0) {
+                (*slot)->state = 2;
                 return;
             }
             break;
         case 2:
-            if (temp_6->next >= 0) {
+            if (record->pendingRecord >= 0) {
                 if (iGpffffb578 == 1) {
-                    itfMesWindowSetParam(temp_4, 6, 1);
+                    itfMesWindowSetParam(handle, 6, 1);
                 }
-                temp_16 = &((Item **)D_00882F40)[(s8)arg0];
-                temp_2 = *temp_16;
-                itfMesWindowSetCursor(temp_2->id, temp_2->fieldC);
-                temp_2_2 = *temp_16;
-                itfMesWindowLayout(temp_2_2->id, temp_2_2->next);
-                (*temp_16)->next = -1;
+                layoutSlot = &((NmMesWindowRecord **)D_00882F40)[(s8)slotIndex];
+                layoutRecord = *layoutSlot;
+                itfMesWindowSetCursor(layoutRecord->handle, layoutRecord->cursor);
+                pendingRecord = *layoutSlot;
+                itfMesWindowLayout(pendingRecord->handle, pendingRecord->pendingRecord);
+                (*layoutSlot)->pendingRecord = -1;
             }
-            temp_4_2 = *temp_17;
-            if (temp_4_2->flag == 0) {
-                if (temp_4_2 == NULL) {
-                    var_3 = 0;
+            animationRecord = *slot;
+            if (animationRecord->paused == 0) {
+                if (animationRecord == NULL) {
+                    latched = 0;
                 } else {
-                    temp_4_3 = temp_4_2->id;
-                    if (temp_4_3 < 0) {
-                        var_3 = 0;
-                    } else if (itfMesWindowGetAnim(temp_4_3) < 0) {
-                        var_3 = 0;
+                    animationHandle = animationRecord->handle;
+                    if (animationHandle < 0) {
+                        latched = 0;
+                    } else if (itfMesWindowGetAnim(animationHandle) < 0) {
+                        latched = 0;
                     } else {
-                        temp_3 = *temp_17;
-                        if (temp_3 == NULL) {
-                            var_4 = -1;
+                        resultRecord = *slot;
+                        if (resultRecord == NULL) {
+                            result = -1;
                         } else {
-                            temp_4_4 = temp_3->id;
-                            if (temp_4_4 < 0) {
-                                var_4 = -1;
+                            resultHandle = resultRecord->handle;
+                            if (resultHandle < 0) {
+                                result = -1;
                             } else {
-                                var_4 = itfMesWindowGetAnimAux(temp_4_4);
+                                result = itfMesWindowGetAnimAux(resultHandle);
                             }
                         }
-                        (*temp_17)->result = var_4;
-                        var_3 = 1;
+                        (*slot)->result = result;
+                        latched = 1;
                     }
                 }
-                if (var_3 == 0) {
-                    temp_5_2 = &((Item **)D_00882F40)[(s8)arg0];
-                    (*temp_5_2)->status = 3;
-                    temp_3_2 = *temp_5_2;
-                    if (temp_3_2 == NULL) {
-                        var_4_2 = -1;
+                if (latched == 0) {
+                    resultSlot = &((NmMesWindowRecord **)D_00882F40)[(s8)slotIndex];
+                    (*resultSlot)->state = 3;
+                    closingRecord = *resultSlot;
+                    if (closingRecord == NULL) {
+                        closingResult = -1;
                     } else {
-                        temp_4_5 = temp_3_2->id;
-                        if (temp_4_5 < 0) {
-                            var_4_2 = -1;
+                        closingHandle = closingRecord->handle;
+                        if (closingHandle < 0) {
+                            closingResult = -1;
                         } else {
-                            var_4_2 = itfMesWindowGetAnimAux(temp_4_5);
+                            closingResult = itfMesWindowGetAnimAux(closingHandle);
                         }
                     }
-                    (&iGpffffb580)[(s8)temp_18] = var_4_2;
+                    (&iGpffffb580)[(s8)index] = closingResult;
                     return;
                 }
             }
             break;
         case 3:
-            if ((temp_6 != NULL) && (temp_4 = temp_6->id, temp_4 >= 0)) {
-                itfMesWindowSetState(temp_4, 0);
-                if (saved_arg1 != 0) {
-                    itfMesWindowRelease((*temp_17)->id);
+            if ((record != NULL) && (handle = record->handle, handle >= 0)) {
+                itfMesWindowSetState(handle, 0);
+                if (releaseMessage != 0) {
+                    itfMesWindowRelease((*slot)->handle);
                 }
-                temp_16_2 = &((Item **)D_00882F40)[(s8)arg0];
-                itfMesWindowClear((*temp_16_2)->id, 0);
-                nmMesWindowSetSlotRunning(arg0, 1);
-                (*temp_16_2)->status = 0;
+                closingSlot = &((NmMesWindowRecord **)D_00882F40)[(s8)slotIndex];
+                itfMesWindowClear((*closingSlot)->handle, 0);
+                nmMesWindowSetSlotRunning(slotIndex, 1);
+                (*closingSlot)->state = 0;
             }
             break;
         }
@@ -351,7 +334,7 @@ void nmMesWindowStepCurrentRelease(void)
 
 // Intent: steps the window in slot `arg0` with release enabled.
 // FUN_002BBCF0
-void nmMesWindowStepSlotRelease(s32 arg0) {
-    nmMesWindowStepSlot(arg0, 1);
+void nmMesWindowStepSlotRelease(s32 slotIndex) {
+    nmMesWindowStepSlot(slotIndex, 1);
 }
 

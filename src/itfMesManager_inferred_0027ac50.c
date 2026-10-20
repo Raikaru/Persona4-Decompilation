@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "itf_mes_objects.h"
 #include "message_frame_internal.h"
 #include "message_handle.h"
 #include "message_procedure_api.h"
@@ -19,13 +20,13 @@ extern u16 D_008817E8[];
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
-extern void itfMesWindowCommitSelection(u8 *arg0);
+extern void itfMesWindowCommitSelection(u8 *window);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027ac50-0027ac50 */
 
-extern s32 itfMesWindowPollSelection(u8 *arg0);
+extern s32 itfMesWindowPollSelection(u8 *window);
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */
 /* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
@@ -35,13 +36,15 @@ extern s32 itfMesWindowPollSelection(u8 *arg0);
 /* measured: opt_propagation off probe for 00270a80 addu order */
 /* measured: close opt_propagation off probe for 00270a80 */
 // Intent: Runs the selected entry's command and releases its tag run when the selection commits [inferred]
+/* measured: individual typed rewrites of the remaining raw accesses give
+ * normalized_diff 1, 54, 219, 221; retain their original address/alias expressions. */
 // FUN_0027AC50
-void itfMesWindowCommitSelection(u8 *arg0)
+void itfMesWindowCommitSelection(u8 *window)
 {
-    extern s32 frFontListKeepOrRelease(s32 arg0);
-    extern void frFontRunCommand(s32 arg0, s32 arg1, s32 arg2);
+    extern s32 frFontListKeepOrRelease(s32 list);
+    extern void frFontRunCommand(s32 stream, s32 mode, s32 command);
     extern s32 itfMesReleaseTagRun();
-    extern s32 itfMesWindowPollSelection(u8 *arg0);
+    extern s32 itfMesWindowPollSelection(u8 *window);
     u8 *state;
     s32 flags;
     s32 index;
@@ -49,22 +52,22 @@ void itfMesWindowCommitSelection(u8 *arg0)
     s32 *cursor;
     s32 i;
 
-    state = arg0 + 0x3C;
-    flags = *(s32 *)arg0;
-    switch (*(s16 *)(arg0 + 0x48))
+    state = window + 0x3C;
+    flags = ((ItfMesWindow *)window)->flags.value;
+    switch (((ItfMesWindow *)window)->selection.state)
     {
     case 1:
-        switch (*(s32 *)(arg0 + 0x10))
+        switch (((ItfMesWindow *)window)->kind.value)
         {
         case 0:
             if ((flags & 0xC00) != 0x400) {
                 s32 current;
 
                 current = flags & ~0x38;
-                *(s32 *)arg0 = current;
+                ((ItfMesWindow *)window)->flags.value = current;
                 current |= 0x18;
-                *(s32 *)arg0 = current;
-                *(s16 *)(state + 0xC) = 2;
+                ((ItfMesWindow *)window)->flags.value = current;
+                ((ItfMesSelection *)state)->state = 2;
             }
             break;
         case 1:
@@ -73,33 +76,33 @@ void itfMesWindowCommitSelection(u8 *arg0)
             if ((flags & 0xC00) != 0x400) {
                 s32 current;
 
-                current = *(s32 *)(u32)arg0;
+                current = ((ItfMesWindow *)(u32)window)->flags.value;
                 current &= ~0x38;
-                *(s32 *)arg0 = current;
+                ((ItfMesWindow *)window)->flags.value = current;
                 current |= 0x18;
-                *(s32 *)arg0 = current;
-                *(s16 *)(state + 0xC) = 2;
+                ((ItfMesWindow *)window)->flags.value = current;
+                ((ItfMesSelection *)state)->state = 2;
             }
             break;
         }
         /* fall through */
     case 2:
-        if ((flags & 0x38) == 0x20 && itfMesWindowPollSelection(arg0) == 1) {
-            s16 call_arg1;
-            s16 call_arg2;
-            s32 call_arg0;
+        if ((flags & 0x38) == 0x20 && itfMesWindowPollSelection(window) == 1) {
+            s16 cursorIndex;
+            s16 choiceCount;
+            s32 listHandle;
             u8 *entry;
 
-            call_arg1 = *(s16 *)(state + 0xE);
-            call_arg2 = *(s16 *)(state + 0x12);
-            call_arg0 = *(s32 *)(state + 4);
+            cursorIndex = ((ItfMesSelection *)state)->cursor;
+            choiceCount = ((ItfMesSelection *)state)->count;
+            listHandle = ((ItfMesSelection *)state)->list.value;
             *(s32 *)(state + 4) = itfMesReleaseTagRun(
-                call_arg0, call_arg1, call_arg2);
-            entry = *(u8 **)(arg0 + 4);
+                listHandle, cursorIndex, choiceCount);
+            entry = ((ItfMesWindow *)window)->record.bytes;
             entry = *(u8 **)((u8 *)add_retail_ptr(
-                (u32)(*(s32 *)state * 8), (u32)entry) + 0x24);
+                (u32)(((ItfMesSelection *)state)->recordIndex.value * 8), (u32)entry) + 0x24);
             index = *(s16 *)(state + 0xE);
-            count = *(s16 *)(entry + 0x1A);
+            count = ((ItfMesChoiceRecord *)entry)->count;
             cursor = (s32 *)(entry + 0x20);
             i = 0;
             while (i < count) {
@@ -111,33 +114,33 @@ void itfMesWindowCommitSelection(u8 *arg0)
             if ((flags & 0xC00) == 0x800) {
                 s32 current;
 
-                current = *(s32 *)arg0;
+                current = ((ItfMesWindow *)window)->flags.value;
                 current &= ~0xC00;
-                *(s32 *)arg0 = current;
+                ((ItfMesWindow *)window)->flags.value = current;
                 current |= 0xC00;
-                *(s32 *)arg0 = current;
+                ((ItfMesWindow *)window)->flags.value = current;
             }
-            *(s16 *)(state + 0x16) = 0;
+            ((ItfMesSelection *)state)->bindingCount = 0;
             {
                 s32 current;
 
-                current = *(s32 *)arg0;
+                current = ((ItfMesWindow *)window)->flags.value;
                 current &= ~0x38;
-                *(s32 *)arg0 = current;
+                ((ItfMesWindow *)window)->flags.value = current;
                 current |= 0x28;
-                *(s32 *)arg0 = current;
+                ((ItfMesWindow *)window)->flags.value = current;
             }
-            *(s16 *)(state + 0x14) = 0x80;
-            *(s16 *)(state + 0xC) = 3;
+            ((ItfMesSelection *)state)->alpha = 0x80;
+            ((ItfMesSelection *)state)->state = 3;
         }
         break;
     case 3:
         if ((flags & 0xC00) == 0) {
-            if (*(s32 *)(state + 4) != 0) {
-                frFontListKeepOrRelease(*(s32 *)(state + 4));
+            if (((ItfMesSelection *)state)->list.value != 0) {
+                frFontListKeepOrRelease(((ItfMesSelection *)state)->list.value);
                 *(s32 *)(state + 4) = 0;
             }
-            *(s16 *)(state + 0xC) = -1;
+            ((ItfMesSelection *)state)->state = -1;
         }
         break;
     }

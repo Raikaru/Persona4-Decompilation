@@ -33,7 +33,7 @@ extern void mdlDestroyModelObject(s32 arg0);
 extern void btlEffectResetEntry(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void btlFormationSetPlacement(s32 arg0);
-extern void func_001d6910(u8 *arg0);
+extern void btlEffectReleaseNode(u8 *arg0);
 extern void btlEffectReleaseAllPlacements(u8 *arg0);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern u32 iGpffffb3b8;
@@ -44,14 +44,14 @@ extern s32 mdlComputeIndexedAttachMatrix();
 extern void mdlUpdateModelMatrix(u8 *arg0);
 extern void mdlPrepareItemSlots(u8 *arg0);
 extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
-extern void func_00485870(s32 arg0);
+extern void mdlEffectFlushTreeFrame(s32 arg0);
 extern s32 TnGetTableBase(void);
 extern void TnSetTableBase(s32 arg0);
 extern void mdlSetColor(u8 *arg0, u32 *arg1);
 extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
-extern void func_00485630(u8 *arg0);
-extern void func_001d53e0(s32 arg0);
+extern void mdlEffectCommitTreeFrame(u8 *arg0);
+extern void btlFormationUpdateAttachments(s32 arg0);
 extern void mdlQueueModelForDraw(s32 arg0, u8 *arg1);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
@@ -101,7 +101,7 @@ typedef int (*code)();
 
 
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
-extern s32 func_00122640(s32 arg0, s32 arg1);
+extern s32 fadeBeginReturnTransition(s32 arg0, s32 arg1);
 
 extern void btlFormationDispatchArgs(void);
 extern void *btlPacketAlloc();

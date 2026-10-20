@@ -69,7 +69,7 @@ typedef struct HSfdQueueEntry
 
 extern s32 func_004215e0(void* threadParam);
 extern s32 func_00422920(s32 threadId, void* arg);
-extern void func_00466e80(HSfdQueueSlot* slot);
+extern void sdkWrapWorkerThread(HSfdQueueSlot* worker);
 extern u8 D_00902930[];
 extern u32 D_007690F0;
 extern s32 uGpffffb230;
@@ -141,7 +141,7 @@ void func_00466680(void)
         queueEntry->next = NULL;
         queueEntry->queue = NULL;
         sSfdQueue[queueIndex].state = 0;
-        thread.function = func_00466e80;
+        thread.function = sdkWrapWorkerThread;
         thread.stack = D_00902930;
         thread.stackSize = 0x20000;
         thread.gpReg = &D_007690F0;

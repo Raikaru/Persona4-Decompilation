@@ -1,11 +1,13 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0020e010-0020ff00 */
 
 #include "btl_skill_target_internal.h"
+#include "btl_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "kwln_task_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
@@ -17,14 +19,14 @@ extern void btlSelectionFlushEntries();
 extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
-extern void btlEntryListFlush(u8 *arg0);
+extern void btlEntryListFlush(u8 *head);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00626C30[];
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern f32 fGpffff84a4;
-extern f32 cosf(f32 fparg0);
-extern f32 sinf(f32 fparg0);
+extern f32 cosf(f32 angle);
+extern f32 sinf(f32 angle);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -36,56 +38,97 @@ extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 D_008872F8[];
 extern s32 kwlnGetCamera(void);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
-extern void btlUiSetRenderMode(s32 arg0);
-extern void btlGaugeSetActive(u8 *arg0, s32 arg1);
-extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
-extern void btlUiSetRect(s32 *arg0, f32 fp0, f32 fp1, f32 fp2, f32 fp3);
+extern void btlUiSetRenderMode(s32 mode);
+extern void btlGaugeSetActive(u8 *gauge, s32 active);
+extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
+extern void btlUiSetRect(s32 *work, f32 x, f32 y, f32 width, f32 height);
 extern void btlUiSetRenderStates(void);
-extern void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 fparg0);
-extern void btlUiSetScale(u8 *arg0, f32 fparg0, f32 fparg1);
-extern void btlUiSetFactorXY(u8 *arg0, f32 fparg0, f32 fparg1);
+extern void btlUiSetTileOffset(u8 *work, s16 x, s32 y, f32 factor);
+extern void btlUiSetScale(u8 *work, f32 x, f32 y);
+extern void btlUiSetFactorXY(u8 *work, f32 x, f32 y);
 typedef struct BattleRenderDispatch {
     void (*setState)(u32 state, u32 value);
 } BattleRenderDispatch;
 
-extern void btlSelectionSwapRowState(u8 *arg0, u8 *arg1);
+extern void btlSelectionSwapRowState(u8 *from, u8 *to);
+/* Row offsets are shared by swap and target-mode dispatch. */
+typedef struct BtlSelectionRow {
+    u16 drawMode;
+    s16 state;
+    s16 frame;
+    u8 pad06[2];
+    Vec2f position;
+    u16 flags;
+} BtlSelectionRow;
+
+/* The entry allocator requests 0x28 bytes and links through the last word. */
+typedef struct BtlSelectionEntry {
+    s32 unit;
+    f32 x, y, z;
+    s32 frame;
+    u16 flags;
+    u8 pad16[2];
+    u8 data[8];
+    u16 kind;
+    u8 pad22[2];
+    struct BtlSelectionEntry *next;
+} BtlSelectionEntry;
+
+typedef struct BtlTransitionOutput {
+    f32 offset;
+    u8 alpha;
+    u8 pad05[3];
+    s32 ready;
+    f32 x, y;
+} BtlTransitionOutput;
+
+typedef struct BtlPanelGaugeState {
+    u8 alpha;
+    u8 pad01;
+    s16 filledCount;
+    s16 flags;
+    u8 pad06[2];
+    f32 extent;
+} BtlPanelGaugeState;
+
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
 // Intent: update a unit's target flag and dispatch the target draw for its mode. [inferred]
 // FUN_0020E010
-void btlSelectionDispatchTargetMode(s32 arg0, u8 *arg1, u8 *arg2)
+void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit)
 {
-    extern void btlUnitGetAttachedSphereCenter(u8 *arg0, f32 *arg1);
-    extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
-    extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
-    extern void btlPanelCursorDrawA(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-    extern void btlPanelCursorDrawB(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-    extern void btlPanelCursorDrawC(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-    extern void btlPanelCursorDrawD(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-    struct E010Frame {
+    extern void btlUnitGetAttachedSphereCenter(u8 *context, f32 *value);
+    extern s32 btlTargetFindInRange(f32 *position, f32 *output);
+    extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
+    extern void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position);
+    extern void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position);
+    extern void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position);
+    extern void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position);
+    struct BtlTargetProjection {
         u8 pad[8];
         u8 value[4];
         u8 gap[4];
         u8 vector[12];
     } work;
-    u8 *temp_16;
-    u16 temp_3;
-    u16 temp_4;
+    /* Unit flag word +A10 and parent-task prefix have no complete layout here. */
+    u8 *drawWork;
+    u16 targetState;
+    u16 drawMode;
 
-    temp_16 = (u8 *)kwlnTaskGetWork();
-    temp_3 = *(u16 *)(arg1 + 2);
-    if (temp_3 == 0) {
-        if (*(u8 *)(arg2 + 0xA2) == 0) {
-            *(s32 *)(arg2 + 0xA10) &= ~0x200;
+    drawWork = (u8 *)kwlnTaskGetWork();
+    targetState = ((BtlSelectionRow *)row)->state;
+    if (targetState == 0) {
+        if (((BtlUnit *)unit)->genus == 0) {
+            *(s32 *)(unit + 0xA10) &= ~0x200;
         }
         return;
     }
-    if (*(u8 *)(arg2 + 0xA2) != 0) {
+    if (((BtlUnit *)unit)->genus != 0) {
         goto flags_done;
     }
-    switch (temp_3) {
+    switch (targetState) {
     case 1:
     case 4:
         goto flag_set;
@@ -93,27 +136,27 @@ void btlSelectionDispatchTargetMode(s32 arg0, u8 *arg1, u8 *arg2)
         goto flag_clear;
     }
 flag_set:
-    *(s32 *)(arg2 + 0xA10) |= 0x200;
+    *(s32 *)(unit + 0xA10) |= 0x200;
     goto flags_done;
 flag_clear:
-    *(s32 *)(arg2 + 0xA10) &= ~0x200;
+    *(s32 *)(unit + 0xA10) &= ~0x200;
 flags_done:
-    btlUnitGetAttachedSphereCenter(arg2, (f32 *)work.vector);
+    btlUnitGetAttachedSphereCenter(unit, (f32 *)work.vector);
     if (btlTargetFindInRange((f32 *)work.vector, (f32 *)work.value) != 0) {
-        btlUiSetOrigin(temp_16, 0.0f, 0.0f);
-        temp_4 = *(u16 *)(arg1 + 0);
-        switch (temp_4) {
+        btlUiSetOrigin(drawWork, 0.0f, 0.0f);
+        drawMode = ((BtlSelectionRow *)row)->drawMode;
+        switch (drawMode) {
         case 0:
-            btlPanelCursorDrawA(arg0, arg1, arg2, (f32 *)work.value);
+            btlPanelCursorDrawA(mode, row, unit, (f32 *)work.value);
             return;
         case 1:
-            btlPanelCursorDrawB(arg0, arg1, arg2, (f32 *)work.value);
+            btlPanelCursorDrawB(mode, row, unit, (f32 *)work.value);
             return;
         case 2:
-            btlPanelCursorDrawC(arg0, arg1, arg2, (f32 *)work.value);
+            btlPanelCursorDrawC(mode, row, unit, (f32 *)work.value);
             return;
         case 3:
-            btlPanelCursorDrawD(arg0, arg1, arg2, (f32 *)work.value);
+            btlPanelCursorDrawD(mode, row, unit, (f32 *)work.value);
             break;
         }
     }
@@ -126,18 +169,18 @@ flags_done:
 #pragma opt_loop_invariants off
 // Intent: swap the row state between two selection rows and copy the position. [inferred]
 // FUN_0020E1D0
-void btlSelectionSwapRowState(u8 *arg0, u8 *arg1) {
-    *(s16 *)(arg0 + 4) = 0;
-    *(s16 *)(arg0 + 2) = 3;
-    *(u16 *)(arg0 + 0x10) &= 0xFFFE;
-    *(u16 *)(arg0 + 0x10) &= 0xFFFD;
-    *(s16 *)(arg1 + 4) = 0;
-    *(s16 *)(arg1 + 2) = 2;
-    *(u16 *)(arg1 + 0x10) &= 0xFFF7;
-    *(u16 *)(arg1 + 0x10) &= 0xFFFB;
-    *(u16 *)(arg1 + 0x10) &= 0xFFFD;
-    *(u16 *)(arg1 + 0x10) |= 1;
-    *(Vec2f *)(arg1 + 8) = *(Vec2f *)(arg0 + 8);
+void btlSelectionSwapRowState(u8 *from, u8 *to) {
+    ((BtlSelectionRow *)from)->frame = 0;
+    ((BtlSelectionRow *)from)->state = 3;
+    ((BtlSelectionRow *)from)->flags &= 0xFFFE;
+    ((BtlSelectionRow *)from)->flags &= 0xFFFD;
+    ((BtlSelectionRow *)to)->frame = 0;
+    ((BtlSelectionRow *)to)->state = 2;
+    ((BtlSelectionRow *)to)->flags &= 0xFFF7;
+    ((BtlSelectionRow *)to)->flags &= 0xFFFB;
+    ((BtlSelectionRow *)to)->flags &= 0xFFFD;
+    ((BtlSelectionRow *)to)->flags |= 1;
+    ((BtlSelectionRow *)to)->position = ((BtlSelectionRow *)from)->position;
 }
 #pragma pop
 
@@ -147,56 +190,57 @@ void btlSelectionSwapRowState(u8 *arg0, u8 *arg1) {
 #pragma opt_loop_invariants off
 // Intent: queue a new entry at the head of the selection entry list. [inferred]
 // FUN_0020E250
-void btlSelectionPushEntry(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4)
+void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *position, u16 flags)
 {
+    /* Entry/output layouts are proven; typed fields change MWCC aliasing and lose MATCH. */
     u8 *state;
     u8 **list;
-    u8 *node;
-    u8 *new_node;
+    u8 *entry;
+    u8 *newEntry;
     u8 *allocated;
-    f32 temp_f2;
-    f32 temp_f1;
-    f32 temp_f0;
+    f32 x;
+    f32 y;
+    f32 z;
 
-    state = (u8 *)kwlnTaskGetWork(arg0);
+    state = (u8 *)kwlnTaskGetWork(task);
     list = (u8 **)(state + 0x75C);
-    if (*(s32 *)arg2 != 0 || *(s32 *)(arg2 + 1) != 0 ||
-        *(u16 *)((u8 *)arg2 + 8) != 0) {
+    if (*(s32 *)entryData != 0 || *(s32 *)(entryData + 1) != 0 ||
+        *(u16 *)((u8 *)entryData + 8) != 0) {
         chkmemAllocSiteTag(&D_00626C30, 0x3A);
         allocated = (u8 *)jtbl_008873E8[0](0x28, 0x40000);
-        new_node = allocated;
-        temp_f2 = arg3[0];
-        temp_f1 = arg3[1];
-        temp_f0 = arg3[2];
-        *(f32 *)(new_node + 4) = temp_f2;
-        *(f32 *)(new_node + 8) = temp_f1;
-        *(f32 *)(new_node + 0xC) = temp_f0;
-        memcpy(new_node + 0x18, arg2, 0xC);
-        *(s32 *)(new_node + 0x10) = 0;
-        *(u16 *)(new_node + 0x14) = arg4;
-        *(s32 *)new_node = arg1;
-        *(u16 *)(new_node + 0x14) |= 1;
-        *(u16 *)(*(u8 **)new_node + 0xA0) += 1;
-        for (node = *(u8 **)list; node != NULL; node = *(u8 **)(node + 0x24)) {
-            if ((*(u16 *)(node + 0x20) & 0xF) == 0 &&
-                *(s32 *)node == arg1) {
-                if ((*(u16 *)(node + 0x14) & 2) == 0) {
-                    *(s32 *)(node + 0x10) = 0;
-                    *(u16 *)(node + 0x14) |= 2;
+        newEntry = allocated;
+        x = position[0];
+        y = position[1];
+        z = position[2];
+        *(f32 *)(newEntry + 4) = x;
+        *(f32 *)(newEntry + 8) = y;
+        *(f32 *)(newEntry + 0xC) = z;
+        memcpy(newEntry + 0x18, entryData, 0xC);
+        *(s32 *)(newEntry + 0x10) = 0;
+        *(u16 *)(newEntry + 0x14) = flags;
+        *(s32 *)newEntry = unitHandle;
+        *(u16 *)(newEntry + 0x14) |= 1;
+        *(u16 *)(*(u8 **)newEntry + 0xA0) += 1;
+        for (entry = *(u8 **)list; entry != NULL; entry = *(u8 **)(entry + 0x24)) {
+            if ((*(u16 *)(entry + 0x20) & 0xF) == 0 &&
+                *(s32 *)entry == unitHandle) {
+                if ((*(u16 *)(entry + 0x14) & 2) == 0) {
+                    *(s32 *)(entry + 0x10) = 0;
+                    *(u16 *)(entry + 0x14) |= 2;
                 }
-                if ((*(u16 *)(new_node + 0x14) & 4) == 0) {
-                    temp_f2 = *(f32 *)(node + 4);
-                    temp_f1 = *(f32 *)(node + 8);
-                    temp_f0 = *(f32 *)(node + 0xC);
-                    *(f32 *)(new_node + 4) = temp_f2;
-                    *(f32 *)(new_node + 8) = temp_f1;
-                    *(f32 *)(new_node + 0xC) = temp_f0;
-                    *(u16 *)(new_node + 0x14) |= 4;
+                if ((*(u16 *)(newEntry + 0x14) & 4) == 0) {
+                    x = *(f32 *)(entry + 4);
+                    y = *(f32 *)(entry + 8);
+                    z = *(f32 *)(entry + 0xC);
+                    *(f32 *)(newEntry + 4) = x;
+                    *(f32 *)(newEntry + 8) = y;
+                    *(f32 *)(newEntry + 0xC) = z;
+                    *(u16 *)(newEntry + 0x14) |= 4;
                 }
             }
         }
-        *(u8 **)(new_node + 0x24) = *(u8 **)list;
-        *(u8 **)list = new_node;
+        *(u8 **)(newEntry + 0x24) = *(u8 **)list;
+        *(u8 **)list = newEntry;
     }
 }
 #pragma pop
@@ -218,43 +262,43 @@ void btlSelectionFlushEntries() {
 #pragma opt_loop_invariants off
 // Intent: draw an integer value as sprite glyphs, optionally right-aligned. [inferred]
 // FUN_0020E420
-void btlSelectionDrawValue(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, u32 arg3)
+void btlSelectionDrawValue(u8 *drawWork, f32 x, f32 y, s32 value, s32 rightAligned, u32 packedColor)
 {
     extern s32 iGpffffa580;
-    extern void sprintf(void *arg0, const char *arg1, ...);
-    extern s32 strlen(const void *arg0);
-    u8 sp90[0x40];
-    u64 c0;
-    u8 channel0;
-    u64 c1;
-    u8 channel1;
-    u64 c2;
-    u8 channel2;
-    u64 c3;
-    u8 channel3;
+    extern void sprintf(void *drawWork, const char *value, ...);
+    extern s32 strlen(const void *drawWork);
+    u8 digits[0x40];
+    s32 alphaWide;
+    u8 alpha;
+    s32 blueWide;
+    u8 blue;
+    s32 greenWide;
+    u8 green;
+    s32 redWide;
+    u8 red;
     s32 count;
     s32 i;
 
-    c3 = (s8)(u8)((arg3 & 0xFF000000) >> 24);
-    c2 = (s8)(u8)((arg3 & 0x00FF0000) >> 16);
-    c1 = (s8)(u8)((arg3 & 0x0000FF00) >> 8);
-    c0 = (s8)(u8)(arg3 & 0x000000FF);
-    if (c0 != 0) {
-        sprintf(sp90, (const char *)&iGpffffa580, arg1);
-        count = strlen(sp90);
-        if (arg2 != 0) {
-            fparg0 = fparg0 - (f32)count * 9.5f;
-            fparg1 -= 11.0f;
+    redWide = (s8)(u8)((packedColor & 0xFF000000) >> 24);
+    greenWide = (s8)(u8)((packedColor & 0x00FF0000) >> 16);
+    blueWide = (s8)(u8)((packedColor & 0x0000FF00) >> 8);
+    alphaWide = (s8)(u8)(packedColor & 0x000000FF);
+    if (alphaWide != 0) {
+        sprintf(digits, (const char *)&iGpffffa580, value);
+        count = strlen(digits);
+        if (rightAligned != 0) {
+            x = x - (f32)count * 9.5f;
+            y -= 11.0f;
         }
         i = 0;
-        channel0 = (u8)c0;
-        channel1 = (u8)c1;
-        channel2 = (u8)c2;
-        channel3 = (u8)c3;
+        alpha = (u8)alphaWide;
+        blue = (u8)blueWide;
+        green = (u8)greenWide;
+        red = (u8)redWide;
         for (; i < count; i++) {
-            btlUiDrawSpriteFaded(arg0, 10, (s8)sp90[i] - 0x19, fparg0, fparg1,
-                          channel3, channel2, channel1, channel0);
-            fparg0 += 19.0f;
+            btlUiDrawSpriteFaded(drawWork, 10, (s8)digits[i] - 0x19, x, y,
+                          red, green, blue, alpha);
+            x += 19.0f;
         }
     }
 }
@@ -266,30 +310,30 @@ void btlSelectionDrawValue(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2,
 #pragma opt_loop_invariants off
 // Intent: map a linear progress value through an optional sine or cosine ease. [inferred]
 // FUN_0020E5C0
-f32 btlSelectionEaseCurve(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+f32 btlSelectionEaseCurve(s32 frame, s32 start, s32 end, s32 curve)
 {
-    f32 temp_f0;
+    f32 progress;
 
-    if (arg0 < arg1) {
-        temp_f0 = 0.0f;
+    if (frame < start) {
+        progress = 0.0f;
         goto done;
     }
-    if (arg0 < arg2) {
-        temp_f0 = (f32)(arg0 - arg1) / (f32)(arg2 - arg1);
-        switch (arg3) {
+    if (frame < end) {
+        progress = (f32)(frame - start) / (f32)(end - start);
+        switch (curve) {
         case 1:
-            temp_f0 = sinf(fGpffff84a4 * temp_f0);
+            progress = sinf(fGpffff84a4 * progress);
             goto done;
         case 2:
-            temp_f0 = 1.0f - cosf(fGpffff84a4 * temp_f0);
+            progress = 1.0f - cosf(fGpffff84a4 * progress);
             goto done;
         default:
             goto done;
         }
     }
-    temp_f0 = 1.0f;
+    progress = 1.0f;
 done:
-    return temp_f0;
+    return progress;
 }
 #pragma pop
 
@@ -307,6 +351,7 @@ done:
 void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
                    f32 x, f32 y, s32 color, u8 *output)
 {
+    /* Entry/output layouts are proven; typed fields change MWCC aliasing and lose MATCH. */
     Vec2f position;
     s32 frame;
     f32 fade;
@@ -364,6 +409,7 @@ void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
 // FUN_0020EA60
 void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
 {
+    /* Task +4 is the owner context; its full prefix is not established here. */
     u8 *work;
     s32 frame;
     u8 alpha;
@@ -373,7 +419,7 @@ void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 fade;
     f32 y;
     work = (u8 *)kwlnTaskGetWork(*(void **)(task + 4));
-    frame = *(s32 *)(transition + 0x10);
+    frame = ((BtlSelectionEntry *)transition)->frame;
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
     else first = 1.0f;
@@ -402,18 +448,18 @@ void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
     if (frame < 2) fade = 0.0f;
     else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
     else fade = 1.0f;
-    output[4] = (u8)(255.0f * fade);
-    *(f32 *)output = 20.0f * (1.0f - fade);
-    if (*(u16 *)(transition + 0x14) & 4) {
-        *(f32 *)(output + 0xC) = 54.0f;
-        *(f32 *)(output + 0x10) = 89.0f;
-        *(s32 *)(output + 8) = 1;
+    ((BtlTransitionOutput *)output)->alpha = (u8)(255.0f * fade);
+    ((BtlTransitionOutput *)output)->offset = 20.0f * (1.0f - fade);
+    if (((BtlSelectionEntry *)transition)->flags & 4) {
+        ((BtlTransitionOutput *)output)->x = 54.0f;
+        ((BtlTransitionOutput *)output)->y = 89.0f;
+        ((BtlTransitionOutput *)output)->ready = 1;
     } else if (frame == 6) {
         btlGaugeSetActive(panel, 1);
     } else if (frame > 6) {
-        *(f32 *)(output + 0xC) = 54.0f;
-        *(f32 *)(output + 0x10) = 89.0f;
-        *(s32 *)(output + 8) = 1;
+        ((BtlTransitionOutput *)output)->x = 54.0f;
+        ((BtlTransitionOutput *)output)->y = 89.0f;
+        ((BtlTransitionOutput *)output)->ready = 1;
     }
 }
 #pragma pop
@@ -427,6 +473,7 @@ void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
 /* Retail-exact: 1460 bytes, 7 call relocations, 12 zero alignment bytes. */
 void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
 {
+    /* Task +4 is the owner context; its full prefix is not established here. */
     u8 *work;
     s32 frame;
     u8 alpha;
@@ -438,7 +485,7 @@ void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 offset;
     f32 y;
     work = (u8 *)kwlnTaskGetWork(*(void **)(task + 4));
-    frame = *(s32 *)(transition + 0x10);
+    frame = ((BtlSelectionEntry *)transition)->frame;
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
     else first = 1.0f;
@@ -473,18 +520,18 @@ void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
     if (frame < 2) fade = 0.0f;
     else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
     else fade = 1.0f;
-    output[4] = (u8)(255.0f * fade);
-    *(f32 *)output = 20.0f * (1.0f - fade);
-    if (*(u16 *)(transition + 0x14) & 4) {
-        *(f32 *)(output + 0xC) = 54.0f;
-        *(f32 *)(output + 0x10) = 89.0f;
-        *(s32 *)(output + 8) = 1;
+    ((BtlTransitionOutput *)output)->alpha = (u8)(255.0f * fade);
+    ((BtlTransitionOutput *)output)->offset = 20.0f * (1.0f - fade);
+    if (((BtlSelectionEntry *)transition)->flags & 4) {
+        ((BtlTransitionOutput *)output)->x = 54.0f;
+        ((BtlTransitionOutput *)output)->y = 89.0f;
+        ((BtlTransitionOutput *)output)->ready = 1;
     } else if (frame == 6) {
         btlGaugeSetActive(panel, 1);
     } else if (frame > 6) {
-        *(f32 *)(output + 0xC) = 54.0f;
-        *(f32 *)(output + 0x10) = 89.0f;
-        *(s32 *)(output + 8) = 1;
+        ((BtlTransitionOutput *)output)->x = 54.0f;
+        ((BtlTransitionOutput *)output)->y = 89.0f;
+        ((BtlTransitionOutput *)output)->ready = 1;
     }
 }
 #pragma pop
@@ -495,56 +542,57 @@ void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
 #pragma opt_loop_invariants off
 // Intent: step the pulse transition frame and draw its ring. [inferred]
 // FUN_0020F4D0
-void btlTransitionStepPulse(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
+void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y)
 {
-    extern u32 kwlnTaskGetWork(void *arg0);
-    Vec2f sp48;
-    f32 temp_f1;
-    f32 var_f1;
-    f32 var_f20;
-    u8 *temp_17;
-    s32 temp_16;
+    extern u32 kwlnTaskGetWork(void *task);
+    Vec2f center;
+    f32 scale;
+    f32 labelProgress;
+    f32 ringProgress;
+    /* Task +4 is the owner context; its complete prefix is not established here. */
+    u8 *drawWork;
+    s32 frame;
 
-    temp_17 = (u8 *)kwlnTaskGetWork(*(void **)(arg0 + 4));
-    temp_16 = *(s32 *)(arg1 + 0x10);
-    if (temp_16 < 0) {
-        var_f20 = 0.0f;
-    } else if (temp_16 < 6) {
-        var_f20 = (f32)temp_16 / 6.0f;
+    drawWork = (u8 *)kwlnTaskGetWork(*(void **)(task + 4));
+    frame = ((BtlSelectionEntry *)transition)->frame;
+    if (frame < 0) {
+        ringProgress = 0.0f;
+    } else if (frame < 6) {
+        ringProgress = (f32)frame / 6.0f;
     } else {
-        var_f20 = 1.0f;
+        ringProgress = 1.0f;
     }
-    if (!(var_f20 <= 0.0f)) {
-        sp48.x = 86.0f + fparg0;
-        sp48.y = 86.0f + fparg1;
-        if (var_f20 == 1.0f) {
-            shdDrawRotatedRect(sp48, 0.0f, 0x151515FF, 87.0f,
+    if (!(ringProgress <= 0.0f)) {
+        center.x = 86.0f + x;
+        center.y = 86.0f + y;
+        if (ringProgress == 1.0f) {
+            shdDrawRotatedRect(center, 0.0f, 0x151515FF, 87.0f,
                           16.0f, fGpffff815c, 1);
         }
-        temp_f1 = 2.0f - var_f20;
-        shdDrawRotatedRect(sp48, 0.0f, 0xFF0F02FF,
-                      87.0f * temp_f1, 16.0f * temp_f1,
+        scale = 2.0f - ringProgress;
+        shdDrawRotatedRect(center, 0.0f, 0xFF0F02FF,
+                      87.0f * scale, 16.0f * scale,
                       fGpffff83b0, 1);
     }
-    if (temp_16 < 7) {
-        var_f1 = 0.0f;
-    } else if (temp_16 < 7) {
-        var_f1 = (f32)(temp_16 - 7) / 0.0f;
+    if (frame < 7) {
+        labelProgress = 0.0f;
+    } else if (frame < 7) {
+        labelProgress = (f32)(frame - 7) / 0.0f;
     } else {
-        var_f1 = 1.0f;
+        labelProgress = 1.0f;
     }
-    if (!(var_f1 <= 0.0f)) {
-        btlUiSetTileOffset(temp_17, 0x1C, 8, -30.0f);
-        btlUiDrawSpriteFaded(temp_17, 0xA, 6, 58.0f, 78.0f,
+    if (!(labelProgress <= 0.0f)) {
+        btlUiSetTileOffset(drawWork, 0x1C, 8, -30.0f);
+        btlUiDrawSpriteFaded(drawWork, 0xA, 6, 58.0f, 78.0f,
                       0x15, 0x15, 0x15, 0xFF);
-        btlUiSetTileOffset(temp_17, 0, 0, 0.0f);
+        btlUiSetTileOffset(drawWork, 0, 0, 0.0f);
     }
 }
 #pragma pop
 
 extern f32 fGpffff8210;
-f32 btlUiSpriteWidth(u8 *arg0, s32 arg1, s32 arg2);
-f32 btlUiSpriteHeight(u8 *arg0, s32 arg1, s32 arg2);
+f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment);
+f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment);
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
@@ -585,8 +633,9 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
     u8 blue;
     u8 green;
 
+    /* Interleaved coordinate rows retain byte indexing to preserve MWCC address trees. */
     if (index != 0) {
-        scaleY = fGpffff8210 * *(f32 *)(state + 8);
+        scaleY = fGpffff8210 * ((BtlPanelGaugeState *)state)->extent;
         half = index / 6;
         flipX = 1 - (((index / 3) + half) & 1);
         flipY = 1 - half;
@@ -627,7 +676,7 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
         green = ((u8 *)&packedColor)[1];
         btlUiDrawSpriteFaded(work, 10, sprite, drawX, drawY,
                       ((u8 *)&packedColor)[0], green, blue, ((u8 *)&packedColor)[3]);
-        if (index < *(s16 *)(state + 2)) {
+        if (index < ((BtlPanelGaugeState *)state)->filledCount) {
             btlUiDrawSpriteFaded(work, 10, sprite, drawX, drawY,
                           ((u8 *)&packedColor)[0], green, blue, 255);
         }
@@ -644,7 +693,7 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
 /* Retail-exact: 1156 bytes, 24 relocations, 12 zero alignment bytes. */
 void btlPanelDrawGauge(u8 *work, u8 *state)
 {
-    extern void btlPanelDrawIndexed(u8 *work, u8 *state, s32 color, s32 index);
+    extern void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index);
     extern f32 D_00761300;
     extern f32 fGpffff8110;
     extern f32 fGpffff84ac;
@@ -655,10 +704,10 @@ void btlPanelDrawGauge(u8 *work, u8 *state)
     u8 blue;
     s32 index;
     f32 extent;
-    extent = *(f32 *)(state + 8);
+    extent = ((BtlPanelGaugeState *)state)->extent;
     if (extent == 0.0f) return;
     btlUiSetRenderStates();
-    if (*(s16 *)(state + 4) & 4) {
+    if (((BtlPanelGaugeState *)state)->flags & 4) {
         red = 140; green = 170; blue = 255;
         ring.rgba.c0 = 102; ring.rgba.c1 = 130; ring.rgba.c2 = 255;
         fill.rgba.c0 = 0; fill.rgba.c1 = 25; fill.rgba.c2 = 255;
@@ -714,8 +763,8 @@ void btlPanelDrawGauge(u8 *work, u8 *state)
 // FUN_0020FF00
 void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
 {
-    extern f32 cosf(f32 fparg0);
-    extern f32 sinf(f32 fparg0);
+    extern f32 cosf(f32 angle);
+    extern f32 sinf(f32 angle);
     extern s32 kwlnGetCamera(void);
     extern f32 fGpffff837c;
     extern f32 fGpffff84a8;
@@ -748,6 +797,7 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
     s32 channel3;
     f32 depth;
     f32 reciprocal;
+    /* Intro frame at +E and camera near plane at +80 use separate, partial layouts. */
     frame = ++*(u16 *)(transition + 0xE);
     center.x = 302.0f;
     center.y = 224.0f;

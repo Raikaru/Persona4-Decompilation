@@ -1,3 +1,4 @@
+#include "btl_voice_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -13,20 +14,8 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -94,15 +83,15 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f9750-001f9750 */
 
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlSoundRollStatusCure(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlSoundRollStatusCure(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *action);
 extern void btlSoundAdvanceSlotQueue(void);
-extern s32 btlSoundPickPartnerCallVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickPartnerReplyVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickPartnerAssistVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickRandomPartnerVoice(u8 *arg0);
+extern s32 btlSoundPickPartnerCallVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickRandomPartnerVoice(u8 *action);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
@@ -140,18 +129,19 @@ extern s32 btlSoundPickRandomPartnerVoice(u8 *arg0);
 /* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
 /* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
 /* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
+/* Initialize the wait state once and enable action voices when its result word clears. */
 // FUN_001F9750
-s32 func_001f9750(s32 *arg0) {
+s32 btlVoiceEnablePlaybackPacketUpdate(s32 *context) {
     s32 r;
 
-    if (arg0[1] == 0) {
+    if (context[1] == 0) {
         if (iGpffffb460 != 0) {
-            arg0[0] = 0;
+            context[0] = 0;
         }
-        arg0[1] = 1;
+        context[1] = 1;
     }
-    if (arg0[0] == 0) {
-        *(u16 *)(D_0076449C + 0xB2E) |= 1;
+    if (context[0] == 0) {
+        ((BtlVoicePlayback *)(D_0076449C + 0xB2C))->flags |= 1;
         r = 1;
     } else {
         r = 0;

@@ -6,6 +6,7 @@
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "fcl_assist_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
 static inline s32 p4_pack_or(s32 left, s32 right)
@@ -22,7 +23,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
-extern void kAssertFail(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *file, s32 line);
 extern char D_0063F2A0[];
 extern char D_007488E8[];
 
@@ -38,7 +39,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
-extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);
+extern u8 *nmListAppendNode(u8 *manager, s32 owner, s32 payloadSize);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -86,7 +87,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bd280-002bd280 */
 
-extern void func_002b5120(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: a typed vtable base local with propagation disabled reproduces the
    retail single D_00887300 address hoist and saved-register frame. */
 /* measured: restores opt_propagation after func_002b5120. */
@@ -100,29 +101,30 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 #pragma push
 #pragma pop
+/* Append a 0x30-byte message entry using the manager's current source. */
 // FUN_002BD280
-s32 fclMiscAddRecord(s32 arg0, s32 arg1, s32 arg2, s16 arg3)
+s32 fclMiscAddRecord(s32 slotIndex, s32 record, s32 value, s16 entryFlags)
 {
-    s32 temp_20;
-    u8 *temp_21;
-    u8 *temp_2;
-    u8 *temp_3;
-    u8 *temp_4;
+    s32 source;
+    FclAssistManager *manager;
+    FclAssistNode *node;
+    FclAssistEntry *entry;
+    FclAssistList *list;
 
-    temp_21 = (u8 *)iGpffffb57c;
-    if (*(s32 *)(temp_21 + 0xC) == 0) {
+    manager = (FclAssistManager *)iGpffffb57c;
+    if (manager->source == 0) {
         kAssertFail(&D_0063F2A0, 0x668);
     }
-    temp_20 = *(s32 *)(temp_21 + 0xC);
-    temp_4 = *(u8 **)(temp_21 + 0);
-    temp_2 = func_002e2170(temp_4, *(u16 *)(temp_4 + 0x10) + 1, 0x30);
-    temp_3 = *(u8 **)(temp_2 + 0x14);
-    *(u8 **)(temp_3 + 0) = temp_2;
-    *(s32 *)(temp_3 + 0x2C) = arg0;
-    *(s32 *)(temp_3 + 0x20) = arg1;
-    *(s32 *)(temp_3 + 0x24) = arg2;
-    *(s32 *)(temp_3 + 0x28) = temp_20;
-    *(s16 *)(temp_3 + 0xE) = arg3;
+    source = manager->source;
+    list = manager->entries;
+    node = (FclAssistNode *)nmListAppendNode((u8 *)list, list->count + 1, 0x30);
+    entry = (FclAssistEntry *)node->data;
+    entry->node = node;
+    entry->slotIndex = slotIndex;
+    entry->record = record;
+    entry->unk24 = value;
+    entry->source = source;
+    entry->unk0e = entryFlags;
     return 0;
 }
 

@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -34,7 +35,7 @@ extern s32 D_00724C64;
 extern f32 D_00724C78[2];
 extern f32 D_00724C7C;
 extern u8 D_00714350[];
-extern void kAssertFail(u8 *arg0, s32 arg1);
+extern void kAssertFail(u8 *file, s32 line);
 extern f32 D_00922D80[];
 extern u32 D_00922D90[];
 extern f32 D_00922D94[];
@@ -52,7 +53,7 @@ extern u8 D_00714144[];
 
 
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
@@ -61,13 +62,13 @@ extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
 extern void memset(void *dst, s32 value, u32 size);
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
-extern void func_003c42b0(void *arg0, s32 arg1);
-extern s32 TnSlotObject(u16 arg0);
-extern s32 func_00481d80(u16 *arg0);
-extern s32 TlpCreate(u16 *arg0);
-extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
+extern void func_003c42b0(void *sourceBytes, s32 value);
+extern s32 TnSlotObject(u16 slotIndex);
+extern s32 mdlEffectCreateTrackInstance(u16 *source);
+extern s32 TlpCreate(u16 *desc);
+extern void GeometryBlockSetTextureFromHandle(u8 *block, u16 *handle);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -96,63 +97,65 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 // FUN_004A5BB0
 void *mdlEffectCreateInstance(void *source)
 {
-    u8 *arg0 = (u8 *)source;
-    u16 *temp_2_4;
-    u16 temp_4;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_3;
+    u8 *sourceBytes = (u8 *)source;
+    u16 *textureSource;
+    u16 sourceKind;
+    u8 *instance;
+    u8 *geometry;
+    u8 *parameters;
+    u8 *colors;
 
     chkmemAllocSiteTag(D_007141A0, 0x1C);
-    temp_2 = (u8 *)jtbl_008873E8[0](0xD4, 0x40000);
-    if (temp_2 == NULL) {
+    instance = (u8 *)jtbl_008873E8[0](0xD4, 0x40000);
+    if (instance == NULL) {
         kAssertFail(D_007141A0, 0x1D);
     }
-    memset(temp_2, 0, 0xD4);
-    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
-    __asm__ volatile ("sqc2 vf0, 0x10(%0)" : : "r"(temp_2) : "memory");
-    *(s32 *)(temp_2 + 0x24) = -1;
-    *(f32 *)(temp_2 + 0x20) = 1.0f;
-    if (arg0 == NULL) {
-        return temp_2;
+    memset(instance, 0, 0xD4);
+    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(instance) : "memory");
+    __asm__ volatile ("sqc2 vf0, 0x10(%0)" : : "r"(instance) : "memory");
+    ((MdlEffectAnimatedSprite *)instance)->packedColor = -1;
+    ((MdlEffectAnimatedSprite *)instance)->scale = 1.0f;
+    if (sourceBytes == NULL) {
+        return instance;
     }
-    temp_2_2 = GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
-    *(u8 **)(temp_2 + 0xC8) = temp_2_2;
-    temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18) + 0x30);
-    *(s32 *)(temp_3 + 0) = -1;
-    *(s32 *)(temp_3 + 4) = -1;
-    *(s32 *)(temp_3 + 8) = -1;
-    *(s32 *)(temp_3 + 0xC) = -1;
-    *(s32 *)(temp_2 + 0x28) = *(u16 *)(arg0 + 0xC);
-    temp_2_3 = mdlEffectResolveRelPtrA(arg0);
-    if (temp_2_3 == NULL) {
+    geometry = GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    *(u8 **)(instance + 0xC8) = geometry;
+    colors = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry)->colors;
+    ((s32 *)colors)[0] = -1;
+    ((s32 *)colors)[1] = -1;
+    ((s32 *)colors)[2] = -1;
+    ((s32 *)colors)[3] = -1;
+    ((MdlEffectAnimatedSprite *)instance)->id = ((EffSourceDescriptor *)sourceBytes)->id;
+    parameters = mdlEffectResolveRelPtrA(sourceBytes);
+    if (parameters == NULL) {
         kAssertFail(D_007141A0, 0x47);
     }
-    memcpy(temp_2 + 0x30, temp_2_3, 0x98);
-    temp_2_4 = mdlEffectResolveRelPtrB(arg0);
-    if (temp_2_4 != NULL) {
-        temp_4 = *(u16 *)(arg0 + 0x1C);
-        switch (temp_4) {
+    memcpy(instance + 0x30, parameters, 0x98);
+    textureSource = mdlEffectResolveRelPtrB(sourceBytes);
+    if (textureSource != NULL) {
+        sourceKind = ((EffSourceDescriptor *)sourceBytes)->kind;
+        switch (sourceKind) {
         case 1:
-            GeometryBlockSetTextureFromHandle(*(u8 **)(temp_2 + 0xC8), temp_2_4);
+            GeometryBlockSetTextureFromHandle(((MdlEffectAnimatedSprite *)instance)->geometry, textureSource);
             break;
         case 2:
-            *(s32 *)(temp_2 + 0xD0) = func_00481d80(temp_2_4);
+            ((MdlEffectAnimatedSprite *)instance)->tracks = mdlEffectCreateTrackInstance(textureSource);
             break;
         case 4:
             func_003c42b0(
-                *(u8 **)(*(u8 **)(temp_2 + 0xC8) + 0x14),
-                TnSlotObject(*temp_2_4));
+                /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+                ((EffGeometryBlock *)*(u8 **)(instance + 0xC8))->material,
+                TnSlotObject(*textureSource));
             break;
         case 7:
-            *(s32 *)(temp_2 + 0xCC) = TlpCreate(temp_2_4);
+            ((MdlEffectAnimatedSprite *)instance)->tlp = TlpCreate(textureSource);
             break;
         default:
             kAssertFail(D_007141A0, 0x5D);
             break;
         }
     }
-    return temp_2;
+    return instance;
 }
 

@@ -9,7 +9,7 @@ def fixture_from_source(source):
     raw = movement_definition(source)
     s = code_view(raw)
     types=raw[s.index('    typedef struct {'):s.index('    extern u16 D_008C024C')]
-    start=s.index('                s32 quotient =');end=s.index('                *(u8 **)(h + 0x138)',start)
+    start=s.index('                s32 quotient =');end=s.index('                ((FldEventWork *)h)->rotationTask',start)
     rounding=raw[start:end]
     assert 'datCalcGetBadStatusNoDownById(s16)' in s and 'u32 datCalcGetBadStatusNoDownById' in s
     assert s.count('func_003e0670(&')==2 and 'func_003e0670(&cameraMatrix, &cameraMatrix)' in s
@@ -19,12 +19,13 @@ def fixture_from_source(source):
     clear1=raw[s.index('    {\n        u8 *p = (u8 *)&move;'):s.index('    {\n        u8 *p = (u8 *)&camera;')]
     clear2=raw[s.index('    {\n        u8 *p = (u8 *)&camera;'):s.index('    f20 = 0.0f;')]
     copy1_match=re.search(r'        cameraMatrix = .*?;',s)
-    copy1=raw[copy1_match.start():copy1_match.end()].replace('*(u8 **)(kwlnGetCamera() + 4)', 'cameraFrame')
+    copy1=raw[copy1_match.start():copy1_match.end()].replace('((RwObject *)(kwlnGetCamera()))->parent', 'cameraFrame')
     assert 'cameraFrame' in copy1, 'camera-frame expression changed in k_fldEvent.c; update this fixture'
     copy2_match=re.search(r'        modelMatrix = .*?;',s)
     copy2=raw[copy2_match.start():copy2_match.end()]
-    assert copy2 == '        modelMatrix = *(MovementMatrix *)((u8 *)mdlGetClumpFrame(*(void **)(*(s32 *)(h + 0x18) + 0x164)) + 0x10);'
-    copy2=copy2.replace('(u8 *)mdlGetClumpFrame(*(void **)(*(s32 *)(h + 0x18) + 0x164))', 'modelFrame')
+    assert copy2 == ('        modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)mdlGetClumpFrame('
+                     '((ResrcRecord *)(*(s32 *)(h + 0x18)))->modelHandle164)))->modelling;')
+    copy2=copy2.replace('mdlGetClumpFrame(((ResrcRecord *)(*(s32 *)(h + 0x18)))->modelHandle164)', 'modelFrame')
     identity=raw[s.index('        mat.right.x ='):s.index('        RwMatrixRotate(&mat')]
     head='''#include <stdint.h>
     #include <stddef.h>
@@ -34,7 +35,10 @@ def fixture_from_source(source):
     #include <math.h>
     typedef uint8_t u8; typedef uint32_t u32; typedef int32_t s32; typedef float f32;
     typedef struct { f32 x,y,z; } FldEventVec3;
-    '''+types
+    '''+types+'''
+    /* RenderWare frame: the modelling matrix sits after a 0x10-byte object header. */
+    typedef struct { u32 prefix[4]; MovementMatrix modelling; } RwFrame;
+    '''
     fixture=head+'''
     #define REQUIRE(x) do { if (!(x)) { fprintf(stderr,"line %d: %s\\n",__LINE__,#x); exit(1); } } while (0)
     static float recovered(float b) { float rounded;

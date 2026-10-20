@@ -35,6 +35,20 @@ typedef struct HSfdFileEntry
     u8 *path[3];
 } HSfdFileEntry;
 
+
+typedef struct SdkSndTransfer {
+    void *data;
+    s32 destination;
+    s32 size;
+    s32 status;
+} SdkSndTransfer;
+
+typedef struct SdkSndCommandStream {
+    s32 active;
+    s16 slotIndex;
+    u8 pad6[2];
+    s32 handle;
+} SdkSndCommandStream;
 /* Per-stream state tables (byte-indexed; stride 0x44 for the slot tables). */
 extern u8 D_008E3FC0[];
 extern u8 D_008E3FC4[];
@@ -92,47 +106,49 @@ extern s32 func_0043c180(s32 command, ...);
 extern s32 func_0043c230(s32 command, ...);
 extern s32 func_0043c3b0(s32 command, ...);
 extern void memcpy(void *destination, const void *source, u32 size);
-extern HCdvd *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
-extern u32 H_Cdvd_Destroy(HCdvd *request);
-extern u32 H_Cdvd_IsFileLoaded(const HCdvd *request);
+extern HCdvd *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+extern u32 H_Cdvd_Destroy(HCdvd *cdvd);
+extern u32 H_Cdvd_IsFileLoaded(const HCdvd *cdvd);
 /* The existing file-cache API encodes both paths/sentinels and returned EE addresses as s32. */
-extern s32 H_Cdvd_LookupRequest(s32 pathOrMode, s32 *size);
+extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 
-s32 func_0045b650(s32 handle, void *data, s32 size);
-void func_0045c3d0(s16 index);
+s32 sdkSndTransferToIop(s32 handle, void *data, s32 size);
+void sdkSndReleaseDecodeSlot(s16 index);
 
+/* Submits a transfer command for the supplied IOP destination and EE source data and waits for completion. */
+/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
 // FUN_0045B650
-s32 func_0045b650(s32 handle, void *data, s32 size)
+s32 sdkSndTransferToIop(s32 handle, void *data, s32 size)
 {
-    s32 r;
-    s32 q;
+    s32 status;
+    s32 queueHandle;
 
     if (size <= 0) {
         return 0;
     }
     *(void **)&D_008E3FC0[0] = data;
-    *(s32 *)&D_008E3FC4[0] = handle;
-    *(s32 *)&D_008E3FC8[0] = size;
-    *(s32 *)&D_008E3FCC[0] = 0;
+    ((SdkSndTransfer *)D_008E3FC0)->destination = handle;
+    ((SdkSndTransfer *)D_008E3FC0)->size = size;
+    ((SdkSndTransfer *)D_008E3FC0)->status = 0;
     func_00440b68(D_007123C0, data, handle, size);
     func_00440b68(&D_00764020);
     func_00421a60(0);
     func_00440b68(D_007123E8);
-    q = func_00424708(&D_008E3FC0[0], 1);
-    func_00440b68(D_007123F8, q);
-    if (q == 0) {
+    queueHandle = func_00424708(&D_008E3FC0[0], 1);
+    func_00440b68(D_007123F8, queueHandle);
+    if (queueHandle == 0) {
         kAssertFail(D_00712408, 0xF0);
     }
     do {
-        r = func_00421b80(q);
-    } while (r >= 0);
+        status = func_00421b80(queueHandle);
+    } while (status >= 0);
     for (;;) {
-        r = func_00421b80(q);
-        if (r > 0) {
+        status = func_00421b80(queueHandle);
+        if (status > 0) {
             func_00440b68(&D_00764028);
             continue;
         }
-        if (r == 0) {
+        if (status == 0) {
             func_00440b68(D_00712418);
             continue;
         }
@@ -147,11 +163,12 @@ s32 func_0045b650(s32 handle, void *data, s32 size)
  * across calls. CSE off retains the retail slot-base rematerialization; propagation
  * off preserves the signed index and transfer-size snapshots rather than duplicating
  * their loads. The three payload stages have independent transfer cursors. */
+/* Advances six decode slots through file or memory payload transfers and decoder creation. */
 // FUN_0045B7C0
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
-void func_0045b7c0(void)
+void sdkSndUpdateDecodeSlots(void)
 {
     s32 size;
     s16 fileIndex;
@@ -190,7 +207,7 @@ void func_0045b7c0(void)
                     kAssertFail(D_00712408, 0x129);
                 }
                 memcpy(D_008D3FD0, source, size);
-                func_0045b650(address, D_008D3FD0, size);
+                sdkSndTransferToIop(address, D_008D3FD0, size);
                 slot = &sSfdDecodeSlots_abs[i];
                 request = &slot->request;
                 H_Cdvd_Destroy(*request);
@@ -236,7 +253,7 @@ void func_0045b7c0(void)
                         size = remaining;
                         remaining = 0;
                     }
-                    func_0045b650(address, source, size);
+                    sdkSndTransferToIop(address, source, size);
                     func_0043c180(1, address, destination, size);
                     transferred = size;
                     source += transferred;
@@ -276,7 +293,7 @@ void func_0045b7c0(void)
                 if (!address) {
                     kAssertFail(D_00712408, 0x165);
                 }
-                func_0045b650(address, source, size);
+                sdkSndTransferToIop(address, source, size);
                 slot = &sSfdDecodeSlots_abs[i];
                 request = &slot->request;
                 H_Cdvd_Destroy(*request);
@@ -328,7 +345,7 @@ void func_0045b7c0(void)
                     if (!address) {
                         kAssertFail(D_00712408, 0x189);
                     }
-                    func_0045b650(address, source, size);
+                    sdkSndTransferToIop(address, source, size);
                     slot = &sSfdDecodeSlots_abs[i];
                     input = &slot->input;
                     *input = address;
@@ -359,7 +376,7 @@ void func_0045b7c0(void)
                             size = ((size + 0x7F) / 128) * 128;
                             remaining = 0;
                         }
-                        func_0045b650(address, source, size);
+                        sdkSndTransferToIop(address, source, size);
                         func_0043c180(1, address, destination, size);
                         transferred = size;
                         source += transferred;
@@ -378,7 +395,7 @@ void func_0045b7c0(void)
                     if (!address) {
                         kAssertFail(D_00712408, 0x1AB);
                     }
-                    func_0045b650(address, source, size);
+                    sdkSndTransferToIop(address, source, size);
                     slot = &sSfdDecodeSlots_abs[i];
                     output = &slot->output;
                     *output = address;
@@ -400,94 +417,102 @@ void func_0045b7c0(void)
 }
 #pragma pop
 
+/* Queues the selected file-entry triplet on a ready decode slot. */
+/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
 // FUN_0045C130
-void func_0045c130(s16 index, s16 fileIndex)
+void sdkSndLoadDecodeFiles(s16 index, s16 fileIndex)
 {
     if (*(s16 *)&D_008E4090[index * 0x44] == 1) {
         if (*(void **)&D_008E40A8[index * 0x44] != 0) {
-            func_0045c3d0(index);
+            sdkSndReleaseDecodeSlot(index);
         }
-        *(s16 *)&D_008E4098[index * 0x44] = fileIndex;
+        sSfdDecodeSlots_abs[index].fileIndex = fileIndex;
         *(s16 *)&D_008E4090[index * 0x44] = 2;
         return;
     }
     kAssertFailAt(D_00712440, D_00712408, 0x1D0);
 }
 
+/* Queues three supplied memory payloads and their sizes on a ready decode slot. */
+/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
 // FUN_0045C210
-void func_0045c210(s16 index, s16 fileIndex, void *data0, u32 data0Size, void *data1, u32 data1Size,
+void sdkSndLoadDecodeBuffers(s16 index, s16 fileIndex, void *data0, u32 data0Size, void *data1, u32 data1Size,
                    void *data2, u32 data2Size)
 {
     if (*(s16 *)&D_008E4090[index * 0x44] == 1) {
         if (*(void **)&D_008E40A8[index * 0x44] != 0) {
-            func_0045c3d0(index);
+            sdkSndReleaseDecodeSlot(index);
         }
-        *(s16 *)&D_008E4098[index * 0x44] = fileIndex;
+        sSfdDecodeSlots_abs[index].fileIndex = fileIndex;
         *(s16 *)&D_008E4090[index * 0x44] = 8;
         *(void **)&D_008E40C4[index * 0x44] = data0;
         *(void **)&D_008E40C8[index * 0x44] = data1;
         *(void **)&D_008E40CC[index * 0x44] = data2;
-        *(u32 *)&D_008E40B0[index * 0x44] = data0Size;
-        *(u32 *)&D_008E40B8[index * 0x44] = data1Size;
-        *(u32 *)&D_008E40C0[index * 0x44] = data2Size;
+        sSfdDecodeSlots_abs[index].inputSize = data0Size;
+        sSfdDecodeSlots_abs[index].intermediateSize = data1Size;
+        sSfdDecodeSlots_abs[index].outputSize = data2Size;
         return;
     }
     kAssertFailAt(D_00712440, D_00712408, 0x1E9);
 }
 
 // FUN_0045C390
-u32 func_0045c390(s16 index)
+u32 sdkSndIsDecodeSlotReady(s16 index)
 {
     return sSfdDecodeSlots_abs[index].state == 1;
 }
 
+/* Releases a ready slot decoder and its queue and IOP payload allocations. */
+/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
 // FUN_0045C3D0
-void func_0045c3d0(s16 index)
+void sdkSndReleaseDecodeSlot(s16 index)
 {
-    s32 off;
-    void **inp;
+    s32 slotOffset;
+    void **statusPointer;
 
-    off = index * 0x44;
-    if (*(s16 *)&D_008E4090[off] == 1) {
-        inp = (void **)&D_008E40A8[off];
-        if (*inp != 0) {
-            func_0043c470(5, *(s32 *)&D_008E40D0[off]);
-            func_0043c470(0, *(s32 *)&D_008E40A4[off]);
-            func_0043c308(5, *(s32 *)&D_008E40A0[off]);
-            func_0043c308(3, *(s32 *)&D_008E409C[off]);
-            *inp = 0;
-            func_00429d90((s32)*(void **)&D_008E40AC[off]);
-            func_00429d90((s32)*(void **)&D_008E40BC[off]);
+    slotOffset = index * 0x44;
+    if (((HSfdDecodeSlot *)((u8 *)sSfdDecodeSlots_abs + slotOffset))->state == 1) {
+        statusPointer = (void **)&D_008E40A8[slotOffset];
+        if (*statusPointer != 0) {
+            func_0043c470(5, *(s32 *)&D_008E40D0[slotOffset]);
+            func_0043c470(0, *(s32 *)&D_008E40A4[slotOffset]);
+            func_0043c308(5, *(s32 *)&D_008E40A0[slotOffset]);
+            func_0043c308(3, *(s32 *)&D_008E409C[slotOffset]);
+            *statusPointer = 0;
+            func_00429d90((s32)*(void **)&D_008E40AC[slotOffset]);
+            func_00429d90((s32)*(void **)&D_008E40BC[slotOffset]);
         }
-        *inp = 0;
+        *statusPointer = 0;
         return;
     }
     kAssertFailAt(D_00712440, D_00712408, 0x21C);
 }
 
+/* Stop an active decoder stream and clear its per-stream active flag. */
+/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
 // FUN_0045C510
 void sdkSndStopStreamSlot(s16 index, s16 stream)
 {
-    s32 off;
-    s32 *p;
-    s32 r;
+    s32 slotOffset;
+    s32 *activePointer;
+    s32 result;
 
-    off = index * 0x44;
-    if (*(s16 *)&D_008E4090[off] == 1 && *(void **)&D_008E40A8[off] != 0) {
-        p = (s32 *)&D_008E3FD0[stream * 0xC];
-        if (*p != 0) {
-            r = func_0043c5e8(*(s32 *)&D_008E40A0[off], 1, 0xA, *(s32 *)&D_008E3FD8[stream * 0xC]);
-            switch (r) {
+    slotOffset = index * 0x44;
+    if (*(s16 *)&D_008E4090[slotOffset] == 1 && *(void **)&D_008E40A8[slotOffset] != 0) {
+        activePointer = &((SdkSndCommandStream *)(D_008E3FD0 + stream * 0xC))->active;
+        if (*activePointer != 0) {
+            result = func_0043c5e8(*(s32 *)&D_008E40A0[slotOffset], 1, 0xA, *(s32 *)&D_008E3FD8[stream * 0xC]);
+            switch (result) {
             case 0:
             case -0x12B:
-                func_0043c518(*(s32 *)&D_008E40A0[off], 2, 0xA,
+                func_0043c518(*(s32 *)&D_008E40A0[slotOffset], 2, 0xA,
                               *(s32 *)&D_008E3FD8[stream * 0xC]);
                 break;
             default:
-                func_00440b68(D_00712458, r);
+                func_00440b68(D_00712458, result);
                 break;
             }
-            *p = 0;
+            *activePointer = 0;
         }
     }
 }
@@ -498,8 +523,9 @@ void sdkSndStopStreamSlot(s16 index, s16 stream)
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
+/* measured: normalizing the remaining interior-symbol slot accesses changes owner instructions; retain their absolute field aliases. */
 // FUN_0045C640
-void sdkSndStartStreamSlot(s16 index, s16 stream, s16 arg2, s16 arg3)
+void sdkSndStartStreamSlot(s16 index, s16 stream, s16 value, s16 flags)
 {
     s32 slotOffset;
     s32 state;
@@ -515,13 +541,13 @@ void sdkSndStartStreamSlot(s16 index, s16 stream, s16 arg2, s16 arg3)
     s32 previousOffset;
 
     slotOffset = index * 0x44;
-    state = *(s16 *)&D_008E4090[slotOffset];
+    state = ((HSfdDecodeSlot *)((u8 *)sSfdDecodeSlots_abs + slotOffset))->state;
     ready = 1;
     if (state == ready) {
         status = *(s32 *)&D_008E40A8[slotOffset];
         if (status != 0) {
             previousOffset = stream * 0xC;
-            streamActive = (s32 *)&D_008E3FD0[previousOffset];
+            streamActive = &((SdkSndCommandStream *)(D_008E3FD0 + previousOffset))->active;
             active = *streamActive;
             if ((active != 0) && (state == ready) && (status != 0) && (active != 0)) {
                 streamHandle = (s32 *)&D_008E3FD8[previousOffset];
@@ -543,7 +569,7 @@ void sdkSndStartStreamSlot(s16 index, s16 stream, s16 arg2, s16 arg3)
             *streamActive = 1;
             outputHandle = *(s32 *)&D_008E40A0[slotOffset];
             *(s32 *)&D_008E3FD8[streamOffset] = func_0043c518(
-                outputHandle, 0, 0xA, (s32)arg2, (s32)arg3);
+                outputHandle, 0, 0xA, (s32)value, (s32)flags);
             return;
         }
         kAssertFailAt(D_00712470, D_00712408, 0x283);

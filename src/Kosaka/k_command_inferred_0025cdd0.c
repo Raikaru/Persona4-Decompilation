@@ -22,17 +22,17 @@ extern s32 iGpffffb480;
 
 
 
-float scrGetParamFloat(s32 arg0);
-s16 datCategoryRankProgress(s16 arg0, float arg1);
-s16 datCategoryRank(s16 arg0);
+float scrGetParamFloat(s32 paramIdx);
+s16 datCategoryRankProgress(s16 category, float scale);
+s16 datCategoryRank(s16 category);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
-extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
-                           s32 arg2, s32 arg3, s32 arg4);
-extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
-                           f32 farg0, f32 farg1, s32 arg4);
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth,
+                           s32 count, s32 primitiveType, s32 preserveState);
+extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
+                           f32 angle, f32 depth, s32 preserveState);
 
 
 
@@ -49,10 +49,10 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 
 // FUN_0025CDD0
 s32 scrCommonGetRankProgress(void) {
-    s32 temp_16;
+    s32 category;
 
-    temp_16 = scrGetParamInt(0);
-    scrSetReturnInt((s32)datCategoryRankProgress((s16)temp_16, scrGetParamFloat(1)));
+    category = scrGetParamInt(0);
+    scrSetReturnInt((s32)datCategoryRankProgress((s16)category, scrGetParamFloat(1)));
     return 1;
 }
 
@@ -66,36 +66,38 @@ s32 scrCommonGetPcParam(void) {
 /* measured: preserving the raw third-call result in s32 before masking the first two arguments reproduces retail's setup order; exact match nd 0 (obj 112B/window 112B). */
 // FUN_0025CE90
 s32 scrCommonPersonaAddStat(void) {
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_18;
+    s32 statId;
+    s32 personaId;
+    s32 amount;
 
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    temp_18 = scrGetParamInt(2);
-    datPersonaAddStatById(temp_17 & 0xFFFF, temp_16 & 0xFFFF, (s8)temp_18);
+    personaId = scrGetParamInt(0);
+    statId = scrGetParamInt(1);
+    amount = scrGetParamInt(2);
+    datPersonaAddStatById(personaId & 0xFFFF, statId & 0xFFFF, (s8)amount);
     return 1;
 }
 
+/* Add the script amount to the requested character bonus stat using halfword identifiers. */
 // FUN_0025CF00
 s32 scrCommonPersonaAddBonusStat(void) {
-    s32 temp_16;
-    s32 temp_17;
+    s32 statId;
+    s32 characterId;
 
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    datPersonaAddToBonusStatByPcId(temp_17 & 0xFFFF, temp_16 & 0xFFFF, scrGetParamInt(2));
+    characterId = scrGetParamInt(0);
+    statId = scrGetParamInt(1);
+    datPersonaAddToBonusStatByPcId(characterId & 0xFFFF, statId & 0xFFFF, scrGetParamInt(2));
     return 1;
 }
 
+/* Return the requested persona total stat, narrowed to a byte. */
 // FUN_0025CF70
 s32 scrCommonPersonaGetTotalStat(void) {
-    s32 temp_16;
-    s32 temp_17;
+    s32 personaId;
+    s32 statId;
 
-    temp_16 = scrGetParamInt(0);
-    temp_17 = scrGetParamInt(1);
-    scrSetReturnInt(datPersonaGetTotalStatById(temp_16 & 0xFFFF, temp_17 & 0xFFFF) & 0xFF);
+    personaId = scrGetParamInt(0);
+    statId = scrGetParamInt(1);
+    scrSetReturnInt(datPersonaGetTotalStatById(personaId & 0xFFFF, statId & 0xFFFF) & 0xFF);
     return 1;
 }
 

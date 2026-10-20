@@ -9,24 +9,24 @@ extern u8 D_00635990[];
 extern u8 D_006359A0[];
 extern u8 D_006359B0[];
 extern u8 D_006359C0[];
-extern void cmmCommunityAllocRecord(s32 arg0);
-extern s32 cmmCommunityHasRecord(s32 arg0);
+extern void cmmCommunityAllocRecord(s32 communityId);
+extern s32 cmmCommunityHasRecord(s32 communityId);
 extern s32 cmmCommunityGetCurrentId(void);
-extern s32 cmmCommunityRecordValue(s32 arg0);
-extern s32 cmmCommunityTryRankUp(s32 arg0);
-extern s32 cmmCommunityCanRankUp(s32 arg0);
-extern s32 cmmCommunityTestReversed(s32 arg0);
-extern s32 cmmCommunitySetReversed(s32 arg0);
-extern s32 cmmCommunityClearReversed(s32 arg0);
-extern s32 cmmCommunityTestBroken(s32 arg0);
-extern s32 cmmCommunitySetBroken(s32 arg0);
-extern s32 cmmCommunityClearBroken(s32 arg0);
-extern s32 cmmCommunityAddScaledPoints(s32 arg0, s32 arg1);
-extern s32 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2);
+extern s32 cmmCommunityRecordValue(s32 communityId);
+extern s32 cmmCommunityTryRankUp(s32 communityId);
+extern s32 cmmCommunityCanRankUp(s32 communityId);
+extern s32 cmmCommunityTestReversed(s32 communityId);
+extern s32 cmmCommunitySetReversed(s32 communityId);
+extern s32 cmmCommunityClearReversed(s32 communityId);
+extern s32 cmmCommunityTestBroken(s32 communityId);
+extern s32 cmmCommunitySetBroken(s32 communityId);
+extern s32 cmmCommunityClearBroken(s32 communityId);
+extern s32 cmmCommunityAddScaledPoints(s32 communityId, s32 points);
+extern s32 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId);
 extern s64 datGetDateIndex(void);
-extern s32 calSplitDayOfYear(s64 arg0, s32 *arg1, s32 *arg2);
-extern s32 cmmNthEligibleCommunity(s32 arg0, s32 arg1, s32 arg2);
-extern s32 cmmCommunitySetTableHead(s32 arg0);
+extern s32 calSplitDayOfYear(s64 dateIndex, s32 *monthOut, s32 *dayOut);
+extern s32 cmmNthEligibleCommunity(s32 requestedIndex, s32 month, s32 day);
+extern s32 cmmCommunitySetTableHead(s32 value);
 
 extern f32 D_00761260;
 extern f32 fGpffff811c;
@@ -51,14 +51,14 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 // FUN_00249B10
 s32 cmmEnsureRecord(void)
 {
-    s32 temp_16;
+    s32 communityId;
 
-    temp_16 = scrGetParamInt(0);
-    if (temp_16 == 0) {
-        temp_16 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (cmmCommunityHasRecord(temp_16 & 0xFFFF) == 0) {
-        cmmCommunityAllocRecord(temp_16 & 0xFFFF);
+    if (cmmCommunityHasRecord(communityId & 0xFFFF) == 0) {
+        cmmCommunityAllocRecord(communityId & 0xFFFF);
     }
     return 1;
 }
@@ -71,13 +71,13 @@ s32 cmmEnsureRecord(void)
 // FUN_00249B80
 s32 cmmExist(void)
 {
-    s32 var_2;
+    s32 communityId;
 
-    var_2 = scrGetParamInt(0);
-    if (var_2 == 0) {
-        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    scrSetReturnInt(cmmCommunityHasRecord(var_2 & 0xFFFF));
+    scrSetReturnInt(cmmCommunityHasRecord(communityId & 0xFFFF));
     return 1;
 }
 
@@ -86,13 +86,13 @@ s32 cmmExist(void)
 // FUN_00249BE0
 s32 cmmGetLevel(void)
 {
-    s32 var_2;
+    s32 communityId;
 
-    var_2 = scrGetParamInt(0);
-    if (var_2 == 0) {
-        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    scrSetReturnInt(cmmCommunityRecordValue(var_2 & 0xFFFF) & 0xFFFF);
+    scrSetReturnInt(cmmCommunityRecordValue(communityId & 0xFFFF) & 0xFFFF);
     return 1;
 }
 
@@ -101,13 +101,13 @@ s32 cmmGetLevel(void)
 // FUN_00249C40
 s32 cmmTryRankUp(void)
 {
-    s32 var_2;
+    s32 communityId;
 
-    var_2 = scrGetParamInt(0);
-    if (var_2 == 0) {
-        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    cmmCommunityTryRankUp(var_2 & 0xFFFF);
+    cmmCommunityTryRankUp(communityId & 0xFFFF);
     return 1;
 }
 
@@ -116,13 +116,13 @@ s32 cmmTryRankUp(void)
 // FUN_00249C90
 s32 cmmCheckLevelUp(void)
 {
-    s32 var_2;
+    s32 communityId;
 
-    var_2 = scrGetParamInt(0);
-    if (var_2 == 0) {
-        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (cmmCommunityCanRankUp(var_2 & 0xFFFF) != 0) {
+    if (cmmCommunityCanRankUp(communityId & 0xFFFF) != 0) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
@@ -135,15 +135,15 @@ s32 cmmCheckLevelUp(void)
 // FUN_00249D00
 s32 cmmAddScaledPointId(void)
 {
-    s32 temp_16;
-    s32 var_17;
+    s32 points;
+    s32 communityId;
 
-    var_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    if (var_17 == 0) {
-        var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    points = scrGetParamInt(1);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    cmmCommunityAddScaledPoints(var_17 & 0xFFFF, temp_16 & 0xFFFF);
+    cmmCommunityAddScaledPoints(communityId & 0xFFFF, points & 0xFFFF);
     return 1;
 }
 
@@ -152,12 +152,12 @@ s32 cmmAddScaledPointId(void)
 // FUN_00249D70
 s32 cmmAddPointId(void)
 {
-    s32 temp_16;
-    s32 temp_17;
+    s32 points;
+    s32 communityId;
 
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    cmmCommunityAddPoints(temp_17 & 0xFFFF, temp_16 & 0xFFFF, scrGetParamInt(2));
+    communityId = scrGetParamInt(0);
+    points = scrGetParamInt(1);
+    cmmCommunityAddPoints(communityId & 0xFFFF, points & 0xFFFF, scrGetParamInt(2));
     return 1;
 }
 
@@ -166,13 +166,13 @@ s32 cmmAddPointId(void)
 // FUN_00249DE0
 s32 cmmIsReversed(void)
 {
-    s32 var_2;
+    s32 communityId;
 
-    var_2 = scrGetParamInt(0);
-    if (var_2 == 0) {
-        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (cmmCommunityTestReversed(var_2 & 0xFFFF) != 0) {
+    if (cmmCommunityTestReversed(communityId & 0xFFFF) != 0) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
@@ -185,18 +185,18 @@ s32 cmmIsReversed(void)
 // FUN_00249E50
 s32 cmmSetReverse(void)
 {
-    s32 temp_16;
-    s32 var_17;
+    s32 enabled;
+    s32 communityId;
 
-    var_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    if (var_17 == 0) {
-        var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    enabled = scrGetParamInt(1);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (temp_16 != 0) {
-        cmmCommunitySetReversed(var_17 & 0xFFFF);
+    if (enabled != 0) {
+        cmmCommunitySetReversed(communityId & 0xFFFF);
     } else {
-        cmmCommunityClearReversed(var_17 & 0xFFFF);
+        cmmCommunityClearReversed(communityId & 0xFFFF);
     }
     return 1;
 }
@@ -206,13 +206,13 @@ s32 cmmSetReverse(void)
 // FUN_00249EE0
 s32 cmmIsBroken(void)
 {
-    s32 var_2;
+    s32 communityId;
 
-    var_2 = scrGetParamInt(0);
-    if (var_2 == 0) {
-        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (cmmCommunityTestBroken(var_2 & 0xFFFF) != 0) {
+    if (cmmCommunityTestBroken(communityId & 0xFFFF) != 0) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
@@ -225,18 +225,18 @@ s32 cmmIsBroken(void)
 // FUN_00249F50
 s32 cmmSetBroken(void)
 {
-    s32 temp_16;
-    s32 var_17;
+    s32 enabled;
+    s32 communityId;
 
-    var_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    if (var_17 == 0) {
-        var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0);
+    enabled = scrGetParamInt(1);
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (temp_16 != 0) {
-        cmmCommunitySetBroken(var_17 & 0xFFFF);
+    if (enabled != 0) {
+        cmmCommunitySetBroken(communityId & 0xFFFF);
     } else {
-        cmmCommunityClearBroken(var_17 & 0xFFFF);
+        cmmCommunityClearBroken(communityId & 0xFFFF);
     }
     return 1;
 }
@@ -246,12 +246,12 @@ s32 cmmSetBroken(void)
 // FUN_00249FE0
 s32 cmmGetNthEligibleId(void)
 {
-    s32 sp2C;
-    s32 sp28;
-    s32 temp_16;
-    temp_16 = scrGetParamInt(0);
-    calSplitDayOfYear((s16)datGetDateIndex(), &sp2C, &sp28);
-    scrSetReturnInt(cmmNthEligibleCommunity(temp_16, sp2C, sp28));
+    s32 month;
+    s32 day;
+    s32 ordinal;
+    ordinal = scrGetParamInt(0);
+    calSplitDayOfYear((s16)datGetDateIndex(), &month, &day);
+    scrSetReturnInt(cmmNthEligibleCommunity(ordinal, month, day));
     return 1;
 }
 
@@ -260,13 +260,13 @@ s32 cmmGetNthEligibleId(void)
 // FUN_0024A060
 s32 cmmSetTableHead(void)
 {
-    s32 var_4;
+    s32 communityId;
 
-    var_4 = scrGetParamInt(0) & 0xFFFF;
-    if (var_4 == 0) {
-        var_4 = cmmCommunityGetCurrentId() & 0xFFFF;
+    communityId = scrGetParamInt(0) & 0xFFFF;
+    if (communityId == 0) {
+        communityId = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    cmmCommunitySetTableHead(var_4);
+    cmmCommunitySetTableHead(communityId);
     return 1;
 }
 

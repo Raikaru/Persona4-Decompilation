@@ -10,7 +10,7 @@ void *FldShadow_ProjectAtomic(void *atomic, void *data);
 
 struct RpCollisionTriangle *FldShadow_ProjectTriangle(
     struct RpIntersection *intersection, struct RpWorldSector *sector,
-    struct RpCollisionTriangle *triangle, f32 distance, void *data);
+    struct RpCollisionTriangle *tri, f32 distance, void *data);
 struct RpCollisionTriangle *FldShadow_ProjectSkinnedTriangle(
     struct RpIntersection *intersection, struct RpCollisionTriangle *triangle,
     f32 distance, void *data);

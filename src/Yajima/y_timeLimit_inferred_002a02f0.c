@@ -3,6 +3,8 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
+#include "name_entry_internal.h"
+#include "kwln_task_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern u16 *D_00764658;
@@ -22,18 +24,12 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                         s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
-extern void func_0029fbb0(u8 *arg0, s32 arg1);
+extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
+                         s32, f32 farg0, s32, s32, s32);
+extern void yTimeLimitDrawButton(u8 *task, s32 selection);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
-typedef struct P4_002aabf0_Work {
-    f32 values[4];
-    s32 pad80;
-    s32 sp84;
-    s32 sp88;
-    u8 colors[4];
-} P4_002aabf0_Work;
+
 extern s32 iGpffffb52c;
 extern u8 D_0063E630[];
 extern u8 D_0063EEA0[];
@@ -42,21 +38,9 @@ extern u16 D_008C024E[];
 extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
-typedef struct P4_002aa450_Pair {
-    s64 bits;
-    f32 value;
-} P4_002aa450_Pair;
-typedef struct P4_002aa450_Work {
-    u8 matrix[0x40];
-    P4_002aa450_Pair pair4;
-    P4_002aa450_Pair pair3;
-    P4_002aa450_Pair pair2;
-    P4_002aa450_Pair pair1;
-    P4_002aa450_Pair pair0;
-} P4_002aa450_Work;
-static inline f32 p4_002aa450_mul(f32 left, f32 right) {
-    return left * right;
-}
+
+
+
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -85,20 +69,22 @@ extern u8 iGpffffa7e8;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a02f0-002a02f0 */
 
 // FUN_002A02F0
-void func_002a02f0(u8 *arg0, s32 arg1) {
-    u8 *temp_4;
+/* Reset six selection statuses when requested, then draw the five populated name-entry slots. */
+void yTimeNameDrawSelections(u8 *task, s32 preserveStatus) {
+    NameEntryWork *work;
     s32 i;
 
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    if ((arg1 == 0) && (*(s32 *)(temp_4 + 0x14) != 1)) {
+    work = (NameEntryWork *)((KwlnTask *)task)->work;
+    if ((preserveStatus == 0) && (work->inputState != 1)) {
         for (i = 0; i < 6; i++) {
-            *(s16 *)(temp_4 + (i * 4) + 0x1C38) = 0;
+            /* MATCH requires the byte-domain row address; the typed selectionStatus[i][0] access changed codegen. */
+            *(s16 *)((u8 *)work + (i * 4) + 0x1C38) = 0;
         }
     }
-    func_0029fbb0(arg0, 0);
-    func_0029fbb0(arg0, 1);
-    func_0029fbb0(arg0, 2);
-    func_0029fbb0(arg0, 4);
-    func_0029fbb0(arg0, 5);
+    yTimeLimitDrawButton(task, 0);
+    yTimeLimitDrawButton(task, 1);
+    yTimeLimitDrawButton(task, 2);
+    yTimeLimitDrawButton(task, 4);
+    yTimeLimitDrawButton(task, 5);
 }
 
