@@ -122,13 +122,13 @@ void btlAiSelectStatusCommand(u8 *action, u8 *command, u32 status) {
     u8 *unit;
     s32 (*callback)(u8 *, s64);
 
-    ((BtlTargetRecord *)command)->count = 0;
-    ((BtlTargetRecord *)command)->command = 0;
-    ((BtlTargetRecord *)command)->skill = 0;
-    ((BtlTargetRecord *)command)->kind = 0;
-    ((BtlTargetRecord *)command)->unk50 = 0;
-    ((BtlTargetRecord *)command)->unk54 = 0;
-    ((BtlTargetRecord *)command)->unk58 = 0;
+    ((BtlAiCommandWork *)command)->targetCount = 0;
+    ((BtlAiCommandWork *)command)->command = 0;
+    ((BtlAiCommandWork *)command)->skill = 0;
+    ((BtlAiCommandWork *)command)->kind = 0;
+    ((BtlAiCommandWork *)command)->unk50 = 0;
+    ((BtlAiCommandWork *)command)->unk54 = 0;
+    ((BtlAiCommandWork *)command)->unk58 = 0;
     memset(command + 0x3E, 0, 6);
     table = NULL;
     entry = NULL;

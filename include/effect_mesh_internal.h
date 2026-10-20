@@ -3,6 +3,7 @@
 
 #include "type.h"
 #include "rw_geometry_internal.h"
+#include "eff_geometry_block_internal.h"
 
 typedef struct EffMeshColor {
     u8 c[4];
@@ -54,23 +55,6 @@ struct RpAtomic {
     u8 pad8[0x10];
     RpGeometry *geometry;
 };
-
-/* The 0x48-byte module block has the same layout as effGeometry.c's local
- * EffGeometryBlock. Its constructors populate atomic/material at +0x10/+0x14. */
-typedef struct EffGeometryBlock {
-    u16 kind;
-    u8 pad2[6];
-    s16 vertexCount;
-    u8 padA[2];
-    void *frame; /* +0x0C: frame passed to func_003e9cb0 by thunder draws */
-    u8 *atomic;
-    u8 *material;
-    u32 previous; /* +0x18: embedded draw-list link, cleared before append */
-    u32 next; /* +0x1C */
-    u8 pad20[8];
-    u8 *owner; /* +0x28: LineNovaDrawCallback's instance */
-    u8 pad2C[0x1C];
-} EffGeometryBlock;
 
 /* Wind strips advance four packed colors per row. */
 typedef struct MdlEffectWindColorRow {
