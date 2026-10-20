@@ -302,6 +302,7 @@ typedef struct MovieNativeWork {
 #pragma push
 /* measured: share the checked path index and hoist the slash constant. */
 /* measured: func_00467bd0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 760 bytes; pointer-based backwards path scan; for-loop forward path scan also differ. */
 #pragma opt_loop_invariants on
 // Intent: per-frame update of the filer task. Works on the FilerWork state (path, entry list, page, row). func_00468170 creates the task with this as its update callback.
 // FUN_00467BD0

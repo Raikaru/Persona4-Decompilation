@@ -1285,6 +1285,7 @@ s32 mcAnimateTransition(s32 task) {
 /* 1800 native bytes, followed by 8 retail alignment bytes. Each slide uses
  * its own remaining-progress lifetime; wave stays the sine result until the
  * selected-card slide. Keep the pulse multiplication separate from scale. */
+/* measured: baseline removal differs in 77 bytes; typed screen access instead of MEMBER; narrow lifetime of smoothing float temporaries also differ. */
 #pragma opt_lifetimes on
 /* Slide and fade the slot list in while interpolating its 16.16 scroll position. */
 // FUN_002A4F20
@@ -1422,6 +1423,7 @@ s32 mcRunScreenFrame(s32 taskAddress)
    only with `opt_lifetimes on` and work, alpha, row, idx, slot, base declared in
    that order (77 edits without the pragma, 0 with it).  mcDrawSlotDial is declared (f32, f32, f32, u8, u8 *, s32, s32,
    f32, u8 *): that parameter order reproduces retail's argument emission order. */
+/* measured: baseline removal differs in 78 bytes; typed screen access instead of MEMBER; narrow lifetime of smoothing float temporaries also differ. */
 #pragma opt_lifetimes on
 /* Fade screen components out and slide the selected slot offscreen. */
 // FUN_002A5630
@@ -1578,6 +1580,7 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
 /* 1540 native bytes, followed by 12 retail alignment bytes. The drawing loops
  * expose their shared row origin to loop-invariant extraction. Keep pulse
  * separate from scale so multiplication rounds before the addition. */
+/* measured: baseline removal differs in 728 bytes; typed screen access instead of MEMBER; narrow lifetime of smoothing float temporaries also differ. */
 #pragma opt_loop_invariants on
 /* Draw the settled slot list and pulse the selection while smoothing scroll. */
 // FUN_002A5F00
@@ -2189,8 +2192,8 @@ static inline u32 mcUnsignedColorRgb(const u32 *rgba)
     return *rgba >> 8;
 }
 #pragma push
+/* measured: baseline removal differs in 228 bytes; reuse named screen alias; reread screen through original pointer also differ. */
 #pragma opt_lifetimes on
-#pragma opt_common_subs on
 /* The number and optional icon own separate coordinate and RGB values.
  * Border alpha is full-width; sprite interfaces consume its low byte.
  * The inset is evaluated as remaining scale, pixel span, then half span.
@@ -2503,8 +2506,8 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
 }
 
 #pragma pop
-#pragma opt_common_subs on
 
+/* measured: baseline removal differs in 819 bytes; retain separate packed color local; initialize copy cursors at first use also differ. */
 #pragma opt_common_subs off
 /* measured: #pragma opt_common_subs off preserves retail's saved-register
    allocation and repeated color shift; plain O2 C is 8 bytes short. */
@@ -2631,6 +2634,7 @@ static inline s32 mcColorRgb(const McColorWord *color)
     return color->rgba >> 8;
 }
 #pragma push
+/* measured: baseline removal differs in 87 bytes; reuse named screen alias; reread screen through original pointer also differ. */
 #pragma opt_lifetimes on
 
 /* Find the matching area and room name, falling back to the first table entry. */
