@@ -47,6 +47,23 @@ extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 calendarStateTask(u8 *unusedTask);
 /* Five initialization records at D_005E50D0 have a proven 0x20-byte stride. */
+/* sdkSpr.c allocates 0x2C-byte samples; coordinate, pivot and Q12 scale fields follow its renderer. */
+typedef struct SdkSpriteSample {
+    u32 packAddress, recordIndex;
+    f32 x, y;
+    union { u8 alphaSubtract; s8 signedAlphaSubtract; };
+    u8 fade, pad12[2];
+    s16 extendX, extendY;
+    f32 angle;
+    s16 pivotX, pivotY;
+    union { u16 scaleX; s16 signedScaleX; };
+    union { u16 scaleY; s16 signedScaleY; };
+    union { f32 depth; s32 depthBits; };
+    u8 red, green, blue, pad2B;
+} SdkSpriteSample;
+/* clndPromptStart allocates the state, current window and icon handles. */
+typedef struct CalendarPromptWork { u32 state; s32 windowTask, iconTask; } CalendarPromptWork;
+
 typedef struct CalendarRecordInit {
     f32 firstX, firstY, lastX, lastY;
     s32 kind;
@@ -105,8 +122,8 @@ extern void clndPromptDestroy(u8 *task);
 extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
 #pragma push
 #pragma opt_propagation on
-// FUN_001228C0
 /* Load the calendar atlas, initialize its five animations and synchronize the displayed date. */
+// FUN_001228C0
 s32 calendarStateTask(u8 *unusedTask)
 {
     s32 state;
@@ -158,8 +175,8 @@ s32 calendarStateTask(u8 *unusedTask)
 
 #pragma push
 #pragma opt_propagation on
-// FUN_00122A10
 /* Release calendar work and clear the active global pointer. */
+// FUN_00122A10
 void calendarStateTaskDestroy(u8 *task)
 {
     jtbl_008873EC[0](((struct KwlnTask *)task)->work);
@@ -169,18 +186,20 @@ void calendarStateTaskDestroy(u8 *task)
 
 #pragma push
 #pragma opt_propagation on
-// FUN_00122A40
 /* measured: b210 -O2 emits all 3220 executable retail bytes; the
    remaining 12 bytes are zero alignment. Fresh float constants and
    shared integer literals require propagation and constant extraction
    off, with common-subexpression optimization enabled.
    Proof: build/cos20335-continuation/field-ui/review-00122a40-closed. */
+// FUN_00122A40
 #pragma push
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
 /* Animate and draw the calendar background, month/day digits and period indicators; restore fog state afterward. */
 void calendarDrawBackdrop(void *unusedNode, void *work)
 {
+    SdkSpriteSample *spriteSample;
+
     /* Sprite positions (+8/+0xC), alpha (+0x10) and transform fields (+0x18..0x24) retain raw access: typing changed MWCC scheduling. */
     extern s32 (*D_00887304[])(RwRenderState state, void *value);
     extern s32 (*D_00887300[])(RwRenderState state, void *value);
@@ -268,14 +287,14 @@ void calendarDrawBackdrop(void *unusedNode, void *work)
         } else {
             sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, 0x1E);
         }
-        *(s32 *)(sprite + 0x24) = 0;
+        ((SdkSpriteSample *)sprite)->depthBits = 0;
         backgroundX = (f32)0x223;
-        *(f32 *)(sprite + 8) = backgroundX + calendar->records[1].field_10;
-        *(f32 *)(sprite + 0xC) = -33.0f + calendar->records[1].field_14;
-        *(s8 *)(sprite + 0x10) = (s8)(0xFF - calendar->records[1].field_1A);
-        *(s16 *)(sprite + 0x1C) = 0x50;
-        *(s16 *)(sprite + 0x1E) = 0x2D;
-        *(f32 *)(sprite + 0x18) = (f32)(0x90 - progress);
+        ((SdkSpriteSample *)sprite)->x = backgroundX + calendar->records[1].field_10;
+        ((SdkSpriteSample *)sprite)->y = -33.0f + calendar->records[1].field_14;
+        ((SdkSpriteSample *)sprite)->signedAlphaSubtract = (s8)(0xFF - calendar->records[1].field_1A);
+        ((SdkSpriteSample *)sprite)->pivotX = 0x50;
+        ((SdkSpriteSample *)sprite)->pivotY = 0x2D;
+        ((SdkSpriteSample *)sprite)->angle = (f32)(0x90 - progress);
         sdkSpriteDraw(sprite, 1);
         /* Preserve the forwarded word before releasing the temporary sprite. */
         parent = (s32)sprite;
@@ -354,17 +373,18 @@ void calendarDrawBackdrop(void *unusedNode, void *work)
                 }
         }
         sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, spriteIndex);
-        *(s32 *)(sprite + 0x24) = 0;
-        *(f32 *)(sprite + 8) = 552.0f + calendar->records[3].field_10;
-        *(f32 *)(sprite + 0xC) = 31.0f + calendar->records[3].field_14;
-        *(s8 *)(sprite + 0x10) = (s8)(0xFF - calendar->records[3].field_1A);
+        spriteSample = (SdkSpriteSample *)sprite;
+        ((SdkSpriteSample *)sprite)->depthBits = 0;
+        ((SdkSpriteSample *)sprite)->x = 552.0f + calendar->records[3].field_10;
+        ((SdkSpriteSample *)sprite)->y = 31.0f + calendar->records[3].field_14;
+        ((SdkSpriteSample *)sprite)->signedAlphaSubtract = (s8)(0xFF - calendar->records[3].field_1A);
         height = (s32)sdkSpriteScaledHeight(sprite);
-        *(s16 *)(sprite + 0x20) = 0xFF6;
-        *(s16 *)(sprite + 0x22) = (s16)progress;
+        ((SdkSpriteSample *)sprite)->signedScaleX = 0xFF6;
+        ((SdkSpriteSample *)sprite)->signedScaleY = (s16)progress;
         value = (s32)(sdkSpriteScaledHeight(sprite) / 2.0f + (f32)(height / 2));
         yOffset = 31.0f + calendar->records[3].field_14;
         yOffset -= (f32)value;
-        *(f32 *)(sprite + 0xC) = (f32)height + yOffset;
+        spriteSample->y = (f32)height + yOffset;
         sdkSpriteDraw(sprite, 1);
         /* Preserve the forwarded word before releasing the temporary sprite. */
         parent = (s32)sprite;
@@ -394,8 +414,8 @@ void calendarDrawBackdrop(void *unusedNode, void *work)
 
 #pragma push
 #pragma opt_propagation on
-// FUN_001236E0
 /* Queue the backdrop draw callback with the active calendar work as its payload. */
+// FUN_001236E0
 s32 calendarQueueResult(u8 *unusedTask) {
     u8 *p;
     u8 *q;
@@ -411,8 +431,8 @@ s32 calendarQueueResult(u8 *unusedTask) {
 
 #pragma push
 #pragma opt_propagation on
-// FUN_00123730
 /* Allocate the calendar state and attach update and queued-draw tasks to the parent. */
+// FUN_00123730
 s32 calendarStartTasks(s32 parentTask)
 {
     s32 task;
@@ -430,8 +450,8 @@ s32 calendarStartTasks(s32 parentTask)
 
 #pragma push
 #pragma opt_propagation on
-// FUN_00123810
 /* Return the displayed period, or zero when no calendar controller exists. */
+// FUN_00123810
 s16 clndGetPeriod(void)
 {
     CalendarState *p;
@@ -448,8 +468,8 @@ s16 clndGetPeriod(void)
 
 #pragma push
 #pragma opt_propagation on
-// FUN_00123830
 /* Return the displayed date index, or zero when no calendar controller exists. */
+// FUN_00123830
 s16 clndGetDaysSinceApr5(void)
 {
     CalendarState *p;
@@ -467,8 +487,8 @@ s16 clndGetDaysSinceApr5(void)
 #pragma push
 #pragma opt_propagation on
 /* measured: the named first-field load plus -O1 reproduce retail's argument setup order; exact match nd 0 (obj 104B/window 112B). */
-// FUN_00123850
 /* measured: opens optimization_level 1 to keep the +6 store and +4 load before the call conversion (nd 0). */
+// FUN_00123850
 #pragma optimization_level 1
 /* Refresh the calendar date, period and day-table value from persistent game state. */
 void calendarSyncFromDate(void) {
@@ -490,8 +510,8 @@ void calendarSyncFromDate(void) {
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_001238C0
 /* Restart the five record animations when visibility changes; mode 1 starts at frame zero. */
+// FUN_001238C0
 void calendarSetMode(s32 mode)
 {
     s32 i;
@@ -557,8 +577,8 @@ void calendarSetMode(s32 mode)
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123A10
 /* Latch whether field or event activity selects the alternate prompt sprites. */
+// FUN_00123A10
 void calendarRefreshPromptState(void) {
     CalendarState *p;
 
@@ -582,8 +602,8 @@ set1:
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123A80
 /* Clear the calendar visibility request and enabled draw groups. */
+// FUN_00123A80
 void calendarResetPending(void)
 {
     CalendarState *p;
@@ -599,8 +619,8 @@ void calendarResetPending(void)
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123AA0
 /* Save the current day-table value before replacing it. */
+// FUN_00123AA0
 void calendarPushValue(s16 value) {
     CalendarState *p;
 
@@ -615,8 +635,8 @@ void calendarPushValue(s16 value) {
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123AC0
 /* Restore the saved day-table value. */
+// FUN_00123AC0
 void calendarPopValue(void) {
     CalendarState *p;
 
@@ -630,8 +650,8 @@ void calendarPopValue(void) {
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123AE0
 /* Return the signed low byte of the day-table value, or -1 without calendar state. */
+// FUN_00123AE0
 s8 calendarGetValueLowByte(void) {
     CalendarState *p;
 
@@ -646,8 +666,8 @@ s8 calendarGetValueLowByte(void) {
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123B10
 /* Return the displayed date index, or -1 without calendar state. */
+// FUN_00123B10
 s16 calendarStateDaysSinceApr5(void) {
     CalendarState *p;
 
@@ -662,8 +682,8 @@ s16 calendarStateDaysSinceApr5(void) {
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123B40
 /* Return the displayed period, or -1 without calendar state. */
+// FUN_00123B40
 s16 calendarStatePeriod(void) {
     CalendarState *p;
 
@@ -678,10 +698,12 @@ s16 calendarStatePeriod(void) {
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123B70
 /* Run the carry-over prompt sequence, retry dialogs and memory-card icon task; return -1 when complete. */
+// FUN_00123B70
 s32 clndPromptUpdate(u8 *task)
 {
+    CalendarPromptWork *promptWork;
+
     /* The 12-byte prompt work stores state/window/icon at +0/+4/+8; typed access changed MWCC allocation. */
     s32 firstChoice;
     s32 retryChoice;
@@ -689,7 +711,8 @@ s32 clndPromptUpdate(u8 *task)
     u32 state;
     u8 *work;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((struct KwlnTask *)task)->work;
+    promptWork = (CalendarPromptWork *)work;
     state = *(u32 *)work;
     switch (state) {
     case 0:
@@ -697,21 +720,21 @@ s32 clndPromptUpdate(u8 *task)
         *(u32 *)work = 1;
         goto block_20;
     case 1:
-        *(s32 *)(work + 4) = shdWindowTaskCreate(task, 1, 0x11);
+        ((CalendarPromptWork *)work)->windowTask = shdWindowTaskCreate(task, 1, 0x11);
         *(u32 *)work = 2;
         goto block_20;
     case 2:
-        firstChoice = shdWindowQueryState(*(s32 *)(work + 4));
+        firstChoice = shdWindowQueryState(((CalendarPromptWork *)work)->windowTask);
         if (firstChoice == 1) {
-            *(s32 *)(work + 4) = shdWindowTaskCreate(task, 1, 0x12);
+            promptWork->windowTask = shdWindowTaskCreate(task, 1, 0x12);
             *(u32 *)work = 4;
         } else if (firstChoice == 2) {
-            *(s32 *)(work + 4) = shdWindowTaskCreate(task, 1, 0x13);
+            promptWork->windowTask = shdWindowTaskCreate(task, 1, 0x13);
             *(u32 *)work = 3;
         }
         goto block_20;
     case 3:
-        retryChoice = shdWindowQueryState(*(s32 *)(work + 4));
+        retryChoice = shdWindowQueryState(((CalendarPromptWork *)work)->windowTask);
         if (retryChoice == 1) {
             return -1;
         }
@@ -720,8 +743,8 @@ s32 clndPromptUpdate(u8 *task)
         }
         goto block_20;
     case 4:
-        if (shdWindowQueryState(*(s32 *)(work + 4)) == 1) {
-            *(s32 *)(work + 8) = mcIconTaskCreate(task, 1);
+        if (shdWindowQueryState(((CalendarPromptWork *)work)->windowTask) == 1) {
+            ((CalendarPromptWork *)work)->iconTask = mcIconTaskCreate(task, 1);
             *(u32 *)work = 5;
         }
         goto block_20;
@@ -740,7 +763,7 @@ s32 clndPromptUpdate(u8 *task)
 case_5_error:
         return -1;
 case_5_action:
-        *(s32 *)(work + 4) = shdWindowTaskCreate(task, 1, 0x13);
+        ((CalendarPromptWork *)work)->windowTask = shdWindowTaskCreate(task, 1, 0x13);
         *(u32 *)work = 3;
         goto block_20;
     default:
@@ -764,8 +787,8 @@ void clndPromptDestroy(u8 *task)
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123D80
 /* Allocate and start the carry-over prompt task, recording its handle. */
+// FUN_00123D80
 s32 clndPromptStart(void)
 {
     s32 task;
@@ -786,8 +809,8 @@ s32 clndPromptStart(void)
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123E30
 /* Clear the prompt handle and report completion once its task reaches state 3. */
+// FUN_00123E30
 s32 clndPromptFinished(void)
 {
     if (kwlnTaskGetState(iGpffffb1e0) == 3) {
@@ -803,8 +826,8 @@ s32 fadeStatus(void);
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00123E80
 /* Sequence fading, logo/movie playback and title results before entering or restoring game state. */
+// FUN_00123E80
 s32 clndSceneUpdate(u8 *task)
 {
     extern s32 fadeBeginTransition(s32 mode, s32 duration);

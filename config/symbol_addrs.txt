@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2500 of 13102 symbols carry a recovered name.
+// 2504 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -3628,7 +3628,7 @@ func_0025fd70 = 0x0025FD70; // type:func
 func_0025fd80 = 0x0025FD80; // type:func
 func_0025fe00 = 0x0025FE00; // type:func
 func_0025fe50 = 0x0025FE50; // type:func
-func_0025ff60 = 0x0025FF60; // type:func
+cmmScriptTaskGetWorkValue = 0x0025FF60; // type:func
 cldSchedulerInit = 0x0025FF90; // type:func
 cldSchedulerTaskUpdate = 0x00260020; // type:func
 cldSchedulerTaskDestroy = 0x00260440; // type:func
@@ -4723,9 +4723,9 @@ func_002e1230 = 0x002E1230; // type:func
 func_002e12e0 = 0x002E12E0; // type:func
 func_002e13b0 = 0x002E13B0; // type:func
 func_002e17f0 = 0x002E17F0; // type:func
-func_002e1cd0 = 0x002E1CD0; // type:func
-func_002e1ce0 = 0x002E1CE0; // type:func
-func_002e1cf0 = 0x002E1CF0; // type:func
+comuDataInsertNoop = 0x002E1CD0; // type:func
+comuDataRemoveNoop = 0x002E1CE0; // type:func
+comuDataUpdateNoop = 0x002E1CF0; // type:func
 nmListAllocNode = 0x002E1D00; // type:func
 nmListAllocManager = 0x002E1DB0; // type:func
 nmListDestroyManager = 0x002E1EF0; // type:func

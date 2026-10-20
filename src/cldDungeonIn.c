@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "nmlist_internal.h"
 #include "btl_effect_internal.h"
 #include "rw/std/stddef.h"
 
@@ -106,7 +107,7 @@ s32 cldDungeonInStart(s32 parentTask) {
     work->state = 0;
     list = nmListAllocManager(0x10, 0, 0, 0);
     /* The list provider exposes its self-reference at +0x24; its remaining layout is opaque here. */
-    listReference = *(u8 ***)(list + 0x24);
+    listReference = (u8 **)((NmlistManager *)list)->data;
     *listReference = list;
     work->list = (DungeonInList **)listReference;
     task = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063B070), 0xF, 0, 0, cldDungeonInTaskUpdate, cldDungeonInTaskDestroy, (u8 *)(work));

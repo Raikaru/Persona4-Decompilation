@@ -52,8 +52,8 @@ typedef struct ComuListRebuild {
     s8 order;
 } ComuListRebuild;
 
-// FUN_002E23B0
 /* Consume one pending list-rebuild request and clear its pending byte. */
+// FUN_002E23B0
 s32 comuDataApplyListRebuild(u8 *task)
 {
     ComuListRebuild *request;
@@ -67,8 +67,8 @@ s32 comuDataApplyListRebuild(u8 *task)
     return 0;
 }
 
-// FUN_002E2410
 /* Rebuild the task-owned list from a pending request and acknowledge it. */
+// FUN_002E2410
 s32 comuDataApplyOwnedListRebuild(u8 *task)
 {
     ComuListRebuild *request;
@@ -82,8 +82,8 @@ s32 comuDataApplyOwnedListRebuild(u8 *task)
     return 0;
 }
 
-// FUN_002E2470
 /* Free the list task request block. */
+// FUN_002E2470
 void comuDataDestroyListRequest(u8 *task)
 {
     jtbl_008873EC[0](((struct KwlnTask *)task)->work);
