@@ -104,8 +104,6 @@ extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: restores opt_propagation after func_002b5120. */
 /* Preserve the signed-halfword zero test without merging it with the
    preceding sentinel comparison. */
-#pragma push
-#pragma pop
 /* Row and value are signed halfwords; retail discards incoming row high bits.
    Rewritten on the matched nmMesWindowSetNumber pattern. Retail passes both colours
    as words (the parameter home reloaded with lw, the stored digit colour with
@@ -116,7 +114,7 @@ extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
    retail copies $f12 before $t3 in the prologue, and both callers still
    match. opt_dead_assignments off reproduces retail's late argument loads. */
 #pragma push
-/* measured: func_002ba080 MATCH -> MISMATCH without this pragma. */
+/* measured: reordered glyph loads, split draw-address calculation and a direct position copy do not close the baseline's 14-word residual. */
 #pragma opt_dead_assignments off
 // Intent: shows the two-digit number on row `row`: the entrance animation when mode is 0, otherwise a retrace of the existing sprite.
 /* measured: later task+0x38 loads stay raw; typing them retains the work-field
@@ -262,13 +260,13 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
         }
     }
 }
-
 #pragma pop
+
 /* Keep the two positions, colors, and character-representation bounds
    snapshots separate across writes to the draw slots. The depth precedes
    the layer in the recovered signature. See the worker3 digit-pair archive. */
 #pragma push
-/* measured: func_002ba5d0 MATCH -> MISMATCH without this pragma. */
+/* measured: sharing the narrowed first index reduces 25 word differences to 8; separate increment worsens it, so retain propagation off. */
 #pragma opt_propagation off
 // Intent: sets the two-digit number on row `row` without an entrance animation; the tens digit is hidden for values below 10 except 0.
 /* measured: later task+0x38 loads stay raw; the typed form extends the
@@ -381,8 +379,8 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
         ((NmMesDigitSlot *)slot)->draw.object.spriteFlags = ((NmMesDigitSlot *)slot)->draw.object.spriteFlags & ~1;
     }
 }
-
 #pragma pop
+
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
 /* measured: func_002ba970 MATCH -> MISMATCH without this pragma. */
