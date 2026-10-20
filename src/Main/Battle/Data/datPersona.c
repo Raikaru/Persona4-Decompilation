@@ -23,6 +23,21 @@ typedef struct DatPersonaGrowthDelta
     u8 statGains[5];
     u8 pad87;
 } DatPersonaGrowthDelta;
+/* These symbols start at an interior field, not at the owning record header. */
+typedef struct DatPartyAccessory {
+    s16 item;
+    u8 pad02[0x86];
+} DatPartyAccessory;
+typedef struct DatRosterId {
+    u16 id;
+    u8 pad02[0x2E];
+} DatRosterId;
+/* The 14-byte persona metadata row stores its starting level at byte three. */
+typedef struct DatPersonaLevelRow {
+    u8 pad00[3];
+    u8 baseLevel;
+    u8 pad04[0xA];
+} DatPersonaLevelRow;
 extern u8 D_00796E50[];
 
 extern void kAssertFail(const void *file, u32 line);
@@ -33,7 +48,7 @@ extern s16 D_00797F88[];
 extern s16 D_00797F8C[];
 extern s16 D_0079819C[];
 extern u8 D_007973A0[];
-extern u8 D_00797F8E[];
+extern DatRosterId D_00797F8E[];
 extern s32 D_0079B40C[];
 extern u8 *DAT_007644c8;
 extern u8 *DAT_007644c4;
@@ -444,14 +459,14 @@ s8 datPersonaGetStatBonusB(DatPersonaRecord *persona, s32 statIndex)
 
 extern u16 datCalcCountIdSlotsWithValue(u16 characterId, u16 property);
 extern s16 D_00797578[];
-extern u8 D_00796D90[];
+extern DatPartyAccessory D_00796D90[];
 extern u8 *iGpffffb1b0;
 
 /* 2372/2384 bytes; 56 resolved relocations; 12 zero alignment bytes.
  * The real equipment-query inputs are unsigned halfwords. Keep each weighted
  * query independent and preserve the signed-byte result for the stat clamp. */
 // Intent: equipment bonus for stat arg1 of record arg0, summed from the equipped items of its party slot.
-/* D_00796D90 is an interior equipment-field alias with a 0x88-byte party stride; keep that byte-relative alias instead of inventing another party layout. */
+/* D_00796D90 starts at the accessory halfword; the typed column retains its 0x88-byte stride. */
 // FUN_00109E30
 s8 datPersonaGetEquipStatBonus(DatPersonaRecord *persona, s32 statIndex)
 {
@@ -480,7 +495,7 @@ s8 datPersonaGetEquipStatBonus(DatPersonaRecord *persona, s32 statIndex)
     if ((s16)party == 1) {
         equipped = D_00797578[0];
     } else {
-        equipped = *(s16 *)(D_00796D90 + (s16)party * 0x88);
+        equipped = D_00796D90[(s16)party].item;
     }
     equipment = equipped;
     switch (stat) {
@@ -931,7 +946,7 @@ s32 datPersonaSetLeadSlot(s32 slotIndex)
 }
 
 // Intent: persona id held in the lead slot's record (+2); callers treat it as the current lead persona.
-/* D_00797F8E is the roster ID interior alias; its byte stride shares the separately linked flag alias and must not be treated as a new record base. */
+/* D_00797F8E starts at the roster ID halfword, two bytes beyond the separate flag alias. */
 // FUN_0010B460
 u16 datPersonaLeadPersonaId(void)
 {
@@ -945,7 +960,7 @@ u16 datPersonaLeadPersonaId(void)
     if ((((DatPersonaRecord *)((u8 *)D_00797F8C + off))->flags & 1) == 0) {
         kAssertFail(D_005E4318, 0x492);
     }
-    return *(u16 *)((u8 *)D_00797F8E + off);
+    return D_00797F8E[v].id;
 }
 
 // Intent: index of the lead roster slot; fatal when the lead slot is inactive.
@@ -1281,10 +1296,12 @@ static inline s32 DPGrowthIsParty(u8 *persona)
     return 0;
 }
 
+/* Read the starting level. measured: array/site/local fields change nine bytes
+ * in datPersonaPreviewLevelUp; keep offset-before-base byte indexing. */
 static inline u8 DPGrowthBaseLevel(u16 id)
 {
     u8 *table = iGpffffb3d4;
-    return table[(u32)id * 14 + 3];
+    return table[(u32)id * sizeof(DatPersonaLevelRow) + MEMBER_OFFSET(DatPersonaLevelRow, baseLevel)];
 }
 
 static inline u32 DPGrowthOffset(u32 offset, u32 base)

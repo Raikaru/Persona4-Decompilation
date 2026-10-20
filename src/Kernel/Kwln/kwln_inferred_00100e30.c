@@ -189,6 +189,12 @@ extern s32 D_00764D3C[];
 extern u8 D_00764D50[];
 extern u8 D_00794510[];
 extern u8 D_007948A0[];
+/* The linker symbol anchors three consecutive single-precision constants. */
+typedef struct KwlnInitConstants {
+    f32 unk00;
+    f32 unk04;
+    f32 unk08;
+} KwlnInitConstants;
 extern f32 fGpffff8030;
 extern u8 iGpffff85d0;
 
@@ -273,9 +279,7 @@ void kwlnInitSubsystems(void)
     func_004f2798((s32)((u8 *)&D_00761690 + 20), (s32)&D_005DB850);
     func_004c7188((s32)((u8 *)&D_00761690 + 8));
     memset(&D_00764D30[0], 0, 0x20);
-    /* Linker interior alias: this scalar anchors a constant sequence; its +8
-     * neighbor has no independently declared aggregate member. */
-    D_00764D30[0] = *(f32 *)((u8 *)&fGpffff8030 + 8);
+    D_00764D30[0] = ((KwlnInitConstants *)&fGpffff8030)->unk08;
     one = 1;
     D_00764D34[0] = one;
     D_00764D38[0] = one;

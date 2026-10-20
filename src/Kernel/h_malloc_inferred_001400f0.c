@@ -1,4 +1,5 @@
 #include "member_access.h"
+#include "byte_address_internal.h"
 #include "model_callbacks_internal.h"
 #include "camp_menu_internal.h"
 #include "btl_shuffle_result_internal.h"
@@ -103,7 +104,12 @@ extern u8 D_005EEC20[];
 extern u8 D_005EF0A0[];
 extern u8 D_005EF530[];
 extern u8 D_005EF540[];
-extern u8 D_005EF548[];
+/* Interior color column of the 0x1C-byte wipe endpoint/offset records. */
+typedef struct RadarWipeColor {
+    s32 color;
+    u8 pad04[0x18];
+} RadarWipeColor;
+extern RadarWipeColor D_005EF548[];
 extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 extern void datScreenWipeSetTarget(u8 *task, u8 *target);
@@ -166,9 +172,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline u8 *p4_e740_add(s32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
 static inline f32 p4_0014_recip(f32 value)
 {
     return 1.0f / value;
@@ -232,10 +235,6 @@ extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
-static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
 
 
 
@@ -612,7 +611,7 @@ void radarDrawFrame(u8 *work)
 s32 radarPushValue(u8 *work, s32 value, s32 context) {
     u8 *entryBase;
 
-    entryBase = p4_00141cf0_add((u32)(value * 2), work);
+    entryBase = byteAddressAdd((u32)(value * sizeof(((CampMenu *)0)->selection[0])), work);
     ((CampMenu *)entryBase)->selection[1] = ((CampMenu *)entryBase)->selection[0];
     ((CampMenu *)entryBase)->selection[0] = context;
     return 1;
@@ -672,7 +671,7 @@ s32 radarSetMode(u8 *work, s32 value) {
     case 3:
         table = D_005EE7A0;
         ((CampMenu *)work)->flags = 0xBDB;
-        if (((CampMenu *)p4_00141cf0_add((u32)(((CampMenu *)work)->selection[0] * 2), work))->partyIds[0] == 1) {
+        if (((CampMenu *)byteAddressAdd((u32)(((CampMenu *)work)->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), work))->partyIds[0] == 1) {
             ((CampMenu *)work)->labelKind = 6;
         } else {
             ((CampMenu *)work)->labelKind = 5;
@@ -681,7 +680,7 @@ s32 radarSetMode(u8 *work, s32 value) {
     case 4:
         table = D_005EEC20;
         ((CampMenu *)work)->flags = 0xED2;
-        if (((CampMenu *)p4_00141cf0_add((u32)(((CampMenu *)work)->selection[0] * 2), work))->partyIds[0] == 1) {
+        if (((CampMenu *)byteAddressAdd((u32)(((CampMenu *)work)->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), work))->partyIds[0] == 1) {
             ((CampMenu *)work)->labelKind = 6;
         } else {
             ((CampMenu *)work)->labelKind = 5;
@@ -972,8 +971,8 @@ void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option
         break;
     }
 
-    sdkSpriteDrawAt(((CampMenu *)p4_00141cf0_add(option * 4, context))->sprites[4].node, pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, value);
-    str = (u8 *)cmmRankStringAt((s16) kind, ((CampMenu *)p4_00141cf0_add(kind * 2, context))->primaryLabelState.details.ranks[0]); /* Packed provider-owned persona-label halfword table within the seven-word snapshot. */
+    sdkSpriteDrawAt(((CampMenu *)byteAddressAdd(option * sizeof(((CampMenu *)0)->sprites[0]), context))->sprites[4].node, pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, value);
+    str = (u8 *)cmmRankStringAt((s16) kind, ((CampMenu *)byteAddressAdd(kind * sizeof(((CampMenu *)0)->primaryLabelState.details.ranks[0]), context))->primaryLabelState.details.ranks[0]); /* Packed provider-owned persona-label halfword table within the seven-word snapshot. */
     frFontExDrawTextOutA(61.0f + pos.x + D_005EF6E0[option * 2],
                   62.0f + positionY + D_005EF6E4[option * 2],
                   0.0f,
@@ -1150,7 +1149,7 @@ void radarDrawEdge(u8 *work, s32 value, s32 context, s32 option) {
     }
     offsetEntry = D_005EF540 + (value * 0x1C);
     pair = *(Float2_0014 *)offsetEntry;
-    color = *(s32 *)(D_005EF548 + (value * 0x1C)); /* Linker interior alias: the color word is at +0x18 of each 0x1C-byte record. */
+    color = D_005EF548[value].color;
     if (context != 0) {
         datScreenWipeInit(work, (Float2_0014 *)startPosition, (Float2_0014 *)endPosition);
     } else {
@@ -1167,7 +1166,7 @@ void radarDrawEdge(u8 *work, s32 value, s32 context, s32 option) {
     datScreenWipeSetScale(work, NULL);
 }
 
-/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and radarPersonaMenuUpdate - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and datScreenWipeSetTextureId second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
+/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and radarPersonaMenuUpdate - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses the measured shared byteAddressAdd for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and datScreenWipeSetTextureId second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
 /* Drive camp menu navigation, transitions, persona labels and the three-frame fade.
  * Earlier whole-layout probe grew the 2192B window to 2208B; measured site exceptions are below.
  * The list query and persona labels are external provider-owned packed records. */
@@ -1229,7 +1228,7 @@ s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
             nLineSelectSet(0x16);
             base4 = context + 0x1878;
             sflDataResetPersonaState(base4);
-            sflDataLoadPersonaState(base4, ((CampMenu *)p4_00141cf0_add((u32)(((CampMenu *)context)->selection[0] * 2), context))->partyIds[0]);
+            sflDataLoadPersonaState(base4, ((CampMenu *)byteAddressAdd((u32)(((CampMenu *)context)->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0]);
             lsrc4 = (s32 *)(context + 0x1878);
             ldst4 = (s32 *)(context + 0x1894);
             n4 = 7;
@@ -1248,7 +1247,7 @@ s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
             sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
             if (sdkListStateHandleInput(query) != 0) {
                 radarPushValue(context, 0, ((BtlShuffleResultCursor *)query)->row);
-                datScreenWipeSetTextureId(((CampMenu *)context)->wipeTask.node, (u16)((CampMenu *)p4_00141cf0_add((u32)(menuState->selection[0] * 2), context))->partyIds[0]);
+                datScreenWipeSetTextureId(((CampMenu *)context)->wipeTask.node, (u16)((CampMenu *)byteAddressAdd((u32)(menuState->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0]);
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
@@ -1271,7 +1270,7 @@ s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
             ((CampMenu *)context)->background = datCommunityRequestExit();
             *work = 9;
         } else if (D_008C024E[0] & 0x80) {
-            if (((CampMenu *)p4_00141cf0_add((u32)(((CampMenu *)context)->selection[0] * 2), context))->partyIds[0] == 1) {
+            if (((CampMenu *)byteAddressAdd((u32)(((CampMenu *)context)->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0] == 1) {
                 radarSetMode(context, 5);
                 radarLoadSlotCoords(context);
                 *work = 7;
@@ -1306,13 +1305,13 @@ s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
                 } while (n6 > 0);
                 base6 = context + 0x1878;
                 sflDataResetPersonaState(base6);
-                sflDataLoadPersonaState(base6, ((CampMenu *)p4_00141cf0_add((u32)(menuState->selection[0] * 2), context))->partyIds[0]);
-                if (((CampMenu *)p4_00141cf0_add((u32)(menuState->selection[0] * 2), context))->partyIds[0] == 1) {
+                sflDataLoadPersonaState(base6, ((CampMenu *)byteAddressAdd((u32)(menuState->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0]);
+                if (((CampMenu *)byteAddressAdd((u32)(menuState->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0] == 1) {
                     ((CampMenu *)context)->labelKind = 6;
                 } else {
                     ((CampMenu *)context)->labelKind = 5;
                 }
-                datScreenWipeSetTextureId(((CampMenu *)context)->wipeTask.node, (u16)((CampMenu *)p4_00141cf0_add((u32)(menuState->selection[0] * 2), context))->partyIds[0]);
+                datScreenWipeSetTextureId(((CampMenu *)context)->wipeTask.node, (u16)((CampMenu *)byteAddressAdd((u32)(menuState->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0]);
                 sdkSndStartStream(0, 1, 0, 5);
             }
         }
