@@ -1,3 +1,4 @@
+#include "member_access.h"
 /* Source unit: src/itfMesManager_002770d0.c */
 #include "type.h"
 #include "itf_mes_objects.h"
@@ -645,8 +646,8 @@ s32 itfMesWindowInstall(u8 *record)
     i = 0;
     goto slot_test;
 slot_loop:
-    if (*(s32 *)(manager + i * 4 + 0x10) == 0) {
-        *(u8 **)(manager + i * 4 + 0x10) = obj;
+    if (((ItfMesManagerEntry *)(manager))->slots[i].value == 0) {
+        ((ItfMesManagerEntry *)(manager))->slots[i].bytes = obj;
         goto slot_done;
     }
     i++;
@@ -660,15 +661,15 @@ slot_done:
     found = 0;
     if (i >= 0 || i < 4) {
         i *= 4;
-        if (*(s32 *)(i + (u32)manager + 0x10) != 0) {
+        if (((ItfMesManagerEntry *)(i + (u32)manager))->slots[0].value != 0) {
             oldWindow = ((ItfMesManagerEntry *)manager)->object.words;
             if (oldWindow != NULL) {
                 memcpy(savedWindow, oldWindow, 0x130);
                 found = 1;
             }
-            *(s32 **)(manager + 0xC) = *(s32 **)(manager + i + 0x10);
+            MEMBER(s32 *, manager, ItfMesManagerEntry, object.words) = ((ItfMesManagerEntry *)(manager + i))->slots[0].words;
             if (found)
-                **(s32 **)(manager + 0xC) = savedWindow[0];
+                *MEMBER(s32 *, manager, ItfMesManagerEntry, object.words) = savedWindow[0];
         }
     }
     *(s32 *)DAT_008817E0_abs += 1;
@@ -844,6 +845,10 @@ void itfMesWindowClearObject(u8 *window, s32 clearLabel)
 // FUN_00277BE0
 void itfMesWindowLayout(s32 handle, s32 recordIndex)
 {
+    ItfMesChoiceRecord *countFields;
+    ItfMesChoiceRecord *countFieldsReload;
+    ItfMesSelection *hiddenmaskBitsFields;
+
     u8 *object;
     s32 flags;
     s32 index;
@@ -894,9 +899,9 @@ void itfMesWindowLayout(s32 handle, s32 recordIndex)
         index += 1;
         text++;
     }
-    mask = *(u32 *)(base + 8) | newMask;
-    *(u32 *)(base + 8) = mask;
-    visibleCount = itfMesCountClearBits(*(s16 *)(data + 0x1A), mask);
+    mask = ((ItfMesSelection *)(base))->hiddenMask.bits | newMask;
+    ((ItfMesSelection *)(base))->hiddenMask.bits = mask;
+    visibleCount = itfMesCountClearBits((countFields = (ItfMesChoiceRecord *)(data), countFields)->count, mask);
     itfMesWindowSetProcedureParam(handle, 0, visibleCount);
     func_0027bb60(handle);
     x = itfMesWindowGetProcedureParam(handle, 0);
@@ -911,8 +916,8 @@ void itfMesWindowLayout(s32 handle, s32 recordIndex)
         iGpffffb4b0 = 0x7B;
     ((ItfMesSelection *)base)->list.value = (s32)itfMesBuildGlyphRun(
         (u32 *)(data + 0x20),
-        *(s16 *)(data + 0x1A),
-        *(u32 *)(base + 8),
+        (countFieldsReload = (ItfMesChoiceRecord *)(data), countFieldsReload)->count,
+        (hiddenmaskBitsFields = (ItfMesSelection *)(base), hiddenmaskBitsFields)->hiddenMask.bits,
         x, y, ((ItfMesWindow *)object)->value.value, spacing, 0);
     iGpffffb4b0 = savedFont;
     func_0027bbc0(handle);
@@ -1218,7 +1223,7 @@ u32 itfMesWindowSetParam(int handle, int button, int entryIndex)
         if (count >= 0xF)
             return 0;
         slot = base + count * 4 + 0x18;
-        *(s16 *)(base + 0x16) += 1;
+        MEMBER(s16, base, ItfMesSelection, bindingCount) += 1;
     }
     *(s16 *)slot = (s16)button;
     ((ItfMesInputBinding *)slot)->entry = (s16)entryIndex;
@@ -1430,7 +1435,7 @@ void itfMesRecordFixup(u8 *record)
         fixups = record + ((ItfMesRecord *)record)->relocationOffset;
         size = ((ItfMesRecord *)record)->relocationSize;
         itfMesApplyRelocs((int *)base, (int)base, fixups, size);
-        *(u8 *)(record + 0x1C) = 1;
+        MEMBER(u8, record, ItfMesRecord, relocated) = 1;
     }
 }
 #pragma pop
@@ -1491,7 +1496,7 @@ s32 itfMesWindowEntryValue(s32 handle, s32 recordIndex)
     if (object == NULL)
         kAssertFail(D_0063BE10, 0xB3E);
     off = recordIndex * 8;
-    return *(s32 *)(off + (s32)(((ItfMesWindow *)object)->record.value) + 0x20);
+    return ((ItfMesRecord *)(off + (s32)(((ItfMesWindow *)object)->record.value)))->entries[0].kind;
 }
 
 /* Read the entry count of the message record bound to this window. */
@@ -1677,7 +1682,7 @@ s64 itfMesWindowRunEntry(s32 handle, s32 recordIndex, s32 command, s32 value)
         kAssertFail(D_0063BE10, 0xC50);
     base = (u8 *)((ItfMesWindow *)obj)->record.value;
     address = (u8 *)(recordIndex * 8) + (u32)base;
-    return frFontRunCommand(itfMesRecordTextAt(*(s32 *)(address + 0x24), 0), command, value);
+    return frFontRunCommand(itfMesRecordTextAt(((ItfMesRecord *)(address))->entries[0].data.value, 0), command, value);
 }
 /* Return a text pointer for an in-range row, or zero for an invalid signed index. */
 /* measured: individual typed rewrites of the remaining raw accesses give
@@ -1694,7 +1699,7 @@ u32 itfMesRecordTextAt(int recordAddress,int textIndex)
   else {
     int address = textIndex * 4;
     address = address + recordAddress;
-    textAddress = *(u32 *)(address + 0x1c);
+    textAddress = ((ItfMesTextRecord *)(address))->texts[0].bits;
   }
   return textAddress;
 }
@@ -1734,7 +1739,7 @@ void itfMesWindowBuildRow(u8 *window)
     if (index < 0 || index >= count)
         slot = NULL;
     else
-        slot = *(u8 **)(((u32)index << 2) + (s32)table + 0x1C);
+        slot = ((ItfMesTextRecord *)(((u32)index << 2) + (s32)table))->texts[0].bytes;
     if (slot == NULL)
         kAssertFail(D_0063BE10, 0xC82);
     iGpffffb4b0 = 0x7B;
@@ -1796,7 +1801,7 @@ list_done:
         if (index < 0 || index >= count)
             value = 0;
         else
-            value = *(s32 *)(((u32)index << 2) + (s32)table + 0x1C);
+            value = ((ItfMesTextRecord *)(((u32)index << 2) + (s32)table))->texts[0].value;
         frFontRunCommand(value, 1, 0);
     }
 }
@@ -1826,15 +1831,15 @@ void itfMesObjectSetString(u8 *window, s32 slotIndex, s32 textAddress, s32 lengt
         size = (strlen((const void *)textAddress) + 4) & ~3;
         poolSetAllocationSite(D_0063BE10, 0xD0F);
         res = (s32 *)poolAlloc(size);
-        *(s32 **)((u32)base + (u32)slotIndex * 4) = res;
+        ((ItfMesWord *)((u32)base + (u32)slotIndex * 4))->words = res;
         memcpy(res, (void *)textAddress, size);
     } else {
         size = (length + 5) & ~3;
         poolSetAllocationSite(D_0063BE10, 0xD22);
         res = (s32 *)poolAlloc(size);
-        *(s32 **)((u32)base + (u32)slotIndex * 4) = res;
+        ((ItfMesWord *)((u32)base + (u32)slotIndex * 4))->words = res;
         memset(res, 0, size);
-        memcpy(*(s32 **)((u32)base + (u32)slotIndex * 4), (void *)textAddress, length);
+        memcpy(((ItfMesWord *)((u32)base + (u32)slotIndex * 4))->words, (void *)textAddress, length);
     }
 }
 
@@ -1874,7 +1879,7 @@ void itfMesObjectSetNumber(u8 *window, s32 slotIndex, s32 value) {
     }
     poolSetAllocationSite(D_0063BE10, 0xD55);
     res = (s32 *)poolAlloc(4);
-    *(s32 **)((u32)base + (u32)slotIndex * 4) = res;
+    ((ItfMesWord *)((u32)base + (u32)slotIndex * 4))->words = res;
     *res = value;
 }
 /* Publish all 32 substitution values to the font command processor. */
@@ -1942,6 +1947,8 @@ static inline s32 itfMesAddOffset(s32 off, s32 base) { return off + base; }
 // FUN_00279E90
 void itfMesWindowSetSelectionText(u8 *window, u8 *record)
 {
+    ItfMesWindow *labelIndexFields;
+
     s32 global;
     u8 *base;
     s32 unusedValue;
@@ -1966,13 +1973,13 @@ void itfMesWindowSetSelectionText(u8 *window, u8 *record)
             s32 off;
             u32 p7;
             off = (masked & 0x7FFF) << 2;
-            p7 = *(u32 *)(itfMesAddOffset(off, (s32)window) + 0x94);
+            p7 = ((ItfMesWindow *)(itfMesAddOffset(off, (s32)window)))->slots[0].bits;
             ((ItfMesLabel *)base)->list.value = (s32)frFontBuildTextSimple(0, 0, 0, 0, 0, 0xFF, p7, 0);
         } else {
             s32 ep;
             s32 v2;
-            v2 = *(u16 *)(window + 0x18);
-            ep = *(s32 *)((((ItfMesRecord *)((ItfMesWindow *)window)->record.value)->entryCount << 3) + ((ItfMesWindow *)window)->record.value + 0x20);
+            v2 = (labelIndexFields = (ItfMesWindow *)(window), labelIndexFields)->label.index;
+            ep = ((ItfMesRecordTail *)((((ItfMesRecord *)((ItfMesWindow *)window)->record.value)->entryCount << 3) + ((ItfMesWindow *)window)->record.value + 0x20))->names.value;
             ((ItfMesLabel *)base)->list.value = (s32)frFontBuildTextSimple(0, 0, 0, 0, 0, 0xFF,
                 (u32)((s32 *)ep)[v2], 0);
         }
@@ -2107,11 +2114,13 @@ void itfMesWindowSetMetrics(int listAddress, int rowAddress)
 // FUN_0027A2D0
 s32 itfMesLineCount(u8 *firstRun, u8 *lastRun)
 {
+    FrFontTextRun *glyphheightFields;
+
     if (((FrFontTextRun *)lastRun)->glyphHeight <= 0) {
         kAssertFail(D_0063BE10, 0xE9F);
     }
     return ((((FrFontTextRun *)lastRun)->y - ((FrFontTextRun *)firstRun)->y) >> 3) /
-               *(s16 *)(lastRun + 0x12) + 1;
+               (glyphheightFields = (FrFontTextRun *)(lastRun), glyphheightFields)->glyphHeight + 1;
 }
 
 /* Recovered after withdrawing the branch-landing boundary 0x0027A350: this

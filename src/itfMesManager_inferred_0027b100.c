@@ -38,6 +38,8 @@ extern s8 D_0063BAB0[];
  * normalized_diff 131; retain their original address/alias expressions. */
 // FUN_0027B100
 void itfMesWindowMoveSelection(u8 *selection, s32 direction) {
+    ItfMesSelection *cursorFields;
+
     s32 oldCursor;
     s32 remaining;
     u32 hiddenMask;
@@ -55,7 +57,7 @@ void itfMesWindowMoveSelection(u8 *selection, s32 direction) {
             remaining = 0;
         }
     }
-    *(s16 *)(selection + 0xE) = (s16)remaining;
+    (cursorFields = (ItfMesSelection *)(selection), cursorFields)->cursor = (s16)remaining;
     hiddenMask = ((ItfMesSelection *)selection)->hiddenMask.bits;
     entryIndex = 0;
     goto loop_test;

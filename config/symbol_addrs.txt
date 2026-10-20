@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2524 of 13102 symbols carry a recovered name.
+// 2532 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -3745,10 +3745,10 @@ func_0026e1e0 = 0x0026E1E0; // type:func
 func_0026e350 = 0x0026E350; // type:func
 func_0026e360 = 0x0026E360; // type:func
 frFontCommandSetPalette = 0x0026E4C0; // type:func
-func_0026e560 = 0x0026E560; // type:func
+frFontCommandPostPaletteNoop = 0x0026E560; // type:func
 frFontCommandSetStyle = 0x0026E590; // type:func
 frFontCommandSetIntensity = 0x0026E630; // type:func
-func_0026e6d0 = 0x0026E6D0; // type:func
+frFontCommandPostIntensityNoop = 0x0026E6D0; // type:func
 frFontCommandSetIntensityAndHeight = 0x0026E700; // type:func
 frFontCommandSetPosition = 0x0026E7F0; // type:func
 frFontCommandEnd = 0x0026E910; // type:func
@@ -3829,8 +3829,8 @@ func_00273650 = 0x00273650; // type:func
 func_002736d0 = 0x002736D0; // type:func
 func_002738a0 = 0x002738A0; // type:func
 func_002738d0 = 0x002738D0; // type:func
-func_00273910 = 0x00273910; // type:func
-func_00273940 = 0x00273940; // type:func
+frFontGetSlotHeaderValue = 0x00273910; // type:func
+frFontGetSlotHeaderAuxValue = 0x00273940; // type:func
 func_00273970 = 0x00273970; // type:func
 func_002739e0 = 0x002739E0; // type:func
 func_00273cc0 = 0x00273CC0; // type:func
@@ -8147,7 +8147,7 @@ func_00458f40 = 0x00458F40; // type:func
 func_00458f70 = 0x00458F70; // type:func
 func_00458fa0 = 0x00458FA0; // type:func
 func_004594c0 = 0x004594C0; // type:func
-func_00459760 = 0x00459760; // type:func
+hsndGetCurrentCue = 0x00459760; // type:func
 func_00459790 = 0x00459790; // type:func
 func_00459880 = 0x00459880; // type:func
 func_004598e0 = 0x004598E0; // type:func
@@ -8176,7 +8176,7 @@ func_0045b120 = 0x0045B120; // type:func
 func_0045b170 = 0x0045B170; // type:func
 func_0045b1c0 = 0x0045B1C0; // type:func
 func_0045b2e0 = 0x0045B2E0; // type:func
-func_0045b400 = 0x0045B400; // type:func
+hsndGetCurrentTrack = 0x0045B400; // type:func
 mdlRenderInitializeBuffers = 0x0045B430; // type:func
 sdkSndTransferToIop = 0x0045B650; // type:func
 sdkSndUpdateDecodeSlots = 0x0045B7C0; // type:func
@@ -8271,9 +8271,9 @@ func_00465f20 = 0x00465F20; // type:func
 func_00465f40 = 0x00465F40; // type:func
 func_00466260 = 0x00466260; // type:func
 func_00466280 = 0x00466280; // type:func
-func_00466580 = 0x00466580; // type:func
+hsfdSuspendWorker = 0x00466580; // type:func
 memcardWakeBackendThread = 0x00466600; // type:func
-func_00466680 = 0x00466680; // type:func
+hsfdInitWorker = 0x00466680; // type:func
 filerEnqueueRequest = 0x004667D0; // type:func
 filerTakeCompletedRequest = 0x004669D0; // type:func
 sdkWrapPollRequests = 0x00466C60; // type:func

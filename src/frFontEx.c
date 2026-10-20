@@ -384,6 +384,7 @@ int frFontExDrawTextDeferredOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int
    but colors the temp $a1 instead of retail's $v1 (measured nd8, 7
    temp-register words). The pragma reproduces retail exactly (nd1 = 1
    padding word). */
+/* Zero-fill the destination and copy at most maxlen minus one source bytes, retaining a terminating zero. */
 // FUN_00275980
 #pragma push
 #pragma opt_loop_invariants on

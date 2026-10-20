@@ -68,7 +68,7 @@ extern void btlMainSkillColorPairDefaultsAlt(u32, s32 *, s32 *);
 extern void btlFormationSetPlacement(s32);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
 extern u32 kwlnTaskGetWork(s32);
-extern s32 func_00459760(s32);
+extern s32 hsndGetCurrentCue(s32);
 extern void sdkSndPlayCue(s32, s32);
 extern void btlEncounterSetFinish(s32 task);
 extern u32 datCalcIsDead(s32, s32);
@@ -2181,7 +2181,7 @@ s32 flags;
         goto fallback;
     }
     if ((flags & 0x40) != 0) {
-        if (func_00459760(flags) != 7) {
+        if (hsndGetCurrentCue(flags) != 7) {
             sdkSndPlayCue(7, 1);
         }
     }
