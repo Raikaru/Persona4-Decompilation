@@ -654,8 +654,9 @@ void cmbCardStartMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f e
 }
 #pragma opt_propagation on
 static inline void cmbSetMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f endPosition, u16 duration) {
-    /* Start movement (flag 1); the raw task read preserves the inline setters' shared byte-alias scope. */
-    u8 *slotBase = *(u8 **)(task + 0x38);
+    /* Begin the selected card's movement and enable its interpolation flag. */
+    /* measured: access-site and typed-task-local work reads each lose all six layout MATCHes. */
+    u8 *slotBase = MEMBER(u8 *, task, SdkTask, work);
     slotBase += (s32)cardIndex * 0x84;
     ((CmbCardSlot *)(slotBase + 0xC))->position = startPosition;
     ((CmbCardSlot *)(slotBase + 0xC))->moveStart = ((CmbCardSlot *)(slotBase + 0xC))->position;
@@ -665,8 +666,9 @@ static inline void cmbSetMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, Cm
     ((CmbCardSlot *)(slotBase + 0xC))->flags |= 1;
 }
 static inline void cmbSetColor(u8 *task, s8 cardIndex, CmbRGBA start, CmbRGBA end, u16 duration) {
-    /* Start color interpolation (flag 4); retain the inline setters' byte-based task read for matching. */
-    u8 *slotBase = *(u8 **)(task + 0x38);
+    /* Begin the selected card's color interpolation and enable its flag. */
+    /* measured: access-site and typed-task-local work reads each lose all six layout MATCHes. */
+    u8 *slotBase = MEMBER(u8 *, task, SdkTask, work);
     slotBase += (s32)cardIndex * 0x84;
     ((CmbCardSlot *)(slotBase + 0xC))->color = start;
     ((CmbCardSlot *)(slotBase + 0xC))->colorStart = ((CmbCardSlot *)(slotBase + 0xC))->color;
@@ -676,14 +678,16 @@ static inline void cmbSetColor(u8 *task, s8 cardIndex, CmbRGBA start, CmbRGBA en
     ((CmbCardSlot *)(slotBase + 0xC))->flags |= 4;
 }
 static inline void cmbAddPath(u8 *task, s8 cardIndex, CmbVec2f position, s16 duration) {
-    /* Append a waypoint (flag 8). measured: typing the count store loses six layout matches; the reads and waypoint are typed. */
-    u8 *work = *(u8 **)(task + 0x38);
+    /* Append a bounded waypoint and enable queued path playback. */
+    /* measured: access-site and typed-task-local work reads each lose all six layout MATCHes. */
+    u8 *work = MEMBER(u8 *, task, SdkTask, work);
     s32 pathIndex = ((CmbCardSlot *)(work + cardIndex * 0x84 + 0xC))->pathCount;
     u8 *pathBase = cmbAddPtrRev((u32)work, (u32)(pathIndex * 0xC));
     ((CmbCardPathPoint *)(pathBase + cardIndex * 0x84 + 0x2C))->position = position;
     ((CmbCardPathPoint *)(pathBase + cardIndex * 0x84 + 0x2C))->duration = duration;
     ((CmbCardSlot *)(work + cardIndex * 0x84 + 0xC))->flags |= 8;
-    *(s8 *)(work + cardIndex * 0x84 + 0x68) = fclAddClamped(((CmbCardSlot *)(work + cardIndex * 0x84 + 0xC))->pathCount, 1, 5, 0, 1);
+    /* measured: site/local slot fields and controller array stores lose all six layout MATCHes. */
+    MEMBER(s8, work + cardIndex * 0x84, CmbCardController, cards[0].pathCount) = fclAddClamped(((CmbCardSlot *)(work + cardIndex * 0x84 + 0xC))->pathCount, 1, 5, 0, 1);
 }
 // Two-card layout: card-layout state machine for two cards (dispatcher phase 1). States: 0 start the slide at frame 0x50, 6 init slot params at 0x73, 7 spawn the effect, 8 wait for it, 9 converge at 0x1EA, 10 clear colour, 11 cue sound at 0x208-0x347, 12 advance. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_0033FC80

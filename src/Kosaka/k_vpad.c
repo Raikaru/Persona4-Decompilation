@@ -2,6 +2,7 @@
 /* Source unit: src/Kosaka/k_vpad_0015f720.c */
 #include "type.h"
 #include "rw_atomic_layout_internal.h"
+#include "member_access.h"
 
 typedef struct RuntimeVec3
 {
@@ -185,12 +186,14 @@ void Vpad_BuildRotatedQuad(RuntimeVec3* vertices, const RuntimeVec3* translation
 /* The input table stores two signed indices per entry. Keeping the pair
  * offset in one inlined helper preserves the owner expression while making
  * the complete pair address an explicit, natural C value. */
-/* The pair layout is RuntimeVpadPair. Typed table access changed the load/shift
- * ordering (eight differing bytes in RefreshSelection); retain its byte address. */
+/* Select one signed matrix index from the configuration's two-index records. */
+/* measured: site/union indexing differs by 10 bytes and a typed flat local by
+ * 18 in Vpad_RefreshSelection. Byte-cursor MEMBER keeps the load/shift order;
+ * eight-byte pairs contain two four-byte signed indices selected by side. */
 static inline s32 vpad_pair_index(RuntimeWork* work, s32 index, s32 side)
 {
-    return *(s32*)((u8*)*(s32**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
-                    index * 8 + side * 4);
+    return MEMBER(s32, (u8 *)((VpadConfig *)(uintptr_t)work->requestFlags)->pairs +
+                  index * 8 + side * 4, RuntimeVpadPair, first);
 }
 
 /* 324/336 bytes; seven resolved relocations and twelve zero alignment bytes.

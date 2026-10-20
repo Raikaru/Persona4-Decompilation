@@ -885,8 +885,8 @@ static inline s16 yDrawAnyBit(s32 flags)
     return 0;
 }
 
-/* measured: typing each retained access on this line loses owner MATCH. */
-#define YDRAW_BASE (*(u8 **)(iGpffffb574 + 0x38))
+/* The global task owns the shared sprite pool allocation. */
+#define YDRAW_BASE (((KwlnTask *)iGpffffb574)->work)
 
 #pragma push
 #pragma opt_common_subs on
