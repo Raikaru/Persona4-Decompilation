@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0035e820-0035f0c0 */
 
 #include "include_asm.h"
 #include "member_access.h"
@@ -10,7 +9,7 @@
 #include "shd_misc_internal.h"
 #include "kwln_task_internal.h"
 
-/* The list stores 0xC-byte records before its count at +0x134. */
+/* The list stores 0xC-byte records before its count field. */
 typedef struct DatCommunityRecord {
     s8 state;
     u8 pad1[7];
@@ -42,7 +41,7 @@ typedef struct DatCommunityOverlayWork {
     s32 sprites[11];
 } DatCommunityOverlayWork;
 
-/* Config work uses word initialization but halfword fade increments at +0x10. */
+/* Config work uses word initialization but halfword increments of fadeFrame. */
 typedef struct CmpConfigWork {
     u8 alpha;
     u8 pad1[7];
@@ -56,7 +55,7 @@ typedef struct CmpConfigWork {
     s32 selected;
 } CmpConfigWork;
 
-/* sdkListState.c initializes 0x2C bytes and publishes cursor/scroll here. */
+/* sdkListState.c initializes this state and publishes cursor and scroll here. */
 typedef struct SdkListState {
     u8 pad0[0x24];
     s32 cursor, scroll;
@@ -71,7 +70,7 @@ extern void datPortraitSetLabel(s32 taskAddress, u16 labelId, s32 flags);
 #pragma optimization_level 2
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
-// Intent: Destroy the community overlay: free its eleven sprite nodes and release its work block [inferred]
+// Destroy the community overlay: free its eleven sprite nodes and release its work block.
 // FUN_0035E820
 void datCommunityOverlayDestroy(u8 *task)
 {
@@ -108,7 +107,8 @@ void datScreenWipeSetupSlot(u8 *task, s32 slotIndex, s32 initialize, s32 reverse
 void resrcMngSuppressRender(void);
 void resrcMngUnsuppressRender(void);
 
-// Intent: Community menu state machine: open the menu, wait for it to be ready, run its list and cursor actions, and return 1 when it closes or 2 when the fade ends [inferred]
+// Community menu state machine: open, wait until ready, run list and cursor actions; returns 1 when
+// it closes or 2 when the fade ends.
 // FUN_0035E8B0
 s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
 {
@@ -152,7 +152,6 @@ s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
     case 3:
         if (datCommunityIsReady(listWork) != 0) {
             resrcMngSuppressRender();
-            /* measured: typed wipeTask hoists its address across the two calls, adding one instruction. */
             datScreenWipeSetTextureId((u8 *)((DatCommunityListWork *)(listWork))->wipeTask, 1);
             datScreenWipeSetupSlot((u8 *)MEMBER(s32, listWork, DatCommunityListWork, wipeTask), 0, 1, 0);
             *phase = 4;
@@ -241,7 +240,6 @@ s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
         if ((++((DatCommunityListWork *)listWork)->fadeFrame & 0xFFFF) >= 3) {
             resultFlag = 1;
         } else {
-            /* measured: typed fadeFrame eliminates the retail post-increment reload. */
             alphaF = (1.0f - ((f32)MEMBER(u16, listWork, DatCommunityListWork, fadeFrame) / 3.0f)) * 255.0f;
             alpha = (u8)alphaF;
             ((DatCommunityListWork *)listWork)->alpha = alpha;
@@ -255,7 +253,7 @@ s32 datCommunityMenuStep(u32 *phase, s32 *active, u8 *listWork)
     return 0;
 }
 
-// Intent: Set the community portrait's value from the selected record's state and kind flags [inferred]
+// Set the community portrait's value from the selected record's state and kind flags.
 // FUN_0035EF80
 void datCommunityPortraitSetRecord(u8 *listWork)
 {
@@ -282,7 +280,7 @@ void datCommunityPortraitSetRecord(u8 *listWork)
     datPortraitSetValue((u8 *)((DatCommunityListWork *)listWork)->portraitTask, state, flags);
 }
 
-// Intent: Set the community portrait for the selected entry: its label id and kind flags [inferred]
+// Set the community portrait for the selected entry from its label id and kind flags.
 // FUN_0035F020
 void datCommunityPortraitSetSelected(u8 *listWork)
 {
@@ -291,7 +289,6 @@ void datCommunityPortraitSetSelected(u8 *listWork)
     u16 id;
     u8 *record;
 
-    /* measured: direct ids[selected] changes the index/base addu operand order (one differing byte). */
     id = MEMBER(u16, (u8 *)(u32)byteAddressAdd((s32)((DatCommunityListWork *)listWork)->selected * 2, (u8 *)((u32)listWork)), DatCommunityListWork, ids[0]);
     flags = 0;
     record = (u8 *)(u32)byteAddressAdd((s32)(((DatCommunityListWork *)listWork)->cursor + ((DatCommunityListWork *)listWork)->scroll) * 0xC, (u8 *)((u32)listWork));
@@ -314,7 +311,8 @@ s32 datCommunityRequestExit(void);
 void resrcMngSuppressRender(void);
 void resrcMngUnsuppressRender(void);
 
-// Intent: Community detail state machine: open the detail panel, handle its cursor and actions, and return 1 when it closes or 2 when the fade ends [inferred]
+// Community detail state machine: opens the detail panel, handles its cursor and actions; returns 1
+// when it closes or 2 when the fade ends.
 // FUN_0035F0C0
 s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
 {
@@ -367,7 +365,8 @@ s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
         *phase = 4;
         /* fall through: process input as soon as the detail panel becomes ready */
     case 4:
-        /* measured: typed selected changes reloads across option calls (1256 versus 1264 bytes). */
+        /* measured: retail reloads selected after each option call instead of keeping a typed field
+         * address. */
         if (D_008C024E[0] & 0x40) {
             kind = ((CmpConfigWork *)(configWork))->selected;
             if (kind == 6) {
@@ -429,7 +428,7 @@ s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
         if ((++((CmpConfigWork *)configWork)->fadeFrame & 0xFFFF) >= 3) {
             resultFlag = 1;
         } else {
-            /* measured: typed fadeFrame eliminates the retail post-increment reload. */
+            /* measured: retail reloads fadeFrame after the post-increment. */
             alpha = (1.0f - ((f32)MEMBER(u16, configWork, CmpConfigWork, fadeFrame) / 3.0f)) * 255.0f;
             value = (u8)alpha;
             ((CmpConfigWork *)configWork)->alpha = value;

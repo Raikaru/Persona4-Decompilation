@@ -1,6 +1,6 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit tnEffect.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit tnEffect.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "effect_instance_internal.h"
@@ -129,14 +129,12 @@ s32 TnSlotObject(u16 slotIndex) {
 }
 
 
-
 // Uploads the supplied texture stream with flag 1.
 // FUN_00481360
 void TnUploadStream(u8 *stream)
 {
     tmxUploadStream(stream, 1);
 }
-
 
 
 // Uploads the supplied stream, then sets the object's low flag byte to 2 and its second flag byte to 0x11.
@@ -176,7 +174,7 @@ s32 TnGetTableBase(void) {
     return (s32)tnTableBase;
 }
 
-// Returns the word at +0x1C of the table entry for slot slotIndex; asserts below 7.
+// Returns the offset1C word of the table entry for slot slotIndex; asserts below 7.
 // FUN_00481460
 s32 TnGetOffset1C(u16 slotIndex) {
     s32 idx;
@@ -187,7 +185,7 @@ s32 TnGetOffset1C(u16 slotIndex) {
     return ((TnTable *)(idx + (u32)tnTableBase))->offset1C[0];
 }
 
-// Returns the word at +0x38 of the table entry for slot slotIndex; asserts below 7.
+// Returns the offset38 word of the table entry for slot slotIndex; asserts below 7.
 // FUN_004814D0
 s32 TnGetOffset38(u16 slotIndex) {
     s32 idx;
@@ -243,11 +241,10 @@ void TnDispatchBlurDirect(void *effect) {
     (*tbl)(6, 1);
 }
 
-// Draws the sky-state object through ObjectParticleDraw with table entry 0x14 set to 2 then 1; state 8 and the sky render state toggle when the object's word +0x54 is zero.
+// Draws the sky-state object through ObjectParticleDraw with table entry 0x14 set to 2 then 1;
+// state 8 and sky render state toggle when skyState is zero.
 // FUN_00481740
 void TnDispatchSkyDraw(void *effect) {
-    /* Earlier whole-layout comparison: 174 differing bytes.
-     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     u8 *obj = ((TnSkyList *)((ObjectParticleInstance *)(u8 *)effect)->list)->texture;
     TNFunc *tbl;
     TNFunc *tbl2;
@@ -281,11 +278,10 @@ void TnDispatchBillboards(void *effect) {
     ParticleDrawBillboards((u8 *)effect);
 }
 
-// Draws both halves of the paired effect under render-state table entry 6, toggled by bit 0 of the byte at +0x30.
+// Draws both halves of the paired effect under render-state table entry 6, toggled by bit 0 of
+// flag30.
 // FUN_004818C0
 void TnDispatchPairedDraw(void *effect) {
-    /* Earlier whole-layout comparison: 135 differing bytes.
-     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     TNFunc *tbl;
     if (((TnFlags *)effect)->flag30 & 1) {
         tbl = (TNFunc *)D_00887300_abs;

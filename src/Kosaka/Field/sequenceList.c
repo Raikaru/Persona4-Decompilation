@@ -1,5 +1,5 @@
 #include "include_asm.h"
-/* Original translation unit sequenceList.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sequenceList.c (from __FILE__ assert strings). */
 #include "type.h"
 
 extern void btlTaskCreate(void);
@@ -35,7 +35,6 @@ extern char D_005DCC00[];
 extern char D_00763A30[];
 extern char D_007963A0[];
 extern char D_007616B0;
-
 
 
 /* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
@@ -124,8 +123,8 @@ void SeqSample_End(void)
     kwlnTaskDestroyWithHierarchy(handle);
 }
 
-// Intent: the BATTLE sequence's start callback (sequence id 6). It destroys the
-// field resource archives before the battle loads.
+// Start callback for the BATTLE sequence (id 6); destroys the field resource archives before the
+// battle loads.
 // FUN_00102E70
 void K_Fldrc_DestroyArchives(void)
 {

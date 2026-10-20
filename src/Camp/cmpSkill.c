@@ -1,12 +1,12 @@
 #include "operand_order_internal.h"
-/* Original translation unit cmpSkill.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit cmpSkill.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "include_asm.h"
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
 
-/* Unit settings: extract loop invariants throughout the skill-menu callbacks.
- * measured: all 16 functions MATCH with the unhoisted decoration exception below. */
+/* measured: retail hoists loop invariants out of the skill-menu callback loops across this unit,
+ * except for the decoration function below. */
 #pragma opt_loop_invariants on
 
 typedef struct {
@@ -15,9 +15,8 @@ typedef struct {
     f32 z;
 } Vec3f;
 
-/* The label dispatcher initializes these three halfwords; the skill renderer
-   consumes the 12-byte payload as an ID and two value words. Its float view
-   preserves the retail three-word aggregate transfer without numeric conversion. */
+/* The label dispatcher sets these three halfwords; the renderer reads the 12-byte payload as an ID
+ * and two value words, copied without numeric conversion. */
 typedef struct {
     s16 kind;
     s16 style;
@@ -55,8 +54,7 @@ void radarDrawSkillCard(void *, Vec2f, s32, void *);
 void datRecordClearHeader(s16 *);
 void datEntryDrawByKind(Vec2f, u8, void *, s32, f32);
 void radarDrawEntryRowGroup(u8 *, s32, s32);
-/* Two RGBA decoration colors. Retail copies exactly eight bytes; the next
-   small-data object starts at 0x00762DC8. */
+/* Two RGBA decoration colors; retail copies exactly eight bytes. */
 extern u8 D_00762DC0[8];
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E4[];
@@ -90,9 +88,8 @@ extern u8 D_005ED320[];
 extern u8 D_005ED790[];
 extern f32 DAT_00761640;
 
-/* Ability-list record at +0x100 of the work area: id, sort key, two payload words. b210 copies any
-   12-byte struct with a float member through $f0-$f2 (loads first, then stores), which is the retail
-   record copy. */
+/* Ability-list record in the work area: id, sort key and two payload words; the float members make
+ * the copy go through FPU registers like retail. */
 typedef struct CmpSkillRecord
 {
     s16 id;
@@ -148,11 +145,8 @@ typedef struct {
     s32 startFrame, endFrame;
 } CmpSkillLayoutRow;
 
-/* measured: the signed 16-bit bitfield keeps retail's dsll32/dsra32
-   narrowing while the s32 loop carriers reproduce its saved-register
-   allocation. The ordered asset-id loads and chained third-asset assignment,
-   with loop-invariant optimization below and baseline propagation, close all 1248 bytes. */
-/* Initialize party selections, decoration transitions, menu motions and skill sprite resources. */
+/* measured: the signed 16-bit bitfield keeps retail's sign-extending narrowing, and the s32 loop
+ * counters keep its saved-register allocation. */
 // FUN_00137FB0
 /* measured: opt_loop_invariants on hoists the table and conversion constants like retail. */
 void cmpSkillMenuInit(u8 *work)
@@ -292,9 +286,8 @@ resolve_test:
     cmpSkillBuildAbilityList(work);
 }
 
-/* Inline search of a persona's eight-entry skill list; the 1/0 returns keep the result in $v0 exactly
-   as the two retail copies do. */
-/* Test whether any of the eight learned skill slots contains the requested skill. */
+/* Test whether any of the eight learned skill slots contains the requested skill; inlined because
+ * retail has two copies of this search. */
 static inline s32 cmpSkillListContains(u16 *skills, u16 skill)
 {
     s32 k;
@@ -306,18 +299,9 @@ static inline s32 cmpSkillListContains(u16 *skills, u16 skill)
     }
     return 0;
 }
-/* measured: baseline leaves 291 differing words; widening the saved lead-slot local still fails. */
-/* measured: matches with opt_loop_invariants on. With it off the compare `sel != -1` re-extends the s16
-   inside the pair loops and the frame is 0xD0; with it on the extension is hoisted and spilled (sq 0xC0),
-   which is retail's 0x100 frame with three quadword spills (0xA0 q key pointer, 0xB0 cur, 0xC0 sel).
-   Loop shapes that matter: the query, dedupe and sort passes each keep their own index variables, the
-   dedupe removes the last entry through a fresh pointer (e) and steps n back, the sort's range tests
-   use `> 0xFF` for the second bound, and the record-table lookup names the doubled index in a local so
-   b210 emits `addu index,base`. The fa80 calls pass the original mode value v, not a list result. */
-/* Collect usable skills, keep the strongest duplicate source, sort by skill ID, and restore the lead persona. */
-/* measured: per-access bisection keeps record-pointer copies but uses the owning-array key for the outcome query; together these retain MATCH. */
+/* Collect usable skills, keep the strongest duplicate source, sort by skill ID, and restore the
+ * lead persona. */
 // FUN_00138490
-/* measured: earlier CmpSkillWork typing changed 964 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpSkillBuildAbilityList(void *work)
 {
     CmpSkillWork *menu = (CmpSkillWork *)work;
@@ -457,9 +441,8 @@ void cmpSkillBuildAbilityList(void *work)
     cmpSkillSetSelection((s16 *)work, 2, 0);
 }
 
-// Advances the menu state from 0 to 1; returns 1 for states 0 and 1, 0 otherwise [inferred].
+// Advances the menu state from 0 to 1; returns 1 for states 0 and 1, 0 otherwise.
 // FUN_00138AD0
-/* measured: earlier CmpSkillWork typing changed 45 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpSkillStateStep(u8 *work) {
     CmpSkillWork *menu = (CmpSkillWork *)work;
     s32 phase = menu->phase;
@@ -478,7 +461,8 @@ s32 cmpSkillStateStep(u8 *work) {
 
 /* Advance menu transitions, decorations and scroll rows, draw the menu, and report transparency. */
 // FUN_00138B20
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 162 instruction bytes and was reverted. */
+/* Raw work-relative accesses keep retail's load/store scheduling, which a typed CmpSkillWork
+ * rewrite changes. */
 s32 cmpSkillMenuUpdate(u8 *work)
 {
     CmpSkillWork *menu = (CmpSkillWork *)work;
@@ -507,16 +491,13 @@ s32 cmpSkillMenuUpdate(u8 *work)
 /* Preserve the observed left/right evaluation order of the three sums. */
 
 
-/* Draw the skill menu, including animated decorations, selection rows,
-   scrolling controls and the pending skill overlay. The shared position,
-   packed color and complete descriptor are the retail stack objects.
-   measured: 5192 exact instruction bytes and an eight-byte zero tail.
-   Lifetimes preserve the real resource reuse; disabling constant pulling
-   retains per-draw float constants, and propagation-off preserves sprite
-   snapshots before their coordinate calculations. */
+/* Draw the skill menu, including animated decorations, selection rows, scrolling controls and the
+ * pending skill overlay. The shared position, packed color and descriptor are retail's stack
+ * objects. */
 // FUN_00138BF0
 #pragma push
-/* measured: baseline draw leaves 1229 differing words; isolated propagation/constant-pulling removals also fail. */
+/* measured: retail keeps per-draw float constants and sprite snapshots taken before coordinate
+ * math, which needs all three settings below. */
 #pragma opt_lifetimes on
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
@@ -570,9 +551,8 @@ void cmpSkillMenuDraw(u8 *work)
             paletteBytes += 2;
         } while (pairsRemaining > 0);
         decorationSprite = menu->sprites[42];
-        /* Twenty decorations are drawn from the 28-entry animation group.
-           Keep the work-relative row base: fields +0xCB4/+0xCBE/+0xCC4
-           are position, alpha and scale in those 0x30-byte entries. */
+        /* Twenty decorations are drawn from the 28-entry animation group, using a work-relative row
+         * base with 0x30-byte entries. */
         for (rowIndex = 0; rowIndex < 0x14; rowIndex++) {
             u8 *animation;
             CmpSkillDecoration *layout;
@@ -691,8 +671,8 @@ void cmpSkillMenuDraw(u8 *work)
             sdkSpriteDrawSized(rowSprite, position.x, position.y, 0.0f, paletteColor->red, paletteColor->green,
                           paletteColor->blue, menu->animation[66].alpha, 0x1000, 0x1000, 0, 0.0f, 0);
         }
-        /* Six visible entries use the +0x8F4 animation group and their
-           labels use +0x774. The initializer fixes both strides at 0x30. */
+        /* Six visible entries use one animation group and their labels another; both have a 0x30
+         * stride. */
         for (rowIndex = 0; rowIndex < 6; rowIndex++) {
             CmpSkillColor *iconColor;
             if (menu->skillCount > rowIndex + menu->scrollRow) {
@@ -801,8 +781,7 @@ void cmpSkillMenuDraw(u8 *work)
 
 /* Save the previous selection before changing a skill-menu cursor slot. */
 // FUN_0013A040
-/* Halfword-indexed cursor access retains EE address-add order; the typed
- * selection rewrite changed one instruction byte and was reverted. */
+/* Halfword-indexed cursor access keeps retail's address-add order. */
 s32 cmpSkillSetSelection(s16 *work, s32 slotIndex, s32 selection)
 {
     work[slotIndex + 0x54] = work[slotIndex + 0x2E];
@@ -810,14 +789,12 @@ s32 cmpSkillSetSelection(s16 *work, s32 slotIndex, s32 selection)
     return 1;
 }
 
-/* measured: baseline leaves 181 differing words; isolated propagation/common-subexpression removals also fail. */
-/* measured: delayed s16 narrowing fixes the loop-counter live ranges, named
-   float temporaries preserve the retail load schedule, and the two settings
-   below close the full 1076-byte object (normalized_diff 0). */
-/* Cycle decoration fades and randomized positions using each cell's frame counter and transition duration. */
+/* Cycle decoration fades and randomized positions using each cell's frame counter and transition
+ * duration. Loop counters narrow to s16 late and float temporaries are named to keep retail's load
+ * order. */
 // FUN_0013A060
 #pragma push
-/* measured: the unit's invariant hoisting changes 842 bytes in the decoration update. */
+/* measured: retail does not hoist loop invariants in the decoration update. */
 #pragma opt_loop_invariants off
 /* measured: opt_common_subs off preserves the retail per-iteration address formation. */
 #pragma opt_common_subs off
@@ -936,12 +913,11 @@ void cmpSkillStepDecorations(void *work)
 }
 #pragma pop
 
-/* measured: baseline leaves 34 differing words; MEMBER scroll-frame reads/stores retain the same cached-address residual. */
-/* measured: without #pragma opt_common_subs off, mwcc b210 CSEs the
-   (u8*)arg0 + 0x22 address into a callee-saved pointer (nd 34); with it off
-   each access keeps base+offset like retail (nd 3 = 3 padding words only).
-   Same call-site trick as the cmpPersona sibling func_00135cf0. */
-/* Advance the two scrolling row transitions with a frame counter capped at 100. */
+/* measured: with common subexpressions on, the work+0x22 address is cached in a pointer; retail
+ * recomputes base+offset at each access, as in cmpPersona func_00135cf0. Advance the two scrolling
+ * row transitions with a frame counter capped at 100. */
+/* Advance the shared scroll frame up to a cap of 100, then animate both scrolling skill rows to
+ * that frame. */
 // FUN_0013A4A0
 #pragma opt_common_subs off
 void cmpSkillStepScrollRows(void *work)
@@ -962,13 +938,10 @@ void cmpSkillStepScrollRows(void *work)
 /* measured: opt_common_subs off is required for the retail base+offset access order. */
 #pragma opt_common_subs on
 
-/* measured: setup/switch and data-copy loops match with baseline common-subexpression
-   optimization; loop-invariant motion retains the retail source/destination
-   registers and hoisted float-conversion constants.
-   Loop-invariant optimization is required for the conversion preheader. */
-/* Snapshot current row poses and apply the selected skill-menu layout, footer and visibility flags. */
+/* measured: retail needs common-subexpression and loop-invariant optimization on here, which hoists
+ * the float-conversion constants into the loop preheader. Snapshot current row poses and apply the
+ * selected skill-menu layout, footer and visibility flags. */
 // FUN_0013A530
-/* measured: earlier CmpSkillWork typing changed 669 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpSkillSetMode(u8 *work, s32 mode)
 {
     CmpSkillWork *menu = (CmpSkillWork *)work;
@@ -1072,12 +1045,8 @@ s32 cmpSkillSetMode(u8 *work, s32 mode)
     }
     return 1;
 }
-/* measured: baseline leaves 30 differing words; conditional float target assignments also fail. */
-/* measured: retail hoists the lui 0x41c8 (25.0f constant) into the loop
-   preheader; mwcc b210 sinks the materialization into the if-branch unless
-   #pragma opt_loop_invariants on is active. Tried s32/u32/f32 locals, register,
-   ternary, chained-assign, while-loop spellings — all nd 30 without the pragma. */
-/* Offset the selected party row and its paired label horizontally by 25 pixels. */
+/* measured: retail hoists the 25.0f constant out of the loop, which needs opt_loop_invariants on.
+ * Offset the selected party row and its paired label horizontally by 25 pixels. */
 // FUN_0013A8A0
 void cmpSkillSetPartyCursorMotion(u8 *work)
 {
@@ -1104,7 +1073,6 @@ void cmpSkillSetPartyCursorMotion(u8 *work)
 /* measured: opt_loop_invariants on is required for the retail preheader constant hoist. */
 /* Place the scrolling-row overlay at the upper or lower list edge according to scroll direction. */
 // FUN_0013A930
-/* measured: earlier CmpSkillWork typing changed 33 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpSkillLayoutScrollRows(void *work)
 {
     CmpSkillWork *menu = (CmpSkillWork *)work;
@@ -1134,10 +1102,6 @@ void cmpSkillLayoutScrollRows(void *work)
     menu->scrollFrame = 0;
 }
 
-/* measured: baseline leaves 30 differing words; conditional float target assignments also fail. */
-/* measured: same lui-hoist floor as func_0013a8a0 (constant 0x41C80000 into
-   preheader); without #pragma opt_loop_invariants on mwcc b210 sinks the lui
-   into the branch — identical nd 30 on every spelling tried. */
 /* Offset the selected recipient row and its paired label horizontally by 25 pixels. */
 // FUN_0013AA00
 void cmpSkillSetScrollCursorMotion(u8 *work)
@@ -1162,7 +1126,7 @@ void cmpSkillSetScrollCursorMotion(u8 *work)
     }
     ((CmpSkillWork *)work)->frame = 0;
 }
-/* measured: opt_loop_invariants on is required for the retail preheader constant hoist. */
+/* measured: retail hoists the loop's constant stores into the preheader. */
 
 /* Randomly restart up to six decoration cells with enlarged scales and a ten-frame transition. */
 // FUN_0013AA90
@@ -1209,8 +1173,7 @@ s32 cmpSkillRowsSettled(u8 *work)
     s32 i;
     s32 threshold;
 
-    /* i is zeroed before the threshold load, and threshold is held as s32:
-       an s16 local makes mwcc re-sign-extend it on every iteration. */
+    /* threshold is held as s32 because an s16 local would be re-sign-extended on every iteration. */
     result = 1;
     i = 0;
     threshold = ((CmpSkillWork *)work)->frame;
@@ -1223,13 +1186,9 @@ s32 cmpSkillRowsSettled(u8 *work)
     return result & nLineIsIdle();
 }
 
-/* Case values decoded from jtbl_007469C0 with tools/jtbl.py: twenty dense
-   entries mapping index+1 to 0x2B..0x32, with 9-19 sharing 0x33 and index 0
-   returning -1; >= 0x14 hits the assert. The labels are declared in that
-   object order because b210 lays case bodies out in declaration order.
-   The unsigned-halfword ID is forwarded unchanged. The signed-halfword
-   result projection before adding one matches the retail switch index. */
-/* Return the element-label ID for a skill; IDs at or above 0x1B8 use label 0x35, and missing elements return -1. */
+/* Return the element-label ID for a skill; IDs at or above 0x1B8 use label 0x35, and missing
+ * elements return -1. Case labels follow retail jump-table order because case bodies are laid out
+ * in declaration order. */
 // FUN_0013AC30
 s32 cmpSkillElementLabelId(u16 skillId) {
     s32 elementIndex;

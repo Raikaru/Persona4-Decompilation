@@ -1,5 +1,5 @@
 #include "field_transition_internal.h"
-/* Original translation unit k_fldFoodCourt.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldFoodCourt.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -61,9 +61,8 @@ extern void fadeBeginReturnTransition(s32 , s32 );
 extern s32 fadeStatus(void);
 
 
-
-/* Load the seasonal food-court script and scene, select its calendar camera, then run entry procedures. */
-/* Named work fields and matrix-word pairs retain the verified access order. */
+/* Load the seasonal food-court script and scene, select its calendar camera, then run entry
+ * procedures. */
 // FUN_0018D950
 s32 K_FldFoodCourt_Update(u8 *task) {
     s32 secondWord;
@@ -173,7 +172,6 @@ done:
 }
 
 /* Release the seasonal script, camera transform and field scene before freeing the work. */
-/* Byte-base work-field fallbacks preserve the verified destructor instruction order. */
 // FUN_0018DCD0
 void K_FldFoodCourt_Destroy(u8 *task)
 {

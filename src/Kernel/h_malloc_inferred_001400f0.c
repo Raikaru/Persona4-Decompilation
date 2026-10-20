@@ -119,7 +119,6 @@ extern void datScreenWipeSetColor(u8 *task, s32 color);
 extern void datScreenWipeSetScale(u8 *task, u8 *scale);
 
 
-
 extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern u8 D_005EF890[];
@@ -185,8 +184,6 @@ typedef FieldRgba8 Rgba8_0014;
 extern s32 D_007642F0;
 
 
-
-
 extern s32 nLineIsIdle(void);
 extern void radarInitState(u8 *work);
 extern s32 radarAdvanceStage(u8 *work);
@@ -206,8 +203,6 @@ extern void sdkListStateSetActive(void *state, s32 value);
 extern void sdkListStateSetSecondaryMasks(void *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
 extern s32 sdkListStateHandleInput(void *state);
 extern void radarDrawEdge(u8 *work, s32 value, s32 context, s32 option);
-
-
 
 
 extern s32 iGpffff9dd0;
@@ -233,18 +228,11 @@ extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
 
 
-
-/* Camp display: grid, labels, radar and corner sprites.
- * The radar callees are declared here with u8 opacity parameters (H011):
- * retail narrows each radar alpha with its unsigned conversion and passes
- * it without another mask, while the matched definitions in this file keep
- * s32 because their own bodies use the full word.
- * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
- * call, so the label pointer is loaded before the stack argument. */
+/* Camp display: grid, labels, radar and corner sprites. Radar callees take u8 opacity because
+ * retail passes the narrowed alpha unmasked; one shared sprite local is loaded before the stack
+ * argument. */
 #pragma push
-/* measured: radarDrawFrame MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 1698 bytes; reuse named menu alias; index grid rows through typed array also differ. */
+/* measured: radarDrawFrame needs loop-invariant hoisting enabled to match retail's code layout. */
 #pragma opt_loop_invariants on
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -285,11 +273,6 @@ extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, 
 extern void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 option);
 extern void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option);
 
-/* Source unit: src/promoted/code1_0014.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001400f0-001437b0 */
-
-/* Draw the camp background, party labels, grid and radar selected by flags.
- * Earlier whole-layout probe: 7172B versus the 7168B window; measured site exceptions are below. */
 // FUN_001400F0
 void radarDrawFrame(u8 *work)
 {
@@ -423,7 +406,7 @@ void radarDrawFrame(u8 *work)
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
         position.xy.x = (98.0f + (originX + ((CampMenu *)work)->entries[10].currentX.f));
         position.xy.y = (85.0f + (originY + ((CampMenu *)work)->entries[10].currentY.f));
-        alpha = (u8)((f32)(u32)MEMBER(u8, work, CampMenu, entries[9].currentAlpha) * opacity); /* measured: typing this byte access loses MATCH. */
+        alpha = (u8)((f32)(u32)MEMBER(u8, work, CampMenu, entries[9].currentAlpha) * opacity);
         ((SflPersonaState *)primaryLabels)->kind = 4; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
     }
@@ -457,7 +440,7 @@ void radarDrawFrame(u8 *work)
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
         position.xy.x = (98.0f + (originX + ((CampMenu *)work)->entries[37].currentX.f));
         position.xy.y = (85.0f + (originY + ((CampMenu *)work)->entries[37].currentY.f));
-        alpha = (u8)((f32)(u32)MEMBER(u8, work, CampMenu, entries[35].currentAlpha) * opacity); /* measured: typing this byte access loses MATCH. */
+        alpha = (u8)((f32)(u32)MEMBER(u8, work, CampMenu, entries[35].currentAlpha) * opacity);
         ((SflPersonaState *)secondaryLabels)->kind = 4; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
         position.xy.x = ((originX + ((CampMenu *)work)->entries[36].currentX.f) - 10.0f);
@@ -602,8 +585,8 @@ void radarDrawFrame(u8 *work)
 }
 
 #pragma pop
-/* Shift the selected halfword into its previous slot before storing a value.
- * Index-before-base addition is retained for the measured b210 instruction order. */
+/* Shift the selected halfword into its previous slot before storing a value; the index is added
+ * before the base to follow retail's instruction order. */
 // FUN_00141CF0
 s32 radarPushValue(u8 *work, s32 value, s32 context) {
     u8 *entryBase;
@@ -624,12 +607,11 @@ void radarResetEntries(u8 *work) {
     }
 }
 
-/* measured: opt_loop_invariants on hoists the shared float conversion constants in radarSetMode. */
-/* measured: radarSetMode MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists loop-invariant table loads out of the radarSetMode entry loops. */
 #pragma opt_loop_invariants on
-/* Snapshot the 41 current animations, then install the requested mode's targets.
- * Flag masks select the draw components; see radarDrawFrame for each consumer.
- * Earlier whole-layout probe grew the 784B window to 788B; measured site exceptions are below. */
+/* Switch the camp radar to a new mode: snapshot each entry's current position, scale and alpha as
+ * its start values, then load the mode's layout table as the new targets and set the draw flags and
+ * label kind. Return 0 if the menu is already in that mode, otherwise 1. */
 // FUN_00141D80
 s32 radarSetMode(u8 *work, s32 value) {
     CampMenu *menuState = (CampMenu *)work;
@@ -714,10 +696,8 @@ s32 radarSetMode(u8 *work, s32 value) {
     return 1;
 }
 
-/* measured: restore loop-invariant hoisting after radarSetMode. */
-/* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
-/* Move the selected party slot to the focus position and fade the others out.
- * Offsets address CampMenu.entries with its shared 0x30-byte animation stride. */
+/* Move the selected party slot to the focus position and fade the others out; slots use
+ * CampMenu.entries' shared 0x30-byte animation stride. */
 // FUN_00142090
 void radarLayoutSlots(u8 *work)
 {
@@ -726,7 +706,6 @@ void radarLayoutSlots(u8 *work)
     u8 *slot;
     f32 offsetY;
 
-    /* Earlier whole-layout probe grew the 160B window to 164B; access-site fields now match. */
     for (i = 0; i < 8; i++) {
         selectedSlot = ((CampMenu *)work)->selection[0];
         if (i == selectedSlot) {
@@ -747,9 +726,8 @@ void radarLayoutSlots(u8 *work)
     }
 }
 
-/* measured: restore loop-invariant hoisting after radarLayoutSlots. */
-/* Restore the rightward panel transition, alpha endpoints and frame counter.
- * Word stores carry IEEE-754 position constants, not integer coordinates. */
+/* Restore the rightward panel transition, alpha endpoints and frame counter. Word stores carry
+ * IEEE-754 position constants, not integer coordinates. */
 // FUN_00142130
 void radarResetStateDefault(u8 *work) {
     ((CampMenu *)work)->entries[11].startX.f = (f32)0x28A;
@@ -798,9 +776,8 @@ void radarResetStateMirrored(u8 *work) {
 }
 
 // FUN_00142230
-/* measured: optimization level 1 plus base-before-value declaration order
-   keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
-/* measured: radarLoadSlotCoords MATCH -> MISMATCH without this pragma. */
+/* measured: optimization level 1 with base declared before value reproduces retail's loop
+ * arithmetic and register live ranges. */
 #pragma optimization_level 1
 /* Select five radar target coordinates from the selected persona's label values.
  * Byte cursors preserve the measured O1 index-before-base address order. */
@@ -828,8 +805,8 @@ void radarLoadSlotCoords(u8 *work) {
     }
 }
 
-/* measured: closes the scoped optimization-level-1 probe. */
-/* measured: radarDrawNumber, radarDrawText, radarDrawPolygon, radarDrawSegment, radarDrawEdge, radarUpdateState, radarAnimateValue MATCH -> MISMATCH without this pragma. */
+/* measured: the radar drawing and update functions that follow need optimization level 2 to
+ * reproduce the retail code. */
 #pragma optimization_level 2
 /* Release the 25 sprites and wipe task, clear their handles and disable drawing.
  * The shifted sprite cursor retains the original handle-clearing order. */
@@ -876,10 +853,8 @@ s32 radarEntriesReady(u8 *work) {
     return flag & nLineIsIdle();
 }
 
-/* measured: opt_propagation off probe for radarDrawNumber. */
-/* Draw decimal digits right to left from the packed position/color arguments.
- * Casts into those arguments expose their packed ABI words; the digit sprites
- * start at CampMenu.sprites[13] and use a four-byte handle stride. */
+/* Draw decimal digits right to left from the packed position/color arguments. Digit sprites start
+ * at CampMenu.sprites[13] with a four-byte handle stride. */
 // FUN_001423C0
 void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 option)
 {
@@ -902,12 +877,9 @@ void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 option)
     }
 }
 
-/* measured: closes opt_propagation off probe for radarDrawNumber. */
-/* Field portrait circle, type icon and rank label. Unions preserve the packed
-   position/color words; keep retail's integer tint scaling. Exact 776/784
-   bytes, 16 fully resolved relocations and eight zero alignment bytes. */
-/* Draw a radar label, icon and community rank using packed color/position words.
- * Label data belongs to the external persona-state provider, so retain its offsets. */
+/* Draw the field radar's portrait circle, type icon and community rank label from packed
+ * position/color words, using retail's integer tint scaling. Label offsets belong to the external
+ * persona-state provider. */
 // FUN_001424B0
 void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option)
 {
@@ -982,18 +954,14 @@ void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option
                   -2);
 }
 
-/* Draws the five-point radar as a closed seven-vertex triangle fan,
-   then draws its five point sprites with scaled byte opacity.
-   measured: b210 -O2, 1068/1072 bytes, 14 resolved relocations.
-   Palette records retain their address across each draw phase.
-   See Radar_001427c0_20260922_worker1.md. */
+/* Draws the five-point radar as a closed seven-vertex triangle fan, then its five point sprites
+ * with scaled byte opacity. */
 // FUN_001427C0
 #pragma push
-/* measured: radarDrawPolygon MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 490 bytes; cache palette channels before fan loop; typed packet array cursor also differ. */
+/* measured: retail hoists loop-invariant palette and packet loads out of the fan loop; without loop
+ * invariants on, the code differs. */
 #pragma opt_loop_invariants on
-/* Draw a filled radar fan and its five point sprites. Vertex packets follow the
- * RenderWare 0x40-byte stride and float lane types are explicit at each store. */
+/* Vertex packets follow the RenderWare 0x40-byte stride. */
 void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 {
     extern u8 D_0064B2E8[];
@@ -1070,13 +1038,14 @@ void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 }
 
 #pragma pop
-/* measured: opt_propagation off probe for radarDrawSegment. */
-/* measured: opt_loop_invariants on probe for radarDrawSegment. */
-/* measured: radarDrawSegment MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the loop-invariant vertex setup out of the strip loop, which needs loop-
+ * invariant optimization enabled for radarDrawSegment. */
 #pragma opt_loop_invariants on
+/* Draw an orange quad from the two endpoint positions, offset by the corner offsets for the given
+ * segment style, using the given depth and alpha. */
 // FUN_00142BF0
-/* Join the two packed endpoints with a four-vertex strip for the chosen edge.
- * Packed ABI pairs feed the typed 0x40-byte RenderWare vertex packet. */
+/* Join the two packed endpoints with a four-vertex strip for the chosen edge, using a 0x40-byte
+ * RenderWare vertex packet. */
 void radarDrawSegment(s64 work, s64 value, s32 context, f32 depth, s32 option)
 {
     u8 packet[0x100];
@@ -1119,8 +1088,9 @@ void radarDrawSegment(s64 work, s64 value, s32 context, f32 depth, s32 option)
     shdDisableBlendFlag();
 }
 
-/* measured: closes opt_loop_invariants on probe for radarDrawSegment. */
-/* measured: restores opt_propagation after radarDrawSegment probe. */
+/* Set up a screen-wipe edge from the layout table entry, optionally reversing its direction, and
+ * apply that entry's offset, color and scale. The wipe either starts from scratch or only gets a
+ * new target. */
 // FUN_00142D80
 /* Choose forward/reverse wipe endpoints, optionally initialize, then set tint/scale.
  * The 0x1C-byte constant table contains two positions, an offset and a color word. */
@@ -1164,10 +1134,9 @@ void radarDrawEdge(u8 *work, s32 value, s32 context, s32 option) {
     datScreenWipeSetScale(work, NULL);
 }
 
-/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and radarPersonaMenuUpdate - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses the measured shared byteAddressAdd for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and datScreenWipeSetTextureId second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
-/* Drive camp menu navigation, transitions, persona labels and the three-frame fade.
- * Earlier whole-layout probe grew the 2192B window to 2208B; measured site exceptions are below.
- * The list query and persona labels are external provider-owned packed records. */
+/* Drive camp menu navigation, transitions, persona labels and the three-frame fade; same menu state
+ * machine as func_003627b0 and radarPersonaMenuUpdate. The list query and persona labels are
+ * external provider-owned packed records. */
 // FUN_00142F20
 s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
 {

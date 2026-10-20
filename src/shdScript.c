@@ -1,7 +1,7 @@
 #include "mt_scene_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit shdScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit shdScript.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "scr_internal.h"
 extern s32 kwlnTaskIsLinked();
@@ -45,9 +45,7 @@ typedef struct {
 } ShdScriptWork;
 
 
-
-/* Retail MATCH: 996/1008 bytes, 45 resolved relocations; twelve zero tail
-   bytes. Promoted rank snapshots preserve the retail narrowing boundaries. */
+/* Rank snapshots are kept as separate locals to preserve retail's narrowing points. */
 
 /* Apply the category increment, then wait for its result/rank-up messages. */
 // FUN_0025C790
@@ -158,8 +156,6 @@ s32 shdScriptIsCategoryTaskActive(void) {
 }
 
 /* Script command: start once, then suspend until the category task ends. */
-/* measured: explicit hit local and shared done label preserve retail's
-   booleanisation and branch targets; object 280B/window 288B, nd 0. */
 // FUN_0025CCB0
 s32 shdScriptCommandIncrementCategory(void) {
     u8 *buf;

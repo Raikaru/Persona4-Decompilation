@@ -1,4 +1,4 @@
-/* Original translation unit btlShuffle.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlShuffle.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
@@ -43,7 +43,6 @@ extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 extern void memset(void *dst, s32 value, s32 size);
-
 
 
 extern void pscResInitScene(u8 *work, s32 resetCamera);
@@ -103,7 +102,7 @@ extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3ec;
 extern u16 *datPersonaGetSkills(struct DatPersonaRecord *persona);
 extern s32 datPersonaReplaceSkill(u8 *persona, s16 oldSkill, u16 newSkill);
-/* Interior column aliases retain their own relocations and the 12-byte table stride. */
+/* Interior column aliases of the reward table use a 12-byte stride. */
 typedef struct BtlShuffleRewardHalfwordColumn { u16 value; u8 pad02[10]; } BtlShuffleRewardHalfwordColumn;
 typedef struct BtlShuffleRewardCallbackColumn { s32 (*apply)(s32, s32 *); u8 pad04[8]; } BtlShuffleRewardCallbackColumn;
 
@@ -180,7 +179,6 @@ extern void btlShuffleSeqClearA(u8 *context, s32 count);
 extern s32 btlShuffleSeqFlag(u8 *context);
 
 
-
 /* Drive shuffle resource loading, introduction messages, card selection, and delayed task termination. */
 // FUN_0036E140
 s32 btlShuffleTaskUpdate(u8 *unusedTask)
@@ -194,7 +192,7 @@ s32 btlShuffleTaskUpdate(u8 *unusedTask)
         BtlShuffleTaskWork *p = (BtlShuffleTaskWork *)((u8 *)work + i * 0x30);
         *(s32 *)&p->queues[0].node.pad00[0] = 0;
         *(s32 *)&p->queues[0].node.pad00[4] = 0;
-        /* measured: the two-entry array declaration now preserves MATCH and the GP-relative base. */
+        /* measured: the two-entry array declaration keeps the GP-relative base. */
         PrimAppendNode((u8 *)D_00793E80 + iGpffffa9c0[i] * 0x30, (u8 *)p + 0xC);
     }
     switch (work->phase) {
@@ -330,7 +328,6 @@ void btlShuffleQueueDraw(u8 *queue, u16 *work)
 }
 
 
-
 /* Queue the sequence card drawing while the parent draw-enabled flag is set. */
 // FUN_0036E5C0
 void btlShuffleQueueSeqDraw(u8 *queue, u16 *work)
@@ -438,8 +435,8 @@ void *btlShuffleGetDrawContext(void *task)
 
 /* Choose a pattern from cumulative weights for the clamped level decade. */
 // FUN_0036E920
-/* Cache the active weight row before its cumulative-threshold loop. */
-/* measured: baseline nd23; scoped locals, row offsets, pointer iteration did not match (best nd23); retain opt_loop_invariants on. */
+/* measured: retail hoists the active weight row out of the cumulative-threshold loop, which needs
+ * loop-invariant hoisting on. */
 #pragma opt_loop_invariants on
 s32 btlShuffleRollBelow(u8 level)
 {
@@ -468,7 +465,7 @@ s32 btlShuffleRollBelow(u8 level)
     }
     return i;
 }
-/* measured: see annotation above (func_0036e920). */
+/* measured: restores the unit setting after func_0036e920. */
 #pragma opt_loop_invariants off
 
 /* Choose a card count from the level range, then apply the selected pattern constraints. */
@@ -527,9 +524,8 @@ s32 btlShuffleRollCard(s32 pattern, u8 level)
 /* Choose an unlocked pattern variant from its cumulative level-decade weights. */
 /* measured: cached weight-row pointers match at baseline; opt_loop_invariants on is no longer needed. */
 // FUN_0036EB50
-/* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
- * table base (lui/addiu/addu) inside the loop instead of hoisting it (nd 21);
- * with it the preheader hoist matches retail. */
+/* measured: retail hoists the table base out of the loop; without opt_loop_invariants it is
+ * recomputed each iteration. */
 s32 btlShuffleRollFlagged(s32 pattern, u8 level)
 {
     s32 clampedLevel = level & 0xFF;
@@ -632,14 +628,10 @@ extern s32 datCalcGetLevelById(s32 unitId);
 extern u8 D_0064E76F[];
 extern u8 *iGpffffb3d4;
 
-/* The draw loop spills the u16 C-list cursor `cIdx` (sh/lhu at sp+0xE0).
- * cIdx and the B-list count tie on spill score / degree, and b210 then
- * spills the higher-numbered one. `(s32)bCount` in the B shuffle bound makes
- * the frontend copy bCount into a CSE temporary, so bCount stays a local
- * with its declared number below cIdx and cIdx is spilled, as in retail.
- * opt_loop_invariants on is required; without it verify reports MISMATCH. */
+/* The (s32)bCount cast keeps bCount numbered below cIdx so the u16 C-list cursor is the spilled
+ * value, as in retail. */
 #pragma push
-/* measured: baseline nd955; scoped locals, inverted if/else did not match (best nd955); retain opt_loop_invariants on. */
+/* measured: retail hoists loop invariants in the pool-building loops. */
 #pragma opt_loop_invariants on
 /* Build and shuffle owned, higher-level, and ordinary persona pools, then choose the result card candidates. */
 // FUN_0036EE60
@@ -860,7 +852,7 @@ void btlShuffleResetSlot(u8 *slot)
 // FUN_0036F640
 s32 btlShuffleBuildRoster(s32 selector, s32 *result)
 {
-    /* The table has linker-visible aliases at each field; retain those distinct relocation bases. */
+    /* The rule table has linker-visible aliases at each field. */
     u32 idx;
     u16 kind;
     u16 variant;
@@ -909,16 +901,9 @@ s32 btlShuffleBuildRoster(s32 selector, s32 *result)
     }
     return previousSelector;
 }
-/* Choose a random listed persona, collect the skill pairs from the
-   iGpffffb3ec table that match one of its skills and whose partner skill it
-   lacks (searching forward or backward by arg0), and pass one random pair to
-   datPersonaReplaceSkill. One counter k serves both directions under scoped
-   opt_lifetimes, and each chosen field address is formed separately; both
-   are needed for retail's register assignment and address forms. See
-   docs/probe_archive/BtlShuffle_worker8_20261005.md for the earlier layout
-   recovery. */
-/* Address one halfword of the selected replacement-skill candidate. */
-/* measured: keeps separate addiu field addresses before lhu; plain C folds the displacement and removes a word. */
+/* Picks a random listed persona and swaps one skill via datPersonaReplaceSkill, using a random
+ * matching pair from the iGpffffb3ec table searched forward or backward by arg0. measured: the
+ * inline helper forms each candidate field address separately before the load, as retail does. */
 static inline u16 *btlShuffleCandidateField(s32 offset, void *base)
 {
     return (u16 *)((u8 *)base + offset);
@@ -926,9 +911,9 @@ static inline u16 *btlShuffleCandidateField(s32 offset, void *base)
 
 // FUN_0036F880
 #pragma push
-/* measured: baseline nd346; typed parameter cache, scoped locals, inverted if/else did not match (best nd346); retain opt_lifetimes on. */
+/* measured: retail shares one counter for both search directions, which needs scoped lifetimes. */
 #pragma opt_lifetimes on
-/* measured: baseline nd346; typed parameter cache, scoped locals, inverted if/else did not match (best nd346); retain opt_loop_invariants on. */
+/* measured: retail hoists the loop-invariant table addresses out of the search loops. */
 #pragma opt_loop_invariants on
 s32 btlShufflePickRosterMember(s32 selector, u8 *result)
 {
@@ -1027,11 +1012,8 @@ s32 btlShufflePickRosterMember(s32 selector, u8 *result)
 #pragma pop
 
 
-/* matched: s32 `s` and flag temporaries preserve retail's callee-saved
- * coloring ($s2/$s1) while u16 r and i use $s0/$s3. The explicit s16
- * conversion for the datCalcIsDeadById argument and re-conversion of r in the
- * flagged branch reproduce retail's sign-extension schedule. */
-/* Restore living party members to maximum HP or reduce them to one HP; always include the protagonist. */
+/* Restore living party members to maximum HP or reduce them to one HP; always include the
+ * protagonist. The explicit s16 casts reproduce retail's sign-extension order. */
 // FUN_0036FBE0
 s32 btlShuffleIsPartyMember(s32 selector)
 {
@@ -1129,12 +1111,8 @@ s32 btlShuffleCountPartyMembers(s32 selector)
     return 1;
 }
 
-/* matched: u16 sel reproduces the lui/and/srl/andi dispatch; u16 kind with */
-/* narrow callee prototypes yields retail's daddiu constants with no extra */
-/* masking; s32 flag + (flag & 0xFFFF) keeps the redundant andi; s16 v/t give */
-/* the dsll32/dsra32 schedule, sum = t+v with (sum > 0x63) and (t <= v) fix the */
-/* slti/slt $at coloring. */
-/* Apply the selected random stat increase or decrease to a roster persona, respecting the one-to-99 limits. */
+/* Apply the selected random stat increase or decrease to a roster persona, respecting the one-to-99
+ * limits. */
 // FUN_00370020
 s32 btlShuffleBuffedStat(s32 selector, u8 *result)
 {

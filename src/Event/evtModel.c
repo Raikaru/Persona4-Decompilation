@@ -1,4 +1,4 @@
-/* Original translation unit evtModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit evtModel.c (from __FILE__ assert strings). */
 
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -76,7 +76,6 @@ typedef struct Model {
 } Model;
 
 
-
 extern u8 D_0063C948[];
 extern s32 D_0063C930[];
 
@@ -90,7 +89,8 @@ extern f32 fGpffff8514; /* gp -0x7aec */
 extern f32 D_00761260;  /* gp -0x7e90 */
 
 extern s32 mtMiscResourceValue(u32 resourceId);
-// lint: allow H011 -- measured: u16 prototype regresses func_00292ef0 (andi on wide id args)
+// lint: allow H011 -- measured: a u16 prototype makes callers mask wide id arguments, unlike
+// retail.
 extern void *MT_Scene_GetRes(u32 resTypeId);
 
 extern u8 *nmListAllocManager(s32 payloadSize, s32 onInsert, s32 onRemove, s32 onUpdate);
@@ -116,7 +116,8 @@ extern void mdlSetLookAtRequested(s32 model);
 extern s32 mdlHasActiveMode(s32 model);
 extern f32 effMiscQuatAngle(void *firstQuaternion, f32 *secondQuaternion);
 
-// Intent: Single-model motion state machine: state 0 ramps the blend weight from speed, state 1 aims the look-at subobject at dst, then the timed step ends the motion [inferred]
+// Single-model motion state machine: state 0 ramps the blend weight from speed, state 1 aims the
+// look-at subobject at dst, then a timed step ends the motion.
 // FUN_00291B60
 s32 evtModelStepLookAt(s32 unusedContext, u8 *recordBytes) {
     EvtModelRec *rec = (EvtModelRec *)recordBytes;
@@ -212,7 +213,7 @@ common:
     return 0;
 }
 
-// Intent: Variant of evtModelStepLookAt with a different track scale range and blend factor [inferred]
+// Variant of evtModelStepLookAt with a different track scale range and blend factor.
 // FUN_00291FA0
 s32 evtModelStepLookAtAlt(s32 unusedContext, u8 *recordBytes) {
     EvtModelRec *rec = (EvtModelRec *)recordBytes;
@@ -513,7 +514,8 @@ common:
         return 0;
 }
 
-// Intent: Two-model aim: points model id's look-at direction at model id2 while blending, then waits for model id's motion to finish [inferred]
+// Points model id's look-at direction at model id2 while blending, then waits for model id's motion
+// to finish.
 // FUN_00292BB0
 s32 evtModelStepAimAtModel(s32 unusedContext, u8 *recordBytes) {
     EvtModelRec *rec = (EvtModelRec *)recordBytes;
@@ -616,7 +618,8 @@ s32 evtModelStepAimAtModel(s32 unusedContext, u8 *recordBytes) {
 // it. Returns 1 once the resource is gone or the motion has ended, else 0.
 // FUN_00292EF0
 #pragma push
-/* measured: unsigned phase cast removes rebuilding toggle; propagation baseline still differs by 5 words at sound arguments. */
+/* measured: retail does not propagate copies here; the phase is cast unsigned to avoid a rebuilt
+ * toggle. */
 #pragma opt_propagation off
 s32 evtModelStepMotion(s32 unusedContext, u8 *recordBytes) {
     EvtModelRec *rec = (EvtModelRec *)recordBytes;

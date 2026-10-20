@@ -30,10 +30,8 @@ typedef struct {
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
-
+/* func_004bd628, func_004bd640, func_004bd658, func_004bd670, func_004bd688 and func_004bd6a0 are
+ * framed tail-jump wrappers that plain C cannot emit. */
 
 
 extern u8 D_0071465C[];
@@ -56,9 +54,6 @@ extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 
-/* Source unit: src/promoted/code1_004b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b5790-004b57a0 */
-
 extern u8 *AfPackBindResource();
 extern u8 *AfPackCreateInstance();
 extern void AfPackStartSections();
@@ -75,14 +70,15 @@ void EffBattleSetHandlerTable(u8 *handlers, s32 context)
     iGpffffbba4 = (s32 (*)(void))context;
 }
 
-// Binds the object's resource, stores context at +0x20 of it, creates the instance, appends it to the list, and starts its sections. Returns the instance.
+// Binds the object's resource, stores context as its owner, creates the instance, appends it to the
+// list, and starts its sections.
 // FUN_004B57A0
 u8 *AfPackCreateAndStartInstance(void *object, s32 context) {
     u8 *instance;
     u8 *resource;
 
     resource = AfPackBindResource(object);
-    /* The shared pack header keeps this effect's owner context at +0x20. */
+    /* The shared pack header keeps this effect's owner context. */
     ((RuntimeWork *)resource)->owner = context;
     instance = AfPackCreateInstance(resource);
     AfPackListAppend(instance);

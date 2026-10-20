@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Battle/btlShuffleDraw.c); members 00370290-00371160 */
 
 #include "include_asm.h"
 #include "member_access.h"

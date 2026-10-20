@@ -1,4 +1,4 @@
-/* Original translation unit sdkLbox.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkLbox.c (from __FILE__ assert strings). */
 #include "sdk_lbox_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -65,12 +65,9 @@ extern u8 iGpffffb0c8;
 extern u8 iGpffffb0a8;
 extern u8 D_007641F8;
 
-/* measured: `handle` must be declared before `mem`, exactly as in sdkWrap
-   func_004672c0. With `mem` first, b210 colours arg0 into $s0 and mem into
-   $s1 -- the mirror of retail -- and all 20 differing words are that swap
-   (20 -> 3, the rest being window padding). Any order that puts `handle`
-   ahead of `mem` works; the relative position of `vec` does not matter. */
-/* Allocate a listbox with its origin, default cell dimensions, and list state. */
+/* Allocate a listbox with its origin, default cell dimensions, and list state. measured: `handle`
+ * is declared before the work buffer, as in sdkWrap func_004672c0, to match retail register
+ * assignment. */
 // FUN_00470280
 s32 sdkLboxCreateEx(u8 *parent, s32 x, s32 y, s32 mode)
 {
@@ -118,8 +115,8 @@ void sdkLboxSetSelection(u8 *task, s32 selection) {
     }
 }
 
-/* Change the row limit and resize to the effective visible row count. */
-/* The separate typed alias retains the measured window/list address lifetimes. */
+/* Change the row limit and resize to the effective visible row count. The separate typed alias
+ * keeps the retail window/list address lifetimes. */
 // FUN_00470430
 void sdkLboxSetVisibleRows(u8 *task, s32 visibleRows) {
     SdkLboxWork *listbox = (SdkLboxWork *)((KwlnTask *)task)->work;
@@ -147,7 +144,6 @@ void sdkLboxSetOrigin(u8 *task, s32 x, s32 y) {
 }
 
 /* Measure each entry and its optional value, then fit the visible rows. */
-/* The separate typed alias retains the measured entry-field address hoisting. */
 // FUN_004704D0
 void sdkLboxRecalcLayout(u8 *task)
 {
@@ -257,28 +253,8 @@ loop_29_check:
     }
 }
 
-/* measured: nd 18, obj 288B == window 288B, and every one of those words is the
-   SAME $s0/$s1 swap -- retail colours `work` into $s0 and the allocation into
-   $s1, b210 does the reverse. Logic, frame, call sequence and the list-walk loop
-   all match exactly.
-
-   Unlike sdkLboxCreateEx above (and sdkWrap func_004672c0, sdkUttmx tmxLoadFile),
-   this mirror is NOT declaration-order drivable: node-first, p-first,
-   work-last, and the initialised-declaration idiom this file uses elsewhere
-   (`u8 *work = ((KwlnTask *)task)->work;`) all score 18. Retail gives $s0 to the
-   more heavily used of the two pointers; b210 gives it to whichever is assigned
-   first, and no source ordering flips that here. Seven spellings.
-
-   Note: do NOT #include "sdktask.h" in this file to reach `((SdkTask *)task)->work`
-   -- it conflicts with the local declarations and breaks the whole TU.
-/* SOLVED. This carried an nd-18 "saved-register colouring floor" verdict backed by
-   seven hand spellings, and tools/permute.py re-confirmed 18 after 1,687 compiles.
-   tools/permute_ast.py cracked it, and the essential change reduces to one honest
-   line: materialize the node pointer as an s32 BEFORE the list walk and store that
-   local afterwards, rather than casting inline at the store. That single hoist
-   fixes the whole $s0/$s1 mirror. Nothing else about the body changed. */
-/* Append a text entry, returning its monotonically assigned identifier. */
-/* The separate typed alias retains the measured entry-field address hoisting. */
+/* Append a text entry, returning its monotonically assigned identifier. Do not include sdktask.h
+ * here; it conflicts with the local declarations. */
 // FUN_00470970
 s32 sdkLboxAddEntry(u8 *task, u8 *text)
 {

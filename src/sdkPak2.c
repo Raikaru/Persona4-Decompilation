@@ -1,6 +1,5 @@
 #include "include_asm.h"
-/* Persona 4 USA decompilation - sdkPak2.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit sdkPak2.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 /* The loader reads a count from header +4, then a sector-offset directory.
@@ -43,17 +42,12 @@ extern void func_004c8a60(s32 );
 extern u8 D_00922980[];
 extern u8 D_00712AC0[];
 
-/* Advances linked package directory requests through open, header, allocation and read states. */
-/* measured: remaining field accesses retain alias-dependent retail instructions. Sector-directory and destination-slot cursors preserve the measured index-first address arithmetic. */
+/* Advances linked package directory requests through open, header, allocation and read states.
+ * measured: retail keeps alias-dependent field reloads and index-first address arithmetic for the
+ * sector-directory and destination-slot cursors. */
 // FUN_00468A50
-/* Case values decoded from jtbl_007566D0 with tools/jtbl.py: a 0..6 state
-   machine where 1->2->3->5->6 fall through and case 4 plus the out-of-range
-   default just re-run the loop test. Three things were needed on top of the
-   case order: a do/while (retail knows D_00922980 is non-NULL and enters at
-   the top), gotos so each failure path's `p = NULL` lands out of line after
-   its own case body as retail places it, and NOT naming the
-   *(*(p+0x21C)+4) load in a local -- retail reloads it for the size
-   computation after storing it to +0xC, and a named temp CSEs the two. */
+/* State machine 0..6: states 1->2->3->5->6 fall through, and state 4 and out-of-range values just
+ * re-test the loop. The +0x21C entry-count load is reloaded, not cached. */
 void sdkPakUpdateDirectoryLoads(void) {
     u8 *request;
     s32 sectorCount;
@@ -109,13 +103,8 @@ case6:
     } while (request != NULL);
 }
 
-/* measured: keeping `idx = base + count; idx = idx * 4;` followed by the
-   explicit `idxp = (u8 *)idx` forces b210 to emit the retail shift before
-   the table loads and preserves the retail addu order. The candidate is
-   byte-exact (object/window 288B); prior declaration-order, integer-cast,
-   address-taken-index, table-declaration, and pragma probes were ruled out. */
-/* Uses adjacent sector offsets to allocate and start the next package-entry read. */
-/* measured: remaining field accesses retain alias-dependent retail instructions. Sector-directory and destination-slot cursors preserve the measured index-first address arithmetic. */
+/* Computing idx = base + count, scaling by 4, then casting to a pointer keeps retail's shift-
+ * before-load and add order. */
 // FUN_00468BF0
 s32 sdkPakStartEntryLoad(u8 *reader, s32 handleIndex)
 {

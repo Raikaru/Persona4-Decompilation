@@ -104,7 +104,6 @@ extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 
 
-
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -160,12 +159,6 @@ typedef FieldRgba8 Rgba8_0014;
 extern s32 D_007642F0;
 
 
-
-
-
-
-
-
 extern s32 iGpffff9dd0;
 extern s32 iGpffffb1f8;
 extern s32 iGpffffb1fc;
@@ -188,15 +181,9 @@ extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
 
 
-
-/* Camp display: grid, labels, radar and corner sprites.
- * The radar callees are declared here with u8 opacity parameters (H011):
- * retail narrows each radar alpha with its unsigned conversion and passes
- * it without another mask, while the matched definitions in this file keep
- * s32 because their own bodies use the full word.
- * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
- * call, so the label pointer is loaded before the stack argument. */
+/* Camp display: grid, labels, radar and corner sprites. Radar callees take u8 opacity here because
+ * retail passes the narrowed alpha unmasked; one shared sprite variable serves the label and corner
+ * sprites. */
 #pragma push
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -224,26 +211,10 @@ extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
 extern void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 option);
 
-/* Source unit: src/promoted/code1_0014.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 00143b80-00143b80 */
-
 #pragma pop
-/* measured: opt_loop_invariants on hoists the shared float conversion constants in radarSetMode. */
-/* measured: restore loop-invariant hoisting after radarSetMode. */
-/* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
-/* measured: restore loop-invariant hoisting after radarLayoutSlots. */
-/* measured: optimization level 1 plus base-before-value declaration order
-   keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
-/* measured: closes the scoped optimization-level-1 probe. */
-/* measured: opt_propagation off probe for radarDrawNumber. */
-/* measured: closes opt_propagation off probe for radarDrawNumber. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off probe for radarDrawSegment. */
-/* measured: opt_loop_invariants on probe for radarDrawSegment. */
-/* measured: closes opt_loop_invariants on probe for radarDrawSegment. */
-/* measured: restores opt_propagation after radarDrawSegment probe. */
-/* Empty NIIDA sequence poll callback (table row at 0x005DD110, poll at +8). No result is established by this entry. */
+/* Empty NIIDA sequence poll callback; it establishes no result. */
 // FUN_00143B80
 void niidaSequencePollNoop(void)
 {

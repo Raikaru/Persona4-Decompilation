@@ -1,7 +1,6 @@
 #include "rw_types_internal.h"
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
-/* Source unit: src/Graphics/Model/mdlFile_0047d2d0.c (1 function markers) */
 #include "type.h"
 #include "member_access.h"
 #include "mdl_effect_internal.h"
@@ -103,16 +102,13 @@ extern f32 D_00713D14[];
 extern f32 D_00713D18[];
 extern f32 cosf(void);
 extern f32 sinf(f32 value);
-/* Address the camera matrix following the camera object header. */
-/* measured: plain base-plus-header expressions change owner instruction bytes at all three call sites. */
+/* Address the camera matrix following the camera object header. measured: retail computes the
+ * matrix address through this inline at all three call sites; writing base plus header inline
+ * produces different code. */
 static inline u8 *mdlEffectCameraMatrix(u8 *base)
 {
     return base + 0x20;
 }
-
-
-
-
 
 
 extern void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags);
@@ -120,29 +116,23 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void mdlEffectDestroyModel(s32 input);
 extern void func_00182b40(void);
 extern void FldNoiseEmitPlain();
-/* measured probe: O1 test for target byte-copy register allocation. */
+/* measured: retail's register allocation for the byte copy only comes out at O1. */
 #pragma optimization_level 1
-/* measured probe: restore optimization level after target O1 test. */
 #pragma optimization_level 2
-/* measured: VU0 MMI builtins and O1 reproduce the target's pcpyld/sq packet. */
+/* measured: VU0 MMI builtins at O1 reproduce retail's pcpyld/sq packet. */
 #pragma enable_vu0_registers on
-/* measured: bind MMI packet registers as in retail. */
+/* measured: retail binds the MMI packet registers. */
 #pragma vu0_mmi_reg_binding on
-/* measured: O1 preserves the target's packet construction order. */
+/* measured: O1 keeps retail's packet construction order. */
 #pragma optimization_level 1
-/* measured: restore the file's O2 baseline after the target. */
 #pragma optimization_level 2
-/* measured: stop binding MMI packet registers after the target. */
 #pragma vu0_mmi_reg_binding off
-/* measured: stop VU0 register mode after the target. */
 #pragma enable_vu0_registers off
-/* measured: enable_vu0_registers + vu0_mmi_reg_binding with optimization_level 1
-   reproduces the sibling 112-byte pcpyld/sq skeleton; direct _pcpyld on separate
-   u64 pairs gives the retail register order and reload. */
+/* measured: VU0 register mode with MMI binding at O1, using _pcpyld on separate u64 pairs, gives
+ * retail's register order and reload. */
 #pragma enable_vu0_registers on
 #pragma vu0_mmi_reg_binding on
-/* measured: optimization_level 1 is required with the VU0 pragmas above;
-   at -O2 the packet stores are reordered and the pcpyld pairs are folded. */
+/* measured: at O2 the packet stores are reordered and the pcpyld pairs folded, unlike retail. */
 #pragma optimization_level 1
 // FUN_00185370
 void FldNoiseEmitPlain(void)
@@ -166,7 +156,7 @@ void FldNoiseEmitPlain(void)
 
 #pragma optimization_level 2
 
-// Intent: release the UI handle stored at *input, then free its block. [inferred]
+// Releases the UI handle stored in the block, then frees the block.
 // FUN_00200720
 void btlUiReleaseHandle(s32 *handleBlock) {
     s32 handle;
@@ -179,7 +169,7 @@ void btlUiReleaseHandle(s32 *handleBlock) {
 }
 
 
-// Intent: set the window rectangle from the four 16-bit fields of the state block. [inferred]
+// Sets the window rectangle from the four 16-bit fields of the parameter block.
 // FUN_00200C70
 void btlUiSetWindowRect(u8 *command)
 {
@@ -199,7 +189,7 @@ extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 extern u32 datEntryGetFlags(s16 itemId);
 extern s32 fclFirstSetBitIndex(s32 flags);
 extern void (*D_00887300[])(s32 input, s32 data);
-/* Evaluates the entry flags through func_002be1e0. */
+/* Returns the index of the first set bit in the entry's flags. */
 // FUN_002BE1B0
 s32 datEntryEvaluateFlags(s16 item)
 {
@@ -253,8 +243,6 @@ void mdlEffectListDestroy(u32 *list)
 
   DAT_008873ec_abs[0](list);
 }
-
-
 
 
 /* Clears a list head to the empty state. */
@@ -327,25 +315,9 @@ u32 *mdlEffectListAppendNode(u32 *list, u32 *sourceNode, u16 matrixIndex)
     return node;
 }
 
-/* measured: nd 14 floor. ALL non-float code matches byte-for-byte, including
-   the MtxRow {f32 x,y,z; s32 flag;} out[4] layout (holes at 0x5C/0x6C/0x7C),
-   the 8x8-byte copy loop (t0/t1 temps, dst/count/src preheader), the identity
-   branch, out[0].flag |= 0x20003, and the in[12..14] -> f2/f1/f0 temp loads. Residual
-   is only the FP math: (1) BOTH sqrt/mula chains emit mula x, madda y where
-   retail has mula y, madda x -- same loads, same regs (x->f5, y->f6), and the
-   term order is compiler-canonical in my compile regardless of source
-   expression order (y*y + x*x + z*z + w*w) or decl order (tried x,y,z,w and
-   y,x,z,w); (2) block-2 reloads: mwcc loads y,z,w,x assigning x->f11, z->f12
-   where retail loads y,x,z,w with x->f12, z->f11 -- the fresh-reg assignment
-   order flips, cascading into 6 mul.s rows. Also tried id-local vs inline
-   node+8 loads, out as f32[16], and three copy-loop spellings; the retained
-   shapes are the best. mula/madda term-order floor, cf. btlShuffleDraw
-   func_00377930 note. */
-// Rebuilds each node's transform. Walks the node list at *input (next pointer +0x10, key +0x08, matrix index +0x04); a matrix copied from data by mdlCopyIndexedMatrix feeds a quaternion-derived 3x3 rotation, with the identity basis for indices of 1000 or more. The 4-row result goes to func_004b12e0 under the key, then func_004b1190 runs on the same key.
 // FUN_0047D540
 void mdlEffectListBuildTransforms(u8 **list, u8 *model)
 {
-    /* measured: Direct fields, typed aliases and indexed forms for the remaining matrix-index/handle loads differ; MEMBER preserves the original aliasing. */
     extern f32 sqrtf(f32 x);
     f32 in[16];
     struct Vec3 { f32 x; f32 y; f32 z; };
@@ -449,7 +421,7 @@ void mdlEffectListBuildTransforms(u8 **list, u8 *model)
             node = (u8 *)((MdlEffectListNode *)node)->next;
     }
 }
-/* Calls func_004b11d0 with each node's payload and the first argument. */
+/* Calls func_004b11d0 with each node's payload and the context argument. */
 // FUN_0047D7E0
 void mdlEffectListInvokeEach(s32 context, u8 **list)
 {
@@ -467,8 +439,7 @@ void mdlEffectListInvokeEach(s32 context, u8 **list)
 }
 
 
-
-/* Calls func_004b1170 on each node whose data block has flag bit 1 set. */
+/* Starts the effect of each node whose data block has flag bit 1 set. */
 // FUN_0047D840
 void mdlEffectListCallFlagged(u32 *list)
 {
@@ -489,7 +460,6 @@ void mdlEffectListCallFlagged(u32 *list)
 }
 
 
-
 /* Applies a colour to each node's payload through mdlEffectSetPackedColor. */
 // FUN_0047D8A0
 void mdlEffectListSetColor(u8 **list, s32 *color)
@@ -508,8 +478,7 @@ void mdlEffectListSetColor(u8 **list, s32 *color)
 }
 
 
-
-/* Averages the three vector components and applies the result as a uniform scale via func_004b13d0. */
+/* Averages the three scale components and applies the result as a uniform scale to each node. */
 // FUN_0047D900
 void mdlEffectListSetUniformScale(int *list,float *scale)
 {
@@ -523,7 +492,6 @@ void mdlEffectListSetUniformScale(int *list,float *scale)
         }
     }
 }
-
 
 
 /* Drops one reference per node, frees blocks whose count reaches zero, and clears the head. */
@@ -546,8 +514,6 @@ void mdlEffectListReleaseNodes(u32 *list)
     }
     *list = 0;
 }
-
-
 
 
 /* Releases each node's handle, then acquires a new handle from its payload. */
@@ -574,8 +540,6 @@ void mdlEffectListRefreshHandles(u32 *list)
         }
     }
 }
-
-
 
 
 /* Releases each node's handle and clears it, also clearing the payload's back-reference when it matches. */
@@ -605,8 +569,6 @@ void mdlEffectListReleaseHandles(u32 *list)
   return;
 
 }
-
-
 
 
 /* Copies data bytes from input into a new reference-counted block and returns a wrapper that points at it. */
@@ -679,7 +641,7 @@ void mdlEffectReleaseTrackInstance(u8 **instance)
 }
 
 
-// Calls func_004824a0 for the sub-object at +0x10 of the first argument and writes the result to the float array in the second.
+// Advances the instance's tracks and writes the resulting pose into output.
 // FUN_00482700
 void mdlEffectEvalSubPose(int instance, float *output)
 {
@@ -687,12 +649,10 @@ void mdlEffectEvalSubPose(int instance, float *output)
 }
 
 
-/* Removing this loses 0x00482730 (MATCH nd0 -> MISMATCH nd45) - measured W161. */
-
-// Sets each entry's frame to data modulo the entry's frame count (+0x0C of the entry's block) and marks it active (+0x08 = 1). The loop is built with opt_loop_invariants on, as measured.
+// Sets each track's frame to frame modulo its frame count and marks it active.
 // FUN_00482730
-/* measured: opt_loop_invariants on is required for mdlEffectWrapTrackFrames (MATCH nd0). */
-/* measured: baseline and an explicit active local both leave the 1 inside the loop (19 differing words); retain hoisting. */
+/* measured: retail hoists the constant active flag (1) out of the loop, which needs loop-invariant
+ * hoisting on. */
 #pragma opt_loop_invariants on
 void mdlEffectWrapTrackFrames(int instance, u32 frame)
 {
@@ -708,12 +668,11 @@ void mdlEffectWrapTrackFrames(int instance, u32 frame)
   }
   return;
 }
-/* measured: opt_loop_invariants off closes the mdlEffectWrapTrackFrames bracket. */
+/* measured: restores the unit setting after mdlEffectWrapTrackFrames. */
 #pragma opt_loop_invariants off
 
 
-
-// Builds a matrix with GeometryMatrixBuild and passes it, with the pointer at +0xC of input, to func_003e9cb0.
+// Builds a matrix with GeometryMatrixBuild and passes it, with the model frame, to func_003e9cb0.
 // FUN_00484350
 void mdlEffectApplyGeometryMatrix(u8 *instance)
 {
@@ -735,7 +694,8 @@ void mdlEffectApplyCombinedGeometryMatrix(u8 *instance)
 }
 
 
-// Resolves the self-relative pointer at +0x10 of the source: returns it as-is when the flag at +0x18 is set; otherwise treats it as an offset and returns source+offset, or NULL for a zero offset.
+// Returns parameters as-is when the allocation handle is set; otherwise treats it as a self-
+// relative offset, returning NULL for zero.
 // FUN_00484490
 void *mdlEffectResolveRelPtrA(void *source)
 {
@@ -756,8 +716,8 @@ void *mdlEffectResolveRelPtrA(void *source)
 }
 
 
-
-// Resolves the self-relative pointer at +0x20 of the source: returns it as-is when the flag at +0x28 is set; otherwise treats it as an offset and returns source+offset, or NULL for a zero offset.
+// Returns secondaryParameters as-is when the secondary allocation handle is set; otherwise treats
+// it as a self-relative offset, returning NULL for zero.
 // FUN_004844D0
 void *mdlEffectResolveRelPtrB(void *source)
 {
@@ -776,7 +736,6 @@ void *mdlEffectResolveRelPtrB(void *source)
   }
   return value;
 }
-
 
 
 /* Frees the primary source allocation and clears its pointer, count and allocation word. */
@@ -813,12 +772,9 @@ void mdlEffectReleaseSecondarySource(u8 *instance)
 
 /* Clears the state block and sets VU identity vectors, default scales and packed color fields. */
 // FUN_00484B30
-/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
- * eight zero alignment bytes. IDA retains the result that Ghidra drops:
- * retail leaves the copied quadword in v0 through return. Preserve that
- * live-out; the current C callers discard it. The four hardware vf0 stores
- * produce (0,0,0,1), not a zero quadword. */
-/* measured: typed/byte source locals fold the global address (14 differing words); memcpy adds a call, so retain propagation off. */
+/* measured: retail returns the copied quadword even though current callers discard it; the four vf0
+ * stores write (0,0,0,1), not zero. Propagation is off because typed locals fold the global address
+ * and memcpy adds a call. */
 #pragma push
 #pragma opt_propagation off
 u_long128 mdlEffectInitParticleState(u8 *instance)
@@ -864,8 +820,7 @@ void mdlEffectCopyRecord(u8 *destination, u8 *source)
 }
 
 
-
-/* Walks the node list at root+0x8c (linked through +0xac) and returns the node whose id at +0x90 matches identifier, or NULL. */
+/* Walks the root's child node list and returns the node whose id matches identifier, or NULL. */
 // FUN_00486740
 u8 *mdlEffectFindNodeById(u8 *root, s32 identifier)
 {
@@ -883,13 +838,11 @@ u8 *mdlEffectFindNodeById(u8 *root, s32 identifier)
 }
 
 
-
     #pragma optimization_level 1
     #pragma optimization_level 2
 #pragma optimization_level 1
-/* measured: closes optimization_level 1 for the parked 00486970 body. */
 #pragma optimization_level 2
-// Releases the emitter at +0x4C and updates the particle with a unit scale.
+// Advances the particle's emitter and updates the particle with a unit scale.
 // FUN_00489E00
 void ParticleReleaseEmitterAndUpdate(u8 *instance)
 {
@@ -911,12 +864,11 @@ void mdlEffectSetUnitWeight(void)
 }
 
 
-
     #pragma optimization_level 1
     #pragma optimization_level 2
 #pragma optimization_level 1
 #pragma optimization_level 2
-// Releases the emitter at +0x4C, updates the particle, then projects its vertices.
+// Advances the particle's emitter, updates the particle, then projects its vertices.
 // FUN_00489E80
 void ParticleReleaseEmitterAndProject(u8 *instance)
 {
@@ -931,7 +883,7 @@ void ParticleReleaseEmitterAndProject(u8 *instance)
 }
 
 
-// Stores the position quad into the particle's emitter at +0x4C.
+// Stores the position quad into the particle's emitter.
 // FUN_00489EE0
 void ParticleSetEmitterPosition(u8 *instance, u32 *position)
 {
@@ -939,7 +891,7 @@ void ParticleSetEmitterPosition(u8 *instance, u32 *position)
 }
 
 
-// Stores the rotation quad into the particle's emitter at +0x4C.
+// Stores the rotation quad into the particle's emitter.
 // FUN_00489F10
 void ParticleSetEmitterRotation(u8 *instance, u32 *rotation)
 {
@@ -947,7 +899,8 @@ void ParticleSetEmitterRotation(u8 *instance, u32 *rotation)
 }
 
 
-// Stores value at +0x08 of the record data, then calls EffEmitterApplyScale with the record emitter at +0x4C and the same scale.
+// Stores scale in the particle, then calls EffEmitterApplyScale with the particle's emitter and the
+// same scale.
 // FUN_00489F50
 void mdlEffectSetScaleAndNotify(f32 scale, int instance)
 {
@@ -957,17 +910,14 @@ void mdlEffectSetScaleAndNotify(f32 scale, int instance)
 }
 
 
-/* Retail's 368-byte Catmull-Rom interpolator builds tangents and returns its VU0 vector in vf10. */
-
-/* measured: enable MWCCPS2's MMI builtins and O1; _pcpyld on u64 locals
- * reproduces the 00489f80 packet skeleton (object 116/window 128,
- * normalized_diff 0) and the 0048a000/0048a0e0/0048a070 packet skeletons. */
+/* measured: these packet builders need MMI builtins so _pcpyld on u64 locals produces retail's
+ * packet layout. */
 #pragma enable_vu0_registers on
 #pragma vu0_mmi_reg_binding on
-/* measured: optimization_level 1 is required with the VU0 pragmas above;
-   at -O2 the packet stores are reordered and the pcpyld pairs are folded. */
+/* measured: at -O2 the packet stores are reordered and the pcpyld pairs are folded, unlike retail. */
 #pragma optimization_level 1
-// Appends a 0x20-byte packet pair to iGpffffb884: a tag quad with reg 0x8001, then a 0x4C register quad with iGpffffb8c8 OR'd with a 0x00FFFFFF high mask (layout measured against retail).
+// Appends a tag quad and a register quad to iGpffffb884, the register value being iGpffffb8c8
+// masked to its low 24 bits.
 // FUN_00489F80
 void mdlEffectEmitMaskedTagPair(void)
 {
@@ -1049,7 +999,8 @@ void mdlEffectEmitSlotPacket(void)
 #pragma optimization_level 2
 #pragma vu0_mmi_reg_binding off
 #pragma enable_vu0_registers off
-// Loads data into VU0, normalises it, builds the rotation basis, writes its three rows to input at +0x00, +0x10 and +0x20, and zeroes the words at +0x30 to +0x38.
+// Normalises the orientation in VU0, builds a rotation basis, writes its three rows to output and
+// zeroes the position.
 // FUN_0048A150
 void mdlEffectBuildBasisRows(u8 *output, u8 *orientation)
 {
@@ -1092,7 +1043,7 @@ void mdlEffectBuildBasisRows(u8 *output, u8 *orientation)
     ((MdlEffectFloatWord *)&((RwMatrix *)output)->pos)[1].bits = 0;
     ((MdlEffectFloatWord *)&((RwMatrix *)output)->pos)[2].bits = 0;
 }
-// Copies the three floats at +0x20 of the current camera object into the output and zeroes the word at +0x0C.
+// Copies the current camera frame's at vector into output and zeroes the fourth word.
 // FUN_0048A1F0
 void mdlEffectCopyCameraOrigin(u8 *output)
 {
@@ -1104,7 +1055,7 @@ void mdlEffectCopyCameraOrigin(u8 *output)
     ((EffectVuVector *)output)->lane[2] = ((RwMatrix *)obj)->at.z;
     ((MdlEffectFloatWord *)output)[3].bits = 0;
 }
-// Copies the three floats at +0x30 of the current camera object into the output and zeroes the word at +0x0C.
+// Copies the current camera frame's position into output and zeroes the fourth word.
 // FUN_0048A250
 void mdlEffectCopyCameraAim(u8 *output)
 {
@@ -1116,7 +1067,7 @@ void mdlEffectCopyCameraAim(u8 *output)
     ((EffectVuVector *)output)->lane[2] = ((RwMatrix *)obj)->pos.z;
     ((MdlEffectFloatWord *)output)[3].bits = 0;
 }
-// Writes the normalised vector from input to the camera point at +0x30 of the current camera object into data, using VU0.
+// Writes the normalised vector from position to the current camera position into output, using VU0.
 // FUN_0048A2B0
 void mdlEffectAimDirection(u8 *position, u8 *output)
 {
@@ -1148,7 +1099,8 @@ void mdlEffectAimDirection(u8 *position, u8 *output)
         : "r"(temp), "r"(output)
         : "$vf10", "$vf11", "$vf2", "ACC", "Q", "memory");
 }
-// Builds an axis-angle rotation matrix from the angle and the axis in VU0 (vf10), loading its three rows into vf28 to vf30 through a 0x40-byte scratch block.
+// Builds an axis-angle rotation matrix from angle and the VU0 axis vector, loading its three rows
+// into VU0 registers.
 // FUN_0048A340
 void mdlEffectAxisAngleBasisVU(f32 angle)
 {
@@ -1260,7 +1212,8 @@ f32 mdlEffectProjectAnchorDepth(void)
         : "$vf10", "memory");
     return depth;
 }
-// Projects the anchor through the camera matrix and returns 1 when it lies inside the 640x448 screen rectangle and between the camera near and far distances (+0x80, +0x84); otherwise 0.
+// Returns 1 when the projected anchor lies inside the 640x448 screen and between the camera near
+// and far distances; otherwise 0.
 // FUN_0048A510
 s32 mdlEffectAnchorOnScreen(void)
 {
@@ -1312,7 +1265,6 @@ s32 mdlEffectAnchorOnScreen(void)
 // FUN_0048A650
 f32 mdlEffectAnchorScreenScale(f32 inputScale)
 {
-    /* measured: The projected Y load needs MEMBER; direct, local and indexed scratch-member forms change instructions. */
     u8 raw[0x50];
     f32 depth;
     f32 nearPlane;
@@ -1499,8 +1451,7 @@ void mdlEffectCatmullRomVU(float progress, u8 (*points)[16])
 }
 
 
-
-/* Scale applier for emitter kind 1 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 1: writes scaled copies of originalParameters into parameters. */
 // FUN_0048C440
 void EffWaveApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1525,7 +1476,7 @@ void EffWaveApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Scale applier for emitter kind 2 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 2: writes scaled copies of originalParameters into parameters. */
 // FUN_0048CD60
 void EffMotionApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1549,7 +1500,7 @@ void EffMotionApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
+/* Scale applier for emitter kind 3: writes scaled copies of originalParameters into parameters. */
 // FUN_0048D820
 void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1574,7 +1525,7 @@ void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
+/* Scale applier for emitter kind 4: writes scaled copies of originalParameters into parameters. */
 // FUN_0048E270
 void EffEmitterKind4ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1597,7 +1548,7 @@ void EffEmitterKind4ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Scale applier for emitter kind 5 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 5: writes scaled copies of originalParameters into parameters. */
 // FUN_0048EBC0
 void EffConeApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1621,7 +1572,7 @@ void EffConeApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Scale applier for emitter kind 6 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 6: writes scaled copies of originalParameters into parameters. */
 // FUN_0048F560
 void EffConeAngleApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1657,7 +1608,7 @@ extern void (*D_00713D54[])(u8 *emitter, f32 scale);
 typedef struct EffRandState EffRandState;
 extern u32 effMiscRand(EffRandState *state);
 extern void mdlEffectAppendGeometryPrimitive(u8 *source, s32 texture);
-/* Scale applier for emitter kind 7 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 7: writes scaled copies of originalParameters into parameters. */
 // FUN_00490360
 void EffBezierApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1677,7 +1628,7 @@ void EffBezierApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
+/* Scale applier for emitter kind 8: writes scaled copies of originalParameters into parameters. */
 // FUN_00490BB0
 void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1701,7 +1652,7 @@ void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
+/* Scale applier for emitter kind 9: writes scaled copies of originalParameters into parameters. */
 // FUN_00491660
 void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1725,7 +1676,7 @@ void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
+/* Scale applier for emitter kind 10: writes scaled copies of originalParameters into parameters. */
 // FUN_00492080
 void EffEmitterKind10ApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1748,7 +1699,7 @@ void EffEmitterKind10ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Scale applier for emitter kind 11 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 11: writes scaled copies of originalParameters into parameters. */
 // FUN_00492A80
 void EffSwayParticleApplyScale(u8 *emitter, f32 scale) {
     u32 componentIndex;
@@ -1773,7 +1724,7 @@ void EffSwayParticleApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-/* Frees the emitter allocation stored at +0x28. */
+/* Frees the emitter allocation. */
 // FUN_00492CD0
 void mdlEffectFreeEmitterAllocation(u8 *instance)
 {
@@ -1789,7 +1740,7 @@ void mdlEffectResetEmitterTicks(u8 *instance)
 }
 
 
-/* measured: pointer/index loops and an explicit inactive local leave -1 unhoisted (best 11 differing words); retain hoisting. */
+/* measured: retail hoists the -1 inactive marker out of the sample loop. */
 #pragma opt_loop_invariants on
 /* On the first tick, marks samples inactive; dispatches the kind update and advances the tick counter. */
 // FUN_00492D10
@@ -1797,7 +1748,7 @@ void mdlEffectAdvanceEmitter(void *object) {
     EffTrackPath *tickDestination;
     EffTrackPath *tickSource;
 
-    /* measured: Separate typed aliases at the final tick read and write preserve MATCH where direct fields differ. */
+    /* measured: retail reads and writes the final tick counter through separate pointer copies. */
     u8 *emitter = object;
     extern void (*D_00713D50[])(u8 *emitter);
     u32 count;
@@ -1817,11 +1768,11 @@ void mdlEffectAdvanceEmitter(void *object) {
     D_00713D50[*(u16 *)emitter * 4](emitter);
     (tickDestination = (EffTrackPath *)(emitter))->ticks.signedValue = (tickSource = (EffTrackPath *)(emitter))->ticks.signedValue + 1;
 }
-/* measured: restore the unit's loop-invariant baseline immediately after the emitter, not after the quad accessors. */
+/* measured: loop-invariant hoisting is enabled only for the emitter advance function. */
 #pragma opt_loop_invariants off
 
 
-// Loads the 128-bit quad at +0x20 of the object at value into *data and returns it.
+// Loads the first 128-bit parameter quad into *quadData and returns it.
 // FUN_00492DB0
 u_long128 mdlEffectLoadQuadA(int instance, u32 *quadData)
 {
@@ -1831,10 +1782,9 @@ u_long128 mdlEffectLoadQuadA(int instance, u32 *quadData)
 }
 
 
-
-/* measured: typed, MEMBER and byte-pointer destinations all reverse the two loads (2 differing words); retain propagation off. */
+/* measured: retail loads the destination pointer before the source quad. */
 #pragma opt_propagation off
-// Stores the 128-bit quad at *data into +0x20 of the object at value and returns it.
+// Stores the quad at *quadData into the first parameter quad and returns it.
 // FUN_00492DD0
 u_long128 mdlEffectStoreQuadA(int instance, u32 *quadData)
 {
@@ -1849,8 +1799,7 @@ u_long128 mdlEffectStoreQuadA(int instance, u32 *quadData)
 #pragma opt_propagation on
 
 
-
-// Loads the 128-bit quad at +0x30 of the object at value into *data and returns it.
+// Loads the second 128-bit parameter quad into *quadData and returns it.
 // FUN_00492DF0
 u_long128 mdlEffectLoadQuadB(int instance, u32 *quadData)
 {
@@ -1859,10 +1808,9 @@ u_long128 mdlEffectLoadQuadB(int instance, u32 *quadData)
 }
 
 
-
-/* measured: typed, MEMBER and byte-pointer destinations all reverse the two loads (2 differing words); retain propagation off. */
+/* measured: retail loads the destination pointer before the source quad. */
 #pragma opt_propagation off
-// Stores the 128-bit quad at *data into +0x30 of the object at value and returns it.
+// Stores the quad at *quadData into the second parameter quad and returns it.
 // FUN_00492E10
 u_long128 mdlEffectStoreQuadB(int instance, u32 *quadData)
 {
@@ -1877,8 +1825,7 @@ u_long128 mdlEffectStoreQuadB(int instance, u32 *quadData)
 #pragma opt_propagation on
 
 
-
-/* Applies a scale to an emitter record: dispatches on the emitter kind (u16 at +0) through the scale table D_00713D54. */
+/* Applies a scale to an emitter by dispatching on its kind through the scale table D_00713D54. */
 // FUN_00492E30
 void EffEmitterApplyScale(u16 *emitter, f32 scale) {
     D_00713D54[*emitter * 4]((u8 *)emitter, scale);
@@ -1896,7 +1843,7 @@ void mdlEffectDestroyGeometryPair(void *instance)
 }
 
 
-/* Stores 0 in the slot-table entry for data (table at +0x18); -1 is the free state. */
+/* Stores 0 in the slot-table entry for slotIndex; -1 is the free state. */
 // FUN_004946D0
 void mdlEffectSlotSetZero(u8 *instance, u16 slotIndex)
 {
@@ -1909,7 +1856,6 @@ void mdlEffectSlotSetZero(u8 *instance, u16 slotIndex)
 
   return;
 }
-
 
 
 /* Stores -1 (the free state) in the slot-table entry for data. */
@@ -1930,7 +1876,6 @@ void mdlEffectSlotRelease(u8 *instance, u16 slotIndex)
 }
 
 
-
 /* Returns 1 when the slot-table entry for data holds -1 (free). */
 // FUN_00494710
 s32 mdlEffectSlotIsFree(u8 *instance, u16 slotIndex)
@@ -1947,8 +1892,7 @@ s32 mdlEffectSlotIsFree(u8 *instance, u16 slotIndex)
 }
 
 
-
-// Copies the camera origin, then locks the geometry under the sub-objects at +0x10 and +0x14.
+// Copies the camera origin, then locks the geometry of both geometry blocks.
 // FUN_00494F90
 void mdlEffectCopyOriginAndLockGeometry(u8 *instance) {
     mdlEffectCopyCameraOrigin(instance);
@@ -2008,7 +1952,8 @@ void mdlEffectRandomizeEntryDelays(u8 *instance) {
 }
 
 
-/* Calls kind slot +0x08 with the object itself, then frees it through the allocator free table; the kind index is at +0x2C. */
+/* Calls the kind's destroy handler with the instance, then frees it through the allocator free
+ * table. */
 // FUN_00498AC0
 void ThunderInstanceDestroy(u8 *instance) {
     D_00713E78[((EffThunderInstance *)instance)->kind * 6](instance);
@@ -2016,7 +1961,8 @@ void ThunderInstanceDestroy(u8 *instance) {
 }
 
 
-// Thunder texture for a record: kind at +0x2C and the texture table at +0x34. Unlike ThunderTextureForObject, no relative pointer is resolved.
+// Thunder texture for a record by kind and parameters; unlike ThunderTextureForObject, no relative
+// pointer is resolved.
 // FUN_00498B20
 void *ThunderTextureForRecord(void *source) {
     u8 *instance = source;
@@ -2025,7 +1971,7 @@ void *ThunderTextureForRecord(void *source) {
 }
 
 
-/* Calls kind slot +0x00 with the object, then clears the counter at +0x28. */
+/* Calls the kind's stop handler, then clears the age counter. */
 // FUN_00498B50
 void ThunderInstanceStop(u8 *instance) {
     D_00713E70[((EffThunderInstance *)instance)->kind * 6](instance);
@@ -2033,7 +1979,7 @@ void ThunderInstanceStop(u8 *instance) {
 }
 
 
-/* Calls kind slot +0x0C with the object, then increments the counter at +0x28. */
+/* Calls the kind's advance handler, then increments the age counter. */
 // FUN_00498BA0
 void ThunderInstanceAdvance(u8 *instance) {
     D_00713E7C[((EffThunderInstance *)instance)->kind * 6](instance);
@@ -2064,16 +2010,14 @@ u_long128 ThunderSetSecondQuad(u_long128 *destination, u_long128 *source) {
 }
 
 
-
-
-// Stores the packed colour word at +0x24. Called through the kind 15 (thunder) +0x30 slot with the packed colour.
+// Stores the packed colour word; called through the thunder kind's colour slot.
 // FUN_00498D00
 void ThunderSetPackedColor(u8 *instance, s32 packedColor) {
     ((EffThunderInstance *)instance)->packedColor.signedValue = packedColor;
 }
 
 
-// Stores the float at +0x20. Called through the kind 15 (thunder) +0x28 slot.
+// Stores the scale float; called through the thunder kind's scale slot.
 // FUN_00498D10
 void ThunderSetScale(u8 *instance, f32 scale) {
     ((EffThunderInstance *)instance)->scale.value = scale;
@@ -2108,7 +2052,8 @@ void RingInstanceDestroy(u8 *instance) {
 }
 
 
-// Ring instance for a record: kind at +0x38 and parameters at +0x40. Unlike RingCreateKindInstanceFromObject, no relative pointer is resolved.
+// Creates a ring instance from a record's kind and parameters; unlike
+// RingCreateKindInstanceFromObject, no relative pointer is resolved.
 // FUN_0049A5E0
 void *RingCreateInstanceForRecord(void *source) {
     u8 *instance = source;
@@ -2156,7 +2101,7 @@ u_long128 RingSetSecondQuad(u_long128 *destination, u_long128 *source) {
 }
 
 
-// Stores the packed colour word at +0x30. Called through the kind 14 (ring) +0x30 slot with the packed colour.
+// Stores the packed colour word; called through the ring kind's colour slot.
 // FUN_0049A7C0
 void RingSetPackedColor(u8 *instance, s32 packedColor) {
     ((MdlEffectVectorInstance *)instance)->packedColor = packedColor;
@@ -2253,7 +2198,6 @@ void FlashQuadUpdateIfActive(u8 *instance) {
 /* Calls kind slot +0x10, increments the counter at +0x34, then calls kind slot +0x14 with input when the counter is positive. */
 // FUN_004A1BA0
 void FlashQuadAdvanceAndUpdate(u8 *instance) {
-    /* measured: The post-callback kind reload uses MEMBER; direct, local and indexed fields change instructions. */
     (*(void (**)(void))(D_00714020 + (((MdlEffectVectorInstance *)instance)->kind.value * 0x1C)))();
     (((MdlEffectVectorInstance *)instance)->age)++;
     if (((MdlEffectVectorInstance *)instance)->age > 0) {
@@ -2316,11 +2260,11 @@ void WindInstanceDestroy(u8 *instance)
 }
 
 
-/* Same role as WindCreateKindEntry (effPolygonWind.c): allocates a kind entry through WindAllocKindEntry. This copy reads the kind index from +0x38 directly, with no kind switch, stores the result of table D_0071413C at +0x3C of the new entry, then calls table D_00714130 on it. */
+/* Like WindCreateKindEntry but reads the kind directly with no switch; stores the D_0071413C result
+ * as child, then calls D_00714130 on it. */
 // FUN_004A5910
 void *WindCreateKindEntryAlt(void *source)
 {
-    /* measured: Both callback kind reloads need MEMBER after direct, local and indexed field probes. */
     u8 *descriptor = (u8 *)source;
     u8 *instance;
 
@@ -2364,7 +2308,6 @@ void WindInstanceUpdateIfActive(u8 *instance)
 // FUN_004A5AB0
 void WindInstanceAdvanceAndUpdate(u8 *instance)
 {
-    /* measured: The final kind reload needs MEMBER after direct, local and indexed field probes. */
     s32 age;
 
     (*(void (**)(void))(D_00714140 + (((MdlEffectVectorInstance *)instance)->kind.value * 0x1C)))();
@@ -2473,7 +2416,6 @@ void *mdlEffectCloneInstance(void *source)
 // FUN_004A5EF0
 void mdlEffectCopyReferences(u8 *destination, u8 *source)
 {
-    /* measured: Reference assignments use MEMBER after separate source/destination direct, local and indexed field probes changed instructions. */
     s32 oldTrackInstance;
     s32 oldTlpRef;
 
@@ -2595,11 +2537,8 @@ void mdlEffectIncrementCounter(int instance)
 }
 
 
-
 // FUN_004A6E70
-/* Render the model flare entries around the projected source position.
- * measured with native b210 -O2: 2276/2288 bytes, 53 resolved relocations.
- * Assembly is confined to the packed-color and vector MMI/COP2 bridges. */
+/* Renders the model flare entries around the projected source position. */
 #pragma push
 #pragma enable_vu0_registers on
 #pragma vu0_mmi_reg_binding on
@@ -2611,7 +2550,6 @@ void mdlEffectRenderFlares(u8 *instance)
     MdlEffectMaterialSlot *colorMaterialSlot;
     MdlEffectMaterialSlot *alphaMaterialSlot;
 
-    /* measured: Material-slot aliases preserve MATCH; remaining geometry/material reloads and entry color require MEMBER after direct, local and indexed probes. */
     extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
     extern RpGeometry *func_003c22f0(RpGeometry *geometry);
     extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture);
@@ -2740,7 +2678,7 @@ void mdlEffectRenderFlares(u8 *instance)
                     ((RwV3d *)vtxCur)[3] = *(const RwV3d *)D_00922D80;
                     vtxCur += 0x30;
                 }
-/* measured: restore the outer loop's unhoisted material and scale values. */
+/* measured: the outer loop reloads its material and scale values instead of hoisting them. */
 #pragma opt_loop_invariants off
                 {
                     if (iGpffffbb64.c3 != 0xFF) {
@@ -2984,13 +2922,11 @@ void mdlEffectSetWord5(u32 *instance, u32 value)
 }
 
 
-
 #pragma push
 #pragma optimization_level 3
 #pragma schedule off
 #pragma opt_rotateloops off
 #pragma tailcall off
-/* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
 #pragma pop
 /* Replaces the shared frame translation and clears its active flag. */
 // FUN_004A7A50
@@ -3068,7 +3004,8 @@ void mdlEffectCacheDisplayRaster(void)
 }
 
 
-// Resets a drawable: when its entry count at +0x9C is nonzero, runs func_00485fe0 on each entry of the list at +0x98 (count at +0x28); then zeroes the model layer time at +0xA0 and clears the counter at +0x2C.
+// Resets a drawable: if it has a drawable, runs func_00485fe0 on each child, then zeroes the model
+// layer time and clears the counter.
 // FUN_004ADAB0
 void EffModelDrawableReset(u8 *instance)
 {
@@ -3216,7 +3153,6 @@ u32 *mdlEffectSetAllColors(u32 *instance, u8 *value)
 }
 
 
-
 // Sets bit 0x40 in the word at +0x08 of the record at +0x18 of value and returns value.
 // FUN_004AE080
 void *mdlEffectSetFlag40(void *instance, void *data)
@@ -3227,7 +3163,6 @@ void *mdlEffectSetFlag40(void *instance, void *data)
   p[2] = p[2] | 0x40;
   return instance;
 }
-
 
 
 /* Normalizes a fixed or random direction, randomizes speed and angle, and selects a face index. */
@@ -3363,9 +3298,8 @@ typedef signed __int128 s128;
 extern void *mdlEffectCreateScreenSprite(void *opaqueSource);
 typedef signed __int128 s128;
 typedef signed __int128 s128;
-/* Distort particle setter: stores the position quad into the emitter at instance+0x5C.
- * effDistortParticle.c creates that emitter in the same slot (func_00492b20 with the
- * instance's kind), so the setter belongs to the distort instance. */
+/* Stores the position quad into the distort-particle emitter, which effDistortParticle.c creates in
+ * the same slot. */
 // FUN_004B1090
 void DistortParticleStorePosition(u8 *instance, u32 *position)
 {
@@ -3412,7 +3346,8 @@ void mdlEffectSetChildPositionVec(void *object, f32 *position)
 }
 
 
-// Converts the Euler angles data..flags, each scaled by iGpffff836c, to a quaternion and passes it with input to 00486330.
+// Converts the Euler angles, each scaled by iGpffff836c, to a quaternion and applies it to the
+// object's child rotations.
 // FUN_004B1290
 void mdlEffectSetEulerRotation(u8 *object, f32 angleX, f32 angleY, f32 angleZ)
 {
@@ -3422,8 +3357,6 @@ void mdlEffectSetEulerRotation(u8 *object, f32 angleX, f32 angleY, f32 angleZ)
     __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(scratch) : "memory");
     mdlEffectSetChildRotations(object, scratch);
 }
-
-
 
 
 // Sets the object's packed colour to *data through mdlEffectApplyPackedColor.
@@ -3467,7 +3400,6 @@ u32 mdlEffectGetWord84(int instance)
 }
 
 
-
 /* Initializes the sequence duration/id and enables playback from frame zero. */
 // FUN_004B1590
 void mdlEffectSeqStart(s32 duration, s16 sequenceId)
@@ -3502,8 +3434,6 @@ void mdlEffectSeqStep(void)
 }
 
 
-
-
 /* Copies helper parameters, clones optional geometry, initializes its colors and copies its references. */
 // FUN_004B1950
 void *mdlEffectCloneHelperInstance(void *opaqueSource) {
@@ -3529,8 +3459,6 @@ void *mdlEffectCloneHelperInstance(void *opaqueSource) {
     mdlEffectScreenSpriteCopyResource(clone, source);
     return clone;
 }
-
-
 
 
 /* Resets the helper age counter to zero. */
@@ -3569,7 +3497,6 @@ void mdlEffectStoreWord(u32 *instance, u32 value)
 /* Detaches and releases camera frame/raster resources, then unlocks and releases the texture raster. */
 // FUN_004B2E00
 void mdlEffectReleaseCameraTexture(u8 *object) {
-    /* measured: Repeated camera/raster accesses use MEMBER; direct, local and indexed forms changed instructions. */
     u8 *base;
     u8 *cameraWithRaster;
     u8 *cameraWithDepth;
@@ -3642,7 +3569,6 @@ void LineNovaInstanceUpdateIfActive(u8 *instance)
 /* Calls kind slot +0x0C, increments the counter at +0x14, then calls kind slot +0x10 when the counter is positive. The kind index is at +0x18. */
 // FUN_004B5040
 void LineNovaInstanceAdvanceAndUpdate(void *instance) {
-    /* measured: The final kind reload uses MEMBER; direct, local and indexed forms changed instructions after the callback. */
     u8 *object;
 
     object = instance;
@@ -3654,10 +3580,10 @@ void LineNovaInstanceAdvanceAndUpdate(void *instance) {
 }
 
 
-/* Copies and returns the position quadword, retaining the measured load-before-store temporary. */
+/* Copies and returns the position quadword. */
 // FUN_004B50D0
 s128 mdlEffectStoreLineNovaPosition(s128 *instance, s128 *value) {
-    s128 position = *value; /* measured: without the local, MWCC reloads after the store */
+    s128 position = *value; /* measured: without the local, retail's load-before-store order is lost and the value is reloaded after the store. */
     *instance = position;
     return position;
 }
@@ -3674,7 +3600,7 @@ void mdlEffectSetLineNovaColor(u8 *instance, s32 value)
 // Copies the 16-byte vector at data to +0x0. Called through the kind 33 +0x20 position slot.
 // FUN_004B5750
 s128 EffBattleStorePosition(s128 *instance, s128 *value) {
-    s128 position = *value; /* measured: without the local, MWCC reloads after the store */
+    s128 position = *value; /* measured: without the local, retail's load-before-store order is lost and the value is reloaded after the store. */
     *instance = position;
     return position;
 }
@@ -3683,13 +3609,13 @@ s128 EffBattleStorePosition(s128 *instance, s128 *value) {
 // Copies the 16-byte vector at data to +0x10. Called through the kind 33 +0x24 rotation slot.
 // FUN_004B5760
 s128 EffBattleStoreRotation(u8 *instance, s128 *value) {
-    s128 rotation = *value; /* measured: without the local, MWCC reloads after the store */
+    s128 rotation = *value; /* measured: without the local, retail's load-before-store order is lost and the value is reloaded after the store. */
     ((s128 *)instance)[1] = rotation;
     return rotation;
 }
 
 
-// Stores the packed colour word at +0x24. The record dispatch calls the kind 33 +0x30 slot with the packed colour.
+// Stores the packed colour word; the record dispatch calls this through the kind 33 colour slot.
 // FUN_004B5770
 void EffBattleSetPackedColor(u8 *instance, s32 packedColor)
 {
@@ -3697,7 +3623,7 @@ void EffBattleSetPackedColor(u8 *instance, s32 packedColor)
 }
 
 
-// Stores the float at +0x20. Called through the kind 33 +0x28 slot.
+// Stores the scale float; called through the kind 33 scale slot.
 // FUN_004B5780
 void EffBattleSetScale(u8 *instance, f32 scale)
 {

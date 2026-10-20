@@ -217,16 +217,13 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00453250-00453250 */
-
 #pragma push
 #pragma pop
-// Intent: per-button repeat timer for record `arg0`. A button in the first mask resets its timer to 7. A held button counts the timer down and, at zero, re-sends its bit and reloads the timer to 3.
-/* Record-relative fields lost MATCH; typed interior columns retain the 0x4A stride. */
+// Per-button repeat timer for a pad slot: a newly pressed button resets its timer to 7; a held
+// button counts down and, at zero, re-sends its bit and reloads 3. Records use a 0x4A stride.
 // FUN_00453250
 void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex) {
     s32 bits;

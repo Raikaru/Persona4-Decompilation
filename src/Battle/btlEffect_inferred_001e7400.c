@@ -91,8 +91,6 @@ extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001e7400-001e8a80 */
-
 /* Return the opposite side selector for the action actor. */
 static inline u16 btlEffectGetOpposingGenus(u32 unit)
 {
@@ -106,8 +104,8 @@ nonzero:
 done:
     return side;
 }
-/* measured: object 264B vs window 272B, normalized_diff 10; remaining differences are register colouring. Committed at nd 10. */
-/* Select a side-filtered candidate, preferring the current global selection when present; return its encoded action ID or -1. */
+/* Select a side-filtered candidate, preferring the current global selection when present; return
+ * its encoded action ID or -1. */
 // FUN_001E7400
 s32 btlEffectScriptSelectSideUnit(void) {
     extern s32 btlSideSelectUnits();
@@ -189,11 +187,11 @@ loop_test:
 }
 
 #pragma push
-/* measured: btlEffectScriptPickRandomHighestOpposingUnit MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd264; scoped locals, inverted if/else did not match (best nd240); retain opt_rebuildconditionals off. */
+/* measured: retail keeps the original branch layout here; conditional rebuilding reorders the
+ * if/else and changes the output. */
 #pragma opt_rebuildconditionals off
-/* AI script command 0x20b7 (p4flow AI.json AI_FUNCTION_00B7). */
-/* Collect living opposing candidates at the highest level, then choose one uniformly and return its encoded ID. */
+/* Collect living opposing candidates at the highest level, then choose one uniformly and return its
+ * encoded ID. */
 // FUN_001E7640
 s32 btlEffectScriptPickRandomHighestOpposingUnit(void)
 {
@@ -255,8 +253,8 @@ s32 btlEffectScriptPickRandomHighestOpposingUnit(void)
 }
 
 #pragma pop
-/* AI script command 0x20d1 (p4flow AI.json AI_FUNCTION_00D1). */
-/* Scan candidates by level and HP; retail keeps the HP bound across level increases rather than resetting it. */
+/* AI script command 0x20d1. Scans candidates by level and HP; retail keeps the HP bound across
+ * level increases rather than resetting it. */
 // FUN_001E77F0
 s32 btlEffectScriptPickHighestLevelHpUnit(void) {
     BtlAction *candidateFields;
@@ -306,8 +304,8 @@ loop_test:
     return -1;
 }
 
-/* AI script command 0x20d2 (p4flow AI.json AI_FUNCTION_00D2). */
-/* Gather candidates without non-down bad status and choose one uniformly; no candidates yields script return -1. */
+/* Gather candidates without non-down bad status and choose one uniformly; no candidates yields
+ * script return -1. */
 // FUN_001E7950
 s32 btlEffectScriptPickRandomNoBadStatusUnit(void) {
     extern s32 datCalcGetBadStatusNoDown();
@@ -345,15 +343,8 @@ loop_test:
     return -1;
 }
 
-/* SUPERSEDED, kept for history: "normalized_diff 1; the sole residual is the
-   retail daddiu/addiu width at the count reset. Committed at nd 1." That width
-   was believed unreachable. It is not - see the measured note below. */
-/* measured: u16 count reaches retail daddiu s1,zero,1; fused
-   candidates[count++] produces addiu v0,s1,1 from the unmasked counter,
-   avoiding reuse of the masked index. Object 364B/window 368B,
-   normalized_diff 0. */
-/* AI script command 0x20d3 (p4flow AI.json AI_FUNCTION_00D3). */
-/* Collect all candidates tied at the maximum level, then choose one uniformly and return its encoded action ID. */
+/* Collect all candidates tied at the maximum level, pick one uniformly and return its encoded
+ * action ID; retail increments the unmasked u16 count. */
 // FUN_001E7AB0
 s32 btlEffectScriptPickRandomHighestLevelUnit(void) {
     BtlAction *actionFields;
@@ -408,8 +399,8 @@ loop_test:
     return -1;
 }
 
-/* AI script command 0x20da (p4flow AI.json AI_FUNCTION_00DA). */
-/* Count collected candidates without non-down bad status and return the sixteen-bit count to the script. */
+/* AI script command 0x20da: counts collected candidates without non-down bad status and returns the
+ * 16-bit count to the script. */
 // FUN_001E7C20
 s32 btlEffectScriptCountNoBadStatusUnits(void) {
     extern s32 btlAICommandSelectCandidates();
@@ -441,8 +432,7 @@ loop_test:
     return -1;
 }
 
-/* AI script command 0x20E5 (p4flow AI.json AI_FUNCTION_00E5). */
-/* Read the requested action or unit property and publish it as the AI script integer return value. */
+/* Return the current action's unit id, with the high bit set, as the AI script integer result. */
 // FUN_001E7D30
 s32 btlEffectScriptGetCurrentUnit(void) {
     u8 *temp;
@@ -452,7 +442,6 @@ s32 btlEffectScriptGetCurrentUnit(void) {
     return 1;
 }
 
-/* AI script command 0x20E6 (p4flow AI.json AI_FUNCTION_00E6). */
 /* Read the requested action or unit property and publish it as the AI script integer return value. */
 // FUN_001E7D70
 s32 btlEffectScriptGetMaxHp(void) {
@@ -460,7 +449,6 @@ s32 btlEffectScriptGetMaxHp(void) {
     return 1;
 }
 
-/* AI script command 0x20E7 (p4flow AI.json AI_FUNCTION_00E7). */
 /* Read the requested action or unit property and publish it as the AI script integer return value. */
 // FUN_001E7DD0
 s32 btlEffectScriptGetHp(void) {
@@ -468,7 +456,6 @@ s32 btlEffectScriptGetHp(void) {
     return 1;
 }
 
-/* AI script command 0x20E8 (p4flow AI.json AI_FUNCTION_00E8). */
 /* Read the requested action or unit property and publish it as the AI script integer return value. */
 // FUN_001E7E30
 s32 btlEffectScriptGetSlotUnit(void) {
@@ -479,8 +466,8 @@ s32 btlEffectScriptGetSlotUnit(void) {
     return 1;
 }
 
-/* AI script command 0x20E9 (p4flow AI.json AI_FUNCTION_00E9). */
-/* Read the requested action or unit property and publish it as the AI script integer return value. */
+/* Look up the action given by the first script parameter and return its unit's AI tactic as the
+ * script integer result, or -1 if the unit is not a party member other than the protagonist. */
 // FUN_001E7E70
 // measured: the status byte/halfword gates the signed-byte payload; the
 // payload is read only when neither gate is active.
@@ -501,7 +488,6 @@ s32 btlEffectScriptGetStatusByte(void)
     return 1;
 }
 
-/* AI script command 0x20EE (p4flow AI.json AI_FUNCTION_00EE). */
 /* Read the requested action or unit property and publish it as the AI script integer return value. */
 // FUN_001E7EF0
 s32 btlEffectScriptGetMaxSp(void) {
@@ -509,16 +495,15 @@ s32 btlEffectScriptGetMaxSp(void) {
     return 1;
 }
 
-/* AI script command 0x20EF (p4flow AI.json AI_FUNCTION_00EF). */
-/* Read the requested action or unit property and publish it as the AI script integer return value. */
+/* Return the SP of the unit behind the given action ID as the AI script integer return value. */
 // FUN_001E7F50
 s32 btlEffectScriptGetSp(void) {
     scrSetReturnInt(datCalcGetSp((s32)((BtlAction *)btlActionFindById((u64) scrGetParamInt(0) & 0xFFFFFFF))->unit->datUnit) & 0xFFFF);
     return 1;
 }
 
-/* AI script command 0x20F0 (p4flow AI.json AI_FUNCTION_00F0). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E7FB0
 s32 btlEffectScriptPickRandomCandidate(void) {
     u16 count;
@@ -538,8 +523,8 @@ s32 btlEffectScriptPickRandomCandidate(void) {
     return 1;
 }
 
-/* AI script command 0x20f1 (p4flow AI.json AI_FUNCTION_00F1). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E8090
 s32 btlEffectScriptPickHansyaUnit(void) {
     u8 *work;
@@ -567,8 +552,8 @@ s32 btlEffectScriptPickHansyaUnit(void) {
     return 1;
 }
 
-/* AI script command 0x20f2 (p4flow AI.json AI_FUNCTION_00F2). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E8190
 s32 btlEffectScriptPickKyusyuUnit(void) {
     u8 *work;
@@ -596,8 +581,8 @@ s32 btlEffectScriptPickKyusyuUnit(void) {
     return 1;
 }
 
-/* AI script command 0x20f3 (p4flow AI.json AI_FUNCTION_00F3). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E8290
 s32 btlEffectScriptPickMukouUnit(void) {
     u8 *work;
@@ -625,8 +610,8 @@ s32 btlEffectScriptPickMukouUnit(void) {
     return 1;
 }
 
-/* AI script command 0x20f4 (p4flow AI.json AI_FUNCTION_00F4). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E8390
 s32 btlEffectScriptPickTaiseiUnit(void) {
     u8 *work;
@@ -654,8 +639,8 @@ s32 btlEffectScriptPickTaiseiUnit(void) {
     return 1;
 }
 
-/* AI script command 0x2080 (p4flow AI.json AI_FUNCTION_0080). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E8490
 s32 btlEffectScriptPickLowestHpWeakUnit(void) {
     BtlAction *workFields;
@@ -692,8 +677,8 @@ s32 btlEffectScriptPickLowestHpWeakUnit(void) {
     return 1;
 }
 
-/* AI script command 0x2081 (p4flow AI.json AI_FUNCTION_0081). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E85C0
 s32 btlEffectScriptPickLowestHpWeakFilteredUnit(void) {
     BtlAction *workFields;
@@ -730,8 +715,8 @@ s32 btlEffectScriptPickLowestHpWeakFilteredUnit(void) {
     return 1;
 }
 
-/* AI script command 0x2082 (p4flow AI.json AI_FUNCTION_0082). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E86F0
 s32 btlEffectScriptPickLowestHpWeakWideUnit(void) {
     BtlAction *workFields;
@@ -768,8 +753,8 @@ s32 btlEffectScriptPickLowestHpWeakWideUnit(void) {
     return 1;
 }
 
-/* AI script command 0x20f5 (p4flow AI.json AI_FUNCTION_00F5). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E8820
 s32 btlEffectScriptPickHighestHpWeakUnit(void) {
     BtlAction *workFields;
@@ -806,8 +791,8 @@ s32 btlEffectScriptPickHighestHpWeakUnit(void) {
     return 1;
 }
 
-/* AI script command 0x20f6 (p4flow AI.json AI_FUNCTION_00F6). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E8950
 s32 btlEffectScriptPickHighestHpWeakFilteredUnit(void) {
     BtlAction *workFields;
@@ -844,8 +829,8 @@ s32 btlEffectScriptPickHighestHpWeakFilteredUnit(void) {
     return 1;
 }
 
-/* AI script command 0x20f7 (p4flow AI.json AI_FUNCTION_00F7). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E8A80
 s32 btlEffectScriptPickHighestHpWeakWideUnit(void) {
     BtlAction *workFields;

@@ -119,14 +119,11 @@ static inline void btlCameraCopyPoseComponents(s64 *outPair, f32 *outComponent,
 }
 
 
-/* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
+/* Adapted from P3 btlCameraFrameActionSide (002a6ee0). */
 
 
-/* Source unit: src/promoted/code1_001c.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001ce470-001cff00 */
-
-/* measured: opt_propagation off probe for ce470 mixed-load ordering. */
-/* measured: direct paired stores, separate XY/Z snapshots and typed camera aliases retain three baseline words. */
+/* measured: propagation is off so the mixed camera loads keep retail's ordering; direct paired
+ * stores and typed aliases did not reproduce it. */
 #pragma opt_propagation off
 /* Submit fixed pose pairs at entry and frame 0x25 with their respective durations. */
 // FUN_001CE470
@@ -182,14 +179,12 @@ void btlCameraFrameFixed(u8 *camera)
     }
 }
 
-/* measured: close ce470 opt_propagation off probe. */
-/* measured: func_001ce620 MATCH -> MISMATCH without this pragma. */
+/* measured: btlCameraFrameRotated needs copy propagation back on to match retail code. */
 #pragma opt_propagation on
 /* Cache group bounds once, then advance yaw and submit a pitch-rotated pose. */
 // FUN_001CE620
 void btlCameraFrameRotated(u8 *camera, f32 pitch, f32 yawStep, f32 distanceFactor)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         u8 matrix[0x40];
@@ -230,8 +225,7 @@ void btlCameraFrameRotated(u8 *camera, f32 pitch, f32 yawStep, f32 distanceFacto
     btlMainCurveReset((u16 *)(camera), (f32 *)(frame.result));
 }
 
-/* measured probe: optimization_level 1 for 001CE7F0 register coloring. */
-/* measured: func_001ce7f0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail register allocation for this function only comes out at optimization level 1. */
 #pragma optimization_level 1
 /* Initialize random yaw and request fresh group bounds for rotating framing. */
 // FUN_001CE7F0
@@ -256,8 +250,7 @@ void btlCameraFrameRandomShift(u8 *camera) {
     btlCameraSetupActionGeometry((u8 *)((BtlCamera *)camera)->action, NULL, NULL, 0.0f, 0x100);
 }
 
-/* measured probe: close optimization_level 1 for 001CE7F0. */
-/* measured: btlAct_ROUNDUP_MES, func_001ce8c0, func_001ceba0 MATCH -> MISMATCH without this pragma. */
+/* measured: the following camera functions only match when compiled at optimization level 2. */
 #pragma optimization_level 2
 // FUN_001CE880
 void btlCameraFrameRotatedAlt(u8 *camera) {
@@ -268,7 +261,6 @@ void btlCameraFrameRotatedAlt(u8 *camera) {
 // FUN_001CE8C0
 void btlCameraFrameRotatedWide(u8 *camera, f32 pitch, f32 yawStep, f32 distanceFactor)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         u8 matrix[0x40];
@@ -338,7 +330,6 @@ void btlCameraFrameRotatedWide(u8 *camera, f32 pitch, f32 yawStep, f32 distanceF
 // FUN_001CEBA0
 void btlCameraSetUnitFlags(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     s32 index;
     s32 check;
@@ -392,7 +383,6 @@ void btlCameraFrameRotatedWideAlt(u8 *camera) {
 // FUN_001CECE0
 void btlAct_ROUNDUP_MES(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         u8 first[0x1C];
@@ -439,8 +429,8 @@ void btlAct_ROUNDUP_MES(u8 *camera)
     btlCameraSetDuration(camera, 1.0f);
 }
 
-/* measured probe: optimization_level 1 preserves 001CEF20 low-bit OR coloring. */
-/* measured: func_001cef20 MATCH -> MISMATCH without this pragma. */
+/* measured: optimization level 1 is needed so the low-bit OR in this function is register-colored
+ * the way retail does it. */
 #pragma optimization_level 1
 /* Initialize random yaw and invalidate the rotating frame bounds cache. */
 // FUN_001CEF20
@@ -465,8 +455,7 @@ void btlCameraFrameRandomHold(u8 *camera) {
     btlCameraSetupActionGeometry((u8 *)((BtlCamera *)camera)->action, NULL, NULL, 0.0f, 0x100);
 }
 
-/* measured: closes optimization_level 1 for 001CEF20. */
-/* measured: func_001cf020, func_001cf070 MATCH -> MISMATCH without this pragma. */
+/* measured: the following functions need optimization level 2 to produce retail's code. */
 #pragma optimization_level 2
 // FUN_001CEFB0
 void btlCameraFrameRotatedFar(u8 *camera) {
@@ -493,7 +482,7 @@ void btlCameraFrameBuildPair(u8 *camera) {
 // FUN_001CF070
 void btlCameraFrameSpawn(u8 *camera, u8 *defaultScript)
 {
-    /* The signed script selector at action+0x448 lies in the unrecovered mode-specific action tail. */
+    /* The signed script selector lies in the unrecovered mode-specific action tail. */
 
     s16 mode;
     u8 *target;
@@ -517,8 +506,8 @@ void btlCameraEffectListTickC(void) {
     btlCameraUpdateEffectList();
 }
 
-/* measured probe: optimization_level 1 preserves 001CF160 low-bit OR coloring. */
-/* measured: func_001cf160 MATCH -> MISMATCH without this pragma. */
+/* measured: optimization level 1 keeps retail's register choice for the low-bit OR in this
+ * function. */
 #pragma optimization_level 1
 /* Initialize random yaw without invalidating cached group bounds. */
 // FUN_001CF160
@@ -542,8 +531,8 @@ void btlCameraFrameRandomHoldAlt(u8 *camera) {
     btlCameraSetupActionGeometry((u8 *)((BtlCamera *)camera)->action, NULL, NULL, 0.0f, 0x100);
 }
 
-/* measured: closes optimization_level 1 for 001CF160. */
-/* measured: btlAct_ALL, btlAct_TARGET_ONLY, func_001cf1f0, func_001cf350, func_001cfad0 MATCH -> MISMATCH without this pragma. */
+/* measured: the following camera action functions only reproduce retail code at optimization level
+ * 2. */
 #pragma optimization_level 2
 /* Advance yaw by a quarter-degree while framing the selected actor at fixed distance. */
 // FUN_001CF1F0
@@ -585,7 +574,6 @@ void btlCameraFrameMatrixOffset(u8 *camera)
 // FUN_001CF350
 void btlCameraFrameClampedRotate(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct {
         f32 firstX;
@@ -715,7 +703,6 @@ void btlCameraFrameClampedRotate(u8 *camera)
 // FUN_001CF730
 void btlAct_ALL(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct {
         f32 firstX;
@@ -841,7 +828,6 @@ void btlAct_ALL(u8 *camera)
 // FUN_001CFAD0
 void btlCameraFrameStatusRoll(u8 *camera, f32 firstFactor, f32 secondFactor)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct {
         f32 first[7];

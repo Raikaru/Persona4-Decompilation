@@ -1,5 +1,5 @@
 #include "byte_address_internal.h"
-/* Original translation unit btlShuffleSeq.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlShuffleSeq.c (from __FILE__ assert strings). */
 
 #include "include_asm.h"
 #include "type.h"
@@ -31,10 +31,8 @@ extern s32 btlShuffleCardGetKind(u8 *work);
 extern u16 btlShuffleCardStateFlags(u8 *card);
 extern s32 btlShuffleDrawTableLookup(s32 cardCount, s32 pattern);
 
-/* measured: the operands must travel through this helper's parameters to get
-   retail's offset-first `addu $v1,$v0,$s2` at the reused record base; writing
-   `arg0 + offset` gives base-first, and naming the offset in an s32 local fixes
-   the order but costs a fourth saved register and grows the frame to 0x80. */
+/* measured: passing the operands through this inline helper's parameters gives retail's offset-
+ * first add for the record base without an extra saved register. */
 
 extern void btlShuffleDrawViewReset(u8 *context);
 extern s32 btlShuffleSeq1Run(u8 *context);
@@ -81,14 +79,10 @@ extern s32 D_00763AD0;
 extern s32 D_00763AD4;
 
 
-/* 804/816 bytes; eight resolved relocations and twelve zero alignment bytes.
- * CSE-off recomputes the two swap record bases; LICM-on hoists the inner
- * descriptor-count address while retaining each count reload. Together they
- * preserve retail's register allocation. The word buffer holds one 0xFB0-byte
- * record and is completely written before it is read. */
-/* measured: baseline nd494; typed parameter cache, scoped locals, inverted if/else did not match (best nd375); retain opt_common_subs off. */
+/* measured: retail recomputes the two swap record bases instead of reusing them, so common-
+ * subexpression elimination stays off. */
 #pragma opt_common_subs off
-/* measured: baseline nd494; typed parameter cache, scoped locals, inverted if/else did not match (best nd375); retain opt_loop_invariants on. */
+/* measured: retail hoists the inner descriptor-count address but reloads each count. */
 #pragma opt_loop_invariants on
 /* Reorder whole card records to agree with the repeating descriptor list. */
 // FUN_00378600
@@ -141,7 +135,6 @@ void btlShuffleSeqCardSetup(u8 *context)
         if (ok == 0) {
             j = i + 1;
             while (j < n - 1) {
-                /* measured: the typed object alias preserves reloads that access-site casts would merge. */
                 desc = context + (i % shuffleContext->cardCount) * 8 + 0x1F250;
                 card = context + j * 0xFB0;
                 genus2 = ((BtlShuffleCardSpec *)desc)->kind;
@@ -298,16 +291,8 @@ u16 btlShuffleSeqRoll(void) {
     return (u16)x;
 }
 
-/* The one-word `addu` operand order this note called a floor is fixed by using
-   the inline helper PER USE instead of through a named local. The note was right
-   that naming the base costs a fourth saved register and grows the frame to
-   0x80 -- that applies to an inline helper assigned to a local too. Re-expanding
-   the helper at each field access carries the operand order through its
-   parameters while leaving no value live across the call, so the frame stays
-   0x70. Casting the integer-domain base to `u8 *` before adding the field offset
-   is what keeps retail's per-group lui/ori $at expansion rather than one hoisted
-   lui. */
-/* Start the next circular card segment from its current pose and angle. */
+/* Start the next circular card segment from its current pose and angle. The record-base helper is
+ * re-expanded at each field access so no base stays live across calls. */
 // FUN_00378C80
 s32 btlShuffleSeqRecord(u8 *context, s32 cardIndex, s32 frames)
 {
@@ -317,10 +302,8 @@ s32 btlShuffleSeqRecord(u8 *context, s32 cardIndex, s32 frames)
     f32 angle;
 
     if (btlShuffleDrawStateB(context + (cardIndex * 0xE8) + 0x1D6A0) != 0) {
-        /* measured: the record base is spelled offset-first in the integer domain
-           at every use so b210 emits retail's `addu $v1,$v0,$s2`; a named local or
-           an inline helper fixes the order too but costs a fourth saved register
-           and grows the frame from 0x70 to 0x80. */
+        /* measured: the record base is written offset-first at every use; a named local adds a
+         * saved register and grows the frame. */
         *(Vec3f *)&axis[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)(u32)byteAddressAdd(cardIndex * 0xE8, (u8 *)((u32)context))))->cards[0].axis;
         *(Vec3f *)&eye[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)((cardIndex * 0xE8) + ((u32)context))))->cards[0].eye;
         *(Vec3f *)&origin[0] = *(Vec3f *)&((BtlShuffleContext *)((u8 *)((cardIndex * 0xE8) + ((u32)context))))->cards[0].origin;
@@ -374,7 +357,7 @@ void btlShuffleSeqMoveB(u8 *context, s32 cardIndex) {
 
 /* Move a card outward in depth and fade it over the requested duration. */
 // FUN_00378F90
-/* measured: O1 probe for the negative conversion's destination register and tail padding. */
+/* measured: retail's negative-frames conversion and tail padding come from optimization level 1. */
 #pragma optimization_level 1
 void btlShuffleSeqSetMode(u8 *context, s32 cardIndex, s32 frames) {
     f32 position[3];
@@ -394,10 +377,8 @@ void btlShuffleSeqSetMode(u8 *context, s32 cardIndex, s32 frames) {
     btlShuffleDrawMoveCardB(context, cardIndex, NULL, &position[0], 0.0f, duration);
     btlShuffleDrawSetFrames(context, cardIndex, frames, 0xFF, 0);
 }
-/* measured: optimization level 1 is required to match func_00379090. */
+/* measured: retail code for this function is built at optimization level 1. */
 #pragma optimization_level 1
-/* reconstructed from the retail disassembly and Ghidra decompile; scoped
-   lverify reports an exact byte match for the 192-byte function window. */
 /* Rotate a result card by a signed quarter-turn over the requested frame interval. */
 // FUN_00379090
 void btlShuffleSeqUpdateMode(u8 *ctx, s32 idx, u16 mode, s32 direction) {
@@ -427,14 +408,8 @@ void btlShuffleSeqUpdateMode(u8 *ctx, s32 idx, u16 mode, s32 direction) {
         btlShuffleDrawSetQuat(ctx, idx, 0, mode, 0, (f32 *)&rotation[0]);
     }
 }
-/* measured: restore optimization level 2 after the O1 target probe; required by following functions. */
+/* measured: the following functions are built at optimization level 2. */
 #pragma optimization_level 2
-
-
-
-
-
-
 
 
 /* Compare card kinds and, for persona cards, the encoded persona identifiers. */
@@ -461,17 +436,7 @@ s32 btlShuffleSeqCheck(u8 *context, s32 firstIndex, s32 secondIndex) {
     }
     return 0;
 }
-/* measured: nd 211, frame floor. Object 496B vs window 480B (overflows). mwcc emits
-   frame -0x40 with sp30 at 0x3c; retail uses -0x70 with sp30 at 0x30 (0x30-0x70
-   unused slack). The loop counter colors $a0 (retail: $a1) with the `== 2`
-   constant reloaded as `addiu $v0,2` each iteration (retail hoists it into
-   $a0). `#pragma opt_loop_invariants on` does NOT hoist it and does not change
-   the frame. All other bytes (prologue, loop body, both 0x142A/0x142B branches)
-   match modulo the register shift. GP globals: -0x5620->D_00763AD0,
-   -0x561C->D_00763AD4 (GP base 0x007690F0). sp30 must be `char[...]` (s32* ->
-   char* is illegal in mwcc). 4 attempts. */
-/* measured probe: hoist loop-invariant record type for func_00379240. */
-/* measured: baseline nd34; typed parameter cache, scoped locals did not match (best nd34); retain opt_loop_invariants on. */
+/* measured: retail hoists the loop-invariant record type comparison out of the loop. */
 #pragma opt_loop_invariants on
 /* Collect replacement-card slots and open the enabled replacement message. */
 // FUN_00379240
@@ -525,7 +490,7 @@ s32 btlShuffleSeqLoadRecord(u8 *context) {
     }
     return 0;
 }
-/* measured: restore the translation unit's prior loop-invariant setting. */
+/* measured: restores the unit setting after the preceding shuffle function. */
 #pragma opt_loop_invariants off
 
 
@@ -534,10 +499,8 @@ typedef struct ShufflePair {
     f32 y;
 } ShufflePair;
 
-/* 1192/1200 bytes with eight zero alignment bytes. The comma expression
- * snapshots the random scale before loading the record count, preserving
- * retail's `mul.s $f0,$f0,$f1` operand order. */
-/* Run the message, fade and descriptor replacement sequence. */
+/* Run the message, fade and descriptor replacement sequence. The comma expression reads the random
+ * scale before the record count, keeping retail's multiply operand order. */
 // FUN_00379420
 
 s32 btlShuffleSeqStep(u8 *context) {
@@ -568,7 +531,6 @@ s32 btlShuffleSeqStep(u8 *context) {
         goto done;
 
     case 1:
-        /* measured: the typed object alias preserves reloads that access-site casts would merge. */
         if (btlShuffleDrawViewIsFadeDone(*(s32 *)&shuffleContext->viewTask) == 0) {
             goto done;
         }

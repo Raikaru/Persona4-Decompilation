@@ -48,7 +48,6 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
@@ -65,7 +64,8 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- the caller's (u16, s32) prototype is needed to reproduce retail code for
+// FlashQuadCopyAllocFromRecord.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -74,11 +74,9 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a1ca0-004a1d70 */
-/* Unit setting; measured: removing loop-invariant hoisting changes both functions (47/155 differing words). */
+/* measured: retail hoists loop-invariant code in both functions of this unit. */
 #pragma opt_loop_invariants on
 
-/* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
 /* Reset each wind entry age to -1 and initialize its material color from the global tint. */
 // FUN_004A1CA0
 void mdlEffectResetWindEntries(u8 *instance)
@@ -111,11 +109,8 @@ void mdlEffectResetWindEntries(u8 *instance)
     }
 }
 
-/* measured: loop-invariant hoisting recovers the shared fade constants and
-   replication strides. The 4-byte color assignment preserves retail's
-   load-all/store-all byte copy. Separate loop locals keep the saved-register
-   allocation exact. */
-/* Build fade-in/out vertex color rows and width coordinates, then replicate them for every mesh. */
+/* Build fade-in/out vertex color rows and width coordinates, then replicate them for every mesh.
+ * Colors are copied as 4-byte assignments, as retail does. */
 // FUN_004A1D70
 void mdlEffectBuildWindFadeRows(u8 *instance, u8 *parameters)
 {
@@ -140,10 +135,8 @@ void mdlEffectBuildWindFadeRows(u8 *instance, u8 *parameters)
 
     meshCount = ((MdlEffectWindParameters *)parameters)->meshCount;
     if (meshCount != 0) {
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         geometry = (u8 *)((RpAtomic *)((MdlEffectMultipartGeometry *)MEMBER(u8 *, instance, MdlEffectWindWork, geometry))->model)->geometry;
         RpGeometryLock((RpGeometry *)geometry, 0xFF8);
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         geometry = (u8 *)((RpAtomic *)((MdlEffectMultipartGeometry *)MEMBER(u8 *, instance, MdlEffectWindWork, geometry))->model)->geometry;
         colorsBase = (u8 *)((RpGeometry *)geometry)->colors;
         colors = colorsBase;
@@ -165,7 +158,6 @@ void mdlEffectBuildWindFadeRows(u8 *instance, u8 *parameters)
                 opacity = 1.0f;
             }
             ((u32 *)colors)[0] = 0xFFFFFF;
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
             MEMBER(u32, colors, MdlEffectWindColorRow, colors[1]) = ((u32)(opacity * 255.0f) << 24) | 0xFFFFFF;
             ((PolygonWindColor *)colors)[2] = ((PolygonWindColor *)colors)[1];
             ((u32 *)colors)[3] = 0xFFFFFF;

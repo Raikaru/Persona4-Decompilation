@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Kernel/Kwln/kwln.c; members 00182310-001852f0 */
 #include "member_access.h"
 #include "field_transition_internal.h"
 #include "sdk_lbox_internal.h"
@@ -23,7 +22,8 @@
 #include "mdl_file_internal.h"
 #include "primitive_queue_internal.h"
 
-/* Unit settings: measured ambient/weather helpers use loop invariants off and propagation on. */
+/* measured: the ambient/weather helpers in this unit are built with loop invariants off and
+ * propagation on. */
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 
@@ -185,10 +185,10 @@ extern u8 D_007E8C00[];
 extern u8 *iGpffff9db0;
 extern s32 iGpffffb884;
 #pragma push
+/* measured: retail hoists the loop invariants in the actor-slot broadcast. */
 #pragma opt_loop_invariants on
 /* Broadcast a pause value to the linked chaser/patrol task of each occupied, active actor slot. */
 // FUN_00182310
-/* measured: inline and explicit actor-table base; best baseline residual 94 differing bytes. */
 void FldSlotBroadcastState(s32 state)
 {
     s32 slotIndex;
@@ -353,7 +353,6 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
 #pragma opt_propagation off
 /* Install the depth, shade and blend states used for the rain PTank draw. */
 // FUN_00182B40
-/* measured: local table pointer and direct callback-table calls; best baseline residual 59 differing bytes. */
 void FldRainRenderStateSet(void)
 {
     void (**fn)(s32, s32);
@@ -366,15 +365,15 @@ void FldRainRenderStateSet(void)
 }
 #pragma pop
 
-/* Rain stores real PTank locks, vectors and matrices. Pool indexing and the
- * shared trail/reset counter preserve the observed callback lifetimes.
- * Verified with all owner functions, relocations and owned data. */
+/* Rain work stores PTank locks, vectors and matrices; drop trails and resets share one counter. */
 // FUN_00182BC0
 #pragma push
+/* measured: retail hoists the rain pool's loop invariants out of the column and trail loops. */
 #pragma opt_loop_invariants on
-/* Initialize the camera-facing rain pool, then spawn columns and update each drop trail before queueing its PTank. */
-/* PTank plugin slots use a runtime offset; fixed frame, texture, material and strided-lock fields are typed. */
-/* measured: access-site fields and existing typed rain alias; best baseline residual 664 differing bytes. */
+/* Initialize the camera-facing rain pool, then spawn columns and update each drop trail before
+ * queueing its PTank. PTank plugin slots use a runtime offset; fixed frame, texture, material and
+ * strided-lock fields are typed. measured: retail hoists loop-invariant field accesses through the
+ * typed rain alias, so loop-invariant optimization stays on. */
 s32 FldRainUpdate(u8 *task)
 {
     FldRainWork *rainWork;
@@ -446,9 +445,7 @@ s32 FldRainUpdate(u8 *task)
         ((FldRainWork *)work)->origin.z = ((FldRainWork *)work)->distance;
         columnsNeeded = ((FldRainWork *)work)->spanX / ((FldRainWork *)work)->spacing;
         ((FldRainWork *)work)->columnCount = (s32)columnsNeeded;
-        /* measured: typing each retained access on this line loses owner MATCH. */
         if (!((((FldRainWork *)work)->spanX / ((FldRainWork *)work)->spacing) <= (f32)MEMBER(s32, work, FldRainWork, columnCount))) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
             rainWork->columnCount = MEMBER(s32, work, FldRainWork, columnCount) + 1;
         }
         rainWork->columnCount = ((FldRainWork *)work)->columnCount + 1;
@@ -493,11 +490,9 @@ s32 FldRainUpdate(u8 *task)
         ((RwFrame *)(rainWork->frame.bytes))->modelling.pos.x = 0.0f;
         ((RwFrame *)rainWork->frame.bytes)->modelling.flags |= 0x20003;
         RpAtomicSetFrame(rainWork->atomic.atomic, rainWork->frame.frame);
-        /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
+        /* PTank plugin data sits at a runtime-selected offset in the atomic, not a fixed member. */
         ((RpPTankAtomicExtPrv *)(((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0]))->instanceFlags |= 0x800000;
-        /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
         ((RpPTankAtomicExtPrv *)(((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0]))->activeCount = 0;
-        /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
         ((RpPTankAtomicExtPrv *)(((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0]))->unkB4 = 1;
         func_003a2950(rainWork->atomic.atomic, 1, 0x44);
         func_003a2950(rainWork->atomic.atomic, 2, 0x717FB);
@@ -506,9 +501,7 @@ s32 FldRainUpdate(u8 *task)
             texture = (u8 *)func_003ef650(func_003ef6d0(), (const char *)(D_005F1D10 + ((FldRainWork *)work)->textureIndex * 0x18));
             ((RwTexture *)texture)->filterAddressing = (((RwTexture *)texture)->filterAddressing & ~0xFF) | 2;
             func_003c42b0(*((struct RpAtomic *)rainWork->atomic.bytes)->geometry->materials, (RwTexture *)texture);
-            /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
             memcpy(((RpPTankAtomicExtPrv *)((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0])->unkE0, D_005F1D70, 0x10);
-            /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
             ((RpPTankAtomicExtPrv *)(((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0]))->instanceFlags |= 0x80000;
             ((FldRainWork *)work)->matrix.matrix = func_003e0f80();
         }
@@ -565,13 +558,11 @@ s32 FldRainUpdate(u8 *task)
         ((FldRainWork *)work)->particleCount = 0;
         for (dropIndex = 0; dropIndex < ((FldRainWork *)work)->dropCount; dropIndex++) {
             RainDrop *drop;
-            /* measured: typing each retained access on this line loses owner MATCH. */
             drop = MEMBER(RainDrop *, work, FldRainWork, drops.drops);
             if (drop[(u32)dropIndex].active == 0) {
                 continue;
             }
             trailIndex = 0;
-            /* measured: typing each retained access on this line loses owner MATCH. */
             if ((MEMBER(RainDrop *, work, FldRainWork, drops.drops))[(u32)dropIndex].count <= 0) {
                 continue;
             }
@@ -647,9 +638,7 @@ s32 FldRainUpdate(u8 *task)
                 ((RwRGBA *)colorLock.data)->alpha = (u8)(((FldRainWork *)work)->alpha - trailIndex * 5);
                 if ((trailIndex == (rainWork->drops.drops)[(u32)dropIndex].count - 1) && (((RainMatrix *)(rainWork->matrix.bytes))->pos.y < -((FldRainWork *)work)->spacing)) {
                     (rainWork->drops.drops)[(u32)dropIndex].active = 0;
-                    /* measured: typing each retained access on this line loses owner MATCH. */
                     for (trailIndex = 0; trailIndex < (MEMBER(RainDrop *, work, FldRainWork, drops.drops))[(u32)dropIndex].count; trailIndex++) {
-                        /* measured: typing each retained access on this line loses owner MATCH. */
                         (MEMBER(RainDrop *, work, FldRainWork, drops.drops))[(u32)dropIndex].steps[trailIndex].y = 0.0f;
                         (rainWork->drops.drops)[(u32)dropIndex].steps[trailIndex].elapsed = 0.0f;
                     }
@@ -664,7 +653,6 @@ s32 FldRainUpdate(u8 *task)
             /* Runtime-selected PTank plugin slot, not a fixed atomic member. */
             plugin = ((u8 **)(((FldRainWork *)work)->atomic.bytes + iGpffffb610))[0];
             ((RpPTankAtomicExtPrv *)(plugin))->instanceFlags |= 0x800000;
-            /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
             ((RpPTankAtomicExtPrv *)(((u8 **)(((FldRainWork *)work)->atomic.bytes + iGpffffb610))[0]))->activeCount = rainWork->particleCount;
         }
         func_003a2920(((FldRainWork *)work)->atomic.atomic);
@@ -687,7 +675,8 @@ s32 FldRainUpdate(u8 *task)
 /* Release each drop motion buffer, the rain pool, timers and RenderWare handles before freeing task work. */
 #pragma opt_propagation off
 // FUN_001837F0
-/* measured: typed task alias and direct task-work reload; best baseline residual 80 differing bytes. */
+/* measured: retail reloads the work pointer straight from the task instead of keeping the typed
+ * alias in a register. */
 void FldRainDestroy(u8 *task)
 {
     KwlnTask *rainTask = (KwlnTask *)task;
@@ -771,28 +760,18 @@ void FldRainRenderStateReset(u8 *unused, u8 *work)
     }
     /* The render-state interface consumes the texture handle's leading raster word. */
     (*(void (**)(s32, s32))callback)(1,
-                                      /* measured: typing each retained access on this line loses owner MATCH. */
                                       MEMBER(s32, ((FldFogWork *)work)->texture, RwTexture, raster));
 }
 
-/* 2026-10-08: opt_lifetimes on lowers fnalign from 1427 to 879 edits. */
-/* Matching notes: the state dispatch is a switch (retail tests 1 then 0 and
- * shares one return); the grid offsets convert i * half first ((s32)(u32));
- * the low colour byte is loaded into a u32 before the high byte; the 0xF0 row
- * pointer uses ((s32)columnIndex << 8), distinct from (u32)columnIndex * 0x100;
- * rowIndex is declared before columnIndex and converted inline; each of the
- * four colour-interpolation blocks retains separate channel-delta temporaries (a reused float
- * becomes late split ranges that rotate the temporaries).
- * opt_loop_invariants on is measured: without it b210 keeps the loop
- * invariants in the body and the object no longer fits retail's window.
- */
+/* The state dispatch is a switch sharing one return. */
 // FUN_00183B80
 #pragma push
+/* measured: retail hoists the loop invariants out of the fog grid loops. */
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
-/* Build a two-by-two fog mesh with vertically interpolated colors, then scroll and wrap its texture coordinates. */
-/* Typed quad fields retain the measured signed/unsigned cursor address trees documented above. */
-/* measured: typed fog alias and independent lifetime/invariant bisection; best baseline residual 4588 differing bytes. */
+/* Build a two-by-two fog mesh with vertically interpolated colors, then scroll and wrap its texture
+ * coordinates. measured: retail's loop code needs lifetime and loop-invariant optimization enabled
+ * for this function. */
 s32 FldFogUpdate(u8 *task)
 {
     FldFogWork *fogWork;
@@ -866,14 +845,12 @@ s32 FldFogUpdate(u8 *task)
         if (((FldFogWork *)work)->scrollX == 0.0f) {
             fogWork->scrollX = ((FldFogWork *)work)->scrollY / 5.0f;
             if ((RpRandom() & 1) != 0) {
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 MEMBER(f32, work, FldFogWork, scrollX) = MEMBER(f32, work, FldFogWork, scrollX) * -1.0f;
             }
         }
         if (((FldFogWork *)work)->scrollY == 0.0f) {
             fogWork->scrollY = fogWork->scrollX / 5.0f;
             if ((RpRandom() & 1) != 0) {
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 MEMBER(f32, work, FldFogWork, scrollY) = MEMBER(f32, work, FldFogWork, scrollY) * -1.0f;
             }
         }
@@ -891,11 +868,9 @@ s32 FldFogUpdate(u8 *task)
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
                 ((FldFogWork *)quad)->quads[0][0][0].y = (f32)((FldFogWork *)work)->y + gridOffset;
                 ((FldFogWork *)quad)->quads[0][0][0].z = nearDepth;
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 halfExtent = MEMBER(s16, work, FldFogWork, viewportWidth) / 2;
                 gridCoordinate = columnIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 ((FldFogWork *)quad)->quads[0][0][1].x = (f32)MEMBER(s16, work, FldFogWork, viewportWidth) / 2.0f + ((f32)fogWork->x + gridOffset);
                 halfExtent = fogWork->viewportHeight / 2;
                 gridCoordinate = rowIndex * halfExtent;
@@ -906,11 +881,9 @@ s32 FldFogUpdate(u8 *task)
                 gridCoordinate = columnIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
                 ((FldFogWork *)quad)->quads[0][0][2].x = (f32)fogWork->x + gridOffset;
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 halfExtent = MEMBER(s16, work, FldFogWork, viewportHeight) / 2;
                 gridCoordinate = rowIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
-                /* measured: typing each retained access on this line loses owner MATCH. */
                 ((FldFogWork *)quad)->quads[0][0][2].y = (f32)MEMBER(s16, work, FldFogWork, viewportHeight) / 2.0f + ((f32)fogWork->y + gridOffset);
                 ((FldFogWork *)quad)->quads[0][0][2].z = nearDepth;
                 halfExtent = ((FldFogWork *)work)->viewportWidth / 2;
@@ -1061,13 +1034,9 @@ s32 FldFogUpdate(u8 *task)
             f32 left;
             f32 right;
             f32 bottom;
-            /* measured: typing each retained access on this line loses owner MATCH. */
             left = MEMBER(f32, work, FldFogWork, halfWidth) * (f32)columnIndex + MEMBER(f32, work, FldFogWork, left);
-            /* measured: typing each retained access on this line loses owner MATCH. */
             top = MEMBER(f32, work, FldFogWork, halfHeight) * (f32)rowIndex + MEMBER(f32, work, FldFogWork, top);
-            /* measured: typing each retained access on this line loses owner MATCH. */
             right = MEMBER(f32, work, FldFogWork, halfWidth) * (f32)(columnIndex + 1) + MEMBER(f32, work, FldFogWork, left);
-            /* measured: typing each retained access on this line loses owner MATCH. */
             bottom = MEMBER(f32, work, FldFogWork, halfHeight) * (f32)(rowIndex + 1) + MEMBER(f32, work, FldFogWork, top);
             ((FldFogWork *)((work + (rowIndex << 9)) + (columnIndex << 8)))->quads[0][0][0].u = left;
             ((FldFogWork *)((work + (rowIndex << 9)) + (columnIndex << 8)))->quads[0][0][0].v = top;
@@ -1082,9 +1051,7 @@ s32 FldFogUpdate(u8 *task)
     }
     ((FldFogWork *)work)->left = ((FldFogWork *)work)->left + ((FldFogWork *)work)->scrollX;
     ((FldFogWork *)work)->top = ((FldFogWork *)work)->top + ((FldFogWork *)work)->scrollY;
-    /* measured: typing each retained access on this line loses owner MATCH. */
     MEMBER(f32, work, FldFogWork, right) = MEMBER(f32, work, FldFogWork, right) + fogWork->scrollX;
-    /* measured: typing each retained access on this line loses owner MATCH. */
     MEMBER(f32, work, FldFogWork, bottom) = MEMBER(f32, work, FldFogWork, bottom) + fogWork->scrollY;
     {
         f32 origin;

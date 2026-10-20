@@ -154,8 +154,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 004669d0-004669d0 */
-
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -228,8 +226,7 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-/* 512/512 bytes; ten fully resolved relocations.
- * A real interrupt-state local retains the retail spill under register pressure. */
+/* A real interrupt-state local keeps retail's spill under register pressure. */
 // FUN_004669D0
 /* Unlink a completed request, return its kind-specific result and release its pool slot. */
 u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue)

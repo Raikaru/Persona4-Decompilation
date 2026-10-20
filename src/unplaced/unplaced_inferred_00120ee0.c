@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00120ee0-001211a0 */
 
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -42,14 +41,14 @@ s32 taskRecordIsDone(void *task)
     return ((CalendarStepWork *)((SdkTask *)task)->work)->state == 2;
 }
 
-/* Set the request word at +0x14; its consumer is outside this unit. */
+/* Set request14; its consumer is outside this unit. */
 // FUN_00120F00
 void taskRecordRequestSecondary(void *task)
 {
     ((CalendarStepWork *)((SdkTask *)task)->work)->request14 = 1;
 }
 
-/* Set the request word at +0x10; its consumer is outside this unit. */
+/* Set request10; its consumer is outside this unit. */
 // FUN_00120F20
 void taskRecordRequestPrimary(void *task)
 {

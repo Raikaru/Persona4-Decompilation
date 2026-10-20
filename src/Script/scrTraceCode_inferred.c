@@ -24,10 +24,10 @@ extern char D_0063CB30[];
 extern char D_0063D050[];
 
 
-
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-// lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
+// lint: allow H011 -- measured: retail passes wide id arguments, so a u16 prototype changes
+// func_00291a60.
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,
                           s32);
@@ -45,19 +45,12 @@ extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
 
-
 extern void mtMiscCollectType1Records(u8 *eventWork);
-/* measured probe: close opt_propagation bracket after func_00291530. */
-
-
-
 
 
 #pragma push
 
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029d010-0029d050 */
 
 // Stores arg0 (a script label address) as the current label of the script context.
 // FUN_0029D010
@@ -72,7 +65,7 @@ s32 scrGetCmdTimer(void)
     return ((ScrContext*)iGpffffb510)->commandTimer;
 }
 
-// Returns the message-window manager index stored in the script context at +0x130.
+// Returns the message-window manager index stored in the script context.
 // FUN_0029D030
 s32 scrGetMessageManager(void)
 {
@@ -87,8 +80,7 @@ s32 scrGetContext(void)
     return (s32)iGpffffb510;
 }
 
-// Returns the AI state pointer stored in the script context at +0x154; battle AI
-// commands use it as their action record.
+// Returns the script context's AI state pointer; battle AI commands use it as their action record.
 // FUN_0029D050
 s32 scrGetAiState(void)
 {

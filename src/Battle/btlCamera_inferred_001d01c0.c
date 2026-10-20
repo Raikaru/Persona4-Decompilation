@@ -46,15 +46,6 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
-
-
-
-
 extern s32 btlActionGetQueueFront(void);
 extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
 extern f32 tanf(f32 first);
@@ -66,15 +57,10 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d01c0-001d01c0 */
-
-/* Two-unit framing: stage all three vector sums before subtracting focus.
- * MWCC: 1004/1008 bytes, 19 resolved relocations, four zero tail bytes. */
+/* Two-unit framing: stage all three vector sums before subtracting focus. */
 // FUN_001D01C0
 void btlAct_PURSUIT(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct
     {

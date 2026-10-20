@@ -1,4 +1,4 @@
-/* Original translation unit k_fldData.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldData.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_task_registration.h"
 #include "sdktask.h"
@@ -93,12 +93,9 @@ extern s32 iGpffffb284;
 extern s32 FldStartupDataUpdate(u8 *);
 
 
-
-/* Measured with configured MWCCPS2 b210 -O2: 4196 executable bytes,
- * followed by twelve zero alignment bytes. Independent allocation/copy size
- * snapshots preserve the resource extent through each native call boundary. */
+/* Separate allocation and copy size snapshots keep the resource extent live across each native
+ * call. */
 #pragma push
-/* measured: FldStartupDataUpdate MATCH -> MISMATCH without this pragma. */
 typedef struct FldDataLoadWork {
     s32 state;
     s32 reserved04;
@@ -122,12 +119,10 @@ typedef struct FldDataLoadWork {
 typedef char FldDataLoadWorkSizeCheck[sizeof(FldDataLoadWork) == 0xF4 ? 1 : -1];
 
 
-/* Source unit: src/promoted/k_fldData.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldData.c; members 0015d730-0015e7d0 */
-
 /* Load startup models, scripts and tables, then finish texture requests and the mipmap task. */
 // FUN_0015D730
-/* measured: baseline 14 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail keeps block-local values live without propagating them, so propagation stays off
+ * here. */
 #pragma opt_propagation off
 s32 FldStartupDataUpdate(u8 *task)
 {

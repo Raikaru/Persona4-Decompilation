@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 001537c0-00153a30 */
 
 /* Unit optimizer setting shared by all scene-resource functions. */
 #pragma opt_loop_invariants on
@@ -20,7 +19,7 @@ extern void FldRc_SetClumpVector(s32, s32);
 extern void FldRc_SetObjectVector(s32, s32);
 extern s32 mdlGetClump(s32);
 #include "resrc_manager_internal.h"
-/* Scene render resources: +8 object, +0x18 clump count, followed by clump handles. */
+/* Scene render resources: an object, a clump count, then the clump handles. */
 typedef struct {
     u32 flags;
     u8 pad4[4];
@@ -30,7 +29,7 @@ typedef struct {
     u32 clumps[1];
 } SceneRenderResources;
 
-// Intent: Set the vector on the scene's object, its clumps and the resource list 0xA entries [inferred]
+// Set the vector on the scene's object, its clumps and the entries of resource list 0xA.
 // FUN_001537C0
 void MT_Scene_SetResVector(u8 *resource, s32 vector)
 {
@@ -52,7 +51,8 @@ void MT_Scene_SetResVector(u8 *resource, s32 vector)
     }
 }
 
-// Intent: Scale the colours of the scene's object and clumps by the given colour, then set the resource list's model colours [inferred]
+// Scale the colours of the scene's object and clumps by the given colour, then set the resource
+// list's model colours.
 // FUN_001538A0
 void MT_Scene_ScaleResColors(u32 *resource, const f32 *color)
 {
@@ -82,7 +82,7 @@ void MT_Scene_ScaleResColors(u32 *resource, const f32 *color)
     }
 }
 
-// Intent: Task update for the colour cross-fade: run one cross-fade step and continue [inferred]
+// Task update for the colour cross-fade: run one cross-fade step and continue.
 // FUN_00153A00
 s32 FldColorCrossfadeUpdate(u8 *unusedTask)
 {
@@ -90,7 +90,7 @@ s32 FldColorCrossfadeUpdate(u8 *unusedTask)
     return 0;
 }
 
-// Intent: Call the task's hook from the hook table with the work block at +0x38 [inferred]
+// Call the task's hook from the hook table with the task's work block.
 // FUN_00153A30
 void MT_Scene_CallTaskHook(u8 *task)
 {

@@ -7,7 +7,7 @@
 #include "Kosaka/k_fldResource_internal.h"
 #include "field_transition_internal.h"
 #include "sdk_task_registration.h"
-/* Original translation unit k_fldEnvironment.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldEnvironment.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdktask.h"
 
@@ -142,13 +142,9 @@ typedef char FldEnvironmentFileSize[sizeof(FldEnvironmentFile) == 0x37C ? 1 : -1
 typedef char FldCameraFileSize[sizeof(FldCameraFile) == 0x250 ? 1 : -1];
 
 
-/* Source unit: src/promoted/k_fldEnvironment.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldEnvironment.c; members 00153a60-00154be0 */
-
 extern s32 FldStepEntry(void);
-/* Use the packed step's environment state when a step record exists. */
-/* FldStepEntry returns a packed step record; only its +0x0D environment-state byte is established here. */
-/* Use the active step environment state, retaining the supplied state when absent. */
+/* Return the active step record's environment state, or the supplied state when no step record
+ * exists. */
 static inline s32 fldEnvironmentEventState(s32 state)
 {
     u8 *entry;
@@ -249,13 +245,11 @@ s32 FldEnvOpenFile(s32 room) {
     return 1;
 }
 
-/* measured: MATCH 0 via tools/probe_variants.py src/promoted/k_fldEnvironment.c FldEnvironmentLoad (fnalign retail 592/object 592 exact, 0 edits; probe 21->7 via opt_loop_invariants on, 7->4 via P-index 0x10001 loop ((u8 **)P)[i+10] for lw-before-sll, 4->0 via P-index 0x68/0x78 loops ((s32 *)P)[i+26/30]; five follow-up rounds R1 index ties except hoisted-row 257 fail, R2 decl-orders tie plus hoisted-count/P 535 fail, R3 pragmas loop_invariants 7 win vs unroll/schedule tie, R4 index-under-pragma 4 win, R5 68/78 P-index 0 MATCH). De-noised m2c 347 plus rw 363 plus types 3-vs-2 into file idiom. Production live. */
 /* Install the versioned environment colors, lighting, fog, rain and mipmap parameters. */
-/* Earlier full-layout probe: 2440 bytes for a 2368-byte window. Named MEMBER exceptions preserve the measured reloads. */
 // FUN_00153D60
 #pragma push
-/* measured: FldEnvironmentLoad MATCH -> MISMATCH without this pragma. */
-/* measured: baseline 21 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+/* measured: retail hoists loop-invariant loads in FldEnvironmentLoad; typed access and block-scoped
+ * lifetimes alone do not reproduce it. */
 #pragma opt_loop_invariants on
 s32 FldEnvironmentLoad(u8 *file, s32 room)
 {
@@ -345,7 +339,7 @@ s32 FldEnvironmentLoad(u8 *file, s32 room)
     iGpffffba64 = ((FldEnvironmentFile *)(data))->blue;
     iGpffffba68 = 0;
     kwlnSetColorRgba(((FldEnvironmentFile *)(data))->red, ((FldEnvironmentFile *)(data))->green, ((FldEnvironmentFile *)(data))->blue, 0);
-    kwlnSetColorBytes(MEMBER(u8, data, FldEnvironmentFile, red), MEMBER(u8, data, FldEnvironmentFile, green), MEMBER(u8, data, FldEnvironmentFile, blue), 0); /* measured: FldEnvironmentFile.red: local nd1694; FldEnvironmentFile.green: local nd1699; FldEnvironmentFile.blue: local nd1704; MEMBER retains reload behavior. */
+    kwlnSetColorBytes(MEMBER(u8, data, FldEnvironmentFile, red), MEMBER(u8, data, FldEnvironmentFile, green), MEMBER(u8, data, FldEnvironmentFile, blue), 0);
     func_003e81c0(kwlnGetCamera(), ((FldEnvironmentFile *)(data))->farPlane);
     fogDistance = ((FldEnvironmentFile *)(data))->fogPlane;
     ((RwCamera *)(kwlnGetCamera()))->fogPlane = fogDistance;
@@ -354,18 +348,18 @@ s32 FldEnvironmentLoad(u8 *file, s32 room)
         if (((FldEnvironmentFile *)(data))->nearPlane > 1.0f) {
             func_003e8180(kwlnGetCamera(), ((FldEnvironmentFile *)(data))->nearPlane);
         }
-        if (MEMBER(f32, data, FldEnvironmentFile, nearPlane) == 50.0f) { /* measured: FldEnvironmentFile.nearPlane: local nd1665; MEMBER retains reload behavior. */
+        if (MEMBER(f32, data, FldEnvironmentFile, nearPlane) == 50.0f) {
             func_003e8180(kwlnGetCamera(), 100.0f);
         }
         if (((FldEnvironmentFile *)(data))->overrideEnabled == 0xFF) {
             kwlnSetColorRgba(((FldEnvironmentFile *)(data))->overrideRed, ((FldEnvironmentFile *)(data))->overrideGreen, ((FldEnvironmentFile *)(data))->overrideBlue, 0);
-            kwlnSetColorBytes(MEMBER(u8, data, FldEnvironmentFile, overrideRed), MEMBER(u8, data, FldEnvironmentFile, overrideGreen), MEMBER(u8, data, FldEnvironmentFile, overrideBlue), 0); /* measured: FldEnvironmentFile.overrideRed: local nd1726; FldEnvironmentFile.overrideGreen: local nd1724; FldEnvironmentFile.overrideBlue: local nd1725; MEMBER retains reload behavior. */
+            kwlnSetColorBytes(MEMBER(u8, data, FldEnvironmentFile, overrideRed), MEMBER(u8, data, FldEnvironmentFile, overrideGreen), MEMBER(u8, data, FldEnvironmentFile, overrideBlue), 0);
         }
     }
-    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10004U) { /* measured: FldEnvironmentFile.version: local nd1717; MEMBER retains reload behavior. */
+    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10004U) {
         iGpffffba6c = ((FldEnvironmentFile *)(data))->skyDistance;
     } else {
-        iGpffffba6c = MEMBER(f32, data, FldEnvironmentFile, farPlane); /* measured: FldEnvironmentFile.farPlane: local nd1715; MEMBER retains reload behavior. */
+        iGpffffba6c = MEMBER(f32, data, FldEnvironmentFile, farPlane);
     }
     {
         u8 *dst = resrcMngGetColorValue();
@@ -427,18 +421,18 @@ s32 FldEnvironmentLoad(u8 *file, s32 room)
                 dst += 8;
             } while (count > 0);
         }
-        if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10002U) { /* measured: FldEnvironmentFile.version: local nd1717; MEMBER retains reload behavior. */
+        if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10002U) {
             *(CmrVec3 *)&((ResrcRecord *)(secondaryLight))->lightScale = ((FldEnvironmentFile *)(data))->clumpScale;
         }
     }
-    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10000U) { /* measured: FldEnvironmentFile.version: local nd1717; MEMBER retains reload behavior. */
+    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10000U) {
         s32 i;
         for (i = 0; i < ((FieldSceneState *)(iGpffff9db0))->templateCount; i++) {
             *(CmrVec3 *)&((FldResource *)(((u8 **)iGpffff9db0)[i + 10]))->scale = ((FldEnvironmentFile *)(data))->clumpVector;
             MT_Scene_SetResVector(((u8 **)iGpffff9db0)[i + 10], ((u8 **)iGpffff9db0)[i + 10] + 0xA24);
         }
     }
-    if (((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10001U) && (primaryLight != NULL)) { /* measured: FldEnvironmentFile.version: local nd1717; MEMBER retains reload behavior. */
+    if (((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10001U) && (primaryLight != NULL)) {
         *(F4 *)&((ResrcRecord *)(primaryLight))->lightColor = ((FldEnvironmentFile *)(data))->primaryColor;
         *(F4 *)&((ResrcRecord *)(primaryLight))->lightTarget = ((FldEnvironmentFile *)(data))->primaryTarget;
         {
@@ -474,11 +468,11 @@ s32 FldEnvironmentLoad(u8 *file, s32 room)
                 dst += 8;
             } while (count > 0);
         }
-        if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10002U) { /* measured: FldEnvironmentFile.version: local nd1717; MEMBER retains reload behavior. */
+        if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10002U) {
             *(CmrVec3 *)&((ResrcRecord *)(primaryLight))->lightScale = ((FldEnvironmentFile *)(data))->clumpScale;
         }
     }
-    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10002U) { /* measured: FldEnvironmentFile.version: local nd1717; MEMBER retains reload behavior. */
+    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10002U) {
         u8 *characterResource = MT_Scene_GetResListHead(1);
         u8 *npcResource = MT_Scene_GetResListHead(3);
         s32 i;
@@ -497,7 +491,7 @@ s32 FldEnvironmentLoad(u8 *file, s32 room)
             npcResource = (u8 *)((ResrcRecord *)(npcResource))->next;
         }
     }
-    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10005U) { /* measured: FldEnvironmentFile.version: local nd1717; MEMBER retains reload behavior. */
+    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10005U) {
         s32 i;
         for (i = 0; i < 4; i++) {
             if (((s32 *)iGpffff9db0)[i + 26] != 0) {
@@ -512,7 +506,7 @@ s32 FldEnvironmentLoad(u8 *file, s32 room)
             }
         }
     }
-    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10006U) { /* measured: FldEnvironmentFile.version: local nd1717; MEMBER retains reload behavior. */
+    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10006U) {
         s32 i;
         for (i = 0; i < 4; i++) {
             if (((s32 *)iGpffff9db0)[i + 30] != 0) {
@@ -527,7 +521,7 @@ s32 FldEnvironmentLoad(u8 *file, s32 room)
             }
         }
     }
-    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10007U) { /* measured: FldEnvironmentFile.version: local nd1717; MEMBER retains reload behavior. */
+    if ((u32)MEMBER(s32, data, FldEnvironmentFile, version) > 0x10007U) {
         FldMipmapSetFloatParam(((FldEnvironmentFile *)(data))->mipmapK);
         FldMipmapSetFixedParam(((FldEnvironmentFile *)(data))->mipmapFixed);
     }
@@ -705,8 +699,8 @@ s32 FldCamOpenFile(void) {
     return 1;
 }
 
-/* Read a versioned camera record into caller outputs or apply it directly to the active field camera. */
-/* Earlier full-layout probe: 1164/1168 bytes with 507 differing bytes. Scalar-pair copies retain the original transfer order. */
+/* Read a versioned camera record into caller outputs or apply it directly to the active field
+ * camera. Scalar-pair copies keep the original transfer order. */
 // FUN_00154BE0
 s32 FldCamReadRecord(u8 *file, u8 *cameraMatrixOut, u8 *slotMatrixOut, f32 *fovOut, s32 *curveOut,
                   u8 *viewOffsetOut, f32 *viewDistanceOut, f32 *cameraValueOut, s32 *slotIdsOut, s32 *slotVectorsOut)
@@ -764,7 +758,7 @@ s32 FldCamReadRecord(u8 *file, u8 *cameraMatrixOut, u8 *slotMatrixOut, f32 *fovO
             memset(slotIdsOut, 0, 0x20);
             memset(slotVectorsOut, 0, 0x180);
         }
-        if (MEMBER(u32, data, FldCameraFile, version) > 0x10001U) { /* measured: FldCameraFile.version: local nd507; MEMBER retains reload behavior. */
+        if (MEMBER(u32, data, FldCameraFile, version) > 0x10001U) {
             src = (s32 *)(data + 0x210);
             count = 8;
             do {

@@ -160,8 +160,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 004633c0-00463520 */
-
 extern void memcardWakeBackendThread(void);
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */

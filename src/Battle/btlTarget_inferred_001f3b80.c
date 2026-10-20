@@ -42,7 +42,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
 
-
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -59,16 +58,10 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
-
-
-
-
-
 
 
 extern s32 iGpffffb464;
@@ -78,8 +71,6 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f3b80-001f3f60 */
-
 extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
 extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
 extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
@@ -88,28 +79,14 @@ extern s32 btlActionHasNoTargetClass(u32 action);
 extern s32 btlTargetGroupStateMatches(u8 *context);
 #pragma push
 #pragma pop
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0af0. */
-/* measured: loop-invariant probe for func_001f0c50's shared true value. */
-/* measured: close opt_loop_invariants after func_001f0c50 probe. */
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0d30. */
-/* measured: opt_loop_invariants on preserves the nonzero-path constant and loop preheaders for func_001f0dd0. */
-/* measured: close opt_loop_invariants after func_001f0dd0. */
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
-/* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
-/* measured: close opt_loop_invariants after btlTargetGroupStateMatches probe. */
+/* measured: retail hoists the invariant mask constant into the loop preheaders, which needs
+ * opt_loop_invariants on. */
 #pragma push
-/* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
+/* measured: the result/record snapshots need loop-invariant motion to reproduce retail's stack
+ * frame. */
 #pragma pop
-/* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
-   index arithmetic and the 0x70 field load in a temporary before its saved copy. */
-/* measured: restore propagation for the rest of the unit. */
-/* Resolve a message id through the loaded twelve-byte relative-offset table. */
-/* Directory entry offsets are relative to the beginning of the loaded message payload. */
+/* Resolve a message id through the loaded twelve-byte table; entry offsets are relative to the
+ * start of the loaded message payload. */
 // FUN_001F3B80
 s32 btlTargetGetMessageRecord(s32 messageId) {
     s32 messageTable;
@@ -120,15 +97,9 @@ s32 btlTargetGetMessageRecord(s32 messageId) {
     return (s32)(((u32)messageTable) + ((u32)value));
 }
 
-/* Native b210 -O2 recovery: 932 bytes plus 12 zero tail bytes.
-   Keep both message results at function scope. One native word holds the
-   first pass's element index, then the second pass's node address; each
-   phase initializes it before use. The first head survives the flags scan,
-   while the second head is reloaded after the first pass's query callbacks.
-   The four unused arguments retain D_0060AB20's callback contract.
-   See docs/probe_archive/BattleAction_20260922_resume.md. */
-/* Select an encounter message using enemy flags, affinity scans, and relative party level. */
-/* Enemy metadata uses the shared 0x3C-byte status row and its leading flags. */
+/* Selects an encounter message using enemy flags, affinity scans, and relative party level. The
+ * four unused arguments keep D_0060AB20's callback signature; enemy metadata uses the shared
+ * 0x3C-byte status row. */
 // FUN_001F3BB0
 s32 btlTargetPickAffinityMessage(s32 context, s32 value, s32 option, s32 extra)
 {

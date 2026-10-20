@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Graphics/Model/mdlManager.c); members 00230c00-00230d30 */
 
 #include "include_asm.h"
 #include "type.h"
@@ -20,9 +19,11 @@ extern void mdlSetAttachedSlotValue(void *model, s32 slotIndex, s32 frameId);
 extern char D_006357E0[];
 extern char D_00635800[];
 #pragma push
-/* measured: baseline removal differs in 33 bytes; cache separator character; backward pointer path separator scan also differ. */
+/* measured: retail hoists the separator character and pointer scan out of the backward path-
+ * separator loop. */
 #pragma opt_loop_invariants on
-// Intent: Model path callback: writes the .pac pack path for a model id, rewriting the name's extension to "pac" under the pack directory (non-type-2 units use model/) [inferred]
+// Model path callback: write the .pac pack path for a model id, changing the extension to "pac"
+// under the pack directory (non-type-2 units use model/).
 // FUN_00230C00
 s32 mdlResolvePacPath(u32 type, u16 id, char *path)
 {
@@ -54,7 +55,8 @@ s32 mdlResolvePacPath(u32 type, u16 id, char *path)
 
 #pragma push
 #pragma optimization_level 1
-// Intent: Model setup callback: for type-2 units attaches the weapon R and L models (ids 0x1F4 and 0x1F5 in slots 0 and 1) and sets their slot values; other kinds attach slot 0 only [inferred]
+// Model setup callback: type-2 units attach weapon R and L models (ids 0x1F4, 0x1F5) in slots 0 and
+// 1 and set their slot values; other kinds attach slot 0 only.
 // FUN_00230D30
 s32 mdlAttachWeaponModelSlots(void *model)
 {

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00162120-00162680 */
 
 /* Unit optimizer settings; slot-loop invariant exceptions remain scoped below. */
 #pragma opt_loop_invariants off
@@ -109,7 +108,6 @@ loop_test:
         if (attachmentIndex < 5) {
             goto loop_body;
         }
-        /* measured: unsigned byte-offset arithmetic keeps the post-loop slot address recomputation at baseline. */
         slotOffset = (u32)savedSlot * 8;
         modelSlot = (s32 *)((u8 *)D_007F16F4 + slotOffset);
         mdlDestroyModelObject(*modelSlot);
@@ -122,7 +120,7 @@ loop_test:
 #pragma push
 /* Reset the four party actor slots and invalidate their cached model identities. */
 // FUN_001622D0
-/* measured: baseline indexed, cached-base, signed/unsigned constants and pointer loops differ; best nd 29 bytes. */
+/* measured: retail hoists the slot stride out of the loop, which needs loop invariants enabled. */
 #pragma opt_loop_invariants on
 void FldSlotTablesReset(void) {
     s32 i = 0;
@@ -142,9 +140,8 @@ void FldSlotTablesReset(void) {
 #pragma push
 /* Return the first of four party actor slots without a unit, or NULL. */
 // FUN_00162330
-/* measured: direct global address expression preserves retail base/stride
-   register assignment while loop invariants hoist the stride (nd 0). */
-/* measured: baseline direct, cached-base, unsigned-stride and pointer loops differ; best nd 19 bytes. */
+/* measured: retail computes each slot address directly from the global with the stride hoisted out
+ * of the loop. */
 #pragma opt_loop_invariants on
 u8 *FldSlotFindFree(void) {
     u8 *result = NULL;
@@ -166,9 +163,8 @@ u8 *FldSlotFindFree(void) {
 #pragma push
 /* Return the first of fifteen object actor slots without a unit, or NULL. */
 // FUN_00162390
-/* measured: direct global address expression preserves retail base/stride
-   register assignment while loop invariants hoist the stride (nd 0). */
-/* measured: baseline direct, cached-base, unsigned-stride and pointer loops differ; best nd 19 bytes. */
+/* measured: computing each entry directly from the global base plus index times stride, with loop
+ * invariants hoisted, gives retail's base and stride layout. */
 #pragma opt_loop_invariants on
 u8 *FldObjFindFree(void) {
     u8 *result = NULL;
@@ -313,13 +309,8 @@ done:
 }
 #pragma pop
 
-/* measured: MATCH (window 1456B). The slot-cache lookup is a static inline
-   helper returning the object or NULL; each switch arm keeps its own copy
-   of the refresh code with block-local `entry` and loop counter; the
-   default arm narrows `member` into a u16. The cache stores a 16-bit
-   type key; the constructor takes a separate integer model kind. */
-/* Return the model only when both cached identity halfwords match. */
-/* Typed interior aliases retain the id/model relocation symbols of the same cache. */
+/* measured: the slot-cache lookup is a static inline helper returning the model only when both
+ * cached identity halfwords match, or NULL otherwise. */
 static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 {
     if (type == ((FldPartyModelCache *)(D_007F16F0 + slot * 8))->type && id == D_007F16F2[slot].id) {

@@ -1,5 +1,5 @@
 #include "operand_order_internal.h"
-/* Original translation unit btlPanelAnalyze.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlPanelAnalyze.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "member_access.h"
 #include "mdl_file_internal.h"
@@ -32,7 +32,6 @@ extern s32 (*D_00887310[])(s32, void *, s32);
 extern f32 D_008872F8[];
 extern f32 fGpffff847c;
 extern f32 fGpffff80cc;
-
 
 
 /* btlPanelClear clears 0x90 bytes; layout callbacks save lights, matrix and
@@ -71,10 +70,11 @@ typedef struct BtlAnalyzeModelSettings {
     u8 pad1A[0xCE];
 } BtlAnalyzeModelSettings;
 
-/* measured: opt_propagation off preserves the split mode live range and
-   retail's parameter-save order (MATCH nd0; without it, nd10). */
-/* measured: baseline nd8; scoped locals did not match (best nd8); retain opt_propagation off. */
+/* measured: turning propagation off keeps the split display-mode value live and matches retail's
+ * parameter-save order. */
 #pragma opt_propagation off
+/* Draw a panel entry at the given position, picking colours and icons from the display mode and
+ * rendering the value as sprite digits. */
 // FUN_00218760
 /* Draw an HP/SP number or hidden-value panel using active/disabled colors and digit sprites. */
 void btlPanelAddEntry(void *work, u32 value, f32 x, s32 displayMode, f32 yPosition) {
@@ -179,7 +179,6 @@ mode_done:
         break;
     }
 }
-/* measured: restores propagation after btlPanelAddEntry. */
 #pragma opt_propagation on
 
 typedef struct {
@@ -288,15 +287,11 @@ void btlPanelClear(u8 *panel, s32 task) {
 }
 
 
-/* measured: aggregate vector copies and paired 32-bit copy loop; named
-   temporaries reproduce the 003e9cb0 argument-load order. The dst/src_base
-   saved-register colouring (retail dst $s1, src_base $s0) needs the source
-   pointer re-derived from src_base INSIDE the copy loop (`src = (s32 *)src_base`
-   each iteration, consumed after the loop): a loop-carried alias of src_base
-   drops it to $s0. Found by tools/permute_ast.py, minimised to this one line. */
+/* Re-deriving src from src_base inside the copy loop keeps retail's saved-register assignment for
+ * dst and src_base. */
 // FUN_00218EA0
 /* Save the current light colors, light frame and camera projection, then install the analysis
- * presentation. Typed light/frame fields preserve the measured paired-copy and argument-load order. */
+ * presentation. */
 void btlPanelSetupLayout(u8 *panel) {
     BtlAnalyzePanel *analyze = (BtlAnalyzePanel *)panel;
     typedef struct { f32 x, y, z, w; } PanelVec4X;
@@ -369,10 +364,8 @@ void btlPanelResetLayout(u8 *panel) {
     func_003e8120(kwlnGetCamera());
 }
 
-/* 1624/1632 bytes; 53 resolved relocations and eight zero alignment bytes.
- * The explicit zero-add expression emits retail's adda.s/madd.s sequence.
- * Preserve unsigned controller conversion before subtracting 128, matrix
- * initialization before composition, and callback-visible field reloads. */
+/* The explicit zero-add emits retail's adda/madd sequence; controller input is converted unsigned
+ * before subtracting 128. */
 // FUN_00219130
 /* Create or replace the analysis model, apply controller yaw limits, and animate opacity before
  * queuing it. Measured: a dedicated panel alias preserves the state, yaw and model reloads; the one
@@ -537,8 +530,7 @@ static inline u8 btlPanelEnemyKind(u32 offset)
     return kinds[offset];
 }
 
-/* Name, affinity, skill and footer phases keep separate coordinates and fades.
- * See docs/probe_archive/BtlPanelAnalyze_00219790_20260929.md. */
+/* Name, affinity, skill and footer phases keep separate coordinates and fades. */
 // FUN_00219790
 /* Animate name, rewards, affinities, skills and footer using independently timed fades. Measured:
  * the dedicated actor alias preserves data-record reloads; camera fields use the SDK layout. */

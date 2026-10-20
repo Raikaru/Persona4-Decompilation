@@ -38,7 +38,6 @@ extern f32 D_00761438;
 extern u32 datCalcRandomBelow(u32);
 
 
-
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 D_00881400[];
@@ -65,29 +64,21 @@ extern s32 btlTargetSpawnActionProc(u8 *);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001ebb00-001ebc00 */
-
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
 #pragma push
 #pragma pop
-/* measured probe: preserve the retail filter branch chain */
+/* measured: retail keeps the filter conditions as a separate branch chain. */
 #pragma push
-/* measured probe: close the filter branch chain */
 #pragma pop
-/* measured probe: preserve retail conditional branch shape */
+/* measured: retail keeps the original conditional branch shape. */
 #pragma push
-/* measured probe: close conditional branch shape */
 #pragma pop
-/* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
-/* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: closes opt_propagation probe for btlAiSetGlobal. */
+/* Allocate a battle packet that runs the named procedure from the script picked by scriptKind for
+ * the given action, using btlTargetSpawnActionProc as its update function. */
 // FUN_001EBB00
 /* Resolve a named procedure in the selected script and create a one-shot action task packet. */
 u8 *btlTargetCreateProcedurePacket(s32 action, s32 scriptKind, u8 *procedureName) {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 kind;
     u8 *work;
     u8 *packet;
@@ -116,9 +107,6 @@ u8 *btlTargetCreateProcedurePacket(s32 action, s32 scriptKind, u8 *procedureName
 
 /* Pick a random usable skill from the supported set, falling back to the default attack. */
 // FUN_001EBC00
-/* 1468/1472 bytes; all four call relocations resolve exactly. */
-/* measured: baseline nd1072; u16 iteration nd124; byte-based action-unit reloads remove CSE's saved address and retain MATCH. */
-/* Pick a usable skill from the supported set; fall back to the default attack when none qualify. */
 void btlAiChooseUsableAttackSkill(u8 *action, u8 *command)
 {
     u16 choices[8];

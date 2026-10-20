@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0029e9b0-0029fbb0 */
 
 /* Unit optimizer settings shared by the neighboring functions. */
 #pragma opt_propagation on
@@ -13,7 +12,7 @@
 #include "scr_internal.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
-/* sdkSpr.c establishes this 0x2C-byte sample; scales are unsigned Q12. */
+/* Sprite sample layout from sdkSpr.c; scales are unsigned Q12. */
 typedef struct SdkSpriteSample {
     u32 packAddress, recordIndex;
     f32 x, y;
@@ -87,7 +86,8 @@ void scrDiscardArgs(void *context, ...)
 void mtMiscDrawSpriteAt(s32 image, f32 x, f32 y, f32 scaleX, f32 scaleY,
                    s32 alphaSubtract, s32 centered)
 {
-    /* measured: remaining name-entry byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    /* measured: sprite fields are accessed through byte offsets so loads keep retail's reload
+     * order. */
     extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
     extern f32 sdkSpriteScaledWidth(u8 *sprite);
     extern f32 sdkSpriteScaledHeight(u8 *sprite);
@@ -156,11 +156,12 @@ void yTimeLimitStartRowTransition(u8 *task, s32 mode)
 #pragma optimization_level 2
 /* Move the character-grid cursor, skipping invalid cells and wrapping only for newly pressed directions. */
 #pragma opt_loop_invariants on
-/* measured: typed work-field access increased the residual; baseline retains 112 differing words. */
+/* measured: retail accesses the work fields through byte offsets rather than typed fields. */
 // FUN_0029ECB0
 void yTimeLimitMoveGridCursor(u8 *task)
 {
-    /* measured: remaining name-entry byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    /* measured: name-entry fields are accessed through byte offsets so loads keep retail's reload
+     * order. */
     extern u16 D_008C027A[];
     extern u8 D_007485D0[];
     u8 *state;
@@ -510,7 +511,8 @@ void yTimeLimitUpdateInput(u8 *task)
 // FUN_0029F790
 void yTimeLimitDrawIdlePulse(u8 *task)
 {
-    /* measured: remaining name-entry byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    /* measured: name-entry fields are accessed through byte offsets so loads keep retail's reload
+     * order. */
     u8 *work;
     s32 idleFrames;
     s32 page;
@@ -608,13 +610,8 @@ void yTimeLimitDrawIdlePulse(u8 *task)
 }
 #pragma pop
 
-/* func_0029fbb0, MATCH 2026-10-07. The 6x24-byte slide table is a struct
-   array copied in by retail's dword loop. A field address used twice becomes an
-   IRO_CommonSubs address temporary, which gives retail's unfolded
-   `addiu tmp,sp,K; lw x,0(tmp)` reads; each region-3 field is therefore read
-   again in the next expression or call. .originX/.originY are u32: `t17 = tbl[].originX`
-   is then a conversion, so copy propagation keeps t17/t18 as declared locals,
-   declared in the order the regalloc model needs. */
+/* The six-entry slide table is a struct array copied by retail's dword loop; originX/originY are
+ * u32 so their conversions stay in locals. */
 typedef struct NameButtonPlacement {
     s32 foregroundSprite, backgroundSprite, foregroundX, foregroundY;
     u32 originX, originY;

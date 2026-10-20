@@ -1,5 +1,5 @@
 #include "kwln_task_internal.h"
-/* Original translation unit k_readtex.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_readtex.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
@@ -30,9 +30,6 @@ extern void H_Cdvd_Destroy(void *cdvd);
 extern s32 filerEnqueueRequest(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern void filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
 extern s32 iGpffffa030;
-
-/* Source unit: src/promoted/k_readtex.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_readtex.c; members 001901d0-00190600 */
 
 /* Load four texture archives, wait for their consumer tasks, then release the archive handles. */
 // FUN_001901D0

@@ -1,4 +1,4 @@
-/* Original translation unit y_fclItemShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit y_fclItemShopDraw.c (from __FILE__ assert strings). */
 
 #include "list_item_internal.h"
 #include "fcl_scale_transition.h"
@@ -56,8 +56,8 @@ typedef struct FclItemShopWork {
     void *directory;
 } FclItemShopWork;
 
-/* Shop panels append their signed sprite origin to the shared 0x100-byte
-   sprite work. The allocation and width/height stores prove the 0x104 extent. */
+/* Shop panels append their signed sprite origin to the shared 0x100-byte sprite work, giving a
+ * 0x104-byte panel. */
 typedef struct FclItemShopPanel {
     FclObject object;
     s16 centerX;
@@ -202,22 +202,13 @@ extern void nmMesWindowSetSlotFlag(s8 slotIndex, s32 cursor);
 extern void nmMesWindowRequestRefresh(void);
 
 // Drive resource loading, menu/list transitions, purchase confirmation and exit.
-/* Access-site layouts cover shop state, panel tweens, queue packets and loaded
-   message data; only individually measured alias-sensitive accesses remain raw. */
-/* The shared SDK update signature accepts fclItemShopUpdate directly at the
-   fclItemShopCreate registration site. */
 // FUN_00332BB0
-/* Object 37380/window 37392 (retail tail is zero padding). The loops that
-   retail colours apart keep their own counters; the case 5 slot loop needs its
-   counter and slot index as block locals for retail's $s5/$s4 colouring.
-   measured: normalized_diff 0; opt_loop_invariants on hoists the 140/340/20/10
-   and (s8)1 loop constants into the preheaders as retail does. */
-/* measured: baseline C nd 22634B; adjacent-local declaration probe nd 22634B; retain settings for owner MATCH. */
+/* Loops that retail colours apart keep their own counters; the case 5 slot loop keeps its counter
+ * and slot index as block locals. measured: opt_loop_invariants hoists the 140/340/20/10 and (s8)1
+ * loop constants into the preheaders as retail does. */
 #pragma opt_loop_invariants on
 s32 fclItemShopUpdate(u8 *shopTask) {
     FclItemShopWork *shopFields = (FclItemShopWork *)((SdkTask *)shopTask)->work;
-    /* Earlier whole-local typing produced 38232B versus 37380B; the retained
-       byte sites below were each remeasured independently after access-site typing. */
     u8 *work = ((SdkTask *)shopTask)->work;
     s16 extraPanel;
     s16 i;
@@ -280,34 +271,34 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             if ((&((FclItemShopWork *)work)->panels[0])[panelIndex] != 0) {
                 (&((FclItemShopWork *)work)->panels[0])[panelIndex] = 0;
             }
-            (&((FclItemShopWork *)work)->panels[0])[panelIndex] = fclItemShopPanelCreate(shopTask, (u16)panelIndex, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
+            (&((FclItemShopWork *)work)->panels[0])[panelIndex] = fclItemShopPanelCreate(shopTask, (u16)panelIndex, shopFields->spriteFile);
         }
         for (extraPanel = 0; extraPanel < 0xF; extraPanel++) {
             if ((&((FclItemShopWork *)work)->panels[90])[extraPanel] != 0) {
                 (&((FclItemShopWork *)work)->panels[90])[extraPanel] = 0;
             }
         }
-        ((FclItemShopWork *)work)->panels[90] = fclItemShopPanelCreate(shopTask, 0x2B, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->panels[91] = fclItemShopPanelCreate(shopTask, 0x28, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->panels[92] = fclItemShopPanelCreate(shopTask, 0x28, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->panels[93] = fclItemShopPanelCreate(shopTask, 0x28, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
+        ((FclItemShopWork *)work)->panels[90] = fclItemShopPanelCreate(shopTask, 0x2B, shopFields->spriteFile);
+        ((FclItemShopWork *)work)->panels[91] = fclItemShopPanelCreate(shopTask, 0x28, shopFields->spriteFile);
+        ((FclItemShopWork *)work)->panels[92] = fclItemShopPanelCreate(shopTask, 0x28, shopFields->spriteFile);
+        ((FclItemShopWork *)work)->panels[93] = fclItemShopPanelCreate(shopTask, 0x28, shopFields->spriteFile);
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
-            (&((FclItemShopWork *)work)->panels[94])[panelIndex] = fclItemShopPanelCreate(shopTask, 0x28, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
+            (&((FclItemShopWork *)work)->panels[94])[panelIndex] = fclItemShopPanelCreate(shopTask, 0x28, shopFields->spriteFile);
             fclBustupObjChangeFlagBit((&((FclItemShopWork *)work)->panels[94])[panelIndex], 13, 0);
             fclBustupObjStartUniformRevealScale((&((FclItemShopWork *)work)->panels[94])[panelIndex], 0.0f, 0.0f, 0, 0, 0);
         }
-        ((FclItemShopWork *)work)->panels[99] = fclItemShopPanelCreate(shopTask, 0x46, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->panels[98] = fclItemShopPanelCreate(shopTask, 0x46, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->panels[100] = fclItemShopPanelCreate(shopTask, 0x46, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->panels[101] = fclItemShopPanelCreate(shopTask, 0x46, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->panels[102] = fclItemShopPanelCreate(shopTask, 0x40, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->panels[103] = fclItemShopPanelCreate(shopTask, 0x41, shopFields->spriteFile); /* measured: access-site fields lose this function's MATCH. */
+        ((FclItemShopWork *)work)->panels[99] = fclItemShopPanelCreate(shopTask, 0x46, shopFields->spriteFile);
+        ((FclItemShopWork *)work)->panels[98] = fclItemShopPanelCreate(shopTask, 0x46, shopFields->spriteFile);
+        ((FclItemShopWork *)work)->panels[100] = fclItemShopPanelCreate(shopTask, 0x46, shopFields->spriteFile);
+        ((FclItemShopWork *)work)->panels[101] = fclItemShopPanelCreate(shopTask, 0x46, shopFields->spriteFile);
+        ((FclItemShopWork *)work)->panels[102] = fclItemShopPanelCreate(shopTask, 0x40, shopFields->spriteFile);
+        ((FclItemShopWork *)work)->panels[103] = fclItemShopPanelCreate(shopTask, 0x41, shopFields->spriteFile);
         if (yListCount() > 5) {
             ((FclItemShopWork *)work)->scrollStep = 108.0f / (f32)(yListCount() - 5);
         }
         ((FclItemShopWork *)work)->discountDay = 0;
         if ((s8)calGetDayEntryForMonthDay(fclCalendarMonth(), (u8)fclCalendarDay()) == 1) {
-            shopFields->discountDay = 1; /* measured: access-site fields lose this function's MATCH. */
+            shopFields->discountDay = 1;
         }
         break;
     case 2:
@@ -318,53 +309,53 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         ((FclItemShopWork *)work)->bandStep = 1;
         tbl = (F2_0033 *)D_0064A290;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[64], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[64], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[64], 17.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[64], 0x63); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[64], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[64], 17.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[64], 0x63);
         tbl = (F2_0033 *)D_0064A298;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[65], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[65], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[65], 17.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[65], 0x63); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[65], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[65], 17.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[65], 0x63);
         tbl = (F2_0033 *)D_0064A290;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[102], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[102], fclMakeVec2(-0x125, tbl->y), fclMakeVec2(200.0f + tbl->x, tbl->y), 2, /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[102], fclMakeVec2(-0x125, tbl->y), fclMakeVec2(200.0f + tbl->x, tbl->y), 2,
                       0x14, 0);
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[102]))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[102], 16.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[102], 0x63); /* measured: access-site fields lose this function's MATCH. */
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[102]))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
+        fclBustupObjSetAnchorValue(shopFields->panels[102], 16.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[102], 0x63);
         tbl = (F2_0033 *)D_0064A298;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[103], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[103], fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(200.0f + tbl->x, tbl->y), 2, /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[103], fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(200.0f + tbl->x, tbl->y), 2,
                       0x14, 0);
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[103]))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[103], 16.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[103], 0x63); /* measured: access-site fields lose this function's MATCH. */
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[103]))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
+        fclBustupObjSetAnchorValue(shopFields->panels[103], 16.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[103], 0x63);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[0], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[0], fclMakeVec2(0x28A, D_0064A090[1]), fclMakeVec2(D_0064A090[0], D_0064A090[1]), /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[0], fclMakeVec2(0x28A, D_0064A090[1]), fclMakeVec2(D_0064A090[0], D_0064A090[1]),
                       0, 0x1E, 0xA);
-        fclBustupObjChangeFlagBit(shopFields->panels[0], 3, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartTween(shopFields->panels[0], 720.0f, 0.0f, 0, 0x1E, 0xA); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[0], 36.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[0], 0x62); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[0], 3, 0);
+        fclBustupObjStartTween(shopFields->panels[0], 720.0f, 0.0f, 0, 0x1E, 0xA);
+        fclBustupObjSetAnchorValue(shopFields->panels[0], 36.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[0], 0x62);
         tbl = (F2_0033 *)D_0064A338;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[85], 0, 0);
-        fclBustupObjStartAlpha(shopFields->panels[85], 0, 0xFF, 0, 0, 0x2B); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartUniformRevealScale(shopFields->panels[85], 0.1f, 1.0f, 0, 0xF, 0x2B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartAlpha(shopFields->panels[85], 0, 0xFF, 0, 0, 0x2B);
+        fclBustupObjStartUniformRevealScale(shopFields->panels[85], 0.1f, 1.0f, 0, 0xF, 0x2B);
         labelFont = sdkSpriteNewNode((void *)((FclItemShopWork *)work)->spriteFile, 0x55);
-        fclBustupObjStartPosition(shopFields->panels[85], /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[85],
                       fclMakeVec2((sdkSpriteScaledWidth(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
                                     (sdkSpriteScaledHeight(labelFont) / 10.0f) * 5.0f + tbl->y + 0.0f),
                       fclMakeVec2(tbl->x, tbl->y), 0, 0xF, 0x2B);
         sdkSpriteFreeNode(labelFont);
-        fclBustupObjSetAnchorValue(shopFields->panels[85], 69.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[85], 0x56); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjSetAnchorValue(shopFields->panels[85], 69.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[85], 0x56);
         ((FclItemShopWork *)work)->bandStartDelay = 0x2D;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[40], 0, 0);
-        fclBustupObjStartAlpha(shopFields->panels[40], 0, 0xFF, 0, 7, 0x3F); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartUniformRevealScale(shopFields->panels[40], 0.1f, 1.0f, 0, 0xF, 0x3F); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[40], 52.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[40], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartAlpha(shopFields->panels[40], 0, 0xFF, 0, 7, 0x3F);
+        fclBustupObjStartUniformRevealScale(shopFields->panels[40], 0.1f, 1.0f, 0, 0xF, 0x3F);
+        fclBustupObjSetAnchorValue(shopFields->panels[40], 52.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[40], 0x5B);
         for (introPanel = 0; introPanel < 3; introPanel++) {
             fclBustupObjChangeFlagBit((&((FclItemShopWork *)work)->panels[91])[introPanel], 0, 0);
             fclBustupObjStartAlpha((&((FclItemShopWork *)work)->panels[91])[introPanel], 0, 0xFF, 0, 7, 0x3F);
@@ -381,33 +372,33 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         ((FclItemShopWork *)work)->moneyDuration = 10;
         tbl = (F2_0033 *)D_0064A1D8;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[41], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[41], fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0xF, 0x16); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[41], 47.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[41], 0x61); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[41], fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0xF, 0x16);
+        fclBustupObjSetAnchorValue(shopFields->panels[41], 47.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[41], 0x61);
         tbl = (F2_0033 *)D_0064A1E0;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[42], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[42], fclMakeVec2(-200.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 9, 0x1C); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[42], 33.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[42], 0x61); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[42], fclMakeVec2(-200.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 9, 0x1C);
+        fclBustupObjSetAnchorValue(shopFields->panels[42], 33.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[42], 0x61);
         tbl = (F2_0033 *)D_0064A1E8;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[43], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[43], fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(153.0f, tbl->y), 0, 0xF, 0x19); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[43], 48.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[43], 0x61); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[43], fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(153.0f, tbl->y), 0, 0xF, 0x19);
+        fclBustupObjSetAnchorValue(shopFields->panels[43], 48.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[43], 0x61);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[90], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[90], fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(203.0f, tbl->y), 0, 0xF, 0x19); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[90], 48.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[90], 0x61); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[90], fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(203.0f, tbl->y), 0, 0xF, 0x19);
+        fclBustupObjSetAnchorValue(shopFields->panels[90], 48.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[90], 0x61);
         tbl = (F2_0033 *)D_0064A0E8;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[11], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[11], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartAlpha(shopFields->panels[11], 0, 0xFF, 0, 0xA, 0x28); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[11], 46.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[11], 0x62); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[11], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
+        fclBustupObjStartAlpha(shopFields->panels[11], 0, 0xFF, 0, 0xA, 0x28);
+        fclBustupObjSetAnchorValue(shopFields->panels[11], 46.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[11], 0x62);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[1], 0, 0);
-        fclBustupObjStartAlpha(shopFields->panels[1], 0, 0xFF, 0, 5, 0x28); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[1], 30.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[1], 0x63); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartAlpha(shopFields->panels[1], 0, 0xFF, 0, 5, 0x28);
+        fclBustupObjSetAnchorValue(shopFields->panels[1], 30.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[1], 0x63);
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             layer0 = (s16)(panelIndex * 3 + 0x2D);
             rowIndex = panelIndex + 3;
@@ -417,7 +408,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjStartAlpha((&((FclItemShopWork *)work)->panels[3])[panelIndex], 0, 0xFF, 0, 5, layer0);
             fclBustupObjSetAnchorValue((&((FclItemShopWork *)work)->panels[3])[panelIndex], (f32)(panelIndex + 0x1A));
             fclBustupObjSetAnchorMode((&((FclItemShopWork *)work)->panels[3])[panelIndex], 0x63);
-            rowFont = sdkSpriteNewNode((void *)shopFields->spriteFile, rowIndex); /* measured: access-site fields lose this function's MATCH. */
+            rowFont = sdkSpriteNewNode((void *)shopFields->spriteFile, rowIndex);
             fclBustupObjStartPosition((&((FclItemShopWork *)work)->panels[3])[panelIndex],
                           fclMakeVec2((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
                                         (sdkSpriteScaledHeight(rowFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
@@ -430,43 +421,43 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         }
         /* fallthrough */
     case 3:
-        ((FclItemShopWork *)work)->bandStartDelay = fclSubClamped(shopFields->bandStartDelay, 1, 0, 0, 1); /* measured: access-site fields lose this function's MATCH. */
-        if (shopFields->bandStartDelay == 0) { /* measured: access-site fields lose this function's MATCH. */
+        ((FclItemShopWork *)work)->bandStartDelay = fclSubClamped(shopFields->bandStartDelay, 1, 0, 0, 1);
+        if (shopFields->bandStartDelay == 0) {
             for (introBand = 0; introBand < 0x24; introBand++) {
-                MEMBER(u8, work + introBand, FclItemShopWork, bandAlpha[0]) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 15.0f); /* measured: access-site fields lose this function's MATCH. */
-                if (MEMBER(s8, work + introBand, FclItemShopWork, bandActive[0]) == 1) { /* measured: access-site fields lose this function's MATCH. */
+                MEMBER(u8, work + introBand, FclItemShopWork, bandAlpha[0]) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 15.0f);
+                if (MEMBER(s8, work + introBand, FclItemShopWork, bandActive[0]) == 1) {
                     ((FclItemShopWork *)work)->bandPosition[introBand] =
-                        fclBustupDrawRotatingBand(fclMakeVec2(23.0f, 225.0f), (s16)(introBand * 10), ((FclItemShopWork *)work)->bandAngle, MEMBER(u8, work + introBand, FclItemShopWork, bandAlpha[0]), 1); /* measured: access-site fields lose this function's MATCH. */
+                        fclBustupDrawRotatingBand(fclMakeVec2(23.0f, 225.0f), (s16)(introBand * 10), ((FclItemShopWork *)work)->bandAngle, MEMBER(u8, work + introBand, FclItemShopWork, bandAlpha[0]), 1);
                 }
             }
             ((FclItemShopWork *)work)->bandAngle = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)((FclItemShopWork *)work)->bandElapsed, 720.0f);
-            shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, ((FclItemShopWork *)work)->bandStep, 0x2D0, 1, 2); /* measured: access-site fields lose this function's MATCH. */
-            ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 0xF, 1, 1); /* measured: access-site fields lose this function's MATCH. */
+            shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, ((FclItemShopWork *)work)->bandStep, 0x2D0, 1, 2);
+            ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 0xF, 1, 1);
         }
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[panelIndex + 3], 2) == 0) {
                 fclBustupObjSetAnchorMode(((FclItemShopWork *)work)->panels[panelIndex + 3], 0xAB);
             }
         }
-        if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[40], 2) == 0 && fclBustupObjTestFlagBit(shopFields->panels[40], 4) == 0) { /* measured: access-site fields lose this function's MATCH. */
+        if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[40], 2) == 0 && fclBustupObjTestFlagBit(shopFields->panels[40], 4) == 0) {
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[18], 0, 0);
-            fclBustupObjSetAnchorValue(shopFields->panels[18], 80.0f); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorMode(shopFields->panels[18], 0x3D); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjSetAnchorValue(shopFields->panels[18], 80.0f);
+            fclBustupObjSetAnchorMode(shopFields->panels[18], 0x3D);
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[19], 0, 0);
-            fclBustupObjSetAnchorValue(shopFields->panels[19], 81.0f); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorMode(shopFields->panels[19], 0x3D); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjSetAnchorValue(shopFields->panels[19], 81.0f);
+            fclBustupObjSetAnchorMode(shopFields->panels[19], 0x3D);
             tbl = (F2_0033 *)D_0064A2A0;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[66], 0, 0);
-            fclBustupObjSetAnchorValue(shopFields->panels[66], 82.0f); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorMode(shopFields->panels[66], 0x3E); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartPosition(shopFields->panels[66], fclMakeVec2(tbl->x, tbl->y + (f32)(((FclItemShopWork *)work)->menuSelection * 30)), /* measured: access-site fields lose this function's MATCH. */
-                          fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjSetAnchorValue(shopFields->panels[66], 82.0f);
+            fclBustupObjSetAnchorMode(shopFields->panels[66], 0x3E);
+            fclBustupObjStartPosition(shopFields->panels[66], fclMakeVec2(tbl->x, tbl->y + (f32)(((FclItemShopWork *)work)->menuSelection * 30)),
+                          fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0);
             tbl = (F2_0033 *)D_0064A2A8;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[67], 0, 0);
-            fclBustupObjSetAnchorValue(shopFields->panels[67], 83.0f); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorMode(shopFields->panels[67], 0x3E); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartPosition(shopFields->panels[67], fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), /* measured: access-site fields lose this function's MATCH. */
-                          fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjSetAnchorValue(shopFields->panels[67], 83.0f);
+            fclBustupObjSetAnchorMode(shopFields->panels[67], 0x3E);
+            fclBustupObjStartPosition(shopFields->panels[67], fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)),
+                          fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0);
             for (panelIndex = 0; panelIndex < 6; panelIndex++) {
                 fclBustupObjChangeFlagBit((&((FclItemShopWork *)work)->panels[12])[panelIndex], 0, 1);
                 fclBustupObjSetAnchorValue((&((FclItemShopWork *)work)->panels[12])[panelIndex], (f32)(panelIndex + 0x4A));
@@ -476,12 +467,12 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[13], 0, 0);
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[14], 0, 0);
             for (introBandDelay = 0; introBandDelay < 0x24; introBandDelay++) {
-                if (!(shopFields->bandPosition[introBandDelay] < 140.0f) && ((FclItemShopWork *)work)->bandPosition[introBandDelay] < 340.0f) { /* measured: access-site fields lose this function's MATCH. */
+                if (!(shopFields->bandPosition[introBandDelay] < 140.0f) && ((FclItemShopWork *)work)->bandPosition[introBandDelay] < 340.0f) {
                     ((FclItemShopWork *)work)->bandActive[introBandDelay] = 0;
-                } else if (!(shopFields->bandPosition[introBandDelay] < 140.0f)) { /* measured: access-site fields lose this function's MATCH. */
-                    ((FclItemShopWork *)work)->bandDelay[introBandDelay] = (shopFields->bandPosition[introBandDelay] - 340.0f) / 10.0f; /* measured: access-site fields lose this function's MATCH. */
+                } else if (!(shopFields->bandPosition[introBandDelay] < 140.0f)) {
+                    ((FclItemShopWork *)work)->bandDelay[introBandDelay] = (shopFields->bandPosition[introBandDelay] - 340.0f) / 10.0f;
                 } else {
-                    ((FclItemShopWork *)work)->bandDelay[introBandDelay] = (20.0f + shopFields->bandPosition[introBandDelay]) / 10.0f; /* measured: access-site fields lose this function's MATCH. */
+                    ((FclItemShopWork *)work)->bandDelay[introBandDelay] = (20.0f + shopFields->bandPosition[introBandDelay]) / 10.0f;
                 }
                 ((FclItemShopWork *)work)->bandFadeFrames[introBandDelay] = 0;
                 ((FclItemShopWork *)work)->bandFadeElapsed = 0;
@@ -494,27 +485,27 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         }
         tbl = (F2_0033 *)D_0064A290;
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[102]))->anchorPosition = fclMakeVec2(200.0f + tbl->x, tbl->y);
-        fclBustupObjChangeFlagBit(shopFields->panels[102], 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[102], 1, 1);
         tbl = (F2_0033 *)D_0064A298;
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[103]))->anchorPosition = fclMakeVec2(200.0f + tbl->x, tbl->y);
-        fclBustupObjChangeFlagBit(shopFields->panels[103], 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[103], 1, 1);
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[0]))->anchorPosition = fclMakeVec2(D_0064A090[0], D_0064A090[1]);
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->tweenValue = 0.0f; /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjChangeFlagBit(shopFields->panels[0], 1, 1); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjChangeFlagBit(shopFields->panels[0], 3, 1); /* measured: access-site fields lose this function's MATCH. */
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->tweenValue = 0.0f;
+        fclBustupObjChangeFlagBit(shopFields->panels[0], 1, 1);
+        fclBustupObjChangeFlagBit(shopFields->panels[0], 3, 1);
         tbl = (F2_0033 *)D_0064A338;
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[85]))->alpha = 0xFF;
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[85]))->scaleX = 1.0f; /* measured: access-site fields lose this function's MATCH. */
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[85]))->scale = 1.0f; /* measured: access-site fields lose this function's MATCH. */
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[85]))->anchorPosition = fclMakeVec2(tbl->x, tbl->y); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjChangeFlagBit(shopFields->panels[85], 2, 1); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjChangeFlagBit(shopFields->panels[85], 1, 1); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjChangeFlagBit(shopFields->panels[85], 4, 1); /* measured: access-site fields lose this function's MATCH. */
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[40]))->alpha = 0xFF; /* measured: access-site fields lose this function's MATCH. */
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[40]))->scaleX = 1.0f; /* measured: access-site fields lose this function's MATCH. */
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[40]))->scale = 1.0f; /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjChangeFlagBit(shopFields->panels[40], 2, 1); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjChangeFlagBit(shopFields->panels[40], 4, 1); /* measured: access-site fields lose this function's MATCH. */
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[85]))->scaleX = 1.0f;
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[85]))->scale = 1.0f;
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[85]))->anchorPosition = fclMakeVec2(tbl->x, tbl->y);
+        fclBustupObjChangeFlagBit(shopFields->panels[85], 2, 1);
+        fclBustupObjChangeFlagBit(shopFields->panels[85], 1, 1);
+        fclBustupObjChangeFlagBit(shopFields->panels[85], 4, 1);
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[40]))->alpha = 0xFF;
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[40]))->scaleX = 1.0f;
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[40]))->scale = 1.0f;
+        fclBustupObjChangeFlagBit(shopFields->panels[40], 2, 1);
+        fclBustupObjChangeFlagBit(shopFields->panels[40], 4, 1);
         for (skipIntroPanel = 0; skipIntroPanel < 3; skipIntroPanel++) {
             ((FclObject *)fclBustupObjGetWork((&((FclItemShopWork *)work)->panels[91])[skipIntroPanel]))->alpha = 0xFF;
             ((FclObject *)fclBustupObjGetWork((&((FclItemShopWork *)work)->panels[91])[skipIntroPanel]))->scaleX = 1.0f;
@@ -529,19 +520,19 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         ((FclItemShopWork *)work)->moneyElapsed = 10;
         tbl = (F2_0033 *)D_0064A1D8;
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[41]))->anchorPosition = fclMakeVec2(tbl->x, tbl->y);
-        fclBustupObjChangeFlagBit(shopFields->panels[41], 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[41], 1, 1);
         tbl = (F2_0033 *)D_0064A1E0;
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[42]))->anchorPosition = fclMakeVec2(tbl->x, tbl->y);
-        fclBustupObjChangeFlagBit(shopFields->panels[42], 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[42], 1, 1);
         tbl = (F2_0033 *)D_0064A1E8;
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[43]))->anchorPosition = fclMakeVec2(153.0f, tbl->y);
-        fclBustupObjChangeFlagBit(shopFields->panels[43], 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[43], 1, 1);
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[90]))->anchorPosition = fclMakeVec2(203.0f, tbl->y);
-        fclBustupObjChangeFlagBit(shopFields->panels[90], 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[90], 1, 1);
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[11]))->alpha = 0xFF;
-        fclBustupObjChangeFlagBit(shopFields->panels[11], 2, 1); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[11], 2, 1);
         ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[1]))->alpha = 0xFF;
-        fclBustupObjChangeFlagBit(shopFields->panels[1], 2, 1); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[1], 2, 1);
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             coords = (f32 *)((u8 *)D_0064A090 + (panelIndex + 3) * 8);
             ((FclObject *)fclBustupObjGetWork((&((FclItemShopWork *)work)->panels[3])[panelIndex]))->anchorPosition = fclMakeVec2(coords[0], coords[1]);
@@ -557,23 +548,23 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             ((FclItemShopWork *)work)->bandActive[i] = 1;
         }
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[18], 0, 0);
-        fclBustupObjSetAnchorValue(shopFields->panels[18], 80.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[18], 0x3D); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjSetAnchorValue(shopFields->panels[18], 80.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[18], 0x3D);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[19], 0, 0);
-        fclBustupObjSetAnchorValue(shopFields->panels[19], 81.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[19], 0x3D); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjSetAnchorValue(shopFields->panels[19], 81.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[19], 0x3D);
         tbl = (F2_0033 *)D_0064A2A0;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[66], 0, 0);
-        fclBustupObjSetAnchorValue(shopFields->panels[66], 82.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[66], 0x3E); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartPosition(shopFields->panels[66], fclMakeVec2(tbl->x, tbl->y + (f32)(((FclItemShopWork *)work)->menuSelection * 30)), /* measured: access-site fields lose this function's MATCH. */
-                      fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjSetAnchorValue(shopFields->panels[66], 82.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[66], 0x3E);
+        fclBustupObjStartPosition(shopFields->panels[66], fclMakeVec2(tbl->x, tbl->y + (f32)(((FclItemShopWork *)work)->menuSelection * 30)),
+                      fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0);
         tbl = (F2_0033 *)D_0064A2A8;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[67], 0, 0);
-        fclBustupObjSetAnchorValue(shopFields->panels[67], 83.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[67], 0x3E); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartPosition(shopFields->panels[67], fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), /* measured: access-site fields lose this function's MATCH. */
-                      fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjSetAnchorValue(shopFields->panels[67], 83.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[67], 0x3E);
+        fclBustupObjStartPosition(shopFields->panels[67], fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)),
+                      fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0);
         for (panelIndex = 0; panelIndex < 6; panelIndex++) {
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[panelIndex + 12], 0, 1);
             fclBustupObjSetAnchorValue(((FclItemShopWork *)work)->panels[panelIndex + 12], (f32)(panelIndex + 0x4A));
@@ -583,12 +574,12 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[13], 0, 0);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[14], 0, 0);
         for (skipIntroBand = 0; skipIntroBand < 0x24; skipIntroBand++) {
-            if (!(shopFields->bandPosition[skipIntroBand] < 140.0f) && ((FclItemShopWork *)work)->bandPosition[skipIntroBand] < 340.0f) { /* measured: access-site fields lose this function's MATCH. */
+            if (!(shopFields->bandPosition[skipIntroBand] < 140.0f) && ((FclItemShopWork *)work)->bandPosition[skipIntroBand] < 340.0f) {
                 ((FclItemShopWork *)work)->bandActive[skipIntroBand] = 0;
-            } else if (!(shopFields->bandPosition[skipIntroBand] < 140.0f)) { /* measured: access-site fields lose this function's MATCH. */
-                ((FclItemShopWork *)work)->bandDelay[skipIntroBand] = (shopFields->bandPosition[skipIntroBand] - 340.0f) / 10.0f; /* measured: access-site fields lose this function's MATCH. */
+            } else if (!(shopFields->bandPosition[skipIntroBand] < 140.0f)) {
+                ((FclItemShopWork *)work)->bandDelay[skipIntroBand] = (shopFields->bandPosition[skipIntroBand] - 340.0f) / 10.0f;
             } else {
-                ((FclItemShopWork *)work)->bandDelay[skipIntroBand] = (20.0f + shopFields->bandPosition[skipIntroBand]) / 10.0f; /* measured: access-site fields lose this function's MATCH. */
+                ((FclItemShopWork *)work)->bandDelay[skipIntroBand] = (20.0f + shopFields->bandPosition[skipIntroBand]) / 10.0f;
             }
             ((FclItemShopWork *)work)->bandFadeFrames[skipIntroBand] = 0;
             ((FclItemShopWork *)work)->bandFadeElapsed = 0;
@@ -598,20 +589,20 @@ s32 fclItemShopUpdate(u8 *shopTask) {
     case 4:
         ((FclItemShopWork *)work)->moneyX =
             fclEaseInterpolate(0, ((FclItemShopWork *)work)->moneyStartX, ((FclItemShopWork *)work)->moneyEndX, ((FclItemShopWork *)work)->moneyElapsed, 10.0f);
-        shopFields->moneyElapsed = fclAddClamped(shopFields->moneyElapsed, 1, 10, 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        shopFields->moneyElapsed = fclAddClamped(shopFields->moneyElapsed, 1, 10, 1, 1);
         for (fadeBand = 0; fadeBand < 0x24; fadeBand++) {
-            if (shopFields->bandActive[fadeBand] == 1) { /* measured: access-site fields lose this function's MATCH. */
+            if (shopFields->bandActive[fadeBand] == 1) {
                 ((FclItemShopWork *)work)->bandDelay[fadeBand] = fclSubClamped(((FclItemShopWork *)work)->bandDelay[fadeBand], 1, 0, 0, 1);
                 if (((FclItemShopWork *)work)->bandDelay[fadeBand] == 0) {
-                    shopFields->bandAlpha[fadeBand] = fclEaseInterpolate(0, 255.0f, 0.0f, shopFields->bandFadeFrames[fadeBand], 15.0f); /* measured: access-site fields lose this function's MATCH. */
-                    shopFields->bandFadeFrames[fadeBand] = fclAddClamped(shopFields->bandFadeFrames[fadeBand], 1, 0xF, 1, 1); /* measured: access-site fields lose this function's MATCH. */
+                    shopFields->bandAlpha[fadeBand] = fclEaseInterpolate(0, 255.0f, 0.0f, shopFields->bandFadeFrames[fadeBand], 15.0f);
+                    shopFields->bandFadeFrames[fadeBand] = fclAddClamped(shopFields->bandFadeFrames[fadeBand], 1, 0xF, 1, 1);
                 }
                 ((FclItemShopWork *)work)->bandPosition[fadeBand] = fclBustupDrawRotatingBand(fclMakeVec2(23.0f, 225.0f), (s16)(fadeBand * 10),
-                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[fadeBand], 1); /* measured: access-site fields lose this function's MATCH. */
+                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[fadeBand], 1);
             }
         }
         ((FclItemShopWork *)work)->bandAngle = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)((FclItemShopWork *)work)->bandElapsed, 720.0f);
-        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, ((FclItemShopWork *)work)->bandStep, 0x2D0, 1, 2); /* measured: access-site fields lose this function's MATCH. */
+        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, ((FclItemShopWork *)work)->bandStep, 0x2D0, 1, 2);
         for (activeBand = 0; activeBand < 0x24; activeBand++) {
             if (!(((FclItemShopWork *)work)->bandPosition[activeBand] < 140.0f) && ((FclItemShopWork *)work)->bandPosition[activeBand] < 340.0f) {
                 ((FclItemShopWork *)work)->bandActive[activeBand] = 0;
@@ -626,55 +617,55 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             break;
         }
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[20], 0, 0);
-        fclBustupObjSetAnchorValue(shopFields->panels[20], 14.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[20], 0x64); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjSetAnchorValue(shopFields->panels[20], 14.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[20], 0x64);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[85], 0, 1);
-        shopFields->bandElapsed = 0; /* measured: access-site fields lose this function's MATCH. */
+        shopFields->bandElapsed = 0;
         ((FclItemShopWork *)work)->state = 5;
         if (((FclItemShopWork *)work)->moonItemsUnlocked == 1) {
             ((FclItemShopWork *)work)->messageSlot = nmMesWindowAcquire((s32)((HCdvdRequest *)(u8 *)((FclItemShopWork *)work)->directory)->data);
-            nmMesWindowShowSlotRecord(shopFields->messageSlot, 2); /* measured: access-site fields lose this function's MATCH. */
+            nmMesWindowShowSlotRecord(shopFields->messageSlot, 2);
             ((FclItemShopWork *)work)->state = 6;
         } else if (((FclItemShopWork *)work)->discountDay == 1) {
             ((FclItemShopWork *)work)->messageSlot = nmMesWindowAcquire((s32)((HCdvdRequest *)(u8 *)((FclItemShopWork *)work)->directory)->data);
-            nmMesWindowShowSlotRecord(shopFields->messageSlot, 3); /* measured: access-site fields lose this function's MATCH. */
+            nmMesWindowShowSlotRecord(shopFields->messageSlot, 3);
             ((FclItemShopWork *)work)->state = 7;
         } else {
             ((FclItemShopWork *)work)->messageSlot = nmMesWindowAcquire((s32)((HCdvdRequest *)(u8 *)((FclItemShopWork *)work)->directory)->data);
-            nmMesWindowShowSlotRecord(shopFields->messageSlot, 4); /* measured: access-site fields lose this function's MATCH. */
+            nmMesWindowShowSlotRecord(shopFields->messageSlot, 4);
             ((FclItemShopWork *)work)->state = 7;
         }
         break;
     case 6:
         if (nmMesWindowSlotStatus(((FclItemShopWork *)work)->messageSlot) != 0) {
-            nmMesWindowStepSlotRelease(shopFields->messageSlot); /* measured: access-site fields lose this function's MATCH. */
+            nmMesWindowStepSlotRelease(shopFields->messageSlot);
             break;
         }
-        nmMesWindowDestroySlot(shopFields->messageSlot); /* measured: access-site fields lose this function's MATCH. */
+        nmMesWindowDestroySlot(shopFields->messageSlot);
         ((FclItemShopWork *)work)->state = 5;
         if (((FclItemShopWork *)work)->discountDay == 1) {
-            shopFields->messageSlot = nmMesWindowAcquire((s32)((HCdvdRequest *)(u8 *)((FclItemShopWork *)work)->directory)->data); /* measured: access-site fields lose this function's MATCH. */
-            nmMesWindowShowSlotRecord(shopFields->messageSlot, 3); /* measured: access-site fields lose this function's MATCH. */
+            shopFields->messageSlot = nmMesWindowAcquire((s32)((HCdvdRequest *)(u8 *)((FclItemShopWork *)work)->directory)->data);
+            nmMesWindowShowSlotRecord(shopFields->messageSlot, 3);
             ((FclItemShopWork *)work)->state = 7;
         }
         break;
     case 7:
         if (nmMesWindowSlotStatus(((FclItemShopWork *)work)->messageSlot) != 0) {
-            nmMesWindowStepSlotRelease(shopFields->messageSlot); /* measured: access-site fields lose this function's MATCH. */
+            nmMesWindowStepSlotRelease(shopFields->messageSlot);
             break;
         }
-        nmMesWindowDestroySlot(shopFields->messageSlot); /* measured: access-site fields lose this function's MATCH. */
+        nmMesWindowDestroySlot(shopFields->messageSlot);
         ((FclItemShopWork *)work)->state = 5;
         break;
     case 5:
         if (D_008C027A[0] & 0x4000) {
-            ((FclItemShopWork *)work)->menuSelection = fclAddClamped(shopFields->menuSelection, 1, 2, 0, 2); /* measured: access-site fields lose this function's MATCH. */
+            ((FclItemShopWork *)work)->menuSelection = fclAddClamped(shopFields->menuSelection, 1, 2, 0, 2);
             for (panelIndex = 0; panelIndex < 6; panelIndex++) {
                 fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[panelIndex + 12], 0, 1);
             }
             sdkSndStartStream(0, 0, 0, 0);
         } else if (D_008C027A[0] & 0x1000) {
-            ((FclItemShopWork *)work)->menuSelection = fclSubClamped(shopFields->menuSelection, 1, 0, 2, 2); /* measured: access-site fields lose this function's MATCH. */
+            ((FclItemShopWork *)work)->menuSelection = fclSubClamped(shopFields->menuSelection, 1, 0, 2, 2);
             for (panelIndex = 0; panelIndex < 6; panelIndex++) {
                 fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[panelIndex + 12], 0, 1);
             }
@@ -701,7 +692,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                     }
                 }
                 fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[1], 0, 0);
-                fclBustupObjStartAlpha(shopFields->panels[1], 0xFF, 0, 0, 6, 0); /* measured: access-site fields lose this function's MATCH. */
+                fclBustupObjStartAlpha(shopFields->panels[1], 0xFF, 0, 0, 6, 0);
                 tbl = (F2_0033 *)D_0064A1D8;
                 fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[41], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(-180.0f, tbl->y), 0, 0xD,
                               5);
@@ -763,11 +754,11 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         }
         tbl = (F2_0033 *)D_0064A2A0;
         fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[66], fclMakeVec2(tbl->x, tbl->y + (f32)(((FclItemShopWork *)work)->menuSelection * 30)),
-                      fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+                      fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0);
         tbl = (F2_0033 *)D_0064A2A8;
-        fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[67], fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), /* measured: access-site fields lose this function's MATCH. */
-                      fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        switch (shopFields->menuSelection) { /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[67], fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)),
+                      fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0);
+        switch (shopFields->menuSelection) {
         case 0:
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[15], 0, 0);
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[13], 0, 0);
@@ -787,12 +778,12 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         break;
     case 9:
         if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[1], 2) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[3], 4) != 0 ||
-            fclBustupObjTestFlagBit(shopFields->panels[3], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[3], 1) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[4], 4) != 0 || fclBustupObjTestFlagBit(shopFields->panels[4], 2) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(shopFields->panels[4], 1) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[5], 4) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(shopFields->panels[5], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[5], 1) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[6], 4) != 0 || fclBustupObjTestFlagBit(shopFields->panels[6], 2) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(shopFields->panels[6], 1) != 0) { /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjTestFlagBit(shopFields->panels[3], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[3], 1) != 0 ||
+            fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[4], 4) != 0 || fclBustupObjTestFlagBit(shopFields->panels[4], 2) != 0 ||
+            fclBustupObjTestFlagBit(shopFields->panels[4], 1) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[5], 4) != 0 ||
+            fclBustupObjTestFlagBit(shopFields->panels[5], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[5], 1) != 0 ||
+            fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[6], 4) != 0 || fclBustupObjTestFlagBit(shopFields->panels[6], 2) != 0 ||
+            fclBustupObjTestFlagBit(shopFields->panels[6], 1) != 0) {
             break;
         }
         for (panelIndex = 0; panelIndex < 6; panelIndex++) {
@@ -820,39 +811,39 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             ((FclObject *)fclBustupObjGetWork((&((FclItemShopWork *)work)->panels[94])[listRevealPanel]))->alpha = 2;
         }
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[0], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[0], fclMakeVec2(D_0064A090[0], D_0064A090[1]), fclMakeVec2(428.0f, 241.0f), /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[0], fclMakeVec2(D_0064A090[0], D_0064A090[1]), fclMakeVec2(428.0f, 241.0f),
                       0, 0xF, 0);
-        fclBustupObjStartTween(shopFields->panels[0], -360.0f, 0.0f, 0, 0xF, 0); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartTween(shopFields->panels[0], -360.0f, 0.0f, 0, 0xF, 0);
         tbl = (F2_0033 *)D_0064A320;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[82], 0, 0);
-        fclBustupObjStartAlpha(shopFields->panels[82], 0, 0xFF, 0, 0, 0xF); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartUniformRevealScale(shopFields->panels[82], 0.1f, 1.0f, 0, 8, 0xF); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[82], 45.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[82], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartAlpha(shopFields->panels[82], 0, 0xFF, 0, 0, 0xF);
+        fclBustupObjStartUniformRevealScale(shopFields->panels[82], 0.1f, 1.0f, 0, 8, 0xF);
+        fclBustupObjSetAnchorValue(shopFields->panels[82], 45.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[82], 0x5B);
         labelFont = sdkSpriteNewNode((void *)((FclItemShopWork *)work)->spriteFile, 0x52);
-        fclBustupObjStartPosition(shopFields->panels[82], /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[82],
                       fclMakeVec2((sdkSpriteScaledWidth(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
                                     (sdkSpriteScaledHeight(labelFont) / 10.0f) * 5.0f + tbl->y + 0.0f),
                       fclMakeVec2(tbl->x, tbl->y), 0, 8, 0xF);
         sdkSpriteFreeNode(labelFont);
         tbl = (F2_0033 *)D_0064A200;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[46], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[46], fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0x14, 5); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[46], 42.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[46], 0x61); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[46], fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0x14, 5);
+        fclBustupObjSetAnchorValue(shopFields->panels[46], 42.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[46], 0x61);
         tbl = (F2_0033 *)D_0064A1F0;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[44], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[44], fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 8, 5); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[44], 43.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[44], 0x61); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[44], fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 8, 5);
+        fclBustupObjSetAnchorValue(shopFields->panels[44], 43.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[44], 0x61);
         tbl = (F2_0033 *)D_0064A1F8;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[45], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[45], fclMakeVec2(980.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 8, 5); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartTween(shopFields->panels[45], 0.0f, -90.0f, 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[45]))->targetTween = ((FclObject *)fclBustupObjGetWork(shopFields->panels[45]))->startTween = /* measured: access-site fields lose this function's MATCH. */
-            ((FclObject *)fclBustupObjGetWork(shopFields->panels[45]))->tweenValue = -90.0f; /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[45], 44.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[45], 0x61); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[45], fclMakeVec2(980.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 8, 5);
+        fclBustupObjStartTween(shopFields->panels[45], 0.0f, -90.0f, 0, 0, 0);
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[45]))->targetTween = ((FclObject *)fclBustupObjGetWork(shopFields->panels[45]))->startTween =
+            ((FclObject *)fclBustupObjGetWork(shopFields->panels[45]))->tweenValue = -90.0f;
+        fclBustupObjSetAnchorValue(shopFields->panels[45], 44.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[45], 0x61);
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             layer1 = (s16)(panelIndex * 3 + 0xF);
             listIndex = panelIndex + 7;
@@ -862,7 +853,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjStartAlpha((&((FclItemShopWork *)work)->panels[7])[panelIndex], 0, 0xFF, 0, 5, layer1);
             fclBustupObjSetAnchorValue((&((FclItemShopWork *)work)->panels[7])[panelIndex], (f32)(panelIndex + 0x1A));
             fclBustupObjSetAnchorMode((&((FclItemShopWork *)work)->panels[7])[panelIndex], 0x63);
-            rowFont = sdkSpriteNewNode((void *)shopFields->spriteFile, listIndex); /* measured: access-site fields lose this function's MATCH. */
+            rowFont = sdkSpriteNewNode((void *)shopFields->spriteFile, listIndex);
             fclBustupObjStartPosition((&((FclItemShopWork *)work)->panels[7])[panelIndex],
                           fclMakeVec2((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
                                         (sdkSpriteScaledHeight(rowFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
@@ -870,47 +861,47 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             sdkSpriteFreeNode(rowFont);
         }
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[2], 0, 0);
-        fclBustupObjStartAlpha(shopFields->panels[2], 0, 0xFF, 0, 0x14, 0xA); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[2], 21.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[2], 0x64); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartAlpha(shopFields->panels[2], 0, 0xFF, 0, 0x14, 0xA);
+        fclBustupObjSetAnchorValue(shopFields->panels[2], 21.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[2], 0x64);
         tbl = (F2_0033 *)D_0064A208;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[47], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[47], fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[47], 68.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[47], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[47], fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5);
+        fclBustupObjSetAnchorValue(shopFields->panels[47], 68.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[47], 0x5B);
         tbl = (F2_0033 *)D_0064A210;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[48], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[48], fclMakeVec2(1064.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[48], 60.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[48], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[48], fclMakeVec2(1064.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5);
+        fclBustupObjSetAnchorValue(shopFields->panels[48], 60.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[48], 0x5B);
         tbl = (F2_0033 *)D_0064A218;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[49], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[49], fclMakeVec2(1064.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[49], 59.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[49], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[49], fclMakeVec2(1064.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5);
+        fclBustupObjSetAnchorValue(shopFields->panels[49], 59.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[49], 0x5B);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[80], 0, 0);
-        fclBustupObjStartAlpha(shopFields->panels[80], 0, 0xFF, 0, 0, 0xA); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[80], 56.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[80], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartAlpha(shopFields->panels[80], 0, 0xFF, 0, 0, 0xA);
+        fclBustupObjSetAnchorValue(shopFields->panels[80], 56.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[80], 0x5B);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[98], 0, 0);
-        fclBustupObjStartAlpha(shopFields->panels[98], 0, 0xFF, 0, 0, 0xA); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[98], 57.0f); /* measured: access-site fields lose this function's MATCH. */
-        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[98]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartAlpha(shopFields->panels[98], 0, 0xFF, 0, 0, 0xA);
+        fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[98], 57.0f);
+        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[98]))->anchorIndex =
             (u8)datItemCount((s16)yListValueAt(((FclItemShopWork *)work)->selectedItem)) % 10 + 0x46;
-        fclBustupObjSetAnchorMode(shopFields->panels[98], 0x5B); /* measured: access-site fields lose this function's MATCH. */
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[98]))->color = fclMakeDrawColor(0x7E, 0, 8, 0xFF); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjSetAnchorMode(shopFields->panels[98], 0x5B);
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[98]))->color = fclMakeDrawColor(0x7E, 0, 8, 0xFF);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[99], 0, 0);
-        fclBustupObjStartAlpha(shopFields->panels[99], 0, 0xFF, 0, 0, 0xA); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjStartPosition(shopFields->panels[99], fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[99], 57.0f); /* measured: access-site fields lose this function's MATCH. */
-        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
-            (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[99], 0x5B); /* measured: access-site fields lose this function's MATCH. */
-        ((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->color = fclMakeDrawColor(0x7E, 0, 8, 0xFF); /* measured: access-site fields lose this function's MATCH. */
-        if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) { /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartAlpha(shopFields->panels[99], 0, 0xFF, 0, 0, 0xA);
+        fclBustupObjStartPosition(shopFields->panels[99], fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[99], 57.0f);
+        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex =
+            (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46;
+        fclBustupObjSetAnchorMode(shopFields->panels[99], 0x5B);
+        ((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->color = fclMakeDrawColor(0x7E, 0, 8, 0xFF);
+        if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) {
+            fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1);
+            fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         }
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[panelIndex + 21], 0, 0);
@@ -921,67 +912,67 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[24], 0, 1);
         tbl = (F2_0033 *)D_0064A228;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[51], 0, 1);
-        fclBustupObjStartPosition(shopFields->panels[51], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[51], 66.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[51], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[51], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[51], 66.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[51], 0x5B);
         tbl = (F2_0033 *)D_0064A230;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[52], 0, 1);
-        fclBustupObjStartPosition(shopFields->panels[52], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[52], 67.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[52], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[52], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[52], 67.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[52], 0x5B);
         tbl = (F2_0033 *)D_0064A220;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[50], 0, 1);
-        fclBustupObjStartPosition(shopFields->panels[50], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[50], 61.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[50], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[50], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[50], 61.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[50], 0x5B);
         if (((FclItemShopWork *)work)->moonItemsUnlocked == 1) {
-            capFont = sdkSpriteNewNode((void *)shopFields->spriteFile, 0x51); /* measured: access-site fields lose this function's MATCH. */
+            capFont = sdkSpriteNewNode((void *)shopFields->spriteFile, 0x51);
             tbl = (F2_0033 *)D_0064A318;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[81], 0, 0);
-            fclBustupObjStartPosition(shopFields->panels[81], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartTween(shopFields->panels[81], -90.0f, 0.0f, 0, 7, 0xA); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorValue(shopFields->panels[81], 40.0f); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorMode(shopFields->panels[81], 0x62); /* measured: access-site fields lose this function's MATCH. */
-            ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[81]))->centerX = 0; /* measured: access-site fields lose this function's MATCH. */
-            ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[81]))->centerY = sdkSpriteScaledHeight(capFont); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjStartPosition(shopFields->panels[81], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
+            fclBustupObjStartTween(shopFields->panels[81], -90.0f, 0.0f, 0, 7, 0xA);
+            fclBustupObjSetAnchorValue(shopFields->panels[81], 40.0f);
+            fclBustupObjSetAnchorMode(shopFields->panels[81], 0x62);
+            ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[81]))->centerX = 0;
+            ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[81]))->centerY = sdkSpriteScaledHeight(capFont);
             sdkSpriteFreeNode(capFont);
         }
         if (((FclItemShopWork *)work)->discountDay == 1) {
             tbl = (F2_0033 *)D_0064A340;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[86], 0, 0);
-            fclBustupObjStartPosition(shopFields->panels[86], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartTween(shopFields->panels[86], 150.0f, 0.0f, 0, 0xA, 0x1B); /* measured: access-site fields lose this function's MATCH. */
-            ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[86]))->centerX = 0x231 - tbl->x; /* measured: access-site fields lose this function's MATCH. */
-            ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[86]))->centerY = 470.0f - tbl->y; /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorValue(shopFields->panels[86], 24.0f); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorMode(shopFields->panels[86], 0x63); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjStartPosition(shopFields->panels[86], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
+            fclBustupObjStartTween(shopFields->panels[86], 150.0f, 0.0f, 0, 0xA, 0x1B);
+            ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[86]))->centerX = 0x231 - tbl->x;
+            ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[86]))->centerY = 470.0f - tbl->y;
+            fclBustupObjSetAnchorValue(shopFields->panels[86], 24.0f);
+            fclBustupObjSetAnchorMode(shopFields->panels[86], 0x63);
             tbl = (F2_0033 *)D_0064A348;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[87], 0, 0);
-            fclBustupObjStartPosition(shopFields->panels[87], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartAlpha(shopFields->panels[87], 0xFF, 0x33, 0, 0x14, 0x34); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartUniformRevealScale(shopFields->panels[87], 0.0f, 1.0f, 0, 0, 0x25); /* measured: access-site fields lose this function's MATCH. */
-            ((FclObject *)fclBustupObjGetWork(shopFields->panels[87]))->tweenValue = 0.0f; /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorValue(shopFields->panels[87], 23.0f); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorMode(shopFields->panels[87], 0x63); /* measured: access-site fields lose this function's MATCH. */
-            labelFont = sdkSpriteNewNode((void *)shopFields->spriteFile, 0x58); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjStartPosition(shopFields->panels[87], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
+            fclBustupObjStartAlpha(shopFields->panels[87], 0xFF, 0x33, 0, 0x14, 0x34);
+            fclBustupObjStartUniformRevealScale(shopFields->panels[87], 0.0f, 1.0f, 0, 0, 0x25);
+            ((FclObject *)fclBustupObjGetWork(shopFields->panels[87]))->tweenValue = 0.0f;
+            fclBustupObjSetAnchorValue(shopFields->panels[87], 23.0f);
+            fclBustupObjSetAnchorMode(shopFields->panels[87], 0x63);
+            labelFont = sdkSpriteNewNode((void *)shopFields->spriteFile, 0x58);
             tbl = (F2_0033 *)D_0064A350;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[88], 0, 0);
-            fclBustupObjStartPosition(shopFields->panels[88], /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjStartPosition(shopFields->panels[88],
                           fclMakeVec2(tbl->x + sdkSpriteScaledWidth(labelFont) / 2.0f, tbl->y + sdkSpriteScaledHeight(labelFont) / 2.0f),
                           fclMakeVec2(tbl->x - 4.0f, tbl->y - 3.0f), 0, 5, 0x23);
-            fclBustupObjStartUniformRevealScale(shopFields->panels[88], 0.0f, 1.05f, 2, 5, 0x23); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartAlpha(shopFields->panels[88], 0, 0xFF, 0, 0, 0x23); /* measured: access-site fields lose this function's MATCH. */
-            ((FclObject *)fclBustupObjGetWork(shopFields->panels[88]))->tweenValue = 0.0f; /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorValue(shopFields->panels[88], 22.0f); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorMode(shopFields->panels[88], 0x63); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjStartUniformRevealScale(shopFields->panels[88], 0.0f, 1.05f, 2, 5, 0x23);
+            fclBustupObjStartAlpha(shopFields->panels[88], 0, 0xFF, 0, 0, 0x23);
+            ((FclObject *)fclBustupObjGetWork(shopFields->panels[88]))->tweenValue = 0.0f;
+            fclBustupObjSetAnchorValue(shopFields->panels[88], 22.0f);
+            fclBustupObjSetAnchorMode(shopFields->panels[88], 0x63);
             sdkSpriteFreeNode(labelFont);
             tbl = (F2_0033 *)D_0064A358;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[89], 0, 0);
-            fclBustupObjStartPositionMode(shopFields->panels[89], fclMakeVec2(0x113 + tbl->x, tbl->y), /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjStartPositionMode(shopFields->panels[89], fclMakeVec2(0x113 + tbl->x, tbl->y),
                           fclMakeVec2(tbl->x, tbl->y - 120.0f), 1, 0, 0xE, 0x20);
-            ((FclObject *)fclBustupObjGetWork(shopFields->panels[89]))->tweenValue = 0.0f; /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorValue(shopFields->panels[89], 9.0f); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjSetAnchorMode(shopFields->panels[89], 0x64); /* measured: access-site fields lose this function's MATCH. */
+            ((FclObject *)fclBustupObjGetWork(shopFields->panels[89]))->tweenValue = 0.0f;
+            fclBustupObjSetAnchorValue(shopFields->panels[89], 9.0f);
+            fclBustupObjSetAnchorMode(shopFields->panels[89], 0x64);
         }
         ((FclItemShopWork *)work)->descriptionShown = 0;
         ((FclItemShopWork *)work)->state = 0xA;
@@ -990,7 +981,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         break;
     case 10:
         if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[88], 4) == 0) {
-            fclBustupObjStartUniformRevealScale(shopFields->panels[88], 0.0f, 1.0f, 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjStartUniformRevealScale(shopFields->panels[88], 0.0f, 1.0f, 0, 0, 0);
         }
         if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[94], 4) != 0) {
             break;
@@ -1003,7 +994,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[panelIndex + 94], 0, 1);
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[panelIndex + 91], 0, 1);
         }
-        fclBustupObjChangeFlagBit(shopFields->panels[40], 0, 1); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjChangeFlagBit(shopFields->panels[40], 0, 1);
         ((FclItemShopWork *)work)->bandFadeElapsed = 0;
         for (i = 0; i < 0x24; i++) {
             ((FclItemShopWork *)work)->bandActive[i] = 1;
@@ -1014,133 +1005,133 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         ((FclItemShopWork *)work)->quantity = 1;
         if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[88], 4) == 0) {
             tbl = (F2_0033 *)D_0064A350;
-            ((FclObject *)fclBustupObjGetWork(shopFields->panels[88]))->anchorPosition = fclMakeVec2(tbl->x, tbl->y); /* measured: access-site fields lose this function's MATCH. */
-            ((FclObject *)fclBustupObjGetWork(shopFields->panels[88]))->scaleX = 1.0f; /* measured: access-site fields lose this function's MATCH. */
-            ((FclObject *)fclBustupObjGetWork(shopFields->panels[88]))->scale = 1.0f; /* measured: access-site fields lose this function's MATCH. */
+            ((FclObject *)fclBustupObjGetWork(shopFields->panels[88]))->anchorPosition = fclMakeVec2(tbl->x, tbl->y);
+            ((FclObject *)fclBustupObjGetWork(shopFields->panels[88]))->scaleX = 1.0f;
+            ((FclObject *)fclBustupObjGetWork(shopFields->panels[88]))->scale = 1.0f;
         }
         for (panelIndex = 0; panelIndex < 0x24; panelIndex++) {
-            shopFields->bandAlpha[panelIndex] = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 15.0f); /* measured: access-site fields lose this function's MATCH. */
-            if (shopFields->bandActive[panelIndex] == 1) { /* measured: access-site fields lose this function's MATCH. */
+            shopFields->bandAlpha[panelIndex] = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 15.0f);
+            if (shopFields->bandActive[panelIndex] == 1) {
                 ((FclItemShopWork *)work)->bandPosition[panelIndex] = fclBustupDrawRotatingBand(fclMakeVec2(400.0f, 220.0f), (s16)(panelIndex * 10),
-                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[panelIndex], 0); /* measured: access-site fields lose this function's MATCH. */
+                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[panelIndex], 0);
             }
         }
         ((FclItemShopWork *)work)->bandAngle = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)((FclItemShopWork *)work)->bandElapsed, 1000.0f);
-        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, 1, 1000, 1, 2); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 0xF, 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, 1, 1000, 1, 2);
+        ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 0xF, 1, 1);
         if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[47], 1) == 0) {
             fclShopDrawNumber(fclMakeVec2(0x253, 78.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF),
                           fclItemShopDiscountedPrice(shopTask, yListValueAt(((FclItemShopWork *)work)->selectedItem)), 0x35, (void *)((FclItemShopWork *)work)->spriteFile, 0xAB);
             fclItemShopDrawList(shopTask);
             tbl = (F2_0033 *)D_0064A218;
             ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[49]))->anchorPosition.y =
-                (f32)(shopFields->selectedItem - ((FclItemShopWork *)work)->cursorRow) * ((FclItemShopWork *)work)->scrollStep + tbl->y + 0.0f; /* measured: access-site fields lose this function's MATCH. */
+                (f32)(shopFields->selectedItem - ((FclItemShopWork *)work)->cursorRow) * ((FclItemShopWork *)work)->scrollStep + tbl->y + 0.0f;
         }
-        *(u16 *)&((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[98]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
+        *(u16 *)&((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[98]))->anchorIndex =
             (u8)datItemCount((s16)yListValueAt(((FclItemShopWork *)work)->selectedItem)) % 10 + 0x46;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[99], 0, 0);
-        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
-            (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
-        if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) { /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex =
+            (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46;
+        if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) {
+            fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1);
+            fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         }
-        if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[82], 1) != 0 || fclBustupObjTestFlagBit(shopFields->panels[82], 4) != 0 || /* measured: access-site fields lose this function's MATCH. */
+        if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[82], 1) != 0 || fclBustupObjTestFlagBit(shopFields->panels[82], 4) != 0 ||
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[46], 1) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[44], 1) != 0 ||
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[45], 1) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[7], 4) != 0 ||
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[8], 4) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[9], 4) != 0 ||
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[10], 4) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[2], 2) != 0 ||
-            fclBustupObjTestFlagBit(shopFields->panels[47], 1) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[48], 1) != 0 || /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjTestFlagBit(shopFields->panels[47], 1) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[48], 1) != 0 ||
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[49], 1) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[80], 2) != 0 ||
-            fclBustupObjTestFlagBit(shopFields->panels[98], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[99], 2) != 0 || /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjTestFlagBit(shopFields->panels[98], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[99], 2) != 0 ||
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[21], 2) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[22], 2) != 0 ||
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[23], 2) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[24], 2) != 0) {
             break;
         }
         if ((D_008C0276[0] & 0x1000) && ((FclItemShopWork *)work)->cursorMoved == 0) {
             sdkSndStartStream(0, 0, 0, 0);
-            if (shopFields->selectedItem == 0) { /* measured: access-site fields lose this function's MATCH. */
-                shopFields->selectedItem = yListLastIndex(); /* measured: access-site fields lose this function's MATCH. */
-                ((FclItemShopWork *)work)->cursorRow = fclAddClamped(0, shopFields->selectedItem, 4, 0, 1); /* measured: access-site fields lose this function's MATCH. */
+            if (shopFields->selectedItem == 0) {
+                shopFields->selectedItem = yListLastIndex();
+                ((FclItemShopWork *)work)->cursorRow = fclAddClamped(0, shopFields->selectedItem, 4, 0, 1);
             } else {
-                shopFields->selectedItem = fclSubClamped(shopFields->selectedItem, 1, 0, (s16)yListCount(), 2); /* measured: access-site fields lose this function's MATCH. */
+                shopFields->selectedItem = fclSubClamped(shopFields->selectedItem, 1, 0, (s16)yListCount(), 2);
                 ((FclItemShopWork *)work)->cursorRow =
-                    yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListCount(), 5, -1); /* measured: access-site fields lose this function's MATCH. */
+                    yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListCount(), 5, -1);
             }
-            shopFields->cursorMoved = 1; /* measured: access-site fields lose this function's MATCH. */
+            shopFields->cursorMoved = 1;
         } else if (D_008C027A[0] & 0x1000) {
-            if (shopFields->selectedItem != 0) { /* measured: access-site fields lose this function's MATCH. */
+            if (shopFields->selectedItem != 0) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            shopFields->selectedItem = fclSubClamped(shopFields->selectedItem, 1, 0, 0, 1); /* measured: access-site fields lose this function's MATCH. */
-            ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListCount(), 5, -1); /* measured: access-site fields lose this function's MATCH. */
+            shopFields->selectedItem = fclSubClamped(shopFields->selectedItem, 1, 0, 0, 1);
+            ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListCount(), 5, -1);
             ((FclItemShopWork *)work)->cursorMoved = 1;
         } else if ((D_008C0276[0] & 0x4000) && ((FclItemShopWork *)work)->cursorMoved == 0) {
             sdkSndStartStream(0, 0, 0, 0);
-            shopFields->selectedItem = fclAddClamped(shopFields->selectedItem, 1, yListLastIndex(), 0, 2); /* measured: access-site fields lose this function's MATCH. */
-            if (shopFields->selectedItem == 0) { /* measured: access-site fields lose this function's MATCH. */
+            shopFields->selectedItem = fclAddClamped(shopFields->selectedItem, 1, yListLastIndex(), 0, 2);
+            if (shopFields->selectedItem == 0) {
                 ((FclItemShopWork *)work)->cursorRow = 0;
             } else if (yListLastIndex() >= 5) {
-                ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListLastIndex(), 5, 1); /* measured: access-site fields lose this function's MATCH. */
+                ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListLastIndex(), 5, 1);
             } else {
-                ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListLastIndex(), /* measured: access-site fields lose this function's MATCH. */
+                ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListLastIndex(),
                                                    (s16)yListCount(), 1);
             }
-            shopFields->cursorMoved = 1; /* measured: access-site fields lose this function's MATCH. */
+            shopFields->cursorMoved = 1;
         } else if (D_008C027A[0] & 0x4000) {
-            if (shopFields->selectedItem != yListLastIndex()) { /* measured: access-site fields lose this function's MATCH. */
+            if (shopFields->selectedItem != yListLastIndex()) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            shopFields->selectedItem = fclAddClamped(shopFields->selectedItem, 1, yListLastIndex(), 0, 1); /* measured: access-site fields lose this function's MATCH. */
+            shopFields->selectedItem = fclAddClamped(shopFields->selectedItem, 1, yListLastIndex(), 0, 1);
             if (yListLastIndex() >= 5) {
-                ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListLastIndex(), 5, 1); /* measured: access-site fields lose this function's MATCH. */
+                ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListLastIndex(), 5, 1);
             } else {
-                ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListLastIndex(), /* measured: access-site fields lose this function's MATCH. */
+                ((FclItemShopWork *)work)->cursorRow = yListStepIndex(shopFields->selectedItem, shopFields->cursorRow, (s16)yListLastIndex(),
                                                    (s16)yListCount(), 1);
             }
             ((FclItemShopWork *)work)->cursorMoved = 1;
         } else {
             if ((D_008C027A[0] & 8) || (D_008C027A[0] & 0x2000)) {
-                if (shopFields->selectedItem != yListLastIndex()) { /* measured: access-site fields lose this function's MATCH. */
+                if (shopFields->selectedItem != yListLastIndex()) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                yListAdvanceCursorScroll(shopFields->selectedItem, ((FclItemShopWork *)work)->cursorRow, yListCount(), 5, work + 4, work + 6); /* measured: access-site fields lose this function's MATCH. */
+                yListAdvanceCursorScroll(shopFields->selectedItem, ((FclItemShopWork *)work)->cursorRow, yListCount(), 5, work + 4, work + 6);
             } else if ((D_008C027A[0] & 4) || (D_008C027A[0] & 0x8000)) {
-                if (shopFields->selectedItem != 0) { /* measured: access-site fields lose this function's MATCH. */
+                if (shopFields->selectedItem != 0) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                yListRetreatCursorScroll(shopFields->selectedItem, ((FclItemShopWork *)work)->cursorRow, yListCount(), 5, work + 4, work + 6); /* measured: access-site fields lose this function's MATCH. */
+                yListRetreatCursorScroll(shopFields->selectedItem, ((FclItemShopWork *)work)->cursorRow, yListCount(), 5, work + 4, work + 6);
             } else if (D_008C024E[0] & 0x40) {
-                if (fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)) <= fclGetMoney() && /* measured: access-site fields lose this function's MATCH. */
-                    (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) < 0x63) { /* measured: access-site fields lose this function's MATCH. */
+                if (fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)) <= fclGetMoney() &&
+                    (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) < 0x63) {
                     tbl = (F2_0033 *)D_0064A210;
-                    fclBustupObjStartPosition(shopFields->panels[48], /* measured: access-site fields lose this function's MATCH. */
-                                  fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[48]))->anchorPosition.x, tbl->y), /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[48],
+                                  fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[48]))->anchorPosition.x, tbl->y),
                                   fclMakeVec2(tbl->x - 0x193, tbl->y), 0, 7, 0);
                     tbl = (F2_0033 *)D_0064A218;
-                    fclBustupObjStartPosition(shopFields->panels[49], /* measured: access-site fields lose this function's MATCH. */
-                                  fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.x, /* measured: access-site fields lose this function's MATCH. */
-                                                ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), /* measured: access-site fields lose this function's MATCH. */
-                                  fclMakeVec2(tbl->x - 0x193, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[49],
+                                  fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.x,
+                                                ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y),
+                                  fclMakeVec2(tbl->x - 0x193, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y),
                                   0, 7, 0);
                     tbl = (F2_0033 *)D_0064A328;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[83], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[83], fclMakeVec2(tbl->x, tbl->y), /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[83], fclMakeVec2(tbl->x, tbl->y),
                                   fclMakeVec2(tbl->x, tbl->y - 7.0f), 1, 0xA, 7);
-                    fclBustupObjStartAlpha(shopFields->panels[83], 0, 0xFF, 0, 0xA, 7); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[83], 54.0f); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorMode(shopFields->panels[83], 0x5B); /* measured: access-site fields lose this function's MATCH. */
-                    ((FclObject *)fclBustupObjGetWork(shopFields->panels[83]))->mode = 1; /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[83], 0, 0xFF, 0, 0xA, 7);
+                    fclBustupObjSetAnchorValue(shopFields->panels[83], 54.0f);
+                    fclBustupObjSetAnchorMode(shopFields->panels[83], 0x5B);
+                    ((FclObject *)fclBustupObjGetWork(shopFields->panels[83]))->mode = 1;
                     tbl = (F2_0033 *)D_0064A330;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[84], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[84], fclMakeVec2(tbl->x, tbl->y), /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[84], fclMakeVec2(tbl->x, tbl->y),
                                   fclMakeVec2(tbl->x, 7.0f + tbl->y), 1, 0xA, 7);
-                    fclBustupObjStartAlpha(shopFields->panels[84], 0, 0xFF, 0, 0xA, 7); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[84], 55.0f); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorMode(shopFields->panels[84], 0x5B); /* measured: access-site fields lose this function's MATCH. */
-                    ((FclObject *)fclBustupObjGetWork(shopFields->panels[84]))->mode = 1; /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[84], 0, 0xFF, 0, 0xA, 7);
+                    fclBustupObjSetAnchorValue(shopFields->panels[84], 55.0f);
+                    fclBustupObjSetAnchorMode(shopFields->panels[84], 0x5B);
+                    ((FclObject *)fclBustupObjGetWork(shopFields->panels[84]))->mode = 1;
                     ((FclItemShopWork *)work)->state = 0xC;
-                    shopFields->quantity = 1; /* measured: access-site fields lose this function's MATCH. */
+                    shopFields->quantity = 1;
                     sdkSndStartStream(0, 0, 0, 1);
                 } else {
                     sdkSndStartStream(0, 0, 0, 8);
@@ -1149,42 +1140,42 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                 if (((FclItemShopWork *)work)->descriptionShown == 0) {
                     sdkSndStartStream(0, 1, 0, 3);
                 }
-                if (shopFields->descriptionShown == 1) { /* measured: access-site fields lose this function's MATCH. */
+                if (shopFields->descriptionShown == 1) {
                     sdkSndStartStream(0, 1, 0, 4);
                 }
-                shopFields->descriptionShown ^= 1; /* measured: access-site fields lose this function's MATCH. */
+                shopFields->descriptionShown ^= 1;
             } else if (D_008C024E[0] & 0x20) {
                 if (((FclItemShopWork *)work)->descriptionShown == 1) {
-                    shopFields->descriptionShown = 0; /* measured: access-site fields lose this function's MATCH. */
+                    shopFields->descriptionShown = 0;
                     sdkSndStartStream(0, 1, 0, 4);
                 } else {
                     sdkSndStartStream(0, 0, 0, 2);
                     tbl = (F2_0033 *)D_0064A320;
-                    fclBustupObjChangeFlagBit(shopFields->panels[82], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartAlpha(shopFields->panels[82], 0xFF, 0, 0, 5, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartUniformRevealScale(shopFields->panels[82], 1.0f, 0.6f, 0, 5, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[82], 45.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjChangeFlagBit(shopFields->panels[82], 0, 0);
+                    fclBustupObjStartAlpha(shopFields->panels[82], 0xFF, 0, 0, 5, 0);
+                    fclBustupObjStartUniformRevealScale(shopFields->panels[82], 1.0f, 0.6f, 0, 5, 0);
+                    fclBustupObjSetAnchorValue(shopFields->panels[82], 45.0f);
                     cardFont = sdkSpriteNewNode((void *)((FclItemShopWork *)work)->spriteFile, 0x52);
-                    fclBustupObjStartPosition(shopFields->panels[82], fclMakeVec2(tbl->x, tbl->y), /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[82], fclMakeVec2(tbl->x, tbl->y),
                                   fclMakeVec2((sdkSpriteScaledWidth(cardFont) / 10.0f) * 2.0f + tbl->x + 0.0f,
                                                 (sdkSpriteScaledHeight(cardFont) / 10.0f) * 2.0f + tbl->y + 0.0f),
                                   0, 5, 0);
                     sdkSpriteFreeNode(cardFont);
                     tbl = (F2_0033 *)D_0064A200;
-                    fclBustupObjChangeFlagBit(shopFields->panels[46], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[46], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjChangeFlagBit(shopFields->panels[46], 0, 0);
+                    fclBustupObjStartPosition(shopFields->panels[46], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0,
                                   0xF, 0);
-                    fclBustupObjSetAnchorValue(shopFields->panels[46], 42.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[46], 42.0f);
                     tbl = (F2_0033 *)D_0064A1F0;
-                    fclBustupObjChangeFlagBit(shopFields->panels[44], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[44], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjChangeFlagBit(shopFields->panels[44], 0, 0);
+                    fclBustupObjStartPosition(shopFields->panels[44], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0,
                                   0xC, 0);
-                    fclBustupObjSetAnchorValue(shopFields->panels[44], 43.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[44], 43.0f);
                     tbl = (F2_0033 *)D_0064A1F8;
-                    fclBustupObjChangeFlagBit(shopFields->panels[45], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[45], fclMakeVec2(tbl->x, tbl->y), /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjChangeFlagBit(shopFields->panels[45], 0, 0);
+                    fclBustupObjStartPosition(shopFields->panels[45], fclMakeVec2(tbl->x, tbl->y),
                                   fclMakeVec2(320.0f + tbl->x, tbl->y), 0, 0xC, 0);
-                    fclBustupObjSetAnchorValue(shopFields->panels[45], 44.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[45], 44.0f);
                     for (panelIndex = 0; panelIndex < 4; panelIndex++) {
                         layer2 = (s16)(panelIndex * 2);
                         cardIndex = panelIndex + 7;
@@ -1192,59 +1183,59 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                         fclBustupObjStartUniformRevealScale((&((FclItemShopWork *)work)->panels[7])[panelIndex], 1.0f, 0.7f, 0, 4, layer2);
                         fclBustupObjStartAlpha((&((FclItemShopWork *)work)->panels[7])[panelIndex], 0xFF, 0, 0, 4, layer2);
                         fclBustupObjSetAnchorValue((&((FclItemShopWork *)work)->panels[7])[panelIndex], (f32)(panelIndex + 0x1A));
-                        font = sdkSpriteNewNode((void *)shopFields->spriteFile, cardIndex); /* measured: access-site fields lose this function's MATCH. */
+                        font = sdkSpriteNewNode((void *)shopFields->spriteFile, cardIndex);
                         fclBustupObjStartPosition((&((FclItemShopWork *)work)->panels[7])[panelIndex], fclMakeVec2(coords[0], coords[1]),
                                       fclMakeVec2((sdkSpriteScaledWidth(font) / 10.0f) * 1.5f + coords[0] + 0.0f,
                                                     (sdkSpriteScaledHeight(font) / 10.0f) * 1.5f + coords[1] + 0.0f),
                                       0, 4, layer2);
                         sdkSpriteFreeNode(font);
                     }
-                    fclBustupObjChangeFlagBit(shopFields->panels[2], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartAlpha(shopFields->panels[2], 0xFF, 0, 0, 5, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[2], 21.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjChangeFlagBit(shopFields->panels[2], 0, 0);
+                    fclBustupObjStartAlpha(shopFields->panels[2], 0xFF, 0, 0, 5, 0);
+                    fclBustupObjSetAnchorValue(shopFields->panels[2], 21.0f);
                     tbl = (F2_0033 *)D_0064A208;
-                    fclBustupObjChangeFlagBit(shopFields->panels[47], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[47], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjChangeFlagBit(shopFields->panels[47], 0, 0);
+                    fclBustupObjStartPosition(shopFields->panels[47], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0,
                                   0xA, 0);
-                    fclBustupObjSetAnchorValue(shopFields->panels[47], 68.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[47], 68.0f);
                     tbl = (F2_0033 *)D_0064A210;
-                    fclBustupObjChangeFlagBit(shopFields->panels[48], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[48], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(1064.0f, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjChangeFlagBit(shopFields->panels[48], 0, 0);
+                    fclBustupObjStartPosition(shopFields->panels[48], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(1064.0f, tbl->y), 0,
                                   0xA, 0);
-                    fclBustupObjSetAnchorValue(shopFields->panels[48], 60.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[48], 60.0f);
                     tbl = (F2_0033 *)D_0064A218;
-                    fclBustupObjChangeFlagBit(shopFields->panels[49], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[49], /* measured: access-site fields lose this function's MATCH. */
-                                  fclMakeVec2(tbl->x, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), /* measured: access-site fields lose this function's MATCH. */
-                                  fclMakeVec2(1064.0f, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), 0, 0xA, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjChangeFlagBit(shopFields->panels[49], 0, 0);
+                    fclBustupObjStartPosition(shopFields->panels[49],
+                                  fclMakeVec2(tbl->x, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y),
+                                  fclMakeVec2(1064.0f, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), 0, 0xA,
                                   0);
-                    fclBustupObjSetAnchorValue(shopFields->panels[49], 59.0f); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartAlpha(shopFields->panels[80], 0xFF, 0, 0, 0, 5); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[80], 56.0f); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjChangeFlagBit(shopFields->panels[98], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[49], 59.0f);
+                    fclBustupObjStartAlpha(shopFields->panels[80], 0xFF, 0, 0, 0, 5);
+                    fclBustupObjSetAnchorValue(shopFields->panels[80], 56.0f);
+                    fclBustupObjChangeFlagBit(shopFields->panels[98], 0, 0);
+                    fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0,
                                   0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[98], 0xFF, 0, 0, 0, 5); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[98], 57.0f); /* measured: access-site fields lose this function's MATCH. */
-                    *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[98]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
-                        (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) % 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 0); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[99], fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[98], 0xFF, 0, 0, 0, 5);
+                    fclBustupObjSetAnchorValue(shopFields->panels[98], 57.0f);
+                    *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[98]))->anchorIndex =
+                        (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) % 10 + 0x46;
+                    fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 0);
+                    fclBustupObjStartPosition(shopFields->panels[99], fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0,
                                   0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[99], 0xFF, 0, 0, 0, 5); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[99], 57.0f); /* measured: access-site fields lose this function's MATCH. */
-                    *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
-                        (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
-                    if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) { /* measured: access-site fields lose this function's MATCH. */
-                        fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1); /* measured: access-site fields lose this function's MATCH. */
-                        fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[99], 0xFF, 0, 0, 0, 5);
+                    fclBustupObjSetAnchorValue(shopFields->panels[99], 57.0f);
+                    *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex =
+                        (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46;
+                    if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) {
+                        fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1);
+                        fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f),
                                       fclMakeVec2(0x243, 185.0f), 0, 0, 0);
                     }
                     for (panelIndex = 0; panelIndex < 4; panelIndex++) {
                         fclBustupObjStartAlpha((&((FclItemShopWork *)work)->panels[21])[panelIndex], 0xFF, 0, 0, 5, 0);
                         fclBustupObjSetAnchorValue((&((FclItemShopWork *)work)->panels[21])[panelIndex], 15.0f);
                     }
-                    if (shopFields->descriptionShown == 1) { /* measured: access-site fields lose this function's MATCH. */
+                    if (shopFields->descriptionShown == 1) {
                         tbl = (F2_0033 *)D_0064A228;
                         fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[51], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(0x2A3, tbl->y),
                                       0, 0xA, 0);
@@ -1264,59 +1255,59 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                         fclBustupObjStartTween(((FclItemShopWork *)work)->panels[86], 0.0f, -150.0f, 0, 0xA, 0);
                         tbl = (F2_0033 *)D_0064A348;
                         ((FclItemShopPanel *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[87]))->centerX = 0x231 - tbl->x;
-                        ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[87]))->centerY = 470.0f - tbl->y; /* measured: access-site fields lose this function's MATCH. */
-                        fclBustupObjStartTween(shopFields->panels[87], 0.0f, -150.0f, 0, 0xA, 0); /* measured: access-site fields lose this function's MATCH. */
+                        ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[87]))->centerY = 470.0f - tbl->y;
+                        fclBustupObjStartTween(shopFields->panels[87], 0.0f, -150.0f, 0, 0xA, 0);
                         tbl = (F2_0033 *)D_0064A350;
-                        ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[88]))->centerX = 0x231 - tbl->x; /* measured: access-site fields lose this function's MATCH. */
-                        ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[88]))->centerY = 470.0f - tbl->y; /* measured: access-site fields lose this function's MATCH. */
-                        fclBustupObjStartTween(shopFields->panels[88], 0.0f, -150.0f, 0, 0xA, 0); /* measured: access-site fields lose this function's MATCH. */
+                        ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[88]))->centerX = 0x231 - tbl->x;
+                        ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[88]))->centerY = 470.0f - tbl->y;
+                        fclBustupObjStartTween(shopFields->panels[88], 0.0f, -150.0f, 0, 0xA, 0);
                         tbl = (F2_0033 *)D_0064A358;
                         ((FclItemShopPanel *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[89]))->centerX = 0x231 - tbl->x;
-                        ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[89]))->centerY = 470.0f - tbl->y; /* measured: access-site fields lose this function's MATCH. */
-                        fclBustupObjStartTween(shopFields->panels[89], 0.0f, -30.0f, 0, 2, 0); /* measured: access-site fields lose this function's MATCH. */
-                        fclBustupObjStartPositionMode(shopFields->panels[89], ((FclObject *)fclBustupObjGetWork(shopFields->panels[89]))->anchorPosition, /* measured: access-site fields lose this function's MATCH. */
+                        ((FclItemShopPanel *)fclBustupObjGetWork(shopFields->panels[89]))->centerY = 470.0f - tbl->y;
+                        fclBustupObjStartTween(shopFields->panels[89], 0.0f, -30.0f, 0, 2, 0);
+                        fclBustupObjStartPositionMode(shopFields->panels[89], ((FclObject *)fclBustupObjGetWork(shopFields->panels[89]))->anchorPosition,
                                       fclMakeVec2(-300.0f + tbl->x, 250.0f + tbl->y), 0, 2, 0x14, 1);
                     }
-                    shopFields->bandFadeElapsed = 0; /* measured: access-site fields lose this function's MATCH. */
+                    shopFields->bandFadeElapsed = 0;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[0], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[0], fclMakeVec2(428.0f, 241.0f), /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[0], fclMakeVec2(428.0f, 241.0f),
                                   fclMakeVec2(D_0064A090[0], D_0064A090[1]), 0, 0xF, 5);
-                    fclBustupObjStartTween(shopFields->panels[0], 720.0f, 0.0f, 0, 0xF, 5); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartTween(shopFields->panels[0], 720.0f, 0.0f, 0, 0xF, 5);
                     tbl = (F2_0033 *)D_0064A1D8;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[41], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[41], fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[41], fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0xF, 0xC);
-                    fclBustupObjSetAnchorValue(shopFields->panels[41], 47.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[41], 47.0f);
                     tbl = (F2_0033 *)D_0064A1E0;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[42], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[42], fclMakeVec2(-200.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[42], fclMakeVec2(-200.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1,
                                   9, 0xC);
-                    fclBustupObjSetAnchorValue(shopFields->panels[42], 33.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[42], 33.0f);
                     tbl = (F2_0033 *)D_0064A1E8;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[43], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[43], fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(153.0f, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[43], fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(153.0f, tbl->y), 0,
                                   0xF, 0x18);
-                    fclBustupObjSetAnchorValue(shopFields->panels[43], 48.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[43], 48.0f);
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[90], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[90], fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(203.0f, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[90], fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(203.0f, tbl->y), 0,
                                   0xF, 0x18);
-                    fclBustupObjSetAnchorValue(shopFields->panels[90], 48.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[90], 48.0f);
                     tbl = (F2_0033 *)D_0064A0E8;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[11], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[11], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[11], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[11], 0, 0xFF, 0, 0xF, 0x25); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[11], 46.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[11], 0, 0xFF, 0, 0xF, 0x25);
+                    fclBustupObjSetAnchorValue(shopFields->panels[11], 46.0f);
                     tbl = (F2_0033 *)D_0064A290;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[64], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[64], fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[64], fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0x14, 0xC);
-                    fclBustupObjSetAnchorValue(shopFields->panels[64], 17.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[64], 17.0f);
                     tbl = (F2_0033 *)D_0064A298;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[65], 0, 0);
-                    fclBustupObjStartPosition(shopFields->panels[65], fclMakeVec2(0x305, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartPosition(shopFields->panels[65], fclMakeVec2(0x305, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0x14, 0xC);
-                    fclBustupObjSetAnchorValue(shopFields->panels[65], 17.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjSetAnchorValue(shopFields->panels[65], 17.0f);
                     for (fadeBand = 0; fadeBand < 4; fadeBand++) {
                         layer3 = (s16)(fadeBand * 3 + 0x14);
                         index = fadeBand + 3;
@@ -1326,7 +1317,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                         fclBustupObjStartAlpha((&((FclItemShopWork *)work)->panels[3])[fadeBand], 0, 0xFF, 0, 4, layer3);
                         fclBustupObjStartAlpha((&((FclItemShopWork *)work)->panels[3])[fadeBand], 0, 0xFF, 0, 0, layer3);
                         fclBustupObjSetAnchorValue((&((FclItemShopWork *)work)->panels[3])[fadeBand], (f32)(fadeBand + 0x1A));
-                        iconFont = sdkSpriteNewNode((void *)shopFields->spriteFile, index); /* measured: access-site fields lose this function's MATCH. */
+                        iconFont = sdkSpriteNewNode((void *)shopFields->spriteFile, index);
                         fclBustupObjStartPosition((&((FclItemShopWork *)work)->panels[3])[fadeBand],
                                       fclMakeVec2((sdkSpriteScaledWidth(iconFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
                                                     (sdkSpriteScaledHeight(iconFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
@@ -1334,12 +1325,12 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                         sdkSpriteFreeNode(iconFont);
                     }
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[1], 0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[1], 0, 0xFF, 0, 0xA, 0x14); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[1], 30.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[1], 0, 0xFF, 0, 0xA, 0x14);
+                    fclBustupObjSetAnchorValue(shopFields->panels[1], 30.0f);
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[40], 0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[40], 0, 0xFF, 0, 0xA, 0x14); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartUniformRevealScale(shopFields->panels[40], 0.35f, 1.0f, 0, 0xA, 0x14); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[40], 52.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[40], 0, 0xFF, 0, 0xA, 0x14);
+                    fclBustupObjStartUniformRevealScale(shopFields->panels[40], 0.35f, 1.0f, 0, 0xA, 0x14);
+                    fclBustupObjSetAnchorValue(shopFields->panels[40], 52.0f);
                     for (menuRevealPanel = 0; menuRevealPanel < 3; menuRevealPanel++) {
                         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[menuRevealPanel + 91], 0, 0);
                         fclBustupObjStartAlpha(((FclItemShopWork *)work)->panels[menuRevealPanel + 91], 0, 0xFF, 0, 0xA, 0x14);
@@ -1347,23 +1338,23 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                         fclBustupObjSetAnchorValue(((FclItemShopWork *)work)->panels[menuRevealPanel + 91], (f32)(menuRevealPanel + 0x31));
                     }
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[18], 0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[18], 0, 0xFF, 0, 0xA, 0x14); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[18], 80.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[18], 0, 0xFF, 0, 0xA, 0x14);
+                    fclBustupObjSetAnchorValue(shopFields->panels[18], 80.0f);
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[19], 0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[19], 0, 0xFF, 0, 0xA, 0x14); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[19], 81.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[19], 0, 0xFF, 0, 0xA, 0x14);
+                    fclBustupObjSetAnchorValue(shopFields->panels[19], 81.0f);
                     tbl = (F2_0033 *)D_0064A2A0;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[66], 0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[66], 0, 0xFF, 0, 0xA, 0x14); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[66], 82.0f); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[66], fclMakeVec2(tbl->x, tbl->y + (f32)(((FclItemShopWork *)work)->menuSelection * 30)), /* measured: access-site fields lose this function's MATCH. */
-                                  fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[66], 0, 0xFF, 0, 0xA, 0x14);
+                    fclBustupObjSetAnchorValue(shopFields->panels[66], 82.0f);
+                    fclBustupObjStartPosition(shopFields->panels[66], fclMakeVec2(tbl->x, tbl->y + (f32)(((FclItemShopWork *)work)->menuSelection * 30)),
+                                  fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0);
                     tbl = (F2_0033 *)D_0064A2A8;
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[67], 0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[67], 0, 0xFF, 0, 0xA, 0x14); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[67], 83.0f); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjStartPosition(shopFields->panels[67], fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), /* measured: access-site fields lose this function's MATCH. */
-                                  fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[67], 0, 0xFF, 0, 0xA, 0x14);
+                    fclBustupObjSetAnchorValue(shopFields->panels[67], 83.0f);
+                    fclBustupObjStartPosition(shopFields->panels[67], fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)),
+                                  fclMakeVec2(tbl->x, tbl->y + (f32)(shopFields->menuSelection * 30)), 0, 0, 0);
                     for (panelIndex = 0; panelIndex < 6; panelIndex++) {
                         fclBustupObjChangeFlagBit((&((FclItemShopWork *)work)->panels[12])[panelIndex], 0, 1);
                         fclBustupObjStartAlpha((&((FclItemShopWork *)work)->panels[12])[panelIndex], 0, 0xFF, 0, 0xA, 0x14);
@@ -1373,8 +1364,8 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[13], 0, 0);
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[14], 0, 0);
                     fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[20], 0, 0);
-                    fclBustupObjStartAlpha(shopFields->panels[20], 0, 0xFF, 0, 0xF, 0x14); /* measured: access-site fields lose this function's MATCH. */
-                    fclBustupObjSetAnchorValue(shopFields->panels[20], 14.0f); /* measured: access-site fields lose this function's MATCH. */
+                    fclBustupObjStartAlpha(shopFields->panels[20], 0, 0xFF, 0, 0xF, 0x14);
+                    fclBustupObjSetAnchorValue(shopFields->panels[20], 14.0f);
                     ((FclItemShopWork *)work)->state = 0xE;
                 }
             }
@@ -1383,169 +1374,169 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         break;
     case 12:
         for (panelIndex = 0; panelIndex < 0x24; panelIndex++) {
-            shopFields->bandAlpha[panelIndex] = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 15.0f); /* measured: access-site fields lose this function's MATCH. */
-            if (shopFields->bandActive[panelIndex] == 1) { /* measured: access-site fields lose this function's MATCH. */
+            shopFields->bandAlpha[panelIndex] = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 15.0f);
+            if (shopFields->bandActive[panelIndex] == 1) {
                 ((FclItemShopWork *)work)->bandPosition[panelIndex] = fclBustupDrawRotatingBand(fclMakeVec2(400.0f, 220.0f), (s16)(panelIndex * 10),
-                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[panelIndex], 0); /* measured: access-site fields lose this function's MATCH. */
+                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[panelIndex], 0);
             }
         }
         ((FclItemShopWork *)work)->bandAngle = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)((FclItemShopWork *)work)->bandElapsed, 1000.0f);
-        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, 1, 1000, 1, 2); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 0xF, 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, 1, 1000, 1, 2);
+        ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 0xF, 1, 1);
         fclShopDrawNumber(fclMakeVec2(0x253, 78.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF),
                       ((FclItemShopWork *)work)->quantity * fclItemShopDiscountedPrice(shopTask, yListValueAt(((FclItemShopWork *)work)->selectedItem)), 0x35,
                       (void *)((FclItemShopWork *)work)->spriteFile, 0xAB);
         fclItemShopDrawList(shopTask);
-        *(u16 *)&((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[98]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
-            (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) % 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
+        *(u16 *)&((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[98]))->anchorIndex =
+            (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) % 10 + 0x46;
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[99], 0, 0);
-        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
-            (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
-        if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) { /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex =
+            (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46;
+        if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) {
+            fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1);
+            fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         }
         if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[48], 1) != 0) {
             break;
         }
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[100], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[100], fclMakeVec2(0x167, 134.0f), fclMakeVec2(0x167, 134.0f), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[100], 57.0f); /* measured: access-site fields lose this function's MATCH. */
-        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[100]))->anchorIndex = shopFields->quantity % 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[100], 0x61); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[100], fclMakeVec2(0x167, 134.0f), fclMakeVec2(0x167, 134.0f), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[100], 57.0f);
+        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[100]))->anchorIndex = shopFields->quantity % 10 + 0x46;
+        fclBustupObjSetAnchorMode(shopFields->panels[100], 0x61);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[101], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[101], fclMakeVec2(332.0f, 134.0f), fclMakeVec2(332.0f, 134.0f), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[101], 57.0f); /* measured: access-site fields lose this function's MATCH. */
-        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[101]))->anchorIndex = shopFields->quantity / 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[101], 0x61); /* measured: access-site fields lose this function's MATCH. */
-        if (shopFields->quantity / 10 == 0) { /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjChangeFlagBit(shopFields->panels[101], 0, 1); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartPosition(shopFields->panels[100], fclMakeVec2(346.0f, 134.0f), fclMakeVec2(346.0f, 134.0f), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[101], fclMakeVec2(332.0f, 134.0f), fclMakeVec2(332.0f, 134.0f), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[101], 57.0f);
+        *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[101]))->anchorIndex = shopFields->quantity / 10 + 0x46;
+        fclBustupObjSetAnchorMode(shopFields->panels[101], 0x61);
+        if (shopFields->quantity / 10 == 0) {
+            fclBustupObjChangeFlagBit(shopFields->panels[101], 0, 1);
+            fclBustupObjStartPosition(shopFields->panels[100], fclMakeVec2(346.0f, 134.0f), fclMakeVec2(346.0f, 134.0f), 0, 0, 0);
         }
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[36], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[36], fclMakeVec2(45.0f, 133.0f), fclMakeVec2(45.0f, 133.0f), 0, 0, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorValue(shopFields->panels[36], 53.0f); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[36], 0x61); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[36], fclMakeVec2(45.0f, 133.0f), fclMakeVec2(45.0f, 133.0f), 0, 0, 0);
+        fclBustupObjSetAnchorValue(shopFields->panels[36], 53.0f);
+        fclBustupObjSetAnchorMode(shopFields->panels[36], 0x61);
         frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
-                      datGetItemNameId((s16)yListValueAt(shopFields->selectedItem)), 0, 0, D_007950B0); /* measured: access-site fields lose this function's MATCH. */
+                      datGetItemNameId((s16)yListValueAt(shopFields->selectedItem)), 0, 0, D_007950B0);
         if (D_008C024E[0] & 0x40) {
             sdkSndStartStream(0, 0, 0, 1);
             ((FclItemShopWork *)work)->messageSlot = nmMesWindowAcquire((s32)((HCdvdRequest *)(u8 *)((FclItemShopWork *)work)->directory)->data);
-            sprintf(buf, "%d", shopFields->quantity); /* measured: access-site fields lose this function's MATCH. */
-            nmMesWindowSetSlotString(shopFields->messageSlot, 1, buf); /* measured: access-site fields lose this function's MATCH. */
-            sprintf(buf, "%d", shopFields->quantity * fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem))); /* measured: access-site fields lose this function's MATCH. */
-            nmMesWindowSetSlotString(shopFields->messageSlot, 2, buf); /* measured: access-site fields lose this function's MATCH. */
-            nmMesWindowShowSlotRecord(shopFields->messageSlot, 1); /* measured: access-site fields lose this function's MATCH. */
-            nmMesWindowSetSlotParam(shopFields->messageSlot, 0); /* measured: access-site fields lose this function's MATCH. */
-            nmMesWindowSetSlotFlag(shopFields->messageSlot, 0); /* measured: access-site fields lose this function's MATCH. */
+            sprintf(buf, "%d", shopFields->quantity);
+            nmMesWindowSetSlotString(shopFields->messageSlot, 1, buf);
+            sprintf(buf, "%d", shopFields->quantity * fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)));
+            nmMesWindowSetSlotString(shopFields->messageSlot, 2, buf);
+            nmMesWindowShowSlotRecord(shopFields->messageSlot, 1);
+            nmMesWindowSetSlotParam(shopFields->messageSlot, 0);
+            nmMesWindowSetSlotFlag(shopFields->messageSlot, 0);
             nmMesWindowRequestRefresh();
             ((FclItemShopWork *)work)->state = 0xD;
         } else if (D_008C027A[0] & 0x1000) {
-            if (shopFields->quantity != (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)))) { /* measured: access-site fields lose this function's MATCH. */
+            if (shopFields->quantity != (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)))) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            shopFields->quantity = fclAddClamped(shopFields->quantity, 1, /* measured: access-site fields lose this function's MATCH. */
-                                              (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem))), 0, 1); /* measured: access-site fields lose this function's MATCH. */
-            if (shopFields->quantity * fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)) > fclGetMoney()) { /* measured: access-site fields lose this function's MATCH. */
-                shopFields->quantity = fclGetMoney() / fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)); /* measured: access-site fields lose this function's MATCH. */
+            shopFields->quantity = fclAddClamped(shopFields->quantity, 1,
+                                              (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem))), 0, 1);
+            if (shopFields->quantity * fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)) > fclGetMoney()) {
+                shopFields->quantity = fclGetMoney() / fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem));
             }
             tbl = (F2_0033 *)D_0064A328;
             fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[83], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y - 7.0f), 1,
                           0xA, 0);
         } else if (D_008C027A[0] & 0x4000) {
-            if (shopFields->quantity != 1) { /* measured: access-site fields lose this function's MATCH. */
+            if (shopFields->quantity != 1) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            shopFields->quantity = fclSubClamped(shopFields->quantity, 1, 1, 0x63, 1); /* measured: access-site fields lose this function's MATCH. */
+            shopFields->quantity = fclSubClamped(shopFields->quantity, 1, 1, 0x63, 1);
             tbl = (F2_0033 *)D_0064A330;
             fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[84], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, 7.0f + tbl->y), 1,
                           0xA, 0);
         } else if (D_008C027A[0] & 0x2000) {
-            if (shopFields->quantity != (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)))) { /* measured: access-site fields lose this function's MATCH. */
+            if (shopFields->quantity != (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)))) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            shopFields->quantity = fclAddClamped(shopFields->quantity, 0xA, /* measured: access-site fields lose this function's MATCH. */
-                                              (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem))), 0, 1); /* measured: access-site fields lose this function's MATCH. */
-            if (shopFields->quantity * fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)) > fclGetMoney()) { /* measured: access-site fields lose this function's MATCH. */
-                shopFields->quantity = fclGetMoney() / fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)); /* measured: access-site fields lose this function's MATCH. */
+            shopFields->quantity = fclAddClamped(shopFields->quantity, 0xA,
+                                              (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem))), 0, 1);
+            if (shopFields->quantity * fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)) > fclGetMoney()) {
+                shopFields->quantity = fclGetMoney() / fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem));
             }
             tbl = (F2_0033 *)D_0064A328;
             fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[83], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y - 7.0f), 1,
                           0xA, 0);
         } else if (D_008C027A[0] & 0x8000) {
-            if (shopFields->quantity != 1) { /* measured: access-site fields lose this function's MATCH. */
+            if (shopFields->quantity != 1) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            shopFields->quantity = fclSubClamped(shopFields->quantity, 0xA, 1, 0x63, 1); /* measured: access-site fields lose this function's MATCH. */
+            shopFields->quantity = fclSubClamped(shopFields->quantity, 0xA, 1, 0x63, 1);
             tbl = (F2_0033 *)D_0064A330;
             fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[84], fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, 7.0f + tbl->y), 1,
                           0xA, 0);
         } else if (D_008C024E[0] & 0x20) {
             sdkSndStartStream(0, 0, 0, 2);
             tbl = (F2_0033 *)D_0064A210;
-            fclBustupObjStartPosition(shopFields->panels[48], /* measured: access-site fields lose this function's MATCH. */
-                          fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[48]))->anchorPosition.x, tbl->y), /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjStartPosition(shopFields->panels[48],
+                          fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[48]))->anchorPosition.x, tbl->y),
                           fclMakeVec2(tbl->x, tbl->y), 0, 7, 0);
             tbl = (F2_0033 *)D_0064A218;
             fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[49],
-                          fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.x, /* measured: access-site fields lose this function's MATCH. */
-                                        ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), /* measured: access-site fields lose this function's MATCH. */
-                          fclMakeVec2(tbl->x, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), 0, 7, 0); /* measured: access-site fields lose this function's MATCH. */
+                          fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.x,
+                                        ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y),
+                          fclMakeVec2(tbl->x, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), 0, 7, 0);
             ((FclItemShopWork *)work)->state = 0xB;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[83], 0, 1);
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[84], 0, 1);
-            fclBustupObjChangeFlagBit(shopFields->panels[100], 0, 1); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjChangeFlagBit(shopFields->panels[101], 0, 1); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjChangeFlagBit(shopFields->panels[36], 0, 1); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjChangeFlagBit(shopFields->panels[100], 0, 1);
+            fclBustupObjChangeFlagBit(shopFields->panels[101], 0, 1);
+            fclBustupObjChangeFlagBit(shopFields->panels[36], 0, 1);
         }
         break;
     case 13:
         for (confirmationBand = 0; confirmationBand < 0x24; confirmationBand++) {
-            shopFields->bandAlpha[confirmationBand] = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 15.0f); /* measured: access-site fields lose this function's MATCH. */
-            if (shopFields->bandActive[confirmationBand] == 1) { /* measured: access-site fields lose this function's MATCH. */
+            shopFields->bandAlpha[confirmationBand] = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 15.0f);
+            if (shopFields->bandActive[confirmationBand] == 1) {
                 ((FclItemShopWork *)work)->bandPosition[confirmationBand] = fclBustupDrawRotatingBand(fclMakeVec2(400.0f, 220.0f), (s16)(confirmationBand * 10),
-                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[confirmationBand], 0); /* measured: access-site fields lose this function's MATCH. */
+                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[confirmationBand], 0);
             }
         }
         ((FclItemShopWork *)work)->bandAngle = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)((FclItemShopWork *)work)->bandElapsed, 1000.0f);
-        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, 1, 1000, 1, 2); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 0xF, 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, 1, 1000, 1, 2);
+        ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 0xF, 1, 1);
         fclShopDrawNumber(fclMakeVec2(0x253, 78.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF),
                       ((FclItemShopWork *)work)->quantity * fclItemShopDiscountedPrice(shopTask, yListValueAt(((FclItemShopWork *)work)->selectedItem)), 0x35,
                       (void *)((FclItemShopWork *)work)->spriteFile, 0xAB);
         fclItemShopDrawList(shopTask);
         frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
-                      datGetItemNameId((s16)yListValueAt(shopFields->selectedItem)), 0, 0, D_00795E60); /* measured: access-site fields lose this function's MATCH. */
+                      datGetItemNameId((s16)yListValueAt(shopFields->selectedItem)), 0, 0, D_00795E60);
         if (nmMesWindowSlotStatus(((FclItemShopWork *)work)->messageSlot) != 0) {
-            nmMesWindowStepSlotRelease(shopFields->messageSlot); /* measured: access-site fields lose this function's MATCH. */
+            nmMesWindowStepSlotRelease(shopFields->messageSlot);
             break;
         }
         ((FclItemShopWork *)work)->state = 0xC;
-        if (!nmMesWindowGetSlotState(shopFields->messageSlot)) { /* measured: access-site fields lose this function's MATCH. */
-            datItemSetCount((s16)yListValueAt(shopFields->selectedItem), /* measured: access-site fields lose this function's MATCH. */
-                          (u8)(shopFields->quantity + (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)))); /* measured: access-site fields lose this function's MATCH. */
+        if (!nmMesWindowGetSlotState(shopFields->messageSlot)) {
+            datItemSetCount((s16)yListValueAt(shopFields->selectedItem),
+                          (u8)(shopFields->quantity + (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem))));
             fclAddMoney(fclGetMoney() -
-                          shopFields->quantity * fclItemShopDiscountedPrice(shopTask, (s16)yListValueAt(shopFields->selectedItem))); /* measured: access-site fields lose this function's MATCH. */
+                          shopFields->quantity * fclItemShopDiscountedPrice(shopTask, (s16)yListValueAt(shopFields->selectedItem)));
             ((FclItemShopWork *)work)->moneyX = 580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()) + 0.0f;
-            *(u16 *)&((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[98]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
-                (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) % 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
+            *(u16 *)&((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[98]))->anchorIndex =
+                (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) % 10 + 0x46;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[99], 0, 0);
-            *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex = /* measured: access-site fields lose this function's MATCH. */
-                (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46; /* measured: access-site fields lose this function's MATCH. */
-            if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) { /* measured: access-site fields lose this function's MATCH. */
-                fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1); /* measured: access-site fields lose this function's MATCH. */
-                fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, /* measured: access-site fields lose this function's MATCH. */
+            *(u16 *)&((FclObject *)fclBustupObjGetWork(shopFields->panels[99]))->anchorIndex =
+                (u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 + 0x46;
+            if ((u8)datItemCount((s16)yListValueAt(shopFields->selectedItem)) / 10 == 0) {
+                fclBustupObjChangeFlagBit(shopFields->panels[99], 0, 1);
+                fclBustupObjStartPosition(shopFields->panels[98], fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0,
                               0);
             }
             tbl = (F2_0033 *)D_0064A210;
             fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[48],
-                          fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[48]))->anchorPosition.x, tbl->y), /* measured: access-site fields lose this function's MATCH. */
+                          fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[48]))->anchorPosition.x, tbl->y),
                           fclMakeVec2(tbl->x, tbl->y), 0, 7, 0);
             tbl = (F2_0033 *)D_0064A218;
             fclBustupObjStartPosition(((FclItemShopWork *)work)->panels[49],
-                          fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.x, /* measured: access-site fields lose this function's MATCH. */
-                                        ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), /* measured: access-site fields lose this function's MATCH. */
-                          fclMakeVec2(tbl->x, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), 0, 7, 0); /* measured: access-site fields lose this function's MATCH. */
+                          fclMakeVec2(((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.x,
+                                        ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y),
+                          fclMakeVec2(tbl->x, ((FclObject *)fclBustupObjGetWork(shopFields->panels[49]))->anchorPosition.y), 0, 7, 0);
             ((FclItemShopWork *)work)->state = 0xB;
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[83], 0, 1);
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[84], 0, 1);
@@ -1554,46 +1545,46 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[36], 0, 1);
             sdkSndStartStream(0, 0, 0, 6);
         }
-        nmMesWindowDestroySlot(shopFields->messageSlot); /* measured: access-site fields lose this function's MATCH. */
+        nmMesWindowDestroySlot(shopFields->messageSlot);
         break;
     case 14:
         for (returnBand = 0; returnBand < 0x24; returnBand++) {
-            shopFields->bandAlpha[returnBand] = fclEaseInterpolate(0, 255.0f, 0.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 5.0f); /* measured: access-site fields lose this function's MATCH. */
-            if (shopFields->bandActive[returnBand] == 1) { /* measured: access-site fields lose this function's MATCH. */
+            shopFields->bandAlpha[returnBand] = fclEaseInterpolate(0, 255.0f, 0.0f, (f32)((FclItemShopWork *)work)->bandFadeElapsed, 5.0f);
+            if (shopFields->bandActive[returnBand] == 1) {
                 ((FclItemShopWork *)work)->bandPosition[returnBand] = fclBustupDrawRotatingBand(fclMakeVec2(400.0f, 220.0f), (s16)(returnBand * 10),
-                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[returnBand], 0); /* measured: access-site fields lose this function's MATCH. */
+                                                               ((FclItemShopWork *)work)->bandAngle, shopFields->bandAlpha[returnBand], 0);
             }
         }
         ((FclItemShopWork *)work)->bandAngle = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)((FclItemShopWork *)work)->bandElapsed, 1000.0f);
-        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, 1, 1000, 1, 2); /* measured: access-site fields lose this function's MATCH. */
-        ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 5, 1, 1); /* measured: access-site fields lose this function's MATCH. */
-        if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[0], 1) == 0 && fclBustupObjTestFlagBit(shopFields->panels[0], 3) == 0 && /* measured: access-site fields lose this function's MATCH. */
+        shopFields->bandElapsed = fclAddClamped(shopFields->bandElapsed, 1, 1000, 1, 2);
+        ((FclItemShopWork *)work)->bandFadeElapsed = fclAddClamped(shopFields->bandFadeElapsed, 1, 5, 1, 1);
+        if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[0], 1) == 0 && fclBustupObjTestFlagBit(shopFields->panels[0], 3) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[41], 1) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[42], 1) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[64], 1) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[65], 1) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[3], 4) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[4], 4) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[5], 4) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[6], 4) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[1], 2) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[40], 4) == 0 &&
-            fclBustupObjTestFlagBit(shopFields->panels[40], 2) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[91], 2) == 0 && /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(shopFields->panels[91], 4) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[92], 2) == 0 && /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(shopFields->panels[92], 4) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[93], 2) == 0 && /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(shopFields->panels[93], 4) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[18], 2) == 0 && /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjTestFlagBit(shopFields->panels[40], 2) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[91], 2) == 0 &&
+            fclBustupObjTestFlagBit(shopFields->panels[91], 4) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[92], 2) == 0 &&
+            fclBustupObjTestFlagBit(shopFields->panels[92], 4) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[93], 2) == 0 &&
+            fclBustupObjTestFlagBit(shopFields->panels[93], 4) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[18], 2) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[19], 2) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[66], 2) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[67], 2) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[12], 2) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[13], 2) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[14], 2) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[15], 2) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[16], 2) == 0 &&
             fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[17], 2) == 0 && fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[20], 2) == 0) {
             ((FclItemShopWork *)work)->state = 5;
-        } else if (fclBustupObjTestFlagBit(shopFields->panels[0], 1) != 0 && (D_008C024E[0] & 0x20)) { /* measured: access-site fields lose this function's MATCH. */
+        } else if (fclBustupObjTestFlagBit(shopFields->panels[0], 1) != 0 && (D_008C024E[0] & 0x20)) {
             sdkSndStartStream(0, 0, 0, 2);
             ((FclItemShopWork *)work)->moneyStartX = 580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()) + 0.0f;
             ((FclItemShopWork *)work)->moneyStartY = 15.0f;
             ((FclItemShopWork *)work)->moneyEndX = 0x28A;
             ((FclItemShopWork *)work)->moneyEndY = 15.0f;
             ((FclItemShopWork *)work)->moneyElapsed = 0;
-            fclBustupObjStartPosition(shopFields->panels[0], ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->anchorPosition, /* measured: access-site fields lose this function's MATCH. */
-                          fclMakeVec2(0x28A, ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->anchorPosition.y), 0, 0xA, 0); /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjStartTween(shopFields->panels[0], ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->tweenValue, /* measured: access-site fields lose this function's MATCH. */
-                          ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->targetTween, 0, 0xA, 0); /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjStartPosition(shopFields->panels[0], ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->anchorPosition,
+                          fclMakeVec2(0x28A, ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->anchorPosition.y), 0, 0xA, 0);
+            fclBustupObjStartTween(shopFields->panels[0], ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->tweenValue,
+                          ((FclObject *)fclBustupObjGetWork(shopFields->panels[0]))->targetTween, 0, 0xA, 0);
             fclBustupStartSlide(((FclItemShopWork *)work)->panels[41]);
             fclBustupStartSlide(((FclItemShopWork *)work)->panels[42]);
             fclBustupStartSlide(((FclItemShopWork *)work)->panels[43]);
@@ -1659,17 +1650,17 @@ s32 fclItemShopUpdate(u8 *shopTask) {
     case 17:
         ((FclItemShopWork *)work)->moneyX =
             fclEaseInterpolate(0, ((FclItemShopWork *)work)->moneyStartX, ((FclItemShopWork *)work)->moneyEndX, ((FclItemShopWork *)work)->moneyElapsed, 10.0f);
-        shopFields->moneyElapsed = fclAddClamped(shopFields->moneyElapsed, 1, 10, 1, 1); /* measured: access-site fields lose this function's MATCH. */
+        shopFields->moneyElapsed = fclAddClamped(shopFields->moneyElapsed, 1, 10, 1, 1);
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             ((FclObject *)fclBustupObjGetWork(((FclItemShopWork *)work)->panels[panelIndex + 94]))->tweenValue = 0.01f;
         }
         if (fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[1], 2) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[3], 4) != 0 ||
-            fclBustupObjTestFlagBit(shopFields->panels[3], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[3], 1) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[4], 4) != 0 || fclBustupObjTestFlagBit(shopFields->panels[4], 2) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(shopFields->panels[4], 1) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[5], 4) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(shopFields->panels[5], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[5], 1) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[6], 4) != 0 || fclBustupObjTestFlagBit(shopFields->panels[6], 2) != 0 || /* measured: access-site fields lose this function's MATCH. */
-            fclBustupObjTestFlagBit(shopFields->panels[6], 1) != 0) { /* measured: access-site fields lose this function's MATCH. */
+            fclBustupObjTestFlagBit(shopFields->panels[3], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[3], 1) != 0 ||
+            fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[4], 4) != 0 || fclBustupObjTestFlagBit(shopFields->panels[4], 2) != 0 ||
+            fclBustupObjTestFlagBit(shopFields->panels[4], 1) != 0 || fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[5], 4) != 0 ||
+            fclBustupObjTestFlagBit(shopFields->panels[5], 2) != 0 || fclBustupObjTestFlagBit(shopFields->panels[5], 1) != 0 ||
+            fclBustupObjTestFlagBit(((FclItemShopWork *)work)->panels[6], 4) != 0 || fclBustupObjTestFlagBit(shopFields->panels[6], 2) != 0 ||
+            fclBustupObjTestFlagBit(shopFields->panels[6], 1) != 0) {
             break;
         }
         for (panelIndex = 0; panelIndex < 6; panelIndex++) {
@@ -1697,10 +1688,10 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjSetAnchorMode((&((FclItemShopWork *)work)->panels[94])[exitPanel], 0x64);
         }
         fclBustupObjChangeFlagBit(((FclItemShopWork *)work)->panels[0], 0, 0);
-        fclBustupObjStartPosition(shopFields->panels[0], fclMakeVec2(D_0064A090[0], D_0064A090[1]), fclMakeVec2(0x28A, 241.0f), /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartPosition(shopFields->panels[0], fclMakeVec2(D_0064A090[0], D_0064A090[1]), fclMakeVec2(0x28A, 241.0f),
                       0, 0xA, 0);
-        fclBustupObjStartTween(shopFields->panels[0], -720.0f, 0.0f, 0, 0xA, 0); /* measured: access-site fields lose this function's MATCH. */
-        fclBustupObjSetAnchorMode(shopFields->panels[0], 0x62); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartTween(shopFields->panels[0], -720.0f, 0.0f, 0, 0xA, 0);
+        fclBustupObjSetAnchorMode(shopFields->panels[0], 0x62);
         fadeBeginTransition(1, 0x1E);
         ((FclItemShopWork *)work)->state = 0x12;
         break;
@@ -1712,15 +1703,14 @@ s32 fclItemShopUpdate(u8 *shopTask) {
     }
     return 0;
 }
-#pragma opt_loop_invariants off /* measured: restore the baseline */
+/* measured: restores the unit's loop-invariant setting. */
+#pragma opt_loop_invariants off
 
 // Item shop task destroy: releases the item list, the CDVD and sprite handles, then calls the destroy jump-table entry.
 // FUN_0033BDC0
 void fclItemShopDestroy(u8 *shopTask) {
     FclItemShopWork *shopFields = (FclItemShopWork *)((SdkTask *)shopTask)->work;
     SdkTask *taskFields = (SdkTask *)shopTask;
-    /* Earlier whole-local typing grew 128B to 132B; only the two independently
-       measured byte accesses below remain necessary. */
     u8 *work = ((SdkTask *)shopTask)->work;
 
     yListDestroy();
@@ -1729,22 +1719,19 @@ void fclItemShopDestroy(u8 *shopTask) {
     }
     if (((FclItemShopWork *)work)->spriteFile != 0) {
         sdkSpriteRelease((void *)((FclItemShopWork *)work)->spriteFile);
-        shopFields->spriteFile = 0; /* measured: access-site fields lose this function's MATCH. */
+        shopFields->spriteFile = 0;
     }
-    jtbl_008873EC[0](taskFields->work); /* measured: access-site fields lose this function's MATCH. */
+    jtbl_008873EC[0](taskFields->work);
 }
 
-// Creates the item shop task under task: allocates the 0x42C-byte work, sets the initial layout values and item flags, then registers the update and destroy callbacks.
-/* measured: object_size 324/window 336, normalized_diff 0 (retail tail is
-   zero padding). MWCCPS2 needs opt_loop_invariants on to hoist the loop's
-   `1` constant before the entry jump, matching retail's preheader materialisation. */
-/* measured: baseline C nd 9B; adjacent-local declaration probe nd 9B; retain settings for owner MATCH. */
+// measured: loop invariants must be on so the loop's constant 1 is hoisted before the entry jump,
+// as retail does.
 #pragma opt_loop_invariants on
+/* Allocate the item shop work, start it as a child task of shopTask, and reset its money, menu and
+ * band state. Also unlock the moon-phase items if they are available. */
 // FUN_0033BE40
 u8 *fclItemShopCreate(u8 *shopTask) {
     FclItemShopWork *shopFields;
-    /* Earlier whole-local typing grew 324B to 336B; access-site fields match
-       except the individually measured moon-item store below. */
     s32 i;
     s32 one;
     u8 *createdTask;
@@ -1772,12 +1759,12 @@ u8 *fclItemShopCreate(u8 *shopTask) {
         i = (s16)(i + 1);
     }
     if (fclUnlockMoonPhaseItems() == 1) {
-        shopFields->moonItemsUnlocked = 1; /* measured: access-site fields lose this function's MATCH. */
+        shopFields->moonItemsUnlocked = 1;
     }
     yListCreate(0x10000, 0, 2, 1);
     return createdTask;
 }
-/* measured: closes the opt_loop_invariants scope required by func_0033be40. */
+/* measured: restores the unit setting after func_0033be40. */
 #pragma opt_loop_invariants off
 
 /* Start the shop exit animation, including money-position interpolation. */
@@ -1785,8 +1772,6 @@ u8 *fclItemShopCreate(u8 *shopTask) {
 void fclItemShopStartExit(u8 *shopTask) {
     F2_0033 *positionFields;
     FclItemShopWork *shopFields = (FclItemShopWork *)((SdkTask *)shopTask)->work;
-    /* Earlier whole-local typing changed register allocation at unchanged size;
-       access-site fields retain only the independently measured exceptions below. */
     s32 i;
     u8 *work;
     s32 itemIndex;
@@ -1830,40 +1815,40 @@ void fclItemShopStartExit(u8 *shopTask) {
         i = (s16)(i + 1);
     }
     fclBustupObjChangeFlagBit((void *)(s32)((FclItemShopWork *)work)->panels[1], 0, 0);
-    fclBustupObjStartAlpha((void *)(s32)shopFields->panels[1], 0xFF, 0, 0, 10, 0); /* measured: access-site fields lose this function's MATCH. */
-    fclBustupObjSetAnchorMode((void *)(s32)shopFields->panels[1], 0xAC); /* measured: access-site fields lose this function's MATCH. */
+    fclBustupObjStartAlpha((void *)(s32)shopFields->panels[1], 0xFF, 0, 0, 10, 0);
+    fclBustupObjSetAnchorMode((void *)(s32)shopFields->panels[1], 0xAC);
     table = (u8 *)D_0064A1D8;
     positionFields = (F2_0033 *)table;
     pos2 = fclMakeVec2(((F2_0033 *)table)->x, ((F2_0033 *)table)->y);
-    pos3 = fclMakeVec2(-180.0f, positionFields->y); /* measured: access-site fields lose this function's MATCH. */
+    pos3 = fclMakeVec2(-180.0f, positionFields->y);
     fclBustupObjStartPosition((void *)(s32)((FclItemShopWork *)work)->panels[41], pos2, pos3, 0, 0x14, 0);
     table = (u8 *)D_0064A1E0;
     positionFields = (F2_0033 *)table;
     pos4 = fclMakeVec2(((F2_0033 *)table)->x, ((F2_0033 *)table)->y);
-    pos5 = fclMakeVec2(-200.0f, positionFields->y); /* measured: access-site fields lose this function's MATCH. */
+    pos5 = fclMakeVec2(-200.0f, positionFields->y);
     fclBustupObjStartPosition((void *)(s32)((FclItemShopWork *)work)->panels[42], pos4, pos5, 0, 10, 0);
     table = (u8 *)D_0064A1E8;
     positionFields = (F2_0033 *)table;
     pos6 = fclMakeVec2(153.0f, ((F2_0033 *)table)->y);
-    pos7 = fclMakeVec2(-100.0f, positionFields->y); /* measured: access-site fields lose this function's MATCH. */
+    pos7 = fclMakeVec2(-100.0f, positionFields->y);
     fclBustupObjStartPosition((void *)(s32)((FclItemShopWork *)work)->panels[43], pos6, pos7, 0, 0x14, 0);
-    pos8 = fclMakeVec2(203.0f, positionFields->y); /* measured: access-site fields lose this function's MATCH. */
-    pos9 = fclMakeVec2(-50.0f, positionFields->y); /* measured: access-site fields lose this function's MATCH. */
+    pos8 = fclMakeVec2(203.0f, positionFields->y);
+    pos9 = fclMakeVec2(-50.0f, positionFields->y);
     fclBustupObjStartPosition((void *)(s32)((FclItemShopWork *)work)->panels[90], pos8, pos9, 0, 0x14, 0);
     table = (u8 *)D_0064A0E8;
     positionFields = (F2_0033 *)table;
     pos10 = fclMakeVec2(((F2_0033 *)table)->x, ((F2_0033 *)table)->y);
-    pos11 = fclMakeVec2(-200.0f, MEMBER(f32, table, F2_0033, y)); /* measured: access-site fields lose this function's MATCH. */
+    pos11 = fclMakeVec2(-200.0f, MEMBER(f32, table, F2_0033, y));
     fclBustupObjStartPosition((void *)(s32)((FclItemShopWork *)work)->panels[11], pos10, pos11, 0, 0xF, 0);
-    fclBustupObjStartUniformRevealScale((void *)MEMBER(s32, work, FclItemShopWork, panels[40]), 1.0f, 4.5f, 0, 0xF, 0); /* measured: access-site fields lose this function's MATCH. */
+    fclBustupObjStartUniformRevealScale((void *)MEMBER(s32, work, FclItemShopWork, panels[40]), 1.0f, 4.5f, 0, 0xF, 0);
     i = 0;
     while ((s16)i < 3) {
-        fclBustupObjStartUniformRevealScale((void *)MEMBER(s32, work + (s16)i * 4, FclItemShopWork, panels[91]), 1.0f, 4.5f, 0, 0xF, 0); /* measured: access-site fields lose this function's MATCH. */
+        fclBustupObjStartUniformRevealScale((void *)MEMBER(s32, work + (s16)i * 4, FclItemShopWork, panels[91]), 1.0f, 4.5f, 0, 0xF, 0);
         i = (s16)(i + 1);
     }
-    fclBustupObjSetAnchorValue((void *)MEMBER(s32, work, FclItemShopWork, panels[64]), 84.0f); /* measured: access-site fields lose this function's MATCH. */
-    fclBustupObjSetAnchorValue((void *)MEMBER(s32, work, FclItemShopWork, panels[65]), 84.0f); /* measured: access-site fields lose this function's MATCH. */
-    fclBustupObjSetAnchorValue((void *)MEMBER(s32, work, FclItemShopWork, panels[20]), 83.0f); /* measured: access-site fields lose this function's MATCH. */
+    fclBustupObjSetAnchorValue((void *)MEMBER(s32, work, FclItemShopWork, panels[64]), 84.0f);
+    fclBustupObjSetAnchorValue((void *)MEMBER(s32, work, FclItemShopWork, panels[65]), 84.0f);
+    fclBustupObjSetAnchorValue((void *)MEMBER(s32, work, FclItemShopWork, panels[20]), 83.0f);
     ((FclItemShopWork *)work)->moneyStartX = 580.0f - (f32)fclDecimalDigitCount(fclGetMoney()) * 21.0f;
     ((FclItemShopWork *)work)->moneyStartY = 15.0f;
     ((FclItemShopWork *)work)->moneyEndX = (f32)0x28A;
@@ -1872,14 +1857,8 @@ void fclItemShopStartExit(u8 *shopTask) {
     ((FclItemShopWork *)work)->state = 0x11;
 }
 
-/* Item list panel: the selected-item header, or five scrolling item rows with
-   their frame, name and price. Shaping that matters: the frame and name
-   draws are inline helpers (their float y parameters live in $f20 and the
-   shared row top is one int that retail spills), the price goes out through
-   its own pos/colour pair, the cursor tables are read through an F2_0033
-   pointer (kept in $s1 across the reset call), and the shaded colour is
-   written `green = blue = 0` (the andi on $zero). */
-/* Draw the item frame with its queued sprite resource and supplied tint. */
+/* Item list panel: draws either the selected-item header or five scrolling item rows, each with its
+ * frame, name and price. */
 static inline void fclShopDrawItemFrame(u8 *p, f32 y, u8 red, u8 green, u8 blue)
 {
     sdkSpriteDrawQueued(44.0f, y, 62.0f, fclPackRgba(0xFF, red, green, blue), 0xFF, 0x24,
@@ -1898,8 +1877,6 @@ static inline void fclShopDrawItemName(s16 item, f32 y, u8 red, u8 green, u8 blu
 void fclItemShopDrawList(u8 *shopTask)
 {
     FclItemShopWork *shopFields = (FclItemShopWork *)((SdkTask *)shopTask)->work;
-    /* Access-site typing preserves the byte cursor; remaining raw reads are
-       individually measured exceptions, not a whole-layout fallback. */
     u8 *p;
     s32 color;
     u32 value;
@@ -1929,9 +1906,9 @@ void fclItemShopDrawList(u8 *shopTask)
         pos1 = fclMakeVec2(406.0f, 84.0f);
         col1 = fclMakeDrawColor(0x26, 0x26, 0x26, 0xFF);
         fclShopDrawNumber(pos1, 62.0f, col1,
-                      fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)), 0x19, /* measured: access-site fields lose this function's MATCH. */
-                      (void *)shopFields->spriteFile, 0xAB); /* measured: access-site fields lose this function's MATCH. */
-        fclMesWindowDraw((s16)datItemBankOffset((s16)yListValueAt(shopFields->selectedItem)), -1, 1, 0, 4, 0xAA, /* measured: access-site fields lose this function's MATCH. */
+                      fclItemShopDiscountedPrice(shopTask, yListValueAt(shopFields->selectedItem)), 0x19,
+                      (void *)shopFields->spriteFile, 0xAB);
+        fclMesWindowDraw((s16)datItemBankOffset((s16)yListValueAt(shopFields->selectedItem)), -1, 1, 0, 4, 0xAA,
                       71.0f, 135.0f, 62.0f);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)p)->panels[68], 0, 1);
         fclBustupObjChangeFlagBit(((FclItemShopWork *)p)->panels[69], 0, 1);
@@ -1950,20 +1927,20 @@ void fclItemShopDrawList(u8 *shopTask)
     tbl = (F2_0033 *)D_0064A2B0;
     fclBustupObjChangeFlagBit(((FclItemShopWork *)p)->panels[68], 0, 0);
     fy = tbl->x;
-    ((FclObject *)fclBustupObjGetWork(shopFields->panels[68]))->anchorPosition.x = fy; /* measured: access-site fields lose this function's MATCH. */
+    ((FclObject *)fclBustupObjGetWork(shopFields->panels[68]))->anchorPosition.x = fy;
     fy = tbl->y + (f32)(((FclItemShopWork *)p)->cursorRow * 28);
-    ((FclObject *)fclBustupObjGetWork(shopFields->panels[68]))->anchorPosition.y = fy; /* measured: access-site fields lose this function's MATCH. */
-    fclBustupObjSetAnchorValue(shopFields->panels[68], 63.0f); /* measured: access-site fields lose this function's MATCH. */
-    fclBustupObjSetAnchorMode(shopFields->panels[68], 0x5B); /* measured: access-site fields lose this function's MATCH. */
+    ((FclObject *)fclBustupObjGetWork(shopFields->panels[68]))->anchorPosition.y = fy;
+    fclBustupObjSetAnchorValue(shopFields->panels[68], 63.0f);
+    fclBustupObjSetAnchorMode(shopFields->panels[68], 0x5B);
     tbl = (F2_0033 *)D_0064A2B8;
     fclBustupObjChangeFlagBit(((FclItemShopWork *)p)->panels[69], 0, 0);
     fy = tbl->x;
-    ((FclObject *)fclBustupObjGetWork(shopFields->panels[69]))->anchorPosition.x = fy; /* measured: access-site fields lose this function's MATCH. */
-    fy = tbl->y + (f32)(shopFields->cursorRow * 28); /* measured: access-site fields lose this function's MATCH. */
-    ((FclObject *)fclBustupObjGetWork(shopFields->panels[69]))->anchorPosition.y = fy; /* measured: access-site fields lose this function's MATCH. */
-    fclBustupObjSetAnchorValue(shopFields->panels[69], 63.0f); /* measured: access-site fields lose this function's MATCH. */
-    fclBustupObjSetAnchorMode(shopFields->panels[69], 0x5B); /* measured: access-site fields lose this function's MATCH. */
-    i = ((FclItemShopWork *)p)->selectedItem - shopFields->cursorRow; /* measured: access-site fields lose this function's MATCH. */
+    ((FclObject *)fclBustupObjGetWork(shopFields->panels[69]))->anchorPosition.x = fy;
+    fy = tbl->y + (f32)(shopFields->cursorRow * 28);
+    ((FclObject *)fclBustupObjGetWork(shopFields->panels[69]))->anchorPosition.y = fy;
+    fclBustupObjSetAnchorValue(shopFields->panels[69], 63.0f);
+    fclBustupObjSetAnchorMode(shopFields->panels[69], 0x5B);
+    i = ((FclItemShopWork *)p)->selectedItem - shopFields->cursorRow;
     row = 0;
     bound = i + 5;
     for (; i < bound; i++, row++) {
@@ -1971,7 +1948,7 @@ void fclItemShopDrawList(u8 *shopTask)
             continue;
         }
         red = green = blue = 0xFF;
-        if (i == shopFields->selectedItem) { /* measured: access-site fields lose this function's MATCH. */
+        if (i == shopFields->selectedItem) {
             red = green = blue = 0x26;
         } else {
             price = fclItemShopDiscountedPrice(shopTask, yListValueAt(i));
@@ -1993,7 +1970,7 @@ void fclItemShopDrawList(u8 *shopTask)
         pos2 = fclMakeVec2(406.0f, (f32)(y + 0x54));
         col2 = fclMakeDrawColor(red, green, blue, 0xFF);
         fclShopDrawNumber(pos2, 62.0f, col2, fclItemShopDiscountedPrice(shopTask, yListValueAt(i)),
-                      0x19, (void *)shopFields->spriteFile, 0xAB); /* measured: access-site fields lose this function's MATCH. */
+                      0x19, (void *)shopFields->spriteFile, 0xAB);
     }
 }
 // Discount days reduce the selected item price by 20 percent, using unsigned division.
@@ -2005,15 +1982,11 @@ u32 fclItemShopDiscountedPrice(void *task, s32 itemId) {
     return (u32)datItemPrice((s64)(s16)(s32)itemId) - discount;
 }
 
-// Update panel position tweens and queue its sprite with current color and scale.
-/* The packed sprite ABI starts at work+4 and copies 0xF0 bytes; its ordinary
-   fields are typed independently, retaining only measured alias-sensitive sites. */
-/* measured: 1216B/1216B MATCH (304 instrs, 0 edits + 9 reloc-only). Re-probed from scratch: floats-first func_0025ecd0 spelling (f32,f32,f32 first, then color/ints, then f32,f32,f32, pointer last) with u16 0xF8 load (lhu) and inline s16/2 division gives retail scheduling; shift+temp hoisting was +33, s16 F8 was +2 (35), archive ints-first is a compile error under this prototype. Mixed-arg orders tested explicitly. */
+// Update panel position tweens and queue its sprite with current color and scale. The packed sprite
+// data starts at work+4 and is 0xF0 bytes long.
 // FUN_0033CC40
 s32 fclItemShopPanelUpdate(u8 *task) {
     FclObject *panelFields = (FclObject *)((SdkTask *)task)->work;
-    /* Earlier whole-local typing grew 1216B to 1252B; access-site fields now
-       match except the independently measured byte accesses below. */
     f32 minimumScale;
     f32 scaleY;
     f32 scaleX;
@@ -2038,8 +2011,8 @@ s32 fclItemShopPanelUpdate(u8 *task) {
                     (f32)((FclObject *)panelWork)->positionDuration, (f32)((FclObject *)panelWork)->positionFrames);
                 ((FclObject *)panelWork)->anchorPosition.y = fclEaseInterpolate(
                     ((FclObject *)panelWork)->positionEase, ((FclObject *)panelWork)->targetPosition.y,
-                    ((FclObject *)panelWork)->positionEnd.y, (f32)panelFields->positionDuration, /* measured: access-site fields lose this function's MATCH. */
-                    (f32)(panelFields->positionFrames / 2)); /* measured: access-site fields lose this function's MATCH. */
+                    ((FclObject *)panelWork)->positionEnd.y, (f32)panelFields->positionDuration,
+                    (f32)(panelFields->positionFrames / 2));
                 break;
             case 1:
                 ((FclObject *)panelWork)->anchorPosition.x = fclEaseInterpolate(
@@ -2048,7 +2021,7 @@ s32 fclItemShopPanelUpdate(u8 *task) {
                     (f32)(((FclObject *)panelWork)->positionFrames / 2));
                 ((FclObject *)panelWork)->anchorPosition.y = fclEaseInterpolate(
                     0, ((FclObject *)panelWork)->targetPosition.y, ((FclObject *)panelWork)->positionEnd.y,
-                    (f32)panelFields->positionDuration, (f32)panelFields->positionFrames); /* measured: access-site fields lose this function's MATCH. */
+                    (f32)panelFields->positionDuration, (f32)panelFields->positionFrames);
                 break;
             case 2:
                 ((FclObject *)panelWork)->anchorPosition.x = fclEaseInterpolate(
@@ -2056,31 +2029,31 @@ s32 fclItemShopPanelUpdate(u8 *task) {
                     (f32)((FclObject *)panelWork)->positionDuration, (f32)((FclObject *)panelWork)->positionFrames);
                 ((FclObject *)panelWork)->anchorPosition.y = fclEaseInterpolate(
                     2, ((FclObject *)panelWork)->targetPosition.y, ((FclObject *)panelWork)->positionEnd.y,
-                    (f32)panelFields->positionDuration, (f32)panelFields->positionFrames); /* measured: access-site fields lose this function's MATCH. */
-                panelFields->anchorPosition.y = (f32)( /* measured: access-site fields lose this function's MATCH. */
-                    panelFields->anchorPosition.y - /* measured: access-site fields lose this function's MATCH. */
+                    (f32)panelFields->positionDuration, (f32)panelFields->positionFrames);
+                panelFields->anchorPosition.y = (f32)(
+                    panelFields->anchorPosition.y -
                     fclEaseInterpolate(1, 0.0f, 100.0f,
-                                  (f32)panelFields->positionDuration, (f32)(panelFields->positionFrames / 2))); /* measured: access-site fields lose this function's MATCH. */
+                                  (f32)panelFields->positionDuration, (f32)(panelFields->positionFrames / 2)));
                 break;
             }
             duration = ((FclObject *)panelWork)->positionFrames;
             elapsed = ((FclObject *)panelWork)->positionDuration;
             if (elapsed < duration) {
-                panelFields->positionDuration = fclAddClamped( /* measured: access-site fields lose this function's MATCH. */
+                panelFields->positionDuration = fclAddClamped(
                     (s32)elapsed, 1, (s32)duration, 0, 1);
             } else {
                 ((FclObject *)panelWork)->anchorPosition.x = ((FclObject *)panelWork)->positionEnd.x;
                 ((FclObject *)panelWork)->anchorPosition.y = ((FclObject *)panelWork)->positionEnd.y;
-                completedMode = panelFields->mode; /* measured: access-site fields lose this function's MATCH. */
+                completedMode = panelFields->mode;
                 if (completedMode == 0) {
-                    panelFields->anchorPosition.y = ((FclObject *)panelWork)->targetPosition.y; /* measured: access-site fields lose this function's MATCH. */
+                    panelFields->anchorPosition.y = ((FclObject *)panelWork)->targetPosition.y;
                 } else if (completedMode == 1) {
-                    panelFields->anchorPosition.x = ((FclObject *)panelWork)->targetPosition.x; /* measured: access-site fields lose this function's MATCH. */
+                    panelFields->anchorPosition.x = ((FclObject *)panelWork)->targetPosition.x;
                 }
                 fclBustupObjChangeFlagBit((u8 *)task, 0xA, 1);
             }
         } else {
-            panelFields->positionDelay = fclSubClamped(delay, 1, 0, 0, 1); /* measured: access-site fields lose this function's MATCH. */
+            panelFields->positionDelay = fclSubClamped(delay, 1, 0, 0, 1);
         }
     }
     if (fclBustupObjTestFlagBit((u8 *)task, 0) == 1) {
@@ -2098,11 +2071,11 @@ s32 fclItemShopPanelUpdate(u8 *task) {
                 fclPackRgba(0xFF, ((FclObject *)panelWork)->color.c0,
                               ((FclObject *)panelWork)->color.c1, ((FclObject *)panelWork)->color.c2),
                 ((FclObject *)panelWork)->alpha, (u16)((FclObject *)panelWork)->anchorIndex,
-                (void *)MEMBER(s32, panelWork, FclObject, spriteResource), 0, /* measured: access-site fields lose this function's MATCH. */
+                (void *)MEMBER(s32, panelWork, FclObject, spriteResource), 0,
                 ((FclItemShopPanel *)panelWork)->centerX, ((FclItemShopPanel *)panelWork)->centerY,
                 ((FclObject *)panelWork)->tweenValue,
                 ((FclObject *)panelWork)->scaleX, ((FclObject *)panelWork)->scale,
-                (void *)((u8 *)D_00793E80 + (panelFields->anchorMode * 0x30))); /* measured: access-site fields lose this function's MATCH. */
+                (void *)((u8 *)D_00793E80 + (panelFields->anchorMode * 0x30)));
         } else {
             scaleX = ((FclObject *)panelWork)->scaleX;
             minimumScale = iGpffff8504;
@@ -2116,7 +2089,7 @@ s32 fclItemShopPanelUpdate(u8 *task) {
                                       ((FclObject *)panelWork)->color.c1,
                                       ((FclObject *)panelWork)->color.c2),
                         ((FclObject *)panelWork)->alpha, (u16)((FclObject *)panelWork)->anchorIndex,
-                        (void *)MEMBER(s32, panelWork, FclObject, spriteResource), 1, /* measured: access-site fields lose this function's MATCH. */
+                        (void *)MEMBER(s32, panelWork, FclObject, spriteResource), 1,
                         ((FclItemShopPanel *)panelWork)->centerX, ((FclItemShopPanel *)panelWork)->centerY,
                         ((FclObject *)panelWork)->tweenValue,
                         scaleX, scaleY,
@@ -2138,12 +2111,8 @@ void fclItemShopPanelDestroy(u8 *task) {
 /* Position, color and scale initializers walk interleaved tween triplets in
    the packed FclObject payload rather than one homogeneous member array. */
 // FUN_0033D130
-/* Counter must be s32 with explicit (s16) casts at each use to reproduce
-   retail's $a3 counter coloring and the per-use dsll32/dsra32 normalization.
-   measured: without this pragma mwcc rematerializes the 0xFF / 0x3F800000
-   constants inside the loop body (nd 50+); with it they hoist to the
-   preheader exactly as retail does (nd 0). */
-/* measured: baseline C nd 50B; adjacent-local declaration probe nd 50B; retain settings for owner MATCH. */
+/* measured: with loop-invariant hoisting on, the 0xFF and 1.0f constants are loaded before the loop
+ * as in retail. The s32 counter with (s16) casts at each use matches retail's sign handling. */
 #pragma opt_loop_invariants on
 u8 *fclItemShopPanelCreate(void *task, s32 panelIndex, s32 spriteFile) {
     FclObject *panelFields;
@@ -2175,11 +2144,11 @@ u8 *fclItemShopPanelCreate(void *task, s32 panelIndex, s32 spriteFile) {
     ((FclItemShopPanel *)work)->object.anchorValue = 100.0f;
     ((FclItemShopPanel *)work)->object.anchorMode = 0x55;
     ((FclItemShopPanel *)work)->object.spriteFlags = 0;
-    r = sdkSpriteNewNode((void *)(s32)panelFields->spriteResource, 0, itemData, i); /* measured: access-site fields lose this function's MATCH. */
+    r = sdkSpriteNewNode((void *)(s32)panelFields->spriteResource, 0, itemData, i);
     ((FclItemShopPanel *)work)->centerX = (s16)(s32)(sdkSpriteScaledWidth(r) / 2.0f);
     ((FclItemShopPanel *)work)->centerY = (s16)(s32)(sdkSpriteScaledHeight(r) / 2.0f);
     sdkSpriteFreeNode(r);
     return createdTask;
 }
-/* measured: see annotation above (func_0033d130). */
+/* measured: restores the unit setting after func_0033d130. */
 #pragma opt_loop_invariants off

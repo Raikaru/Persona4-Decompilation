@@ -16,17 +16,13 @@ extern u8 D_00922C50[];
 extern u8 DAT_00922c30_abs[];
 
 
-
 struct MdlFlags78ec0;
-
 
 
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
 extern f32 fGpffffbb54;
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 0047dd70-0047dd70 */
 
 /* Mark the attachment handle dirty when nonzero; the model argument is unused. */
 // FUN_0047DD70

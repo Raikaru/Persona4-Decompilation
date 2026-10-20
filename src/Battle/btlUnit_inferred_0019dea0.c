@@ -77,7 +77,6 @@ extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 
 
-
 extern u8 iGpffffa4d8;
 extern int mdlHasActiveMode(void *model);
 extern void mdlSetLookAtActive(void *model);
@@ -85,10 +84,6 @@ extern void mdlSetLookAtRequested(void *model);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -103,34 +98,17 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019dea0-0019dea0 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
+/* measured: optimization_level 1 keeps the retail loop initialisation order; -O2 reorders it. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Measured: 1164 instruction bytes in the 1168-byte window, three resolved
- * relocations and a four-byte zero tail. This callback uses the packet creator's
- * u32 (void *) contract. Modes 1..4 initialize every timing value; the retail
- * constructor callers use modes 3 or 4. The packet is 20 bytes.
- * Disabling propagation locally retains the alpha result's memory/merge
- * lifetime. Publication remains the actual four-byte color-by-value operation. */
+/* measured: disabling propagation keeps the alpha result in memory across the merge, as retail
+ * does. */
 #pragma push
 #pragma pop
-/* Retail reloads the 1/255 colour scale (0x3B808081, written here as a
- * literal) for every factor; with default optimisation b210 does the same.
- * `v41` and `chk` are function-scope locals so they keep retail's saved
- * registers. On the `i == 2 && alpha < 0xFE` path retail compares 0xE8
- * against the `mode` left from an earlier entry (0x0019CDE0); the C reads
- * `mode` uninitialised there in the same way. */
+/* Retail reloads the 1/255 colour scale for every factor; on the i == 2 && alpha < 0xFE path it
+ * reads a stale mode, as the C does. */
 #pragma push
 #pragma pop
 /* Request a look-at refresh only for a loaded model in an active mode. */
@@ -140,7 +118,8 @@ void btlUnitRequestLookAt(u8 *unit)
     BtlUnit *typedUnit = (BtlUnit *)unit;
     if ((((BtlUnit *)unit)->flags2 & 2) != 0) {
         if (mdlHasActiveMode(((BtlUnit *)unit)->layerHandle) != 0) {
-            /* measured: repeated typed layer loads hoist +0xA00 into an extra saved register (108B vs 96B). */
+            /* The layer handle is reread through typedUnit after the call, keeping retail's post-
+             * call reloads. */
             mdlSetLookAtActive(typedUnit->layerHandle);
             mdlSetLookAtRequested(typedUnit->layerHandle);
         }

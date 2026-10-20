@@ -159,6 +159,25 @@ class DocumentedTests(unittest.TestCase):
         """
         self.assertFalse(score(body, before=["// FUN_00123456"])["documented"])
 
+    def test_a_lint_waiver_is_not_prose(self) -> None:
+        body = """
+        s32 f(ScrData *scr) {
+            s32 a = scr->stackDepth;
+            s32 b = scr->pc;
+            s32 c = a + b;
+            if (c > 4) {
+                c = 4;
+            }
+            return c;
+        }
+        """
+        before = [
+            "/* measured: retail reloads the stack depth after every call,",
+            " * so propagation stays off for this function. */",
+            "#pragma opt_propagation off",
+        ]
+        self.assertFalse(score(body, before=before)["documented"])
+
 
 class FunctionBodyTests(unittest.TestCase):
     """Every marked definition must be found, or its function silently goes unscored."""

@@ -34,7 +34,6 @@ extern void nmMesWindowClearSlotTable(void);
 extern void nmMesWindowInitRecord(s32 *recordAddress);
 
 
-
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
@@ -60,18 +59,14 @@ extern f32 iGpffff82fc;
 extern u8 D_0063F3B0[];
 
 
-
 extern u32 D_007EFA00[];
 extern u8 D_007EFA04[];
 extern u8 *D_0063F110[];
 extern s8 D_007488C0[];
 
 
-
-/* Retail digit RGBA occupies the four bytes at draw+0x75.
-   MWCC requires packed after the typedef name. These guarded
-   storage views preserve the native FclDrawColor call interface.
-   See docs/probe_archive/Fcl_digit_packed_storage_ui_20261006. */
+/* Retail digit RGBA occupies four unaligned bytes in the draw record; these guarded views keep the
+ * FclDrawColor call interface. */
 #ifdef NON_MATCHING
 typedef union {
     FclDrawColor channels;
@@ -89,36 +84,15 @@ typedef char FclDigitStoredWordByteAligned[(sizeof(FclDigitStoredWordAlignment) 
 typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : -1];
 #endif
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002ba080-002baa50 */
-
 extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 
-/* measured: opt_rebuildconditionals off probe for min/max */
-/* measured: close opt_rebuildconditionals after min/max */
-/* measured: opt_loop_invariants on adds retail's second divide hazard nop. */
-/* measured: close opt_loop_invariants after 3170. */
-/* measured: opt_loop_invariants on hoists the tag constants out of the loop. */
-/* measured: closes the loop-invariant bracket; the unit default is off. */
-/* measured: a typed vtable base local with propagation disabled reproduces the
-   retail single D_00887300 address hoist and saved-register frame. */
-/* measured: restores opt_propagation after func_002b5120. */
-/* Preserve the signed-halfword zero test without merging it with the
-   preceding sentinel comparison. */
-/* Row and value are signed halfwords; retail discards incoming row high bits.
-   Rewritten on the matched nmMesWindowSetNumber pattern. Retail passes both colours
-   as words (the parameter home reloaded with lw, the stored digit colour with
-   lwl/lwr), so the block-scope callee declaration takes u32 colours; the two
-   copies are spelled differently so only post-colouring CSE shares them.
-   The redraw positions are named locals, which puts their frame slots above
-   secondPosition as in retail. Depth precedes layer, as in nmMesWindowSetNumber:
-   retail copies $f12 before $t3 in the prologue, and both callers still
-   match. opt_dead_assignments off reproduces retail's late argument loads. */
+/* measured: opt_rebuildconditionals off keeps retail's min/max branch shape. */
 #pragma push
-/* measured: reordered glyph loads, split draw-address calculation and a direct position copy do not close the baseline's 14-word residual. */
+/* measured: retail loads arguments late, which needs dead-assignment elimination off. */
 #pragma opt_dead_assignments off
-// Intent: shows the two-digit number on row `row`: the entrance animation when mode is 0, otherwise a retrace of the existing sprite.
-/* measured: later task+0x38 loads stay raw; typing them retains the work-field
- * address across the entrance callback and spills secondIndex (1372B vs 1360B). */
+// Shows the two-digit number on row `row`: plays the entrance animation when mode is 0, otherwise
+// retraces the existing sprite. Later task+0x38 loads stay untyped because typing them keeps the
+// work-field address live across the entrance callback.
 // FUN_002BA080
 void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
                    FclDrawColor color, s32 duration, s32 delay, f32 depth,
@@ -266,11 +240,11 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
    snapshots separate across writes to the draw slots. The depth precedes
    the layer in the recovered signature. See the worker3 digit-pair archive. */
 #pragma push
-/* measured: sharing the narrowed first index reduces 25 word differences to 8; separate increment worsens it, so retain propagation off. */
+/* measured: retail shares the narrowed first index between both digit slots, which needs
+ * propagation off. */
 #pragma opt_propagation off
-// Intent: sets the two-digit number on row `row` without an entrance animation; the tens digit is hidden for values below 10 except 0.
-/* measured: later task+0x38 loads stay raw; the typed form extends the
- * work-field address lifetime across the position constructor and loses MATCH. */
+// Sets the two-digit number on row `row` without an entrance animation; the tens digit is hidden
+// for values below 10 except 0.
 // FUN_002BA5D0
 void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
                     FclDrawColor color, f32 depth, s64 layer)
@@ -381,11 +355,10 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
 }
 #pragma pop
 
-/* Preserve the RGBA snapshot and later alpha reload across byte stores.
-   Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
-/* measured: func_002ba970 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the RGBA snapshot and reloads alpha after the byte stores instead of
+ * reusing common subexpressions. */
 #pragma opt_common_subs off
-// Intent: sets the colour and alpha of both digit sprites on row `row`.
+// Sets the colour and alpha of both digit sprites on row `row`.
 // FUN_002BA970
 void nmMesWindowSetNumberColor(u8 *task, s16 row, FclDrawColor color)
 {
@@ -420,7 +393,7 @@ void nmMesWindowSetNumberColor(u8 *task, s16 row, FclDrawColor color)
     ((NmMesDigitSlot *)slot)->draw.object.alpha = alpha;
 }
 
-// Intent: resets the current message record and clears the slot table.
+// Resets the current message record and clears the slot table.
 // FUN_002BAA20
 void nmMesWindowResetRecords(void)
 {
@@ -428,7 +401,7 @@ void nmMesWindowResetRecords(void)
     nmMesWindowClearSlotTable();
 }
 
-// Intent: clears all five message slots.
+// Clears all five message slots.
 // FUN_002BAA50
 void nmMesWindowClearSlotTable(void)
 {

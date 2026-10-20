@@ -1,4 +1,4 @@
-/* Original translation unit effPolygonTrack.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effPolygonTrack.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "polygon_track_internal.h"
@@ -11,7 +11,7 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef struct EffGeometryMultiPart {
     EffGeometryBlock base;
     u8 pad48[0xC];
-    u8 *materials; /* +0x54: one material pointer per part */
+    u8 *materials; /* one material pointer per part */
 } EffGeometryMultiPart;
 
 /* Source resources concatenate the copied 0x1C-byte track record and emitter parameters. */
@@ -49,7 +49,8 @@ extern void TrackRebindPathData(u8 *instance, u16 kind, u8 *parameters);
 extern void TrackApplyMode(u8 *instance, u16 mode, s32 *resource);
 extern void mdlEffectLoadQuadB(void *instance, u32 *quadData);
 extern void mdlEffectLoadQuadA(void *instance, u32 *quadData);
-/* lint-allow: arity kept at four arguments. The definition in mdlEffect.c takes one; a one-argument call here moved the codegen of both TrackRefresh call pairs (verify MISMATCH 2). */
+/* lint-allow: declared with four arguments although the definition in mdlEffect.c takes one; the
+ * one-argument form changes the TrackRefresh call sites. */
 extern void mdlEffectApplyGeometryMatrix(void *geometry, void *position, void *rotation, f32 scale);
 extern void ParticleProjectVertices(void *particle, f32 scale);
 extern void mdlEffectSetGeometryPairResource(void *instance, u32 value);
@@ -84,7 +85,6 @@ typedef struct {
 extern LineNovaColor iGpffffbb64; /* default packed material color */
 
 
-
 // Allocates a 0x38-byte track instance with a count, unit scale and a single-entry mode word.
 // FUN_00492E70
 void *TrackAllocInstance(u32 count)
@@ -104,17 +104,13 @@ void *TrackAllocInstance(u32 count)
     return instance;
 }
 
-/* measured: arg1's u16 load must be emitted before the $a0 move (retail's
-   pre-jal order). On the identical call pattern in TrackCreateWithMode the plain
-   read measures nd 5 (lhu/move swapped at both sites) and a shared named
-   local nd 62 (spills into $s2); the volatile-anchored read applied here
-   first try, nd 0. */
-// Creates a track from an emitter, with the count (params times segments) capped at 100 (0x64).
+/* measured: a volatile read emits arg1's u16 load before the call's argument move, as retail does. */
+// Create a track from an emitter, with the count (parameters times segments) capped at 100.
 // FUN_00492F20
 void *TrackCreateFromEmitter(void *opaqueSource)
 {
     EffTrackInstance *track;
-    /* Access-site typing differed by 71 normalized bytes; typed local pointers preserve the original reload lifetimes. */
+    /* Typed local pointers keep the original reload lifetimes. */
     u8 *source = opaqueSource;
     EffSourceDescriptor *descriptor = (EffSourceDescriptor *)source;
     u8 *record;
@@ -158,15 +154,11 @@ void *TrackCreateFromEmitter(void *opaqueSource)
     return instance;
 }
 
-/* measured: correcting the direct effect-helper declarations and passing the
-   selector as ParticleSetMaterialSlot's third argument keeps arg1&0xFFFF in $a2 across
-   the dispatch; object 376B/384B, normalized_diff 0 (jump-table relocations
-   are the only fndiff rows). */
-// Applies a mode to the track's sub-object: dispatches on the mode value to the matching setter.
 // FUN_00493080
 void TrackApplyMode(u8 *instance, u16 mode, s32 *resource) {
     EffTrackInstance *track = (EffTrackInstance *)instance;
-    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 242). */
+    /* Byte accesses on instance and child are kept; the typed EffTrackInstance layout changes the
+     * generated code. */
     u8 *particle;
 
     if (track->particle.bytes == NULL) {
@@ -205,14 +197,13 @@ void TrackApplyMode(u8 *instance, u16 mode, s32 *resource) {
     }
     ((EffParticleInstance *)track->particle.bytes)->kind = (s16)mode;
 }
-/* measured: same volatile-anchored arg1 read as 0x00492f20; plain reads
-   swap the lhu/move order at both call sites (nd 5), local spills (nd 62). */
-// Creates a track from an emitter and applies the emitter's mode when one is attached.
+/* measured: same volatile read as TrackCreateFromEmitter, keeping the load before the argument move. */
+/* Creates a track from an emitter and applies the emitter's mode when one is attached. */
 // FUN_00493200
 void *TrackCreateWithMode(void *opaqueSource)
 {
     EffTrackInstance *track;
-    /* Access-site typing differed by 187 normalized bytes; typed local pointers preserve the original reload lifetimes. */
+    /* Typed local pointers keep the original reload lifetimes. */
     u8 *source = opaqueSource;
     EffSourceDescriptor *descriptor = (EffSourceDescriptor *)source;
     u8 *record;
@@ -280,14 +271,15 @@ void TrackFreeInstance(u8 *instance)
     }
     jtbl_008873EC[0](instance);
 }
-/* measured: same volatile-anchored arg1 read as 0x00492f20 (see its
-   note); plain reads swap the lhu/move order at both call sites. */
-// Creates a track from an owner's track data, with the count capped at 100 (0x64).
+/* measured: same volatile read as TrackCreateFromEmitter; a plain read swaps the load and the
+ * argument move. */
+// Create a track from an owner's track data, with the count capped at 100.
 // FUN_004933A0
 void *TrackCreateFromSource(void *opaqueSource)
 {
     EffTrackInstance *track;
-    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 237). */
+    /* Byte accesses on instance and child are kept; the typed EffTrackInstance layout changes the
+     * generated code. */
     u8 *source = opaqueSource;
     EffTrackInstance *sourceTrack = (EffTrackInstance *)source;
     u8 *parameters;
@@ -332,14 +324,15 @@ void *TrackCreateFromSource(void *opaqueSource)
     return instance;
 }
 
-/* measured: same volatile-anchored arg1 read as 0x00492f20 (see its
-   note); plain reads swap the lhu/move order at both call sites. */
-// Creates a track from an owner source and copies the source track's state across.
+/* measured: the first argument is read through a volatile anchor, as in FUN_00492f20, to keep
+ * retail's load order at both call sites. Creates a track from an owner source and copies the
+ * source track's state across. */
 // FUN_00493530
 void *TrackCreateFromSourceCopy(void *opaqueSource)
 {
     EffTrackInstance *track;
-    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 249). */
+    /* Byte accesses on instance and child are kept; the typed EffTrackInstance layout changes the
+     * generated code. */
     u8 *source = opaqueSource;
     EffTrackInstance *sourceTrack = (EffTrackInstance *)source;
     u8 *parameters;
@@ -389,9 +382,6 @@ void *TrackCreateFromSourceCopy(void *opaqueSource)
 // FUN_004936D0
 void TrackCopyState(u8 *destination, u8 *source)
 {
-    /* Nine child-link sites require byte aliasing: access-site, typed-local,
-     * array and existing-union forms each changed retail instructions.
-     * MEMBER retains each original base and pointer width (see culprit TSV). */
     u8 *particleOrGeometry;
 
     if (((EffTrackInstance *)source)->particle.value == 0) {
@@ -417,7 +407,8 @@ void TrackCopyState(u8 *destination, u8 *source)
 void TrackLoadRecord(u8 *instance, u16 kind, u8 *record)
 {
     EffTrackInstance *track = (EffTrackInstance *)instance;
-    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 94). */
+    /* Byte accesses on instance and child are kept; the typed EffTrackInstance layout changes the
+     * generated code. */
     u8 *ribbons;
 
     memcpy(instance + 0xC, record, 0x1C);
@@ -436,7 +427,8 @@ void TrackLoadRecord(u8 *instance, u16 kind, u8 *record)
 void TrackRebindPathData(u8 *instance, u16 kind, u8 *parameters)
 {
     EffTrackInstance *track = (EffTrackInstance *)instance;
-    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 94). */
+    /* Byte accesses on instance and child are kept; the typed EffTrackInstance layout changes the
+     * generated code. */
     if (track->path.value != 0) {
         mdlEffectFreeEmitterAllocation((u8 *)track->path.value);
     }
@@ -458,27 +450,15 @@ void TrackReleaseSubobject(u8 *instance)
     }
 }
 
-/* MATCHED.  Three shapes carried it.  `opt_common_subs off` is required: with
-   it on, b210 hoists the `andi $a1, $s2, 0xffff` index mask into a saved
-   register and moves it to $a1 at each of the six call sites, which costs an
-   extra saved register and 0x10 of frame; retail rematerialises the mask at
-   every call.  Narrowing the five per-index callees above to `u16 arg1` is
-   what makes the mask a parameter promotion rather than a common
-   subexpression, and it also removes the double `lwc1 $f20` that
-   `opt_common_subs off` alone introduced (152 words -> 98 with exact 171/171
-   instruction counts).  The last four words were the `mode == -1 ||
-   mode == 0` test: b210 folds it to the range trick `addiu $v0, $v1, 1;
-   sltiu $at, $v0, 2; beqz $at`, while retail keeps two explicit compares
-   (`addiu $v0, $zero, -1; beq; nop; bnez`), which only the goto form
-   reproduces - `opt_rebuildconditionals off` does not.  The COP2 colour
-   unpack follows the established idiom in src/Graphics/Effect/effBlurFilter.c;
-   the `sw $2, 0x90($sp)` slot and its volatile reload are part of it. */
-// Per-frame update: writes each live track sample into its owner slot, then sets the owner's colour and width.
+/* opt_common_subs must be off so retail rematerialises the index mask at every call, and the mode
+ * == -1 || mode == 0 test is written with goto to keep two explicit compares. Per-frame update:
+ * writes each live track sample into its owner slot, then sets the owner's colour and width. */
 // FUN_004938E0
 void TrackUpdateSlots(u8 *instance)
 {
     EffTrackInstance *track = (EffTrackInstance *)instance;
-    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 479). */
+    /* Byte accesses on instance and child are kept; the typed EffTrackInstance layout changes the
+     * generated code. */
     extern f32 fGpffff8044;
     extern void ParticleUpdateScaled(void *particle, f32 scale);
     s32 materialColor;
@@ -578,17 +558,8 @@ draw_entry:
             :
             : "r"(colorFactors)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        /* measured: this volatile read is the COP2 block's OUTPUT PATH, not a
-           reload hack on ordinary memory.  The asm above ends in
-           `sw $2, 0x90($sp)`, a hard-coded frame offset the compiler cannot
-           associate with `modulatedColor`; because `modulatedColor` is a local whose address is
-           never taken, b210 correctly concludes no asm can have touched it and
-           the "memory" clobber does not reach it, so a plain read is folded
-           away.  Three legal alternatives were measured and each LOSES the
-           match (19 -> 18 MATCH, 1 MISMATCH in this file): a plain
-           `materialColor = modulatedColor;`, declaring the slot as an asm output with
-           `"=m"(modulatedColor)` and `sw $2, %0`, and taking the address into a local
-           `s32 *slotOut = &modulatedColor;` so the clobber applies.  The cast stays. */
+        /* measured: the asm writes modulatedColor through a fixed stack offset the compiler cannot
+         * see, so only a volatile read picks up the result. */
         materialColor = *(volatile s32 *)&modulatedColor;
         mdlEffectSetRibbonMaterialColor(ribbons, sampleIndex, &materialColor);
     }
@@ -607,7 +578,8 @@ draw_entry:
 void TrackApplyWidth(u8 *instance)
 {
     EffTrackInstance *track = (EffTrackInstance *)instance;
-    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 189). */
+    /* Byte accesses on instance and child are kept; the typed EffTrackInstance layout changes the
+     * generated code. */
     if (track->count.value != 0) {
         s32 sampleCount = ((EffTrackPath *)track->path.bytes)->ticks.signedValue;
 
@@ -637,7 +609,8 @@ void TrackApplyWidth(u8 *instance)
 void TrackRefresh(u8 *instance)
 {
     EffTrackInstance *track = (EffTrackInstance *)instance;
-    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 189). */
+    /* Byte accesses on instance and child are kept; the typed EffTrackInstance layout changes the
+     * generated code. */
     TrackUpdateSlots(instance);
     if (track->count.value != 0) {
         s32 sampleCount = ((EffTrackPath *)track->path.bytes)->ticks.signedValue;
@@ -698,14 +671,15 @@ void TrackSetScale(u8 *instance, f32 scale)
     EffEmitterApplyScale((u16 *)((EffTrackInstance *)instance)->path.value, scale);
 }
 
-/* Measured: 620/624 bytes, 40 resolved relocations and 4 zero alignment bytes. */
-// Allocates a ribbon track: count * 2 + 0x1C bytes, with ribbon and cap geometry and per-sample colours.
+/* Allocates a ribbon track: count 2 + 0x1C bytes, with ribbon and cap geometry and per-sample
+ * colours. */
 // FUN_00493E60
-/* measured: toggle removal and direct indexed material loads both differ by 213 normalized bytes. */
+/* measured: retail keeps the toggle and the indexed material loads only when copy propagation is
+ * off. */
 #pragma push
 #pragma opt_propagation off
 u8 *TrackAllocRibbons(u16 count, u16 segments) {
-    /* Keep ribbon/table/material byte accesses: typed ribbon fields changed b210 codegen (normalized_diff 295); alpha 0xFF is reserved. */
+    /* Ribbon, table and material fields are accessed as raw bytes; alpha 0xFF is reserved. */
     s32 size;
     u8 *ribbons;
     EffTrackRibbons *allocation;

@@ -100,8 +100,6 @@ s32 K_Test_Update(u8 *task)
 
 /* Release the optional model handle before freeing the test work. */
 // FUN_0018E730
-/* measured: access-site, typed-local, and indexed task-work loads differ in five bytes.
- * Only the initial task-slot load needs MEMBER; the model and final reload are typed. */
 void K_Test_Destroy(u8 *task)
 {
     u8 *work;

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 003642a0-003642e0 */
 
 #include "include_asm.h"
 #include "type.h"
@@ -19,7 +18,8 @@ void MT_Scene_ReleaseWork(u8 *task)
     *flags |= 2;
 }
 
-// Intent: Set the work block's present flag (bit 0 of the flags halfword) when the pointer is non-null, otherwise clear it [inferred]
+// Set the work block's present flag (bit 0 of the flags halfword) when the pointer is non-null,
+// otherwise clear it.
 // FUN_003642E0
 void MT_Scene_SetWorkPresentFlag(u8 *task, void *presentWork)
 {

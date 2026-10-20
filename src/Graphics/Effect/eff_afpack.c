@@ -16,7 +16,7 @@ typedef struct RuntimeListNode
     u8 *entries;
     struct RuntimeListNode* previous;
     struct RuntimeListNode* next;
-    u8 color[4]; /* +0x20: default per-instance color; allocation header is 0x24. */
+    u8 color[4]; /* Default per-instance color; the allocation header is 0x24 bytes. */
 } RuntimeListNode;
 
 /* Relocation and instance allocation each reserve a 0x24-byte header. */
@@ -120,20 +120,16 @@ extern void func_003c2a80(void* a);
 extern void effMiscProgressResetWork(void* a, void* b);
 extern void func_003c22f0(void* a);
 
-/* The allocation result lands in `base` first and is copied to `node`:
- * retail adds 0x24 to the $v0 result directly and keeps the cursor out of
- * the saved register that holds the node. measured: opt_loop_invariants
- * and opt_lifetimes on are both required (verify MISMATCH, nd 116,
- * without them). */
+/* The allocation result goes into base first and is then copied to node, so retail keeps the cursor
+ * apart from the node. */
 #pragma push
-/* measured: baseline C nd 116B; adjacent-local declaration probe nd 116B; retain settings for owner MATCH. */
+/* measured: retail's code needs both loop invariants and lifetimes turned on. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 // Binds the sections of the packed afterimage resource at resource: walks the header counts and records each table's pointer; the per-record size depends on the header's type word (0x64 or 0x65).
 // FUN_004B6030
 u8 *AfPackBindResource(void *resource)
 {
-    /* Earlier whole-layout comparison: 1833 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     extern void memcpy(void *dst, void *src, u32 size);
     u8 *parameterRecords[16];
     u8 *materialRecords[16];
@@ -156,12 +152,10 @@ u8 *AfPackBindResource(void *resource)
     p = resource;
     header = p;
     p += 0x10;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     for (parameterIndex = 0; parameterIndex < MEMBER(u16, header, AfPackResourceHeader, parameterCount); parameterIndex++) {
         parameterRecords[parameterIndex] = p;
         p += 0x38;
     }
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     for (recordIndex = 0; recordIndex < MEMBER(u16, header, AfPackResourceHeader, materialCount); recordIndex++) {
         u8 *cur;
 
@@ -186,7 +180,6 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
     }
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     for (recordIndex = 0; recordIndex < MEMBER(u16, header, AfPackResourceHeader, sectionCount); recordIndex++) {
         sectionRecords[recordIndex] = p;
         switch (((AfPackResourceHeader *)header)->kind) {
@@ -212,15 +205,10 @@ u8 *AfPackBindResource(void *resource)
     }
     size = 0;
     size = size + 0x24;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     size = size + MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 0x18;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     size = size + MEMBER(u16, header, AfPackResourceHeader, parameterCount) * 0x34;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     size = size + MEMBER(u16, header, AfPackResourceHeader, materialCount) * 0x18;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     size = size + MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 4;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     for (sizeIndex = 0; sizeIndex < MEMBER(u16, header, AfPackResourceHeader, sectionCount); sizeIndex++) {
         switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
@@ -231,29 +219,19 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
     }
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     size += MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 8;
     chkmemAllocSiteTag(D_007146B0, 0x1E4);
     base = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     node = base;
     base = base + 0x24;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     MEMBER(u8 *, node, RuntimeWork, sections) = base;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     base += MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 0x18;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     MEMBER(u8 *, node, RuntimeWork, parameters) = base;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     base += MEMBER(u16, header, AfPackResourceHeader, parameterCount) * 0x34;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     MEMBER(u8 *, node, RuntimeWork, materials) = base;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     base += MEMBER(u16, header, AfPackResourceHeader, materialCount) * 0x18;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     MEMBER(u8 *, node, RuntimeWork, commands.bytes) = base;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     base += MEMBER(u16, header, AfPackResourceHeader, sectionCount) * 4;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     for (commandIndex = 0; commandIndex < MEMBER(u16, header, AfPackResourceHeader, sectionCount); commandIndex++) {
         (((RuntimeWork *)node)->commands.byteTable)[commandIndex] = base;
         switch (((AfPackResourceHeader *)header)->kind) {
@@ -267,9 +245,7 @@ u8 *AfPackBindResource(void *resource)
     }
     ((RuntimeWork *)node)->timing = base;
     ((RuntimeWork *)node)->flags = ((AfPackResourceHeader *)header)->flags;
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     ((RuntimeWork *)node)->sectionCount.half = MEMBER(u16, header, AfPackResourceHeader, sectionCount);
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     ((RuntimeWork *)node)->parameterCount = MEMBER(u16, header, AfPackResourceHeader, parameterCount);
     ((RuntimeWork *)node)->materialCount = ((AfPackResourceHeader *)header)->materialCount;
     for (copyParameterIndex = 0; copyParameterIndex < ((AfPackResourceHeader *)header)->parameterCount; copyParameterIndex++) {
@@ -290,7 +266,6 @@ u8 *AfPackBindResource(void *resource)
         dst[11] = src[12];
         dst[12] = src[13];
     }
-    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
     for (materialIndex = 0; materialIndex < MEMBER(u16, header, AfPackResourceHeader, materialCount); materialIndex++) {
         u8 *dst = ((RuntimeWork *)node)->materials + materialIndex * 0x18;
         u8 *src = materialRecords[materialIndex];
@@ -339,7 +314,6 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
         j = 0;
-        /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
         n = MEMBER(u16, header, AfPackResourceHeader, parameterCount);
         for (; j < n; j++) {
             if (id == *(u16 *)parameterRecords[j]) {
@@ -356,7 +330,6 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
         j = 0;
-        /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
         n = MEMBER(u16, header, AfPackResourceHeader, materialCount);
         for (; j < n; j++) {
             if (id == *(u16 *)materialRecords[j]) {
@@ -604,7 +577,6 @@ s32 AfPackTaskUpdate(u8 *unusedTask)
 // Runs the afterimage list once per frame: updates the render entries, reaps nodes with no live entries (freeing their buffers), then draws the remaining entries.
 // FUN_004B6E80
 void AfPackRunList(void) {
-    /* Earlier whole-layout comparison: 483 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     typedef int (*code)();
     extern code DAT_008873ec_abs[];
     void *(**table);
@@ -657,28 +629,21 @@ void AfPackRunList(void) {
                 }
                 prev = (u8 *)((RuntimeListNode *)temp)->previous;
                 if (prev != NULL) {
-                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                     ((RuntimeListNode *)prev)->next = (RuntimeListNode *)(MEMBER(u8 *, temp, RuntimeListNode, next));
                 }
                 if (temp == (u8 *)D_00764C9C) {
-                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                     D_00764C9C = MEMBER(u8 *, temp, RuntimeListNode, previous);
                 }
                 if (temp == (u8 *)D_00764CA0) {
-                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                     D_00764CA0 = (RuntimeListNode *)MEMBER(u8 *, temp, RuntimeListNode, next);
                 }
-                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                 work = MEMBER(u8 *, temp, RuntimeListNode, work);
                 i = 0;
-                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                 while (i < ((RuntimeWork *)MEMBER(u8 *, temp, RuntimeListNode, work))->sectionCount.signedHalf) {
                     effAfterFreeVectorBuffers(((RuntimeListNode *)temp)->vertices + i * 0x3C);
                     off = i * 8;
                     func_003e9390((u8 *)((RpAtomic *)(((AfPackRenderEntry *)(((RuntimeListNode *)temp)->renderObjects + off))->atomic.pointer))->frame);
-                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                     func_003c02e0(((AfPackRenderEntry *)(MEMBER(u8 *, temp, RuntimeListNode, renderObjects) + off))->atomic.pointer);
-                    /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                     func_003c4220(((AfPackRenderEntry *)(MEMBER(u8 *, temp, RuntimeListNode, renderObjects) + off))->material.pointer);
                     i++;
                 }
@@ -705,7 +670,6 @@ void AfPackRunList(void) {
 // FUN_004B7140
 void AfPackReleaseByOwner(s32 owner)
 {
-    /* Earlier whole-layout comparison: 303 differing bytes; per-access probes isolate alias-sensitive MEMBER accesses below. */
     s32 renderOffset;
     u8* nextNode;
     u8* node;
@@ -738,31 +702,24 @@ void AfPackReleaseByOwner(s32 owner)
             previous = (u8 *)((RuntimeListNode *)node)->previous;
             if (previous != NULL)
             {
-                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                 ((RuntimeListNode *)previous)->next = (RuntimeListNode *)(MEMBER(u8*, node, RuntimeListNode, next));
             }
             if (node == (u8*)D_00764C9C)
             {
-                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                 D_00764C9C = MEMBER(void*, node, RuntimeListNode, previous);
             }
             if (node == (u8*)D_00764CA0)
             {
-                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                 D_00764CA0 = MEMBER(RuntimeListNode*, node, RuntimeListNode, next);
             }
-            /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
             resource = MEMBER(u8*, node, RuntimeListNode, work);
             sectionIndex = 0;
-            /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
             while (sectionIndex < ((RuntimeWork *)MEMBER(u8 *, node, RuntimeListNode, work))->sectionCount.signedHalf)
             {
                 effAfterFreeVectorBuffers(((RuntimeListNode *)node)->vertices + sectionIndex * 0x3C);
                 renderOffset = sectionIndex * 8;
                 func_003e9390(((RpAtomic *)(((AfPackRenderEntry *)(((RuntimeListNode *)node)->renderObjects + renderOffset))->atomic.pointer))->frame);
-                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                 func_003c02e0(((AfPackRenderEntry *)(MEMBER(u8 *, node, RuntimeListNode, renderObjects) + renderOffset))->atomic.pointer);
-                /* measured: Direct, typed-local and indexed fields differ here; named byte access preserves MATCH. */
                 func_003c4220(((AfPackRenderEntry *)(MEMBER(u8 *, node, RuntimeListNode, renderObjects) + renderOffset))->material.pointer);
                 sectionIndex++;
             }

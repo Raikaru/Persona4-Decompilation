@@ -49,8 +49,6 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 0048a980-0048b9e0 */
-
 typedef struct EffectPackedColorKeys {
     u8 mode;
     u8 pad01[3];
@@ -78,11 +76,8 @@ static inline f32 mdlEffectColorOpacity(s32 frame, s32 duration, s32 fadeIn, s32
     }
     return fullOpacity;
 }
-/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
- * eight zero alignment bytes. IDA retains the result that Ghidra drops:
- * retail leaves the copied quadword in v0 through return. Preserve that
- * live-out; the current C callers discard it. The four hardware vf0 stores
- * produce (0,0,0,1), not a zero quadword. */
+/* Retail returns the copied quadword even though current callers discard it; the vf0 stores write
+ * (0,0,0,1), not zero. */
 #pragma push
 #pragma pop
 #pragma push
@@ -91,22 +86,15 @@ static inline f32 mdlEffectColorOpacity(s32 frame, s32 duration, s32 fadeIn, s32
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off keeps `alloc` live in $s1 across all three
-   allocations instead of re-materialising the table address at the first use. */
-/* measured: closes the propagation bracket; the file default is on. */
-    /* measured: O1 probe for initial flag and aggregate register colours. */
-    /* measured: closes O1 probe for initial flag and aggregate register colours. */
-/* measured: opening optimization_level 1 for the parked 00486970 body. */
-/* measured: closes optimization_level 1 for the parked 00486970 body. */
-/* Measured with b210 -O2: keeping the trace/diagonal stages and the scaled
-   root as distinct lifetimes reproduces the scalar calculation. Propagation
-   and common-subexpression elimination otherwise merge the identity
-   constants and discard the root copy before register coalescing. */
+/* measured: retail keeps the trace/diagonal stages and the scaled root as separate values;
+ * propagation and common-subexpression elimination would merge the identity constants and drop the
+ * root copy. */
 #pragma push
-/* measured: func_0048a980 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 6B; adjacent-local declaration probe nd 6B; retain settings for owner MATCH. */
+/* measured: common-subexpression elimination would otherwise merge the identity constants that
+ * retail keeps separate. */
 #pragma opt_common_subs off
-/* measured: func_0048a980 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the identity and zero constants in their own temporaries instead of
+ * propagating them. */
 #pragma opt_propagation off
 /* Convert the matrix rotation to a quaternion returned in VU0 VF10. */
 // FUN_0048A980
@@ -155,7 +143,7 @@ void effMiscMatrixToQuatVU(f32 *matrix)
         f32 identity;
         f32 zero;
 
-        if (!(zz <= ((EffectVuVector *)matrix)[selected].lane[selected])) { /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+        if (!(zz <= ((EffectVuVector *)matrix)[selected].lane[selected])) { /* Matrix and quaternion lanes are addressed by byte offsets, following retail's address arithmetic. */
             u8 third = 2;
             selected = third;
         }
@@ -166,13 +154,13 @@ void effMiscMatrixToQuatVU(f32 *matrix)
         k = (u8)((j + 1) % axisCount);
         oj = j * 4;
         rj = (u8 *)matrix + j * 16;
-        dj = *(nextDiagonal = (f32 *)(rj + oj)); /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+        dj = *(nextDiagonal = (f32 *)(rj + oj));
         oi = i * 4;
         ri = (u8 *)matrix + i * 16;
-        delta = *(selectedDiagonal = (f32 *)(ri + oi)) - dj; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+        delta = *(selectedDiagonal = (f32 *)(ri + oi)) - dj;
         ok = k * 4;
         rk = (u8 *)matrix + k * 16;
-        radicand = delta - *(lastDiagonal = (f32 *)(rk + ok)); /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+        radicand = delta - *(lastDiagonal = (f32 *)(rk + ok));
         identity = 1.0f;
         sum = identity + radicand;
         root = sqrtf(sum);
@@ -182,14 +170,14 @@ void effMiscMatrixToQuatVU(f32 *matrix)
         }
         zero = 0.0f;
         if (zero != root) {
-            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oi) = root / 4.0f; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oj) = (*(selectedNext = (f32 *)(ri + oj)) + *(nextSelected = (f32 *)(rj + oi))) / root; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + ok) = (*(selectedLast = (f32 *)(ri + ok)) + *(lastSelected = (f32 *)(rk + oi))) / root; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            q[3] = -((*(nextLast = (f32 *)(rj + ok)) - *(lastNext = (f32 *)(rk + oj))) / root); /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oi) = root / 4.0f;
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oj) = (*(selectedNext = (f32 *)(ri + oj)) + *(nextSelected = (f32 *)(rj + oi))) / root;
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + ok) = (*(selectedLast = (f32 *)(ri + ok)) + *(lastSelected = (f32 *)(rk + oi))) / root;
+            q[3] = -((*(nextLast = (f32 *)(rj + ok)) - *(lastNext = (f32 *)(rk + oj))) / root);
         } else {
-            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oi) = identity; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oj) = zero; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
-            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + ok) = zero; /* measured: byte-indexed matrix/quaternion addressing preserves MATCH. */
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oi) = identity;
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + oj) = zero;
+            *(f32 *)((u8 *)q + MEMBER_OFFSET(EffectVuVector, lane) + ok) = zero;
             q[3] = zero;
         }
     }
@@ -198,9 +186,8 @@ void effMiscMatrixToQuatVU(f32 *matrix)
 }
 
 #pragma pop
-/* Interpolate the configured RGB keys in VU0 and apply the independent alpha
- * envelope. Packed RGBA returns as a sign-extended 32-bit word.
- * measured: native b210 -O2, 1044/1056 bytes, one exact resolved relocation. */
+/* Interpolate the configured RGB keys in VU0 and apply the independent alpha envelope. Packed RGBA
+ * returns as a sign-extended 32-bit word. */
 // FUN_0048ABD0
 s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration) {
     const EffectPackedColorKeys *colors = (const EffectPackedColorKeys *)colorData;
@@ -344,8 +331,8 @@ s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 du
     return (s32)(((u32)mixedColor & 0xFFFFFFU) | ((u32)alpha << 24));
 }
 
-/* measured: opt_propagation off tested for target subtraction scheduling. */
-/* measured: func_0048aff0 MATCH -> MISMATCH without this pragma. */
+/* measured: propagation off keeps retail's ordering of the key subtraction in the segment
+ * interpolation. */
 #pragma opt_propagation off
 /* Interpolate scalar keys across one, two or three time segments. */
 // FUN_0048AFF0
@@ -419,7 +406,6 @@ f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration)
     return from + t * (to - from);
 }
 
-/* measured: restore opt_propagation after func_0048aff0. */
 /* Sample particle color, size and angle; angle mode two derives screen-space motion direction. */
 // FUN_0048B220
 void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition)
@@ -433,10 +419,10 @@ void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 
     u_long128 projectedDelta;
     s32 size;
 
-    size = (colorParameters = (MdlEffectEmitterParameters *)parameters)->lifetime; /* measured: the separate typed pointer preserves MATCH under b210. */
+    size = (colorParameters = (MdlEffectEmitterParameters *)parameters)->lifetime; /* Each lifetime read goes through its own typed pointer, as retail addresses it. */
     *(s32 *)&((SpawnParticle *)particle)->color =
         mdlEffectSamplePackedColor(parameters + 0x2C, parameters + 0x50, frame, size);
-    size = (sizeParameters = (MdlEffectEmitterParameters *)parameters)->lifetime; /* measured: the separate typed pointer preserves MATCH under b210. */
+    size = (sizeParameters = (MdlEffectEmitterParameters *)parameters)->lifetime;
     ((SpawnParticle *)particle)->size =
         mdlEffectSampleScalarKeys(parameters + 0x60, frame, size);
     if (((MdlEffectEmitterParameters *)parameters)->angleMode != 2) {
@@ -462,67 +448,14 @@ void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 
     ((SpawnParticle *)particle)->angle = 0.0f;
 }
 
-/* Guarded rewrite, 2026-10-07: 54 differing words (was 160). The quads copy
- * through u_long128 pointer locals, the colour packs store the named slot
- * inside the asm, and the loop bounds hoist -1 as retail does. The second
- * quad's `(u32)c4 * 32` stops the stride CSE (that also fixed the c0/stride
- * $s7/$fp swap), `c4 << 6` and integer-cast sums give retail's addu operand
- * order, and the declaration order is the regalloc model's (k, i, src1,
- * iter, clear, j, dst1, c4). Open: retail rematerialises 1.0f in the else
- * branch, but b210's codegen reuses the entry's constant temporary there
- * (already shared at codegen_entry), and the else-branch temporaries then
- * colour one register lower ($v1/$a0... instead of $a3/$v1...).
- * 2026-10-09: 54 -> 24: the else branch's last-node pointer lives in `dst1`
- * (dead after the first copy loop) instead of a block-scoped local. Under
- * opt_lifetimes on, a web is numbered with its variable.
- * 2026-10-09: 24 -> 9: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 2026-10-10: actual-owner probe confirms 1692/1696 bytes, zero structural
- * and nine register edits. That score is not a defined-input proof: the
- * constructor/first tick initialize ages, and the age-zero path below seeds
- * only history slot zero. For positive C/W without count overflow, the next
- * shift reads unproduced payloads whenever (C - 1) * W > 1. C=3,W=1 reaches
- * the unconditional color load at 0048b4ec before any history-age check.
- * See docs/probe_archive/Sprite_particle_boundaries_20261010.md.
- * 2026-10-12: the 0x150 frame and every stack slot agree (423 instructions,
- * still 9 edits). Shared SpawnParticle views tie only with the two clear-age
- * lvalues kept byte-addressed; member-address CSE otherwise adds a spill.
- * A dedicated linear anchor costs 40 edits. The captured model puts its r60
- * in $a3 only after the step-transfer temporary r91; the counter/alpha
- * transfer order also differs. Const and inline accessor forms stay at 40.
- * 2026-10-13: allocator replay of a dedicated anchor (any declaration
- * position: 40, colour $v1) gives retail's $a3 and every other colour once
- * the anchor is numbered after r91, the else loop's last asm-operand
- * variable; parse-time locals cannot be. Retail's anchor is therefore an
- * IR or codegen temporary shared by the pre-loop uses and the loop's
- * effectVuLoad10. As an expression it is CSE'd before the loop but not into
- * it: IR LICM hoists only the (u32)clear conversion (34), uncast it is
- * recomputed in the loop (34), and dropping dst1's else web swaps c0/clear
- * ($s7/$fp). An inline else-branch helper (anchor as parameter) needs
- * inline_depth and recolours the branch (57).
- * 2026-10-13 (build/v8b340, micro sh1-sh11): an order search on the block-anchor capture finds a
- * 10/10 colouring only with the anchor scanned after the loop's asm-operand and conversion temps
- * and before tmpE/tmpD/bound, a window only a codegen temp occupies; declared locals number <= 61.
- * Expression anchors split into per-region shadows at the conversion join or the loop's sqc2 store.
- * The best is `iter` assigned after the store/scale sequence (23-24), with three separate residuals:
- * the age test's own addu, the counter/transfer swap and the stride/c0 swap. Whole-else helpers
- * 40-43; opt_lifetimes 81-107; opt_common_subs off 96-112; opt_propagation on 50.
- * 2026-10-14: 9 -> 5 fnalign edits. A separate linear anchor and b210's native
- * named LQC2 operand remove the GNU operand-binding copy; the anchor now has
- * retail's $a3 lifetime. Only the loop counter / 255.0f transfer swap remains.
- * 2026-10-14: 5 -> 4: transfer the invariant 255.0f to its native GPR once.
- * All colours now agree; only MFC1 / loop-bound-zero materialisation order differs.
- * 2026-10-14: measured 4 -> 0. Native SQC2 keeps the history cursor's clear/shift/linear
- * web intact under opt_lifetimes; the shared subdivision counter's second web
- * then numbers after the compiler-generated 255.0f transfer, matching its hoist.
- */
-/* Shift particle history and interpolate trail subdivisions, preserving the documented age-zero limitation. */
+/* Shifts particle history and interpolates trail subdivisions. The age-zero path seeds only history
+ * slot zero, so later shifts can read unwritten slots, as retail does. */
 // FUN_0048B340
 #pragma push
-/* measured: split the two counter webs, but preserve the native-asm cursor. */
-/* measured: func_0048b340 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 1330B; adjacent-local declaration probe nd 1330B; retain settings for owner MATCH. */
+/* measured: keeps the two loop counters in separate lifetimes while leaving the native-asm cursor
+ * untouched. */
 #pragma opt_lifetimes on
-/* measured: func_0048b340 MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the invariant 255.0f transfer out of the loop. */
 #pragma opt_loop_invariants on
 void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle)
 {
@@ -593,7 +526,7 @@ loop0_check:
         }
         return;
     }
-    (trailParticle = (SpawnParticle *)clear)->age = age - 1; /* measured: the separate typed pointer preserves MATCH under b210. */
+    (trailParticle = (SpawnParticle *)clear)->age = age - 1;
     one = 1.0f;
     invN = one / (f32)(u32)trailLength;
     acc = 0.0f;
@@ -747,7 +680,7 @@ loop1_check:
         effectVuStore10((EffectVuVector *)&colorStep);
         for (k = 0; k < (u32)trailWidth - 1; src1 -= 0x20, k++) {
             acc3 = acc3 + inv3;
-            /* Native b210 operand: read the C pointer without a GNU binding copy. */
+            /* The asm operand names the C pointer directly instead of binding a copy. */
             __asm__ volatile("lqc2 $vf10, 0(anchor)" : : : "$vf10", "memory");
             effectVuLoad11((EffectVuVector *)clear);
             __asm__ volatile(
@@ -780,18 +713,15 @@ loop1_check:
 }
 
 #pragma pop
-/* Recovered Wave controller: complete position snapshots and actual live trail
- * indexing. Domain and source/compiler evidence are recorded in
- * docs/probe_archive/wave-spawn-20261005/. The existing trail provider retains
- * its separately documented initialization limitation; this caller does not
- * read its trail payload. */
+/* Wave controller: snapshots complete positions and indexes the live trail; it does not read the
+ * trail payload. */
 // FUN_0048B9E0
 #include "particle_spawn_internal.h"
-/* Measured: these scoped settings preserve the recovered wave update
- * evaluation order and the complete retail 2652-byte executable body. */
+/* measured: retail hoists loop invariants in the wave update, so this scoped setting keeps its
+ * evaluation order. */
 #pragma push
-/* measured: EffWaveUpdate MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 2023B; adjacent-local declaration probe nd 2023B; retain settings for owner MATCH. */
+/* measured: retail hoists loop invariants in EffWaveUpdate; without this setting the evaluation
+ * order differs from retail. */
 #pragma opt_loop_invariants on
 void EffWaveUpdate(u8 *emitterData)
 {
@@ -857,8 +787,7 @@ void EffWaveUpdate(u8 *emitterData)
         goto post_init;
     }
     if ((emitter->ticks == 0) && (parameters->preroll != 0)) {
-        /* Keep the byte-valued enable phase distinct from its loop flag.
-         * The same narrow-to-word source form occurs in func_0048a980. */
+        /* Keep the byte-valued enable phase distinct from its loop flag. */
         u8 initialPreroll = 1;
         preroll = initialPreroll;
         if (!(parameters->emissionVariation <= 0.0f)) {
@@ -1095,7 +1024,6 @@ main_check:
         goto main_body;
     }
 }
-
 
 
 #pragma pop

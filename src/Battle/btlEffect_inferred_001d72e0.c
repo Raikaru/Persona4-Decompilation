@@ -43,13 +43,6 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
-
-
 typedef struct RwV3d RwV3d;
 struct RwV3d
 {
@@ -72,13 +65,6 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d72e0-001d7700 */
-
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
-/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
-/* measured: restore optimization_level 2 after func_001d5990. */
 /* Map one supported status bit to its formation slot; unsupported values return -1. */
 // FUN_001D72E0
 s32 btlEffectFlagToSlotIndex(s32 flag)
@@ -112,11 +98,11 @@ s32 btlEffectFlagToSlotIndex(s32 flag)
     }
 }
 
-/* measured: opt_propagation off plus ascending default loads reproduces retail exactly (object 452B/window 464B, normalized_diff 0). */
-/* Write the palette RGBA for one status bit, falling back to the four configured default channel bytes. */
+/* Write the RGBA colour for one status flag into color, using the configured default colour for
+ * unknown flags. */
 // FUN_001D7400
-/* measured: opt_propagation off is required for the default GP load/store register order. */
-/* measured: btlEffectFlagToColor MATCH -> MISMATCH without this pragma. */
+/* measured: without copy propagation off, retail's load/store order for the default color channels
+ * is not reproduced. */
 #pragma opt_propagation off
 void btlEffectFlagToColor(s32 flag, u8 *color)
 {
@@ -189,8 +175,8 @@ void btlEffectFlagToColor(s32 flag, u8 *color)
     }
 }
 
-/* measured: close opt_propagation after btlEffectFlagToColor. */
-/* Release all formation slots and their mode-dependent backing storage, then clear the loaded-table flag. */
+/* Release all formation slots and their mode-dependent backing storage, then clear the loaded-table
+ * flag. */
 // FUN_001D75D0
 void btlEffectReleaseAllPlacements(u8 *unused)
 {

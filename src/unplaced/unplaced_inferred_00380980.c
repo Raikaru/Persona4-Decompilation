@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00380980-00380d80 */
 
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -15,7 +14,6 @@ extern void memset(void *dst, s32 value, u32 size);
 extern void nmMesWindowShowCurrentRecord(s32 recordIndex);
 extern void nmMesWindowSetCurrentString(s32 variable, void *text);
 /* Build the selected reward roster and populate its message substitutions and trail. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00380980
 s32 btlShuffleShowRosterMessage(u8 *rosterWork)
 {

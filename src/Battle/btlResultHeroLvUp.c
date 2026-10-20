@@ -1,5 +1,5 @@
 #include "include_asm.h"
-/* Original translation unit btlResultHeroLvUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlResultHeroLvUp.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "btl_result_ui_internal.h"
@@ -138,9 +138,6 @@ void btlResultHeroLvUpInit(void)
 /* Sequence the hero level and unlock messages, then delay before completion. The archive handle is
  * read from the shared result parent. */
 // FUN_00221CF0
-// SOLVED by tools/permute.py; this previously carried an nd-4 note calling the
-// residual the $v0-vs-$at compare-temp floor. The permuter cracked it from the
-// preserved body.
 #pragma tailcall off
 s32 btlResultHeroLvUpStep(BtlResultHeroWork* work)
 {

@@ -1,6 +1,4 @@
 #include "member_access.h"
-/* Measured alias-sensitive fields use MEMBER; typed access-site, local-pointer
- * and applicable array forms are recorded in FullBattle2.culprits.tsv. */
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
 #include "list_item_internal.h"
@@ -78,15 +76,8 @@ extern f32 fGpffff805c;
 extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001b0930-001b0cc0 */
-
-/* 564/576 bytes; sixteen resolved relocations; twelve zero alignment bytes.
- * Named unsigned address terms retain table ordering without signed overflow. */
-/* Retail allocates the scan as found=v1, base=v0, i=a3. The second scan walks
-   a `table` copy of `base`; that copy use keeps `base` a declared local
-   instead of folding into its gp load temporary. `found` declared first and
-   `base` second give retail's v1/v0 pair. In the owner, the measured
-   `opt_common_subs off` keeps the scan's offset and table reloads separate. */
+/* Named unsigned address terms keep the table ordering without signed overflow; the second scan
+ * walks a table copy so base stays a declared local. */
 #pragma push
 #pragma pop
 // FUN_001B0930
@@ -128,12 +119,10 @@ u8 *btlActionCreate(void)
     return action;
 }
 
-/* measured: compound field decrement preserves retail addiu/sh/andi order; normalized_diff 0 in the 400-byte retail window. */
 // FUN_001B0A60
 /* Apply expired state delays, run enabled updates, and unlink actions marked for release. */
 void btlActionListUpdate(void)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (428B trial); retain the proven byte offsets for MATCH. */
     u8 *action;
     u16 delay;
     u16 pendingState;
@@ -197,7 +186,6 @@ loop_check:
 /* Unlink and free every action while preserving the next pointer across the release callback. */
 void btlActionListDestroyAll(void)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (140B trial); retain the proven byte offsets for MATCH. */
     u8 *nextAction;
     u8 *previousAction;
     u8 *action;
@@ -221,9 +209,8 @@ loop_check:
     if (action != NULL) goto loop_body;
 }
 
-/* measured: returning directly from the compare branch preserves retail's
-   bne/branch-to-tail layout; the C object is 60B/64B with nd 0 and only the
-   retail alignment nop remains. */
+/* Walk the battle's action list and return the first action owned by the given unit, or NULL if
+ * there is none. */
 // FUN_001B0C80
 /* Search the action list for the unit pointer; return NULL when no action owns it. */
 u8 *btlActionFindByUnit(s32 unit)
@@ -242,8 +229,8 @@ check:
     return NULL;
 }
 
-/* measured: 0cc0 shares the pointer-chain branch shape above; only its
-   compare-field displacement changes, with nd 0 in a 60B/64B object. */
+/* Walk the battle's action list and return the action with the matching id, or NULL if there is
+ * none. */
 // FUN_001B0CC0
 /* Search the action list for its monotonically assigned ID; return NULL when absent. */
 u8 *btlActionFindById(s32 id)

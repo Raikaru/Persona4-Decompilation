@@ -1,13 +1,12 @@
 #include "byte_address_internal.h"
 #include "include_asm.h"
-/* Persona 4 USA decompilation - cmpPersona.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit cmpPersona.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
 
-/* Unit settings: extract loop invariants throughout the persona-menu callbacks.
- * measured: all 17 functions MATCH, reasserting this setting after the O2 reset below. */
+/* measured: retail hoists loop invariants throughout the persona-menu callbacks, and the setting is
+ * turned back on after the O2 reset below. */
 #pragma opt_loop_invariants on
 
 typedef struct CmpHead CmpHead;
@@ -112,13 +111,7 @@ typedef struct {
     s32 startFrame, endFrame;
 } CmpPersonaLayoutRow;
 
-/* measured: b210 -O2 with loop-invariant optimization. Independent initialization
-   counters and per-resource sprite slots retain the retail loop scopes. The
-   command-list boundary forwards a native message pointer to itfMesManager. */
-/* Initialize the party and persona grids, transition rows, sprites and portrait/wipe tasks. */
 // FUN_001356D0
-/* measured: initialization baseline has 260 differing words; pointer-traversed layout initialization also fails. */
-/* measured: earlier CmpPersonaWork typing changed 74 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPersonaMenuInit(u8* work) {
  CmpPersonaWork *menu = (CmpPersonaWork *)work;
  extern void cmpPersonaBuildRosterList(u8* work);
@@ -258,9 +251,8 @@ void cmpPersonaBuildRosterList(u8* work) {
     ((CmpPersonaWork *)((u8*)work))->personaCount = i;
 }
 
-// Advances the menu state from 0 to 1 and reports done; always returns 1 [inferred].
+// Advances the menu state from 0 to 1 and always returns 1.
 // FUN_00135CB0
-/* measured: earlier CmpPersonaWork typing changed 35 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpPersonaStateStep(u8 *work) {
     CmpPersonaWork *menu = (CmpPersonaWork *)work;
     s32 v = menu->phase;
@@ -277,10 +269,8 @@ s32 cmpPersonaStateStep(u8 *work) {
 
 /* Advance row transitions, update grid/background animations and draw the persona menu. */
 // FUN_00135CF0
-/* measured: MEMBER and CmpHead timer reloads still leave 48 words different without this override. */
-/* measured: without opt_common_subs off, mwcc CSEs (u8*)arg0 + 0x20 into a
-   callee-saved pointer (nd 40); with it off each access keeps the
-   base+offset form like retail (nd 0). */
+/* measured: with common-subexpression elimination on, the work+0x20 base is cached in a saved
+ * register; retail recomputes base+offset at each access. */
 #pragma opt_common_subs off
 s32 cmpPersonaMenuUpdate(u8* work) {
     s32 i;
@@ -304,15 +294,12 @@ s32 cmpPersonaMenuUpdate(u8* work) {
 }
 #pragma opt_common_subs on
 
-/* Draw the persona menu's two colored grids, party rows and portrait pulse.
-   Keep the position and complete RGBA snapshots shared between its draw phases.
-   measured: all 4576 bytes match in this owner. Propagation-off retains the
-   sprite and text-color snapshots; constant pulling-off preserves the retail
-   float lifetimes. The 0.3f, 0.6f and pi/2 values are recovered pooled literals,
-   not mutable runtime globals. See the recovery archive for the literal audit. */
+/* Draw the persona menu's two colored grids, party rows and portrait pulse; position and RGBA
+ * snapshots are shared between draw phases. */
 // FUN_00135DC0
 #pragma push
-/* measured: baseline draw leaves 50 differing words; isolated propagation/constant-pulling removal also fails. */
+/* measured: retail keeps the sprite and text-color snapshots and float constant lifetimes, which
+ * need propagation and constant pulling off. */
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
 void cmpPersonaMenuDraw(u8* work)
@@ -387,8 +374,7 @@ void cmpPersonaMenuDraw(u8* work)
         value = (f32)menu->motion[22].alpha * opacity;
         gridAlpha = (u8)value;
         gridSprite = menu->sprites[7];
-        /* Work-relative row loads preserve the original base/immediate form;
-           gridCell and node retain the complete 20-byte cell layout. */
+        /* Each grid row is a 20-byte cell addressed relative to the work base. */
         for (gridIndex = 0; gridIndex < 0x78; gridIndex++) {
             rowBase = work + gridIndex * 0x14;
             gridCell = (CmpPersonaGridEntry *)(rowBase + 0x64);
@@ -585,7 +571,6 @@ s32 cmpPersonaSetSelection(s16* work, s32 slotIndex, s32 selection) {
 
 /* Advance portrait/background transitions and both grid groups; clear the pulse flag at frame 25. */
 // FUN_00136FC0
-/* measured: earlier CmpPersonaWork typing changed 206 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPersonaMenuStepAnimations(u8* work) {
     CmpPersonaWork *menu = (CmpPersonaWork *)work;
     s16 pulseFrame;
@@ -609,9 +594,8 @@ void cmpPersonaMenuStepAnimations(u8* work) {
     }
 }
 
-/* measured: baseline leaves 25 differing words; direct values[i] indexing has the same stack/address residual. */
-/* measured: opt_propagation off preserves the retail stack-local value-pointer
-   address sequence (MATCH); leaving propagation on folds the +0x40 into lh. */
+/* measured: propagation off keeps retail's stack-local value pointer address computation; with it
+ * on, the offset gets folded into the load. */
 #pragma opt_propagation off
 /* Mark the 25 table-selected secondary-grid cells with randomized transition delays. */
 // FUN_001370E0
@@ -648,16 +632,12 @@ void cmpPersonaScatterGridCells(u8* work) {
 #pragma opt_propagation on
 
 
-/* measured: baseline common-subexpression settings match the setup/switch;
-   opt_loop_invariants on around the table loop reproduces the retail
-   register/constant placement (MATCH). Plain `(u16)float` casts use MWCC's
-   native overflow-safe conversion sequence (c.le.s 0x4F000000; trunc.w.s;
-   mfc1; andi 0xFFFF with the out-of-line subtract/or path). shdPersonaLevelUpRoute
-   receives the pointer loaded from 0x1CB4. The switch jump table has case 9
-   targeting the default block, so no empty case is needed. */
-/* Snapshot current row poses and apply the persona-menu layout, footer and visibility flags. */
+/* measured: retail hoists loop-invariant values out of the table loop, so loop-invariant
+ * optimization is enabled around it. Snapshots current row poses and applies the persona-menu
+ * layout, footer and visibility flags. */
+/* Switch the persona menu to a new mode: snapshot each row's current pose as the motion source,
+ * then load target poses from that mode's layout table and set the visibility and footer flags. */
 // FUN_001371A0
-/* measured: earlier CmpPersonaWork typing changed 579 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpPersonaSetMode(u8* work, s32 mode) {
     CmpPersonaWork *menu = (CmpPersonaWork *)work;
     s32 i;
@@ -735,8 +715,7 @@ s32 cmpPersonaSetMode(u8* work, s32 mode) {
         kAssertFail(D_005EB580, 0x3BA);
         break;
     }
-/* measured: opt_loop_invariants on hoists the table/dst stride multiplies
-   out of the j loop to match retail; without it the function mismatches. */
+/* measured: retail hoists the table/dst stride multiplies out of the j loop. */
     if (table != 0) {
         for (j = 0; j < 0x1C; j++) {
             src = table + j * 0x1C;
@@ -759,10 +738,8 @@ s32 cmpPersonaSetMode(u8* work, s32 mode) {
 
 /* Move nonselected party rows vertically away from the selected row and fade them out. */
 // FUN_001374D0
-/* measured: baseline/while-loop probes still differ in preheader constants (37 words). */
-/* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000
-   constants are rematerialized inside the loop (nd 39); with it they hoist
-   to the preheader like retail (nd 0). */
+/* measured: retail hoists the 200.0f/-200.0f float constants out of the loop, which needs loop-
+ * invariant optimization enabled. */
 void cmpPersonaSetPartyCursor(u8* work) {
     s32 i;
     s16 cur;
@@ -787,14 +764,11 @@ void cmpPersonaSetPartyCursor(u8* work) {
         }
     }
 }
-/* measured: see annotation above (func_001374d0). */
 
 /* Snapshot roster row poses and set the selected row's horizontal target offset to 30. */
 // FUN_00137570
-/* measured: baseline leaves 22 differing words; a named float and conditional assignment also fail. */
-/* measured: without opt_loop_invariants on, mwcc rematerializes the 0x41F00000
-   constant inside the loop body (nd 22); with it the lui hoists to the
-   preheader like retail (nd 0). */
+/* Retail hoists the 30.0f bit-pattern constant out of the loop, so it is held in a local before the
+ * loop. */
 void cmpPersonaResetRosterCursor(u8* work) {
     s32 i;
     u8* p;
@@ -813,12 +787,11 @@ void cmpPersonaResetRosterCursor(u8* work) {
     ((CmpPersonaWork *)((u8*)work))->timer = 0;
     ((CmpPersonaWork *)((u8*)work))->visible &= ~0x1000;
 }
-/* measured: see annotation above (func_00137570). */
 
 
 /* Randomize background-cell columns and delayed falling transitions, then enable the pulse flag. */
 // FUN_001375F0
-/* measured: probing O1 for retail's extra saved pointer. */
+/* measured: retail keeps an extra saved pointer that only O1 reproduces. */
 #pragma optimization_level 1
 void cmpPersonaRandomizeBackgroundCells(u8 *work)
 {
@@ -857,18 +830,15 @@ void cmpPersonaRandomizeBackgroundCells(u8 *work)
     ((CmpPersonaWork *)work)->pulseTimer = 0;
     ((CmpPersonaWork *)work)->visible |= 0x1000;
 }
-/* measured: closing O1 probe. */
 #pragma optimization_level 2
-/* Restore the unit settings after optimization_level resets the optimizer switches.
- * measured: omitting this reassertion changes 125 bytes in cmpPersonaSetRosterCursorMotion. */
+/* measured: reassert loop-invariant hoisting, since changing optimization_level resets the
+ * optimizer switches. */
 #pragma opt_loop_invariants on
 
 /* Move nonselected roster rows vertically away from the selected row and fade them out. */
 // FUN_00137740
-/* measured: baseline/while-loop probes still differ in preheader constants (37 words). */
-/* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000
-   constants are rematerialized inside the loop (nd 39); with it they hoist
-   to the preheader like retail (nd 0). */
+/* measured: retail hoists the 200.0f/-200.0f/800.0f constants out of the loop, which needs loop-
+ * invariant optimization on. */
 void cmpPersonaSetRosterCursorMotion(u8* work) {
     s32 i;
     s16 cur;
@@ -893,11 +863,9 @@ void cmpPersonaSetRosterCursorMotion(u8* work) {
         }
     }
 }
-/* measured: see annotation above (func_00137740). */
 
 /* Free menu sprites, destroy the portrait and wipe tasks, and reset the message window. */
 // FUN_001377E0
-/* measured: earlier CmpPersonaWork typing changed 75 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPersonaMenuRelease(u8* work) {
     CmpPersonaWork *menu = (CmpPersonaWork *)work;
     u8* base = work;
@@ -950,10 +918,10 @@ typedef union {
 } CmpPersonaPanel;
 
 
-
-/* measured: b210 -O2 emits 1340 exact bytes followed by four retail zero
-   alignment bytes. The menu's typed row view preserves the parent-X load
-   before the row-address addition. See the recovery archive for controls. */
+/* measured: retail pads the function with four zero alignment bytes; the typed row view loads
+ * parent X before adding the row address. */
+/* Draw one row of the persona roster. Filled slots get their status panel, level digits and
+ * selection highlight colors; slots past the persona count show only placeholder sprites. */
 // FUN_00137890
 void cmpPersonaDrawRosterRow(u8 *work, s32 rowIndex)
 {

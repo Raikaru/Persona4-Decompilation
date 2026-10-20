@@ -1,4 +1,4 @@
-/* Original translation unit sequence.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sequence.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -61,9 +61,8 @@ s32 sequenceCreate(void)
 }
 /* Stop the previous sequence and either defer the new start with copied parameters or invoke it immediately. */
 // FUN_001029A0
-/* Initial whole-work typing added address temporaries (508/496 bytes);
- * the per-access forms and shared typed pointers below preserve the match. */
-/* Request a sequence change, stopping the old sequence first. Callback symbols are separately linked interior aliases in a 0x50-byte table; keep their byte-relative function-pointer loads. */
+/* Request a sequence change, stopping the old sequence first. Callback symbols are interior aliases
+ * in a 0x50-byte table, so function pointers are loaded byte-relative. */
 void sequenceRequest(s32 sequenceId, s32 parameters, s32 parameterSize, s32 delay)
 {
     SequenceWork *sequenceState;
@@ -111,7 +110,5 @@ void sequenceRequest(s32 sequenceId, s32 parameters, s32 parameterSize, s32 dela
     ((SequenceWork *)work)->payload = NULL;
     D_005DCC64[sequenceState->current].callback (parameters);
 }
-
-
 
 

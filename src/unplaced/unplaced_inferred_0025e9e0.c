@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0025e9e0-0025ecd0 */
 
 #include "include_asm.h"
 #include "member_access.h"
@@ -33,14 +32,14 @@ extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s1
 s32 sdkSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void * pack, s32 setStates, s16 pivotX, s16 pivotY, f32 angle, f32 scaleX, f32 scaleY);
 /* Unit setting: propagate ordinary local values. */
 #pragma opt_propagation on
-// Intent: Draws a sprite node at unit scale with no size offset (wrapper of sdkSpriteDrawNow) [inferred]
+// Draws a sprite at unit scale with no pivot or rotation; wrapper of sdkSpriteDrawNow.
 // FUN_0025E9E0
 void sdkSpriteDrawNowUnscaled(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void * pack, s32 setStates) {
     sdkSpriteDrawNow(x, y, depth, rgb, alpha, recordIndex, pack, setStates, 0, 0, 0.0f, 1.0f, 1.0f);
 }
 
-/* measured: plain `(u16)(4096.0f * scaleX)` and `(u16)(4096.0f * scaleY)` casts reproduce both compiler-generated float-to-unsigned conversion paths; MATCH object 484B/window 496B. Each retail site begins `lui 0x4580; mtc1; mul.s; lui 0x4F00; mtc1; c.ole.s`, then uses low `cvt.w.s; mfc1; andi` or high `sub.s; cvt.w.s; mfc1; lui 0x8000; or; andi` before `sh`. The `or` is after `mfc1`, and the 4096.0f `mul.s` is genuine scaling. */
-// Intent: Creates a sprite node at a position with alpha, colour, texture and scale, and draws it when both scales are nonzero [inferred]
+/* Creates a sprite node with position, alpha, colour, texture and scale, and draws it when both
+ * scales are nonzero. */
 // FUN_0025EA20
 s32 sdkSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void * pack, s32 setStates, s16 pivotX, s16 pivotY, f32 angle, f32 scaleX, f32 scaleY) {
     u8 *sprite;
@@ -58,7 +57,6 @@ s32 sdkSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex
     ((SdkSpriteSample *)sprite)->angle = angle;
     ((SdkSpriteSample *)sprite)->scaleX = (u16)(4096.0f * scaleX);
     ((SdkSpriteSample *)sprite)->scaleY = (u16)(4096.0f * scaleY);
-    /* MEMBER scale zero-tests avoid the member-address hoisting measured across unsigned conversions. */
     if ((MEMBER(u16, sprite, SdkSpriteSample, scaleX) != 0) &&
         (MEMBER(u16, sprite, SdkSpriteSample, scaleY) != 0)) {
         sdkSpriteDraw(sprite, setStates);
@@ -67,8 +65,8 @@ s32 sdkSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex
     return 0;
 }
 
-/* measured: plain `(u16)(4096.0f * scaleX)` and `(u16)(4096.0f * scaleY)` casts reproduce both compiler-generated float-to-unsigned conversion paths; MATCH object 588B/window 592B. Each retail site begins `lui 0x4580; mtc1; mul.s; lui 0x4F00; mtc1; c.ole.s`, then uses low `cvt.w.s; mfc1; andi` or high `sub.s; cvt.w.s; mfc1; lui 0x8000; or; andi` before `sh`. The `or` is after `mfc1`, and the 4096.0f `mul.s` is genuine scaling. */
-// Intent: Creates a sprite node like sdkSpriteDrawNow but queues its draw as a task callback; arg4 == 1 selects the flag-1 callback [inferred]
+/* Creates a sprite node like sdkSpriteDrawNow but queues its draw as a task callback; scales are
+ * stored as 4.12 fixed point via plain (u16) casts. */
 // FUN_0025ECD0
 s32 sdkSpriteDrawQueued(f32 x, f32 y, f32 depth,
                   s32 rgb, u8 alpha, s32 recordIndex, void *pack,
@@ -91,7 +89,6 @@ s32 sdkSpriteDrawQueued(f32 x, f32 y, f32 depth,
     ((SdkSpriteSample *)sprite)->angle = angle;
     ((SdkSpriteSample *)sprite)->scaleX = (u16)(4096.0f * scaleX);
     ((SdkSpriteSample *)sprite)->scaleY = (u16)(4096.0f * scaleY);
-    /* MEMBER scale zero-tests avoid the member-address hoisting measured across unsigned conversions. */
     if (MEMBER(u16, sprite, SdkSpriteSample, scaleX) == 0) {
         goto cleanup;
     }
@@ -116,21 +113,21 @@ done:
     return 0;
 }
 
-// Intent: Queued draw callback: draws the sprite node with flag 1, then frees it [inferred]
+// Queued draw callback: draws the sprite node with flag 1, then frees it.
 // FUN_0025EC10
 void sdkSpriteDrawAndFreeFlag1(s32 drawContext, u8 *sprite) {
     sdkSpriteDraw(sprite, 1);
     sdkSpriteFreeNode(sprite);
 }
 
-// Intent: Queued draw callback: draws the sprite node with flag 0, then frees it [inferred]
+// Queued draw callback: draws the sprite node with flag 0, then frees it.
 // FUN_0025EC50
 void sdkSpriteDrawAndFreeFlag0(s32 drawContext, u8 *sprite) {
     sdkSpriteDraw(sprite, 0);
     sdkSpriteFreeNode(sprite);
 }
 
-// Intent: Queued unit-scale sprite draw (wrapper of sdkSpriteDrawQueued) [inferred]
+// Queued unit-scale sprite draw; wrapper of sdkSpriteDrawQueued.
 // FUN_0025EC90
 void sdkSpriteDrawQueuedUnscaled(f32 x, f32 y, f32 depth,
                    s32 rgb, u8 alpha, s32 recordIndex, void *pack, s32 setStates, void *queue) {

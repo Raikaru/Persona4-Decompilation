@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Kosaka/Field/k_fldFilter.c; members 001614d0-001615a0 */
 
 #include "mt_scene_internal.h"
 #include "field_event_internal.h"
@@ -62,10 +61,10 @@ s32 FldEnemyOpenTable(void)
 }
 
 #pragma push
-/* Copy the loaded enemy configuration table and expose its attack-record block. */
-/* CDVD payload/size are +0x110/+0x118; retain the native cancellation expression when materializing the payload address. */
+/* Copy the loaded enemy configuration table and expose its attack-record block. The CDVD payload
+ * address keeps retail's original pointer-arithmetic form. */
 // FUN_001615A0
-/* measured: baseline 2 differing words; block lifetimes, load snapshots did not match; retain scoped settings. */
+/* measured: retail's load order needs propagation off. */
 #pragma opt_propagation off
 s32 FldEnemyLoadTable(u8 *file)
 {

@@ -4,7 +4,7 @@
 #include "field_event_internal.h"
 #include "field_frame_internal.h"
 #include "model_motion_internal.h"
-/* Original translation unit k_fldEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldEvent.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -119,9 +119,6 @@ extern u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *, const struct RwV3d 
 extern s32 FldMap_IsCurrentInBandA(void);
 extern s32 FldMap_IsCurrentInBandB(void);
 
-/* Source unit: src/promoted/k_fldEvent.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldEvent.c; members 00171610-00175ea0 */
-
 typedef struct
 {
     s32 requiredFlags[3];
@@ -201,7 +198,6 @@ typedef struct FldEventFieldRecord {
     u8 pad04[0x84];
     s32 flags;
 } FldEventFieldRecord;
-/* measured: typing this table-base load makes FldEvent_HighlightEntry MISMATCH (normalized_diff 203). */
 #define FLD_EVT_TABLE() MEMBER(FldEvtEntry *, (u8 *)(s32)MT_Scene_GetFrameState(), FldFrame, eventTable)
 #define FLD_EVT_ENTRY(h) (&FLD_EVT_TABLE()[((FldEventWork *)(h))->selectedEvent & 0x3FF])
 /* Select paired nearby grid resources when the interaction button is pressed. */
@@ -244,13 +240,10 @@ s32 FldEvent_ScanNearbyEntries(u8 *task)
     while (p != 0) {
         nearbyResource = (ResrcRecord *)p;
     if ((((ResrcRecord *)(p))->unk28 & 2) != 0 &&
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 793); the access form below preserves MATCH. */
             K_Clump_ClumpHasMatUsrData((u8 *)mdlGetClump(nearbyResource->slotHandleValue[1]),
                           D_005F1770) != 0) {
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 793); the access form below preserves MATCH. */
             cx = (s32)((600.0f + ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, slotHandleValue[1])))))->pos.x) /
                        1200.0f);
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 793); the access form below preserves MATCH. */
             cy = (s32)((600.0f + ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, slotHandleValue[1])))))->pos.z) /
                        1200.0f);
             flag = 0;
@@ -262,7 +255,6 @@ s32 FldEvent_ScanNearbyEntries(u8 *task)
             if (flag == 1 &&
                 !(((FldFrameCell *)((u8 *)(s32)MT_Scene_GetFrameState() + t21 + t22 + 0x54))->unk0B & 0xF0)) {
                 o2 = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
-                /* Previous measurement: typing this access changed b210 output (normalized_diff 793); the access form below preserves MATCH. */
                 if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(o2), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, slotHandleValue[1]))) + 0x30), 120.0f) !=
                         0 &&
                     K_FldEvent_ArePosWithinDist((const struct RwV3d *)((u8 *)&vec), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)((s32)((ResrcRecord *)(p))->slotHandle[1])) + 0x30), 250.0f) == 1) {
@@ -285,15 +277,12 @@ s32 FldEvent_ScanNearbyEntries(u8 *task)
 found:
     q = (u8 *)MT_Scene_GetResListHead(0xA);
     while (q != 0) {
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 323); the access form below preserves MATCH. */
         if (K_Clump_ClumpHasMatUsrData((u8 *)mdlGetClump(MEMBER(s32, q, ResrcRecord, slotHandleValue[1])),
                           D_005F1780) != 0) {
             cx2 = (s32)((600.0f +
-                         /* Previous measurement: typing this access changed b210 output (normalized_diff 323); the access form below preserves MATCH. */
                          ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, q, ResrcRecord, slotHandleValue[1])))))->pos.x) /
                          1200.0f);
             cy2 = (s32)((600.0f +
-                         /* Previous measurement: typing this access changed b210 output (normalized_diff 323); the access form below preserves MATCH. */
                          ((RwMatrixTag *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, q, ResrcRecord, slotHandleValue[1])))))->pos.z) /
                          1200.0f);
             flag2 = 0;
@@ -305,7 +294,6 @@ found:
             if (flag2 == 1 &&
                 !(((FldFrameCell *)((u8 *)(s32)MT_Scene_GetFrameState() + t20 + t19 + 0x54))->unk0B & 0xF0)) {
                 o = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
-                /* Previous measurement: typing this access changed b210 output (normalized_diff 323); the access form below preserves MATCH. */
                 if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(o), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)(MEMBER(s32, q, ResrcRecord, slotHandleValue[1]))) + 0x30), 120.0f) !=
                         0 &&
                     K_FldEvent_ArePosWithinDist((const struct RwV3d *)((u8 *)&vec), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)((s32)((ResrcRecord *)(q))->slotHandle[1])) + 0x30), 250.0f) == 1) {
@@ -443,13 +431,10 @@ s32 FldEvent_FindNearbyEntry(void)
                 g = (void *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
                 t2 = (s32 *)(u8 *)mdlGetMatrix((void *)((s32)((ResrcRecord *)(p))->modelHandle164));
                 if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(g), (const struct RwV3d *)(t2 + 0xC), 120.0f) == 1) {
-                    /* Previous measurement: typing this access changed b210 output (normalized_diff 294); the access form below preserves MATCH. */
                     f20 = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, modelHandle164Value)))))->pos.x;
                     vec[0] = f20 - ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(D_007EFA00[0]))))->pos.x;
-                    /* Previous measurement: typing this access changed b210 output (normalized_diff 294); the access form below preserves MATCH. */
                     f20 = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, modelHandle164Value)))))->pos.y;
                     vec[1] = f20 - ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(D_007EFA00[0]))))->pos.y;
-                    /* Previous measurement: typing this access changed b210 output (normalized_diff 294); the access form below preserves MATCH. */
                     f20 = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(MEMBER(s32, p, ResrcRecord, modelHandle164Value)))))->pos.z;
                     vec[2] = f20 - ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)(D_007EFA00[0]))))->pos.z;
                     r = RwV3dLength(vec);
@@ -510,7 +495,6 @@ s32 FldEvent_RunKindSequence(u8 *task)
 
     h = ((SdkTask *)task)->work;
     i = 0;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
     s = MEMBER(u8 *, h, FldEventWork, npcResource);
     if (((FldEventNpcResource *)(s))->scriptKind == 1) {
         if (!(((FldEventSecondaryEntry *)(((FldEventNpcResource *)(s))->secondaryEntry))->flags & 1)) {
@@ -523,10 +507,8 @@ s32 FldEvent_RunKindSequence(u8 *task)
     } else if (((FldEventNpcResource *)(s))->scriptKind == 3) {
         i = 1;
     }
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 591); the access form below preserves MATCH. */
     switch (MEMBER(s32, h, FldEventWork, state)) {
     case 0:
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
         v = ((ResrcRecord *)(MEMBER(u8 *, h, FldEventWork, npcResource)))->handle294;
         if (v != 0 && i == 1) {
             if (fldNpcControlIsTurning(v, s) == 1) {
@@ -537,10 +519,8 @@ s32 FldEvent_RunKindSequence(u8 *task)
         FldSlotBroadcastState(1);
         (((FldEventWork *)h)->state)++;
     case 1:
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
         v = ((ResrcRecord *)(MEMBER(u8 *, h, FldEventWork, npcResource)))->handle294;
         if (v == 0 || i != 1 || fldNpcControlIsTurning(v) != 1) {
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
             FldNpcSetPositionLock(((ResrcRecord *)(MEMBER(u8 *, h, FldEventWork, npcResource)))->handle294, 1);
             s2 = ((FldEventWork *)h)->npcResource;
             if (((FldEventNpcResource *)(s2))->scriptKind == 1) {
@@ -549,7 +529,6 @@ s32 FldEvent_RunKindSequence(u8 *task)
                     tmp = (u8 *)(s32)MT_Scene_GetFrameState();
                     t2 = (s32)((FldFrame *)((s32)MT_Scene_GetFrameState()))->secondaryTableSize;
                     ((FldEventWork *)h)->scriptTask = scrStartProcedureChecked(
-                        /* Previous measurement: typing this access changed b210 output (normalized_diff 8); the access form below preserves MATCH. */
                         0xF, MEMBER(s32, tmp, FldFrame, secondaryTable), t2, t);
                 } else {
                     kAssertFail(D_005F1798, 0x3F6);
@@ -580,7 +559,6 @@ s32 FldEvent_RunKindSequence(u8 *task)
         goto ret1;
     case 2:
         if (kwlnTaskIsLinked((void *)(((FldEventWork *)h)->scriptTask)) != 1) {
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 581); the access form below preserves MATCH. */
             v = ((ResrcRecord *)(MEMBER(u8 *, h, FldEventWork, npcResource)))->handle294;
             if (v != 0 && i == 1) {
                 FldNpcControlTurnBack(v);
@@ -600,12 +578,14 @@ ret1:
     return 1;
 }
 
-/* measured: separate unsigned counters plus opt_loop_invariants reproduce the
-   retail compaction-loop register allocation and hoisted -1 sentinel (MATCH). */
-/* Pick the player surface event, enforce its flag requirements and update the interaction prompt. */
+/* measured: retail uses separate unsigned counters and hoists the -1 sentinel out of the compaction
+ * loop. Pick the player surface event, enforce its flag requirements and update the interaction
+ * prompt. */
+/* Pick the event surface under the player's model, check that event's required flags, and update
+ * the ambience panel and interaction prompt. */
 // FUN_00172360
 #pragma push
-/* measured: baseline 12 differing words; typed access, block lifetimes, branch/loop forms did not match; retain scoped settings. */
+/* measured: retail hoists loop invariants here; no source form without this setting reproduced it. */
 #pragma opt_loop_invariants on
 s32 FldEvent_SelectEntryAtPosition(u8 *task)
 {
@@ -623,11 +603,9 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
     s32 ambience;
 
     h = ((SdkTask *)task)->work;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 883); the access form below preserves MATCH. */
     MEMBER(u16, h, FldEventWork, selectedEvent) = FldFrame_PickSurfaceAtPoint(
         (u8 *)(u8 *)mdlGetMatrix((void *)((s32)((ResrcRecord *)(((FldEventWork *)h)->resource))->modelHandle164)) + 0x30,
         &out);
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 883); the access form below preserves MATCH. */
     id = MEMBER(u16, h, FldEventWork, selectedEvent);
     if (id != 0xFFFF) {
         index = id & 0x3FF;
@@ -639,7 +617,6 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
             kAssertFail(D_005F1798, 0x454);
         }
 
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 883); the access form below preserves MATCH. */
         id = MEMBER(u16, h, FldEventWork, selectedEvent);
         entry = ((FldFrame *)MT_Scene_GetFrameState())->eventTable +
                 (id & 0x3FF) * 0x2C;
@@ -648,8 +625,8 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
             return 0;
         }
 
-        /* measured: hoists the compaction-loop -1 sentinel into $v1 like retail. */
-/* measured: FldEvent_SelectEntryAtPosition MATCH -> MISMATCH without this pragma. */
+        /* measured: retail hoists the compaction loop's -1 sentinel into a register before the
+         * loop. */
         scan = (s32 *)entry;
         scan_i = 0;
         count = 0;
@@ -670,7 +647,6 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
         }
 
         ambience = ((FldEvtEntry *)entry)->ambience;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 607); the access form below preserves MATCH. */
         if (MEMBER(s32, h, FldEventWork, unknown130) != ambience) {
             ((FldEventWork *)h)->unknown130 = ambience;
             if (ambience != 0) {
@@ -731,7 +707,6 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
             return 1;
         }
     } else {
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 607); the access form below preserves MATCH. */
         if (MEMBER(s32, h, FldEventWork, unknown130) != 0) {
             ((FldEventWork *)h)->unknown130 = 0;
             FldPanel2dSelectEntry(-1);
@@ -742,14 +717,12 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
 }
 #pragma pop
 
-/* measured: restore loop-invariant optimization after FldEvent_SelectEntryAtPosition. */
-/* measured: FldEvent_StepMoveToward, FldEvent_TriggerUpdate MATCH -> MISMATCH without this pragma. */
 /* measured: retail reloads the event index after every (s32)MT_Scene_GetFrameState() call. */
 #pragma push
-/* measured: FldEvent_HighlightEntry MATCH -> MISMATCH without this pragma. */
 /* Start the selected surface event animation, transition or script and wait for completion. */
 // FUN_001727F0
-/* measured: baseline 206 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+/* measured: retail does not reuse common subexpressions in this function; typed access and block
+ * scoping could not reproduce it. */
 #pragma opt_common_subs off
 s32 FldEvent_HighlightEntry(u8 *task)
 {
@@ -767,7 +740,6 @@ s32 FldEvent_HighlightEntry(u8 *task)
                 while ((node = ((FldEventWork *)h)->selectedResource) != NULL) {
                     node = ((FldEventWork *)h)->selectedResource;
                     id = *(u16 *)node;
-                    /* Previous measurement: typing this access changed b210 output (normalized_diff 29); the access form below preserves MATCH. */
                     if (id == ((FldEvtEntry *)((((FldEventWork *)h)->selectedEvent & 0x3FF) * sizeof(FldEvtEntry) + (u8 *)FLD_EVT_TABLE()))->unk18) {
                         break;
                     }
@@ -785,7 +757,6 @@ s32 FldEvent_HighlightEntry(u8 *task)
             fclMiscStopAndClose();
             fclMiscSetDoneFlag();
             FldFrameObjSetActive((s32)((FldFrame *)((u8 *)(s32)MT_Scene_GetFrameState()))->supporterTask, 1);
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 8); the access form below preserves MATCH. */
             ((FldEventWork *)h)->scriptTask = scrStartProcedureChecked(0xF, MEMBER(s32, (u8 *)(s32)MT_Scene_GetFrameState(), FldFrame, auxBuffer),
                                                ((FldFrame *)((u8 *)(s32)MT_Scene_GetFrameState()))->auxSize, FLD_EVT_ENTRY(h)->unk10);
             ((FldEventWork *)h)->state = 3;
@@ -883,18 +854,13 @@ s32 FldEvent_WaitForFieldIdle(u8 *task)
     return 0;
 }
 
-/* measured: FldEvent_FieldToBattle MATCH -> MISMATCH without this pragma. */
-/* Recovered field-to-battle controller. Reconstructs
- * complete state transitions, party compaction, nearby-enemy selection,
- * camera snapshots, task lifetimes, and restoration of field presentation.
- * Exact 6260-byte instruction stream with 12 retail alignment bytes.
- * Shared transport, snapshot extent, reference and fixture evidence:
- * docs/probe_archive/FieldEvent_00172e00_exact_20261003.md. */
+/* measured: FldEvent_FieldToBattle needs the scoped optimizer settings below to reproduce retail
+ * code. It handles field-to-battle transitions, party compaction, nearby-enemy selection, camera
+ * snapshots and field restoration. */
 // FUN_00172E00
 #pragma push
-/* measured: FldEvent_FieldToBattle MATCH -> MISMATCH without this pragma. */
-/* measured: FldEvent_FieldToBattle MATCH -> MISMATCH without this pragma. */
-/* measured: baseline 61 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail block lifetimes in FldEvent_FieldToBattle only come out with loop-invariant
+ * hoisting on and propagation and constant pull-out off. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
@@ -1665,15 +1631,12 @@ s32 FldEvent_TriggerUpdate(u8 *task)
     s32 v;
 
     h = ((SdkTask *)task)->work;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 446); the access form below preserves MATCH. */
     MEMBER(s32, h, FldEventWork, unknown14) = 0;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 452); the access form below preserves MATCH. */
     t = MEMBER(s32, h, FldEventWork, interactionCooldown);
     if (t > 0) {
         ((FldEventWork *)h)->interactionCooldown = t - 1;
     }
     FldUnit_UpdateFieldState();
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 428); the access form below preserves MATCH. */
     if (MEMBER(s32, h, FldEventWork, resourcesReady) == 0) {
         ((FldEventWork *)h)->resourcesReady = MT_Scene_AllResFlagSet();
     }
@@ -1701,7 +1664,6 @@ s32 FldEvent_TriggerUpdate(u8 *task)
             break;
         }
     case 1:
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 183); the access form below preserves MATCH. */
         if (((s32 (*)(u8 *))D_005F17D4[MEMBER(s32, h, FldEventWork, unknown0c) * 2])(task) != 1) {
             if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
                 FldFrame_ClearStateFlags((s32)((FldFrame *)MT_Scene_GetFrameState())->cameraTask, 2);
@@ -1833,18 +1795,14 @@ void FldEvent_StepGridCell(void)
     FldStepCopyTableEntry(FldStepIndex(), column, row);
 }
 
-/* Field movement controller. Retail keeps the unused heading comparison of
- * the 45-degree step branch (`c.lt.s` with no branch after it): the dead
- * `angle += 360.0f` survives the frontend under opt_dead_assignments off and
- * only the backend drops it. FldEvent_BeginHeadingTurn is declared with its float
- * parameter before the matrix pointer: the EE ABI assigns the same registers,
- * and retail materialises $a0, $f12, $a1 in that order. Retail tests bit 0x20
- * of datCalcGetBadStatusNoDownById's $v0 (andi at 00175C30), so the local declaration returns u32
- * although the g_data.c definition is void. */
+/* Field movement controller. Retail keeps the dead angle += 360.0f compare, and
+ * datCalcGetBadStatusNoDownById is declared returning u32 because retail tests bit 0x20 of its
+ * result. */
 #pragma push
-/* measured: FldEvent_StepMoveToward MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the dead heading assignment, which only survives with dead-assignment
+ * removal off. */
 // FUN_00174E10
-/* measured: baseline 513 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+/* measured: retail block lifetimes need dead-assignment removal off for this function. */
 #pragma opt_dead_assignments off
 s32 FldEvent_StepMoveToward(u8 *task)
 {
@@ -1932,7 +1890,6 @@ s32 FldEvent_StepMoveToward(u8 *task)
     }
     f20 = 0.0f;
     {
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 2742); the access form below preserves MATCH. */
         s32 t = MEMBER(s32, h, FldEventWork, unknown138);
         if (t != 0 && kwlnTaskIsLinked((void *)(t)) == 0) {
             ((FldEventWork *)h)->unknown138 = 0;
@@ -2056,7 +2013,6 @@ bigmove:
             f32 ang = -func_0044b950(cameraMatrix.right.z, cameraMatrix.right.x);
             f21 = (180.0f * ang) / gPI;
         }
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 56); the access form below preserves MATCH. */
         modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)mdlGetClumpFrame(((ResrcRecord *)(MEMBER(s32, h, FldEventWork, resource)))->modelHandle164)))->modelling;
         func_003e0670(&modelMatrix, &modelMatrix);
         {
@@ -2079,7 +2035,6 @@ bigmove:
         if (f20 < 0.0f) {
             f20 += 360.0f;
         }
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 902); the access form below preserves MATCH. */
         if (FldEvent_IsHeadingTurning(MEMBER(u8 *, h, FldEventWork, fieldEffect)) == 1) {
             return 0;
         }
@@ -2088,18 +2043,14 @@ bigmove:
         mat.right.y = mat.right.z = mat.up.x = 0.0f;
         mat.up.z = mat.at.x = mat.at.y = 0.0f;
         mat.pos.x = mat.pos.y = mat.pos.z = 0.0f;
-        /* Retail 00175944 reads the prior local flags before ORing 0x20003,
-         * matching the SDK identity macro. Deliberately retain this observed
-         * uninitialized read; no initializer is present on the retail path.
-         * The three SDK padding words are also left untouched, as in retail. */
+        /* Retail ORs 0x20003 into the uninitialized flags like the SDK identity macro, with no
+         * initializer; the padding words are also left untouched. */
         mat.flags |= 0x20003;
         RwMatrixRotate(&mat, &D_00756510, f21, 1);
         RwMatrixRotate(&mat, &D_00756510, f23, 1);
         {
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 902); the access form below preserves MATCH. */
             ret16 = FldEvent_BeginHeadingTurn(MEMBER(u8 *, h, FldEventWork, fieldEffect), f20, &mat, f21 + f23);
             if (FldEvent_IsHeadingTurning((u8 *)((FldEventWork *)h)->fieldEffect) == 0) {
-                /* Previous measurement: typing this access changed b210 output (normalized_diff 56); the access form below preserves MATCH. */
                 FldFrameTask_SetOrientation((u8 *)((ResrcRecord *)(MEMBER(s32, h, FldEventWork, resource)))->handle220, (u8 *)&mat);
                 {
                     f32 len = RwV3dLength(&move.x);
@@ -2121,10 +2072,8 @@ bigmove:
         D_007243DC = f22;
         if (ret16 == 0) {
             if (f22 <= 13.0f) {
-                /* Previous measurement: typing this access changed b210 output (normalized_diff 592); the access form below preserves MATCH. */
                 s32 cur = MEMBER(s32, h, FldEventWork, movementAnimation);
                 if (cur != FldMoveAnimPrimary(1)) {
-                    /* Previous measurement: typing this access changed b210 output (normalized_diff 571); the access form below preserves MATCH. */
                     s32 c = MEMBER(s32, h, FldEventWork, animationDelay);
                     if (c < 2) {
                         ((FldEventWork *)h)->animationDelay = c + 1;
@@ -2135,10 +2084,8 @@ bigmove:
                     }
                 }
             } else {
-                /* Previous measurement: typing this access changed b210 output (normalized_diff 592); the access form below preserves MATCH. */
                 s32 cur = MEMBER(s32, h, FldEventWork, movementAnimation);
                 if (cur != FldMoveAnimSecondary(1)) {
-                    /* Previous measurement: typing this access changed b210 output (normalized_diff 571); the access form below preserves MATCH. */
                     s32 c = MEMBER(s32, h, FldEventWork, animationDelay);
                     if (c < 2) {
                         ((FldEventWork *)h)->animationDelay = c + 1;
@@ -2149,7 +2096,6 @@ bigmove:
                     }
                 }
             }
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 460); the access form below preserves MATCH. */
             if (MEMBER(s32, h, FldEventWork, motionState) == 0) {
                 mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164, 0, (s16)((FldEventWork *)h)->movementAnimation, 6, 1);
                 ((FldEventWork *)h)->motionState = 1;
@@ -2165,19 +2111,15 @@ smallmove:
         s32 c148;
         ret16 = 0;
         D_007243DC = 0.0f;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 403); the access form below preserves MATCH. */
         c150 = MEMBER(s32, h, FldEventWork, stopFrames);
         if (c150 < 4) {
             ((FldEventWork *)h)->stopFrames = c150 + 1;
             return 0;
         }
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 376); the access form below preserves MATCH. */
         if (MEMBER(s32, h, FldEventWork, idleFrames) == 0) {
             mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164, 0, (s16)FldCharacterAnimSelect(1), 4, 1);
         }
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 376); the access form below preserves MATCH. */
         c148 = MEMBER(s32, h, FldEventWork, idleFrames) + 1;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 376); the access form below preserves MATCH. */
         MEMBER(s32, h, FldEventWork, idleFrames) = c148;
         if (c148 == 0x3C) {
             ((FldEventWork *)h)->motionState = 1;
@@ -2189,18 +2131,15 @@ smallmove:
         }
         movementWork = (FldEventWork *)h;
     if (FldStepIndex() != 0) {
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 56); the access form below preserves MATCH. */
             s16 cur = mdlGetLayerAnimation((s32)((ResrcRecord *)(MEMBER(s32, h, FldEventWork, resource)))->modelHandle164, 0);
             if (cur == FldPlayerRandomIdleAnimId(1) && ((MdlFileModel *)((s32)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164))->finished == 1) {
                 ((FldEventWork *)h)->motionState = 1;
             }
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 56); the access form below preserves MATCH. */
         } else if (mdlGetLayerAnimation((s32)((ResrcRecord *)((s32)movementWork->resource))->modelHandle164, 0) < 6) {
         } else if (((MdlFileModel *)((s32)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164))->finished != 1) {
         } else {
             ((FldEventWork *)h)->motionState = 1;
         }
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 460); the access form below preserves MATCH. */
         if (MEMBER(s32, h, FldEventWork, motionState) == 1) {
             mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)((s32)((FldEventWork *)h)->resource))->modelHandle164, 0, (s16)FldCharacterAnimSelect(1), 8, 1);
             ((FldEventWork *)h)->motionState = 0;

@@ -48,18 +48,13 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 0048ec50-0048ec50 */
-
 extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
 extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
 extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
 extern void EffMotionEmitterUpdate(u8 *emitterData);
 extern void mdlEffectUpdateOrbitEmitter(u8 *emitterData);
-/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
- * eight zero alignment bytes. IDA retains the result that Ghidra drops:
- * retail leaves the copied quadword in v0 through return. Preserve that
- * live-out; the current C callers discard it. The four hardware vf0 stores
- * produce (0,0,0,1), not a zero quadword. */
+/* measured: retail leaves the copied quadword in the return register; the four vf0 stores produce
+ * (0,0,0,1), not zero. */
 #pragma push
 #pragma pop
 #pragma push
@@ -68,66 +63,36 @@ extern void mdlEffectUpdateOrbitEmitter(u8 *emitterData);
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off keeps `alloc` live in $s1 across all three
-   allocations instead of re-materialising the table address at the first use. */
-/* measured: closes the propagation bracket; the file default is on. */
-    /* measured: O1 probe for initial flag and aggregate register colours. */
-    /* measured: closes O1 probe for initial flag and aggregate register colours. */
-/* measured: opening optimization_level 1 for the parked 00486970 body. */
-/* measured: closes optimization_level 1 for the parked 00486970 body. */
-/* Measured with b210 -O2: keeping the trace/diagonal stages and the scaled
-   root as distinct lifetimes reproduces the scalar calculation. Propagation
-   and common-subexpression elimination otherwise merge the identity
-   constants and discard the root copy before register coalescing. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off tested for target subtraction scheduling. */
-/* measured: restore opt_propagation after func_0048aff0. */
+/* measured: propagation is turned off here so the subtraction is scheduled in the same order as
+ * retail. */
 #pragma push
-/* measured: split the two counter webs, but preserve the native-asm cursor. */
+/* measured: this splits the two counter variables while keeping the inline-asm cursor. */
 #pragma pop
-/* Measured: these scoped settings preserve the recovered wave update
- * evaluation order and the complete retail 2652-byte executable body. */
+/* measured: these settings keep retail's evaluation order in the wave update. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Ported from the matched sibling func_0048d8c0: function-scope u8
- * initialPreroll, `!(x <= 0)` first rand-scale arms, shift-based particle
- * index, `mode9C != 2` first, snapshot pointer, stack vectors declared from
- * the highest frame slot down, and the config quads copied through $2.
- * The loop constants are assigned after the preroll in retail's hoist order.
- * b210 colours the saved FPRs from the highest-numbered local down, each
- * taking the lowest free register, and numbers locals by declaration: so
- * `a` (retail $f28) is declared first, then eF0val, eECval, `c` ($f25,
- * which also carries the v14 sample and the else-branch angle), and the
- * constants one..half ($f24-$f20). */
+/* Same shape as sibling func_0048d8c0: loop constants are assigned after the preroll in retail's
+ * hoist order, and locals are declared in retail's register order. */
 #pragma push
 #pragma pop
-/* Taken from the matched sibling EffMotionEmitterUpdate: the loop constants are
- * locals assigned after the preroll in retail's hoist order (one, orbit,
- * zero, half, two, tilt, angle, -1) and declared in its FPR order. `c`
- * carries the first, fifth and sixth scale (retail $f30) and `a` the second
- * and third ($f31). The 0x140 vector exists only for its retail w=0 store.
- * The config[0] snapshot at 0x0048D96C is an lq/sq that names $2, as in
- * func_00485630; the $2 def also frees $v0 for retail's saved20/mode9C
- * spill stores. */
+/* Same shape as sibling EffMotionEmitterUpdate; the 0x140 vector exists only for its retail w=0
+ * store. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Angular cone emitter. The symmetric random phase is produced before
- * the signed angle-span conversion, retaining the retail multiply order.
- * Direction, aligned XYZ scale representation and snapshots own complete
- * storage; all scalar integration and traversal remain ordinary C.
- * Proof: docs/probe_archive/Cone_angle_0048ec50_20261005/README.md.
- * Native b210: 2308/2320 bytes, 23 resolved references, twelve zero tail bytes. */
+/* Angular cone emitter; the symmetric random phase is computed before the signed angle-span
+ * conversion, keeping retail's multiply order. */
 // FUN_0048EC50
 #pragma push
-/* measured: EffConeAngleEmitterUpdate MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 1152B; adjacent-local declaration probe nd 1152B; retain settings for owner MATCH. */
+/* measured: retail code generation for EffConeAngleEmitterUpdate needs copy propagation disabled
+ * here. */
 #pragma opt_propagation off
-/* measured: EffConeAngleEmitterUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: retail code for this function needs loop-invariant hoisting on. */
 #pragma opt_loop_invariants on
 void EffConeAngleEmitterUpdate(u8 *emitterData)
 {
@@ -150,7 +115,6 @@ void EffConeAngleEmitterUpdate(u8 *emitterData)
     u32 count;
     u32 flags;
     u8 *particle;
-    /* measured: angleScale retain array addressing for MATCH. */
     f32 *state;
     u8 *parameters;
     u8 *const emitter = emitterData;
@@ -436,7 +400,6 @@ main_check:
         goto main_body;
     }
 }
-
 
 
 #pragma pop

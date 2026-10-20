@@ -35,7 +35,6 @@ typedef struct {
 } UnkStruct_002865E0;
 
 
-
 extern u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary,
                          u8 *secondary, u8 *overlay);
 extern char D_0063C340[];
@@ -48,15 +47,11 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 
 
-
-
 extern u8 iGpffffa790;
 
 extern s32 D_008825F0[10];
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0028; members 002853b0-002853f0 */
 
 /* Empty event callback; the caller receives success. */
 // FUN_002853B0
@@ -70,9 +65,7 @@ void evtLookupTask(void) {
     kwlnTaskGetTaskByName(&iGpffffa790);
 }
 
-/* measured: retail hoists the lookup table address before the search loop. */
-/* measured: evtKeyIndex MATCH -> MISMATCH without this pragma. */
-/* measured: baseline and named table-pointer probes differ; retain retail table-address hoisting. */
+/* measured: retail hoists the lookup table address out of the search loop. */
 #pragma opt_loop_invariants on
 // Event key table: index of 'arg0' in the 58-entry key table, 0 when absent.
 // FUN_002853F0

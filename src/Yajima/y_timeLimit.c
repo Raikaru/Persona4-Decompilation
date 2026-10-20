@@ -1,5 +1,4 @@
 #include "operand_order_internal.h"
-/* Source unit: src/Yajima/y_timeLimit_002a2340.c */
 #include "include_asm.h"
 #include "type.h"
 #include "name_entry_internal.h"
@@ -18,8 +17,8 @@ extern void *memset(void *dst, int value, u32 size);
 extern char *strcat(char *dst, const char *src);
 
 
-
-// Intent: resets the time-limit globals: the two string buffers, the counters and the shared 0x12-byte tables. Called from nEntry.c.
+// Reset the time-limit globals: the two string buffers, the counters and the shared 0x12-byte
+// tables. Called from nEntry.c.
 // FUN_002A2340
 void yTimeLimitReset(void)
 
@@ -45,8 +44,7 @@ void yTimeLimitReset(void)
 }
 
 
-
-// Intent: clears a track's state (fields 0x80..0x94). Returns 1 when the track pointer is null.
+// Clear a track's state fields; returns 1 when the track pointer is null.
 // FUN_002A2780
 u8 yTimeTrackClear(s32 track)
 
@@ -62,7 +60,6 @@ u8 yTimeTrackClear(s32 track)
   ((NameTweenState *)track)->total = 0;
   return 0;
 }
-
 
 
 /* Append a two-dimensional key, clamping duration to one frame and queueing
@@ -125,13 +122,11 @@ yTimeTrackAppendKey(f32 rate,s32 track,s32 startX,s32 startY,s32 endX,s32 endY,
 }
 
 
-
-
-
 extern f32 sinf(f32 fparg0);
 extern f32 fGpffff8110;
 extern f32 fGpffff8094;
-// Intent: advance one frame through delay, interpolation and hold; return 2 when finished, 1 while advancing, 0 when inactive, or -1 for null.
+// Advance one frame through delay, interpolation and hold; return 2 when finished, 1 while
+// advancing, 0 when inactive, or -1 for null.
 // FUN_002A2980
 u32 yTimeTrackAdvance(s32 track)
 {
@@ -204,7 +199,8 @@ u32 yTimeTrackAdvance(s32 track)
   state->timer = state->timer + 1;
   return 1;
 }
-// Intent: copies the current key's (x, y) pair into the output. Returns 1 for a null track, 2 when the track has no keys, 0 on success.
+// Copy the current key's (x, y) pair into output; returns 1 for null track, 2 when there are no
+// keys, 0 on success.
 // FUN_002A2C10
 u32 yTimeTrackCurrentKey(s32 track,f32 *output)
 {
@@ -225,8 +221,7 @@ u32 yTimeTrackCurrentKey(s32 track,f32 *output)
 }
 
 
-
-// Intent: return 1 while the finished mask (0x2) is clear; a null track returns 0.
+// Return 1 while the finished mask (0x2) is clear; a null track returns 0.
 // FUN_002A2C70
 s32 yTimeTrackIsNotDone(s32 track)
 
@@ -243,8 +238,7 @@ s32 yTimeTrackIsNotDone(s32 track)
 }
 
 
-
-// Intent: returns 1 when the track's active flag (bit 1 of 0x8C) is clear; a null track counts as idle.
+// Return 1 when the track's active flag is clear; a null track counts as idle.
 // FUN_002A2CA0
 s32 yTimeTrackIsIdle(s32 track)
 
@@ -261,8 +255,8 @@ s32 yTimeTrackIsIdle(s32 track)
 }
 
 
-
-// Intent: returns the track's progress in 0..1: 1.0 when done, 0.0 when inactive, else the fraction through its key table.
+// Return track progress in 0..1: 1.0 when done, 0.0 when inactive, else the fraction through its
+// key table.
 // FUN_002A2CD0
 f32 yTimeTrackProgress(s32 track)
 {

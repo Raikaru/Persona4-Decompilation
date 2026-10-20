@@ -54,7 +54,6 @@ extern u8 D_00714144[];
 extern u8 *func_003e9c10(u8 *input, const f32 *translation, s32 combineOp);
 
 
-
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
  
@@ -69,7 +68,8 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- callers need the (u16, s32) shape; the definition's (s32, void *) signature
+// changes their code.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -78,18 +78,7 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a77b0-004a7830 */
-
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
-/* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
-/* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
-/* measured: loop-invariant hoisting recovers the shared fade constants and
-   replication strides. The 4-byte color assignment preserves retail's
-   load-all/store-all byte copy. Separate loop locals keep the saved-register
-   allocation exact. */
-/* measured: restores the file's O2 loop-invariant baseline. */
-/* measured: testing loop-invariant hoisting for the retail preheader. */
-/* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 /* Clear shake state, create its frame and attach that frame to the active camera frame. */
 // FUN_004A77B0
 void mdlEffectInitializeShakeFrame(void) {
@@ -103,41 +92,29 @@ void mdlEffectInitializeShakeFrame(void) {
     D_00724C78[0] = 0.0f;
     D_00724C7C = 0.0f;
     D_00724C70 = func_003e9320();
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     func_003e9830(D_00724C70, *(s32 *)&((MdlEffectCamera *)(u32)kwlnGetCamera())->frame);
 }
 
-/* Matched: 7 -> 2 -> 0 fnalign edits; 532/544 bytes, frame 0x70.
- * CSE/propagation off preserve the amplitude and scalar snapshots. Level 3's
- * early copy coalescer (004be350) removes weightedRandom's FCOPY before the
- * MULA peephole, leaving signZero between MULA and MADD as in retail.
- * Disable scheduling, loop-invariant hoisting and loop rotation. Keep the
- * magnitude/sign-reference/current declaration order for $f3/$f2/$f1.
- * The magnitude does not need an artificial post-comparison lifetime. */
-/* Randomize and clamp the two shake displacements, then translate the retained camera-relative frame. */
-/* measured: separate displacement magnitude and isolated CSE removal still differ (best baseline nd 289 bytes); retain all three toggles. */
+/* Randomize and clamp the two shake displacements, then translate the retained camera-relative
+ * frame. */
 // FUN_004A7830
-/* measured: isolate this zero-edit pipeline from the other 91 functions. */
 #pragma push
-/* measured: O3 coalesces the partial-product copy before MULA formation. */
-/* measured: func_004a7830 MATCH -> MISMATCH without this pragma. */
+/* measured: O3 merges the partial-product copy before the multiply-accumulate forms, as retail
+ * does. */
 #pragma optimization_level 3
-/* measured: retain retail instruction order and unfilled delay slots. */
-/* measured: func_004a7830 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps its original instruction order and leaves branch delay slots unfilled. */
 #pragma schedule off
-/* measured: keep the half-value and zero materializations inside the loop. */
-/* measured: func_004a7830 MATCH -> MISMATCH without this pragma. */
+/* measured: retail recomputes the half-value and the zero constant inside the loop instead of
+ * hoisting them out. */
 #pragma opt_loop_invariants off
-/* measured: disabling the extra preheader test closes the final 5 edits. */
-/* measured: func_004a7830 MATCH -> MISMATCH without this pragma. */
+/* measured: retail has no extra preheader test before the loop, so loop rotation stays off. */
 #pragma opt_rotateloops off
-/* measured: retain the baseline call/return policy in the zero-edit O3 scope. */
+/* measured: retail uses normal calls and returns here, not tail calls. */
 #pragma tailcall off
 /* measured: preserve the declared magnitude instead of CSE's late ABS temp. */
-/* measured: func_004a7830 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-/* measured: preserve the pre-RNG half-value and explicit load snapshots. */
-/* measured: func_004a7830 MATCH -> MISMATCH without this pragma. */
+/* measured: keeps the half-value computed before the RNG call and the explicit load snapshots from
+ * being propagated away. */
 #pragma opt_propagation off
 void mdlEffectUpdateShakeFrame(void)
 {
@@ -183,7 +160,6 @@ void mdlEffectUpdateShakeFrame(void)
             axisDisplacement = (f32 *)((u8 *)D_00724C78 + axisOffset);
             displacement = *axisDisplacement;
             magnitude = fabsf(displacement);
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
             if (!(magnitude < (amplitude * *(axisThreshold = (f32 *)((u8 *)initial + axisOffset))))) {
                 if (displacement <= signZero) {
                     *axisDisplacement = displacement + step;

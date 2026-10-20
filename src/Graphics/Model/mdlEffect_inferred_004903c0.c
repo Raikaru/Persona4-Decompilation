@@ -21,20 +21,16 @@ typedef struct {
 extern Code1_0049Color iGpffffbb64;
 
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 004903c0-004903c0 */
-
-/* Ported from the Cone emitter (EffConeEmitterUpdate): the same
- * owner identity, loop constants, clear-loop and snapshot shapes. The scale
- * locals are declared in retail FPR order (variation, E8, E4, F4, D8). The
- * live-particle height is read from VF10 through $v0 (qmfc2/prot3w), and
- * the floor blend and downward speed use a named product operand. */
+/* Same shape as the cone emitter (EffConeEmitterUpdate); scale locals are declared in retail
+ * register order. */
 #pragma push
-/* measured: func_004903c0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail code for this function needs propagation off. */
 #pragma opt_propagation off
-/* measured: func_004903c0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail code for this function needs loop-invariant hoisting on. */
 #pragma opt_loop_invariants on
-/* Emit downward cone particles, reflecting their vertical motion against the configured floor. */
-/* measured: baseline removal and a structured primary loop still differ (best isolated nd 941 bytes); retain both toggles. */
+/* Emit downward cone particles, reflecting their vertical motion against the configured floor. ) (
+ * measured: retail code generation needs both propagation off and loop invariants on; a structured
+ * primary loop does not reproduce it. */
 // FUN_004903C0
 void mdlEffectUpdateFloorEmitter(u8 *emitterData)
 {
@@ -53,7 +49,7 @@ void mdlEffectUpdateFloorEmitter(u8 *emitterData)
     u32 count;
     u32 flags;
     u8 *particle;
-    /* measured: sizeScale, angleOffset, angleScale retain array addressing for MATCH. */
+    /* sizeScale, angleOffset and angleScale stay as array accesses, as retail addresses them. */
     f32 *state;
     u8 *parameters;
     u8 *const emitter = emitterData;
@@ -304,7 +300,6 @@ main_check:
         goto main_body;
     }
 }
-
 
 
 #pragma pop

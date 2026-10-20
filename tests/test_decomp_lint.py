@@ -340,6 +340,26 @@ void func_00123456(void) { }
 """)
         self.assertNotIn("H003", codes(findings))
 
+    def test_one_waiver_covers_a_run_of_pragma_settings(self) -> None:
+        findings = lint_text("""#pragma push
+// measured: retail reloads the count and hoists the loop bound.
+#pragma opt_propagation off
+#pragma opt_lifetimes on
+#pragma opt_loop_invariants on
+void func_00123456(void) { }
+#pragma pop
+""")
+        self.assertNotIn("H003", codes(findings))
+
+    def test_a_pragma_run_waiver_stops_at_code(self) -> None:
+        findings = lint_text("""// measured: retail reloads the count.
+#pragma opt_propagation off
+int counter;
+#pragma opt_loop_invariants on
+void func_00123456(void) { }
+""")
+        self.assertEqual([f.line for f in findings if f.code == "H003"], [4])
+
     def test_lint_allow_other_code_leaves_volatile_firing(self) -> None:
         findings = lint_text("""void func_00123456(void)
 {

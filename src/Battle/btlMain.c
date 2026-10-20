@@ -1,7 +1,6 @@
 #include "member_access.h"
 #include "dat_skill_entry_internal.h"
 #include "model_battle_internal.h"
-/* Source unit: src/Battle/btlMain_001b5e60.c */
 #include "include_asm.h"
 #include "type.h"
 #include "btl_packet_create_internal.h"
@@ -10,8 +9,7 @@
 #include "btl_unit_internal.h"
 #include "btl_action_internal.h"
 
-/* Unit settings: extract loop invariants throughout the battle-main callbacks.
- * measured: all 27 functions MATCH with this shared setting. */
+/* measured: the battle-main callbacks are built with loop invariant extraction on. */
 #pragma opt_loop_invariants on
 
 /* Packet 0x606 (0x10 bytes) and 0x607 (8 bytes), filled by their factories. */
@@ -43,11 +41,11 @@ typedef int (*code)();
 BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 
 extern u32 btlMainFieldColorFadePacketUpdate(void* workData);
-extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
+extern f32 fGpffff81f4;
 
 u32 btlMainUpdateCameraLerp(void* work);
 typedef struct BtlMainColorWork BtlMainColorWork;
-extern u32 btlMainUpdateColorWork(BtlMainColorWork* work); /* retail update target */
+extern u32 btlMainUpdateColorWork(BtlMainColorWork* work);
 u32 btlMainUpdateFade(void* workRaw);
 typedef struct BtlMainLerpWork
 {
@@ -140,11 +138,11 @@ extern u_long128 D_00922C60[4];
 extern f32 D_00922CA0[8];
 extern s32 D_00922CC0[];
 extern void mdlBlendTranslationRotation(f32* result, f32* from, f32* to, f32 blend);
-extern f32 fGpffff80c0; /* P4 gp -0x7f40 */
-extern f32 fGpffff80c8; /* P4 gp -0x7f38 */
-extern f32 fGpffff81a4; /* P4 gp -0x7e5c */
+extern f32 fGpffff80c0;
+extern f32 fGpffff80c8;
+extern f32 fGpffff81a4;
 
-extern f32 fGpffff8434; /* P4 gp -0x7bcc */
+extern f32 fGpffff8434;
 
 extern void btlMainEvalLinearPosition(u8* curve, f32* position, f32 time);
 extern void btlMainEvalBezierPosition(u8* curveWork, f32* position, f32 time);
@@ -157,7 +155,7 @@ extern f32 fGpffff8344;
 extern f32 fGpffff843c;
 extern f32 fGpffff8440;
 extern void btlMainEvalSlerpRotation(u8* curve, f32* rotation, f32 time);
-extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
+extern f32 fGpffff8438;
 
 
 /* Finish battle shutdown once both unit records and sound playback are drained, then clear the active
@@ -204,8 +202,7 @@ BtlPacket* btlMainCreateColorLerpPacket(u32 startColor, u32 targetColor, u32 dur
 }
 
 
-/* measured: opt_propagation off preserves the retail grouped first-vector products. */
-/* measured: baseline nd318; scoped locals, inverted if/else did not match (best nd318); retain opt_propagation off. */
+/* measured: opt_propagation off keeps retail's grouped first-vector products. */
 #pragma opt_propagation off
 /* Interpolate the saved scene color pair over the packet duration; return one when the endpoint is
  * installed. */
@@ -293,7 +290,6 @@ u32 btlMainUpdateCameraLerp(void* work)
     lerpWork->currentFrame++;
     return 0;
 }
-/* measured: restore propagation after btlMainUpdateCameraLerp. */
 #pragma opt_propagation on
 /* Create the scene-color interpolation packet and store its unsigned frame duration. */
 // FUN_001B7E20
@@ -308,10 +304,9 @@ BtlPacket* btlCreateTimingPacket(u32 value)
 }
 
 
-/* measured: opt_loop_invariants on hoists the unit-loop byte constants into the retail preheader registers. */
-/* measured: baseline nd344; scoped locals, inverted if/else did not match (best nd344); retain opt_loop_invariants on. */
-/* Snapshot scene colors and rotation, update unit light modes, then interpolate three color vectors.
- * Model RGB selection bytes are updated when the packet is first processed. */
+/* measured: opt_loop_invariants stays on so retail hoists the unit-loop byte constants before the
+ * loop. Snapshots scene colors and rotation, updates unit light modes, then interpolates three
+ * color vectors. */
 // FUN_001B7E70
 u32 btlMainUpdateColorWork(BtlMainColorWork* work)
 {
@@ -457,8 +452,7 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
         }
     }
 
-    /* measured: opt_propagation off preserves the retail grouped interpolation products. */
-/* measured: baseline nd344; scoped locals, inverted if/else did not match (best nd344); retain opt_propagation off. */
+    /* measured: opt_propagation off keeps retail's grouped interpolation products. */
 #pragma opt_propagation off
     totalFrames = work->totalFrames;
     currentFrame = work->currentFrame;
@@ -521,7 +515,6 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
     work->currentFrame++;
     return 0;
 }
-/* measured: restore propagation after btlMainUpdateColorWork. */
 #pragma opt_propagation on
 /* Unpack three RGBA colors into a color-work packet and record duration and mode flags. */
 // FUN_001B83F0
@@ -559,9 +552,8 @@ BtlPacket* btlMainCreateColorWorkPacket(s32 lightColor, s32 ambientColor, s32 fo
 }
 
 
-/* The five-vector work record matches the constructor's 0x5C allocation.
- * Both alpha contributions are weighted before their sum, preserving the
- * retail multiply-accumulate chain and the rounding constants' lifetimes. */
+/* Five-vector work record sized for the constructor's 0x5C allocation; both alpha contributions are
+ * weighted before being summed. */
 typedef struct BtlMainFadeWork
 {
     RwV4d from0;
@@ -585,9 +577,9 @@ static inline void btlMainColorToVector(RwV4d *out, const BtlCameraPalette *colo
 
 /* Hoist the unit loop's color-conversion constants, as in retail. */
 // FUN_001B87E0
-/* measured: baseline nd2002; object/dispatch locals, inverted if/else did not match (best nd2002); retain opt_loop_invariants on. */
-/* Fade scene and unit colors toward the current palette, switching model light modes at the midpoint.
- * Measured: MEMBER model reloads change MATCH in access-site, local-pointer and array forms. */
+/* measured: retail hoists the loop-invariant color constants out of the unit loop, so loop-
+ * invariant optimization stays on. Fade scene and unit colors toward the current palette, switching
+ * model light modes at the midpoint. */
 u32 btlMainUpdateFade(void *workRaw)
 {
     BtlMainFadeWork *work = (BtlMainFadeWork *)workRaw;
@@ -865,8 +857,8 @@ BtlPacket* btlMainCreateTintPacket(u32 targetColor, u32 duration)
 }
 
 
-/* measured: opt_common_subs off preserves the retail per-component scale reloads. */
-/* measured: baseline nd432; scoped locals, inverted if/else did not match (best nd427); retain opt_common_subs off. */
+/* measured: retail reloads the scale for each color component instead of reusing a common
+ * subexpression. */
 #pragma opt_common_subs off
 /* Fade the current sky tint to the live default RGBA value and report completion after the endpoint
  * write. */
@@ -920,7 +912,6 @@ u32 btlMainUpdateColorFade(void* work)
     colorWork->currentFrame++;
     return 0;
 }
-/* measured: restore common-subexpression optimization after btlMainUpdateColorFade. */
 #pragma opt_common_subs on
 /* Create a timed sky-tint fade back to the current default color. */
 // FUN_001B99A0
@@ -937,14 +928,11 @@ BtlPacket* btlMainCreateColorFadePacket(s32 arg)
 
 typedef struct BtlUnit BtlUnit;
 extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
-/* Measured: all 1008 bytes and five relocations match.
- * Keep the word selector and row base separate: the base load precedes
- * index arithmetic. Work counters and list links remain callback reloads. */
-/* measured: baseline nd347; scoped locals, inverted if/else did not match (best nd347); retain opt_loop_invariants on. */
+/* The word selector and row base stay separate because the base load comes before the index
+ * arithmetic; work counters and list links are reloaded after callbacks. */
 extern u8 *iGpffffb3b8;
 extern s32 btlActionHasNoTargetClass(u32 action);
-/* Fade unrelated unit groups while preserving the acting unit and selected target groups.
- * Measured: MEMBER count, acting-unit and timer accesses require byte-alias reloads; all three typed forms differ. */
+/* Fade unrelated unit groups while preserving the acting unit and selected target groups. */
 // FUN_001B99F0
 u32 btlMainUpdateUnitTint(void *work)
 {
@@ -1092,8 +1080,8 @@ BtlPacket* btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u
 }
 
 
-/* Raise drawable unit alpha to the fade threshold unless the battle transition guard blocks updates.
- * Measured: both MEMBER timer accesses differ in access-site, local-pointer and array forms. */
+/* Raise drawable unit alpha to the fade threshold unless the battle transition guard blocks
+ * updates. */
 // FUN_001B9E50
 u32 btlMainUpdateUnitAlphaFade(void* work)
 {
@@ -1171,9 +1159,7 @@ BtlPacket* btlMainCreateColorSetPacket(s32 arg)
 }
 
 
-/* Append an optional position/quaternion to the four-key ring and mirror position into the spline.
- * Measured: direct curveKeys addressing changes MATCH; retain integer-address copies and raw ring
- * writes. */
+/* Append an optional position/quaternion to the four-key ring and mirror position into the spline. */
 // FUN_001BA9E0
 u32 btlMainCurveAppendKeyframe(u16 *curve, f32 *position, f32 *rotation)
 {
@@ -1294,8 +1280,7 @@ void btlMainCurveReset(u16 *curve, f32 *pose)
 }
 
 
-/* Seed four keys from two endpoint poses and their one-third/two-third interpolants. Measured: typed
- * count reloads change MATCH; keep raw ring writes and callback-visible count checks. */
+/* Seed four keys from two endpoint poses and their one-third/two-third interpolants. */
 // FUN_001BAC20
 void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
 {
@@ -1467,12 +1452,9 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
 }
 
 
-/* Three poses form four keys: first, two-thirds toward the middle,
-   one-third toward the last, then last. Curve writes precede quaternion
-   reloads, including when an input aliases spline storage.
-   Measured: 984/992B, eight resolved relocations, eight zero-tail bytes. */
-/* Seed four keys from three poses, interpolating the interior pair around the middle pose. Measured:
- * typed count reloads change MATCH; keep raw ring writes and callback-visible count checks. */
+/* Builds four curve keys from three poses: first, two-thirds toward the middle, one-third toward
+ * the last, then last. Curve writes come before quaternion reloads, even when an input aliases
+ * spline storage. */
 // FUN_001BAFF0
 void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 *lastPose, u16 mode)
 {
@@ -1642,10 +1624,8 @@ void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 
         curve[0x3b]++;
     }
 }
-/* Exact: 948B/960B, four resolved spline calls and twelve zero-tail bytes.
-   Keep each append's count/index reloads and callback-visible copy order. */
-/* Reset the curve and copy four explicit position/quaternion poses in order. Raw ring storage retains
- * the established callback-visible copy order and byte-address traversal. */
+/* Reset the curve and copy four explicit position/quaternion poses in order, reloading the count
+ * and index on each append to keep the callback-visible copy order. */
 // FUN_001BB3D0
 void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
                    void *third, void *fourth, u16 mode)
@@ -1837,14 +1817,11 @@ void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
 }
 extern RwV3d D_00881430;
 #pragma push
-/* measured: baseline nd59; scoped locals, explicit value caches did not match (best nd59); retain opt_loop_invariants on. */
-/* measured: baseline nd59; scoped locals, explicit value caches did not match (best nd59); retain opt_propagation off. */
+/* measured: scoped locals and explicit value caches do not reproduce retail's loop shape; keep loop
+ * invariants on and propagation off. */
 #pragma opt_propagation off
-/* Exact: 296B/304B, six resolved relocations and eight zero-tail bytes.
-   Scoped loop extraction hoists positive zero; the coefficient pointer
-   retains retail's stack-address materialization with propagation off. */
-/* Evaluate cubic Bezier position weights across the four-key ring. Raw coordinate loads retain the
- * integer-address traversal of the canonical 0x1C-byte pose records. */
+/* Evaluate cubic Bezier position weights across the four-key ring. Raw coordinate loads walk the
+ * 0x1C-byte pose records by integer address. */
 // FUN_001BB790
 void btlMainEvalBezierPosition(u8 *curveWork, f32 *position, f32 time)
 {
@@ -1890,8 +1867,7 @@ void btlMainEvalBezierPosition(u8 *curveWork, f32 *position, f32 time)
     }
 }
 #pragma pop
-/* Select adjacent ring keys from time and linearly interpolate their positions. Raw coordinate loads
- * retain the integer-address traversal of the canonical 0x1C-byte pose records. */
+/* Select adjacent ring keys from time and linearly interpolate their positions. */
 // FUN_001BB8C0
 void btlMainEvalLinearPosition(u8* curve, f32* position, f32 time)
 {
@@ -2026,8 +2002,8 @@ void btlMainEvalSlerpRotation(u8* curve, f32* rotation, f32 time)
     rotation[2] = result.next2 * blend + rotation[2];
     rotation[3] = result.current3 * inverse + result.next3 * blend;
 }
-/* Sample one pose or interpolate ring positions/quaternions using linear, Bezier or spline position.
- * Measured: the final MEMBER time reload differs in access-site, local-pointer and array forms. */
+/* Sample one pose or interpolate ring positions/quaternions using linear, Bezier or spline
+ * position. */
 // FUN_001BBC40
 u32 btlCameraSampleKeyframes(u8* curveWork, f32* position, f32* rotation)
 {
@@ -2074,8 +2050,7 @@ has_frame:
 }
 
 
-/* Advance time, consume complete key intervals, and wrap the four-key read index.
- * Measured: MEMBER ring writes differ in access-site, local-pointer and array forms. */
+/* Advance time, consume complete key intervals, and wrap the four-key read index. */
 // FUN_001BBD80
 u32 btlCameraAdvanceKeyframes(u8* curveWork, f32 deltaTime)
 {

@@ -1,4 +1,3 @@
-/* Source unit: src/h_cdvd/h_cdvd_00454570.c (1 function markers) */
 #include "include_asm.h"
 #include "h_cdvd_internal.h"
 #include "h_cdvd_slot_internal.h"
@@ -17,8 +16,8 @@ extern void H_Cdvd_SelectDirectory(const char* dir);
 extern void strcpy(char* destination, const char* source);
 extern u32 strlen(const char* text);
 
-/* Both volume-path consumers use this sentinel-terminated retail table.
- * Nineteen directories and the empty sentinel occupy 0x7107b0..0x710800. */
+/* Both volume-path consumers use this sentinel-terminated table of nineteen directories plus an
+ * empty sentinel. */
 const char* D_007107b0[] = {
     "\\",
     "\\BATTLE\\",
@@ -102,7 +101,6 @@ extern s32 func_00426cf0(const char* path, s32 mode);
 extern void func_00426f80(s32 fd);
 
 
-
 /* Probe a normalized volume path by opening and immediately closing it.
  * Returns false if open fails; selecting its directory changes shared path state. */
 // FUN_00454570
@@ -134,9 +132,12 @@ u32 H_Cdvd_FileExists(const char* path)
 
 
 #pragma push
-/* measured: baseline invariant motion gives nd122; a typed cache cursor gives nd49. */
+/* measured: retail hoists loop invariants in the cache walk. */
 #pragma opt_loop_invariants on
 
+/* Release a reference to a CDVD file handle. If a read is still pending, only count the request.
+ * When the last reference goes, unlink the handle, free its file memory, invalidate requests that
+ * point to it, close its ADXF stream and free it. */
 // FUN_00454BD0
 u32 H_Cdvd_Destroy(HCdvd* cdvd)
 {
@@ -191,8 +192,10 @@ u32 H_Cdvd_Destroy(HCdvd* cdvd)
 }
 
 
-/* measured: baseline invariant motion gives nd58; retain the neighbouring path-builder settings. */
+/* measured: retail hoists loop invariants here like the neighbouring path builders. */
 
+/* Build a "VOL:\" path from src in dst, turning forward slashes into backslashes and lowercase
+ * letters into uppercase. */
 // FUN_00454D20
 void H_Cdvd_BuildPathUppercase(const char* src, char* dst)
 {
@@ -239,8 +242,6 @@ void H_Cdvd_BuildPathUppercase(const char* src, char* dst)
 }
 
 
-/* measured: baseline nd29; backwards pointer traversal gives nd147. */
-
 /* Splits `path` into a VOL: file name and its directory part. */
 // FUN_00454E10
 void H_Cdvd_SplitPath(const char* path, char* fileNameDst, char* dirDst)
@@ -279,8 +280,9 @@ void H_Cdvd_SplitPath(const char* path, char* fileNameDst, char* dirDst)
 }
 
 
-/* measured: baseline nd29; backwards pointer traversal gives nd240. */
-
+/* Split path into its directory, written to dirDst, and its file name, written to fileNameDst.
+ * Prefix the file name with "BTL:" if the normalized directory is in the battle directory table, or
+ * with "VOL:" otherwise. */
 // FUN_00454F50
 s32 H_Cdvd_BuildVolumePaths(const char* path, char* fileNameDst, char* dirDst)
 {
@@ -334,8 +336,8 @@ s32 H_Cdvd_BuildVolumePaths(const char* path, char* fileNameDst, char* dirDst)
 }
 
 
-/* measured: both src + index and &src[index] give nd216 without invariant hoisting. */
-
+/* Copy a path from src to dst, collapsing "../" segments by removing the previous directory and
+ * dropping "./" segments. */
 // FUN_00455100
 void H_Cdvd_NormalizePath(const char* src, char* dst)
 {
@@ -407,7 +409,6 @@ advance:
 #pragma pop
 
 
-
 /* Selects the directory `dir` by running its command sequence from the table. */
 // FUN_00455230
 void H_Cdvd_SelectDirectory(const char* dir)
@@ -465,13 +466,11 @@ secondTable:
 }
 
 
-
 // FUN_004553C0
 u32 H_Cdvd_IsFileLoaded(HCdvd* cdvd)
 {
     return cdvd->readState == 4;
 }
-
 
 
 /* Attaches a stream slot to a cached file entry; returns 1 when found, 2 otherwise. */
@@ -515,7 +514,6 @@ s32 H_Cdvd_StreamAttachCacheEntry(void* unused, void* slotData, uintptr_t pathOr
 }
 
 
-
 /* Copies up to `size` bytes from the slot's in-memory file; returns the byte count. */
 // FUN_00455520
 u32 H_Cdvd_StreamReadChunk(void* slotData, void* dst, u32 size)
@@ -550,7 +548,6 @@ read_file:
 }
 
 
-
 /* Returns -1 when the slot's read offset has reached the end of its file, 0 otherwise. */
 // FUN_004555B0
 u32 H_Cdvd_StreamAtEnd(void* slotData)
@@ -558,7 +555,6 @@ u32 H_Cdvd_StreamAtEnd(void* slotData)
     u8* data = (u8*)slotData + 0x70;
     return -(((HCdvdMemorySlot*)(data - 0x70))->fileSize <= ((HCdvdMemorySlot*)(data - 0x70))->fileOffset);
 }
-
 
 
 /* Slot `index` of a stream context, or NULL once `index` passes its count. */
@@ -578,7 +574,6 @@ void H_Cdvd_StreamContextFree(void* contextData)
     HCdvdStreamContext* context = (HCdvdStreamContext*)contextData;
     HCDVD_FREE(context->slots);
 }
-
 
 
 /* Reports whether `path` names an entry in the cdvd cache table. */
@@ -608,12 +603,10 @@ s32 H_Cdvd_IsCached(void* unused, const char* path)
 }
 
 
-/* The completed ADXF byte count is signed, as written by sdkCdvd.c.
- * Its ordinary signed load preserves the size-before-buffer argument order.
- * measured: 508 bytes plus four zero tail bytes; loop-invariant hoisting also
- * preserves the archive scan's constants and field addresses. */
+/* The completed ADXF byte count is signed, as written by sdkCdvd.c, and is passed before the
+ * buffer. */
 #pragma push
-/* measured: array and pointer cursor spellings both give nd121 without invariant hoisting. */
+/* measured: retail hoists the archive scan's constants and field addresses out of the loop. */
 #pragma opt_loop_invariants on
 
 /* Parses a file request: a whole file is read directly, an archive is walked entry by entry. */
@@ -733,7 +726,6 @@ outer_check:
 #pragma pop
 
 
-
 /* Returns the name of archive entry `entryIndex`, or NULL past the end. */
 // FUN_00456090
 const char* H_Cdvd_ArchiveEntryName(HCdvd* cdvd, s32 entryIndex)
@@ -761,7 +753,6 @@ const char* H_Cdvd_ArchiveEntryName(HCdvd* cdvd, s32 entryIndex)
 }
 
 
-
 /* Block until this request is loaded, pumping updates for all pending requests.
  * There is no timeout or sleep in this polling loop. */
 // FUN_00456150
@@ -779,7 +770,6 @@ void H_Cdvd_ReadSync(HCdvd* cdvd)
         }
     }
 }
-
 
 
 /* Starts a movie playback on `handle`, synchronously or through the async loader. */
@@ -804,7 +794,6 @@ void H_Cdvd_StartPlayback(void* handle, const char* path, s32 synchronous)
 }
 
 
-
 /* Opens the file at `path` on the stream object. */
 // FUN_004562E0
 void H_Cdvd_StreamOpenByPath(void* handle, const char* path)
@@ -823,7 +812,6 @@ void H_Cdvd_StreamOpenByPath(void* handle, const char* path)
 }
 
 
-
 /* Opens the file at `path` on the given handle. */
 // FUN_00456370
 void H_Cdvd_StreamOpenHandle(void* handle, const char* path)
@@ -838,7 +826,6 @@ void H_Cdvd_StreamOpenHandle(void* handle, const char* path)
     H_Cdvd_SelectDirectory(directory);
     func_004d8d30(handle, fileName);
 }
-
 
 
 /* Reads up to `size` bytes from the slot's file descriptor and marks the slot state 3. */
@@ -859,7 +846,6 @@ s32 H_Cdvd_SlotRead(void* slot, void* dst, u32 size)
 }
 
 
-
 /* Writes `size` bytes to the slot's file descriptor and advances its position. */
 // FUN_00456930
 s32 H_Cdvd_SlotWrite(void* slot, void* dst, u32 size)
@@ -875,7 +861,6 @@ s32 H_Cdvd_SlotWrite(void* slot, void* dst, u32 size)
     ((HCdvdFileSlot*)slot)->position += amount;
     return amount;
 }
-
 
 
 /* Seeks the slot's file: mode 1 sets, 2 adds, 3 subtracts `amount`; clamps at zero. */
@@ -938,7 +923,6 @@ common:
 }
 
 
-
 /* Probes whether `path` opens under the base prefix; returns 1 if it does. */
 // FUN_00456AE0
 s32 H_Cdvd_ProbeFile(void* unused, const char* path)
@@ -970,7 +954,6 @@ void* H_Cdvd_FileContextSlot(void* contextData, u32 index)
     }
     return NULL;
 }
-
 
 
 /* Frees the slot array of a file context. */

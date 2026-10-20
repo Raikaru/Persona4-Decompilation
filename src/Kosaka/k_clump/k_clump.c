@@ -1,7 +1,6 @@
 #include "rw_object_internal.h"
 #include "rw_texture_internal.h"
 #include "rw_atomic_layout_internal.h"
-/* Source unit: src/Kosaka/k_clump/k_clump_004578b0.c (1 function markers) */
 #include "include_asm.h"
 #include "Kosaka/k_clump_property_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -51,7 +50,6 @@ extern u8 D_00712650[];
 extern void (*jtbl_008873EC[])(void*);
 
 
-
 /* Texture-name nodes are allocated as 0x44 bytes and chained at +0x40. */
 typedef struct KClumpTextureName {
     char name[0x40];
@@ -87,7 +85,6 @@ s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name)
     }
     return value;
 }
-
 
 
 /* Return the first named real material property, defaulting to one. */
@@ -134,7 +131,6 @@ u32 K_Clump_MatUsrDataHasData(const RpMaterial* material, const char* name)
 }
 
 
-
 // FUN_00457B60
 void* K_Clump_AtomicMatUsrDataCb(void* geometry, void* data)
 {
@@ -170,7 +166,6 @@ void* K_Clump_AtomicMatUsrDataCb(void* geometry, void* data)
 }
 
 
-
 /* Search every atomic for a material property matching a copied name. */
 // FUN_00457C90
 u32 K_Clump_ClumpHasMatUsrData(void* clump, const char* name)
@@ -186,7 +181,6 @@ u32 K_Clump_ClumpHasMatUsrData(void* clump, const char* name)
     RpClumpForAllAtomics(clump, (KClumpCallback)K_Clump_AtomicMatUsrDataCb, &context);
     return context.found;
 }
-
 
 
 /* Search the world-format material list for any property with the requested name. */
@@ -222,7 +216,6 @@ u32 K_Clump_GeometryHasMatUsrData(void* geometry, const char* name)
 }
 
 
-
 /* Search this frame and its descendants for the requested integer property value. */
 // FUN_00457E00
 void* K_Clump_FindIntUsrDataFrameCb(void* object, void* data)
@@ -254,7 +247,6 @@ void* K_Clump_FindIntUsrDataFrameCb(void* object, void* data)
     func_003e9af0(object, K_Clump_FindIntUsrDataFrameCb, context);
     return object;
 }
-
 
 
 /* Search the root frame and descendants for a named integer property equal to value. */
@@ -297,7 +289,6 @@ void* K_Clump_FindIntUsrDataFrame(void* object, const char* name, s32 value)
 }
 
 
-
 /* Accumulate integer elements with the requested property name while traversing child frames. */
 // FUN_00458090
 void* K_Clump_CountIntUsrDataCb(void* object, void* data)
@@ -324,7 +315,6 @@ void* K_Clump_CountIntUsrDataCb(void* object, void* data)
     func_003e9af0(object, K_Clump_CountIntUsrDataCb, search);
     return object;
 }
-
 
 
 /* Count integer property elements over the complete frame hierarchy. */
@@ -357,7 +347,6 @@ s32 K_Clump_CountIntUsrData(void* object, const char* name)
     func_003e9af0(clump, K_Clump_CountIntUsrDataCb, &context);
     return (s32)context.count;
 }
-
 
 
 /* The callback and lookup share the name, search counters, found flag,
@@ -413,7 +402,6 @@ void* K_Clump_IntUsrDataAtCb(void* object, void* data)
 }
 
 
-
 /* Return the selected named integer property and frame, using a zeroed search context. */
 // FUN_00458430
 void K_Clump_GetIntUsrDataAt(KClumpIntPropertyResult* result, void* object, const char* name, s32 index)
@@ -452,7 +440,6 @@ void K_Clump_GetIntUsrDataAt(KClumpIntPropertyResult* result, void* object, cons
     func_003e9af0(geometry, K_Clump_IntUsrDataAtCb, &context);
     *result = context.result;
 }
-
 
 
 /* Mark the caller output when a traversed material has fully opaque alpha. */
@@ -498,7 +485,6 @@ process:
 }
 
 
-
 /* Treat a null state as disabled; otherwise test the ninth state word. */
 // FUN_00462E80
 u32 K_Clump_StateFlagIsSet(const u32* state)
@@ -511,9 +497,7 @@ u32 K_Clump_StateFlagIsSet(const u32* state)
 }
 
 
-
-/* measured: opt_propagation off preserves the delimiter preheader instruction order; this bracket was verified at object 592B/window 592B with normalized_diff 0. */
-/* measured: propagation-on differs by 11 bytes; bounded for/while delimiter scans still differ by 294/290 bytes. */
+/* measured: propagation off keeps retail's instruction order before the delimiter scan loop. */
 #pragma opt_propagation off
 /* Scan stream chunk headers and log counts without decoding their payloads. */
 // FUN_00462EB0
@@ -620,7 +604,6 @@ scan_found:
     func_00440b68(D_007125A0, worldCount, clumpCount, animationCount, teamDictionaryCount, chunkCount, dictionaryCount, lightCount);
     func_00440b68(D_007125E0);
 }
-/* measured: opt_propagation on closes the target-only bracket. */
 #pragma opt_propagation on
 // FUN_00463100
 struct RwTexture *K_Clump_AppendTextureName(struct RwTexture *texture, void *list)

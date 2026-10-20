@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00383c00-0038d330 */
 
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -147,7 +146,6 @@ void btlShuffleDrawCardSet(u8 *drawWork)
 }
 
 /* Pulse the opacity of the queued glow cards unless the sequence disables highlights. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00383D70
 void btlShuffleDrawGlowCards(u8 *drawWork)
 {
@@ -195,8 +193,8 @@ void btlShuffleDrawGlowCards(u8 *drawWork)
     RpSkyRenderStateSet(2, (void *)0x44);
 }
 
-/* Fade grouped card frames and draw the two boundary strips for the current group. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Fade grouped card frames and draw the two boundary strips for the current group. Separate typed
+ * alias pointers keep retail's field reload order. */
 // FUN_00383F80
 void btlShuffleDrawFrameFade(u8 *drawWork)
 {
@@ -358,9 +356,8 @@ void btlShuffleDrawFrameFade(u8 *drawWork)
     RpSkyRenderStateSet(2, (void *)0x44);
 }
 
-/* Line and icon fade for the selected shuffle pattern.
- * The halfword frame increment wraps before the phase test; byte
- * opacities and the shared point preserve the native call boundaries. */
+/* Line and icon fade for the selected shuffle pattern; the halfword frame increment wraps before
+ * the phase test. */
 // FUN_00384CC0
 void btlShuffleDrawPatternLineFade(u8 *work)
 {
@@ -525,12 +522,8 @@ void btlShuffleDrawCueBanner(u8 *drawWork)
     }
 }
 
-/* Draw the paired shuffle-screen quads, corner sprites and fifteen particles.
- * The shared position is a real Vec2f snapshot. Keep both color-blend weights
- * (including black), and reuse the finished trail extent for the base quads.
- * Native b210 O2: 4752/4752 bytes, all 47 relocations resolved; no zero tail.
- * See docs/probe_archive/Shuffle_side_quads_00385970_20260930.md. */
-/* measured: typed opacity-array indexing/cursors change two instructions; MEMBER_OFFSET keeps the original left-associated byte addition. */
+/* Draw the paired shuffle-screen quads, corner sprites and fifteen particles. The shared position
+ * is a Vec2f snapshot, and the base quads reuse the finished trail extent. */
 // FUN_00385970
 void btlShuffleDrawSideQuads(u8 *drawWork)
 {
@@ -783,11 +776,8 @@ void btlShuffleDrawSideQuads(u8 *drawWork)
     RpSkyRenderStateSet(2, (void *)0x44);
 }
 
-/* Native b210 O2: 2228/2240 bytes, 27 resolved relocations, 12 zero tail
- * bytes. Entry/exit radius values and sprite opacity keep distinct
- * lifetimes; the final alpha is converted once at the byte provider.
- * See docs/probe_archive/Menu_shuffle_batch_20260923.md. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Animate the shuffle menu's intro or outro by advancing the frame counter and computing wave-based
+ * radii and opacity. Then draw the outer and inner rectangle outlines and the corner sprites. */
 // FUN_00386C00
 void btlShuffleDrawMenuBatch(u8 *drawWork)
 {
@@ -986,16 +976,17 @@ void btlShuffleDrawViewBackground(s32 drawWork, u8 *input)
     }
 }
 
-/* Convert a ring vertex index into its quarter-turn angular offset. */
-/* measured: expanding the loaded angular scale changes conversion/multiply instruction bytes. */
+/* Convert a ring vertex index into its quarter-turn angular offset. measured: retail does the scale
+ * load and multiply in a separate inline helper, so writing it out at the call site changes the
+ * code. */
 static inline f32 btlShuffleQuarterTurnOffset(s32 index)
 {
     extern f32 fGpffff83d8;
     return fGpffff83d8 * (f32)index;
 }
 
-/* Draw the selected card and two rotating four-vertex reveal fans. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Draw the selected card and two rotating four-vertex reveal fans. Dedicated typed aliases keep
+ * retail's reload order, which typing only at each access site does not. */
 // FUN_00387750
 void btlShuffleDrawRevealFan(u8 *drawWork)
 {
@@ -1327,7 +1318,6 @@ void btlShuffleDrawRoster(u8 *drawWork)
 }
 
 /* Dispatch roster and reveal drawing and animate the pending color step. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_003889B0
 void btlShuffleDrawViewForeground(s32 drawWork, u8 *input)
 {
@@ -1632,7 +1622,8 @@ void btlShuffleDrawViewSetFade(u8 *drawWork, s8 input, s8 green, s8 blue) {
 }
 
 #pragma push
-/* measured: baseline early-return/shared-result forms differ by 7 words; a switch also changes size. */
+/* measured: retail keeps the rebuilt-conditional shape; early-return, shared-result and switch
+ * forms all lay out differently. */
 #pragma opt_rebuildconditionals off
 /* Report completion when fading is disabled or its clock reaches thirty-five frames. */
 // FUN_00389280
@@ -1820,7 +1811,7 @@ void btlShuffleDrawBackgroundRings(u8 **drawWork)
 }
 
 #pragma push
-/* measured: byte-base and typed-array caching still rematerialize conversion constants; baseline is 372/352 bytes. */
+/* measured: retail hoists the conversion constants out of the strip loop. */
 #pragma opt_loop_invariants on
 /* Initialize four wave strips from the read-only defaults, scaling periods and amplitudes. */
 // FUN_00389CB0
@@ -1871,15 +1862,13 @@ typedef struct BtlShuffleWaveWorkspace {
     Vec2f normal[2];
     BtlShuffleWavePhase phase;
     BtlShuffleSkyVertex vertices[62];
-    /* Retail leaves sp+0x1030..0x1037 unused; this layout places delta at sp+0x1038. */
+    /* Retail leaves eight bytes unused before delta in this workspace. */
     u32 pad[2];
     Vec2f delta;
 } BtlShuffleWaveWorkspace;
 
-/* Native b210 O2: 1488/1488 bytes, 26 resolved relocations. The
- * 62-vertex workspace preserves the original allocation and vector
- * lifetimes. Its explicit gap has no read or written value.
- * See docs/probe_archive/Shuffle_wave_00389e10_20260923.md. */
+/* The 62-vertex workspace keeps the original stack layout; its explicit gap is never read or
+ * written. */
 // FUN_00389E10
 void btlShuffleDrawWave(u8 **drawWork)
 {
@@ -2102,9 +2091,8 @@ static inline void btlShuffleSetRingVertex(BtlShuffleRingVertex *vertex,
     vertex->reciprocalZ = reciprocalZ;
 }
 
-/* Native b210 O2: 1204/1216 bytes, 19 resolved relocations, 12 zero tail bytes. */
-/* Build and draw two vertices for each of sixty-five ring samples. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Build and draw two vertices for each of sixty-five ring samples. A dedicated typed alias of
+ * drawWork keeps retail's reload order. */
 // FUN_0038A480
 void btlShuffleDrawRing(u8 *drawWork)
 {
@@ -2253,10 +2241,10 @@ typedef struct BtlShuffleRevealWeight {
 } BtlShuffleRevealWeight;
 
 #pragma push
-/* measured: scalar fill caching retains a 4-word hoist residual; aggregate fill changes 1264 bytes to 1276. */
+/* measured: retail hoists the fill values out of the band loop. */
 #pragma opt_loop_invariants on
-/* Animate five paired reveal bands and their center fill for the current pattern. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Animate five paired reveal bands and their center fill for the current pattern. Dedicated typed
+ * local aliases keep retail's reload order; typing only at each access does not. */
 // FUN_0038ACD0
 void btlShuffleDrawRevealBands(u8 *drawWork)
 {
@@ -2425,7 +2413,7 @@ void btlShuffleDrawSpriteCues(u8 *drawWork)
 }
 
 #pragma push
-/* measured: typed-context and MEMBER loads retain a 4-word resource/zero argument-order residual at baseline. */
+/* measured: without propagation retail loads the resource and zero arguments in the original order. */
 #pragma opt_propagation off
 /* Draw the card-task background pulse, rings, wave strips and sprite cues. */
 // FUN_0038B490
@@ -2509,12 +2497,8 @@ void btlShuffleDrawDetailSprites(u8 *drawWork, s32 input, const Vec2f *offset)
     }
 }
 
-/* Native b210 O2: 1608/1616 bytes with eight zero alignment bytes.
- * The complete point owns the centered X coordinate before it is retained
- * for the second strip. The detail renderer consumes the same two-float point.
- * See docs/probe_archive/First_party_field_menu_shuffle_20260923.md. */
-/* Animate detail bars and their separately timed sprite-group entrance and exit. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Animate detail bars and their separately timed sprite-group entrance and exit; the centered point
+ * is shared by both strips and the detail renderer. */
 // FUN_0038BAB0
 void btlShuffleDrawDetailBars(u8 *drawWork)
 {
@@ -2636,11 +2620,9 @@ void btlShuffleDrawDetailBars(u8 *drawWork)
     }
 }
 
-/* Eight-frame count transition; five-frame fade-out. Extent and remainder
- * values preserve the two independently scaled sprite coordinates. */
-/* Native b210 O2: 1640/1648 bytes, 12 resolved relocations, eight zero tail bytes. */
-/* Animate count entrance, exit and changes, latching the new count midway. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Animate count entrance, exit and changes over eight frames with a five-frame fade-out, latching
+ * the new count midway. measured: dedicated typed alias locals give the retail reload schedule;
+ * typing only at each access does not. */
 // FUN_0038C100
 void btlShuffleDrawCountTransition(u8 *drawWork)
 {
@@ -2724,8 +2706,8 @@ void btlShuffleDrawCountTransition(u8 *drawWork)
     sdkSpriteDrawOnceScaled(handle, (infoFields->countHalves.high + 0x2D) - ((BtlShuffleCount *)(state))->count, drawX, drawY, 0, 0, 0, 0, alpha, (u16)(4096.0f * scale), (u16)(4096.0f * scaleY), 0.0f, 0, 0);
 }
 
-/* Project each card, offset its screen position, and draw a fading colored copy. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Project each card, offset its screen position, and draw a fading colored copy. Separate typed
+ * alias locals keep the retail reload order. */
 // FUN_0038C770
 void btlShuffleDrawCardShadow(u8 *drawWork)
 {
@@ -2916,8 +2898,8 @@ void btlShuffleDrawSelectionColumn(u8 *drawWork)
     shdDisableBlendFlag();
 }
 
-/* Dispatch enabled card-task foreground components after restoring render state. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Dispatch enabled card-task foreground components after restoring render state. The typed alias
+ * locals reproduce retail's field reload order. */
 // FUN_0038CD70
 void btlShuffleDrawCardForeground(u8 *drawWork, u8 *input)
 {
@@ -3160,7 +3142,6 @@ typedef struct BtlShuffleEffects {
 } BtlShuffleEffects;
 
 /* Update reward effect transforms, expiring each of six timed handles after ninety frames. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0038D330
 void btlShuffleUpdateRewardEffects(s32 *effectWork)
 {

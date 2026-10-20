@@ -115,12 +115,6 @@ extern void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses
 extern void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses);
 
 
-/* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
-
-
-/* Source unit: src/promoted/code1_001c.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001c0e40-001c5b80 */
-
 /* Empty update callback for MOVE_HOME (state 24) in the retail camera table at 0x005F74C0. */
 // FUN_001C0E40
 void btlCameraMoveHomeUpdate(void) {}
@@ -129,7 +123,6 @@ void btlCameraMoveHomeUpdate(void) {}
 // FUN_001C0E50
 s32 btlCameraSelectMode(u8 *camera) {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     s16 mode;
     s32 state;
@@ -192,7 +185,6 @@ s32 btlCameraSelectMode(u8 *camera) {
 // FUN_001C1040
 void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     extern s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill);
     extern s32 btlCameraIsTargetEligible(u8 *camera);
@@ -376,7 +368,6 @@ void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
 // FUN_001C17A0
 void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     RwV3d orbitDirection;
     RwV3d animationPosition;
@@ -546,7 +537,6 @@ void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
 // FUN_001C1F70
 void btlCameraEnterRandomFrame(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         f32 value50;
@@ -620,15 +610,11 @@ void btlCameraEnterRandomFrame(u8 *camera)
     }
 }
 
-/* cold 001c21d0 (2026-09-18): refused - outside 3% count gate, production stays INCLUDE_ASM. */
-/* probe 689 via `python3 tools/probe_variants.py src/promoted/code1_001c.c btlCameraFrameDistinctPair --candidate commons_off=/var/tmp/cold1c21d0/v3_commons_off.c` (v1 695, v3 696, v4 696, decl swaps tie 689); fnalign retail 833 vs object 710 instrs (123 short, -14.8%; gate 808-858) 1026 edits (+2 reloc-only) via `python3 -E -s tools/fnalign.py src/promoted/code1_001c.c btlCameraFrameDistinctPair --candidate /var/tmp/cold1c21d0/v3_commons_off.c --quiet`. M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c btlCameraFrameDistinctPair -o /var/tmp/cold1c21d0/m2c.c`; romwright via `python3 -E -s tools/romwright_decompile.py btlCameraFrameDistinctPair > /var/tmp/cold1c21d0/rw.c` (--types: arity 3, arg0 pointer, arg1/2 scalar; prologue reads $4/$5/$6 before write, so (u8 *, s32, s32) stands) plus --raw. De-noised to file idiom reusing existing decls (func_00195850, func_0022f950, func_001bc330/0240/01b0, func_003e40b0, func_003e41e0, func_003dcb40, btlCameraLookAtQuat, btlTargetAngleBetween, func_0044b868, func_004bd050, func_001bac20/bbef0/9de70/bcd40). Read btlCameraFrameStatus MATCH note (7p snapshot placement: before first Y output 0, one statement earlier 5, three earlier 20) and code1_001f.c func_001f4e50 57->13 (row address plus two element pointers dereferenced at zero, second assigned lazily). Recipe in order: (1) free pragmas - opt_common_subs off 696->689 scoped push/pop, opt_loop_invariants on tie, opt_unroll_loops off tie, schedule off tie; (2) subscript form - no variable index in this unit (constant 0x2C/0x8C/0x90/0xA4 field loads), P[i] probe not applicable; (3) fresh loop counters (7n) - no backwards branches in retail (all forward b/bc1, zero for/while in either decompiler), nothing to split; (4) colouring - decl swaps for temp_v9/temp_v12 and vis21/alt16 tie at 689. Branch-order fix (romwright swapped the two large arms: 1.25f path first vs retail 2.5f path first) moved fnalign 960->929 edits but words 695->696. Width fixes (u64->u32, int quat->f32) scored 696. Two non-improving rounds above 60, stopping per batch. Gap lives in missing aggregate spills, not calls: jal counts exact both sides (4x00195850, 3x0019de70, 1x001bac20/bbef0/bc1b0/bc240/bc330/bcd40, 3x001bd780, 2x001ec3d0, 1x0022f950, 2x003dcb40, 1x003e0870, 2x003e40b0/41e0, 1x003e4320, 3x0044b868, 1x004b3110/bd050); frame retail -0x200 vs object -0x140 (192B of spills absent); largest fnalign holes are retail[434:471] 37 vs object 1 (quatFC copy plus out10C add plus 25.0 clamp), retail[138:156] 18 (0x2EE/cvt plus fGp80fc/8140 select plus fGp8118 scale), retail[565:585] 20. Excluded: scheduling (off tie), loop-invariant hoists, unrolling, declaration colouring, inverted-condition vs swapped-arm spellings. Best candidate kept at /var/tmp/cold1c21d0/v3_commons_off.c (689) for the next pass, which should rebuild it on a Frame from 0xB0 to 0x1F8 with 16-byte-aligned vector/quat fields. */
-/* cold 001c21d0 (2026-09-19): honest redo per Main — 138:156 recovered (18, real, explicit (f32)0x2EE + volatile f32, gone from >15 list); surplus at 740:761 removed (pure-float 548 vs 833 -285 774 edits, no object-larger vs baseline 710 with 11 vs 40 + 9 vs 41); 434:471 37 vs 1 (quatFC copy + out10C add + 25.0 clamp) and 565:585 24 vs 1 (saves + madd) still missing (61); volatile 855 vs 836 +19 1008 edits frame -0x200 vs -0x180 128B game jal 32 exact in band only via cancelling (61 missing +64 lump 21 vs 85 at 740:761) refused per 7u; production stays INCLUDE_ASM. */
 /* Construct side or approach camera poses from actor and target geometry. */
 // FUN_001C21D0
 void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     extern s32 btlCameraIsOrbitAction(u8 *camera);
     extern s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill);
@@ -917,15 +903,11 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
     }
 }
 
-/* cold 001c2ee0 (2026-09-18): faithful direction only - production stays INCLUDE_ASM. */
-/* counts: retail 1012 header (1009 fnalign) vs 793 faithful (762 v1 +31); band 982-1042 -> OUTSIDE (189 short of floor). Faithful = 3 duplicated scalings + t13 recompute (no pragmas) via /tmp/base_3dup.c: `fnalign --candidate /tmp/base_3dup.c --quiet` 793 instrs, 654 edits (+13 reloc) vs v1 651; `probe_variants --candidate base=/tmp/base_3dup.c` 904 vs v1 897. jal 49/49 both sides (tanf x9, grep/objdump), 5 switch arms present (0x4E/0x38/0x35/0x34/default). Side-by-side both tanf deletes (fnalign retail[640:649] + retail[729:738], 9 each): retail recomputes 0.5*B8 per use (mul $f1,$f1,$f0), GP per-use load (lwc1 -0x7EF0), mul GP*(0.5*B8), jal tanf, post-scale mul + lui 0x3E60/mtc1/nop; candidate caches t13=GP*B8*0.5 once for 4 tanfs and merges scalings into one path (retail 19 vs object 4 at 222:258; 38 vs 15 at 400:438). Same merge repeats all three scalings (first 2-elem t8, second 3-elem t12, third 3-elem aux t12) per 7k do-not-hoist-what-retail-recomputes. Remaining 1009-793=216 diffuse recompute-vs-cache of the same kind. */
-/* rejected: pragma inflation into band measured +185 and refused as gate-defeating per Main (gate proves shape, not volume; real wins 10-60 words per 7s). `opt_common_subs off` 811 (+49), `commons+dead` 832 (+70), triple `commons+dead+peephole` 947 (+185); triple+3dup 982 (890 edits/probe 929) and +prop 984 (892/probe 926) via /tmp/cand_982.c + /tmp/cand_984.c -- DO NOT INSTALL. Re-assoc of 4 tanf args closed (v9_7p 758 instrs, probe 901 vs 897). Method: M2C/romwright de-noise as before with block externs func_0044b868/func_003e41e0; faithful diff held in /tmp/base_3dup.c. */
 /* Build side or group camera poses, retaining both focus snapshots. */
 // FUN_001C2EE0
 void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     extern s32 btlCameraIsOrbitAction(u8 *camera);
     extern s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill);
@@ -1290,7 +1272,6 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
 // FUN_001C3EB0
 void btlCameraWaitForAnimFrame(u8 *camera, s32 alternateGeometry)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     u8 *action;
 
@@ -1314,7 +1295,6 @@ void btlCameraWaitForAnimFrame(u8 *camera, s32 alternateGeometry)
 void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     extern s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill);
     extern s32 btlCameraIsTargetEligible(u8 *camera);
@@ -1708,7 +1688,6 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
 // FUN_001C5110
 void btlCameraUpdateMode(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     u8 *childUnit;
     s32 notify;
@@ -1764,7 +1743,6 @@ void btlCameraUpdateMode(u8 *camera)
 void btlCameraUpdateWaitMode(u8 *camera)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     switch (((BtlCamera *)camera)->frameMode) {
     case 0:
@@ -1837,9 +1815,8 @@ void btlCameraUpdateWaitMode(u8 *camera)
 // FUN_001C5500
 void btlCameraFrameTargetPose(u8 *camera, s32 first)
 {
-    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* Action+0x88 is a mode-dependent word not yet represented by the shared action layout. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
+    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation.
+     * Action+0x88 is a mode-dependent word not yet represented by the shared action layout. */
 
     RwV3d actorPosition;
     RwV3d targetPosition;
@@ -2041,18 +2018,11 @@ void btlCameraFrameTargetPose(u8 *camera, s32 first)
     btlCameraSetDuration(camera, duration);
 }
 
-/* Frame the whole group, then place two poses around the farthest unit.  Load-bearing shapes,
-   measured against b210: the unit table is indexed as `((u8 **)work + 14)[i]` (an array subscript keeps
-   the u16 counter's mask separate per use and puts the base register first in the address add);
-   `farthest = actorPos` is written twice in the last-unit branch, which is how retail's struct copy
-   comes out (one compiler temporary, then two stores; a single assignment is one direct ld/sd pair).
-   Locals are declared in stack order (highest address first): b210 lays them out in declaration order
-   and puts small objects ahead of the matrix and pose block, so `top` fills the pad after `groupCenter`. */
-/* Frame the group around its farthest unit, with fixed-shot timing selected by action entry. */
+/* Frame the whole group around its farthest unit and place two poses, with fixed-shot timing
+ * selected by the action entry. */
 // FUN_001C5B80
 void btlCameraFrameFlagged(u8 *camera, s32 first)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     extern s32 btlCameraStateRecordFlag(u8 *camera);
     extern void btlCameraCopyPose(f32 *destination, f32 *source);

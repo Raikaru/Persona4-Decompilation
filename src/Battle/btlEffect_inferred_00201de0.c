@@ -23,9 +23,6 @@ extern void btlGaugeRefreshAll(s32);
 extern void btlSelectionFlushEntries();
 
 
-
-
-
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 
@@ -34,7 +31,6 @@ extern s32 iGpffffb448;
 extern s32 D_0062656C[];
 extern void btlPanelStartEntry(s32 task, s32 text);
 extern void btlPanelMarkEntryStarted(s32 task);
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -86,25 +82,17 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00201de0-00201f60 */
-
 extern void btlPacketHitStatusCheck(u8 *work);
 extern s32 btlPacketBuildHitFlags(u8 *work);
 extern void btlSelectionFlushEntries();
-/* measured: caching D_00887300 in s0 reproduces retail's one-time
-   lui/addiu vtable materialization across these callback calls. */
-/* measured: close the vtable propagation probe and restore default state. */
-/* Keep the opacity base ahead of byte promotion, matching retail order. */
+/* measured: retail loads the vtable address once across these callback calls and computes the
+ * opacity base before byte promotion. */
 #pragma push
 #pragma pop
-/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
- * Snapshot inputs before providers; reload the skill fields and final output
- * metadata at their retail callback boundaries. */
 #pragma push
 #pragma pop
-/* The display callback reads both flag fields and the hit index/count
- * as unsigned halfwords. The result record is copied without modification. */
-// Intent: allocate a hit-display packet (type 0x50A) and fill its result record. [inferred]
+/* Allocates a hit-display packet (type 0x50A) and fills its result record; flags and hit
+ * index/count are unsigned halfwords, and the result record is copied unchanged. */
 // FUN_00201DE0
 u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags,
                   u16 hitIndex, u16 hitCount, const void *result, u16 flags)
@@ -131,7 +119,7 @@ u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 ta
     return createdPacket;
 }
 
-// Intent: packet callback; finishes the effect and the associated panel. [inferred]
+// Packet callback; finishes the effect and the associated panel.
 // FUN_00201EE0
 s32 btlPacketFinishEffect(void)
 {
@@ -140,7 +128,7 @@ s32 btlPacketFinishEffect(void)
     return 1;
 }
 
-// Intent: allocate the finish-effect packet (type 0x50B). [inferred]
+// Allocates the finish-effect packet (type 0x50B).
 // FUN_00201F20
 u8 *btlPacketCreateFinishEffect(void)
 {
@@ -151,8 +139,7 @@ u8 *btlPacketCreateFinishEffect(void)
     return packet;
 }
 
-/* measured: opt_rebuildconditionals off tested for callback completion. */
-// Intent: packet callback; steps a sprite frame over 32 ticks, selecting the sprite from the table. [inferred]
+/* Packet callback that steps a sprite frame over 32 ticks, selecting the sprite from the table. */
 // FUN_00201F60
 s32 btlPacketStepSpriteFrame(u8 *work)
 {

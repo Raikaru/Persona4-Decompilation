@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Graphics/Effect/effBlurFilter.c); members 0025f960-0025fa30 */
 
 #include "include_asm.h"
 #include "type.h"
@@ -18,7 +17,7 @@ typedef struct BlurFilterTaskWork {
     s32 unk0C;
     s32 tableBase;
 } BlurFilterTaskWork;
-// Intent: Task update for a blur filter task: advances the direct or copied blur filter and syncs it [inferred]
+// Task update for a blur filter task: advances the direct or copied blur filter and syncs it.
 // FUN_0025F960
 s32 effBlurFilterTaskUpdate(u8 *task) {
     s32 savedTableBase;
@@ -47,7 +46,8 @@ s32 effBlurFilterTaskUpdate(u8 *task) {
     return 0;
 }
 
-// Intent: Task destroy for a blur filter task: destroys the direct or copied blur filter, then frees the work block [inferred]
+// Task destroy for a blur filter task: destroys the direct or copied blur filter, then frees the
+// work block.
 // FUN_0025FA30
 void effBlurFilterTaskDestroy(u8 *task)
 {

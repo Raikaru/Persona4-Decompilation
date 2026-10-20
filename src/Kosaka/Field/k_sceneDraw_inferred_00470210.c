@@ -18,9 +18,7 @@ extern u8 D_00922C50[];
 extern u8 DAT_00922c30_abs[];
 
 
-
 struct MdlFlags78ec0;
-
 
 
 extern f32 fGpffffbb4c;
@@ -28,9 +26,8 @@ extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
 extern f32 fGpffffbb54;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 00470210-00470210 */
-
 extern void sdkLboxClear(u8 *task);
+/* Clear the list box and free its task work block. */
 // FUN_00470210
 void sdkLboxDestroy(u8 *task)
 {

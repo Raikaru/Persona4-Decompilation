@@ -1,5 +1,4 @@
 #include "include_asm.h"
-/* Source unit: src/Kosaka/k_vpad_0015f720.c */
 #include "type.h"
 #include "rw_atomic_layout_internal.h"
 #include "member_access.h"
@@ -61,10 +60,8 @@ extern void func_003e42e0(RuntimeVec3* destination,
                           RuntimeMatrix* matrix);
 extern s32 func_003e0f40(void* matrix);
 
-/* Ported from P3FES src/Kosaka/k_vpad.c FUN_001E6AF0 (verified MATCH there).
- * The P3 donor builds the quad vertices with inline machine code; under MWCC
- * the plain C below compiles to the same div.s-by-2.0 sequence, so none is
- * needed. */
+/* Matches P3FES func_001e6af0; plain C replaces the donor's inline machine code for the quad
+ * vertices. */
 typedef struct RuntimeListNode RuntimeListNode;
 typedef struct RuntimeWork
 {
@@ -79,11 +76,7 @@ typedef struct RuntimeWork
 extern s32 AfPackIsActive(RuntimeListNode* node);
 extern s32 mdlCopyIndexedMatrix(void* model, s32 index, RuntimeMatrix* destination);
 
-/* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
- * Honest C: request = work->requestFlags; offset = i * 8; inlined at both
- * call sites. Retail emits the loop's per-entry lw/sll pair load-first;
- * MWCC schedules the sll ahead of the reload - measured nd 5 (fndiff) /
- * nd 8 (verify). Accepted compiler floor. */
+/* Matches P3FES func_001eda90. */
 extern void AfPackReleaseByOwner(void* owner);
 typedef struct RuntimeDistanceWork
 {
@@ -183,24 +176,15 @@ void Vpad_BuildRotatedQuad(RuntimeVec3* vertices, const RuntimeVec3* translation
 }
 
 
-/* The input table stores two signed indices per entry. Keeping the pair
- * offset in one inlined helper preserves the owner expression while making
- * the complete pair address an explicit, natural C value. */
-/* Select one signed matrix index from the configuration's two-index records. */
-/* measured: site/union indexing differs by 10 bytes and a typed flat local by
- * 18 in Vpad_RefreshSelection. Byte-cursor MEMBER keeps the load/shift order;
- * eight-byte pairs contain two four-byte signed indices selected by side. */
-/* Select one signed matrix index from a two-index configuration record. */
-/* measured: expanding the first-index call changes eight refresh bytes; the second-index call expands without a difference. */
+/* Select one signed matrix index from the configuration's two-index records; each eight-byte pair
+ * holds two four-byte indices chosen by side. */
 static inline s32 vpadPairIndex(RuntimeWork* work, s32 index, s32 side)
 {
     return MEMBER(s32, (u8 *)((VpadConfig *)(uintptr_t)work->requestFlags)->pairs +
                   index * 8 + side * 4, RuntimeVpadPair, first);
 }
 
-/* 324/336 bytes; seven resolved relocations and twelve zero alignment bytes.
- * The signed pair-index helper preserves each request reload and the retail
- * load/shift order without ABI, volatile, or assembly workarounds. */
+/* The pair-index helper reloads the request pointer for each entry, as retail does. */
 // FUN_004B5800
 void Vpad_RefreshSelection(RuntimeWork* work)
 {
@@ -384,7 +368,6 @@ void Vpad_MarkDirty(RuntimeWork* work)
 }
 
 
-
 /* Draw each trail atomic, selecting local/world transforms and restoring saved render states. */
 // FUN_004B5C60
 void Vpad_DrawEntries(RuntimeVpadWork* work)
@@ -468,7 +451,6 @@ void Vpad_Activate(RuntimeWork* work)
 }
 
 
-
 // FUN_004B5F70
 void Vpad_Noop(void)
 {
@@ -511,8 +493,8 @@ void Vpad_SetColor(RuntimeWork* work, const u8* color)
 }
 
 
-/* measured: opt_propagation off is required for exact COP1 tail register coloring. */
-/* measured: baseline removal differs in 45 bytes; separate first and second edge totals; cache vector arrays with named pointers also differ. */
+/* measured: opt_propagation off is needed so the floating-point tail sums use the registers retail
+ * uses. */
 #pragma opt_propagation off
 /* Sum both history-edge lengths and apply the configured distance scale. */
 // FUN_004B7300
@@ -547,10 +529,6 @@ f32 Vpad_GetSegmentLength(const RuntimeDistanceWork* work, s32 index)
     return sum * result + zero;
 }
 #pragma opt_propagation on
-
-
-
-
 
 
 // FUN_004BCE30. Check whether the field resource contains any entries.

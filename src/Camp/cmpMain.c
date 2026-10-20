@@ -1,4 +1,4 @@
-/* Original translation unit cmpMain.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit cmpMain.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdktask.h"
 #include "type.h"
@@ -121,7 +121,6 @@ typedef struct {
 
 /* Dispatch the active camp submenu and synchronize its transition/draw mask. */
 // FUN_0012C510
-/* measured: earlier access-site typing changed 1150 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpMainTaskStep(u8 *unusedTask) {
     u8 *work;
     CmpMainWork *menu;
@@ -409,15 +408,12 @@ void cmpMainTaskDestroy(u8 *task) {
     iGpffffb1ec = 0;
 }
 
-/* measured: typed D_00887300 base local without opt_propagation off folds
-   the array address into per-call lui/lw; off keeps retail's single
-   lui/addiu hoist into $16 (same fix as mdlManager mdlDrawSkyPass). */
-/* measured: baseline has 129 differing words; direct callback-table calls instead of the cached base increase the residual. */
+/* measured: without opt_propagation off, the D_00887300 table address is reloaded at every call;
+ * retail loads the base once and keeps it in a register. */
 #pragma opt_propagation off
 
 /* Update enabled submenu animations with render state 0xE temporarily disabled. */
 // FUN_0012CD90
-/* measured: earlier access-site typing changed 493 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpMainUpdateMenus(void) {
     CmpMainWork *menu;
     void (**renderStateSetters)(s32, s32);
@@ -486,7 +482,6 @@ void cmpMainUpdateMenus(void) {
         renderStateSetters[0](0xE, savedRenderState);
     }
 }
-/* measured: closes the opt_propagation bracket for func_0012cd90. */
 #pragma opt_propagation on
 
 /* Allocate the camp work block and register its child task and ordering-table callback. */
@@ -532,7 +527,6 @@ s32 cmpAssetLoaderStep(u8 *);
 
 /* Load the camp directory, request six sprites, then wait until every sprite is ready. */
 // FUN_0012D190
-/* measured: earlier access-site typing changed 219 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpAssetLoaderStep(u8 *task) {
     s32 requestIndex;
     s32 readyIndex;

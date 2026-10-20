@@ -1,6 +1,5 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Source unit: src/fade_00122430.c */
 #include "type.h"
 #include "calendar_fade_internal.h"
 
@@ -26,7 +25,6 @@ void kAssertFailAt(const void *msg, const void *file, u32 line);
 extern char D_005E50B0[];
 
 
-
 /* Allocate the fade controller; return its parented update task, or zero on allocation failure. */
 // FUN_00122430
 /* Allocate the fade controller and attach its update and draw tasks to parentTask. */
@@ -46,7 +44,6 @@ s32 fadeCreateController(s32 parentTask)
     (s32)kwlnTaskCreateChild((void *)(fadeTask), (const void *)(D_005E5078), 0x99, 0, 0, fadeQueueCallback, 0, (u8 *)(NULL));
     return fadeTask;
 }
-
 
 
 /* Request an idle fade with a default thirty-frame duration; mode four also accepts state three. */

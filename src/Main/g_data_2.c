@@ -1,9 +1,7 @@
-/* Source unit: src/Main/g_data_2_00110470.c */
 #include "type.h"
 
-/* Ported from P3 FUN_0017d7c0. optimization_level 1 is load-bearing: measured
- * without it nd12/object36 (MISMATCH, missing retail's second lui re-materialization
- * before the clamp store), with it nd0/object44 (MATCH); retained. */
+/* measured: retail reloads the address high half again before the clamp store, which only happens
+ * at this optimization level. */
 
 
 /* Store the preserved game-clear count, saturating unsigned values above ninety-nine. */

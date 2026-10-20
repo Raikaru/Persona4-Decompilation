@@ -1,5 +1,5 @@
 #include "byte_address_internal.h"
-/* Original translation unit btlShuffleDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlShuffleDraw.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
@@ -118,7 +118,6 @@ typedef struct BtlShuffleFaceWork {
     u8 color[4];
     TrailVertex front[4], back[4];
 } BtlShuffleFaceWork;
-
 
 
 extern s32 sprintf(char *buf, const char *fmt, ...);
@@ -332,34 +331,12 @@ void btlShuffleDrawLoadSprites(u8 *context) {
 }
 
 
-/* measured (b210 -O2, 2026-09-17): if-else dispatch with shared return1 tail
-   (Ghidra FUN_003742b0 + retail beq order 2,1,0); for-loop nests with reused
-   i/k/tmp/val/p (Ghidra iVar3/iVar4 reuse) give frame 0x70 and 209/212 instrs
-   (836B/848B, 1.4% size diff, within 3%). probe_variants 126 words (was 184
-   m2c-switch, 176 for-loop-switch, 128 if-else-switch); fnalign 65 edits +10
-   reloc-only (was 136+10). Decl order state,i,size,p,val,tmp,k via
-   probe_search 300 (126w/65e vs 128w/75e baseline). Levers: Ghidra if-else
-   over switch (-42w), hoisted full-address p=arg0+i*4+off after alloc for
-   loop1/3, sunk loop2 store (hoist +30w, confirmed load-sinking floor).
-   Residual floors: (1) arg-materialisation order before D_008873F4/f43f810
-   (lw sp vs constants first); (2) loop2 hoist retail $18-before vs mwcc sink
-   as lui $v1,2/sw -0xd54 (tried, +30w); (3) saved-color rotation arg0 $s3 vs
-   $s0 + branch-orientation beqz+b vs bnez. Production stays ASM. */
-/* 2026-09-18 measurement, not installed: retail materialises
-   `arg0 + i * 4 + 0x1F2AC` into a saved register before the two calls in
-   the second loop (`sll / addu / lui / ori / addu s2`), where b210 forms it
-   at the store.  A pointer local for that store takes the object from three
-   instructions short to two (210 vs 212) but costs 126 -> 158 words in
-   colouring; doing the same for the later read as well is 176.  Same
-   structural-fix-costs-words pattern as func_002e5000 in src/Yajima/
-   y_list.c. */
-/* The copy and sprite loops keep separate cursors; the sprite destination
-   is formed before registration. opt_lifetimes on closes the remaining
-   22 register words: 852/864 bytes, every relocation and zero tail proved.
-   See docs/probe_archive/Shuffle_003742b0_recovery.md. */
+/* The copy and sprite loops keep separate cursors; the sprite destination is formed before
+ * registration. */
 // FUN_003742B0
 #pragma push
-/* measured: baseline nd22; object/dispatch locals did not match (best nd22); retain opt_lifetimes on. */
+/* measured: retail's local register allocation in this loader needs opt_lifetimes on; reshaping the
+ * object and dispatch locals did not reproduce it. */
 #pragma opt_lifetimes on
 s32 btlShuffleDrawLoadBlob(u8 *work)
 {
@@ -639,10 +616,8 @@ void btlShuffleDrawQueueCards(u8 **context) {
 }
 
 
-/* 1732/1744 bytes; 37 resolved relocations and twelve zero alignment bytes.
- * The scoped axis initializer binds its twelve-byte object to D_0064EA38.
- * Natural quaternion products, native byte casts, and the u16 pre-increment
- * preserve retail's MAC order, conversion paths, and callback-visible reloads. */
+/* The scoped axis initializer is the twelve-byte object at D_0064EA38; the u16 pre-increment
+ * reloads values a callback can change. */
 // FUN_00374D20
 void btlShuffleDrawCards(u8 *context) {
     /* Byte-base cursors preserve embedded variant and resource-slot addressing; typed fields are used where their layout is shared. */
@@ -774,10 +749,8 @@ void btlShuffleDrawCards(u8 *context) {
     func_003e0f40(m);
 }
 
-/* Native b210 O2: 1016/1024 bytes, thirteen resolved relocations and
- * eight zero alignment bytes. Queue pointers to the complete card
- * slots, then dispatch them before the stack-backed payloads expire.
- * See docs/probe_archive/Shuffle_draw_003753f0_20260923.md. */
+/* Queue pointers to the complete card slots, then dispatch them before the stack-backed payloads
+ * expire. */
 // FUN_003753F0
 void btlShuffleDrawTaskUpdate(u8 *work) {
     u8 *cardState;
@@ -969,11 +942,8 @@ s32 btlShuffleDrawStateD(u8 *record) {
 }
 
 
-/* The source call must place the two converted values in f12/f14 around the
-   integer argument as func_00373cb0(var_f12, 0.0f, 0, var_f14); O2 CSEs the
-   base-address materialization and swaps the resulting argument registers.
-   measured: O1 plus that call order gives a byte-exact match, obj 204B of a
-   208B window. */
+/* measured: at O2 the compiler shares the base-address calculation and swaps the two float call
+ * arguments; O1 keeps retail's argument order. */
 #pragma optimization_level 1
 /* Return normalized progress of the card rotation track for trail scaling. */
 // FUN_00375A70
@@ -987,15 +957,14 @@ f32 btlShuffleDrawWaveScale(u8 *context, s32 cardIndex) {
     duration = (f32)(u32)((ShuffleContext *)((u8 *)idx + (u32)context))->records[0].rotation.quaternion.duration;
     return btlShuffleCalcWave(frame, 0.0f, 0, duration);
 }
-/* measured: O1 probe for f70 address materialization */
+/* measured: retail materializes the float constant address at optimization level 1 behavior. */
 #pragma optimization_level 2
 
 
-/* 520/528 bytes; ten resolved relocations; eight zero alignment bytes.
- * Load both parts of the twelve-byte axis before storing either part.
- * The typed quaternion dot product retains the retail ACC operand order. */
+/* Load both parts of the twelve-byte axis before storing either part; the typed quaternion dot
+ * product keeps retail operand order. */
 #pragma push
-/* measured: baseline nd8; typed parameter cache, scoped locals, inverted if/else did not match (best nd8); retain opt_propagation off. */
+/* measured: retail does not propagate the cached parameter copies, so propagation stays off. */
 #pragma opt_propagation off
 #pragma push
 #pragma pack(4)
@@ -1102,13 +1071,8 @@ void btlShuffleDrawClearFlags(u8 *context, s32 cardIndex) {
 }
 
 
-/* Reset one shuffle record: reinitialise its motion and rotation objects and
-   set their states to 5 and 3. Each state store forms the record address
-   again from the byte offset, as integer arithmetic. Those address
-   expressions differ from the pointer's in the frontend, so it keeps
-   `arg0`/`idx` live in $s1/$s0. b210's post-colouring CSE then turns each
-   recomputed `addu` into a copy of the pointer in $s2, as in retail. */
-/* Reinitialize wandering position and quaternion tracks and select their continuous modes. */
+/* Reset one shuffle record: reinitialise its motion and rotation tracks and set their states to 5
+ * and 3. Each state store recomputes the record address with integer arithmetic, as retail does. */
 // FUN_00375F00
 void btlShuffleDrawSetLayout(u8 *context, s32 cardIndex) {
     s32 idx = cardIndex * sizeof(ShuffleRecord);
@@ -1237,21 +1201,11 @@ void btlShuffleDrawSetRotate(u8 *context, s32 cardIndex, f32 *output) {
 }
 
 
-/* measured: retail emits the two saved-register setup moves (mov.s $f20,$f12 then
-   move $s1,$a2) with the FP move first; mwcc b210 emits the GPR move first (nd 4).
-   Everything else is solved: u8 *arg0, idx/p locals, the full 0-9 case switch, and
-   func_00371f40's interleaved prototype (u8*, f32, u8*) which fixes the pre-jal
-   materialisation order. Saved-register setup-order scheduling floor. */
-/* Sample the orbit position at a fractional frame offset; other movement modes leave the output untouched. */
+/* Sample the orbit position at a fractional frame offset; other movement modes leave the output
+ * untouched. */
 // FUN_003764B0
-/* Case values decoded from jtbl_007529D0 with tools/jtbl.py: only entry 6 has
-   a body, entries 0-5 and 7-9 fall straight to the epilogue, and >= 10 hits
-   the assert. The empty cases must still be listed or b210 emits a compare
-   chain instead of the 10-entry table, and `default` is declared before them
-   because b210 lays case bodies out in declaration order.
-   The parameter list is interleaved (u8*, s32, f32, u8*), not grouped: the
-   float arrives in $f12 between the second and third integer argument, and
-   the grouped spelling costs nd 8. */
+/* Only case 6 has a body; the empty cases 0-9 must be listed so a 10-entry jump table is emitted,
+ * with default declared first. */
 void btlShuffleDrawSetOffset(u8 *context, s32 cardIndex, f32 frameOffset, u8 *output) {
     u8 *p;
 
@@ -1368,10 +1322,8 @@ void btlShuffleDrawListAdd(u8 **list, s32 release) {
 }
 
 
-/* Retail re-loads *arg0 at every use. The fix is simply NOT to cache it: a `cur`
-   local lets b210 CSE the load with the loop test and the body comes out two
-   instructions short (nd 44), and a for(;;)-with-break shape scores nd 33.
-   Dereferencing *arg0 at each use is byte-exact - measured. */
+/* Retail re-loads *list at every use, so the head is dereferenced each time instead of being cached
+ * in a local. */
 // FUN_00376880
 void btlShuffleDrawListFree(u8 **list) {
     u8 *next;
@@ -1384,25 +1336,12 @@ void btlShuffleDrawListFree(u8 **list) {
 }
 
 
-/* Guarded trail recovery: native 4176/4176 bytes and frame 0xF50;
- * 511 fully resolved differing words. Uses 21 samples, two 42-vertex
- * strips, native alpha conversions and finite 4/4/2 render passes.
- * Matrix flags are explicitly initialized; retail's SDK identity
- * macro reads an unwritten flag word. ASM remains the production
- * implementation. See docs/probe_archive/Shuffle_trail_003768e0_20261006.
-   2026-10-08: opt_lifetimes on lowers fnalign from 464 to 280 edits.
-   Also (2026-10-08): the identity flags are ORed into the uninitialised local (retail lw 0xBC/or) and the render-state table is read through a u32 local kept in $s3, 270 edits. */
-/* Card trail draw (three styles). Each style uses its own locals so live
-   ranges match retail; time and step are declared before opacity, which puts
-   the trail clock in $f24, the step in the length register and opacity in
-   $f22 as retail does. */
+/* Card trail draw (three styles), each with its own locals to keep retail live ranges. Matrix flags
+ * are set explicitly because retail's identity macro reads an unwritten flag word. */
 #pragma push
-/* measured: baseline nd840; scoped locals did not match (best nd840); retain opt_lifetimes on. */
+/* measured: retail's trail loops keep variable lifetimes split the way opt_lifetimes produces. */
 #pragma opt_lifetimes on
-/* Scratch recovery of the three trail styles. The 0x24-byte vertex and
- * position/color setters follow include/rw/sky2/rwcore.h. Matrix flags are
- * defined explicitly: retail's load/OR of an unwritten stack flag word is
- * retained as an unresolved difference, not copied as an uninitialized read. */
+/* The 0x24-byte vertex and position/color setters follow the sky2 rwcore.h layout. */
 typedef char TrailVertexSizeCheck[(sizeof(TrailVertex) == 0x24) ? 1 : -1];
 
 #define TRAIL_POSITION(_vertex, _x, _y, _z) do { \
@@ -1428,7 +1367,7 @@ extern f32 iGpffff8408;
 extern f32 iGpffff8308;
 
 #pragma push
-/* measured: baseline nd840; scoped locals did not match (best nd840); retain opt_loop_invariants on. */
+/* measured: retail hoists loop-invariant values out of the trail loops. */
 #pragma opt_loop_invariants on
 // FUN_003768E0
 void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
@@ -1469,8 +1408,8 @@ void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba
     identity.right.y = identity.right.z = identity.up.x = 0.0f;
     identity.up.z = identity.at.x = identity.at.y = 0.0f;
     identity.pos.x = identity.pos.y = identity.pos.z = 0.0f;
-    /* Retail ORs the identity flags into the uninitialised local (SDK
-     * RwMatrixSetIdentity macro); the read is retail behaviour. */
+    /* Retail ORs the identity flags into the uninitialised local (SDK RwMatrixSetIdentity macro);
+     * the read is retail behaviour. */
     identity.flags |= 0x20003;
     RpSkyRenderStateSet(2, (void *)0x48);
     RpSkyRenderStateSet(3, (void *)0x71801);
@@ -1707,10 +1646,8 @@ void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba
 #pragma pop
 
 
-/* Build an untextured screen-space quad from the card's position and rotation.
- * The four 64-byte sky2 vertices retain the PS2 screen/color/reciprocal-Z layout.
- * measured b210 -O2: 1236/1248 bytes, complete resolved retail instructions.
- * See docs/probe_archive/Shuffle_00377930_recovery.md. */
+/* Build an untextured screen-space quad from the card's position and rotation. The four 64-byte
+ * sky2 vertices keep the PS2 screen/color/reciprocal-Z layout. */
 
 // FUN_00377930
 void btlShuffleDrawCardSprites(u8 *context, s32 cardIndex, const BtlShuffleVec3 *position, u8 *color, s32 restoreAlpha)
@@ -1739,7 +1676,7 @@ void btlShuffleDrawCardSprites(u8 *context, s32 cardIndex, const BtlShuffleVec3 
     s32 index;
 
     datw = D_008872F8_abs[0];
-    /* The SDK camera remains opaque here; 0x80 is its verified near-plane scalar. */
+    /* The SDK camera stays opaque here; offset 0x80 is its near-plane scalar. */
     scale = 1.0f / ((RwCamera *)(u8 *)kwlnGetCamera())->nearPlane;
     if (position != 0) {
         positionCopy = *(BtlShuffleVec3 *)position;
@@ -1838,14 +1775,11 @@ void btlShuffleDrawTaskEnd(u8 *task) {
 }
 
 
-/* The two faces belong to the allocated 0x240-byte work buffer; the
-   registered task is retained separately and returned to the caller. Each
-   loop snapshots one position before writing a 0x24-byte vertex. Independent
-   loop indices and the existing invariant hoist reproduce all 800 bytes.
-   Full code/caller/data proof: docs/probe_archive/Shuffle_00377eb0_recovery.md. */
+/* The two faces belong to the allocated 0x240-byte work buffer; the registered task is returned.
+ * Each loop snapshots one position before writing a 0x24-byte vertex. */
 // FUN_00377EB0
 #pragma push
-/* measured: baseline nd158; scoped locals did not match (best nd158); retain opt_loop_invariants on. */
+/* measured: retail hoists the loop-invariant values out of the vertex loops. */
 #pragma opt_loop_invariants on
 s32 btlShuffleDrawSpawn(u8 *parentTask, s32 selectedCard)
 {
@@ -2005,10 +1939,11 @@ void btlShuffleDrawSetColor(u8 *task, u8 red, u8 green, u8 blue, s32 shaded) {
 }
 
 
-/* measured: u32->f32 and f32->u8 written as plain (f32)/(u8) casts;
-   opt_loop_invariants on hoists the FMA constants and 0x4f00/0xff. */
+/* measured: plain (f32)/(u8) casts are used, and retail hoists the conversion constants out of the
+ * loop. */
 #pragma push
-/* measured: baseline nd415; object/dispatch locals, inverted if/else did not match (best nd415); retain opt_loop_invariants on. */
+/* measured: retail hoists the loop constants out of the vertex alpha loop, so loop-invariant
+ * extraction stays on here. */
 #pragma opt_loop_invariants on
 /* Apply alpha and optional corner shading to front vertices; back vertices remain white. */
 // FUN_00378280
