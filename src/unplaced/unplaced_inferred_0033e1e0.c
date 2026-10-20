@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0033e1e0-0033e5a0 */
 
 #include "fcl_object_internal.h"
+#include "member_access.h"
 #include "list_item_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
@@ -79,16 +80,16 @@ s32 fclBustupUpdate(u8 *task)
     update:
         ((FclBustupWork *)p)->position.x = fclEaseInterpolate(
             ((FclBustupWork *)p)->easing, ((FclBustupWork *)p)->start.x, ((FclBustupWork *)p)->end.x,
-            (f32)*(s16 *)(p + 0x26), (f32)*(s16 *)(p + 0x24));
+            (f32)MEMBER(s16, p, FclBustupWork, frame), (f32)MEMBER(s16, p, FclBustupWork, duration));
         ((FclBustupWork *)p)->position.y = fclEaseInterpolate(
-            *(s8 *)(p + 0x2A), *(f32 *)(p + 0x10), *(f32 *)(p + 0x18),
-            (f32)*(s16 *)(p + 0x26), (f32)*(s16 *)(p + 0x24));
+            MEMBER(s8, p, FclBustupWork, easing), ((FclBustupWork *)(p))->start.y, ((FclBustupWork *)(p))->end.y,
+            (f32)MEMBER(s16, p, FclBustupWork, frame), (f32)MEMBER(s16, p, FclBustupWork, duration));
         value = ((FclBustupWork *)p)->delay;
         if (value > 0) {
-            *(s16 *)(p + 0x28) = fclSubClamped(value, 1, 0, 0, 1);
+            MEMBER(s16, p, FclBustupWork, delay) = fclSubClamped(value, 1, 0, 0, 1);
         } else {
-            *(s16 *)(p + 0x26) = fclAddClamped(
-                *(s16 *)(p + 0x26), 1, *(s16 *)(p + 0x24), 0, 1);
+            MEMBER(s16, p, FclBustupWork, frame) = fclAddClamped(
+                MEMBER(s16, p, FclBustupWork, frame), 1, MEMBER(s16, p, FclBustupWork, duration), 0, 1);
         }
         fclBustupDraw(task);
         break;
@@ -106,9 +107,9 @@ s32 fclBustupUpdate(u8 *task)
 // FUN_0033E3A0
 void fclBustupDestroy(u8 *task)
 {
-    /* measured: task +0x38 stays raw so the free callback reloads work after sprite release. */
-    sdkSpriteRelease(((FclBustupWork *)*(u8 **)(task + 0x38))->sprite.pointer);
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    /* measured: MEMBER reloads task work after sprite release before invoking the free callback. */
+    sdkSpriteRelease(((FclBustupWork *)((KwlnTask *)(task))->work)->sprite.pointer);
+    jtbl_008873EC[0](MEMBER(u8 *, task, KwlnTask, work));
 }
 #pragma pop
 

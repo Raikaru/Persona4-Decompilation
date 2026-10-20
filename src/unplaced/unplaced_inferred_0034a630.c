@@ -1,6 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0034a630-0034ad40 */
 
 #include "nline_vertex_internal.h"
+#include "member_access.h"
+#include "rw_camera_internal.h"
 #include "include_asm.h"
 #include "fcl_combine_internal.h"
 #include "sdk_task_registration.h"
@@ -10,6 +12,11 @@
 #include "kwln_task_internal.h"
 
 /* Layouts established by the setters and 0x200-byte ball-slot traversal below. */
+typedef struct FclModelResource {
+    u8 pad00[8];
+    s32 modelData;
+} FclModelResource;
+
 typedef struct FclCombineModelWork {
     s8 state;
     u8 pad1[3];
@@ -137,43 +144,43 @@ void fclCombineSetModel(u8 *task, u16 modelId, s64 kind)
        Pointer-member typing also changes reloads; child slots alone grow to 488 bytes.
        Keep these accesses raw, with their proven offsets documented above. */
 
-    if (((*(u16 *)(modelWork + 8) != (u16)modelId) ||
-         (*(s8 *)(modelWork + 0x28) != (s8)kind) ||
+    if (((((FclCombineModelWork *)(modelWork))->modelId != (u16)modelId) ||
+         (((FclCombineModelWork *)(modelWork))->kind != (s8)kind) ||
          (((FclCombineModelWork *)modelWork)->state == 0)) &&
         ((u16)modelId != 0) &&
         ((s8)kind < 2))
     {
         if ((((FclCombineModelWork *)modelWork)->state > 0) && (((FclCombineModelWork *)modelWork)->state <= 2))
             return;
-        if (*(u8 **)(modelWork + 0xC) != NULL) {
-            mdlDestroyModelObject(*(u8 **)(modelWork + 0xC));
-            *(u8 **)(modelWork + 0xC) = NULL;
+        if (((FclCombineModelWork *)(modelWork))->model != NULL) {
+            mdlDestroyModelObject(((FclCombineModelWork *)(modelWork))->model);
+            MEMBER(u8 *, modelWork, FclCombineModelWork, model) = NULL;
         }
-        if (*(u8 **)(modelWork + 0x14) != NULL) {
-            datFreeBlock(*(u8 **)(modelWork + 0x14));
-            *(u8 **)(modelWork + 0x14) = NULL;
+        if (((FclCombineModelWork *)(modelWork))->resource != NULL) {
+            datFreeBlock(((FclCombineModelWork *)(modelWork))->resource);
+            MEMBER(u8 *, modelWork, FclCombineModelWork, resource) = NULL;
         }
-        *(u16 *)(modelWork + 8) = modelId;
+        MEMBER(u16, modelWork, FclCombineModelWork, modelId) = modelId;
         ((FclCombineModelWork *)modelWork)->state = 1;
-        *(s8 *)(modelWork + 0x28) = kind;
+        ((FclCombineModelWork *)(modelWork))->kind = kind;
         ((FclCombineModelWork *)modelWork)->ready = 0;
-        *(u8 **)(modelWork + 0x14) = datCloneEntryBlock(*(s8 *)(modelWork + 0x28));
-        /* The cloned resource header is not otherwise described here; +8 supplies model data. */
-        ((FclCombineModelWork *)modelWork)->modelData = *(s32 *)(*(u8 **)(modelWork + 0x14) + 8);
+        MEMBER(u8 *, modelWork, FclCombineModelWork, resource) = datCloneEntryBlock(((FclCombineModelWork *)(modelWork))->kind);
+        /* The cloned resource header supplies its model-data word at +8. */
+        ((FclCombineModelWork *)modelWork)->modelData = ((FclModelResource *)(MEMBER(u8 *, modelWork, FclCombineModelWork, resource)))->modelData;
         RwMatrixRotate(modelWork + 0x30, &rotationAxis, 0, 180.0f);
         RwMatrixTranslate(modelWork + 0x30, &translation, 2);
         iGpffffb5a0 = 0;
-        if (*(s8 *)(modelWork + 0x28) == 0) {
-            if (*(u8 **)(modelWork + 0xEC) != NULL) {
-                kwlnTaskDestroyWithHierarchy(*(u8 **)(modelWork + 0xEC));
-                *(u8 **)(modelWork + 0xEC) = NULL;
+        if (MEMBER(s8, modelWork, FclCombineModelWork, kind) == 0) {
+            if (((FclCombineModelWork *)(modelWork))->firstSprite != NULL) {
+                kwlnTaskDestroyWithHierarchy(((FclCombineModelWork *)(modelWork))->firstSprite);
+                MEMBER(u8 *, modelWork, FclCombineModelWork, firstSprite) = NULL;
             }
-            *(u8 **)(modelWork + 0xEC) = cmbCardEffCreateSprite(task, D_0064A700, 0);
-            if (*(u8 **)(modelWork + 0xF0) != NULL) {
-                kwlnTaskDestroyWithHierarchy(*(u8 **)(modelWork + 0xF0));
-                *(u8 **)(modelWork + 0xF0) = NULL;
+            MEMBER(u8 *, modelWork, FclCombineModelWork, firstSprite) = cmbCardEffCreateSprite(task, D_0064A700, 0);
+            if (((FclCombineModelWork *)(modelWork))->secondSprite != NULL) {
+                kwlnTaskDestroyWithHierarchy(((FclCombineModelWork *)(modelWork))->secondSprite);
+                MEMBER(u8 *, modelWork, FclCombineModelWork, secondSprite) = NULL;
             }
-            *(u8 **)(modelWork + 0xF0) = cmbCardEffCreateSprite(task, D_0064A720, 7);
+            MEMBER(u8 *, modelWork, FclCombineModelWork, secondSprite) = cmbCardEffCreateSprite(task, D_0064A720, 7);
         }
     }
 }
@@ -229,8 +236,8 @@ void fclCombineDrawPacket(u8 *packet, s32 data, void *callback)
     s32 i;
     u8 *v;
 
-    /* Camera +0x80 is used as the reciprocal divisor; its full layout is not established here. */
-    reciprocal = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
+    /* The camera near plane supplies the reciprocal projection divisor. */
+    reciprocal = 1.0f / ((RwCamera *)((u8 *)kwlnGetCamera()))->nearPlane;
     raster = (s32 *)fclCombineGetRaster();
     state = D_00887300;
     state[0](6, (void *)1);

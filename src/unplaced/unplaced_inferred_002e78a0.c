@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002e78a0-002e82b0 */
 
 #include "list_item_internal.h"
+#include "member_access.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
 #include "fcl_color.h"
@@ -317,7 +318,7 @@ loop_7_test:
     }
     i = 0;
     while (i < 2) {
-        if (*(s32 *)(work + (i * 4) + 0x184) != 0) {
+        if (MEMBER(s32, work + (i * 4), FclCombineWork, f184) != 0) {
             kwlnTaskDestroyWithHierarchy(((FclCombineHeaderTasks *)(work + 0x184))->tasks[i]);
         }
         i++;
@@ -328,6 +329,6 @@ loop_7_test:
     if ((s32)((FclCombineWork *)work)->unk250 != 0) {
         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)((FclCombineWork *)work)->unk250);
     }
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    jtbl_008873EC[0](MEMBER(u8 *, task, KwlnTask, work));
 }
 #pragma pop

@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0021dda0-0021ec40 */
 
 #include "datCalc_unit_internal.h"
+#include "member_access.h"
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -313,10 +314,10 @@ void btlXpPrepareAwards(u8 *awards, u8 *reward)
                 datPersonaPreviewLevelUp((u8 *)partyPersona, awards + partyOutput * 0x88 + 0x6B4, partyAward);
             }
             expOffset = partyOutput * 4;
-            *(u32 *)(expOffset + (s32)awards + 0x6A4) /* partyExp: typed indexing changes retail instruction bytes. */ = partyAward;
+            MEMBER(u32, expOffset + (s32)awards, BtlXpAwards, partyExp[0]) /* partyExp: typed indexing changes retail instruction bytes. */ = partyAward;
         }
         idOffset = partyOutput * 2;
-        *(u16 *)(idOffset + (s32)awards + 0x69A) /* partyIds: typed indexing changes retail instruction bytes. */ = 5;
+        MEMBER(u16, idOffset + (s32)awards, BtlXpAwards, partyIds[0]) /* partyIds: typed indexing changes retail instruction bytes. */ = 5;
     }
 }
 #pragma pop

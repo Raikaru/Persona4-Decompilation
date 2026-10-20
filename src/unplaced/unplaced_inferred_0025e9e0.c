@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0025e9e0-0025ecd0 */
 
 #include "include_asm.h"
+#include "member_access.h"
 #include "type.h"
 #include "scr_internal.h"
 #include "effect_instance_internal.h"
@@ -60,9 +61,9 @@ s32 sdkSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex
     ((SdkSpriteSample *)sprite)->angle = angle;
     ((SdkSpriteSample *)sprite)->scaleX = (u16)(4096.0f * scaleX);
     ((SdkSpriteSample *)sprite)->scaleY = (u16)(4096.0f * scaleY);
-    /* Raw scale zero-tests avoid the member-address hoisting measured across unsigned conversions. */
-    if ((*(u16 *)(sprite + 0x20) != 0) &&
-        (*(u16 *)(sprite + 0x22) != 0)) {
+    /* MEMBER scale zero-tests avoid the member-address hoisting measured across unsigned conversions. */
+    if ((MEMBER(u16, sprite, SdkSpriteSample, scaleX) != 0) &&
+        (MEMBER(u16, sprite, SdkSpriteSample, scaleY) != 0)) {
         sdkSpriteDraw(sprite, setStates);
     }
     sdkSpriteFreeNode(sprite);
@@ -96,11 +97,11 @@ s32 sdkSpriteDrawQueued(f32 x, f32 y, f32 depth,
     ((SdkSpriteSample *)sprite)->angle = angle;
     ((SdkSpriteSample *)sprite)->scaleX = (u16)(4096.0f * scaleX);
     ((SdkSpriteSample *)sprite)->scaleY = (u16)(4096.0f * scaleY);
-    /* Raw scale zero-tests avoid the member-address hoisting measured across unsigned conversions. */
-    if (*(u16 *)(sprite + 0x20) == 0) {
+    /* MEMBER scale zero-tests avoid the member-address hoisting measured across unsigned conversions. */
+    if (MEMBER(u16, sprite, SdkSpriteSample, scaleX) == 0) {
         goto cleanup;
     }
-    if (*(u16 *)(sprite + 0x22) == 0) {
+    if (MEMBER(u16, sprite, SdkSpriteSample, scaleY) == 0) {
         goto cleanup;
     }
     if (setStates != 1) {

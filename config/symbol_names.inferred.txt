@@ -949,3 +949,4 @@ btlCameraFreshPoseUpdateNoop = 0x001CC5C0; // type:func  evidence: inferred: emp
 btlCameraTargetUpdateNoop = 0x001CCA50; // type:func  evidence: inferred: empty update paired with btlAct_TARGET at dispatch table 0x005F777C
 btlCameraClampedDistanceUpdateNoop = 0x001CCDA0; // type:func  evidence: inferred: empty update paired with btlCameraFrameClampedDistance at dispatch table 0x005F7790
 btlCameraDefaultLimitUpdateNoop = 0x001CA580; // type:func  evidence: inferred: empty update paired with btlCameraSetDefaultLimit in camera state 12 at dispatch row 0x005F75B0
+yGetAlternateFusionMode = 0x002AC350; // type:func  evidence: inferred: return the mode byte selecting normal versus alternate pair-arcana fusion in fclFusePair
