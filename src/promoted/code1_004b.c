@@ -275,11 +275,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd6b8);
 
 // FUN_004BD720
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd720);
+
+/* ACSFDR_Create requires 0x44 bytes; ACSFDR_FadeVol clears elapsedTicks
+ * and ACSFDR_Process increments it once per active processing call. */
+typedef struct AcsFader {
+    u8 pad00[8];
+    s32 elapsedTicks;
+    u8 pad0C[0x44 - 0x0C];
+} AcsFader;
+
+/* Return the active-call counter, including the fade's start and end waits. */
 // FUN_004BD750
 /* measured: schedule on fills func_004bd750's retail jr delay-slot load. */
 #pragma schedule on
-s32 func_004bd750(u8 *arg0) {
-    return *(s32 *)(arg0 + 8);
+s32 acsfdrGetElapsedTicks(u8 *fader) {
+    return ((AcsFader *)fader)->elapsedTicks;
 }
 /* measured: close the schedule bracket around func_004bd750. */
 #pragma schedule off
