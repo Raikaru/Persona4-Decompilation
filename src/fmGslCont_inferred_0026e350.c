@@ -352,9 +352,7 @@ s32 frFontCommandSetIntensityAndHeight(s32 command, u8 *context)
 }
 
 /* measured: closing opt_propagation off for func_0026e700. */
-/* measured: opt_common_subs off forces func_0026e7f0 field reloads. */
-/* measured: func_0026e7f0 MATCH -> MISMATCH without this pragma. */
-#pragma opt_common_subs off
+/* measured: named byte-pointer stream/position loads remove the position command's common-substitution override (MATCH). */
 /* measured: opt_propagation off preserves field-load order for func_0026e7f0. */
 // FUN_0026E7F0
 /* Decode and store position in horizontal sixteenths and vertical eighths. */
@@ -369,8 +367,8 @@ s32 frFontCommandSetPosition(s32 command, u8 *context)
     s32 firstOperand;
     s32 secondOperand;
 
-    streamOffset = ((FrFontContext *)context)->position;
-    streamAddress = ((FrFontContext *)context)->stream;
+    streamOffset = MEMBER(s32, context, FrFontContext, position);
+    streamAddress = MEMBER(s32, context, FrFontContext, stream);
     operandBytes = (u8 *)(streamAddress + streamOffset);
     lowByte = (operandBytes[0] - 1) & 0xFF;
     highByte = operandBytes[1];
@@ -882,9 +880,8 @@ s32 frFontLayoutSlotIfBound(s32 command, u32 contextAddress, s32 unused)
  * glyph at sp+0x68: align the real buffer to eight, without enlarging it.
  * The scoped options preserve operand reloads and decode scheduling. */
 #pragma push
-/* measured: frFontLayoutSlotCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-/* measured: frFontLayoutSlotCommand MATCH -> MISMATCH without this pragma. */
+/* measured: baseline, individual-toggle and named reload probes differ (best nd 225); retain both decode settings. */
 #pragma opt_propagation off
 s32 frFontLayoutSlotCommand(s32 command, u8 *context)
 {
@@ -994,8 +991,8 @@ s32 frFontLayoutSlotCommand(s32 command, u8 *context)
     }
     return 0;
 }
-
 #pragma pop
+
 /* measured: optimization_level 0 probe for the retail redundant return branch. */
 /* measured: func_0026f5a0 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 0
@@ -1015,8 +1012,8 @@ s32 frFontCommandCheckControlMode(void)
 /* measured: opt_common_subs off preserves the per-decode pointer recompute for frFontRunCommunityCommand. */
 /* measured: opt_propagation off preserves the byte-decode temporary liveness for frFontRunCommunityCommand. */
 #pragma push
-/* measured: frFontRunCommunityCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
+/* measured: baseline and first/all named reload probes differ (nd 350/301/350); retain common substitutions off. */
 // Intent: Run a community command in mode 3: set or clear the reversed flag, or add scaled points, for the current community [inferred]
 // FUN_0026F5E0
 s32 frFontRunCommunityCommand(s32 command, u8 *context)
@@ -1123,10 +1120,10 @@ s32 frFontRunCommunityCommand(s32 command, u8 *context)
     }
     return 0;
 }
+#pragma pop
 
 /* measured: closing opt_common_subs off for frFontRunCommunityCommand. */
 /* measured: closing opt_propagation off for frFontRunCommunityCommand. */
-#pragma pop
 /* measured: MWCCPS2 b210 -O2, 832B/window 832B, 16 relocations.
  * Ghidra gives the descending dispatch; IDA gives the 64-byte path buffer.
  * Named action/channel values survive their comparisons into case one.
@@ -1135,9 +1132,8 @@ s32 frFontRunCommunityCommand(s32 command, u8 *context)
 // Intent: Run an audio command in mode 1 when flag 0x3A is set: start a sound channel with formatted text or send the operands to the audio handler [inferred]
 // FUN_0026F860
 #pragma push
-/* measured: frFontRunAudioCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-/* measured: frFontRunAudioCommand MATCH -> MISMATCH without this pragma. */
+/* measured: baseline, individual-toggle and named reload probes differ (best nd 106); retain both decode settings. */
 #pragma opt_propagation off
 s32 frFontRunAudioCommand(s32 command, u8 *context)
 {
