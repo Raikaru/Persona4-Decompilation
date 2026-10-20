@@ -10,14 +10,6 @@
 #include "kwln_view_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
-static inline s32 p4_pack_or(s32 left, s32 right)
-{
-    return left | right;
-}
-static inline f32 p4_mul_left(f32 left, f32 right)
-{
-    return right * left;
-}
 
 /* Shop task work: a byte state followed by the draw-task handle. */
 typedef struct FclShopMainWork {

@@ -11,14 +11,6 @@ extern u8 D_006359C0[];
 
 extern f32 D_00761260;
 extern f32 fGpffff811c;
-static inline f32 mul_f32_ordered(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline f32 add_f32_ordered(f32 left, f32 right)
-{
-    return left + right;
-}
 
 
 

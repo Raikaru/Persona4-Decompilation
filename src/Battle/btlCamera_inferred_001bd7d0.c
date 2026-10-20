@@ -54,14 +54,6 @@ extern u32 iGpffffa0b8;
 extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern void btlCameraStartEffect(u8 *camera, u8 *script, s32 options);
 extern u8 D_005FB400[];
-static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern s32 btlCameraFrameActionStart(u8 *camera, u8 *work);
 extern u8 *btlCameraGetCurrentEntry(u8 *work);
 extern void btlCameraInitWork(u8 *work, s32 firstAction, s32 secondAction, u8 *script, s32 options);

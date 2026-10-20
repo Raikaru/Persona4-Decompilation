@@ -22,9 +22,6 @@ typedef struct {
 } Code1_0049Color;
 extern Code1_0049Color iGpffffbb64;
 
-static inline f32 code1_0049_mul(f32 left, f32 right) {
-    return left * right;
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 00490c40-00490c40 */
 

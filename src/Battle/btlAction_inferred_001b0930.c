@@ -54,14 +54,6 @@ extern s64 btlGetUID(void);
 extern u32 datCalcRandomBelow(u32);
 extern u32 iGpffffa0b8;
 extern u8 D_005FB400[];
-static inline u8 *battleAddByteOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 battleMultiplyScalar(f32 left, f32 right)
-{
-    return left * right;
-}
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern u8 D_0060A0E0[];

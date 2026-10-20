@@ -14,9 +14,6 @@ extern s32 D_008815B0[];
 
 extern void memset(void *value, s32 index, s32 count);
 extern s32 itfMesWindowProcedureForKind(s32 kind);
-static inline u32 add_retail_ptr(u32 offset, u32 base) {
-    return offset + base;
-}
 
 extern u16 D_008817E8[];
 extern u8 D_007964C0[];

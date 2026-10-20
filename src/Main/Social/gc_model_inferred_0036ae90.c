@@ -38,10 +38,6 @@ extern char D_005E5830[];
 extern char D_0064E460[];
 extern char D_0064E280[];
 
-static inline f32 p4_00362f00_add(f32 left, f32 right)
-{
-    return left + right;
-}
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern u16 D_008C024E[];
