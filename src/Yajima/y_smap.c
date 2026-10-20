@@ -16,6 +16,9 @@
 #include "field_frame_internal.h"
 #include "Kosaka/k_fldFilter_internal.h"
 #include "rw_camera_internal.h"
+
+/* Unit setting: loop invariants off; measured reveal and drawing scopes enable hoisting. */
+#pragma opt_loop_invariants off
 #include "scene_resource_internal.h"
 extern void (*D_00887304[])(s32, void *);
 
@@ -1588,7 +1591,6 @@ void smapTaskDestroy(u8 *task) {
 }
 
 
-#pragma push
 
 
 /* func_002b0250: `arg3 == -1` is a u8 compared with -1 (retail keeps the never-true test). The 9..14
@@ -2074,10 +2076,8 @@ void smapCellToWorld(void *output,u32 column,u32 row)
   *(YVec3f *)output = vector;
 }
 
-#pragma pop
 
 
-#pragma push
 
 
 /* Return-width audit: retail callers of func_002b11c0 and func_002b1210
@@ -2093,10 +2093,8 @@ int smapWorldToColumn(RwV3d position)
   return (int)((position.x + 600.0f) / 1200.0f);
 }
 
-#pragma pop
 
 
-#pragma push
 
 
 // FUN_002B1210
@@ -2106,7 +2104,6 @@ int smapWorldToRow(RwV3d position)
   return (int)((position.z + 600.0f) / 1200.0f);
 }
 
-#pragma pop
 
 /* measured: re-tested wave 4 (nd 11, was recorded nd 1). The lwc1-copy
    shape is the u8 buf[0xC] + `v2 = *(YVec3f *)buf` spelling (local-to-local
@@ -2367,7 +2364,6 @@ void smapDrawPanel(s32 unused, u8 *work) {
     ((SMapRectangle *)fclGetWorkPointer(((SMapWork *)work)->frames[0]))->height = frameWidth;
     ((SMapRectangle *)fclGetWorkPointer(((SMapWork *)work)->frames[2]))->position.y = frameBottom;
 }
-#pragma opt_loop_invariants off
 #pragma pop
 
 /* Clear the embedded ordering-table node's next/tail links before appending it again. */
@@ -2396,6 +2392,7 @@ void smapClearSelection(u8 *task) {
    $a0/$v1 and fixes loop 1 addu operand order (nd 18 -> 0 with it). */
 /* Allocate the map corner, strip and end sprites and initialize their queued panel draw node. */
 // FUN_002B2290
+#pragma push
 #pragma opt_loop_invariants on
 /* measured: literal and named end-sprite coordinate constants; best baseline residual 46 differing bytes. */
 void smapUpdateItems(u8 *task)
@@ -2450,7 +2447,7 @@ void smapUpdateItems(u8 *task)
     ((PrimQueueNode *)work->drawNode)->argument.data = (u8 *)work;
 }
 /* measured: closes the loop-invariant bracket; the file default is off. */
-#pragma opt_loop_invariants off
+#pragma pop
 
 /* Install the blend, depth and texture states used by queued map rectangles. */
 // FUN_002B2500

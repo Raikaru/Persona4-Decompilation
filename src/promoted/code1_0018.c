@@ -227,6 +227,9 @@ typedef struct {
 #pragma vu0_mmi_reg_binding off
 #pragma enable_vu0_registers off
 
+/* Unit setting: propagation off; reapply it after the preserved optimization-level resets. */
+#pragma opt_propagation off
+
 
 
 /* Sky2's complete 0x40-byte vertex record, with its native quadword
@@ -277,7 +280,6 @@ static inline s32 fldBothReady(void)
 /* measured: restoring constant pullout changes nd4341 back to MATCH; whole-baseline removal was nd4536. */
 #pragma opt_pulloutconstants off
 /* measured: baseline propagation leaves nd13 in look-state argument setup; inline flag expression is unchanged. */
-#pragma opt_propagation off
 extern float D_00756520[];
 extern float D_00756524[];
 extern float D_00756528[];
@@ -1050,13 +1052,14 @@ s32 FldNpcControlUpdate(u8 *task)
 #pragma optimization_level 1
 /* measured: close optimization_level 1 FPU accumulator probe. */
 #pragma optimization_level 2
+/* measured: the level reset restores propagation; retaining the unit setting avoids nd8. */
+#pragma opt_propagation off
 /* measured: opt_propagation off probe preserves retail's handle-load/result
    initialization order for the state predicate. */
 // Kept in bucket: diff 8 when moved; cause not diagnosed (pragma replay checked, no explanation found).
 // FUN_0018BEA0
 /* Return whether the actor is turning toward or away from its stored heading. */
 /* measured: baseline original nd8; typed work and earlier state snapshot nd9; retain propagation off. */
-#pragma opt_propagation off
 s32 fldNpcControlIsTurning(u8 *task)
 {
     u8 *work;
@@ -1079,8 +1082,6 @@ ready:
 done:
     return result;
 }
-#pragma opt_propagation on
-/* measured: opt_propagation on closes the state-predicate probe. */
 
 typedef struct MaterialTextureContext {
     s32 found;
@@ -1096,6 +1097,8 @@ typedef struct MaterialTextureContext {
 #pragma optimization_level 1
 /* measured: restore optimization level after FldMipmapSetFixedParam. */
 #pragma optimization_level 2
+/* measured: reapply the unit setting after the level reset (support/map residuals nd7/142). */
+#pragma opt_propagation off
 /* MATCHED from a 40-word reconstruction.  Two source shapes carried it.
    The dungeon chain's dead final arm is `else if (dungeon < 0xA0) { res = 0; }`,
    not an empty arm: b210 drops the redundant store (res is already 0 on that
@@ -1134,8 +1137,6 @@ typedef struct FldSupporterWork {
  * The separate support pointer keeps the three remaining stores matched;
  * timerBits preserves the unsigned timer store and elapsed subtraction wraps. */
 /* measured: baseline removal leaves nd7 in script argument load order; retain propagation off. */
-#pragma push
-#pragma opt_propagation off
 s32 FldSupporterUpdate(u8 *task)
 {
     u8 *work;
@@ -1179,7 +1180,6 @@ s32 FldSupporterUpdate(u8 *task)
     }
     return 0;
 }
-#pragma pop
 
 /* One 0x4A-byte pad record; the pads start at 0x8C0240 (sdkPadInit). */
 typedef struct {
@@ -1226,7 +1226,6 @@ typedef struct FldMapShape {
  * measured: cell-pointer and cell-array stores differ; MapTestGrid member stores
  * preserve the original 240-byte function. The separate shape local keeps header loads matched. */
 /* measured: baseline removal leaves nd142 in row/cell address materialization; retain propagation off. */
-#pragma opt_propagation off
 void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation)
 {
     s32 rowIndex;
@@ -1270,8 +1269,6 @@ void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation)
         rowIndex += 1;
     }
 }
-#pragma opt_propagation on
-// measured: restore propagation for following functions
 extern u16 D_008C0252[];
 extern u16 D_008C0298[];
 extern const KWindowEntryDescriptor D_005F5FD0[];

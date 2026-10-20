@@ -10,6 +10,10 @@
 #include "rw/plcore/barenderstate.h"
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
+
+/* Unit settings: propagation off and common subexpressions on; mode probes retain their levels. */
+#pragma opt_propagation off
+#pragma opt_common_subs on
 extern s32 iGpffffb4bc; /* deferred layout pending */
 extern s32 iGpffffa730; /* decoded audio/deferred-layout duration */
 extern s32 frFontCountRuns(u8 *node);
@@ -103,17 +107,9 @@ extern f32 D_007612C4;
  * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
  * colour parameter is declared u32 here (H011): retail converts arg2 for each
  * call and keeps the per-case colour copies in $fp/$s7. */
-#pragma push
-#pragma pop
-#pragma push
-#pragma pop
-#pragma push
-#pragma pop
 /* measured: optimization-level probe for 00263220 register colouring */
 /* measured: closes optimization-level probe for 00263220 */
 /* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
-#pragma push
-#pragma pop
 /* The switch arms are in retail's jump-table order. Locals whose live ranges
  * are disjoint share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2,
  * temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's
@@ -125,8 +121,6 @@ extern f32 D_007612C4;
  * {x,y,w,h} structs copied into the 16-byte argument, the case-5 and case-7
  * fallback tails are separate copies, and `temp_3_2 > 1` gives the slti $at
  * form. opt_lifetimes on is measured (102 -> 85 edits without the other levers). */
-#pragma push
-#pragma pop
 /* measured: opens optimization_level 1 to preserve retail's FPU term and accumulator order (nd 0). */
 /* measured: closes the optimization_level bracket (nd 0). */
 /* Copy complete table objects; renderer callbacks may change the item index. */
@@ -134,15 +128,15 @@ extern f32 D_007612C4;
    retail frame; the s8 count local and the named segment index give the
    hoisted point base under opt_loop_invariants; the control-point counters
    are block-scoped so the sampling counter k is coloured first. */
-#pragma push
 /* measured: without it the point base is recomputed per iteration (271). */
-#pragma pop
 /* measured: optimization_level 1 register-coloring probe for func_0026db60. */
 /* measured: opt_propagation off probe for func_0026db60 loop test ordering. */
 /* measured: closes opt_propagation off probe for func_0026db60. */
 /* measured: closes optimization_level 1 register-coloring probe for func_0026db60. */
 /* measured: opt_propagation off probe for mtSceneUnitDepthCompare float load scheduling. */
 /* measured: closes opt_propagation off probe for mtSceneUnitDepthCompare. */
+#pragma push
+#pragma opt_propagation on
 // Intent: Return the pending-layout flag; frFontBeginDeferredLayout sets it and frFontResetPendingState clears it [inferred]
 // FUN_0026E350
 s32 frFontGetPendingFlag(void)
@@ -194,9 +188,9 @@ s32 frFontDataEntryClass(s64 entryId) {
     return 0xD;
 }
 
+#pragma pop
 /* measured: opt_propagation off probe for func_0026e4c0 field-load order. */
 /* measured: func_0026e4c0 MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 // FUN_0026E4C0
 /* Decode the palette operand in layout mode; return zero to continue parsing. */
 s32 frFontCommandSetPalette(s32 command, u8 *context)
@@ -405,7 +399,6 @@ success:
 
 /* measured: closing opt_common_subs off for func_0026e7f0. */
 /* measured: func_0026e910, func_0026e940, frFontBeginDeferredLayout, func_0026eba0, func_0026ebe0, func_0026ed00, func_0026ee00 MATCH -> MISMATCH without this pragma. */
-#pragma opt_common_subs on
 /* measured: closing opt_propagation off for func_0026e7f0. */
 // FUN_0026E910
 /* Mark script termination and stop parsing. */
@@ -682,6 +675,7 @@ s32 frFontResetPendingState(s32 command, u8 *context)
     return 0;
 }
 
+#pragma push
 /* measured: opt_common_subs off reconstructs the retail packed-index sequence for func_0026ef60. */
 /* measured: func_0026ef60 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
@@ -829,13 +823,14 @@ s32 frFontClearDataFlagTable(s32 command, u8 *context)
     datSetFlag(flagOffset + flagBases[tableIndex], 0);
     return 0;
 }
+#pragma pop
 
 /* measured: closing opt_propagation off for frFontClearDataFlagTable. */
 /* measured: frFontLayoutSlotIfBound MATCH -> MISMATCH without this pragma. */
+#pragma push
 #pragma opt_propagation on
 /* measured: closing opt_common_subs off for frFontClearDataFlagTable. */
 /* measured: frFontLayoutSlotIfBound MATCH -> MISMATCH without this pragma. */
-#pragma opt_common_subs on
 // Intent: When the slot for the decoded index is bound, update the text work and lay out that slot [inferred]
 // FUN_0026F1E0
 s32 frFontLayoutSlotIfBound(s32 command, u32 contextAddress, s32 unused)
@@ -872,6 +867,7 @@ s32 frFontLayoutSlotIfBound(s32 command, u32 contextAddress, s32 unused)
     }
     return 0;
 }
+#pragma pop
 
 // Intent: Decode three operands; for a bound slot, lay out a glyph from the second operand, or the item name for the third [inferred]
 // FUN_0026F2C0
@@ -882,7 +878,6 @@ s32 frFontLayoutSlotIfBound(s32 command, u32 contextAddress, s32 unused)
 #pragma push
 #pragma opt_common_subs off
 /* measured: baseline, individual-toggle and named reload probes differ (best nd 225); retain both decode settings. */
-#pragma opt_propagation off
 s32 frFontLayoutSlotCommand(s32 command, u8 *context)
 {
     s32 first;
@@ -1120,7 +1115,6 @@ s32 frFontRunCommunityCommand(s32 command, u8 *context)
     }
     return 0;
 }
-#pragma pop
 
 /* measured: closing opt_common_subs off for frFontRunCommunityCommand. */
 /* measured: closing opt_propagation off for frFontRunCommunityCommand. */
@@ -1131,8 +1125,6 @@ s32 frFontRunCommunityCommand(s32 command, u8 *context)
  * The sound provider narrows the fourth operand at its halfword store. */
 // Intent: Run an audio command in mode 1 when flag 0x3A is set: start a sound channel with formatted text or send the operands to the audio handler [inferred]
 // FUN_0026F860
-#pragma push
-#pragma opt_common_subs off
 /* measured: baseline, individual-toggle and named reload probes differ (best nd 106); retain both decode settings. */
 #pragma opt_propagation off
 s32 frFontRunAudioCommand(s32 command, u8 *context)
