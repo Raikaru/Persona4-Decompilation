@@ -244,6 +244,7 @@ extern RwV3d D_005EFB98;
  * call, so the label pointer is loaded before the stack argument. */
 #pragma push
 /* measured: radarDrawFrame MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 1698 bytes; reuse named menu alias; index grid rows through typed array also differ. */
 #pragma opt_loop_invariants on
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -989,6 +990,7 @@ void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option
 // FUN_001427C0
 #pragma push
 /* measured: radarDrawPolygon MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 490 bytes; cache palette channels before fan loop; typed packet array cursor also differ. */
 #pragma opt_loop_invariants on
 /* Draw a filled radar fan and its five point sprites. Vertex packets follow the
  * RenderWare 0x40-byte stride and float lane types are explicit at each store. */

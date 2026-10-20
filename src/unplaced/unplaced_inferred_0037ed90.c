@@ -7,7 +7,7 @@ extern s32 btlShuffleDrawTableLookup(s32 cardCount, s32 pattern);
 extern void btlShuffleDrawSetRotate(u8 *context, s32 cardIndex, f32 *output);
 extern s32 btlShuffleCalcUpdateSpeed(u8 *point, u8 *screen);
 extern f32 RwV2dLength(f32 *context);
-#pragma push
+/* Unit setting: nearest-card projection uses propagation. */
 #pragma opt_propagation on
 /* Project every card and return the closest to the requested three-by-three grid point. */
 // FUN_0037ED90
@@ -48,4 +48,3 @@ s32 btlShuffleSeqFindNearestCard(u8 *context, s32 gridIndex) {
     }
     return best;
 }
-#pragma pop

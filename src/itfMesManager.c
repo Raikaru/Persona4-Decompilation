@@ -619,6 +619,7 @@ u32 itfMesCmdWindowSetParam(void)
    whole-slot CSE; propagation off keeps the scaled index across the copy call.
    Neither lever alone matches. Exact 452B instructions plus 12B zero tail. */
 #pragma push
+/* measured: baseline and pointer-address slot-test probes differ (nd 79/39); retain propagation off. */
 #pragma opt_propagation off
 /* Allocate a manager entry and its window, preserving the prior active window flags on replacement. */
 /* measured: individual typed rewrites of the remaining raw accesses give
@@ -1423,6 +1424,7 @@ check:
  * normalized_diff 15; retain their original address/alias expressions. */
 // FUN_00278D50
 #pragma push
+/* measured: baseline and reordered-argument/typed-flag probes differ (nd 8/44); retain propagation off. */
 #pragma opt_propagation off
 void itfMesRecordFixup(u8 *record)
 {
@@ -1710,12 +1712,13 @@ u32 itfMesRecordTextAt(int recordAddress,int textIndex)
    opt_propagation off preserve constructor argument order. The binding
    helper consumes a text pointer; its pointer parameter also restores
    the final argument-move ordering. */
-#pragma push
-#pragma opt_propagation off
 /* Build the current row, derive its mode flags, notify its procedure and update row metrics. */
 /* measured: individual typed rewrites of the remaining raw accesses give
  * normalized_diff 1; retain their original address/alias expressions. */
 // FUN_00279780
+#pragma push
+/* measured: baseline and literal constructor-origin probes both differ (nd 20); retain propagation off. */
+#pragma opt_propagation off
 void itfMesWindowBuildRow(u8 *window)
 {
     u8 *base;
@@ -2210,10 +2213,11 @@ done:
 
 
 /* Removing this loses FUN_0027A4D0 (MATCH nd0 -> MISMATCH nd24) - measured W161. */
-#pragma opt_loop_invariants on
 
 /* Replace only the low alpha byte of every glyph color in the linked text runs. */
 // FUN_0027A4D0
+/* measured: baseline and named color-mask probes differ (nd 24/25); retain invariant hoisting. */
+#pragma opt_loop_invariants on
 void itfMesListSetAlpha(int listAddress,u32 alpha)
 {
   int glyphAddress;

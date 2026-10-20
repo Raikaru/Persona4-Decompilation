@@ -412,6 +412,7 @@ void cmpMainTaskDestroy(u8 *task) {
 /* measured: typed D_00887300 base local without opt_propagation off folds
    the array address into per-call lui/lw; off keeps retail's single
    lui/addiu hoist into $16 (same fix as mdlManager mdlDrawSkyPass). */
+/* measured: baseline has 129 differing words; direct callback-table calls instead of the cached base increase the residual. */
 #pragma opt_propagation off
 
 /* Update enabled submenu animations with render state 0xE temporarily disabled. */

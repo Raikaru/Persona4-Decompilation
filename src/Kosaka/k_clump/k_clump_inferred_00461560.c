@@ -232,6 +232,9 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
+/* measured: pass 1 also MATCHes under the propagation setting shared by
+ * passes 2 and 3; no per-pass setting is needed. */
+#pragma opt_propagation off
 /* Draw the first material bucket groups with their blend modes, frustum culling, and alpha overrides. */
 /* measured: typed bucket and per-iteration entry aliases preserve MATCH where access-site tests did not. */
 // FUN_00461560
@@ -385,8 +388,6 @@ loop_00461560_fourth_test:
     }
 }
 
-/* measured: movieNativeDrawPass2 MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 /* Draw the middle bucket group, excluding clumps with sentinel frames. */
 /* measured: a per-iteration entry alias preserves the pre-callback alpha test and whole-file MATCH. */
 // FUN_00461A40
@@ -442,7 +443,6 @@ loop_00461A40_test:
     }
 }
 
-// measured: closes opt_propagation around movieNativeDrawPass2.
 /* Draw the remaining material groups with their blend modes and sentinel checks. */
 /* measured: typed bucket and per-iteration entry aliases preserve MATCH where access-site tests did not. */
 // FUN_00461BE0

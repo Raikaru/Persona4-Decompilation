@@ -73,6 +73,7 @@ typedef struct BtlAnalyzeModelSettings {
 
 /* measured: opt_propagation off preserves the split mode live range and
    retail's parameter-save order (MATCH nd0; without it, nd10). */
+/* measured: baseline nd8; scoped locals did not match (best nd8); retain opt_propagation off. */
 #pragma opt_propagation off
 // FUN_00218760
 /* Draw an HP/SP number or hidden-value panel using active/disabled colors and digit sprites. */

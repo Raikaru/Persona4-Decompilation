@@ -712,7 +712,7 @@ loop_7_test:
  */
 // FUN_001AED50
 #pragma push
-/* measured: func_001aed50 MATCH -> MISMATCH without this pragma. */
+/* measured: typed action aliases and named action/unit members retain 33 or more baseline words. */
 #pragma opt_loop_invariants on
 /* measured: fully typed body gives 3368B / nd 2202; opt_common_subs off
  * gives 3212B / nd 2208. Neither matches, so no additional pragma is retained. */
@@ -1096,8 +1096,8 @@ void btlActionRoundupUpdate(u8 *action)
     btlFormationSetPlacement(handle);
     btlActionSetState((BtlAction *)action, 0x20);
 }
-
 #pragma pop
+
 // FUN_001AF9D0
 void btlActionPacketInit(void)
 {

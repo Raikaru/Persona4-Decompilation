@@ -18,6 +18,10 @@
 #include "btl_skill_internal.h"
 #include "member_access.h"
 
+/* Unit settings: extract loop invariants throughout the action callbacks.
+ * measured: all 48 functions MATCH with the unhoisted pursuit exception below. */
+#pragma opt_loop_invariants on
+
 /* Enemy battle-table rows have a proven 0xE8 stride. The two movement
  * variants interleave their speed selector with an unknown halfword. */
 typedef struct BtlEnemyMovement {
@@ -295,8 +299,6 @@ static inline s32 btlActionGetFormationAddress(BtlBattleState *table, u16 index)
 }
 /* measured: loop-invariant probe for 001A0140 preheader materialization. */
 /* measured: close loop-invariant probe for 001A0140. */
-#pragma push
-#pragma pop
 /* measured: opt_propagation off plus one named local per address term. mwcc
    keeps source operand order for `named + named` (addu off,base / addu idx,sum
    as retail) but commutes an inline product on the left (`a * k + b` emits
@@ -620,7 +622,6 @@ after_type_1c80:
     }
 }
 
-#pragma push
 /* Accept or cancel target selection, copy the selected action records, and validate the command. */
 // FUN_001A1EA0
 void btlActionTargetUpdate(u8 *action) {
@@ -796,7 +797,6 @@ select_action:
     }
 }
 
-#pragma pop
 /* Enter the opening phase of the analyze presentation. */
 // FUN_001A24A0
 void btlActionAnalyzeInit(BtlAction *action)
@@ -808,9 +808,7 @@ void btlActionAnalyzeInit(BtlAction *action)
  * Loop invariants hoist the first scan's true value and each unsigned wrap
  * bound as retail does. Stored short cursor and widened index stay distinct. */
 // FUN_001A24B0
-#pragma push
-/* measured: func_001a24b0 MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
+/* measured: typed argument aliases and named member reads retain 288 differing words at baseline. */
 /* Hide unrelated actors, browse distinct unit records, and restore presentation when analyze closes. */
 void btlActionAnalyzeUpdate(u8 *action)
 {
@@ -989,7 +987,6 @@ void btlActionAnalyzeUpdate(u8 *action)
     }
 }
 
-#pragma pop
 /* Reset the command record and redirect eligible party actors to automatic selection. */
 // FUN_001A2AD0
 void btlActionAiInit(BtlAction *action) {
@@ -1074,7 +1071,7 @@ void btlActionSupportInit(void)
 /* Clear the selected buff levels and enqueue their presentation, or choose status recovery/the next state. */
 // FUN_001A2D70
 #pragma push
-/* measured: func_001a2d70 MATCH -> MISMATCH without this pragma. */
+/* measured: typed action/unit aliases and MEMBER reads retain 228 or more differing words at baseline. */
 #pragma opt_common_subs off
 void btlActionSupportUpdate(u8 *action) {
     extern void btlActionSetState(u8 *, u16);
@@ -1233,8 +1230,8 @@ fallback:
         }
     }
 }
-
 #pragma pop
+
 /* Initialize status-recovery progress after advancing the shared status counters. */
 // FUN_001A31A0
 void btlActionBadInit(u8 *action)
@@ -1244,7 +1241,6 @@ void btlActionBadInit(u8 *action)
     ((BtlAction *)action)->unk_420 = 0;
 }
 
-#pragma push
 /* Recover an incapacitated action or select its next state. The unit status
  * remains a 32-bit word through the low20 selector. Camera and animation
  * packets remain alive until their published UIDs have been consumed. */
@@ -1431,8 +1427,6 @@ void btlActionBadUpdate(BtlAction *actionState)
     }
 }
 
-#pragma pop
-#pragma push
 /* The mode is established by the action selector before entering this state.
    Movement and target-animation packets are separate dependency owners. */
 // FUN_001A3840
@@ -1605,7 +1599,6 @@ void btlActionCooperateInit(register BtlAction *actionState)
     }
 }
 
-#pragma pop
 /* Wait for this action packet chain, clear its cooperation mode, and publish completion flags. */
 // FUN_001A3D50
 void btlActionCooperateUpdate(BtlAction *action)
@@ -1774,15 +1767,17 @@ void btlActionPursuitInit(void)
  * 16-byte alignment. Scalarization is disabled for this storage; propagation
  * is disabled to preserve the unit load before the element's signed-word
  * promotion. The affinity provider retains its canonical s32 input. */
-#pragma push
 /* Keep the promoted shuffle count and output base at their explicit
  * phase boundaries. The index reference preserves each narrow read. */
 /* Select eligible targets, preserving the reference action when required,
  * then queue voice, cut-in and dependent formation packets. Both local
  * target lists hold twelve entries; single-target selection requires
  * a nonempty eligible set. */
-/* measured: func_001a43a0 MATCH -> MISMATCH without this pragma. */
+#pragma push
+/* measured: MEMBER status reads reduce baseline to two words; affinity load/element lifetimes still swap. */
 #pragma opt_propagation off
+/* measured: the unit's invariant hoisting changes 21 bytes here; retain this callback's unhoisted loops. */
+#pragma opt_loop_invariants off
 // FUN_001A43A0
 void btlActionPursuitUpdate(u8 *action)
 {
@@ -1924,8 +1919,8 @@ void btlActionPursuitUpdate(u8 *action)
     btlPacketEnqueue(task, 1);
     btlActionSetState((BtlAction *)action, 0xF);
 }
-
 #pragma pop
+
 // FUN_001A47F0
 void btlActionReadyInit(void)
 {
@@ -1935,7 +1930,7 @@ void btlActionReadyInit(void)
 /* measured: b210 -O2 with this scoped setting emits 1148/1152 exact bytes.
  * The ushort counter wrap and offset-first helper preserve retail's operation
  * order. All 39 code relocations and the 52-byte switch table were resolved. */
-/* measured: func_001a4800 MATCH -> MISMATCH without this pragma. */
+/* measured: typed argument aliases and named member reads retain 236 differing words at baseline. */
 #pragma opt_common_subs off
 /* Wait for the participating actions before dispatching the selected action
  * type and submitting its target-state and camera packets. */
@@ -2052,8 +2047,8 @@ donecheck:
         }
     }
 }
-
 #pragma pop
+
 /* Measured 2026-09-30 with the coherent motion-provider family: 2336 bytes,
  * zero instruction differences. Both motion locals use the provider's u16
  * selector domain; no wide temporary or local ABI override is needed.
@@ -2063,9 +2058,8 @@ donecheck:
  * created by 0019f5f0; the selector's other retail cases remain intact. */
 // FUN_001A4C80
 #pragma push
-/* measured: func_001a4c80 MATCH -> MISMATCH without this pragma. */
+/* measured: typed aliases retain 174 words; removing either lifetime/dead-assignment setting also differs. */
 #pragma opt_lifetimes on
-/* measured: func_001a4c80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
 /* Compute the source approach position and speed, retaining paired-target and encounter restrictions. */
 void btlActionMoveTargetInit(u8 *actionBytes)
@@ -2357,8 +2351,8 @@ range_done:
         action->flags &= 0xFFEF;
     }
 }
-
 #pragma pop
+
 /* After source movement stops, dispatch the command to its attack, skill or alternate handler. */
 // FUN_001A55A0
 void btlActionMoveTargetUpdate(BtlAction *action) {
@@ -2387,9 +2381,8 @@ void btlActionMoveTargetUpdate(BtlAction *action) {
 /* Measured: 656/656 bytes and 15 resolved relocations match retail.
  * Preserve unit/UID reloads across queue callbacks and the ordered distance test. */
 #pragma push
-/* measured: func_001a5650 MATCH -> MISMATCH without this pragma. */
+/* measured: named action/unit members retain 19 or more words; either toggle alone also differs. */
 #pragma opt_common_subs off
-/* measured: func_001a5650 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* Return toward the anchor pose when necessary; otherwise dispatch the selected command immediately. */
 // FUN_001A5650
@@ -2486,8 +2479,8 @@ void btlActionMoveHomeInit(s64 *action)
     }
     btlActionSetState((BtlAction *)action, nextState);
 }
-
 #pragma pop
+
 /* Wait for anchor movement to stop before dispatching the command handler. */
 // FUN_001A58E0
 void btlActionMoveHomeUpdate(BtlAction *action) {
@@ -2574,10 +2567,7 @@ void btlActionAttackInit(void)
  * 2026-10-12 selected-target join: fnalign 4 -> 3; select into a separate target local before handing it to the packet phase. The coalesced copy retains retail's intermediate branch-only join without emitting an instruction.
  * 2026-10-12 reaction short circuits: fnalign 3 -> 0; stage the real gate values and jump directly to reaction construction on each shortcut. Only the fallback predicate passes through the common boolean test.
  */
-#pragma push
-/* measured: initial loop-invariant hoisting reduced fnalign from 837 to 752 edits. */
-/* measured: func_001a59a0 MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
+/* measured: named action-member access retains 1624 differing words without invariant hoisting. */
 /* Build attack animation, repeated-hit, reaction and result packet chains with their frame dependencies. */
 // FUN_001A59A0
 void btlActionAttackUpdate(s64 *actionWords) {
@@ -3462,16 +3452,12 @@ createReaction:
     }
 }
 
-#pragma pop
 // FUN_001A7710
 void btlActionSkillInit(void)
 {
 }
 
-#pragma push
-/* measured: loop-invariant hoisting is required for retail's hit-loop preheader (506 -> 33 edits when introduced). */
-/* measured: func_001a7720 MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
+/* measured: typed argument aliases and named action/unit members retain 1788 or more baseline words. */
 /* Sequence skill presentation, linked-unit effects, per-target results and recovery using packet UIDs. */
 // FUN_001A7720
 void btlActionSkillUpdate(u8 *actionBytes) {
@@ -5511,7 +5497,6 @@ reactionPacket:
     }
 }
 
-#pragma pop
 // FUN_001ABBA0
 void btlActionSummonInit(void)
 {
@@ -5522,9 +5507,7 @@ void btlActionSummonInit(void)
  * selector, and packet/ID lifetimes retain the 0x170 frame. The formation
  * filename is a 128-byte string; encounter insertion returns DatUnit*. */
 // FUN_001ABBB0
-#pragma push
-/* measured: func_001abbb0 MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
+/* measured: taking the indexed ID slot's address removes the sole baseline addu-order difference. */
 /* Play the summon presentation and initialize up to three new encounter actors and their resources. */
 void btlActionSummonUpdate(s64 *actionBytes)
 {
@@ -5712,7 +5695,10 @@ void btlActionSummonUpdate(s64 *actionBytes)
     for (; (u16)summonIndex < 3; summonIndex = (u16)(summonIndex + 1)) {
         u16 unitId;
         u8 *summonedAction;
-        unitId = action->ids[(u16)summonIndex];
+        {
+            u16 *unitIdSlot = &action->ids[(u16)summonIndex];
+            unitId = *unitIdSlot;
+        }
         if (unitId == 0) {
             break;
         }
@@ -5872,7 +5858,6 @@ void btlActionSummonUpdate(s64 *actionBytes)
     }
 }
 
-#pragma pop
 /* Select assist targets and establish the formation/camera presentation before readiness. */
 // FUN_001AC500
 void btlActionAssistInit(BtlAction *action) {
@@ -6430,7 +6415,7 @@ void btlActionEscapeInit(void)
 
 /* measured: func_001ad550 MATCH -> MISMATCH without this pragma. */
 // FUN_001AD550
-#pragma opt_loop_invariants on
+/* measured: cached escape distances and a separate collected-slot pointer retain 152 baseline words. */
 /* Collect eligible escaping actors and sequence their movement, hiding and encounter-end dependencies. */
 void btlActionEscapeUpdate(s64 *actionBytes)
 {
@@ -6621,9 +6606,8 @@ void btlActionEscapeUpdate(s64 *actionBytes)
 /* Measured: 644/656 bytes, 22 resolved relocations and 12 zero tail bytes.
  * Packet submissions retain callback-visible unit, UID and global reloads. */
 #pragma push
-/* measured: func_001adb80 MATCH -> MISMATCH without this pragma. */
+/* measured: named members retain 68 or more baseline words; either toggle alone still differs. */
 #pragma opt_common_subs off
-/* measured: func_001adb80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* Release the prior linked model, select and initialize the new persona, and queue the change effects. */
 // FUN_001ADB80

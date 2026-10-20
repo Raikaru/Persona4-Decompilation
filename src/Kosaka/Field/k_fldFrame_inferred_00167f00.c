@@ -189,8 +189,6 @@ typedef signed __int128 s128;
 /* measured: closes the function-scoped opt_propagation probe. */
 /* Matched full 759-instruction retail body.  The state accessor preserves the
  * read before the row-offset calculations across the branch join. */
-#pragma push
-#pragma pop
 /* measured: opt_propagation off probe for retail field-load order in FldEnemyLoadTable */
 /* measured: opt_propagation on closes the FldEnemyLoadTable load-order probe */
 /* measured: opt_propagation off preserves the retail recomputed index and live register set in FldPartyModelRelease. */
@@ -392,6 +390,8 @@ void FldFrameTask_Destroy(u8 *task)
 /* measured: opt_loop_invariants hoists the two resource-table strides and
    their absolute bases for FldFrameTask_Spawn. */
 /* measured: FldFrameTask_Spawn MATCH -> MISMATCH without this pragma. */
+#pragma push
+/* measured: baseline 24 differing words; block lifetimes, pointer/index loops did not match; retain scoped settings. */
 #pragma opt_loop_invariants on
 s32 FldFrameTask_Spawn(s32 parentTask, s32 resourceKey, f32 height)
 {
@@ -468,10 +468,10 @@ s32 FldFrameTask_Spawn(s32 parentTask, s32 resourceKey, f32 height)
     }
     return taskHandle;
 }
+#pragma pop
 
 /* measured: closes the opt_loop_invariants scope for FldFrameTask_Spawn. */
 /* measured: FldFrameTask_GetPosition, FldFrameTask_SetOrientation, FldFrameTask_StartMove MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants off
 // FUN_00168730
 void FldFrameTask_SetFlags(u8 *task, s32 flags)
 {

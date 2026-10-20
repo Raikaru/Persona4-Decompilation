@@ -115,6 +115,7 @@ void mdlEffectInitializeShakeFrame(void) {
  * magnitude/sign-reference/current declaration order for $f3/$f2/$f1.
  * The magnitude does not need an artificial post-comparison lifetime. */
 /* Randomize and clamp the two shake displacements, then translate the retained camera-relative frame. */
+/* measured: separate displacement magnitude and isolated CSE removal still differ (best baseline nd 289 bytes); retain all three toggles. */
 // FUN_004A7830
 /* measured: isolate this zero-edit pipeline from the other 91 functions. */
 #pragma push

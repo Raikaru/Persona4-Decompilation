@@ -86,6 +86,7 @@ extern s32 frFontFreeListInsert(u8 *freeNode);
 /* measured: opt_loop_invariants on hoists that bound AFTER the body's
    temporaries are coloured, which is what puts the bound in $a0 and the
    next-node pointer in $a1 as retail. */
+/* measured: baseline and precomputed-loop-bound probes both differ (nd 43); retain invariant hoisting. */
 #pragma opt_loop_invariants on
 /* Creates the glyph cache: count entries, each with a 0x200-byte raster buffer. */
 /* measured: the remaining word-index accesses preserve b210 codegen;
@@ -213,8 +214,8 @@ extern s32 D_00881750;
  * twelve zero alignment bytes. All seven siblings and data are unchanged.
  * See docs/probe_archive/Font_raster_00275d80_20260923.md. */
 #pragma push
+/* measured: propagation off is redundant with invariant hoisting retained (MATCH); without hoisting nd 366. */
 #pragma opt_loop_invariants on
-#pragma opt_propagation off
 /* Builds the quad for one glyph at (x, y) with the given palette and colour, and submits it. */
 /* Keep byte-addressed fields here: the typed cache rewrite changed retail register
  * allocation/reloads. Cache entries are 0x21C bytes (palette +8, texture +0x14);

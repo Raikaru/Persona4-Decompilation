@@ -90,11 +90,7 @@ struct PanelTransform;
 /* measured: retail hoists the 0.5f loop constants out of the corner loops. */
 #pragma push
 #pragma pop
-/* measured: nd 87 -> 0. opt_loop_invariants on hoists the stackE0.y/.z loads
-   out of the grid loops after `outer = 0`, as retail does. */
-#pragma push
-/* measured: func_0036ae90 MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
+/* measured: cache the invariant light Y/Z after outer initialization; declaration lifetimes retain MATCH without opt_loop_invariants. */
 // Intent: Builds a panel's tile vertex list: the camera-facing flip, the 9-row grid of tiles and their colours [inferred]
 /* Orient the card mesh toward the camera and shade its alternating tile rows using diffuse and specular weights. */
 // FUN_0036AE90
@@ -139,6 +135,8 @@ void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
     f32 fx;
     f32 dot2;
     f32 pow6;
+    f32 lightY;
+    f32 lightZ;
     f32 dot3;
     f32 clamped;
     f32 combined;
@@ -180,7 +178,10 @@ void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
     RwV3dNormalize(&worldNormal, &worldNormal);
     {
         dst = mesh + 4;
-        for (outer = 0; outer < 9; outer++) {
+        outer = 0;
+        lightY = lightPosition.y;
+        lightZ = lightPosition.z;
+        for (; outer < 9; outer++) {
             even = ~outer & 1;
             if (even != 0) {
                 limit = 8;
@@ -208,8 +209,8 @@ void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
                 eyeDirection.z = worldPosition.z - cameraPosition->z;
                 RwV3dNormalize(&eyeDirection, &eyeDirection);
                 lightDirection.x = worldPosition.x - lightPosition.x;
-                lightDirection.y = worldPosition.y - lightPosition.y;
-                lightDirection.z = worldPosition.z - lightPosition.z;
+                lightDirection.y = worldPosition.y - lightY;
+                lightDirection.z = worldPosition.z - lightZ;
                 RwV3dNormalize(&lightDirection, &lightDirection);
                 dot2 = eyeDirection.x * lightAxis.x + eyeDirection.y * lightAxis.y + eyeDirection.z * lightAxis.z;
                 {
@@ -227,8 +228,8 @@ void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
                     }
                 }
                 lightDirection.x = lightPosition.x - worldPosition.x;
-                lightDirection.y = lightPosition.y - worldPosition.y;
-                lightDirection.z = lightPosition.z - worldPosition.z;
+                lightDirection.y = lightY - worldPosition.y;
+                lightDirection.z = lightZ - worldPosition.z;
                 RwV3dNormalize(&lightDirection, &lightDirection);
                 dot3 = lightDirection.x * worldNormal.x + lightDirection.y * worldNormal.y + lightDirection.z * worldNormal.z;
                 if (dot3 <= 0.0f) {
@@ -254,4 +255,3 @@ void pscModelBuildTileVertices(u8 *mesh, u8 *model) {
     func_003e0f40(cam);
 }
 
-#pragma pop

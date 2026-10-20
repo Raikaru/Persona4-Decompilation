@@ -192,7 +192,7 @@ typedef struct Code45Im2DVertex {
 
 
 #pragma push
-/* measured: func_00450630 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs by 31 words; per-loop near-depth snapshots also fail. */
 #pragma opt_loop_invariants on
 /* Native b210 O2: 1044/1056 bytes, sixteen resolved relocations and
  * twelve zero alignment bytes. Preserve the explicit vertex pointer
@@ -327,7 +327,7 @@ void sdkDbprtDrawOverlay(void)
 
 #pragma pop
 #pragma push
-/* measured: func_00450a50 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs by 182 words; a pre-loop depth snapshot also fails. */
 #pragma opt_loop_invariants on
 /* Native b210 O2: 884/896 bytes, eight fully resolved relocations and
  * twelve zero alignment bytes. Color and position use their complete

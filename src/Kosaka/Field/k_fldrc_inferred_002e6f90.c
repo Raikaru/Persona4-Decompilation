@@ -39,6 +39,8 @@ typedef struct ShopSystemWork {
 
 /* Append an item ID only when it is absent from the 48-entry list. */
 // FUN_002E6F90
+#pragma push
+/* measured: baseline 34 differing words; pointer/index loops did not match; retain scoped settings. */
 #pragma opt_loop_invariants on
 s32 fclListAddUnique(u8 *list, s32 itemId) {
     s32 i = 0;
@@ -55,12 +57,14 @@ s32 fclListAddUnique(u8 *list, s32 itemId) {
     ((FclItemIdList *)list)->count = ((FclItemIdList *)list)->count + 1;
     return 1;
 }
+#pragma pop
 
 #pragma push
-#pragma opt_loop_invariants on
 /* Mark the requested ID empty, compact retained IDs, and decrement the stored count. */
 /* measured: typing the remaining count reads/store changed 10..95 bytes; retain count reloads while compacting the ID array. */
 // FUN_002E7010
+/* measured: baseline 80 differing words; block lifetimes did not match; retain scoped settings. */
+#pragma opt_loop_invariants on
 s32 fclListRemoveId(u8 *list, s16 itemId)
 {
     FclItemIdList *itemList = (FclItemIdList *)list;
@@ -105,16 +109,11 @@ s32 fclListRemoveId(u8 *list, s16 itemId)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // FUN_002E7190
 void fclFreeWorkBlock(u8 *work) {
     jtbl_008873EC[0](work);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Unlock eligible moon-phase items and report whether any unlocked item exists. */
 // FUN_002E71C0
 s32 fclUnlockMoonPhaseItems(void)
@@ -148,10 +147,7 @@ loop_test:
     }
     return (s8)found == 1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Drive shop scene loading, fades, shop task creation and eventual scene unloading. */
 /* measured: typing the two remaining shop-task writes changed 136/338 bytes; retain the measured work pointers across shop creation. */
 // FUN_002E72C0
@@ -233,19 +229,13 @@ block_24:
         return 0;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // FUN_002E74E0
 void shopSystemDestroy(u8 *task)
 {
     jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Create the shop controller and black background, then initialize item availability flags. */
 // FUN_002E7510
 s32 shopSystemCreate(s32 parent)
@@ -285,4 +275,3 @@ s32 shopSystemCreate(s32 parent)
     }
     return result;
 }
-#pragma pop

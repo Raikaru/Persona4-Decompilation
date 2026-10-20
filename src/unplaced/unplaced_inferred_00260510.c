@@ -122,11 +122,12 @@ void calDrawDayNumberGlyph(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s8 * te
 
 typedef struct { u32 w[48]; } CalendarTrailTable;
 
+// Intent: Draws a highlight trail around a weather icon in one of three layouts (variant 0/1/2) [inferred]
+// FUN_00260600
+/* measured: baseline differs by 1432 bytes; retaining lifetimes leaves 1420, explicit float origins leave 1605. */
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
-// Intent: Draws a highlight trail around a weather icon in one of three layouts (variant 0/1/2) [inferred]
-// FUN_00260600
 void calDrawHighlightTrail(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 setupStates)
 {
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, u32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
@@ -239,10 +240,11 @@ typedef struct {
 
 extern CalendarSparkle D_006375C0[30];
 extern void calDrawHighlightTrail(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 );
-#pragma push
-#pragma opt_propagation off
 // Intent: Draws the weather highlight (sparkle table, colour by highlight kind) for a calendar cell [inferred]
 // FUN_00260E60
+/* measured: baseline and direct render-state table calls both differ by 1307 bytes. */
+#pragma push
+#pragma opt_propagation off
 void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32 highlight, f32 scaleX, f32 scaleY, s32 font, s32 setupStates)
 {
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
@@ -881,10 +883,11 @@ static inline void calendarZeroBytes(void *memory, s32 count)
     }
 }
 
-#pragma push
-#pragma opt_propagation off
 // Intent: Draws one calendar date cell: day number, weekday colour, opacity and clip state [inferred]
 // FUN_00262DE0
+/* measured: baseline and direct render-state table calls both differ by 425 bytes. */
+#pragma push
+#pragma opt_propagation off
 void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
 {
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
@@ -952,7 +955,6 @@ void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 // Intent: Advances a day-scroll step over 15 frames with a sine ease and returns 1 when finished [inferred]
 // FUN_00263220
 /* measured: optimization-level probe for 00263220 register colouring */
@@ -1016,7 +1018,6 @@ block_8:
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 // Intent: Day-change task update: loads the day-change resource, then drives the day-change state task [inferred]
 // FUN_00263460
@@ -1134,18 +1135,15 @@ block_25:
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
+#pragma opt_lifetimes on
 /* The scrolling state supplies a fractional-day offset of at most 94 pixels.
  * Blend the weather glyphs on either side of the day boundary; the selected
  * columns are redrawn with their own clip intervals. Opacity is a byte in
  * this function and in both calendar drawing helpers. */
 // Intent: Draws the day strip with a crossfade between two weather columns at the fractional scroll offset [inferred]
 // FUN_00263730
-/* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_lifetimes on
+/* Widen opacity once after initializing the column; both crossfade calculations share this value. */
 void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade, u8 *work)
 {
     /* measured: remaining CalendarDayChange byte accesses preserve b210 load/address scheduling; individual field substitutions lose MATCH. */
@@ -1158,18 +1156,21 @@ void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfad
     s32 newFont;
     s32 rowFont;
     s32 selectedFont;
+    s32 alpha;
 
-    for (column = 0; column < 8; column++) {
+    column = 0;
+    alpha = opacity;
+    for (; column < 8; column++) {
         if (date - 1 + column < 0) {
             continue;
         }
         if (crossfade != 0 && (oldWeather = (u16)calGetPackedDayEntry(date - 1 + column, date)) != (u16)calGetPackedDayEntry(date - 1 + column, date + 1)) {
-            oldOpacity = (u8)(255.0f - (f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
+            oldOpacity = (u8)(255.0f - (f32)(func_0043c6a0(x) * alpha) / 94.0f);
             calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, oldOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, ((CalendarDayChange *)work)->spritePack.word, 0);
             oldFont = MEMBER(s32, work, CalendarDayChange, spritePack.word);
             weather = (u16)calGetPackedDayEntry(date - 1 + column, date);
             calDrawWeather(x + column * 0x5E, y + 295, depth, oldOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, oldFont, 0);
-            newOpacity = (u8)((f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
+            newOpacity = (u8)((f32)(func_0043c6a0(x) * alpha) / 94.0f);
             calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, newOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, MEMBER(s32, work, CalendarDayChange, spritePack.word), 0);
             newFont = MEMBER(s32, work, CalendarDayChange, spritePack.word);
             weather = (u16)calGetPackedDayEntry(date - 1 + column, date + 1);
@@ -1193,11 +1194,10 @@ void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfad
         }
     }
 }
-#pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
+/* measured: removing lifetimes changes 97 bytes in the draw callback. */
 #pragma opt_lifetimes on
 // Intent: Queued draw callback for the day strip: draws fade rectangles and the strip columns [inferred]
 // FUN_00263CB0
@@ -1495,7 +1495,6 @@ void calDrawDayStripCallback(s32 queue, u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 // Intent: Queues a day-strip draw task with the strip callback and its state argument [inferred]
 // FUN_00264CB0
@@ -1511,7 +1510,6 @@ void calQueueDayStripDraw(s32 task, s32 queue)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 // Intent: Day-change task destroy: destroys the child task hierarchy, frees the day-change resource and releases the task work block [inferred]
 // FUN_00264D10
@@ -1531,4 +1529,6 @@ void cldDayChangeStopTask(u8 *unusedTask)
     }
     (*jtbl_008873EC)(work);
 }
+#pragma pop
+#pragma pop
 #pragma pop

@@ -147,6 +147,7 @@ void pscModelInitPanel(u8 *model)
 /* measured: retail hoists the 0.5f loop constants out of the corner loops. */
 #pragma push
 /* measured: func_00368e80 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline differs by 128 words; explicit corner-center local leaves nd359; retain hoisting. */
 #pragma opt_loop_invariants on
 // Intent: Advances a panel's animation timer and phase values for its mode, then rebuilds its tile vertices [inferred]
 /* Advance mode-specific card UV and pulse phases, expire timed transitions, and rebuild enabled tile meshes. */

@@ -119,6 +119,7 @@ extern f32 D_007612C4;
 #pragma push
 /* measured: without it the point base is recomputed per iteration (271). */
 /* measured: func_0026cef0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline differs by 267 words; explicit segment-point preheaders leave nd861; retain hoisting. */
 #pragma opt_loop_invariants on
 // Intent: Samples a scene path at the elapsed distance, writing position and rotation [inferred]
 // FUN_0026CEF0

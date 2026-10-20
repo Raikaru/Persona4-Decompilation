@@ -240,6 +240,7 @@ typedef struct {
  * second ID after initialization, which can update caller-visible state. */
 // FUN_0033E5C0
 #pragma push
+/* measured: baseline 3 differing words; inline second card/ID 3, MEMBER second ID 13, direct typed ID 54. */
 #pragma opt_propagation off
 /* Steps the card loader state machine; returns its status. */
 s32 cmbCardLoaderStep(u8 *task) {
@@ -310,6 +311,7 @@ void cmbCardControllerDestroy(u8 *task) {
  * opt_loop_invariants on retains the retail loop/address lifetimes. */
 // FUN_0033E810
 #pragma push
+/* measured: baseline 597 differing words; wide loop indices 727; retain narrow-index hoisting. */
 #pragma opt_loop_invariants on
 /* Advances each card along its CmbCardPathPoint path once per frame. */
 s32 cmbCardPathUpdate(u8 *task) {
@@ -564,6 +566,7 @@ void *cmbCardEffWork(u8 *task) {
 /* measured: opt_propagation off keeps &axisXY in $a1 before the D_0064A5A0/D_0064A5A8
    staging loads and the p84 multiply below the task chain (the "scheduler-CSE floor"
    above was propagation, not scheduling). */
+/* measured: baseline 54 differing words; direct axis snapshot 55, access-site controller 54. */
 #pragma opt_propagation off
 /* Sets the selected card's angle (f32, radians-style value from the caller). */
 void cmbCardSetAngle(u8 *task, s8 cardIndex, f32 angle) {
@@ -634,15 +637,9 @@ void cmbCardApplySlotTransform(u8 *task, s8 cardIndex, CmbVec2f position, f32 sc
     cardAddress = (u32)secondaryCard;
     btlShuffleCardApplyScale((u8 *)cardAddress, (f32 *)&position, 90.0f * scale);
 }
-/* measured: MATCHED this wave — the old nd-1 "load-sinking + addu-order floor" is broken by
-   lever 3 + opt_propagation: the inline helper byteAddressAdd carries the index-first addu
-   (`addu $a0,$v1,$a2` vs the old base-first `addu $a0,$a2,$v1`) through its parameters,
-   and `#pragma opt_propagation off` forces the single-use base load early into $a2
-   (helper alone: nd 9, load sinks to $v1 and the sign-ext chain shifts to $a1;
-   pragma alone on the plain expression: nd 3, still base-first addu). */
+/* measured: byteAddressAdd preserves the index-first slot address under file-baseline settings; no propagation toggle is needed. */
 /* Begin a timed interpolation between two card positions and enable movement. */
 // FUN_0033FC00
-#pragma opt_propagation off /* measured: see above; forces the base load early (lw $a2,0x38($a0) first) */
 /* Starts the selected card's move: start and target positions, duration in frames; sets the active flag. */
 void cmbCardStartMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f endPosition, s16 duration) {
     u8 *slotBase = byteAddressAdd((u32)((s32)cardIndex * 0x84), (u8 *)((u32)((SdkTask *)task)->work));
@@ -653,7 +650,6 @@ void cmbCardStartMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f e
     ((CmbCardSlot *)(slotBase + 0xC))->moveDuration = duration;
     ((CmbCardSlot *)(slotBase + 0xC))->flags |= 1;
 }
-#pragma opt_propagation on
 /* Initialize movement interpolation for the selected card slot. */
 static inline void cmbSetMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f endPosition, u16 duration) {
     /* Begin the selected card's movement and enable its interpolation flag. */
@@ -1673,6 +1669,7 @@ void cmbCardEffDrawStep(u8 *drawTask, u8 *vertices) {
 // Renders the enabled card quads: updates each quad from the camera depth, then queues its draw packet [inferred].
 // FUN_00347C70
 #pragma push
+/* measured: baseline 265 differing words; wide loop index 274; retain vertex-loop settings. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 s32 cmbCardEffRenderTask(u8 *task)

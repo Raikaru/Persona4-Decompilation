@@ -298,7 +298,7 @@ void btlActionExitInit(u8 *action)
    `base` second give retail's v1/v0 pair. In the owner, the measured
    `opt_common_subs off` keeps the scan's offset and table reloads separate. */
 #pragma push
-/* measured: func_001b05d0 MATCH -> MISMATCH without this pragma. */
+/* measured: typed argument aliases and named member reads retain 95 or more baseline words. */
 #pragma opt_common_subs off
 // FUN_001B05D0
 /* Wait for unit packets, release encounter references and the unit, then mark the action for deletion. */
@@ -374,8 +374,8 @@ void btlActionExitUpdate(u8 *action)
     btlCameraReleaseActionRefs(action);
     ((BtlAction *)action)->unk_1a |= 2;
 }
-
 #pragma pop
+
 // FUN_001B07C0
 void btlActionTestInit(void)
 {

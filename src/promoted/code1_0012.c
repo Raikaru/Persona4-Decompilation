@@ -217,11 +217,14 @@ typedef struct {
     u8 c1e;
     u8 c1f;
 } Frame00121DE0;
-/* measured: closes the opt_propagation bracket for fadeUpdateCallback. */
-#pragma opt_propagation on
 
 /* measured: closes the optimization_level bracket at the file's -O2 baseline (nd 0). */
 #pragma optimization_level 2
+
+/* Unit setting: propagation off; palette/title drawing and child-image drawing retain propagation. */
+#pragma opt_propagation off
+#pragma push
+#pragma opt_propagation on
 
 extern void *RwMatrixRotate(void *m, void *src, f32 angle, s32 mode);
 extern void *func_003e4320(void *dst, void *src, void *m);
@@ -239,7 +242,6 @@ typedef struct {
     f32 f;
 } Code1GlobalPair12;
 
-#pragma opt_propagation on
 /* Floor: 844 differing words (was 900), 967 of 964 instrs (+3, +0.3% well inside 3% band, 26 slack to 993 edge; was 993/+29 edge), 932 fnalign edits (was 1077). Surplus was 6 extra clamped float->u8 (cvt.w.s/mfc1 +12, c.ole/sub/bc1t +6, lui +6) from double-converting white via f intermediates + a2; fix is u32 r/g/b for retail's unsigned bltz/srl doubling, a0 as (s32)(f32)*(s32 *) for lwc1/cvt.s.w/cvt.w.s/mfc1, and 5 of 6 f intermediates folded to direct sums (first f0 double retained to center count). Cheap causes ruled out: all literals f-suffixed, 13 jals both with no __ soft-float relocs, no 2.0f in body (mul.s 3/3). Gate 8 inside 0 outside. Body also at docs/probe_archive/Lane0012_00124f70_body.c; production stays ASM. */
 /* measured 2026-09-18: reconstructed from bare marker (retail 0x00124F70, 3856B window, 964 instrs). v1c baseline 921 (Ghidra-direct, [6] frame exact at 0x360; [8] gave 0x370 at 922). v2 908 (-13: D_5530/40 array not scalar + 002aaf20 640/448 not 512/480,512/1216). v3 904 (-4: flag beqz polarity + col order + buffers address-ascending). v4 903 (-1: buffers descending, first-declared highest per micro stacktest2). v5 900 (-3: explicit p5234/5230/524C/5248/5244/5240/523C/5238 locals, first two spill to 0xA0/0xB0). Free pragmas tie/worse: loopinv 922 (+1), nounroll 921 tie, sched 921 tie, propoff 943 (+22), commonsubs 940 (+19). 7o eight skipped: body already in 7o form (bare decls + statement assigns, no Type name = ...; initialisers). Full proof in archive. */
 /* Title palettes contain six complete four-byte RGBA values. Native value
@@ -372,7 +374,7 @@ extern TitleRect D_005E55A0;
  *   numbered after the hoisted 0xFFFFFF constant: retail's $s1/$s2.
  * - Record pointers 2-5 go through ((u8 *)((u32)(offset-first addu) + (u32)@1@)).
  */
-#pragma push
+/* measured: baseline lifetimes gives nd8614; the attempted block-local counter is not accepted by b210 C. */
 #pragma opt_lifetimes on
 /* The scene table has a 0x28-byte stride; draw and update read the same rows. */
 typedef struct TitleRecordBlock {
@@ -1743,8 +1745,6 @@ typedef union Code12FrameVectorTransfer {
     Code12FrameVector vector;
 } Code12FrameVectorTransfer;
 
-#pragma push
-#pragma opt_propagation off
 /* Build a rotation matrix from the quaternion and clear its translation. */
 static inline void titleQuaternionMatrix(Code12FrameMatrix *matrix, const Code12FrameQuaternion *rotation)
 {
@@ -1779,10 +1779,7 @@ static inline void titleQuaternionMatrix(Code12FrameMatrix *matrix, const Code12
     matrix->pos.z = 0.0f;
     matrix->flags = 3;
 }
-#pragma pop
-
-#pragma push
-#pragma opt_propagation off
+/* measured: removing propagation suppression gives nd1978; retain the callback's scoped setting. */
 s32 fadeStatus(void);
 
 s32 taskLoadSlotModels(u8 *context);
@@ -2108,7 +2105,8 @@ s32 titleTaskUpdate(u8 *task)
     return 0;
 }
 
-#pragma pop
+#pragma push
+#pragma opt_propagation on
 
 typedef struct TitleImageDrawWork {
     s32 state;
@@ -2202,12 +2200,9 @@ void titleDrawChildImage(s32 unused, s32 task)
     }
 }
 
-#pragma push
-/* measured: opt_loop_invariants on hoists the loop constants into the
-   retail preheader and opt_propagation off keeps the pre-call indexed
-   destination address materialised; 92 differing words -> 0 (532/544). */
-#pragma opt_loop_invariants on
-#pragma opt_propagation off
+#pragma pop
+/* measured: invariant hoisting is redundant here; propagation suppression alone
+   keeps all 532 code bytes matched (both removed: nd246). */
 // Kept in bucket: diff 207 when moved; cause not diagnosed.
 typedef struct {
     Vec2f startPosition;
@@ -2327,9 +2322,6 @@ void titleSlotTableInit(u8 *menu)
     ((CampMenuWork *)(menu))->optionCount = optionCount;
     titleSlotSetMode(menu, 0);
 }
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
-#pragma pop
 /* The menu owns eleven complete tween records and three seven-sprite banks.
  * measured: native b210 -O2 emits 1348 exact bytes plus 12 zero alignment bytes.
  * Scoped propagation preserves the selected sprite/opacity snapshots and the
@@ -2337,8 +2329,7 @@ void titleSlotTableInit(u8 *menu)
  * See docs/probe_archive/Camp_renderer_0012d630_complete_20260922.md. */
 
 
-#pragma push
-#pragma opt_propagation off
+/* measured: delayed alpha loading still gives nd43 without propagation suppression. */
 // Kept in bucket: diff 43 when moved; cause not diagnosed.
 /* Advance title selector tweens and draw each visible option; return completion. */
 // FUN_0012D630
@@ -2485,37 +2476,16 @@ s32 titleSlotUpdateAndDraw(u8 *menu)
     return finished;
 }
 
-#pragma pop
-/* measured: opt_loop_invariants on is load-bearing for 0012DC00 -- without it
-   the object grows to 676 bytes against the 672-byte window at nd 243. */
-#pragma opt_loop_invariants on
-/* measured: closes the opt_loop_invariants bracket opened above func_0012dc00. */
-#pragma opt_loop_invariants off
+/* Empty optimizer probes left by moved functions were removed; no body uses them. */
 extern u8 D_005E58C0[];
 extern u8 D_005E59A0[];
 extern u8 D_005E5A80[];
 extern void titleLayoutSlots(u8 *menu);
 
-#pragma push
-/* measured: opt_loop_invariants on is load-bearing: removing it yields MISMATCH nd 383 (obj 684B/window 688B); on yields MATCH nd 0 (obj 680B/window 688B) by hoisting the case-zero constants. */
-#pragma opt_loop_invariants on
-/* measured: closes the opt_loop_invariants bracket for titleSlotSetMode. */
-#pragma opt_loop_invariants off
-#pragma pop
-/* measured: opt_loop_invariants on hoists the conversion constants into the loop preheader. */
-#pragma opt_loop_invariants on
-#pragma opt_rebuildconditionals off
-#pragma opt_rebuildconditionals on
-/* measured: closes the opt_loop_invariants bracket for func_0012e2f0. */
-#pragma opt_loop_invariants off
-/* measured: opt_propagation off probe for temp16 width in func_0012e7c0 */
-#pragma opt_propagation off
-/* measured: opt_propagation on closes the temp16 width probe */
-#pragma opt_propagation on
 /* measured: propagation and constant extraction off preserve cached
  * opacity values and the independent animation-row evaluations. */
+/* measured: baseline constant extraction gives nd1452 even with propagation suppressed. */
 #pragma push
-#pragma opt_propagation off
 #pragma opt_pulloutconstants off
 /* The label renderer reads these fields at offsets 0x00..0x18. */
 typedef struct {
@@ -2864,11 +2834,6 @@ void radarDrawPanel(u8 *state)
 }
 
 #pragma pop
-/* measured: opt_common_subs off preserves the retail base+offset accesses in
-   the two-record callback loop. */
-#pragma opt_common_subs off
-/* measured: opt_common_subs on closes the callback-loop probe. */
-#pragma opt_common_subs on
 extern u8 D_005E5BF0[];
 extern u8 D_005E6290[];
 extern u8 D_005E65E0[];
@@ -2877,8 +2842,3 @@ extern u8 D_005E6C80[];
 extern u8 D_005E6FD0[];
 extern u8 D_005E7320[];
 
-/* measured: opt_common_subs off preserves retail's first-loop base/index
-   addressing and setup order; on reverts immediately after the switch. */
-#pragma opt_common_subs off
-/* measured: closes opt_loop_invariants for func_0012ff60. */
-#pragma opt_loop_invariants off

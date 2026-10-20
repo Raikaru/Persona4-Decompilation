@@ -454,6 +454,7 @@ void cmpConfigUpdateFrame(u8* unusedNode, u8* work) {
 // Draws the config screen: live graph, option rows, reset button and help text.
 // FUN_0035D0A0
 #pragma push
+/* measured: baseline leaves 743 differing words; isolated toggle removals also fail (lifetimes alone: 65 differing bytes). */
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
 #pragma opt_lifetimes on

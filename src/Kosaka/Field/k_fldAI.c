@@ -189,8 +189,6 @@ extern s32 *MT_Scene_GetFrameState(void);
  * complete XYZ objects, and each model query keeps its native pointer ABI.
  */
 #pragma push
-#pragma opt_loop_invariants on
-#pragma opt_rebuildconditionals off
 typedef union FldFollowerPositionOutput {
     RwV3d value;
     u8 bytes[sizeof(RwV3d)];
@@ -206,6 +204,9 @@ static inline u8 **fldFollowerModelSlot(u8 *entry)
 
 /* Earlier whole-layout probe: 5392/5248 bytes. Named MEMBER accesses keep the independently measured alias-sensitive sites. */
 // FUN_0017D3C0
+/* measured: baseline 1154 differing words; typed access, block lifetimes, branch/loop forms did not match; retain scoped settings. */
+#pragma opt_loop_invariants on
+#pragma opt_rebuildconditionals off
 s32 FldAI_ChaserUpdate(u8 *task)
 {
     struct RwFrame;
@@ -897,8 +898,9 @@ s32 FldAI_ChaserCanSeeTarget(u8 *actor)
  * Load each comparison value separately, and name the bound-array base before
  * each single-bound correction, to preserve the retail address lifetimes. */
 #pragma push
-#pragma opt_propagation off
 /* Bounds are two max/min XYZ pairs at +0x18/+0x30; scaled integer cursors preserve the documented comparison/address lifetimes. */
+/* measured: baseline 458 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+#pragma opt_propagation off
 s32 FldAI_AdvanceBoundsSample(u8 *work)
 {
     FldAIVec3 hit;
@@ -1153,9 +1155,6 @@ tail:
  * Match: fnalign 369 -> 0. Preserve phase-specific vector lifetimes and snapshots;
  * propagation/pullout stay off while CSE stays on for retail's shared constants. */
 #pragma push
-#pragma opt_lifetimes on
-#pragma opt_propagation off
-#pragma opt_pulloutconstants off
 /* Accumulate a turn angle and return the value written back. */
 static inline f32 fldAIAccumulateTurn(f32 *angle, f32 turn)
 {
@@ -1209,6 +1208,10 @@ extern unsigned char D_00794420[];
 extern unsigned char D_005F1CC0[];
 /* Earlier whole-layout probe: 11784/11584 bytes. Access-site fields below retain only measured word/float exceptions. */
 // FUN_0017F490
+/* measured: baseline 1819 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+#pragma opt_lifetimes on
+#pragma opt_propagation off
+#pragma opt_pulloutconstants off
 int FldAI_PatrolUpdate(unsigned char *task)
 {
   typedef struct { unsigned char r, g, b, a; } FldAIColor;

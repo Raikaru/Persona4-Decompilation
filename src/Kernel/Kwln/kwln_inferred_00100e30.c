@@ -229,6 +229,7 @@ s32 kwlnEnableInterrupts(void)
 /* measured: opt_loop_invariants off prevents the four queue-address expressions from being hoisted across their wait loops. */
 /* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
 /* measured: func_00100e60 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 460 bytes; named queue address lifetimes; explicit constant arguments instead of shared one local also differ. */
 #pragma opt_common_subs off
 // Intent: initialises the kwln subsystems: the active handle, the task and primitive pools, the CD streams and devices, the sound system and the table of active handles.
 // FUN_00100E60

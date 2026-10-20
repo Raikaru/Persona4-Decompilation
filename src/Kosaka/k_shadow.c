@@ -331,6 +331,7 @@ extern f32 fabsf(f32 x);
 extern s32 FldShadow_StepCasterSetup(u8 *task);
 
 /* measured: b510 matches only with loop-invariant hoisting on and propagation off (14/14). */
+/* measured: baseline removal differs in 728 bytes; reuse named shadow alias; reread mode through caster field also differ. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 /* Allocate a caster and initialize render-to-texture or ring resources for its mode. */

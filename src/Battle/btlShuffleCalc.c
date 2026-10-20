@@ -504,6 +504,7 @@ void btlShuffleCalcScheduleMove(u8 *state, u16 delay, u16 duration, u8 *start, u
 // FUN_003724F0
 /* measured: func_003724f0 object 440B/window 448B normalized_diff 0; this
    pragma is required (without opt_propagation off, normalized_diff 26). */
+/* measured: baseline nd64; scoped locals, inverted if/else did not match (best nd64); retain opt_propagation off. */
 #pragma opt_propagation off
 s32 btlShuffleCalcUnitStep(ShuffleCalcUnit *unit) {
     u32 value2;
@@ -575,6 +576,7 @@ s32 btlShuffleCalcUnitStep(ShuffleCalcUnit *unit) {
 // FUN_003726B0
 /* measured: func_003726b0 object 440B/window 448B normalized_diff 0; this
    pragma is required (without opt_propagation off, normalized_diff 26). */
+/* measured: baseline nd64; scoped locals, inverted if/else did not match (best nd64); retain opt_propagation off. */
 #pragma opt_propagation off
 s32 btlShuffleCalcUnitStepB(ShuffleCalcUnit *unit) {
     u32 value2;
@@ -1066,6 +1068,7 @@ s32 btlShuffleCalcLoadTable(u8 *state)
 }
 
 /* measured: preserving independent switch case bodies matches the retail layout. */
+/* measured: baseline nd566; object/dispatch locals did not match (best nd566); retain opt_propagation off. */
 #pragma opt_propagation off
 /* Place a card in the centered one-row or staggered two-row screen layout. */
 // FUN_00373750

@@ -145,6 +145,7 @@ extern void FldSlotBroadcastState(s32);
 extern s32 evtMainIsFlagSet(void);
 extern void sequenceRequest(s32, void *, s32, s32);
 
+/* measured: baseline removal differs in 13 bytes; typed task work access-site reload; name script-room argument before size load also differ. */
 #pragma opt_propagation off
 /* Advance field loading, scripts and task creation, then wait for an exit or event completion. */
 /* Resource flags, step-file selection and CDVD payloads use their shared storage layouts. */
@@ -476,6 +477,7 @@ extern s32 FldRootUpdate(u8 *);
 // FUN_00155E10
 /* measured: opt_propagation off keeps the scalar-pair copy's two loads ahead
    of its two stores. */
+/* measured: baseline removal differs in 8 bytes; componentwise camera position copy; store Z before packed XY also differ. */
 #pragma opt_propagation off
 /* Allocate the field controller, select event-driven or direct entry, and reset camera placement. */
 /* Scene/camera fields are named; address-taken stack slots retain the measured scalar-pair and stack reload shapes. */

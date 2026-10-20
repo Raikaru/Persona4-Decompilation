@@ -104,6 +104,7 @@ void fclObjStartRevealScale(u8 *task, f32 startX, f32 endX, f32 startY, f32 endY
 }
 
 #pragma push
+/* measured: baseline C nd 19B; adjacent-local declaration probe nd 28B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 /* Slide by half the sprite height while fading and revealing vertically; show selects the upward fade-in path. */
 // FUN_002E0700

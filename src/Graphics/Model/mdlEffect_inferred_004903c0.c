@@ -34,6 +34,7 @@ extern Code1_0049Color iGpffffbb64;
 /* measured: func_004903c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 /* Emit downward cone particles, reflecting their vertical motion against the configured floor. */
+/* measured: baseline removal and a structured primary loop still differ (best isolated nd 941 bytes); retain both toggles. */
 // FUN_004903C0
 void mdlEffectUpdateFloorEmitter(u8 *emitterData)
 {

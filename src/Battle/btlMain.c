@@ -10,6 +10,10 @@
 #include "btl_unit_internal.h"
 #include "btl_action_internal.h"
 
+/* Unit settings: extract loop invariants throughout the battle-main callbacks.
+ * measured: all 27 functions MATCH with this shared setting. */
+#pragma opt_loop_invariants on
+
 /* Packet 0x606 (0x10 bytes) and 0x607 (8 bytes), filled by their factories. */
 /* Effect-kind column: each byte is separated from the next by a 0x28-byte skill stride. */
 typedef struct DatSkillEffectEntry {
@@ -201,6 +205,7 @@ BtlPacket* btlMainCreateColorLerpPacket(u32 startColor, u32 targetColor, u32 dur
 
 
 /* measured: opt_propagation off preserves the retail grouped first-vector products. */
+/* measured: baseline nd318; scoped locals, inverted if/else did not match (best nd318); retain opt_propagation off. */
 #pragma opt_propagation off
 /* Interpolate the saved scene color pair over the packet duration; return one when the endpoint is
  * installed. */
@@ -304,7 +309,7 @@ BtlPacket* btlCreateTimingPacket(u32 value)
 
 
 /* measured: opt_loop_invariants on hoists the unit-loop byte constants into the retail preheader registers. */
-#pragma opt_loop_invariants on
+/* measured: baseline nd344; scoped locals, inverted if/else did not match (best nd344); retain opt_loop_invariants on. */
 /* Snapshot scene colors and rotation, update unit light modes, then interpolate three color vectors.
  * Model RGB selection bytes are updated when the packet is first processed. */
 // FUN_001B7E70
@@ -453,6 +458,7 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
     }
 
     /* measured: opt_propagation off preserves the retail grouped interpolation products. */
+/* measured: baseline nd344; scoped locals, inverted if/else did not match (best nd344); retain opt_propagation off. */
 #pragma opt_propagation off
     totalFrames = work->totalFrames;
     currentFrame = work->currentFrame;
@@ -515,8 +521,6 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
     work->currentFrame++;
     return 0;
 }
-/* measured: restore loop-invariant extraction after btlMainUpdateColorWork. */
-#pragma opt_loop_invariants off
 /* measured: restore propagation after btlMainUpdateColorWork. */
 #pragma opt_propagation on
 /* Unpack three RGBA colors into a color-work packet and record duration and mode flags. */
@@ -581,8 +585,7 @@ static inline void btlMainColorToVector(RwV4d *out, const BtlCameraPalette *colo
 
 /* Hoist the unit loop's color-conversion constants, as in retail. */
 // FUN_001B87E0
-#pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline nd2002; object/dispatch locals, inverted if/else did not match (best nd2002); retain opt_loop_invariants on. */
 /* Fade scene and unit colors toward the current palette, switching model light modes at the midpoint.
  * Measured: MEMBER model reloads change MATCH in access-site, local-pointer and array forms. */
 u32 btlMainUpdateFade(void *workRaw)
@@ -782,7 +785,6 @@ u32 btlMainUpdateFade(void *workRaw)
     work->currentFrame++;
     return 0;
 }
-#pragma pop
 /* Create the palette fade packet with its frame duration and halfword mode flags. */
 // FUN_001B9360
 BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
@@ -864,6 +866,7 @@ BtlPacket* btlMainCreateTintPacket(u32 targetColor, u32 duration)
 
 
 /* measured: opt_common_subs off preserves the retail per-component scale reloads. */
+/* measured: baseline nd432; scoped locals, inverted if/else did not match (best nd427); retain opt_common_subs off. */
 #pragma opt_common_subs off
 /* Fade the current sky tint to the live default RGBA value and report completion after the endpoint
  * write. */
@@ -937,9 +940,7 @@ extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 /* Measured: all 1008 bytes and five relocations match.
  * Keep the word selector and row base separate: the base load precedes
  * index arithmetic. Work counters and list links remain callback reloads. */
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
+/* measured: baseline nd347; scoped locals, inverted if/else did not match (best nd347); retain opt_loop_invariants on. */
 extern u8 *iGpffffb3b8;
 extern s32 btlActionHasNoTargetClass(u32 action);
 /* Fade unrelated unit groups while preserving the acting unit and selected target groups.
@@ -1073,7 +1074,6 @@ u32 btlMainUpdateUnitTint(void *work)
     MEMBER(u32, tintWork, BtlUnitTintWork, currentFrame) = MEMBER(u32, tintWork, BtlUnitTintWork, currentFrame) + 1;
     return result;
 }
-#pragma pop
 /* Create an action-associated unit-tint packet with selector, duration and zero elapsed frames. */
 // FUN_001B9DE0
 BtlPacket* btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u32 duration)
@@ -1837,7 +1837,8 @@ void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
 }
 extern RwV3d D_00881430;
 #pragma push
-#pragma opt_loop_invariants on
+/* measured: baseline nd59; scoped locals, explicit value caches did not match (best nd59); retain opt_loop_invariants on. */
+/* measured: baseline nd59; scoped locals, explicit value caches did not match (best nd59); retain opt_propagation off. */
 #pragma opt_propagation off
 /* Exact: 296B/304B, six resolved relocations and eight zero-tail bytes.
    Scoped loop extraction hoists positive zero; the coefficient pointer

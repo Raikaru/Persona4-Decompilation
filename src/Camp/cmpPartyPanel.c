@@ -255,6 +255,7 @@ void cmpPartyPanelDraw(u8* unusedNode, u8* work) {
  * inside the 0xE0 allocation; it does not refer to a fifth stored party row.
  * Whole-owner configured compile: 2772 exact live bytes, 12 zero tail bytes;
  * the seven case-table entries at 007528E0 and all six siblings are exact. */
+/* measured: baseline has 408 differing words; an equivalent while loop retains the constant/preheader residual. */
 #pragma opt_loop_invariants on
 /* Repeated row placement shares the signed roster-count contract. */
 /* Place one party row using the bottom-aligned row count and index. */

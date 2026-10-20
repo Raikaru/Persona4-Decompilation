@@ -435,6 +435,7 @@ void btlGaugeInitNoop(void)
 // Intent: step every unit's gauge animation toward its target. [inferred]
 // FUN_0021B1F0
 // measured: loop-invariant constant hoisting probe for func_0021b1f0.
+/* measured: baseline off differs by 65 words; explicit frame-count/zero locals still differ (217 bytes); retain hoisting. */
 #pragma opt_loop_invariants on
 /* Head/tail pairs belong to BtlBattleState; the tween is the BtlUnit HP-gauge subobject. */
 void btlGaugeStepAll(s32 unusedTask, s32 *taskPointer)
@@ -483,7 +484,6 @@ void btlGaugeStepAll(s32 unusedTask, s32 *taskPointer)
     }
 }
 
-#pragma push
 #pragma opt_loop_invariants off
 // Intent: set a gauge's active state. [inferred]
 // FUN_0021B310
@@ -494,10 +494,7 @@ void btlGaugeSetActive(u8 *gauge, s32 active)
     }
     ((BtlGaugeReveal *)gauge)->active = active;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* object 452B; retail window 464B; normalized_diff 6; differing offsets 0x28, 0x30, 0xF8, 0x11C, 0x12C, 0x13C; best legal plain-C body; residual is saved FPU parameter-coloring and 12B tail padding. */
 // Intent: draw one gauge segment with its scale and fill. [inferred]
 // FUN_0021B330
@@ -532,10 +529,7 @@ void btlGaugeDrawSegment(s32 task, u8 *gauge, f32 x, f32 y, f32 fill)
         btlUiSetScale(context, 1.0f, 1.0f);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: store a gauge quad's position, depth, colour and texture coordinates. [inferred]
 // FUN_0021B500
 static void btlGaugeSetStyle(u8 *vertex, f32 x, f32 y, f32 depth,
@@ -558,7 +552,6 @@ static void btlGaugeSetStyle(u8 *vertex, f32 x, f32 y, f32 depth,
     ((BtlShuffleSkyVertex *)vertex)->u.els.v = v;
     ((BtlShuffleSkyVertex *)vertex)->u.els.recipZ = reciprocalDepth;
 }
-#pragma pop
 
 typedef struct {
     f32 x, y, z;
@@ -570,8 +563,6 @@ typedef struct {
     u32 padding2[4];
 } PanelQuad;
 
-#pragma push
-#pragma opt_loop_invariants off
 /* One four-vertex strip. The union preserves the packed RGBA bits through
  * the retail float-local spill; channel values are stored as floats.
  * Nine float formals precede the color union to preserve caller scheduling. */
@@ -653,10 +644,7 @@ void btlPanelDrawQuad(f32 x, f32 y, f32 depth, f32 width,
     ((PanelQuad *)p)->scale = scale;
     D_00887310[0](4, &quads[0], 4);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: draw the sky pulse effect for one frame index. [inferred]
 // FUN_0021BBB0
 void btlEffectDrawSkyPulse(s32 packedColor, u16 frame)
@@ -730,10 +718,7 @@ void btlEffectDrawSkyPulse(s32 packedColor, u16 frame)
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: initialise an effect block with its frame and its state. [inferred]
 // FUN_0021BE10
 void btlEffectInit(u8 *effect, s32 value)
@@ -743,25 +728,18 @@ void btlEffectInit(u8 *effect, s32 value)
     ((BtlEffectState *)effect)->value = value;
     ((BtlEffectState *)effect)->state = 1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // FUN_0021BE60
 s32 btlAdvantageGetRaster(void)
 {
     return iGpffffb470;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Advantage-component initialization hook called by btlUiTaskInit; retail deliberately leaves its state untouched. */
 // FUN_0021BE70
 void btlAdvantageInitNoop(void)
 {
 }
-#pragma pop
 
 /* Advantage-panel geometry uses complete tile, anchor and sky-vertex objects.
  * The final selector owns both random samples and returns the selected bits.
@@ -896,8 +874,6 @@ static inline u16 btlAdvantageChooseSegments(void)
     return selected & eligible;
 }
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: draw the advantage panel's background, segments and random pattern. [inferred]
 /* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
 // FUN_0021BE80
@@ -1009,10 +985,7 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: start a shuffle task and mark it ready. [inferred]
 /* The owning battle UI task stores the advantage ready flag and frame counter in this component. */
 // FUN_0021D440
@@ -1024,10 +997,7 @@ void btlShuffleStart(s32 task)
     ((BtlAdvantageState *)(((BtlUiTaskWork *)(p))->advantage))->frame = 0;
     ((BtlAdvantageState *)(((BtlUiTaskWork *)(p))->advantage))->flags = ((BtlAdvantageState *)(((BtlUiTaskWork *)(p))->advantage))->flags | 1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: report whether the shuffle task is not ready. [inferred]
 /* Read the advantage ready flag written by btlShuffleStart in the owning battle UI task. */
 // FUN_0021D470
@@ -1038,10 +1008,7 @@ s32 btlShuffleIsIdle(s32 task)
     flag = (((BtlAdvantageState *)(((BtlUiTaskWork *)((u8 *)kwlnTaskGetWork((void *)task)))->advantage))->flags & 1) != 0;
     return flag ^ 1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: advance the shuffle task state machine. [inferred]
 /* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
 // FUN_0021D4A0
@@ -1205,10 +1172,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: release a shuffle task and its load handle. [inferred]
 // FUN_0021D920
 void btlShuffleDestroyTask(u8 *sdkTaskBytes)
@@ -1224,10 +1188,7 @@ void btlShuffleDestroyTask(u8 *sdkTaskBytes)
     }
     jtbl_008873EC[0](p);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: create a shuffle task with its child task and state. [inferred]
 // FUN_0021D980
 s32 btlShuffleCreate(s32 parentTask, u16 *parameters)
@@ -1250,10 +1211,7 @@ s32 btlShuffleCreate(s32 parentTask, u16 *parameters)
     ((BtlResultWork *)work)->resultTask = btlResultSimpleCreateTask(result);
     return result;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: cancel a shuffle task and its children. [inferred]
 // FUN_0021DAB0
 void btlShuffleCancel(s32 task)
@@ -1267,20 +1225,14 @@ void btlShuffleCancel(s32 task)
     btlResultSimpleSetupEntries(((BtlResultWork *)p)->resultTask);
     *(s32 *)p |= 2;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: report whether a shuffle task was canceled. [inferred]
 // FUN_0021DB10
 s32 btlShuffleIsCanceled(s32 task)
 {
     return (*(s32 *)kwlnTaskGetWork((void *)task) & 2) != 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: report whether a shuffle task still has an active child. [inferred]
 // FUN_0021DB40
 s32 btlShuffleIsBusy(s32 task)
@@ -1298,10 +1250,7 @@ s32 btlShuffleIsBusy(s32 task)
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: advance a shuffle task's frame counter and return -1 when done. [inferred]
 // FUN_0021DBA0
 s32 btlShuffleTickFrame(u8 *sdkTaskBytes)
@@ -1330,10 +1279,7 @@ s32 btlShuffleTickFrame(u8 *sdkTaskBytes)
 exit:
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: draw the shuffle sweep quad for the current frame. [inferred]
 // FUN_0021DC50
 void btlShuffleDrawSweep(s32 unusedTask, s32 *frameState)
@@ -1358,4 +1304,3 @@ void btlShuffleDrawSweep(s32 unusedTask, s32 *frameState)
     shdDrawRotatedRect(position, 0.0f, 0xFF,
                   1500.0f, 1000.0f, fGpffff8378, 0);
 }
-#pragma pop

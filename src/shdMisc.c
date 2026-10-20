@@ -5,6 +5,9 @@
 #include "shd_misc_internal.h"
 #include "mdl_effect_internal.h"
 
+/* Unit setting: loop invariants off; measured invariant-hoisting exceptions stay scoped below. */
+#pragma opt_loop_invariants off
+
 
 /* gp - 0x5418 = 0x00763CD8, accessed as a 64-bit word (ld/sd). */
 extern s64 iGpffffabe8;
@@ -43,8 +46,9 @@ s32 shdFormatGroupedNumber(char *out, s32 value);
  * extraction reproduce 660 executable bytes and 18 resolved relocations.
  * The remaining 12 bytes are zero function-alignment padding. */
 #pragma push
-#pragma opt_common_subs off
+/* measured: baseline removal differs by 147 words; direct digit indexing and either single-toggle probe also fail. */
 #pragma opt_propagation off
+#pragma opt_common_subs off
 // Intent: Draw a number in sprite digits; a value of zero or less shows the player's money [inferred]
 // FUN_00364320
 void shdDrawNumberText(Vec2f pos, f32 z, s32 color, s32 num)
@@ -106,6 +110,7 @@ void shdDrawNumberText(Vec2f pos, f32 z, s32 color, s32 num)
    (without it the function measures 59 words); the named constant locals
    the earlier body carried were not. */
 #pragma push
+/* measured: baseline removal differs by 22 words; replacing modulo-three with a bounded counter also fails. */
 #pragma opt_loop_invariants on
 // Intent: Format a number as decimal text with a '.' every three digits and return the digit count [inferred]
 // FUN_003645C0
@@ -138,7 +143,6 @@ s32 shdFormatGroupedNumber(char *out, s32 value)
     out[j] = 0;
     return i;
 }
-#pragma pop
 
 
 
@@ -159,7 +163,6 @@ typedef struct ShdQuadVertex {
     f32 unknown30[4];
 } ShdQuadVertex;
 
-#pragma push
 /* measured: byte-exact (372/372 instructions, 0 differing words, 1488-byte
    window).  opt_loop_invariants hoists the 255.0f bit pattern and the
    unsigned-conversion pieces out of the three vertex loops.  Each loop owns
@@ -168,7 +171,7 @@ typedef struct ShdQuadVertex {
    go through `(void *)`-cast locals, which keeps retail's $s0/$s6 bases
    (the direct `D_00887300[0]` spelling is folded to lui/lw at every call).
    The colour channels are s32, which gives retail's $s5-$s2 colouring. */
-#pragma opt_loop_invariants on
+/* measured: baseline removal differs by 165 words; a named vertex pointer also fails. */
 // Intent: Draw a four-vertex colour quad from its corner floats and colour [inferred]
 // FUN_00364680
 void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 maskX, f32 maskY, f32 width, f32 height, u8 *texture, s32 drawMask, s32 blendMode)
@@ -328,6 +331,8 @@ void shdDisableBlendFlag(void) {
    four bytes are unreachable function-alignment padding. */
 // Intent: Draw a rotated rectangle of the given width and height; alpha 255 in mode 1 uses the blend flag [inferred]
 // FUN_00364C90
+#pragma push
+/* measured: baseline removal differs by 155 words; invariant motion alone leaves 10, and cached vertex colors/depth also fail. */
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
@@ -387,8 +392,7 @@ void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
         iGpffffabe8 &= ~0x80;
     }
 }
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
+#pragma pop
 
 
 
@@ -555,6 +559,7 @@ void shdDrawRotatingQuad(Vec2f position, f32 depth, s32 color, f32 radius, f32 i
 /* Keep the signed axis components and geometry parameters live across
  * their actual operations; the native 1088-byte window is exact. */
 #pragma push
+/* measured: baseline removal differs by 220 words; combining counter initialization with the for-loop also fails. */
 #pragma opt_loop_invariants on
 
 /* Combine width and height contributions for one rectangle-outline axis. */

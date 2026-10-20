@@ -64,9 +64,10 @@ void cldSchedulerInit(void)
 
 /* The six eight-byte period labels generate the retail paired-byte copy.
  * Keep propagation off here to retain the post-copy byte conversion. */
-#pragma opt_propagation off
 /* Load the current month, run its date/time procedure, then await completion. */
 // FUN_00260020
+/* measured: baseline removal leaves nd411 in period-label conversion and lifetimes; retain propagation off. */
+#pragma opt_propagation off
 s32 cldSchedulerTaskUpdate(u8 *task)
 {
     s32 month;
@@ -223,7 +224,6 @@ void cldSchedulerTaskDestroy(u8 *unusedTask)
 /* Replace the live scheduler task using the shared three-word work block. */
 // FUN_00260450
 /* Preserve argument materialization order with the task API's word handles. */
-#pragma opt_propagation off
 void cldSchedulerStart(void)
 {
     u32 *base = D_008814F0;
@@ -248,4 +248,3 @@ void cldSchedulerStart(void)
         kwlnTaskCreate((const void *)(name), priority, startDelay, closeDelay, update, close, (u8 *)((s32)base));
     }
 }
-#pragma opt_propagation on

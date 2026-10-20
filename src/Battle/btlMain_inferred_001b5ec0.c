@@ -236,10 +236,10 @@ void btlMainRelease(void)
  * Native proof and the retail matrix-padding omission are documented in
  * docs/probe_archive/Battle_camera_setup_001b6120_20260922_worker7.md.
  */
-// FUN_001B6120
 #pragma push
-/* measured: func_001b6120 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd81; typed position/UV cursor traversal nd223; invariant hoisting retains MATCH. */
 #pragma opt_loop_invariants on
+// FUN_001B6120
 /* Snapshot field lighting and scene colors, build the battle transform, and configure the optional
  * textured sky grid, copying positions, UVs and white vertex colors into its locked geometry. */
 void btlMainSetupCameraAndEffects(void)
@@ -454,12 +454,14 @@ void btlMainSetupCameraAndEffects(void)
         func_003e9c10(((EffGeometryBlock *)((BtlBattleState *)base)->sky)->frame, pos, 0);
     }
 }
-
 #pragma pop
+#pragma push
+/* measured: reversed and component-consistent scalar reuse both leave nd8 with propagation enabled. */
+#pragma opt_propagation off
+
 /* measured: opt_propagation off probes the retail ordered second float load group. */
 // FUN_001B68D0
 /* measured: func_001b68d0 MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 /* Restore saved light-color snapshots, destroy optional sky geometry, and unload the field scene. */
 void btlMainSaveFieldSnapshotAndUnload(void)
 {
@@ -494,10 +496,10 @@ void btlMainSaveFieldSnapshotAndUnload(void)
     }
     fieldSceneUnload();
 }
+#pragma pop
 
 /* measured: closes opt_propagation probe for func_001b68d0. */
 /* measured: func_001b6ab0, func_001b73f0 MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation on
 // FUN_001B6990
 void btlMainLoadBattleFieldScene(void)
 {
@@ -875,9 +877,7 @@ done:
 /* 860/864 bytes; seven resolved relocations; four zero alignment bytes.
  * Snapshot both field colors once, then interpolate to their products.
  * The packet callback keeps its u32(void *) contract and unsigned timer. */
-#pragma push
-/* measured: func_001b7520 MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
+/* measured: sharing the component-product locals between both colors removes the propagation exception (nd278 to MATCH). */
 /* Snapshot both field colors, form componentwise products, and blend to those products for the packet
  * duration. */
 // FUN_001B7520
@@ -955,10 +955,18 @@ u32 btlMainFieldColorFadePacketUpdate(void *workData)
         result.z = firstZ + secondZ;
         result.w = firstW + secondW;
         *(FadeV4 *)resrcMngGetColorValue() = result;
-        result.x = work->snapB.x * inverse + work->prodB.x * ratio;
-        result.y = work->snapB.y * inverse + work->prodB.y * ratio;
-        result.z = work->snapB.z * inverse + work->prodB.z * ratio;
-        result.w = work->snapB.w * inverse + work->prodB.w * ratio;
+        firstX = work->snapB.x * inverse;
+        firstY = work->snapB.y * inverse;
+        firstZ = work->snapB.z * inverse;
+        firstW = work->snapB.w * inverse;
+        secondX = work->prodB.x * ratio;
+        secondY = work->prodB.y * ratio;
+        secondZ = work->prodB.z * ratio;
+        secondW = work->prodB.w * ratio;
+        result.x = firstX + secondX;
+        result.y = firstY + secondY;
+        result.z = firstZ + secondZ;
+        result.w = firstW + secondW;
         *(FadeV4 *)resrcMngGetColorTarget() = result;
     } else {
         tmp = (FadeV4 *)resrcMngGetColorValue();
@@ -970,5 +978,4 @@ u32 btlMainFieldColorFadePacketUpdate(void *workData)
     work->currentFrame = work->currentFrame + 1;
     return 0;
 }
-#pragma pop
 

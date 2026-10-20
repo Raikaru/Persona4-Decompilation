@@ -1,5 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 001537c0-00153a30 */
 
+/* Unit optimizer setting shared by all scene-resource functions. */
+#pragma opt_loop_invariants on
+
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 #include "model_motion_internal.h"
@@ -27,8 +30,6 @@ typedef struct {
     u32 clumps[1];
 } SceneRenderResources;
 
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: Set the vector on the scene's object, its clumps and the resource list 0xA entries [inferred]
 // FUN_001537C0
 void MT_Scene_SetResVector(u8 *resource, s32 vector)
@@ -50,10 +51,7 @@ void MT_Scene_SetResVector(u8 *resource, s32 vector)
         work = (u8 *)((ResrcRecord *)work)->next;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: Scale the colours of the scene's object and clumps by the given colour, then set the resource list's model colours [inferred]
 // FUN_001538A0
 void MT_Scene_ScaleResColors(u32 *resource, const f32 *color)
@@ -83,10 +81,7 @@ void MT_Scene_ScaleResColors(u32 *resource, const f32 *color)
         node = (s32)((ResrcRecord *)node)->next;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: Task update for the colour cross-fade: run one cross-fade step and continue [inferred]
 // FUN_00153A00
 s32 FldColorCrossfadeUpdate(u8 *unusedTask)
@@ -94,17 +89,13 @@ s32 FldColorCrossfadeUpdate(u8 *unusedTask)
     FldColorCrossfadeStep();
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 // Intent: Call the task's hook from the hook table with the work block at +0x38 [inferred]
 // FUN_00153A30
 void MT_Scene_CallTaskHook(u8 *task)
 {
     (*DAT_008873EC)(((SdkTask *)task)->work);
 }
-#pragma pop
 
 #include "Kosaka/k_fldFrame_internal.h"
 #include "scene_event_internal.h"

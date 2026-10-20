@@ -243,6 +243,7 @@ s32 cmpSkillApplySelected(s16 casterId, s16 targetId, s32 skillIndex, u8 *menu) 
 // FUN_0013FB50
 #pragma push
 /* measured: func_0013fb50 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 638 bytes; typed indexed layout source; scope each initialization loop counter also differ. */
 #pragma opt_loop_invariants on
 void radarInitState(u8 *work) {
     /* Grid/sprite cursors retain their original store order; their complete
