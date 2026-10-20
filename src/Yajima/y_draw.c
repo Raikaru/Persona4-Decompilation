@@ -873,6 +873,7 @@ void fclSpriteEmitTagPair(void) {
  * queue. One queue pointer holds the work table (a copy of it would keep
  * the base a declared local; retail's base is a temporary in $s3), and the
  * entry offset is formed once before the active test. */
+/* Test whether any animation flag in bits one through twelve is active. */
 static inline s16 yDrawAnyBit(s32 flags)
 {
     s16 bit;
@@ -1121,6 +1122,7 @@ void fclSpriteReset(s16 index, s16 spriteId) {
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
 /* Preserve both components of the outgoing position value. */
+/* measured: plain aggregate copies at either call change fclSpriteStartShowHide code generation. */
 static inline void fclCopyTransitionPosition(f2 *destination, const f2 *source)
 {
     f32 y, x;
@@ -1142,12 +1144,7 @@ typedef struct YDrawTransitionFlags {
 } YDrawTransitionFlags;
 
 /* Submit the actual initial and target opacity values in row order. */
-static inline void fclRevealOpacity(u8 *work, const FclDrawColor *color)
-{
-    u8 initialAlpha = 0;
-    u32 targetAlpha = color->c3;
-    fclSpriteStartAlpha(work, initialAlpha, targetAlpha, 0, 0, 0);
-}
+
 
 // Intent: starts a show or hide transition for pool slot index (hidden == 1 hides, otherwise shows). Sets the slot's flags, sizes it from the scaled sprite width and height, and starts the alpha, reveal-scale and position tweens with the given duration and delay.
 // FUN_002B77D0
@@ -1217,7 +1214,7 @@ void fclSpriteStartShowHide(s16 index, f2 position, s16 spriteId, FclDrawColor c
         ((FclSpriteRecord *)(dimensionRows + recordOffset + 4))->halfHeight = (s16)(sdkSpriteScaledHeight(sample) / 2.0f);
         sdkSpriteFreeNode(sample);
         ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->animation.color = color;
-        fclRevealOpacity(((KwlnTask *)(iGpffffb574))->work + recordOffset + 0x14, &color);
+        (fclSpriteStartAlpha((((KwlnTask *)(iGpffffb574))->work + recordOffset + 0x14), 0, (&color)->c3, 0, 0, 0));
         animationRows = ((KwlnTask *)(iGpffffb574))->work;
         delay = (s32)startDelay;
         duration = (s32)showDuration;
@@ -1518,6 +1515,7 @@ void fclSpriteStartColor(u8 *animation, u4 start, u4 end, u8 mode, s16 duration,
 
 /* Position snapshots are consumed by the inline transition setters.
    Duration stays signed-word sized until each field is stored. */
+/* Initialize position interpolation endpoints, timing, mode and active flag. */
 static inline void fclStartPosition(u8 *animation, f2 start, f2 end, u32 mode, s32 duration, s32 delay) {
     f32 startX = start.x;
     f32 startY;
@@ -1535,6 +1533,7 @@ static inline void fclStartPosition(u8 *animation, f2 start, f2 end, u32 mode, s
     ((FclSpriteAnimation *)(animation))->flags |= 2;
 }
 
+/* Initialize opacity interpolation endpoints, timing, mode and active flag. */
 static inline void fclStartAlpha(u8 *animation, u8 startAlpha, u32 endAlpha, u32 mode, u32 duration, s16 delay) {
     ((FclSpriteAnimation *)(animation))->alphaStart = startAlpha;
     ((FclSpriteAnimation *)(animation))->alphaEnd = endAlpha;
@@ -1546,6 +1545,7 @@ static inline void fclStartAlpha(u8 *animation, u8 startAlpha, u32 endAlpha, u32
     ((FclSpriteAnimation *)(animation))->flags |= 4;
 }
 
+/* Initialize the incoming or outgoing vertical reveal-scale transition. */
 static inline void fclStartRevealScale(u8 *animation, u32 mode, u32 duration, s32 delay, s8 outgoing)
 {
     ((FclSpriteAnimation *)(animation))->scaleXStart.value = 1.0f;
@@ -1568,6 +1568,7 @@ static inline void fclStartRevealScale(u8 *animation, u32 mode, u32 duration, s3
     ((FclSpriteAnimation *)(animation))->flags |= 0x10;
 }
 
+/* Initialize RGB interpolation endpoints, timing, mode and active flag. */
 static inline void fclStartColor(u8 *animation, u4 start, u4 end, u8 mode, s16 duration, s32 delay) {
     ((FclSpriteAnimation *)(animation))->colorStart.c0 = start.c0;
     ((FclSpriteAnimation *)(animation))->colorStart.c1 = start.c1;

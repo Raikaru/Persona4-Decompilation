@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -903,21 +904,18 @@ extern void mdlEffectSetPackedColor(void *object, s32 *packedColor);
 
 extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
 
-static inline f32 sceneUpdateBlend(f32 start, f32 delta, f32 amount)
-{
-    return start + delta * amount;
-}
 
-static inline f32 sceneUpdateLerp(f32 start, f32 end, f32 amount)
-{
-    return start + amount * (end - start);
-}
 
+
+
+/* Test whether a movement step has not yet reached its destination, including unordered distances. */
+/* measured: expanding its one remaining call changes MT_Scene_UpdateResource from 6708 to 6688 executable bytes and changes allocation/branches. */
 static inline s32 sceneUpdateStepContinues(f32 distance, f32 step)
 {
     return !(distance <= step);
 }
 
+/* Compute the displacement between two resource positions. */
 static inline void sceneUpdateDifference(RwV3d *out, const RwV3d *end,
                                          const RwV3d *start)
 {
@@ -926,26 +924,27 @@ static inline void sceneUpdateDifference(RwV3d *out, const RwV3d *end,
     out->z = end->z - start->z;
 }
 
+/* Interpolate all three position components between endpoints. */
 static inline void sceneUpdateInterpolate(RwV3d *out, const RwV3d *start,
                                           const RwV3d *end, f32 amount)
 {
-    out->x = sceneUpdateLerp(start->x, end->x, amount);
-    out->y = sceneUpdateLerp(start->y, end->y, amount);
-    out->z = sceneUpdateLerp(start->z, end->z, amount);
+    out->x = ((start->x) + (amount) * ((end->x) - (start->x)));
+    out->y = ((start->y) + (amount) * ((end->y) - (start->y)));
+    out->z = ((start->z) + (amount) * ((end->z) - (start->z)));
 }
 
-static inline s32 sceneUpdateResourceType(ResrcHeader *resource)
-{
-    return (resource->id & 0xFFC00) >> 10;
-}
+
 
 /* Attached-effect slots follow the fixed character-resource prefix. */
+/* Locate an attached-effect slot after the character-resource prefix. */
+/* measured: direct effects[index] at either call changes whole-owner code generation; the byte cursor retains the slot calculation. */
 static inline u8 *sceneUpdateAttachedEffect(SceneCharacterUpdate *character, s32 index)
 {
     u8 *slot = (u8 *)character + index * sizeof(character->effects[0]);
     return ((SceneCharacterUpdate *)slot)->effects[0];
 }
 
+/* Submit the queued motion parameters for this resource. */
 static inline void sceneUpdateQueuedAnimation(ResrcHeader *resource,
                                                SceneQueuedAnimation *animation)
 {
@@ -958,6 +957,7 @@ static inline void sceneUpdateQueuedAnimation(ResrcHeader *resource,
     MT_Scene_SetResMotion(&resource->id, layer, motion, frame, flags, blend, speed);
 }
 
+/* Sample resource position and rotation at the elapsed path distance. */
 static inline void sceneUpdatePath(ResrcHeader *resource,
                                    RwV3d *position, RwV3d *rotation)
 {
@@ -967,11 +967,9 @@ static inline void sceneUpdatePath(ResrcHeader *resource,
     MT_Scene_SamplePath(path, elapsed, total, &position->x, &rotation->x);
 }
 
-static inline s32 sceneFootstepBankIndex(s32 sequence, s32 firstSound)
-{
-    return firstSound + sequence;
-}
 
+
+/* Play the current terrain or fixed-bank footstep and cycle its four-note sequence. */
 static inline void sceneUpdateFootstep(ResrcHeader *resource)
 {
     s32 terrain = MT_Scene_GetTerrainAtPoint((u16 *)&resource->position);
@@ -990,7 +988,7 @@ static inline void sceneUpdateFootstep(ResrcHeader *resource)
         break;
     case 1:
         {
-            s32 sound = sceneFootstepBankIndex(foot->sequence, 0x18);
+            s32 sound = operandOrderAddReversed(foot->sequence, 0x18);
             s16 stream = foot->sound;
             sdkSndStartStream(0, stream, 2, (s16)sound);
         }
@@ -1069,9 +1067,9 @@ void MT_Scene_UpdateResource(u8 *resourceData)
                 f32 amount = (f32)resource->orbitElapsed / (f32)resource->orbitDuration;
                 sceneUpdateInterpolate(&center, &startCenter, &endCenter, amount);
                 MT_Scene_GetAnglePoint(&position.x, &center.x,
-                    sceneUpdateLerp(startYaw, endYaw, amount),
-                    sceneUpdateLerp(startPitch, endPitch, amount),
-                    sceneUpdateLerp(startDistance, endDistance, amount));
+                    ((startYaw) + (amount) * ((endYaw) - (startYaw))),
+                    ((startPitch) + (amount) * ((endPitch) - (startPitch))),
+                    ((startDistance) + (amount) * ((endDistance) - (startDistance))));
                 resource->position = position;
                 resource->rotation = center;
                 break;
@@ -1082,9 +1080,9 @@ void MT_Scene_UpdateResource(u8 *resourceData)
                 amount /= (f32)resource->orbitDuration;
                 sceneUpdateInterpolate(&center, &startCenter, &endCenter, amount);
                 MT_Scene_GetAnglePoint(&position.x, &center.x,
-                    sceneUpdateLerp(startYaw, endYaw, amount),
-                    sceneUpdateLerp(startPitch, endPitch, amount),
-                    sceneUpdateLerp(startDistance, endDistance, amount));
+                    ((startYaw) + (amount) * ((endYaw) - (startYaw))),
+                    ((startPitch) + (amount) * ((endPitch) - (startPitch))),
+                    ((startDistance) + (amount) * ((endDistance) - (startDistance))));
                 resource->position = position;
                 resource->rotation = center;
                 break;
@@ -1150,9 +1148,9 @@ void MT_Scene_UpdateResource(u8 *resourceData)
                     case 1: case 2: case 3: case 4: case 5: {
                         f32 amount = MT_Scene_SampleCurveTable(ease,
                             (f32)resource->moveDuration.frame, (f32)resource->moveElapsed.frame);
-                        resource->position.x = sceneUpdateBlend(resource->moveStart.x, delta.x, amount);
-                        resource->position.y = sceneUpdateBlend(resource->moveStart.y, delta.y, amount);
-                        resource->position.z = sceneUpdateBlend(resource->moveStart.z, delta.z, amount);
+                        resource->position.x = ((resource->moveStart.x) + (delta.x) * (amount));
+                        resource->position.y = ((resource->moveStart.y) + (delta.y) * (amount));
+                        resource->position.z = ((resource->moveStart.z) + (delta.z) * (amount));
                         break;
                     }
                     }
@@ -1207,17 +1205,17 @@ void MT_Scene_UpdateResource(u8 *resourceData)
                 switch (resource->rotationEase) {
                 case 0: {
                     u32 elapsed = resource->rotationElapsed;
-                    rotation.x = sceneUpdateBlend(resource->rotationStart.x, x, (f32)elapsed);
-                    rotation.y = sceneUpdateBlend(resource->rotationStart.y, y, (f32)elapsed);
-                    rotation.z = sceneUpdateBlend(resource->rotationStart.z, z, (f32)elapsed);
+                    rotation.x = ((resource->rotationStart.x) + (x) * ((f32)elapsed));
+                    rotation.y = ((resource->rotationStart.y) + (y) * ((f32)elapsed));
+                    rotation.z = ((resource->rotationStart.z) + (z) * ((f32)elapsed));
                     break;
                 }
                 case 1: case 2: case 3: case 4: case 5: {
                     f32 amount = MT_Scene_SampleCurveTable(resource->rotationEase,
                         (f32)resource->rotationDuration, (f32)resource->rotationElapsed);
-                    rotation.x = sceneUpdateBlend(resource->rotationStart.x, x, amount);
-                    rotation.y = sceneUpdateBlend(resource->rotationStart.y, y, amount);
-                    rotation.z = sceneUpdateBlend(resource->rotationStart.z, z, amount);
+                    rotation.x = ((resource->rotationStart.x) + (x) * (amount));
+                    rotation.y = ((resource->rotationStart.y) + (y) * (amount));
+                    rotation.z = ((resource->rotationStart.z) + (z) * (amount));
                     break;
                 }
                 }
@@ -1248,9 +1246,9 @@ void MT_Scene_UpdateResource(u8 *resourceData)
             f32 duration = (f32)scale->duration;
             u32 elapsed = scale->elapsed;
             RwV3d result;
-            result.x = sceneUpdateBlend(scale->start.x, (scale->end.x - scale->start.x) / duration, (f32)elapsed);
-            result.y = sceneUpdateBlend(scale->start.y, (scale->end.y - scale->start.y) / duration, (f32)elapsed);
-            result.z = sceneUpdateBlend(scale->start.z, (scale->end.z - scale->start.z) / duration, (f32)elapsed);
+            result.x = operandOrderAddProduct(scale->start.x, (scale->end.x - scale->start.x) / duration, (f32)elapsed);
+            result.y = operandOrderAddProduct(scale->start.y, (scale->end.y - scale->start.y) / duration, (f32)elapsed);
+            result.z = operandOrderAddProduct(scale->start.z, (scale->end.z - scale->start.z) / duration, (f32)elapsed);
             resource->scale = result;
             if (scale->elapsed >= scale->duration) {
                 resource->scale = scale->end;
@@ -1276,10 +1274,10 @@ void MT_Scene_UpdateResource(u8 *resourceData)
             f32 start = (f32)(u32)resource->alphaStart;
             f32 end = (f32)(u32)resource->alphaEnd;
             f32 delta = (end - start) / (f32)resource->alphaDuration;
-            alpha = (u8)sceneUpdateBlend(start, delta, (f32)resource->alphaElapsed);
+            alpha = (u8)((start) + (delta) * ((f32)resource->alphaElapsed));
             resource->alphaElapsed += frames;
         }
-        switch (sceneUpdateResourceType(resource)) {
+        switch ((((resource)->id & 0xFFC00) >> 10)) {
         case 3: {
             SceneCharacterUpdate *character = (SceneCharacterUpdate *)resource;
             RwRGBA color = *(RwRGBA *)mdlGetColor((Model *)character->model);
@@ -1307,7 +1305,7 @@ void MT_Scene_UpdateResource(u8 *resourceData)
         }
     }
     if (resource->flags & 0x400) {
-        switch (sceneUpdateResourceType(resource)) {
+        switch ((((resource)->id & 0xFFC00) >> 10)) {
         case 7: {
             SceneCameraUpdate *camera = (SceneCameraUpdate *)resource;
             s32 duration = resource->fovDuration;
@@ -1321,7 +1319,7 @@ void MT_Scene_UpdateResource(u8 *resourceData)
                 f32 delta = (end - start) / (f32)duration;
                 /* Retail uses the movement timer for the value, then its
                    separate FOV timer to decide when the transition ends. */
-                camera->fov = sceneUpdateBlend(start, delta, (f32)resource->moveElapsed.frame);
+                camera->fov = ((start) + (delta) * ((f32)resource->moveElapsed.frame));
                 if (elapsed >= duration) {
                     camera->fov = end;
                     resource->flags &= ~0x400;
@@ -1335,7 +1333,7 @@ void MT_Scene_UpdateResource(u8 *resourceData)
     }
 
     {
-        s32 type = sceneUpdateResourceType(resource);
+        s32 type = (((resource)->id & 0xFFC00) >> 10);
     if (type == 1) {
         SceneCharacterUpdate *character = (SceneCharacterUpdate *)resource;
         s32 i;
@@ -1364,7 +1362,7 @@ void MT_Scene_UpdateResource(u8 *resourceData)
     if (resource->flags & 0x2000) {
         SceneQueuedAnimation *animation = NULL;
         u8 *model = NULL;
-        switch (sceneUpdateResourceType(resource)) {
+        switch ((((resource)->id & 0xFFC00) >> 10)) {
         case 1:
             animation = &((SceneCharacterUpdate *)resource)->animation;
             model = ((SceneCharacterUpdate *)resource)->model;

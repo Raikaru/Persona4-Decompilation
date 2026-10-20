@@ -127,7 +127,8 @@ extern void *memcpy(void *, const void *, u32);
 extern void cldShapeListDraw(u8 **);
 extern u8 D_005E5810[];
 
-static inline f32 dungeonInBezier(f32 t, f32 start, f32 control1, f32 control2, f32 end)
+/* Evaluate the cubic Bezier coordinate at the supplied interpolation time. */
+static inline f32 cldDungeonInBezier(f32 t, f32 start, f32 control1, f32 control2, f32 end)
 {
     f32 u = 1.0f - t;
     f32 threeU = 3.0f * u;
@@ -181,7 +182,7 @@ void cldDungeonInDrawFrame(void *unused, void *task)
         frame = ++work->frame;
         if (frame < 41) {
             t = (f32)frame / 40.0f;
-            curve = dungeonInBezier(t, 0.0f, 0.01f, 0.1f, 1.0f);
+            curve = cldDungeonInBezier(t, 0.0f, 0.01f, 0.1f, 1.0f);
             PrimDrawContour(288.0f, 222.0f, 0.0f, 0xC4C4C4, 255,
                           1, 9, 0, 0, 0.0f + -45.0f + 70.0f * curve,
                           3.0f * curve, 3.0f * curve);

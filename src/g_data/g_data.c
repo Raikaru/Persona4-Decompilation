@@ -1677,6 +1677,7 @@ s32 datPersonaCanLevelUp(PersonaWork* persona)
 
 
 
+/* Append kind-one, unflagged skill records to the output skill list. */
 static inline void datCollectValidSkills(u8* skillData, u16* skills,
                                          s32* validSkills, s32 skillLimit)
 {
@@ -2489,10 +2490,7 @@ u32 datTestBitmapBit(u32 entryIndex, u32 bitIndex)
     return *p & (1U << (bit & 0x1f));
 }
 
-static inline u32 bitAndFirst(u32 a, u32 b)
-{
-    return a & b;
-}
+
 
 /* measured: opt_loop_invariants on hoists the sllv constant 1 and keeps the
    D_007973A0 base in $a3 like retail; without it mwcc rematerializes addiu
@@ -2510,7 +2508,7 @@ u32 datGetCollectionEntryBits(u16 entryIndex)
 
     while (i < 8)
     {
-        result |= bitAndFirst(((DatSaveState *)base)->collection[j >> 5], 1 << (j & 0x1F));
+        result |= ((((DatSaveState *)base)->collection[j >> 5]) & (1 << (j & 0x1F)));
         i = i + 1;
         j = j + 1;
     }

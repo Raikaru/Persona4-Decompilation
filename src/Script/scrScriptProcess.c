@@ -724,6 +724,7 @@ typedef union ScrPreviewRectangle {
     f32 transport[4];
 } ScrPreviewRectangle;
 
+/* Construct the float-transport color object used by preview drawing. */
 static inline ScrPreviewColor scrPreviewColorValue(f32 bits)
 {
     ScrPreviewColor value;
@@ -731,11 +732,7 @@ static inline ScrPreviewColor scrPreviewColorValue(f32 bits)
     return value;
 }
 
-static inline ScrPreviewRectangle scrPreviewRectangleValue(const ScrPreviewRectangle *source)
-{
-    ScrPreviewRectangle value = *source;
-    return value;
-}
+
 
 /* Native b210 O2: 1284/1296 bytes, 41 resolved relocations and
  * twelve zero alignment bytes. See
@@ -864,7 +861,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
             rectangle.packed = D_0063E5E0;
             rectangle.coordinates[0] = (s32)pixelX;
             rectangle.coordinates[1] = (s32)pixelY;
-            drawRectangle = scrPreviewRectangleValue(&rectangle);
+            drawRectangle = (*(&rectangle));
             PrimDrawFlatRectangle((u8 *)&color, drawRectangle.transport, 0.0f, 1);
             break;
         case 3:
