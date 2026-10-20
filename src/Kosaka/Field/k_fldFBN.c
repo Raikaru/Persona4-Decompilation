@@ -208,6 +208,7 @@ u8 *FldFbnOpenData(s32 field, s32 room, s16 variant)
 /* The FBN header supplies the runtime part stride; the typed NPC tail is separate from the packed part layout. */
 // FUN_0015E960
 #pragma push
+/* measured: baseline 116 differing words; typed access, block lifetimes did not match; retain scoped settings. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 variant)

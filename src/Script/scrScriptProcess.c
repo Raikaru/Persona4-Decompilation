@@ -370,6 +370,7 @@ ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* pr
 // Creates the procedure work for the header at index, from the header's entry table.
 // FUN_0029D660
 /* Removing the pragma loses this match (19 differing words without, 2 tail-padding with) - measured. */
+/* measured: baseline differs by 23 words; entry-pointer traversal leaves nd162; retain hoisting. */
 #pragma opt_loop_invariants on
 ScrScriptWork* scrCreateProcedureWork(ScrHeader* header, s32 index)
 {
@@ -896,6 +897,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
 }
 /* Measured: all 608 bytes and 35 resolved relocations match retail.
  * Loop invariants hoist the slash constant. */
+/* measured: baseline differs by 6 words; explicit path-separator local leaves nd16; retain hoisting. */
 #pragma opt_loop_invariants on
 // Starts a script task from its text: creates the task node, then runs the load step [inferred].
 // FUN_0029E550

@@ -54,6 +54,7 @@ DatUnitPc* datUnitCreatePc(u16 pcId)
 }
 
 /* measured: canonical iGpffffb414 GP symbol and explicit offset local produce the retail global-load ordering and exact 368-byte object. */
+/* measured: baseline differs by 5 words; loop-local and function-local encounter pointers leave nd13/nd12; retain hoisting. */
 #pragma opt_loop_invariants on
 // FUN_00231630
 /* Preserve the measured cursor arithmetic while naming the enemy and encounter row members. */
@@ -203,6 +204,7 @@ u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase)
 /* measured: retail hoists the 0x1F6/0x1F7/0x1F8 skill constants into the
  * loop preheader and keeps id*0x3C live across the flag tests; without
  * opt_loop_invariants MWCC rematerializes them inside the loop. */
+/* measured: baseline differs by 19 words; named skill constants and equivalent comparisons leave nd159; retain hoisting. */
 #pragma opt_loop_invariants on
 // FUN_00231AF0
 /* Preserve the measured cursor arithmetic while naming the enemy and encounter row members. */

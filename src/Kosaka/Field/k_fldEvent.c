@@ -604,6 +604,9 @@ ret1:
    retail compaction-loop register allocation and hoisted -1 sentinel (MATCH). */
 /* Pick the player surface event, enforce its flag requirements and update the interaction prompt. */
 // FUN_00172360
+#pragma push
+/* measured: baseline 12 differing words; typed access, block lifetimes, branch/loop forms did not match; retain scoped settings. */
+#pragma opt_loop_invariants on
 s32 FldEvent_SelectEntryAtPosition(u8 *task)
 {
     u8 *h;
@@ -647,7 +650,6 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
 
         /* measured: hoists the compaction-loop -1 sentinel into $v1 like retail. */
 /* measured: FldEvent_SelectEntryAtPosition MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
         scan = (s32 *)entry;
         scan_i = 0;
         count = 0;
@@ -738,16 +740,17 @@ s32 FldEvent_SelectEntryAtPosition(u8 *task)
     }
     return 0;
 }
+#pragma pop
 
 /* measured: restore loop-invariant optimization after FldEvent_SelectEntryAtPosition. */
 /* measured: FldEvent_StepMoveToward, FldEvent_TriggerUpdate MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants off
 /* measured: retail reloads the event index after every (s32)MT_Scene_GetFrameState() call. */
 #pragma push
 /* measured: FldEvent_HighlightEntry MATCH -> MISMATCH without this pragma. */
-#pragma opt_common_subs off
 /* Start the selected surface event animation, transition or script and wait for completion. */
 // FUN_001727F0
+/* measured: baseline 206 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+#pragma opt_common_subs off
 s32 FldEvent_HighlightEntry(u8 *task)
 {
     u8 *node;
@@ -880,9 +883,7 @@ s32 FldEvent_WaitForFieldIdle(u8 *task)
     return 0;
 }
 
-#pragma push
 /* measured: FldEvent_FieldToBattle MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
 /* Recovered field-to-battle controller. Reconstructs
  * complete state transitions, party compaction, nearby-enemy selection,
  * camera snapshots, task lifetimes, and restoration of field presentation.
@@ -892,8 +893,10 @@ s32 FldEvent_WaitForFieldIdle(u8 *task)
 // FUN_00172E00
 #pragma push
 /* measured: FldEvent_FieldToBattle MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 /* measured: FldEvent_FieldToBattle MATCH -> MISMATCH without this pragma. */
+/* measured: baseline 61 differing words; block lifetimes did not match; retain scoped settings. */
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 #pragma opt_pulloutconstants off
 s32 FldEvent_FieldToBattle(u8 *task)
 {
@@ -1606,7 +1609,6 @@ running:
 }
 
 #pragma pop
-#pragma pop
 /* Start or poll a scripted encounter while preserving the previous event state. */
 // FUN_00174680
 s32 FldEvent_BeginEncounter(s32 task, s32 encounterId, s32 battleFlags)
@@ -1841,8 +1843,9 @@ void FldEvent_StepGridCell(void)
  * although the g_data.c definition is void. */
 #pragma push
 /* measured: FldEvent_StepMoveToward MATCH -> MISMATCH without this pragma. */
-#pragma opt_dead_assignments off
 // FUN_00174E10
+/* measured: baseline 513 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+#pragma opt_dead_assignments off
 s32 FldEvent_StepMoveToward(u8 *task)
 {
     FldEventWork *movementWork;
