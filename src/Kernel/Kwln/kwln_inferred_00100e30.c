@@ -57,7 +57,7 @@ extern void sdkSndUpdateDecodeSlots(void);
 extern void sdkSndUpdate(void);
 extern void sdkPadUpdateAll(void);
 extern s32 kwlnTaskRunFrame(void);
-extern void func_00466580(void);
+extern void hsfdSuspendWorker(void);
 extern void func_003e5510(s32);
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
@@ -144,7 +144,7 @@ extern void sdkSndSetSlotTrack(s32 slotIndex, s32 trackId);
 extern void mdlRenderInitializeBuffers(void);
 extern void PrimCreatePools(s32 queueCount, s32 batchCount);
 extern void hMaestroCreateServicesTask(void);
-extern void func_00466680(void);
+extern void hsfdInitWorker(void);
 extern void sdkSetActiveHandle(s32 handle);
 extern void mdlResetModelTable(s32 model);
 extern void TnSetTableBase(s32 table);
@@ -289,7 +289,7 @@ void kwlnInitSubsystems(void)
     sdkDbprtInit(kwlnGetCamera());
     RpSkySelectTrueTSClipper(1);
     RpSkySelectTrueTLClipper(1);
-    func_00466680();
+    hsfdInitWorker();
     TnInitModule(0xC7);
     TnSetTableBase((s32)&D_005DC7D0);
     mdlEffectSetGlobalValue((s32)&D_007948A0);
@@ -342,7 +342,7 @@ s32 kwlnRunFrame(void)
     if (kwlnTaskRunFrame() == 0) {
         return 0;
     }
-    func_00466580();
+    hsfdSuspendWorker();
     func_003e5510(1);
 block_5:
     counter0 = iGpffffb1a0;

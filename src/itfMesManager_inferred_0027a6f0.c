@@ -111,7 +111,7 @@ node_done:
             if (index < 0 || index >= count)
                 selected = 0;
             else
-                selected = *(s32 *)((u8 *)add_retail_ptr((u32)(index * 4), (u32)table) + 0x1C);
+                selected = ((ItfMesTextRecord *)((u8 *)add_retail_ptr((u32)(index * 4), (u32)table)))->texts[0].value;
             frFontRunCommand(selected, 1, 0);
             ((ItfMesWindow *)window)->flags.value = ((ItfMesWindow *)window)->flags.value & ~0x307;
             ((ItfMesWindow *)window)->flags.value |= 0x203;
@@ -149,6 +149,10 @@ node_done:
 // FUN_0027A970
 void itfMesWindowAdvanceRow(u8 *window)
 {
+    ItfMesRow *transitionFields;
+    ItfMesRow *elapsedBitsFields;
+    ItfMesRow *indexFields;
+
     extern void frFontEnableList(u8 *node);
     extern s32 frFontMeasureList(u8 *list);
     extern void frFontLoadSystemSlot(u8 *fontData);
@@ -175,7 +179,7 @@ void itfMesWindowAdvanceRow(u8 *window)
             if ((((ItfMesWindow *)window)->flags.value & 0x100000) == 0 &&
                 (((ItfMesRow *)state)->transition == 0 ||
                  ((ItfMesRow *)state)->transition == 3)) {
-                *(s16 *)(state + 0x18) = 1;
+                (transitionFields = (ItfMesRow *)(state), transitionFields)->transition = 1;
             }
             if ((((ItfMesWindow *)window)->flags.value & 0x4000000) == 0) {
                 if ((D_008C024E[0] & 0x40) != 0 ||
@@ -184,7 +188,7 @@ void itfMesWindowAdvanceRow(u8 *window)
                 }
                 if ((D_008C024C[0] & 0x10) == 0)
                     goto state_check;
-                count = *(u32 *)(state + 0x14);
+                count = (elapsedBitsFields = (ItfMesRow *)(state), elapsedBitsFields)->elapsed.bits;
                 if (count > 4U) {
                     if ((iGpffffb4d0 & 1) == 0)
                         goto do_action;
@@ -204,7 +208,7 @@ do_action:
                 ((ItfMesRow *)state)->transition = 3;
                 ((ItfMesRow *)state)->index += 1;
                 sdkSndResetChannel(1, 0);
-                if (*(s16 *)(state + 0x10) >= ((ItfMesRow *)state)->count) {
+                if ((indexFields = (ItfMesRow *)(state), indexFields)->index >= ((ItfMesRow *)state)->count) {
                     ((ItfMesRow *)state)->state.value = -1;
                     return;
                 }

@@ -247,6 +247,25 @@ typedef struct HMaestroListSet {
 // FUN_00462BF0
 void hMaestroFreeListSet(u8 *listSet)
 {
+    HMaestroListSet *lists0NodeFields;
+    HMaestroListSet *lists0ValueFields;
+    HMaestroListSet *lists4NodeFields;
+    HMaestroListSet *lists4ValueFields;
+    HMaestroListSet *lists5NodeFields;
+    HMaestroListSet *lists5ValueFields;
+    HMaestroListSet *lists1NodeFields;
+    HMaestroListSet *lists1ValueFields;
+    HMaestroListSet *lists2NodeFields;
+    HMaestroListSet *lists2ValueFields;
+    HMaestroListSet *lists6NodeFields;
+    HMaestroListSet *lists6ValueFields;
+    HMaestroListSet *lists3NodeFields;
+    HMaestroListSet *lists3ValueFields;
+    HMaestroListSet *lists7NodeFields;
+    HMaestroListSet *lists7ValueFields;
+    HMaestroListSet *lists8NodeFields;
+    HMaestroListSet *lists8ValueFields;
+
     u8 *current;
     s32 next;
 
@@ -254,58 +273,58 @@ void hMaestroFreeListSet(u8 *listSet)
         return;
     }
     while (((HMaestroListSet *)listSet)->lists[0].value != 0) {
-        current = *(u8 **)(listSet + 8);
+        current = (lists0NodeFields = (HMaestroListSet *)(listSet), lists0NodeFields)->lists[0].node;
         next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(listSet + 8) = next;
+        (lists0ValueFields = (HMaestroListSet *)(listSet), lists0ValueFields)->lists[0].value = next;
     }
     while (((HMaestroListSet *)listSet)->lists[4].value != 0) {
-        current = *(u8 **)(listSet + 0x18);
+        current = (lists4NodeFields = (HMaestroListSet *)(listSet), lists4NodeFields)->lists[4].node;
         next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(listSet + 0x18) = next;
+        (lists4ValueFields = (HMaestroListSet *)(listSet), lists4ValueFields)->lists[4].value = next;
     }
     while (((HMaestroListSet *)listSet)->lists[5].value != 0) {
-        current = *(u8 **)(listSet + 0x1C);
+        current = (lists5NodeFields = (HMaestroListSet *)(listSet), lists5NodeFields)->lists[5].node;
         next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(listSet + 0x1C) = next;
+        (lists5ValueFields = (HMaestroListSet *)(listSet), lists5ValueFields)->lists[5].value = next;
     }
     while (((HMaestroListSet *)listSet)->lists[1].value != 0) {
-        current = *(u8 **)(listSet + 0xC);
+        current = (lists1NodeFields = (HMaestroListSet *)(listSet), lists1NodeFields)->lists[1].node;
         next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(listSet + 0xC) = next;
+        (lists1ValueFields = (HMaestroListSet *)(listSet), lists1ValueFields)->lists[1].value = next;
     }
     while (((HMaestroListSet *)listSet)->lists[2].value != 0) {
-        current = *(u8 **)(listSet + 0x10);
+        current = (lists2NodeFields = (HMaestroListSet *)(listSet), lists2NodeFields)->lists[2].node;
         next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(listSet + 0x10) = next;
+        (lists2ValueFields = (HMaestroListSet *)(listSet), lists2ValueFields)->lists[2].value = next;
     }
     while (((HMaestroListSet *)listSet)->lists[6].value != 0) {
-        current = *(u8 **)(listSet + 0x20);
+        current = (lists6NodeFields = (HMaestroListSet *)(listSet), lists6NodeFields)->lists[6].node;
         next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(listSet + 0x20) = next;
+        (lists6ValueFields = (HMaestroListSet *)(listSet), lists6ValueFields)->lists[6].value = next;
     }
     while (((HMaestroListSet *)listSet)->lists[3].value != 0) {
-        current = *(u8 **)(listSet + 0x14);
+        current = (lists3NodeFields = (HMaestroListSet *)(listSet), lists3NodeFields)->lists[3].node;
         next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(listSet + 0x14) = next;
+        (lists3ValueFields = (HMaestroListSet *)(listSet), lists3ValueFields)->lists[3].value = next;
     }
     while (((HMaestroListSet *)listSet)->lists[7].value != 0) {
-        current = *(u8 **)(listSet + 0x24);
+        current = (lists7NodeFields = (HMaestroListSet *)(listSet), lists7NodeFields)->lists[7].node;
         next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(listSet + 0x24) = next;
+        (lists7ValueFields = (HMaestroListSet *)(listSet), lists7ValueFields)->lists[7].value = next;
     }
     while (((HMaestroListSet *)listSet)->lists[8].value != 0) {
-        current = *(u8 **)(listSet + 0x28);
+        current = (lists8NodeFields = (HMaestroListSet *)(listSet), lists8NodeFields)->lists[8].node;
         next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(listSet + 0x28) = next;
+        (lists8ValueFields = (HMaestroListSet *)(listSet), lists8ValueFields)->lists[8].value = next;
     }
     jtbl_008873EC[0](listSet);
 }
