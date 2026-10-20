@@ -13,7 +13,7 @@ extern void radarAnimateValue(void *work, s32 frame, s32 mode);
 extern void radarStepBarWave(u8 *work);
 extern void radarStepValueAnimation(u8 *work);
 extern void datCommunityMenuDraw(u8 *work);
-#pragma push
+/* Unit settings: community panels use O2, propagation and no invariant hoisting. */
 #pragma optimization_level 2
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
@@ -35,12 +35,7 @@ s32 datCommunityPanelOpenStepAlt(u8 *work)
         return 0;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // Intent: Community menu update: animate the 29 menu panels, update their helpers and draw the panel frame; returns 1 when no panel is still animating [inferred]
 // FUN_0035FC90
 s32 datCommunityMenuUpdate(u8 *work)
@@ -70,12 +65,7 @@ s32 datCommunityMenuUpdate(u8 *work)
     datCommunityMenuDraw(work);
     return allIdle;
 }
-#pragma pop
 
-#pragma push
-#pragma optimization_level 2
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 /* Draw the animated menu panels, eleven-column pip grids and scrolling list.
  * Position, texture and opacity snapshots preserve the values used by each
  * draw group. The label pass uses the final row's alpha; the scrollbar keeps
@@ -85,6 +75,7 @@ s32 datCommunityMenuUpdate(u8 *work)
  * See docs/probe_archive/Menu_renderer_0035fd60_20260930.md. */
 // Intent: Draw the community menu: its animated panels, pip grids and scrolling list [inferred]
 // FUN_0035FD60
+/* measured: removing both toggles differs by 5071 bytes; single-toggle and grid-local lifetime probes still differ by 691 or more. */
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
@@ -398,5 +389,4 @@ void datCommunityMenuDraw(u8 *work)
         sdkSpriteDrawFooter(position, 0.0f, opacity, ((RadarMenuWork *)work)->footerMode, ((RadarMenuWork *)work)->footerResource);
     }
 }
-#pragma pop
 #pragma pop

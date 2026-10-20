@@ -46,7 +46,7 @@ extern s16 fclSubClamped(s32 , s32 , s32 , s32 , s8 );
 extern s32 hMaestroDecodeIsReady(s32 , s32 );
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
-#pragma push
+/* Unit setting: portrait task code uses propagation throughout. */
 #pragma opt_propagation on
 /* Wait for the portrait sprite to load, then advance its delayed position transition and draw active states. */
 // FUN_0033E1E0
@@ -99,10 +99,7 @@ s32 fclBustupUpdate(u8 *task)
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Release the portrait sprite and free the task work, reloading the work pointer after release. */
 // FUN_0033E3A0
 void fclBustupDestroy(u8 *task)
@@ -111,10 +108,7 @@ void fclBustupDestroy(u8 *task)
     sdkSpriteRelease(((FclBustupWork *)((KwlnTask *)(task))->work)->sprite.pointer);
     jtbl_008873EC[0](MEMBER(u8 *, task, KwlnTask, work));
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Allocate the 0x2C-byte portrait work and create its child task before requesting the sprite resource. */
 // FUN_0033E3F0
 s32 fclBustupCreate(u8 *parent)
@@ -129,10 +123,7 @@ s32 fclBustupCreate(u8 *parent)
     ((FclBustupWork *)work)->sprite.handle = sdkSpriteRequestLoad(D_0064A480);
     return result;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Draw the portrait at the current interpolated position with opaque white modulation. */
 // FUN_0033E4B0
 void fclBustupDraw(u8 *task)
@@ -149,10 +140,7 @@ void fclBustupDraw(u8 *task)
     sdkSpriteDrawQueued(x, y, 104.0f, color, 0xFF, 1, ((FclBustupWork *)work)->sprite.pointer,
                   1, 0, 0, 0.0f, 1.0f, 1.0f, D_007955C0);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Store position endpoints, duration and delay, then activate the portrait movement state. */
 // FUN_0033E540
 void fclCombineStartMove(u8 *task, F2_0033 start, F2_0033 end, s16 duration, s16 delay)
@@ -168,13 +156,9 @@ void fclCombineStartMove(u8 *task, F2_0033 start, F2_0033 end, s16 duration, s16
     ((FclBustupWork *)work)->delay = delay;
     ((FclBustupWork *)work)->state = 2;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // FUN_0033E5A0
 s32 fclBustupIsActive(u8 *task)
 {
     return ((FclBustupWork *)((struct KwlnTask *)task)->work)->state != 0;
 }
-#pragma pop
