@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_unit_movement_internal.h"
 #include "mdl_file_internal.h"
 #include "btl_effect_internal.h"
@@ -182,8 +183,8 @@ extern u8 D_00794150[];
  * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
-// FUN_0019D150
 /* Queue visible, nontransparent models unless their model flags suppress drawing. */
+// FUN_0019D150
 void btlUnitQueueAllModelsForDraw(void)
 {
     u8 *model;
@@ -206,11 +207,12 @@ void btlUnitQueueAllModelsForDraw(void)
     }
 }
 
-// FUN_0019D210
 /* measured: typing the remaining genus/camera-slot accesses loses MATCH; list address helpers preserve retail operand order. */
 /* Allocate a 0xA70-byte unit, initialize movement/model state, and append it to its genus list. */
+// FUN_0019D210
 u8 *btlUnitCreate(s32 genus)
 {
+    BtlUnit *typedUnit;
     f32 movementRate;
     s32 battleAddress;
     s32 listOffset;
@@ -220,6 +222,7 @@ u8 *btlUnitCreate(s32 genus)
 
     chkmemAllocSiteTag(D_005F6D10, 0x3A);
     unit = (u8 *)D_008873E8[0](0xA70, 0x40000);
+    typedUnit = (BtlUnit *)unit;
     memset(unit, 0, 0xA70);
     ((BtlUnit *)unit)->genus = genus;
     if (iGpffffa0a8 >= 0x0FFFFFFFU) {
@@ -236,34 +239,34 @@ u8 *btlUnitCreate(s32 genus)
     ((BtlUnit *)unit)->sphereCenter.z = 0.0f;
     ((BtlUnitMovement *)(unit + 0xC4))->activity = 0;
     ((BtlUnitMovement *)(unit + 0xC4))->speed = 27.0f;
-    if (*(u8 *)(unit + 0xA2) == 0) {
+    if (typedUnit->genus == 0) {
         movementRate = 10.0f;
     } else {
         movementRate = 14.0f;
     }
     ((BtlUnitMovement *)(unit + 0xC4))->unk430 = 0.5f * movementRate;
     ((BtlUnit *)unit)->motionRate = 1.0f;
-    /* Signed camera-slot sentinel; the shared unit layout retains this span as bytes. */
-    *(s8 *)(unit + 0x9FC) = -1;
+    /* Negative camera slots have no camera ownership to release. */
+    ((BtlUnit *)unit)->cameraSlot = -1;
     ((BtlUnitResources *)(unit + 0xA04))->placement = btlEffectCreatePlacementEntry(unit);
     ((BtlUnitResources *)(unit + 0xA04))->nodePool = btlEffectAllocNodePool();
     ((BtlUnit *)unit)->prevUnit = NULL;
     listOffset = (genus & 0xFF) * 8;
     battleAddress = (s32)iGpffffb3ac;
     tail = *(u8 **)((u8 *)btlUnitOffsetWordTable(
-        0x178, (s32 *)battleAddress) + listOffset);
+        MEMBER_OFFSET(BtlBattleState, unitLists[0]), (s32 *)battleAddress) + listOffset);
     if (tail != NULL) {
         ((BtlUnit *)tail)->prevUnit = (BtlUnit *) unit;
         ((BtlUnit *)unit)->nextUnit = (BtlUnit *)
-            *(u8 **)((u8 *)btlUnitAddBaseToOffset(
-                listOffset, (s32)iGpffffb3ac) + 0x178);
+            ((BtlBattleState *)((u8 *)btlUnitAddBaseToOffset(
+                listOffset, (s32)iGpffffb3ac)))->unitLists[0];
     } else {
-        *(u8 **)((u8 *)btlUnitAddBaseToOffset(
-            listOffset, battleAddress) + 0x17C) = unit;
+        ((BtlBattleState *)((u8 *)btlUnitAddBaseToOffset(
+            listOffset, battleAddress)))->unitLists[1] = unit;
         ((BtlUnit *)unit)->nextUnit = NULL;
     }
-    *(u8 **)((u8 *)btlUnitAddBaseToOffset(
-        listOffset, (s32)iGpffffb3ac) + 0x178) = unit;
+    ((BtlBattleState *)((u8 *)btlUnitAddBaseToOffset(
+        listOffset, (s32)iGpffffb3ac)))->unitLists[0] = unit;
     return unit;
 }
 

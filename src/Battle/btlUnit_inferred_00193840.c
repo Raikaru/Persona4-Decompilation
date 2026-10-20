@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "h_cdvd_request_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_skill_target_internal.h"
@@ -82,7 +83,7 @@ extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
-extern void func_00194660(void);
+extern void btlPacketInitNoop(void);
 extern s32 btlUnitLoadStep(u8 *unusedTask);
 
 extern s32 btlUnitLoadBlocksFromFile(u8 *loadTable, s32 synchronous);
@@ -239,7 +240,7 @@ s32 btlUnitLoadBlocksFromFile(u8 *loadTable, s32 synchronous)
         return 0;
     }
 block_6:
-    block = *(u8 **)((u8 *)iGpffffb434 + 0x110);
+    block = (u8 *)((HCdvdRequest *)(u8 *)iGpffffb434)->data;
     blockIndex = 0;
     goto loop_8_check;
 loop_8_body:
@@ -340,7 +341,7 @@ void btlUnitRecordResetSaveTable(u8 *context)
 }
 
 /* Find a flagged packet by its masked packet UID across all four lists. */
-/* measured: replacing the raw list-head load with PacketList.tail changed MATCH. */
+/* measured: access-site list-head typing moved instructions; a distinct typed battle-state alias retains MATCH. */
 // FUN_00193B70
 u8 *btlUnitRecordFindByUID(u64 uid, u64 mask)
 {
@@ -351,7 +352,7 @@ u8 *btlUnitRecordFindByUID(u64 uid, u64 mask)
     i = 0;
     btl = iGpffffb3ac;
     while (i < 4) {
-        packet = *(u8 **)(btl + i * 8 + 0x19C);
+        packet = ((BtlBattleState *)btl)->packetLists[i].tail;
         while (packet != NULL) {
             if (uid == (((BtlPacket *)packet)->uid & mask) &&
                 (((BtlPacket *)packet)->flags & 0x20) != 0) {
@@ -365,10 +366,10 @@ u8 *btlUnitRecordFindByUID(u64 uid, u64 mask)
 }
 
 /* Find a flagged packet by its masked action UID across all four lists. */
-/* measured: replacing the raw list-head load with PacketList.tail changed MATCH. */
-// FUN_00193BF0
+/* measured: access-site list-head typing moved instructions; a distinct typed battle-state alias retains MATCH. */
 /* Same packet-list walk as btlUnitRecordFindByUID; this P4 packet stores the
  * UID at offset 0x60 instead of 0x58. */
+// FUN_00193BF0
 u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask)
 {
     u8 *packet;
@@ -378,7 +379,7 @@ u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask)
     i = 0;
     btl = iGpffffb3ac;
     while (i < 4) {
-        packet = *(u8 **)(btl + i * 8 + 0x19C);
+        packet = ((BtlBattleState *)btl)->packetLists[i].tail;
         while (packet != NULL) {
             if (uid == (((BtlPacket *)packet)->actionUID & mask) &&
                 (((BtlPacket *)packet)->flags & 0x20) != 0) {
@@ -392,7 +393,7 @@ u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask)
 }
 
 /* Count packets across the four battle lists. */
-/* measured: replacing the raw list-head load with PacketList.tail changed MATCH. */
+/* measured: access-site list-head typing moved instructions; a distinct typed battle-state alias retains MATCH. */
 // FUN_00193C70
 u32 btlCountUnitRecords(void)
 {
@@ -405,7 +406,7 @@ u32 btlCountUnitRecords(void)
     i = 0;
     btl = iGpffffb3ac;
     for (; i < 4; i++) {
-        packet = *(u8 **)(btl + i * 8 + 0x19C);
+        packet = ((BtlBattleState *)btl)->packetLists[i].tail;
         while (packet != NULL) {
             total++;
             packet = ((BtlPacket *)packet)->previous;
@@ -415,7 +416,7 @@ u32 btlCountUnitRecords(void)
 }
 
 /* Count packets whose type matches the low halfword of the supplied id. */
-/* measured: replacing the raw list-head load with PacketList.tail changed MATCH. */
+/* measured: access-site list-head typing moved instructions; a distinct typed battle-state alias retains MATCH. */
 // FUN_00193CD0
 u32 btlCountUnitRecordsById(u32 id)
 {
@@ -429,7 +430,7 @@ u32 btlCountUnitRecordsById(u32 id)
     btl = iGpffffb3ac;
     id = (u16)id;
     for (; i < 4; i++) {
-        packet = *(u8 **)(btl + i * 8 + 0x19C);
+        packet = ((BtlBattleState *)btl)->packetLists[i].tail;
         while (packet != NULL) {
             if (((BtlPacket *)packet)->type == id) {
                 total++;
@@ -446,23 +447,26 @@ u32 btlCountUnitRecordsById(u32 id)
 #define BTLUNIT_RECORD_FLAG_COMMITTED 0x04
 
 /* Promote pending unit-record flags to committed while walking the forward links. */
-/* measured: list/flag field substitutions changed MATCH; the +0x80 forward link is beyond the preserved 0x80-byte BtlPacket prefix. */
+/* measured: distinct typed aliases retain the list/flag accesses; the proven 0x90-byte packet layout names the forward link. */
 // FUN_00193D30
 void btlUnitRecordCommitPending(void)
 {
+    BtlPacket *packetFields;
     u8 *packet;
     u32 i;
     u32 flags;
 
     i = 0;
     for (; i < 4; i++) {
-        packet = *(u8 **)(iGpffffb3ac + i * 8 + 0x19C);
+        packet = ((BtlBattleState *)iGpffffb3ac)->packetLists[i].tail;
+        packetFields = (BtlPacket *)packet;
         while (packet != NULL) {
             flags = ((BtlPacket *)packet)->flags;
             if ((flags & BTLUNIT_RECORD_FLAG_PENDING) != 0) {
-                *(u8 *)(packet + 0x47) = flags | BTLUNIT_RECORD_FLAG_COMMITTED;
+                packetFields->flags = flags | BTLUNIT_RECORD_FLAG_COMMITTED;
             }
-            packet = *(u8 **)(packet + 0x80);
+            packet = ((BtlPacket *)packet)->next;
+            packetFields = (BtlPacket *)packet;
         }
     }
 }
@@ -582,7 +586,7 @@ s32 btlPacketWaitConditionMet(u8 *context, s32 argument)
 /* measured: func_00194470 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 /* Allocate the packet header and inline work, then initialize its four dependency conditions. */
-/* The four discriminator bytes are in 0x10-byte dependency records; raw indexed stores preserve the measured two-loop initialization order. */
+/* The four discriminator bytes are in 0x10-byte dependency records; typed array stores preserve the two-loop initialization order. */
 // FUN_00194470
 u8 *btlPacketAlloc(s32 packetType, s32 workSize)
 {
@@ -601,7 +605,7 @@ u8 *btlPacketAlloc(s32 packetType, s32 workSize)
     value = 1;
     goto loop1_check;
 loop1_body:
-    *(u8 *)(packet + ((startConditionIndex & 0xFFFF) << 4)) = value;
+    ((BtlPacket *)packet)->conditions[(startConditionIndex & 0xFFFF)].kind = value;
     startConditionIndex = (startConditionIndex + 1) & 0xFFFF;
 loop1_check:
     if ((startConditionIndex & 0xFFFF) < 2) {
@@ -611,7 +615,7 @@ loop1_check:
     value = 1;
     goto loop2_check;
 loop2_body:
-    *(u8 *)(packet + ((endConditionIndex & 0xFFFF) << 4) + 0x20) = value;
+    ((BtlPacket *)packet)->conditions[(endConditionIndex & 0xFFFF) + 2].kind = value;
     endConditionIndex = (endConditionIndex + 1) & 0xFFFF;
 loop2_check:
     if ((endConditionIndex & 0xFFFF) < 2) {
@@ -628,11 +632,13 @@ loop2_check:
 /* measured: func_00194590, func_00194670 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 /* Assign a UID, initialize packet counters, invoke init, and link into the selected list. */
-/* measured: remaining packet snapshots changed MATCH when typed. List links at +0x80 lie beyond the preserved public packet prefix. */
-// FUN_00194590
+/* measured: distinct typed aliases retain packet snapshots and the offset-first selected-list address; the real packet layout includes both links. */
 /* measured: opt_propagation off is scoped to func_00194590. */
+// FUN_00194590
 s64 btlPacketEnqueue(u8 *context, u32 value)
 {
+    BtlPacketList *selectedPacketList;
+    BtlPacket *contextFields = (BtlPacket *)context;
     u32 index;
     u8 *next;
     void (*callback)(u8 *);
@@ -643,31 +649,33 @@ s64 btlPacketEnqueue(u8 *context, u32 value)
     ((BtlPacket *)context)->phase = 0;
     ((BtlPacket *)context)->listIndex = value;
     ((BtlPacket *)context)->flags |= 8;
-    callback = *(void (**)(u8 *))(context + 0x68);
+    callback = (void (*)(u8 *))((BtlPacket *)context)->initFunc;
     if (callback != NULL) {
         callback((u8 *)((BtlPacket *)context)->workData);
     }
-    *(s32 *)(context + 0x7C) = 0;
+    ((BtlPacket *)context)->previous = 0;
     index = ((u8)value) * 8;
-    next = *(u8 **)((u8 *)btlPacketAddListByteOffset(0x198, (s32 *)iGpffffb3ac) + index);
+    selectedPacketList = (BtlPacketList *)((u8 *)btlPacketAddListByteOffset(0x198, (s32 *)iGpffffb3ac) + index);
+    next = selectedPacketList->head;
     if (next != NULL) {
         ((BtlPacket *)next)->previous = context;
-        *(u8 **)(context + 0x80) =
-            *(u8 **)((u8 *)btlPacketAddBaseOffset(index,
-                                                 (s32)iGpffffb3ac) + 0x198);
+        ((BtlPacket *)context)->next =
+            ((BtlBattleState *)(u8 *)btlPacketAddBaseOffset(index,
+                                                 (s32)iGpffffb3ac))->packetLists[0].head;
     } else {
-        *(u8 **)((u8 *)btlPacketAddBaseOffset(index,
-                                             (s32)iGpffffb3ac) + 0x19C) = context;
-        *(u8 **)(context + 0x80) = NULL;
+        ((BtlBattleState *)(u8 *)btlPacketAddBaseOffset(index,
+                                             (s32)iGpffffb3ac))->packetLists[0].tail = context;
+        ((BtlPacket *)context)->next = NULL;
     }
-    *(u8 **)((u8 *)btlPacketAddBaseOffset(index,
-                                         (s32)iGpffffb3ac) + 0x198) = context;
-    return *(s64 *)(context + 0x58);
+    ((BtlBattleState *)(u8 *)btlPacketAddBaseOffset(index,
+                                         (s32)iGpffffb3ac))->packetLists[0].head = context;
+    return (s64)contextFields->uid;
 }
 
 /* measured: closes opt_propagation around func_00194590. */
+/* Empty packet initialization hook called during battle subsystem setup. */
 // FUN_00194660
-void func_00194660(void)
+void btlPacketInitNoop(void)
 {
 }
 
@@ -675,10 +683,11 @@ void func_00194660(void)
  * States fall through only after their conditions complete. Destruction
  * reloads the list flag and links after the callback; counters wrap as u32. */
 /* Advance packet conditions, delays, update, and teardown, reloading links after callbacks. */
-/* measured: remaining phase/flag/delay reloads changed MATCH under per-access typing; +0x80 links are outside the preserved packet prefix. */
+/* measured: distinct typed aliases retain the phase/flag/delay reloads that moved instructions with access-site fields. */
 // FUN_00194670
 void btlPacketStep(u8 *context)
 {
+    BtlPacket *contextFields = (BtlPacket *)context;
     u8 flags;
     u8 index;
     u8 *next;
@@ -696,23 +705,23 @@ void btlPacketStep(u8 *context)
         return;
     }
     if ((flags & 4) != 0) {
-        callback = *(void (**)(u8 *))(context + 0x70);
+        callback = (void (*)(u8 *))((BtlPacket *)context)->destroyFunc;
         if (callback != NULL) {
             callback((u8 *)((BtlPacket *)context)->workData);
         }
-        if ((*(u8 *)(context + 0x47) & 8) != 0) {
+        if ((contextFields->flags & 8) != 0) {
             index = ((BtlPacket *)context)->listIndex;
-            next = *(u8 **)(context + 0x80);
+            next = ((BtlPacket *)context)->next;
             if (next != NULL) {
                 ((BtlPacket *)next)->previous = ((BtlPacket *)context)->previous;
             } else {
                 ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].tail = ((BtlPacket *)context)->previous;
             }
-            prev = *(u8 **)(context + 0x7C);
+            prev = contextFields->previous;
             if (prev != NULL) {
-                *(u8 **)(prev + 0x80) = *(u8 **)(context + 0x80);
+                ((BtlPacket *)prev)->next = contextFields->next;
             } else {
-                ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = *(u8 **)(context + 0x80);
+                ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = contextFields->next;
             }
         }
         jtbl_008873EC[0](context);
@@ -732,17 +741,17 @@ void btlPacketStep(u8 *context)
             if (ok == 0) {
                 return;
             }
-            *(u8 *)(context + 0x45) = 1;
+            contextFields->phase = 1;
         case 1:
-            if (*(s16 *)(context + 0x48) <= 0) {
-                *(u8 *)(context + 0x45) = 2;
+            if ((s16)contextFields->delay <= 0) {
+                contextFields->phase = 2;
             } else {
                 ((BtlPacket *)context)->delay = (s16)((s16)((BtlPacket *)context)->delay - 1);
                 return;
             }
         case 2:
-            if ((*(u32 (**)(void *))(context + 0x6C))(((BtlPacket *)context)->workData) != 0) {
-                *(u8 *)(context + 0x45) = 3;
+            if ((((BtlPacket *)context)->updateFunc)(((BtlPacket *)context)->workData) != 0) {
+                contextFields->phase = 3;
             } else {
                 ((BtlPacket *)context)->updateFrames += 1U;
                 return;
@@ -759,26 +768,26 @@ void btlPacketStep(u8 *context)
             if (ok == 0) {
                 return;
             }
-            *(u8 *)(context + 0x45) = 4;
+            contextFields->phase = 4;
         case 4:
-            if (*(s16 *)(context + 0x4A) <= 0) {
-                callback = *(void (**)(u8 *))(context + 0x70);
+            if ((s16)contextFields->duration <= 0) {
+                callback = (void (*)(u8 *))((BtlPacket *)context)->destroyFunc;
                 if (callback != NULL) {
                     callback((u8 *)((BtlPacket *)context)->workData);
                 }
-                if ((*(u8 *)(context + 0x47) & 8) != 0) {
+                if ((contextFields->flags & 8) != 0) {
                     index = ((BtlPacket *)context)->listIndex;
-                    next = *(u8 **)(context + 0x80);
+                    next = ((BtlPacket *)context)->next;
                     if (next != NULL) {
                         ((BtlPacket *)next)->previous = ((BtlPacket *)context)->previous;
                     } else {
                         ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].tail = ((BtlPacket *)context)->previous;
                     }
-                    prev = *(u8 **)(context + 0x7C);
+                    prev = contextFields->previous;
                     if (prev != NULL) {
-                        *(u8 **)(prev + 0x80) = *(u8 **)(context + 0x80);
+                        ((BtlPacket *)prev)->next = contextFields->next;
                     } else {
-                        ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = *(u8 **)(context + 0x80);
+                        ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = contextFields->next;
                     }
                 }
                 jtbl_008873EC[0](context);
@@ -794,7 +803,7 @@ void btlPacketStep(u8 *context)
 /* measured: func_001949d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* Step one packet list while saving the preceding link before a callback can free the packet. */
-/* The raw list-head address preserves the measured offset-first helper ordering for the selected list. */
+/* The typed list-head access preserves the measured offset-first helper ordering for the selected list. */
 // FUN_001949D0
 void btlPacketStepSide(s32 side)
 {
@@ -803,7 +812,7 @@ void btlPacketStepSide(s32 side)
     u8 *packet;
 
     btl = iGpffffb3ac;
-    packet = *(u8 **)((u8 *)packetListOffset((side & 0xFF) * 8, (u32)btl) + 0x19C);
+    packet = ((BtlBattleState *)(u8 *)packetListOffset((side & 0xFF) * 8, (u32)btl))->packetLists[0].tail;
     while (packet != NULL) {
         next = ((BtlPacket *)packet)->previous;
         btlPacketStep(packet);
@@ -813,7 +822,7 @@ void btlPacketStepSide(s32 side)
 
 /* measured: closes opt_propagation for func_001949d0. */
 /* Destroy and unlink every packet, invoking each destroy callback before releasing memory. */
-/* measured: remaining link/list reloads changed MATCH when typed; +0x80 links lie beyond the preserved packet prefix. */
+/* measured: four teardown link loads change instructions as fields, typed aliases, and indexed fields; MEMBER preserves callback-sensitive reloads. */
 // FUN_00194A30
 void btlPacketFlushAll(void)
 {
@@ -827,29 +836,29 @@ void btlPacketFlushAll(void)
     i = 0;
     goto outer_check;
 outer:
-    entry = *(u8 **)(iGpffffb3ac + i * 8 + 0x19C);
+    entry = ((BtlBattleState *)iGpffffb3ac)->packetLists[i].tail;
     goto inner_check;
 inner:
-    next = *(u8 **)(entry + 0x80);
-    callback = *(void (**)(u8 *))(entry + 0x70);
+    next = ((BtlPacket *)entry)->next;
+    callback = (void (*)(u8 *))((BtlPacket *)entry)->destroyFunc;
     if (callback != NULL) {
         callback((u8 *)((BtlPacket *)entry)->workData);
     }
     if ((((BtlPacket *)entry)->flags & 8) != 0) {
         index = ((BtlPacket *)entry)->listIndex;
-        link = *(u8 **)(entry + 0x80);
+        link = MEMBER(u8 *, entry, BtlPacket, next);
         if (link != NULL) {
             ((BtlPacket *)link)->previous = ((BtlPacket *)entry)->previous;
         } else {
-            *(u8 **)(iGpffffb3ac + ((index & 0xFF) * 8) + 0x19C) =
+            ((BtlBattleState *)iGpffffb3ac)->packetLists[index & 0xFF].tail =
                 ((BtlPacket *)entry)->previous;
         }
-        link = *(u8 **)(entry + 0x7C);
+        link = MEMBER(u8 *, entry, BtlPacket, previous);
         if (link != NULL) {
-            *(u8 **)(link + 0x80) = *(u8 **)(entry + 0x80);
+            ((BtlPacket *)link)->next = MEMBER(u8 *, entry, BtlPacket, next);
         } else {
-            *(u8 **)(iGpffffb3ac + ((index & 0xFF) * 8) + 0x198) =
-                *(u8 **)(entry + 0x80);
+            ((BtlBattleState *)iGpffffb3ac)->packetLists[index & 0xFF].head =
+                MEMBER(u8 *, entry, BtlPacket, next);
         }
     }
     jtbl_008873EC[0](entry);
@@ -875,7 +884,7 @@ s32 btlPacketConditionAlwaysMet(void)
 /* measured: func_00194b60 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 /* Create a header-only packet whose update callback completes immediately. */
-/* Raw discriminator stores retain the measured two-loop initialization; the callback word uses the existing integer-address store contract. */
+/* Typed discriminator arrays retain the two-loop initialization; the named callback word retains its integer-address store contract. */
 // FUN_00194B60
 u8 *btlPacketCreateImmediate(void)
 {
@@ -893,7 +902,7 @@ u8 *btlPacketCreateImmediate(void)
     value = 1;
     goto first_check;
 first_body:
-    *(u8 *)(packet + ((i & 0xFFFF) << 4)) = (u8)value;
+    ((BtlPacket *)packet)->conditions[(i & 0xFFFF)].kind = (u8)value;
     i = (i + 1) & 0xFFFF;
 first_check:
     if ((i & 0xFFFF) < 2) {
@@ -904,7 +913,7 @@ first_check:
     value = 1;
     goto second_check;
 second_body:
-    *(u8 *)(base + ((j & 0xFFFF) << 4)) = (u8)value;
+    ((BtlPacketCondition *)base)[j & 0xFFFF].kind = (u8)value;
     j = (j + 1) & 0xFFFF;
 second_check:
     if ((j & 0xFFFF) < 2) {
@@ -912,7 +921,7 @@ second_check:
     }
     ((BtlPacket *)packet)->flags =
         (u8)(((BtlPacket *)packet)->flags | 0x31);
-    *(s32 *)(packet + 0x6C) = (s32)btlPacketConditionAlwaysMet;
+    *(s32 *)&((BtlPacket *)packet)->updateFunc = (s32)btlPacketConditionAlwaysMet;
     return packet;
 }
 

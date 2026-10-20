@@ -81,18 +81,18 @@ typedef struct BtlPacket {
     union {
         BtlPacketCondition conditions[4];
         struct {
-    u8 dependencyKind;      /* 0x00: 4 waits for dependencyUID */
-    u8 pad01[7];
-    u64 dependencyUID;      /* 0x08 */
-    u8 dependencyKind2;     /* 0x10: second dispatcher condition */
-    u8 pad11[7];
-    u64 dependencyUID2;     /* 0x18 */
-    u8 dependencyKind3;     /* 0x20: third dispatcher condition */
-    u8 pad21[7];
-    u64 dependencyUID3;     /* 0x28 */
-    u8 dependencyKind4;     /* 0x30: second end condition */
-    u8 pad31[7];
-    u64 dependencyUID4;     /* 0x38 */
+            u8 dependencyKind;      /* 0x00: 4 waits for dependencyUID */
+            u8 pad01[7];
+            u64 dependencyUID;      /* 0x08 */
+            u8 dependencyKind2;     /* 0x10: second dispatcher condition */
+            u8 pad11[7];
+            u64 dependencyUID2;     /* 0x18 */
+            u8 dependencyKind3;     /* 0x20: third dispatcher condition */
+            u8 pad21[7];
+            u64 dependencyUID3;     /* 0x28 */
+            u8 dependencyKind4;     /* 0x30: second end condition */
+            u8 pad31[7];
+            u64 dependencyUID4;     /* 0x38 */
         };
     };
     s32 type;               /* 0x40: btlPacketAlloc's packet kind */
@@ -180,14 +180,44 @@ typedef struct BtlSceneColorBlock {
     BtlCameraQuaternion rotation;
 } BtlSceneColorBlock;
 
-/* btlInit allocates and clears 0xE88 bytes. All gaps retain their retail
- * offsets; the lifecycle, action and effect paths share this allocation. */
+/* Step-trigger counters share the first eight bytes of message playback work. */
+typedef struct BtlActionStepCounter {
+    u16 elapsed;
+    u16 interval;
+} BtlActionStepCounter;
+typedef struct BtlActionStepState {
+    BtlActionStepCounter counter;
+    u16 pending;
+    u16 unk06;
+} BtlActionStepState;
+
+/* Embedded at battle +0xA44; ResetPlaybackState clears 0x2C bytes. */
+typedef struct BtlSoundPlayback {
+    union {
+        u8 pad00[8];
+        BtlActionStepState steps;
+    };
+    u16 channel, flags, phase;
+    u8 pad0E[2];
+    s32 handle;
+    s32 currentId;
+    s16 currentChannel;
+    u8 pad1A[2];
+    s32 pendingId;
+    s16 pendingChannel;
+    u8 pad22[2];
+    s32 unk24;
+    s16 unk28, unk2A;
+} BtlSoundPlayback;
+
 /* Four packet-list endpoint pairs, walked from tail toward previous. */
 typedef struct BtlPacketList {
     u8 *head;
     u8 *tail;
 } BtlPacketList;
 
+/* btlInit allocates and clears 0xE88 bytes. All gaps retain their retail
+ * offsets; the lifecycle, action and effect paths share this allocation. */
 typedef struct BtlBattleState {
     u8 pad00[0x0C];
     u32 flags;                     /* 0x0C */
@@ -225,7 +255,8 @@ typedef struct BtlBattleState {
         struct {
             u8 pad318Boundary[0x324 - 0x318];
             struct { f32 x, z; } radiusBoundaryMidpoint; /* 0x324: first navigation corner midpoint */
-            u8 pad32C[0xA70 - 0x32C];
+            u8 pad32C[0xA44 - 0x32C];
+            BtlSoundPlayback playback; /* 0xA44 */
         };
     };
     s16 unkA70;
@@ -338,6 +369,13 @@ typedef char BtlBattleSequenceUpdateOffsetCheck[
     (u32)&((BtlBattleState *)0)->encounterSequenceUpdate == 0xB44 ? 1 : -1];
 typedef char BtlBattleMaximumDefeatedLevelOffsetCheck[
     (u32)&((BtlBattleState *)0)->maximumDefeatedLevel == 0xCE0 ? 1 : -1];
+typedef char BtlSoundPlaybackSizeCheck[sizeof(BtlSoundPlayback) == 0x2C ? 1 : -1];
+typedef char BtlBattlePlaybackOffsetCheck[
+    (u32)&((BtlBattleState *)0)->playback == 0xA44 ? 1 : -1];
+typedef char BtlBattleRewardExpOffsetCheck[
+    (u32)&((BtlBattleState *)0)->rewardExp == 0xCB0 ? 1 : -1];
+typedef char BtlBattleRewardMoneyOffsetCheck[
+    (u32)&((BtlBattleState *)0)->rewardMoney == 0xCB4 ? 1 : -1];
 typedef char BtlBattleStateSizeCheck[sizeof(BtlBattleState) == 0xE88 ? 1 : -1];
 
 #endif

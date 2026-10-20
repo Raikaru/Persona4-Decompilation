@@ -386,7 +386,7 @@ int btlEffectFindUnitMatchingCallback(int action, int conditionValue, int sideMa
 
     extern s32 datCalcElementBit(s16 element);
     extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
-    extern s32 func_001f9ce0(u8 *value, s32 index);
+    extern s32 btlTargetAffinityKnowledgeBypassNoop(u8 *value, s32 index);
     extern s32 datTestBitmapBit(u16 entryIndex, u16 bitIndex);
 
     (void)action;
@@ -427,7 +427,7 @@ loop:
             }
             if (option_four_eight != 0 &&
                 workFields->genus == 1 &&
-                func_001f9ce0(unit, (s16)conditionValue) == 0 &&
+                btlTargetAffinityKnowledgeBypassNoop(unit, (s16)conditionValue) == 0 &&
                 datTestBitmapBit(((BtlUnit *)(work))->charId, (u16)conditionValue) == 0) {
                 if (option_four_value != 0)
                     goto next;

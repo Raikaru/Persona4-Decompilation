@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
 #include "model_motion_internal.h"
@@ -244,6 +245,7 @@ u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 sideFlags)
 // FUN_0019EA60
 void btlUnitInitFromRecord(u8 *unit, s32 characterId)
 {
+    BtlUnit *typedUnit = (BtlUnit *)unit;
     /* measured: repeated typed datUnit loads hoist unit+0xA64;
      * subsequent data-pointer reloads preserve byte aliasing. */
     /* Initialize visual scale, bounds and motion rows from the genus-specific record. */
@@ -272,7 +274,7 @@ void btlUnitInitFromRecord(u8 *unit, s32 characterId)
     switch (genus) {
     case 0:
         *(s16 *)&((DatUnit *)(*(u8 **)&((BtlUnit *)unit)->datUnit))->id = recordId;
-        datUnitInit((DatUnit *)*(u8 **)(unit + 0xA64), 0, recordId);
+        datUnitInit((DatUnit *)*(u8 * *)&((BtlUnit *)unit)->datUnit, 0, recordId);
         partyOffset = characterId * 0x14C;
         partyScalePercent = ((BtlUnitPartyRecord *)((u8 *)((u32)partyOffset + (u32)iGpffffb3c0)))->scalePercent;
         partyScale = (f32)(u32)partyScalePercent;
@@ -282,12 +284,12 @@ void btlUnitInitFromRecord(u8 *unit, s32 characterId)
         *(u8 **)&((BtlUnit *)unit)->motionRates = iGpffffb3c0 + partyOffset + 0x3C;
         *(s16 *)&((BtlUnit *)unit)->motionCount = 0x1B;
         if ((u32)(characterId - 3) < 3U) {
-            unitData = *(u8 **)(unit + 0xA64);
+            unitData = *(u8 * *)&typedUnit->datUnit;
             ((DatUnit *)unitData)->flags |= 0x1000;
         }
         break;
     case 1:
-        *(s16 *)&((DatUnit *)(*(u8 **)(unit + 0xA64)))->id = recordId;
+        *(s16 *)&((DatUnit *)(*(u8 * *)&((BtlUnit *)unit)->datUnit))->id = recordId;
         enemyOffset = characterId * 0xE8;
         enemyScalePercent = ((BtlUnitEnemyRecord *)((u8 *)((u32)enemyOffset + (u32)iGpffffb3cc)))->scalePercent;
         enemyScale = (f32)(u32)enemyScalePercent;
@@ -374,19 +376,20 @@ u8 *btlUnitGetRecordPtr(u8 *unit, s32 motion)
 
 // FUN_0019EF30
 void btlUnitInitChild(u8 *unit, u16 characterId) {
+    BtlUnit *typedUnit = (BtlUnit *)unit;
     /* measured: typed childUnit reloads hoist unit+0xA0C and change five words;
      * retain the post-allocation byte-addressed accesses. */
     /* Create the optional child unit lazily, then initialize its character record. */
     extern void btlUnitInitFromRecord(u8 *unit, u16 characterId);
     if (*(u8 **)&((BtlUnit *)unit)->childUnit == NULL) {
-        *(u8 **)(unit + 0xA0C) = btlUnitCreate(2);
+        *(u8 * *)&typedUnit->childUnit = btlUnitCreate(2);
     }
-    btlUnitInitFromRecord(*(u8 **)(unit + 0xA0C), characterId);
+    btlUnitInitFromRecord(*(u8 * *)&typedUnit->childUnit, characterId);
 }
 
-// FUN_0019EF90
 /* measured: opt_propagation off reproduces ef90's retail address setup order. */
 /* measured: func_0019ef90 MATCH -> MISMATCH without this pragma. */
+// FUN_0019EF90
 #pragma opt_propagation off
 u8 *btlUnitFindInSideById(s32 genus, s32 characterId)
 {
@@ -670,9 +673,8 @@ u8 *btlActionCreateWork(s32 genus, u16 characterId, u16 *unitData)
         }
         p4_call_0019ef30(((DatPersonaRecord *)datPersonaGetRecord(characterId))->id,
                          unit);
-        /* The roster-slot pointer aliases hit-row storage at +0x3F0 during creation;
-         * the shared action layout does not yet describe that union. */
-        *(s32 *)(action + 0x3F0) = datPersonaGetRosterSlot((s16)characterId);
+        /* Creation reuses the saved-cursor slot for the persona roster pointer. */
+        *(s32 *)&((BtlAction *)action)->targetBlock.recovery.savedCursors = datPersonaGetRosterSlot((s16)characterId);
         ((BtlAction *)action)->unk_1a |= 0x10;
         break;
     case 1:
@@ -699,10 +701,10 @@ u8 *btlActionCreateWork(s32 genus, u16 characterId, u16 *unitData)
     }
     actionUnit = *(u8 **)&((BtlAction *)action)->unit;
     *(s32 *)&((BtlUnit *)actionUnit)->flags3 |= 8;
-    *(u16 *)(action + 0x1A) |= 8;
+    ((BtlAction *)action)->unk_1a |= 8;
     switch (unitGenus) {
     case 0:
-        *(u16 *)(action + 0x1A) |= 0x200;
+        MEMBER(u16, action, BtlAction, unk_1a) |= 0x200;
         partyFlags = *(s32 *)&((BtlUnit *)unit)->flags3 | 0x20;
         *(s32 *)&((BtlUnit *)unit)->flags3 = partyFlags;
         partyFlagsWithForty = partyFlags | 0x40;
@@ -734,6 +736,7 @@ u8 *btlActionCreateWork(s32 genus, u16 characterId, u16 *unitData)
 // FUN_0019F8A0
 s32 btlUnitIdleAnimTick(u8 *action)
 {
+    BtlAction *typedAction = (BtlAction *)action;
     /* measured: repeated typed timer/unit accesses save action+0x24/+0x30
      * in extra registers (436B versus the 416B window); retain those reloads. */
     /* Count down an idle animation delay, refusing unavailable or nonresting units. */
@@ -741,38 +744,38 @@ s32 btlUnitIdleAnimTick(u8 *action)
     u16 *unitData;
 
     if (((BtlAction *)action)->idleWeaponAnimTimer < 0) {
-        *(s32 *)(action + 0x24) = (effMiscRand(0) % 240U) + 0x78;
+        typedAction->idleWeaponAnimTimer = (effMiscRand(0) % 240U) + 0x78;
     }
-    remainingFrames = *(s32 *)(action + 0x24);
+    remainingFrames = typedAction->idleWeaponAnimTimer;
     if (remainingFrames == 0) {
         if (btlUnitIsAtRestMotion(*(u8 **)&((BtlAction *)action)->unit) == 0) {
             return 0;
         }
-        if (datCalcChkBadStatus(*(s32 *)&((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit,
+        if (datCalcChkBadStatus(*(s32 *)&((BtlUnit *)(*(u8 * *)&typedAction->unit))->datUnit,
                           0x100000) != 0) {
             return 0;
         }
-        if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64),
+        if (datCalcChkBadStatus(*(s32 *)&((BtlUnit *)(*(u8 * *)&typedAction->unit))->datUnit,
                           0xFFFFF) != 0) {
             return 0;
         }
-        unitData = *(u16 **)(*(u8 **)(action + 0x30) + 0xA64);
+        unitData = *(u16 * *)&((BtlUnit *)(*(u8 * *)&typedAction->unit))->datUnit;
         if ((*unitData & 0x200) != 0) {
             return 0;
         }
         if (datCalcIsLowHp((u8 *)unitData) != 0 ||
-            datCalcIsDead(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), 0) != 0) {
+            datCalcIsDead(*(u8 * *)&((BtlUnit *)(*(u8 * *)&typedAction->unit))->datUnit, 0) != 0) {
             return 0;
         }
-        if ((s16)btlUnitModelAnimFrame(*(u8 **)(action + 0x30)) < 4) {
-            btlPacketEnqueue(btlUnitCreateAnimPacket(*(u8 **)(action + 0x30),
+        if ((s16)btlUnitModelAnimFrame(*(u8 * *)&typedAction->unit) < 4) {
+            btlPacketEnqueue(btlUnitCreateAnimPacket(*(u8 * *)&typedAction->unit,
                                          0x11, 4, 0, 1.0f),
                           0);
-            *(s32 *)(action + 0x24) = -1;
+            typedAction->idleWeaponAnimTimer = -1;
         }
         return 1;
     }
-    *(s32 *)(action + 0x24) = remainingFrames - 1;
+    typedAction->idleWeaponAnimTimer = remainingFrames - 1;
     return 0;
 }
 
@@ -810,6 +813,7 @@ void btlUnitTickIdleAnims(void)
 // FUN_0019FAF0
 void btlUnitRequestLookAtOthers(u8 *excludedAction)
 {
+    BtlUnit *typedUnit;
     /* measured: repeated typed datUnit loads retain unit+0xA64 across calls;
      * subsequent data-pointer reloads remain byte-addressed. */
     /* Request look-at packets for eligible party actions except the supplied action. */
@@ -822,13 +826,14 @@ void btlUnitRequestLookAtOthers(u8 *excludedAction)
     while (action != NULL) {
         if ((((BtlAction *)action)->unk_1a & 1) != 0) {
             unit = *(u8 **)&((BtlAction *)action)->unit;
+            typedUnit = (BtlUnit *)unit;
             if ((*(s32 *)&((BtlUnit *)unit)->flags3 & 8) != 0 &&
                 btlUnitIsAtRestMotion(unit) != 0 &&
                 btlUnitIsMoving(unit) == 0 &&
                 datCalcChkBadStatus(*(s32 *)&((BtlUnit *)unit)->datUnit, 0x100000) == 0 &&
-                datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0xFFFFF) == 0 &&
-                datCalcIsLowHp(*(u8 **)(unit + 0xA64)) == 0 &&
-                datCalcIsDead(*(u8 **)(unit + 0xA64), 0) == 0) {
+                datCalcChkBadStatus(*(s32 *)&typedUnit->datUnit, 0xFFFFF) == 0 &&
+                datCalcIsLowHp(*(u8 * *)&typedUnit->datUnit) == 0 &&
+                datCalcIsDead(*(u8 * *)&typedUnit->datUnit, 0) == 0) {
                 state = ((BtlAction *)action)->currState;
                 switch (state) {
                 case 1:
@@ -859,6 +864,7 @@ void btlUnitNoop(void) {
 // FUN_0019FC70
 s32 btlActionSkillReachesTargets(u8 *action)
 {
+    BtlAction *typedAction = (BtlAction *)action;
     /* measured: repeated typed unit loads save action+0x30 in s2
      * (508B versus the 496B window); retain the later unit reload. */
     /* measured: early returns replace the shared return blocks and give nd 283
@@ -913,7 +919,7 @@ result_one_0019fc70:
                 return 0;
         }
         /* Deliberately write case 0 before case 1: MWCC tests the last-written case first. */
-        switch (((BtlUnit *)(*(u8 **)(action + 0x30)))->genus) {
+        switch (((BtlUnit *)(*(u8 * *)&typedAction->unit))->genus) {
         case 0:
         default:
             goto second_default_0019fc70;
@@ -987,6 +993,8 @@ s32 btlUnitIsUnavailable(u8 *action, s32 skillId, s32 allowStatus)
 // FUN_0019FF60
 s32 btlActionCanFollowUpAfterEnemiesDown(u8 *action)
 {
+    BtlUnit *typedUnit;
+    BtlAction *typedSelectedAction;
     /* measured: repeated typed unit/datUnit loads retain +0x30/+0xA64
      * across calls (492B versus the 480B window); retain those reloads. */
     /* Collect available party follow-up actions when every surviving enemy is DOWN. */
@@ -996,13 +1004,14 @@ s32 btlActionCanFollowUpAfterEnemiesDown(u8 *action)
     u16 enemyCount;
 
     selectedAction = ((BtlBattleState *)iGpffffb3ac)->selectedAction;
+    typedSelectedAction = (BtlAction *)selectedAction;
     if (datCalcIsDead(*(u8 **)&((BtlUnit *)(*(u8 **)&((BtlAction *)selectedAction)->unit))->datUnit, 0) != 0 ||
-        datCalcChkBadStatus(*(s32 *)&((BtlUnit *)(*(u8 **)(selectedAction + 0x30)))->datUnit,
+        datCalcChkBadStatus(*(s32 *)&((BtlUnit *)(*(u8 * *)&typedSelectedAction->unit))->datUnit,
                        0x100117) != 0) {
         return 0;
     }
     if (((BtlUnit *)(*(u8 **)&((BtlAction *)action)->unit))->genus == 1 &&
-        datCalcIsDead(*(u8 **)&((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit, 0) != 0) {
+        datCalcIsDead(*(u8 **)&((BtlUnit *)(*(u8 * *)&((BtlAction *)action)->unit))->datUnit, 0) != 0) {
         return 0;
     }
     ((BtlBattleState *)iGpffffb3ac)->partyActionCount = 0;
@@ -1011,12 +1020,13 @@ s32 btlActionCanFollowUpAfterEnemiesDown(u8 *action)
     for (; entry != NULL; entry = *(u8 **)&((BtlAction *)entry)->next) {
         if ((((BtlAction *)entry)->unk_1a & 1) == 0) continue;
         unit = *(u8 **)&((BtlAction *)entry)->unit;
+        typedUnit = (BtlUnit *)unit;
         if ((*(s32 *)&((BtlUnit *)unit)->flags3 & 8) == 0 ||
             datCalcIsDead(*(u8 **)&((BtlUnit *)unit)->datUnit, 0) != 0) continue;
         if (((BtlUnit *)unit)->genus == 1) {
-            if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100000) == 0) return 0;
+            if (datCalcChkBadStatus(*(s32 *)&typedUnit->datUnit, 0x100000) == 0) return 0;
             enemyCount++;
-        } else if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100117) == 0 &&
+        } else if (datCalcChkBadStatus(*(s32 *)&typedUnit->datUnit, 0x100117) == 0 &&
                    selectedAction != entry) {
             ((BtlBattleState *)iGpffffb3ac)->partyActions[((BtlBattleState *)iGpffffb3ac)->partyActionCount] = entry;
             (((BtlBattleState *)iGpffffb3ac)->partyActionCount)++;

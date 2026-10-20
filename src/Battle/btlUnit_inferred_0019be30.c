@@ -1,3 +1,4 @@
+#include "model_battle_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_target_state_packet_internal.h"
@@ -178,8 +179,8 @@ void btlUnitHoldPendingResourceFree(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_0019BE50
 /* Clear the resource-node pool flag when the held unit has a pool. */
+// FUN_0019BE50
 s32 btlUnitResourceFreePacketUpdate(u8 *packetWork) {
     s32 nodePool;
 
@@ -196,8 +197,8 @@ void btlUnitReleasePendingResourceFree(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + -1;
 }
 
-// FUN_0019BEB0
 /* Create resource-free work with pending-unit lifecycle callbacks. */
+// FUN_0019BEB0
 u8 *btlUnitCreateResourceFreePacket(u8 *packetWork)
 {
     u8 *packet;
@@ -210,9 +211,9 @@ u8 *btlUnitCreateResourceFreePacket(u8 *packetWork)
     return packet;
 }
 
-// FUN_0019BF10
-/* The shared model layout does not expose the callback record at +0x2D0; retain its word-sized presence test. */
+/* The model motion object is the callback record tested before starting data work. */
 /* Hold the unit and optionally start its model data callback immediately. */
+// FUN_0019BF10
 void btlUnitResourceLoadPacketInit(u8 *packetWork) {
     u8 *model;
     u8 *unit;
@@ -221,27 +222,28 @@ void btlUnitResourceLoadPacketInit(u8 *packetWork) {
     ((BtlUnit *)unit)->pendingPacketCount = (u16) (((BtlUnit *)unit)->pendingPacketCount + 1);
     if (!(((BtlUnitResourceLoadPacket *)packetWork)->flags & 0x10)) {
         model = (u8 *)(((BtlUnit *)unit)->layerHandle);
-        if (*(s32 *)(model + 0x2D0) == 0) {
+        if (*(s32 *)&((Model *)model)->motion.object == 0) {
             mdlRunDataCallback(model);
         }
         ((BtlUnitResourceLoadPacket *)packetWork)->initialized = 1;
     }
 }
 
-// FUN_0019BF80
-/* The +0x2D0 model callback record lacks a shared field; measured: typing the final initialized store loses MATCH. */
+/* The initialized word distinguishes starting a callback from waiting on its motion record. */
 /* Start a deferred model callback, then wait for its resource record to finish. */
+// FUN_0019BF80
 s32 btlUnitResourceLoadPacketUpdate(u8 *packetWork) {
+    BtlUnitResourceLoadPacket *typedPacketWork = (BtlUnitResourceLoadPacket *)packetWork;
     u8 *unit;
     u8 *model;
 
     unit = ((BtlUnitResourceLoadPacket *)packetWork)->unit;
     if (((BtlUnitResourceLoadPacket *)packetWork)->initialized == 0) {
         model = ((BtlUnit *)unit)->layerHandle;
-        if (*(s32 *)(model + 0x2D0) == 0) {
+        if (*(s32 *)&((Model *)model)->motion.object == 0) {
             mdlRunDataCallback(model);
         }
-        *(s32 *)(packetWork + 0xC) = 1;
+        typedPacketWork->initialized = 1;
         goto block_6;
     }
     if (mdlSeUpdateRecord((void **)(((BtlUnit *)unit)->layerHandle + 0x2D0)) != 0) {

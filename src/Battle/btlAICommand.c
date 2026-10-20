@@ -54,7 +54,7 @@ extern s32 datCalcElementBit(s16 element);
 extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
 extern u32 datCalcUnderlyingSkillId(u32 personaSkillId);
 extern u32 *btlEffectFindUnitByIdAndStatus();
-extern s32 func_001f9ce0(u8 *, s32);
+extern s32 btlTargetAffinityKnowledgeBypassNoop(u8 *, s32);
 extern u32 datTestBitmapBit(u32 entryIndex, u32 bitIndex);
 extern void btlFormationEntryCopySelected(u8 *destination, u8 *source);
 extern u8 *D_0072449C;
@@ -286,7 +286,7 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
     unit = (u8 *)((BtlAction *)formation)->unit;
     statusUnit = (BtlUnit *)unit;
     if (((BtlUnit *)unit)->genus == 1 &&
-        func_001f9ce0(formation, (s16)index) == 0) {
+        btlTargetAffinityKnowledgeBypassNoop(formation, (s16)index) == 0) {
         u32 queryIndex = (u16)index;
         if (datTestBitmapBit(((BtlUnit *)unit)->charId, queryIndex) == 0)
             return 1;
@@ -543,7 +543,7 @@ void btlCond_ENTAISEI(u8 *action, u32 value) {
 // FUN_001DB9F0
 s32 btlCond_MYNOTNOMAL(u8 *action, s16 value) {
     u8 *p = (u8 *)((BtlAction *)action)->unit;
-    if (((BtlUnit *)p)->genus == 1 && func_001f9ce0(action, value) == 0) {
+    if (((BtlUnit *)p)->genus == 1 && btlTargetAffinityKnowledgeBypassNoop(action, value) == 0) {
         u32 index = (u16)value;
         if (datTestBitmapBit(((BtlUnit *)p)->charId, index) == 0)
             return 0;
@@ -684,7 +684,7 @@ code predicate;
         if (requireKnownAffinity == 0) {
             goto testm3;
         }
-        if (((BtlUnit *)candidateUnit)->genus != 1 || func_001f9ce0(candidateAction, (s16)queryValue) != 0) {
+        if (((BtlUnit *)candidateUnit)->genus != 1 || btlTargetAffinityKnowledgeBypassNoop(candidateAction, (s16)queryValue) != 0) {
             goto testm3;
         }
         {

@@ -133,8 +133,9 @@ extern s32 btlVoiceIdPacketUpdate(u8 *context);
 /* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
 /* measured: opt_propagation off preserves 9ac0's explicit boolean branch. */
 /* measured: close opt_propagation after btlVoiceIdPacketUpdate probe. */
+/* Reserved voice update hook called once per active battle frame; retail performs no work. */
 // FUN_001F9BE0
-void func_001f9be0(void)
+void btlVoiceUpdateNoop(void)
 {
 }
 
@@ -162,13 +163,15 @@ void btlVoiceFreePlaybackBuffers(void)
     }
 }
 
+/* Reserved special-hit notification hook; reflected and blocked skill outcomes call this empty retail body. */
 // FUN_001F9CD0
-void func_001f9cd0(void)
+void btlTargetSpecialHitNoop(void)
 {
 }
 
+/* Leave affinity-knowledge bitmap checks enabled by always rejecting the bypass predicate. */
 // FUN_001F9CE0
-s32 func_001f9ce0(void)
+s32 btlTargetAffinityKnowledgeBypassNoop(void)
 {
     return 0;
 }

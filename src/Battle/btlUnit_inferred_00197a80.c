@@ -174,8 +174,8 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off preserves the COP1 chain's intermediate colouring. */
 /* measured: func_00197a80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-// FUN_00197A80
 /* Advance the arc displacement, or apply the indexed vertical-offset curve for the alternate mode. */
+// FUN_00197A80
 s32 btlUnitArcMovePacketUpdate(u8 *packetWork)
 {
     u8 *unit;
@@ -229,8 +229,8 @@ s32 btlUnitArcMovePacketUpdate(u8 *packetWork)
 }
 
 /* measured: restore opt_propagation after func_00197a80 FPR temporary colouring probe. */
-// FUN_00197CC0
 /* Allocate arc work with the starting counter and the formation scale. */
+// FUN_00197CC0
 u8 *btlUnitCreateArcMovePacket(s32 unitAddress, s16 mode, s16 counter)
 {
     u8 *packet;
@@ -252,11 +252,12 @@ void btlUnitHoldPendingRotate(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-// FUN_00197D70
-/* measured: typing the final work flags load or counter increment changes MATCH to MISMATCH. */
+/* measured: access-site flags/counter typing changes MATCH to MISMATCH; a distinct typed packet alias preserves both accesses. */
 /* Start an immediate facing change or a deferred rotation and wait for its activity bit to clear. */
+// FUN_00197D70
 s32 btlUnitRotatePacketUpdate(u8 *packetWork)
 {
+    BtlUnitRotatePacket *packetWorkFields = (BtlUnitRotatePacket *)packetWork;
     u8 *unit;
     RtQuat rotation;
     RwV3d output;
@@ -288,7 +289,7 @@ s32 btlUnitRotatePacketUpdate(u8 *packetWork)
                 btlUnitGetAnchorPose(unit, NULL, NULL, (f32 *)&output);
                 ((BtlUnitRotatePacket *)packetWork)->target = output;
             }
-            flags = *(s32 *)(packetWork + 0x10);
+            flags = packetWorkFields->flags;
             ((BtlUnitMovement *)(unit + 0xC4))->rotationTarget =
                 ((BtlUnitRotatePacket *)packetWork)->target;
             ((BtlUnitMovement *)(unit + 0xC4))->unk440 = 0;
@@ -302,7 +303,7 @@ s32 btlUnitRotatePacketUpdate(u8 *packetWork)
     if (active == 0) {
         result = 1;
     } else {
-        *(s32 *)(packetWork + 0x14) += 1;
+        packetWorkFields->counter += 1;
         result = 0;
     }
     return result;

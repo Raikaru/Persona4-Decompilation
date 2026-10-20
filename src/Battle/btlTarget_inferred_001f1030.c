@@ -1,3 +1,6 @@
+#include "member_access.h"
+#include "btl_unit_record_internal.h"
+#include "dat_skill_entry_internal.h"
 #include "datCalc_internal.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -94,7 +97,7 @@ extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
 extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
 extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
 extern s32 btlActionHasNoTargetClass(u32 action);
-extern void func_001f9cd0(void);
+extern void btlTargetSpecialHitNoop(void);
 extern s32 btlConditionMessageId(s32 condition);
 extern s32 btlBuffMaskCheckEntries(u8 *action, s32 skillId);
 extern s32 btlBuffMaskCheckUnit(u8 *action, s32 skillId);
@@ -127,7 +130,7 @@ static inline s32 btlTargetAnySpecialHit(u8 *arg0, s32 n)
 /* measured: btlTargetGroupStateMatches MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 /* Check the selected targets against the actor group, including confusion and hit-row flags. */
-/* measured: remaining target-pointer loads are raw because typed array substitutions changed MATCH. */
+/* Selected targets are the twelve pointer slots in the shared action layout. */
 // FUN_001F1030
 s32 btlTargetGroupStateMatches(u8 *context)
 {
@@ -184,7 +187,7 @@ s32 btlTargetGroupStateMatches(u8 *context)
     j = 0;
     goto many_test;
 many_loop:
-    unit = *(u8 **)(context + ((u16)j * 4) + 0x38);
+    unit = (((BtlAction *)(context))->targets[(u16)j]);
     if ((((BtlAction *)unit)->unk_1a & 1) != 0 &&
         ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus != (state & 0xFF)) {
         return 0;
@@ -209,30 +212,30 @@ s32 btlTargetIsEntryActive(s16 context) {
 
 /* Matched with direct-index and global-address helper spellings. */
 /* Check skill class and the unit/persona selection restrictions. */
-/* Raw selection-table fields retain independent 0x28/0x58/4-byte strides and the measured offset-first address order. */
+/* Skill, child-unit and skill-flag records retain their independent strides and offset-first address order. */
 // FUN_001F1210
 s32 btlTargetCanSelectEntry(u8 *context, s16 value, s32 option)
 {
     s32 index;
 
     index = (s16)value;
-    if (*(u8 *)((u32)addOffsetFirst(
+    if ((((DatSkillEntry *)((u32)addOffsetFirst(
         (u32)(index * 0x28),
-        (u32)addBaseFirst((u32)iGpffffb3b8, 0)) + 2) != 1) {
+        (u32)addBaseFirst((u32)iGpffffb3b8, 0))))->damageClass) != 1) {
         return 0;
     }
     if ((option == 0) ||
-        ((*(u16 *)(iGpffffb3e0 + (((BtlUnit *)context)->charId * 0x58)) & 0x10) != 0) ||
-        ((*(u16 *)((u32)addOffsetFirst(
+        (((((BtlUnitChildRecord *)(iGpffffb3e0))[((BtlUnit *)context)->charId].unk00) & 0x10) != 0) ||
+        (((((BtlSkillFlags *)((u32)addOffsetFirst(
             (u32)(index * 4),
-            (u32)iGpffffb3bc) + 2) & 1) == 0)) {
+            (u32)iGpffffb3bc)))->flags) & 1) == 0)) {
         return 0;
     }
     return 1;
 }
 
 /* Choose the target reaction from a hit record, outcome, and defeat override. */
-/* measured: the two remaining action-unit reloads must stay raw; typed fields changed the instruction comparison. */
+/* Measured site/local/stride unit reloads changed MATCH; MEMBER preserves their aliasing. */
 // FUN_001F12B0
 s8 btlTargetClassifyTargetResult(u8 *action, u8 *hitResult, s32 hitOutcome, s32 unusedSubresult, s32 defeated)
 {
@@ -254,7 +257,7 @@ s8 btlTargetClassifyTargetResult(u8 *action, u8 *hitResult, s32 hitOutcome, s32 
         if ((((LargeBattleHitResult *)hitResult)->flags & 8) == 0) {
             if ((datCalcChkBadStatus((DatUnit *)((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->datUnit,
                                0x100000) != 0) &&
-                ((((BtlUnit *)*(u8 **)(action + 0x30))->flags3 & 0x8000) == 0)) {
+                ((((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->flags3 & 0x8000) == 0)) {
                 reaction = 9;
             } else {
                 reaction = 2;
@@ -298,7 +301,7 @@ s8 btlTargetClassifyTargetResult(u8 *action, u8 *hitResult, s32 hitOutcome, s32 
     if (((((LargeBattleHitResult *)hitResult)->removedStatus & 0x80000) != 0) &&
         (datCalcChkBadStatus((DatUnit *)((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->datUnit,
                        0x80000) != 0) &&
-        ((((BtlUnit *)*(u8 **)(action + 0x30))->flags3 & 0x200) != 0)) {
+        ((((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->flags3 & 0x200) != 0)) {
         reaction = 0x14;
     }
     return reaction;
@@ -313,7 +316,8 @@ s8 btlTargetClassifyTargetResult(u8 *action, u8 *hitResult, s32 hitOutcome, s32 
 /* Resolve the selected skill, recording damage, reactions and party follow-ups.
  * Byte/halfword snapshots separate the calculation and record-copy phases. */
 /* Resolve the selected skill into per-target hit rows, messages, and party follow-up actions. */
-/* measured: remaining action/result reloads stay raw after per-access typing changed MATCH. DatUnit +0x2C is an opaque message slot; action +0x3F4 overlaps the final hit row, and skill +0x1C/+0x20 remain opaque table words. */
+/* Measured alias-sensitive reloads use MEMBER. The endurance skill overlaps the final hit row;
+ * skill status/buff words and DatUnit.messageCode retain the original access widths. */
 // FUN_001F14F0
 void btlTargetResolveSelectedSkill(u8 *context)
 {
@@ -321,7 +325,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
     /* H011: datCalc.c declares the C89-promoted s32 call interface before its K&R definition. */
     extern s32 datCalcResolveSkillHit(u8 *, u8 *, s32, s32);
     /* lint: allow H011 -- retail passes (context, unit, id); the empty callee ignores all arguments. */
-    extern void func_001f9cd0(u8 *, u8 *, s32);
+    extern void btlTargetSpecialHitNoop(u8 *, u8 *, s32);
     /* lint: allow H011 -- this call supplies a u16 code; the callee dispatches only its low 16 bits. */
     extern s32 btlConditionMessageId(u16);
     /* lint: allow H011 -- retail explicitly loads flags into $a2; the callee leaves that argument unused. */
@@ -390,9 +394,9 @@ void btlTargetResolveSelectedSkill(u8 *context)
     }
     off = (u32)(u16)id * 0x28;
     isTen = ((DatSkillEntry *)(u8 *)addOffsetFirst(off, (u32)iGpffffb3b8))->effectKind == 0x10;
-    attacker = (u8 *)((BtlUnit *)*(u8 **)(context + 0x30))->datUnit;
-    *(u16 *)(attacker + 0x2C) = 0;
-    if (*(u16 *)(context + 0x6C) == 3 && *(u16 *)(context + 0x70) > 0) {
+    attacker = (u8 *)((BtlUnit *)MEMBER(u8 *, context, BtlAction, unit))->datUnit;
+    (((DatUnit *)(attacker))->messageCode) = 0;
+    if (MEMBER(u16, context, BtlAction, unk_6c) == 3 && MEMBER(u16, context, BtlAction, parameters.item) > 0) {
         flags |= 1;
     }
     element = (s8)datCalcSkillElement(attacker, id);
@@ -408,21 +412,21 @@ void btlTargetResolveSelectedSkill(u8 *context)
     if (!(flags & 1) && datCalcUsesWeaponProperties(id) == 0) {
         switch (datCalcThresholdTrigger(attacker, id)) {
         case 1:
-            *(s32 *)(context + 0xE8) = 1;
-            *(u16 *)(context + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus == 0 ? 0x36 : 0x37;
+            MEMBER(s32, context, BtlAction, targetBlock.message.blocked) = 1;
+            (((BtlAction *)(context))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus == 0 ? 0x36 : 0x37;
             break;
         case 2:
-            *(s32 *)(context + 0xE8) = 1;
-            *(u16 *)(context + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus == 0 ? 0x38 : 0x39;
+            MEMBER(s32, context, BtlAction, targetBlock.message.blocked) = 1;
+            (((BtlAction *)(context))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus == 0 ? 0x38 : 0x39;
             break;
         case 4:
         case 3:
-            *(s32 *)(context + 0xE8) = 1;
-            *(u16 *)(context + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus == 0 ? 0x3A : 0x3B;
+            MEMBER(s32, context, BtlAction, targetBlock.message.blocked) = 1;
+            (((BtlAction *)(context))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus == 0 ? 0x3A : 0x3B;
             break;
         }
     }
-    if (*(s32 *)(context + 0xE8) == 1) {
+    if (MEMBER(s32, context, BtlAction, targetBlock.message.blocked) == 1) {
         context[0xDB] = 0;
         return;
     }
@@ -438,19 +442,19 @@ void btlTargetResolveSelectedSkill(u8 *context)
                 }
             }
             if (i != n) {
-                for (; i < *(u16 *)(context + 0x6A) - 1; i++) {
-                    *((u8 **)context + 0xE + i) = *(u8 **)(context + i * 4 + 0x3C);
+                for (; i < MEMBER(u16, context, BtlAction, unk_6a) - 1; i++) {
+                    *((u8 **)context + 0xE + i) = (((BtlAction *)(context))->targets[i + 1]);
                 }
                 ((u8 **)(context + 0x38))[i] = context;
             }
         }
     }
     // Persona-owned unit (state 1) using a skill type it cannot use: scale = scale * r, where r = res[+0x2C] / (persona table[+0x14] / 100) clamped to [fGpffff80d4, fGpffff812c]; [inferred].
-    if (((BtlUnit *)*(u8 **)(context + 0x30))->genus == 1 && datCalcSkillTypeAllowed(id, 1) == 0) {
+    if (((BtlUnit *)MEMBER(u8 *, context, BtlAction, unit))->genus == 1 && datCalcSkillTypeAllowed(id, 1) == 0) {
         u8 *res = (u8 *)((BtlAction *)context)->unit;
         s32 personaOffset = ((BtlUnit *)res)->charId * 0xE8;
         f32 r = ((BtlUnit *)res)->scale /
-                ((f32)(u32)*(u16 *)((u8 *)addOffsetFirst(personaOffset, (u32)iGpffffb3cc) + 0x14) / 100.0f);
+                ((f32)(u32)(((BtlUnitEnemyRecord *)((u8 *)addOffsetFirst(personaOffset, (u32)iGpffffb3cc)))->scalePercent) / 100.0f);
 
         if (!(r <= fGpffff812c)) {
             r = fGpffff812c;
@@ -460,7 +464,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
         scale = scale * r;
     }
     damageOffset = off;
-    *(u16 *)(context + 0x3F4) = 0x240;
+    (((BtlAction *)(context))->targetBlock.recovery.enduranceSkill) = 0x240;
     status = 0;
     critCount = 0;
     totalSelf = 0;
@@ -468,7 +472,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
     flags2 = flags | 2;
     idw = (u16)id;
     kindU = (s32)element;
-    for (; (s32)ui < *(u16 *)(context + 0x6A); ui++) {
+    for (; (s32)ui < MEMBER(u16, context, BtlAction, unk_6a); ui++) {
         s32 res;
         s32 selectedSub;
         s32 e4;
@@ -478,16 +482,16 @@ void btlTargetResolveSelectedSkill(u8 *context)
         s32 m80;
         s32 n80;
         s32 msg;
-        unit = *(u8 **)(context + (u32)ui * 4 + 0x38);
+        unit = (((BtlAction *)(context))->targets[(u32)ui]);
         actor = unit;
-        uctx = (u8 *)((BtlUnit *)*(u8 **)(unit + 0x30))->datUnit;
+        uctx = (u8 *)((BtlUnit *)MEMBER(u8 *, unit, BtlAction, unit))->datUnit;
         sumA = 0;
         sumB = 0;
         counter = 0;
         hit = 0;
 
-        *(u16 *)(unit + 0x3F4) = 0x240;
-        *(u16 *)(uctx + 0x2C) = 0;
+        (((BtlAction *)(unit))->targetBlock.recovery.enduranceSkill) = 0x240;
+        (((DatUnit *)(uctx))->messageCode) = 0;
         unit[0xD9] = 0;
         ((BtlAction *)unit)->targetBlock.hitOutcome = 0;
         ((BtlAction *)unit)->targetBlock.reactionFlag = 0;
@@ -518,11 +522,11 @@ void btlTargetResolveSelectedSkill(u8 *context)
                 res = reflectedResult;
                 break;
             }
-            *(s32 *)(unit + 0xE4) = 1;
+            MEMBER(s32, unit, BtlAction, targetBlock.specialHitFlag) = 1;
         } else {
             target = uctx;
         }
-        if (*(s32 *)(unit + 0xE4) != 0) {
+        if (MEMBER(s32, unit, BtlAction, targetBlock.specialHitFlag) != 0) {
             selectedSub = 1;
         } else {
             selectedSub = datCalcHitResult(attacker, target, id, res, flags);
@@ -536,7 +540,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
             cntA = datCalcRollSkillValue(attacker, id, sub);
             cntB = 1;
         }
-        e4 = *(s32 *)(unit + 0xE4);
+        e4 = MEMBER(s32, unit, BtlAction, targetBlock.specialHitFlag);
         if (e4 != 0) {
             cntA = 1;
             cntB = 1;
@@ -565,20 +569,20 @@ void btlTargetResolveSelectedSkill(u8 *context)
         mask = datCalcStatusEffectResult(id, attacker, target, res, sub, flags);
         mask2 = datCalcSureHitResult(id, attacker, target, res, sub, flags);
         ent = (u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8);
-        if (ent[0x18] == 1 && (*(u32 *)(ent + 0x1C) & 0x80000) && ent[0x24] != 9 && !(mask & 0x80000)) {
+        if (ent[0x18] == 1 && ((((DatSkillEntry *)(ent))->statusMask) & 0x80000) && ent[0x24] != 9 && !(mask & 0x80000)) {
             r1 = 0;
         }
         if (mask == 0x80000) {
-            *(s32 *)(unit + 0xE0) = 1;
+            MEMBER(s32, unit, BtlAction, targetBlock.reactionFlag) = 1;
         }
         special = btlBuffMaskCheckUnit(unit, idw, flags);
         resw = (u16)res;
-        if (resw == 1 && *(s32 *)(unit + 0xE4) == 0 && special == 0) {
-            bonus = *(s32 *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8) + 0x20);
+        if (resw == 1 && MEMBER(s32, unit, BtlAction, targetBlock.specialHitFlag) == 0 && special == 0) {
+            bonus = ((s32)(((DatSkillEntry *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8)))->buffMask));
         } else {
             bonus = 0;
         }
-        *(u16 *)(unit + 0xDC) = res;
+        MEMBER(u16, unit, BtlAction, targetBlock.hitOutcome) = res;
         ((BtlAction *)unit)->targetBlock.targetFlags = sub;
         recordResult = resw;
         j = 0;
@@ -613,7 +617,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
             }
             pm = (s32 *)(unit + (j << 5) + 0xF8);
             *pm = mask;
-            *(s32 *)(unit + (j << 5) + 0xFC) = mask2;
+            MEMBER(s32, unit + (j << 5), BtlAction, targetBlock.hitRows[0].removedStatus) = mask2;
             x = datCalcSkillRoll(id, attacker, target, flags);
             t = ((DatSkillEntry *)(u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8))->effectKind;
             switch (t) {
@@ -629,11 +633,11 @@ void btlTargetResolveSelectedSkill(u8 *context)
                 *pb = func_0043c6a0(vb);
                 break;
             }
-            *(s32 *)(unit + (j << 5) + 0x100) = bonus;
-            *(s32 *)(unit + (j << 5) + 0x104) = x;
+            MEMBER(s32, unit + (j << 5), BtlAction, targetBlock.hitRows[0].field10) = bonus;
+            MEMBER(s32, unit + (j << 5), BtlAction, targetBlock.hitRows[0].field14) = x;
             vals = unit + (j << 5) + 0xF0;
-            *(s32 *)(unit + (j << 5) + 0xF0) = va;
-            *(s32 *)(unit + (j << 5) + 0xF4) = vb;
+            MEMBER(s32, unit + (j << 5), BtlAction, targetBlock.hitRows[0].hpDelta) = va;
+            MEMBER(s32, unit + (j << 5), BtlAction, targetBlock.hitRows[0].spDelta) = vb;
             sumA += va;
             sumB += vb;
             if (actor == context) {
@@ -644,7 +648,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
                 *flagp |= 0x20;
                 break;
             }
-            if (*(u8 *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8)) & 1) {
+            if ((((DatSkillEntry *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8)))->flags00) & 1) {
                 *flagp |= 0x40;
             }
             if (isTen) {
@@ -674,9 +678,9 @@ void btlTargetResolveSelectedSkill(u8 *context)
                 if (r1 != 0) {
                     *pm |= 0x100000;
                 } else if (((sumA < 0 || recordResult == 0x100 || recordResult == 0x400) && datCalcChkBadStatus((DatUnit *)target, 0x100000) != 0) ||
-                           (*(s32 *)(unit + 0xE4) == 1 && datCalcChkBadStatus((DatUnit *)uctx, 0x100000) != 0)) {
+                           (MEMBER(s32, unit, BtlAction, targetBlock.specialHitFlag) == 1 && datCalcChkBadStatus((DatUnit *)uctx, 0x100000) != 0)) {
                     *resultFlags |= 1;
-                    if (*(s32 *)(unit + 0xE4) == 1 || recordResult == 0x100 || recordResult == 0x400) {
+                    if (MEMBER(s32, unit, BtlAction, targetBlock.specialHitFlag) == 1 || recordResult == 0x100 || recordResult == 0x400) {
                         *resultFlags |= 2;
                     }
                 }
@@ -688,7 +692,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
                 if (r2 != 0) {
                     *resultFlags |= 4;
                 }
-                if (recordResult != 1 || *(s32 *)(unit + 0xE4) == 1 || r2 == 1) {
+                if (recordResult != 1 || MEMBER(s32, unit, BtlAction, targetBlock.specialHitFlag) == 1 || r2 == 1) {
                     status |= 2;
                 } else if (r1 != 0) {
                     critCount++;
@@ -697,15 +701,15 @@ void btlTargetResolveSelectedSkill(u8 *context)
             if (hit) {
                 s32 v;
 
-                if (*(u16 *)(actor + 0x3F4) == 0x240) {
+                if ((((BtlAction *)(actor))->targetBlock.recovery.enduranceSkill) == 0x240) {
                     v = datCalcResolveSkillId((u8 *)((BtlUnit *)(u8 *)((BtlAction *)actor)->unit)->datUnit, id);
                 } else {
-                    v = (s16)*(u16 *)(actor + 0x3F4);
+                    v = (s16)(((BtlAction *)(actor))->targetBlock.recovery.enduranceSkill);
                 }
                 if ((s16)v >= 0) {
                     u8 *slot;
 
-                    *(u16 *)(actor + 0x3F4) = (s16)v;
+                    MEMBER(u16, actor, BtlAction, targetBlock.recovery.enduranceSkill) = (s16)v;
                     slot = unit + (u32)j * sizeof(LargeBattleHitResult);
                     *resultFlags |= 0x10;
                     slot[0x10C] = btlTargetClassifyTargetResult(actor, vals, res, sub, 0);
@@ -713,7 +717,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
                     u8 *reactionBase = unit + (u32)j * sizeof(LargeBattleHitResult);
 
                     reactionBase[0x10C] = btlTargetClassifyTargetResult(actor, vals, res, sub, 1);
-                    *(s32 *)(unit + 0xE0) = 1;
+                    MEMBER(s32, unit, BtlAction, targetBlock.reactionFlag) = 1;
                     if (context == actor) {
                         *pa = 0;
                     }
@@ -728,22 +732,22 @@ void btlTargetResolveSelectedSkill(u8 *context)
             }
             j++;
         }
-        e4 = *(s32 *)(unit + 0xE4);
+        e4 = MEMBER(s32, unit, BtlAction, targetBlock.specialHitFlag);
         if (e4 == 1 || (recordResult & 0x700) || sumA != 0 || sumB != 0 || mask != 0 || mask2 != 0) {
             u8 *res30;
 
             if (e4 == 1 || (recordResult & 0x500)) {
-                func_001f9cd0(context, unit, id);
+                btlTargetSpecialHitNoop(context, unit, id);
             }
             res30 = (u8 *)((BtlAction *)unit)->unit;
             if (res30[0xA2] == 1 && (s32)element < 8 && !(recordResult & 6)) {
                 datSetBitmapBit(((BtlUnit *)res30)->charId, kindU);
             }
         }
-        if (*(u16 *)(attacker + 0x2C) != 0) {
-            lastMsg = *(u16 *)(attacker + 0x2C);
-        } else if (*(u16 *)(uctx + 0x2C) != 0) {
-            lastMsg = *(u16 *)(uctx + 0x2C);
+        if (MEMBER(u16, attacker, DatUnit, messageCode) != 0) {
+            lastMsg = MEMBER(u16, attacker, DatUnit, messageCode);
+        } else if (MEMBER(u16, uctx, DatUnit, messageCode) != 0) {
+            lastMsg = MEMBER(u16, uctx, DatUnit, messageCode);
         }
         if (special != 0) {
             msg = (s16)btlConditionMessageId(special);
@@ -754,27 +758,27 @@ void btlTargetResolveSelectedSkill(u8 *context)
             msg = 0;
         }
         if (msg != 0) {
-            *(s16 *)(unit + 0xEC) = msg;
+            (((BtlAction *)(unit))->targetBlock.message.messageCode) = msg;
         } else if (lastMsg != 0) {
-            *(s16 *)(unit + 0xEC) = lastMsg;
+            (((BtlAction *)(unit))->targetBlock.message.messageCode) = lastMsg;
         } else if (!hit) {
             if (counter != 0 || (mask & 1)) {
-                *(u16 *)(unit + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x18 : 0x19;
+                (((BtlAction *)(unit))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x18 : 0x19;
             } else if (mask != 0) {
                 if (mask & 2) {
-                    *(u16 *)(unit + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x16 : 0x17;
+                    (((BtlAction *)(unit))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x16 : 0x17;
                 } else if (mask & 4) {
-                    *(u16 *)(unit + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x14 : 0x15;
+                    (((BtlAction *)(unit))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x14 : 0x15;
                 } else if (mask & 8) {
-                    *(u16 *)(unit + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x1C : 0x1D;
+                    (((BtlAction *)(unit))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x1C : 0x1D;
                 } else if (mask & 0x10) {
-                    *(u16 *)(unit + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x12 : 0x13;
+                    (((BtlAction *)(unit))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x12 : 0x13;
                 } else if (mask & 0x20) {
-                    *(u16 *)(unit + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x10 : 0x11;
+                    (((BtlAction *)(unit))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x10 : 0x11;
                 } else if (mask & 0x40) {
-                    *(u16 *)(unit + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x1A : 0x1B;
+                    (((BtlAction *)(unit))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0x1A : 0x1B;
                 } else if (mask & 0x80) {
-                    *(u16 *)(unit + 0xEC) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0xE : 0xF;
+                    (((BtlAction *)(unit))->targetBlock.message.messageCode) = ((BtlUnit *)(u8 *)((BtlAction *)unit)->unit)->genus == 0 ? 0xE : 0xF;
                 }
             }
         }
@@ -785,8 +789,8 @@ void btlTargetResolveSelectedSkill(u8 *context)
         status |= 1;
         status &= ~2;
     }
-    if (*(s16 *)(context + 0xEE) == -1) {
-        *(s16 *)(context + 0xEE) = btlTargetSkillAuxiliaryMessageNoop(idw);
+    if ((((BtlAction *)(context))->targetBlock.message.unk06) == -1) {
+        MEMBER(s16, context, BtlAction, targetBlock.message.unk06) = btlTargetSkillAuxiliaryMessageNoop(idw);
     }
     if (((DatSkillEntry *)(u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8))->kind24 == 6) {
         ((BtlAction *)context)->unk_1a |= 0x4000;
@@ -794,15 +798,15 @@ void btlTargetResolveSelectedSkill(u8 *context)
     {
         u16 t = btlBuffMaskCheckEntries(context, idw, flags);
 
-        if (t != 0 && *(s32 *)(context + 0xE8) != 1) {
-            *(s16 *)(context + 0xEC) = btlConditionMessageId(t);
+        if (t != 0 && MEMBER(s32, context, BtlAction, targetBlock.message.blocked) != 1) {
+            (((BtlAction *)(context))->targetBlock.message.messageCode) = btlConditionMessageId(t);
         }
     }
     context[0xDB] = status;
     party = ((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus;
-    if (party == 1 && *(u16 *)(context + 0x6A) == 1 && (u8 *)((BtlAction **)((BtlAction *)context)->unk_38)[0] == ((BtlBattleState *)iGpffffb3ac)->selectedAction &&
-        *(s32 *)((u8 *)((BtlAction **)((BtlAction *)context)->unk_38)[0] + 0xE0) == 1) {
-        s32 n = *(u16 *)(context + 0x6A);
+    if (party == 1 && MEMBER(u16, context, BtlAction, unk_6a) == 1 && (u8 *)((BtlAction **)((BtlAction *)context)->unk_38)[0] == ((BtlBattleState *)iGpffffb3ac)->selectedAction &&
+        (((BtlAction *)((u8 *)((BtlAction **)((BtlAction *)context)->unk_38)[0]))->targetBlock.reactionFlag) == 1) {
+        s32 n = MEMBER(u16, context, BtlAction, unk_6a);
         s32 found;
         u8 *sum;
 
@@ -811,7 +815,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
             goto other;
         }
         sum = func_001efd50(context);
-        *(u8 **)(context + 0x88) = sum;
+        (((BtlAction *)(context))->parameters.followUp) = sum;
         if (sum == NULL) {
             goto finished;
         }
@@ -820,11 +824,11 @@ void btlTargetResolveSelectedSkill(u8 *context)
             u8 q;
             s32 flagHit;
             s32 cnt;
-            u8 *first = *(u8 **)(context + 0x38);
+            u8 *first = MEMBER(u8 *, context, BtlAction, targets[0]);
             sctx = (u8 *)((BtlUnit *)(u8 *)((BtlAction *)sum)->unit)->datUnit;
 
             if (((DatSkillEntry *)(u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8))->kind24 == 0xD) {
-                ((BtlActionResolutionMessage *)((BtlAction *)sum)->targetBlock.unk_e8)->messageCode = *(s16 *)(first + 0xEC);
+                ((BtlActionResolutionMessage *)((BtlAction *)sum)->targetBlock.unk_e8)->messageCode = MEMBER(s16, first, BtlAction, targetBlock.message.messageCode);
             } else {
                 ((BtlActionResolutionMessage *)((BtlAction *)sum)->targetBlock.unk_e8)->messageCode = 0;
             }
@@ -855,7 +859,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
                 resetIndex = q;
                 s = first + resetIndex * sizeof(LargeBattleHitResult);
                 memset((u8 *)(u32)s + 0xF0, 0, 0x20);
-                *(s32 *)((u8 *)(u32)s + 0xF0) = v;
+                MEMBER(s32, (u8 *)(u32)s, BtlAction, targetBlock.hitRows[0].hpDelta) = v;
                 s[0x10C] = 2;
                 copiedFlags = (u16 *)(s + 0x10E);
                 *copiedFlags |= 0x200;
@@ -867,7 +871,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
                 }
                 if (flagHit != 0) {
                     ((LargeBattleHitResult *)(first + 0xF0))[q].addedStatus |= 0x80000;
-                    *(u16 *)(*(u8 **)(context + 0x88) + 0x3F4) = 0;
+                    (((BtlAction *)(MEMBER(u8 *, context, BtlAction, parameters.followUp)))->targetBlock.recovery.enduranceSkill) = 0;
                     *copiedFlags |= 0x10;
                     first[0xD9] = q + 1;
                     return;
@@ -877,14 +881,14 @@ void btlTargetResolveSelectedSkill(u8 *context)
         return;
     }
 other:
-    if ((context[0xDB] & 1) && !(((BtlAction *)context)->flags & 4) && party == 0 && *(u16 *)(context + 0x6A) > 0) {
+    if ((context[0xDB] & 1) && !(((BtlAction *)context)->flags & 4) && party == 0 && MEMBER(u16, context, BtlAction, unk_6a) > 0) {
         s16 cnt = 0;
         u16 m;
         u8 *q;
         u8 *p170;
 
-        for (m = 0; m < *(u16 *)(context + 0x6A); m++) {
-            u8 *u = *(u8 **)(context + (u32)m * 4 + 0x38);
+        for (m = 0; m < MEMBER(u16, context, BtlAction, unk_6a); m++) {
+            u8 *u = (((BtlAction *)(context))->targets[(u32)m]);
 
             if (((BtlAction *)u)->targetBlock.reactionFlag == 1 && datCalcChkBadStatus((DatUnit *)(u8 *)((BtlUnit *)(u8 *)((BtlAction *)u)->unit)->datUnit, 0x100000) == 0) {
                 cnt++;
@@ -904,7 +908,7 @@ other:
                 u8 *r = (u8 *)((BtlAction *)q)->unit;
 
                 if (r[0xA2] == 1 && (((BtlUnit *)r)->flags3 & 8) && datCalcIsDead((DatUnit *)(u8 *)((BtlUnit *)r)->datUnit, 0) == 0 &&
-                    datCalcChkBadStatus((DatUnit *)(u8 *)((BtlUnit *)*(u8 **)(q + 0x30))->datUnit, 0x100000) == 0) {
+                    datCalcChkBadStatus((DatUnit *)(u8 *)((BtlUnit *)MEMBER(u8 *, q, BtlAction, unit))->datUnit, 0x100000) == 0) {
                     cnt--;
                 }
             }
@@ -917,15 +921,15 @@ other:
             u8 *e = (u8 *)(u32)func_001eff50(context);
 
             if (e != NULL) {
-                u16 n = *(u16 *)(context + 0x6A);
+                u16 n = MEMBER(u16, context, BtlAction, unk_6a);
 
                 if (n > 1) {
                     ((BtlActionParameters *)((BtlAction *)e)->unk_70)->supportTarget = ((u8 **)(context + 0x38))[datCalcRandomBelow(n)];
                 } else {
                     ((BtlActionParameters *)((BtlAction *)e)->unk_70)->supportTarget = (u8 *)((BtlAction **)((BtlAction *)context)->unk_38)[0];
                 }
-                if (*(s32 *)(*(u8 **)(e + 0x90) + 0xE0) == 0) {
-                    *(u8 **)(context + 0x8C) = e;
+                if ((((BtlAction *)((((BtlAction *)(e))->parameters.supportTarget)))->targetBlock.reactionFlag) == 0) {
+                    (((BtlAction *)(context))->parameters.support) = e;
                     ((BtlAction *)e)->unk_16 = 0xD;
                     btlActionActiveListPush(e);
                 }
@@ -945,7 +949,7 @@ finished:
    (CSE'd with the test, retail's $a0); the counter store address is offset-first
    integer arithmetic `slotOffset + (u32)D_0076449C`. */
 /* Account for a defeated enemy once, accumulating rewards and merging up to three drop ids. */
-/* measured: remaining action/unit reloads changed MATCH when typed. Reward totals at battle +0xCB0/+0xCB4 are outside the named shared prefix. */
+/* Measured site/local/stride forms changed MATCH for the retained MEMBER reward and unit accesses. */
 // FUN_001F2CC0
 void btlTargetRecordDefeatReward(u8 *action)
 {
@@ -970,22 +974,22 @@ void btlTargetRecordDefeatReward(u8 *action)
             if (((BtlUnit *)unit)->charId >= 0x150) {
                 kAssertFail((void *)D_0060AB08, 0x4F5);
             }
-            actionFlags = *(u16 *)(action + 0x1A);
+            actionFlags = MEMBER(u16, action, BtlAction, unk_1a);
             if ((actionFlags & 0x20) == 0) {
-                *(u16 *)(action + 0x1A) = (u16)(actionFlags | 0x20);
-                *(s32 *)(D_0076449C + 0xCB0) =
-                    *(s32 *)(D_0076449C + 0xCB0) +
+                MEMBER(u16, action, BtlAction, unk_1a) = (u16)(actionFlags | 0x20);
+                MEMBER(s32, D_0076449C, BtlBattleState, rewardExp) =
+                    MEMBER(s32, D_0076449C, BtlBattleState, rewardExp) +
                     datCalcEnemyExp((s32)((BtlUnit *)unit)->datUnit);
-                *(s32 *)(D_0076449C + 0xCB4) =
-                    *(s32 *)(D_0076449C + 0xCB4) +
-                    datCalcEnemyMoney(*(s32 *)(unit + 0xA64));
+                MEMBER(s32, D_0076449C, BtlBattleState, rewardMoney) =
+                    MEMBER(s32, D_0076449C, BtlBattleState, rewardMoney) +
+                    datCalcEnemyMoney(MEMBER(s32, unit, BtlUnit, datUnit));
                 selectedDrop = (u16)(datCalcPickWeightedSkill(
-                    *(u8 **)(unit + 0xA64), &dropMode) & 0xFFFF);
+                    MEMBER(u8 *, unit, BtlUnit, datUnit), &dropMode) & 0xFFFF);
                 if ((dropMode != 1) &&
                     (((BtlActionParameters *)((BtlAction *)action)->unk_70)->drop != 0) &&
                     ((s32)(datCalcRandomBelow(0x64) & 0xFF) <
-                     (s32)*(u8 *)(action + 0x82))) {
-                    selectedDrop = *(u16 *)(action + 0x80);
+                     (s32)(((BtlAction *)(action))->parameters.dropChance))) {
+                    selectedDrop = (((BtlAction *)(action))->parameters.drop);
                 }
                 dropId = selectedDrop & 0xFFFF;
                 if (dropId != 0) {
@@ -1011,7 +1015,7 @@ void btlTargetRecordDefeatReward(u8 *action)
                             if (((BtlRewardEntry *)(slot + 0xCD0))->id == 0) {
                                 ((BtlRewardEntry *)(slot + 0xCD0))->id = selectedDrop;
                                 ((BtlRewardEntry *)(slotOffset + (u32)D_0076449C + 0xCD0))->count = 1;
-                                *(s32 *)(D_0076449C + 0xCDC) = (emptyIndex & 0xFFFF) + 1;
+                                (((BtlBattleState *)(D_0076449C))->unkCDC) = (emptyIndex & 0xFFFF) + 1;
                                 return;
                             }
                             emptyIndex = (emptyIndex + 1) & 0xFFFF;
@@ -1024,7 +1028,7 @@ void btlTargetRecordDefeatReward(u8 *action)
 }
 
 /* Apply defeat or survival state to the action unit and clear the corresponding ailments. */
-/* measured: remaining DatUnit-pointer reloads changed MATCH when typed; +0x3F4 is the control halfword overlapping the final hit row. */
+/* Measured DatUnit-pointer reloads use MEMBER; the endurance skill overlaps the final hit row. */
 // FUN_001F2EB0
 void btlTargetSetDefeatState(u8 *context, s32 argument)
 {
@@ -1034,16 +1038,16 @@ void btlTargetSetDefeatState(u8 *context, s32 argument)
     work = (u8 *)((BtlAction *)context)->unit;
     datCalcClearStatusBlocked((s32)((BtlUnit *)work)->datUnit);
     if (argument == 1) {
-        if (*(u16 *)(context + 0x3F4) != 0x154) {
-            datCalcSetHp((DatUnit *)*(s32 *)(work + 0xA64), 1);
+        if ((((BtlAction *)(context))->targetBlock.recovery.enduranceSkill) != 0x154) {
+            datCalcSetHp((DatUnit *)MEMBER(s32, work, BtlUnit, datUnit), 1);
         }
-        datCalcClearBadStatus((DatUnit *)*(s32 *)(work + 0xA64), 0x80000);
+        datCalcClearBadStatus((DatUnit *)MEMBER(s32, work, BtlUnit, datUnit), 0x80000);
         ((BtlUnit *)work)->flags3 |= 0x10;
         return;
     }
-    datCalcSetHp((DatUnit *)*(s32 *)(work + 0xA64), 0);
-    datCalcClearBadStatus((DatUnit *)*(s32 *)(work + 0xA64), 0xFFFFFF);
-    datCalcSetBadStatus((DatUnit *)*(s32 *)(work + 0xA64), 0x80000);
+    datCalcSetHp((DatUnit *)MEMBER(s32, work, BtlUnit, datUnit), 0);
+    datCalcClearBadStatus((DatUnit *)MEMBER(s32, work, BtlUnit, datUnit), 0xFFFFFF);
+    datCalcSetBadStatus((DatUnit *)MEMBER(s32, work, BtlUnit, datUnit), 0x80000);
     value = ((BtlUnit *)work)->flags3 | 1;
     ((BtlUnit *)work)->flags3 = value;
     ((BtlUnit *)work)->flags3 = value & ~0x10;

@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_voice_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
@@ -148,7 +149,7 @@ void btlVoiceFadeOut(void) {
 /* measured: btlVoiceIdPacketUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* Select the voice-id bank once and wait for the result/playback-completion condition. */
-/* measured: typing the final state-word store changed MATCH; retain that one raw access. */
+/* Measured site/local/stride state-word stores changed MATCH; MEMBER preserves the packet state update. */
 // FUN_001F9AC0
 s32 btlVoiceIdPacketUpdate(u8 *context)
 {
@@ -174,7 +175,7 @@ s32 btlVoiceIdPacketUpdate(u8 *context)
             break;
         }
         ((BtlVoiceIdWork *)context)->result = 0;
-        *(s32 *)(context + 4) = 1;
+        MEMBER(s32, context, BtlVoiceIdWork, state) = 1;
     }
     if (((BtlVoiceIdWork *)context)->result == 0) {
         goto return_one_a;

@@ -167,11 +167,12 @@ void btlUnitReleasePendingOverride(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + -1;
 }
 
-// FUN_00195730
-/* measured: typing the remaining work+0x24 flag updates changes MATCH to MISMATCH; keep their byte-pointer aliasing. */
+/* measured: access-site flag updates change MATCH to MISMATCH; a distinct typed work alias retains all three flag updates. */
 /* Create an override work block; bits 1/2/4 identify supplied position, quaternion and color. */
+// FUN_00195730
 u8 *btlUnitCreateOverridePacket(u8 *unit, u8 *position, u8 *rotation, u8 *color)
 {
+    BtlUnitOverridePacket *workFields;
     u8 *packet;
     u8 *work;
 
@@ -180,19 +181,20 @@ u8 *btlUnitCreateOverridePacket(u8 *unit, u8 *position, u8 *rotation, u8 *color)
     ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlUnitOverridePacketUpdate;
     ((BtlPacket *)packet)->destroyFunc = (BtlPacketFunc)btlUnitReleasePendingOverride;
     work = (u8 *)((BtlPacket *)packet)->workData;
+    workFields = (BtlUnitOverridePacket *)work;
     ((BtlUnitOverridePacket *)work)->unit = unit;
     ((BtlUnitOverridePacket *)work)->flags = 0;
     if (position != NULL) {
         ((BtlUnitOverridePacket *)work)->position = *(RwV3d *)position;
-        *(u16 *)(work + 0x24) |= 1;
+        workFields->flags |= 1;
     }
     if (rotation != NULL) {
         ((BtlUnitOverridePacket *)work)->rotation = *(RtQuat *)rotation;
-        *(u16 *)(work + 0x24) |= 2;
+        workFields->flags |= 2;
     }
     if (color != NULL) {
         ((BtlUnitOverridePacket *)work)->color = *(RwRGBA *)color;
-        *(u16 *)(work + 0x24) |= 4;
+        workFields->flags |= 4;
     }
     return packet;
 }

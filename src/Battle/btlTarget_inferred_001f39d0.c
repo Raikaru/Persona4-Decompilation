@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
 #include "datCalc_unit_internal.h"
@@ -104,7 +105,7 @@ extern s32 btlTargetGroupStateMatches(u8 *context);
 /* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
 #pragma pop
 /* Consume HP/SP skill cost or one inventory item for the action held by the packet. */
-/* measured: the remaining cost-record reloads changed MATCH when replaced with BtlUnit.datUnit fields. */
+/* Measured site/local/stride DatUnit reloads changed MATCH; MEMBER retains their byte-pointer aliasing. */
 // FUN_001F39D0
 /* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
    index arithmetic and the 0x70 field load in a temporary before its saved copy. */
@@ -136,10 +137,10 @@ s32 btlTargetConsumeActionCost(u8 **actionPacket) {
             costKind = ptr[3];
             switch (costKind) {
             case 1:
-                datCalcAddHp((DatUnit *)*(s32 *)(unit + 0xA64), -cost);
+                datCalcAddHp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit), -cost);
                 break;
             case 2:
-                datCalcAddSp((DatUnit *)*(s32 *)(unit + 0xA64), -cost);
+                datCalcAddSp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit), -cost);
                 break;
             }
         }
