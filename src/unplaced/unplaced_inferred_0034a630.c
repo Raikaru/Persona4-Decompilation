@@ -115,7 +115,7 @@ do { \
 
 // Intent: Set the combine object's model: when its id or kind changes and no fade runs, free the old model, clone the new entry and reset its matrices [inferred]
 // FUN_0034A640
-/* measured: opt_propagation off preserves scalar Pair-copy source order. */
+/* measured: propagation-on scalar copies/reordered temporaries differ by 10 bytes; aggregate copies differ by 8; keep scalar-copy order. */
 #pragma push
 #pragma opt_propagation off
 void fclCombineSetModel(u8 *task, u16 modelId, s64 kind)
@@ -224,6 +224,7 @@ void fclCombineSetReady(u8 *task)
 // Intent: Draw one combine packet: set the sky render states and the far-plane and tint values, then run the state dispatcher [inferred]
 // FUN_0034A8B0
 /* Preserve the dispatcher contract and the four retail far-plane observations. */
+/* measured: removing hoisting differs by 75 bytes; propagation-on table/field/width spellings leave at least 17 bytes; retain both settings. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
@@ -291,7 +292,7 @@ void fclCombineDrawPacket(u8 *packet, s32 data, void *callback)
 
 // Ball slot task update: for each slot up to the count at +0x1800 whose flag bit 0 is set, inside its time window, with a nonzero +0x162, queues the slot's draw packet.
 // FUN_0034AC00
-/* measured: opt_propagation off plus a named local forces the GP global read to its written position, producing retail's field-first/global-second order. */
+/* measured: propagation-on cached, direct and typed-slot comparisons still swap the width/global loads (6 bytes); reversed comparison differs by 10. */
 #pragma push
 #pragma opt_propagation off
 s32 fclCmbBallSlotsUpdate(u8 *task)

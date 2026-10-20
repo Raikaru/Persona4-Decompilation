@@ -16,8 +16,8 @@ extern f32 fGpffff837c;
 extern void btlShuffleDrawSetTiming(u8 *context, s32 cardIndex, s32 delay, s32 duration, f32 *start);
 void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 
-#pragma push
-#pragma opt_propagation off
+/* Unit setting: shuffle poses and sequences use propagation. */
+#pragma opt_propagation on
 /* Build the single-axis card pose, or return its transformed origin. */
 // FUN_00379E90
 void btlShuffleInitSingleAxisPose(u8 *context, s32 cardIndex, f32 *output) {
@@ -51,15 +51,11 @@ void btlShuffleInitSingleAxisPose(u8 *context, s32 cardIndex, f32 *output) {
     }
     btlShuffleDrawInitCard(context, cardIndex, 0, &work.axisX, &work.eyeX, &work.originX, 0.0f, 0.0f);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
 /* Run the single-axis shuffle sequence; return one only after the terminal phase. */
 /* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00379F90
+/* Snapshot the unsigned spacing separately for entry and spin loops, without per-function optimizer settings. */
 s32 btlShuffleSeq1Run(u8 *context) {
     BtlShuffleContext *contextFields = (BtlShuffleContext *)(context);
     BtlShuffleSequence *sequenceFields;
@@ -109,10 +105,12 @@ s32 btlShuffleSeq1Run(u8 *context) {
     u8 *timing;
     u8 *deck;
     s32 frameSpacing;
+    s32 spinSpacing;
     f32 dx;
     f32 dy;
     f32 dz;
     s32 i;
+    s32 entrySpacing;
     s32 j;
     s32 offset;
     f32 thirdX;
@@ -180,7 +178,9 @@ s32 btlShuffleSeq1Run(u8 *context) {
             ((BtlShuffleContext *)context)->elapsed = 0;
             contextFields->phase = 4;
             ((BtlShuffleSequence *)sequence)->count = 0;
-            for (i = 0; i < contextFields->cardCount; i++) {
+            i = 0;
+            entrySpacing = (u16)frameSpacing;
+            for (; i < contextFields->cardCount; i++) {
                 work.base = ((BtlShuffleContext *)context)->cards[i].position;
                 btlShuffleInitSingleAxisPose(context, 0, &work.output.x);
                 dx = work.output.x - work.base.x;
@@ -193,7 +193,7 @@ s32 btlShuffleSeq1Run(u8 *context) {
                 work.second.x = work.base.x + (2.0f * dx) / 3.0f + 150.0f;
                 work.second.y = work.base.y + (2.0f * dy) / 3.0f;
                 work.second.z = work.base.z + dz;
-                m = (u16)frameSpacing * i;
+                m = entrySpacing * i;
                 btlShuffleDrawSetTiming(context, i, (u16)m, (u16)(m + 0x14), &work.base.x);
             }
             sdkSndStartStream(0, 4, 0, 1);
@@ -204,11 +204,13 @@ s32 btlShuffleSeq1Run(u8 *context) {
         break;
     case 4:
         base = 0.0f;
-        for (k = 0; k < contextFields->cardCount; k++) {
+        k = 0;
+        spinSpacing = (u16)frameSpacing;
+        for (; k < contextFields->cardCount; k++) {
             if (btlShuffleDrawStateB(context + k * 0xE8 + 0x1D6A0) != 0) {
                 btlShuffleDrawSetPose(context, k, 0, 0xA);
                 activatedCount = ((BtlShuffleSequence *)sequence)->count;
-                offset = ((u16)frameSpacing * (contextFields->cardCount - activatedCount)) & 0xFFFF;
+                offset = (spinSpacing * (contextFields->cardCount - activatedCount)) & 0xFFFF;
                 if (activatedCount >= contextFields->cardCount) {
                     kAssertFail(D_0064EAC0, 0x5F);
                 }
@@ -330,12 +332,9 @@ s32 btlShuffleSeq1Run(u8 *context) {
     }
     return 0;
 }
-#pragma pop
 
 void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 
-#pragma push
-#pragma opt_propagation on
 /* Choose the card pose axis from the signed index parity. */
 // FUN_0037AB50
 void btlShuffleInitAlternatingPose(u8 *context, s32 cardIndex, f32 *output) {
@@ -390,7 +389,6 @@ void btlShuffleInitAlternatingPose(u8 *context, s32 cardIndex, f32 *output) {
     btlShuffleDrawInitCard(context, cardIndex, 0, &work.axisX, &work.eyeX,
                   &work.originX, zero, zero);
 }
-#pragma pop
 
 extern s32 btlShuffleSeqPick(u8 *context, s32 count);
 extern s32 btlShuffleSeqLoadRecord(u8 *context);
@@ -423,12 +421,10 @@ extern void btlShuffleSeqReset(u8 *context);
 extern s32 btlShuffleSeqStateCheck(u8 *context);
 extern s32 btlShuffleSeqCardCount(u8 *context, s32 cardIndex);
 extern s32 btlShuffleSeqDispatch(u8 *context);
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
 /* Run the alternating-axis shuffle sequence, preserving deliberate fallthrough between completed phases. */
 /* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0037AD10
+/* Snapshot the unsigned spacing separately for entry and spin loops, without per-function optimizer settings. */
 s32 btlShuffleSeq2Run(u8 *context) {
     BtlShuffleContext *contextFields = (BtlShuffleContext *)(context);
     BtlShuffleSequence *sequenceFields;
@@ -448,10 +444,12 @@ s32 btlShuffleSeq2Run(u8 *context) {
     u8 *timing;
     u8 *deck;
     s32 frameSpacing;
+    s32 spinSpacing;
     f32 dx;
     f32 dy;
     f32 dz;
     s32 i;
+    s32 entrySpacing;
     s32 j;
     s32 offset;
     f32 xOff;
@@ -516,7 +514,9 @@ s32 btlShuffleSeq2Run(u8 *context) {
             ((BtlShuffleContext *)context)->elapsed = 0;
             contextFields->phase = 4;
             ((BtlShuffleSequence *)sequence)->count = 0;
-            for (i = 0; i < ((BtlShuffleContext *)context)->cardCount; i++) {
+            i = 0;
+            entrySpacing = (u16)frameSpacing;
+            for (; i < ((BtlShuffleContext *)context)->cardCount; i++) {
                 xOff = 150.0f;
                 work.base = ((BtlShuffleContext *)context)->cards[i].position;
                 btlShuffleInitAlternatingPose(context, 0, &work.output.x);
@@ -533,7 +533,7 @@ s32 btlShuffleSeq2Run(u8 *context) {
                 work.second.x = xOff + (work.base.x + (2.0f * dx) / 3.0f);
                 work.second.y = 100.0f + (work.base.y + (2.0f * dy) / 3.0f);
                 work.second.z = work.first.z;
-                m = (u16)frameSpacing * i;
+                m = entrySpacing * i;
                 btlShuffleDrawSetTiming(context, i, (u16)m, (u16)(m + 0x14), &work.base.x);
             }
             sdkSndStartStream(0, 4, 0, 1);
@@ -544,11 +544,13 @@ s32 btlShuffleSeq2Run(u8 *context) {
         break;
     case 4:
         base = 0.0f;
-        for (k = 0; k < ((BtlShuffleContext *)context)->cardCount; k++) {
+        k = 0;
+        spinSpacing = (u16)frameSpacing;
+        for (; k < ((BtlShuffleContext *)context)->cardCount; k++) {
             if (btlShuffleDrawStateB(context + k * 0xE8 + 0x1D6A0) != 0) {
                 btlShuffleDrawSetPose(context, k, 0, 0xA);
                 activatedCount = ((BtlShuffleSequence *)sequence)->count;
-                offset = ((u16)frameSpacing * (contextFields->cardCount - activatedCount)) & 0xFFFF;
+                offset = (spinSpacing * (contextFields->cardCount - activatedCount)) & 0xFFFF;
                 if (activatedCount >= contextFields->cardCount) {
                     kAssertFail(D_0064EAE0, 0x6B);
                 }
@@ -670,12 +672,9 @@ s32 btlShuffleSeq2Run(u8 *context) {
     }
     return 0;
 }
-#pragma pop
 
 void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 
-#pragma push
-#pragma opt_propagation on
 /* Choose one of three card pose axes by index modulo three. */
 // FUN_0037B8C0
 void btlShuffleInitThreeAxisPose(u8 *context, s32 cardIndex, f32 *output) {
@@ -730,10 +729,7 @@ void btlShuffleInitThreeAxisPose(u8 *context, s32 cardIndex, f32 *output) {
     btlShuffleDrawInitCard(context, cardIndex, 0, &work.axisX, &work.eyeX,
                   &work.originX, 0.0f, 0.0f);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Build two Bezier control points with one of three lateral offsets and assign card timing. */
 // FUN_0037BAC0
 void btlShuffleCalcSetBezierTiming(u8 *context, s32 cardIndex, s32 output, s32 endFrame) {
@@ -779,14 +775,11 @@ void btlShuffleCalcSetBezierTiming(u8 *context, s32 cardIndex, s32 output, s32 e
     points.second.z = points.first.z;
     btlShuffleDrawSetTiming(context, cardIndex, output, endFrame, &points.base.x);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
 /* Run the three-axis shuffle sequence and its staggered Bezier card entrances. */
 /* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0037BC80
+/* Snapshot the unsigned spacing separately for entry and spin loops, without per-function optimizer settings. */
 s32 btlShuffleSeq3Run(u8 *context) {
     BtlShuffleContext *contextFields = (BtlShuffleContext *)(context);
     BtlShuffleSequence *sequenceFields;
@@ -800,7 +793,9 @@ s32 btlShuffleSeq3Run(u8 *context) {
     u8 *timing;
     u8 *deck;
     s32 frameSpacing;
+    s32 spinSpacing;
     s32 i;
+    s32 entrySpacing;
     s32 j;
     s32 offset;
     s32 k;
@@ -863,8 +858,10 @@ s32 btlShuffleSeq3Run(u8 *context) {
             ((BtlShuffleContext *)context)->elapsed = 0;
             contextFields->phase = 4;
             ((BtlShuffleSequence *)sequence)->count = 0;
-            for (i = 0; i < ((BtlShuffleContext *)context)->cardCount; i++) {
-                m = (u16)frameSpacing * i;
+            i = 0;
+            entrySpacing = (u16)frameSpacing;
+            for (; i < ((BtlShuffleContext *)context)->cardCount; i++) {
+                m = entrySpacing * i;
                 btlShuffleCalcSetBezierTiming(context, i, (u16)m, (u16)(m + 0x14));
             }
             sdkSndStartStream(0, 4, 0, 1);
@@ -875,10 +872,12 @@ s32 btlShuffleSeq3Run(u8 *context) {
         break;
     case 4:
         base = 0.0f;
-        for (k = 0; k < ((BtlShuffleContext *)context)->cardCount; k++) {
+        k = 0;
+        spinSpacing = (u16)frameSpacing;
+        for (; k < ((BtlShuffleContext *)context)->cardCount; k++) {
             if (btlShuffleDrawStateB(context + k * 0xE8 + 0x1D6A0) != 0) {
                 btlShuffleDrawSetPose(context, k, 0, 0xA);
-                offset = ((u16)frameSpacing * (contextFields->cardCount - k)) & 0xFFFF;
+                offset = (spinSpacing * (contextFields->cardCount - k)) & 0xFFFF;
                 activatedCount = ((BtlShuffleSequence *)sequence)->count;
                 if (activatedCount >= contextFields->cardCount) {
                     kAssertFail(D_0064EB00, 0x72);
@@ -1002,4 +1001,3 @@ s32 btlShuffleSeq3Run(u8 *context) {
     }
     return 0;
 }
-#pragma pop
