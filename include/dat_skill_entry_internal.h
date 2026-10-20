@@ -18,7 +18,11 @@ typedef struct DatSkillEntry
         struct {
             u16 costPercent; // 0x04. Percentage or direct cost, selected by flags00 bit 0x10.
             u16 costFlat;    // 0x06. Added after the percentage or direct cost term.
-            u8 unknown08[6]; // 0x08..0x0D
+            u8 targetClass;  // 0x08. Classification returned by btlSkillClassifyTargets.
+            u8 targetSides;  // 0x09. Relative allied/opposing/auxiliary side bits.
+            u8 targetFilter; // 0x0A. Self, exclusion, death and status filters.
+            u8 pad0B;
+            u16 excludedStatus; // 0x0C. Passed to the target collector.
         };
     };
     u8 accuracy;        // 0x0E. Tested against 0 and 100 [inferred].
@@ -37,7 +41,10 @@ typedef struct DatSkillEntry
         struct {
             u8 pad18[4];
             u32 statusMask;     // 0x1C. Low 24 bits select candidate statuses.
-            u8 unknown20[4];    // 0x20..0x23
+            union {
+                u8 unknown20[4]; // 0x20..0x23
+                u32 buffMask;    // 0x20. btlEffectSelectTargetByStatus queries datCalcHasBuffMask.
+            };
         };
     };
     u8 kind24;          // 0x24. Switch selector and compared with 3, 6, 0xD, 0xE.

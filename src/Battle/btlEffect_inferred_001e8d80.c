@@ -95,6 +95,7 @@ s32 btlEffectScriptGetSelfElement(void) {
 // FUN_001E8DD0
 /* Pick the living genus-0 action with least HP; scripts receive its tagged action id. */
 s32 btlEffectScriptPickLowestHpLivingSide0Unit(void) {
+    BtlAction *currentFields;
     u8 *current;
     u8 *best;
     u32 min;
@@ -105,6 +106,7 @@ s32 btlEffectScriptPickLowestHpLivingSide0Unit(void) {
     best = NULL;
     min = 0x0FFFFFFF;
     current = ((BtlBattleState *)iGpffffb3ac)->actions;
+    currentFields = (BtlAction *)current;
     while (current != NULL) {
         flags = ((BtlAction *)current)->unk_1a;
         if ((flags & 1) && (flags & 8)) {
@@ -112,7 +114,7 @@ s32 btlEffectScriptPickLowestHpLivingSide0Unit(void) {
             if (((BtlUnit *)entry)->genus == 0 &&
                 datCalcIsDead((s32)((BtlUnit *)entry)->datUnit, 0) == 0) {
                 /* measured: repeating typed action->unit across the call hoists +30 (232 vs 224 bytes). */
-                value = datCalcGetHp((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit) & 0xFFFF;
+                value = datCalcGetHp((s32)((BtlUnit *)(u8 *)currentFields->unit)->datUnit) & 0xFFFF;
                 if (value < min) {
                     best = current;
                     min = value;
@@ -120,6 +122,7 @@ s32 btlEffectScriptPickLowestHpLivingSide0Unit(void) {
             }
         }
         current = (u8 *)((BtlAction *)current)->next;
+        currentFields = (BtlAction *)current;
     }
     scrSetReturnInt((s32)((BtlAction *)best)->id | 0x80000000);
     return 1;
@@ -129,6 +132,7 @@ s32 btlEffectScriptPickLowestHpLivingSide0Unit(void) {
 // FUN_001E8EB0
 /* Pick the least-HP action among normal candidates, or return -1 when none qualify. */
 s32 btlEffectScriptPickLowestHpNormalUnit(void) {
+    BtlAction *workFields;
     u32 value;
     u8 *work;
     u8 *selected;
@@ -137,6 +141,7 @@ s32 btlEffectScriptPickLowestHpNormalUnit(void) {
     u32 min;
 
     work = scrGetAiState();
+    workFields = (BtlAction *)work;
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (((BtlAction *)work)->unk_6a == 1) {
             selected = ((u8 **)((BtlAiCommandWork *)((BtlAction *)work)->unk_38)->targets)[0];
@@ -145,9 +150,9 @@ s32 btlEffectScriptPickLowestHpNormalUnit(void) {
             min = 0x0FFFFFFF;
             index = 0;
             /* measured: typing both count reads hoists +6A (312 vs 304 bytes). */
-            while (index < *(u16 *)(work + 0x6A)) {
+            while (index < workFields->unk_6a) {
                 /* measured: a typed indexed target reverses the addu operands. */
-                entry = *(u8 **)(work + index * 4 + 0x38);
+                entry = ((BtlAction *)(work))->targets[index];
                 value = datCalcGetHp((s32)((BtlAction *)entry)->unit->datUnit) & 0xFFFF;
                 if (value < min) {
                     selected = entry;
@@ -167,6 +172,7 @@ s32 btlEffectScriptPickLowestHpNormalUnit(void) {
 // FUN_001E8FE0
 /* Pick the least-HP normal candidate with the extra 0x100000 selection filter. */
 s32 btlEffectScriptPickLowestHpNormalFilteredUnit(void) {
+    BtlAction *workFields;
     u32 value;
     u8 *work;
     u8 *selected;
@@ -175,6 +181,7 @@ s32 btlEffectScriptPickLowestHpNormalFilteredUnit(void) {
     u32 min;
 
     work = scrGetAiState();
+    workFields = (BtlAction *)work;
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (((BtlAction *)work)->unk_6a == 1) {
             selected = ((u8 **)((BtlAiCommandWork *)((BtlAction *)work)->unk_38)->targets)[0];
@@ -183,9 +190,9 @@ s32 btlEffectScriptPickLowestHpNormalFilteredUnit(void) {
             min = 0x0FFFFFFF;
             index = 0;
             /* measured: repeated typed count reads hoist +6A into a saved register. */
-            while (index < *(u16 *)(work + 0x6A)) {
+            while (index < workFields->unk_6a) {
                 /* Preserve the work-first addu operands used for this indexed target. */
-                entry = *(u8 **)(work + index * 4 + 0x38);
+                entry = ((BtlAction *)(work))->targets[index];
                 value = datCalcGetHp((s32)((BtlAction *)entry)->unit->datUnit) & 0xFFFF;
                 if (value < min) {
                     selected = entry;
@@ -205,6 +212,7 @@ s32 btlEffectScriptPickLowestHpNormalFilteredUnit(void) {
 // FUN_001E9110
 /* Pick the least-HP normal candidate using selector 0x2D instead of 0x2C. */
 s32 btlEffectScriptPickLowestHpNormalAltUnit(void) {
+    BtlAction *workFields;
     u32 value;
     u8 *work;
     u8 *selected;
@@ -213,6 +221,7 @@ s32 btlEffectScriptPickLowestHpNormalAltUnit(void) {
     u32 min;
 
     work = scrGetAiState();
+    workFields = (BtlAction *)work;
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1) {
         if (((BtlAction *)work)->unk_6a == 1) {
             selected = ((u8 **)((BtlAiCommandWork *)((BtlAction *)work)->unk_38)->targets)[0];
@@ -221,9 +230,9 @@ s32 btlEffectScriptPickLowestHpNormalAltUnit(void) {
             min = 0x0FFFFFFF;
             index = 0;
             /* measured: repeated typed count reads hoist +6A into a saved register. */
-            while (index < *(u16 *)(work + 0x6A)) {
+            while (index < workFields->unk_6a) {
                 /* Preserve the work-first addu operands used for this indexed target. */
-                entry = *(u8 **)(work + index * 4 + 0x38);
+                entry = ((BtlAction *)(work))->targets[index];
                 value = datCalcGetHp((s32)((BtlAction *)entry)->unit->datUnit) & 0xFFFF;
                 if (value < min) {
                     selected = entry;
@@ -279,6 +288,8 @@ s32 btlEffectScriptPickRandomSide1Unit(void) {
 // FUN_001E9350
 /* Find a usable skill element whose target affinity includes mask 0x08000000. */
 s32 btlEffectScriptFindAilmentSkillElement(void) {
+    BtlUnit *entryFields;
+    BtlAction *resultFields;
     u64 command;
     u16 skill;
     u32 index;
@@ -292,21 +303,23 @@ s32 btlEffectScriptFindAilmentSkillElement(void) {
     work = scrGetAiState();
     command = scrGetParamInt(0);
     result = btlActionFindById((u64)(command << 0x24) >> 0x24);
+    resultFields = (BtlAction *)result;
     entry = (u8 *)((BtlAction *)work)->unit;
+    entryFields = (BtlUnit *)entry;
     element = (s16)datCalcSkillElement((u8 *)((BtlUnit *)entry)->datUnit, 0);
     if (datCalcGetElementAffinity((u8 *)((BtlAction *)result)->unit->datUnit, element) & 0x08000000) {
         scrSetReturnInt((s16)element);
         return 1;
     }
     /* measured: repeated typed datUnit/action-unit fields hoist addresses across calls (412 vs 400 bytes). */
-    count = datCalcGetTableLength(*(DatUnit **)(entry + 0xA64)) & 0xFFFF;
-    base = datCalcSkillList(*(DatUnit **)(entry + 0xA64));
+    count = datCalcGetTableLength(entryFields->datUnit) & 0xFFFF;
+    base = datCalcSkillList(entryFields->datUnit);
     index = 0;
     while (index < count) {
         skill = ((u16 *)base)[index];
         if (skill != 0 && skill < 0x1B8) {
-            element = (s16)datCalcSkillElement(*(u8 **)(entry + 0xA64), skill);
-            if (datCalcGetElementAffinity((u8 *)((BtlUnit *)*(u8 **)(result + 0x30))->datUnit, element) & 0x08000000) {
+            element = (s16)datCalcSkillElement((u8 *)entryFields->datUnit, skill);
+            if (datCalcGetElementAffinity((u8 *)((BtlUnit *)(u8 *)resultFields->unit)->datUnit, element) & 0x08000000) {
                 scrSetReturnInt((s16)element);
                 return 1;
             }
@@ -358,6 +371,7 @@ s32 btlEffectScriptPickRandomSide1OtherUnit(void) {
 // FUN_001E9600
 /* Prefer the least-HP skill-eligible genus-1 target, falling back to least HP. */
 s32 btlEffectScriptPickLowestHpSkillEligibleUnit(void) {
+    BtlUnit *entryFields;
     u8 *work;
     u8 *current;
     u8 *bestFallback;
@@ -378,10 +392,11 @@ s32 btlEffectScriptPickLowestHpSkillEligibleUnit(void) {
         flags = ((BtlAction *)current)->unk_1a;
         if ((flags & 1) && (flags & 8)) {
             entry = (u8 *)((BtlAction *)current)->unit;
+            entryFields = (BtlUnit *)entry;
             if (((BtlUnit *)entry)->genus == 1 &&
                 datCalcIsDead((s32)((BtlUnit *)entry)->datUnit, 0) == 0) {
                 /* measured: typing both datUnit loads changes saved-register allocation. */
-                value = datCalcGetHp(*(s32 *)(entry + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp((s32)entryFields->datUnit) & 0xFFFF;
                 if (value < minimumEligibleHp &&
                     btlAICommandCollectSkillCandidates(work, current, 0, 0) >= 0) {
                     bestEligible = current;
@@ -407,6 +422,7 @@ s32 btlEffectScriptPickLowestHpSkillEligibleUnit(void) {
 // FUN_001E9770
 /* Pick least HP within the script's minimum HP, maximum percentage and status mask. */
 s32 btlEffectScriptPickLowestHpInRangeUnit(void) {
+    BtlAction *currentFields;
     extern s32 scrGetParamInt(s32 paramIdx);
     extern void scrSetReturnInt(s32 retVal);
     extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
@@ -430,6 +446,7 @@ s32 btlEffectScriptPickLowestHpInRangeUnit(void) {
     best = NULL;
     bestHp = 0x0FFFFFFF;
     current = ((BtlBattleState *)iGpffffb3ac)->actions;
+    currentFields = (BtlAction *)current;
     allowDead = statusMask & 0x80000;
     goto loop_test;
 loop_body:
@@ -442,18 +459,18 @@ loop_body:
         goto loop_next;
     /* measured: repeated typed action->unit loads change allocation across the HP/status calls. */
     if ((allowDead == 0) &&
-        (datCalcIsDead((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit, 0) != 0))
+        (datCalcIsDead((s32)((BtlUnit *)(u8 *)((BtlAction *)(current))->unit)->datUnit, 0) != 0))
         goto loop_next;
-    hp = datCalcGetHp((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit) & 0xFFFF;
+    hp = datCalcGetHp((s32)((BtlUnit *)(u8 *)currentFields->unit)->datUnit) & 0xFFFF;
     if ((u32)minimumHp > hp)
         goto loop_next;
-    unitData = (u8 *)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit;
+    unitData = (u8 *)((BtlUnit *)(u8 *)currentFields->unit)->datUnit;
     storedHp = ((DatUnit *)unitData)->hp;
     maximumHp = (u32)(datCalcMaxHp((s32)unitData) & 0xFFFF);
     if ((u32)storedHp * 0x64 > maximumHp * (u32)maximumPercent)
         goto loop_next;
     if ((statusMask != 0) &&
-        (datCalcChkBadStatus((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit, statusMask) == 0))
+        (datCalcChkBadStatus((s32)((BtlUnit *)(u8 *)currentFields->unit)->datUnit, statusMask) == 0))
         goto loop_next;
     if (hp >= bestHp)
         goto loop_next;
@@ -461,6 +478,7 @@ loop_body:
     bestHp = hp;
 loop_next:
     current = (u8 *)((BtlAction *)current)->next;
+    currentFields = (BtlAction *)current;
 loop_test:
     if (current != NULL)
         goto loop_body;
@@ -483,6 +501,9 @@ loop_test:
 /* AI script command 0x20fa (p4flow AI.json AI_FUNCTION_00FA). */
 // FUN_001E9950
 s32 btlEffectScriptChooseBestSkill(void) {
+    BtlAction *singleTargetFields;
+    BtlAction *groupTargetFields;
+    BtlUnit *unitFields;
     extern s32 scrGetParamInt(s32 paramIdx);
     extern void scrSetReturnInt(s32 retVal);
     extern s32 datCalcElementBit(s16 element);
@@ -528,22 +549,23 @@ s32 btlEffectScriptChooseBestSkill(void) {
     work = scrGetAiState();
     mode = scrGetParamInt(0);
     unit = (u8 *)((BtlAction *)work)->unit;
+    unitFields = (BtlUnit *)unit;
     bestTarget = 0;
     bestSkill = -1;
     bestCost = 0x3E7;
     bestScore = -1.0f;
     skillLimit = ((datCalcGetTableLength(((BtlUnit *)unit)->datUnit) & 0xFFFF) + 1) & 0xFFFF;
     /* measured: repeated typed datUnit/action-unit loads hoist addresses (1512 vs 1488 bytes). */
-    table = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
+    table = (u16 *)datCalcSkillList(unitFields->datUnit);
     skillIndex = 0;
     skillCount = skillLimit & 0xFFFF;
     goto outer_test;
 outer_body:
     if (skillIndex == 0) {
-        skill = (u16)(datCalcDefaultSkillId(*(u8 **)(unit + 0xA64)) & 0xFFFF);
+        skill = (u16)(datCalcDefaultSkillId((u8 *)unitFields->datUnit) & 0xFFFF);
     } else {
-        /* measured: table[skillIndex - 1] changes the halfword address instruction. */
-        skill = *(u16 *)((u8 *)table + skillIndex * 2 - 2);
+        /* The provider returns exactly eight skills; keep that array extent when indexing. */
+        skill = ((u16 (*)[8])table)[0][skillIndex - 1];
         if (skill == 0) {
             goto outer_next;
         }
@@ -552,7 +574,7 @@ outer_body:
     if (skillStore >= 0x1B8) {
         goto outer_next;
     }
-    element = (s16)datCalcSkillElement(*(u8 **)(unit + 0xA64), skill);
+    element = (s16)datCalcSkillElement((u8 *)unitFields->datUnit, skill);
     if ((datCalcElementBit(element) & 0x7E) == 0) {
         goto outer_next;
     }
@@ -566,10 +588,10 @@ outer_body:
         }
     }
     if (datCalcUsesWeaponProperties(skill) == 0) {
-        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x80008) != 0) {
+        if (datCalcChkBadStatus((s32)(u8 *)unitFields->datUnit, 0x80008) != 0) {
             goto outer_next;
         }
-        if (datCalcThresholdTrigger(*(u8 **)(unit + 0xA64), skill) != 0) {
+        if (datCalcThresholdTrigger((u8 *)unitFields->datUnit, skill) != 0) {
             goto outer_next;
         }
     }
@@ -581,10 +603,11 @@ outer_body:
         singleTargetElement = (s16)element;
         for (; (singleTargetIndex & 0xFFFF) < (s32)(targets.count & 0xFFFF); singleTargetIndex = (singleTargetIndex + 1) & 0xFFFF) {
             singleTarget = targets.entries[(u16)singleTargetIndex];
+            singleTargetFields = (BtlAction *)singleTarget;
             if (btlAICommandNomalCheck(singleTarget, singleTargetElement, 1) != 0) {
-                amount = datCalcSkillAmount(skill, *(u8 **)(unit + 0xA64), (u8 *)((BtlAction *)singleTarget)->unit->datUnit, 1, 1, 1, 0, 1);
-                hp = datCalcGetHp((s32)((BtlUnit *)*(u8 **)(singleTarget + 0x30))->datUnit) & 0xFFFF;
-                maxHp = datCalcMaxHp((s32)((BtlUnit *)*(u8 **)(singleTarget + 0x30))->datUnit) & 0xFFFF;
+                amount = datCalcSkillAmount(skill, (u8 *)unitFields->datUnit, (u8 *)((BtlAction *)singleTarget)->unit->datUnit, 1, 1, 1, 0, 1);
+                hp = datCalcGetHp((s32)((BtlUnit *)(u8 *)singleTargetFields->unit)->datUnit) & 0xFFFF;
+                maxHp = datCalcMaxHp((s32)((BtlUnit *)(u8 *)singleTargetFields->unit)->datUnit) & 0xFFFF;
                 healing = (s32)(0u - (u32)amount);
                 if (hp < healing) {
                     targetScore = (f32)hp / (f32)maxHp;
@@ -604,15 +627,16 @@ outer_body:
         groupElement = (s16)element;
         for (; ((s32)groupTargetIndex & 0xFFFF) < (s32)(targets.count & 0xFFFF); groupTargetIndex = ((s32)groupTargetIndex + 1) & 0xFFFF) {
             groupTarget = targets.entries[(groupTargetIndex & 0xFFFF)];
+            groupTargetFields = (BtlAction *)groupTarget;
             if (btlAICommandNomalCheck(groupTarget, groupElement, 1) == 0) {
                 if ((datCalcGetElementAffinity((u8 *)((BtlAction *)groupTarget)->unit->datUnit, element) & 0x1000000) == 0) {
                     skillScore = 0.0f;
                     goto scored;
                 }
             } else {
-                amount = datCalcSkillAmount(skill, *(u8 **)(unit + 0xA64), (u8 *)((BtlUnit *)*(u8 **)(groupTarget + 0x30))->datUnit, 1, 1, 1, 0, 1);
-                hp = datCalcGetHp((s32)((BtlUnit *)*(u8 **)(groupTarget + 0x30))->datUnit) & 0xFFFF;
-                maxHp = datCalcMaxHp((s32)((BtlUnit *)*(u8 **)(groupTarget + 0x30))->datUnit) & 0xFFFF;
+                amount = datCalcSkillAmount(skill, (u8 *)unitFields->datUnit, (u8 *)((BtlUnit *)(u8 *)((BtlAction *)(groupTarget))->unit)->datUnit, 1, 1, 1, 0, 1);
+                hp = datCalcGetHp((s32)((BtlUnit *)(u8 *)groupTargetFields->unit)->datUnit) & 0xFFFF;
+                maxHp = datCalcMaxHp((s32)((BtlUnit *)(u8 *)groupTargetFields->unit)->datUnit) & 0xFFFF;
                 healing = (s32)(0u - (u32)amount);
                 if (hp < healing) {
                     skillScore += (f32)hp / (f32)maxHp;
@@ -626,8 +650,8 @@ outer_body:
 scored:
     if (bestScore <= skillScore) {
         if (bestScore == skillScore) {
-            if ((datCalcThresholdKind(*(u8 **)(unit + 0xA64), skill) & 0xFFFF) == 2) {
-                cost = datCalcSkillCost(*(u8 **)(unit + 0xA64), skill);
+            if ((datCalcThresholdKind((u8 *)unitFields->datUnit, skill) & 0xFFFF) == 2) {
+                cost = datCalcSkillCost((u8 *)unitFields->datUnit, skill);
                 if (cost < bestCost) {
                     bestSkill = skillStore;
                     bestTarget = bestTargetId;
@@ -669,6 +693,7 @@ outer_test:
 // FUN_001E9F20
 /* Pick the living genus-1 target with matching status bits and greatest HP. */
 s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
+    BtlAction *currentFields;
     extern s32 scrGetParamInt(s32 paramIdx);
     extern s32 datCalcGetHp(s32 unit);
     extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
@@ -684,14 +709,15 @@ s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
     best = NULL;
     bestHp = 0;
     current = ((BtlBattleState *)iGpffffb3ac)->actions;
+    currentFields = (BtlAction *)current;
     /* measured: repeated typed action->unit loads hoist +30 across status/HP calls. */
     while (current != NULL) {
         flags = ((BtlAction *)current)->unk_1a;
         if ((flags & 1) && (flags & 8)) {
             if ((((BtlAction *)current)->unit->genus == 1) &&
-                (datCalcChkBadStatus((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit, statusMask) != 0) &&
-                (datCalcIsDead((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit, 0) == 0)) {
-                value = (u32)(datCalcGetHp((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit) & 0xFFFF);
+                (datCalcChkBadStatus((s32)((BtlUnit *)(u8 *)((BtlAction *)(current))->unit)->datUnit, statusMask) != 0) &&
+                (datCalcIsDead((s32)((BtlUnit *)(u8 *)currentFields->unit)->datUnit, 0) == 0)) {
+                value = (u32)(datCalcGetHp((s32)((BtlUnit *)(u8 *)currentFields->unit)->datUnit) & 0xFFFF);
                 if (bestHp < value) {
                     best = current;
                     bestHp = value;
@@ -699,6 +725,7 @@ s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
             }
         }
         current = (u8 *)((BtlAction *)current)->next;
+        currentFields = (BtlAction *)current;
     }
     if (best != NULL) {
         scrSetReturnInt((s32)((BtlAction *)best)->id | 0x80000000);
@@ -712,6 +739,7 @@ s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
 // FUN_001EA050
 /* Pick the living genus-1 target with matching status bits and least HP. */
 s32 btlEffectScriptPickLowestHpBadStatusUnit(void) {
+    BtlAction *currentFields;
     extern s32 scrGetParamInt(s32 paramIdx);
     extern s32 datCalcGetHp(s32 unit);
     extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
@@ -727,14 +755,15 @@ s32 btlEffectScriptPickLowestHpBadStatusUnit(void) {
     best = NULL;
     bestHp = 0x0FFFFFFF;
     current = ((BtlBattleState *)iGpffffb3ac)->actions;
+    currentFields = (BtlAction *)current;
     /* measured: repeated typed action->unit loads hoist +30 across status/HP calls. */
     while (current != NULL) {
         flags = ((BtlAction *)current)->unk_1a;
         if ((flags & 1) && (flags & 8)) {
             if ((((BtlAction *)current)->unit->genus == 1) &&
-                (datCalcChkBadStatus((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit, statusMask) != 0) &&
-                (datCalcIsDead((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit, 0) == 0)) {
-                value = (u32)(datCalcGetHp((s32)((BtlUnit *)*(u8 **)(current + 0x30))->datUnit) & 0xFFFF);
+                (datCalcChkBadStatus((s32)((BtlUnit *)(u8 *)((BtlAction *)(current))->unit)->datUnit, statusMask) != 0) &&
+                (datCalcIsDead((s32)((BtlUnit *)(u8 *)currentFields->unit)->datUnit, 0) == 0)) {
+                value = (u32)(datCalcGetHp((s32)((BtlUnit *)(u8 *)currentFields->unit)->datUnit) & 0xFFFF);
                 if (value < bestHp) {
                     best = current;
                     bestHp = value;
@@ -742,6 +771,7 @@ s32 btlEffectScriptPickLowestHpBadStatusUnit(void) {
             }
         }
         current = (u8 *)((BtlAction *)current)->next;
+        currentFields = (BtlAction *)current;
     }
     if (best != NULL) {
         scrSetReturnInt((s32)((BtlAction *)best)->id | 0x80000000);
@@ -777,10 +807,10 @@ s32 btlEffectScriptSetActionParams(void) {
     ((BtlAction *)work)->unk_6e = scrGetParamInt(0);
     ((BtlAction *)work)->unk_6c = 9;
     ((BtlAiCommandWork *)((BtlAction *)work)->unk_38)->plan = scrGetParamInt(1);
-    /* measured: typing both plan stores hoists the command subobject (+38) into s0. */
-    *(s16 *)(work + 0x78) = scrGetParamInt(2);
-    /* The adjacent final argument is in BtlAiCommandWork.pad42; retain the same cursor shape. */
-    *(s16 *)(work + 0x7A) = scrGetParamInt(3);
+    /* Use the command cursor directly; re-deriving it from action fields hoists +38. */
+    ((BtlAiCommandWork *)(work + 0x38))->planArgument = scrGetParamInt(2);
+    /* The fourth script argument occupies command +0x42. */
+    ((BtlAiCommandWork *)(work + 0x38))->planArgument2 = scrGetParamInt(3);
     if (((s32 (*)(u8 *, s32))D_00609D20[0])(work, 0) == 0)
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(work, 0);
     return 1;
