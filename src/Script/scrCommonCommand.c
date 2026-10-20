@@ -126,8 +126,8 @@ u32 scrCmdTimerActive(void)
     return scrGetCmdTimer() != 0;
 }
 
-// FUN_00298FC0
 /* Complete immediately for nonpositive waits; otherwise yield until the command timer reaches parameter zero. */
+// FUN_00298FC0
 u32 scrCommand_WAIT()
 {
     s32 cmdTimer;
@@ -341,8 +341,8 @@ u32 scrStartProcedureTask(void)
     return 1;
 }
 
+/* Yield until parameter zero's task is unlinked; this command does not itself request task destruction. */
 // FUN_002995C0
-/* Wait until the task handle in parameter zero is no longer linked to the scheduler. */
 u32 scrCommand_SCR_KILL_SYNC()
 {
     KwlnTask* task;
@@ -354,8 +354,8 @@ u32 scrCommand_SCR_KILL_SYNC()
 
 
 
+/* Set the script return integer to task-link status and complete the command immediately. */
 // FUN_00299600
-/* Return whether the task handle in parameter zero is still linked to the scheduler. */
 u32 scrCommand_SCR_EXISTS()
 {
     KwlnTask* task;
@@ -376,8 +376,8 @@ u32 scrCommand_SCR_EXISTS()
 
 
 
+/* Set the script return integer to a linked task's timer, or zero for an unlinked handle. */
 // FUN_00299660
-/* Return a linked task's timer, or zero when the handle is no longer linked. */
 u32 scrCommand_SCR_GET_TIMER()
 {
     KwlnTask* task;

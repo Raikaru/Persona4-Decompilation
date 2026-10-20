@@ -471,8 +471,8 @@ u32 scrOpPopLocalFloat(ScrData* scr)
 
 
 
-// FUN_0029AD20
 /* Advance the program counter without changing the interpreter stack. */
+// FUN_0029AD20
 u32 scrOpNop(ScrData* scr)
 {
     scr->pc++;
@@ -493,7 +493,6 @@ u32 scrOpNop(ScrData* scr)
 // The command runs with sCurrScript = ctx. If it returns 0 the codefunc returns CODEFUNC_YIELD
 // and the same instruction runs again. Otherwise the command's paramCount arguments are popped,
 // and pc advances unless the command already moved it. Returns CODEFUNC_NEXTINSTR.
-/* Raw accesses retain MATCH: replacing these proven offsets with fields changed instruction selection. */
 u32 scrOpCallCommand(u8 *context)
 {
     ScrData *ctx;
@@ -512,10 +511,10 @@ u32 scrOpCallCommand(u8 *context)
     K_ASSERT(cmdId >= 0, 0x175);
     groupOffset = ((cmdId >> 12) & 0xFF) << 3;
     cmdId &= 0xFFF;
-    /* D_00748534 is the count field (+4) of D_00748530[group]: the guard checks count > index. */
+    /* Linker interior alias: the count field (+4) of D_00748530[group]; preserve its zero-displacement load. */
     K_ASSERT(*(s32 *)((u8 *)D_00748534 + groupOffset) > cmdId, 0x176);
     cmdOffset = cmdId << 3;
-    cmds = *(ScrCmdEntry **)((u8 *)D_00748530 + groupOffset);
+    cmds = ((ScrCmdGroup *)((u8 *)D_00748530 + groupOffset))->cmds;
     entry = (ScrCmdEntry *)((u8 *)cmds + cmdOffset);
     hasFunc = (entry->func != 0);
     K_ASSERT(hasFunc != 0, 0x177);
@@ -578,8 +577,8 @@ u32 scrOpCallProcedure(ScrData* scr)
     return CODEFUNC_NEXTINSTR;
 }
 
-// FUN_0029B120
 /* Report an unsupported instruction through the script abort diagnostic, then advance if it returns. */
+// FUN_0029B120
 u32 scrOpUnsupported(ScrData* scr)
 {
     K_ABORT(D_0063E160, 506);
@@ -847,8 +846,8 @@ void scrBinaryOp(ScrData* scr, u32 type)
 
 
 
+/* Pop two numeric operands, push their sum with integer/float promotion, and advance execution. */
 // FUN_0029BEB0
-/* Apply the interpreter's addition operation and advance to the next instruction. */
 u32 CodeFunc_Add(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_ADD);
@@ -859,8 +858,8 @@ u32 CodeFunc_Add(ScrData* scr)
 
 
 
+/* Pop the left operand first, subtract the next numeric operand, and push the promoted result. */
 // FUN_0029BEF0
-/* Apply the interpreter's subtraction operation and advance to the next instruction. */
 u32 CodeFunc_Sub(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_SUB);
@@ -883,8 +882,8 @@ u32 CodeFunc_Mul(ScrData* scr)
 
 
 
+/* Divide the first popped numeric operand by the second; the shared operator asserts a nonzero divisor. */
 // FUN_0029BF70
-/* Apply the interpreter's division operation and advance to the next instruction. */
 u32 CodeFunc_Div(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_DIV);
@@ -973,8 +972,8 @@ u32 CodeFunc_Not(ScrData* scr)
 
 
 
+/* Consume both numeric operands and push integer truth for logical OR, without short-circuiting their pops. */
 // FUN_0029C550
-/* Apply the interpreter's logical OR operation and advance to the next instruction. */
 u32 CodeFunc_Or(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_OR);
@@ -985,8 +984,8 @@ u32 CodeFunc_Or(ScrData* scr)
 
 
 
+/* Consume both numeric operands and push integer truth for logical AND, without short-circuiting their pops. */
 // FUN_0029C590
-/* Apply the interpreter's logical AND operation and advance to the next instruction. */
 u32 CodeFunc_And(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_AND);
@@ -997,8 +996,8 @@ u32 CodeFunc_And(ScrData* scr)
 
 
 
+/* Compare the two popped numeric operands for equality and push integer truth before advancing execution. */
 // FUN_0029C5D0
-/* Apply the interpreter's equality operation and advance to the next instruction. */
 u32 CodeFunc_Eq(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_EQ);
@@ -1009,8 +1008,8 @@ u32 CodeFunc_Eq(ScrData* scr)
 
 
 
+/* Compare the two popped numeric operands for inequality and push integer truth before advancing execution. */
 // FUN_0029C610
-/* Apply the interpreter's inequality operation and advance to the next instruction. */
 u32 CodeFunc_Neq(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_NEQ);
@@ -1021,8 +1020,8 @@ u32 CodeFunc_Neq(ScrData* scr)
 
 
 
+/* Push integer truth when the first popped numeric operand is less than the second, then advance. */
 // FUN_0029C650
-/* Apply the interpreter's comparison S operation and advance to the next instruction. */
 u32 CodeFunc_S(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_S);
@@ -1033,8 +1032,8 @@ u32 CodeFunc_S(ScrData* scr)
 
 
 
+/* Push integer truth when the first popped numeric operand is greater than the second, then advance. */
 // FUN_0029C690
-/* Apply the interpreter's comparison L operation and advance to the next instruction. */
 u32 CodeFunc_L(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_L);
@@ -1045,8 +1044,8 @@ u32 CodeFunc_L(ScrData* scr)
 
 
 
+/* Push integer truth when the first popped numeric operand is at most the second, then advance. */
 // FUN_0029C6D0
-/* Apply the interpreter's comparison SE operation and advance to the next instruction. */
 u32 CodeFunc_SE(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_SE);
@@ -1057,8 +1056,8 @@ u32 CodeFunc_SE(ScrData* scr)
 
 
 
+/* Push integer truth when the first popped numeric operand is at least the second, then advance. */
 // FUN_0029C710
-/* Apply the interpreter's comparison LE operation and advance to the next instruction. */
 u32 CodeFunc_LE(ScrData* scr)
 {
     scrBinaryOp(scr, SCR_OPERATION_LE);

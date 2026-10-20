@@ -59,9 +59,9 @@ extern void mtMiscCollectType1Records(u8 *eventWork);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029e960-0029e960 */
 
+/* Initialization hook called after script-pool setup when no active handle exists; retail returns zero without side effects. */
 // FUN_0029E960
-/* Retail hook returns zero without allocating or updating script state; its wider purpose is not established. */
-s32 func_0029e960(void)
+s32 scrProcessInitNoop(void)
 {
     return 0;
 }

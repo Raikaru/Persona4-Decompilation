@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2511 of 13102 symbols carry a recovered name.
+// 2516 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -4337,11 +4337,11 @@ func_0029e040 = 0x0029E040; // type:func
 func_0029e550 = 0x0029E550; // type:func
 func_0029e7b0 = 0x0029E7B0; // type:func
 func_0029e8d0 = 0x0029E8D0; // type:func
-func_0029e960 = 0x0029E960; // type:func
-func_0029e970 = 0x0029E970; // type:func
-func_0029e980 = 0x0029E980; // type:func
-func_0029e990 = 0x0029E990; // type:func
-func_0029e9a0 = 0x0029E9A0; // type:func
+scrProcessInitNoop = 0x0029E960; // type:func
+scrProcessGetHandleNoop = 0x0029E970; // type:func
+scrProcessReleaseNoop = 0x0029E980; // type:func
+scrCommandFiveOperandNoop = 0x0029E990; // type:func
+scrCommandAlternateFiveOperandNoop = 0x0029E9A0; // type:func
 func_0029e9b0 = 0x0029E9B0; // type:func
 func_0029e9e0 = 0x0029E9E0; // type:func
 yTimeLimitStartRowTransition = 0x0029EBF0; // type:func

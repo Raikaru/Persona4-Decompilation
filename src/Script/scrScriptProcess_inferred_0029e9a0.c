@@ -23,7 +23,7 @@ extern char D_0063D050[];
 
 
 extern s32 D_0063CB50[];
-extern void func_0029e9a0(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void scrCommandAlternateFiveOperandNoop(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern u8 D_0063CFA0[];
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
@@ -60,9 +60,9 @@ extern void mtMiscCollectType1Records(u8 *eventWork);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029e9a0-0029e9a0 */
 
+/* Consume the five wide operands forwarded by the alternate unused script-command sink without side effects. */
 // FUN_0029E9A0
-/* Retail no-op receiving five wide values forwarded by a separate script command; meanings remain unestablished. */
-void func_0029e9a0(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth)
+void scrCommandAlternateFiveOperandNoop(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth)
 {
 }
 

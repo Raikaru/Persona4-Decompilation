@@ -14,8 +14,8 @@ extern s8 D_005E3A04[];
 extern u8 D_00797B7C[];
 extern s32 D_0079B40C[];
 extern s8 D_005E3A00[];
-s32 func_0029e970(void);
-void func_0029e980(s32);
+s32 scrProcessGetHandleNoop(void);
+void scrProcessReleaseNoop(s32);
 void datSetFlag(s32, s32);
 s32 calReadDayFlagMask(void);
 void calWriteDayFlagMask(s32);
@@ -408,8 +408,8 @@ void scrReleaseActiveHandle(void)
 {
     s32 handle;
 
-    if ((handle = func_0029e970()) != 0) {
-        func_0029e980(handle);
+    if ((handle = scrProcessGetHandleNoop()) != 0) {
+        scrProcessReleaseNoop(handle);
     }
 }
 #pragma pop
