@@ -30,6 +30,11 @@ typedef struct MdlSeBankHeader {
     u8 unk00[0xFC];
     s32 size;
 } MdlSeBankHeader;
+/* Interior aliases start at the type/id halfword of an eight-byte slot. */
+typedef struct MdlSeSlotIdentifier {
+    u16 value;
+    u8 pad02[6];
+} MdlSeSlotIdentifier;
 
 extern void chkmemAllocSiteTag();
 extern void memset(void *dest, s32 value, s32 size);
@@ -38,8 +43,8 @@ extern u8 D_007241D8;
 extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
 extern s32 iGpffffbb40;
 extern u8 D_00922C10[];
-extern u8 D_00922C14[];
-extern u8 D_00922C16[];
+extern MdlSeSlotIdentifier D_00922C14[];
+extern MdlSeSlotIdentifier D_00922C16[];
 extern void memcpy(void *dst, const void *src, u32 size);
 extern s32 sdkSndQueueSlotRequest(s32 slotIndex, void *input, u32 inputSize, void *intermediate, u32 intermediateSize, void *output, u32 outputSize);
 extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
@@ -128,8 +133,8 @@ s32 mdlSeAcquireSlot(u32 type, u16 id)
     iGpffffbb40 = (u32)iGpffffbb40 + 1;
     ((MdlSeSlot *)((s32)D_00922C10 + byteOffset))->signedTick = iGpffffbb40;
     /* Keep linker-visible interior aliases for type/id rather than repointing relocations to D_00922C10. */
-    *(u16*)((s32)D_00922C14 + byteOffset) = type;
-    *(u16*)((s32)D_00922C16 + byteOffset) = id;
+    ((MdlSeSlotIdentifier *)((s32)D_00922C14 + byteOffset))->value = type;
+    ((MdlSeSlotIdentifier *)((s32)D_00922C16 + byteOffset))->value = id;
     return selectedSlot + 3;
 }
 #pragma pop
@@ -175,6 +180,7 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
     s32 flags;
     u8 *owner;
     s8 variants[4];
+    MdlSeCell *cell;
 
     row = (s16)rowIndex;
     if (row >= 0x1B) {
@@ -186,6 +192,7 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
     }
     entry = (u8 *)((col * 3) * 4);
     entry = *(u8 **)&((MdlMotionState *)state)->request + (row * 3) * 32 + (u32)entry;
+    cell = (MdlSeCell *)entry;
     slotId = ((MdlSeCell *)entry)->slotId;
     if (slotId == -1) {
         return 0;
@@ -220,16 +227,17 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
         }
         ((MdlMotionState *)state)->requestValue = **(s32 **)state;
     }
-    /* measured: typed cell flags cache across state writes (852B); raw reloads retain 848B MATCH. */
-    flags = *(s32 *)(entry + 4);
+    /* measured: retaining the cell pointer preserves the five flags reloads;
+     * access-site casts alone change the whole-file instruction comparison. */
+    flags = cell->flags;
     if (flags != -1) {
         owner = *(u8 **)state;
         if (((MdlFileObject *)owner)->type == 1) {
             ((MdlMotionState *)state)->pendingSlot = ((flags & 0x20000000) != 0) ^ 1;
             ((MdlMotionState *)state)->pendingChannel = 11;
             ((MdlMotionState *)state)->pendingTicks = slotValue;
-            ((MdlMotionState *)state)->pendingFlags = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
-            ((MdlMotionState *)state)->pendingKind = *(s32 *)(entry + 4);
+            ((MdlMotionState *)state)->pendingFlags = (cell->flags >> 16) & 0xFFF;
+            ((MdlMotionState *)state)->pendingKind = cell->flags;
         } else {
             if ((flags & 0x20000000) != 0) {
                 ((MdlMotionState *)state)->pendingSlot = 0;
@@ -250,8 +258,8 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
                 break;
             }
             ((MdlMotionState *)state)->pendingTicks = slotValue;
-            ((MdlMotionState *)state)->pendingFlags = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
-            ((MdlMotionState *)state)->pendingKind = *(s32 *)(entry + 4);
+            ((MdlMotionState *)state)->pendingFlags = (cell->flags >> 16) & 0xFFF;
+            ((MdlMotionState *)state)->pendingKind = cell->flags;
         }
     } else if (col == 0) {
         ((MdlMotionState *)state)->pendingTicks = -2;

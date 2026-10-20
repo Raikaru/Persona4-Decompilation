@@ -127,8 +127,10 @@ void sdkLboxClear(u8 *task)
 {
     u8 *work;
     u8 *node;
+    SdkLboxWork *listWork;
 
     work = ((KwlnTask *)task)->work;
+    listWork = (SdkLboxWork *)work;
     node = ((SdkLboxWork *)work)->head;
     while (node != NULL) {
         u8 *next;
@@ -137,19 +139,18 @@ void sdkLboxClear(u8 *task)
         jtbl_008873EC[0](node);
         node = next;
     }
-    /* measured: typing the head clear grows sdkLboxClear from 176 to 184 bytes. */
-    *(s32 *)(work + 0x144) = 0;
+    /* measured: retain the typed work pointer across the release callbacks. */
+    listWork->head = NULL;
     ((SdkLboxWork *)work)->unk148 = 0;
     ((SdkLboxWork *)work)->count = 0;
     ((SdkLboxWork *)work)->cursor = 0;
     ((SdkLboxWork *)work)->scroll = 0;
     /* The embedded sdkListState extent is unknown; pass its proven +0x164 start. */
     sdkListStateSetCount(work + 0x164, 0);
-    /* measured: typing these callback destinations changes 76/74/73 bytes
-     * respectively through b210 address CSE; retain only these stores raw. */
-    *(s32 *)(work + 0x140) = sdkListStateGetCount(work + 0x164);
-    *(s32 *)(work + 0x138) = sdkListStateGetScroll(work + 0x164);
-    *(s32 *)(work + 0x134) = sdkListStateGetCursor(work + 0x164);
+    /* The same retained pointer keeps the callback-result stores MATCH. */
+    listWork->count = sdkListStateGetCount(work + 0x164);
+    listWork->scroll = sdkListStateGetScroll(work + 0x164);
+    listWork->cursor = sdkListStateGetCursor(work + 0x164);
 }
 
 /* Returns the entry ID at scroll + cursor, or -1 beyond the list count. */
