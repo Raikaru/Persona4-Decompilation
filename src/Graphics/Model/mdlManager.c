@@ -5519,11 +5519,11 @@ static inline void mdlDispatchAnimation(u8* mdl, u32 layer, s16 animation, u16 f
             s32 index = (s16)animation;
             if (index >= 0 && (table = ((Model *)mdl)->layers[0].resource) != 0 &&
                 index < table->count &&
-                (offset = index * 80, entries = table->entries,
-                 clip = *(void**)(((u32)entries + 64) + (offset))) != 0 && clip != D_00922BC0_abs) {
+                (offset = index * sizeof(MdlDispatchAnimEntry), entries = table->entries,
+                 clip = *(void**)(((u32)entries + MEMBER_OFFSET(MdlDispatchAnimEntry, animation)) + (offset))) != 0 && clip != D_00922BC0_abs) {
                 *(RwMatrix *)&((Model *)mdl)->identityMat.right.x = *(RwMatrix *)&((MdlDispatchAnimEntry *)((u8*)entries + offset))->matrix.right.x;
             } else {
-                RwMatrix* matrix = (RwMatrix*)(mdl + 64);
+                RwMatrix* matrix = (RwMatrix*)(mdl + MEMBER_OFFSET(Model, identityMat));
                 matrix->right.x = matrix->up.y = matrix->at.z = 1.0f;
                 matrix->up.x = 0.0f;
                 matrix->right.z = 0.0f;
