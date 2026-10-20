@@ -96,40 +96,7 @@ static inline s32 p4_base_add_0019f050(s32 offset, s32 base)
 {
     return base + offset;
 }
-static inline s32 *p4_entries_001900a0(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 p4_base_add_00194590(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 p4_one_00194470(void)
-{
-    return 1;
-}
-static inline s64 p4_sign16_001991c0(s16 value)
-{
-    return value;
-}
-static inline s32 p4_table_001951f0(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 p4_add_0019a680(f32 left, f32 right)
-{
-    return left + right;
-}
 
-static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
-{
-    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
-}
-static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
-{
-    scrStartProcedureChecked(arg0, arg1, arg2, arg3);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];

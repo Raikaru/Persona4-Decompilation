@@ -4,12 +4,6 @@
 #include "cmm_internal.h"
 #include "effect_instance_internal.h"
 
-static inline f32 p4_0025_mul_add(f32 left, f32 right, f32 base) {
-    return left * right + base;
-}
-static inline f32 p4_0025_add(f32 left, f32 right) {
-    return left + right;
-}
 extern s32 D_006367C0[];
 extern void sdkSndStartChannel(s32 channelIndex, const char *path);
 extern void memset(void *input, s32 secondInput, s32 thirdInput);

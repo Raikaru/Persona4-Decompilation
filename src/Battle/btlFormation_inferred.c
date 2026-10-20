@@ -11,10 +11,6 @@
 #include "btl_unit_internal.h"
 #include "btl_effect_internal.h"
 typedef struct BtlPacket BtlPacket;
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
 
 extern void btlTargetBlendVectors(void *rotation, void *first, void *second);
 extern u8 *iGpffffb3ac;

@@ -6,10 +6,6 @@
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;

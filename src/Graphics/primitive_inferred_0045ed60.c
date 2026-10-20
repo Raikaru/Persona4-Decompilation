@@ -212,20 +212,10 @@ typedef struct Code45Im2DVertex {
 } Code45Im2DVertex;
 
 #pragma push
-static inline s32 overlayAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 
 #pragma pop
 #pragma push
-/* Character codes are normalized as bytes; the atlas column retains
- * the signed remainder operation used by the original renderer. */
-static inline s32 fontAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 #pragma pop
 

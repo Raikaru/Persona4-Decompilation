@@ -172,10 +172,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline f32 p4_0014_recip(f32 value)
-{
-    return 1.0f / value;
-}
 typedef struct {
     u8 b0;
     u8 b1;

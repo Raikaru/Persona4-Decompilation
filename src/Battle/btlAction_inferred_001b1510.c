@@ -153,14 +153,6 @@ void nmMesWindowShowCurrentRecord(u32);
 void nmMesWindowSetCurrentFlag(u32);
 void nmMesWindowSetCurrentParam(u32);
 extern u8 D_005FB400[];
-static inline u8 *battleAddByteOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 battleMultiplyScalar(f32 left, f32 right)
-{
-    return left * right;
-}
 extern BtlPacket *btlFormationCreatePacket(u32, u32, u32, u16, u32);
 extern u8 *btlPacketCreateImmediate(void);
 extern BtlPacket *btlTargetCreateEmptyPacket(void);

@@ -10,14 +10,6 @@
 #include "type.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
-static inline s32 p4_pack_or(s32 left, s32 right)
-{
-    return left | right;
-}
-static inline f32 p4_mul_left(f32 left, f32 right)
-{
-    return right * left;
-}
 /* Digit slots retain the shared FclObject prefix at +0x100. The digit
  * variant interprets its resource tail as a floating glyph rectangle instead
  * of the generic resource/index/mode words. Every slot advances 0x220 bytes. */

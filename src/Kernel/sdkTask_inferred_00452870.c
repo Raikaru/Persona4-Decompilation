@@ -35,9 +35,6 @@ extern void (*D_00887300[])();
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern s64 D_00711858[];
 extern f32 D_00711860[];
-static inline f32 add_f32(f32 a, f32 b) {
-    return a + b;
-}
 extern u8 *iGpffffb9e0;
 extern void (*D_00887304[])();
 extern void (*D_008873EC[])(void *);
@@ -211,20 +208,10 @@ typedef struct Code45Im2DVertex {
 } Code45Im2DVertex;
 
 #pragma push
-static inline s32 overlayAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 
 #pragma pop
 #pragma push
-/* Character codes are normalized as bytes; the atlas column retains
- * the signed remainder operation used by the original renderer. */
-static inline s32 fontAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452870-00452870 */
 

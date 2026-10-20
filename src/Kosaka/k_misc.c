@@ -42,11 +42,6 @@ extern char D_005EFB28[];                   /* "k_misc.c" */
 extern char D_005EFB40[];                   /* "delay model(RMD) destroy" */
 extern char D_005EFB60[];                   /* "script shutdown(kosaka)" */
 extern char D_005EFB80[];                   /* "rmd fade(kosaka)" */
-static inline s32 kMiscOr(s32 left, s32 right)
-{
-    left |= right;
-    return left;
-}
 s32 KMisc_DelayMdlFreeUpdate(u8 *task);  /* delay-model-destroy update, sibling unit */
 void KMisc_DelayMdlFreeDestroy(u8 *task); /* delay-model-destroy destroy, sibling unit */
 

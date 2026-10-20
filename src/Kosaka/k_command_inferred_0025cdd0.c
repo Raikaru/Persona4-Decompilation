@@ -5,12 +5,6 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 
-static inline f32 p4_0025_mul_add(f32 left, f32 right, f32 base) {
-    return left * right + base;
-}
-static inline f32 p4_0025_add(f32 left, f32 right) {
-    return left + right;
-}
 extern s32 D_006367C0[];
 extern s16 D_00636A40[];
 extern char D_00635C00[];
@@ -39,11 +33,6 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
 
 
 
-/* Whole units of `range` covered by the random fraction `unit`. */
-static inline u32 p4_0025_span(f32 range, f32 unit)
-{
-    return (u32)(range * unit);
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025cdd0-0025cf70 */
 

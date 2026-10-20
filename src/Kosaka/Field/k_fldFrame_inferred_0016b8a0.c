@@ -244,9 +244,6 @@ typedef struct FldCameraSnapshotScratch
     f32 targetZ;
     u32 reserved6c; /* Cleared and copied with the seven-quadword snapshot. */
 } __attribute__((aligned(16))) FldCameraSnapshotScratch;
-static inline f32 code1_0016_cvt(s32 value) {
-    return (f32)value;
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0016; members 0016b8a0-0016ffd0 */
 

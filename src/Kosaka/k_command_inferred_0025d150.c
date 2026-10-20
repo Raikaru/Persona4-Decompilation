@@ -57,11 +57,6 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
 
 
 
-/* Whole units of `range` covered by the random fraction `unit`. */
-static inline u32 p4_0025_span(f32 range, f32 unit)
-{
-    return (u32)(range * unit);
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025d150-0025d850 */
 

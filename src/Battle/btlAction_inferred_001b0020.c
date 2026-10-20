@@ -66,10 +66,6 @@ static inline u8 *battleAddByteOffset(s32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
 }
-static inline f32 battleMultiplyScalar(f32 left, f32 right)
-{
-    return left * right;
-}
 extern BtlPacket *btlFormationCreatePacket(u32, u32, u32, u16, u32);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];

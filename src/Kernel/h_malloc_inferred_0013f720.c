@@ -17,9 +17,6 @@ extern s32 datCalcSkillEffectFlagsById(s16 sourceId, s16 targetId, u32 skillId, 
 static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
-static inline f32 code13Add(f32 left, f32 right) {
-    return left + right;
-}
 extern void radarDrawFrame(u8 *work);
 extern void radarResetEntries(u8 *work);
 extern void radarAnimateValue(void *work, s32 frame, s32 mode);

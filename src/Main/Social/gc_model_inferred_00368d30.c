@@ -37,10 +37,6 @@ extern char D_0064E460[];
 extern char D_0064E280[];
 
 extern f32 cosf(f32);
-static inline f32 p4_00362f00_add(f32 left, f32 right)
-{
-    return left + right;
-}
 extern void sflDataInitPanel(void);
 extern void pscLightInitQuad(u8 *dst);
 extern f32 fGpffff8390;

@@ -59,10 +59,6 @@ static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
 }
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern void btlCameraUpdateEffectList(u8 *camera);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];

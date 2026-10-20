@@ -74,10 +74,6 @@ extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
                           f32 depth, u8 red, u8 green, u8 blue, u8 alpha,
                           u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
                           s16 pivotY);
-static inline u32 add_offset_first_0038(u32 offset, u32 base)
-{
-    return offset + base;
-}
 
 /* Window frame fade.  The 192 alpha is converted at each vertex (u8)(192.0f *
    scale) - the product is shared, the float->u8 conversion is not - and the
@@ -89,18 +85,7 @@ static inline u32 add_offset_first_0038(u32 offset, u32 base)
    -0.2617994f is -15 degrees in radians (the sprite below is drawn at -15.0f);
    it and the other float literals are pooled in retail's gp data. */
 
-/* This helper retains the radius-scale operation with the same operand
- * order as the other circular drawing primitives. */
-static inline f32 code38ScaleRadius(f32 value, f32 scale)
-{
-    return scale * value;
-}
 
-static inline f32 code38QuarterTurnOffset(s32 index)
-{
-    extern f32 fGpffff83d8;
-    return fGpffff83d8 * (f32)index;
-}
 
 /* Persona list panel. The slide-in ease is 2t - t*t, clamped. Every
    position term is written with a (0.0f + K) origin, as the sibling ring
@@ -145,18 +130,6 @@ typedef struct Code38RingVertex {
     u32 tail[4];
 } Code38RingVertex;
 
-static inline void code38RingVertex(Code38RingVertex *vertex,
-    f32 x, f32 y, f32 depth, f32 reciprocalZ, u32 r, u32 g, u32 b, u32 a)
-{
-    vertex->x = x;
-    vertex->y = y;
-    vertex->z = depth;
-    vertex->color[0] = (f32)r;
-    vertex->color[1] = (f32)g;
-    vertex->color[2] = (f32)b;
-    vertex->color[3] = (f32)a;
-    vertex->reciprocalZ = reciprocalZ;
-}
 
 /* Measured: 904/912 bytes, eleven resolved relocations and eight zero
  * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the

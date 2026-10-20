@@ -47,9 +47,6 @@ extern u8 D_00748340[];
 
 
 
-static inline s32 func_0028_sum(u16 value, s16 delta) {
-    return (s32)value + delta;
-}
 
 extern u8 iGpffffa790;
 

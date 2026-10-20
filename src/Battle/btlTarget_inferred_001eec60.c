@@ -16,12 +16,6 @@ extern f32 RwV3dLength(f32 *vector);
 extern void func_003dcc70(const void *first, const void *second, void *result);
 extern void *RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rotation);
 extern void *D_00609850[];
-/* The surrounding wrappers use the raw s64 ABI; this typed view preserves
-   the 32-bit call result at this store site. */
-static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 
 extern u8 *iGpffffb3ac;

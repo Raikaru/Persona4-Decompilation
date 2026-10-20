@@ -52,9 +52,6 @@ static inline f32 cmpPartyPanelAdd(f32 left, f32 right) {
 static inline f32 cmpPartyPanelMultiply(f32 left, f32 right) {
     return left * right;
 }
-static inline f32 cmpPartyPanelMultiplyReversed(f32 right, f32 left) {
-    return right * left;
-}
 
 typedef struct {
     Vec2f start;
