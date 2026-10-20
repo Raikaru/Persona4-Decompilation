@@ -1,3 +1,7 @@
+/* Unit settings: hoist loop invariants and preserve assignment lifetimes. */
+#pragma opt_loop_invariants on
+/* measured: without this unit setting, radial emitters differ by 56/62 normalized bytes. */
+#pragma opt_dead_assignments off
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
 /* Original translation unit effPolygonFlash.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -201,8 +205,6 @@ typedef char FlashVertexSize[(sizeof(FlashVertex) == 0x0c) ? 1 : -1];
  */
 // Emits the rotating flash quads for one effect, using the particle angle, radius and width.
 // FUN_0049AA30
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
 void FlashRotatingEmitQuads(u8 *effect)
 {
     u32 innerWord;
@@ -455,10 +457,8 @@ void FlashRotatingEmitQuads(u8 *effect)
         }
     }
 }
-#pragma opt_loop_invariants off
 
 
-#pragma opt_dead_assignments on
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
    color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
    plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
@@ -593,7 +593,6 @@ void FlashRotatingPackColors(u8 *input)
    measured: without opt_loop_invariants the residual is nd 17, not 0. */
 // Updates the rotating flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
 // FUN_0049B470
-#pragma opt_loop_invariants on
 void FlashRotatingUpdateGeometry(u8 *input)
 {
     u8 *state;
@@ -629,9 +628,6 @@ void FlashRotatingUpdateGeometry(u8 *input)
         i++;
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 
 // Allocates a radial-flash block: count * 28 entry bytes, a geometry handle, and an owner link.
 // FUN_0049B560
@@ -719,9 +715,6 @@ typedef char FlashRadialConfigSize[(sizeof(FlashRadialConfig) == 0x8c) ? 1 : -1]
 
 // Emits the radial flash quads for one effect, from the radial particle state and config.
 // FUN_0049B690
-#pragma push
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
 void FlashRadialEmitQuads(u8 *effect)
 {
     u32 innerWord;
@@ -1008,7 +1001,6 @@ void FlashRadialEmitQuads(u8 *effect)
         }
     }
 }
-#pragma pop
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
    color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
    plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
@@ -1122,7 +1114,6 @@ void FlashRadialPackColors(u8 *input)
 /* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
 // Updates the radial flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
 // FUN_0049C1B0
-#pragma opt_loop_invariants on
 void FlashRadialUpdateGeometry(u8 *input)
 {
     u8 *state;
@@ -1158,9 +1149,6 @@ void FlashRadialUpdateGeometry(u8 *input)
         i++;
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 // Allocates a wide radial-flash block: count * 44 entry bytes, with the radial geometry handle.
 // FUN_0049C2A0
 void *FlashRadialAllocBlockWide(u8 *input, s32 resource)
@@ -1225,9 +1213,6 @@ typedef char FlashEvolvingRadialParticleSize[(sizeof(FlashEvolvingRadialParticle
 typedef char FlashEvolvingRadialConfigSize[(sizeof(FlashEvolvingRadialConfig)==0x9c)?1:-1];
 // Emits the evolving radial flash quads for one effect, from the evolving particle state.
 // FUN_0049C3D0
-#pragma push
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
 void FlashEvolvingRadialEmitQuads(u8 *effect)
 {
     u32 innerWord;
@@ -1511,7 +1496,6 @@ void FlashEvolvingRadialEmitQuads(u8 *effect)
         }
     }
 }
-#pragma pop
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
    color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
    plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
@@ -1625,7 +1609,6 @@ void FlashEvolvingRadialPackColors(u8 *input)
 /* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
 // Updates the evolving radial flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
 // FUN_0049CED0
-#pragma opt_loop_invariants on
 void FlashEvolvingRadialUpdateGeometry(u8 *input)
 {
     u8 *state;
@@ -1661,16 +1644,12 @@ void FlashEvolvingRadialUpdateGeometry(u8 *input)
         i++;
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
  * constants inside the loop instead of hoisting them to the preheader
  * (14+ differing words); with it the loop matches. */
 // Initialises the evolving radial entries from the config (asserts when the entry array is missing).
 // FUN_0049CFC0
 /* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; separate typed block locals now retain MATCH. */
-#pragma opt_loop_invariants on
 void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
 {
     FlashBlock *block = (FlashBlock *)input;
@@ -1720,9 +1699,6 @@ void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
         }
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 
 // Allocates an evolving radial flash block with a texture (default texture 0x12 when none is given).
 // FUN_0049D100
@@ -1799,9 +1775,6 @@ void FlashEvolvingRadialFreeBlock(u8 *input)
 }
 // Emits quads from the direction, length and width vectors (no centre) for one evolving radial flash effect.
 // FUN_0049D360
-#pragma push
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
     void FlashEvolvingRadialEmitDirectionalQuads(u8 *effect)
     {
         u32 innerWord, outerWord, outerPacked, innerPacked;
@@ -2031,7 +2004,6 @@ void FlashEvolvingRadialFreeBlock(u8 *input)
             if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
-#pragma pop
 
 
 
@@ -2145,7 +2117,6 @@ void FlashTexturedPackColors(u8 *input)
 /* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
 // Updates the textured flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
 // FUN_0049DCE0
-#pragma opt_loop_invariants on
 void FlashTexturedUpdateGeometry(u8 *input)
 {
     u8 *state;
@@ -2181,16 +2152,12 @@ void FlashTexturedUpdateGeometry(u8 *input)
         i++;
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
  * constants inside the loop instead of hoisting them to the preheader
  * (14+ differing words); with it the loop matches. */
 // Initialises the textured flash entries from the config: per-entry geometry and offsets.
 // FUN_0049DDD0
 /* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; separate typed block locals now retain MATCH. */
-#pragma opt_loop_invariants on
 void FlashTexturedInitEntries(u8 *input, u8 *resource)
 {
     FlashBlock *block = (FlashBlock *)input;
@@ -2240,9 +2207,6 @@ void FlashTexturedInitEntries(u8 *input, u8 *resource)
         }
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 
 // Allocates a textured flash block (default texture 0x13 when none is given).
 // FUN_0049DF10
@@ -2306,9 +2270,6 @@ void FlashTexturedFreeBlock(u8 *input)
 }
 // Emits quads from the direction, length and width vectors (no centre) for one textured flash effect.
 // FUN_0049E150
-#pragma push
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
     void FlashTexturedEmitDirectionalQuads(u8 *effect)
     {
         u32 innerWord, outerWord, outerPacked, innerPacked;
@@ -2539,7 +2500,6 @@ void FlashTexturedFreeBlock(u8 *input)
             if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
-#pragma pop
 // Packs the centred-strip flash vertex colours from the inner and outer colour words.
 // FUN_0049E920
 void FlashCenteredStripPackColors(u8 *input)
@@ -2648,7 +2608,6 @@ void FlashCenteredStripPackColors(u8 *input)
 /* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
 // Updates the centred-strip flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
 // FUN_0049EAE0
-#pragma opt_loop_invariants on
 void FlashCenteredStripUpdateGeometry(u8 *input)
 {
     u8 *state;
@@ -2684,16 +2643,12 @@ void FlashCenteredStripUpdateGeometry(u8 *input)
         i++;
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
  * constants inside the loop instead of hoisting them to the preheader
  * (14+ differing words); with it the loop matches. */
 // Initialises the centred-strip entries from the config: per-entry geometry and offsets.
 // FUN_0049EBD0
 /* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; separate typed block locals now retain MATCH. */
-#pragma opt_loop_invariants on
 void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
 {
     FlashBlock *block = (FlashBlock *)input;
@@ -2743,9 +2698,6 @@ void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
         }
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 
 // Allocates a centred-strip flash block: count * 40 entry bytes and a geometry handle.
 // FUN_0049ED10
@@ -2809,9 +2761,6 @@ void FlashCenteredStripFreeBlock(u8 *input)
 }
 // Emits centred-strip flash quads from the centre, direction and width vectors.
 // FUN_0049EF50
-#pragma push
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
 void FlashCenteredStripEmitQuads(u8 *effect)
 {
     u32 innerWord, outerWord, outerPacked, innerPacked;
@@ -3059,7 +3008,6 @@ particleData[5] = particleData[5] + particleData[6];
         if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
-#pragma pop
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
    color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
    plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
@@ -3173,7 +3121,6 @@ void FlashBoxPackColors(u8 *input)
 /* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
 // Updates the box flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
 // FUN_0049F9E0
-#pragma opt_loop_invariants on
 void FlashBoxUpdateGeometry(u8 *input)
 {
     u8 *state;
@@ -3209,9 +3156,6 @@ void FlashBoxUpdateGeometry(u8 *input)
         i++;
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 // Allocates a box flash block: count * 44 entry bytes and a geometry handle.
 // FUN_0049FAD0
 /* Preserve integer pointer-bit stores and narrowed count fields through their real layout unions. */
@@ -3244,9 +3188,6 @@ void FlashBoxFreeBlock(u8 *input)
 }
 // Emits box flash quads from the centre, direction, length and width vectors.
 // FUN_0049FBF0
-#pragma push
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
 void FlashBoxEmitQuads(u8 *effect)
 {
     u32 innerWord, outerWord, outerPacked, innerPacked;
@@ -3517,7 +3458,6 @@ particleData[5] = particleData[5] + particleData[6];
         if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
-#pragma pop
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
    color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
    plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
@@ -3631,7 +3571,6 @@ void FlashAgedBoxPackColors(u8 *input)
 /* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
 // Updates the aged-box flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
 // FUN_004A07B0
-#pragma opt_loop_invariants on
 void FlashAgedBoxUpdateGeometry(u8 *input)
 {
     u8 *state;
@@ -3667,16 +3606,12 @@ void FlashAgedBoxUpdateGeometry(u8 *input)
         i++;
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
  * constants inside the loop instead of hoisting them to the preheader
  * (14+ differing words); with it the loop matches. */
 // Initialises the aged-box entries from the config: per-entry geometry and offsets.
 // FUN_004A08A0
 /* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; separate typed block locals now retain MATCH. */
-#pragma opt_loop_invariants on
 void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
 {
     FlashBlock *block = (FlashBlock *)input;
@@ -3726,9 +3661,6 @@ void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
         }
     }
 }
-#pragma opt_loop_invariants off
-/* measured: paired with the `on` above; scoped so the rest of the file
-   keeps b210 stock -O2 behaviour. */
 
 // Allocates an aged-box flash block: count * 32 entry bytes and a geometry handle.
 // FUN_004A09E0
@@ -3798,9 +3730,6 @@ void FlashAgedBoxFreeBlock(u8 *input) {
  * field's bits, as in FlashRadialEmitQuads. Loading it inside the asm block (`lw %0`)
  * made the asm output a long-lived virtual and swapped $v0/$v1 across the
  * whole direction block (16 words). */
-#pragma push
-#pragma opt_dead_assignments off
-#pragma opt_loop_invariants on
 // Emits aged-box flash quads from the direction, width and length vectors, with age and fade terms.
 // FUN_004A0C00
 void FlashAgedBoxEmitQuads(u8 *effect)
@@ -4061,7 +3990,6 @@ void FlashAgedBoxEmitQuads(u8 *effect)
         if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
-#pragma pop
 /* Native resolved residual: sixteen $v0/$v1 words in the VU address/transfer live range. */
 // Packs the quad-copy flash vertex colours from the inner and outer colour words.
 // FUN_004A14A0
@@ -4168,6 +4096,8 @@ void FlashQuadCopyPackColors(u8 *input)
 // FUN_004A1660
 /* measured: without opt_propagation off, mwcc folds the %lo of D_00713CE0
  * into the lq offset (lui+lq); retail materializes lui+addiu+lq. */
+/* measured: named-pointer and direct quad-copy forms both differ by 46 normalized bytes without propagation disabled. */
+#pragma push
 #pragma opt_propagation off
 void *FlashQuadCopyAlloc(s32 input, void *resource)
 {
@@ -4201,7 +4131,7 @@ void *FlashQuadCopyAlloc(s32 input, void *resource)
     memcpy(((FlashEffect *)effect)->parameters, resource, (void *)parameterSize);
     return effect;
 }
-#pragma opt_propagation on
+#pragma pop
 
 // Allocates a quad-copy flash block that inherits its texture from a parent block.
 // FUN_004A1780
