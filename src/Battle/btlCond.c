@@ -12,6 +12,9 @@
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
 
+/* Unit settings: preserve condition branch structure throughout the battle predicates. */
+#pragma opt_rebuildconditionals off
+
 /* Encounter rule rows have a 0x18-byte stride; escape tests flag bit 0. */
 typedef struct BtlEncounterRule {
     s32 flags;
@@ -82,7 +85,6 @@ void btlCond_FRHP(u8 *action, u32 conditionValue) {
 /* Same shape as btlAICommand func_001db990, whose note records that removing this
    pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENHP(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -97,8 +99,6 @@ void btlCond_ENHP(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHP);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001D9940
@@ -106,7 +106,6 @@ void btlCond_ENHP(u8 *action, u32 conditionValue) {
 /* Same shape as btlAICommand func_001db990, whose note records that removing this
    pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENHP_O(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -121,8 +120,6 @@ void btlCond_ENHP_O(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCondCheckMaxHp);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 
 /* Compare the acting unit level with the inclusive lower bound in conditionValue. */
 // FUN_001D99A0
@@ -144,7 +141,6 @@ bool btlCond_FRLV_O(int action, u32 conditionValue)
 /* measured: opt_rebuildconditionals off is required for FUN_001D9A30. */
 /* Removing this loses FUN_001D9A30 (MATCH nd0 -> MISMATCH nd49) - measured W161. */
 /* measured: if/else and conditional forms retain 18 baseline words; switch retains 21. */
-#pragma opt_rebuildconditionals off
 
 /* Compare the living opposing side average level against the inclusive lower bound. */
 // FUN_001D9A30
@@ -164,8 +160,6 @@ done:
   averageLevel = btlSideAverageLevel(1 << genus & 0xffff, 0x80000);
   return conditionValue <= (averageLevel & 0xffff);
 }
-/* measured: closes opt_rebuildconditionals for FUN_001D9A30. */
-#pragma opt_rebuildconditionals on
 
 
 /* Accept when the living allied unit count does not exceed conditionValue. */
@@ -182,7 +176,6 @@ bool btlCond_FRCNT(int action, u32 conditionValue)
 /* measured: opt_rebuildconditionals off is required for FUN_001D9AF0. */
 /* Removing this loses FUN_001D9AF0 (MATCH nd0 -> MISMATCH nd49) - measured W161. */
 /* measured: if/else and conditional forms retain 18 baseline words; switch retains 21. */
-#pragma opt_rebuildconditionals off
 
 /* Accept when the living opposing unit count does not exceed conditionValue. */
 // FUN_001D9AF0
@@ -204,8 +197,6 @@ done:
   unitCount = btlSideCountNotBad(1 << genus & 0xffff, 0x80000);
   return (unitCount & 0xffff) <= conditionValue;
 }
-/* measured: closes opt_rebuildconditionals for FUN_001D9AF0. */
-#pragma opt_rebuildconditionals on
 /* Test the acting unit against the supplied bad-status mask. */
 // FUN_001D9B60
 s32 btlCond_MYBAD(u8 *task, s32 mask) {
@@ -229,7 +220,6 @@ void btlCond_FRBAD(u8 *action, u32 conditionValue)
 /* Search the opposing side for the supplied status mask; a KO bit in the mask disables the separate KO exclusion. */
 // FUN_001D9C00
 /* measured: if/else and conditional forms retain 32 baseline words; switch retains 34. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENBAD(u8 *action, u32 conditionValue)
 {
     u32 shift;
@@ -252,11 +242,8 @@ void btlCond_ENBAD(u8 *action, u32 conditionValue)
         btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (sideIndex & 0xFFFF)) & 0xFFFF, 0x80000, 0, btlCond_MYBAD);
     }
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 /* measured: opt_rebuildconditionals off forces the retail mode branch. */
 /* measured: if/else and conditional forms retain 50 baseline words; switch retains 52. */
-#pragma opt_rebuildconditionals off
 /* Return true only when no living opposing unit fails the supplied status-mask test. */
 // FUN_001D9CA0
 s32 btlCond_ENBAD_ALL(u8 *action, s32 conditionValue)
@@ -297,8 +284,6 @@ done:
 found:
     return 0;
 }
-/* measured: restore opt_rebuildconditionals after func_001d9ca0. */
-#pragma opt_rebuildconditionals on
 /* Search active other allied actions for the requested character ID, excluding KO status. */
 // FUN_001D9DB0
 s32 btlCond_FRID(u8 *action, s32 conditionValue)
@@ -326,7 +311,6 @@ s32 btlCond_FRID(u8 *action, s32 conditionValue)
 }
 /* measured: opt_rebuildconditionals off forces the retail mode branch. */
 /* measured: if/else and conditional forms retain 43 baseline words; switch retains 45. */
-#pragma opt_rebuildconditionals off
 /* Search active opposing actions for the requested character ID, excluding KO status. */
 // FUN_001D9E80
 s32 btlCond_ENID(u8 *action, s32 conditionValue)
@@ -361,8 +345,6 @@ done:
     }
     return 0;
 }
-/* measured: restore opt_rebuildconditionals after func_001d9e80. */
-#pragma opt_rebuildconditionals on
 /* Search active other allied actions for the requested buff mask, excluding KO status. */
 // FUN_001D9F60
 s32 btlCond_FRHOJO(u8 *action, s32 conditionValue)
@@ -392,7 +374,6 @@ s32 btlCond_FRHOJO(u8 *action, s32 conditionValue)
 }
 /* measured: opt_rebuildconditionals off forces the retail mode branch. */
 /* measured: if/else, conditional and switch forms retain 45 baseline words. */
-#pragma opt_rebuildconditionals off
 /* Search active opposing actions for the requested buff mask, excluding KO status. */
 // FUN_001DA040
 s32 btlCond_ENHOJO(u8 *action, s32 conditionValue)
@@ -429,8 +410,6 @@ done:
     }
     return 0;
 }
-/* measured: restore opt_rebuildconditionals after func_001da040. */
-#pragma opt_rebuildconditionals on
 /* Reject escape-blocking statuses before consulting the encounter flags for the active group. */
 // FUN_001DA130
 s32 btlCond_ESCAPE(u8 *action, s32 conditionValue) {
@@ -510,7 +489,6 @@ void btlCond_FRHANSYA(u8 *action, u32 conditionValue) {
 /* Same shape as btlAICommand func_001db990, whose note records that removing this
    pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENHANSYA(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -525,8 +503,6 @@ void btlCond_ENHANSYA(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHANSYA);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA3E0
@@ -539,7 +515,6 @@ void btlCond_FRKYUSYU(u8 *action, s32 conditionValue) {
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENKYUSYU(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -554,8 +529,6 @@ void btlCond_ENKYUSYU(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYKYUSYU);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA490
 void btlCond_FRMUKOU(u8 *action, u32 conditionValue) {
@@ -566,7 +539,6 @@ void btlCond_FRMUKOU(u8 *action, u32 conditionValue) {
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENMUKOU(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -581,8 +553,6 @@ void btlCond_ENMUKOU(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYMUKOU);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA540
 void btlCond_FRWEAK(u8 *action, u32 conditionValue) {
@@ -593,7 +563,6 @@ void btlCond_FRWEAK(u8 *action, u32 conditionValue) {
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENWEAK(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -608,8 +577,6 @@ void btlCond_ENWEAK(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYWEAK);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 /* Compare the selected skill element with conditionValue; the XOR expression implements equality. */
 // FUN_001DA5F0
 s32 btlCond_MYUSEATTR(u8 *action, s32 conditionValue)
@@ -628,7 +595,6 @@ void btlCond_FRUSEATTR(u8 *action, u32 conditionValue) {
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENUSEATTR(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -643,8 +609,6 @@ void btlCond_ENUSEATTR(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYUSEATTR);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 /* Accept the requested skill ID only for command kinds 1 and 2. */
 // FUN_001DA6F0
 bool btlCond_MYUSESKIL(int action, int conditionValue)
@@ -673,7 +637,6 @@ void btlCond_FRUSESKIL(int action, u32 conditionValue)
 }
 /* measured: opt_rebuildconditionals off is required for the retail branch shape. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001DA780
 void btlCond_ENUSESKIL(int action, u32 conditionValue)
@@ -689,8 +652,6 @@ nonzero:
 done:
     btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
 }
-/* measured: closes the function-local conditional rebuild setting. */
-#pragma opt_rebuildconditionals on
 /* Accept target classifications 1 and 2 for the action's selected skill. */
 // FUN_001DA7E0
 u32 btlCond_MYGROUP(int action)
@@ -716,7 +677,6 @@ void btlCond_FRGROUP(int action, u32 conditionValue)
 }
 /* measured: opt_rebuildconditionals off is required for the retail branch shape. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001DA890
 void btlCond_ENGROUP(int action, u32 conditionValue)
@@ -732,8 +692,6 @@ nonzero:
 done:
     btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
 }
-/* measured: closes the function-local conditional rebuild setting. */
-#pragma opt_rebuildconditionals on
 /* Test the action turn counter against an inclusive upper bound. */
 // FUN_001DA8F0
 bool btlCond_TURN(int action, u32 conditionValue)
@@ -784,7 +742,6 @@ void btlCond_FRHANSYA_ST(u8 *action, u32 conditionValue) {
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENHANSYA_ST(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -799,8 +756,6 @@ void btlCond_ENHANSYA_ST(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYHANSYA);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 /* Run the corresponding per-unit condition over the allied side, excluding KO and down status. */
 // FUN_001DAAB0
 void btlCond_FRKYUSYU_ST(u8 *action, u32 conditionValue) {
@@ -811,7 +766,6 @@ void btlCond_FRKYUSYU_ST(u8 *action, u32 conditionValue) {
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENKYUSYU_ST(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -826,8 +780,6 @@ void btlCond_ENKYUSYU_ST(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYKYUSYU);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 /* Run the corresponding per-unit condition over the allied side, excluding KO and down status. */
 // FUN_001DAB60
 void btlCond_FRMUKOU_ST(u8 *action, u32 conditionValue) {
@@ -838,7 +790,6 @@ void btlCond_FRMUKOU_ST(u8 *action, u32 conditionValue) {
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENMUKOU_ST(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -853,8 +804,6 @@ void btlCond_ENMUKOU_ST(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYMUKOU);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 /* Run the corresponding per-unit condition over the allied side, excluding KO and down status. */
 // FUN_001DAC10
 void btlCond_FRWEAK_ST(u8 *action, u32 conditionValue) {
@@ -865,7 +814,6 @@ void btlCond_FRWEAK_ST(u8 *action, u32 conditionValue) {
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
 /* measured: if/else and conditional forms retain 16 baseline words; switch retains 20. */
-#pragma opt_rebuildconditionals off
 void btlCond_ENWEAK_ST(u8 *action, u32 conditionValue) {
     u32 shift;
     {
@@ -880,8 +828,6 @@ void btlCond_ENWEAK_ST(u8 *action, u32 conditionValue) {
     }
     btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYWEAK);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
-#pragma opt_rebuildconditionals on
 /* Compare the acting unit character ID with conditionValue. */
 // FUN_001DACC0
 bool btlCond_MYID(int action, int conditionValue)
@@ -927,7 +873,6 @@ loop_test:
 }
 /* Opening state measured: opt_rebuildconditionals off is required for this mode branch. */
 /* measured: if/else and conditional forms retain 57 baseline words; switch retains 63. */
-#pragma opt_rebuildconditionals off
 /* Sum living opposing HP and maximum HP, then compare the totals against the supplied percentage. */
 // FUN_001DAE00
 s32 btlCond_ENALLHP(u8 *action, s32 conditionValue)
@@ -975,5 +920,3 @@ loop_test:
         goto loop_body;
     return (u32)(totalHp * 0x64) <= (u32)(totalMaxHp * limit);
 }
-/* Closing state measured: restore opt_rebuildconditionals on after this function. */
-#pragma opt_rebuildconditionals on

@@ -77,6 +77,7 @@ extern s32 btlAiSetGlobal(void);
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 /* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
 /* measured: btlTargetInitSpring MATCH -> MISMATCH without this pragma. */
+/* Unit setting: this single-function spring-initialization unit uses propagation off. */
 #pragma opt_propagation off
 /* Initialize the five-word spring state; zero duration leaves curvature unchanged. */
 // FUN_001EC5E0

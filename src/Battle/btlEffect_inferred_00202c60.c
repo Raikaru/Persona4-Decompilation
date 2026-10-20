@@ -20,6 +20,10 @@ typedef struct BtlPacket BtlPacket;
 #include "datCalc_internal.h"
 #include "btl_hud_internal.h"
 
+/* Unit settings: extract loop invariants throughout the panel and selection callbacks.
+ * measured: all 81 functions MATCH with the sprite-grid and target-marking exceptions below. */
+#pragma opt_loop_invariants on
+
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
 typedef struct BtlUnit BtlUnit;
@@ -401,10 +405,8 @@ void btlSelectionSetOwner(u8 *selection, void *callback)
     ((BtlSelection *)selection)->notify = callback;
 }
 
-#pragma push
 /* measured: btlSelectionReadInput MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd68; scoped locals, inverted if/else did not match (best nd68); retain opt_loop_invariants on. */
-#pragma opt_loop_invariants on
 // Intent: read the selection input and return the action code (1 to 4) or 0. [inferred]
 // FUN_00202E70
 s32 btlSelectionReadInput(u8 *input)
@@ -569,7 +571,6 @@ s32 btlSelectionReadInput(u8 *input)
     return 0;
 }
 
-#pragma pop
 // Intent: start a callback list at the given node and run each node's init callback. [inferred]
 // FUN_00203360
 void btlListStart(u8 *list, u8 *head) {
@@ -822,10 +823,8 @@ void btlPanelReset(s32 task) {
 
 /* The outline and fill use separate initialization cursors and renderer
  * phases. Each fill edge writes a pair of adjacent 64-byte vertices. */
-#pragma push
 /* measured: btlPanelDrawOutlineFill MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd2750; scoped locals did not match (best nd2750); retain opt_loop_invariants on. */
-#pragma opt_loop_invariants on
 // Intent: draw a 19-point curved panel outline and its fill quad with the given scale and colour. [inferred]
 // FUN_00203930
 void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
@@ -1137,7 +1136,6 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
     draw->draw(4, lo, 38);
 }
 
-#pragma pop
 /*
  * measured: 916/928 bytes, 15 resolved relocations, 12 zero alignment bytes.
  * The initialization loop covers 81 real vertex records; the four geometry
@@ -1145,10 +1143,8 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
  */
 // Intent: draw an 81-vertex radial disc with the given scale, depth and colour. [inferred]
 // FUN_00204690
-#pragma push
 /* measured: btlPanelDrawCircle MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd693; scoped locals, explicit value caches did not match (best nd693); retain opt_loop_invariants on. */
-#pragma opt_loop_invariants on
 void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color)
 {
     f32 vertices[81][16];
@@ -1219,7 +1215,6 @@ void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color
     D_00887310[0](5, vertices, vertex);
 }
 
-#pragma pop
 /* measured: opt_propagation off probe for callback cache in func_00204a30. */
 /* measured: btlPanelDrawBackdrop MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd92; object/dispatch locals did not match (best nd92); retain opt_propagation off. */
@@ -1265,6 +1260,8 @@ void btlPanelDrawBackdrop(u8 *glyphs, f32 scaleX, f32 scaleY)
 /* measured: btlPanelDrawSpriteGrid MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd306; scoped locals did not match (best nd306); retain opt_propagation off. */
 #pragma opt_propagation off
+/* measured: the unit's invariant hoisting changes 332 bytes in the sprite grid. */
+#pragma opt_loop_invariants off
 // Intent: draw a 3 by 5 grid of sprite frames with the given opacity. [inferred]
 // FUN_00204B80
 void btlPanelDrawSpriteGrid(u8 *glyphs, f32 unusedScaleX, f32 unusedScaleY, u8 opacity)
@@ -1334,6 +1331,7 @@ void btlPanelSetFlag(void)
 
 // Intent: draw a rotated battle-panel strip with an optional transparent extension. [inferred]
 // FUN_00204DC0
+/* Shared exception for the following strip and four entry renderers. */
 #pragma push
 /* measured: btlPanelDrawStrip MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd668; scoped locals did not match (best nd666); retain opt_propagation off. */
@@ -1478,16 +1476,14 @@ void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, 
     }
 }
 
-#pragma pop
 // Intent: draw one skill row (icon, name and cost digits) at the given position. [inferred]
 // FUN_00205170
-#pragma push
 /* measured: btlPanelDrawSkillEntry MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd736; typed parameter cache, scoped locals, inverted if/else did not match (best nd736); retain opt_common_subs off. */
+/* Shared entry-renderer setting through btlPanelDrawPersonaName. */
 #pragma opt_common_subs off
 /* measured: btlPanelDrawSkillEntry MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd736; typed parameter cache, scoped locals, inverted if/else did not match (best nd736); retain opt_propagation off. */
-#pragma opt_propagation off
 /* measured: direct skill indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
 void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
@@ -1579,7 +1575,6 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
     }
 }
 
-#pragma pop
 /* 888/896 bytes; twelve resolved relocations and eight zero alignment bytes.
  * Narrow the promoted row ID at helper boundaries. The four-byte color
  * has byte and packed-word views; reload the signed number after drawing. */
@@ -1589,10 +1584,8 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
 #pragma opt_rebuildconditionals off
 /* measured: btlPanelDrawEntry MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd572; scoped locals, inverted if/else did not match (best nd572); retain opt_common_subs off. */
-#pragma opt_common_subs off
 /* measured: btlPanelDrawEntry MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd572; scoped locals, inverted if/else did not match (best nd572); retain opt_propagation off. */
-#pragma opt_propagation off
 // Intent: draw one entry row (icon, name, digit and optional detail label). [inferred]
 // FUN_002055D0
 /* measured: independently typing the remaining item id/quantity indexing lost MATCH; retain the
@@ -1682,13 +1675,10 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
 #pragma pop
 /* 712/720 bytes; twelve resolved relocations; eight zero alignment bytes.
  * Keep the shared decimal divisor and the branch-local byte tones. */
-#pragma push
 /* measured: btlPanelDrawPersonaLevel MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd128; scoped locals, inverted if/else did not match (best nd128); retain opt_common_subs off. */
-#pragma opt_common_subs off
 /* measured: btlPanelDrawPersonaLevel MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd128; scoped locals, inverted if/else did not match (best nd128); retain opt_propagation off. */
-#pragma opt_propagation off
 // Intent: draw a persona row with its lead marker, level digits and name. [inferred]
 // FUN_00205950
 void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
@@ -1748,7 +1738,6 @@ void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
     frFontClearFlagBits(0x40);
 }
 
-#pragma pop
 /* 468/480 bytes; eight resolved relocations; twelve zero alignment bytes.
  * Keep branch-local tones and the two-channel cache after text coordinates. */
 #pragma push
@@ -1757,10 +1746,8 @@ void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
 #pragma opt_rebuildconditionals off
 /* measured: btlPanelDrawPersonaName MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd269; object/dispatch locals, inverted if/else did not match (best nd98); retain opt_common_subs off. */
-#pragma opt_common_subs off
 /* measured: btlPanelDrawPersonaName MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd269; object/dispatch locals, inverted if/else did not match (best nd98); retain opt_propagation off. */
-#pragma opt_propagation off
 // Intent: draw a persona name and its two sprite marks. [inferred]
 // FUN_00205C20
 void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
@@ -1801,6 +1788,7 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
 }
 
 #pragma pop
+#pragma pop
 /* 488/496 bytes; seven resolved relocations; eight zero alignment bytes.
  * Preserve the two narrow tone assignments instead of rebuilding a merge. */
 #pragma push
@@ -1834,7 +1822,6 @@ void btlPanelDrawListRow(u8 *panel, s32 index, f32 x, f32 y,
 }
 
 #pragma pop
-#pragma push
 /* Native b210 O2: 3548/3552 bytes; 28 resolved relocations and
  * four zero alignment bytes. Distinct literal/cached bounds and
  * successive coordinate work preserve the original evaluation
@@ -2120,7 +2107,6 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
     btlUiSetAlpha(glyphs, 0.0f);
 }
 
-#pragma pop
 /* 868/880 bytes; seventeen resolved relocations and twelve zero alignment
  * bytes. Retain the renderer base separately for each drawing phase and
  * the float values between the easing product and integer pixel origin. */
@@ -2250,10 +2236,8 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
    the same integer work address passed by btlListStep; its local byte view
    and unsigned party-count store preserve retail's register and store order.
    See docs/probe_archive/Battle_menu_00207320_20260922.md. */
-#pragma push
 /* measured: btlSelectionHandleInput MATCH -> MISMATCH without this pragma. */
 /* measured: baseline nd13; scoped locals, inverted if/else did not match (best nd13); retain opt_loop_invariants on. */
-#pragma opt_loop_invariants on
 // Intent: handle selection input and return the next panel state. [inferred]
 // FUN_00207320
 /* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
@@ -2460,7 +2444,6 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     return 1;
 }
 
-#pragma pop
 // Intent: draw the growing command circles, enabled command rows and mode hints. [inferred]
 // FUN_00207B00
 /* measured: access-site, typed-local and array forms lose MATCH for the 2 MEMBER accesses; other fields use typed aliases. */
@@ -4003,6 +3986,9 @@ extern s32 btlTargetTestUnitFlag(s32 unitId, s32 bitIndex);
 extern void btlSelectionSetRowState(u8 *row, s16 state);
 extern void btlSelectionSetRowIdle(u8 *row);
 
+#pragma push
+/* measured: the unit's invariant hoisting changes two bytes in the target-marking loop. */
+#pragma opt_loop_invariants off
 // Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
 // FUN_0020B6D0
 /* measured: access-site, typed-local and array forms lose MATCH for the 1 MEMBER access; other fields use typed aliases. */
@@ -4114,6 +4100,7 @@ loop_condition:
     }
     ((BtlSelectionTransition *)transition)->state = 0;
 }
+#pragma pop
 
 // Intent: return the target mark stored in the selection task. [inferred]
 // FUN_0020BA00
@@ -4153,7 +4140,6 @@ u32 btlSelectionGetFormationEntryAlt(s32 task)
 /* measured: retail keeps the ~0x200 mask live in the loop preheader; plain -O2
    rematerialises it inside the body (nd 41 -> byte-exact with the hoist). */
 /* measured: btlSelectionResetUnitFlags MATCH -> MISMATCH without this pragma. */
-#pragma opt_loop_invariants on
 void btlSelectionResetUnitFlags(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *transition = (u8 *)kwlnTaskGetWork((void *)task) + 0x710;

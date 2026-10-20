@@ -18,6 +18,10 @@
 #include "btl_skill_internal.h"
 #include "member_access.h"
 
+/* Unit settings: extract loop invariants throughout the action callbacks.
+ * measured: all 48 functions MATCH with the unhoisted pursuit exception below. */
+#pragma opt_loop_invariants on
+
 /* Enemy battle-table rows have a proven 0xE8 stride. The two movement
  * variants interleave their speed selector with an unknown halfword. */
 typedef struct BtlEnemyMovement {
@@ -295,8 +299,6 @@ static inline s32 btlActionGetFormationAddress(BtlBattleState *table, u16 index)
 }
 /* measured: loop-invariant probe for 001A0140 preheader materialization. */
 /* measured: close loop-invariant probe for 001A0140. */
-#pragma push
-#pragma pop
 /* measured: opt_propagation off plus one named local per address term. mwcc
    keeps source operand order for `named + named` (addu off,base / addu idx,sum
    as retail) but commutes an inline product on the left (`a * k + b` emits
@@ -620,7 +622,6 @@ after_type_1c80:
     }
 }
 
-#pragma push
 /* Accept or cancel target selection, copy the selected action records, and validate the command. */
 // FUN_001A1EA0
 void btlActionTargetUpdate(u8 *action) {
@@ -796,7 +797,6 @@ select_action:
     }
 }
 
-#pragma pop
 /* Enter the opening phase of the analyze presentation. */
 // FUN_001A24A0
 void btlActionAnalyzeInit(BtlAction *action)
@@ -808,9 +808,7 @@ void btlActionAnalyzeInit(BtlAction *action)
  * Loop invariants hoist the first scan's true value and each unsigned wrap
  * bound as retail does. Stored short cursor and widened index stay distinct. */
 // FUN_001A24B0
-#pragma push
 /* measured: typed argument aliases and named member reads retain 288 differing words at baseline. */
-#pragma opt_loop_invariants on
 /* Hide unrelated actors, browse distinct unit records, and restore presentation when analyze closes. */
 void btlActionAnalyzeUpdate(u8 *action)
 {
@@ -988,7 +986,6 @@ void btlActionAnalyzeUpdate(u8 *action)
     }
     }
 }
-#pragma pop
 
 /* Reset the command record and redirect eligible party actors to automatic selection. */
 // FUN_001A2AD0
@@ -1244,7 +1241,6 @@ void btlActionBadInit(u8 *action)
     ((BtlAction *)action)->unk_420 = 0;
 }
 
-#pragma push
 /* Recover an incapacitated action or select its next state. The unit status
  * remains a 32-bit word through the low20 selector. Camera and animation
  * packets remain alive until their published UIDs have been consumed. */
@@ -1431,8 +1427,6 @@ void btlActionBadUpdate(BtlAction *actionState)
     }
 }
 
-#pragma pop
-#pragma push
 /* The mode is established by the action selector before entering this state.
    Movement and target-animation packets are separate dependency owners. */
 // FUN_001A3840
@@ -1605,7 +1599,6 @@ void btlActionCooperateInit(register BtlAction *actionState)
     }
 }
 
-#pragma pop
 /* Wait for this action packet chain, clear its cooperation mode, and publish completion flags. */
 // FUN_001A3D50
 void btlActionCooperateUpdate(BtlAction *action)
@@ -1783,6 +1776,8 @@ void btlActionPursuitInit(void)
 #pragma push
 /* measured: MEMBER status reads reduce baseline to two words; affinity load/element lifetimes still swap. */
 #pragma opt_propagation off
+/* measured: the unit's invariant hoisting changes 21 bytes here; retain this callback's unhoisted loops. */
+#pragma opt_loop_invariants off
 // FUN_001A43A0
 void btlActionPursuitUpdate(u8 *action)
 {
@@ -2572,9 +2567,7 @@ void btlActionAttackInit(void)
  * 2026-10-12 selected-target join: fnalign 4 -> 3; select into a separate target local before handing it to the packet phase. The coalesced copy retains retail's intermediate branch-only join without emitting an instruction.
  * 2026-10-12 reaction short circuits: fnalign 3 -> 0; stage the real gate values and jump directly to reaction construction on each shortcut. Only the fallback predicate passes through the common boolean test.
  */
-#pragma push
 /* measured: named action-member access retains 1624 differing words without invariant hoisting. */
-#pragma opt_loop_invariants on
 /* Build attack animation, repeated-hit, reaction and result packet chains with their frame dependencies. */
 // FUN_001A59A0
 void btlActionAttackUpdate(s64 *actionWords) {
@@ -3458,16 +3451,13 @@ createReaction:
         btlActionSetState((BtlAction *)actionBytes, state);
     }
 }
-#pragma pop
 
 // FUN_001A7710
 void btlActionSkillInit(void)
 {
 }
 
-#pragma push
 /* measured: typed argument aliases and named action/unit members retain 1788 or more baseline words. */
-#pragma opt_loop_invariants on
 /* Sequence skill presentation, linked-unit effects, per-target results and recovery using packet UIDs. */
 // FUN_001A7720
 void btlActionSkillUpdate(u8 *actionBytes) {
@@ -5506,7 +5496,6 @@ reactionPacket:
         btlActionSetState((BtlAction *)actionBytes, state);
     }
 }
-#pragma pop
 
 // FUN_001ABBA0
 void btlActionSummonInit(void)
@@ -6427,7 +6416,6 @@ void btlActionEscapeInit(void)
 /* measured: func_001ad550 MATCH -> MISMATCH without this pragma. */
 // FUN_001AD550
 /* measured: cached escape distances and a separate collected-slot pointer retain 152 baseline words. */
-#pragma opt_loop_invariants on
 /* Collect eligible escaping actors and sequence their movement, hiding and encounter-end dependencies. */
 void btlActionEscapeUpdate(s64 *actionBytes)
 {

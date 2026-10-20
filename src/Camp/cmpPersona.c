@@ -6,6 +6,10 @@
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
 
+/* Unit settings: extract loop invariants throughout the persona-menu callbacks.
+ * measured: all 17 functions MATCH, reasserting this setting after the O2 reset below. */
+#pragma opt_loop_invariants on
+
 typedef struct CmpHead CmpHead;
 struct CmpHead {
     u8 _pad00[0x1C];
@@ -113,9 +117,7 @@ typedef struct {
    command-list boundary forwards a native message pointer to itfMesManager. */
 /* Initialize the party and persona grids, transition rows, sprites and portrait/wipe tasks. */
 // FUN_001356D0
-#pragma push
 /* measured: initialization baseline has 260 differing words; pointer-traversed layout initialization also fails. */
-#pragma opt_loop_invariants on
 /* measured: earlier CmpPersonaWork typing changed 74 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPersonaMenuInit(u8* work) {
  CmpPersonaWork *menu = (CmpPersonaWork *)work;
@@ -240,7 +242,6 @@ void cmpPersonaMenuInit(u8* work) {
  cmpPersonaSetMode(work, 0);
 }
 
-#pragma pop
 /* Collect the consecutive active roster slots and record their count. */
 // FUN_00135C10
 void cmpPersonaBuildRosterList(u8* work) {
@@ -736,7 +737,6 @@ s32 cmpPersonaSetMode(u8* work, s32 mode) {
     }
 /* measured: opt_loop_invariants on hoists the table/dst stride multiplies
    out of the j loop to match retail; without it the function mismatches. */
-#pragma opt_loop_invariants on
     if (table != 0) {
         for (j = 0; j < 0x1C; j++) {
             src = table + j * 0x1C;
@@ -756,9 +756,6 @@ s32 cmpPersonaSetMode(u8* work, s32 mode) {
     }
     return 1;
 }
-/* measured: closes the opt_loop_invariants on scope opened above for
-   func_001371a0's table loop. */
-#pragma opt_loop_invariants off
 
 /* Move nonselected party rows vertically away from the selected row and fade them out. */
 // FUN_001374D0
@@ -766,7 +763,6 @@ s32 cmpPersonaSetMode(u8* work, s32 mode) {
 /* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000
    constants are rematerialized inside the loop (nd 39); with it they hoist
    to the preheader like retail (nd 0). */
-#pragma opt_loop_invariants on
 void cmpPersonaSetPartyCursor(u8* work) {
     s32 i;
     s16 cur;
@@ -792,7 +788,6 @@ void cmpPersonaSetPartyCursor(u8* work) {
     }
 }
 /* measured: see annotation above (func_001374d0). */
-#pragma opt_loop_invariants off
 
 /* Snapshot roster row poses and set the selected row's horizontal target offset to 30. */
 // FUN_00137570
@@ -800,7 +795,6 @@ void cmpPersonaSetPartyCursor(u8* work) {
 /* measured: without opt_loop_invariants on, mwcc rematerializes the 0x41F00000
    constant inside the loop body (nd 22); with it the lui hoists to the
    preheader like retail (nd 0). */
-#pragma opt_loop_invariants on
 void cmpPersonaResetRosterCursor(u8* work) {
     s32 i;
     u8* p;
@@ -820,7 +814,6 @@ void cmpPersonaResetRosterCursor(u8* work) {
     ((CmpPersonaWork *)((u8*)work))->visible &= ~0x1000;
 }
 /* measured: see annotation above (func_00137570). */
-#pragma opt_loop_invariants off
 
 
 /* Randomize background-cell columns and delayed falling transitions, then enable the pulse flag. */
@@ -866,6 +859,9 @@ void cmpPersonaRandomizeBackgroundCells(u8 *work)
 }
 /* measured: closing O1 probe. */
 #pragma optimization_level 2
+/* Restore the unit settings after optimization_level resets the optimizer switches.
+ * measured: omitting this reassertion changes 125 bytes in cmpPersonaSetRosterCursorMotion. */
+#pragma opt_loop_invariants on
 
 /* Move nonselected roster rows vertically away from the selected row and fade them out. */
 // FUN_00137740
@@ -873,7 +869,6 @@ void cmpPersonaRandomizeBackgroundCells(u8 *work)
 /* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000
    constants are rematerialized inside the loop (nd 39); with it they hoist
    to the preheader like retail (nd 0). */
-#pragma opt_loop_invariants on
 void cmpPersonaSetRosterCursorMotion(u8* work) {
     s32 i;
     s16 cur;
@@ -899,7 +894,6 @@ void cmpPersonaSetRosterCursorMotion(u8* work) {
     }
 }
 /* measured: see annotation above (func_00137740). */
-#pragma opt_loop_invariants off
 
 /* Free menu sprites, destroy the portrait and wipe tasks, and reset the message window. */
 // FUN_001377E0

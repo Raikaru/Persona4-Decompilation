@@ -5,6 +5,10 @@
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
 
+/* Unit settings: extract loop invariants throughout the skill-menu callbacks.
+ * measured: all 16 functions MATCH with the unhoisted decoration exception below. */
+#pragma opt_loop_invariants on
+
 typedef struct {
     f32 x;
     f32 y;
@@ -151,7 +155,6 @@ typedef struct {
 /* Initialize party selections, decoration transitions, menu motions and skill sprite resources. */
 // FUN_00137FB0
 /* measured: opt_loop_invariants on hoists the table and conversion constants like retail. */
-#pragma opt_loop_invariants on
 void cmpSkillMenuInit(u8 *work)
 {
     s16 selectionIndex;
@@ -288,8 +291,6 @@ resolve_test:
     cmpSkillSetMode(work, 0);
     cmpSkillBuildAbilityList(work);
 }
-/* measured: restore loop-invariant optimization after matching func_00137fb0. */
-#pragma opt_loop_invariants off
 
 /* Inline search of a persona's eight-entry skill list; the 1/0 returns keep the result in $v0 exactly
    as the two retail copies do. */
@@ -316,8 +317,6 @@ static inline s32 cmpSkillListContains(u16 *skills, u16 skill)
 /* Collect usable skills, keep the strongest duplicate source, sort by skill ID, and restore the lead persona. */
 /* measured: per-access bisection keeps record-pointer copies but uses the owning-array key for the outcome query; together these retain MATCH. */
 // FUN_00138490
-#pragma push
-#pragma opt_loop_invariants on
 /* measured: earlier CmpSkillWork typing changed 964 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpSkillBuildAbilityList(void *work)
 {
@@ -457,7 +456,6 @@ void cmpSkillBuildAbilityList(void *work)
     cmpSkillSetSelection((s16 *)work, 1, 0);
     cmpSkillSetSelection((s16 *)work, 2, 0);
 }
-#pragma pop
 
 // Advances the menu state from 0 to 1; returns 1 for states 0 and 1, 0 otherwise [inferred].
 // FUN_00138AD0
@@ -818,6 +816,9 @@ s32 cmpSkillSetSelection(s16 *work, s32 slotIndex, s32 selection)
    below close the full 1076-byte object (normalized_diff 0). */
 /* Cycle decoration fades and randomized positions using each cell's frame counter and transition duration. */
 // FUN_0013A060
+#pragma push
+/* measured: the unit's invariant hoisting changes 842 bytes in the decoration update. */
+#pragma opt_loop_invariants off
 /* measured: opt_common_subs off preserves the retail per-iteration address formation. */
 #pragma opt_common_subs off
 /* measured: opt_propagation off preserves the retail scalar and FP operand order. */
@@ -933,10 +934,7 @@ void cmpSkillStepDecorations(void *work)
         radarAnimateValue(row + 0xCA4, *counter, 1);
     }
 }
-/* measured: restore propagation after matching func_0013a060. */
-#pragma opt_propagation on
-/* measured: restore common-subexpression optimization after matching func_0013a060. */
-#pragma opt_common_subs on
+#pragma pop
 
 /* measured: baseline leaves 34 differing words; MEMBER scroll-frame reads/stores retain the same cached-address residual. */
 /* measured: without #pragma opt_common_subs off, mwcc b210 CSEs the
@@ -968,7 +966,6 @@ void cmpSkillStepScrollRows(void *work)
    optimization; loop-invariant motion retains the retail source/destination
    registers and hoisted float-conversion constants.
    Loop-invariant optimization is required for the conversion preheader. */
-#pragma opt_loop_invariants on
 /* Snapshot current row poses and apply the selected skill-menu layout, footer and visibility flags. */
 // FUN_0013A530
 /* measured: earlier CmpSkillWork typing changed 669 instruction bytes; current typed-local/member forms retain MATCH. */
@@ -1075,7 +1072,6 @@ s32 cmpSkillSetMode(u8 *work, s32 mode)
     }
     return 1;
 }
-#pragma opt_loop_invariants off
 /* measured: baseline leaves 30 differing words; conditional float target assignments also fail. */
 /* measured: retail hoists the lui 0x41c8 (25.0f constant) into the loop
    preheader; mwcc b210 sinks the materialization into the if-branch unless
@@ -1083,7 +1079,6 @@ s32 cmpSkillSetMode(u8 *work, s32 mode)
    ternary, chained-assign, while-loop spellings — all nd 30 without the pragma. */
 /* Offset the selected party row and its paired label horizontally by 25 pixels. */
 // FUN_0013A8A0
-#pragma opt_loop_invariants on
 void cmpSkillSetPartyCursorMotion(u8 *work)
 {
     s32 i;
@@ -1107,7 +1102,6 @@ void cmpSkillSetPartyCursorMotion(u8 *work)
     ((CmpSkillWork *)work)->frame = 0;
 }
 /* measured: opt_loop_invariants on is required for the retail preheader constant hoist. */
-#pragma opt_loop_invariants off
 /* Place the scrolling-row overlay at the upper or lower list edge according to scroll direction. */
 // FUN_0013A930
 /* measured: earlier CmpSkillWork typing changed 33 instruction bytes; current typed-local/member forms retain MATCH. */
@@ -1146,7 +1140,6 @@ void cmpSkillLayoutScrollRows(void *work)
    into the branch — identical nd 30 on every spelling tried. */
 /* Offset the selected recipient row and its paired label horizontally by 25 pixels. */
 // FUN_0013AA00
-#pragma opt_loop_invariants on
 void cmpSkillSetScrollCursorMotion(u8 *work)
 {
     s32 i;
@@ -1170,7 +1163,6 @@ void cmpSkillSetScrollCursorMotion(u8 *work)
     ((CmpSkillWork *)work)->frame = 0;
 }
 /* measured: opt_loop_invariants on is required for the retail preheader constant hoist. */
-#pragma opt_loop_invariants off
 
 /* Randomly restart up to six decoration cells with enlarged scales and a ten-frame transition. */
 // FUN_0013AA90
