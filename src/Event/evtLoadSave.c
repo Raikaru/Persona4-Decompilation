@@ -5,27 +5,12 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 #include "scene_event_internal.h"
+#include "evt_movie_internal.h"
+#include "resrc_manager_internal.h"
 
-typedef struct { u8 c[4]; } Rgba8;
 typedef struct { s16 a; s16 b; s16 c; s16 d; } S16x4;
 typedef struct { f32 x; f32 y; f32 z; f32 pad; } F32x4;
 typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
-
-/* Serialized per-kind record payload: readers copy words at +4..+0x24;
-   the first byte is a signed operation in command records. Interpretations of
-   the remaining words depend on the parent node kind. */
-typedef struct EvtRecordPayload {
-    union { s32 word; s8 operation; } first;
-    s32 unk04;
-    s32 unk08;
-    s32 unk0C;
-    s32 unk10;
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-} EvtRecordPayload;
 
 /* Payload of recordIndex: the 0x10-byte table at +0x94 when the scene header
    kind is 4, otherwise the 0x3C-byte table at +0x98 (recordOffset = recordIndex * 0x3C). */
@@ -67,7 +52,7 @@ extern f32 D_0063CAF0[];
 // Intent: Copies recordIndex from the source record table into entry: coordinates, kind and the per-kind fields [inferred]
 // FUN_00294610
 void evtNodeLoadRecordEntry(u8 *source, u8 *entry, s32 recordIndex) {
-    /* measured: typed mutable child fields cache addresses and lose MATCH; retain raw stores and aliasing table reloads. */
+    /* measured: each retained raw child/table access changes instructions when typed alone. */
     S16x4 coordinates;
     s16 *coord;
     s32 recordOffset;
@@ -86,57 +71,57 @@ void evtNodeLoadRecordEntry(u8 *source, u8 *entry, s32 recordIndex) {
     coord = &coordFirst;
     *coord = ((EvtSceneRecord *)((u32)recordOffset + (u32)(s32)((MtMiscSceneSource *)source)->records98))->position[0];
     coord = &coordSecond;
-    *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[1];
+    *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[1];
     coord = &coordThird;
-    *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[2];
+    *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[2];
     coord = &coordFourth;
-    *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[3];
+    *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[3];
     coordinates.a = coordFirst;
     coordinates.b = coordSecond;
     coordinates.c = coordThird;
     coordinates.d = coordFourth;
     *(S16x4 *)&((EvtChildNode *)entry)->unk08 = coordinates;
     payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-    *(s8 *)(entry + 0x10) = ((EvtRecordPayload *)payload)->first.operation;
+    ((EvtChildNode *)entry)->recordPayload.unk00.bytes.first = ((EvtRecordParameters *)payload)->unk00.bytes.first;
     payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-    *(s32 *)(entry + 0x14) = ((EvtRecordPayload *)payload)->unk04;
+    ((EvtChildNode *)entry)->recordPayload.unk04.word = ((EvtRecordParameters *)payload)->unk04.word;
     payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-    *(s32 *)(entry + 0x18) = ((EvtRecordPayload *)payload)->unk08;
+    ((EvtChildNode *)entry)->recordPayload.unk08.word = ((EvtRecordParameters *)payload)->unk08.word;
     payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-    *(s32 *)(entry + 0x1C) = ((EvtRecordPayload *)payload)->unk0C;
+    ((EvtChildNode *)entry)->recordPayload.unk0C.word = ((EvtRecordParameters *)payload)->unk0C.word;
     payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-    *(s32 *)(entry + 0x20) = ((EvtRecordPayload *)payload)->unk10;
+    ((EvtChildNode *)entry)->recordPayload.unk10.word = ((EvtRecordParameters *)payload)->unk10.word;
     payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-    *(s32 *)(entry + 0x24) = ((EvtRecordPayload *)payload)->unk14;
+    ((EvtChildNode *)entry)->recordPayload.unk14.word = ((EvtRecordParameters *)payload)->unk14.word;
     payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-    *(s32 *)(entry + 0x28) = ((EvtRecordPayload *)payload)->unk18;
+    ((EvtChildNode *)entry)->recordPayload.unk18.word = ((EvtRecordParameters *)payload)->unk18.word;
     payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-    *(s32 *)(entry + 0x2C) = ((EvtRecordPayload *)payload)->unk1C;
+    ((EvtChildNode *)entry)->recordPayload.unk1C.word = ((EvtRecordParameters *)payload)->unk1C.word;
     parentKind = *(s32 *)&((EvtChildNode *)entry)->kind;
     if (parentKind == 1) {
-        *(s32 *)(entry + 0x30) = 0;
+        ((EvtChildNode *)entry)->recordPayload.unk20.word = 0;
     } else if (parentKind == 0x30) {
         payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-        *(s32 *)(entry + 0x30) = ((EvtRecordPayload *)payload)->unk20;
+        ((EvtChildNode *)entry)->recordPayload.unk20.word = ((EvtRecordParameters *)payload)->unk20.word;
     }
     sourceKind = ((MtMiscSceneSource *)source)->header->kind;
     if (sourceKind < 0xC) {
         if (*(s32 *)(entry + 0x38) == 1) {
             payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-            *(s32 *)(entry + 0x34) = ((EvtRecordPayload *)payload)->unk20;
+            ((EvtChildNode *)entry)->recordPayload.unk24.word = ((EvtRecordParameters *)payload)->unk20.word;
         }
     } else {
         payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
-        *(s32 *)(entry + 0x34) = ((EvtRecordPayload *)payload)->unk24;
+        ((EvtChildNode *)entry)->recordPayload.unk24.word = ((EvtRecordParameters *)payload)->unk24.word;
     }
-    *(s32 *)(entry + 4) = -1;
+    ((EvtChildNode *)entry)->unk04 = -1;
     switch (*(s8 *)(entry + 0x10)) {
     case 1:
         switch (*(s8 *)(entry + 0x14)) {
         case 1:
-            blurIndex = *(s16 *)(recordOffset + (s32)*(s32 *)(source + 0x98) + 0xA);
+            blurIndex = ((EvtSceneRecord *)(recordOffset + (s32)*(s32 *)(source + 0x98)))->value0A;
             evtBlurFilterEnsureBlock(entry);
-            if (*(s32 *)(entry + 0x40) == 0) {
+            if ((s32)((EvtChildNode *)entry)->ownedBlock40 == 0) {
                 kAssertFail(D_0063CAB0, 0x726);
             }
             memcpy((u8 *)(*(s32 *)(entry + 0x40)), (u8 *)(*(s32 *)(source + 0x60) + (blurIndex * 0x130)), 0x130);
@@ -148,7 +133,7 @@ void evtNodeLoadRecordEntry(u8 *source, u8 *entry, s32 recordIndex) {
         if ((firstPercent < 0) || (firstPercent > 0x1F4)) {
             *(s16 *)(entry + 0x28) = 0x64;
         }
-        secondPercent = *(s16 *)(entry + 0x2A);
+        secondPercent = ((EvtChildNode *)entry)->payload.layerChoice.recordSpeedPercent;
         if ((secondPercent < 0) || (secondPercent > 0x1F4)) {
             *(s16 *)(entry + 0x2A) = 0x64;
         }
@@ -161,7 +146,7 @@ void evtNodeLoadRecordEntry(u8 *source, u8 *entry, s32 recordIndex) {
 // Intent: Loads each kind-1 record whose count equals recordCount into a new node entry (through evtNodeLoadRecordEntry) [inferred]
 // FUN_00294A90
 void evtNodeLoadRecordsByCount(u8 *source, u8 *eventWork, u8 *node, u16 recordCount) {
-    /* measured: typing the +0x94/+0x98 source pointers loses MATCH; preserve the raw table loads and packed count read. */
+    /* measured: each retained raw source-table reload changes instructions when typed alone; the count field is typed. */
     s32 i;
     s32 type;
     u16 recordKind;
@@ -184,10 +169,10 @@ void evtNodeLoadRecordsByCount(u8 *source, u8 *eventWork, u8 *node, u16 recordCo
             }
             if ((recordKind & 0xFFFF) == 1) {
                 recordOffset = i * 0x3C;
-                record = (u8 *)((s32)(*(s32 *)(source + 0x98)) + recordOffset);
-                if (count == *(u16 *)(record + 8)) {
+                record = (u8 *)((s32)((s32)((EvtPolygonMovieWork *)source)->unk98) + recordOffset);
+                if (count == ((EvtSceneRecord *)record)->count08) {
                     if (type == 4) {
-                        recordId = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (i * 0x10)))->id;
+                        recordId = ((MtMiscSceneRecord16 *)((s32)((EvtPolygonMovieWork *)source)->unk94 + (i * 0x10)))->id;
                     } else {
                         recordId = ((EvtSceneRecord *)record)->id;
                     }
@@ -205,7 +190,7 @@ void evtNodeLoadRecordsByCount(u8 *source, u8 *eventWork, u8 *node, u16 recordCo
 // Intent: Builds the camera resources (ids 0x1E58 and 0x1E59) and the kind-0x21 node entries from the record table [inferred]
 // FUN_00294BE0
 void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork) {
-    /* measured: typed source/header reloads and mutable child fields lose MATCH; retain their byte-addressed alias boundaries. */
+    /* measured: each retained raw source-pointer/camera-owner reload changes instructions when typed alone. */
     typedef struct { f32 x; f32 y; f32 z; } EventVector;
     StackState stack;
     s16 *coord;
@@ -257,8 +242,8 @@ void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork) {
         }
         MT_Scene_SetResPlacement(resourceId, (u8 *)&stack.vec[1], (u8 *)&stack.vec[0]);
         /* Resource +0x144 and owner +0x12C are not exposed by the shared scene layouts. */
-        *(s32 *)((u8 *)idx + 0x144) = 0;
-        *(u8 **)(eventWork + 0x12C) = MT_Scene_GetRes(resourceId);
+        ((ResrcRecord *)idx)->slotHandleValue[1] = 0;
+        ((EvtEventWork *)eventWork)->cameraResource = MT_Scene_GetRes(resourceId);
         MT_Scene_OffsetPointByRotation(&stack.vec[1].x, 900.0f, 45.0f, 0.0f, 0.0f, &stack.vec[2].x);
         MT_Scene_SetResPlacement(resourceId, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         resource = (u8 *)MT_Scene_GetRes(0x1E59);
@@ -269,7 +254,7 @@ void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork) {
             resourceId = *(u16 *)resource;
         }
         MT_Scene_SetResPlacement(resourceId, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
-        *(s32 *)((u8 *)MT_Scene_GetRes(resourceId) + 0x144) = 0;
+        ((ResrcRecord *)MT_Scene_GetRes(resourceId))->slotHandleValue[1] = 0;
         evtSetKindExclusiveRes(eventWork, 0);
         cameraResource = *(u8 **)(eventWork + 0x12C);
         if (cameraResource != NULL) {
@@ -292,7 +277,7 @@ void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork) {
                     }
                     entry = evtNodeCreate(dest, recordId & 0xFFFF, eventWork);
                     off = idx * 0x3C;
-                    record = (u8 *)(*(s32 *)(source + 0x98) + off);
+                    record = (u8 *)((s32)((EvtPolygonMovieWork *)source)->unk98 + off);
                     coord = &coordFirst;
                     *coord = ((EvtSceneRecord *)(record))->position[0];
                     coord = &coordSecond;
@@ -306,72 +291,72 @@ void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork) {
                     stack.coord.c = coordThird;
                     stack.coord.d = coordFourth;
                     *(S16x4 *)&((EvtChildNode *)entry)->unk08 = stack.coord;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
-                        recordFlags = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (idx * 0x10)))->unk_04;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
+                        recordFlags = ((MtMiscSceneRecord16 *)((s32)((EvtPolygonMovieWork *)source)->unk94 + (idx * 0x10)))->unk_04;
                     } else {
-                        recordFlags = *(u16 *)(*(s32 *)(source + 0x98) + off + 4);
+                        recordFlags = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + off))->unk_04;
                     }
-                    *(u16 *)(entry + 2) = recordFlags;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->unk02 = recordFlags;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x10) = ((EvtRecordPayload *)payload)->first.word;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->recordPayload.unk00.word = ((EvtRecordParameters *)payload)->unk00.word;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x14) = ((EvtRecordPayload *)payload)->unk04;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->recordPayload.unk04.word = ((EvtRecordParameters *)payload)->unk04.word;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x18) = ((EvtRecordPayload *)payload)->unk08;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->recordPayload.unk08.word = ((EvtRecordParameters *)payload)->unk08.word;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x1C) = ((EvtRecordPayload *)payload)->unk0C;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->recordPayload.unk0C.word = ((EvtRecordParameters *)payload)->unk0C.word;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x20) = ((EvtRecordPayload *)payload)->unk10;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->recordPayload.unk10.word = ((EvtRecordParameters *)payload)->unk10.word;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x24) = ((EvtRecordPayload *)payload)->unk14;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->recordPayload.unk14.word = ((EvtRecordParameters *)payload)->unk14.word;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x28) = ((EvtRecordPayload *)payload)->unk18;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->recordPayload.unk18.word = ((EvtRecordParameters *)payload)->unk18.word;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x2C) = ((EvtRecordPayload *)payload)->unk1C;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->recordPayload.unk1C.word = ((EvtRecordParameters *)payload)->unk1C.word;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x30) = ((EvtRecordPayload *)payload)->unk20;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    ((EvtChildNode *)entry)->recordPayload.unk20.word = ((EvtRecordParameters *)payload)->unk20.word;
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(entry + 0x34) = ((EvtRecordPayload *)payload)->unk24;
+                    ((EvtChildNode *)entry)->recordPayload.unk24.word = ((EvtRecordParameters *)payload)->unk24.word;
                 }
             }
         }
@@ -381,7 +366,7 @@ void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork) {
 // Intent: Allocates three kind-0x24 slot nodes and loads the kind-0x24 records into them [inferred]
 // FUN_002951C0
 void evtNodeLoadRecords24(u8 *source, u8 *eventWork) {
-    /* measured: typed source/header reloads and mutable payload stores lose MATCH; retain these raw accesses. */
+    /* measured: each retained raw source-pointer reload changes instructions when typed alone; payload stores are typed. */
     u8 *arr[3];
     S16x4 coordinates;
     s16 *coord;
@@ -427,48 +412,48 @@ void evtNodeLoadRecords24(u8 *source, u8 *eventWork) {
             dest = evtNodeCreate(arr[idx], recordId & 0xFFFF, eventWork);
             recordOffset = i * 0x3C;
             coord = &coordFirst;
-            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[0];
+            *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[0];
             coord = &coordSecond;
-            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[1];
+            *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[1];
             coord = &coordThird;
-            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[2];
+            *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[2];
             coord = &coordFourth;
-            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[3];
+            *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[3];
             coordinates.a = coordFirst;
             coordinates.b = coordSecond;
             coordinates.c = coordThird;
             coordinates.d = coordFourth;
             *(S16x4 *)&((EvtChildNode *)dest)->unk08 = coordinates;
-            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+            if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
+                payload = (u8 *)((s32)((EvtPolygonMovieWork *)source)->unk94 + (i * 0x10) + 8);
+            } else {
+                payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
+            }
+            ((EvtChildNode *)dest)->recordPayload.unk00.word = ((EvtRecordParameters *)payload)->unk00.word;
+            if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                 payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
                 payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(dest + 0x10) = ((EvtRecordPayload *)payload)->first.word;
-            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+            ((EvtChildNode *)dest)->recordPayload.unk04.word = ((EvtRecordParameters *)payload)->unk04.word;
+            if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                 payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
                 payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(dest + 0x14) = ((EvtRecordPayload *)payload)->unk04;
-            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+            ((EvtChildNode *)dest)->recordPayload.unk08.word = ((EvtRecordParameters *)payload)->unk08.word;
+            if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                 payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
                 payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(dest + 0x18) = ((EvtRecordPayload *)payload)->unk08;
-            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+            ((EvtChildNode *)dest)->recordPayload.unk0C.word = ((EvtRecordParameters *)payload)->unk0C.word;
+            if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                 payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
                 payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(dest + 0x1C) = ((EvtRecordPayload *)payload)->unk0C;
-            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
-                payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
-            } else {
-                payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
-            }
-            *(s32 *)(dest + 0x20) = ((EvtRecordPayload *)payload)->unk10;
+            ((EvtChildNode *)dest)->recordPayload.unk10.word = ((EvtRecordParameters *)payload)->unk10.word;
         }
     }
 }
@@ -477,7 +462,7 @@ void evtNodeLoadRecords24(u8 *source, u8 *eventWork) {
 // Intent: Creates a kind-0x2F node, loads its kind-0x2F records and clamps the field at +0x1A to 100 when out of range [inferred]
 // FUN_002954F0
 void evtNodeLoadRecords2F(u8 *source, u8 *eventWork) {
-    /* measured: typed source/header reloads and payload stores lose MATCH; retain raw accesses, including the overlapping clamp halfword. */
+    /* measured: each retained raw source-pointer/opcode/clamp access changes instructions when typed alone. */
     u8 *node;
     S16x4 coordinates;
     s16 *coord;
@@ -511,41 +496,41 @@ void evtNodeLoadRecords2F(u8 *source, u8 *eventWork) {
             entry = (u8 *)(evtNodeCreate(node, recordId & 0xFFFF, eventWork));
             recordOffset = recordIndex * 0x3C;
             coord = &coordFirst;
-            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[0];
+            *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[0];
             coord = &coordSecond;
-            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[1];
+            *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[1];
             coord = &coordThird;
-            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[2];
+            *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[2];
             coord = &coordFourth;
-            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[3];
+            *coord = ((EvtSceneRecord *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset))->position[3];
             coordinates.a = coordFirst;
             coordinates.b = coordSecond;
             coordinates.c = coordThird;
             coordinates.d = coordFourth;
             *(S16x4 *)&((EvtChildNode *)entry)->unk08 = coordinates;
-            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
-                payloadWord = (s32 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10) + 8);
+            if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
+                payloadWord = (s32 *)((s32)((EvtPolygonMovieWork *)source)->unk94 + (recordIndex * 0x10) + 8);
             } else {
                 payloadWord = (s32 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(entry + 0x10) = ((EvtRecordPayload *)payloadWord)->first.word;
-            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+            ((EvtChildNode *)entry)->recordPayload.unk00.word = ((EvtRecordParameters *)payloadWord)->unk00.word;
+            if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                 payload = (u8 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10) + 8);
             } else {
                 payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(entry + 0x14) = ((EvtRecordPayload *)payload)->unk04;
-            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+            ((EvtChildNode *)entry)->recordPayload.unk04.word = ((EvtRecordParameters *)payload)->unk04.word;
+            if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                 payloadForClamp = (u8 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10) + 8);
             } else {
                 payloadForClamp = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(entry + 0x18) = ((EvtRecordPayload *)payloadForClamp)->unk08;
+            ((EvtChildNode *)entry)->recordPayload.unk08.word = ((EvtRecordParameters *)payloadForClamp)->unk08.word;
             if (*(s8 *)(entry + 0x10) == 1) {
-                if (*(s16 *)(entry + 0x1A) < 0) {
+                if (((EvtChildNode *)entry)->payload.display.speedPercent < 0) {
                     goto clamp_954;
                 }
-                if (0x1F4 >= *(s16 *)(entry + 0x1A)) {
+                if (0x1F4 >= ((EvtChildNode *)entry)->payload.display.speedPercent) {
                     goto next_954;
                 }
 clamp_954:
@@ -560,7 +545,7 @@ next_954:
 // Intent: Creates the entry's model, attaches its owner, creates its NPC shadow resource and copies its colour to the node [inferred]
 // FUN_00295740
 void evtNodeCreateModel(s32 eventWork, u8 *node) {
-    /* measured: typed node argument loads across model calls lose MATCH; +0x1F remains an unnamed flag byte in the shared layout. */
+    /* measured: typing the remaining node +4 load changes instructions; the flag byte and color copy now use layout members. */
     s32 modelId;
     u32 modelSize;
     struct {
@@ -581,12 +566,12 @@ void evtNodeCreateModel(s32 eventWork, u8 *node) {
         modelData = mtMiscReadSlotValues(eventWork, slot, (s32 *)&modelSize, (s32 *)&modelId);
         if (modelData != 0) {
             model = (s32)mdlCreateModelObjectFromMemory(5, (u16)modelId, (void *)modelData, modelSize, 1);
-            if (*(s8 *)(node + 0x1F) & 1) {
+            if ((s8)((EvtNode *)node)->pad1F & 1) {
                 mdlSetAttachedOwner(model, D_005DC7D0);
             } else {
                 mdlSetAttachedOwner(model, D_005DC878);
             }
-            resourceId = (u16)(MT_Scene_CreateModelNpcShadowRes((u16)(evtCustomEventResId(*(s32 *)(node + 4)) & 0xFFFF), 0, model) & 0xFFFF);
+            resourceId = (u16)(MT_Scene_CreateModelNpcShadowRes((u16)(evtCustomEventResId(((EvtNode *)node)->param04) & 0xFFFF), 0, model) & 0xFFFF);
             MT_Scene_SetResActiveById(resourceId, 1);
             positionOffset = (s32)(*(s32 *)(node + 4) * 0x1E);
             position.x = (f32)positionOffset;
@@ -599,7 +584,7 @@ void evtNodeCreateModel(s32 eventWork, u8 *node) {
             }
             evtNodeSetRes(node, resourceId, resource);
             color = (u8 *)(mdlGetColor(model));
-            *(Rgba8 *)&((EvtNode *)node)->color = *(Rgba8 *)(color);
+            ((EvtNode *)node)->color = *(EvtColor *)color;
             return;
         }
         evtNodeSetRes(node, 0U, NULL);
@@ -609,7 +594,7 @@ void evtNodeCreateModel(s32 eventWork, u8 *node) {
 // Intent: Allocates three kind-0x34 slot nodes and copies the 0x28-byte payload of each kind-0x34 record [inferred]
 // FUN_00295B80
 void evtNodeLoadRecords34(u8 *source, u8 *eventWork) {
-    /* measured: typed source/header reloads lose MATCH; keep them raw while using typed row and coordinate fields. */
+    /* measured: each retained raw source-pointer reload changes instructions when typed alone. */
     u8 *arr[3];
     S16x4 coordinates;
     s32 i;
@@ -656,7 +641,7 @@ void evtNodeLoadRecords34(u8 *source, u8 *eventWork) {
             child = evtNodeCreate(arr[idx], recordId & 0xFFFF, eventWork);
             compactOffset = i * 0x10;
             recordOffset = i * 0x3C;
-            entry = (u8 *)(*(s32 *)(source + 0x98) + recordOffset);
+            entry = (u8 *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset);
             q = &coordFirst;
             *q = ((EvtSceneRecord *)entry)->position[0];
             q = &coordSecond;
@@ -670,8 +655,8 @@ void evtNodeLoadRecords34(u8 *source, u8 *eventWork) {
             coordinates.c = coordThird;
             coordinates.d = coordFourth;
             *(S16x4 *)&((EvtChildNode *)child)->unk08 = coordinates;
-            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
-                payload = (u8 *)(*(s32 *)(source + 0x94) + compactOffset + 8);
+            if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
+                payload = (u8 *)((s32)((EvtPolygonMovieWork *)source)->unk94 + compactOffset + 8);
             } else {
                 payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
@@ -683,7 +668,7 @@ void evtNodeLoadRecords34(u8 *source, u8 *eventWork) {
 // Intent: Allocates eight kind-0x30 slot nodes and loads the kind-0x30 records matching each slot's index, then the table at +0x100 [inferred]
 // FUN_00295910
 void evtNodeLoadRecords30(u8 *source, u8 *eventWork) {
-    /* measured: typed source pointers/node fields lose MATCH; the raw five-word descriptor copy preserves its advancing cursors. */
+    /* measured: each retained raw source-pointer/node load changes instructions when typed alone; descriptors use typed headers. */
     u8 *node;
     u8 *descriptor;
     u8 *descriptorDest;
@@ -700,7 +685,7 @@ void evtNodeLoadRecords30(u8 *source, u8 *eventWork) {
 
     for (slotIndex = 0; slotIndex < 8; slotIndex++) {
         node = (u8 *)(evtNodeAlloc(0x30, eventWork));
-        *(s32 *)(node + 4) = slotIndex;
+        ((EvtNode *)node)->param04 = slotIndex;
         for (recordIndex = 0; recordIndex < ((MtMiscSceneSource *)source)->countAC; recordIndex++) {
             sourceKind = (s32)(((MtMiscSceneSource *)source)->header->kind);
             if (sourceKind == 4) {
@@ -714,7 +699,7 @@ void evtNodeLoadRecords30(u8 *source, u8 *eventWork) {
                 } else {
                     payload = (u8 *)(*(s32 *)(source + 0x98) + (recordIndex * 0x3C) + 0x14);
                 }
-                if (*(s32 *)(node + 4) == *(s8 *)(payload + 0x20)) {
+                if (*(s32 *)(node + 4) == ((EvtRecordParameters *)payload)->unk20.bytes.first) {
                     if (sourceKind == 4) {
                         recordId = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10)))->id;
                     } else {
@@ -724,17 +709,18 @@ void evtNodeLoadRecords30(u8 *source, u8 *eventWork) {
                 }
             }
         }
-        if (*(s32 *)(source + 0x100) != 0) {
-            for (descriptorIndex = 0; descriptorIndex < *(s32 *)(source + 0x104); descriptorIndex++) {
+        if ((s32)((EvtPolygonMovieWork *)source)->unk100 != 0) {
+            for (descriptorIndex = 0; descriptorIndex < ((EvtPolygonMovieWork *)source)->count104; descriptorIndex++) {
                 off2 = descriptorIndex * 0x14;
                 descriptor = (u8 *)((s32)*(s32 *)(source + 0x100) + off2);
-                if (*(s16 *)(descriptor + 2) != -1) {
+                if (((EvtNodeDescriptor *)descriptor)->unk02 != -1) {
                     kAssertFail(D_0063CAB0, 0x822);
                     continue;
                 }
-                if ((*(s32 *)(node + 0) == *(u8 *)(descriptor + 0)) && (*(s32 *)(node + 4) == *(u8 *)(descriptor + 1))) {
+                if (((s32)((EvtNode *)node)->kind == ((EvtNodeDescriptor *)descriptor)->kind) && (*(s32 *)(node + 4) == ((EvtNodeDescriptor *)descriptor)->slot)) {
                     descriptorDest = node + 0x18;
                     wordsLeft = 5;
+                    /* Serialized descriptors are copied as five advancing words, including their packed header. */
                     do {
                         descriptorWord = *(s32 *)descriptor;
                         descriptor += 4;
@@ -756,7 +742,7 @@ void evtNodeLoadRecords30(u8 *source, u8 *eventWork) {
 // Intent: Allocates three kind-0xA nodes and loads the kind-0xA records matching each node's index [inferred]
 // FUN_00295DB0
 void evtNodeLoadRecords0A(u8 *source, u8 *eventWork) {
-    /* measured: typed source/header reloads and node fields lose MATCH; retain their aliasing and the five-word descriptor copy. */
+    /* measured: each retained raw source-pointer/node access changes instructions when typed alone; descriptors use typed headers. */
     S16x4 coordinates;
     s16 *coord;
     s16 coordFirst;
@@ -784,7 +770,7 @@ void evtNodeLoadRecords0A(u8 *source, u8 *eventWork) {
     s32 descriptorWord;
     for (outer = 0; outer < 3; outer++) {
         node = evtNodeAlloc(0xA, eventWork);
-        *(s32 *)(node + 4) = outer;
+        ((EvtNode *)node)->param04 = outer;
         for (inner = 0; inner < ((MtMiscSceneSource *)source)->countAC; inner++) {
             type = ((MtMiscSceneSource *)source)->header->kind;
             if (type == 4) {
@@ -806,7 +792,7 @@ void evtNodeLoadRecords0A(u8 *source, u8 *eventWork) {
                     }
                     child = evtNodeCreate(node, recordId & 0xFFFF, eventWork);
                     recordOffset = inner * 0x3C;
-                    record = (u8 *)(*(s32 *)(source + 0x98) + recordOffset);
+                    record = (u8 *)((s32)((EvtPolygonMovieWork *)source)->unk98 + recordOffset);
                     coord = &coordFirst;
                     *coord = ((EvtSceneRecord *)(record))->position[0];
                     coord = &coordSecond;
@@ -820,84 +806,85 @@ void evtNodeLoadRecords0A(u8 *source, u8 *eventWork) {
                     coordinates.c = coordThird;
                     coordinates.d = coordFourth;
                     *(S16x4 *)&((EvtChildNode *)child)->unk08 = coordinates;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
-                        payloadFloat = (f32 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
+                        payloadFloat = (f32 *)((s32)((EvtPolygonMovieWork *)source)->unk94 + (inner * 0x10) + 8);
                     } else {
                         payloadFloat = (f32 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                     }
                     ((EvtChildNode *)child)->payload.kind0A.unk00 = *payloadFloat;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                     }
                     ((EvtChildNode *)child)->payload.kind0A.unk04 = ((EvtPayloadKind0A *)payload)->unk04;
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payload = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                     } else {
                         payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                     }
                     ((EvtChildNode *)child)->payload.kind0A.unk08 = ((EvtPayloadKind0A *)payload)->unk08;
-                    type = *(s32 *)(*(s32 *)(source + 0x80) + 0x14);
+                    type = ((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind;
                     if (type < 7) {
                         if (type == 4) {
                             payloadHalfwords = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                         } else {
                             payloadHalfwords = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                         }
-                        *(s16 *)(child + 2) = *(s16 *)(payloadHalfwords + 0xA);
+                        ((EvtChildNode *)child)->unk02 = ((EvtRecordParameters *)payloadHalfwords)->unk08.halves.second;
                     } else {
                         if (type == 4) {
                             recordFlags = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (inner * 0x10)))->unk_04;
                         } else {
-                            recordFlags = *(u16 *)(*(s32 *)(source + 0x98) + recordOffset + 4);
+                            recordFlags = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->unk_04;
                         }
-                        *(s16 *)(child + 2) = (s16)recordFlags;
+                        ((EvtChildNode *)child)->unk02 = (s16)recordFlags;
                     }
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
-                        recordValue = *(s16 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 6);
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
+                        recordValue = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (inner * 0x10)))->value06;
                     } else {
-                        recordValue = *(s16 *)(*(s32 *)(source + 0x98) + recordOffset + 6);
+                        recordValue = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->value06;
                     }
                     ((EvtChildNode *)child)->unk04 = recordValue;
-                    type = *(s32 *)(*(s32 *)(source + 0x80) + 0x14);
+                    type = ((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind;
                     if (type < 7) {
                         if (type == 4) {
                             recordFlags = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (inner * 0x10)))->unk_04;
                         } else {
-                            recordFlags = *(u16 *)(*(s32 *)(source + 0x98) + recordOffset + 4);
+                            recordFlags = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->unk_04;
                         }
-                        memcpy((u8 *)((EvtChildNode *)child)->ownedBlock48, (u8 *)(*(s32 *)(source + 0xB8) + ((recordFlags & 0xFFFF) * 0x30)), 0x30);
+                        memcpy((u8 *)((EvtChildNode *)child)->ownedBlock48, (u8 *)((s32)((EvtPolygonMovieWork *)source)->unkB8 + ((recordFlags & 0xFFFF) * 0x30)), 0x30);
                     } else {
                         if (type == 4) {
                             payload = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                         } else {
                             payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                         }
-                        memcpy((u8 *)((EvtChildNode *)child)->ownedBlock48, (u8 *)(*(s32 *)(source + 0xB8) + (*(s16 *)(payload + 0xA) * 0x30)), 0x30);
+                        memcpy((u8 *)((EvtChildNode *)child)->ownedBlock48, (u8 *)((s32)((EvtPolygonMovieWork *)source)->unkB8 + (((EvtRecordParameters *)payload)->unk08.halves.second * 0x30)), 0x30);
                     }
-                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                    if (((MtMiscSceneHeader *)*(s32 *)(source + 0x80))->kind == 4) {
                         payloadHalfwords = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                     } else {
                         payloadHalfwords = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                     }
-                    *(s16 *)(child + 0x1C) = *(s16 *)(payloadHalfwords + 0xC);
+                    ((EvtChildNode *)child)->recordPayload.unk0C.halves.first = ((EvtRecordParameters *)payloadHalfwords)->unk0C.halves.first;
                 }
             }
         }
-        if (*(s32 *)(source + 0x100) != 0) {
-            for (recordOffset = 0; recordOffset < *(s32 *)(source + 0x104); recordOffset++) {
+        if ((s32)((EvtPolygonMovieWork *)source)->unk100 != 0) {
+            for (recordOffset = 0; recordOffset < ((EvtPolygonMovieWork *)source)->count104; recordOffset++) {
                 off2 = recordOffset * 0x14;
                 descriptor = (u8 *)*(s32 **)(source + 0x100);
                 descriptor += off2;
-                if (*(s16 *)(descriptor + 2) != -1) {
+                if (((EvtNodeDescriptor *)descriptor)->unk02 != -1) {
                     kAssertFail(D_0063CAB0, 0x822);
                     continue;
                 }
-                if ((*(s32 *)(node + 0) == *(u8 *)(descriptor + 0)) &&
-                    (*(s32 *)(node + 4) == *(u8 *)(descriptor + 1))) {
+                if (((s32)((EvtNode *)node)->kind == ((EvtNodeDescriptor *)descriptor)->kind) &&
+                    (*(s32 *)(node + 4) == ((EvtNodeDescriptor *)descriptor)->slot)) {
                     descriptorDest = node + 0x18;
                     wordsLeft = 5;
+                    /* Serialized descriptors are copied as five advancing words, including their packed header. */
                     do {
                         descriptorWord = *(s32 *)descriptor;
                         descriptor += 4;

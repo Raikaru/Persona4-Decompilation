@@ -46,6 +46,20 @@ typedef struct EvtRecordParameters {
     EvtRecordWord unk00;
     EvtRecordWord unk04;
     EvtRecordWord unk08;
-    u8 pad0C[0x1C];
+    EvtRecordWord unk0C;
+    EvtRecordWord unk10;
+    EvtRecordWord unk14;
+    EvtRecordWord unk18;
+    EvtRecordWord unk1C;
+    EvtRecordWord unk20;
+    EvtRecordWord unk24;
 } EvtRecordParameters;
+/* Section +0x100 has 0x14-byte node descriptors; loaders copy five words
+ * into node +0x18 after matching this kind/slot prefix. */
+typedef struct EvtNodeDescriptor {
+    u8 kind;
+    u8 slot;
+    s16 unk02;
+    u8 data[0x10];
+} EvtNodeDescriptor;
 #endif
