@@ -76,7 +76,7 @@ extern void mainDrawStartClearOt(void);
 extern void mainDrawStartFrame(void);
 extern void sequenceCreate(void);
 extern void sequenceRequest(s32 sequenceId, s32 parameters, s32 parameterSize, s32 delay);
-extern void func_0010d7b0(void);
+extern void datKernelInitNoop(void);
 extern void tickerStartTask(void);
 extern void fadeCreateController(s32 parentTask);
 extern u8 *resrcMngSpawnRenderTask(u8 *parentTask);
@@ -234,7 +234,7 @@ void kwlnInitSubsystems(void)
     PrimCreatePools(0x7D0, 0x64);
     H_Cdvd_ResetStreamState();
     H_Cdvd_InitDevices();
-    func_0010d7b0();
+    datKernelInitNoop();
     mdlRenderInitializeBuffers();
     sdkSndInit();
     memset(&D_00764D10[0], 0, 0x14);
