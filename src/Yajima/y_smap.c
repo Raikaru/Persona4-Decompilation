@@ -467,6 +467,7 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
 
 /* Visibility-row casts retain the measured offset-first bitmap address trees; these are packed halfword rows, not object fields. */
 // FUN_002AC750
+/* measured: literal and named room-scan extent; best baseline residual 3044 differing bytes. */
 void smapRevealCell(u8 column, u8 row) {
     extern s32 fclSubClamped(s32, s32, s32, s32, s8);
     extern s64 smapCellKind(u8);
@@ -1101,6 +1102,7 @@ typedef struct SMapNeighbor { s8 offset[2]; } SMapNeighbor;
 #pragma opt_pulloutconstants off
 /* Build tiles and marker children for the map, actor slots, scene points and active targets. */
 // FUN_002AE630
+/* measured: existing typed map alias and separate pullout probe; best baseline residual 1828 differing bytes. */
 u8 *smapCreateSymbols(u8 *parent)
 {
     SMapWork *map;
@@ -1351,6 +1353,7 @@ u8 *smapCreateSymbols(u8 *parent)
 #pragma push
 #pragma opt_loop_invariants on
 /* Access-site marker/cell fields retain the original byte cursors and measured index conversions. */
+/* measured: access-site fields and typed map alias; best baseline residual 1353 differing bytes. */
 void smapRefreshCells(u8 *task, s8 mode)
 {
     u8 *work = ((KwlnTask *)task)->work;
@@ -1597,6 +1600,7 @@ void smapTaskDestroy(u8 *task) {
 // FUN_002B0250
 #pragma push
 #pragma opt_loop_invariants on
+/* measured: byte arguments and named anchor-coordinate snapshots; best baseline residual 6 differing bytes. */
 u8 *smapBuildTiles(u8 *parent, u8 column, u8 row, u8 cellType, u8 variant, u8 origin, u8 anchorColumn, u8 anchorRow) {
     SMapCell *tile;
     u8 anchor[8];
@@ -1838,6 +1842,7 @@ extern u8 D_00793E80[];
  * Native b210 -O2: 1412/1424 bytes; all relocations and twelve zero tail bytes.
  * See docs/probe_archive/Map_shape_002b0b10_20260924.md. */
 // FUN_002B0B10
+/* measured: direct and named render-device depth source; best baseline residual 349 differing bytes. */
 void smapDrawQuad(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, u8 origin, f32 scale, s32 color, s8 orientation, s32 layer) {
     YVec3f corners[4];
     typedef struct SMapRenderDevice {
@@ -2199,6 +2204,7 @@ f32 smapPositionOffsetZ(f32 cellSize, YVec3f *position) {
 // FUN_002B1520
 #pragma push
 #pragma opt_loop_invariants on
+/* measured: access-site fields and existing typed map alias; best baseline residual 2089 differing bytes. */
 void smapDrawPanel(s32 unused, u8 *work) {
     SMapWork *map = (SMapWork *)work;
     u32 renderStates;
@@ -2391,6 +2397,7 @@ void smapClearSelection(u8 *task) {
 /* Allocate the map corner, strip and end sprites and initialize their queued panel draw node. */
 // FUN_002B2290
 #pragma opt_loop_invariants on
+/* measured: literal and named end-sprite coordinate constants; best baseline residual 46 differing bytes. */
 void smapUpdateItems(u8 *task)
 {
     s16 cornerIndex;
@@ -2475,6 +2482,7 @@ void smapSetRenderStates(void) {
 #pragma opt_propagation off
 /* Populate four colored rectangle vertices and queue a draw with the map render-state callback. */
 // FUN_002B25D0
+/* measured: explicit depth-source pointer and propagation bisection; best baseline residual 69 differing bytes. */
 s32 smapUpdateOverlay(u8 *task) {
     f32 reciprocalDepth;
     f32 nearDepth;

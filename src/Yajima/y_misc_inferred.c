@@ -521,6 +521,7 @@ done:
 #pragma opt_loop_invariants on
 // Intent: Count the decimal digits of an integer [inferred]
 // FUN_002B3170
+/* measured: do/while and pre-tested quotient loop; best baseline residual 14 differing bytes. */
 s32 fclDecimalDigitCount(s32 value)
 {
     s32 result;
@@ -658,6 +659,7 @@ u8 *fclExpandNameTags(u8 *text, s32 mode, u8 *secondName, u8 *thirdName, u8 *fou
 /* measured: opt_loop_invariants on hoists the tag constants out of the loop. */
 /* measured: fclTagTextLength MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* measured: literal and named tag comparison constants; best baseline residual 398 differing bytes. */
 s32 fclTagTextLength(u8 *p, s64 tagMode)
 {
     s32 count;

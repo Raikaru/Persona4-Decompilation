@@ -288,6 +288,7 @@ extern u8 D_00793E80[];
 // FUN_002B5C90
 /* measured: open opt_loop_invariants scope for fclSpriteSpawnChild. */
 #pragma opt_loop_invariants on
+/* measured: bare removal and aggregate white-color snapshot; best baseline residual 20 differing bytes. */
 s32 fclSpriteSpawnChild(s32 parent, f2 position) {
     s32 handle;
     u8 *work;
@@ -470,6 +471,7 @@ void fclSpriteApplySkyPresetB(void) {
 #pragma opt_propagation off
 // Intent: per-frame update of one sprite task: advances its tweens, then, when alpha and scale are above threshold, queues the sprite draw (sdkSpriteDrawQueued) with the layout chosen by flag 13.
 // FUN_002B6340
+/* measured: MEMBER scale load, snapshot order and reversed comparison; best baseline residual 6 differing bytes. */
 s32 fclSpriteUpdateAndDrawTask(u8 *task) {
     FclSpriteRecord *sprite;
     u8 *p;
@@ -518,9 +520,7 @@ void fclSpriteDestroyTask(u8 *task) {
  * dimension divisor after its provider call. The copied signed index and
  * named word offset retain the component-address arithmetic. */
 #pragma push
-/* measured: opt_loop_invariants off preserves the retail loop's per-iteration
-   index-extension and issue order. */
-#pragma opt_loop_invariants off
+/* measured: the file baseline keeps loop invariants off and preserves retail index-extension order. */
 /* measured: opt_propagation off preserves saved-register assignment and local
    load ordering for this target. */
 #pragma opt_propagation off
@@ -530,6 +530,7 @@ void fclSpriteDestroyTask(u8 *task) {
 #pragma opt_pulloutconstants off
 // Intent: creates the 0x100-byte sprite draw task under parent parent (update fclSpriteUpdateAndDrawTask, destroy fclSpriteDestroyTask). spriteId is the slot stored at +4 and resource the tint word stored at +0. Three channels start at their default state and the size comes from the sprite node. y_smap.c creates two of these, slots 0xC and 0xD, for map symbols.
 // FUN_002B6590
+/* measured: direct component-index snapshot and constant-pullout bisection; best baseline residual 256 differing bytes. */
 s32 fclSpriteCreateDrawTask(s32 parent, s16 spriteId, s32 resource) {
     s32 result;
     u8 *work;
@@ -585,8 +586,7 @@ s32 fclSpriteCreateDrawTask(s32 parent, s16 spriteId, s32 resource) {
     sdkSpriteFreeNode(component);
     return result;
 }
-/* measured: restore opt_loop_invariants after the target. */
-#pragma opt_loop_invariants off
+/* measured: pop restores the saved file settings after the target. */
 #pragma pop
 
 
@@ -635,6 +635,7 @@ s32 fclSpriteHasDisplayFlags(u8 *task) {
 // FUN_002B68D0
 /* measured: open opt_propagation scope for fclSpriteSetFlag. */
 #pragma opt_propagation off
+/* measured: typed and MEMBER work-base loads; best baseline residual 14 differing bytes. */
 void fclSpriteSetFlag(s16 index, s16 bit, s8 mode) {
     u8 *pool = ((KwlnTask *)(iGpffffb574))->work;
     u8 *slot = pool + ((s32)index << 8);
@@ -689,6 +690,7 @@ void fclSpriteStartPositionTask(u8 *task, f2 start, f2 end, u32 mode, u32 durati
 // FUN_002B69F0
 /* measured: open opt_propagation scope for fclSpriteStartPositionAt. */
 #pragma opt_propagation off
+/* measured: typed and MEMBER work-base loads; best baseline residual 14 differing bytes. */
 void fclSpriteStartPositionAt(s16 index, f2 start, f2 end, u32 mode, u32 duration, s16 delay) {
     u8 *work = ((KwlnTask *)(iGpffffb574))->work;
     fclSpriteStartPosition(work + ((s32)index << 8) + 0x14, start, end, mode, duration, delay);
@@ -718,6 +720,7 @@ void fclSpriteStartAlphaTask(u8 *task, u8 startAlpha, u8 endAlpha, u8 mode, s32 
 // FUN_002B6A70
 /* measured: open opt_propagation scope for fclSpriteStartAlphaAt. */
 #pragma opt_propagation off
+/* measured: typed and MEMBER work-base loads; best baseline residual 14 differing bytes. */
 void fclSpriteStartAlphaAt(s16 index, u8 startAlpha, u8 endAlpha, u8 mode, s32 duration, s16 delay) {
     u8 *work = ((KwlnTask *)(iGpffffb574))->work;
     fclSpriteStartAlpha(work + ((s32)index << 8) + 0x14, startAlpha, endAlpha, mode, duration, (s16)delay);
@@ -746,6 +749,7 @@ void fclSpriteStartRevealScaleTask(u8 *task, f32 startX, f32 endX, f32 startY, f
 // Fcl sprite start reveal scale (index): starts a scale reveal on sprite index.
 // FUN_002B6AF0
 #pragma opt_propagation off
+/* measured: typed and MEMBER work-base loads; best baseline residual 13 differing bytes. */
 void fclSpriteStartRevealScaleAt(s16 index, f32 startX, f32 endX, f32 startY, f32 endY, u32 mode, u32 duration, s16 delay) {
     u8 *work = ((KwlnTask *)(iGpffffb574))->work;
     fclSpriteStartRevealScale(work + ((s32)index * 256) + 0x14, startX, endX, startY, endY, mode, duration, (s16)delay);
@@ -757,6 +761,7 @@ void fclSpriteStartRevealScaleAt(s16 index, f32 startX, f32 endX, f32 startY, f3
 // Fcl sprite start tween (index): starts a two-float tween on sprite index.
 // FUN_002B6B40
 #pragma opt_propagation off
+/* measured: typed and MEMBER work-base loads; best baseline residual 13 differing bytes. */
 void fclSpriteStartTweenAt(s16 index, u8 mode, s32 duration, s32 delay, f32 start, f32 end) {
     u8 *work = ((KwlnTask *)(iGpffffb574))->work;
     fclSpriteStartTween(work + ((s32)index << 8) + 0x14, mode, duration, (s16)delay, start, end);
@@ -768,6 +773,7 @@ void fclSpriteStartTweenAt(s16 index, u8 mode, s32 duration, s32 delay, f32 star
 // Fcl sprite start color (index): starts a colour fade on sprite index.
 // FUN_002B6B90
 #pragma opt_propagation off
+/* measured: typed and MEMBER work-base loads; best baseline residual 14 differing bytes. */
 void fclSpriteStartColorAt(s16 index, u4 start, u4 end, u8 mode, s16 duration, s32 delay) {
     u8 *work = ((KwlnTask *)(iGpffffb574))->work;
     fclSpriteStartColor(work + ((s32)index << 8) + 0x14, start, end, mode, duration, (s16)delay);
@@ -834,6 +840,7 @@ void fclSpriteCreate(s16 index, f2 position, f32 depth, s32 order) {
 // FUN_002B6D60
 /* measured: open opt_propagation scope for fclSpriteResetScale. */
 #pragma opt_propagation off
+/* measured: typed and MEMBER work-base loads; best baseline residual 19 differing bytes. */
 void fclSpriteResetScale(s16 index) {
     u8 *base = ((KwlnTask *)(iGpffffb574))->work;
     u8 *last;
@@ -890,14 +897,12 @@ static inline s16 yDrawAnyBit(s32 flags)
 #define YDRAW_BASE (((KwlnTask *)iGpffffb574)->work)
 
 #pragma push
-#pragma opt_common_subs on
 /* measured: these scopes reproduce retail's lifetimes and register roles (fnalign 0). */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-#pragma opt_propagation off
-#pragma opt_pulloutconstants off
 // Fcl sprite pool update: per-frame update of every active sprite record in the pool.
 // FUN_002B6EC0
+/* measured: bare removal and lifetime/invariant/propagation/pullout bisection; best baseline residual 86 differing bytes. Invariants plus lifetimes alone MATCH. */
 s32 fclSpritePoolUpdate(u8 *task) {
     u32 entryOffset;
     s16 *queue;
@@ -1025,11 +1030,11 @@ void fclSpritePoolDestroy(u8 *task) {
  * Record addresses use signed EE word arithmetic before byte component offsets;
  * separate table snapshots preserve provider-visible work-data replacement. */
 #pragma push
-#pragma opt_loop_invariants off
 #pragma opt_propagation off
 #pragma schedule off
 // Fcl sprite pool create: creates the pool task, initialises its 0x30C records, and returns the pool work block.
 // FUN_002B74F0
+/* measured: typed and MEMBER work-base loads; best baseline residual 294 differing bytes. */
 u8 *fclSpritePoolCreate(s32 parent, s32 resource) {
     u8 *data;
     u8 *entries;
@@ -1094,8 +1099,7 @@ u8 *fclSpritePoolCreate(s32 parent, s32 resource) {
 
 // Fcl sprite reset: sets sprite index's id to spriteId and clears its flags and state.
 // FUN_002B7750
-/* measured: open opt_propagation scope for fclSpriteReset. */
-#pragma opt_propagation off
+/* measured: baseline propagation matches all 116 code bytes without the local off/on pair. */
 void fclSpriteReset(s16 index, s16 spriteId) {
     u8 *base = ((KwlnTask *)(iGpffffb574))->work;
     s32 recordOffset = ((s32)index) << 8;
@@ -1111,8 +1115,6 @@ void fclSpriteReset(s16 index, s16 spriteId) {
     base = ((KwlnTask *)(iGpffffb574))->work;
     ((FclSpriteRecord *)(base + recordOffset + 4))->animation.valueReverse = 0;
 }
-/* measured: opt_propagation off is required for the byte-exact 7750 reset sequence. */
-#pragma opt_propagation on
 /* 1280-byte retail row transition.
  * Capture each table before the associated provider or conversion.
  * Preserve the constructor result and outgoing position in each branch.
@@ -1148,6 +1150,7 @@ typedef struct YDrawTransitionFlags {
 
 // Intent: starts a show or hide transition for pool slot index (hidden == 1 hides, otherwise shows). Sets the slot's flags, sizes it from the scaled sprite width and height, and starts the alpha, reveal-scale and position tweens with the given duration and delay.
 // FUN_002B77D0
+/* measured: MEMBER work-base loads and constant-pullout bisection; best baseline residual 58 differing bytes. */
 void fclSpriteStartShowHide(s16 index, f2 position, s16 spriteId, FclDrawColor color, f32 depth, s16 order, s8 hidden, s16 showDuration, s16 hideDuration, s16 startDelay, u32 resource) {
     u8 *sprite;
     s32 recordOffset;
@@ -1246,10 +1249,10 @@ typedef struct {
 
 #pragma push
 #pragma opt_loop_invariants on
-#pragma opt_propagation off
 #pragma schedule off
 // Intent: when the sprite entry has no bit set in flags 1-12, computes its screen margins and sets or clears its cull flag by whether it lies on screen.
 // FUN_002B7CD0
+/* measured: bare removal and separate propagation/invariant probes; best baseline residual 17 differing bytes. Invariants alone MATCH. */
 void fclSpriteUpdateCulling(u8 *task, s16 index, s16 spriteId) {
     u8 *context;
     s32 entryOffset;
@@ -1346,6 +1349,7 @@ found_check:
 #pragma schedule off
 // Intent: one-shot layout of the 0x130-byte panel task: sets its four channel records and two render positions, and queues the render job with fclSpriteApplyMaskedPreset and fclSpriteEmitTagPair. Returns at once while +0x124 is set; fclSpriteCreatePanelChild sets that flag, and nothing traced so far clears it.
 // FUN_002B7F20
+/* measured: explicit depth-source pointer and propagation bisection; best baseline residual 285 differing bytes. */
 s32 fclSpriteStartPanelLayout(u8 *task) {
     FclSpritePanel *panel;
     u8 *p;
@@ -1393,8 +1397,7 @@ s32 fclSpriteStartPanelLayout(u8 *task) {
     PrimAppendNode(D_00793E80 + (panel->order + 1) * 0x30, q);
     return 0;
 }
-/* measured: restore opt_loop_invariants after the target. */
-#pragma opt_loop_invariants off
+/* measured: pop restores the saved file settings after the target. */
 #pragma pop
 
 // Intent: destroy callback for the 0x130-byte panel task created by fclSpriteCreatePanelChild (frees the work block at +0x38).
@@ -1801,6 +1804,7 @@ s32 fclSpriteUpdateTweens(u8 *animation) {
 #pragma opt_propagation off
 // Intent: sets the four corner quads of a sprite from the fixed inputs at +0x1F4-+0x200, sets the sky render states for the quad draw, and writes the four corner positions.
 // FUN_002B9AB0
+/* measured: explicit depth-source pointer and propagation bisection; best baseline residual 397 differing bytes. */
 void fclSpriteBuildCornerQuads(u8 *task, u8 *entry) {
     f32 scale;
     s16 i;
@@ -1875,6 +1879,7 @@ void fclSpriteBuildCornerQuads(u8 *task, u8 *entry) {
 #pragma opt_propagation off
 // Intent: updates the list's entries (count at +0x6600). An active entry advances its tweens and queues fclSpriteBuildCornerQuads while visible; an idle one clears its active bit.
 // FUN_002B9E10
+/* measured: MEMBER scale load and reversed comparison; best baseline residual 6 differing bytes. */
 s32 fclSpriteListUpdate(u8 *task) {
     u8 *q;
     u8 *p;
