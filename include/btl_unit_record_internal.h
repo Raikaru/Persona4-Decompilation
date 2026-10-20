@@ -27,9 +27,9 @@ typedef struct BtlUnitEnemyRecord {
     s16 flags;                   /* 0x18: 0x100 tested when target hit rows are flagged */
     u8 pad1A[8];
     s16 unk22;                   /* 1 rejects the skill flags00 & 2 path */
-    u8 pad24[2];
+    u16 homeMove;                /* 0x24: home movement motion, skill flag 2 set */
     s16 unk26;                   /* 1 rejects the active-entry path */
-    u8 pad28[2];
+    u16 homeMoveAlternate;       /* 0x28: home movement motion, skill flag 2 clear */
     BtlMotionRate motions[19];    /* 0x2A */
 } BtlUnitEnemyRecord;
 

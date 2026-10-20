@@ -1,3 +1,4 @@
+#include "btl_unit_record_internal.h"
 #include "list_item_internal.h"
 #include "btl_skill_target_internal.h"
 #include "btl_packet_create_internal.h"
@@ -195,8 +196,7 @@ void btlActionStartInit(BtlAction *action) {
  * bytes. Typed action/unit members and u16 casts avoid hoisting field addresses
  * and the mask into saved registers. See the 2026-09-20 donor recovery proof. */
 /* Apply turn-start passive HP/SP recovery and guard flags before selecting the next state. */
-/* Keep the two packet UID loads byte-addressed: typed uid access hoisted
- * resultPacket+0x58 into a saved register and added an instruction (nd 185). */
+/* A separate typed packet pointer preserves the dependency-load lifetime. */
 // FUN_001A0B00
 #pragma push
 void btlActionStartUpdate(s64 *actionWords) {
@@ -228,6 +228,7 @@ void btlActionStartUpdate(s64 *actionWords) {
     u8 *resultPacket;
     u8 *statusPacket;
     u8 *statPacket;
+    BtlPacket *resultDependency;
 
     action = (BtlAction *)actionWords;
     if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x80000) == 0 &&
@@ -274,6 +275,7 @@ void btlActionStartUpdate(s64 *actionWords) {
                 }
             }
             resultPacket = (u8 *)btlTargetCreateDataPacket((s32)actionWords, (s32)actionWords, &result, 1, 1);
+            resultDependency = (BtlPacket *)resultPacket;
             ((BtlPacket *)resultPacket)->actionUID = action->uid;
             btlPacketEnqueue(resultPacket, 1);
             if ((result.hpDelta != 0) || (result.spDelta != 0)) {
@@ -281,13 +283,13 @@ void btlActionStartUpdate(s64 *actionWords) {
                 unit = (s32)(u8 *)action->unit;
                 statusPacket = btlPacketCreateHitDisplay(unit, unit, -1, 0, 0, 0, 1, &result, 8);
                 ((BtlPacket *)statusPacket)->dependencyKind = 4;
-                ((BtlPacket *)statusPacket)->dependencyUID = *(s64 *)(resultPacket + 0x58);
+                ((BtlPacket *)statusPacket)->dependencyUID = ((BtlPacket *)resultPacket)->uid;
                 ((BtlPacket *)statusPacket)->flags &= ~0x20;
                 btlPacketEnqueue(statusPacket, 3);
                 if (result.hpDelta != 0) {
                     statPacket = (u8 *)btlPacketCreateUnitCounter((s32)(u8 *)action->unit, 0, 0);
                     ((BtlPacket *)statPacket)->dependencyKind = 4;
-                    ((BtlPacket *)statPacket)->dependencyUID = *(s64 *)(resultPacket + 0x58);
+                    ((BtlPacket *)statPacket)->dependencyUID = resultDependency->uid;
                     ((BtlPacket *)statPacket)->flags &= ~0x20;
                     btlPacketEnqueue(statPacket, 3);
                 }
@@ -351,9 +353,8 @@ void btlActionStartHomeInit(BtlAction *action)
             sourceOffset = (u32)formRow * 0xE8;
             sum = sourceOffset + tbl;
             idx4 = (u16)tableColumn * 4;
-            /* Retain the materialized table byte address: this measured source
-             * order preserves retail addu operands for the movement row at +0x24. */
-            moveId = *(u16 *)(idx4 + sum + 0x24);
+            /* The selected halfword lies in the enemy row's two home-move slots. */
+            moveId = ((BtlUnitEnemyRecord *)(idx4 + sum))->homeMove;
             break;
         }
         movePacket = (u8 *)btlUnitCreateMovePacket(
