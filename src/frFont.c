@@ -2,6 +2,11 @@
 #include "type.h"
 /* Font metric payloads carry a byte count before variable-sized data. */
 typedef struct FrFontMetricChunk { u32 size; u8 data[1]; } FrFontMetricChunk;
+/* Encoded text has a leading byte followed by the remaining byte stream. */
+typedef struct FrFontEncodedText {
+    union { u8 byte; s8 signedByte; };
+    u8 tail[];
+} FrFontEncodedText;
 /* Interior alias of the slot object column; successive objects are 0x20 apart. */
 typedef struct FrFontSlotObject { u32 object; u8 pad04[0x1C]; } FrFontSlotObject;
 #include "sdk_task_registration.h"
@@ -713,7 +718,8 @@ void frFontComputeGlyphMetrics(u8 *glyph, s32 glyphIndex)
         metricsOffset = glyphIndex * 2;
         if (metricsOffset < (s32)slot->f08) {
             metricsAddress = (s32)slot->f10;
-            rightEdge = *(s8 *)(metricsAddress + 1 + metricsOffset) /* layout: variable-length signed edge table; typed stride/member addressing changes instruction ordering */; /* measured: this access-site member rewrite changes instruction bytes. */
+            /* measured: pair indexing/site fields fold +1 into lb; typed-local stride indexing grows the body. Keep add-right then add-offset. */
+            rightEdge = *(s8 *)(metricsAddress + MEMBER_OFFSET(FrFontGlyphMetrics, right) + metricsOffset);
             if (rightEdge != 0) {
                 leftEdge = ((FrFontGlyphMetrics *)(metricsAddress + metricsOffset))->left;
                 leftFixed = leftEdge * 0x10;
@@ -1071,7 +1077,7 @@ u8 *frFontCreateTextList(u8 *text, s32 style, s8 palette, s32 effect, u8 *existi
         ch = value;
         if (value >= 0x80) {
             i += 1;
-            ch = (u16)(((u16)value << 8) | *(u8 *)(text + i) /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */); /* measured: this access-site member rewrite changes instruction bytes. */
+            ch = (u16)(((u16)value << 8) | ((FrFontEncodedText *)(text + i))->byte);
         }
         glyph = frFontCreateGlyphNode(ch, D_007645B4, glyphPalette, glyphEffect);
         if (lastGlyph == NULL) {
@@ -2069,7 +2075,7 @@ void frFontLayoutSlotText(u8 index, u8 *context)
         position = 0;
         goto text_test;
 text_body:
-            byte = *(s8 *)(text + position) /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */; /* measured: this access-site member rewrite changes instruction bytes. */
+            byte = ((FrFontEncodedText *)(text + position))->signedByte;
             glyph[0] = byte;
             if (byte == 0x20) {
                 glyph[0] = -0x7D;
@@ -2079,7 +2085,7 @@ text_body:
                 /* Preserve the signed-byte extraction without a signed left shift. */
                 if ((((s64)((u64)byte << 56) >> 56) & 0xFF) >= 0x80) {
                     position += 1;
-                    glyph[1] = *(s8 *)(text + position) /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */; /* measured: this access-site member rewrite changes instruction bytes. */
+                    glyph[1] = ((FrFontEncodedText *)(text + position))->signedByte;
                 }
             }
             style = (styleFields = (FrFontContext *)(context), styleFields)->style; /* measured: this access-site member rewrite changes instruction bytes. */
@@ -2232,7 +2238,7 @@ void frFontLayoutText(u8 *text, u8 *context)
         position = 0;
         goto loop_test_30;
 loop_body_30:
-            byte = *(s8 *)(text + position) /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */; /* measured: this access-site member rewrite changes instruction bytes. */
+            byte = ((FrFontEncodedText *)(text + position))->signedByte;
             glyphBuffer.bytes[0] = byte;
             if (byte == 0x20) {
                 glyphBuffer.bytes[0] = -0x7D;
@@ -2241,7 +2247,7 @@ loop_body_30:
                 glyphBuffer.bytes[1] = 0;
                 if ((((s64)((u64)byte << 56) >> 56) & 0xFF) >= 0x80) {
                     position += 1;
-                    glyphBuffer.bytes[1] = *(s8 *)(text + position) /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */ /* layout: variable-length encoded text; typed tail indexing changes instruction ordering */; /* measured: this access-site member rewrite changes instruction bytes. */
+                    glyphBuffer.bytes[1] = ((FrFontEncodedText *)(text + position))->signedByte;
                 }
             }
             style = (styleFields = (FrFontContext *)(context), styleFields)->style; /* measured: this access-site member rewrite changes instruction bytes. */

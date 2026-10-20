@@ -17,6 +17,12 @@ typedef struct CmmCurrentWork {
     u8 pad12[0x0E];
 } CmmCurrentWork;
 
+/* Game flags are the 0xB0 words at +0x3E2C of the saved game state. */
+typedef struct CmmGameState {
+    u8 pad00[0x3E2C];
+    s32 flags[0xB0];
+} CmmGameState;
+
 extern void *memset(void *dest, s32 value, s32 size);
 extern s32 kwlnTaskGetTaskByName(void *name);
 extern u32 kwlnTaskGetWork(s32 task);
@@ -49,7 +55,7 @@ extern void *cmmKindRecord(s32 kindId);
 extern void cmmCommunityReleaseRecord(s32 communityId);
 extern void datSetFlag(s32 flagId, s32 enabled);
 extern u32 D_0079B1CC[];
-extern u8 D_007973A0[];
+extern CmmGameState D_007973A0[];
 extern void cmmCommunitySetFlagBand(s32 communityId, s32 band);
 
 extern void datDestroyTaskByName(void);
@@ -872,7 +878,7 @@ ret:
    u32-typed and `0 < x` spellings into a direct and;beqz (2 missing sltu words
    shift the whole tail; nd 64). Everything else matched on the first draft.
    Booleanize floor. */
-// measured: datGetFlag and a static inline bit-test helper both move codegen here (owner verify), so the raw D_0079B1CC and D_007973A0+0x3E2C reads stay.
+/* measured: the typed game-state flag array preserves both owner matches; calling datGetFlag or a bit-test helper changes codegen. */
 // Earn scale: returns the float multiplier for points community value earns, from cmmRosterHasArcana on its arcana, the event bit in D_0079B1CC, and the per-slot bands in D_007973A0.
 /* The character lookup receives this function's incoming identifier.
    With that argument explicit, the configured O2 profile preserves every
@@ -905,8 +911,8 @@ f32 cmmCommunityEarnScale(s32 communityId) {
             if (cmmEarnScaleTable()->slot[i].flagBit != 0) {
                 b = cmmEarnScaleTable()->slot[i].flagBit;
                 /* Linker interior aliases: D_0079B1CC is D_007973A0 + 0x3E2C, the shared game-flag bank. */
-                q = (s32 *)(D_007973A0 + (b / 32) * 4);
-                hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
+                q = &D_007973A0->flags[b / 32];
+                hit = (*q & (1 << (b % 32))) != 0;
                 if (hit != 0) {
                     v = v * cmmEarnScaleTable()->slot[i].mul;
                 }
@@ -979,10 +985,9 @@ ret:
         while (x < 3) {
             if (cmmEarnScaleTable()->slot[x].flagBit != 0) {
                 b = cmmEarnScaleTable()->slot[x].flagBit;
-                /* Keep the flag-bank base/offset shape, as measured for cmmCommunityEarnScale above. */
                 /* Linker interior aliases: D_0079B1CC is D_007973A0 + 0x3E2C, the shared game-flag bank. */
-                q = (s32 *)(D_007973A0 + (b / 32) * 4);
-                hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
+                q = &D_007973A0->flags[b / 32];
+                hit = (*q & (1 << (b % 32))) != 0;
                 if (hit != 0) {
                     v = v * cmmEarnScaleTable()->slot[x].mul;
                 }

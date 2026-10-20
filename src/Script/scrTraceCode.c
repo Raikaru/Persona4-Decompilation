@@ -21,6 +21,12 @@ typedef struct
     s32 count;         // 0x04
 } ScrCmdGroup;
 
+/* Count-column alias: each next count follows one command-list pointer. */
+typedef struct ScrCmdGroupCount {
+    s32 count;
+    ScrCmdEntry *nextCommands;
+} ScrCmdGroupCount;
+
 typedef u32 (*CodeFunc)(ScrScriptWork* scr);
 
 /* Opcode indices into D_0063E2B0 (sCodeFuncTable). Verified against docs/dispatch_tables.md. */
@@ -134,7 +140,7 @@ extern s32 D_00882AD0[]; /* VM memory, int view */
 extern f32 D_008826D0[]; /* VM memory, float view */
 
 extern ScrCmdGroup D_00748530[];  /* grouped command table */
-extern s32 D_00748534[][2];       /* grouped command table, count view (base + 4) */
+extern ScrCmdGroupCount D_00748534[];
 
 extern CodeFunc D_0063E2B0[]; /* sCodeFuncTable */
 
@@ -439,7 +445,7 @@ u32 scrOpCallCommand(u8 *context)
     groupOffset = ((cmdId >> 12) & 0xFF) << 3;
     cmdId &= 0xFFF;
     /* Linker interior alias: the count field (+4) of D_00748530[group]; preserve its zero-displacement load. */
-    K_ASSERT(*(s32 *)((u8 *)D_00748534 + groupOffset) > cmdId, 0x176);
+    K_ASSERT(((ScrCmdGroupCount *)((u8 *)D_00748534 + groupOffset))->count > cmdId, 0x176);
     cmdOffset = cmdId << 3;
     cmds = ((ScrCmdGroup *)((u8 *)D_00748530 + groupOffset))->cmds;
     entry = (ScrCmdEntry *)((u8 *)cmds + cmdOffset);

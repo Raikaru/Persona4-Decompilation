@@ -54,6 +54,7 @@ typedef struct DatBuffPercent
     u8 secondary[2][3];
 } DatBuffPercent;
 
+
 extern u32 datGetLevelTableFirstValue(s16 unitId);
 extern s32 datCalcHasSkill(DatUnit *unit, s32 skillId);
 
@@ -443,7 +444,7 @@ static inline s32 PTDatCalcHasSkill(DatUnit *unit, s32 requestedSkill)
         }
         index = (index + 1) & 0xFFFF;
     }
-    if (!(*(u16 *)unit & 4)) {
+    if (!(unit->flags & 4)) {
         result = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)((DatUnit *)((u8 *)unit))->id, 2) & 0xFFFF);
         if (result >= 0) {
             if (skill == datItemGrantedSkill((s16)result)) {
@@ -1125,7 +1126,8 @@ f32 datCalcBuffMultiplier(u8 *unit, s32 buffIndex, u16 unusedSkill)
         break;
     case 2:
         table = iGpffffb408; /* Interleaved side rows: bank center 7, indexed by minus signed status. */
-        value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + 7U - (u32)status);
+        /* measured: typed row arrays and site/local fields change address formation; preserve add-center then subtract-status. */
+        value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + MEMBER_OFFSET(DatBuffPercent, secondary[0][1]) - (u32)status);
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
         if (enemyFlag == 0 && datPersonaLeadBoosted(((DatUnit *)unit)->id) != 0) {
@@ -1134,7 +1136,8 @@ f32 datCalcBuffMultiplier(u8 *unit, s32 buffIndex, u16 unusedSkill)
         break;
     case 3:
         table = iGpffffb408; /* Interleaved side rows: bank center 1, indexed by minus signed status. */
-        value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + 1U - (u32)status);
+        /* measured: typed row arrays and site/local fields change address formation; preserve add-center then subtract-status. */
+        value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + MEMBER_OFFSET(DatBuffPercent, primary[0][1]) - (u32)status);
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
         if (enemyFlag == 0 && datPersonaLeadBoosted(((DatUnit *)unit)->id) != 0) {
@@ -1542,10 +1545,10 @@ static inline void P4CalcSetLevel(DatUnit *unit, u8 index, s8 level)
     offset = index >> 1;
     if (index & 1) {
         ptr = (u8 *)unit + offset;
-        ptr[0x24] = (ptr[0x24] & 15) | ((level & 15) << 4);
+        ((DatCalcUnitState *)ptr)->secondaryLevels[0] = (((DatCalcUnitState *)ptr)->secondaryLevels[0] & 15) | ((level & 15) << 4);
     } else {
         ptr = (u8 *)unit + offset;
-        ptr[0x24] = (ptr[0x24] & 240) | (level & 15);
+        ((DatCalcUnitState *)ptr)->secondaryLevels[0] = (((DatCalcUnitState *)ptr)->secondaryLevels[0] & 240) | (level & 15);
     }
 }
 
@@ -1619,7 +1622,7 @@ s64 datCalcFindStrongBuff(u8 *unit)
 static inline u16 DCHitEquipmentCount(u8 *unit, s32 property)
 {
     /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
-    if (*(u16 *)unit & 4) {
+    if (((DatUnit *)unit)->flags & 4) {
         return 0;
     }
     return datCalcCountIdSlotsWithValue(((DatUnit *)unit)->id, property);
@@ -1630,7 +1633,7 @@ static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
     /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
     u16 character;
 
-    if (*(u16 *)unit & 4) {
+    if (((DatUnit *)unit)->flags & 4) {
         return 0;
     }
     character = ((DatUnit *)unit)->id;
@@ -1652,7 +1655,7 @@ static inline u16 DCDamageAccessoryProperty(DatUnit *unit)
 {
     /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
     s16 character;
-    if (*(u16 *)unit & 4) {
+    if (unit->flags & 4) {
         return 0;
     }
     character = (s16)((DatUnit *)((u8 *)unit))->id;
@@ -1668,7 +1671,7 @@ static inline f32 DCDamageAccessoryFraction(DatUnit *unit)
     extern u16 datItemAccessoryPercent(s16 itemId);
     s16 character;
     s32 percent;
-    if (*(u16 *)unit & 4) {
+    if (unit->flags & 4) {
         return 0.0f;
     }
     character = (s16)((DatUnit *)((u8 *)unit))->id;
@@ -1687,10 +1690,12 @@ static inline s32 DCDamageAddBonus(s32 base, s16 bonus)
     return base + bonus;
 }
 
+/* Read the damage class. measured: array/site/local fields change 32 bytes in
+ * datCalcSkillAmount; retain the byte-table index with a named member offset. */
 static inline u8 DCDamageSkillKind(u16 skill)
 {
     u8 *table = iGpffffb3b8;
-    return table[(u32)skill * 0x28 + 2];
+    return table[(u32)skill * sizeof(DatSkillEntry) + MEMBER_OFFSET(DatSkillEntry, damageClass)];
 }
 
 /* measured: b210 emits all 12176 retail bytes, with all code
@@ -3808,7 +3813,7 @@ ret0:
 static inline u8 *DC411SkillTable(u8 *unit)
 {
     /* Preserve the byte cursor; fields and measured MEMBER sites retain the retail load behavior. */
-    if (!(*(u16 *)unit & 4)) {
+    if (!(((DatUnit *)unit)->flags & 4)) {
         if (((DatUnit *)unit)->id >= 0xB) {
             kAssertFail(D_00635938, 0xFA5);
         }
@@ -3820,7 +3825,7 @@ static inline u8 *DC411SkillTable(u8 *unit)
         kAssertFail(D_00635938, 0xFA8);
     }
     /* measured: typed site/local/array forms change instructions; this existing member is exact. */
-    return iGpffffb3c4 + MEMBER(u16, unit, DatUnit, id) * 0x3C + 0xE;
+    return (u8 *)((DatEnemyUnitInit *)iGpffffb3c4)[MEMBER(u16, unit, DatUnit, id)].skills;
 }
 
 static inline s32 DC411HasFixedSkill(u8 *unit, s32 requestedSkill)
@@ -3840,7 +3845,7 @@ static inline s32 DC411HasFixedSkill(u8 *unit, s32 requestedSkill)
         }
         index = (index + 1) & 0xFFFF;
     }
-    if (!(*(u16 *)unit & 4)) {
+    if (!(((DatUnit *)unit)->flags & 4)) {
         equipment = (u32)(u16)datGetEquippedItemByUnit((s16)((DatUnit *)(unit))->id, 2);
         if (equipment >= 0) {
             if (skill == datItemGrantedSkill((s16)equipment)) {

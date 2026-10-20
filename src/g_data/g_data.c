@@ -8,6 +8,34 @@
 #include "rw_camera_internal.h"
 #include "h_cdvd_request_internal.h"
 #include "member_access.h"
+#include "byte_address_internal.h"
+
+/* Interior columns of the party slots retain the linker's own address anchors. */
+typedef struct DatPartyCategories {
+    s16 points[8];
+    u8 pad10[0x78];
+} DatPartyCategories;
+typedef struct DatPartyTail {
+    s16 value;
+    u8 pad02[0x86];
+} DatPartyTail;
+typedef struct DatPartyEquipment {
+    s16 items[3];
+    u8 pad06[0x82];
+} DatPartyEquipment;
+/* Offsets are pinned by the flag, script-value and collection accessors. */
+typedef struct DatSaveState {
+    u8 pad00[0x3E2C];
+    u32 flags[0xB0];
+    u32 scriptValues[0x80];
+    u8 pad42EC[0x64C];
+    u32 collection[0x55];
+} DatSaveState;
+/* Save sections follow the fixed 0x34-byte image header. */
+typedef struct DatSaveImage {
+    u8 header[0x34];
+    u8 sections[];
+} DatSaveImage;
 
 typedef struct DatScoreRecord {
     u8 pad00[6];
@@ -122,9 +150,9 @@ extern u8 D_007973C4[];
 extern u8 D_00796E50[];
 extern u8 D_00796D4C[];
 extern u8 D_00796D4E[];
-extern u8 D_00796D84[];
-extern u8 D_00796D8C[];
-extern u8 D_00796D74[];
+extern DatPartyTail D_00796D84[];
+extern DatPartyEquipment D_00796D8C[];
+extern DatPartyCategories D_00796D74[];
 extern u8 D_00796D54[];
 extern s16 D_00797574[];
 extern u8 D_007973CA[];
@@ -258,10 +286,6 @@ extern void FUN_0043f9c8(void* destination, s32 value, u32 size);
 extern void datBuildPersonaDisplayName(void);
 extern u8 DAT_007973a0[0x24];
 
-static inline u8* idxFirst(u32 a, u8* b)
-{
-    return (u8*)(a + (u32)b);
-}
 
 // Intent: copies one entry from the loaded table, with its record lists, into a new heap block and returns it.
 // FUN_00104900
@@ -273,15 +297,15 @@ void* datCloneEntryBlock(s32 entryIndex)
     DatEntryBlock* block;
 
     chkmemAllocSiteTag(D_005E4298, 0xB8);
-    entryOffset = (entryIndex & 0xFFFF) * 16;
+    entryOffset = (entryIndex & 0xFFFF) * sizeof(DatEntryBlock);
     size = ((DatEntryBlock*)((u8*)iGpffffb1ac + entryOffset))->largeCount * 32 + 0x10 + ((DatEntryBlock*)((u8*)iGpffffb1ac + entryOffset))->smallCount * 16;
     copy = jtbl_008873E8[0](size, 0x40000);
     block = (DatEntryBlock*)copy;
     memcpy(copy, (u8*)iGpffffb1ac + entryOffset, 0x10);
     block->largeRecords = (void*)((u32)copy + 0x10);
     block->smallRecords = (void*)((u32)((DatEntryBlock*)copy)->largeRecords + block->largeCount * 32);
-    memcpy(block->largeRecords, ((DatEntryBlock*)idxFirst(entryOffset, (u8*)iGpffffb1ac))->largeRecords, block->largeCount * 32);
-    memcpy(block->smallRecords, ((DatEntryBlock*)idxFirst(entryOffset, (u8*)iGpffffb1ac))->smallRecords, block->smallCount * 16);
+    memcpy(block->largeRecords, ((DatEntryBlock*)byteAddressAdd(entryOffset, (u8*)iGpffffb1ac))->largeRecords, block->largeCount * 32);
+    memcpy(block->smallRecords, ((DatEntryBlock*)byteAddressAdd(entryOffset, (u8*)iGpffffb1ac))->smallRecords, block->smallCount * 16);
     return copy;
 }
 
@@ -422,7 +446,7 @@ s16 datGetCategoryValueById(s16 unitId, s16 category)
     }
     else
     {
-        return *(s16*)((u8*)D_00796D74 + (s32)unitId * 0x88 + (s32)category * 2);
+        return D_00796D74[unitId].points[category];
     }
 }
 
@@ -499,6 +523,7 @@ s16 datCategoryRankProgress(s16 category, f32 scale)
 }
 #pragma pop
 
+/* Store category points in the protagonist or indexed party character record. */
 // FUN_001051A0
 /* Linker interior alias: D_00796D74 addresses the category halfwords inside 0x88-byte party slots. */
 void datSetCategoryValueById(s16 unitId, s16 category, s16 points)
@@ -509,10 +534,11 @@ void datSetCategoryValueById(s16 unitId, s16 category, s16 points)
     }
     else
     {
-        *(s16*)((u8*)D_00796D74 + (s32)unitId * 0x88 + (s32)category * 2) = points;
+        D_00796D74[unitId].points[category] = points;
     }
 }
 
+/* Read experience directly for the protagonist, otherwise require a persona record. */
 // FUN_00105210
 u32 datPersonaGetExpById(s16 unitId)
 {
@@ -858,6 +884,7 @@ second_done:
     return (s32)((u32)value3 - (u32)value);
 }
 
+/* Store the trailing character halfword, selecting protagonist or party storage. */
 // FUN_00105C90
 /* Linker interior alias: D_00796D84 addresses the tail halfword inside each 0x88-byte party slot. */
 void datSetUnitRecordTailValue(s16 unitId, s16 value)
@@ -868,7 +895,7 @@ void datSetUnitRecordTailValue(s16 unitId, s16 value)
     }
     else
     {
-        *(s16*)((u8*)D_00796D84 + (s32)unitId * 0x88) = value;
+        D_00796D84[unitId].value = value;
     }
 }
 
@@ -900,6 +927,7 @@ void datCalcClearBadStatusById(s16 unitId, u32 mask)
     }
 }
 
+/* Store an equipment ID in the selected character's equipment slot. */
 // FUN_00105DC0
 /* Linker interior alias: D_00796D8C addresses three equipment halfwords inside each 0x88-byte party slot. */
 void datSetEquippedItemByUnit(s16 unitId, s16 slotIndex, s16 itemId)
@@ -910,10 +938,11 @@ void datSetEquippedItemByUnit(s16 unitId, s16 slotIndex, s16 itemId)
     }
     else
     {
-        *(s16*)((u8*)D_00796D8C + (s32)unitId * 0x88 + (s32)slotIndex * 2) = itemId;
+        D_00796D8C[unitId].items[slotIndex] = itemId;
     }
 }
 
+/* Check the five available tactics and store the selected character's tactic. */
 // FUN_00105E30
 void datSetUnitAiTactic(s16 unitId, s16 value)
 {
@@ -1163,6 +1192,7 @@ void datSetFlag(s32 flagId, s32 enabled)
     }
 }
 
+/* Clear all 176 words of persistent game flags. */
 // FUN_00106480
 /* Linker interior alias: the flag words start at DAT_007973a0 + 0x3E2C. */
 void datClearFlags(void)
@@ -1171,7 +1201,7 @@ void datClearFlags(void)
 
     while (i < 0xB0)
     {
-        *(u32*)((u8*)DAT_007973a0 + i * 4 + 0x3E2C) = 0;
+        ((DatSaveState *)DAT_007973a0)->flags[i] = 0;
         i = i + 1;
     }
 }
@@ -1198,6 +1228,7 @@ void datSetScriptValue(s32 index, u32 value)
     D_0079B48C[index] = value;
 }
 
+/* Clear the first 127 script-value words, leaving the final word untouched. */
 // FUN_001065C0
 /* Linker interior alias: script words start at DAT_007973a0 + 0x40EC; retail clears only 127. */
 void datClearScriptValues(void)
@@ -1206,7 +1237,7 @@ void datClearScriptValues(void)
 
     while (i < 0x7F)
     {
-        *(u32*)((u8*)DAT_007973a0 + i * 4 + 0x40EC) = 0;
+        ((DatSaveState *)DAT_007973a0)->scriptValues[i] = 0;
         i = i + 1;
     }
 }
@@ -1480,10 +1511,11 @@ s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex)
     }
     else
     {
-        return *(s16*)((u8*)D_00796D8C + (s32)unitId * 0x88 + (s32)slotIndex * 2);
+        return D_00796D8C[unitId].items[slotIndex];
     }
 }
 
+/* Assign the selected character's equipment slot without validating the item ID. */
 // FUN_00106D40
 /* Linker interior alias: D_00796D8C addresses three equipment halfwords inside each 0x88-byte party slot. */
 void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId)
@@ -1494,7 +1526,7 @@ void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId)
     }
     else
     {
-        *(s16*)((u8*)D_00796D8C + (s32)unitId * 0x88 + (s32)slotIndex * 2) = itemId;
+        D_00796D8C[unitId].items[slotIndex] = itemId;
     }
 }
 
@@ -1652,8 +1684,8 @@ static inline void datCollectValidSkills(u8* skillData, u16* skills,
 
     for (skillIdx = 0; skillIdx < skillLimit; skillIdx++)
     {
-        if (skillData[skillIdx * 4] == 0 &&
-            ((s8*)skillData)[skillIdx * 4 + 1] == 1)
+        if (((DatSkillRecord *)skillData)[skillIdx].flags == 0 &&
+            ((DatSkillRecord *)skillData)[skillIdx].kind == 1)
         {
             skills[*validSkills] = ((DatSkillRecord*)skillData)[skillIdx].skill;
             (*validSkills)++;
@@ -2171,7 +2203,7 @@ void datSaveRestoreImage(s32 version, u8 *image, s32 unusedSize)
 
 /* Walk variable-length save sections and compare their byte sum with the checksum section. */
 // FUN_0010E880
-/* Variable-length packed save records: checksum data begins at byte 0x34, not a fixed struct member. */
+/* The fixed image header precedes a flexible stream of tagged sections. */
 s32 datSaveVerifyChecksum(s32 unusedVersion, u8 *image, s32 size)
 {
     u8 byte;
@@ -2203,7 +2235,7 @@ s32 datSaveVerifyChecksum(s32 unusedVersion, u8 *image, s32 size)
             i = 0;
             while (i < sum)
             {
-                checksum = (checksum + *(u8*)(image + i + 0x34)) & 0xFF;
+                checksum = (checksum + ((DatSaveImage *)(image + i))->sections[0]) & 0xFF;
                 i = i + 1;
             }
             memcpy(&length, cursor + 4, 4);
@@ -2422,6 +2454,7 @@ void datSaveRestoreSection(s32 unusedVersion, u32 tag, u32 length, u8* data)
     }
 }
 
+/* Clear all 85 words of the collection-entry bitmap. */
 // FUN_0010F390
 /* Linker interior alias: the collection words start at DAT_007973a0 + 0x4938. */
 void datClearCollectionBitmap(void)
@@ -2431,7 +2464,7 @@ void datClearCollectionBitmap(void)
 
     while (i < 0x55)
     {
-        *(u32*)(p + i * 4 + 0x4938) = 0;
+        ((DatSaveState *)p)->collection[i] = 0;
         i = i + 1;
     }
 }
@@ -2477,7 +2510,7 @@ u32 datGetCollectionEntryBits(u16 entryIndex)
 
     while (i < 8)
     {
-        result |= bitAndFirst(*(u32*)(base + (j >> 5) * 4 + 0x4938), 1 << (j & 0x1F));
+        result |= bitAndFirst(((DatSaveState *)base)->collection[j >> 5], 1 << (j & 0x1F));
         i = i + 1;
         j = j + 1;
     }
