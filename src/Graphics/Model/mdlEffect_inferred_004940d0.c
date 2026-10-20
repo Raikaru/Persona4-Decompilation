@@ -45,6 +45,7 @@ extern Code1_0049Color iGpffffbb64;
 /* measured: func_004940d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 /* Set the indexed ribbon and cap material colors, mapping fully opaque alpha to 254 temporarily. */
+/* measured: a complete color snapshot and isolated propagation removal still differ (best isolated nd 106 bytes); retain both toggles. */
 // FUN_004940D0
 void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049Color *color)
 {
@@ -149,6 +150,7 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
 #pragma opt_pulloutconstants off
 /* Interpolate the ribbon colors, then repeat its first row and the cap colors. */
 /* Interpolate four endpoint colors across each ribbon row and replicate the cap color row. */
+/* measured: isolated constant-pullout removal changes constant lifetimes (nd 536 bytes); retain the loop and pullout settings. */
 // FUN_004941F0
 void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors)
 {

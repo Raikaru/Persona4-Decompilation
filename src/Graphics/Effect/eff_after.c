@@ -424,6 +424,7 @@ typedef RwV3d AfterVector3;
 // Builds the ribbon geometry object for one material: vertex and index counts follow the config mode, and the bounding sphere is stored on the morph target.
 // FUN_004B8350
 #pragma push
+/* measured: baseline C nd 368B; adjacent-local declaration probe nd 368B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
 {
@@ -869,9 +870,9 @@ void effAfterFreeVectorBuffers(void *work) {
    arithmetic. The midpoint row is formed inside its first copy after the
    source offset, matching retail's evaluation order. */
 #pragma push
+/* measured: baseline C nd 4691B; adjacent-local declaration probe nd 4691B; retain settings for owner MATCH. */
 #pragma opt_dead_assignments off
 #pragma opt_lifetimes on
-#pragma opt_propagation on
 #pragma opt_loop_invariants on
 #pragma opt_pulloutconstants off
 typedef struct {

@@ -67,25 +67,6 @@ typedef struct EffMiscCamera {
     u8 pad00[0x80];
     f32 nearPlane;
 } EffMiscCamera;
-#pragma push
-#pragma opt_propagation off
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
-#pragma opt_propagation off
-#pragma opt_propagation on
-#pragma opt_propagation off
-#pragma opt_propagation on
-#pragma push
-#pragma opt_scalarize off
-#pragma pop
-/* measured: opt_loop_invariants on hoists the array base into $v1 ahead of
-   the loop as retail; a named base local is coloured $a0 (archived nd 8). */
-#pragma opt_loop_invariants on
-/* measured: closes the hoisting scope after func_0045b430. */
-#pragma opt_loop_invariants off
 /* Draws a 640-by-448 solid-color screen quad, optionally saving and restoring six render states. */
 // FUN_0045C870
 void effMiscDrawScreenColor(u8 *colors, s32 enabled)
