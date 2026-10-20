@@ -101,12 +101,13 @@ extern void btlTargetSpecialHitNoop(void);
 extern s32 btlConditionMessageId(s32 condition);
 extern s32 btlBuffMaskCheckEntries(u8 *action, s32 skillId);
 extern s32 btlBuffMaskCheckUnit(u8 *action, s32 skillId);
-static inline s32 btlTargetAnySpecialHit(u8 *arg0, s32 n)
+/* Return whether any of the selected target actions reports a special hit. */
+static inline s32 btlTargetAnySpecialHit(u8 *action, s32 count)
 {
-    u16 k;
+    u16 targetIndex;
 
-    for (k = 0; k < n; k++) {
-        if (*(s32 *)(*((u8 **)arg0 + 0xE + k) + 0xE4) != 0) {
+    for (targetIndex = 0; targetIndex < count; targetIndex++) {
+        if (((BtlAction *)((BtlAction *)action)->targets[targetIndex])->targetBlock.specialHitFlag != 0) {
             return 1;
         }
     }

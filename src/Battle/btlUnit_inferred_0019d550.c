@@ -1,3 +1,4 @@
+#include "btl_unit_list_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
@@ -98,17 +99,6 @@ static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
 static inline f32 btlUnitAddProgress(f32 left, f32 right)
 {
     return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
-
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
 }
 
 static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
@@ -223,13 +213,13 @@ void btlUnitUnlinkAndFree(u8 *incomingUnit)
         ((BtlUnit *)next)->prevUnit = ((BtlUnit *)unit)->prevUnit;
     else
         btlUnitStoreListEndpoint((u8 *)((BtlUnit *)unit)->prevUnit, iGpffffb3ac,
-                      (u32)genus & 0xFF, 0x17C);
+                      (u32)genus & 0xFF, 1);
     previous = *(u8 * *)&typedUnit->prevUnit;
     if (previous != NULL)
         ((BtlUnit *)previous)->nextUnit = ((BtlUnit *)unit)->nextUnit;
     else
         btlUnitStoreListEndpoint((u8 *)((BtlUnit *)unit)->nextUnit, iGpffffb3ac,
-                      (u32)genus & 0xFF, 0x178);
+                      (u32)genus & 0xFF, 0);
     jtbl_008873EC[0](unit);
 }
 

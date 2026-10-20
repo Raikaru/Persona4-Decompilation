@@ -125,9 +125,10 @@ extern void btlTargetResetCommandRecord(u8 *record);
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
-/* Shared by the exported callback and retail's inlined value query. */
-/* Historical whole-layout probe changed the inline body (normalized diff 178); only measured reloads remain raw. */
+/* Check the actor's status and skill ownership before accepting an AI command. */
+/* measured: a separate unit alias retains reloads where access-site datUnit typing changes four callers. */
 static inline s32 btlCommandUsable(u8 *subject, u32 command) {
+    BtlUnit *unit;
     s32 commandId;
 
     commandId = command & 0xFFFF;
@@ -135,12 +136,13 @@ static inline s32 btlCommandUsable(u8 *subject, u32 command) {
         kAssertFail(D_006095E0, 0x45F);
     }
     subject = (u8 *)((BtlAction *)subject)->unit;
+    unit = (BtlUnit *)subject;
     if (commandId < 0x1B8) {
         if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)subject)->datUnit, 0x80008) != 0)
             return 0;
-        if (datCalcHasSkill(*(u8 **)(subject + 0xA64), commandId) == 0) /* measured: access-site field substitution loses MATCH. */
+        if (datCalcHasSkill((u8 *)unit->datUnit, commandId) == 0)
             return 0;
-        if (datCalcThresholdTrigger(*(u8 **)(subject + 0xA64), commandId) == 0) /* measured: access-site field substitution loses MATCH. */
+        if (datCalcThresholdTrigger((u8 *)unit->datUnit, commandId) == 0)
             goto ret1;
         return 0;
     }
@@ -151,7 +153,7 @@ ret1:
     return 1;
 }
 
-/* Historical whole-layout probe: normalized diff 178; the access-site pass retains only measured raw culprits. */
+/* The shared helper preserves the command test used by inlined queries. */
 // FUN_001DAF40
 s32 btlCond_MYABLESKIL(u8 *action, u32 command) {
     return btlCommandUsable(action, command);
