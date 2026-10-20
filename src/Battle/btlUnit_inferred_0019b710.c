@@ -114,12 +114,14 @@ typedef struct BattleColorPacket {
     s16 counter;
 } BattleColorPacket;
 extern f32 fGpffff81f4;
-static inline void battleColorPublish(BattleColorUnit *unit, BattlePacketRgba color)
+/* Publish the packet color and mark the unit color state dirty. */
+static inline void btlUnitPublishColor(BattleColorUnit *unit, BattlePacketRgba color)
 {
     unit->color = color;
     unit->flags |= 4;
 }
-static inline u32 battleColorBlendWords(const u32 *start, const u32 *target, f32 factor)
+/* Blend packed RGBA endpoints through VU normalized channels and repack the bytes. */
+static inline u32 btlUnitBlendColorWords(const u32 *start, const u32 *target, f32 factor)
 {
     u32 targetColor;
     u32 startColor;
@@ -283,7 +285,7 @@ u32 btlUnitColorPacketUpdate(void *workData)
         else
             factor = 1.0f;
         color = (color & 0xFF000000) |
-                (battleColorBlendWords(&packet->startColor, &packet->targetColor, factor) & 0xFFFFFF);
+                (btlUnitBlendColorWords(&packet->startColor, &packet->targetColor, factor) & 0xFFFFFF);
     }
     if (counter >= alphaStart) {
         if (alphaDuration > 0 && counter < alphaStart + alphaDuration)
@@ -291,13 +293,13 @@ u32 btlUnitColorPacketUpdate(void *workData)
         else
             factor = 1.0f;
         color = (color & 0xFFFFFF) |
-                (battleColorBlendWords(&packet->startColor, &packet->targetColor, factor) & 0xFF000000);
+                (btlUnitBlendColorWords(&packet->startColor, &packet->targetColor, factor) & 0xFF000000);
     }
     published.red = color;
     published.green = color >> 8;
     published.blue = color >> 16;
     published.alpha = color >> 24;
-    battleColorPublish(unit, published);
+    btlUnitPublishColor(unit, published);
     if (end < counter)
         return 1;
     packet->counter++;

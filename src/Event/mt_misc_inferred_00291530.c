@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "h_cdvd_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -28,9 +29,7 @@ extern char D_0063D050[];
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern void mdlDetachSlotModel(u8 *eventWork, s32 model, u8 *slotIndex, s32 entryIndex);
 extern u32 yTimeTrackAppendKey(s32 eventWork, s32 model, s32 slotIndex, s32 entryIndex,
@@ -124,7 +123,7 @@ s32 mtMiscAttachSlotModel(u8 *eventWork, u8 *model, s32 slotIndex, s32 entryInde
         return 0;
     }
     flag = 0;
-    slot = code29AddOff(slotIndex * 0xC, model);
+    slot = byteAddressAdd(slotIndex * 0xC, model);
     if ((((MdlWpnSlot *)(slot + 0x28C))->flags & 1) &&
         (((MdlWpnSlot *)(slot + 0x28C))->wpnMdl != 0)) {
         flag = 1;
@@ -135,7 +134,7 @@ s32 mtMiscAttachSlotModel(u8 *eventWork, u8 *model, s32 slotIndex, s32 entryInde
     if (mdlCopyIndexedMatrix(model, matrixIndex, work) == 0) {
         return 0;
     }
-    entry = code29AddOff(entryIndex * 2, eventWork) + 0x604;
+    entry = byteAddressAdd(entryIndex * 2, eventWork) + 0x604;
     lookupType = 5;
     if (mdlFindModelObject(lookupType, *(u16 *)entry, 0) == 0) {
         u16 weapon;
@@ -163,7 +162,7 @@ void mtMiscDetachSlotModel(u8 *model, s32 slotIndex)
 
     if ((slotIndex < 3) && (slotIndex >= 0) && (model != 0)) {
         attached = 0;
-        slot = code29AddOff(slotIndex * 0xC, model);
+        slot = byteAddressAdd(slotIndex * 0xC, model);
         if ((((MdlWpnSlot *)(slot + 0x28C))->flags & 1) &&
             (((MdlWpnSlot *)(slot + 0x28C))->wpnMdl != 0)) {
             attached = 1;

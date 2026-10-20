@@ -103,51 +103,9 @@ extern s32 btlActionLinkedUnitIsActive(BtlAction *action);
 extern void btlActionSkillUpdate(u8 *);
 u8 datCalcGetCharacterTableKind(u8 *unit);
 /* firstField is an interior halfword column; retain the 0xE8 row-to-row stride. */
-static inline s16 btlCameraField_001a59a0(u16 unitId, s16 *firstField)
-{
-    return ((BtlCharacterCameraField *)firstField)[(u16)unitId].value;
-}
+
 /* Determine close-camera eligibility from unit class and the class-specific camera table. */
-static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
-{
-    extern BtlSkillFlags *iGpffffb3bc;
-    extern u8 *iGpffffb3cc;
-    u8 *ctx = *(u8 * *)&((BtlUnit *)unit)->datUnit;
-    u16 unitId = ((DatUnit *)ctx)->id;
-    s32 result;
 
-    switch (((BtlUnit *)unit)->genus) {
-    case 0:
-        {
-            s32 state = datCalcGetCharacterTableKind(ctx) & 0xFF;
-
-            if (state == 5) {
-                result = 1;
-                break;
-            }
-            if (state != 3) {
-                goto fail;
-            }
-            if (!(iGpffffb3bc[0].flags & 0x8000) && noPartner != 0) {
-                goto fail;
-            }
-            result = 1;
-        }
-        break;
-    case 1:
-        if (btlCameraField_001a59a0(unitId, (s16 *)(iGpffffb3cc + 0x22)) == 1) {
-            result = 1;
-        } else {
-            goto fail;
-        }
-        break;
-    default:
-    fail:
-        result = 0;
-        break;
-    }
-    return result;
-}
 /* Ten-byte request copied by btlCutinCreatePacket; case 0 reads the three
  * resource IDs and the count. Keep the caller's original byte-array storage. */
 typedef struct BtlCutinRequest {
@@ -161,14 +119,13 @@ typedef struct ActionTargetTable {
     u8 *targets[4];
     u16 count;
 } ActionTargetTable;
-static inline u8 *actionTargetAt(ActionTargetTable *table, u16 index)
+/* Read a selected target through its narrow target slot. */
+/* measured: keeps the battle-base load ahead of the target-index shift; btlActionRoundupMesInit plain expansion differs 6 byte(s). */
+static inline u8 *btlActionGetTarget(ActionTargetTable *table, u16 index)
 {
     return table->targets[index];
 }
-static inline const void *battleHitPayload(const u8 *record)
-{
-    return &((const BtlAction *)record)->targetBlock.hitRows[0];
-}
+
 /* measured: loop-invariant probe for 001A0140 preheader materialization. */
 /* measured: close loop-invariant probe for 001A0140. */
 #pragma push
@@ -229,7 +186,7 @@ static inline const void *battleHitPayload(const u8 *record)
  * redundant sign-extension shifts with explicit signed-halfword/byte casts.
  * The local 001d15a0 provider returns s16; measured in battle lane scratch.
  * sdiff struct 413 -> 395: arg0 accessed through a u8 * local; the (u8 *)(s64 *) cast at every use made MWCC CSE and spill field addresses.
- * sdiff struct 395 -> 393: the two close-camera decisions through one inline helper (btlCloseCamera_001a59a0) instead of m2c's switch/goto copies.
+ * sdiff struct 395 -> 393: the two close-camera decisions through one inline helper (btlActionUsesCloseCamera) instead of m2c's switch/goto copies.
  * fnalign 575 -> 545: the 0x13/0x10 selection as a var_2_8 flag test with the 0x13 call first (no goto block_224), as in func_001a7720.
  * fnalign 545 -> 527: the tail state switch (cases 1,3,2 and default both set state 0x20) as in the matched-path sibling 001a7720, with the real btlActionSetState(BtlAction *, u16) prototype (retail daddiu per arm, one shared call).
  * fnalign 527 -> 521: btlCloseCamera reads the unit id before the switch, sends every failing path to one shared result = 0 (default arm, goto fail) and tests the 0x8000 flag first (retail polarity).
@@ -509,7 +466,7 @@ void btlActionRoundupMesInit(u8 *action)
         }
     }
     if (target == NULL) {
-        target = actionTargetAt((ActionTargetTable *)iGpffffb3ac, (datCalcRandomBelow(((BtlBattleState *)iGpffffb3ac)->partyActionCount) & 0xFFFF));
+        target = btlActionGetTarget((ActionTargetTable *)iGpffffb3ac, (datCalcRandomBelow(((BtlBattleState *)iGpffffb3ac)->partyActionCount) & 0xFFFF));
     }
     cutin.mode = 1;
     cutin.unitId = ((BtlUnit *)*(u8* *)&((BtlAction *)target)->unit)->charId;
@@ -1011,7 +968,7 @@ void btlActionRoundupUpdate(u8 *action)
             }
             {
                 u8 *packet;
-                packet = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)effectAction, battleHitPayload(rec), MEMBER(u16, targetOrUnit, BtlAction, targetBlock.hitOutcome) /* measured: BtlAction.targetBlock.hitOutcome typing gives 3208B, nd 1099. */, ((BtlAction *)targetOrUnit)->targetBlock.targetFlags);
+                packet = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)effectAction, (&((const BtlAction *)(rec))->targetBlock.hitRows[0]), MEMBER(u16, targetOrUnit, BtlAction, targetBlock.hitOutcome) /* measured: BtlAction.targetBlock.hitOutcome typing gives 3208B, nd 1099. */, ((BtlAction *)targetOrUnit)->targetBlock.targetFlags);
                 *packet = 5;
                 *(s64 *)&((BtlPacket *)packet)->dependencyUID = MEMBER(s64, anim, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 3208B, nd 945. */;
                 *(s64 *)&((BtlPacket *)packet)->actionUID = uid;
@@ -1033,7 +990,8 @@ void btlActionRoundupUpdate(u8 *action)
                 *(s64 *)&((BtlPacket *)packet)->actionUID = uid;
                 btlPacketEnqueue(packet, 1);
             }
-            if (hitIndex == 0 && *(const s32 *)battleHitPayload(rec) != 0) {
+            /* measured: the typed row-array form matches; direct hitRows[0].hpDelta changes 763 bytes. */
+            if (hitIndex == 0 && ((const LargeBattleHitResult *)&((const BtlAction *)rec)->targetBlock.hitRows[0])[0].hpDelta != 0) {
                 u8 *packet;
                 packet = btlPacketCreateUnitCounter(MEMBER(s32, effectAction, BtlAction, unit) /* measured: BtlAction.unit typing gives 3208B, nd 1277. */, 0, 0);
                 *packet = 5;
@@ -1068,7 +1026,7 @@ void btlActionRoundupUpdate(u8 *action)
             }
             {
                 u8 *packet;
-                packet = btlPacketCreateHitDisplay(MEMBER(s32, action, BtlAction, unit) /* measured: BtlAction.unit typing gives 3208B, nd 1503. */, MEMBER(s32, effectAction, BtlAction, unit) /* measured: BtlAction.unit typing gives 3208B, nd 1277. */, skillId, MEMBER(u16, targetOrUnit, BtlAction, targetBlock.hitOutcome) /* measured: BtlAction.targetBlock.hitOutcome typing gives 3208B, nd 1111. */, MEMBER(u16, targetOrUnit, BtlAction, targetBlock.targetFlags) /* measured: BtlAction.targetBlock.targetFlags typing gives 3208B, nd 936. */, hitIndex, MEMBER(u8, targetOrUnit, BtlAction, targetBlock.hitRowCount) /* measured: BtlAction.targetBlock.hitRowCount typing gives 3208B, nd 541. */, battleHitPayload(rec), 0);
+                packet = btlPacketCreateHitDisplay(MEMBER(s32, action, BtlAction, unit) /* measured: BtlAction.unit typing gives 3208B, nd 1503. */, MEMBER(s32, effectAction, BtlAction, unit) /* measured: BtlAction.unit typing gives 3208B, nd 1277. */, skillId, MEMBER(u16, targetOrUnit, BtlAction, targetBlock.hitOutcome) /* measured: BtlAction.targetBlock.hitOutcome typing gives 3208B, nd 1111. */, MEMBER(u16, targetOrUnit, BtlAction, targetBlock.targetFlags) /* measured: BtlAction.targetBlock.targetFlags typing gives 3208B, nd 936. */, hitIndex, MEMBER(u8, targetOrUnit, BtlAction, targetBlock.hitRowCount) /* measured: BtlAction.targetBlock.hitRowCount typing gives 3208B, nd 541. */, (&((const BtlAction *)(rec))->targetBlock.hitRows[0]), 0);
                 *packet = 5;
                 *(s64 *)&((BtlPacket *)packet)->dependencyUID = MEMBER(s64, anim, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 3208B, nd 955. */;
                 *(packet + 0x47) &= (u8)~0x20;

@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_target_internal.h"
 
 #include "datCalc_unit_internal.h"
@@ -14,10 +15,7 @@ extern void btlCameraLookAtQuat(void *out, const void *first,
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
-static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 
 
 extern u8 *iGpffffb3ac;
@@ -188,7 +186,7 @@ s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
         startDelta[0] = ((RouteNode *)node)->pos.x - ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->start.position.x;
         startDelta[1] = ((RouteNode *)node)->pos.z - ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->start.position.z;
         distance = RwV2dLength(startDelta);
-        ((RouteNode *)btlTargetOffsetAddress((u16)count * 4, node))->distances[0] = distance;
+        ((RouteNode *)byteAddressAdd((u16)count * 4, (u8 *)(node)))->distances[0] = distance;
         ((RouteNode *)node)->neighbors[(u16)count] = (RouteNode *)(iGpffffb3ac + 0x7DC);
         count = (u16)(count + 1);
     }
@@ -196,11 +194,11 @@ s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
         goalDelta[0] = ((RouteNode *)node)->pos.x - ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->goal.position.x;
         goalDelta[1] = ((RouteNode *)node)->pos.z - ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->goal.position.z;
         distance = RwV2dLength(goalDelta);
-        ((RouteNode *)btlTargetOffsetAddress((u16)count * 4, node))->distances[0] = distance;
+        ((RouteNode *)byteAddressAdd((u16)count * 4, (u8 *)(node)))->distances[0] = distance;
         ((RouteNode *)node)->neighbors[(u16)count] = (RouteNode *)(iGpffffb3ac + 0x90C);
         count = (u16)(count + 1);
     }
-    ((RouteNode *)btlTargetOffsetAddress((u16)count * 4, node))->neighbors[0] = 0;
+    ((RouteNode *)byteAddressAdd((u16)count * 4, (u8 *)(node)))->neighbors[0] = 0;
     return count;
 }
 

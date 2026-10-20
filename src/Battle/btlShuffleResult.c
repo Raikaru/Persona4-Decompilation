@@ -476,7 +476,8 @@ s32 btlShuffleResultLayout(u8 *work)
 
 
 
-static inline void shuffleResultOpen(u8 *context)
+/* Start the selected card reveal, reset its view and finish the trail effects. */
+static inline void btlShuffleResultStartReveal(u8 *context)
 {
     BtlShuffleContext *drawing = (BtlShuffleContext *)context;
     f32 screen[2];
@@ -495,7 +496,8 @@ static inline void shuffleResultOpen(u8 *context)
 
 }
 
-static inline s32 shuffleResultRoll(u8 kind)
+/* Roll the card orientation, honoring the first-result and field-band flags. */
+static inline s32 btlShuffleResultRoll(u8 kind)
 {
     u8 reversedChance;
     s32 columnValue;
@@ -519,7 +521,8 @@ static inline s32 shuffleResultRoll(u8 kind)
     return 1;
 }
 
-static inline void shuffleResultDescribe(u8 *work)
+/* Show the selected reward kind and its upright or reversed description. */
+static inline void btlShuffleResultDescribe(u8 *work)
 {
     u8 text[64];
     s32 kind;
@@ -539,7 +542,8 @@ static inline void shuffleResultDescribe(u8 *work)
 
 }
 
-static inline s32 shuffleResultReverse(u8 *work)
+/* Turn a reversed result upright when the reversal-override flags permit it. */
+static inline s32 btlShuffleResultReverse(u8 *work)
 {
     ShuffleResultState *state = (ShuffleResultState *)(work + 0x18);
     u8 text[64];
@@ -554,7 +558,8 @@ static inline s32 shuffleResultReverse(u8 *work)
     return 0;
 }
 
-static inline void shuffleResultDescribePacked(s32 packed)
+/* Show the reward kind and orientation encoded in the packed result. */
+static inline void btlShuffleResultDescribePacked(s32 packed)
 {
     u8 text[64];
     if ((packed & 0xFFFF) != 0) {
@@ -568,7 +573,8 @@ static inline void shuffleResultDescribePacked(s32 packed)
 
 }
 
-static inline s32 shuffleResultPersonaState(u8 *work)
+/* Choose the persona acquisition phase for an owned, full-roster or newly added result. */
+static inline s32 btlShuffleResultPersonaState(u8 *work)
 {
     s32 persona;
     u16 capacity;
@@ -629,7 +635,7 @@ s32 btlShuffleResultRun(u8 *work)
         }
         break;
     case 1:
-        shuffleResultOpen(view.context);
+        btlShuffleResultStartReveal(view.context);
         view.state->phase = 2;
     case 2:
         result = btlShuffleDrawFlagA((u8 *)*(s32 *)&((BtlShuffleContext *)view.context)->frontCardTask);
@@ -680,7 +686,7 @@ s32 btlShuffleResultRun(u8 *work)
 
                     view.state->phase = 10;
                     view.state->spinsRemaining = 0;
-                    upright = shuffleResultRoll(((BtlShuffleResultWork *)work)->bonusKind);
+                    upright = btlShuffleResultRoll(((BtlShuffleResultWork *)work)->bonusKind);
                     view.state->isUpright = upright;
                     randomBits = RpRandom() & 0xFFF;
                     randomValue = (f32)randomBits;
@@ -695,7 +701,7 @@ s32 btlShuffleResultRun(u8 *work)
                     randomBits = RpRandom() & 0xFFF;
                     randomValue = (f32)randomBits;
                     view.state->spinsRemaining = ((s32)(3.0f * (randomValue / 4096.0f)) + 5) * 2;
-                    upright = shuffleResultRoll(((BtlShuffleResultWork *)work)->bonusKind);
+                    upright = btlShuffleResultRoll(((BtlShuffleResultWork *)work)->bonusKind);
                     view.state->isUpright = upright;
                     if (upright == 0) {
                         view.state->spinsRemaining = view.state->spinsRemaining + 1;
@@ -758,7 +764,7 @@ s32 btlShuffleResultRun(u8 *work)
             } else {
                 sdkSndStartStream(1, 3, 2, 2);
             }
-            shuffleResultDescribe(work);
+            btlShuffleResultDescribe(work);
             view.state->phase = 0xD;
         }
         break;
@@ -808,7 +814,7 @@ s32 btlShuffleResultRun(u8 *work)
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
-            override = shuffleResultReverse(work);
+            override = btlShuffleResultReverse(work);
             view.state->uprightOverride = override;
             if (override != 0) {
                 view.state->phase = 0x10;
@@ -827,7 +833,7 @@ s32 btlShuffleResultRun(u8 *work)
             nmMesWindowCloseCurrent(1);
             result = view.state->secondaryResult;
             if (result != 0) {
-                shuffleResultDescribePacked(result);
+                btlShuffleResultDescribePacked(result);
                 view.state->phase = 0xF;
             } else {
                 return 1;
@@ -869,7 +875,7 @@ s32 btlShuffleResultRun(u8 *work)
                 kwlnTaskDestroyWithHierarchy(*(struct KwlnTask * *)&drawing->frontCardTask);
                 *(s32 *)&((BtlShuffleContext *)view.context)->frontCardTask = 0;
             }
-            result = shuffleResultPersonaState(work);
+            result = btlShuffleResultPersonaState(work);
             ((BtlShuffleResultWork *)work)->phase = result;
         }
         break;
@@ -958,14 +964,16 @@ block_17:
 
 
 /* Column (0/1) of the two-column bonus tables D_0064E6E0 and D_0064E700. */
-static inline u8 shuffleBonusColumn(void)
+/* Select the field-band column shared by the bonus threshold and weight tables. */
+static inline u8 btlShuffleBonusColumn(void)
 {
     return FldStepBandFlagSet() ? 1 : 0;
 }
 
 /* Roll for the shuffle bonus: nonzero when enabled and a 0-99 roll falls
    under the table threshold for the current bonus level and rate. */
-static inline s32 shuffleBonusRoll(u8 *work, s32 rate)
+/* Test the bonus enable flags and roll against the current reward threshold. */
+static inline s32 btlShuffleBonusRoll(u8 *work, s32 rate)
 {
     u8 flag;
     s32 thresh;
@@ -974,7 +982,7 @@ static inline s32 shuffleBonusRoll(u8 *work, s32 rate)
     if (datGetFlag(0x1430) == 0 || datGetFlag(0x11) == 0) {
         return 0;
     }
-    flag = shuffleBonusColumn();
+    flag = btlShuffleBonusColumn();
     if (((BtlShuffleResultWork *)work)->bonusKind == 0) {
         thresh = (u8)(D_0064E6E0[0][flag] + iGpffffa9B8[rate]);
     } else {
@@ -988,7 +996,8 @@ static inline s32 shuffleBonusRoll(u8 *work, s32 rate)
 }
 
 /* Pick the bonus level (0-based) from the cumulative D_0064E700 weights. */
-static inline s32 shuffleBonusPick(void)
+/* Pick the bonus level from the field-band cumulative weight table. */
+static inline s32 btlShuffleBonusPick(void)
 {
     u8 flag;
     s32 chance;
@@ -996,7 +1005,7 @@ static inline s32 shuffleBonusPick(void)
     s32 i;
     u8 *weights;
 
-    flag = shuffleBonusColumn();
+    flag = btlShuffleBonusColumn();
     chance = (u8)(100.0f * ((f32)(RpRandom() & 0xFFF) / 4096.0f));
     sum = 0;
     i = 0;
@@ -1035,8 +1044,8 @@ s32 btlShuffleResultBonus(u8 *work, u8 *parentTask, s32 cardKind, u16 personaId,
         ((BtlShuffleResultWork *)work)->phase = 8;
         return 0;
     case 0:
-        if (shuffleBonusRoll(work, rate) != 0) {
-            ((BtlShuffleResultWork *)work)->bonusKind = shuffleBonusPick() + 1;
+        if (btlShuffleBonusRoll(work, rate) != 0) {
+            ((BtlShuffleResultWork *)work)->bonusKind = btlShuffleBonusPick() + 1;
             ((BtlShuffleResultWork *)work)->flags |= 1;
             *(s32 *)&((BtlShuffleContext *)unit)->frontCardTask = btlShuffleDrawSpawn(*(u8 * *)&((BtlShuffleContext *)unit)->parentTask, (u8)(((BtlShuffleResultWork *)work)->bonusKind - 1));
         }
@@ -1047,8 +1056,8 @@ s32 btlShuffleResultBonus(u8 *work, u8 *parentTask, s32 cardKind, u16 personaId,
         ((BtlShuffleResultWork *)work)->phase = 0;
         break;
     case 2:
-        if (shuffleBonusRoll(work, rate) != 0) {
-            ((BtlShuffleResultWork *)work)->bonusKind = shuffleBonusPick() + 1;
+        if (btlShuffleBonusRoll(work, rate) != 0) {
+            ((BtlShuffleResultWork *)work)->bonusKind = btlShuffleBonusPick() + 1;
             ((BtlShuffleResultWork *)work)->flags |= 1;
             *(s32 *)&((BtlShuffleContext *)unit)->frontCardTask = btlShuffleDrawSpawn(*(u8 * *)&((BtlShuffleContext *)unit)->parentTask, (u8)(((BtlShuffleResultWork *)work)->bonusKind - 1));
         } else if (btlShuffleRollChance(work) != 0) {

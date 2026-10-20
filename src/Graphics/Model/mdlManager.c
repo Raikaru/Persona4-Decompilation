@@ -1,3 +1,5 @@
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "model_motion_internal.h"
 #include "texture_callback_internal.h"
 #include "model_callbacks_internal.h"
@@ -20,11 +22,8 @@
 #include "member_access.h"
 #include "Kosaka/k_clump_internal.h"
 #include "Kosaka/k_clump_draw_internal.h"
-/* measured: index-first addu operand-order carrier (lever 3). Kept at top of
-   file, OUTSIDE the opt_propagation pragma regions, so it inlines cleanly and
-   does not emit a standalone symbol. */
-static inline u32 mdlAddOffset(u32 offset, u32 base) { return offset + base; }
-static inline f32 mdlMultiplyOrdered(f32 a, f32 b) { return a * b; }
+/* measured: byteAddressAdd preserves index-first address operands outside the
+ * pragma regions; ordinary sums are used at every insensitive call site. */
 extern f32 iGpffff8040;
 extern f32 fGpffff809c;
 extern u8 D_00713180[];
@@ -860,12 +859,10 @@ struct RpHAnimHierarchy
  * (554 fnalign edits); opt_lifetimes gives the s0/s1 list-walk colours (+9 without). */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-static inline u32 mdlTableEntryAddress(u32 offset, u32 base)
-{
-    return offset + base;
-}
 
 /* Read the scalar snapshot retained across the hierarchy callbacks. */
+/* Read the animation snapshot across hierarchy callback and matrix-update lifetimes. */
+/* measured: direct reads at the two retained sites change hierarchy register allocation; the third site expands without a difference. */
 static inline u32 mdlAnimationFlag(const u32 *flag)
 {
     return *flag;
@@ -1104,7 +1101,7 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
   outputMatrix = (float *)hierarchy->pMatrixArray;
   keyFrameAddress = interpolatorAddress + 0x4c;
   workValue = **(int **)&modelLayer->resource;
-  blendControl = *(unsigned int **)&((MdlDispatchAnimEntry *)mdlTableEntryAddress((short)modelState[2] * 0x50, workValue))->blendControl;
+  blendControl = *(unsigned int **)&((MdlDispatchAnimEntry *)((u32)byteAddressAdd((short)modelState[2] * 0x50, (u8 *)(workValue))))->blendControl;
   if ((blendControl != (unsigned int *)0x0) && (((MdlLayerState *)modelState)->speed == 0.0f)) {
     return 1;
   }
@@ -1569,7 +1566,7 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
       if (nodeFrame != 0) {
         if ((hierarchyFlags & 0x1000) != 0) {
           *(RwMatrix *)&((MdlFrame *)(u8 *)(u32)(nodeFrame))->modelling.right.x = frameMatrix;
-          if (mdlAnimationFlag(&animated) == 0) {
+          if ((*(&animated)) == 0) {
             func_003e9680((u8 *)(nodeFrame));
           }
         }
@@ -2165,14 +2162,11 @@ void mdlRebaseLayerPose(u8 *layer)
         for (nodeIndex = 0, one = 1.0f, zero = 0.0f; nodeIndex < count; nodeIndex++)
         {
             outputInterpolator = *(u8 * *)&((RpHAnimHierarchy *)((MdlLayerState *)layer)->hierarchy)->currentAnim;
-            out = (MdlBlendRecord *)(mdlAddOffset(nodeIndex * ((RtAnimInterpolator *)outputInterpolator)->currentInterpKeyFrameSize,
-                                             (u32)outputInterpolator) + 0x4C);
+            out = (MdlBlendRecord *)(((u32)byteAddressAdd(nodeIndex * ((RtAnimInterpolator *)outputInterpolator)->currentInterpKeyFrameSize, (u8 *)((u32)outputInterpolator))) + 0x4C);
             inputInterpolator = ((MdlLayerState *)layer)->rebaseInput;
-            input = (MdlBlendRecord *)(mdlAddOffset(nodeIndex * ((RtAnimInterpolator *)inputInterpolator)->currentInterpKeyFrameSize,
-                                               (u32)inputInterpolator) + 0x4C);
+            input = (MdlBlendRecord *)(((u32)byteAddressAdd(nodeIndex * ((RtAnimInterpolator *)inputInterpolator)->currentInterpKeyFrameSize, (u8 *)((u32)inputInterpolator))) + 0x4C);
             rotationInterpolator = ((MdlLayerState *)layer)->rebaseRotation;
-            rotation = (MdlBlendRecord *)(mdlAddOffset(nodeIndex * ((RtAnimInterpolator *)rotationInterpolator)->currentInterpKeyFrameSize,
-                                                  (u32)rotationInterpolator) + 0x4C);
+            rotation = (MdlBlendRecord *)(((u32)byteAddressAdd(nodeIndex * ((RtAnimInterpolator *)rotationInterpolator)->currentInterpKeyFrameSize, (u8 *)((u32)rotationInterpolator))) + 0x4C);
             rawY = rotation->quat.y;
             rawX = rotation->quat.x;
             rawZ = rotation->quat.z;
@@ -2429,7 +2423,7 @@ finish_time:
 extern void func_003d59a0(void* a, void* b);
 /* MATCH: 1320B instructions plus eight zero-tail bytes. Member-first
    field bases, signed promoted counts and separate attachment offsets
-   preserve retail lifetimes. Reuse mdlAddOffset for index-first address sums. */
+   preserve retail lifetimes. Index-first sums use the shared byteAddressAdd. */
 
 
 #pragma push
@@ -2493,7 +2487,7 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
         func_003d5840(*(RtAnimInterpolator* *)&((MdlLayerState *)layer)->blendFrom,
             (((MdlLayerState *)layer)->resource)->entries[((MdlLayerState *)layer)->animationIndex].animation);
         func_003d5840(*(RtAnimInterpolator* *)&((MdlLayerState *)layer)->blendTo,
-            ((MdlDispatchAnimEntry*)(mdlAddOffset((u32)nextOffset, (u32)(((MdlLayerState *)layer)->resource)->entries)))->animation);
+            ((MdlDispatchAnimEntry*)((((u32)nextOffset) + ((u32)(((MdlLayerState *)layer)->resource)->entries))))->animation);
         table = ((MdlLayerState *)layer)->resource;
         if (table == 0 || table->unknown == 0) {
             func_003d59a0(*(RtAnimInterpolator* *)&((MdlLayerState *)layer)->blendFrom,
@@ -2558,7 +2552,7 @@ void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
             f32 fraction;
             ((MdlDirectionalBlend *)control)->duration = (f32)(u32)((MdlLayerState *)layer)->blendTicks;
             fraction = ((MdlLayerState *)layer)->blend;
-            ((MdlDirectionalBlend *)((MdlDispatchAnimEntry*)(mdlAddOffset((u32)nextOffset, (u32)(((MdlLayerState *)layer)->resource)->entries)))->blendControl)->progress = fraction;
+            ((MdlDirectionalBlend *)((MdlDispatchAnimEntry*)((((u32)nextOffset) + ((u32)(((MdlLayerState *)layer)->resource)->entries))))->blendControl)->progress = fraction;
         }
     }
     control = *(u8* *)&((MdlLayerState *)layer)->attachments;
@@ -3140,6 +3134,7 @@ typedef struct MdlInterpolatorPlugin {
     u8 pad00[12];
     u32 secondary;
 } MdlInterpolatorPlugin;
+/* Destroy the secondary interpolator and clear the clump plugin slot when present. */
 static inline void mdlSetupDetach(u32 *object) {
     RtAnimInterpolator *interpolator = (RtAnimInterpolator *)func_003d8130(*object, 1);
     if (interpolator != 0) {
@@ -3184,7 +3179,7 @@ void mdlStartAnimation(void *clump, MdlAnimControl *state,
                 }
                 name = mdlGetFrameNameUserData((void *)*object);
                 if (name != 0) {
-                    animation = func_003d6170(((MdlAnimResourceEntry *)mdlAddOffset((s32)index * 8, (u32)state->resource->entries))->resource, name);
+                    animation = func_003d6170(((MdlAnimResourceEntry *)((u32)byteAddressAdd((s32)index * 8, (u8 *)((u32)state->resource->entries))))->resource, name);
                     if (animation != 0) {
                         special = strncmp(name, &gp0xffff9d10, 5) == 0;
                         interpolator = (RtAnimInterpolator *)func_003d8130(*object, 1);
@@ -3235,6 +3230,7 @@ void mdlStartAnimation(void *clump, MdlAnimControl *state,
 #pragma push
 #pragma always_inline on
 
+/* Advance the secondary material interpolator, or only refresh callbacks in mode one. */
 static inline void mdlStepSecondary(MdlAnimControl* state, u32* it)
 {
     if (state->mode != 1) {
@@ -3272,6 +3268,7 @@ static inline void mdlStepSecondary(MdlAnimControl* state, u32* it)
     }
 }
 
+/* Advance both supported material interpolators and refresh the animated object. */
 static inline void mdlStepAnimObject(MdlAnimControl* state, u32* it)
 {
     extern s32 func_003d7cf0(u32 object);
@@ -3343,6 +3340,7 @@ void* mdlFindFrameById(void* object, void* data)
 
 /* Keep the root fast path separate from recursive child traversal.
    The inlined return paths preserve the retail branch layout. */
+/* Find a frame by ID, checking the root before traversing its children. */
 static inline u8* mdlFindFrame(u8* frame, s32 id)
 {
     MdlFrameSearch data;
@@ -4088,6 +4086,7 @@ typedef struct MdlMaterialColorReal { f32 red, green, blue, alpha; } MdlMaterial
 #pragma push
 #pragma always_inline on
 
+/* Normalize all byte-color channels to the material floating-point range. */
 static inline void mdlColorToReal(MdlMaterialColorReal* out, const RwRGBA* color)
 {
     out->red = (f32)(u32)color->red * (1.0f / 255.0f);
@@ -4096,6 +4095,7 @@ static inline void mdlColorToReal(MdlMaterialColorReal* out, const RwRGBA* color
     out->alpha = (f32)(u32)color->alpha * (1.0f / 255.0f);
 }
 
+/* Unpack the material color word into blue, green, red and alpha bytes. */
 static inline void mdlColorUnpack(RwRGBA* out, u32 packed)
 {
     out->blue = packed;
@@ -4104,6 +4104,7 @@ static inline void mdlColorUnpack(RwRGBA* out, u32 packed)
     out->alpha = packed >> 24;
 }
 
+/* Round normalized material channels to byte colors with a half-unit bias. */
 static inline void mdlColorQuantize(RwRGBA* out, const MdlMaterialColorReal* color)
 {
     f32 maximum = 255.0f;
@@ -4382,10 +4383,10 @@ void mdlBuildScaledSlotRecords(void *model, void *properties)
                 scaleValue = ((MdlScaleProperties *)properties)->scaleDivisorYZ;
                 scaledX = one / scaleValue;
                 scaleValue = ((MdlScaleProperties *)properties)->aspectFactor;
-                scaleValue = mdlMultiplyOrdered(scaleFactor, scaleValue);
-                scaleValue = mdlMultiplyOrdered(inverseX, scaleValue);
-                scaledYZ = mdlMultiplyOrdered(scaledX, scaleValue);
-                scaledX = mdlMultiplyOrdered(scaleFactor, inverseX);
+                scaleValue = operandOrderMultiply(scaleFactor, scaleValue);
+                scaleValue = operandOrderMultiply(inverseX, scaleValue);
+                scaledYZ = ((scaledX) * (scaleValue));
+                scaledX = ((scaleFactor) * (inverseX));
             }
             layerIndex = 0;
             while ((layerIndex & 0xFFFF) < 2) {
@@ -4859,6 +4860,7 @@ typedef struct MdlCloneLayer {
     u8 unknown3c[0x68];             /* next layer at 0xa4 */
 } MdlCloneLayer;
 
+/* Allocate and clear one attachment header followed by its two pointer arrays. */
 static inline MdlCloneAttachmentTable* mdlCloneAttachmentStorage(u32 count)
 {
     MdlCloneAttachmentTable* copy;
@@ -5499,6 +5501,7 @@ void mdlDrawVisibleAtomics(void* clump)
 #pragma push
 #pragma opt_common_subs off
 
+/* Select the base transform and dispatch animation to the requested layer and children. */
 static inline void mdlDispatchAnimation(u8* mdl, u32 layer, s16 animation, u16 frame, s32 flags)
 {
     u32 baseLayer;
@@ -5517,7 +5520,7 @@ static inline void mdlDispatchAnimation(u8* mdl, u32 layer, s16 animation, u16 f
             if (index >= 0 && (table = ((Model *)mdl)->layers[0].resource) != 0 &&
                 index < table->count &&
                 (offset = index * 80, entries = table->entries,
-                 clip = *(void**)mdlAddOffset((u32)entries + 64, offset)) != 0 && clip != D_00922BC0_abs) {
+                 clip = *(void**)(((u32)entries + 64) + (offset))) != 0 && clip != D_00922BC0_abs) {
                 *(RwMatrix *)&((Model *)mdl)->identityMat.right.x = *(RwMatrix *)&((MdlDispatchAnimEntry *)((u8*)entries + offset))->matrix.right.x;
             } else {
                 RwMatrix* matrix = (RwMatrix*)(mdl + 64);
@@ -5602,11 +5605,9 @@ s32 mdlLayerIsPresent(void* model, s32 layer)
     return 1;
 }
 
-/* measured: MATCHED this wave (nd 0, was 91). Levers: (3) mdlAddOffset index-first
-   addu helper, (4) explicit entryData temp for the *(u16*)(resourceAddress+8) load, and
-   reusing resourceAddress for *obj (resourceAddress = *(int*)(resourceAddress+0)) which routes the load into
-   the $a3 mask reg exactly as retail does, with mdlAddOffset folding index into the
-   addu. The (u16)data second check uses plain ints (no mask local). */
+/* measured: byteAddressAdd preserves the entry-index addu operands while the
+ * separate entryData and resourceAddress lifetimes retain the retail loads
+ * and mask register. The second check uses ordinary integer comparisons. */
 /* The signed-short animation contract is shared by the model and battle
    callers. Integer comparisons perform the retail sign extension here. */
 /* Returns 1 when the layer's animation table has an entry for the animation. Layer 0 also checks the secondary list at +0x234. */
@@ -5616,12 +5617,12 @@ s32 mdlLayerHasAnimation(u8* model, u32 layer, s16 animation)
     int result = 0;
     int tableOrEntries;
     int entryCount;
-    tableOrEntries = *(int *)&((Model *)mdlAddOffset((layer & 0xffff) * 0xa4, (u32)model))->layers[0].resource;
+    tableOrEntries = *(int *)&((Model *)((u32)byteAddressAdd((layer & 0xffff) * 0xa4, (u8 *)((u32)model))))->layers[0].resource;
     if (tableOrEntries != 0) {
         entryCount = ((MdlDispatchAnimTable *)tableOrEntries)->count;
         if (animation < entryCount) {
             tableOrEntries = *(int *)&((MdlDispatchAnimTable *)tableOrEntries)->entries;
-            if (*(int *)&((MdlDispatchAnimEntry *)mdlAddOffset(animation * 0x50, (u32)tableOrEntries))->animation != 0) result = 1;
+            if (*(int *)&((MdlDispatchAnimEntry *)((u32)byteAddressAdd(animation * 0x50, (u8 *)((u32)tableOrEntries))))->animation != 0) result = 1;
         }
     }
     if ((u16)layer == 0) {
@@ -5648,10 +5649,8 @@ s32 mdlLayerHasAnimation(u8* model, u32 layer, s16 animation)
    (load-sinking, brief-confirmed); (3) the return-1 path gets its own b to
    the epilogue where retail falls through. Load-CSE +
    sign-extension-reissue floor (same family as 79d10). */
-/* MATCHED this wave (nd 0, was 33). Levers: (3) mdlAddOffset index-first addu
-   helper, (7) D_00922BC0_abs lui/addiu address, (4) opt_propagation off forces
-   the lhu-before-signext load order (FLYDraw/FLYCmbcardeff combo). Helper is
-   defined at top of file, outside the pragma. */
+/* measured: byteAddressAdd retains the index-first addu; the sentinel address
+ * and propagation setting preserve the lhu-before-sign-extension load order. */
 /* Returns 1 when layer input has a key at index mode whose animation is the empty-clip sentinel D_00922BC0, and 0 otherwise, including when the index is out of range. */
 // FUN_00479DD0
 #pragma opt_propagation off
@@ -5666,7 +5665,7 @@ s32 mdlIsLayerKeyEmpty(u8* model, u16 layer, s16 animation)
     isEmpty = 0;
     hasIndex = 0;
     entryOffset = (layer & 0xffff) * 0xa4;
-    tableOrEntries = *(int *)&((Model *)mdlAddOffset(entryOffset, (u32)model))->layers[0].resource;
+    tableOrEntries = *(int *)&((Model *)((entryOffset) + ((u32)model)))->layers[0].resource;
     if (tableOrEntries != 0)
     {
         entryCount = ((MdlDispatchAnimTable *)tableOrEntries)->count;
@@ -5678,7 +5677,7 @@ s32 mdlIsLayerKeyEmpty(u8* model, u16 layer, s16 animation)
     if (hasIndex != 0)
     {
         tableOrEntries = *(int *)&((MdlDispatchAnimTable *)tableOrEntries)->entries;
-        entryOffset = mdlAddOffset(animation * 0x50, (u32)tableOrEntries);
+        entryOffset = ((u32)byteAddressAdd(animation * 0x50, (u8 *)((u32)tableOrEntries)));
         if (*(int *)&((MdlDispatchAnimEntry *)entryOffset)->animation == (int)D_00922BC0_abs)
         {
             isEmpty = 1;
@@ -5708,7 +5707,7 @@ void mdlSetLayerTime(void* model, s32 layer, f32 frameValue)
     layerIndex = layer;
     time = iGpffff8040 * frameValue;
     layerOffset = (layerIndex & 0xFFFF) * 0xA4;
-    layerBase = mdlAddOffset(layerOffset, (u32)model);
+    layerBase = ((layerOffset) + ((u32)model));
     animationIndex = ((Model *)layerBase)->layers[0].animationIndex;
     if (animationIndex < 0)
         goto tail;
@@ -5725,7 +5724,7 @@ void mdlSetLayerTime(void* model, s32 layer, f32 frameValue)
     if (clip == (s32)D_00922BC0_abs)
         goto tail;
     func_003d5e40(*(void* *)&((RpHAnimHierarchy *)((Model *)layerBase)->layers[0].hierarchy)->currentAnim, time);
-    layerBase = mdlAddOffset(layerOffset, (u32)model);
+    layerBase = ((layerOffset) + ((u32)model));
     ((Model *)layerBase)->layers[0].flags |= 4;
 tail:
     if ((layerIndex & 0xFFFF) == 0) {
@@ -6024,6 +6023,7 @@ void mdlClearAtomicFlags(void* model, int flags)
 #pragma push
 /* Retain the separate body, test and found-index masks from retail. */
 #pragma opt_common_subs off
+/* Resolve a keyed attachment entry and compose its matrix with the matching clump frame. */
 static inline s32 mdlMatrixFromTable(MdlMatrixTable* list, void* owner,
                                        s32 input, u8* dst)
 {
@@ -6359,7 +6359,7 @@ void mdlAttachSlotModelFindOrCreate(void* model, u16 slotIndex, u32 type, u16 id
     }
 done:
     slotOffset = (slotIndex & 0xFFFF) * 0xC;
-    slotBase = (void*)mdlAddOffset(slotOffset, (u32)(u8*)model);
+    slotBase = (void*)((slotOffset) + ((u32)(u8*)model));
     ((Model *)slotBase)->attachedWpns[0].wpnMdl = result;
     ((Model *)result)->flags |= 4;
     ((Model *)(u8*)((Model *)slotBase)->attachedWpns[0].wpnMdl)->flags |= 0x8000;
@@ -6512,30 +6512,14 @@ void mdlFreeAuxBlock(void* model)
 #pragma opt_loop_invariants on
 /* Material and UV headers share only the first entry-array pointer; the
  * eight-byte entries are indexed here without assuming either header extent. */
-static inline void **mdlLoaderValueAt(void *table, u32 index)
-{
-    return &((MdlLoaderEntry *)*(u8 **)table)[index].value;
-}
 
-static inline MdlDispatchAnimEntry *mdlLoaderAnimEntry(MdlDispatchAnimTable *table, u32 slot)
-{
-    return &table->entries[slot];
-}
 
-static inline void mdlLoaderSetFrame(s32 value, MdlDispatchAnimTable *table, u32 slot, s32 which)
-{
-    mdlLoaderAnimEntry(table, slot)->startFrame[which] = value;
-}
 
-static inline void mdlLoaderSetAnimation(void *value, MdlDispatchAnimTable *table, u32 slot)
-{
-    mdlLoaderAnimEntry(table, slot)->animation = value;
-}
 
 /* Reads the aux block's RenderWare chunk stream, dispatching each chunk type to its loader: texture dictionaries, animation, UV dictionaries, effect lists and materials. Data not yet ready is queued as a request. Returns 1 once the stream is consumed. */
-/* measured: keep the material/UV slot macros and callback-visible model resource checks
- * byte-addressed: access-site typing/indexed alternatives change the
- * whole-owner instruction/size comparison. Other proven fields are typed. */
+/* Material/UV payloads use their named eight-byte entry layout directly.
+ * measured: all four loader access/store helper expansions retain whole-file MATCH;
+ * callback-visible model resource checks keep their existing byte-shaped accesses. */
 // FUN_0047B0C0
 s32 mdlReadAuxChunks(u8 *model)
 {
@@ -6717,7 +6701,7 @@ s32 mdlReadAuxChunks(u8 *model)
             MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)mdlDispatchAnimTableCreate(capacity);
             LOAD_LAYER()->resource = table;
         }
-        mdlLoaderSetAnimation(D_00922BC0_abs, LOAD_LAYER()->resource, state->slot);
+        (LOAD_LAYER()->resource)->entries[state->slot].animation = (D_00922BC0_abs);
         func_003e2ce0(state->stream, chunk.length);
         continue;
 
@@ -6765,7 +6749,7 @@ s32 mdlReadAuxChunks(u8 *model)
                 MdlLoaderMaterialTable *materials = LOAD_MATERIALS();
 
                 if (materials != 0 && materials->count > sourceIndex) {
-                    void *value = *mdlLoaderValueAt(materials, sourceIndex);
+                    void *value = ((MdlLoaderEntry *)*(u8 **)materials)[sourceIndex].value;
                     if (value != 0) {
                         u16 dst = state->slot;
 
@@ -6778,7 +6762,7 @@ s32 mdlReadAuxChunks(u8 *model)
                 MdlLoaderUvTable *uvs = LOAD_UVS();
 
                 if (uvs != 0 && sourceIndex < uvs->count) {
-                    void *value = *mdlLoaderValueAt(uvs, sourceIndex);
+                    void *value = ((MdlLoaderEntry *)*(u8 **)uvs)[sourceIndex].value;
                     if (value != 0) {
                         u16 dst = state->slot;
 
@@ -6990,9 +6974,9 @@ s32 mdlReadAuxChunks(u8 *model)
             ((MdlDispatchAnimEntry *)((u8 *)layerResource->entries + (state->slot) * sizeof(MdlDispatchAnimEntry)))->startFrame = values;
         }
         if (chunk.type == 0xf0f00007) {
-            mdlLoaderSetFrame(metadata, LOAD_LAYER()->resource, state->slot, 0);
+            (LOAD_LAYER()->resource)->entries[state->slot].startFrame[0] = (metadata);
         } else {
-            mdlLoaderSetFrame(metadata, LOAD_LAYER()->resource, state->slot, 1);
+            (LOAD_LAYER()->resource)->entries[state->slot].startFrame[1] = (metadata);
         }
         continue;
 

@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 /* Original translation unit effPolygonThunder.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "rw_geometry_internal.h"
 #include "polygon_thunder_internal.h"
@@ -196,7 +197,7 @@ void ThunderGeometryDestroy(u8 *effect)
  * declarations follow the order a regalloc_whatif.py replay derived.
  * effMiscAxisAngleVU is declared angle-first here: retail sets $f12 before $a0,
  * and b210 emits argument setup in declaration order (handoff 7a-bis). */
-static inline f32 thunderAdd(f32 first, f32 second) { return first + second; }
+
 #pragma push
 #pragma opt_loop_invariants on
 // Rebuilds a live thunder bolt's strip: the first row across the travel direction, each further row along a sine-wave heading.
@@ -439,7 +440,7 @@ void ThunderBoltUpdateStrip(u8 *effect)
                 f32 rise = next - previous;
 
                 hypot = sqrtf(rise * rise + segmentLength * segmentLength);
-                nextAngle = thunderAdd(thunderAdd(func_0044b938(rise / hypot), shift + offset), base);
+                nextAngle = operandOrderAddFloat(operandOrderAddFloat(func_0044b938(rise / hypot), shift + offset), base);
             }
             effMiscAxisAngleVU(angle, axis.lane);
             effectVuLoad10(&forward);
@@ -1150,7 +1151,7 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
             {
                 f32 rise = next - previous;
 
-                nextAngle = thunderAdd(func_0044b938(rise / sqrtf(rise * rise + segmentLength * segmentLength)), shift);
+                nextAngle = operandOrderAddFloat(func_0044b938(rise / sqrtf(rise * rise + segmentLength * segmentLength)), shift);
             }
             effMiscAxisAngleVU(angle, heading.lane);
             effectVuLoad10(&delta);

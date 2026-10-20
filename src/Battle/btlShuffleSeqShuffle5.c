@@ -210,7 +210,8 @@ s32 btlShuffleSeq5Check2(u8 *context)
 #pragma push
 #pragma opt_loop_invariants on
 
-static inline u16 shuffle5RowMask(s32 row)
+/* Return the stop flag for one of the three valid shuffle rows. */
+static inline u16 btlShuffleRowMask(s32 row)
 {
     switch (row) {
     case 0:
@@ -225,7 +226,8 @@ static inline u16 shuffle5RowMask(s32 row)
     }
 }
 
-static inline s32 shuffle5Contains(u8 *state, s32 card)
+/* Test whether the row state contains the supplied card index. */
+static inline s32 btlShuffleRowContains(u8 *state, s32 card)
 {
     s32 slot;
     for (slot = 0; slot < ((BtlShuffleRowState *)state)->cardCount; slot++) {
@@ -236,7 +238,8 @@ static inline s32 shuffle5Contains(u8 *state, s32 card)
     return 0;
 }
 
-static inline s32 shuffle5MovingRowSize(s32 count)
+/* Repeat short decks twice to populate a continuously moving row. */
+static inline s32 btlShuffleMovingRowSize(s32 count)
 {
     return count < 6 ? count * 2 : count;
 }
@@ -387,7 +390,7 @@ s32 btlShuffleSeq5Run(u8 *work)
         }
     case 5:
         for (i = 0; i < 3; i++) {
-            mask = shuffle5RowMask(i);
+            mask = btlShuffleRowMask(i);
             if ((((BtlShuffleRowState *)state)->flags & mask) == 0 && btlShuffleDrawStateB(work + i * rowSize * 0xE8 + 0x1D6A0) != 0) {
                 ((BtlShuffleRowState *)state)->flags |= mask;
                 ++((BtlShuffleRowState *)state)->stoppedRows;
@@ -422,7 +425,7 @@ s32 btlShuffleSeq5Run(u8 *work)
         ((BtlShuffleContext *)work)->phase = 8;
     case 8:
         if (D_008C024E[0] & 0x40) {
-            mask = shuffle5RowMask(rowState->row);
+            mask = btlShuffleRowMask(rowState->row);
             ((BtlShuffleRowState *)state)->flags &= (u16)~mask;
             sdkSndStartStream(1, 2, 5, 5);
             if (++rowState->row == 3) {
@@ -443,7 +446,7 @@ s32 btlShuffleSeq5Run(u8 *work)
         btlShuffleDrawViewEndFrameFade(((BtlShuffleContext *)work)->viewTask);
         if (btlShuffleSeq5Check2(work) != 0) {
             for (i = 0; i < total; i++) {
-                if (!shuffle5Contains(state, i)) {
+                if (!btlShuffleRowContains(state, i)) {
                     btlShuffleSeqSetMode(work, i, 0x14);
                 }
             }
@@ -458,7 +461,7 @@ s32 btlShuffleSeq5Run(u8 *work)
             break;
         }
         for (i = 0; i < total; i++) {
-            if (!shuffle5Contains(state, i)) {
+            if (!btlShuffleRowContains(state, i)) {
                 btlShuffleDrawPoll(work, i, 0);
             }
         }
@@ -521,11 +524,11 @@ s32 btlShuffleSeq5Run(u8 *work)
         break;
     }
     for (k = 0; k < 3; k++) {
-        mask = shuffle5RowMask(k);
+        mask = btlShuffleRowMask(k);
         if (((BtlShuffleRowState *)state)->flags & mask) {
             for (i = rowSize * k; i < rowSize * (k + 1); i++) {
                 speed = shuffleContext->sequenceFrames;
-                j = shuffle5MovingRowSize(shuffleContext->cardCount);
+                j = btlShuffleMovingRowSize(shuffleContext->cardCount);
                 card = work + i * 0xE8;
                 if (btlShuffleDrawStateA(card + 0x1D6A0) != 0) {
                     btlShuffleCalcUpdateSpeed(card + 0x1D6B8, (u8 *)movingScreen);

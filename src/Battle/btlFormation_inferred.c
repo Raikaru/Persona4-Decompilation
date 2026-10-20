@@ -62,14 +62,6 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
-
-
-
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
 extern f32 fGpffff803c;
@@ -80,6 +72,7 @@ extern f32 fGpffff8110;
 
 extern s32 btlCameraFindFormationForCounts(u8 *counts);
 typedef void BtlAttachPositionCallback(u8 *work, u8 *unit, u8 *entry, f32 *position);
+/* Derive attachment scale from the unit bounds and clamp it for effects. */
 static inline f32 btlAttachEffectScale(u8 *unit)
 {
     f32 s;
@@ -92,6 +85,7 @@ static inline f32 btlAttachEffectScale(u8 *unit)
     }
     return s;
 }
+/* Choose field attachment scale from battle mode and scaled unit radius. */
 static inline f32 btlAttachFieldScale(u8 *unit)
 {
     f32 s;

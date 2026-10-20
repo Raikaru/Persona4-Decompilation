@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 /* Original translation unit cmpSkill.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
@@ -296,6 +297,7 @@ resolve_test:
 
 /* Inline search of a persona's eight-entry skill list; the 1/0 returns keep the result in $v0 exactly
    as the two retail copies do. */
+/* Test whether any of the eight learned skill slots contains the requested skill. */
 static inline s32 cmpSkillListContains(u16 *skills, u16 skill)
 {
     s32 k;
@@ -508,10 +510,7 @@ s32 cmpSkillMenuUpdate(u8 *work)
     return result;
 }
 /* Preserve the observed left/right evaluation order of the three sums. */
-static inline f32 cmpSkillAddPosition(f32 left, f32 right)
-{
-    return left + right;
-}
+
 
 /* Draw the skill menu, including animated decorations, selection rows,
    scrolling controls and the pending skill overlay. The shared position,
@@ -707,7 +706,7 @@ void cmpSkillMenuDraw(u8 *work)
                         iconColor = (void *)D_0064B2EC;
                         position.x = 257.0f + (originX + menu->animation[9].x);
                         value = 0.0f + menu->animation[9].y + 34.0f * (f32)menu->selectedRow;
-                        value = cmpSkillAddPosition(21.0f, value);
+                        value = operandOrderAddFloat(21.0f, value);
                         position.y = originY + value;
                         paletteColor = (void *)D_0064B2E8;
                         color.rgba[0] = paletteColor->red;
@@ -753,7 +752,7 @@ void cmpSkillMenuDraw(u8 *work)
                 position.x = 300.0f + (originX + ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[10].x);
                 offset = ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[10].y;
                 value = 0.0f + originY + 34.0f * (f32)rowIndex;
-                value = cmpSkillAddPosition(offset, value);
+                value = operandOrderAddFloat(offset, value);
                 position.y = 21.0f + value;
                 value = (f32)((CmpSkillWork *)(work + rowIndex * 0x30))->animation[10].alpha;
                 value = value * opacity;
@@ -780,7 +779,7 @@ void cmpSkillMenuDraw(u8 *work)
         s32 overlayAlpha;
         position.x = 257.0f + (originX + menu->animation[9].x);
         value = 0.0f + originY + (f32)menu->selectedRow * 34.0f;
-        value = cmpSkillAddPosition(menu->animation[9].y, value);
+        value = operandOrderAddFloat(menu->animation[9].y, value);
         position.y = 21.0f + value;
         value = (f32)menu->animation[32].alpha;
         value = value * opacity;

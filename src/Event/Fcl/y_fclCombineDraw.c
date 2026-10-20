@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "fcl_row_mode.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
@@ -126,11 +127,19 @@ typedef struct {
    culprits. Site, local-pointer and array-form probes are recorded per access
    in build/readability_names/FullEvent16.culprits.tsv; all use real layouts. */
 
-static inline u32 addOff(u32 offset, u32 base) { return offset + base; }
+
 
 /* Retail clears the eight-byte packet through a guarded byte loop rather than a
    call, so the clear has to be inline here too. */
-static inline void fclZero8(u8 *p)
+/* Copy the two-coordinate position through its existing storage representation. */
+/* measured: direct struct assignments change both panel callers; cast expansions match but fail the typed-access quality gate. */
+static inline void fclCopyPositionStorage(void *out, const void *in)
+{
+    *(FclVec2 *)out = *(const FclVec2 *)in;
+}
+
+/* Clear an optional eight-byte buffer without calling the bulk memory routine. */
+static inline void fclClearEightBytes(u8 *p)
 {
     s32 n = 8;
 
@@ -148,7 +157,7 @@ static inline void fclZero8(u8 *p)
 
 /* Colors use native four-byte values; byte-buffer drafts retain explicit
    character access through fclWriteColorBytes. Position pairs use FclVec2.
-   Preserve lookup order, signed loop widths, and offset-first addOff calls.
+   Preserve lookup order, signed loop widths, and offset-first operandOrderAddUnsigned calls.
    The earlier layout experiments and superseded floors are retained in
    build/continuation-20260921/fcl-worker3/closure-003212e0/stage-final/
    historical-conventions.txt and the recovery notes in docs/probe_archive. */
@@ -304,7 +313,7 @@ void fclDrawSetPlacement(u8 *task, s32 value, u8 selector, s32 row) {
     f32 originCoordinates1[2];
     u32 work = (u32)((struct KwlnTask *)task)->work;
 
-    fclZero8((u8 *)originCoordinates1);
+    fclClearEightBytes((u8 *)originCoordinates1);
     originCoordinates1[1] = 40.0f * (f32)row;
     ((FclPersonaDrawWork *)work)->value = value;
     ((FclPersonaDrawWork *)work)->selector = selector;
@@ -318,7 +327,7 @@ void fclDrawSetPlacementEx(u8 *task, s32 value, s8 selector, s32 extraValue, s32
     f32 originCoordinates1[2];
     u32 work = (u32)((struct KwlnTask *)task)->work;
 
-    fclZero8((u8 *)originCoordinates1);
+    fclClearEightBytes((u8 *)originCoordinates1);
     originCoordinates1[1] = 40.0f * (f32)row;
     ((FclPersonaDrawWork *)(u32)work)->value = value;
     ((FclPersonaDrawWork *)(u32)work)->selector = selector;
@@ -631,7 +640,7 @@ void fclCombineDrawListRowPlain(u8 *task, s8 row, FclVec2 position, s16 resource
 /* measured: nd 0, object 740/window 752 (the final 12 retail bytes are zero
    tail padding ignored by verify). Exact recipe: retain raw arg1 in s0, use a
    u32 base for the normalized 16-bit index, and write the loop increment as
-   i = (s16)(i + 1); addOff(index*2, (u32)t) supplies the retail offset-first
+   i = (s16)(i + 1); (((u32)t) + (index*2)) supplies the retail offset-first
    c74 address. */
 // Fcl combine slot rows: draws the three slot rows at the base offset (fclCombineDrawListRow for each), then recolours the selected slot's sprites; the middle row uses 0x160 when flag 0x1305 is set.
 // FUN_00315310
@@ -672,7 +681,7 @@ void fclCombineDrawSlotRows(u8 *task, s64 delay) {
     p = fclSpriteEntry((s16)(MEMBER(s8, work, FclCombineWork, slotCursor) * 2 + 0x1F5));
     ((FclCombineRowSprite *)p)->color = drawColor2;
     drawColor3 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-    p = fclSpriteEntry((s16)((FclCombineWork *)(addOff(MEMBER(s8, work, FclCombineWork, slotCursor) * 2, (u32)work)))->selectedIds[0]);
+    p = fclSpriteEntry((s16)((FclCombineWork *)(operandOrderAddUnsigned(MEMBER(s8, work, FclCombineWork, slotCursor) * 2, (u32)work)))->selectedIds[0]);
     ((FclCombineRowSprite *)p)->color = drawColor3;
     if (MEMBER(s8, work, FclCombineWork, slotCursor) == 1) {
         if (datGetFlag(0x1305) != 0) {
@@ -2779,13 +2788,12 @@ void fclCombineCreateSlotIcons(u8 *task, s8 mode) {
  */
 /* Retain the measured baseline's task-argument home reader. This is a
    storage view, not a recovered game API or a new initialization phase. */
-static inline u8 *fclSavedCombineTask(const void *storage)
-{
-    return *(u8 * const *)storage;
-}
+
 
 /* Bias the row view by the column before applying its field displacement.
    Direct array indexing reverses the final ADDU's operands in b210. */
+/* Clear the transition-start flag for one grid cell. */
+/* measured: direct indexed flag stores change owner instruction bytes at both remaining call sites. */
 static inline void fclClearGridCellTransition(FclCombineGridRowStateView *rowState, s32 column)
 {
     FclCombineGridRowStateView *cellState = (FclCombineGridRowStateView *)((u8 *)rowState + column);
@@ -2794,6 +2802,7 @@ static inline void fclClearGridCellTransition(FclCombineGridRowStateView *rowSta
 
 /* Keep the grid's row snapshot separate from the outer traversal's header
    arithmetic. Both entry and refresh consume the same row/delay contract. */
+/* Initialize or refresh a pair-grid row with staggered color and alpha transitions. */
 static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRow, s32 gridOffset, s32 mode)
 {
     extern void fclSpriteSetAppearance(u8 *, FclVec2, FclDrawColor, f32, f32, f32);
@@ -2896,7 +2905,7 @@ void fclCombineSetupPairGrid(u8 *task, s8 entryMode) {
 
     /* Phase 2: title, followed by one Persona row and column header per slot. */
     titlePosition = fclMakeVec2(16.0f, 104.0f);
-    fclCombineDrawSlotFields(fclSavedCombineTask(&task), titlePosition, 0, 0, 0, 0, 0);
+    fclCombineDrawSlotFields((*(u8 * const *)(&task)), titlePosition, 0, 0, 0, 0, 0);
     for (row = 0, gridMode = savedMode; row < (u16)datPersonaRosterCapacity(); row++) {
         s32 rowIndex;
         s32 gridOffset;
@@ -2996,7 +3005,7 @@ void fclCombineAdvanceGridFade(u8 *task, u8 nextState, s8 mode) {
             if (*(s8 *)cellTransition == 0) {
                 if (((*(s16 *)fclCombineSlotRecord(((FclCombineRowWork *)rowTasks)->gridRowTasks[0], j) & 0x200) >> 9) == 0) {
                     fclSpriteStartColor(fclCombineSlotRecord(MEMBER(u8 *, rowTasks, FclCombineRowWork, gridRowTasks[0]), j), drawColor2, drawColor1, 0, 2, 1);
-                    if (((FclCombineRowList *)((u8 *)addOff(rowOffset, (u32)yListSlotWork(0)) + (s32)(s16)j))->availability[0][0] > 0) {
+                    if (((FclCombineRowList *)((u8 *)(((u32)yListSlotWork(0)) + (rowOffset)) + (s32)(s16)j))->availability[0][0] > 0) {
                         fclSpriteStartColor(fclCombineSlotRecord(MEMBER(u8 *, rowTasks, FclCombineRowWork, gridRowTasks[0]), j), drawColor2, drawColor3, 0, 2, 1);
                         cell2 = fclCombineSlotRecord(MEMBER(u8 *, rowTasks, FclCombineRowWork, gridRowTasks[0]), j);
                         fclSpriteStartAlpha(cell2, ((FclObject *)((u8 *)fclCombineSlotRecord(MEMBER(u8 *, rowTasks, FclCombineRowWork, gridRowTasks[0]), j) - 4))->alpha, 0xCC, 0, 2, 1);
@@ -3126,6 +3135,7 @@ void fclCombineRefreshGridCells(u8 *task, s16 delay) {
 
 /* The 0x40 path has its own eligibility guard; it is not a copy of 0x80.
    Cursor activation and the 0x7E reset follow the retail control-flow join. */
+/* Create the combination cursor arrow and hide the two work-owned arrows. */
 static inline void fclShowCombineCursorArrows(u8 *work)
 {
     FclVec2 *v = (FclVec2 *)D_00644C90;
@@ -3325,7 +3335,7 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
                     m = cur * 12;
                     rowb2 = work + cur * 4;
                     while ((s16)kb2 < (u16)datPersonaRosterCapacity()) {
-                        if (((FclCombineRowList *)((u8 *)addOff(m, (u32)yListSlotWork(0)) + kb2))->availability[0][0] == 0) {
+                        if (((FclCombineRowList *)((u8 *)(((u32)yListSlotWork(0)) + (m)) + kb2))->availability[0][0] == 0) {
                             if (MEMBER(s16, work, FclCombineRowWork, cursorRow) == cur) {
                                 drawColor1 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                             } else {
@@ -3879,6 +3889,7 @@ void fclCombineDrawSlotFrames(u8 *task, FclVec2 position, s32 slot, s8 mode) {
 
 /* The cursor arrow at x 358 is fclCombineFadeCursorArrow with a zero offset. Retail
    inlines it here, and it loads D_00644C90 before testing the flag. */
+/* Create a visible cursor arrow or fade the existing arrow away. */
 static inline void fclShowCursorArrow(s8 flag)
 {
     f32 *b = D_00644C90;
@@ -4297,6 +4308,8 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
    Exact owner and contract proof: docs/probe_archive/FclDraw_00329310_exact_row_packets_worker2_20260921.md. */
 #pragma push
 #pragma opt_propagation off
+/* Apply the table displacement at a byte offset to a row coordinate. */
+/* measured: expanding the table load and addition changes owner instruction bytes; retain the inline load/add boundary. */
 static inline f32 fclRowAdjustedX(f32 x, const f32 *table, s32 offset)
 {
     const f32 *adjustment = (const f32 *)((const u8 *)table + offset);
@@ -4332,7 +4345,7 @@ void fclCombineDrawStageTiles(u8 *owner, s16 duration, s8 mode) {
 
     task = ((struct KwlnTask *)owner)->work;
     constructedOrigin = fclMakeVec2(18.0f, 14.0f);
-    *(FclVec2 *)origin = constructedOrigin;
+    *(FclVec2 *)&origin = constructedOrigin;
     first = (s8)(((FclCombineWork *)task)->f122 - ((FclCombineWork *)task)->windowRow);
     for (i = 0; i < 14; ++i) {
         fclSpriteSetFlag((s16)(i + 0x13F), 0, 1);
@@ -4505,10 +4518,7 @@ void fclCombineSlideInHeaderSprites(f32 originX, f32 slideOffset, u8 *task, s64 
    storage interface: b210 loads both constructor-produced coordinates before
    storing the retained origin. A typed-pointer or scalar copy changes that
    native load/store order. */
-static inline void fclCopyPositionStorage(void *out, const void *in)
-{
-    *(FclVec2 *)out = *(const FclVec2 *)in;
-}
+
 
 /* Native color results retain the initial copies and later recoloring.
    The draw-call order is preserved.
@@ -5071,6 +5081,8 @@ typedef struct {
     u8 *model;
 } FclCombineModelWork;
 
+/* Retrieve the persona handle from the draw task work area. */
+/* measured: expanding the nested work/handle load changes owner instruction bytes at its remaining call site. */
 static inline u8 *fclDrawPersonaTask(u8 *draw)
 {
     return (u8 *)((FclPersonaDrawWork *)((struct KwlnTask *)draw)->work)->personaHandle;
@@ -5844,6 +5856,8 @@ typedef union {
     u32 bits;
 } FclActionColor;
 
+/* Store a selected action identifier at an already-scaled row displacement. */
+/* measured: expanding the offset-first selected-ID store changes owner instruction bytes at all six call sites. */
 static inline void fclStoreActionResource(s16 id, s32 offset, u8 *work)
 {
     /* Offset-first row-ID stores preserve retail address operand order; offset is already a byte displacement. */
@@ -6125,7 +6139,7 @@ void fclCombineMoveGridCursor(u8 *task, s32 command) {
     lim = diff + 6;
     while (cur < lim) {
         savedColumn = jj;
-        bid = (s32)addOff((s16)cur, 0x179);
+        bid = (s32)operandOrderAddUnsigned((s16)cur, 0x179);
         position = fclMakeVec2(32.0f, (f32)(savedColumn * 34 + 0x5B));
         fclSpriteCreate((s16)((s16)bid), position, 152.0f, savedColumn * 5 + 0x6A);
         fclSpriteSetFlag((s16)bid, 0, 0);
@@ -6142,7 +6156,7 @@ void fclCombineMoveGridCursor(u8 *task, s32 command) {
     p1 = fclSpriteEntry((s16)(MEMBER(s16, work, FclCombineWork, windowRow) * 2 + 0x1F4));
     ((FclCombineRowSprite *)p1)->color = MEMBER(FclDrawColor, p, FclCombineRowSprite, color);
     drawColor5 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-    p = fclSpriteEntry((s16)addOff(diff + 0x179, MEMBER(s16, work, FclCombineWork, windowRow)));
+    p = fclSpriteEntry((s16)operandOrderAddUnsigned(diff + 0x179, MEMBER(s16, work, FclCombineWork, windowRow)));
     ((FclCombineRowSprite *)p)->color = drawColor5;
     drawColor6 = fclMakeDrawColor(0x92, 0xC8, 7, 0xFF);
     p = fclSpriteEntry((s16)(MEMBER(s16, work, FclCombineWork, windowRow) + 0x2FB));
@@ -6176,7 +6190,7 @@ void fclCombineMoveGridCursor(u8 *task, s32 command) {
    (s8)arg1), arg2 is s32 (the D_00882FB0 table ADDRESS as an integer, NOT a
    u8* pointer); (2) NO named lh local in the switch cases — retail reloads
    ((FclCombineRowWork *)obj)->cursorRow at each use, inline it; (3) the lever-3 static inline
-   addOff helper (offset-first) for the 4 +0x168 sites — addOff(lh*2, arg2)
+   operandOrderAddUnsigned helper (offset-first) for the 4 +0x168 sites — ((arg2) + (lh*2))
    emits addu $v0,$v0,$s3 (scaled+base) which the raw (u8*)(lh*2+arg2)+1
    spelling never did; (4) hoisted s8 temp3 for the 0xA/0xB chain with ==1
    tests. nd path 244->14->0. */
@@ -6196,7 +6210,7 @@ void fclCombineMoveChoiceCursor(u8 *task, s64 command, s32 choiceTable) {
     p2 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(choiceTable + MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2))->kind * 2 + 0x1F4));
     ((FclCombineRowSprite *)p2)->color = MEMBER(FclDrawColor, p1, FclCombineRowSprite, color);
     drawColor2 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
-    p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(addOff(MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2, (u32)choiceTable)))->resource + 0x168));
+    p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(operandOrderAddUnsigned(MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2, (u32)choiceTable)))->resource + 0x168));
     ((FclCombineRowSprite *)p1)->color = drawColor2;
     drawColor3 = fclMakeDrawColor(0x25, 0x2F, 0x94, 0xFF);
     p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(choiceTable + MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2))->kind + 0x2FB));
@@ -6210,12 +6224,12 @@ void fclCombineMoveChoiceCursor(u8 *task, s64 command, s32 choiceTable) {
     if (choiceKind == 0xA) {
         if (((s8)((FclCombineWork *)obj)->choiceFlags & 1) == 1) {
             drawColor5 = fclMakeDrawColor(0xFF, 0xCC, 0xFF, 0xFF);
-            p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(addOff(MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2, (u32)choiceTable)))->resource + 0x168));
+            p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(operandOrderAddUnsigned(MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2, (u32)choiceTable)))->resource + 0x168));
             ((FclCombineRowSprite *)p1)->color = drawColor5;
         }
     } else if ((choiceKind == 0xB) && (((s32)((s8)((FclCombineWork *)obj)->choiceFlags & 2) >> 1) == 1)) {
         drawColor6 = fclMakeDrawColor(0xFF, 0xCC, 0xFF, 0xFF);
-        p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(addOff(MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2, (u32)choiceTable)))->resource + 0x168));
+        p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(operandOrderAddUnsigned(MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2, (u32)choiceTable)))->resource + 0x168));
         ((FclCombineRowSprite *)p1)->color = drawColor6;
     }
     ((FclCombineWork *)obj)->redrawRequested = 1;
@@ -6252,7 +6266,7 @@ void fclCombineMoveChoiceCursor(u8 *task, s64 command, s32 choiceTable) {
     p2 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(choiceTable + MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2))->kind * 2 + 0x1F4));
     ((FclCombineRowSprite *)p2)->color = MEMBER(FclDrawColor, p1, FclCombineRowSprite, color);
     drawColor8 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-    p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(addOff(MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2, (u32)choiceTable)))->resource + 0x168));
+    p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(operandOrderAddUnsigned(MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2, (u32)choiceTable)))->resource + 0x168));
     ((FclCombineRowSprite *)p1)->color = drawColor8;
     drawColor9 = fclMakeDrawColor(0x92, 0xC8, 7, 0xFF);
     p1 = fclSpriteEntry((s16)((s8)((FclCombineChoice *)(choiceTable + MEMBER(s16, obj, FclCombineRowWork, cursorRow) * 2))->kind + 0x2FB));

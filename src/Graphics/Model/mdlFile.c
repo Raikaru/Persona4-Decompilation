@@ -1,3 +1,5 @@
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "member_access.h"
 #include "mdl_file_internal.h"
 /* Source unit: src/Graphics/Model/mdlFile_00230bc0.c (1 function markers) */
@@ -17,10 +19,6 @@ extern u8 DAT_00713200[];
 extern u8 DAT_00713200_abs[];
 extern u64 K_ClumpMatColorStore();
 
-static inline u8 mdlFileToU8(f32 value)
-{
-  return (u8)value;
-}
 
 /* W409 measured: P3 donor carried NONMATCHING 204/224 nd74 -> MATCH 216/224 nd0 annotation; ported verbatim. */
 extern u32 DAT_00922c30;
@@ -66,20 +64,8 @@ extern void Vpad_RefreshSelection(u8 *work);
 extern void Vpad_Noop(u8 *track);
 struct RuntimeWork;
 extern void Vpad_SetColor(struct RuntimeWork* work, const u8* color);
-static inline s32 viewAddReverse(s32 base, s32 offset)
-{
-    return offset + base;
-}
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
-static inline f32 code1_0047_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
-{
-    return 0.0f + addend + right * left;
-}
 typedef struct Code47Vec4 {
     f32 x;
     f32 y;
@@ -190,7 +176,7 @@ u8 *mdlSampleTrackScalar(u8 *track, f32 time)
         }
     } while (lo < hi);
     if ((u32)mid >= (u32)lastIndex) {
-        fGpffffbb4c = ((MdlFileScalarKey *)viewAddReverse(pairs, mid * 8))->value;
+        fGpffffbb4c = ((MdlFileScalarKey *)((s32)byteAddressAdd((u32)(mid * 8), (u8 *)(pairs))))->value;
     } else {
         f32 x0;
         f32 y0;
@@ -204,7 +190,7 @@ u8 *mdlSampleTrackScalar(u8 *track, f32 time)
         x1 = ((MdlFileScalarKey *)pairs)[mid + 1].time;
         ratio = ratio / (x1 - x0);
         y1 = ((MdlFileScalarKey *)pairs)[mid + 1].value;
-        fGpffffbb4c = y0 + code1_0047_mul(y1 - y0, ratio);
+        fGpffffbb4c = y0 + operandOrderMultiply(y1 - y0, ratio);
     }
     fGpffffbb48 = time;
     return (u8 *)&fGpffffbb48;
@@ -224,7 +210,7 @@ void mdlApplyMaterialColorRow(void *row,void *material)
 
   opacity = (1.0f - ((f32 *)row)[1]) * 255.0f;
 
-  alpha = mdlFileToU8(opacity);
+  alpha = ((u8)(opacity));
   rgba[2] = (u8)packedColor;
   rgba[1] = (u8)((u32)packedColor >> 8);
   rgba[0] = (u8)((u32)packedColor >> 0x10);
@@ -340,17 +326,17 @@ void *mdlBlendTrackColorBytes(u8 *track, f32 time, u8 *color, f32 weight)
     difference = first;
     addend = out[1];
     difference -= addend;
-    out[1] = code1_0047_madd_reverse(difference, weight, addend);
+    out[1] = (0.0f + (addend) + (weight) * (difference));
 
     difference = second;
     addend = out[2];
     difference -= addend;
-    out[2] = code1_0047_madd_reverse(difference, weight, addend);
+    out[2] = (0.0f + (addend) + (weight) * (difference));
 
     difference = third;
     addend = out[3];
     difference -= addend;
-    out[3] = code1_0047_madd_reverse(difference, weight, addend);
+    out[3] = (0.0f + (addend) + (weight) * (difference));
     return out;
 }
 

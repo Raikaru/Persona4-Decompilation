@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_unit_record_internal.h"
 #include "btl_action_internal.h"
@@ -89,10 +90,7 @@ extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddPersonaOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
+
 
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -305,7 +303,7 @@ s32 btlUnitGetPersonaAlphaColor(u8 *context) {
     if (context[0xA2] != 2) {
         return -1;
     }
-    e = btlUnitAddPersonaOffset(((BtlUnit *)context)->charId * 0x58, iGpffffb3e0);
+    e = byteAddressAdd(((BtlUnit *)context)->charId * 0x58, (u8 *)(iGpffffb3e0));
     return (e[0x56] << 24) | 0xFFFFFF;
 }
 

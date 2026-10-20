@@ -915,7 +915,9 @@ s32 btlShuffleBuildRoster(s32 selector, s32 *result)
    are needed for retail's register assignment and address forms. See
    docs/probe_archive/BtlShuffle_worker8_20261005.md for the earlier layout
    recovery. */
-static inline u16 *shuffleCandidateField(s32 offset, void *base)
+/* Address one halfword of the selected replacement-skill candidate. */
+/* measured: keeps separate addiu field addresses before lhu; plain C folds the displacement and removes a word. */
+static inline u16 *btlShuffleCandidateField(s32 offset, void *base)
 {
     return (u16 *)((u8 *)base + offset);
 }
@@ -1006,9 +1008,9 @@ s32 btlShufflePickRosterMember(s32 selector, u8 *result)
     r = datCalcRandomBelow(candidateCount);
     {
         /* Each field address is formed from the chosen entry separately. */
-        u16 *field = shuffleCandidateField(2, (u8 *)candidates + r * 4);
+        u16 *field = btlShuffleCandidateField(2, (u8 *)candidates + r * 4);
         second = *field;
-        field = shuffleCandidateField(r * 4, candidates);
+        field = btlShuffleCandidateField(r * 4, candidates);
         first = *field;
     }
     datPersonaReplaceSkill(persona, (s16)first, second);

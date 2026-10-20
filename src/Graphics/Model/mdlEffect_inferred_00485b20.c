@@ -58,7 +58,8 @@ extern void (*jtbl_008873EC[])(void *);
 extern u_long128 mdlEffectInitParticleState(u8 *instance);
 extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
 extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
-static inline void model_normalize_packed_color(const u32 *source, f32 scale)
+/* Unpack packed RGBA bytes and scale all four channels into VU0 VF10. */
+static inline void mdlEffectNormalizePackedColor(const u32 *source, f32 scale)
 {
     u32 scaleBits;
     __asm__ volatile(
@@ -574,7 +575,7 @@ void mdlEffectApplyPackedColor(u8 *effect, s32 value)
     baseColor = (u32)value;
     source = &baseColor;
     scale = fGpffff8044;
-    model_normalize_packed_color(source, scale);
+    mdlEffectNormalizePackedColor(source, scale);
     __asm__ volatile("sqc2 $vf10, 0(%1)\n"
         : "=m"(parent) : "r"(parent) : "memory");
 
@@ -583,7 +584,7 @@ void mdlEffectApplyPackedColor(u8 *effect, s32 value)
         while (node != NULL) {
             childColor = ((MdlEffectState *)node)->packedColor.value;
             source = &childColor;
-            model_normalize_packed_color(source, scale);
+            mdlEffectNormalizePackedColor(source, scale);
             __asm__ volatile(
                 "lqc2 $vf11, 0(%0)\n"
                 "vmul.xyzw $vf10, $vf10, $vf11\n"

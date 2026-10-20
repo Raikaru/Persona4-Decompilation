@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "field_transition_internal.h"
 #include "include_asm.h"
 /* Original translation unit evtMain.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -608,12 +609,7 @@ struct Resrc;
 #pragma push
 #pragma opt_propagation off
 /* Keep the native scaled-address order for the three cut-in task slots. */
-static inline u8 *evtCutinAddress(u32 index, u8 *work)
-{
-    u32 address = index * sizeof(s32);
-    address += (uintptr_t)work;
-    return (u8 *)address;
-}
+
 
 /* Measured: 1896 executable bytes, 47 resolved relocations and eight zero tail
    bytes. Reassigning the consumed enable state retains retail's duration load
@@ -817,14 +813,14 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
         u8 *linkedObject;
         if (currentKey == NULL) {
             if ((waitFlags & 0x80000000) != 0) {
-                if ((u8 *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0] != NULL) {
-                    if (kwlnTaskIsLinked((u8 *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0]) != 0) {
-                        taskRecordRequestPrimary((u8 *)((EvtEventWork *)evtCutinAddress(ownerNode->param04, event))->waitTask[0]);
-                        if (taskRecordIsDone((u8 *)((EvtEventWork *)evtCutinAddress(ownerNode->param04, event))->waitTask[0]) != 0) {
-                            kwlnTaskDestroyWithHierarchy((struct KwlnTask *)((EvtEventWork *)evtCutinAddress(ownerNode->param04, event))->waitTask[0]);
+                if ((u8 *)((EvtEventWork *)byteAddressAdd(((u32)((EvtNode *)owner)->param04) * sizeof(s32), event))->waitTask[0] != NULL) {
+                    if (kwlnTaskIsLinked((u8 *)((EvtEventWork *)((event) + ((u32)((EvtNode *)owner)->param04) * sizeof(s32)))->waitTask[0]) != 0) {
+                        taskRecordRequestPrimary((u8 *)((EvtEventWork *)byteAddressAdd((ownerNode->param04) * sizeof(s32), event))->waitTask[0]);
+                        if (taskRecordIsDone((u8 *)((EvtEventWork *)byteAddressAdd((ownerNode->param04) * sizeof(s32), event))->waitTask[0]) != 0) {
+                            kwlnTaskDestroyWithHierarchy((struct KwlnTask *)((EvtEventWork *)byteAddressAdd((ownerNode->param04) * sizeof(s32), event))->waitTask[0]);
                         }
                     }
-                    ((EvtEventWork *)evtCutinAddress(ownerNode->param04, event))->waitTaskPointers[0] = NULL;
+                    ((EvtEventWork *)byteAddressAdd((ownerNode->param04) * sizeof(s32), event))->waitTaskPointers[0] = NULL;
                 }
             }
         } else {
@@ -840,22 +836,22 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
                     }
                     cutinCode.halves.first = (s16)firstCode;
                     cutinCode.halves.second = (s16)secondCode;
-                    linkedObject = (u8 *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0];
+                    linkedObject = (u8 *)((EvtEventWork *)byteAddressAdd(((u32)((EvtNode *)owner)->param04) * sizeof(s32), event))->waitTask[0];
                     if ((linkedObject != NULL) && (kwlnTaskIsLinked((void *)linkedObject) != 0)) {
                         taskRecordRequestPrimary(linkedObject);
                     }
                     {
                         s32 createdTask = cutinDrawTaskCreate((s32)evtFindTask(), cutinCode.packed);
-                        ((EvtEventWork *)evtCutinAddress(ownerNode->param04, event))->waitTask[0] = createdTask;
+                        ((EvtEventWork *)byteAddressAdd((ownerNode->param04) * sizeof(s32), event))->waitTask[0] = createdTask;
                     }
                     cutinPosition.vector.x = (f32)((EvtChildNode *)currentKey)->payload.cutin.x;
                     cutinPosition.vector.y = (f32)((EvtChildNode *)currentKey)->payload.cutin.y;
-                    taskRecordSetPosition((u8 *)((EvtEventWork *)evtCutinAddress(ownerNode->param04, event))->waitTask[0], cutinPosition.packed);
+                    taskRecordSetPosition((u8 *)((EvtEventWork *)byteAddressAdd((ownerNode->param04) * sizeof(s32), event))->waitTask[0], cutinPosition.packed);
                     break;
                 }
                 case 1:
-                    if (((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0] != 0) {
-                        if (taskRecordIsDone((void *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0]) == 0) {
+                    if (((EvtEventWork *)byteAddressAdd(((u32)((EvtNode *)owner)->param04) * sizeof(s32), event))->waitTask[0] != 0) {
+                        if (taskRecordIsDone((void *)((EvtEventWork *)((event) + ((u32)((EvtNode *)owner)->param04) * sizeof(s32)))->waitTask[0]) == 0) {
                             taskSlot = ownerNode->param04;
                             switch (taskSlot) {
                             case 0:
@@ -871,15 +867,15 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
                                 break;
                             }
                         }
-                        taskRecordRequestSecondary((void *)((EvtEventWork *)evtCutinAddress(ownerNode->param04, event))->waitTask[0]);
+                        taskRecordRequestSecondary((void *)((EvtEventWork *)byteAddressAdd((ownerNode->param04) * sizeof(s32), event))->waitTask[0]);
                     }
                     break;
                 case 2:
-                    currentKey = (u8 *)((EvtEventWork *)evtCutinAddress((u32)((EvtNode *)owner)->param04, event))->waitTask[0];
+                    currentKey = (u8 *)((EvtEventWork *)byteAddressAdd(((u32)((EvtNode *)owner)->param04) * sizeof(s32), event))->waitTask[0];
                     if ((currentKey != NULL) && (kwlnTaskIsLinked((void *)currentKey) != 0)) {
                         taskRecordRequestPrimary(currentKey);
                     }
-                    ((EvtEventWork *)evtCutinAddress(ownerNode->param04, event))->waitTask[0] = 0;
+                    ((EvtEventWork *)byteAddressAdd((ownerNode->param04) * sizeof(s32), event))->waitTask[0] = 0;
                     break;
                 default:
                     break;

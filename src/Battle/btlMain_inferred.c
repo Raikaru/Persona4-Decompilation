@@ -100,7 +100,8 @@ typedef struct BtlQuatMatrixWork {
     u32 totalFrames;
     u32 currentFrame;
 } BtlQuatMatrixWork;
-static inline u8 blendChannel(u8 start, u8 target, f32 t, f32 inv)
+/* Blend normalized channel endpoints and round the result back to a color byte. */
+static inline u8 btlMainBlendChannel(u8 start, u8 target, f32 t, f32 inv)
 {
     f32 s = (1.0f / 255.0f) * (f32)start;
     f32 e = (1.0f / 255.0f) * (f32)target;
@@ -149,10 +150,10 @@ s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
     if (work->frame < work->frames) {
         t = (f32)work->frame / (f32)work->frames;
         inv = 1.0f - t;
-        r = blendChannel(work->start.r, work->target.r, t, inv);
-        g = blendChannel(work->start.g, work->target.g, t, inv);
-        b = blendChannel(work->start.b, work->target.b, t, inv);
-        a = blendChannel(work->start.a, work->target.a, t, inv);
+        r = btlMainBlendChannel(work->start.r, work->target.r, t, inv);
+        g = btlMainBlendChannel(work->start.g, work->target.g, t, inv);
+        b = btlMainBlendChannel(work->start.b, work->target.b, t, inv);
+        a = btlMainBlendChannel(work->start.a, work->target.a, t, inv);
         kwlnSetColorRgba(r, g, b, a);
     } else {
         kwlnSetColorRgba(work->target.r, work->target.g, work->target.b, work->target.a);

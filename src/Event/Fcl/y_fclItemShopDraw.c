@@ -1877,12 +1877,14 @@ void fclItemShopStartExit(u8 *shopTask) {
    its own pos/colour pair, the cursor tables are read through an F2_0033
    pointer (kept in $s1 across the reset call), and the shaded colour is
    written `green = blue = 0` (the andi on $zero). */
+/* Draw the item frame with its queued sprite resource and supplied tint. */
 static inline void fclShopDrawItemFrame(u8 *p, f32 y, u8 red, u8 green, u8 blue)
 {
     sdkSpriteDrawQueued(44.0f, y, 62.0f, fclPackRgba(0xFF, red, green, blue), 0xFF, 0x24,
                   (void *)((FclItemShopWork *)p)->spriteFile, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
+/* Resolve and draw the selected list item name with the supplied tint. */
 static inline void fclShopDrawItemName(s16 item, f32 y, u8 red, u8 green, u8 blue)
 {
     frFontExDrawTextDeferred(78.0f, y, 62.0f, fclPackRgba(red, green, blue, 0xFF), 0, 1,

@@ -62,10 +62,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
+
 
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -129,8 +126,7 @@ s64 btlUnitGetMotionId(u8 *unit, u16 motion)
         index = kind * 0x1E;
         table = D_005F6CA0 + index;
         offset = motion & 0xFFFF;
-        result = (s64)((s64)*(u8 *)btlUnitAddBaseToOffset(
-            offset, (s32)table) << 48) >> 48;
+        result = (s64)((s64)((u8 *)(s32)table)[offset] << 48) >> 48;
         if ((((BtlUnit *)unit)->stateFlags & 0x100) != 0) {
             if (kind == 0) {
                 if (((BtlUnit *)unit)->charId == 1) {

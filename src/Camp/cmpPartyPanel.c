@@ -1,3 +1,5 @@
+#include "operand_order_internal.h"
+#include "byte_address_internal.h"
 /* Original translation unit cmpPartyPanel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "sdktask.h"
@@ -40,18 +42,12 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void* ptr);
 
 typedef struct { f32 x, y; } Vec2f;
-static inline u8 *cmpPartyPanelOffsetAddress(u32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
+
 /* Reuse the existing SDK Sky2 fields: four consecutive 0x40-byte vertices.
  * Integer color stores preserve the original floating-point bit patterns. */
 typedef struct { BtlShuffleSkyFields vertices[4]; } CmpPartyPanelGaugePacket;
-static inline f32 cmpPartyPanelAdd(f32 left, f32 right) {
-    return left + right;
-}
-static inline f32 cmpPartyPanelMultiply(f32 left, f32 right) {
-    return left * right;
-}
+
+
 
 typedef struct {
     Vec2f start;
@@ -127,16 +123,16 @@ void cmpPartyPanelDrawGauge(f32 originX, f32 originY, f32 fillRatio) {
     /* The lightweight SDK layout keeps this Camp TU independent of the full
        camera header configuration; bacamera.h establishes nearPlane at +0x80. */
     reciprocalDepth = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
-    leftX = cmpPartyPanelMultiply(41.0f, z);
-    rightX = cmpPartyPanelAdd(x, leftX);
+    leftX = ((41.0f) * (z));
+    rightX = ((x) + (leftX));
     leftX = rightX;
-    rightX = cmpPartyPanelAdd(3.0f, leftX);
+    rightX = operandOrderAddFloat(3.0f, leftX);
     leftX = rightX;
     packet.vertices[0].scrVertex.x = leftX;
     unfilledRatio = 1.0f - z;
     slantedY = unfilledRatio;
-    slantedY = cmpPartyPanelMultiply(20.0f, slantedY);
-    slantedY = cmpPartyPanelAdd(y, slantedY);
+    slantedY = operandOrderMultiply(20.0f, slantedY);
+    slantedY = operandOrderAddFloat(y, slantedY);
     packet.vertices[0].scrVertex.y = slantedY;
     packet.vertices[0].scrVertex.z = depth;
     *(s32 *)&packet.vertices[0].color.r = 0x41A80000;
@@ -203,7 +199,7 @@ void cmpPartyPanelDrawRow(u8* work, s64 rowIndex)
         if (portraitSprite == 0) {
             kAssertFail(D_0064E290, 0x109);
         }
-        xy = ((CmpPartyPanelWork *)(cmpPartyPanelOffsetAddress(rowOffset, work)))->rows[0].motion.current;
+        xy = ((CmpPartyPanelWork *)(byteAddressAdd(rowOffset, work)))->rows[0].motion.current;
         hpCur = datCalcGetHpById(id) & 0xFFFF;
         hpMax = datCalcMaxHpById(id) & 0xFFFF;
         spCur = datCalcGetSpById(id) & 0xFFFF;
@@ -261,6 +257,7 @@ void cmpPartyPanelDraw(u8* unusedNode, u8* work) {
  * the seven case-table entries at 007528E0 and all six siblings are exact. */
 #pragma opt_loop_invariants on
 /* Repeated row placement shares the signed roster-count contract. */
+/* Place one party row using the bottom-aligned row count and index. */
 static inline void cmpPartyPanelSetRowPosition(Vec2f *position, f32 x, s16 count, s32 index)
 {
     position->x = x;
@@ -357,7 +354,7 @@ s32 cmpPartyPanelTaskStep(u8 *task)
                     }
                 }
                 cmpPartyPanelSetRowPosition(&position, 640.0f, work->count, changed);
-                row = (CmpPartyPanelRow *)(cmpPartyPanelOffsetAddress(changed * sizeof(CmpPartyPanelRow), (u8 *)work) + 0x10);
+                row = (CmpPartyPanelRow *)(byteAddressAdd(changed * sizeof(CmpPartyPanelRow), (u8 *)work) + 0x10);
                 row->motion.start = row->motion.current;
                 row->motion.end = position;
                 row->motion.current = row->motion.start;
@@ -400,7 +397,7 @@ s32 cmpPartyPanelTaskStep(u8 *task)
             }
             if (changed < count) {
                 cmpPartyPanelSetRowPosition(&position, 640.0f, work->count, changed);
-                row = (CmpPartyPanelRow *)(cmpPartyPanelOffsetAddress(changed * sizeof(CmpPartyPanelRow), (u8 *)work) + 0x10);
+                row = (CmpPartyPanelRow *)(byteAddressAdd(changed * sizeof(CmpPartyPanelRow), (u8 *)work) + 0x10);
                 row->motion.start = row->motion.current;
                 row->motion.end = position;
                 row->motion.current = row->motion.start;

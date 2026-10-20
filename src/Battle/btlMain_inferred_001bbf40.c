@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "member_access.h"
 #include "btl_unit_record_internal.h"
 #include "list_item_internal.h"
@@ -50,10 +51,7 @@ extern void (*D_005F6E20[])(u8 *arg0);
 extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern u32 iGpffffa0b8;
 extern u8 D_005FB400[];
-static inline f32 func_001ba790_mul(f32 left, f32 right)
-{
-    return left * right;
-}
+
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern u8 D_0060A0E0[];
@@ -153,7 +151,7 @@ void btlCameraUpdateTransition(u8 *camera)
         if (((BtlCamera *)camera)->springElapsed >
             (0.5f * ((BtlCamera *)camera)->curveDuration)) {
             timeStep =
-                func_001ba790_mul(btlTargetSmoothStep(1.0f, (f32 *)(camera + 0x84)), 2.0f) -
+                operandOrderMultiply(btlTargetSmoothStep(1.0f, (f32 *)(camera + 0x84)), 2.0f) -
                 ((BtlCamera *)camera)->transitionTime;
         } else {
             timeStep = 0.0f;

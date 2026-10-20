@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "member_access.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_unit_record_internal.h"
@@ -1048,10 +1049,7 @@ void btlUnitModelLoadPacketInit(u8 *packetData)
         ((BtlUnit *)p)->flags2 = ((BtlUnit *)p)->flags2 & ~2;
     }
 }
-static inline u8 *btlUnitOffsetAdd(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
+
 /* 1796/1808 bytes (three words of padding). The unit's model is loaded or
    adopted, its resource ids and material flags are applied, then its motion
    frame, scale and quaternion rotation are pushed to the model. Levers: the
@@ -1125,7 +1123,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *packetData) {
             case 1: {
                 unit->sceneDrawId = MT_Scene_CreateModelCharRes(btlFindFreeCharResId(), unit->layerHandle);
                 SceneDraw_SetDirectionalOnly(unit->sceneDrawId, 1);
-                resourceFlags = (u16)((BtlUnitEnemyRecord *)btlUnitOffsetAdd(unit->charId * 0xE8, iGpffffb3cc))->flags;
+                resourceFlags = (u16)((BtlUnitEnemyRecord *)byteAddressAdd(unit->charId * 0xE8, (u8 *)(iGpffffb3cc)))->flags;
                 if (resourceFlags & 2) {
                     ((MdlFileModel *)unit->layerHandle)->flags |= 0x200;
                 }

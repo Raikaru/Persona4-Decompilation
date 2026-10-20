@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 /* Original translation unit y_CmbCardEff.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "fcl_color.h"
 #include "type.h"
@@ -16,7 +17,7 @@ typedef FclVec3 CmbVec3f;
 typedef FclVec2 CmbVec2f;
 typedef FclDrawColor CmbRGBA;
 
-static inline u8 *cmbAddPtrRev(u32 base, u32 index) { return (u8 *)(index + base); }
+
 
 void chkmemAllocSiteTag(void *file, u32 line);
 
@@ -634,7 +635,7 @@ void cmbCardApplySlotTransform(u8 *task, s8 cardIndex, CmbVec2f position, f32 sc
     btlShuffleCardApplyScale((u8 *)cardAddress, (f32 *)&position, 90.0f * scale);
 }
 /* measured: MATCHED this wave — the old nd-1 "load-sinking + addu-order floor" is broken by
-   lever 3 + opt_propagation: the inline helper cmbAddPtrRev carries the index-first addu
+   lever 3 + opt_propagation: the inline helper byteAddressAdd carries the index-first addu
    (`addu $a0,$v1,$a2` vs the old base-first `addu $a0,$a2,$v1`) through its parameters,
    and `#pragma opt_propagation off` forces the single-use base load early into $a2
    (helper alone: nd 9, load sinks to $v1 and the sign-ext chain shifts to $a1;
@@ -644,7 +645,7 @@ void cmbCardApplySlotTransform(u8 *task, s8 cardIndex, CmbVec2f position, f32 sc
 #pragma opt_propagation off /* measured: see above; forces the base load early (lw $a2,0x38($a0) first) */
 /* Starts the selected card's move: start and target positions, duration in frames; sets the active flag. */
 void cmbCardStartMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f endPosition, s16 duration) {
-    u8 *slotBase = cmbAddPtrRev((u32)((SdkTask *)task)->work, (u32)((s32)cardIndex * 0x84));
+    u8 *slotBase = byteAddressAdd((u32)((s32)cardIndex * 0x84), (u8 *)((u32)((SdkTask *)task)->work));
     ((CmbCardSlot *)(slotBase + 0xC))->position = startPosition;
     ((CmbCardSlot *)(slotBase + 0xC))->moveStart = ((CmbCardSlot *)(slotBase + 0xC))->position;
     ((CmbCardSlot *)(slotBase + 0xC))->moveEnd = endPosition;
@@ -653,6 +654,7 @@ void cmbCardStartMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f e
     ((CmbCardSlot *)(slotBase + 0xC))->flags |= 1;
 }
 #pragma opt_propagation on
+/* Initialize movement interpolation for the selected card slot. */
 static inline void cmbSetMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, CmbVec2f endPosition, u16 duration) {
     /* Begin the selected card's movement and enable its interpolation flag. */
     /* measured: access-site and typed-task-local work reads each lose all six layout MATCHes. */
@@ -665,6 +667,7 @@ static inline void cmbSetMove(u8 *task, s8 cardIndex, CmbVec2f startPosition, Cm
     ((CmbCardSlot *)(slotBase + 0xC))->moveDuration = duration;
     ((CmbCardSlot *)(slotBase + 0xC))->flags |= 1;
 }
+/* Initialize color interpolation for the selected card slot. */
 static inline void cmbSetColor(u8 *task, s8 cardIndex, CmbRGBA start, CmbRGBA end, u16 duration) {
     /* Begin the selected card's color interpolation and enable its flag. */
     /* measured: access-site and typed-task-local work reads each lose all six layout MATCHes. */
@@ -677,12 +680,13 @@ static inline void cmbSetColor(u8 *task, s8 cardIndex, CmbRGBA start, CmbRGBA en
     ((CmbCardSlot *)(slotBase + 0xC))->colorDuration = duration;
     ((CmbCardSlot *)(slotBase + 0xC))->flags |= 4;
 }
+/* Append a bounded waypoint to the selected card path. */
 static inline void cmbAddPath(u8 *task, s8 cardIndex, CmbVec2f position, s16 duration) {
     /* Append a bounded waypoint and enable queued path playback. */
     /* measured: access-site and typed-task-local work reads each lose all six layout MATCHes. */
     u8 *work = MEMBER(u8 *, task, SdkTask, work);
     s32 pathIndex = ((CmbCardSlot *)(work + cardIndex * 0x84 + 0xC))->pathCount;
-    u8 *pathBase = cmbAddPtrRev((u32)work, (u32)(pathIndex * 0xC));
+    u8 *pathBase = byteAddressAdd((u32)(pathIndex * 0xC), (u8 *)((u32)work));
     ((CmbCardPathPoint *)(pathBase + cardIndex * 0x84 + 0x2C))->position = position;
     ((CmbCardPathPoint *)(pathBase + cardIndex * 0x84 + 0x2C))->duration = duration;
     ((CmbCardSlot *)(work + cardIndex * 0x84 + 0xC))->flags |= 8;
@@ -2057,6 +2061,7 @@ void cmbCardEffSetSpriteValue(u8 *task, u16 delay) {
 /* Build the channel gradient in its own value scope. This genuine inline
  * color constructor preserves the channel/base lifetimes without sharing the
  * controller's handle and index temporaries. */
+/* Build the five-sprite palette from three independently clamped color channels. */
 static inline FclDrawColor cmbFiveSpriteColor(s32 base)
 {
     u8 red;

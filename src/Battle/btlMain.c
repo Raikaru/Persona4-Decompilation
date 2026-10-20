@@ -30,7 +30,6 @@ typedef struct BtlUnitAlphaWork {
 } BtlUnitAlphaWork;
 
 
-
 extern u32 btlCountUnitRecords(void);
 extern u32 btlSoundIsPlaybackActive(void);
 extern void btlSoundResetBattleChannels(void);
@@ -157,7 +156,6 @@ extern void btlMainEvalSlerpRotation(u8* curve, f32* rotation, f32 time);
 extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
 
 
-
 /* Finish battle shutdown once both unit records and sound playback are drained, then clear the active
  * flag. */
 // FUN_001B5E60
@@ -174,7 +172,6 @@ u32 btlMainExitUpdate(void* work)
 
     return 0;
 }
-
 
 
 /* Create a field-color fade packet from two packed RGBA multipliers and a frame duration. */
@@ -304,7 +301,6 @@ BtlPacket* btlCreateTimingPacket(u32 value)
     ((BtlMainLerpWork *)packet->workData)->totalFrames = value;
     return packet;
 }
-
 
 
 /* measured: opt_loop_invariants on hoists the unit-loop byte constants into the retail preheader registers. */
@@ -559,7 +555,6 @@ BtlPacket* btlMainCreateColorWorkPacket(s32 lightColor, s32 ambientColor, s32 fo
 }
 
 
-
 /* The five-vector work record matches the constructor's 0x5C allocation.
  * Both alpha contributions are weighted before their sum, preserving the
  * retail multiply-accumulate chain and the rounding constants' lifetimes. */
@@ -575,7 +570,8 @@ typedef struct BtlMainFadeWork
     u16 flags;
 } BtlMainFadeWork;
 
-static inline void btlMainColorToV4d(RwV4d *out, const BtlCameraPalette *color)
+/* Normalize palette channels into the scene fade vector. */
+static inline void btlMainColorToVector(RwV4d *out, const BtlCameraPalette *color)
 {
     out->x = color->red * (1.0f / 255.0f);
     out->y = color->green * (1.0f / 255.0f);
@@ -655,7 +651,7 @@ u32 btlMainUpdateFade(void *workRaw)
             }
         }
     }
-    btlMainColorToV4d(&target, &D_007635C8);
+    btlMainColorToVector(&target, &D_007635C8);
     if (work->currentFrame < work->totalFrames) {
         ratio = (f32)work->currentFrame / (f32)work->totalFrames;
         inv = 1.0f - ratio;
@@ -767,7 +763,7 @@ u32 btlMainUpdateFade(void *workRaw)
         *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->list4.first = *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->savedList4.first;
         *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->list4.second = *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->savedList4.second;
         if ((work->flags & 2) == 0) {
-            btlMainColorToV4d(&tmp, &iGpffffb45c);
+            btlMainColorToVector(&tmp, &iGpffffb45c);
             {
                 u32 group;
                 u8 *unit;
@@ -801,7 +797,6 @@ BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
     ((BtlMainFadeWork *)work)->flags = mode;
     return packet;
 }
-
 
 
 /* Snapshot sky tint on the first frame and blend toward the packet color until its duration expires. */
@@ -935,7 +930,6 @@ BtlPacket* btlMainCreateColorFadePacket(s32 arg)
     ((BtlMainColorFadeWork *)packet->workData)->totalFrames = arg;
     return packet;
 }
-
 
 
 typedef struct BtlUnit BtlUnit;
@@ -1098,7 +1092,6 @@ BtlPacket* btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u
 }
 
 
-
 /* Raise drawable unit alpha to the fade threshold unless the battle transition guard blocks updates.
  * Measured: both MEMBER timer accesses differ in access-site, local-pointer and array forms. */
 // FUN_001B9E50
@@ -1178,7 +1171,6 @@ BtlPacket* btlMainCreateColorSetPacket(s32 arg)
 }
 
 
-
 /* Append an optional position/quaternion to the four-key ring and mirror position into the spline.
  * Measured: direct curveKeys addressing changes MATCH; retain integer-address copies and raw ring
  * writes. */
@@ -1236,7 +1228,6 @@ u32 btlMainCurveAppendKeyframe(u16 *curve, f32 *position, f32 *rotation)
     curve[0x3b]++;
     return 1;
 }
-
 
 
 /* Reset curve mode, ring counters and time, then seed the first position/quaternion. Raw ring writes
@@ -1301,7 +1292,6 @@ void btlMainCurveReset(u16 *curve, f32 *pose)
         curve[0x3b]++;
     }
 }
-
 
 
 /* Seed four keys from two endpoint poses and their one-third/two-third interpolants. Measured: typed
@@ -1475,7 +1465,6 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
         curve[0x3b]++;
     }
 }
-
 
 
 /* Three poses form four keys: first, two-thirds toward the middle,
@@ -1955,7 +1944,6 @@ void btlMainEvalLinearPosition(u8* curve, f32* position, f32 time)
 }
 
 
-
 /* Select neighboring ring quaternions and blend them using the prepared spherical/linear mode and sine
  * approximation. */
 // FUN_001BB9B0
@@ -2085,7 +2073,6 @@ has_frame:
 }
 
 
-
 /* Advance time, consume complete key intervals, and wrap the four-key read index.
  * Measured: MEMBER ring writes differ in access-site, local-pointer and array forms. */
 // FUN_001BBD80
@@ -2135,7 +2122,6 @@ u32 btlCameraAdvanceKeyframes(u8* curveWork, f32 deltaTime)
     result = 1;
     return result;
 }
-
 
 
 /* Convert seconds to the camera frame-duration convention and select the eased transition mode. Raw

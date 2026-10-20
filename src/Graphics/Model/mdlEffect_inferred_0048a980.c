@@ -67,7 +67,8 @@ typedef struct EffectPackedOpacityKeys {
     f32 fadeInFraction;
     f32 fadeOutFraction;
 } EffectPackedOpacityKeys;
-static inline f32 effect_color_opacity(s32 frame, s32 duration, s32 fadeIn, s32 fadeOut, f32 fullOpacity)
+/* Evaluate the fade-in, full-opacity plateau and fade-out portions of a color key. */
+static inline f32 mdlEffectColorOpacity(s32 frame, s32 duration, s32 fadeIn, s32 fadeOut, f32 fullOpacity)
 {
     if (frame < fadeIn) {
         return (f32)frame / (f32)fadeIn;
@@ -333,7 +334,7 @@ s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 du
     {
         s32 fadeIn = (s32)(opacityKeys->fadeInFraction * durationFloat);
         s32 fadeOut = (s32)(opacityKeys->fadeOutFraction * durationFloat);
-        opacity = effect_color_opacity(frame, duration, fadeIn, fadeOut, opacity);
+        opacity = mdlEffectColorOpacity(frame, duration, fadeIn, fadeOut, opacity);
     }
     baseAlpha = (s32)opacityKeys->alpha;
     alphaFloat = (f32)(u32)baseAlpha;

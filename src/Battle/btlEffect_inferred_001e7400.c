@@ -6,6 +6,7 @@
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
@@ -33,10 +34,7 @@ extern s32 datCalcMaxHp();
 extern s64 scrGetParamInt();
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 extern s32 datCalcGetHp();
 extern u16 datCalcMaxSp();
 extern s32 datCalcGetSp();
@@ -69,7 +67,6 @@ extern u8 *btlActionGetQueueSecond(void);
 extern u32 datCalcRandomBelow(u32 limit);
 
 
-
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 D_00881400[];
@@ -96,7 +93,8 @@ extern u8 *iGpffffb42c;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001e7400-001e8a80 */
 
-static inline u16 p4_formation_get_opposing_genus(u32 unit)
+/* Return the opposite side selector for the action actor. */
+static inline u16 btlEffectGetOpposingGenus(u32 unit)
 {
     u32 side;
     if (((BtlAction *)unit)->unit->genus != 0)
@@ -221,7 +219,7 @@ s32 btlEffectScriptPickRandomHighestOpposingUnit(void)
     u32 desiredValue;
 
     unit = scrGetAiState();
-    desired = p4_formation_get_opposing_genus((u32)unit);
+    desired = btlEffectGetOpposingGenus((u32)unit);
     btlEffectCollectTargetUnits((u32)unit, &candidates, 2, 0, 0);
     highest = 0;
     selectedCount = 0;
@@ -531,7 +529,7 @@ s32 btlEffectScriptPickRandomCandidate(void) {
         if (count == 1) {
             scrSetReturnInt((s32)((BtlAction *)(((BtlAction *)(work))->targets[0]))->id | 0x80000000);
         } else {
-            scrSetReturnInt((s32)((BtlAction *)(((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
+            scrSetReturnInt((s32)((BtlAction *)(((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0]))->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -558,7 +556,7 @@ s32 btlEffectScriptPickHansyaUnit(void) {
             if (flags & 2) {
                 result = btlAICommandPickUnitByHpWeight(work);
             } else {
-                result = ((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
+                result = ((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
             }
             scrSetReturnInt((s32)((BtlAction *)result)->id | 0x80000000);
         }
@@ -587,7 +585,7 @@ s32 btlEffectScriptPickKyusyuUnit(void) {
             if (flags & 2) {
                 result = btlAICommandPickUnitByHpWeight(work);
             } else {
-                result = ((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
+                result = ((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
             }
             scrSetReturnInt((s32)((BtlAction *)result)->id | 0x80000000);
         }
@@ -616,7 +614,7 @@ s32 btlEffectScriptPickMukouUnit(void) {
             if (flags & 2) {
                 result = btlAICommandPickUnitByHpWeight(work);
             } else {
-                result = ((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
+                result = ((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
             }
             scrSetReturnInt((s32)((BtlAction *)result)->id | 0x80000000);
         }
@@ -645,7 +643,7 @@ s32 btlEffectScriptPickTaiseiUnit(void) {
             if (flags & 2) {
                 result = btlAICommandPickUnitByHpWeight(work);
             } else {
-                result = ((BtlAction *)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
+                result = ((BtlAction *)(byteAddressAdd((u32)datCalcRandomBelow(count) * 4, work)))->targets[0];
             }
             scrSetReturnInt((s32)((BtlAction *)result)->id | 0x80000000);
         }

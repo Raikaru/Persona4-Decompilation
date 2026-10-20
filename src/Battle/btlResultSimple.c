@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "include_asm.h"
 #include "member_access.h"
 #include "kwln_task_internal.h"
@@ -50,7 +51,7 @@ void PrimAppendNode(void *list, void *node);
 extern u32 D_00795F20[];
 s32 btlResultSimpleStepPhase(u8 *task);
 s32 btlShuffleOverlayIdle(void);
-static inline u32 addBase(u32 base, u32 index) { return base + index; }
+
 extern char iGpffffa5b8;
 extern u8 *iGpffffa5a0[2];
 
@@ -571,11 +572,8 @@ s32 btlResultSimpleUpdate(u8 *task) {
 }
 
 
-/* Preserve the range-then-sample operand order of the native product. */
-static inline f32 resultParticleProduct(f32 range, f32 sample)
-{
-    return range * sample;
-}
+/* measured: the shared product keeps range before sample in the native mul.s operands. */
+
 
 /* Native b210 O2: 1108/1120 bytes, seventeen resolved relocations and
  * twelve zero alignment bytes. Update and draw the five result-screen
@@ -618,7 +616,7 @@ void btlResultSimpleInitAnimRecords(u8 *work)
                 minimum = style->minimumAmplitude;
                 random = RpRandom();
                 amount = (f32)(random & 0xFFF);
-                amount = resultParticleProduct(style->maximumAmplitude - minimum, amount);
+                amount = operandOrderMultiply(style->maximumAmplitude - minimum, amount);
                 /* The low twelve random bits select a fraction in [0, 1). */
                 particle->amplitude = minimum + amount / 4096.0f;
                 particle->age = 0;
@@ -1123,14 +1121,14 @@ void btlResultSimpleTaskDestroy(u8 *unusedTask) {
         p->archiveAddress = 0;
     }
     for (i = 0; i < 3; i++) {
-        s32 *el = (s32 *)(addBase((u32)p, (u32)(i * 4)) + 0x400);
+        s32 *el = (s32 *)((((u32)p) + ((u32)(i * 4))) + 0x400);
         if (*el != 0) {
             sdkSpriteRelease((void *)*el);
             *el = 0;
         }
     }
     for (j = 0; j < 0x2A; j++) {
-        s32 *el = (s32 *)(addBase((u32)p, (u32)(j * 4)) + 0x414);
+        s32 *el = (s32 *)((((u32)p) + ((u32)(j * 4))) + 0x414);
         if (*el != 0) {
             sdkSpriteFreeNode((void *)*el);
             *el = 0;
