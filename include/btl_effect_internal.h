@@ -207,7 +207,14 @@ typedef struct BtlBattleState {
     u8 pad318[0xA70 - 0x318];
     s16 unkA70;
     s16 unkA72;
-    u8 padA74[0xB4C - 0xA74];
+    union {
+        u8 padA74[0xB4C - 0xA74];
+        struct {
+            s32 cameraPartyOccupancy[4]; /* 0xA74: formation slot reservations */
+            s32 cameraEnemyOccupancy[5]; /* 0xA84 */
+            u8 padA98[0xB4C - 0xA98];
+        };
+    };
     u32 cutinFlags;                /* 0xB4C */
     u16 cutinKind;                 /* 0xB50 */
     u8 padB52[2];
@@ -284,6 +291,10 @@ typedef struct BtlBattleState {
     u8 padE84[4];
 } BtlBattleState;
 /* The embedded work must not move any of the established battle fields. */
+typedef char BtlCameraPartyOccupancyOffsetCheck[
+    (u32)&((BtlBattleState *)0)->cameraPartyOccupancy == 0xA74 ? 1 : -1];
+typedef char BtlCameraEnemyOccupancyOffsetCheck[
+    (u32)&((BtlBattleState *)0)->cameraEnemyOccupancy == 0xA84 ? 1 : -1];
 typedef char BtlBattleBossOffsetCheck[
     (u32)&((BtlBattleState *)0)->boss == 0xB98 ? 1 : -1];
 typedef char BtlBattleBossCueOffsetCheck[
